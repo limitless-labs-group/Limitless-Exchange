@@ -34,7 +34,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
       market?.outcomeTokens[0]
     } ${sharesCost?.[0].toFixed(1) ?? 0}% | ${market?.outcomeTokens[1]} ${
       sharesCost?.[1].toFixed(1) ?? 0
-    }%\nMake your bet on ${window.location.href}`
+    }%\nMake your bet on ${marketURI}`
   )
 
   return (
