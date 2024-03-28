@@ -2,7 +2,7 @@ import { Button, IModal, Input, Modal } from '@/components'
 import { defaultChain } from '@/constants'
 import { useBalanceService } from '@/services'
 import { colors } from '@/styles'
-import { NumberUtil } from '@/utils'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 import { HStack, Heading, InputGroup, InputLeftElement, Stack } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { FaDollarSign } from 'react-icons/fa'
@@ -33,9 +33,9 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
           <Heading fontSize={'15px'}>Address on {defaultChain.name} network</Heading>
 
           <Input
-            fontSize={{ sm: '12px', md: '15px' }}
+            fontSize={{ sm: '12px', md: '14px' }}
             pr={0}
-            placeholder={zeroAddress}
+            placeholder={truncateEthAddress(zeroAddress)}
             value={addressToWithdraw}
             onChange={(e) => setAddressToWithdraw(e.target.value)}
           />
