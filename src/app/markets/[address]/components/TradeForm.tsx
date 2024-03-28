@@ -49,36 +49,36 @@ export const TradeForm = ({ ...props }: StackProps) => {
           pos={'relative'}
           bg={'none'}
           variant={'unstyled'}
-          color={strategy == 'Buy' ? 'brand' : 'fontLight'}
           borderRadius={0}
           minW={'unset'}
           onClick={() => setStrategy('Buy')}
         >
-          <Text>Buy</Text>
+          <Text fontWeight={strategy == 'Buy' ? 'bold' : 'nornal'}>Buy</Text>
           <Box
             pos={'absolute'}
             w={'full'}
             h={'3px'}
-            bg={strategy == 'Buy' ? 'brand' : 'transparent'}
+            bg={'black'}
             bottom={0}
+            visibility={strategy == 'Buy' ? 'visible' : 'hidden'}
           />
         </Button>
         <Button
           pos={'relative'}
           bg={'none'}
           variant={'unstyled'}
-          color={strategy == 'Sell' ? 'brand' : 'fontLight'}
           borderRadius={0}
           minW={'unset'}
           onClick={() => setStrategy('Sell')}
         >
-          <Text>Sell</Text>
+          <Text fontWeight={strategy == 'Sell' ? 'bold' : 'nornal'}>Sell</Text>
           <Box
             pos={'absolute'}
             w={'full'}
             h={'3px'}
-            bg={strategy == 'Sell' ? 'brand' : 'transparent'}
+            bg={'black'}
             bottom={0}
+            visibility={strategy == 'Sell' ? 'visible' : 'hidden'}
           />
         </Button>
       </HStack>
@@ -259,16 +259,12 @@ export const TradeForm = ({ ...props }: StackProps) => {
 
         <VStack w={'full'} spacing={0}>
           <HStack w={'full'} justifyContent={'space-between'}>
-            <Text color={'fontLight'} fontSize={'15px'}>
-              Avg price
-            </Text>
+            <Text color={'fontLight'}>Avg price</Text>
             <Text textAlign={'right'}>{Number(shareCost ?? 0)}¢</Text>
           </HStack>
           {strategy == 'Buy' && (
             <HStack w={'full'} justifyContent={'space-between'}>
-              <Text color={'fontLight'} fontSize={'15px'}>
-                Potential return
-              </Text>
+              <Text color={'fontLight'}>Potential return</Text>
               <Text color={'green'} fontWeight={'bold'} textAlign={'right'}>
                 ${Number(amount ?? 0)} ({Number(roi ?? 0)}%)
               </Text>
