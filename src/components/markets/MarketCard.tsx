@@ -93,7 +93,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
                 borderBottomEndRadius={0}
                 textAlign={'center'}
                 whiteSpace={'nowrap'}
-                w={`${sharesCost?.[0]}%`}
+                w={`${sharesCost?.[0] ?? 50}%`}
               >
                 {market?.outcomeTokens[0] ?? 'Yes'} {sharesCost?.[0].toFixed() ?? 0}¢
               </Text>
@@ -107,7 +107,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
                 borderBottomStartRadius={0}
                 textAlign={'center'}
                 whiteSpace={'nowrap'}
-                w={`${sharesCost?.[1]}%`}
+                w={`${sharesCost?.[1] ?? 50}%`}
               >
                 {market?.outcomeTokens[1] ?? 'No'} {sharesCost?.[1].toFixed() ?? 0}¢
               </Text>
