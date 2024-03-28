@@ -8,7 +8,7 @@ import { Flex, HStack, Stack, StackProps, Text, useClipboard } from '@chakra-ui/
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { FaArrowDown } from 'react-icons/fa'
-import { FaDollarSign, FaLink, FaSackDollar, FaXTwitter } from 'react-icons/fa6'
+import { FaFileInvoiceDollar, FaLink, FaTrophy, FaXTwitter } from 'react-icons/fa6'
 
 interface IPortfolioMarketCard extends StackProps {
   marketStats: HistoryMarketStats
@@ -94,7 +94,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
           <HStack w={'full'} justifyContent={'space-between'} lineHeight={'18px'}>
             <HStack spacing={1}>
               <Flex p={2} bg={'bgLight'} borderRadius={borderRadius}>
-                <FaArrowDown size={'15px'} />
+                <FaArrowDown size={'15px'} fill={colors.fontLight} />
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Outcome</Text>
@@ -108,7 +108,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
 
             <HStack spacing={1}>
               <Flex p={2} bg={'bgLight'} borderRadius={borderRadius}>
-                <FaDollarSign size={'15px'} />
+                <FaFileInvoiceDollar size={'15px'} fill={colors.fontLight} />
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Bet</Text>
@@ -118,7 +118,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
 
             <HStack spacing={1}>
               <Flex p={2} bg={'bgLight'} borderRadius={borderRadius}>
-                <FaSackDollar size={'15px'} />
+                <FaTrophy size={'15px'} fill={colors.fontLight} />
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Max win</Text>
