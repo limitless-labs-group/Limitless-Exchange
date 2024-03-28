@@ -1,0 +1,11 @@
+.next
+public
+node_modules
+yarn.lock
+package-lock.json
+**/*.test.js
+**/*.test.ts
+dist
+build
+coverage
+src/contracts/generated.ts
