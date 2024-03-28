@@ -56,10 +56,16 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
         borderRadius={borderRadius}
         borderEndStartRadius={0}
         borderEndEndRadius={0}
+        onClick={() => router.push(marketURI)}
       />
 
       <Stack alignItems={'start'} p={3}>
-        <Heading fontSize={'18px'} lineHeight={'24px'} _hover={{ textDecor: 'underline' }}>
+        <Heading
+          fontSize={'18px'}
+          lineHeight={'24px'}
+          _hover={{ textDecor: 'underline' }}
+          onClick={() => router.push(marketURI)}
+        >
           {market?.title ?? 'Noname market'}
         </Heading>
 
@@ -94,6 +100,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
                 textAlign={'center'}
                 whiteSpace={'nowrap'}
                 w={`${sharesCost?.[0] ?? 50}%`}
+                minW={'fit-content'}
               >
                 {market?.outcomeTokens[0] ?? 'Yes'} {sharesCost?.[0].toFixed() ?? 0}¢
               </Text>
@@ -108,6 +115,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
                 textAlign={'center'}
                 whiteSpace={'nowrap'}
                 w={`${sharesCost?.[1] ?? 50}%`}
+                minW={'fit-content'}
               >
                 {market?.outcomeTokens[1] ?? 'No'} {sharesCost?.[1].toFixed() ?? 0}¢
               </Text>
