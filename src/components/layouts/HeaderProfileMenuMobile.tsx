@@ -28,9 +28,9 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
     <Popover placement={'bottom-end'} trigger={'click'} isLazy>
       <PopoverTrigger>
         <Flex h={'full'}>
-          <Button bg={'none'} h={'full'} alignItems={'center'} pr={0} {...props}>
+          <Button bg={'none'} h={'full'} alignItems={'center'} {...props}>
             <Flex justifyContent={'end'}>
-              <FaBars size={'22px'} fill={colors.fontLight} />
+              <FaBars size={'18px'} fill={colors.fontLight} />
             </Flex>
           </Button>
         </Flex>
@@ -39,13 +39,8 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
         <PopoverContent bg={'bg'} border={`1px solid ${colors.border}`} w={'250px'} p={3}>
           <Stack>
             {!!email && (
-              <HStack
-                w={'full'}
-                justifyContent={'center'}
-                alignItems={'center'}
-                color={'fontLight'}
-              >
-                <FaRegUserCircle size={'15px'} />
+              <HStack w={'full'} px={4} alignItems={'center'} color={'fontLight'}>
+                <FaRegUserCircle size={'16px'} />
                 <Text>{email}</Text>
               </HStack>
             )}
@@ -65,7 +60,6 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
             <Button
               colorScheme={'brand'}
               h={'40px'}
-              fontSize={'15px'}
               justifyContent={'start'}
               onClick={() => router.push('/wallet')}
             >

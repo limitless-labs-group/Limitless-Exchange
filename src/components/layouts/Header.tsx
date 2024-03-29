@@ -35,7 +35,7 @@ export const Header = ({ ...props }: FlexProps) => {
       {...props}
     >
       <HStack spacing={8} h={'full'} alignItems={'center'}>
-        <Heading fontSize={'16px'} onClick={() => router.push('/')} cursor={'pointer'}>
+        <Heading fontSize={'18px'} onClick={() => router.push('/')} cursor={'pointer'}>
           <HStack h={'full'} alignItems={'center'}>
             <Image
               src={'/assets/images/logo.svg'}

@@ -20,12 +20,12 @@ const WalletPage = () => {
 
   return (
     <MainLayout>
-      <Flex gap={'24px'} flexDir={{ sm: 'column-reverse', md: 'row' }}>
+      <Flex gap={{ sm: 2, md: 6 }} flexDir={{ sm: 'column-reverse', md: 'row' }}>
         <Stack flexBasis={'66%'}>
           <DepositByQrCard />
           {defaultChain.testnet && <DepositByMintCard />}
         </Stack>
-        <Stack flexBasis={'33%'} spacing={{ sm: '24px', md: 2 }}>
+        <Stack flexBasis={'33%'}>
           <BalanceCard />
           <Button
             colorScheme={'transparent'}

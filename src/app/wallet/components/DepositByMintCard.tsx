@@ -38,7 +38,7 @@ export const DepositByMintCard = ({ ...props }: StackProps) => {
 
       <HStack w={'full'} spacing={4}>
         <Avatar name='1' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} />
-        <Text>
+        <Text wordBreak={'break-word'}>
           Fund your Limitless account <b>{account}</b> with {defaultChain.name} <b>ETH</b>. You can
           request it on{' '}
           <Link href='https://app.optimism.io/faucet' color={'brand'} isExternal>
