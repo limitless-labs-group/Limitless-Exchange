@@ -191,7 +191,7 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
             >
               <HStack>
                 <FaSignOutAlt size={'16px'} fill={colors.fontLight} />
-                <Text>Sing Out</Text>
+                <Text>Sign Out</Text>
               </HStack>
             </Button>
           </Stack>
