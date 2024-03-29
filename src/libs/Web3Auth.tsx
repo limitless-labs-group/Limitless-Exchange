@@ -42,7 +42,7 @@ export const web3Auth = new Web3Auth({
     theme: { primary: '#000' },
     logoLight: 'https://limitless-web.vercel.app/assets/images/logo.svg',
     useLogoLoader: true,
-    uxMode: window?.innerWidth <= 800 ? 'redirect' : 'popup',
+    uxMode: global?.window && window.innerWidth <= 800 ? 'redirect' : 'popup',
   },
   web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
   // enableLogging: true,
