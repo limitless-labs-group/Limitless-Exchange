@@ -1,5 +1,5 @@
-import { collateralToken, defaultChain, subgraphURI } from '@/constants'
-import { useEtherspot } from '@/libs'
+import { collateralToken, defaultChain, markets, subgraphURI } from '@/constants'
+import { useEtherspot } from '@/services'
 import { Address, Market } from '@/types'
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
@@ -83,7 +83,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   const { data: activeMarkets, refetch: getActiveMarkets } = useQuery({
     queryKey: ['activeMarkets', trades],
     queryFn: async () => {
-      const _activeMarkets: HistoryMarketStats[] = []
+      let _activeMarkets: HistoryMarketStats[] = []
       trades?.forEach((trade) => {
         const existingMarket = _activeMarkets.find(
           (marketStats) =>
@@ -101,6 +101,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
           _activeMarkets.push(market)
         }
       })
+      _activeMarkets = _activeMarkets.filter((market) => Number(market.investedUsd) > 0)
       return _activeMarkets
     },
   })
@@ -110,25 +111,33 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const balanceUsd = useMemo(() => {
     let _balanceUsd = 0
-    trades?.forEach((trade) => {
-      if (trade.market.closed) {
+    activeMarkets?.forEach((marketStats) => {
+      if (
+        markets.find(
+          (market) => market.address[defaultChain.id].toLowerCase() == marketStats.market.id
+        )?.closed
+      ) {
         return
       }
-      _balanceUsd += Number(trade.netCostUsd ?? 0)
+      _balanceUsd += Number(marketStats.investedUsd ?? 0)
     })
     return _balanceUsd
-  }, [trades])
+  }, [activeMarkets])
 
   const balanceShares = useMemo(() => {
     let _balanceShares = 0
-    trades?.forEach((trade) => {
-      if (trade.market.closed) {
+    activeMarkets?.forEach((marketStats) => {
+      if (
+        markets.find(
+          (market) => market.address[defaultChain.id].toLowerCase() == marketStats.market.id
+        )?.closed
+      ) {
         return
       }
-      _balanceShares += Number(trade.sharesAmount ?? 0)
+      _balanceShares += Number(marketStats.sharesAmount ?? 0)
     })
     return _balanceShares
-  }, [trades])
+  }, [activeMarkets])
 
   const getMarketSharesBalance = useCallback(
     async (market: Market, outcomeId: number) => {

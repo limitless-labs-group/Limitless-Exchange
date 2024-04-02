@@ -4,7 +4,7 @@ import { base, baseSepolia, goerli } from 'viem/chains'
 export const markets: Market[] = [
   {
     address: {
-      [base.id]: '0x142a8315b74a660a4fe2b75b0878d769a2606c81',
+      [base.id]: '0x6C53D4Fd4ABac77EeDb3CE862b8a6C4143d66Ca6',
       [baseSepolia.id]: '0xD038ACB7543c8B0cc1E69531d9a4b2FE83Efdf43',
       [goerli.id]: '0x781083809e9cD7218e0796760e938D3320D51eF5',
     },
@@ -23,7 +23,7 @@ export const markets: Market[] = [
   },
   {
     address: {
-      [base.id]: '0x5c2015b843e31a025df4951e290239d66d5d03aa',
+      [base.id]: '0x25da81cF41e5292203d46311635FF59D2F87bE3E',
       [baseSepolia.id]: '0x29D46Df636165B0f8dff998893138780bCc9058D',
       [goerli.id]: '0xdc1FC880012d044526eDfec9a2217AFBccF82D09',
     },
@@ -43,7 +43,7 @@ export const markets: Market[] = [
   },
   {
     address: {
-      [base.id]: '0xbf4b4f41a3a06cb5135530b663cc1c36441d654e',
+      [base.id]: '0x5cD45975Cd6F0EeE9b92b82862f682BeC50421bE',
       [baseSepolia.id]: '0x9c873d93F4d75CC2AC6203E67dd17F26E7382ba8',
     },
     outcomeTokens: ['Yes', 'No'],
@@ -60,7 +60,7 @@ export const markets: Market[] = [
   },
   {
     address: {
-      [base.id]: '0xccf0c57236561418142ca826995d25c250af37cd',
+      [base.id]: '0xD2227c9fF2d85EBf3ec15E19E5E4F2eba3e03e76',
       [baseSepolia.id]: '0x60E8976A4CAa876fc09363132c5Fa36bDF380BDB',
     },
     outcomeTokens: ['Yes', 'No'],
@@ -77,7 +77,7 @@ export const markets: Market[] = [
   },
   {
     address: {
-      [base.id]: '0xe7b894cc9f5f44fe3180d4a176e3cdeee20f4312',
+      [base.id]: '0xb1F86e3f6e9c85631D7A012Dd08Fdf4A4746B198',
       [baseSepolia.id]: '0xE8602A7dCFD2F5726Db8F6D351b49CF4543e62f8',
     },
     outcomeTokens: ['Yes', 'No'],

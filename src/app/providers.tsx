@@ -1,17 +1,12 @@
 'use client'
 
 import * as React from 'react'
-import {
-  AmplitudeProvider,
-  ChakraProvider,
-  EtherspotProvider,
-  QueryProvider,
-  WagmiProvider,
-  Web3AuthProvider,
-} from '@/libs'
+import { ChakraProvider, QueryProvider, WagmiProvider, Web3AuthProvider } from '@/providers'
 import {
   AccountProvider,
+  AmplitudeProvider,
   BalanceServiceProvider,
+  EtherspotProvider,
   HistoryServiceProvider,
   LimitlessApiProvider,
   TradingServiceProvider,

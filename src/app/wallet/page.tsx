@@ -23,7 +23,9 @@ const WalletPage = () => {
       <Flex gap={{ sm: 2, md: 6 }} flexDir={{ sm: 'column-reverse', md: 'row' }}>
         <Stack flexBasis={'66%'}>
           <DepositByQrCard />
-          {defaultChain.testnet && <DepositByMintCard />}
+          {/* {defaultChain.testnet && */}
+          <DepositByMintCard />
+          {/* } */}
         </Stack>
         <Stack flexBasis={'33%'}>
           <BalanceCard />

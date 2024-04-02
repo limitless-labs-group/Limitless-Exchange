@@ -48,7 +48,7 @@ export const chakraTheme = ChakraTheme({
         bg: `${colors.bg} !important`,
         color: `${colors.font} !important`,
         border: 'none !important',
-        borderRadius: `20px !important`,
+        borderRadius: `${borderRadius} !important`,
       },
       '.w3a-header': {
         paddingTop: '10px !important',

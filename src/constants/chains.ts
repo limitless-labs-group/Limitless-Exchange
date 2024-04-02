@@ -1,3 +1,3 @@
-import { baseSepolia } from 'viem/chains'
+import { base } from 'viem/chains'
 
-export const defaultChain = baseSepolia
+export const defaultChain = base

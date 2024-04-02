@@ -1,7 +1,6 @@
 import { collateralToken, conditionalTokensAddress, defaultChain } from '@/constants'
 import { conditionalTokensABI, erc20ABI, marketMakerABI } from '@/contracts'
-import { publicClient, useWeb3Auth } from '@/libs'
-import { useAccount } from '@/services'
+import { publicClient, useWeb3Auth } from '@/providers'
 import { Address } from '@/types'
 import { EtherspotBundler, PrimeSdk, Web3WalletProvider } from '@etherspot/prime-sdk'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common/utils'

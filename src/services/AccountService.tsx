@@ -1,5 +1,5 @@
-import { PropsWithChildren, createContext, useCallback, useContext, useMemo } from 'react'
-import { useAmplitude, useEtherspot, useWeb3Auth } from '@/libs'
+import { PropsWithChildren, createContext, useCallback, useContext } from 'react'
+import { useWeb3Auth } from '@/providers'
 import { useEffect, useState } from 'react'
 import {
   useAccount as useWagmi,
@@ -8,6 +8,7 @@ import {
 } from 'wagmi'
 import { Address } from '@/types'
 import { defaultChain } from '@/constants'
+import { useAmplitude, useEtherspot } from '@/services'
 
 interface IAccountContext {
   isLoggedIn: boolean
