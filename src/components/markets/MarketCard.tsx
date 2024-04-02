@@ -60,6 +60,17 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
       />
 
       <Stack alignItems={'start'} p={3}>
+        {!children && (
+          <HStack textTransform={'uppercase'}>
+            <Text color={'green'}>
+              {market?.outcomeTokens[0] ?? 'Yes'} {sharesCost?.[0].toFixed() ?? 0}¢
+            </Text>
+            <Text color={'red'}>
+              {market?.outcomeTokens[1] ?? 'No'} {sharesCost?.[1].toFixed() ?? 0}¢
+            </Text>
+          </HStack>
+        )}
+
         <Heading
           fontSize={'18px'}
           lineHeight={'24px'}
@@ -88,7 +99,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
 
         {children ?? (
           <Stack w={'full'}>
-            <HStack fontSize={'13px'} spacing={0} w={'full'}>
+            {/* <HStack fontSize={'13px'} spacing={0} w={'full'}>
               <Text
                 p={'2px 6px'}
                 bg={'green'}
@@ -119,7 +130,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
               >
                 {market?.outcomeTokens[1] ?? 'No'} {sharesCost?.[1].toFixed() ?? 0}¢
               </Text>
-            </HStack>
+            </HStack> */}
 
             <HStack h={'33px'}>
               <Button

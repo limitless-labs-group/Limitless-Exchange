@@ -128,6 +128,16 @@ export const Header = ({ ...props }: FlexProps) => {
 
               <HStack h={'full'} spacing={4}>
                 <Button
+                  colorScheme={'brand'}
+                  h={'40px'}
+                  gap={'8px'}
+                  onClick={() => router.push('/wallet')}
+                >
+                  <FaWallet size={'16px'} />
+                  <Text>Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}</Text>
+                </Button>
+
+                <Button
                   colorScheme={'transparent'}
                   size={'sm'}
                   h={'40px'}
@@ -142,16 +152,6 @@ export const Header = ({ ...props }: FlexProps) => {
                     />
                     <Text>Portfolio</Text>
                   </HStack>
-                </Button>
-
-                <Button
-                  colorScheme={'brand'}
-                  h={'40px'}
-                  gap={'8px'}
-                  onClick={() => router.push('/wallet')}
-                >
-                  <FaWallet size={'16px'} />
-                  <Text>Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}</Text>
                 </Button>
               </HStack>
 

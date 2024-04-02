@@ -8,7 +8,7 @@ export const colors = {
   border: '#ddd',
   font: '#0F172A',
   fontLight: '#888',
-  green: '#48cb9b',
+  green: '#48CB9A',
   red: '#EF5D5D',
   black: '#0F172A',
 }
