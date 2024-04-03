@@ -10,11 +10,15 @@ import { Address } from '@/types'
 import { defaultChain } from '@/constants'
 import { useAmplitude, useEtherspot } from '@/services'
 
-interface IAccountContext {
+export interface IAccountContext {
   isLoggedIn: boolean
   account?: Address
-  web3WalletAddress?: Address
   email?: string
+  accountMetadata: {
+    email?: string
+    web3WalletAddress?: Address
+    smartWalletAddress?: Address
+  }
 }
 
 const AccountContext = createContext({} as IAccountContext)
@@ -34,6 +38,12 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { smartWalletAddress: account } = useEtherspot()
   const [email, setEmail] = useState<string | undefined>()
   const { address: web3WalletAddress } = useWagmi()
+
+  const accountMetadata: IAccountContext['accountMetadata'] = {
+    email,
+    smartWalletAddress: account,
+    web3WalletAddress: web3WalletAddress,
+  }
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -59,8 +69,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const contextProviderValue: IAccountContext = {
     isLoggedIn,
     account,
-    web3WalletAddress,
     email,
+    accountMetadata,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>
