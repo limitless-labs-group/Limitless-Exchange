@@ -1,7 +1,8 @@
 import { Button, Modal } from '@/components'
 import { collateralToken, defaultChain } from '@/constants'
-import { useAccount } from '@/services'
+import { useAccount, useAmplitude } from '@/services'
 import { borderRadius, colors } from '@/styles'
+import { CopiedEvent } from '@/types'
 import { truncateEthAddress } from '@/utils'
 import {
   Avatar,
@@ -18,6 +19,7 @@ import { FaCircle, FaQrcode } from 'react-icons/fa'
 import QRCode from 'react-qr-code'
 
 export const DepositByQrCard = ({ ...props }: StackProps) => {
+  const { trackCopied } = useAmplitude()
   const { account } = useAccount()
   const { isOpen: isOpenQR, onOpen: onOpenQR, onClose: onCloseQR } = useDisclosure()
   const { onCopy, hasCopied } = useClipboard(account ?? '')
@@ -75,7 +77,10 @@ export const DepositByQrCard = ({ ...props }: StackProps) => {
             justifyContent={'start'}
             color={'grey'}
             fontWeight={'normal'}
-            onClick={onCopy}
+            onClick={() => {
+              onCopy()
+              trackCopied(CopiedEvent.WalletAddressCopied, 'Deposit')
+            }}
           >
             <Text display={{ sm: 'none', md: 'contents' }}>{account}</Text>
             <Text display={{ sm: 'contents', md: 'none' }}>{truncateEthAddress(account)}</Text>
