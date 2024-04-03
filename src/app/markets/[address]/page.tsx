@@ -4,11 +4,17 @@ import { MainLayout } from '@/components'
 import { MarketMetadata, TradeForm } from '@/app/markets/[address]/components'
 import { Flex, Spacer } from '@chakra-ui/react'
 import { useEffect, useMemo } from 'react'
-import { useTradingService } from '@/services'
+import { useAmplitude, useTradingService } from '@/services'
 import { defaultChain, markets } from '@/constants'
-import { Market } from '@/types'
+import { Market, OpenedEvent } from '@/types'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
+  const { trackOpened } = useAmplitude()
+
+  useEffect(() => {
+    trackOpened(OpenedEvent.PageOpened, 'Market Page')
+  }, [])
+
   const market: Market | null = useMemo(
     () =>
       markets.find(
