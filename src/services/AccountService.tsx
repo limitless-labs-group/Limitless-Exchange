@@ -13,6 +13,7 @@ import { useAmplitude, useEtherspot } from '@/services'
 interface IAccountContext {
   isLoggedIn: boolean
   account?: Address
+  web3WalletAddress?: Address
   email?: string
 }
 
@@ -58,6 +59,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const contextProviderValue: IAccountContext = {
     isLoggedIn,
     account,
+    web3WalletAddress,
     email,
   }
 
