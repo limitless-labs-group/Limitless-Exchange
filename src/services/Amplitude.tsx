@@ -3,23 +3,29 @@
 import { useEffect, createContext, PropsWithChildren, useContext } from 'react'
 import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
 import {
-  EventChanged,
-  EventClicked,
-  EventCopied,
-  EventLogin,
+  ChangedEvent,
+  ClickedEvent,
+  CopiedEvent,
+  LoginEvent,
   EventMetadata,
-  EventOpened,
+  OpenedEvent,
+  ChangedEventValue,
+  ClickedEventValue,
+  OpenedEventValue,
+  LoginEventValue,
+  CopiedEventValue,
 } from '@/types'
+import { useAccount } from '@/services'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 
 interface IAmplitudeContext {
   trackSignUp: ({ email, web3WalletAddress, smartWalletAddress }: ITrackSignUp) => void
-  trackChanged: <T>(event: EventChanged, metadata?: EventMetadata<T>) => void
-  trackClicked: <T>(event: EventClicked, metadata?: EventMetadata<T>) => void
-  trackOpened: <T>(event: EventOpened, metadata?: EventMetadata<T>) => void
-  trackLogin: <T>(event: EventLogin, metadata?: EventMetadata<T>) => void
-  trackCopied: <T>(event: EventCopied, metadata?: EventMetadata<T>) => void
+  trackChanged: (event: ChangedEvent, value?: ChangedEventValue) => void
+  trackClicked: (event: ClickedEvent, value?: ClickedEventValue) => void
+  trackOpened: (event: OpenedEvent, value?: OpenedEventValue) => void
+  trackLogin: (event: LoginEvent, value?: LoginEventValue) => void
+  trackCopied: (event: CopiedEvent, value?: CopiedEventValue) => void
 }
 
 const AmplitudeContext = createContext<IAmplitudeContext>({} as IAmplitudeContext)
@@ -27,6 +33,8 @@ const AmplitudeContext = createContext<IAmplitudeContext>({} as IAmplitudeContex
 export const useAmplitude = () => useContext(AmplitudeContext)
 
 export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
+  const { accountMetadata } = useAccount()
+
   useEffect(() => {
     init(AMPLITUDE_API_KEY, undefined, {
       defaultTracking: {
@@ -43,24 +51,39 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     })
   }
 
-  function trackChanged<T>(event: EventChanged, metadata?: EventMetadata<T>) {
-    amplitudeTrack(String(event), metadata)
+  function trackChanged(event: ChangedEvent, value?: ChangedEventValue) {
+    amplitudeTrack(String(event), {
+      account: accountMetadata,
+      value,
+    })
   }
 
-  function trackClicked<T>(event: EventClicked, metadata?: EventMetadata<T>) {
-    amplitudeTrack(String(event), metadata)
+  function trackClicked(event: ClickedEvent, value?: ClickedEventValue) {
+    amplitudeTrack(String(event), {
+      account: accountMetadata,
+      value,
+    })
   }
 
-  function trackOpened<T>(event: EventOpened, metadata?: EventMetadata<T>) {
-    amplitudeTrack(String(event), metadata)
+  function trackOpened(event: OpenedEvent, value?: OpenedEventValue) {
+    amplitudeTrack(String(event), {
+      account: accountMetadata,
+      value,
+    })
   }
 
-  function trackLogin<T>(event: EventLogin, metadata?: EventMetadata<T>) {
-    amplitudeTrack(String(event), metadata)
+  function trackLogin(event: LoginEvent, value?: LoginEventValue) {
+    amplitudeTrack(String(event), {
+      account: accountMetadata,
+      value,
+    })
   }
 
-  function trackCopied<T>(event: EventCopied, metadata?: EventMetadata<T>) {
-    amplitudeTrack(String(event), metadata)
+  function trackCopied(event: CopiedEvent, value?: CopiedEventValue) {
+    amplitudeTrack(String(event), {
+      account: accountMetadata,
+      value,
+    })
   }
 
   const contextProviderValue: IAmplitudeContext = {

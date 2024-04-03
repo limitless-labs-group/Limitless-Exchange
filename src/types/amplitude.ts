@@ -1,11 +1,13 @@
 /** eslint-ignore @typescript-eslint/no-empty-interface */
 
-export enum EventChanged {
+import { IAccountContext } from '@/services'
+
+export enum ChangedEvent {
   StrategyChanged = 'Strategy Changed',
   OutcomeChanged = 'Outcome Changed',
 }
 
-export enum EventClicked {
+export enum ClickedEvent {
   SupportChatClicked = 'Support Chat Clicked',
   PricePresetClicked = 'Price Preset Clicked',
   ShareClicked = 'Share Clicked',
@@ -15,20 +17,20 @@ export enum EventClicked {
   OpenCreatorProfileClicked = 'Open Creator Profile Clicked',
 }
 
-export enum EventLogin {
+export enum LoginEvent {
   LoginWithFarcaster = 'Login with Farcaster',
 }
 
-export enum EventOpened {
+export enum OpenedEvent {
   PageOpened = 'Page Opened',
   LoginWindowOpened = 'Login Window Opened',
 }
 
-export enum EventCopied {
+export enum CopiedEvent {
   WalletAddressCopied = 'Wallet Address Copied',
 }
 
-export type EventType = EventChanged | EventClicked | EventLogin | EventOpened | EventCopied
+export type EventType = ChangedEvent | ClickedEvent | LoginEvent | OpenedEvent | CopiedEvent
 
 export type EventMetadataValue =
   | StrategyChangedValue
@@ -43,11 +45,7 @@ export type EventMetadataValue =
   | WalletAddressCopiedValue
 
 export interface EventMetadata<T = EventMetadataValue> {
-  account?: {
-    email?: string
-    smartWallet?: string
-    web3?: string
-  }
+  account?: IAccountContext['accountMetadata']
   value: T
 }
 
@@ -90,3 +88,14 @@ export type LoginWithFarcasterValue =
   | 'Email/Phone'
 
 export type WalletAddressCopiedValue = 'Deposit'
+
+export type ChangedEventValue = StrategyChangedValue | OutcomeChangedValue
+export type ClickedEventValue =
+  | SupportChatClickedValue
+  | PricePresetClickedValue
+  | ShareClickedValue
+  | OpenMarketClickedValue
+  | HeaderOptionClickedValue
+export type OpenedEventValue = PageOpenedValue
+export type LoginEventValue = LoginWithFarcasterValue
+export type CopiedEventValue = WalletAddressCopiedValue
