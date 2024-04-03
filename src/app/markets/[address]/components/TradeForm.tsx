@@ -1,13 +1,15 @@
 import { Button, Input, LogInButton } from '@/components'
 import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
-import { useAccount, useBalanceService, useTradingService } from '@/services'
+import { useAccount, useAmplitude, useBalanceService, useTradingService } from '@/services'
 import { borderRadius } from '@/styles'
+import { EventChanged, StrategyChangedValue } from '@/types'
 import { NumberUtil } from '@/utils'
 import { Box, Divider, HStack, Heading, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
 
 export const TradeForm = ({ ...props }: StackProps) => {
-  const { isLoggedIn } = useAccount()
+  const { email, account, web3WalletAddress, isLoggedIn } = useAccount()
+  const { trackChanged } = useAmplitude()
   const { balanceOfSmartWallet } = useBalanceService()
   const {
     market,
@@ -51,7 +53,17 @@ export const TradeForm = ({ ...props }: StackProps) => {
           variant={'unstyled'}
           borderRadius={0}
           minW={'unset'}
-          onClick={() => setStrategy('Buy')}
+          onClick={() => {
+            setStrategy('Buy')
+            trackChanged<StrategyChangedValue>(EventChanged.StrategyChanged, {
+              account: {
+                email,
+                smartWallet: account,
+                web3: web3WalletAddress,
+              },
+              value: 'Buy selected',
+            })
+          }}
         >
           <Text fontWeight={strategy == 'Buy' ? 'bold' : 'nornal'}>Buy</Text>
           <Box
@@ -69,7 +81,17 @@ export const TradeForm = ({ ...props }: StackProps) => {
           variant={'unstyled'}
           borderRadius={0}
           minW={'unset'}
-          onClick={() => setStrategy('Sell')}
+          onClick={() => {
+            setStrategy('Sell')
+            trackChanged<StrategyChangedValue>(EventChanged.StrategyChanged, {
+              account: {
+                email,
+                smartWallet: account,
+                web3: web3WalletAddress,
+              },
+              value: 'Sell selected',
+            })
+          }}
         >
           <Text fontWeight={strategy == 'Sell' ? 'bold' : 'nornal'}>Sell</Text>
           <Box
