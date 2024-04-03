@@ -7,11 +7,12 @@ import {
 } from '@/components'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAccount } from 'wagmi'
-import { useBalanceService, useHistory } from '@/services'
+import { useAmplitude, useBalanceService, useHistory } from '@/services'
 import { NumberUtil } from '@/utils'
 import { borderRadius, colors } from '@/styles'
 import { FaGlobe, FaWallet } from 'react-icons/fa'
 import { FaBriefcase, FaTableCells, FaTableCellsLarge, FaTableColumns } from 'react-icons/fa6'
+import { OpenedEvent } from '@/types'
 
 export const Header = ({ ...props }: FlexProps) => {
   const router = useRouter()
@@ -19,6 +20,7 @@ export const Header = ({ ...props }: FlexProps) => {
   const { isConnected } = useAccount()
   const { balanceOfSmartWallet } = useBalanceService()
   const { balanceUsd: investedUsd, balanceShares } = useHistory()
+  const { trackOpened } = useAmplitude()
 
   return (
     <Flex
@@ -55,7 +57,10 @@ export const Header = ({ ...props }: FlexProps) => {
           h={'40px'}
           display={{ sm: 'none', md: 'block' }}
           fontWeight={pathname == '/' ? 'bold' : 'normal'}
-          onClick={() => router.push('/')}
+          onClick={() => {
+            router.push('/')
+            trackOpened(OpenedEvent.PageOpened, 'Explore Markets Clicked')
+          }}
         >
           <HStack>
             <FaTableCellsLarge
