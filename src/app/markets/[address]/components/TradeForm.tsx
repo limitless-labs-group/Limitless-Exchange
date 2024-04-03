@@ -3,13 +3,13 @@ import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { useAccount, useAmplitude, useBalanceService, useTradingService } from '@/services'
 import { borderRadius } from '@/styles'
-import { EventChanged, StrategyChangedValue } from '@/types'
+import { ChangedEvent, ClickedEvent } from '@/types'
 import { NumberUtil } from '@/utils'
 import { Box, Divider, HStack, Heading, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
 
 export const TradeForm = ({ ...props }: StackProps) => {
-  const { email, account, web3WalletAddress, isLoggedIn } = useAccount()
-  const { trackChanged } = useAmplitude()
+  const { isLoggedIn } = useAccount()
+  const { trackChanged, trackClicked } = useAmplitude()
   const { balanceOfSmartWallet } = useBalanceService()
   const {
     market,
@@ -55,14 +55,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
           minW={'unset'}
           onClick={() => {
             setStrategy('Buy')
-            trackChanged<StrategyChangedValue>(EventChanged.StrategyChanged, {
-              account: {
-                email,
-                smartWallet: account,
-                web3: web3WalletAddress,
-              },
-              value: 'Buy selected',
-            })
+            trackChanged(ChangedEvent.StrategyChanged, 'Buy selected')
           }}
         >
           <Text fontWeight={strategy == 'Buy' ? 'bold' : 'nornal'}>Buy</Text>
@@ -83,14 +76,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
           minW={'unset'}
           onClick={() => {
             setStrategy('Sell')
-            trackChanged<StrategyChangedValue>(EventChanged.StrategyChanged, {
-              account: {
-                email,
-                smartWallet: account,
-                web3: web3WalletAddress,
-              },
-              value: 'Sell selected',
-            })
+            trackChanged(ChangedEvent.StrategyChanged, 'Sell selected')
           }}
         >
           <Text fontWeight={strategy == 'Sell' ? 'bold' : 'nornal'}>Sell</Text>
@@ -115,7 +101,10 @@ export const TradeForm = ({ ...props }: StackProps) => {
               w={'full'}
               bg={outcomeTokenSelected == 0 ? 'green' : 'bgLight'}
               color={outcomeTokenSelected == 0 ? 'white' : 'fontLight'}
-              onClick={() => setOutcomeTokenSelected(0)}
+              onClick={() => {
+                setOutcomeTokenSelected(0)
+                trackChanged(ChangedEvent.OutcomeChanged, 'Yes')
+              }}
             >
               {market?.outcomeTokens[0] ?? 'Yes'} {sharesCost?.[0]?.toFixed(1) ?? '50.0'}¢
             </Button>
@@ -123,7 +112,10 @@ export const TradeForm = ({ ...props }: StackProps) => {
               w={'full'}
               bg={outcomeTokenSelected == 1 ? 'red' : 'bgLight'}
               color={outcomeTokenSelected == 1 ? 'white' : 'fontLight'}
-              onClick={() => setOutcomeTokenSelected(1)}
+              onClick={() => {
+                setOutcomeTokenSelected(1)
+                trackChanged(ChangedEvent.OutcomeChanged, 'No')
+              }}
             >
               {market?.outcomeTokens[1] ?? 'No'} {sharesCost?.[1]?.toFixed(1) ?? '50.0'}¢
             </Button>
@@ -160,7 +152,12 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 fontSize={'26px'}
                 fontWeight={'normal'}
                 p={2}
-                onClick={() => decreaseAmount(10)}
+                onClick={() => {
+                  decreaseAmount(10)
+
+                  // ? Product requirements expects +1 and +5 to be tracked
+                  trackClicked(ClickedEvent.PricePresetClicked, '-1 clicked')
+                }}
               >
                 -
               </Button>
@@ -192,7 +189,12 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 fontSize={'22px'}
                 fontWeight={'normal'}
                 p={2}
-                onClick={() => increaseAmount(10)}
+                onClick={() => {
+                  increaseAmount(10)
+
+                  // ? Product requirements expects +1 and +5 to be tracked
+                  trackClicked(ClickedEvent.PricePresetClicked, '+1 clicked')
+                }}
               >
                 +
               </Button>
