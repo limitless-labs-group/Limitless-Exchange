@@ -1,5 +1,5 @@
 import { Button, IButton } from '@/components'
-import { useAccount, useAuth, useBalanceService } from '@/services'
+import { ClickEvent, useAccount, useAmplitude, useAuth, useBalanceService } from '@/services'
 import { colors } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
@@ -23,6 +23,7 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
   const { email, account } = useAccount()
   const { onCopy, hasCopied } = useClipboard(account ?? '')
   const { balanceOfSmartWallet } = useBalanceService()
+  const { trackClicked } = useAmplitude()
 
   return (
     <Popover placement={'bottom-end'} trigger={'click'} isLazy>
@@ -168,7 +169,10 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               fontWeight={'normal'}
               colorScheme={'transparent'}
               justifyContent={'start'}
-              onClick={() => router.push('/')}
+              onClick={() => {
+                trackClicked(ClickEvent.ExploreMarketsClicked)
+                router.push('/')
+              }}
             >
               <HStack>
                 <FaTableCellsLarge size={'16px'} fill={colors.fontLight} />
@@ -181,7 +185,10 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               h={'40px'}
               colorScheme={'transparent'}
               justifyContent={'start'}
-              onClick={() => signOut()}
+              onClick={() => {
+                trackClicked(ClickEvent.LogoutClicked)
+                signOut()
+              }}
             >
               <HStack>
                 <FaSignOutAlt size={'16px'} fill={colors.fontLight} />

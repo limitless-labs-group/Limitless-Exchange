@@ -1,7 +1,7 @@
 import { Button } from '@/components'
 import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
-import { useTradingService } from '@/services'
+import { ClickEvent, ShareClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
 
@@ -28,6 +28,7 @@ import { FaLink, FaXTwitter } from 'react-icons/fa6'
 
 export const MarketMetadata = ({ ...props }: StackProps) => {
   const { market } = useTradingService()
+  const { trackClicked } = useAmplitude()
   const { liquidity, holdersCount, sharesCost } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
   })
@@ -106,7 +107,13 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                   fontWeight={'normal'}
                   colorScheme={'transparent'}
                   justifyContent={'start'}
-                  onClick={onCopy}
+                  onClick={() => {
+                    trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
+                      type: 'Copy Link',
+                      page: 'Market Page',
+                    })
+                    onCopy()
+                  }}
                 >
                   <FaLink />
                   {hasCopied ? 'Copied' : 'Copy link'}
@@ -119,7 +126,13 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                   fontWeight={'normal'}
                   colorScheme={'transparent'}
                   justifyContent={'start'}
-                  onClick={() => window.open(tweetURI, '_blank')}
+                  onClick={() => {
+                    trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
+                      type: 'X/Twitter',
+                      page: 'Market Page',
+                    })
+                    window.open(tweetURI, '_blank')
+                  }}
                 >
                   <FaXTwitter />
                   <Text>Share on X</Text>

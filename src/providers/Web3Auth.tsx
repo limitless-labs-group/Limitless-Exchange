@@ -1,5 +1,6 @@
 import { Web3AuthConnector } from '@web3auth/web3auth-wagmi-connector'
 import { Web3Auth } from '@web3auth/modal'
+import { LOGIN_MODAL_EVENTS } from '@web3auth/ui'
 import { CHAIN_NAMESPACES, CustomChainConfig, IProvider, WEB3AUTH_NETWORK } from '@web3auth/base'
 import { EthereumPrivateKeyProvider } from '@web3auth/ethereum-provider'
 import { MetamaskAdapter } from '@web3auth/metamask-adapter'
@@ -15,6 +16,7 @@ import {
 } from 'react'
 import { useAccount as useWagmi } from 'wagmi'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import { OpenEvent, useAmplitude } from '@/services'
 
 const chainConfig: CustomChainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
@@ -158,6 +160,18 @@ export const Web3AuthProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     initWeb3Auth()
   }, [isConnectedWagmi])
+
+  /**
+   * ANALYTICS
+   */
+  const { trackOpened } = useAmplitude()
+  useEffect(() => {
+    web3Auth.on(LOGIN_MODAL_EVENTS.MODAL_VISIBILITY, (visible) => {
+      if (visible) {
+        trackOpened(OpenEvent.LoginWindowOpened)
+      }
+    })
+  }, [])
 
   const contextProviderValue: IWeb3AuthContext = {
     isConnected,

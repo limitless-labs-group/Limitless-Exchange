@@ -5,7 +5,14 @@ export const LogInButton = ({ children, ...props }: IButton) => {
   const { signIn } = useAuth()
 
   return (
-    <Button colorScheme={'brand'} fontWeight={'bold'} onClick={signIn} {...props}>
+    <Button
+      colorScheme={'brand'}
+      fontWeight={'bold'}
+      onClick={() => {
+        signIn()
+      }}
+      {...props}
+    >
       {children ?? 'Sign In'}
     </Button>
   )
