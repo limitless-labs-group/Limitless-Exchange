@@ -1,8 +1,7 @@
 import { Button, Modal } from '@/components'
 import { collateralToken, defaultChain } from '@/constants'
-import { useAccount, useAmplitude } from '@/services'
+import { CopyEvent, useAccount, useAmplitude } from '@/services'
 import { borderRadius, colors } from '@/styles'
-import { CopiedEvent } from '@/types'
 import { truncateEthAddress } from '@/utils'
 import {
   Avatar,
@@ -79,7 +78,7 @@ export const DepositByQrCard = ({ ...props }: StackProps) => {
             fontWeight={'normal'}
             onClick={() => {
               onCopy()
-              trackCopied(CopiedEvent.WalletAddressCopied, 'Deposit')
+              trackCopied(CopyEvent.WalletAddressCopied, 'Deposit')
             }}
           >
             <Text display={{ sm: 'none', md: 'contents' }}>{account}</Text>
