@@ -8,7 +8,7 @@ import {
 } from 'wagmi'
 import { Address } from '@/types'
 import { defaultChain } from '@/constants'
-import { useAmplitude, useEtherspot } from '@/services'
+import { AccountMetadata, useAmplitude, useEtherspot } from '@/services'
 
 export interface IAccountContext {
   isLoggedIn: boolean
@@ -39,7 +39,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [email, setEmail] = useState<string | undefined>()
   const { address: web3WalletAddress } = useWagmi()
 
-  const accountMetadata: IAccountContext['accountMetadata'] = {
+  const accountMetadata: AccountMetadata = {
     email,
     smartWalletAddress: account,
     web3WalletAddress: web3WalletAddress,
