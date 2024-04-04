@@ -1,9 +1,7 @@
 import { Button, IButton } from '@/components'
-import { useAmplitude, useAuth } from '@/services'
-import { OpenedEvent } from '@/types'
+import { useAuth } from '@/services'
 
 export const LogInButton = ({ children, ...props }: IButton) => {
-  const { trackOpened } = useAmplitude()
   const { signIn } = useAuth()
 
   return (
@@ -12,7 +10,6 @@ export const LogInButton = ({ children, ...props }: IButton) => {
       fontWeight={'bold'}
       onClick={() => {
         signIn()
-        trackOpened(OpenedEvent.LoginWindowOpened)
       }}
       {...props}
     >
