@@ -170,7 +170,7 @@ export type PageOpenedPage =
   | 'Creator Cabinet'
   | 'Investor Cabinet'
   | 'Deposit Page'
-  | 'Explore Markets Clicked'
+  | 'Explore Markets'
 export interface PageOpenedMetadata {
   page: PageOpenedPage
   market?: Address
