@@ -4,15 +4,18 @@ import { MainLayout } from '@/components'
 import { MarketMetadata, TradeForm } from '@/app/markets/[address]/components'
 import { Flex, Spacer } from '@chakra-ui/react'
 import { useEffect, useMemo } from 'react'
-import { useAmplitude, useTradingService } from '@/services'
+import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
 import { defaultChain, markets } from '@/constants'
-import { Market, OpenedEvent } from '@/types'
+import { Market } from '@/types'
+import { getAddress } from 'viem'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   const { trackOpened } = useAmplitude()
-
   useEffect(() => {
-    trackOpened(OpenedEvent.PageOpened, 'Market Page')
+    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
+      page: 'Market Page',
+      market: getAddress(params.address),
+    })
   }, [])
 
   const market: Market | null = useMemo(
