@@ -1,7 +1,6 @@
 import { Button, IButton } from '@/components'
-import { useAccount, useAmplitude, useAuth, useBalanceService } from '@/services'
+import { ClickEvent, useAccount, useAmplitude, useAuth, useBalanceService } from '@/services'
 import { colors } from '@/styles'
-import { ClickedEvent, OpenedEvent } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
   Flex,
@@ -24,7 +23,7 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
   const { email, account } = useAccount()
   const { onCopy, hasCopied } = useClipboard(account ?? '')
   const { balanceOfSmartWallet } = useBalanceService()
-  const { trackOpened, trackClicked } = useAmplitude()
+  const { trackClicked } = useAmplitude()
 
   return (
     <Popover placement={'bottom-end'} trigger={'click'} isLazy>
@@ -171,8 +170,8 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               colorScheme={'transparent'}
               justifyContent={'start'}
               onClick={() => {
+                trackClicked(ClickEvent.ExploreMarketsClicked)
                 router.push('/')
-                trackOpened(OpenedEvent.PageOpened, 'Explore Markets Clicked')
               }}
             >
               <HStack>
@@ -187,8 +186,8 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               colorScheme={'transparent'}
               justifyContent={'start'}
               onClick={() => {
+                trackClicked(ClickEvent.LogoutClicked)
                 signOut()
-                trackClicked(ClickedEvent.LogoutClicked)
               }}
             >
               <HStack>

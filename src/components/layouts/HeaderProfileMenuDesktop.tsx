@@ -1,7 +1,6 @@
 import { Button, IButton } from '@/components'
-import { useAccount, useAmplitude, useAuth } from '@/services'
+import { ClickEvent, useAccount, useAmplitude, useAuth } from '@/services'
 import { colors } from '@/styles'
-import { ClickedEvent } from '@/types'
 import { truncateEthAddress } from '@/utils'
 import {
   Flex,
@@ -91,8 +90,8 @@ export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
               colorScheme={'transparent'}
               justifyContent={'start'}
               onClick={() => {
+                trackClicked(ClickEvent.LogoutClicked)
                 signOut()
-                trackClicked(ClickedEvent.LogoutClicked)
               }}
             >
               <HStack w={'full'}>
