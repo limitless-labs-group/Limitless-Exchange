@@ -1541,10 +1541,10 @@
     "@ethereumjs/rlp" "^5.0.2"
     ethereum-cryptography "^2.1.3"
 
-"@etherspot/prime-sdk@^1.6.1":
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/@etherspot/prime-sdk/-/prime-sdk-1.6.1.tgz#0bcc44efd02436e87fffe52e6969da9e6d15694b"
-  integrity sha512-vJSoMaEWRBVXr0KRhzdXcd06Ey3DMyp6Px/qVpUntLbRId0+7KWZc7v+gPjcE69u2adQzVWO8sIZBA0MFxB4Og==
+"@etherspot/prime-sdk@^1.6.4":
+  version "1.6.4"
+  resolved "https://registry.yarnpkg.com/@etherspot/prime-sdk/-/prime-sdk-1.6.4.tgz#8c33ed283da2967ffc1b474f87bf3ec3d0af3c16"
+  integrity sha512-pNGA01XwnlAq6VrRCqz4g1rjqGVIr2O0Nz70lnGtlvWS8IXjC0fHvtYZz+rFIz3G7HExrV8Yfh9EbPxAxMF9SA==
   dependencies:
     "@apollo/client" "3.8.7"
     "@lifi/sdk" "2.5.0"
@@ -1559,6 +1559,7 @@
     ethers "5.7.2"
     graphql-ws "5.14.2"
     prettier "2.8.8"
+    qs "6.12.0"
     reflect-metadata "0.1.14"
     rxjs "6.6.7"
 
@@ -8580,6 +8581,13 @@ qrcode@1.5.3:
     pngjs "^5.0.0"
     yargs "^15.3.1"
 
+qs@6.12.0:
+  version "6.12.0"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.12.0.tgz#edd40c3b823995946a8a0b1f208669c7a200db77"
+  integrity sha512-trVZiI6RMOkO476zLGaBIzszOdFPnCCXHPG9kn0yuS1uz6xdVxPfZdB3vUig9pxPFDM9BRAgz/YUIVQ1/vuiUg==
+  dependencies:
+    side-channel "^1.0.6"
+
 query-string@7.1.3:
   version "7.1.3"
   resolved "https://registry.yarnpkg.com/query-string/-/query-string-7.1.3.tgz#a1cf90e994abb113a325804a972d98276fe02328"
@@ -9084,7 +9092,7 @@ shebang-regex@^3.0.0:
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-3.0.0.tgz#ae16f1644d873ecad843b0307b143362d4c42172"
   integrity sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==
 
-side-channel@^1.0.4:
+side-channel@^1.0.4, side-channel@^1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/side-channel/-/side-channel-1.0.6.tgz#abd25fb7cd24baf45466406b1096b7831c9215f2"
   integrity sha512-fDW/EZ6Q9RiO8eFG8Hj+7u/oW+XrPTIChwCOM2+th2A6OblDtYYIpve9m+KvI9Z4C9qSEXlaGR6bTEYHReuglA==

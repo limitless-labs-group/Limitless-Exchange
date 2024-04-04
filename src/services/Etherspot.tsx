@@ -2,10 +2,9 @@ import { collateralToken, conditionalTokensAddress, defaultChain } from '@/const
 import { conditionalTokensABI, erc20ABI, marketMakerABI } from '@/contracts'
 import { publicClient, useWeb3Auth } from '@/providers'
 import { Address } from '@/types'
-import { EtherspotBundler, PrimeSdk, Web3WalletProvider } from '@etherspot/prime-sdk'
+import { ArkaPaymaster, EtherspotBundler, PrimeSdk, Web3WalletProvider } from '@etherspot/prime-sdk'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common/utils'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import axios from 'axios'
 import {
   PropsWithChildren,
   createContext,
@@ -51,7 +50,6 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
     const mappedProvider = new Web3WalletProvider(web3AuthProvider)
     await mappedProvider.refresh()
     const primeSdk = new PrimeSdk(mappedProvider, {
-      projectKey: '',
       chainId: defaultChain.id,
       bundlerProvider: new EtherspotBundler(
         defaultChain.id,
@@ -79,13 +77,35 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    * Query to fetch smart wallet address
    */
   const { data: smartWalletAddress } = useQuery({
-    queryKey: ['smartWalletAddress', !!etherspot, web3AuthProvider?.chainId],
+    queryKey: ['smartWalletAddress', !!etherspot],
     queryFn: async () => {
       const address = await etherspot?.getAddress()
       console.log(`Smart wallet address: ${smartWalletAddress}`)
       return address
     },
+    refetchOnWindowFocus: false,
   })
+
+  /**
+   * Whitelisting
+   */
+  const { mutateAsync: whitelist } = useMutation({
+    mutationFn: async () => {
+      if (!etherspot) {
+        return
+      }
+      const address = await etherspot.getAddress()
+      const isWhitelisted = await etherspot.isWhitelisted(address)
+      console.log('isWhitelisted', address, isWhitelisted)
+      if (!isWhitelisted) {
+        await etherspot.whitelist(address)
+        console.log('whitelisted', address, true)
+      }
+    },
+  })
+  useEffect(() => {
+    whitelist()
+  }, [etherspot])
 
   /**
    * Mutation to sign auth message
@@ -101,13 +121,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
     mutationFn: async ({ token, to, amount, onSign, onConfirm }: ITransferErc20) => {
       if (!etherspot || !token || !to || !smartWalletAddress || amount === 0n) {
         return
-      } // TODO: display error
-
-      // paymaster whitelist
-      // const isWhitelisted = await etherspot.isWhitelisted(smartWalletAddress)
-      // if (!isWhitelisted) {
-      //   await etherspot.whitelist(smartWalletAddress)
-      // }
+      }
 
       onSign?.()
       const opHash = await etherspot.transferErc20(token, to, amount)
@@ -129,22 +143,15 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
   )
 }
 
-interface ITransferErc20 {
-  token?: Address
-  to?: Address
-  amount: bigint
-  onSign?: () => void
-  onConfirm?: (receipt: TransactionReceipt) => Promise<any>
-}
-
 class Etherspot {
   primeSdk: PrimeSdk
   conditionalTokensAddress: Address
   collateralTokenAddress: Address
 
-  paymasterApiKey = 'arka_public_key'
-  paymasterUrl = `https://arka.etherspot.io?apiKey=${this.paymasterApiKey}&chainId=${defaultChain.id}`
-  isPaymasterEnabled = false
+  paymasterApiKey = process.env.NEXT_PUBLIC_ETHERSPOT_API_KEY ?? ''
+  paymasterUrl = `https://arka.etherspot.io`
+  paymaster = new ArkaPaymaster(defaultChain.id, this.paymasterApiKey, this.paymasterUrl)
+  isEnabledPaymaster = true
 
   constructor(
     _primeSdk: PrimeSdk,
@@ -187,46 +194,35 @@ class Etherspot {
     return this.primeSdk.getCounterFactualAddress() as Promise<Address>
   }
 
-  // whitelisting for paymaster
   async whitelist(address: Address) {
-    const response = await axios.post('https://arka.etherspot.io/whitelist', {
-      params: [[address], defaultChain.id, this.paymasterApiKey],
-    })
-    console.log('WHITELIST_ADDRESS_RESPONSE: ', response)
+    const response = await this.paymaster.addWhitelist([address])
+    console.log('PAYMASTER_ADD_WHITELIST_RESPONSE:', response)
   }
 
   async isWhitelisted(address: Address) {
-    const sponsor = '0xaeAF09795d8C0e6fA4bB5f89dc9c15EC02021567'
-    const response = await axios.post('https://arka.etherspot.io/checkWhitelist', {
-      params: [sponsor, address, defaultChain.id, this.paymasterApiKey],
-    })
-    console.log('IS_WHITELISTED_RESPONSE: ', response)
-    return response.data?.message === 'Already added'
+    const response = await this.paymaster.checkWhitelist(address)
+    console.log('PAYMASTER_IS_WHITELISTED_RESPONSE:', response)
+    return response === 'Already added'
   }
 
-  async estimate(isSponsored = this.isPaymasterEnabled) {
+  async batchAndSendUserOp(to: string, data: string) {
+    await this.primeSdk.clearUserOpsFromBatch()
+    await this.primeSdk.addUserOpsToBatch({ to, data })
+    const op = await this.estimate()
+    const opHash = await this.primeSdk.send(op)
+    return opHash
+  }
+
+  async estimate() {
     const op = await this.primeSdk.estimate({
-      paymasterDetails: isSponsored
+      paymasterDetails: this.isEnabledPaymaster
         ? {
-            url: this.paymasterUrl,
+            url: `${this.paymasterUrl}?apiKey=${this.paymasterApiKey}&chainId=${defaultChain.id}`,
             context: { mode: 'sponsor' },
           }
         : undefined,
     })
     return op
-  }
-
-  async batchAndSendUserOp(
-    to: string,
-    txData: string,
-    isSponsored = this.isPaymasterEnabled,
-    value?: bigint
-  ) {
-    await this.primeSdk.clearUserOpsFromBatch()
-    await this.primeSdk.addUserOpsToBatch({ to, data: txData, value })
-    const op = await this.estimate(isSponsored)
-    const opHash = await this.primeSdk.send(op)
-    return opHash
   }
 
   async waitForTransaction(opHash: string) {
@@ -240,7 +236,7 @@ class Etherspot {
     return opReceipt.receipt as TransactionReceipt
   }
 
-  async transferEthers(to: Address, value: string, isSponsored = this.isPaymasterEnabled) {
+  async transferEthers(to: Address, value: string) {
     if (isNaN(Number(value))) {
       throw Error('Invalid value input')
     }
@@ -249,37 +245,27 @@ class Etherspot {
       to,
       value: parseEther(value),
     })
-    const op = await this.estimate(isSponsored)
+    const op = await this.estimate()
     const opHash = await this.primeSdk.send(op)
     return opHash
   }
 
-  async transferErc20(
-    token: Address,
-    to: Address,
-    value: bigint,
-    isSponsored = this.isPaymasterEnabled
-  ) {
-    const txData = encodeFunctionData({
+  async transferErc20(token: Address, to: Address, value: bigint) {
+    const data = encodeFunctionData({
       abi: erc20ABI,
       functionName: 'transfer',
       args: [to, value],
     })
-    return this.batchAndSendUserOp(token, txData, isSponsored)
+    return this.batchAndSendUserOp(token, data)
   }
 
-  async mintErc20(
-    token: Address,
-    to: Address,
-    value: bigint,
-    isSponsored = this.isPaymasterEnabled
-  ) {
-    const txData = encodeFunctionData({
+  async mintErc20(token: Address, to: Address, value: bigint) {
+    const data = encodeFunctionData({
       abi: erc20ABI,
       functionName: 'mint',
       args: [to, value],
     })
-    return this.batchAndSendUserOp(token, txData, isSponsored)
+    return this.batchAndSendUserOp(token, data)
   }
 
   // TODO: incapsulate
@@ -319,15 +305,15 @@ class Etherspot {
     }
   }
 
-  async wrapEth(value: bigint) {
-    console.log('wrapEth', value)
-    const txData = encodeFunctionData({
-      abi: erc20ABI,
-      functionName: 'deposit',
-    })
-    const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, txData, false, value)
-    return await this.waitForTransaction(opHash)
-  }
+  // async wrapEth(value: bigint) {
+  //   console.log('wrapEth', value)
+  //   const txData = encodeFunctionData({
+  //     abi: erc20ABI,
+  //     functionName: 'deposit',
+  //   })
+  //   const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, txData, value)
+  //   return await this.waitForTransaction(opHash)
+  // }
 
   // TODO: incapsulate
   async buyOutcomeTokens(
@@ -407,4 +393,12 @@ class Etherspot {
     })
     return this.batchAndSendUserOp(this.conditionalTokensAddress, txData)
   }
+}
+
+interface ITransferErc20 {
+  token?: Address
+  to?: Address
+  amount: bigint
+  onSign?: () => void
+  onConfirm?: (receipt: TransactionReceipt) => Promise<any>
 }
