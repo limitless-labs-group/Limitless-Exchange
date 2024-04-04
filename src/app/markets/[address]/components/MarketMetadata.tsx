@@ -1,9 +1,8 @@
 import { Button } from '@/components'
 import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
-import { useAmplitude, useTradingService } from '@/services'
+import { ClickEvent, ShareClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import { borderRadius, colors } from '@/styles'
-import { ClickedEvent } from '@/types'
 import { NumberUtil } from '@/utils'
 
 import {
@@ -109,8 +108,11 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                   colorScheme={'transparent'}
                   justifyContent={'start'}
                   onClick={() => {
+                    trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
+                      type: 'Copy Link',
+                      page: 'Market Page',
+                    })
                     onCopy()
-                    trackClicked(ClickedEvent.ShareClicked, 'Copy Link')
                   }}
                 >
                   <FaLink />
@@ -125,8 +127,11 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                   colorScheme={'transparent'}
                   justifyContent={'start'}
                   onClick={() => {
+                    trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
+                      type: 'X/Twitter',
+                      page: 'Market Page',
+                    })
                     window.open(tweetURI, '_blank')
-                    trackClicked(ClickedEvent.ShareClicked, 'X/Twitter')
                   }}
                 >
                   <FaXTwitter />
