@@ -13,7 +13,7 @@ const PortfolioPage = () => {
   const { trackOpened } = useAmplitude()
   useEffect(() => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
-      page: 'Investor Cabinet',
+      page: 'Portfolio Page',
     })
   }, [])
 

@@ -168,7 +168,7 @@ export interface ShareClickedMetadata {
 export type PageOpenedPage =
   | 'Market Page'
   | 'Creator Cabinet'
-  | 'Investor Cabinet'
+  | 'Portfolio Page'
   | 'Deposit Page'
   | 'Explore Markets'
 export interface PageOpenedMetadata {
@@ -177,10 +177,7 @@ export interface PageOpenedMetadata {
   [key: string]: any
 }
 
-export type OpenMarketClickedPage =
-  | 'Creator Cabinet'
-  | 'Investor Cabinet'
-  | 'Explore Markets Clicked'
+export type OpenMarketClickedPage = 'Creator Cabinet' | 'Portfolio Page' | 'Explore Markets Clicked'
 export interface OpenMarketClickedMetadata {
   page: OpenMarketClickedPage
 }
