@@ -1,5 +1,12 @@
 import { Button, IButton } from '@/components'
-import { ClickEvent, useAccount, useAmplitude, useAuth, useBalanceService } from '@/services'
+import {
+  ClickEvent,
+  ProfileBurgerMenuClickedMetadata,
+  useAccount,
+  useAmplitude,
+  useAuth,
+  useBalanceService,
+} from '@/services'
 import { colors } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
@@ -29,7 +36,17 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
     <Popover placement={'bottom-end'} trigger={'click'} isLazy>
       <PopoverTrigger>
         <Flex h={'full'}>
-          <Button bg={'none'} h={'full'} alignItems={'center'} {...props}>
+          <Button
+            bg={'none'}
+            h={'full'}
+            alignItems={'center'}
+            {...props}
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Portfolio',
+              })
+            }}
+          >
             <Flex justifyContent={'end'}>
               <FaBars size={'18px'} fill={colors.fontLight} />
             </Flex>
