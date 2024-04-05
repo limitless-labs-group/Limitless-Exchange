@@ -147,7 +147,8 @@ export enum ChangeEvent {
 }
 
 export enum ClickEvent {
-  CreateOwnMarketClicked = 'Create Own Market Clicked',
+  CreateMarketClicked = 'Create Market Clicked',
+  DepositClicked = 'Deposit Clicked',
   ExploreMarketsClicked = 'Explore Markets Clicked',
   SupportChatClicked = 'Support Chat Clicked',
   PricePresetClicked = 'Price Preset Clicked',
@@ -156,6 +157,8 @@ export enum ClickEvent {
   HeaderOptionClicked = 'Header Option Clicked',
   LogoutClicked = 'Logout Clicked',
   OpenCreatorProfileClicked = 'Open Creator Profile Clicked',
+  ProfileBurgerMenuClicked = 'Profile Burger Menu Clicked',
+  BuyClicked = 'Buy Clicked',
 }
 
 export enum LoginEvent {
@@ -192,18 +195,28 @@ export interface AccountMetadata {
 export type StrategyChangedType = 'Buy selected' | 'Sell selected'
 export interface StrategyChangedMetadata {
   type: StrategyChangedType
-  market: Address
+  marketAddress: Address
 }
 
 export type OutcomeChangedChoice = 'Yes' | 'No'
 export interface OutcomeChangedMetadata {
   choice: OutcomeChangedChoice
-  market: Address
+  marketAddress: Address
 }
 
-export type CreateOwnMarketClickedPage = 'Explore Markets'
-export interface CreateOwnMarketClickedMetadata {
-  page: CreateOwnMarketClickedPage
+export type CreateMarketClickedPage = 'Explore Markets'
+export interface CreateMarketClickedMetadata {
+  page: CreateMarketClickedPage
+}
+
+export type DepositClickedPage =
+  | 'Portfolio'
+  | 'Portfolio - Top up Button'
+  | 'Market Page'
+  | 'Creator Cabinet'
+  | 'Explore Markets'
+export interface DepositClickedMetadata {
+  page: DepositClickedPage
 }
 
 export type SupportChatClickedPage = 'Deposit Page' | 'Header Dropdown Menu'
@@ -231,11 +244,11 @@ export type PageOpenedPage =
   | 'Explore Markets'
 export interface PageOpenedMetadata {
   page: PageOpenedPage
-  market?: Address
+  marketAddress?: Address
   [key: string]: any
 }
 
-export type OpenMarketClickedPage = 'Creator Cabinet' | 'Portfolio Page' | 'Explore Markets Clicked'
+export type OpenMarketClickedPage = 'Creator Cabinet' | 'Portfolio Page' | 'Explore Markets'
 export interface OpenMarketClickedMetadata {
   page: OpenMarketClickedPage
 }
@@ -267,6 +280,15 @@ export interface WalletAddressCopiedMetadata {
   page: WalletAddressCopiedPage
 }
 
+export type ProfileBurgerMenuClickedOption =
+  | 'Copy Wallet Address'
+  | 'Wallet'
+  | 'Portfolio'
+  | 'Sign Out'
+export interface ProfileBurgerMenuClickedMetadata {
+  option: ProfileBurgerMenuClickedOption
+}
+
 export type ChangedEventMetadata = StrategyChangedMetadata | OutcomeChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
@@ -274,7 +296,8 @@ export type ClickedEventMetadata =
   | ShareClickedMetadata
   | OpenMarketClickedMetadata
   | HeaderOptionClickedMetadata
-  | CreateOwnMarketClickedMetadata
+  | CreateMarketClickedMetadata
+  | ProfileBurgerMenuClickedMetadata
 export type OpenedEventMetadata = PageOpenedMetadata
 export type LoginEventMetadata = LoginWithFarcasterMetadata
 export type CopiedEventMetadata = WalletAddressCopiedMetadata
