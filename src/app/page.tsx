@@ -2,7 +2,7 @@
 
 import { Button, MainLayout, MarketCard } from '@/components'
 import { defaultChain, markets } from '@/constants'
-import { ClickEvent, CreateOwnMarketClickedMetadata, OpenEvent, useAmplitude } from '@/services'
+import { ClickEvent, CreateMarketClickedMetadata, OpenEvent, useAmplitude } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { Box, Grid, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
 import { useEffect } from 'react'
@@ -82,7 +82,7 @@ const MainPage = () => {
                 w={'full'}
                 p={1}
                 onClick={() => {
-                  trackClicked<CreateOwnMarketClickedMetadata>(ClickEvent.CreateOwnMarketClicked, {
+                  trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
                     page: 'Explore Markets',
                   })
                 }}
