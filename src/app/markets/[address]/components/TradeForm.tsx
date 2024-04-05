@@ -67,7 +67,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Buy selected',
-              market: marketAddress,
+              marketAddress,
             })
             setStrategy('Buy')
           }}
@@ -91,7 +91,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Sell selected',
-              market: marketAddress,
+              marketAddress,
             })
             setStrategy('Sell')
           }}
@@ -121,7 +121,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
               onClick={() => {
                 trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
                   choice: 'Yes',
-                  market: marketAddress,
+                  marketAddress,
                 })
                 setOutcomeTokenSelected(0)
               }}
@@ -135,7 +135,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
               onClick={() => {
                 trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
                   choice: 'No',
-                  market: marketAddress,
+                  marketAddress,
                 })
                 setOutcomeTokenSelected(1)
               }}
