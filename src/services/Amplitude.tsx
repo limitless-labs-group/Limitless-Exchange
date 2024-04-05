@@ -27,47 +27,99 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     init(AMPLITUDE_API_KEY, undefined, {
       defaultTracking: {
         sessions: true,
+        pageViews: false,
       },
     })
   }, [])
 
-  const trackSignUp = ({ email, web3WalletAddress, smartWalletAddress }: ITrackSignUp) => {
-    amplitudeTrack('Sign Up', {
-      email,
-      web3WalletAddress,
-      smartWalletAddress,
-    })
+  const trackSignUp = async ({ email, web3WalletAddress, smartWalletAddress }: ITrackSignUp) => {
+    console.log('Amplitude.trackSignUp', { email, web3WalletAddress, smartWalletAddress })
+    const result = await amplitudeTrack({
+      event_type: 'Sign Up',
+      event_properties: {
+        email,
+        web3WalletAddress,
+        smartWalletAddress,
+      },
+    }).promise
+    console.log('Amplitude.trackSignUp result', result)
   }
 
-  const trackChanged = <T extends ChangedEventMetadata>(event: ChangeEvent, customData?: T) =>
-    amplitudeTrack(String(event), {
-      account,
-      customData,
-    })
+  const trackChanged = async <T extends ChangedEventMetadata>(
+    event: ChangeEvent,
+    customData?: T
+  ) => {
+    console.log('Amplitude.trackChanged', { event, customData })
+    const result = await amplitudeTrack({
+      event_type: String(event),
+      event_properties: {
+        ...customData,
+      },
+      user_properties: {
+        ...account,
+      },
+    }).promise
+    console.log('Amplitude.trackChanged result', result)
+  }
 
-  const trackClicked = <T extends ClickedEventMetadata>(event: ClickEvent, customData?: T) =>
-    amplitudeTrack(String(event), {
-      account,
-      customData,
-    })
+  const trackClicked = async <T extends ClickedEventMetadata>(
+    event: ClickEvent,
+    customData?: T
+  ) => {
+    console.log('Amplitude.trackClicked', { event, customData })
+    const result = await amplitudeTrack({
+      event_type: String(event),
+      event_properties: {
+        ...customData,
+      },
+      user_properties: {
+        ...account,
+      },
+    }).promise
+    console.log('Amplitude.trackClicked result', result)
+  }
 
-  const trackOpened = <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) =>
-    amplitudeTrack(String(event), {
-      account,
-      customData,
-    })
+  const trackOpened = async <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => {
+    console.log('Amplitude.trackOpened', { event, customData })
+    const result = await amplitudeTrack({
+      event_type: String(event),
+      event_properties: {
+        ...customData,
+      },
+      user_properties: {
+        ...account,
+      },
+    }).promise
+    console.log('Amplitude.trackOpened result', result)
+  }
 
-  const trackLogin = <T extends LoginEventMetadata>(event: LoginEvent, customData?: T) =>
-    amplitudeTrack(String(event), {
-      account,
-      customData,
-    })
+  const trackLogin = async <T extends LoginEventMetadata>(event: LoginEvent, customData?: T) => {
+    console.log('Amplitude.trackLogin', { event, customData })
+    const result = await amplitudeTrack({
+      event_type: String(event),
+      event_properties: {
+        ...customData,
+      },
+      user_properties: {
+        ...account,
+      },
+    }).promise
+    console.log('Amplitude.trackLogin result', result)
+  }
 
-  const trackCopied = <T extends CopiedEventMetadata>(event: CopyEvent, customData?: T) =>
-    amplitudeTrack(String(event), {
-      account,
-      customData,
-    })
+  const trackCopied = async <T extends CopiedEventMetadata>(event: CopyEvent, customData?: T) => {
+    console.log('Amplitude.trackCopied', { event, customData })
+    const result = await amplitudeTrack({
+      event_type: String(event),
+      event_properties: {
+        ...customData,
+      },
+      user_properties: {
+        ...account,
+      },
+    }).promise
+    console.log('Amplitude.trackCopied result', result)
+  }
 
   const contextProviderValue: IAmplitudeContext = {
     trackSignUp,
@@ -95,6 +147,7 @@ export enum ChangeEvent {
 }
 
 export enum ClickEvent {
+  CreateOwnMarketClicked = 'Create Own Market Clicked',
   ExploreMarketsClicked = 'Explore Markets Clicked',
   SupportChatClicked = 'Support Chat Clicked',
   PricePresetClicked = 'Price Preset Clicked',
@@ -146,6 +199,11 @@ export type OutcomeChangedChoice = 'Yes' | 'No'
 export interface OutcomeChangedMetadata {
   choice: OutcomeChangedChoice
   market: Address
+}
+
+export type CreateOwnMarketClickedPage = 'Explore Markets'
+export interface CreateOwnMarketClickedMetadata {
+  page: CreateOwnMarketClickedPage
 }
 
 export type SupportChatClickedPage = 'Deposit Page' | 'Header Dropdown Menu'
@@ -216,6 +274,7 @@ export type ClickedEventMetadata =
   | ShareClickedMetadata
   | OpenMarketClickedMetadata
   | HeaderOptionClickedMetadata
+  | CreateOwnMarketClickedMetadata
 export type OpenedEventMetadata = PageOpenedMetadata
 export type LoginEventMetadata = LoginWithFarcasterMetadata
-export type CopiedEventMetadata = WalletAddressCopiedPage
+export type CopiedEventMetadata = WalletAddressCopiedMetadata
