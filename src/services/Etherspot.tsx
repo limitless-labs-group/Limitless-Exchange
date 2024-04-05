@@ -13,7 +13,7 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { TransactionReceipt, encodeFunctionData, getContract, parseEther } from 'viem'
+import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, parseEther } from 'viem'
 
 interface IEtherspotContext {
   etherspot: Etherspot | null
@@ -104,7 +104,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
     },
   })
   useEffect(() => {
-    whitelist()
+    whitelist() // TODO: whitelist when user wants to trade / deposit funds
   }, [etherspot])
 
   /**
@@ -275,16 +275,16 @@ class Etherspot {
       owner,
       spender,
     ])) as bigint
-    if (allowance >= amount) {
-      return
+    if (allowance < amount) {
+      const data = encodeFunctionData({
+        abi: erc20ABI,
+        functionName: 'approve',
+        args: [spender, maxUint256],
+      })
+      const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, data)
+      const transactionReceipt = await this.waitForTransaction(opHash)
+      return transactionReceipt
     }
-    const txData = encodeFunctionData({
-      abi: erc20ABI,
-      functionName: 'approve',
-      args: [spender, amount],
-    })
-    const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, txData)
-    return await this.waitForTransaction(opHash)
   }
 
   // TODO: incapsulate
@@ -295,13 +295,14 @@ class Etherspot {
       spender,
     ])
     if (!isApproved) {
-      const txData = encodeFunctionData({
+      const data = encodeFunctionData({
         abi: conditionalTokensABI,
         functionName: 'setApprovalForAll',
         args: [spender, true],
       })
-      const opHash = await this.batchAndSendUserOp(this.conditionalTokensAddress, txData)
-      return await this.waitForTransaction(opHash)
+      const opHash = await this.batchAndSendUserOp(this.conditionalTokensAddress, data)
+      const transactionReceipt = await this.waitForTransaction(opHash)
+      return transactionReceipt
     }
   }
 
@@ -323,30 +324,33 @@ class Etherspot {
     outcomeLength: number
   ) {
     const account = await this.getAddress()
+    const marketMakerContract = this.getMarketMakerContract(marketMakerAddress)
+
     const outcomeTokenAmounts = Array.from({ length: outcomeLength }, (_, index) =>
       index === outcomeToken ? amount : 0n
     )
-    const cost = (await this.getMarketMakerContract(marketMakerAddress).read.calcNetCost([
-      outcomeTokenAmounts,
-    ])) as bigint
+    const cost = (await marketMakerContract.read.calcNetCost([outcomeTokenAmounts])) as bigint
+    const fee = (await marketMakerContract.read.calcMarketFee([cost])) as bigint
+    const collateralLimit = cost + fee
     const collateralBalance = (await this.getCollateralTokenContract().read.balanceOf([
       account,
     ])) as bigint
 
-    if (cost > collateralBalance) {
+    if (collateralLimit > collateralBalance) {
       throw Error('Collateral insufficient')
     }
 
-    await this.approveCollateralIfNeeded(marketMakerAddress, cost)
+    await this.approveCollateralIfNeeded(marketMakerAddress, collateralLimit)
 
-    const txData = encodeFunctionData({
+    const data = encodeFunctionData({
       abi: marketMakerABI,
       functionName: 'trade',
-      args: [outcomeTokenAmounts, cost],
+      args: [outcomeTokenAmounts, collateralLimit],
     })
 
-    const opHash = await this.batchAndSendUserOp(marketMakerAddress, txData)
-    return await this.waitForTransaction(opHash)
+    const opHash = await this.batchAndSendUserOp(marketMakerAddress, data)
+    const transactionReceipt = await this.waitForTransaction(opHash)
+    return transactionReceipt
   }
 
   // TODO: incapsulate
@@ -357,26 +361,25 @@ class Etherspot {
     outcomeLength: number
   ) {
     const marketMakerContract = this.getMarketMakerContract(marketMakerAddress)
-    // const collateralTokenContract = await this.getCollateralTokenContract()
-    // const decimals = await collateralTokenContract.read.decimals()
-    // const formattedAmount = parseUnits(amount, decimals)
+
     const outcomeTokenAmounts = Array.from({ length: outcomeLength }, (v, i) =>
       i === outcomeToken ? amount * -1n : 0n
     )
+    const profit = (await marketMakerContract.read.calcNetCost([outcomeTokenAmounts])) as bigint
+    const fee = (await marketMakerContract.read.calcMarketFee([profit])) as bigint
+    const collateralLimit = profit + fee * -1n
 
     await this.approveConditionalIfNeeded(marketMakerAddress)
 
-    const profit =
-      ((await marketMakerContract.read.calcNetCost([outcomeTokenAmounts])) as bigint) * -1n
-
-    const txData = encodeFunctionData({
+    const data = encodeFunctionData({
       abi: marketMakerABI,
       functionName: 'trade',
-      args: [outcomeTokenAmounts, profit],
+      args: [outcomeTokenAmounts, collateralLimit],
     })
 
-    const opHash = await this.batchAndSendUserOp(marketMakerAddress, txData)
-    return await this.waitForTransaction(opHash)
+    const opHash = await this.batchAndSendUserOp(marketMakerAddress, data)
+    const transactionReceipt = await this.waitForTransaction(opHash)
+    return transactionReceipt
   }
 
   // TODO: incapsulate
@@ -386,12 +389,14 @@ class Etherspot {
     marketConditionId: Address,
     indexSets: bigint[]
   ) {
-    const txData = encodeFunctionData({
+    const data = encodeFunctionData({
       abi: conditionalTokensABI,
       functionName: 'redeemPositions',
       args: [collateralAddress, parentCollectionId, marketConditionId, indexSets],
     })
-    return this.batchAndSendUserOp(this.conditionalTokensAddress, txData)
+    const opHash = await this.batchAndSendUserOp(this.conditionalTokensAddress, data)
+    const transactionReceipt = await this.waitForTransaction(opHash)
+    return transactionReceipt
   }
 }
 
