@@ -19,6 +19,7 @@ interface IEtherspotContext {
   etherspot: Etherspot | null
   smartWalletAddress?: Address
   signMessage: (message: string) => Promise<string | undefined>
+  whitelist: () => Promise<void>
   transferErc20: (data: ITransferErc20) => Promise<TransactionReceipt | undefined>
 }
 
@@ -54,11 +55,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
       bundlerProvider: new EtherspotBundler(
         defaultChain.id,
         process.env.NEXT_PUBLIC_ETHERSPOT_API_KEY
-        // 'https://basesepolia-bundler.etherspot.io/'
       ),
-      // rpcProviderUrl: 'https://basesepolia-bundler.etherspot.io/',
-      // entryPointAddress: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
-      // walletFactoryAddress: '0xb56eC212C60C47fb7385f13b7247886FFa5E9D5C',
     })
 
     const etherspot = new Etherspot(
@@ -87,7 +84,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
   })
 
   /**
-   * Whitelisting
+   * Whitelisting for paymaster
    */
   const { mutateAsync: whitelist } = useMutation({
     mutationFn: async () => {
@@ -96,16 +93,14 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
       }
       const address = await etherspot.getAddress()
       const isWhitelisted = await etherspot.isWhitelisted(address)
-      console.log('isWhitelisted', address, isWhitelisted)
       if (!isWhitelisted) {
         await etherspot.whitelist(address)
-        console.log('whitelisted', address, true)
       }
     },
   })
-  useEffect(() => {
-    whitelist() // TODO: whitelist when user wants to trade / deposit funds
-  }, [etherspot])
+  // useEffect(() => {
+  //   whitelist() // TODO: whitelist when user wants to trade / deposit funds
+  // }, [etherspot])
 
   /**
    * Mutation to sign auth message
@@ -136,6 +131,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
     smartWalletAddress,
     signMessage,
     transferErc20,
+    whitelist,
   }
 
   return (
@@ -196,12 +192,12 @@ class Etherspot {
 
   async whitelist(address: Address) {
     const response = await this.paymaster.addWhitelist([address])
-    console.log('PAYMASTER_ADD_WHITELIST_RESPONSE:', response)
+    console.log('PAYMASTER_ADD_WHITELIST_RESPONSE:', address, response)
   }
 
   async isWhitelisted(address: Address) {
     const response = await this.paymaster.checkWhitelist(address)
-    console.log('PAYMASTER_IS_WHITELISTED_RESPONSE:', response)
+    console.log('PAYMASTER_IS_WHITELISTED_RESPONSE:', address, response)
     return response === 'Already added'
   }
 
