@@ -27,7 +27,7 @@ export const Footer = () => (
           )
         }
       >
-        About
+        About us
       </Text>
       <Text
         cursor={'pointer'}
