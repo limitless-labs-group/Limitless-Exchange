@@ -3,11 +3,19 @@
 import { PortfolioStats, PortfolioMarketsTable } from '@/app/portfolio/components'
 import { PortfolioHistoryTable } from '@/app/portfolio/components/PortfolioHistoryTable'
 import { MainLayout } from '@/components'
+import { OpenEvent, PageOpenedMetadata, useAmplitude } from '@/services'
 import { Box, HStack, Spacer, Stack, Text } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const PortfolioPage = () => {
   const [tab, setTab] = useState<'Markets' | 'History'>('Markets')
+
+  const { trackOpened } = useAmplitude()
+  useEffect(() => {
+    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
+      page: 'Portfolio Page',
+    })
+  }, [])
 
   return (
     <MainLayout>

@@ -1,13 +1,25 @@
 import { Button, Input, LogInButton } from '@/components'
 import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
-import { useAccount, useBalanceService, useTradingService } from '@/services'
+import {
+  StrategyChangedMetadata,
+  ChangeEvent,
+  useAccount,
+  useAmplitude,
+  useBalanceService,
+  useTradingService,
+  OutcomeChangedMetadata,
+  ClickEvent,
+  PricePresetClickedMetadata,
+} from '@/services'
 import { borderRadius } from '@/styles'
 import { NumberUtil } from '@/utils'
 import { Box, Divider, HStack, Heading, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
+import { getAddress, zeroAddress } from 'viem'
 
 export const TradeForm = ({ ...props }: StackProps) => {
   const { isLoggedIn } = useAccount()
+  const { trackChanged, trackClicked } = useAmplitude()
   const { balanceOfSmartWallet } = useBalanceService()
   const {
     market,
@@ -28,8 +40,9 @@ export const TradeForm = ({ ...props }: StackProps) => {
     status,
   } = useTradingService()
 
+  const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
   const { sharesCost } = useMarketData({
-    marketAddress: market?.address[defaultChain.id],
+    marketAddress,
   })
 
   return (
@@ -51,7 +64,13 @@ export const TradeForm = ({ ...props }: StackProps) => {
           variant={'unstyled'}
           borderRadius={0}
           minW={'unset'}
-          onClick={() => setStrategy('Buy')}
+          onClick={() => {
+            trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
+              type: 'Buy selected',
+              market: marketAddress,
+            })
+            setStrategy('Buy')
+          }}
         >
           <Text fontWeight={strategy == 'Buy' ? 'bold' : 'nornal'}>Buy</Text>
           <Box
@@ -69,7 +88,13 @@ export const TradeForm = ({ ...props }: StackProps) => {
           variant={'unstyled'}
           borderRadius={0}
           minW={'unset'}
-          onClick={() => setStrategy('Sell')}
+          onClick={() => {
+            trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
+              type: 'Sell selected',
+              market: marketAddress,
+            })
+            setStrategy('Sell')
+          }}
         >
           <Text fontWeight={strategy == 'Sell' ? 'bold' : 'nornal'}>Sell</Text>
           <Box
@@ -93,7 +118,13 @@ export const TradeForm = ({ ...props }: StackProps) => {
               w={'full'}
               bg={outcomeTokenSelected == 0 ? 'green' : 'bgLight'}
               color={outcomeTokenSelected == 0 ? 'white' : 'fontLight'}
-              onClick={() => setOutcomeTokenSelected(0)}
+              onClick={() => {
+                trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
+                  choice: 'Yes',
+                  market: marketAddress,
+                })
+                setOutcomeTokenSelected(0)
+              }}
             >
               {market?.outcomeTokens[0] ?? 'Yes'} {sharesCost?.[0]?.toFixed(1) ?? '50.0'}¢
             </Button>
@@ -101,7 +132,13 @@ export const TradeForm = ({ ...props }: StackProps) => {
               w={'full'}
               bg={outcomeTokenSelected == 1 ? 'red' : 'bgLight'}
               color={outcomeTokenSelected == 1 ? 'white' : 'fontLight'}
-              onClick={() => setOutcomeTokenSelected(1)}
+              onClick={() => {
+                trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
+                  choice: 'No',
+                  market: marketAddress,
+                })
+                setOutcomeTokenSelected(1)
+              }}
             >
               {market?.outcomeTokens[1] ?? 'No'} {sharesCost?.[1]?.toFixed(1) ?? '50.0'}¢
             </Button>
@@ -138,7 +175,12 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 fontSize={'26px'}
                 fontWeight={'normal'}
                 p={2}
-                onClick={() => decreaseAmount(10)}
+                onClick={() => {
+                  trackClicked<PricePresetClickedMetadata>(ClickEvent.PricePresetClicked, {
+                    type: '-10 clicked',
+                  })
+                  decreaseAmount(10)
+                }}
               >
                 -
               </Button>
@@ -170,7 +212,12 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 fontSize={'22px'}
                 fontWeight={'normal'}
                 p={2}
-                onClick={() => increaseAmount(10)}
+                onClick={() => {
+                  trackClicked<PricePresetClickedMetadata>(ClickEvent.PricePresetClicked, {
+                    type: '+10 clicked',
+                  })
+                  increaseAmount(10)
+                }}
               >
                 +
               </Button>

@@ -1,5 +1,5 @@
 import { Button, IButton } from '@/components'
-import { useAccount, useAuth } from '@/services'
+import { ClickEvent, useAccount, useAmplitude, useAuth } from '@/services'
 import { colors } from '@/styles'
 import { truncateEthAddress } from '@/utils'
 import {
@@ -18,6 +18,7 @@ import { FaBriefcase, FaChevronDown, FaCopy, FaRegUserCircle, FaSignOutAlt } fro
 import { FaWallet } from 'react-icons/fa6'
 
 export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
+  const { trackClicked } = useAmplitude()
   const { signOut } = useAuth()
   const { email, account } = useAccount()
   const { onCopy, hasCopied } = useClipboard(account ?? '')
@@ -88,7 +89,10 @@ export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
               h={'40px'}
               colorScheme={'transparent'}
               justifyContent={'start'}
-              onClick={() => signOut()}
+              onClick={() => {
+                trackClicked(ClickEvent.LogoutClicked)
+                signOut()
+              }}
             >
               <HStack w={'full'}>
                 <FaSignOutAlt size={'16px'} fill={colors.fontLight} />
