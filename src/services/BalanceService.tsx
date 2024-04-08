@@ -9,7 +9,6 @@ import { Logger } from '@/utils'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { PropsWithChildren, createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { formatUnits, getContract, isAddress, parseUnits } from 'viem'
-import { useAccount } from 'wagmi'
 
 interface IBalanceService {
   strategy: 'Deposit' | 'Withdraw'
@@ -53,8 +52,8 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * WALLETS
    */
-  const { isConnected } = useAccount()
-  const { smartWalletAddress, transferErc20, etherspot } = useEtherspot()
+  // const { isConnected } = useAccount()
+  const { smartWalletAddress, transferErc20, whitelist, etherspot } = useEtherspot()
 
   const [addressToWithdraw, setAddressToWithdraw] = useState<string | undefined>()
   const isInvalidAddressToWithdraw = useMemo(
@@ -91,12 +90,15 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       }
 
       log.success('ON_BALANCE_SUCC', smartWalletAddress, balanceResult)
+
+      // TODO: refactor deposit handler
       if (!!balanceOfSmartWallet && newBalance > balanceOfSmartWallet?.value) {
-        const topUp = Number(
+        whitelist() // TODO: refactor the logic of whitelisting
+        const depositAmount = Number(
           formatUnits(newBalance - balanceOfSmartWallet.value, collateralToken.decimals)
         ).toFixed(2)
         toast({
-          render: () => <Toast title={`Balance top up: $${topUp}`} />,
+          render: () => <Toast title={`Balance top up: $${depositAmount}`} />,
         })
       }
 
@@ -238,9 +240,9 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
    * UI STATUS
    */
   const status: BalanceServiceStatus = useMemo(() => {
-    if (!isConnected) {
-      return 'WalletNotConnected'
-    }
+    // if (!isConnected) {
+    //   return 'WalletNotConnected'
+    // }
     // if (chainId !== defaultChain.id) {
     //   return 'WrongNetwork'
     // }
@@ -265,7 +267,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     // }
     return 'ReadyToFund'
   }, [
-    isConnected,
+    // isConnected,
     // chainId,
     strategy,
     isInvalidAddressToWithdraw,

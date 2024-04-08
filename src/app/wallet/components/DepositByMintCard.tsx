@@ -27,28 +27,32 @@ export const DepositByMintCard = ({ ...props }: StackProps) => {
         letterSpacing={'0.15em'}
       >
         <Text color={'white'} bg={'black'} p={'2px 8px'} borderRadius={'3px'} fontSize={'9px'}>
-          TESTNET METHOD
+          TEST METHOD
         </Text>
       </HStack>
 
       <HStack w={'full'}>
-        <Heading fontSize={'24px'}>Mint testnet USDC</Heading>
+        <Heading fontSize={'24px'}>Mint mock USDC</Heading>
         <Avatar src={collateralToken.imageURI} size={'sm'} />
       </HStack>
 
-      <HStack w={'full'} spacing={4}>
-        <Avatar name='1' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} />
-        <Text wordBreak={'break-word'}>
-          Fund your Limitless account <b>{account}</b> with {defaultChain.name} <b>ETH</b>. You can
-          request it on{' '}
-          <Link href='https://app.optimism.io/faucet' color={'brand'} isExternal>
-            https://app.optimism.io/faucet
-          </Link>
-        </Text>
-      </HStack>
+      {defaultChain.testnet && (
+        <HStack w={'full'} spacing={4}>
+          <Avatar name='1' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} />
+          <Text wordBreak={'break-word'}>
+            Fund your Limitless account <b>{account}</b> with {defaultChain.name} <b>ETH</b>. You
+            can request it on{' '}
+            <Link href='https://app.optimism.io/faucet' color={'brand'} isExternal>
+              https://app.optimism.io/faucet
+            </Link>
+          </Text>
+        </HStack>
+      )}
 
       <HStack w={'full'} spacing={4}>
-        <Avatar name='2' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} />
+        {defaultChain.testnet && (
+          <Avatar name='2' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} />
+        )}
         <Button
           colorScheme={'brand'}
           w={{ sm: 'full', md: '150px' }}

@@ -1,4 +1,4 @@
-import { Box, Flex, FlexProps, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
+import { Flex, FlexProps, HStack, Heading, Image, Text } from '@chakra-ui/react'
 import {
   LogInButton,
   HeaderProfileMenuDesktop,
@@ -10,15 +10,15 @@ import { useAccount } from 'wagmi'
 import { ClickEvent, useAmplitude, useBalanceService, useHistory } from '@/services'
 import { NumberUtil } from '@/utils'
 import { borderRadius, colors } from '@/styles'
-import { FaGlobe, FaWallet } from 'react-icons/fa'
-import { FaBriefcase, FaTableCells, FaTableCellsLarge, FaTableColumns } from 'react-icons/fa6'
+import { FaWallet } from 'react-icons/fa'
+import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
 
 export const Header = ({ ...props }: FlexProps) => {
   const router = useRouter()
   const pathname = usePathname()
   const { isConnected } = useAccount()
   const { balanceOfSmartWallet } = useBalanceService()
-  const { balanceUsd: investedUsd, balanceShares } = useHistory()
+  // const { balanceUsd: investedUsd, balanceShares } = useHistory()
   const { trackClicked } = useAmplitude()
 
   return (
@@ -27,10 +27,11 @@ export const Header = ({ ...props }: FlexProps) => {
       h={`56px`}
       justifyContent={'space-between'}
       alignItems={'center'}
-      py={'8px'}
-      px={{ sm: '16px', md: '24px' }}
+      py={2}
+      px={{ sm: 4, md: 6 }}
       gap={4}
-      boxShadow={'0 0 8px #ddd'}
+      // boxShadow={'0 0 8px #ddd'}
+      borderBottom={`1px solid ${colors.border}`}
       bg={'bg'}
       zIndex={2}
       {...props}
