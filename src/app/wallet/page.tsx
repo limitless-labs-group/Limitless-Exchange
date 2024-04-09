@@ -3,7 +3,13 @@
 import { BalanceCard, DepositByMintCard, DepositByQrCard } from '@/app/wallet/components'
 import { Button, MainLayout } from '@/components'
 import { defaultChain } from '@/constants'
-import { OpenEvent, useAmplitude, useAuth } from '@/services'
+import {
+  ClickEvent,
+  OpenEvent,
+  SupportChatClickedMetadata,
+  useAmplitude,
+  useAuth,
+} from '@/services'
 import { colors } from '@/styles'
 import { Flex, Spacer, Stack } from '@chakra-ui/react'
 import { useEffect } from 'react'
@@ -11,7 +17,7 @@ import { FaCircle, FaComments } from 'react-icons/fa'
 
 const WalletPage = () => {
   const { signIn: signInWithW3A, isLoggedIn } = useAuth()
-  const { trackOpened } = useAmplitude()
+  const { trackOpened, trackClicked } = useAmplitude()
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -39,7 +45,12 @@ const WalletPage = () => {
             border={`1px solid ${colors.border}`}
             leftIcon={<FaComments size={'18px'} />}
             rightIcon={<FaCircle fill='green' size={'8px'} />}
-            onClick={() => window.open('https://discord.gg/rSJJrehEyH', '_blank')}
+            onClick={() => {
+              trackClicked<SupportChatClickedMetadata>(ClickEvent.SupportChatClicked, {
+                page: 'Deposit Page',
+              })
+              window.open('https://discord.gg/rSJJrehEyH', '_blank')
+            }}
           >
             Chat with human
           </Button>
