@@ -27,14 +27,20 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
   const { sharesCost, liquidity, holdersCount } = useMarketData({ marketAddress })
 
   const marketURI = `${window.location.origin}/markets/${marketAddress}`
+  const formatOutcomeToken = (index: number) => `${sharesCost?.[index].toFixed(1) ?? 0}%`
+
+  const baseMessage = `"${market?.title}" by ${market?.creator.name}\n${
+    market?.outcomeTokens[0]
+  } ${formatOutcomeToken(0)} | ${market?.outcomeTokens[1]} ${formatOutcomeToken(
+    1
+  )}\nMake your bet on`
+
   const { onCopy, hasCopied } = useClipboard(marketURI)
 
-  const tweetURI = encodeURI(
-    `https://x.com/intent/tweet?text="${market?.title}" by ${market?.creator.name}\n${
-      market?.outcomeTokens[0]
-    } ${sharesCost?.[0].toFixed(1) ?? 0}% | ${market?.outcomeTokens[1]} ${
-      sharesCost?.[1].toFixed(1) ?? 0
-    }%\nMake your bet on ${marketURI}`
+  const tweetURI = encodeURI(`https://x.com/intent/tweet?text=${baseMessage} ${marketURI}`)
+
+  const castURI = encodeURI(
+    `https://warpcast.com/~/compose?text=${baseMessage}&embeds[]=${marketURI}`
   )
 
   return (
@@ -153,6 +159,14 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
                 onClick={() => window.open(tweetURI, '_blank')}
               >
                 <FaXTwitter size={'16px'} />
+              </Button>
+              <Button
+                h={'full'}
+                aspectRatio={'1/1'}
+                p={1}
+                onClick={() => window.open(castURI, '_blank')}
+              >
+                <Image src='/assets/images/transparent-black.png' blockSize={'25px'} />
               </Button>
             </HStack>
           </Stack>
