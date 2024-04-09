@@ -1,6 +1,7 @@
 import { Button } from '@/components'
 import { defaultChain, markets } from '@/constants'
 import { useMarketData } from '@/hooks'
+import { createShareUrls } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -27,21 +28,10 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
   const { sharesCost, liquidity, holdersCount } = useMarketData({ marketAddress })
 
   const marketURI = `${window.location.origin}/markets/${marketAddress}`
-  const formatOutcomeToken = (index: number) => `${sharesCost?.[index].toFixed(1) ?? 0}%`
 
-  const baseMessage = `"${market?.title}" by ${market?.creator.name}\n${
-    market?.outcomeTokens[0]
-  } ${formatOutcomeToken(0)} | ${market?.outcomeTokens[1]} ${formatOutcomeToken(
-    1
-  )}\nMake your bet on`
+  const { tweetURI, castURI } = createShareUrls(market, marketURI, sharesCost)
 
   const { onCopy, hasCopied } = useClipboard(marketURI)
-
-  const tweetURI = encodeURI(`https://x.com/intent/tweet?text=${baseMessage} ${marketURI}`)
-
-  const castURI = encodeURI(
-    `https://warpcast.com/~/compose?text=${baseMessage}&embeds[]=${marketURI}`
-  )
 
   return (
     <Stack

@@ -1,7 +1,13 @@
 import { Button } from '@/components'
 import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
-import { ClickEvent, ShareClickedMetadata, useAmplitude, useTradingService } from '@/services'
+import {
+  ClickEvent,
+  ShareClickedMetadata,
+  createShareUrls,
+  useAmplitude,
+  useTradingService,
+} from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
 
@@ -32,15 +38,12 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
   const { liquidity, holdersCount, sharesCost } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
   })
-  const { onCopy, hasCopied } = useClipboard(window.location.href)
 
-  const tweetURI = encodeURI(
-    `https://x.com/intent/tweet?text="${market?.title}" by ${market?.creator.name}\n${
-      market?.outcomeTokens[0]
-    } ${sharesCost?.[0].toFixed(1) ?? 0}% | ${market?.outcomeTokens[1]} ${
-      sharesCost?.[1].toFixed(1) ?? 0
-    }%\nMake your bet on ${window.location.href}`
-  )
+  const marketURI = `${window.location.origin}/markets/${window.location.href}`
+
+  const { onCopy, hasCopied } = useClipboard(marketURI)
+
+  const { tweetURI, castURI } = createShareUrls(market, marketURI, sharesCost)
 
   return (
     <Stack w={'full'} alignItems={'start'} spacing={4} {...props}>
@@ -136,6 +139,19 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                 >
                   <FaXTwitter />
                   <Text>Share on X</Text>
+                </Button>
+                <Divider />
+                <Button
+                  w={'full'}
+                  h={'40px'}
+                  gap={2}
+                  fontWeight={'normal'}
+                  colorScheme={'transparent'}
+                  justifyContent={'start'}
+                  onClick={() => window.open(castURI, '_blank')}
+                >
+                  <Image src='/assets/images/transparent-black.png' blockSize={'15px'} />
+                  <Text>Share on Farcaster</Text>
                 </Button>
               </PopoverContent>
             </Portal>
