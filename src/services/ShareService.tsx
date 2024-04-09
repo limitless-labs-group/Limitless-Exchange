@@ -1,4 +1,4 @@
-import { collateralToken } from '@/constants'
+import { collateralToken, defaultChain } from '@/constants'
 import { HistoryMarketStats } from '@/services'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -52,7 +52,7 @@ export const createMarketShareUrls = (
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${window.location.origin}/markets/${market?.address}`
+  const marketURI = `${window.location.origin}/markets/${market?.address[defaultChain.id]}`
 
   return {
     tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
@@ -75,15 +75,16 @@ export const createPortfolioShareUrls = (
   market: Market | null,
   marketStats: HistoryMarketStats
 ) => {
-  const baseMessage = `https://x.com/intent/tweet?text="${market?.title}" by ${
-    market?.creator.name
-  }\nMy bet: ${NumberUtil.toFixed(marketStats.investedUsd, 2)} ${collateralToken.symbol} for ${
+  const baseMessage = `"${market?.title}" by ${market?.creator.name}\nMy bet: ${NumberUtil.toFixed(
+    marketStats.investedUsd,
+    2
+  )} ${collateralToken.symbol} for ${
     market?.outcomeTokens[marketStats.outcomeId ?? 0]
   }\nMake yours on`
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${window.location.origin}/markets/${market?.address}`
+  const marketURI = `${window.location.origin}/markets/${market?.address[defaultChain.id]}`
 
   return {
     tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
