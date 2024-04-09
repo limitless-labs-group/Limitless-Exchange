@@ -305,6 +305,7 @@ export type ClickedEventMetadata =
   | CreateMarketClickedMetadata
   | ProfileBurgerMenuClickedMetadata
   | TradeClickedMetadata
+  | DepositClickedMetadata
 export type OpenedEventMetadata = PageOpenedMetadata
 export type LoginEventMetadata = LoginWithFarcasterMetadata
 export type CopiedEventMetadata = WalletAddressCopiedMetadata
