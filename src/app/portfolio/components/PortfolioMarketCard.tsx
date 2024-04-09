@@ -1,10 +1,10 @@
 import { Button, MarketCard } from '@/components'
 import { defaultChain, markets } from '@/constants'
-import { HistoryMarketStats } from '@/services'
+import { HistoryMarketStats, createPortfolioShareUrls } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
-import { Flex, HStack, Stack, StackProps, Text, useClipboard } from '@chakra-ui/react'
+import { Flex, HStack, Image, Stack, StackProps, Text, useClipboard } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
@@ -25,16 +25,12 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
   )
 
   const router = useRouter()
+
   const marketURI = `${window.location.origin}/markets/${marketStats.market.id}`
+
   const { onCopy, hasCopied } = useClipboard(marketURI)
 
-  const tweetURI = encodeURI(
-    `https://x.com/intent/tweet?text="${market?.title}" by ${
-      market?.creator.name
-    }\nMy bet: $${NumberUtil.toFixed(marketStats.investedUsd, 2)} for ${
-      market?.outcomeTokens[marketStats.outcomeId ?? 0]
-    }\nMake yours on ${marketURI}`
-  )
+  const { tweetURI, castURI } = createPortfolioShareUrls(market, marketStats)
 
   return (
     <Flex pos={'relative'}>
@@ -152,6 +148,14 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
               onClick={() => window.open(tweetURI, '_blank')}
             >
               <FaXTwitter size={'16px'} />
+            </Button>
+            <Button
+              h={'full'}
+              aspectRatio={'1/1'}
+              p={1}
+              onClick={() => window.open(castURI, '_blank')}
+            >
+              <Image src='/assets/images/farcaster.png' h={'full'} />
             </Button>
           </HStack>
         </Stack>

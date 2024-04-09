@@ -1,7 +1,7 @@
 import { Button } from '@/components'
 import { defaultChain, markets } from '@/constants'
 import { useMarketData } from '@/hooks'
-import { createShareUrls } from '@/services'
+import { createMarketShareUrls } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -29,7 +29,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
 
   const marketURI = `${window.location.origin}/markets/${marketAddress}`
 
-  const { tweetURI, castURI } = createShareUrls(market, marketURI, sharesCost)
+  const { tweetURI, castURI } = createMarketShareUrls(market, sharesCost)
 
   const { onCopy, hasCopied } = useClipboard(marketURI)
 
@@ -156,7 +156,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
                 p={1}
                 onClick={() => window.open(castURI, '_blank')}
               >
-                <Image src='/assets/images/transparent-black.png' blockSize={'25px'} />
+                <Image src='/assets/images/farcaster.png' h={'full'} />
               </Button>
             </HStack>
           </Stack>

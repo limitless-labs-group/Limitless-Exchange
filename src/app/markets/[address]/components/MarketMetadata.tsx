@@ -4,7 +4,7 @@ import { useMarketData } from '@/hooks'
 import {
   ClickEvent,
   ShareClickedMetadata,
-  createShareUrls,
+  createMarketShareUrls,
   useAmplitude,
   useTradingService,
 } from '@/services'
@@ -39,11 +39,9 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
     marketAddress: market?.address[defaultChain.id],
   })
 
-  const marketURI = `${window.location.origin}/markets/${window.location.href}`
+  const { onCopy, hasCopied } = useClipboard(window.location.href)
 
-  const { onCopy, hasCopied } = useClipboard(marketURI)
-
-  const { tweetURI, castURI } = createShareUrls(market, marketURI, sharesCost)
+  const { tweetURI, castURI } = createMarketShareUrls(market, sharesCost)
 
   return (
     <Stack w={'full'} alignItems={'start'} spacing={4} {...props}>
@@ -150,7 +148,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                   justifyContent={'start'}
                   onClick={() => window.open(castURI, '_blank')}
                 >
-                  <Image src='/assets/images/transparent-black.png' blockSize={'15px'} />
+                  <Image src='/assets/images/farcaster.png' blockSize={'15px'} />
                   <Text>Share on Farcaster</Text>
                 </Button>
               </PopoverContent>
