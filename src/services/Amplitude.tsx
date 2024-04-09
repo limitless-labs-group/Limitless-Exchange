@@ -245,6 +245,7 @@ export interface ShareClickedMetadata {
 export type PageOpenedPage =
   | 'Market Page'
   | 'Creator Cabinet'
+  | 'Portfolio - History tab'
   | 'Portfolio Page'
   | 'Deposit Page'
   | 'Explore Markets'
