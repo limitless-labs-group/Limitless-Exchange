@@ -36,17 +36,7 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
     <Popover placement={'bottom-end'} trigger={'click'} isLazy>
       <PopoverTrigger>
         <Flex h={'full'}>
-          <Button
-            bg={'none'}
-            h={'full'}
-            alignItems={'center'}
-            {...props}
-            onClick={() => {
-              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
-                option: 'Portfolio',
-              })
-            }}
-          >
+          <Button bg={'none'} h={'full'} alignItems={'center'} {...props}>
             <Flex justifyContent={'end'}>
               <FaBars size={'18px'} fill={colors.fontLight} />
             </Flex>
@@ -69,7 +59,15 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               color={'grey'}
               fontWeight={'normal'}
               h={'40px'}
-              onClick={onCopy}
+              onClick={() => {
+                trackClicked<ProfileBurgerMenuClickedMetadata>(
+                  ClickEvent.ProfileBurgerMenuClicked,
+                  {
+                    option: 'Copy Wallet Address',
+                  }
+                )
+                onCopy()
+              }}
             >
               <Text>{truncateEthAddress(account)}</Text>
               <FaCopy fontSize={'14px'} fill={hasCopied ? colors.brand : colors.fontLight} />
@@ -79,7 +77,15 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               colorScheme={'brand'}
               h={'40px'}
               justifyContent={'start'}
-              onClick={() => router.push('/wallet')}
+              onClick={() => {
+                trackClicked<ProfileBurgerMenuClickedMetadata>(
+                  ClickEvent.ProfileBurgerMenuClicked,
+                  {
+                    option: 'Wallet',
+                  }
+                )
+                router.push('/wallet')
+              }}
             >
               <HStack>
                 <FaWallet size={'16px'} />
@@ -172,7 +178,15 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               colorScheme={'transparent'}
               justifyContent={'start'}
               gap={2}
-              onClick={() => router.push('/portfolio')}
+              onClick={() => {
+                trackClicked<ProfileBurgerMenuClickedMetadata>(
+                  ClickEvent.ProfileBurgerMenuClicked,
+                  {
+                    option: 'Portfolio',
+                  }
+                )
+                router.push('/portfolio')
+              }}
             >
               <HStack>
                 <FaBriefcase size={'16px'} fill={colors.fontLight} />
@@ -203,6 +217,12 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               colorScheme={'transparent'}
               justifyContent={'start'}
               onClick={() => {
+                trackClicked<ProfileBurgerMenuClickedMetadata>(
+                  ClickEvent.ProfileBurgerMenuClicked,
+                  {
+                    option: 'Sign Out',
+                  }
+                )
                 trackClicked(ClickEvent.LogoutClicked)
                 signOut()
               }}
