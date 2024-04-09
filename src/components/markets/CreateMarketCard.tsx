@@ -1,8 +1,11 @@
 import { Button } from '@/components'
+import { ClickEvent, CreateMarketClickedMetadata, useAmplitude } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { Heading, Image, Stack, Text } from '@chakra-ui/react'
 
 export const CreateMarketCard = () => {
+  const { trackClicked } = useAmplitude()
+
   return (
     <Stack
       w={'full'}
@@ -50,7 +53,12 @@ export const CreateMarketCard = () => {
           h={'40px'}
           w={'full'}
           p={1}
-          // onClick={() => router.push(marketURI)}
+          onClick={() => {
+            trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
+              page: 'Explore Markets',
+            })
+            // router.push(marketURI)
+          }}
         >
           Create own market
         </Button>
