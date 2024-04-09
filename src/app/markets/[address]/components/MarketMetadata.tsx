@@ -1,5 +1,5 @@
 import { Button } from '@/components'
-import { defaultChain } from '@/constants'
+import { collateralToken, defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { ClickEvent, ShareClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import { borderRadius, colors } from '@/styles'
@@ -37,9 +37,10 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
   const tweetURI = encodeURI(
     `https://x.com/intent/tweet?text="${market?.title}" by ${market?.creator.name}\n${
       market?.outcomeTokens[0]
-    } ${sharesCost?.[0].toFixed(1) ?? 0}% | ${market?.outcomeTokens[1]} ${
-      sharesCost?.[1].toFixed(1) ?? 0
-    }%\nMake your bet on ${window.location.href}`
+    } ${NumberUtil.toFixed(sharesCost?.[0], 1)}% | ${market?.outcomeTokens[1]} ${NumberUtil.toFixed(
+      sharesCost?.[1],
+      1
+    )}%\nMake your bet on ${window.location.href}`
   )
 
   return (
@@ -64,7 +65,9 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
           <HStack spacing={4} px={{ sm: 2, md: 0 }}>
             <HStack>
               <Text color={'fontLight'}>Pool</Text>
-              <Text fontWeight={'bold'}>${NumberUtil.formatThousands(liquidity)}</Text>
+              <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(liquidity)} ${
+                collateralToken.symbol
+              }`}</Text>
             </HStack>
             <HStack>
               <Text color={'fontLight'}>Investors</Text>

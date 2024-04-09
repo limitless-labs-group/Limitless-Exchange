@@ -1,6 +1,7 @@
 import { collateralToken, defaultChain, markets, subgraphURI } from '@/constants'
 import { useEtherspot } from '@/services'
 import { Address, Market } from '@/types'
+import { NumberUtil } from '@/utils'
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { PropsWithChildren, createContext, useCallback, useContext, useMemo } from 'react'
@@ -67,10 +68,10 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         trade.strategy = Number(trade.sharesAmount) > 0 ? 'Buy' : 'Sell'
         trade.outcomeId = trade.outcomeTokenAmounts.findIndex((amount) => BigInt(amount) != 0n)
         trade.netCostUsd = formatUnits(BigInt(trade.outcomeTokenNetCost), collateralToken.decimals)
-        trade.costPerShare = (
-          (Number(trade.netCostUsd) / Number(trade.sharesAmount)) *
-          100
-        ).toFixed(2)
+        trade.costPerShare = NumberUtil.toFixed(
+          (Number(trade.netCostUsd) / Number(trade.sharesAmount)) * 100,
+          2
+        )
         // trade.sharePrice = formatUnits((BigInt(trade.netCostUsd) / outcomeTokenAmountBI) * 100n, 0)
       })
       trades.sort((tradeA, tradeB) => Number(tradeB.blockTimestamp) - Number(tradeA.blockTimestamp))

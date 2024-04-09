@@ -32,7 +32,7 @@ export const DepositByMintCard = ({ ...props }: StackProps) => {
       </HStack>
 
       <HStack w={'full'}>
-        <Heading fontSize={'24px'}>Mint mock USDC</Heading>
+        <Heading fontSize={'24px'}>Mint mock {collateralToken.symbol}</Heading>
         <Avatar src={collateralToken.imageURI} size={'sm'} />
       </HStack>
 

@@ -1,5 +1,5 @@
 import { Button, Input, LogInButton } from '@/components'
-import { defaultChain } from '@/constants'
+import { collateralToken, defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import {
   StrategyChangedMetadata,
@@ -14,7 +14,17 @@ import {
 } from '@/services'
 import { borderRadius } from '@/styles'
 import { NumberUtil } from '@/utils'
-import { Box, Divider, HStack, Heading, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
+import {
+  Avatar,
+  Box,
+  Divider,
+  HStack,
+  Heading,
+  Stack,
+  StackProps,
+  Text,
+  VStack,
+} from '@chakra-ui/react'
 import { getAddress, zeroAddress } from 'viem'
 
 export const TradeForm = ({ ...props }: StackProps) => {
@@ -126,7 +136,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 setOutcomeTokenSelected(0)
               }}
             >
-              {market?.outcomeTokens[0] ?? 'Yes'} {sharesCost?.[0]?.toFixed(1) ?? '50.0'}¢
+              {market?.outcomeTokens[0] ?? 'Yes'} {NumberUtil.toFixed(sharesCost?.[0] ?? 50, 1)}%
             </Button>
             <Button
               w={'full'}
@@ -140,7 +150,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 setOutcomeTokenSelected(1)
               }}
             >
-              {market?.outcomeTokens[1] ?? 'No'} {sharesCost?.[1]?.toFixed(1) ?? '50.0'}¢
+              {market?.outcomeTokens[1] ?? 'No'} {NumberUtil.toFixed(sharesCost?.[1] ?? 50, 1)}%
             </Button>
           </HStack>
         </VStack>
@@ -149,8 +159,17 @@ export const TradeForm = ({ ...props }: StackProps) => {
           <HStack w={'full'} justifyContent={'space-between'} alignItems={'center'}>
             <Heading fontSize={'14px'}>Shares</Heading>
             {strategy == 'Buy' ? (
-              <Button h={'24px'} px={2} py={1} fontSize={'13px'} colorScheme={'transparent'}>
-                Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}
+              <Button
+                h={'24px'}
+                px={2}
+                py={1}
+                fontSize={'13px'}
+                colorScheme={'transparent'}
+                gap={1}
+              >
+                {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}`}{' '}
+                {collateralToken.symbol}
+                {/* <Avatar size={'2xs'} src={collateralToken.imageURI} /> */}
               </Button>
             ) : (
               <Button
@@ -158,9 +177,9 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 px={2}
                 py={1}
                 fontSize={'13px'}
-                onClick={() => setAmount(NumberUtil.toIntString(balanceShares))}
+                onClick={() => setAmount(NumberUtil.toFixed(balanceShares, 0))}
               >
-                Max {NumberUtil.toIntString(balanceShares)} shares
+                Max {NumberUtil.toFixed(balanceShares, 0)} shares
               </Button>
             )}
           </HStack>
@@ -221,72 +240,14 @@ export const TradeForm = ({ ...props }: StackProps) => {
               >
                 +
               </Button>
-
-              {/* <VStack spacing={1}>
-              <HStack spacing={1}>
-                <Button
-                  fontSize={'12px'}
-                  p={1}
-                  h={'fit-content'}
-                  color={'green'}
-                  bg={'none'}
-                  onClick={() => increaseAmount(1)}
-                >
-                  +$1
-                </Button>
-                <Button
-                  fontSize={'12px'}
-                  p={1}
-                  h={'fit-content'}
-                  color={'green'}
-                  bg={'none'}
-                  onClick={() => increaseAmount(5)}
-                >
-                  +$5
-                </Button>
-              </HStack>
-              <HStack spacing={1}>
-                <Button
-                  fontSize={'12px'}
-                  p={1}
-                  h={'fit-content'}
-                  color={'red'}
-                  bg={'none'}
-                  onClick={() => decreaseAmount(1)}
-                >
-                  -$1
-                </Button>
-                <Button
-                  fontSize={'12px'}
-                  p={1}
-                  h={'fit-content'}
-                  color={'red'}
-                  bg={'none'}
-                  onClick={() => decreaseAmount(5)}
-                >
-                  -$5
-                </Button>
-              </HStack>
-            </VStack> */}
             </HStack>
-
             <Text color={'fontLight'}>≈</Text>
-
-            {/* <Input
-              // fontWeight={'bold'}
-              fontSize={'16px'}
-              textAlign={'center'}
-              borderColor={isExceedsBalance && strategy == 'Buy' ? 'red' : 'bgLight'}
-              value={`$${NumberUtil.toFixed(netCost, 2)}`}
-              placeholder={'$0'}
-              bg={'none'}
-              pointerEvents={'none'}
-              width={'fit-content%'}
-              px={0}
-            /> */}
-            <Text
-              color={isExceedsBalance && strategy == 'Buy' ? 'red' : 'font'}
-            >{`$${NumberUtil.toFixed(netCost, 2)}`}</Text>
+            <HStack alignItems={'center'} spacing={1} justifyContent={'right'}>
+              <Text color={isExceedsBalance && strategy == 'Buy' ? 'red' : 'font'}>
+                {`${NumberUtil.toFixed(netCost, 3)}`}
+              </Text>
+              <Avatar size={'xs'} src={collateralToken.imageURI} />
+            </HStack>
           </HStack>
         </Stack>
 
@@ -307,13 +268,13 @@ export const TradeForm = ({ ...props }: StackProps) => {
         <VStack w={'full'} spacing={0}>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Avg price</Text>
-            <Text textAlign={'right'}>{Number(shareCost ?? 0)}¢</Text>
+            <Text textAlign={'right'}>{`${Number(shareCost ?? 0)} ${collateralToken.symbol}`}</Text>
           </HStack>
           {strategy == 'Buy' && (
             <HStack w={'full'} justifyContent={'space-between'}>
               <Text color={'fontLight'}>Potential return</Text>
               <Text color={'green'} fontWeight={'bold'} textAlign={'right'}>
-                ${Number(amount ?? 0)} ({Number(roi ?? 0)}%)
+                {`${Number(amount ?? 0)} ${collateralToken.symbol} (${Number(roi ?? 0)}%)`}
               </Text>
             </HStack>
           )}

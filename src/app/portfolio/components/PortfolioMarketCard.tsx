@@ -1,5 +1,5 @@
 import { Button, MarketCard } from '@/components'
-import { defaultChain, markets } from '@/constants'
+import { collateralToken, defaultChain, markets } from '@/constants'
 import { HistoryMarketStats } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { Market } from '@/types'
@@ -69,7 +69,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
               borderRadius={'6px'}
             >
               {market?.outcomeTokens[marketStats.outcomeId ?? 0]}{' '}
-              {NumberUtil.toFixed(marketStats.latestTrade?.costPerShare, 2)}¢
+              {NumberUtil.toFixed(marketStats.latestTrade?.costPerShare, 2)}%
             </Text>
             <HStack spacing={1}>
               <Text>Bet:</Text>
@@ -105,7 +105,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
                 <Text fontWeight={'bold'}>
                   {market?.outcomeTokens[marketStats.outcomeId ?? 0] ??
                     ['Yes', 'No'][marketStats.outcomeId ?? 0]}{' '}
-                  {NumberUtil.toFixed(marketStats.latestTrade?.costPerShare, 1)}¢
+                  {NumberUtil.toFixed(marketStats.latestTrade?.costPerShare, 1)}%
                 </Text>
               </Stack>
             </HStack>
@@ -116,7 +116,9 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Bet</Text>
-                <Text fontWeight={'bold'}>${NumberUtil.toFixed(marketStats.investedUsd, 2)}</Text>
+                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(marketStats.investedUsd, 0)} ${
+                  collateralToken.symbol
+                }`}</Text>
               </Stack>
             </HStack>
 
@@ -126,7 +128,9 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Max win</Text>
-                <Text fontWeight={'bold'}>${NumberUtil.toFixed(marketStats.sharesAmount, 2)}</Text>
+                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(marketStats.sharesAmount, 2)} ${
+                  collateralToken.symbol
+                }`}</Text>
               </Stack>
             </HStack>
           </HStack>

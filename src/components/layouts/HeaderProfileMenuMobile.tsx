@@ -1,4 +1,5 @@
 import { Button, IButton } from '@/components'
+import { collateralToken } from '@/constants'
 import { ClickEvent, useAccount, useAmplitude, useAuth, useBalanceService } from '@/services'
 import { colors } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -66,87 +67,13 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
             >
               <HStack>
                 <FaWallet size={'16px'} />
-                <Text>Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}</Text>
+                <Text>
+                  {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 2)} ${
+                    collateralToken.symbol
+                  }`}
+                </Text>
               </HStack>
             </Button>
-
-            {/* <HStack h='40px' w={'full'}>
-              <Button
-                colorScheme={'transparent'}
-                size={'sm'}
-                h={'full'}
-                onClick={() => router.push('/wallet')}
-              >
-                <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                  <Text color={'brand'} fontSize={'18px'}>
-                    ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted)}
-                  </Text>
-                  <Text
-                    color={'fontLight'}
-                    fontSize={'12px'}
-                    lineHeight={'12px'}
-                    fontWeight={'normal'}
-                  >
-                    Balance
-                  </Text>
-                </Stack>
-              </Button>
-
-              <Button
-                colorScheme={'transparent'}
-                size={'sm'}
-                h={'full'}
-                onClick={() => router.push('/portfolio')}
-              >
-                <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                  <Text color={'brand'} fontSize={'18px'}>
-                    ${investedUsd.toFixed()}
-                  </Text>
-                  <Text
-                    color={'fontLight'}
-                    fontSize={'12px'}
-                    lineHeight={'12px'}
-                    fontWeight={'normal'}
-                  >
-                    Invested
-                  </Text>
-                </Stack>
-              </Button>
-
-              <Button
-                colorScheme={'transparent'}
-                size={'sm'}
-                h={'full'}
-                onClick={() => router.push('/portfolio')}
-              >
-                <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                  <Text color={'brand'} fontSize={'18px'}>
-                    ${balanceShares.toFixed()}
-                  </Text>
-                  <Text
-                    color={'fontLight'}
-                    fontSize={'12px'}
-                    lineHeight={'12px'}
-                    fontWeight={'normal'}
-                  >
-                    To win
-                  </Text>
-                </Stack>
-              </Button>
-            </HStack> */}
-
-            {/* <Button
-              w={'full'}
-              h={'40px'}
-              gap={3}
-              fontWeight={'normal'}
-              colorScheme={'transparent'}
-              justifyContent={'start'}
-              onClick={() => router.push('/wallet')}
-            >
-                <FaWallet size={'16px'} fill={colors.fontLight} />
-                <Text>Wallet</Text>
-            </Button> */}
 
             <Button
               w={'full'}

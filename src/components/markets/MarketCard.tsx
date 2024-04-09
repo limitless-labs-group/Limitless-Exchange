@@ -1,5 +1,5 @@
 import { Button } from '@/components'
-import { defaultChain, markets } from '@/constants'
+import { collateralToken, defaultChain, markets } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { borderRadius, colors } from '@/styles'
 import { Address, Market } from '@/types'
@@ -63,10 +63,10 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
         {!children && (
           <HStack textTransform={'uppercase'}>
             <Text color={'green'}>
-              {market?.outcomeTokens[0] ?? 'Yes'} {sharesCost?.[0].toFixed() ?? 0}¢
+              {market?.outcomeTokens[0] ?? 'Yes'} {sharesCost?.[0].toFixed() ?? 0}%
             </Text>
             <Text color={'red'}>
-              {market?.outcomeTokens[1] ?? 'No'} {sharesCost?.[1].toFixed() ?? 0}¢
+              {market?.outcomeTokens[1] ?? 'No'} {sharesCost?.[1].toFixed() ?? 0}%
             </Text>
           </HStack>
         )}
@@ -83,7 +83,9 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
         <HStack w={'full'} spacing={4}>
           <HStack>
             <Text color={'fontLight'}>Pool</Text>
-            <Text fontWeight={'bold'}>${NumberUtil.formatThousands(liquidity)}</Text>
+            <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 1)} ${
+              collateralToken.symbol
+            }`}</Text>
           </HStack>
           <HStack>
             <Text color={'fontLight'}>Investors</Text>
@@ -113,7 +115,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
                 w={`${sharesCost?.[0] ?? 50}%`}
                 minW={'fit-content'}
               >
-                {market?.outcomeTokens[0] ?? 'Yes'} {sharesCost?.[0].toFixed() ?? 0}¢
+                {market?.outcomeTokens[0] ?? 'Yes'} {sharesCost?.[0].toFixed() ?? 0}%
               </Text>
               <Text
                 p={'2px 6px'}
@@ -128,7 +130,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
                 w={`${sharesCost?.[1] ?? 50}%`}
                 minW={'fit-content'}
               >
-                {market?.outcomeTokens[1] ?? 'No'} {sharesCost?.[1].toFixed() ?? 0}¢
+                {market?.outcomeTokens[1] ?? 'No'} {sharesCost?.[1].toFixed() ?? 0}%
               </Text>
             </HStack> */}
 

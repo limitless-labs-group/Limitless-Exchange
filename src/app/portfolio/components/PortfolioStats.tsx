@@ -1,4 +1,5 @@
 import { Button } from '@/components'
+import { collateralToken } from '@/constants'
 import { useBalanceService, useHistory } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
@@ -31,7 +32,9 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
       >
         <FaFileInvoiceDollar size={'32px'} />
         <Stack alignItems={'center'}>
-          <Heading fontSize={'28px'}>${balanceUsd.toFixed(2)}</Heading>
+          <Heading fontSize={'28px'}>{`${NumberUtil.toFixed(balanceUsd, 3)} ${
+            collateralToken.symbol
+          }`}</Heading>
           <Text color={'fontLight'}>Invested</Text>
         </Stack>
       </VStack>
@@ -47,7 +50,9 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
       >
         <FaTrophy size={'32px'} />
         <Stack alignItems={'center'}>
-          <Heading fontSize={'28px'}>${balanceShares.toFixed(2)}</Heading>
+          <Heading fontSize={'28px'}>{`${NumberUtil.toFixed(balanceShares, 3)} ${
+            collateralToken.symbol
+          }`}</Heading>
           <Text color={'fontLight'}>To win</Text>
         </Stack>
       </VStack>
@@ -64,7 +69,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
         <FaWallet size={'32px'} />
         <Stack alignItems={'center'}>
           <Heading fontSize={'28px'}>
-            ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted)}
+            {`${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 3)} ${collateralToken.symbol}`}
           </Heading>
           <HStack>
             <Text color={'fontLight'}>Balance</Text>

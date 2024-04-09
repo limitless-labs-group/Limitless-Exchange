@@ -191,8 +191,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         ((await marketMakerContract.read.calcNetCost([amounts])) as bigint) *
         (strategy == 'Buy' ? 1n : -1n)
       const netCost = formatUnits(netCostBI, collateralToken.decimals)
-      const tokenCost = ((Number(netCost) / Number(amount)) * 100).toFixed(2)
-      const roi = ((Number(amount) / Number(netCost) - 1) * 100).toFixed(2)
+      const tokenCost = NumberUtil.toFixed(Number(netCost) / Number(amount), 3)
+      const roi = NumberUtil.toFixed((Number(amount) / Number(netCost) - 1) * 100, 2)
       setNetCost(netCost)
       setShareCost(tokenCost)
       setRoi(roi)

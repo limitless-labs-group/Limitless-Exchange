@@ -50,7 +50,7 @@ export const DepositByQrCard = ({ ...props }: StackProps) => {
       </HStack>
 
       <HStack w={'full'}>
-        <Heading fontSize={'24px'}>Deposit USDC</Heading>
+        <Heading fontSize={'24px'}>Deposit {collateralToken.symbol}</Heading>
         <Avatar src={collateralToken.imageURI} size={'sm'} />
       </HStack>
 

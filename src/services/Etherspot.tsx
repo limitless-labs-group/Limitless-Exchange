@@ -147,7 +147,7 @@ class Etherspot {
   paymasterApiKey = process.env.NEXT_PUBLIC_ETHERSPOT_API_KEY ?? ''
   paymasterUrl = `https://arka.etherspot.io`
   paymaster = new ArkaPaymaster(defaultChain.id, this.paymasterApiKey, this.paymasterUrl)
-  isEnabledPaymaster = true
+  isEnabledPaymaster = !defaultChain.testnet
 
   constructor(
     _primeSdk: PrimeSdk,

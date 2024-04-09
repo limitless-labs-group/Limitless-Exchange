@@ -12,6 +12,7 @@ import { NumberUtil } from '@/utils'
 import { borderRadius, colors } from '@/styles'
 import { FaWallet } from 'react-icons/fa'
 import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
+import { collateralToken } from '@/constants'
 
 export const Header = ({ ...props }: FlexProps) => {
   const router = useRouter()
@@ -139,7 +140,11 @@ export const Header = ({ ...props }: FlexProps) => {
                   onClick={() => router.push('/wallet')}
                 >
                   <FaWallet size={'16px'} />
-                  <Text>Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}</Text>
+                  <Text>
+                    {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 2)} ${
+                      collateralToken.symbol
+                    }`}
+                  </Text>
                 </Button>
 
                 <Button

@@ -1,7 +1,7 @@
 import { Token } from '@/types'
 import { base, baseSepolia, goerli } from 'viem/chains'
 
-export const collateralToken: Token = {
+export const usdc: Token = {
   address: {
     // [base.id]: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     [base.id]: '0xFd9dc7e303654d910b2B30C1CaAEfa6E4EEc71Dd', // mock
@@ -12,3 +12,15 @@ export const collateralToken: Token = {
   decimals: 6,
   imageURI: 'https://assets.ramp.network/crypto-assets/usdc.svg',
 }
+
+export const weth: Token = {
+  address: {
+    [base.id]: '0x',
+    [baseSepolia.id]: '0x6CEF1F4adE4C5161ba7c3DD747b26B4491F778dd',
+  },
+  symbol: 'WETH',
+  decimals: 18,
+  imageURI: 'https://assets.ramp.network/crypto-assets/eth.svg',
+}
+
+export const collateralToken = weth

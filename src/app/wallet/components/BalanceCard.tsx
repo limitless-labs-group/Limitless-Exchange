@@ -1,5 +1,6 @@
 import { WithdrawModal } from '@/app/wallet/components'
 import { Button } from '@/components'
+import { collateralToken } from '@/constants'
 import { useBalanceService } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
@@ -40,8 +41,11 @@ export const BalanceCard = ({ ...props }: StackProps) => {
       </HStack>
 
       <Heading>
-        $
-        {status == 'Loading' ? <Spinner /> : NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}
+        {status == 'Loading' ? (
+          <Spinner />
+        ) : (
+          `${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 3)} ${collateralToken.symbol}`
+        )}
       </Heading>
 
       <Button colorScheme={'brand'} h={'30px'} onClick={onOpenWithdraw}>

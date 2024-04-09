@@ -1,5 +1,5 @@
 import { Button, IModal, Input, Modal } from '@/components'
-import { defaultChain } from '@/constants'
+import { collateralToken, defaultChain } from '@/constants'
 import { useBalanceService } from '@/services'
 import { colors } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -49,9 +49,11 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
                 h={'24px'}
                 px={2}
                 fontSize={'12px'}
-                onClick={() => setAmount(balanceOfSmartWallet?.formatted)}
+                onClick={() => setAmount(NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4))}
               >
-                Balance ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}
+                {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 3)} ${
+                  collateralToken.symbol
+                }`}
               </Button>
               <Button
                 h={'24px'}
@@ -59,7 +61,7 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
                 fontSize={'12px'}
                 bg={'black'}
                 color={'white'}
-                onClick={() => setAmount(balanceOfSmartWallet?.formatted)}
+                onClick={() => setAmount(NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4))}
               >
                 Max
               </Button>

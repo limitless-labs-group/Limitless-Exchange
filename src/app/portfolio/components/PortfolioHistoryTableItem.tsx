@@ -1,5 +1,5 @@
 import { MarketCard } from '@/components'
-import { defaultChain, markets } from '@/constants'
+import { collateralToken, defaultChain, markets } from '@/constants'
 import { HistoryTrade } from '@/services'
 import { borderRadius } from '@/styles'
 import { Market } from '@/types'
@@ -70,13 +70,16 @@ export const PortfolioHistoryTableItem = ({
           borderRadius={'6px'}
           fontSize={'13px'}
         >
-          {market?.outcomeTokens[trade.outcomeId ?? 0]} {NumberUtil.toFixed(trade.costPerShare, 2)}¢
+          {market?.outcomeTokens[trade.outcomeId ?? 0]} {NumberUtil.toFixed(trade.costPerShare, 2)}%
         </Box>
       </Td>
       <Td>{trade.strategy}</Td>
       <Td isNumeric>
         <Text fontWeight={'bold'}>
-          ${(Number(trade.netCostUsd ?? 0) * (trade.strategy == 'Sell' ? -1 : 1)).toFixed(2)}
+          {`${NumberUtil.toFixed(
+            Number(trade.netCostUsd ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
+            3
+          )} ${collateralToken.symbol}`}
         </Text>
       </Td>
       <Td isNumeric pr={0}>
