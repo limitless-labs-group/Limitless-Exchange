@@ -7,7 +7,7 @@ import { NumberUtil } from '@/utils'
 import { Flex, HStack, Stack, StackProps, Text, useClipboard } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
-import { FaArrowDown } from 'react-icons/fa'
+import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
 import { FaFileInvoiceDollar, FaLink, FaTrophy, FaXTwitter } from 'react-icons/fa6'
 
 interface IPortfolioMarketCard extends StackProps {
@@ -94,11 +94,15 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
           <HStack w={'full'} justifyContent={'space-between'} lineHeight={'18px'}>
             <HStack spacing={1}>
               <Flex p={2} bg={'bgLight'} borderRadius={borderRadius}>
-                <FaArrowDown size={'15px'} fill={colors.fontLight} />
+                {marketStats.outcomeId == 0 ? (
+                  <FaArrowUp size={'15px'} fill={colors.fontLight} />
+                ) : (
+                  <FaArrowDown size={'15px'} fill={colors.fontLight} />
+                )}
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Outcome</Text>
-                <Text fontWeight={'bold'} color={marketStats.outcomeId == 0 ? 'green' : 'red'}>
+                <Text fontWeight={'bold'}>
                   {market?.outcomeTokens[marketStats.outcomeId ?? 0] ??
                     ['Yes', 'No'][marketStats.outcomeId ?? 0]}{' '}
                   {NumberUtil.toFixed(marketStats.latestTrade?.costPerShare, 1)}¢
@@ -122,9 +126,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Max win</Text>
-                <Text fontWeight={'bold'} color={'green'}>
-                  ${NumberUtil.toFixed(marketStats.sharesAmount, 2)}
-                </Text>
+                <Text fontWeight={'bold'}>${NumberUtil.toFixed(marketStats.sharesAmount, 2)}</Text>
               </Stack>
             </HStack>
           </HStack>
