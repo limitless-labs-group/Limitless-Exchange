@@ -11,6 +11,7 @@ import {
   OutcomeChangedMetadata,
   ClickEvent,
   PricePresetClickedMetadata,
+  TradeClickedMetadata,
 } from '@/services'
 import { borderRadius } from '@/styles'
 import { NumberUtil } from '@/utils'
@@ -296,7 +297,13 @@ export const TradeForm = ({ ...props }: StackProps) => {
             colorScheme={'brand'}
             isDisabled={status != 'Ready'}
             isLoading={status == 'Loading'}
-            onClick={trade}
+            onClick={() => {
+              trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
+                strategy,
+                marketAddress,
+              })
+              trade()
+            }}
           >
             {strategy}
           </Button>
