@@ -1,6 +1,7 @@
 import { Button } from '@/components'
 import { collateralToken, defaultChain, markets } from '@/constants'
 import { useMarketData } from '@/hooks'
+import { createMarketShareUrls } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -27,15 +28,10 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
   const { sharesCost, liquidity, holdersCount } = useMarketData({ marketAddress })
 
   const marketURI = `${window.location.origin}/markets/${marketAddress}`
-  const { onCopy, hasCopied } = useClipboard(marketURI)
 
-  const tweetURI = encodeURI(
-    `https://x.com/intent/tweet?text="${market?.title}" by ${market?.creator.name}\n${
-      market?.outcomeTokens[0]
-    } ${sharesCost?.[0].toFixed(1) ?? 0}% | ${market?.outcomeTokens[1]} ${
-      sharesCost?.[1].toFixed(1) ?? 0
-    }%\nMake your bet on ${marketURI}`
-  )
+  const { tweetURI, castURI } = createMarketShareUrls(market, sharesCost)
+
+  const { onCopy, hasCopied } = useClipboard(marketURI)
 
   return (
     <Stack
@@ -155,6 +151,14 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
                 onClick={() => window.open(tweetURI, '_blank')}
               >
                 <FaXTwitter size={'16px'} />
+              </Button>
+              <Button
+                h={'full'}
+                aspectRatio={'1/1'}
+                p={1}
+                onClick={() => window.open(castURI, '_blank')}
+              >
+                <Image src='/assets/images/farcaster.png' h={'full'} />
               </Button>
             </HStack>
           </Stack>

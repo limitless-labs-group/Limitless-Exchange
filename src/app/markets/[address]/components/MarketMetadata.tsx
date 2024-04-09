@@ -1,7 +1,13 @@
 import { Button } from '@/components'
 import { collateralToken, defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
-import { ClickEvent, ShareClickedMetadata, useAmplitude, useTradingService } from '@/services'
+import {
+  ClickEvent,
+  ShareClickedMetadata,
+  createMarketShareUrls,
+  useAmplitude,
+  useTradingService,
+} from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
 
@@ -34,14 +40,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
   })
   const { onCopy, hasCopied } = useClipboard(window.location.href)
 
-  const tweetURI = encodeURI(
-    `https://x.com/intent/tweet?text="${market?.title}" by ${market?.creator.name}\n${
-      market?.outcomeTokens[0]
-    } ${NumberUtil.toFixed(sharesCost?.[0], 1)}% | ${market?.outcomeTokens[1]} ${NumberUtil.toFixed(
-      sharesCost?.[1],
-      1
-    )}%\nMake your bet on ${window.location.href}`
-  )
+  const { tweetURI, castURI } = createMarketShareUrls(market, sharesCost)
 
   return (
     <Stack w={'full'} alignItems={'start'} spacing={4} {...props}>
@@ -139,6 +138,19 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                 >
                   <FaXTwitter />
                   <Text>Share on X</Text>
+                </Button>
+                <Divider />
+                <Button
+                  w={'full'}
+                  h={'40px'}
+                  gap={2}
+                  fontWeight={'normal'}
+                  colorScheme={'transparent'}
+                  justifyContent={'start'}
+                  onClick={() => window.open(castURI, '_blank')}
+                >
+                  <Image src='/assets/images/farcaster.png' blockSize={'15px'} />
+                  <Text>Share on Farcaster</Text>
                 </Button>
               </PopoverContent>
             </Portal>
