@@ -13,12 +13,15 @@ export const CreateMarketCard = () => {
       borderRadius={borderRadius}
       spacing={0}
       cursor={'pointer'}
-      onClick={() =>
+      onClick={() => {
+        trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
+          page: 'Explore Markets',
+        })
         window.open(
           'https://limitlesslabs.notion.site/Limitless-Creators-101-fbbde33a51104fcb83c57f6ce9d69d2a?pvs=4',
           '_blank'
         )
-      }
+      }}
     >
       <Image
         src={'/assets/images/create-market.svg'}
@@ -47,19 +50,7 @@ export const CreateMarketCard = () => {
             Learn how to create your markets and join the movement. Have skin in your beliefs.
           </Text>
         </Stack>
-        <Button
-          bg={'brand'}
-          color={'white'}
-          h={'40px'}
-          w={'full'}
-          p={1}
-          onClick={() => {
-            trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
-              page: 'Explore Markets',
-            })
-            // router.push(marketURI)
-          }}
-        >
+        <Button bg={'brand'} color={'white'} h={'40px'} w={'full'} p={1}>
           Create own market
         </Button>
       </Stack>
