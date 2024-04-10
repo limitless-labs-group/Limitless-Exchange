@@ -7,7 +7,13 @@ import {
 } from '@/components'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAccount } from 'wagmi'
-import { ClickEvent, useAmplitude, useBalanceService, useHistory } from '@/services'
+import {
+  ClickEvent,
+  DepositClickedMetadata,
+  useAmplitude,
+  useBalanceService,
+  useHistory,
+} from '@/services'
 import { NumberUtil } from '@/utils'
 import { borderRadius, colors } from '@/styles'
 import { FaWallet } from 'react-icons/fa'
@@ -136,7 +142,16 @@ export const Header = ({ ...props }: FlexProps) => {
                   colorScheme={'brand'}
                   h={'40px'}
                   gap={'8px'}
-                  onClick={() => router.push('/wallet')}
+                  onClick={() => {
+                    trackClicked<DepositClickedMetadata>(ClickEvent.DepositClicked, {
+                      page: pathname.includes('portfolio')
+                        ? 'Portfolio'
+                        : pathname.includes('/markets')
+                        ? 'Market Page'
+                        : 'Explore Markets',
+                    })
+                    router.push('/wallet')
+                  }}
                 >
                   <FaWallet size={'16px'} />
                   <Text>Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}</Text>

@@ -1,5 +1,11 @@
 import { Button } from '@/components'
-import { useBalanceService, useHistory } from '@/services'
+import {
+  ClickEvent,
+  DepositClickedMetadata,
+  useAmplitude,
+  useBalanceService,
+  useHistory,
+} from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
 import { Divider, HStack, Heading, Spacer, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
@@ -8,6 +14,7 @@ import { FaFileInvoiceDollar, FaTrophy, FaWallet } from 'react-icons/fa6'
 
 export const PortfolioStats = ({ ...props }: StackProps) => {
   const router = useRouter()
+  const { trackClicked } = useAmplitude()
   const { balanceOfSmartWallet } = useBalanceService()
   const { balanceUsd, balanceShares } = useHistory()
 
@@ -74,7 +81,12 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
               size={'sm'}
               h={'auto'}
               py={1}
-              onClick={() => router.push('/wallet')}
+              onClick={() => {
+                trackClicked<DepositClickedMetadata>(ClickEvent.DepositClicked, {
+                  page: 'Portfolio - Top up Button',
+                })
+                router.push('/wallet')
+              }}
             >
               Top up
             </Button>

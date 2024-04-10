@@ -1,7 +1,13 @@
 import { Button } from '@/components'
 import { defaultChain, markets } from '@/constants'
 import { useMarketData } from '@/hooks'
-import { createMarketShareUrls } from '@/services'
+import {
+  ClickEvent,
+  OpenMarketClickedMetadata,
+  ShareClickedMetadata,
+  useAmplitude,
+  createMarketShareUrls,
+} from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -15,6 +21,7 @@ interface IMarketCard extends StackProps {
 }
 
 export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) => {
+  const { trackClicked } = useAmplitude()
   const router = useRouter()
   const market: Market | null = useMemo(
     () =>
@@ -135,18 +142,40 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
                 h={'full'}
                 w={'full'}
                 p={1}
-                onClick={() => router.push(marketURI)}
+                onClick={() => {
+                  trackClicked<OpenMarketClickedMetadata>(ClickEvent.OpenMarketClicked, {
+                    page: 'Explore Markets',
+                  })
+                  router.push(marketURI)
+                }}
               >
                 Trade
               </Button>
-              <Button h={'full'} aspectRatio={'1/1'} p={1} onClick={onCopy}>
+              <Button
+                h={'full'}
+                aspectRatio={'1/1'}
+                p={1}
+                onClick={() => {
+                  trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
+                    type: 'Copy Link',
+                    page: 'Explore Markets',
+                  })
+                  onCopy()
+                }}
+              >
                 <FaLink size={'16px'} fill={hasCopied ? colors.brand : colors.font} />
               </Button>
               <Button
                 h={'full'}
                 aspectRatio={'1/1'}
                 p={1}
-                onClick={() => window.open(tweetURI, '_blank')}
+                onClick={() => {
+                  trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
+                    type: 'X/Twitter',
+                    page: 'Explore Markets',
+                  })
+                  window.open(tweetURI, '_blank')
+                }}
               >
                 <FaXTwitter size={'16px'} />
               </Button>
