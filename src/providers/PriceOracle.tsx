@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
@@ -9,16 +9,16 @@ type PriceOracleContextType = {
   /**
    * Converts a given amount in USD to its equivalent in ETH.
    * @param usd The amount in US dollars to be converted.
-   * @returns The equivalent amount in Ethereum, or undefined if conversion is not possible.
+   * @returns The equivalent amount in Ethereum, or 0 if conversion is not possible.
    */
-  convertUsdToEth: (usd: number) => number | undefined
+  convertUsdToEth: (usd: number) => number
 
   /**
    * Converts a given amount in ETH to its equivalent in USD.
    * @param eth The amount in Ethereum to be converted.
-   * @returns The equivalent amount in US dollars, or undefined if conversion is not possible.
+   * @returns The equivalent amount in US dollars, or 0 if conversion is not possible.
    */
-  convertEthToUsd: (eth: number) => number | undefined
+  convertEthToUsd: (eth: number) => number
 }
 
 /**
@@ -39,7 +39,7 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
     return data.ethereum.usd as number
   }
 
-  const { data: fetchedEthPrice } = useQuery({
+  const { data: ethPrice } = useQuery({
     queryKey: ['ethPrice'],
     queryFn: fetchEthPrice,
     staleTime: 1000 * 60 * 5, // Data life span 60 seconds
@@ -48,19 +48,25 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
     refetchOnReconnect: false,
   })
 
-  const convertEthToUsd = (usd: number) => {
-    if (!fetchedEthPrice) {
-      return undefined
-    }
-    return usd / fetchedEthPrice
-  }
+  const convertEthToUsd = useCallback(
+    (eth: number) => {
+      if (!ethPrice) {
+        return 0
+      }
+      return eth * ethPrice
+    },
+    [ethPrice]
+  )
 
-  const convertUsdToEth = (eth: number) => {
-    if (!fetchedEthPrice) {
-      return undefined
-    }
-    return eth * fetchedEthPrice
-  }
+  const convertUsdToEth = useCallback(
+    (usd: number) => {
+      if (!ethPrice) {
+        return 0
+      }
+      return usd / ethPrice
+    },
+    [ethPrice]
+  )
 
   return (
     <PriceOracleContext.Provider value={{ convertUsdToEth, convertEthToUsd }}>
