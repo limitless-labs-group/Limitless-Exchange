@@ -32,8 +32,6 @@ const PriceOracleContext = createContext<PriceOracleContextType | undefined>(und
  * @param children The child components to be rendered within this provider.
  */
 export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
-  const [wethPrice, setWethPrice] = useState<number | undefined>(undefined)
-
   const fetchWethPrice = async () => {
     const { data } = await axios.get(
       'https://api.coingecko.com/api/v3/simple/price?ids=weth&vs_currencies=usd'
@@ -50,24 +48,18 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
     refetchOnReconnect: false,
   })
 
-  useEffect(() => {
-    if (fetchedWethPrice !== undefined) {
-      setWethPrice(fetchedWethPrice)
-    }
-  }, [fetchedWethPrice])
-
   const convertWethToUsd = (usd: number) => {
-    if (!wethPrice) {
+    if (!fetchedWethPrice) {
       return undefined
     }
-    return usd / wethPrice
+    return usd / fetchedWethPrice
   }
 
   const convertUsdToWeth = (weth: number) => {
-    if (!wethPrice) {
+    if (!fetchedWethPrice) {
       return undefined
     }
-    return weth * wethPrice
+    return weth * fetchedWethPrice
   }
 
   return (
