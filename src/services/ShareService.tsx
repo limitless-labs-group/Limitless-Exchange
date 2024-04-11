@@ -20,9 +20,9 @@ export type ShareURI = {
  * It then encodes this message for URL compatibility and constructs URLs for sharing on specified platforms.
  *
  * @param {Market | null} market - The market object containing details like title, creator, and outcomes.
- * @param {number[] | undefined} sharesCost - An array containing the percentages for each market outcome.
- *                                          - Each percentage represents the probability or share cost associated with a market outcome.
- *                                          - If undefined, the function will default to '0%' for each outcome in the message.
+ * @param {number[] | undefined} sharesPercent - An array containing the percentages for each market outcome.
+ *                                             - Each percentage represents the probability or share cost associated with a market outcome.
+ *                                             - If undefined, the function will default to '50%' for each outcome in the message.
  *
  * @returns {ShareURI} An object containing URLs for sharing the market information
  *
@@ -32,17 +32,18 @@ export type ShareURI = {
  *   creator: { name: "Election Commission" },
  *   outcomeTokens: ["Candidate A", "Candidate B"]
  * };
- * const sharesCost = [45.5, 54.5];
+ * const sharesPercent = [45.5, 54.5];
  *
- * const { tweetURI, castURI } = createShareUrls(marketExample, sharesCost);
+ * const { tweetURI, castURI } = createShareUrls(marketExample, sharesPercent);
  * console.log(tweetURI);  // Outputs: URL for X tweet intent
  * console.log(castURI);   // Outputs: URL for Farcaster cast intent
  */
 export const createMarketShareUrls = (
   market: Market | null,
-  sharesCost: number[] | undefined
+  sharesPercent: number[] | undefined
 ): ShareURI => {
-  const formatOutcomeToken = (index: number) => `${NumberUtil.toFixed(sharesCost?.[index], 1)}%`
+  const formatOutcomeToken = (index: number) =>
+    `${NumberUtil.toFixed(sharesPercent?.[index] ?? 50, 1)}%`
 
   const baseMessage = `"${market?.title}" by ${market?.creator.name}\n${
     market?.outcomeTokens[0]

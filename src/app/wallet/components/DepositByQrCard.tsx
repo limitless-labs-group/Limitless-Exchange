@@ -64,8 +64,8 @@ export const DepositByQrCard = ({ ...props }: StackProps) => {
       <HStack w={'full'} spacing={4}>
         <Avatar name='2' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} />
         <Text>
-          Send/withdraw USDC to the address below and select <b>{defaultChain.name}</b> as the
-          network.
+          Send/withdraw {collateralToken.symbol} to the address below and select{' '}
+          <b>{defaultChain.name}</b> as the network.
         </Text>
       </HStack>
 

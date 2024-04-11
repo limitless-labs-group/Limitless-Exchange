@@ -35,12 +35,12 @@ import { FaLink, FaXTwitter } from 'react-icons/fa6'
 export const MarketMetadata = ({ ...props }: StackProps) => {
   const { market } = useTradingService()
   const { trackClicked } = useAmplitude()
-  const { liquidity, holdersCount, sharesCost } = useMarketData({
+  const { liquidity, holdersCount, sharesPercent } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
   })
   const { onCopy, hasCopied } = useClipboard(window.location.href)
 
-  const { tweetURI, castURI } = createMarketShareUrls(market, sharesCost)
+  const { tweetURI, castURI } = createMarketShareUrls(market, sharesPercent)
 
   return (
     <Stack w={'full'} alignItems={'start'} spacing={4} {...props}>

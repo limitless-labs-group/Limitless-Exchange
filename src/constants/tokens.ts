@@ -15,7 +15,7 @@ export const usdc: Token = {
 
 export const weth: Token = {
   address: {
-    [base.id]: '0x',
+    [base.id]: '0x4200000000000000000000000000000000000006',
     [baseSepolia.id]: '0x6CEF1F4adE4C5161ba7c3DD747b26B4491F778dd',
   },
   symbol: 'WETH',

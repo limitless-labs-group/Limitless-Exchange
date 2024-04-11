@@ -51,7 +51,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
   } = useTradingService()
 
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
-  const { sharesCost } = useMarketData({
+  const { sharesPercent } = useMarketData({
     marketAddress,
   })
 
@@ -136,7 +136,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 setOutcomeTokenSelected(0)
               }}
             >
-              {market?.outcomeTokens[0] ?? 'Yes'} {NumberUtil.toFixed(sharesCost?.[0] ?? 50, 1)}%
+              {market?.outcomeTokens[0] ?? 'Yes'} {(sharesPercent?.[0] ?? 50).toFixed(1)}%
             </Button>
             <Button
               w={'full'}
@@ -150,7 +150,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 setOutcomeTokenSelected(1)
               }}
             >
-              {market?.outcomeTokens[1] ?? 'No'} {NumberUtil.toFixed(sharesCost?.[1] ?? 50, 1)}%
+              {market?.outcomeTokens[1] ?? 'No'} {(sharesPercent?.[1] ?? 50).toFixed(1)}%
             </Button>
           </HStack>
         </VStack>

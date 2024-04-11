@@ -25,11 +25,11 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
     [marketAddress]
   )
 
-  const { sharesCost, liquidity, holdersCount } = useMarketData({ marketAddress })
+  const { sharesPercent, liquidity, holdersCount } = useMarketData({ marketAddress })
 
   const marketURI = `${window.location.origin}/markets/${marketAddress}`
 
-  const { tweetURI, castURI } = createMarketShareUrls(market, sharesCost)
+  const { tweetURI, castURI } = createMarketShareUrls(market, sharesPercent)
 
   const { onCopy, hasCopied } = useClipboard(marketURI)
 
@@ -59,10 +59,10 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
         {!children && (
           <HStack textTransform={'uppercase'}>
             <Text color={'green'}>
-              {market?.outcomeTokens[0] ?? 'Yes'} {sharesCost?.[0].toFixed() ?? 0}%
+              {market?.outcomeTokens[0] ?? 'Yes'} {(sharesPercent?.[0] ?? 50).toFixed(1)}%
             </Text>
             <Text color={'red'}>
-              {market?.outcomeTokens[1] ?? 'No'} {sharesCost?.[1].toFixed() ?? 0}%
+              {market?.outcomeTokens[0] ?? 'No'} {(sharesPercent?.[1] ?? 50).toFixed(1)}%
             </Text>
           </HStack>
         )}
