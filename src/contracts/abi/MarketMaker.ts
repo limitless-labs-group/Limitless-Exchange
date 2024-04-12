@@ -65,6 +65,29 @@ export const marketMakerABI = [
     type: 'function',
   },
   {
+    constant: true,
+    inputs: [
+      {
+        name: 'returnAmount',
+        type: 'uint256',
+      },
+      {
+        name: 'outcomeIndex',
+        type: 'uint256',
+      },
+    ],
+    name: 'calcSellAmount',
+    outputs: [
+      {
+        name: 'outcomeTokenSellAmount',
+        type: 'uint256',
+      },
+    ],
+    payable: false,
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     constant: false,
     inputs: [],
     name: 'close',
@@ -403,6 +426,29 @@ export const marketMakerABI = [
     outputs: [],
     payable: false,
     stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    constant: true,
+    inputs: [
+      {
+        name: 'investmentAmount',
+        type: 'uint256',
+      },
+      {
+        name: 'outcomeIndex',
+        type: 'uint256',
+      },
+    ],
+    name: 'calcBuyAmount',
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    payable: false,
+    stateMutability: 'view',
     type: 'function',
   },
   {

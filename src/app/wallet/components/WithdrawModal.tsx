@@ -49,7 +49,7 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
                 h={'24px'}
                 px={2}
                 fontSize={'12px'}
-                onClick={() => setAmount(NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4))}
+                onClick={() => setAmount(balanceOfSmartWallet?.formatted)}
               >
                 {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 3)} ${
                   collateralToken.symbol
@@ -61,7 +61,7 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
                 fontSize={'12px'}
                 bg={'black'}
                 color={'white'}
-                onClick={() => setAmount(NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4))}
+                onClick={() => setAmount(balanceOfSmartWallet?.formatted)}
               >
                 Max
               </Button>
@@ -69,12 +69,11 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
           </HStack>
 
           <InputGroup>
-            <InputLeftElement h={'full'} pointerEvents='none'>
+            {/* <InputLeftElement h={'full'} pointerEvents='none'>
               <FaDollarSign fill={colors.fontLight} />
-            </InputLeftElement>
+            </InputLeftElement> */}
             <Input
               type={'number'}
-              px={7}
               fontWeight={'bold'}
               placeholder={'0'}
               value={amount}

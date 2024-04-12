@@ -563,6 +563,18 @@ export const marketMakerAbi = [
     stateMutability: 'nonpayable',
   },
   {
+    constant: true,
+    payable: false,
+    type: 'function',
+    inputs: [
+      { name: 'returnAmount', type: 'uint256' },
+      { name: 'outcomeIndex', type: 'uint256' },
+    ],
+    name: 'calcSellAmount',
+    outputs: [{ name: 'outcomeTokenSellAmount', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
     constant: false,
     payable: false,
     type: 'function',
@@ -762,6 +774,18 @@ export const marketMakerAbi = [
     name: 'transferOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
+  },
+  {
+    constant: true,
+    payable: false,
+    type: 'function',
+    inputs: [
+      { name: 'investmentAmount', type: 'uint256' },
+      { name: 'outcomeIndex', type: 'uint256' },
+    ],
+    name: 'calcBuyAmount',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
   },
   {
     constant: true,
@@ -1398,6 +1422,15 @@ export const useReadMarketMakerPmSystem = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"calcSellAmount"`
+ */
+export const useReadMarketMakerCalcSellAmount =
+  /*#__PURE__*/ createUseReadContract({
+    abi: marketMakerAbi,
+    functionName: 'calcSellAmount',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"calcNetCost"`
  */
 export const useReadMarketMakerCalcNetCost =
@@ -1498,6 +1531,15 @@ export const useReadMarketMakerFee = /*#__PURE__*/ createUseReadContract({
   abi: marketMakerAbi,
   functionName: 'fee',
 })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"calcBuyAmount"`
+ */
+export const useReadMarketMakerCalcBuyAmount =
+  /*#__PURE__*/ createUseReadContract({
+    abi: marketMakerAbi,
+    functionName: 'calcBuyAmount',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"FEE_RANGE"`
@@ -2371,6 +2413,14 @@ export const readMarketMakerPmSystem = /*#__PURE__*/ createReadContract({
 })
 
 /**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"calcSellAmount"`
+ */
+export const readMarketMakerCalcSellAmount = /*#__PURE__*/ createReadContract({
+  abi: marketMakerAbi,
+  functionName: 'calcSellAmount',
+})
+
+/**
  * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"calcNetCost"`
  */
 export const readMarketMakerCalcNetCost = /*#__PURE__*/ createReadContract({
@@ -2466,6 +2516,14 @@ export const readMarketMakerAtomicOutcomeSlotCount =
 export const readMarketMakerFee = /*#__PURE__*/ createReadContract({
   abi: marketMakerAbi,
   functionName: 'fee',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"calcBuyAmount"`
+ */
+export const readMarketMakerCalcBuyAmount = /*#__PURE__*/ createReadContract({
+  abi: marketMakerAbi,
+  functionName: 'calcBuyAmount',
 })
 
 /**

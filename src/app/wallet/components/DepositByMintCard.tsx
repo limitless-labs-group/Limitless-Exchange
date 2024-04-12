@@ -12,7 +12,7 @@ export const DepositByMintCard = ({ ...props }: StackProps) => {
     <Stack
       h={'fit-content'}
       w={'full'}
-      p={4}
+      p={5}
       border={`1px solid ${colors.border}`}
       //   boxShadow={'0 0 8px #ddd'}
       borderRadius={borderRadius}
@@ -33,7 +33,7 @@ export const DepositByMintCard = ({ ...props }: StackProps) => {
 
       <HStack w={'full'}>
         <Heading fontSize={'24px'}>Mint mock {collateralToken.symbol}</Heading>
-        <Avatar src={collateralToken.imageURI} size={'sm'} />
+        {/* <Avatar src={collateralToken.imageURI} size={'sm'} /> */}
       </HStack>
 
       {defaultChain.testnet && (

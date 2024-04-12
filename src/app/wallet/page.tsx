@@ -41,7 +41,7 @@ const WalletPage = () => {
             rightIcon={<FaCircle fill='green' size={'8px'} />}
             onClick={() => window.open('https://discord.gg/rSJJrehEyH', '_blank')}
           >
-            Chat with human
+            Talk to human
           </Button>
         </Stack>
         <Spacer />

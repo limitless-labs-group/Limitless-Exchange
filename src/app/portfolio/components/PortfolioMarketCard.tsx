@@ -101,7 +101,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
                 <Text fontWeight={'bold'}>
                   {market?.outcomeTokens[marketStats.outcomeId ?? 0] ??
                     ['Yes', 'No'][marketStats.outcomeId ?? 0]}{' '}
-                  {NumberUtil.toFixed(marketStats.latestTrade?.costPerShare, 1)}%
+                  {NumberUtil.toFixed(marketStats.latestTrade?.outcomePercent, 1)}%
                 </Text>
               </Stack>
             </HStack>
@@ -112,7 +112,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Bet</Text>
-                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(marketStats.investedUsd, 0)} ${
+                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(marketStats.investedUsd, 4)} ${
                   collateralToken.symbol
                 }`}</Text>
               </Stack>
@@ -124,7 +124,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Max win</Text>
-                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(marketStats.sharesAmount, 2)} ${
+                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(marketStats.sharesAmount, 4)} ${
                   collateralToken.symbol
                 }`}</Text>
               </Stack>

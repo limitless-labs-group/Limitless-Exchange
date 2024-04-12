@@ -19,6 +19,7 @@ export const weth: Token = {
     [baseSepolia.id]: '0x6CEF1F4adE4C5161ba7c3DD747b26B4491F778dd',
   },
   symbol: 'WETH',
+  name: 'Wrapped Ethereum',
   decimals: 18,
   imageURI: '/assets/images/weth.png',
 }

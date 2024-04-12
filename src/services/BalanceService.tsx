@@ -98,7 +98,9 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
           formatUnits(newBalance - balanceOfSmartWallet.value, collateralToken.decimals)
         ).toFixed(2)
         toast({
-          render: () => <Toast title={`Balance top up: $${depositAmount}`} />,
+          render: () => (
+            <Toast title={`Balance top up: ${depositAmount} ${collateralToken.symbol}`} />
+          ),
         })
       }
 
@@ -176,7 +178,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       await etherspot?.mintErc20(
         collateralToken.address[defaultChain.id],
         smartWalletAddress,
-        parseUnits('1000', collateralToken.decimals)
+        parseUnits('1', collateralToken.decimals)
       )
       toast({
         render: () => <Toast title={'Confirmed. Updating balance...'} />,

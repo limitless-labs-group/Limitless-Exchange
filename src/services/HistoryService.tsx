@@ -12,8 +12,8 @@ interface IHistoryService {
   getTrades: () => Promise<QueryObserverResult<HistoryTrade[], Error>>
   activeMarkets: HistoryMarketStats[] | undefined
   getActiveMarkets: () => Promise<QueryObserverResult<HistoryMarketStats[], Error>>
-  balanceUsd: number
-  balanceShares: number
+  balanceInvested: number
+  balanceToWin: number
   getMarketSharesBalance: (market: Market, outcomeId: number) => Promise<number>
 }
 
@@ -53,6 +53,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
                 }
                 outcomeTokenAmounts
                 outcomeTokenNetCost
+                outcomeMarginalPrice
                 blockTimestamp
               }
             }
@@ -72,6 +73,9 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
           (Number(trade.netCostUsd) / Number(trade.sharesAmount)) * 100,
           2
         )
+        const totalMargin = 18.446 // ? contract constant
+        trade.outcomePercent =
+          (Number(formatUnits(trade.outcomeMarginalPrice, 18)) / totalMargin) * 100
         // trade.sharePrice = formatUnits((BigInt(trade.netCostUsd) / outcomeTokenAmountBI) * 100n, 0)
       })
       trades.sort((tradeA, tradeB) => Number(tradeB.blockTimestamp) - Number(tradeA.blockTimestamp))
@@ -110,7 +114,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * BALANCES
    */
-  const balanceUsd = useMemo(() => {
+  const balanceInvested = useMemo(() => {
     let _balanceUsd = 0
     activeMarkets?.forEach((marketStats) => {
       if (
@@ -125,7 +129,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     return _balanceUsd
   }, [activeMarkets])
 
-  const balanceShares = useMemo(() => {
+  const balanceToWin = useMemo(() => {
     let _balanceShares = 0
     activeMarkets?.forEach((marketStats) => {
       if (
@@ -163,8 +167,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     getTrades,
     activeMarkets,
     getActiveMarkets,
-    balanceUsd,
-    balanceShares,
+    balanceInvested,
+    balanceToWin,
     getMarketSharesBalance,
   }
 
@@ -183,6 +187,8 @@ export type HistoryTrade = {
   sharesAmount?: string
   costPerShare?: string
   outcomeTokenNetCost: string
+  outcomeMarginalPrice: bigint
+  outcomePercent?: number
   netCostUsd?: string
   blockTimestamp: string
 }

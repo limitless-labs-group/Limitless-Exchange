@@ -27,12 +27,13 @@ interface ITradingServiceContext {
   setStrategy: (side: 'Buy' | 'Sell') => void
   outcomeTokenSelected: number
   setOutcomeTokenSelected: (outcomeOption: number) => void
-  balanceShares: number
+  balanceOfShares: number
+  balanceOfInvest: string | undefined
   amount: string
   setAmount: (amount: string) => void
   isExceedsBalance: boolean
-  netCost: string
   shareCost: string
+  sharesAmount: string
   roi: string
   buy: () => Promise<TransactionReceipt | undefined>
   sell: () => Promise<TransactionReceipt | undefined>
@@ -65,6 +66,17 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * STATE
    */
   const [market, setMarket] = useState<Market | null>(null)
+  const marketMakerContract = useMemo(
+    () =>
+      market
+        ? getContract({
+            address: market.address[defaultChain.id],
+            abi: marketMakerABI,
+            client: publicClient,
+          })
+        : undefined,
+    [market]
+  )
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
   const [outcomeTokenSelected, setOutcomeTokenSelected] = useState(0)
 
@@ -98,19 +110,43 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const { balanceOfSmartWallet, refetchbalanceOfSmartWallet } = useBalanceService()
 
-  const [balanceShares, setBalanceShares] = useState(0)
+  const [balanceOfShares, setBalanceOfShares] = useState(0)
   useEffect(() => {
     if (!market || !trades || strategy != 'Sell') {
-      setBalanceShares(0)
+      setBalanceOfShares(0)
       return
     }
     getMarketSharesBalance(market, outcomeTokenSelected).then((_balanceShares) =>
-      setBalanceShares(_balanceShares)
+      setBalanceOfShares(_balanceShares)
     )
   }, [market, outcomeTokenSelected, trades, strategy])
 
+  const { data: balanceOfInvest } = useQuery({
+    queryKey: [
+      'balanceOfInvest',
+      marketMakerContract?.address,
+      outcomeTokenSelected,
+      strategy,
+      balanceOfShares,
+    ],
+    queryFn: async () => {
+      if (!marketMakerContract || !(balanceOfShares > 0)) {
+        return '0'
+      }
+
+      const balanceOfSharesBI = parseUnits(balanceOfShares.toString(), 18)
+      const outcomeTokenAmounts = Array.from({ length: 2 }, (v, i) =>
+        i === outcomeTokenSelected ? balanceOfSharesBI * -1n : 0n
+      )
+      const balanceOfInvestBI =
+        ((await marketMakerContract.read.calcNetCost([outcomeTokenAmounts])) as bigint) * -1n
+      const _balanceOfInvest = formatUnits(balanceOfInvestBI, 18)
+      return _balanceOfInvest
+    },
+  })
+
   /**
-   * AMOUNT
+   * AMOUNT OF COLLATERAL TOKEN TO BUY/SELL
    */
   const [amount, setAmount] = useState<string>('')
   const amountBI = useMemo(
@@ -118,56 +154,56 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     [amount, collateralToken]
   )
 
+  const isExceedsBalance = useMemo(() => {
+    if (strategy == 'Buy') {
+      return Number(amount) > Number(balanceOfSmartWallet?.formatted ?? 0)
+    }
+    return Number(amount) > balanceOfShares
+  }, [strategy, balanceOfShares, amount, balanceOfSmartWallet])
+
+  const isInvalidAmount = amountBI <= 0n || isExceedsBalance
+
   /**
-   * COSTS
+   * TRADE QUOTES
    */
-  const [netCost, setNetCost] = useState<string>('')
-  const [shareCost, setShareCost] = useState<string>('')
-  const [roi, setRoi] = useState<string>('')
+  const [sharesAmount, setSharesAmount] = useState('0')
+  const [shareCost, setShareCost] = useState<string>('0')
+  const [roi, setRoi] = useState<string>('0')
 
   useQuery({
-    queryKey: ['tradeQuotes', market, amount, outcomeTokenSelected, strategy],
+    queryKey: ['tradeQuotes', marketMakerContract?.address, amount, outcomeTokenSelected, strategy],
     queryFn: async () => {
-      if (!market || amount === '' || Number(amount) <= 0) {
-        setNetCost('')
-        setShareCost('')
-        setRoi('')
+      if (!marketMakerContract || amount === '' || Number(amount) <= 0) {
+        setShareCost('0')
+        setSharesAmount('0')
+        setRoi('0')
         return null
       }
 
-      const marketMakerContract = getContract({
-        address: market.address[defaultChain.id],
-        abi: marketMakerABI,
-        client: publicClient,
-      })
-      const amounts = Array.from({ length: market.outcomeTokens.length }, (_, index) =>
-        index === outcomeTokenSelected
-          ? Number(amountBI) > 0
-            ? amountBI * (strategy == 'Buy' ? 1n : -1n)
-            : 1n
-          : 0n
-      )
-      const netCostBI =
-        ((await marketMakerContract.read.calcNetCost([amounts])) as bigint) *
-        (strategy == 'Buy' ? 1n : -1n)
-      const netCost = formatUnits(netCostBI, collateralToken.decimals)
-      const tokenCost = NumberUtil.toFixed(Number(netCost) / Number(amount), 3)
-      const roi = NumberUtil.toFixed((Number(amount) / Number(netCost) - 1) * 100, 2)
-      setNetCost(netCost)
-      setShareCost(tokenCost)
+      // TODO: add market fee
+      let sharesAmountBI = 0n
+      if (strategy == 'Buy') {
+        sharesAmountBI = (await marketMakerContract.read.calcBuyAmount([
+          amountBI,
+          outcomeTokenSelected,
+        ])) as bigint
+      } else if (strategy == 'Sell') {
+        sharesAmountBI = (await marketMakerContract.read.calcSellAmount([
+          amountBI,
+          outcomeTokenSelected,
+        ])) as bigint
+      }
+
+      const sharesAmount = formatUnits(sharesAmountBI, 18)
+      setSharesAmount(sharesAmount)
+
+      const _shareCost = (Number(amount) / Number(sharesAmount)).toString()
+      setShareCost(_shareCost)
+
+      const roi = ((Number(sharesAmount) / Number(amount) - 1) * 100).toString()
       setRoi(roi)
-      return netCost
     },
   })
-
-  const isExceedsBalance = useMemo(() => {
-    if (strategy == 'Buy') {
-      return Number(netCost) > Number(balanceOfSmartWallet?.formatted ?? 0)
-    }
-    return Number(amount) > balanceShares
-  }, [strategy, balanceShares, amount, netCost, balanceOfSmartWallet])
-
-  const isInvalidAmount = amountBI <= 0n || isExceedsBalance
 
   /**
    * BUY
@@ -186,7 +222,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       const receipt = await etherspot.buyOutcomeTokens(
         market.address[defaultChain.id],
-        amountBI,
+        parseUnits(sharesAmount, 18),
         outcomeTokenSelected,
         market.outcomeTokens.length
       )
@@ -196,7 +232,11 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       // TODO: incapsulate
       toast({
-        render: () => <Toast title={`Successfully staked $${NumberUtil.toFixed(netCost, 2)}`} />,
+        render: () => (
+          <Toast
+            title={`Successfully staked ${NumberUtil.toFixed(amount, 4)} ${collateralToken.symbol}`}
+          />
+        ),
       })
       await sleep(1)
       toast({
@@ -227,7 +267,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       const receipt = await etherspot.sellOutcomeTokens(
         market.address[defaultChain.id],
-        amountBI,
+        parseUnits(sharesAmount, 18),
         outcomeTokenSelected,
         market.outcomeTokens.length
       )
@@ -237,7 +277,13 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       // TODO: incapsulate
       toast({
-        render: () => <Toast title={`Successfully redeemed $${NumberUtil.toFixed(netCost, 2)}`} />,
+        render: () => (
+          <Toast
+            title={`Successfully redeemed ${NumberUtil.toFixed(amount, 4)} ${
+              collateralToken.symbol
+            }`}
+          />
+        ),
       })
       await sleep(1)
       toast({
@@ -286,9 +332,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     amount,
     setAmount,
     isExceedsBalance,
-    balanceShares,
+    balanceOfShares,
+    balanceOfInvest,
     shareCost,
-    netCost,
+    sharesAmount,
     roi,
     buy,
     sell,

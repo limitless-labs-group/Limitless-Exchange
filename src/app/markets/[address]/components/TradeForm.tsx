@@ -1,6 +1,7 @@
 import { Button, Input, LogInButton } from '@/components'
 import { collateralToken, defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
+import { usePriceOracle } from '@/providers'
 import {
   StrategyChangedMetadata,
   ChangeEvent,
@@ -9,8 +10,6 @@ import {
   useBalanceService,
   useTradingService,
   OutcomeChangedMetadata,
-  ClickEvent,
-  PricePresetClickedMetadata,
 } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
@@ -23,7 +22,6 @@ import {
   Heading,
   Slider,
   SliderFilledTrack,
-  SliderMark,
   SliderThumb,
   SliderTrack,
   Stack,
@@ -32,7 +30,7 @@ import {
   Tooltip,
   VStack,
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { getAddress, zeroAddress } from 'viem'
 
@@ -45,12 +43,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
   /**
    * ANALITYCS
    */
-  const { trackChanged, trackClicked } = useAmplitude()
-
-  /**
-   * BALANCE
-   */
-  const { balanceOfSmartWallet } = useBalanceService()
+  const { trackChanged } = useAmplitude()
 
   /**
    * TRADING SERVICE
@@ -64,13 +57,25 @@ export const TradeForm = ({ ...props }: StackProps) => {
     amount,
     setAmount,
     isExceedsBalance,
-    balanceShares,
-    netCost,
+    balanceOfInvest,
+    sharesAmount,
     shareCost,
     roi,
     trade,
     status,
   } = useTradingService()
+
+  /**
+   * BALANCE
+   */
+  const { balanceOfSmartWallet } = useBalanceService()
+
+  const balanceFormatted = useMemo(() => {
+    return NumberUtil.toFixed(
+      strategy == 'Buy' ? balanceOfSmartWallet?.formatted : balanceOfInvest,
+      4
+    )
+  }, [balanceOfSmartWallet, strategy, balanceOfInvest])
 
   /**
    * MARKET DATA
@@ -81,10 +86,61 @@ export const TradeForm = ({ ...props }: StackProps) => {
   })
 
   /**
+   * PRICE ORACLE
+   */
+  const { convertEthToUsd } = usePriceOracle()
+  const amountUsd = useMemo(() => {
+    return NumberUtil.formatThousands(convertEthToUsd(amount), 2)
+  }, [amount])
+
+  /**
    * SLIDER
    */
   const [sliderValue, setSliderValue] = useState(0)
   const [showTooltip, setShowTooltip] = useState(false)
+
+  const isZeroBalance = useMemo(() => {
+    return (
+      (strategy == 'Buy' && !(Number(balanceOfSmartWallet?.formatted) > 0)) ||
+      (strategy == 'Sell' && !(Number(balanceOfInvest) > 0))
+    )
+  }, [strategy, balanceOfSmartWallet, balanceOfInvest])
+
+  const onSlide = useCallback(
+    (value: number) => {
+      setSliderValue(value)
+      if (value == 0 || isZeroBalance) {
+        setAmount('')
+        return
+      }
+      let amountByPercent = 0
+      if (strategy == 'Buy') {
+        amountByPercent = (Number(balanceOfSmartWallet?.formatted) * value) / 100
+      } else if (strategy == 'Sell') {
+        amountByPercent = (Number(balanceOfInvest) * value) / 100
+      }
+      setAmount(NumberUtil.toFixed(amountByPercent, 4))
+    },
+    [sliderValue, balanceOfSmartWallet, isZeroBalance]
+  )
+
+  /**
+   * Effect to automatically set a proper slider value based on the token amount
+   */
+  useEffect(() => {
+    if (isZeroBalance) {
+      setSliderValue(0)
+      return
+    }
+    let percentByAmount = 0
+    if (strategy == 'Buy') {
+      percentByAmount = (Number(amount) / Number(balanceOfSmartWallet?.formatted)) * 100
+    } else if (strategy == 'Sell') {
+      percentByAmount = (Number(amount) / Number(balanceOfInvest)) * 100
+    }
+    percentByAmount = Number(percentByAmount.toFixed())
+    setSliderValue(percentByAmount)
+  }, [amount, isZeroBalance, strategy, outcomeTokenSelected])
 
   return (
     <Stack
@@ -193,29 +249,6 @@ export const TradeForm = ({ ...props }: StackProps) => {
         <Stack w={'full'} spacing={1}>
           <HStack w={'full'} justifyContent={'space-between'} alignItems={'center'}>
             <Heading fontSize={'14px'}>{strategy == 'Buy' ? 'You pay' : 'You sell'}</Heading>
-            {/* {strategy == 'Buy' ? (
-              <Button
-                h={'24px'}
-                px={2}
-                py={1}
-                fontSize={'13px'}
-                colorScheme={'transparent'}
-                gap={1}
-              >
-                {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}`}{' '}
-                {collateralToken.symbol}
-              </Button>
-            ) : (
-              <Button
-                h={'24px'}
-                px={2}
-                py={1}
-                fontSize={'13px'}
-                onClick={() => setAmount(NumberUtil.toFixed(balanceShares, 0))}
-              >
-                Max {NumberUtil.toFixed(balanceShares, 0)} shares
-              </Button>
-            )} */}
           </HStack>
           <Stack
             w={'full'}
@@ -259,14 +292,13 @@ export const TradeForm = ({ ...props }: StackProps) => {
               color={'fontLight'}
               fontSize={'12px'}
             >
-              <Text>$3,512,2</Text> {/* // TODO: replace with USD calc  */}
+              <Text>~${amountUsd}</Text>
               <Text
                 _hover={{ color: 'font' }}
                 cursor={'pointer'}
-                onClick={() => setAmount(balanceOfSmartWallet?.formatted ?? '')}
+                onClick={() => setAmount(balanceFormatted)}
               >
-                {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 3)}`}{' '}
-                {collateralToken.symbol}
+                {`Balance: ${balanceFormatted}`} {collateralToken.symbol}
               </Text>
             </HStack>
           </Stack>
@@ -276,9 +308,11 @@ export const TradeForm = ({ ...props }: StackProps) => {
           w={'95%'}
           aria-label='slider-ex-6'
           value={sliderValue}
-          onChange={(val) => setSliderValue(val)}
+          onChange={(val) => onSlide(val)}
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
+          isDisabled={isZeroBalance}
+          focusThumbOnChange={false}
         >
           <SliderTrack>
             <SliderFilledTrack bg={outcomeTokenSelected == 0 ? 'green' : 'red'} />
@@ -315,15 +349,21 @@ export const TradeForm = ({ ...props }: StackProps) => {
         )}
 
         <VStack w={'full'} spacing={0}>
-          {strategy == 'Buy' ? (
+          <HStack w={'full'} justifyContent={'space-between'}>
+            <Text color={'fontLight'}>Avg price</Text>
+            <Text textAlign={'right'}>{`${NumberUtil.toFixed(shareCost, 4)} ${
+              collateralToken.symbol
+            }`}</Text>
+          </HStack>
+          {strategy == 'Buy' && (
             <>
               <HStack w={'full'} justifyContent={'space-between'}>
                 <Text color={'fontLight'}>Potential return</Text>
                 <HStack spacing={1}>
                   <Text color={'green'} fontWeight={'bold'} textAlign={'right'}>
-                    {`${Number(amount ?? 0)} ${collateralToken.symbol}`}
+                    {`${NumberUtil.toFixed(sharesAmount, 4)} ${collateralToken.symbol}`}
                   </Text>
-                  <Text color={'fontLight'}>{Number(roi ?? 0)}%</Text>
+                  <Text color={'fontLight'}>{NumberUtil.toFixed(roi, 2)}%</Text>
                 </HStack>
               </HStack>
               <HStack w={'full'} justifyContent={'space-between'}>
@@ -347,16 +387,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                     </Flex>
                   </Tooltip>
                 </HStack>
-                <Text textAlign={'right'}>0</Text>
-              </HStack>
-            </>
-          ) : (
-            <>
-              <HStack w={'full'} justifyContent={'space-between'}>
-                <Text color={'fontLight'}>Avg price</Text>
-                <Text textAlign={'right'}>{`${Number(shareCost ?? 0)} ${
-                  collateralToken.symbol
-                }`}</Text>
+                <Text textAlign={'right'}>{NumberUtil.toFixed(sharesAmount, 4)}</Text>
               </HStack>
             </>
           )}

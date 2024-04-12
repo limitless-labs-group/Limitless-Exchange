@@ -79,7 +79,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
         <HStack w={'full'} spacing={4}>
           <HStack>
             <Text color={'fontLight'}>Bets</Text>
-            <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 1)} ${
+            <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
               collateralToken.symbol
             }`}</Text>
           </HStack>
@@ -97,39 +97,6 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
 
         {children ?? (
           <Stack w={'full'}>
-            {/* <HStack fontSize={'13px'} spacing={0} w={'full'}>
-              <Text
-                p={'2px 6px'}
-                bg={'green'}
-                color={'white'}
-                fontWeight={'bold'}
-                borderRadius={borderRadius}
-                borderTopEndRadius={0}
-                borderBottomEndRadius={0}
-                textAlign={'center'}
-                whiteSpace={'nowrap'}
-                w={`${sharesCost?.[0] ?? 50}%`}
-                minW={'fit-content'}
-              >
-                {market?.outcomeTokens[0] ?? 'Yes'} {sharesCost?.[0].toFixed() ?? 0}%
-              </Text>
-              <Text
-                p={'2px 6px'}
-                bg={'red'}
-                color={'white'}
-                fontWeight={'bold'}
-                borderRadius={borderRadius}
-                borderTopStartRadius={0}
-                borderBottomStartRadius={0}
-                textAlign={'center'}
-                whiteSpace={'nowrap'}
-                w={`${sharesCost?.[1] ?? 50}%`}
-                minW={'fit-content'}
-              >
-                {market?.outcomeTokens[1] ?? 'No'} {sharesCost?.[1].toFixed() ?? 0}%
-              </Text>
-            </HStack> */}
-
             <HStack h={'33px'}>
               <Button
                 bg={'black'}

@@ -18,7 +18,12 @@ type PriceOracleContextType = {
    * @param eth The amount in Ethereum to be converted.
    * @returns The equivalent amount in US dollars, or 0 if conversion is not possible.
    */
-  convertEthToUsd: (eth: number) => number
+  convertEthToUsd: (eth: number | string | undefined) => number
+
+  /**
+   * The current ETH price fetched from Coingecko API
+   */
+  ethPrice: number | undefined
 }
 
 /**
@@ -49,11 +54,11 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
   })
 
   const convertEthToUsd = useCallback(
-    (eth: number) => {
-      if (!ethPrice) {
+    (eth: number | string | undefined) => {
+      if (!ethPrice || !eth || isNaN(Number(eth))) {
         return 0
       }
-      return eth * ethPrice
+      return Number(eth) * ethPrice
     },
     [ethPrice]
   )
@@ -69,7 +74,7 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
   )
 
   return (
-    <PriceOracleContext.Provider value={{ convertUsdToEth, convertEthToUsd }}>
+    <PriceOracleContext.Provider value={{ convertUsdToEth, convertEthToUsd, ethPrice }}>
       {children}
     </PriceOracleContext.Provider>
   )

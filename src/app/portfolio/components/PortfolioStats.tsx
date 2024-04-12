@@ -1,16 +1,18 @@
 import { Button } from '@/components'
 import { collateralToken } from '@/constants'
+import { usePriceOracle } from '@/providers'
 import { useBalanceService, useHistory } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
-import { Divider, HStack, Heading, Spacer, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
+import { HStack, Heading, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { FaFileInvoiceDollar, FaTrophy, FaWallet } from 'react-icons/fa6'
 
 export const PortfolioStats = ({ ...props }: StackProps) => {
   const router = useRouter()
   const { balanceOfSmartWallet } = useBalanceService()
-  const { balanceUsd, balanceShares } = useHistory()
+  const { balanceInvested, balanceToWin } = useHistory()
+  const { convertEthToUsd } = usePriceOracle()
 
   return (
     <Stack
@@ -32,9 +34,12 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
       >
         <FaFileInvoiceDollar size={'32px'} />
         <Stack alignItems={'center'}>
-          <Heading fontSize={'28px'}>{`${NumberUtil.toFixed(balanceUsd, 2)} ${
+          <Heading fontSize={'28px'}>{`${NumberUtil.toFixed(balanceInvested, 4)} ${
             collateralToken.symbol
           }`}</Heading>
+          <Text color={'fontLight'}>
+            ~${NumberUtil.toFixed(convertEthToUsd(balanceInvested), 2)}
+          </Text>
           <Text color={'fontLight'}>Invested</Text>
         </Stack>
       </VStack>
@@ -50,9 +55,10 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
       >
         <FaTrophy size={'32px'} />
         <Stack alignItems={'center'}>
-          <Heading fontSize={'28px'}>{`${NumberUtil.toFixed(balanceShares, 2)} ${
+          <Heading fontSize={'28px'}>{`${NumberUtil.toFixed(balanceToWin, 4)} ${
             collateralToken.symbol
           }`}</Heading>
+          <Text color={'fontLight'}>~${NumberUtil.toFixed(convertEthToUsd(balanceToWin), 2)}</Text>
           <Text color={'fontLight'}>To win</Text>
         </Stack>
       </VStack>
@@ -69,8 +75,11 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
         <FaWallet size={'32px'} />
         <Stack alignItems={'center'}>
           <Heading fontSize={'28px'}>
-            {`${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 2)} ${collateralToken.symbol}`}
+            {`${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4)} ${collateralToken.symbol}`}
           </Heading>
+          <Text color={'fontLight'}>
+            ~${NumberUtil.formatThousands(convertEthToUsd(balanceOfSmartWallet?.formatted), 2)}
+          </Text>
           <HStack>
             <Text color={'fontLight'}>Balance</Text>
             <Button
