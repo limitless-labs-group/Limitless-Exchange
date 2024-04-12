@@ -78,7 +78,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
 
         <HStack w={'full'} spacing={4}>
           <HStack>
-            <Text color={'fontLight'}>Pool</Text>
+            <Text color={'fontLight'}>Bets</Text>
             <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 1)} ${
               collateralToken.symbol
             }`}</Text>

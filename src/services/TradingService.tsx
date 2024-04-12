@@ -30,8 +30,6 @@ interface ITradingServiceContext {
   balanceShares: number
   amount: string
   setAmount: (amount: string) => void
-  decreaseAmount: (by: number) => void
-  increaseAmount: (by: number) => void
   isExceedsBalance: boolean
   netCost: string
   shareCost: string
@@ -100,23 +98,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const { balanceOfSmartWallet, refetchbalanceOfSmartWallet } = useBalanceService()
 
-  // const { data: balanceShares } = useQuery({
-  //   queryKey: ['balanceShares', account, market],
-  //   queryFn: async () => {
-  //     if (!account || !market) return
-  //     const conditionalTokensContract = getContract({
-  //       address: conditionalTokensAddress[defaultChain.id],
-  //       abi: conditionalTokensABI,
-  //       client: publicClient,
-  //     })
-  //     const balanceBI = (await conditionalTokensContract.read.balanceOf([
-  //       account,
-  //       market.conditionId,
-  //     ])) as bigint
-  //     const balance = formatUnits(balanceBI, collateralToken.decimals)
-  //     console.log('balanceShares', balanceBI, balance)
-  //   },
-  // })
   const [balanceShares, setBalanceShares] = useState(0)
   useEffect(() => {
     if (!market || !trades || strategy != 'Sell') {
@@ -137,27 +118,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     [amount, collateralToken]
   )
 
-  const decreaseAmount = useCallback(
-    (by: number) => {
-      const _amount = Number(amount)
-      if (isNaN(_amount)) {
-        return
-      }
-      if (_amount > by) setAmount((_amount - by).toString())
-      else setAmount('1')
-    },
-    [amount]
-  )
-
-  const increaseAmount = useCallback(
-    (by: number) => {
-      const _amount = Number(amount)
-      if (isNaN(_amount)) setAmount(by.toString())
-      else setAmount((_amount + by).toString())
-    },
-    [amount]
-  )
-
   /**
    * COSTS
    */
@@ -166,7 +126,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const [roi, setRoi] = useState<string>('')
 
   useQuery({
-    queryKey: ['shareCost', market, amount, outcomeTokenSelected, strategy],
+    queryKey: ['tradeQuotes', market, amount, outcomeTokenSelected, strategy],
     queryFn: async () => {
       if (!market || amount === '' || Number(amount) <= 0) {
         setNetCost('')
@@ -325,8 +285,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setOutcomeTokenSelected,
     amount,
     setAmount,
-    decreaseAmount,
-    increaseAmount,
     isExceedsBalance,
     balanceShares,
     shareCost,

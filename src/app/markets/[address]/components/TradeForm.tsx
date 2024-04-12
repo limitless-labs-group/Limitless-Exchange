@@ -12,25 +12,49 @@ import {
   ClickEvent,
   PricePresetClickedMetadata,
 } from '@/services'
-import { borderRadius } from '@/styles'
+import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
 import {
   Avatar,
   Box,
   Divider,
+  Flex,
   HStack,
   Heading,
+  Slider,
+  SliderFilledTrack,
+  SliderMark,
+  SliderThumb,
+  SliderTrack,
   Stack,
   StackProps,
   Text,
+  Tooltip,
   VStack,
 } from '@chakra-ui/react'
+import { useState } from 'react'
+import { FaInfoCircle } from 'react-icons/fa'
 import { getAddress, zeroAddress } from 'viem'
 
 export const TradeForm = ({ ...props }: StackProps) => {
+  /**
+   * ACCOUNT STATE
+   */
   const { isLoggedIn } = useAccount()
+
+  /**
+   * ANALITYCS
+   */
   const { trackChanged, trackClicked } = useAmplitude()
+
+  /**
+   * BALANCE
+   */
   const { balanceOfSmartWallet } = useBalanceService()
+
+  /**
+   * TRADING SERVICE
+   */
   const {
     market,
     strategy,
@@ -39,8 +63,6 @@ export const TradeForm = ({ ...props }: StackProps) => {
     setOutcomeTokenSelected,
     amount,
     setAmount,
-    decreaseAmount,
-    increaseAmount,
     isExceedsBalance,
     balanceShares,
     netCost,
@@ -50,10 +72,19 @@ export const TradeForm = ({ ...props }: StackProps) => {
     status,
   } = useTradingService()
 
+  /**
+   * MARKET DATA
+   */
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
   const { sharesPercent } = useMarketData({
     marketAddress,
   })
+
+  /**
+   * SLIDER
+   */
+  const [sliderValue, setSliderValue] = useState(0)
+  const [showTooltip, setShowTooltip] = useState(false)
 
   return (
     <Stack
@@ -82,7 +113,9 @@ export const TradeForm = ({ ...props }: StackProps) => {
             setStrategy('Buy')
           }}
         >
-          <Text fontWeight={strategy == 'Buy' ? 'bold' : 'nornal'}>Buy</Text>
+          <Text fontWeight={'bold'} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
+            Buy
+          </Text>
           <Box
             pos={'absolute'}
             w={'full'}
@@ -106,7 +139,9 @@ export const TradeForm = ({ ...props }: StackProps) => {
             setStrategy('Sell')
           }}
         >
-          <Text fontWeight={strategy == 'Sell' ? 'bold' : 'nornal'}>Sell</Text>
+          <Text fontWeight={'bold'} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
+            Sell
+          </Text>
           <Box
             pos={'absolute'}
             w={'full'}
@@ -157,8 +192,8 @@ export const TradeForm = ({ ...props }: StackProps) => {
 
         <Stack w={'full'} spacing={1}>
           <HStack w={'full'} justifyContent={'space-between'} alignItems={'center'}>
-            <Heading fontSize={'14px'}>Shares</Heading>
-            {strategy == 'Buy' ? (
+            <Heading fontSize={'14px'}>{strategy == 'Buy' ? 'You pay' : 'You sell'}</Heading>
+            {/* {strategy == 'Buy' ? (
               <Button
                 h={'24px'}
                 px={2}
@@ -169,7 +204,6 @@ export const TradeForm = ({ ...props }: StackProps) => {
               >
                 {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}`}{' '}
                 {collateralToken.symbol}
-                {/* <Avatar size={'2xs'} src={collateralToken.imageURI} /> */}
               </Button>
             ) : (
               <Button
@@ -181,75 +215,90 @@ export const TradeForm = ({ ...props }: StackProps) => {
               >
                 Max {NumberUtil.toFixed(balanceShares, 0)} shares
               </Button>
-            )}
+            )} */}
           </HStack>
-          <HStack w={'full'} spacing={1}>
-            <HStack pos={'relative'}>
-              <Button
-                pos={'absolute'}
-                h={'40px'}
-                left={'8px'}
-                top={`${(60 - 40) / 2}px`}
-                zIndex={2}
-                fontSize={'26px'}
-                fontWeight={'normal'}
-                p={2}
-                onClick={() => {
-                  trackClicked<PricePresetClickedMetadata>(ClickEvent.PricePresetClicked, {
-                    type: '-10 clicked',
-                  })
-                  decreaseAmount(10)
-                }}
-              >
-                -
-              </Button>
+          <Stack
+            w={'full'}
+            spacing={1}
+            px={3}
+            py={2}
+            borderRadius={borderRadius}
+            border={'1px solid'}
+            borderColor={isExceedsBalance ? 'red' : 'border'}
+          >
+            <HStack h={'34px'} w='full'>
               <Input
                 type={'number'}
+                h={'full'}
                 fontWeight={'bold'}
-                fontSize={'18px'}
-                textAlign={'center'}
                 placeholder={'0'}
-                // zIndex={-1}
-                borderColor={isExceedsBalance && strategy == 'Sell' ? 'red' : 'bgLight'}
-                _hover={{
-                  borderColor: isExceedsBalance && strategy == 'Sell' ? 'red' : 'bgLight',
-                }}
+                border={'none'}
+                pl={0}
                 _focus={{
                   boxShadow: 'none',
-                  borderColor: isExceedsBalance && strategy == 'Sell' ? 'red' : 'bgLight',
                 }}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
               />
 
               <Button
-                pos={'absolute'}
-                h={'40px'}
-                right={'8px'}
-                top={`${(60 - 40) / 2}px`}
-                zIndex={2}
-                fontSize={'22px'}
-                fontWeight={'normal'}
-                p={2}
-                onClick={() => {
-                  trackClicked<PricePresetClickedMetadata>(ClickEvent.PricePresetClicked, {
-                    type: '+10 clicked',
-                  })
-                  increaseAmount(10)
-                }}
+                h={'full'}
+                colorScheme={'transparent'}
+                border={'1px solid'}
+                borderColor={'border'}
+                gap={1}
               >
-                +
+                <Avatar size={'xs'} src={collateralToken.imageURI} />
+                <Text>{collateralToken.symbol}</Text>
               </Button>
             </HStack>
-            <Text color={'fontLight'}>≈</Text>
-            <HStack alignItems={'center'} spacing={1} justifyContent={'right'}>
-              <Text color={isExceedsBalance && strategy == 'Buy' ? 'red' : 'font'}>
-                {`${NumberUtil.toFixed(netCost, 3)}`}
+
+            <HStack
+              w={'full'}
+              justifyContent={'space-between'}
+              color={'fontLight'}
+              fontSize={'12px'}
+            >
+              <Text>$3,512,2</Text> {/* // TODO: replace with USD calc  */}
+              <Text
+                _hover={{ color: 'font' }}
+                cursor={'pointer'}
+                onClick={() => setAmount(balanceOfSmartWallet?.formatted ?? '')}
+              >
+                {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 3)}`}{' '}
+                {collateralToken.symbol}
               </Text>
-              <Avatar size={'xs'} src={collateralToken.imageURI} />
             </HStack>
-          </HStack>
+          </Stack>
         </Stack>
+
+        <Slider
+          w={'95%'}
+          aria-label='slider-ex-6'
+          value={sliderValue}
+          onChange={(val) => setSliderValue(val)}
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+        >
+          <SliderTrack>
+            <SliderFilledTrack bg={outcomeTokenSelected == 0 ? 'green' : 'red'} />
+          </SliderTrack>
+          <Tooltip
+            hasArrow
+            bg='bgLight'
+            color='fontLight'
+            fontSize={'12px'}
+            placement='top'
+            isOpen={showTooltip}
+            label={`${sliderValue}%`}
+          >
+            <SliderThumb
+              bg={outcomeTokenSelected == 0 ? 'green' : 'red'}
+              border={'1px solid'}
+              borderColor={'border'}
+            />
+          </Tooltip>
+        </Slider>
 
         {isLoggedIn ? (
           <Button
@@ -266,17 +315,50 @@ export const TradeForm = ({ ...props }: StackProps) => {
         )}
 
         <VStack w={'full'} spacing={0}>
-          <HStack w={'full'} justifyContent={'space-between'}>
-            <Text color={'fontLight'}>Avg price</Text>
-            <Text textAlign={'right'}>{`${Number(shareCost ?? 0)} ${collateralToken.symbol}`}</Text>
-          </HStack>
-          {strategy == 'Buy' && (
-            <HStack w={'full'} justifyContent={'space-between'}>
-              <Text color={'fontLight'}>Potential return</Text>
-              <Text color={'green'} fontWeight={'bold'} textAlign={'right'}>
-                {`${Number(amount ?? 0)} ${collateralToken.symbol} (${Number(roi ?? 0)}%)`}
-              </Text>
-            </HStack>
+          {strategy == 'Buy' ? (
+            <>
+              <HStack w={'full'} justifyContent={'space-between'}>
+                <Text color={'fontLight'}>Potential return</Text>
+                <HStack spacing={1}>
+                  <Text color={'green'} fontWeight={'bold'} textAlign={'right'}>
+                    {`${Number(amount ?? 0)} ${collateralToken.symbol}`}
+                  </Text>
+                  <Text color={'fontLight'}>{Number(roi ?? 0)}%</Text>
+                </HStack>
+              </HStack>
+              <HStack w={'full'} justifyContent={'space-between'}>
+                <HStack spacing={1}>
+                  <Text color={'fontLight'}>Contracts</Text>
+                  <Tooltip
+                    label={
+                      'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
+                    }
+                    bg={'bg'}
+                    color={'font'}
+                    fontWeight={'normal'}
+                    border={'1px solid'}
+                    borderColor={'border'}
+                    borderRadius={borderRadius}
+                    px={3}
+                    py={2}
+                  >
+                    <Flex>
+                      <FaInfoCircle fill={colors.fontLight} />
+                    </Flex>
+                  </Tooltip>
+                </HStack>
+                <Text textAlign={'right'}>0</Text>
+              </HStack>
+            </>
+          ) : (
+            <>
+              <HStack w={'full'} justifyContent={'space-between'}>
+                <Text color={'fontLight'}>Avg price</Text>
+                <Text textAlign={'right'}>{`${Number(shareCost ?? 0)} ${
+                  collateralToken.symbol
+                }`}</Text>
+              </HStack>
+            </>
           )}
         </VStack>
       </VStack>

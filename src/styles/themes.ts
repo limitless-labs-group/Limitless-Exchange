@@ -7,7 +7,7 @@ export const colors = {
   bgLight: '#f5f5f5',
   border: '#ddd',
   font: '#0F172A',
-  fontLight: '#888',
+  fontLight: '#747675',
   green: '#48CB9A',
   red: '#EF5D5D',
   black: '#0F172A',
@@ -83,7 +83,7 @@ export const chakraTheme = ChakraTheme({
         fontWeight: 'bold !important',
       },
       '#w3a-modal .w3a-header__logo img, #w3a-modal .w3a-modal__loader-app-logo img': {
-        // filter: 'invert()',
+        filter: 'invert()',
         borderRadius: '50% !important',
       },
     },

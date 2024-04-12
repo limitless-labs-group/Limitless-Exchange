@@ -134,17 +134,19 @@ export const Header = ({ ...props }: FlexProps) => {
 
               <HStack h={'full'} spacing={4}>
                 <Button
-                  colorScheme={'brand'}
                   h={'40px'}
-                  gap={'8px'}
+                  gap={2}
+                  fontWeight={'normal'}
                   onClick={() => router.push('/wallet')}
                 >
                   <FaWallet size={'16px'} />
-                  <Text>
-                    {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 2)} ${
-                      collateralToken.symbol
-                    }`}
-                  </Text>
+                  <HStack spacing={1}>
+                    <Text>Balance</Text>
+                    <Text fontWeight={'bold'}>
+                      {NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 2)}
+                    </Text>
+                    <Text>{collateralToken.symbol}</Text>
+                  </HStack>
                 </Button>
 
                 <Button

@@ -20,7 +20,7 @@ export const weth: Token = {
   },
   symbol: 'WETH',
   decimals: 18,
-  imageURI: 'https://assets.ramp.network/crypto-assets/eth.svg',
+  imageURI: '/assets/images/weth.png',
 }
 
 export const collateralToken = weth

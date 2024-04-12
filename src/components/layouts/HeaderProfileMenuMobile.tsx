@@ -60,18 +60,20 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
             </Button>
 
             <Button
-              colorScheme={'brand'}
               h={'40px'}
+              fontWeight={'normal'}
               justifyContent={'start'}
               onClick={() => router.push('/wallet')}
             >
-              <HStack>
+              <HStack spacing={2}>
                 <FaWallet size={'16px'} />
-                <Text>
-                  {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 2)} ${
-                    collateralToken.symbol
-                  }`}
-                </Text>
+                <HStack spacing={1}>
+                  <Text>Balance</Text>
+                  <Text fontWeight={'bold'}>
+                    {NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 2)}
+                  </Text>
+                  <Text>{collateralToken.symbol}</Text>
+                </HStack>
               </HStack>
             </Button>
 

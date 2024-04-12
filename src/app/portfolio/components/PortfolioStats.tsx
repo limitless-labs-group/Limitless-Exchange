@@ -32,7 +32,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
       >
         <FaFileInvoiceDollar size={'32px'} />
         <Stack alignItems={'center'}>
-          <Heading fontSize={'28px'}>{`${NumberUtil.toFixed(balanceUsd, 3)} ${
+          <Heading fontSize={'28px'}>{`${NumberUtil.toFixed(balanceUsd, 2)} ${
             collateralToken.symbol
           }`}</Heading>
           <Text color={'fontLight'}>Invested</Text>
@@ -50,7 +50,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
       >
         <FaTrophy size={'32px'} />
         <Stack alignItems={'center'}>
-          <Heading fontSize={'28px'}>{`${NumberUtil.toFixed(balanceShares, 3)} ${
+          <Heading fontSize={'28px'}>{`${NumberUtil.toFixed(balanceShares, 2)} ${
             collateralToken.symbol
           }`}</Heading>
           <Text color={'fontLight'}>To win</Text>
@@ -69,7 +69,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
         <FaWallet size={'32px'} />
         <Stack alignItems={'center'}>
           <Heading fontSize={'28px'}>
-            {`${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 3)} ${collateralToken.symbol}`}
+            {`${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 2)} ${collateralToken.symbol}`}
           </Heading>
           <HStack>
             <Text color={'fontLight'}>Balance</Text>
