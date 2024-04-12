@@ -1,7 +1,13 @@
 'use client'
 
 import * as React from 'react'
-import { ChakraProvider, QueryProvider, WagmiProvider, Web3AuthProvider } from '@/providers'
+import {
+  ChakraProvider,
+  QueryProvider,
+  WagmiProvider,
+  Web3AuthProvider,
+  PriceOracleProvider,
+} from '@/providers'
 import {
   AccountProvider,
   AmplitudeProvider,
@@ -28,7 +34,9 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                     <AccountProvider>
                       <BalanceServiceProvider>
                         <HistoryServiceProvider>
-                          <TradingServiceProvider>{children}</TradingServiceProvider>
+                          <PriceOracleProvider>
+                            <TradingServiceProvider>{children}</TradingServiceProvider>
+                          </PriceOracleProvider>
                         </HistoryServiceProvider>
                       </BalanceServiceProvider>
                     </AccountProvider>
