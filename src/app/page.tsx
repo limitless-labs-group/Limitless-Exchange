@@ -2,13 +2,12 @@
 
 import { CreateMarketCard, MainLayout, MarketCard } from '@/components'
 import { defaultChain, markets } from '@/constants'
-import { ClickEvent, CreateMarketClickedMetadata, OpenEvent, useAmplitude } from '@/services'
-import { borderRadius, colors } from '@/styles'
-import { Box, Grid, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
+import { OpenEvent, useAmplitude } from '@/services'
+import { Box, Grid, HStack, Stack, Text } from '@chakra-ui/react'
 import { useEffect } from 'react'
 
 const MainPage = () => {
-  const { trackOpened, trackClicked } = useAmplitude()
+  const { trackOpened } = useAmplitude()
   useEffect(() => {
     trackOpened(OpenEvent.PageOpened, {
       page: 'Explore Markets',
