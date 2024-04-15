@@ -234,7 +234,9 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       toast({
         render: () => (
           <Toast
-            title={`Successfully staked ${NumberUtil.toFixed(amount, 4)} ${collateralToken.symbol}`}
+            title={`Successfully invested ${NumberUtil.toFixed(amount, 4)} ${
+              collateralToken.symbol
+            }`}
           />
         ),
       })
