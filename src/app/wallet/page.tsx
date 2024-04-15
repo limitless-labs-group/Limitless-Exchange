@@ -1,8 +1,12 @@
 'use client'
 
-import { BalanceCard, DepositByMintCard, DepositByQrCard } from '@/app/wallet/components'
+import {
+  BalanceCard,
+  DepositByMintCard,
+  DepositByQrCard,
+  DepositDisclaimer,
+} from '@/app/wallet/components'
 import { Button, MainLayout } from '@/components'
-import { defaultChain } from '@/constants'
 import { OpenEvent, useAmplitude, useAuth } from '@/services'
 import { colors } from '@/styles'
 import { Flex, Spacer, Stack } from '@chakra-ui/react'
@@ -28,6 +32,7 @@ const WalletPage = () => {
       <Flex gap={{ sm: 2, md: 6 }} flexDir={{ sm: 'column-reverse', md: 'row' }}>
         <Stack flexBasis={'66%'}>
           <DepositByQrCard />
+          <DepositDisclaimer />
           {/* {defaultChain.testnet && */}
           <DepositByMintCard />
           {/* } */}

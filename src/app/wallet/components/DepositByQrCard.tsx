@@ -1,5 +1,4 @@
 import { Button, Modal } from '@/components'
-import { collateralToken, defaultChain } from '@/constants'
 import { CopyEvent, useAccount, useAmplitude } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { truncateEthAddress } from '@/utils'
@@ -14,7 +13,7 @@ import {
   useClipboard,
   useDisclosure,
 } from '@chakra-ui/react'
-import { FaCircle, FaQrcode } from 'react-icons/fa'
+import { FaQrcode } from 'react-icons/fa'
 import QRCode from 'react-qr-code'
 
 export const DepositByQrCard = ({ ...props }: StackProps) => {

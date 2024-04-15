@@ -17,7 +17,6 @@ import {
   Avatar,
   Box,
   Divider,
-  Flex,
   HStack,
   Heading,
   Slider,
@@ -31,7 +30,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FaInfoCircle } from 'react-icons/fa'
+import { FaInfo } from 'react-icons/fa'
 import { getAddress, zeroAddress } from 'viem'
 
 export const TradeForm = ({ ...props }: StackProps) => {
@@ -392,9 +391,14 @@ export const TradeForm = ({ ...props }: StackProps) => {
                     px={3}
                     py={2}
                   >
-                    <Flex>
-                      <FaInfoCircle fill={colors.fontLight} />
-                    </Flex>
+                    <Box
+                      p={'2px'}
+                      borderRadius={'full'}
+                      border={'1px solid'}
+                      borderColor={'fontLight'}
+                    >
+                      <FaInfo fontSize={'8px'} fill={colors.fontLight} />
+                    </Box>
                   </Tooltip>
                 </HStack>
                 <Text textAlign={'right'}>{NumberUtil.toFixed(sharesAmount, 4)}</Text>
