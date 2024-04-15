@@ -62,7 +62,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
               {market?.outcomeTokens[0] ?? 'Yes'} {(sharesPercent?.[0] ?? 50).toFixed(1)}%
             </Text>
             <Text color={'red'}>
-              {market?.outcomeTokens[0] ?? 'No'} {(sharesPercent?.[1] ?? 50).toFixed(1)}%
+              {market?.outcomeTokens[1] ?? 'No'} {(sharesPercent?.[1] ?? 50).toFixed(1)}%
             </Text>
           </HStack>
         )}
