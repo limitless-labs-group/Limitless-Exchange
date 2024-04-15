@@ -94,6 +94,15 @@ export const TradeForm = ({ ...props }: StackProps) => {
   }, [amount])
 
   /**
+   * Amount to display in UI and reduce queries
+   */
+  const [displayAmount, setDisplayAmount] = useState('')
+
+  useEffect(() => {
+    setDisplayAmount(amount)
+  }, [amount])
+
+  /**
    * SLIDER
    */
   const [sliderValue, setSliderValue] = useState(0)
@@ -110,7 +119,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
     (value: number) => {
       setSliderValue(value)
       if (value == 0 || isZeroBalance) {
-        setAmount('')
+        setDisplayAmount('')
         return
       }
       let amountByPercent = 0
@@ -119,13 +128,13 @@ export const TradeForm = ({ ...props }: StackProps) => {
       } else if (strategy == 'Sell') {
         amountByPercent = (Number(balanceOfInvest) * value) / 100
       }
-      setAmount(NumberUtil.toFixed(amountByPercent, 4))
+      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 4))
     },
     [sliderValue, balanceOfSmartWallet, isZeroBalance]
   )
 
   /**
-   * Effect to automatically set a proper slider value based on the token amount
+   * Effect to automatically set a proper slider value based on the tokens amount
    */
   useEffect(() => {
     if (isZeroBalance) {
@@ -270,7 +279,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 _focus={{
                   boxShadow: 'none',
                 }}
-                value={amount}
+                value={displayAmount}
                 onChange={(e) => setAmount(e.target.value)}
               />
 
@@ -311,6 +320,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
           onChange={(val) => onSlide(val)}
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
+          onChangeEnd={() => setAmount(displayAmount)}
           isDisabled={isZeroBalance}
           focusThumbOnChange={false}
         >
