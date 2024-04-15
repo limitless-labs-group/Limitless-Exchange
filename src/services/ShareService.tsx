@@ -77,10 +77,10 @@ export const createPortfolioShareUrls = (
   marketStats: HistoryMarketStats
 ) => {
   const baseMessage = `"${market?.title}" by ${market?.creator.name}\nMy bet: ${NumberUtil.toFixed(
-    marketStats.investedUsd,
+    marketStats.collateralAmount,
     2
   )} ${collateralToken.symbol} for ${
-    market?.outcomeTokens[marketStats.outcomeId ?? 0]
+    market?.outcomeTokens[marketStats.outcomeTokenId ?? 0]
   }\nMake yours on`
 
   const encodedBaseMessage = encodeURI(baseMessage)

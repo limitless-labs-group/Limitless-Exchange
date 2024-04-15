@@ -51,15 +51,13 @@ export const TradeForm = ({ ...props }: StackProps) => {
     market,
     strategy,
     setStrategy,
-    outcomeTokenSelected,
-    setOutcomeTokenSelected,
-    amount,
-    setAmount,
+    outcomeTokenId,
+    setOutcomeTokenId,
+    collateralAmount,
+    setCollateralAmount,
     isExceedsBalance,
-    balanceOfInvest,
-    sharesAmount,
-    shareCost,
-    roi,
+    balanceOfCollateralInvested,
+    quotes,
     trade,
     status,
   } = useTradingService()
@@ -71,26 +69,18 @@ export const TradeForm = ({ ...props }: StackProps) => {
 
   const balanceFormatted = useMemo(() => {
     return NumberUtil.toFixed(
-      strategy == 'Buy' ? balanceOfSmartWallet?.formatted : balanceOfInvest,
+      strategy == 'Buy' ? balanceOfSmartWallet?.formatted : balanceOfCollateralInvested,
       4
     )
-  }, [balanceOfSmartWallet, strategy, balanceOfInvest])
+  }, [balanceOfSmartWallet, strategy, balanceOfCollateralInvested])
 
   /**
    * MARKET DATA
    */
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
-  const { sharesPercent } = useMarketData({
+  const { outcomeTokensPercent } = useMarketData({
     marketAddress,
   })
-
-  /**
-   * PRICE ORACLE
-   */
-  const { convertEthToUsd } = usePriceOracle()
-  const amountUsd = useMemo(() => {
-    return NumberUtil.formatThousands(convertEthToUsd(amount), 2)
-  }, [amount])
 
   /**
    * Amount to display in UI and reduce queries
@@ -98,8 +88,16 @@ export const TradeForm = ({ ...props }: StackProps) => {
   const [displayAmount, setDisplayAmount] = useState('')
 
   useEffect(() => {
-    setDisplayAmount(amount)
-  }, [amount])
+    setDisplayAmount(collateralAmount)
+  }, [collateralAmount])
+
+  /**
+   * PRICE ORACLE
+   */
+  const { convertEthToUsd } = usePriceOracle()
+  const amountUsd = useMemo(() => {
+    return NumberUtil.formatThousands(convertEthToUsd(displayAmount), 2)
+  }, [displayAmount])
 
   /**
    * SLIDER
@@ -110,9 +108,9 @@ export const TradeForm = ({ ...props }: StackProps) => {
   const isZeroBalance = useMemo(() => {
     return (
       (strategy == 'Buy' && !(Number(balanceOfSmartWallet?.formatted) > 0)) ||
-      (strategy == 'Sell' && !(Number(balanceOfInvest) > 0))
+      (strategy == 'Sell' && !(Number(balanceOfCollateralInvested) > 0))
     )
-  }, [strategy, balanceOfSmartWallet, balanceOfInvest])
+  }, [strategy, balanceOfSmartWallet, balanceOfCollateralInvested])
 
   const onSlide = useCallback(
     (value: number) => {
@@ -125,7 +123,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
       if (strategy == 'Buy') {
         amountByPercent = (Number(balanceOfSmartWallet?.formatted) * value) / 100
       } else if (strategy == 'Sell') {
-        amountByPercent = (Number(balanceOfInvest) * value) / 100
+        amountByPercent = (Number(balanceOfCollateralInvested) * value) / 100
       }
       setDisplayAmount(NumberUtil.toFixed(amountByPercent, 4))
     },
@@ -142,13 +140,13 @@ export const TradeForm = ({ ...props }: StackProps) => {
     }
     let percentByAmount = 0
     if (strategy == 'Buy') {
-      percentByAmount = (Number(amount) / Number(balanceOfSmartWallet?.formatted)) * 100
+      percentByAmount = (Number(collateralAmount) / Number(balanceOfSmartWallet?.formatted)) * 100
     } else if (strategy == 'Sell') {
-      percentByAmount = (Number(amount) / Number(balanceOfInvest)) * 100
+      percentByAmount = (Number(collateralAmount) / Number(balanceOfCollateralInvested)) * 100
     }
     percentByAmount = Number(percentByAmount.toFixed())
     setSliderValue(percentByAmount)
-  }, [amount, isZeroBalance, strategy, outcomeTokenSelected])
+  }, [collateralAmount, isZeroBalance, strategy, outcomeTokenId])
 
   return (
     <Stack
@@ -225,31 +223,31 @@ export const TradeForm = ({ ...props }: StackProps) => {
           <HStack w={'full'}>
             <Button
               w={'full'}
-              bg={outcomeTokenSelected == 0 ? 'green' : 'bgLight'}
-              color={outcomeTokenSelected == 0 ? 'white' : 'fontLight'}
+              bg={outcomeTokenId == 0 ? 'green' : 'bgLight'}
+              color={outcomeTokenId == 0 ? 'white' : 'fontLight'}
               onClick={() => {
                 trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
                   choice: 'Yes',
                   market: marketAddress,
                 })
-                setOutcomeTokenSelected(0)
+                setOutcomeTokenId(0)
               }}
             >
-              {market?.outcomeTokens[0] ?? 'Yes'} {(sharesPercent?.[0] ?? 50).toFixed(1)}%
+              {market?.outcomeTokens[0] ?? 'Yes'} {(outcomeTokensPercent?.[0] ?? 50).toFixed(1)}%
             </Button>
             <Button
               w={'full'}
-              bg={outcomeTokenSelected == 1 ? 'red' : 'bgLight'}
-              color={outcomeTokenSelected == 1 ? 'white' : 'fontLight'}
+              bg={outcomeTokenId == 1 ? 'red' : 'bgLight'}
+              color={outcomeTokenId == 1 ? 'white' : 'fontLight'}
               onClick={() => {
                 trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
                   choice: 'No',
                   market: marketAddress,
                 })
-                setOutcomeTokenSelected(1)
+                setOutcomeTokenId(1)
               }}
             >
-              {market?.outcomeTokens[1] ?? 'No'} {(sharesPercent?.[1] ?? 50).toFixed(1)}%
+              {market?.outcomeTokens[1] ?? 'No'} {(outcomeTokensPercent?.[1] ?? 50).toFixed(1)}%
             </Button>
           </HStack>
         </VStack>
@@ -279,7 +277,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                   boxShadow: 'none',
                 }}
                 value={displayAmount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => setCollateralAmount(e.target.value)}
               />
 
               <Button
@@ -304,7 +302,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
               <Text
                 _hover={{ color: 'font' }}
                 cursor={'pointer'}
-                onClick={() => setAmount(balanceFormatted)}
+                onClick={() => setCollateralAmount(balanceFormatted)}
               >
                 {`Balance: ${balanceFormatted}`} {collateralToken.symbol}
               </Text>
@@ -319,12 +317,12 @@ export const TradeForm = ({ ...props }: StackProps) => {
           onChange={(val) => onSlide(val)}
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
-          onChangeEnd={() => setAmount(displayAmount)}
+          onChangeEnd={() => setCollateralAmount(displayAmount)}
           isDisabled={isZeroBalance}
           focusThumbOnChange={false}
         >
           <SliderTrack>
-            <SliderFilledTrack bg={outcomeTokenSelected == 0 ? 'green' : 'red'} />
+            <SliderFilledTrack bg={outcomeTokenId == 0 ? 'green' : 'red'} />
           </SliderTrack>
           <Tooltip
             hasArrow
@@ -336,7 +334,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
             label={`${sliderValue}%`}
           >
             <SliderThumb
-              bg={outcomeTokenSelected == 0 ? 'green' : 'red'}
+              bg={outcomeTokenId == 0 ? 'green' : 'red'}
               border={'1px solid'}
               borderColor={'border'}
             />
@@ -360,9 +358,13 @@ export const TradeForm = ({ ...props }: StackProps) => {
         <VStack w={'full'} spacing={0}>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Avg price</Text>
-            <Text textAlign={'right'}>{`${NumberUtil.toFixed(shareCost, 4)} ${
+            <Text textAlign={'right'}>{`${NumberUtil.toFixed(quotes?.outcomeTokenPrice, 4)} ${
               collateralToken.symbol
             }`}</Text>
+          </HStack>
+          <HStack w={'full'} justifyContent={'space-between'}>
+            <Text color={'fontLight'}>Price Impact</Text>
+            <Text textAlign={'right'}>{`${NumberUtil.toFixed(quotes?.priceImpact, 2)}%`}</Text>
           </HStack>
           {strategy == 'Buy' && (
             <>
@@ -370,9 +372,11 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 <Text color={'fontLight'}>Potential return</Text>
                 <HStack spacing={1}>
                   <Text color={'green'} fontWeight={'bold'} textAlign={'right'}>
-                    {`${NumberUtil.toFixed(sharesAmount, 4)} ${collateralToken.symbol}`}
+                    {`${NumberUtil.toFixed(quotes?.outcomeTokenAmount, 4)} ${
+                      collateralToken.symbol
+                    }`}
                   </Text>
-                  <Text color={'fontLight'}>{NumberUtil.toFixed(roi, 2)}%</Text>
+                  <Text color={'fontLight'}>{NumberUtil.toFixed(quotes?.roi, 2)}%</Text>
                 </HStack>
               </HStack>
               <HStack w={'full'} justifyContent={'space-between'}>
@@ -401,7 +405,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                     </Box>
                   </Tooltip>
                 </HStack>
-                <Text textAlign={'right'}>{NumberUtil.toFixed(sharesAmount, 4)}</Text>
+                <Text textAlign={'right'}>{NumberUtil.toFixed(quotes?.outcomeTokenAmount, 4)}</Text>
               </HStack>
             </>
           )}

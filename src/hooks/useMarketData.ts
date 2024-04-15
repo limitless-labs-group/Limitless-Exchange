@@ -11,7 +11,7 @@ interface IUseMarketData {
   marketAddress?: Address
 }
 
-// TODO: incapsulate with context provider
+// TODO: incapsulate with context provider to reduce requests
 export const useMarketData = ({ marketAddress }: IUseMarketData) => {
   const market: Market | null = useMemo(
     () =>
@@ -33,8 +33,8 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
     [market]
   )
 
-  const { data: sharesCost } = useQuery({
-    queryKey: ['sharesCost', marketMakerContract?.address],
+  const { data: outcomeTokensPrice } = useQuery({
+    queryKey: ['outcomeTokensPrice', marketMakerContract?.address],
     queryFn: async () => {
       if (!marketMakerContract) {
         return [0, 0]
@@ -43,21 +43,21 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const oneToken = parseUnits(`1`, collateralToken.decimals)
       const netCostYesBI = (await marketMakerContract.read.calcNetCost([[oneToken, 0n]])) as bigint
       const netCostNoBI = (await marketMakerContract.read.calcNetCost([[0n, oneToken]])) as bigint
-      const costYes = Number(formatUnits(netCostYesBI, collateralToken.decimals)) * 100
-      const costNo = Number(formatUnits(netCostNoBI, collateralToken.decimals)) * 100
+      const priceYes = Number(formatUnits(netCostYesBI, collateralToken.decimals)) * 100
+      const priceNo = Number(formatUnits(netCostNoBI, collateralToken.decimals)) * 100
 
-      console.log('sharesCost', {
-        costYes,
-        costNo,
+      console.log('outcomeTokensPrice', {
+        priceYes,
+        priceNo,
       })
 
-      return [costYes, costNo]
+      return [priceYes, priceNo]
     },
     enabled: false,
   })
 
-  const { data: sharesPercent } = useQuery({
-    queryKey: ['sharesPercent', marketMakerContract?.address],
+  const { data: outcomeTokensPercent } = useQuery({
+    queryKey: ['outcomeTokensPercent', marketMakerContract?.address],
     queryFn: async () => {
       if (!marketMakerContract) {
         return [50, 50]
@@ -70,7 +70,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const percentYes = (Number(formatUnits(marginalPriceYesBI, 18)) / totalMargin) * 100
       const percentNo = (Number(formatUnits(marginalPriceNoBI, 18)) / totalMargin) * 100
 
-      console.log('sharesPercent', {
+      console.log('outcomeTokensPercent', {
         percentYes,
         percentNo,
       })
@@ -116,8 +116,8 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
   })
 
   return {
-    sharesCost,
-    sharesPercent,
+    outcomeTokensPrice,
+    outcomeTokensPercent,
     ...liquidityAndHolders,
   }
 }

@@ -25,7 +25,11 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
     [marketAddress]
   )
 
-  const { sharesPercent, liquidity, holdersCount } = useMarketData({ marketAddress })
+  const {
+    outcomeTokensPercent: sharesPercent,
+    liquidity,
+    holdersCount,
+  } = useMarketData({ marketAddress })
 
   const marketURI = `${window.location.origin}/markets/${marketAddress}`
 

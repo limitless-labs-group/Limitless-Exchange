@@ -90,7 +90,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
           <HStack w={'full'} justifyContent={'space-between'} lineHeight={'18px'}>
             <HStack spacing={1}>
               <Flex p={2} bg={'bgLight'} borderRadius={borderRadius}>
-                {marketStats.outcomeId == 0 ? (
+                {marketStats.outcomeTokenId == 0 ? (
                   <FaArrowUp size={'15px'} fill={colors.fontLight} />
                 ) : (
                   <FaArrowDown size={'15px'} fill={colors.fontLight} />
@@ -99,8 +99,8 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Outcome</Text>
                 <Text fontWeight={'bold'}>
-                  {market?.outcomeTokens[marketStats.outcomeId ?? 0] ??
-                    ['Yes', 'No'][marketStats.outcomeId ?? 0]}{' '}
+                  {market?.outcomeTokens[marketStats.outcomeTokenId ?? 0] ??
+                    ['Yes', 'No'][marketStats.outcomeTokenId ?? 0]}{' '}
                   {NumberUtil.toFixed(marketStats.latestTrade?.outcomePercent, 1)}%
                 </Text>
               </Stack>
@@ -112,9 +112,10 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Bet</Text>
-                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(marketStats.investedUsd, 4)} ${
-                  collateralToken.symbol
-                }`}</Text>
+                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(
+                  marketStats.collateralAmount,
+                  4
+                )} ${collateralToken.symbol}`}</Text>
               </Stack>
             </HStack>
 
@@ -124,9 +125,10 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Max win</Text>
-                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(marketStats.sharesAmount, 4)} ${
-                  collateralToken.symbol
-                }`}</Text>
+                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(
+                  marketStats.outcomeTokenAmount,
+                  4
+                )} ${collateralToken.symbol}`}</Text>
               </Stack>
             </HStack>
           </HStack>

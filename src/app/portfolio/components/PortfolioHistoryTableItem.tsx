@@ -64,26 +64,27 @@ export const PortfolioHistoryTableItem = ({
         <Box
           w={'fit-content'}
           p={'2px 6px'}
-          bg={trade.outcomeId == 0 ? 'green' : 'red'}
-          color={trade.outcomeId == 0 ? 'white' : 'white'}
+          bg={trade.outcomeTokenId == 0 ? 'green' : 'red'}
+          color={trade.outcomeTokenId == 0 ? 'white' : 'white'}
           fontWeight={'bold'}
           borderRadius={'6px'}
           fontSize={'13px'}
         >
-          {market?.outcomeTokens[trade.outcomeId ?? 0]} {NumberUtil.toFixed(trade.costPerShare, 2)}%
+          {market?.outcomeTokens[trade.outcomeTokenId ?? 0]}{' '}
+          {NumberUtil.toFixed(trade.outcomeTokenPrice, 2)}%
         </Box>
       </Td>
       <Td>{trade.strategy}</Td>
       <Td isNumeric>
         <Text fontWeight={'bold'}>
           {`${NumberUtil.toFixed(
-            Number(trade.netCostUsd ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
+            Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
             3
           )} ${collateralToken.symbol}`}
         </Text>
       </Td>
       <Td isNumeric pr={0}>
-        {NumberUtil.toFixed(trade.sharesAmount, 2)}
+        {NumberUtil.toFixed(trade.outcomeTokenAmount, 2)}
       </Td>
     </Tr>
   )

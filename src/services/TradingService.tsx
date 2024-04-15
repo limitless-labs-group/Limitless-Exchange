@@ -25,16 +25,13 @@ interface ITradingServiceContext {
   setMarket: (market: Market | null) => void
   strategy: 'Buy' | 'Sell'
   setStrategy: (side: 'Buy' | 'Sell') => void
-  outcomeTokenSelected: number
-  setOutcomeTokenSelected: (outcomeOption: number) => void
-  balanceOfShares: number
-  balanceOfInvest: string | undefined
-  amount: string
-  setAmount: (amount: string) => void
+  outcomeTokenId: number
+  setOutcomeTokenId: (outcomeOption: number) => void
+  balanceOfCollateralInvested: string
+  collateralAmount: string
+  setCollateralAmount: (amount: string) => void
   isExceedsBalance: boolean
-  shareCost: string
-  sharesAmount: string
-  roi: string
+  quotes: TradeQuotes | null | undefined
   buy: () => Promise<TransactionReceipt | undefined>
   sell: () => Promise<TransactionReceipt | undefined>
   trade: () => void
@@ -55,7 +52,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * SERVICES
    */
   const queryClient = useQueryClient()
-  const { trades, getTrades, getMarketSharesBalance } = useHistory()
+  const { trades, getTrades, getCollateralBalance } = useHistory()
 
   /**
    * ACCOUNT
@@ -78,7 +75,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     [market]
   )
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
-  const [outcomeTokenSelected, setOutcomeTokenSelected] = useState(0)
+  const [outcomeTokenId, setOutcomeTokenId] = useState(0)
 
   const pathname = usePathname()
   useEffect(() => {
@@ -86,9 +83,9 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       return
     }
     setMarket(null)
-    setAmount('')
+    setCollateralAmount('')
     setStrategy('Buy')
-    setOutcomeTokenSelected(0)
+    setOutcomeTokenId(0)
   }, [pathname])
 
   const refetchChain = async () => {
@@ -110,98 +107,99 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const { balanceOfSmartWallet, refetchbalanceOfSmartWallet } = useBalanceService()
 
-  const [balanceOfShares, setBalanceOfShares] = useState(0)
+  const [balanceOfCollateralInvested, setBalanceOfCollateralInvested] = useState('0')
+
   useEffect(() => {
     if (!market || !trades || strategy != 'Sell') {
-      setBalanceOfShares(0)
+      setBalanceOfCollateralInvested('0')
       return
     }
-    getMarketSharesBalance(market, outcomeTokenSelected).then((_balanceShares) =>
-      setBalanceOfShares(_balanceShares)
+    getCollateralBalance(market.address[defaultChain.id], outcomeTokenId).then(
+      (collateralBalance) => setBalanceOfCollateralInvested(collateralBalance)
     )
-  }, [market, outcomeTokenSelected, trades, strategy])
-
-  const { data: balanceOfInvest } = useQuery({
-    queryKey: [
-      'balanceOfInvest',
-      marketMakerContract?.address,
-      outcomeTokenSelected,
-      strategy,
-      balanceOfShares,
-    ],
-    queryFn: async () => {
-      if (!marketMakerContract || !(balanceOfShares > 0)) {
-        return '0'
-      }
-
-      const balanceOfSharesBI = parseUnits(balanceOfShares.toString(), 18)
-      const outcomeTokenAmounts = Array.from({ length: 2 }, (v, i) =>
-        i === outcomeTokenSelected ? balanceOfSharesBI * -1n : 0n
-      )
-      const balanceOfInvestBI =
-        ((await marketMakerContract.read.calcNetCost([outcomeTokenAmounts])) as bigint) * -1n
-      const _balanceOfInvest = formatUnits(balanceOfInvestBI, 18)
-      return _balanceOfInvest
-    },
-  })
+  }, [market, outcomeTokenId, trades, strategy])
 
   /**
    * AMOUNT OF COLLATERAL TOKEN TO BUY/SELL
    */
-  const [amount, setAmount] = useState<string>('')
-  const amountBI = useMemo(
-    () => parseUnits(amount ?? '0', collateralToken.decimals),
-    [amount, collateralToken]
+  const [collateralAmount, setCollateralAmount] = useState<string>('')
+  const collateralAmountBI = useMemo(
+    () => parseUnits(collateralAmount ?? '0', collateralToken.decimals),
+    [collateralAmount, collateralToken]
   )
 
   const isExceedsBalance = useMemo(() => {
     if (strategy == 'Buy') {
-      return Number(amount) > Number(balanceOfSmartWallet?.formatted ?? 0)
+      return Number(collateralAmount) > Number(balanceOfSmartWallet?.formatted ?? 0)
     }
-    return Number(amount) > balanceOfShares
-  }, [strategy, balanceOfShares, amount, balanceOfSmartWallet])
+    return Number(collateralAmount) > Number(balanceOfCollateralInvested)
+  }, [strategy, balanceOfCollateralInvested, collateralAmount, balanceOfSmartWallet])
 
-  const isInvalidAmount = amountBI <= 0n || isExceedsBalance
+  const isInvalidCollateralAmount = collateralAmountBI <= 0n || isExceedsBalance
 
   /**
    * TRADE QUOTES
    */
-  const [sharesAmount, setSharesAmount] = useState('0')
-  const [shareCost, setShareCost] = useState<string>('0')
-  const [roi, setRoi] = useState<string>('0')
+  const [quotes, setQuotes] = useState<TradeQuotes | null>(null)
 
   useQuery({
-    queryKey: ['tradeQuotes', marketMakerContract?.address, amount, outcomeTokenSelected, strategy],
+    queryKey: [
+      'tradeQuotes',
+      marketMakerContract?.address,
+      collateralAmount,
+      outcomeTokenId,
+      strategy,
+    ],
     queryFn: async () => {
-      if (!marketMakerContract || amount === '' || Number(amount) <= 0) {
-        setShareCost('0')
-        setSharesAmount('0')
-        setRoi('0')
-        return null
+      if (!marketMakerContract || !(Number(collateralAmount) > 0)) {
+        return setQuotes(null)
       }
 
       // TODO: add market fee
-      let sharesAmountBI = 0n
+      let outcomeTokenAmountBI = 0n
       if (strategy == 'Buy') {
-        sharesAmountBI = (await marketMakerContract.read.calcBuyAmount([
-          amountBI,
-          outcomeTokenSelected,
+        outcomeTokenAmountBI = (await marketMakerContract.read.calcBuyAmount([
+          collateralAmountBI,
+          outcomeTokenId,
         ])) as bigint
       } else if (strategy == 'Sell') {
-        sharesAmountBI = (await marketMakerContract.read.calcSellAmount([
-          amountBI,
-          outcomeTokenSelected,
+        outcomeTokenAmountBI = (await marketMakerContract.read.calcSellAmount([
+          collateralAmountBI,
+          outcomeTokenId,
         ])) as bigint
       }
+      const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 18)
+      const outcomeTokenPrice = (Number(collateralAmount) / Number(outcomeTokenAmount)).toString()
+      const roi = ((Number(outcomeTokenAmount) / Number(collateralAmount) - 1) * 100).toString()
 
-      const sharesAmount = formatUnits(sharesAmountBI, 18)
-      setSharesAmount(sharesAmount)
+      // calc the current price of outcome token for price impact
+      const tempCollateralAmount = '0.00001'
+      const tempCollateralAmountBI = parseUnits(tempCollateralAmount, collateralToken.decimals)
+      const tempOutcomeTokenAmounts = Array.from(
+        { length: market?.outcomeTokens.length ?? 2 },
+        (v, i) =>
+          i === outcomeTokenId ? tempCollateralAmountBI * (strategy == 'Buy' ? 1n : -1n) : 0n
+      )
+      const tempNetCostBI =
+        ((await marketMakerContract.read.calcNetCost([tempOutcomeTokenAmounts])) as bigint) *
+        (strategy == 'Buy' ? 1n : -1n)
+      const tempNetCost = formatUnits(tempNetCostBI, 18)
+      const outcomeTokenPriceCurrent = (
+        Number(tempNetCost) / Number(tempCollateralAmount)
+      ).toString()
+      const priceImpact = Math.abs(
+        ((Number(outcomeTokenPrice) / Number(outcomeTokenPriceCurrent) ?? 1) - 1) * 100
+      ).toString()
 
-      const _shareCost = (Number(amount) / Number(sharesAmount)).toString()
-      setShareCost(_shareCost)
-
-      const roi = ((Number(sharesAmount) / Number(amount) - 1) * 100).toString()
-      setRoi(roi)
+      const _quotes: TradeQuotes = {
+        outcomeTokenPrice,
+        outcomeTokenAmount,
+        roi,
+        priceImpact,
+      }
+      console.log('tradeQuotes', _quotes, outcomeTokenPriceCurrent)
+      setQuotes(_quotes)
+      return quotes
     },
   })
 
@@ -211,7 +209,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const { etherspot } = useEtherspot()
   const { mutateAsync: buy, isPending: isLoadingBuy } = useMutation({
     mutationFn: async () => {
-      if (!etherspot || !account || !market || isInvalidAmount) {
+      if (!etherspot || !account || !market || isInvalidCollateralAmount || !quotes) {
         return
       }
 
@@ -222,19 +220,19 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       const receipt = await etherspot.buyOutcomeTokens(
         market.address[defaultChain.id],
-        parseUnits(sharesAmount, 18),
-        outcomeTokenSelected,
+        parseUnits(quotes.outcomeTokenAmount, 18),
+        outcomeTokenId,
         market.outcomeTokens.length
       )
 
-      setAmount('')
+      setCollateralAmount('')
       await refetchChain()
 
       // TODO: incapsulate
       toast({
         render: () => (
           <Toast
-            title={`Successfully invested ${NumberUtil.toFixed(amount, 4)} ${
+            title={`Successfully invested ${NumberUtil.toFixed(collateralAmount, 4)} ${
               collateralToken.symbol
             }`}
           />
@@ -258,7 +256,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const { mutateAsync: sell, isPending: isLoadingSell } = useMutation({
     mutationFn: async () => {
-      if (!etherspot || !account || !market || isInvalidAmount) {
+      if (!etherspot || !account || !market || isInvalidCollateralAmount || !quotes) {
         return
       }
 
@@ -269,19 +267,19 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       const receipt = await etherspot.sellOutcomeTokens(
         market.address[defaultChain.id],
-        parseUnits(sharesAmount, 18),
-        outcomeTokenSelected,
+        parseUnits(quotes.outcomeTokenAmount, 18),
+        outcomeTokenId,
         market.outcomeTokens.length
       )
 
-      setAmount('')
+      setCollateralAmount('')
       await refetchChain()
 
       // TODO: incapsulate
       toast({
         render: () => (
           <Toast
-            title={`Successfully redeemed ${NumberUtil.toFixed(amount, 4)} ${
+            title={`Successfully redeemed ${NumberUtil.toFixed(collateralAmount, 4)} ${
               collateralToken.symbol
             }`}
           />
@@ -311,7 +309,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     if (!isLoggedIn) {
       return 'Disconnected'
     }
-    if (isInvalidAmount) {
+    if (isInvalidCollateralAmount) {
       return 'InvalidAmount'
     }
     if (isLoadingBuy || isLoadingSell) {
@@ -322,23 +320,20 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     // }
     return 'Ready'
     // return 'Idle'
-  }, [isLoggedIn, isInvalidAmount, isLoadingBuy, isLoadingSell])
+  }, [isLoggedIn, isInvalidCollateralAmount, isLoadingBuy, isLoadingSell])
 
   const contextProviderValue: ITradingServiceContext = {
     market,
     setMarket,
     strategy,
     setStrategy,
-    outcomeTokenSelected,
-    setOutcomeTokenSelected,
-    amount,
-    setAmount,
+    outcomeTokenId,
+    setOutcomeTokenId,
+    collateralAmount,
+    setCollateralAmount,
     isExceedsBalance,
-    balanceOfShares,
-    balanceOfInvest,
-    shareCost,
-    sharesAmount,
-    roi,
+    balanceOfCollateralInvested,
+    quotes,
     buy,
     sell,
     trade,
@@ -359,6 +354,13 @@ export type TradingServiceStatus =
   | 'Submitted'
   | 'Loading'
   | 'Idle'
+
+export type TradeQuotes = {
+  outcomeTokenPrice: string // average cost per outcome token
+  outcomeTokenAmount: string // amount of outcome token to be traded based on collateral amount input
+  roi: string // return on investment aka profitability percentage
+  priceImpact: string // price fluctuation percentage
+}
 
 // interface ITrade {
 //   marketMakerAddress?: Address

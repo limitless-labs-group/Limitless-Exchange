@@ -1,6 +1,6 @@
 import { collateralToken, defaultChain, markets, subgraphURI } from '@/constants'
 import { useEtherspot } from '@/services'
-import { Address, Market } from '@/types'
+import { Address } from '@/types'
 import { NumberUtil } from '@/utils'
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
@@ -14,7 +14,7 @@ interface IHistoryService {
   getActiveMarkets: () => Promise<QueryObserverResult<HistoryMarketStats[], Error>>
   balanceInvested: number
   balanceToWin: number
-  getMarketSharesBalance: (market: Market, outcomeId: number) => Promise<number>
+  getCollateralBalance: (marketAddress: Address, outcomeTokenId: number) => Promise<string>
 }
 
 const HistoryServiceContext = createContext({} as IHistoryService)
@@ -65,14 +65,19 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         const outcomeTokenAmountBI = BigInt(
           trade.outcomeTokenAmounts.find((amount) => BigInt(amount) != 0n) ?? 0
         )
-        trade.sharesAmount = formatUnits(outcomeTokenAmountBI, collateralToken.decimals)
-        trade.strategy = Number(trade.sharesAmount) > 0 ? 'Buy' : 'Sell'
-        trade.outcomeId = trade.outcomeTokenAmounts.findIndex((amount) => BigInt(amount) != 0n)
-        trade.netCostUsd = formatUnits(BigInt(trade.outcomeTokenNetCost), collateralToken.decimals)
-        trade.costPerShare = NumberUtil.toFixed(
-          (Number(trade.netCostUsd) / Number(trade.sharesAmount)) * 100,
+        trade.outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, collateralToken.decimals)
+        trade.strategy = Number(trade.outcomeTokenAmount) > 0 ? 'Buy' : 'Sell'
+        trade.outcomeTokenId = trade.outcomeTokenAmounts.findIndex((amount) => BigInt(amount) != 0n)
+        trade.collateralAmount = formatUnits(
+          BigInt(trade.outcomeTokenNetCost),
+          collateralToken.decimals
+        )
+        trade.outcomeTokenPrice = NumberUtil.toFixed(
+          (Number(trade.collateralAmount) / Number(trade.outcomeTokenAmount)) * 100,
           2
         )
+
+        // TODO: change the logic
         const totalMargin = 18.446 // ? contract constant
         trade.outcomePercent =
           (Number(formatUnits(trade.outcomeMarginalPrice, 18)) / totalMargin) * 100
@@ -92,13 +97,19 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       trades?.forEach((trade) => {
         const existingMarket = _activeMarkets.find(
           (marketStats) =>
-            marketStats.market.id == trade.market.id && marketStats.outcomeId == trade.outcomeId
+            marketStats.market.id == trade.market.id &&
+            marketStats.outcomeTokenId == trade.outcomeTokenId
         )
-        const market = existingMarket ?? { market: trade.market, outcomeId: trade.outcomeId }
+        const market = existingMarket ?? {
+          market: trade.market,
+          outcomeTokenId: trade.outcomeTokenId,
+        }
         market.latestTrade = trade
-        market.investedUsd = (Number(market.investedUsd ?? 0) + Number(trade.netCostUsd)).toString()
-        market.sharesAmount = (
-          Number(market.sharesAmount ?? 0) + Number(trade.sharesAmount)
+        market.collateralAmount = (
+          Number(market.collateralAmount ?? 0) + Number(trade.collateralAmount)
+        ).toString()
+        market.outcomeTokenAmount = (
+          Number(market.outcomeTokenAmount ?? 0) + Number(trade.outcomeTokenAmount)
         ).toString()
         // market.costPerShareNow = await
         // market.balanceUsd = market.costPerShareNow * market.sharesAmount
@@ -106,7 +117,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
           _activeMarkets.push(market)
         }
       })
-      _activeMarkets = _activeMarkets.filter((market) => Number(market.investedUsd) > 0)
+      _activeMarkets = _activeMarkets.filter((market) => Number(market.collateralAmount) > 0)
       return _activeMarkets
     },
   })
@@ -115,7 +126,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * BALANCES
    */
   const balanceInvested = useMemo(() => {
-    let _balanceUsd = 0
+    let _balanceInvested = 0
     activeMarkets?.forEach((marketStats) => {
       if (
         markets.find(
@@ -124,9 +135,9 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       ) {
         return
       }
-      _balanceUsd += Number(marketStats.investedUsd ?? 0)
+      _balanceInvested += Number(marketStats.collateralAmount ?? 0)
     })
-    return _balanceUsd
+    return _balanceInvested
   }, [activeMarkets])
 
   const balanceToWin = useMemo(() => {
@@ -139,25 +150,34 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       ) {
         return
       }
-      _balanceShares += Number(marketStats.sharesAmount ?? 0)
+      _balanceShares += Number(marketStats.outcomeTokenAmount ?? 0)
     })
     return _balanceShares
   }, [activeMarkets])
 
-  const getMarketSharesBalance = useCallback(
-    async (market: Market, outcomeId: number) => {
-      let _balanceShares = 0
+  /**
+   * Calculates the amount of collateral token invested by the user into a market for a particular outcome token ID, based on the subgraph data.
+   *
+   * @param {Address} marketAddress - The address of the market.
+   * @param {number} outcomeTokenId - ID of the outcome token (eg. 0 for Yes, 1 for No)
+   *
+   * @returns {string} The formatted amount of collateral token invested into market for selected outcome token id.
+   */
+  const getCollateralBalance = useCallback(
+    async (marketAddress: Address, outcomeTokenId: number) => {
+      let collateralBalance = 0
       const _trades = trades ?? (await getTrades()).data
       _trades?.forEach((trade) => {
         if (
-          trade.market.id.toLowerCase() != market.address[defaultChain.id]?.toLowerCase() ||
-          trade.outcomeId != outcomeId
-        )
+          trade.market.id.toLowerCase() != marketAddress.toLowerCase() ||
+          trade.outcomeTokenId != outcomeTokenId
+        ) {
           return
-        _balanceShares += Number(trade.sharesAmount ?? 0)
+        }
+        collateralBalance += Number(trade.collateralAmount ?? 0)
       })
-      console.log('getMarketSharesBalance', market, outcomeId, trades, _balanceShares)
-      return _balanceShares
+      console.log('getCollateralBalance', marketAddress, outcomeTokenId, trades, collateralBalance)
+      return collateralBalance.toString()
     },
     [trades]
   )
@@ -169,7 +189,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     getActiveMarkets,
     balanceInvested,
     balanceToWin,
-    getMarketSharesBalance,
+    getCollateralBalance,
   }
 
   return (
@@ -182,14 +202,14 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 export type HistoryTrade = {
   market: HistoryMarket
   strategy?: 'Buy' | 'Sell'
-  outcomeId?: number
+  outcomeTokenId?: number
   outcomeTokenAmounts: string[]
-  sharesAmount?: string
-  costPerShare?: string
+  outcomeTokenAmount?: string // outcome token amount traded
+  outcomeTokenPrice?: string // collateral per outcome token
   outcomeTokenNetCost: string
   outcomeMarginalPrice: bigint
-  outcomePercent?: number
-  netCostUsd?: string
+  outcomePercent?: number // 50% yes / 50% no
+  collateralAmount?: string // collateral amount traded
   blockTimestamp: string
 }
 
@@ -203,10 +223,8 @@ export type HistoryMarket = {
 
 export type HistoryMarketStats = {
   market: HistoryMarket
-  outcomeId?: number
-  sharesAmount?: string
-  investedUsd?: string
-  costPerShareNow?: string
-  balanceUsd?: string
+  outcomeTokenId?: number
+  outcomeTokenAmount?: string
+  collateralAmount?: string // collateral amount invested
   latestTrade?: HistoryTrade
 }
