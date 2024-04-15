@@ -65,6 +65,18 @@ export const Footer = () => (
       >
         Become a creator
       </Text>
+      <Text
+        cursor={'pointer'}
+        _hover={{ color: 'fontLight' }}
+        onClick={() =>
+          window.open(
+            'https://limitlesslabs.notion.site/FAQ-a911ea2f7ef24a8bbbaf7a5989f912ea?pvs=4',
+            '_blank'
+          )
+        }
+      >
+        FAQ
+      </Text>
     </HStack>
     <HStack spacing={4}>
       <Text
