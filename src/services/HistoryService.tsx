@@ -53,7 +53,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
                 }
                 outcomeTokenAmounts
                 outcomeTokenNetCost
-                outcomeMarginalPrice
                 blockTimestamp
               }
             }
@@ -72,19 +71,15 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
           BigInt(trade.outcomeTokenNetCost),
           collateralToken.decimals
         )
-        trade.outcomeTokenPrice = NumberUtil.toFixed(
-          (Number(trade.collateralAmount) / Number(trade.outcomeTokenAmount)) * 100,
-          2
-        )
-
-        // TODO: change the logic
-        const totalMargin = 18.446 // ? contract constant
-        trade.outcomePercent =
-          (Number(formatUnits(trade.outcomeMarginalPrice, 18)) / totalMargin) * 100
-        // trade.sharePrice = formatUnits((BigInt(trade.netCostUsd) / outcomeTokenAmountBI) * 100n, 0)
+        trade.outcomeTokenPrice = (
+          Number(trade.collateralAmount) / Number(trade.outcomeTokenAmount)
+        ).toString()
+        trade.outcomePercent = Number(trade.outcomeTokenPrice) * 100
       })
+
       trades.sort((tradeA, tradeB) => Number(tradeB.blockTimestamp) - Number(tradeA.blockTimestamp))
       console.log('trades', trades)
+
       return trades
     },
     enabled: !!smartWalletAddress,
@@ -95,6 +90,16 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     queryFn: async () => {
       let _activeMarkets: HistoryMarketStats[] = []
       trades?.forEach((trade) => {
+        // TODO: replace hardcoded markets and close logic with dynamic
+        if (
+          markets.find(
+            (market) =>
+              market.address[defaultChain.id].toLowerCase() == trade.market.id.toLowerCase()
+          )?.closed
+        ) {
+          return
+        }
+
         const existingMarket = _activeMarkets.find(
           (marketStats) =>
             marketStats.market.id == trade.market.id &&
@@ -128,13 +133,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   const balanceInvested = useMemo(() => {
     let _balanceInvested = 0
     activeMarkets?.forEach((marketStats) => {
-      if (
-        markets.find(
-          (market) => market.address[defaultChain.id].toLowerCase() == marketStats.market.id
-        )?.closed
-      ) {
-        return
-      }
       _balanceInvested += Number(marketStats.collateralAmount ?? 0)
     })
     return _balanceInvested
@@ -143,13 +141,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   const balanceToWin = useMemo(() => {
     let _balanceShares = 0
     activeMarkets?.forEach((marketStats) => {
-      if (
-        markets.find(
-          (market) => market.address[defaultChain.id].toLowerCase() == marketStats.market.id
-        )?.closed
-      ) {
-        return
-      }
       _balanceShares += Number(marketStats.outcomeTokenAmount ?? 0)
     })
     return _balanceShares
@@ -207,7 +198,6 @@ export type HistoryTrade = {
   outcomeTokenAmount?: string // outcome token amount traded
   outcomeTokenPrice?: string // collateral per outcome token
   outcomeTokenNetCost: string
-  outcomeMarginalPrice: bigint
   outcomePercent?: number // 50% yes / 50% no
   collateralAmount?: string // collateral amount traded
   blockTimestamp: string

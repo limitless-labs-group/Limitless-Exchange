@@ -70,8 +70,7 @@ export const PortfolioHistoryTableItem = ({
           borderRadius={'6px'}
           fontSize={'13px'}
         >
-          {market?.outcomeTokens[trade.outcomeTokenId ?? 0]}{' '}
-          {NumberUtil.toFixed(trade.outcomeTokenPrice, 2)}%
+          {market?.outcomeTokens[trade.outcomeTokenId ?? 0]} {trade.outcomePercent?.toFixed(1)}%
         </Box>
       </Td>
       <Td>{trade.strategy}</Td>

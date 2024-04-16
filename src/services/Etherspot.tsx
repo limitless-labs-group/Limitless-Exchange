@@ -1,5 +1,5 @@
 import { collateralToken, conditionalTokensAddress, defaultChain } from '@/constants'
-import { conditionalTokensABI, erc20ABI, marketMakerABI } from '@/contracts'
+import { conditionalTokensABI, wethABI, marketMakerABI } from '@/contracts'
 import { publicClient, useWeb3Auth } from '@/providers'
 import { Address } from '@/types'
 import { ArkaPaymaster, EtherspotBundler, PrimeSdk, Web3WalletProvider } from '@etherspot/prime-sdk'
@@ -172,7 +172,7 @@ class Etherspot {
   getCollateralTokenContract() {
     return getContract({
       address: this.collateralTokenAddress,
-      abi: erc20ABI,
+      abi: wethABI,
       client: publicClient,
     })
   }
@@ -201,12 +201,16 @@ class Etherspot {
     return response === 'Already added'
   }
 
-  async batchAndSendUserOp(to: string, data: string) {
-    await this.primeSdk.clearUserOpsFromBatch()
-    await this.primeSdk.addUserOpsToBatch({ to, data })
-    const op = await this.estimate()
-    const opHash = await this.primeSdk.send(op)
-    return opHash
+  async batchAndSendUserOp(to: string, data: string, value: bigint | undefined = undefined) {
+    try {
+      await this.primeSdk.clearUserOpsFromBatch()
+      await this.primeSdk.addUserOpsToBatch({ to, data, value })
+      const op = await this.estimate()
+      const opHash = await this.primeSdk.send(op)
+      return opHash
+    } catch (e: any) {
+      console.log(e)
+    }
   }
 
   async estimate() {
@@ -221,7 +225,10 @@ class Etherspot {
     return op
   }
 
-  async waitForTransaction(opHash: string) {
+  async waitForTransaction(opHash: string | undefined) {
+    if (!opHash) {
+      return
+    }
     let opReceipt = null
     const timeout = Date.now() + 120000
     while (opReceipt == null && Date.now() < timeout) {
@@ -248,18 +255,18 @@ class Etherspot {
 
   async transferErc20(token: Address, to: Address, value: bigint) {
     const data = encodeFunctionData({
-      abi: erc20ABI,
+      abi: wethABI,
       functionName: 'transfer',
       args: [to, value],
     })
     return this.batchAndSendUserOp(token, data)
   }
 
-  async mintErc20(token: Address, to: Address, value: bigint) {
+  async mintErc20(token: Address, value: bigint) {
     const data = encodeFunctionData({
-      abi: erc20ABI,
+      abi: wethABI,
       functionName: 'mint',
-      args: [to, value],
+      args: [value],
     })
     return this.batchAndSendUserOp(token, data)
   }
@@ -273,7 +280,7 @@ class Etherspot {
     ])) as bigint
     if (allowance < amount) {
       const data = encodeFunctionData({
-        abi: erc20ABI,
+        abi: wethABI,
         functionName: 'approve',
         args: [spender, maxUint256],
       })
@@ -302,46 +309,29 @@ class Etherspot {
     }
   }
 
-  // async wrapEth(value: bigint) {
-  //   console.log('wrapEth', value)
-  //   const txData = encodeFunctionData({
-  //     abi: erc20ABI,
-  //     functionName: 'deposit',
-  //   })
-  //   const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, txData, value)
-  //   return await this.waitForTransaction(opHash)
-  // }
+  async wrapEth(value: bigint) {
+    const data = encodeFunctionData({
+      abi: wethABI,
+      functionName: 'deposit',
+    })
+    const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, data, value)
+    const transactionReceipt = await this.waitForTransaction(opHash)
+    return transactionReceipt
+  }
 
   // TODO: incapsulate
   async buyOutcomeTokens(
     marketMakerAddress: Address,
-    amount: bigint,
-    outcomeToken: number,
-    outcomeLength: number
+    collateralAmount: bigint,
+    outcomeIndex: number,
+    minOutcomeTokensToBuy: bigint
   ) {
-    const account = await this.getAddress()
-    const marketMakerContract = this.getMarketMakerContract(marketMakerAddress)
-
-    const outcomeTokenAmounts = Array.from({ length: outcomeLength }, (_, index) =>
-      index === outcomeToken ? amount : 0n
-    )
-    const cost = (await marketMakerContract.read.calcNetCost([outcomeTokenAmounts])) as bigint
-    const fee = (await marketMakerContract.read.calcMarketFee([cost])) as bigint
-    const collateralLimit = cost + fee
-    const collateralBalance = (await this.getCollateralTokenContract().read.balanceOf([
-      account,
-    ])) as bigint
-
-    if (collateralLimit > collateralBalance) {
-      throw Error('Collateral insufficient')
-    }
-
-    await this.approveCollateralIfNeeded(marketMakerAddress, collateralLimit)
+    await this.approveCollateralIfNeeded(marketMakerAddress, collateralAmount)
 
     const data = encodeFunctionData({
       abi: marketMakerABI,
-      functionName: 'trade',
-      args: [outcomeTokenAmounts, collateralLimit],
+      functionName: 'buy',
+      args: [collateralAmount, outcomeIndex, minOutcomeTokensToBuy],
     })
 
     const opHash = await this.batchAndSendUserOp(marketMakerAddress, data)
@@ -352,25 +342,16 @@ class Etherspot {
   // TODO: incapsulate
   async sellOutcomeTokens(
     marketMakerAddress: Address,
-    amount: bigint,
-    outcomeToken: number,
-    outcomeLength: number
+    collateralAmount: bigint,
+    outcomeIndex: number,
+    maxOutcomeTokensToSell: bigint
   ) {
-    const marketMakerContract = this.getMarketMakerContract(marketMakerAddress)
-
-    const outcomeTokenAmounts = Array.from({ length: outcomeLength }, (v, i) =>
-      i === outcomeToken ? amount * -1n : 0n
-    )
-    const profit = (await marketMakerContract.read.calcNetCost([outcomeTokenAmounts])) as bigint
-    const fee = (await marketMakerContract.read.calcMarketFee([profit])) as bigint
-    const collateralLimit = profit + fee * -1n
-
     await this.approveConditionalIfNeeded(marketMakerAddress)
 
     const data = encodeFunctionData({
       abi: marketMakerABI,
-      functionName: 'trade',
-      args: [outcomeTokenAmounts, collateralLimit],
+      functionName: 'sell',
+      args: [collateralAmount, outcomeIndex, maxOutcomeTokensToSell],
     })
 
     const opHash = await this.batchAndSendUserOp(marketMakerAddress, data)
@@ -401,5 +382,5 @@ interface ITransferErc20 {
   to?: Address
   amount: bigint
   onSign?: () => void
-  onConfirm?: (receipt: TransactionReceipt) => Promise<any>
+  onConfirm?: (receipt: TransactionReceipt | undefined) => Promise<any>
 }

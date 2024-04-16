@@ -40,21 +40,30 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
         return [0, 0]
       }
 
-      const amount = `0.00001`
-      const amountBI = parseUnits(`0.00001`, collateralToken.decimals)
-      const netCostYesBI = (await marketMakerContract.read.calcNetCost([[amountBI, 0n]])) as bigint
-      const netCostNoBI = (await marketMakerContract.read.calcNetCost([[0n, amountBI]])) as bigint
-      const netCostYes = formatUnits(netCostYesBI, collateralToken.decimals)
-      const netCostNo = formatUnits(netCostNoBI, collateralToken.decimals)
-      const priceYes = Number(netCostYes) / Number(amount)
-      const priceNo = Number(netCostNo) / Number(amount)
+      const fee = 10 // TODO: make dynamic based on contracts data
+      const collateralAmount = `0.0000001`
+      const collateralAmountBI = parseUnits(collateralAmount, collateralToken.decimals)
+      const outcomeTokenAmountYesBI = (await marketMakerContract.read.calcBuyAmount([
+        collateralAmountBI,
+        0,
+      ])) as bigint
+      const outcomeTokenAmountNoBI = (await marketMakerContract.read.calcBuyAmount([
+        collateralAmountBI,
+        1,
+      ])) as bigint
+      const outcomeTokenAmountYes = formatUnits(outcomeTokenAmountYesBI, 18)
+      const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, 18)
+      const outcomeTokenPriceYes =
+        (Number(collateralAmount) / Number(outcomeTokenAmountYes)) * (fee / 100 + 1)
+      const outcomeTokenPriceNo =
+        (Number(collateralAmount) / Number(outcomeTokenAmountNo)) * (fee / 100 + 1)
 
       console.log('outcomeTokensPrice', {
-        priceYes,
-        priceNo,
+        priceYes: outcomeTokenPriceYes,
+        priceNo: outcomeTokenPriceNo,
       })
 
-      return [priceYes, priceNo]
+      return [outcomeTokenPriceYes, outcomeTokenPriceNo]
     },
     // enabled: false,
   })
@@ -62,26 +71,20 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
   const { data: outcomeTokensPercent } = useQuery({
     queryKey: ['outcomeTokensPercent', marketMakerContract?.address, outcomeTokensPrice],
     queryFn: async () => {
-      if (!marketMakerContract) {
+      if (!marketMakerContract || !outcomeTokensPrice) {
         return [50, 50]
       }
 
-      // const totalMargin = 18.446 // ? contract constant
-
-      // const marginalPriceYesBI = (await marketMakerContract?.read.calcMarginalPrice([0])) as bigint
-      // const marginalPriceNoBI = (await marketMakerContract?.read.calcMarginalPrice([1])) as bigint
-      // const percentYes = (Number(formatUnits(marginalPriceYesBI, 18)) / totalMargin) * 100
-      // const percentNo = (Number(formatUnits(marginalPriceNoBI, 18)) / totalMargin) * 100
-
-      const percentYes = (outcomeTokensPrice?.[0] ?? 0.5) * 100
-      const percentNo = (outcomeTokensPrice?.[1] ?? 0.5) * 100
+      const sum = outcomeTokensPrice[0] + outcomeTokensPrice[1]
+      const outcomeTokensPercentYes = (outcomeTokensPrice[0] / sum) * 100
+      const outcomeTokensPercentNo = (outcomeTokensPrice[1] / sum) * 100
 
       console.log('outcomeTokensPercent', {
-        percentYes,
-        percentNo,
+        outcomeTokensPercentYes,
+        outcomeTokensPercentNo,
       })
 
-      return [percentYes, percentNo]
+      return [outcomeTokensPercentYes, outcomeTokensPercentNo]
     },
   })
 

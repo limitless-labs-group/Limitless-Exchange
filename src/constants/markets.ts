@@ -1,12 +1,11 @@
 import { Market } from '@/types'
-import { base, baseSepolia, goerli } from 'viem/chains'
+import { base, baseSepolia } from 'viem/chains'
 
 export const markets: Market[] = [
   {
     address: {
       [base.id]: '0x6C53D4Fd4ABac77EeDb3CE862b8a6C4143d66Ca6',
-      [baseSepolia.id]: '0x8Fdb0b82bB280edf93988f8f0b0b57E8f0afB5B6',
-      [goerli.id]: '0x781083809e9cD7218e0796760e938D3320D51eF5',
+      [baseSepolia.id]: '0x23B3fBCA0f3D599Dbd27E1D7C1Fd433bAba520E8',
     },
     outcomeTokens: ['Yes', 'No'],
     conditionId: '0x1b72c3ee9656b0b8f542a395e5b6b913f8dae48160b27a2cd062ac400a7a3585',
@@ -24,8 +23,7 @@ export const markets: Market[] = [
   {
     address: {
       [base.id]: '0x25da81cF41e5292203d46311635FF59D2F87bE3E',
-      [baseSepolia.id]: '0xCDCF847737E8e326C8D2f74Fc312337b576E169c',
-      [goerli.id]: '0xdc1FC880012d044526eDfec9a2217AFBccF82D09',
+      [baseSepolia.id]: '0xbb6fa9d99596a219Dd77668C4505Ac34AeCE8de2',
     },
     outcomeTokens: ['Yes', 'No'],
     conditionId: '0x6e3316fef4d134319ce533b72eba6010f1cc8dccf698b79bc9820f9af06c1c3a',
@@ -44,7 +42,7 @@ export const markets: Market[] = [
   {
     address: {
       [base.id]: '0x5cD45975Cd6F0EeE9b92b82862f682BeC50421bE',
-      [baseSepolia.id]: '0xCEB61a1cD3d9a9D4FEDa50a49bD4EF5543572EAB',
+      [baseSepolia.id]: '0x74425AEe0504C2D460a8a954F1A5077D7e990eE3',
     },
     outcomeTokens: ['Yes', 'No'],
     conditionId: '0x110f8a415e638e28b52e29bab6f6222cd8fe9473a16a59a50d1d979d9e30d90f',
@@ -61,7 +59,7 @@ export const markets: Market[] = [
   {
     address: {
       [base.id]: '0xD2227c9fF2d85EBf3ec15E19E5E4F2eba3e03e76',
-      [baseSepolia.id]: '0xF4626e0A55d709EfEb0b7025ECF53D15Bc1b73E9',
+      [baseSepolia.id]: '0xE4895073476ADdbFDbD6098aed7B6C0c4ccB0295',
     },
     outcomeTokens: ['Yes', 'No'],
     conditionId: '0x4426ca37ad3e7392b40dcf01df6f473eaefc07b46f4925e88149207c99bda6f3',
@@ -78,7 +76,7 @@ export const markets: Market[] = [
   {
     address: {
       [base.id]: '0xb1F86e3f6e9c85631D7A012Dd08Fdf4A4746B198',
-      [baseSepolia.id]: '0x261C4f0200Cc80707e16A9523E1EeF11d902ac48',
+      [baseSepolia.id]: '0xCbC44F3d47d35294caab42b1bFfcd0Fe6CBcF7e4',
     },
     outcomeTokens: ['Yes', 'No'],
     conditionId: '0x453c4da16ea2a1aaaeba21d60abbbc9ede86390bdb94ef21c39997e91cd22b7a',

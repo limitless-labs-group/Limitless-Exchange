@@ -6,7 +6,7 @@ import { Avatar, HStack, Heading, Link, Stack, StackProps, Text } from '@chakra-
 
 export const DepositByMintCard = ({ ...props }: StackProps) => {
   const { account } = useAccount()
-  const { setStrategy, mint, isLoadingMint } = useBalanceService()
+  const { mint, isLoadingMint } = useBalanceService()
 
   return (
     <Stack
@@ -58,7 +58,6 @@ export const DepositByMintCard = ({ ...props }: StackProps) => {
           w={{ sm: 'full', md: '150px' }}
           h={'40px'}
           onClick={() => {
-            setStrategy('Deposit')
             mint()
           }}
           isLoading={isLoadingMint}

@@ -1,7 +1,7 @@
 import { Toast } from '@/components'
 import { collateralToken, defaultChain } from '@/constants'
 import { marketMakerABI } from '@/contracts'
-import { useToast } from '@/hooks'
+import { useMarketData, useToast } from '@/hooks'
 import { publicClient } from '@/providers'
 import { useAccount, useBalanceService, useEtherspot, useHistory } from '@/services'
 import { Market } from '@/types'
@@ -90,7 +90,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const refetchChain = async () => {
     await queryClient.invalidateQueries({
-      queryKey: ['sharesCost', market?.address[defaultChain.id]],
+      queryKey: ['outcomeTokensPrice', market?.address[defaultChain.id]],
     })
     return await refetchbalanceOfSmartWallet()
   }
@@ -120,7 +120,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   }, [market, outcomeTokenId, trades, strategy])
 
   /**
-   * AMOUNT OF COLLATERAL TOKEN TO BUY/SELL
+   * AMOUNT
    */
   const [collateralAmount, setCollateralAmount] = useState<string>('')
   const collateralAmountBI = useMemo(
@@ -142,6 +142,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const [quotes, setQuotes] = useState<TradeQuotes | null>(null)
 
+  const { outcomeTokensPrice: outcomeTokensPriceCurrent } = useMarketData({
+    marketAddress: market?.address[defaultChain.id],
+  })
+
   useQuery({
     queryKey: [
       'tradeQuotes',
@@ -149,13 +153,15 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       collateralAmount,
       outcomeTokenId,
       strategy,
+      outcomeTokensPriceCurrent,
     ],
     queryFn: async () => {
       if (!marketMakerContract || !(Number(collateralAmount) > 0)) {
         return setQuotes(null)
       }
 
-      // TODO: add market fee
+      const fee = 10 // TODO: make dynamic fee based on contracts data
+
       let outcomeTokenAmountBI = 0n
       if (strategy == 'Buy') {
         outcomeTokenAmountBI = (await marketMakerContract.read.calcBuyAmount([
@@ -168,27 +174,17 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
           outcomeTokenId,
         ])) as bigint
       }
-      const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 18)
-      const outcomeTokenPrice = (Number(collateralAmount) / Number(outcomeTokenAmount)).toString()
-      const roi = ((Number(outcomeTokenAmount) / Number(collateralAmount) - 1) * 100).toString()
 
-      // calc the current price of outcome token for price impact
-      const tempCollateralAmount = '0.00001'
-      const tempCollateralAmountBI = parseUnits(tempCollateralAmount, collateralToken.decimals)
-      const tempOutcomeTokenAmounts = Array.from(
-        { length: market?.outcomeTokens.length ?? 2 },
-        (v, i) =>
-          i === outcomeTokenId ? tempCollateralAmountBI * (strategy == 'Buy' ? 1n : -1n) : 0n
-      )
-      const tempNetCostBI =
-        ((await marketMakerContract.read.calcNetCost([tempOutcomeTokenAmounts])) as bigint) *
-        (strategy == 'Buy' ? 1n : -1n)
-      const tempNetCost = formatUnits(tempNetCostBI, 18)
-      const outcomeTokenPriceCurrent = (
-        Number(tempNetCost) / Number(tempCollateralAmount)
+      let outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 18)
+      const outcomeTokenPrice = (
+        (Number(collateralAmount) / Number(outcomeTokenAmount)) *
+        (fee / 100 + 1)
       ).toString()
+      outcomeTokenAmount = (Number(collateralAmount) / Number(outcomeTokenPrice)).toString() // recalc for fee
+      const roi = ((Number(outcomeTokenAmount) / Number(collateralAmount) - 1) * 100).toString()
       const priceImpact = Math.abs(
-        ((Number(outcomeTokenPrice) / Number(outcomeTokenPriceCurrent) ?? 1) - 1) * 100
+        (Number(outcomeTokenPrice) / Number(outcomeTokensPriceCurrent?.[outcomeTokenId] ?? 1) - 1) *
+          100
       ).toString()
 
       const _quotes: TradeQuotes = {
@@ -197,7 +193,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         roi,
         priceImpact,
       }
-      console.log('tradeQuotes', _quotes, outcomeTokenPriceCurrent)
+      console.log('tradeQuotes', _quotes)
+
       setQuotes(_quotes)
       return quotes
     },
@@ -220,9 +217,9 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       const receipt = await etherspot.buyOutcomeTokens(
         market.address[defaultChain.id],
-        parseUnits(quotes.outcomeTokenAmount, 18),
+        collateralAmountBI,
         outcomeTokenId,
-        market.outcomeTokens.length
+        parseUnits(quotes.outcomeTokenAmount, 18)
       )
 
       setCollateralAmount('')
@@ -267,9 +264,9 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       const receipt = await etherspot.sellOutcomeTokens(
         market.address[defaultChain.id],
-        parseUnits(quotes.outcomeTokenAmount, 18),
+        collateralAmountBI,
         outcomeTokenId,
-        market.outcomeTokens.length
+        parseUnits(quotes.outcomeTokenAmount, 18)
       )
 
       setCollateralAmount('')
@@ -361,10 +358,3 @@ export type TradeQuotes = {
   roi: string // return on investment aka profitability percentage
   priceImpact: string // price fluctuation percentage
 }
-
-// interface ITrade {
-//   marketMakerAddress?: Address
-//   amount: bigint
-//   onSign?: () => void
-//   onConfirm?: (receipt: TransactionReceipt) => Promise<any>
-// }

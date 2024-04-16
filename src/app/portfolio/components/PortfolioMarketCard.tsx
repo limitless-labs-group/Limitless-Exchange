@@ -56,37 +56,6 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
         {...props}
       >
         <Stack spacing={4} w={'full'} justifyContent={'space-between'}>
-          {/* <HStack>
-            <Text
-              p={'2px 6px'}
-              bg={marketStats.outcomeId == 0 ? 'green' : 'red'}
-              color={'white'}
-              fontWeight={'bold'}
-              borderRadius={'6px'}
-            >
-              {market?.outcomeTokens[marketStats.outcomeId ?? 0]}{' '}
-              {NumberUtil.toFixed(marketStats.latestTrade?.costPerShare, 2)}%
-            </Text>
-            <HStack spacing={1}>
-              <Text>Bet:</Text>
-              <Text fontWeight={'bold'}>${NumberUtil.toFixed(marketStats.investedUsd, 2)}</Text>
-            </HStack>
-          </HStack>
-          <HStack>
-            <HStack spacing={1}>
-              <Text>Shares:</Text>
-              <Text color={'brand'} fontWeight={'bold'}>
-                {NumberUtil.toFixed(marketStats.sharesAmount, 2)}
-              </Text>
-            </HStack>
-            <HStack spacing={1}>
-              <Text>To win:</Text>
-              <Text color={'white'} fontWeight={'bold'}>
-                ${NumberUtil.toFixed(marketStats.sharesAmount, 2)}
-              </Text>
-            </HStack>
-          </HStack> */}
-
           <HStack w={'full'} justifyContent={'space-between'} lineHeight={'18px'}>
             <HStack spacing={1}>
               <Flex p={2} bg={'bgLight'} borderRadius={borderRadius}>
@@ -101,7 +70,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
                 <Text fontWeight={'bold'}>
                   {market?.outcomeTokens[marketStats.outcomeTokenId ?? 0] ??
                     ['Yes', 'No'][marketStats.outcomeTokenId ?? 0]}{' '}
-                  {NumberUtil.toFixed(marketStats.latestTrade?.outcomePercent, 1)}%
+                  {marketStats.latestTrade?.outcomePercent?.toFixed(1)}%
                 </Text>
               </Stack>
             </HStack>
@@ -133,7 +102,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
             </HStack>
           </HStack>
 
-          <HStack h={'33px'}>
+          <HStack w={'full'} h={'33px'}>
             <Button
               bg={'black'}
               color={'white'}

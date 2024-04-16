@@ -1,16 +1,13 @@
 import { Button, IModal, Input, Modal } from '@/components'
 import { collateralToken, defaultChain } from '@/constants'
 import { useBalanceService } from '@/services'
-import { colors } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { HStack, Heading, InputGroup, InputLeftElement, Stack } from '@chakra-ui/react'
+import { HStack, Heading, InputGroup, Stack } from '@chakra-ui/react'
 import { useEffect } from 'react'
-import { FaDollarSign } from 'react-icons/fa'
 import { zeroAddress } from 'viem'
 
 export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'children'>) => {
   const {
-    setStrategy,
     balanceOfSmartWallet,
     amount,
     setAmount,
@@ -21,9 +18,8 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
   } = useBalanceService()
 
   useEffect(() => {
-    setStrategy('Withdraw')
-    setAmount(undefined)
-    setAddressToWithdraw(undefined)
+    setAmount('')
+    setAddressToWithdraw('')
   }, [isOpen])
 
   return (
@@ -49,7 +45,7 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
                 h={'24px'}
                 px={2}
                 fontSize={'12px'}
-                onClick={() => setAmount(balanceOfSmartWallet?.formatted)}
+                onClick={() => setAmount(balanceOfSmartWallet?.formatted ?? '')}
               >
                 {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 3)} ${
                   collateralToken.symbol
@@ -61,7 +57,7 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
                 fontSize={'12px'}
                 bg={'black'}
                 color={'white'}
-                onClick={() => setAmount(balanceOfSmartWallet?.formatted)}
+                onClick={() => setAmount(balanceOfSmartWallet?.formatted ?? '')}
               >
                 Max
               </Button>

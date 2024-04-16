@@ -28,7 +28,10 @@ const MainPage = () => {
           </Stack>
         </HStack>
 
-        <Grid templateColumns={{ sm: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }} gap={6}>
+        <Grid
+          templateColumns={{ sm: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+          gap={{ sm: 6, md: 10 }}
+        >
           <CreateMarketCard />
 
           {markets.map(

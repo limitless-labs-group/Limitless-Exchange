@@ -13,7 +13,7 @@ export const colors = {
   black: '#0F172A',
 }
 
-export const borderRadius = '8px'
+export const borderRadius = 'lg'
 
 export const chakraTheme = ChakraTheme({
   initialColorMode: 'light',
