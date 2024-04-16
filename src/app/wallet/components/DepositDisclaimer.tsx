@@ -14,7 +14,7 @@ export const DepositDisclaimer = ({ ...props }: StackProps) => (
     {...props}
   >
     <HStack w={'full'} alignItems={'start'}>
-      <Box borderRadius={'full'} border={'1px solid grey'} mt={1}>
+      <Box p={1} borderRadius={'full'} border={'1px solid grey'}>
         <FaInfo fontSize={'9px'} fill='grey' />
       </Box>
       <Text color={'fontLight'}>
