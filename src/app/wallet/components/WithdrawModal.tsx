@@ -1,8 +1,8 @@
-import { Button, IModal, Input, Modal } from '@/components'
+import { Button, IModal, InfoIcon, Input, Modal, Tooltip } from '@/components'
 import { collateralToken, defaultChain } from '@/constants'
 import { useBalanceService } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { HStack, Heading, InputGroup, Stack } from '@chakra-ui/react'
+import { HStack, Heading, InputGroup, Stack, Switch, Text } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { zeroAddress } from 'viem'
 
@@ -13,6 +13,8 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
     setAmount,
     addressToWithdraw,
     setAddressToWithdraw,
+    unwrap,
+    setUnwrap,
     withdraw,
     status,
   } = useBalanceService()
@@ -77,6 +79,21 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
             />
           </InputGroup>
         </Stack>
+
+        <HStack fontWeight={'bold'}>
+          <Text color={unwrap ? 'fontLight' : 'font'}>WETH</Text>
+          <Switch
+            isChecked={unwrap}
+            onChange={(e) => setUnwrap(e.target.checked)}
+            isDisabled={status == 'Loading'}
+          />
+          <Text color={unwrap ? 'font' : 'fontLight'}>ETH</Text>
+          <Tooltip
+            label={`Select WETH if you want to transfer wrapped ethers (ERC20) tokens to your web3 wallet.\nSelect ETH if you want to unwrap it and transfer ethers to your web3 wallet or exchange.`}
+          >
+            <InfoIcon fontSize={'9px'} p={'3px'} />
+          </Tooltip>
+        </HStack>
 
         <Button
           colorScheme={'brand'}

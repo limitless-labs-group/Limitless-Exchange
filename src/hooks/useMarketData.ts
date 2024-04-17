@@ -104,7 +104,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
               ${queryName} (
                 where: {id: "${marketAddress}"}
               ) {
-                collateralPools
+                funding
                 holdersCount
               }
             }
@@ -112,10 +112,8 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
         },
       })
       const [_marketData] = res.data.data?.[queryName] as MarketData[]
-      let liquidity = 0
-      _marketData.collateralPools.forEach((pool) => {
-        liquidity += Number(formatUnits(BigInt(pool), collateralToken.decimals))
-      })
+      const liquidity = formatUnits(BigInt(_marketData.funding), collateralToken.decimals)
+
       return {
         liquidity,
         holdersCount: _marketData.holdersCount,
@@ -132,7 +130,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
 }
 
 type MarketData = {
-  collateralPools: string[]
+  funding: string
   outcomePools?: string[]
   holdersCount: number
 }

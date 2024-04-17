@@ -121,7 +121,9 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
       onSign?.()
       const opHash = await etherspot.transferErc20(token, to, amount)
       const receipt = await etherspot.waitForTransaction(opHash)
-      await onConfirm?.(receipt)
+      if (!!receipt) {
+        await onConfirm?.(receipt)
+      }
       return receipt
     },
   })
@@ -239,17 +241,15 @@ class Etherspot {
     return opReceipt.receipt as TransactionReceipt
   }
 
-  async transferEthers(to: Address, value: string) {
-    if (isNaN(Number(value))) {
-      throw Error('Invalid value input')
-    }
+  async transferEthers(to: Address, value: bigint, waitForTransaction = false) {
     await this.primeSdk.clearUserOpsFromBatch()
-    await this.primeSdk.addUserOpsToBatch({
-      to,
-      value: parseEther(value),
-    })
+    await this.primeSdk.addUserOpsToBatch({ to, value })
     const op = await this.estimate()
     const opHash = await this.primeSdk.send(op)
+    if (waitForTransaction) {
+      const transactionReceipt = await this.waitForTransaction(opHash)
+      return transactionReceipt
+    }
     return opHash
   }
 
@@ -309,12 +309,25 @@ class Etherspot {
     }
   }
 
+  // TODO: incapsulate
   async wrapEth(value: bigint) {
     const data = encodeFunctionData({
       abi: wethABI,
       functionName: 'deposit',
     })
     const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, data, value)
+    const transactionReceipt = await this.waitForTransaction(opHash)
+    return transactionReceipt
+  }
+
+  // TODO: incapsulate
+  async unwrapEth(value: bigint) {
+    const data = encodeFunctionData({
+      abi: wethABI,
+      functionName: 'withdraw',
+      args: [value],
+    })
+    const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, data)
     const transactionReceipt = await this.waitForTransaction(opHash)
     return transactionReceipt
   }

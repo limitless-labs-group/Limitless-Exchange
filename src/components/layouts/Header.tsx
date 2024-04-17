@@ -82,56 +82,6 @@ export const Header = ({ ...props }: FlexProps) => {
               display={{ sm: 'none', md: 'flex' }}
               alignItems={'center'}
             >
-              {/* <HStack h='full'>
-                <Button
-                  colorScheme={'transparent'}
-                  size={'sm'}
-                  h={'full'}
-                  onClick={() => router.push('/wallet')}
-                >
-                  <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                    <Text color={'brand'} fontSize={'18px'}>
-                      ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted)}
-                    </Text>
-                    <Text color={'fontLight'} fontSize={'12px'} lineHeight={'12px'}>
-                      Balance
-                    </Text>
-                  </Stack>
-                </Button>
-
-                <Button
-                  colorScheme={'transparent'}
-                  size={'sm'}
-                  h={'full'}
-                  onClick={() => router.push('/portfolio')}
-                >
-                  <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                    <Text color={'brand'} fontSize={'18px'}>
-                      ${investedUsd.toFixed()}
-                    </Text>
-                    <Text color={'fontLight'} fontSize={'12px'} lineHeight={'12px'}>
-                      Invested
-                    </Text>
-                  </Stack>
-                </Button>
-
-                <Button
-                  colorScheme={'transparent'}
-                  size={'sm'}
-                  h={'full'}
-                  onClick={() => router.push('/portfolio')}
-                >
-                  <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                    <Text color={'brand'} fontSize={'18px'}>
-                      ${balanceShares.toFixed()}
-                    </Text>
-                    <Text color={'fontLight'} fontSize={'12px'} lineHeight={'12px'}>
-                      To win
-                    </Text>
-                  </Stack>
-                </Button>
-              </HStack> */}
-
               <HStack h={'full'} spacing={4}>
                 <Button
                   h={'40px'}
@@ -143,7 +93,7 @@ export const Header = ({ ...props }: FlexProps) => {
                   <HStack spacing={1}>
                     <Text>Balance</Text>
                     <Text fontWeight={'bold'}>
-                      {NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 2)}
+                      {NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4)}
                     </Text>
                     <Text>{collateralToken.symbol}</Text>
                   </HStack>

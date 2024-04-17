@@ -15,7 +15,7 @@ export const usdc: Token = {
 export const weth: Token = {
   address: {
     [base.id]: '0x4200000000000000000000000000000000000006',
-    [baseSepolia.id]: '0x6761f13A4b67Dac1180E94529d24ffbDA8C26e50',
+    [baseSepolia.id]: '0x9e1cfdAdAf5631A40d9AD3f21233a177DF05b674',
   },
   symbol: 'WETH',
   name: 'Wrapped Ethereum',

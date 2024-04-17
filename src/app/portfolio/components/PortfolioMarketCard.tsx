@@ -70,7 +70,8 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
                 <Text fontWeight={'bold'}>
                   {market?.outcomeTokens[marketStats.outcomeTokenId ?? 0] ??
                     ['Yes', 'No'][marketStats.outcomeTokenId ?? 0]}{' '}
-                  {marketStats.latestTrade?.outcomePercent?.toFixed(1)}%
+                  {NumberUtil.toFixed(marketStats.latestTrade?.outcomePercent, 3)}{' '}
+                  {collateralToken.symbol}
                 </Text>
               </Stack>
             </HStack>

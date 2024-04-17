@@ -1,4 +1,4 @@
-import { Button, Input, LogInButton } from '@/components'
+import { Button, InfoIcon, Input, LogInButton, Tooltip } from '@/components'
 import { collateralToken, defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { usePriceOracle } from '@/providers'
@@ -11,7 +11,7 @@ import {
   useTradingService,
   OutcomeChangedMetadata,
 } from '@/services'
-import { borderRadius, colors } from '@/styles'
+import { borderRadius } from '@/styles'
 import { NumberUtil } from '@/utils'
 import {
   Avatar,
@@ -26,11 +26,9 @@ import {
   Stack,
   StackProps,
   Text,
-  Tooltip,
   VStack,
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FaInfo } from 'react-icons/fa'
 import { getAddress, zeroAddress } from 'viem'
 
 export const TradeForm = ({ ...props }: StackProps) => {
@@ -233,7 +231,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 setOutcomeTokenId(0)
               }}
             >
-              {market?.outcomeTokens[0] ?? 'Yes'} {(outcomeTokensPercent?.[0] ?? 50).toFixed(1)}%
+              {market?.outcomeTokens[0] ?? 'Yes'} {(outcomeTokensPercent?.[0] ?? 50).toFixed(2)}%
             </Button>
             <Button
               w={'full'}
@@ -247,7 +245,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 setOutcomeTokenId(1)
               }}
             >
-              {market?.outcomeTokens[1] ?? 'No'} {(outcomeTokensPercent?.[1] ?? 50).toFixed(1)}%
+              {market?.outcomeTokens[1] ?? 'No'} {(outcomeTokensPercent?.[1] ?? 50).toFixed(2)}%
             </Button>
           </HStack>
         </VStack>
@@ -386,23 +384,8 @@ export const TradeForm = ({ ...props }: StackProps) => {
                     label={
                       'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
                     }
-                    bg={'bg'}
-                    color={'font'}
-                    fontWeight={'normal'}
-                    border={'1px solid'}
-                    borderColor={'border'}
-                    borderRadius={borderRadius}
-                    px={3}
-                    py={2}
                   >
-                    <Box
-                      p={'2px'}
-                      borderRadius={'full'}
-                      border={'1px solid'}
-                      borderColor={'fontLight'}
-                    >
-                      <FaInfo fontSize={'8px'} fill={colors.fontLight} />
-                    </Box>
+                    <InfoIcon />
                   </Tooltip>
                 </HStack>
                 <Text textAlign={'right'}>{NumberUtil.toFixed(quotes?.outcomeTokenAmount, 4)}</Text>

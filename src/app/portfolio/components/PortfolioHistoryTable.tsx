@@ -38,9 +38,8 @@ export const PortfolioHistoryTable = ({ ...props }: GridProps) => {
             <Th>Outcome</Th>
             <Th>Strategy</Th>
             <Th isNumeric>Amount</Th>
-            <Th isNumeric pr={0}>
-              Shares
-            </Th>
+            <Th isNumeric>Shares</Th>
+            <Th pr={0}>Tx</Th>
           </Tr>
         </Thead>
         <Tbody>

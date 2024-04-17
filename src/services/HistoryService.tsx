@@ -1,11 +1,10 @@
 import { collateralToken, defaultChain, markets, subgraphURI } from '@/constants'
 import { useEtherspot } from '@/services'
 import { Address } from '@/types'
-import { NumberUtil } from '@/utils'
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { PropsWithChildren, createContext, useCallback, useContext, useMemo } from 'react'
-import { formatUnits } from 'viem'
+import { formatEther, formatUnits } from 'viem'
 
 interface IHistoryService {
   trades: HistoryTrade[] | undefined
@@ -54,6 +53,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
                 outcomeTokenAmounts
                 outcomeTokenNetCost
                 blockTimestamp
+                transactionHash
               }
             }
           `,
@@ -64,7 +64,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         const outcomeTokenAmountBI = BigInt(
           trade.outcomeTokenAmounts.find((amount) => BigInt(amount) != 0n) ?? 0
         )
-        trade.outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, collateralToken.decimals)
+        trade.outcomeTokenAmount = formatEther(outcomeTokenAmountBI)
         trade.strategy = Number(trade.outcomeTokenAmount) > 0 ? 'Buy' : 'Sell'
         trade.outcomeTokenId = trade.outcomeTokenAmounts.findIndex((amount) => BigInt(amount) != 0n)
         trade.collateralAmount = formatUnits(
@@ -74,7 +74,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         trade.outcomeTokenPrice = (
           Number(trade.collateralAmount) / Number(trade.outcomeTokenAmount)
         ).toString()
-        trade.outcomePercent = Number(trade.outcomeTokenPrice) * 100
+
+        trade.outcomePercent = Number(trade.outcomeTokenPrice)
       })
 
       trades.sort((tradeA, tradeB) => Number(tradeB.blockTimestamp) - Number(tradeA.blockTimestamp))
@@ -201,6 +202,7 @@ export type HistoryTrade = {
   outcomePercent?: number // 50% yes / 50% no
   collateralAmount?: string // collateral amount traded
   blockTimestamp: string
+  transactionHash: string
 }
 
 export type HistoryMarket = {

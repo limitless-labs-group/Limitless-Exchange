@@ -1,6 +1,6 @@
+import { InfoIcon } from '@/components'
 import { borderRadius, colors } from '@/styles'
-import { Box, HStack, Stack, StackProps, Text } from '@chakra-ui/react'
-import { FaInfo } from 'react-icons/fa'
+import { HStack, Stack, StackProps, Text } from '@chakra-ui/react'
 
 export const DepositDisclaimer = ({ ...props }: StackProps) => (
   <Stack
@@ -14,9 +14,7 @@ export const DepositDisclaimer = ({ ...props }: StackProps) => (
     {...props}
   >
     <HStack w={'full'} alignItems={'start'}>
-      <Box p={1} borderRadius={'full'} border={'1px solid grey'}>
-        <FaInfo fontSize={'9px'} fill='grey' />
-      </Box>
+      <InfoIcon fontSize={'9px'} p={1} />
       <Text color={'fontLight'}>
         Because ETH was deployed prior to the erc20 standard, it is not an erc20 token & needs to be
         “wrapped” in order to be traded with other tokens. When you deposit ETH into your smart

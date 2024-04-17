@@ -7,20 +7,34 @@ import { useEtherspot } from '@/services'
 import { Address, GetBalanceResult } from '@/types'
 import { Logger, NumberUtil } from '@/utils'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { PropsWithChildren, createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { formatEther, formatUnits, getContract, isAddress, parseEther, parseUnits } from 'viem'
+import { usePathname } from 'next/navigation'
+import { PropsWithChildren, createContext, useContext, useMemo, useState } from 'react'
+import {
+  TransactionReceipt,
+  formatEther,
+  formatUnits,
+  getContract,
+  isAddress,
+  parseEther,
+  parseUnits,
+} from 'viem'
 import { getBalance } from 'viem/actions'
 
 interface IBalanceService {
   balanceOfSmartWallet: GetBalanceResult | undefined
   refetchbalanceOfSmartWallet: () => Promise<any>
-  amount: string
-  setAmount: (amount: string) => void
+
   mint: () => void
   isLoadingMint: boolean
+
   addressToWithdraw: string
   setAddressToWithdraw: (amount: string) => void
+  amount: string
+  setAmount: (amount: string) => void
+  unwrap: boolean
+  setUnwrap: (unwrap: boolean) => void
   withdraw: () => Promise<any>
+
   status: BalanceServiceStatus
 }
 
@@ -34,6 +48,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const toast = useToast()
   const log = new Logger(BalanceServiceProvider.name)
+  const pathname = usePathname()
 
   /**
    * Etherspot
@@ -90,25 +105,35 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   })
 
   /**
-   * Auto-wrap Eth
+   * Auto-wrap/unwrap Eth
    */
+  const [unwrap, setUnwrap] = useState(false) // unwrap on withdrawal
+
   useQuery({
-    queryKey: ['autoWrapEth', smartWalletAddress],
+    queryKey: ['autoWrapEth', smartWalletAddress, unwrap],
     queryFn: async () => {
-      if (!smartWalletAddress || !etherspot) {
+      if (!smartWalletAddress || !etherspot || unwrap) {
         return
       }
       const eth = await getBalance(publicClient, { address: smartWalletAddress })
       const ethFormatted = formatEther(eth)
-      const gasFee = defaultChain.testnet ? 0.001 : 0 // there's no paymaster on testnet so it's required to left some eth for gas
+      const gasFee = defaultChain.testnet ? 0.005 : 0 // there's no paymaster on testnet so it's required to left some eth for gas
       log.info('ETH balance:', ethFormatted)
       if (Number(ethFormatted) > gasFee) {
+        toast({
+          render: () => <Toast title={'Wrapping ETH...'} />,
+        })
         const receipt = await etherspot.wrapEth(eth - parseEther(gasFee.toString()))
-        log.success('Auto-wrap eth', receipt)
+        if (!receipt) {
+          // TODO: show toast?
+          log.error('autoWrapEth')
+        } else {
+          log.success('autoWrapEth', receipt)
+        }
       }
     },
-    // enabled: false,
-    refetchInterval: 5000,
+    enabled: !!smartWalletAddress && !!etherspot && !unwrap,
+    refetchInterval: pathname.includes('wallet') && 5000, // polling on wallet page only
   })
 
   /**
@@ -157,13 +182,35 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   }, [balanceOfSmartWallet, amountBI])
 
   // Mutation
-  const {
-    mutateAsync: withdraw,
-    isPending: isLoadingWithdraw,
-    data: withdrawTx,
-  } = useMutation({
+  const { mutateAsync: withdraw, isPending: isLoadingWithdraw } = useMutation({
     mutationFn: async () => {
-      return await transferErc20({
+      if (unwrap) {
+        toast({
+          render: () => <Toast title={'Unwrapping ETH...'} />,
+        })
+        const unwrapReceipt = await etherspot?.unwrapEth(amountBI)
+        if (!unwrapReceipt) {
+          // TODO: show error toast
+          log.error('Unwrap is unsuccessful')
+          return
+        }
+        const transferReceipt = (await etherspot?.transferEthers(
+          addressToWithdraw as Address,
+          amountBI,
+          true
+        )) as TransactionReceipt | undefined
+        if (!transferReceipt) {
+          // TODO: show error toast
+          log.error('Transfer ETH is unsuccessful')
+          return
+        }
+        setUnwrap(false)
+        toast({
+          render: () => <ToastWithdraw receipt={transferReceipt} />,
+        })
+        return
+      }
+      await transferErc20({
         token: collateralToken.address[defaultChain.id],
         to: addressToWithdraw as Address,
         amount: amountBI,
@@ -197,20 +244,25 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       return 'Loading'
     }
     return 'ReadyToFund'
-  }, [isInvalidAddressToWithdraw, isInvalidAmount, isLoadingMint, isLoadingWithdraw, withdrawTx])
+  }, [isInvalidAddressToWithdraw, isInvalidAmount, isLoadingMint, isLoadingWithdraw])
 
   return (
     <BalanceService.Provider
       value={{
         balanceOfSmartWallet,
         refetchbalanceOfSmartWallet,
-        amount,
-        setAmount,
+
         mint,
         isLoadingMint,
+
         addressToWithdraw,
         setAddressToWithdraw,
+        amount,
+        setAmount,
+        unwrap,
+        setUnwrap,
         withdraw,
+
         status,
       }}
     >

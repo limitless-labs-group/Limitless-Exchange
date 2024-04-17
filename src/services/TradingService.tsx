@@ -160,8 +160,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         return setQuotes(null)
       }
 
-      const fee = 10 // TODO: make dynamic fee based on contracts data
-
       let outcomeTokenAmountBI = 0n
       if (strategy == 'Buy') {
         outcomeTokenAmountBI = (await marketMakerContract.read.calcBuyAmount([
@@ -175,12 +173,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         ])) as bigint
       }
 
-      let outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 18)
-      const outcomeTokenPrice = (
-        (Number(collateralAmount) / Number(outcomeTokenAmount)) *
-        (fee / 100 + 1)
-      ).toString()
-      outcomeTokenAmount = (Number(collateralAmount) / Number(outcomeTokenPrice)).toString() // recalc for fee
+      const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 18)
+      const outcomeTokenPrice = (Number(collateralAmount) / Number(outcomeTokenAmount)).toString()
       const roi = ((Number(outcomeTokenAmount) / Number(collateralAmount) - 1) * 100).toString()
       const priceImpact = Math.abs(
         (Number(outcomeTokenPrice) / Number(outcomeTokensPriceCurrent?.[outcomeTokenId] ?? 1) - 1) *
@@ -222,6 +216,13 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         parseUnits(quotes.outcomeTokenAmount, 18)
       )
 
+      if (!receipt) {
+        toast({
+          render: () => <Toast title={`Unsuccessful transaction. Please, contact our support.`} />,
+        })
+        return
+      }
+
       setCollateralAmount('')
       await refetchChain()
 
@@ -240,6 +241,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         render: () => <Toast title={`Updating markets data...`} />,
       })
 
+      // TODO: redesign subgraph refetch logic
       sleep(10).then(() => {
         refetchSubgraph()
       })
@@ -269,6 +271,13 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         parseUnits(quotes.outcomeTokenAmount, 18)
       )
 
+      if (!receipt) {
+        toast({
+          render: () => <Toast title={`Unsuccessful transaction. Please, contact our support.`} />,
+        })
+        return
+      }
+
       setCollateralAmount('')
       await refetchChain()
 
@@ -287,6 +296,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         render: () => <Toast title={`Updating markets data...`} />,
       })
 
+      // TODO: redesign subgraph refetch logic
       sleep(10).then(() => {
         refetchSubgraph()
       })
