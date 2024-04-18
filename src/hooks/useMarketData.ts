@@ -40,7 +40,6 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
         return [0, 0]
       }
 
-      const fee = 10 // TODO: make dynamic based on contracts data
       const collateralAmount = `0.0000001`
       const collateralAmountBI = parseUnits(collateralAmount, collateralToken.decimals)
       const outcomeTokenAmountYesBI = (await marketMakerContract.read.calcBuyAmount([
@@ -53,10 +52,8 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       ])) as bigint
       const outcomeTokenAmountYes = formatUnits(outcomeTokenAmountYesBI, 18)
       const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, 18)
-      const outcomeTokenPriceYes =
-        (Number(collateralAmount) / Number(outcomeTokenAmountYes)) * (fee / 100 + 1)
-      const outcomeTokenPriceNo =
-        (Number(collateralAmount) / Number(outcomeTokenAmountNo)) * (fee / 100 + 1)
+      const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
+      const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
 
       console.log('outcomeTokensPrice', {
         priceYes: outcomeTokenPriceYes,
