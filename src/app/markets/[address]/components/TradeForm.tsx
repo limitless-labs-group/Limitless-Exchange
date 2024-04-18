@@ -10,6 +10,9 @@ import {
   useBalanceService,
   useTradingService,
   OutcomeChangedMetadata,
+  ClickEvent,
+  PricePresetClickedMetadata,
+  TradeClickedMetadata,
 } from '@/services'
 import { borderRadius } from '@/styles'
 import { NumberUtil } from '@/utils'
@@ -40,7 +43,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
   /**
    * ANALITYCS
    */
-  const { trackChanged } = useAmplitude()
+  const { trackChanged, trackClicked } = useAmplitude()
 
   /**
    * TRADING SERVICE
@@ -168,7 +171,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Buy selected',
-              market: marketAddress,
+              marketAddress,
             })
             setStrategy('Buy')
           }}
@@ -194,7 +197,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Sell selected',
-              market: marketAddress,
+              marketAddress,
             })
             setStrategy('Sell')
           }}
@@ -226,7 +229,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
               onClick={() => {
                 trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
                   choice: 'Yes',
-                  market: marketAddress,
+                  marketAddress,
                 })
                 setOutcomeTokenId(0)
               }}
@@ -240,7 +243,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
               onClick={() => {
                 trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
                   choice: 'No',
-                  market: marketAddress,
+                  marketAddress,
                 })
                 setOutcomeTokenId(1)
               }}
@@ -345,7 +348,13 @@ export const TradeForm = ({ ...props }: StackProps) => {
             colorScheme={'brand'}
             isDisabled={status != 'Ready'}
             isLoading={status == 'Loading'}
-            onClick={trade}
+            onClick={() => {
+              trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
+                strategy,
+                marketAddress,
+              })
+              trade()
+            }}
           >
             {strategy}
           </Button>

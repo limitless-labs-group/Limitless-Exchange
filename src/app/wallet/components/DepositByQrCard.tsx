@@ -77,7 +77,9 @@ export const DepositByQrCard = ({ ...props }: StackProps) => {
             fontWeight={'normal'}
             onClick={() => {
               onCopy()
-              trackCopied(CopyEvent.WalletAddressCopied, 'Deposit')
+              trackCopied(CopyEvent.WalletAddressCopied, {
+                page: 'Deposit',
+              })
             }}
           >
             <Text display={{ sm: 'none', md: 'contents' }}>{account}</Text>

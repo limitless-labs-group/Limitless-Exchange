@@ -32,7 +32,15 @@ const PortfolioPage = () => {
               visibility={tab == 'Markets' ? 'visible' : 'hidden'}
             />
           </Stack>
-          <Stack cursor={'pointer'} onClick={() => setTab('History')}>
+          <Stack
+            cursor={'pointer'}
+            onClick={() => {
+              trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
+                page: 'Portfolio - History tab',
+              })
+              setTab('History')
+            }}
+          >
             <Text fontWeight={tab == 'History' ? 'bold' : 'normal'}>History</Text>
             <Box
               w={'full'}
