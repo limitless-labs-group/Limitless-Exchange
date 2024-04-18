@@ -13,7 +13,8 @@ export const CreateMarketCard = () => {
       onClick={() =>
         window.open(
           'https://limitlesslabs.notion.site/Limitless-Creators-101-fbbde33a51104fcb83c57f6ce9d69d2a?pvs=4',
-          '_blank'
+          '_blank',
+          'noopener'
         )
       }
     >

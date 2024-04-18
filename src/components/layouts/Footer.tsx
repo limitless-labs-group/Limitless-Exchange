@@ -34,7 +34,8 @@ export const Footer = () => {
           onClick={() =>
             window.open(
               'https://www.notion.so/limitlesslabs/About-us-260f9f7ca5dc4403b55f7e0493485d09?pvs=4',
-              '_blank'
+              '_blank',
+              'noopener'
             )
           }
         >
@@ -46,7 +47,8 @@ export const Footer = () => {
           onClick={() =>
             window.open(
               'https://www.notion.so/limitlesslabs/Terms-of-Service-fd732c53ebc34e4aa36ad45b0b32595e?pvs=4',
-              '_blank'
+              '_blank',
+              'noopener'
             )
           }
         >
@@ -58,7 +60,8 @@ export const Footer = () => {
           onClick={() =>
             window.open(
               'https://www.notion.so/limitlesslabs/Privacy-Policy-072f1a8cb75b452bb8541d1f53271ad9?pvs=4',
-              '_blank'
+              '_blank',
+              'noopener'
             )
           }
         >
@@ -70,7 +73,8 @@ export const Footer = () => {
           onClick={() =>
             window.open(
               'https://limitlesslabs.notion.site/Limitless-Creators-101-fbbde33a51104fcb83c57f6ce9d69d2a?pvs=4',
-              '_blank'
+              '_blank',
+              'noopener'
             )
           }
         >
@@ -82,7 +86,8 @@ export const Footer = () => {
           onClick={() =>
             window.open(
               'https://limitlesslabs.notion.site/FAQ-a911ea2f7ef24a8bbbaf7a5989f912ea?pvs=4',
-              '_blank'
+              '_blank',
+              'noopener'
             )
           }
         >
@@ -93,21 +98,23 @@ export const Footer = () => {
         <Text
           cursor={'pointer'}
           _hover={{ color: 'fontLight' }}
-          onClick={() => window.open('https://discord.gg/rSJJrehEyH', '_blank')}
+          onClick={() => window.open('https://discord.gg/rSJJrehEyH', '_blank', 'noopener')}
         >
           Discord
         </Text>
         <Text
           cursor={'pointer'}
           _hover={{ color: 'fontLight' }}
-          onClick={() => window.open('https://twitter.com/trylimitless', '_blank')}
+          onClick={() => window.open('https://twitter.com/trylimitless', '_blank', 'noopener')}
         >
           X
         </Text>
         <Text
           cursor={'pointer'}
           _hover={{ color: 'fontLight' }}
-          onClick={() => window.open('https://warpcast.com/~/channel/limitless', '_blank')}
+          onClick={() =>
+            window.open('https://warpcast.com/~/channel/limitless', '_blank', 'noopener')
+          }
         >
           Warpcast
         </Text>

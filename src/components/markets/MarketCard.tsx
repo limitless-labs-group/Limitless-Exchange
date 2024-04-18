@@ -116,7 +116,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
               h={'full'}
               aspectRatio={'1/1'}
               p={1}
-              onClick={() => window.open(tweetURI, '_blank')}
+              onClick={() => window.open(tweetURI, '_blank', 'noopener')}
             >
               <FaXTwitter size={'16px'} />
             </Button>
@@ -124,7 +124,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
               h={'full'}
               aspectRatio={'1/1'}
               p={1}
-              onClick={() => window.open(castURI, '_blank')}
+              onClick={() => window.open(castURI, '_blank', 'noopener')}
             >
               <Image src='/assets/images/farcaster.png' h={'22px'} />
             </Button>

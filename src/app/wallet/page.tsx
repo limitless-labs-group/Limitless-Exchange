@@ -43,7 +43,7 @@ const WalletPage = () => {
             border={`1px solid ${colors.border}`}
             leftIcon={<FaComments size={'18px'} />}
             rightIcon={<FaCircle fill='green' size={'8px'} />}
-            onClick={() => window.open('https://discord.gg/rSJJrehEyH', '_blank')}
+            onClick={() => window.open('https://discord.gg/rSJJrehEyH', '_blank', 'noopener')}
           >
             Talk to human
           </Button>

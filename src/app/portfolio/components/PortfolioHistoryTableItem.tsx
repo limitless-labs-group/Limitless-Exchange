@@ -96,7 +96,8 @@ export const PortfolioHistoryTableItem = ({
           onClick={() =>
             window.open(
               `${defaultChain.blockExplorers.default.url}/tx/${trade.transactionHash}`,
-              '_blank'
+              '_blank',
+              'noopener'
             )
           }
         >

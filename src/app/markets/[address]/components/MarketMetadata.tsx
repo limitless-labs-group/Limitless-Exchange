@@ -133,7 +133,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                       type: 'X/Twitter',
                       page: 'Market Page',
                     })
-                    window.open(tweetURI, '_blank')
+                    window.open(tweetURI, '_blank', 'noopener')
                   }}
                 >
                   <FaXTwitter />
@@ -147,7 +147,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                   fontWeight={'normal'}
                   colorScheme={'transparent'}
                   justifyContent={'start'}
-                  onClick={() => window.open(castURI, '_blank')}
+                  onClick={() => window.open(castURI, '_blank', 'noopener')}
                 >
                   <Image src='/assets/images/farcaster.png' blockSize={'15px'} />
                   <Text>Share on Farcaster</Text>
