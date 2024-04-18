@@ -47,6 +47,7 @@ export const PortfolioHistoryTableItem = ({
             _hover={{ textDecor: 'underline' }}
             wordBreak={'break-word'}
             maxW={'400px'}
+            minW={'200px'}
           >
             {market?.title ?? 'Noname market'}
           </Heading>
