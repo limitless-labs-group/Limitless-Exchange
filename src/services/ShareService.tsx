@@ -20,7 +20,7 @@ export type ShareURI = {
  * It then encodes this message for URL compatibility and constructs URLs for sharing on specified platforms.
  *
  * @param {Market | null} market - The market object containing details like title, creator, and outcomes.
- * @param {number[] | undefined} sharesPercent - An array containing the percentages for each market outcome.
+ * @param {number[] | undefined} outcomeTokensPercent - An array containing the percentages for each market outcome.
  *                                             - Each percentage represents the probability or share cost associated with a market outcome.
  *                                             - If undefined, the function will default to '50%' for each outcome in the message.
  *
@@ -32,22 +32,22 @@ export type ShareURI = {
  *   creator: { name: "Election Commission" },
  *   outcomeTokens: ["Candidate A", "Candidate B"]
  * };
- * const sharesPercent = [45.5, 54.5];
+ * const outcomeTokensPercent = [45.5, 54.5];
  *
- * const { tweetURI, castURI } = createShareUrls(marketExample, sharesPercent);
+ * const { tweetURI, castURI } = createShareUrls(marketExample, outcomeTokensPercent);
  * console.log(tweetURI);  // Outputs: URL for X tweet intent
  * console.log(castURI);   // Outputs: URL for Farcaster cast intent
  */
 export const createMarketShareUrls = (
   market: Market | null,
-  sharesPercent: number[] | undefined
+  outcomeTokensPercent: number[] | undefined
 ): ShareURI => {
-  const formatOutcomeToken = (index: number) =>
-    `${NumberUtil.toFixed(sharesPercent?.[index] ?? 50, 1)}%`
+  const formatOutcomeTokenPercent = (index: number) =>
+    `${(outcomeTokensPercent?.[index] ?? 50).toFixed(2)}%`
 
   const baseMessage = `"${market?.title}" by ${market?.creator.name}\n${
     market?.outcomeTokens[0]
-  } ${formatOutcomeToken(0)} | ${market?.outcomeTokens[1]} ${formatOutcomeToken(
+  } ${formatOutcomeTokenPercent(0)} | ${market?.outcomeTokens[1]} ${formatOutcomeTokenPercent(
     1
   )}\nMake your bet on`
 
@@ -78,7 +78,7 @@ export const createPortfolioShareUrls = (
 ) => {
   const baseMessage = `"${market?.title}" by ${market?.creator.name}\nMy bet: ${NumberUtil.toFixed(
     marketStats.collateralAmount,
-    2
+    4
   )} ${collateralToken.symbol} for ${
     market?.outcomeTokens[marketStats.outcomeTokenId ?? 0]
   }\nMake yours on`
