@@ -84,7 +84,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
                 <Text color={'fontLight'}>Bet</Text>
                 <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(
                   marketStats.collateralAmount,
-                  4
+                  6
                 )} ${collateralToken.symbol}`}</Text>
               </Stack>
             </HStack>
@@ -97,7 +97,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
                 <Text color={'fontLight'}>Max win</Text>
                 <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(
                   marketStats.outcomeTokenAmount,
-                  4
+                  6
                 )} ${collateralToken.symbol}`}</Text>
               </Stack>
             </HStack>

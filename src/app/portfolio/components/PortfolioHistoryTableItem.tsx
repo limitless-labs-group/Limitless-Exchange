@@ -75,13 +75,13 @@ export const PortfolioHistoryTableItem = ({
         <Text fontWeight={'bold'}>
           {`${NumberUtil.toFixed(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
-            4
+            6
           )} ${collateralToken.symbol}`}
         </Text>
       </Td>
 
       {/* Shares */}
-      <Td isNumeric>{NumberUtil.toFixed(trade.outcomeTokenAmount, 4)}</Td>
+      <Td isNumeric>{NumberUtil.toFixed(trade.outcomeTokenAmount, 6)}</Td>
 
       {/* Tx */}
       <Td pr={0}>
