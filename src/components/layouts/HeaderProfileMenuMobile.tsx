@@ -1,12 +1,6 @@
 import { Button, IButton } from '@/components'
-import {
-  ClickEvent,
-  ProfileBurgerMenuClickedMetadata,
-  useAccount,
-  useAmplitude,
-  useAuth,
-  useBalanceService,
-} from '@/services'
+import { collateralToken } from '@/constants'
+import { ClickEvent, useAccount, useAmplitude, useAuth, useBalanceService } from '@/services'
 import { colors } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
@@ -59,117 +53,29 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               color={'grey'}
               fontWeight={'normal'}
               h={'40px'}
-              onClick={() => {
-                trackClicked<ProfileBurgerMenuClickedMetadata>(
-                  ClickEvent.ProfileBurgerMenuClicked,
-                  {
-                    option: 'Copy Wallet Address',
-                  }
-                )
-                onCopy()
-              }}
+              onClick={onCopy}
             >
               <Text>{truncateEthAddress(account)}</Text>
               <FaCopy fontSize={'14px'} fill={hasCopied ? colors.brand : colors.fontLight} />
             </Button>
 
             <Button
-              colorScheme={'brand'}
               h={'40px'}
-              justifyContent={'start'}
-              onClick={() => {
-                trackClicked<ProfileBurgerMenuClickedMetadata>(
-                  ClickEvent.ProfileBurgerMenuClicked,
-                  {
-                    option: 'Wallet',
-                  }
-                )
-                router.push('/wallet')
-              }}
-            >
-              <HStack>
-                <FaWallet size={'16px'} />
-                <Text>Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}</Text>
-              </HStack>
-            </Button>
-
-            {/* <HStack h='40px' w={'full'}>
-              <Button
-                colorScheme={'transparent'}
-                size={'sm'}
-                h={'full'}
-                onClick={() => router.push('/wallet')}
-              >
-                <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                  <Text color={'brand'} fontSize={'18px'}>
-                    ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted)}
-                  </Text>
-                  <Text
-                    color={'fontLight'}
-                    fontSize={'12px'}
-                    lineHeight={'12px'}
-                    fontWeight={'normal'}
-                  >
-                    Balance
-                  </Text>
-                </Stack>
-              </Button>
-
-              <Button
-                colorScheme={'transparent'}
-                size={'sm'}
-                h={'full'}
-                onClick={() => router.push('/portfolio')}
-              >
-                <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                  <Text color={'brand'} fontSize={'18px'}>
-                    ${investedUsd.toFixed()}
-                  </Text>
-                  <Text
-                    color={'fontLight'}
-                    fontSize={'12px'}
-                    lineHeight={'12px'}
-                    fontWeight={'normal'}
-                  >
-                    Invested
-                  </Text>
-                </Stack>
-              </Button>
-
-              <Button
-                colorScheme={'transparent'}
-                size={'sm'}
-                h={'full'}
-                onClick={() => router.push('/portfolio')}
-              >
-                <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                  <Text color={'brand'} fontSize={'18px'}>
-                    ${balanceShares.toFixed()}
-                  </Text>
-                  <Text
-                    color={'fontLight'}
-                    fontSize={'12px'}
-                    lineHeight={'12px'}
-                    fontWeight={'normal'}
-                  >
-                    To win
-                  </Text>
-                </Stack>
-              </Button>
-            </HStack> */}
-
-            {/* <Button
-              w={'full'}
-              h={'40px'}
-              gap={3}
               fontWeight={'normal'}
-              colorScheme={'transparent'}
               justifyContent={'start'}
               onClick={() => router.push('/wallet')}
             >
-                <FaWallet size={'16px'} fill={colors.fontLight} />
-                <Text>Wallet</Text>
-            </Button> */}
+              <HStack spacing={2}>
+                <FaWallet size={'16px'} />
+                <HStack spacing={1}>
+                  <Text>Balance</Text>
+                  <Text fontWeight={'bold'}>
+                    {NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4)}
+                  </Text>
+                  <Text>{collateralToken.symbol}</Text>
+                </HStack>
+              </HStack>
+            </Button>
 
             <Button
               w={'full'}
@@ -178,15 +84,7 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               colorScheme={'transparent'}
               justifyContent={'start'}
               gap={2}
-              onClick={() => {
-                trackClicked<ProfileBurgerMenuClickedMetadata>(
-                  ClickEvent.ProfileBurgerMenuClicked,
-                  {
-                    option: 'Portfolio',
-                  }
-                )
-                router.push('/portfolio')
-              }}
+              onClick={() => router.push('/portfolio')}
             >
               <HStack>
                 <FaBriefcase size={'16px'} fill={colors.fontLight} />
@@ -217,12 +115,6 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               colorScheme={'transparent'}
               justifyContent={'start'}
               onClick={() => {
-                trackClicked<ProfileBurgerMenuClickedMetadata>(
-                  ClickEvent.ProfileBurgerMenuClicked,
-                  {
-                    option: 'Sign Out',
-                  }
-                )
                 trackClicked(ClickEvent.LogoutClicked)
                 signOut()
               }}

@@ -1,5 +1,5 @@
 import { Button } from '@/components'
-import { defaultChain } from '@/constants'
+import { collateralToken, defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import {
   ClickEvent,
@@ -35,13 +35,12 @@ import { FaLink, FaXTwitter } from 'react-icons/fa6'
 export const MarketMetadata = ({ ...props }: StackProps) => {
   const { market } = useTradingService()
   const { trackClicked } = useAmplitude()
-  const { liquidity, holdersCount, sharesCost } = useMarketData({
+  const { liquidity, holdersCount, outcomeTokensPercent } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
   })
-
   const { onCopy, hasCopied } = useClipboard(window.location.href)
 
-  const { tweetURI, castURI } = createMarketShareUrls(market, sharesCost)
+  const { tweetURI, castURI } = createMarketShareUrls(market, outcomeTokensPercent)
 
   return (
     <Stack w={'full'} alignItems={'start'} spacing={4} {...props}>
@@ -65,7 +64,9 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
           <HStack spacing={4} px={{ sm: 2, md: 0 }}>
             <HStack>
               <Text color={'fontLight'}>Pool</Text>
-              <Text fontWeight={'bold'}>${NumberUtil.formatThousands(liquidity)}</Text>
+              <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(liquidity, 4)} ${
+                collateralToken.symbol
+              }`}</Text>
             </HStack>
             <HStack>
               <Text color={'fontLight'}>Investors</Text>
@@ -132,7 +133,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                       type: 'X/Twitter',
                       page: 'Market Page',
                     })
-                    window.open(tweetURI, '_blank')
+                    window.open(tweetURI, '_blank', 'noopener')
                   }}
                 >
                   <FaXTwitter />
@@ -146,7 +147,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                   fontWeight={'normal'}
                   colorScheme={'transparent'}
                   justifyContent={'start'}
-                  onClick={() => window.open(castURI, '_blank')}
+                  onClick={() => window.open(castURI, '_blank', 'noopener')}
                 >
                   <Image src='/assets/images/farcaster.png' blockSize={'15px'} />
                   <Text>Share on Farcaster</Text>

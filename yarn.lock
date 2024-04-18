@@ -1541,10 +1541,10 @@
     "@ethereumjs/rlp" "^5.0.2"
     ethereum-cryptography "^2.1.3"
 
-"@etherspot/prime-sdk@^1.6.4":
-  version "1.6.4"
-  resolved "https://registry.yarnpkg.com/@etherspot/prime-sdk/-/prime-sdk-1.6.4.tgz#8c33ed283da2967ffc1b474f87bf3ec3d0af3c16"
-  integrity sha512-pNGA01XwnlAq6VrRCqz4g1rjqGVIr2O0Nz70lnGtlvWS8IXjC0fHvtYZz+rFIz3G7HExrV8Yfh9EbPxAxMF9SA==
+"@etherspot/prime-sdk@^1.7.1":
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/@etherspot/prime-sdk/-/prime-sdk-1.7.1.tgz#b4bcef8a3d431ffa28f76fb9a843d4d1e1bffd3f"
+  integrity sha512-3CP9dvlBkG+IHZhhsfNrdRNcD9yJqKb+IQj0eXywjV/bhcdTDUwUgmvINt1n3WW2B1mQm2KQKlhLdv9xuGj8mw==
   dependencies:
     "@apollo/client" "3.8.7"
     "@lifi/sdk" "2.5.0"

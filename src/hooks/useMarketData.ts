@@ -11,7 +11,7 @@ interface IUseMarketData {
   marketAddress?: Address
 }
 
-// TODO: incapsulate with context provider
+// TODO: incapsulate with context provider to reduce requests
 export const useMarketData = ({ marketAddress }: IUseMarketData) => {
   const market: Market | null = useMemo(
     () =>
@@ -21,30 +21,70 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
     [marketAddress]
   )
 
-  const { data: sharesCost } = useQuery({
-    queryKey: ['sharesCost', marketAddress],
+  const marketMakerContract = useMemo(
+    () =>
+      market
+        ? getContract({
+            address: market.address[defaultChain.id],
+            abi: marketMakerABI,
+            client: publicClient,
+          })
+        : null,
+    [market]
+  )
+
+  const { data: outcomeTokensPrice } = useQuery({
+    queryKey: ['outcomeTokensPrice', marketMakerContract?.address],
     queryFn: async () => {
-      if (!market) {
+      if (!marketMakerContract) {
         return [0, 0]
       }
-      const marketMakerContract = getContract({
-        address: market.address[defaultChain.id],
-        abi: marketMakerABI,
-        client: publicClient,
+
+      const fee = 10 // TODO: make dynamic based on contracts data
+      const collateralAmount = `0.0000001`
+      const collateralAmountBI = parseUnits(collateralAmount, collateralToken.decimals)
+      const outcomeTokenAmountYesBI = (await marketMakerContract.read.calcBuyAmount([
+        collateralAmountBI,
+        0,
+      ])) as bigint
+      const outcomeTokenAmountNoBI = (await marketMakerContract.read.calcBuyAmount([
+        collateralAmountBI,
+        1,
+      ])) as bigint
+      const outcomeTokenAmountYes = formatUnits(outcomeTokenAmountYesBI, 18)
+      const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, 18)
+      const outcomeTokenPriceYes =
+        (Number(collateralAmount) / Number(outcomeTokenAmountYes)) * (fee / 100 + 1)
+      const outcomeTokenPriceNo =
+        (Number(collateralAmount) / Number(outcomeTokenAmountNo)) * (fee / 100 + 1)
+
+      console.log('outcomeTokensPrice', {
+        priceYes: outcomeTokenPriceYes,
+        priceNo: outcomeTokenPriceNo,
       })
 
-      const amount = parseUnits(`1`, collateralToken.decimals)
-      const yesNetCostBI = (await marketMakerContract.read.calcNetCost([[amount, 0n]])) as bigint
-      const noNetCostBI = (await marketMakerContract.read.calcNetCost([[0n, amount]])) as bigint
-      const yesPrice = Number(formatUnits(yesNetCostBI, collateralToken.decimals)) * 100
-      const noPrice = Number(formatUnits(noNetCostBI, collateralToken.decimals)) * 100
+      return [outcomeTokenPriceYes, outcomeTokenPriceNo]
+    },
+    // enabled: false,
+  })
 
-      console.log('sharesCost', {
-        yesPrice,
-        noPrice,
+  const { data: outcomeTokensPercent } = useQuery({
+    queryKey: ['outcomeTokensPercent', marketMakerContract?.address, outcomeTokensPrice],
+    queryFn: async () => {
+      if (!marketMakerContract || !outcomeTokensPrice) {
+        return [50, 50]
+      }
+
+      const sum = outcomeTokensPrice[0] + outcomeTokensPrice[1]
+      const outcomeTokensPercentYes = (outcomeTokensPrice[0] / sum) * 100
+      const outcomeTokensPercentNo = (outcomeTokensPrice[1] / sum) * 100
+
+      console.log('outcomeTokensPercent', {
+        outcomeTokensPercentYes,
+        outcomeTokensPercentNo,
       })
 
-      return [yesPrice, noPrice]
+      return [outcomeTokensPercentYes, outcomeTokensPercentNo]
     },
   })
 
@@ -64,7 +104,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
               ${queryName} (
                 where: {id: "${marketAddress}"}
               ) {
-                collateralPools
+                funding
                 holdersCount
               }
             }
@@ -72,10 +112,8 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
         },
       })
       const [_marketData] = res.data.data?.[queryName] as MarketData[]
-      let liquidity = 0
-      _marketData.collateralPools.forEach((pool) => {
-        liquidity += Number(formatUnits(BigInt(pool), collateralToken.decimals))
-      })
+      const liquidity = formatUnits(BigInt(_marketData.funding), collateralToken.decimals)
+
       return {
         liquidity,
         holdersCount: _marketData.holdersCount,
@@ -85,13 +123,14 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
   })
 
   return {
-    sharesCost,
+    outcomeTokensPrice,
+    outcomeTokensPercent,
     ...liquidityAndHolders,
   }
 }
 
 type MarketData = {
-  collateralPools: string[]
+  funding: string
   outcomePools?: string[]
   holdersCount: number
 }

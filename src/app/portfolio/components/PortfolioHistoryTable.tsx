@@ -1,5 +1,6 @@
 import { PortfolioMarketCard } from '@/app/portfolio/components'
 import { PortfolioHistoryTableItem } from '@/app/portfolio/components/PortfolioHistoryTableItem'
+import { collateralToken } from '@/constants'
 import { useHistory } from '@/services'
 import {
   Flex,
@@ -36,10 +37,9 @@ export const PortfolioHistoryTable = ({ ...props }: GridProps) => {
             <Th pl={0}>Market</Th>
             <Th>Outcome</Th>
             <Th>Strategy</Th>
-            <Th isNumeric>USD</Th>
-            <Th isNumeric pr={0}>
-              Shares
-            </Th>
+            <Th isNumeric>Amount</Th>
+            <Th isNumeric>Shares</Th>
+            <Th pr={0}>Tx</Th>
           </Tr>
         </Thead>
         <Tbody>

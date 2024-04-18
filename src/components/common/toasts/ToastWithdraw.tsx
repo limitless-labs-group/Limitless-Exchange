@@ -15,7 +15,8 @@ export const ToastWithdraw = ({ receipt }: IToastWithdraw) => (
     onClick={() =>
       window.open(
         `${defaultChain.blockExplorers.default.url}/tx/${receipt?.transactionHash}`,
-        '_blank'
+        '_blank',
+        'noopener'
       )
     }
   >

@@ -1,5 +1,4 @@
 import { Button, Modal } from '@/components'
-import { collateralToken, defaultChain } from '@/constants'
 import { CopyEvent, useAccount, useAmplitude } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { truncateEthAddress } from '@/utils'
@@ -14,7 +13,7 @@ import {
   useClipboard,
   useDisclosure,
 } from '@chakra-ui/react'
-import { FaCircle, FaQrcode } from 'react-icons/fa'
+import { FaQrcode } from 'react-icons/fa'
 import QRCode from 'react-qr-code'
 
 export const DepositByQrCard = ({ ...props }: StackProps) => {
@@ -27,14 +26,14 @@ export const DepositByQrCard = ({ ...props }: StackProps) => {
     <Stack
       h={'fit-content'}
       w={'full'}
-      p={4}
+      p={5}
       border={`1px solid ${colors.border}`}
       //   boxShadow={'0 0 8px #ddd'}
       borderRadius={borderRadius}
       spacing={4}
       {...props}
     >
-      <HStack
+      {/* <HStack
         fontSize={'11px'}
         fontWeight={'bold'}
         color={'fontLight'}
@@ -47,25 +46,25 @@ export const DepositByQrCard = ({ ...props }: StackProps) => {
         <Text>1 minute</Text>
         <FaCircle fill='grey' size={'3px'} />
         <Text>Free</Text>
-      </HStack>
+      </HStack> */}
 
       <HStack w={'full'}>
-        <Heading fontSize={'24px'}>Deposit USDC</Heading>
-        <Avatar src={collateralToken.imageURI} size={'sm'} />
+        <Heading fontSize={'24px'}>Deposit ETH (Base)</Heading>
+        {/* <Avatar src={collateralToken.imageURI} size={'sm'} /> */}
       </HStack>
 
       <HStack w={'full'} spacing={4}>
         <Avatar name='1' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} />
         <Text>
-          <b>Buy {collateralToken.symbol}</b> on Coinbase, Binance or another exchange.
+          <b>Buy ETH</b> on Coinbase, Binance or any other exchange / fiat onramp that supports
+          withdrawals on Base.
         </Text>
       </HStack>
 
       <HStack w={'full'} spacing={4}>
         <Avatar name='2' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} />
         <Text>
-          Send/withdraw USDC to the address below and select <b>{defaultChain.name}</b> as the
-          network.
+          <b>Send it</b> to the address below & ensure to select Base as the network.
         </Text>
       </HStack>
 
@@ -104,15 +103,10 @@ export const DepositByQrCard = ({ ...props }: StackProps) => {
         </Button>
       </Stack>
 
-      <Modal
-        isOpen={isOpenQR}
-        onClose={onCloseQR}
-        size={'sm'}
-        title={`Send ${collateralToken.symbol} on ${defaultChain.name}`}
-      >
+      <Modal isOpen={isOpenQR} onClose={onCloseQR} size={'xs'} title={`Send ETH (Base)`}>
         <Flex w={'full'} justifyContent={'center'}>
           {account && (
-            <QRCode value={account} fgColor={colors.brand} style={{ paddingBottom: '24px' }} />
+            <QRCode value={account} fgColor={'black'} style={{ paddingBottom: '24px' }} />
           )}
         </Flex>
       </Modal>

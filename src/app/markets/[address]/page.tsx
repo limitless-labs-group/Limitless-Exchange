@@ -34,7 +34,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   }, [market, previousMarket])
 
   return (
-    <MainLayout>
+    <MainLayout maxContentWidth={'1200px'}>
       <Flex gap={{ sm: '40px', md: 8 }} flexDir={{ sm: 'column', lg: 'row' }}>
         <MarketMetadata flexBasis={'66%'} />
         <TradeForm flexBasis={'33%'} />
