@@ -11,7 +11,6 @@ import {
   useTradingService,
   OutcomeChangedMetadata,
   ClickEvent,
-  PricePresetClickedMetadata,
   TradeClickedMetadata,
 } from '@/services'
 import { borderRadius } from '@/styles'
@@ -68,12 +67,15 @@ export const TradeForm = ({ ...props }: StackProps) => {
    */
   const { balanceOfSmartWallet } = useBalanceService()
 
-  const balanceFormatted = useMemo(() => {
-    return NumberUtil.toFixed(
-      strategy == 'Buy' ? balanceOfSmartWallet?.formatted : balanceOfCollateralInvested,
-      4
-    )
-  }, [balanceOfSmartWallet, strategy, balanceOfCollateralInvested])
+  const balance = useMemo(
+    () =>
+      NumberUtil.toFixed(
+        strategy == 'Buy' ? balanceOfSmartWallet?.formatted : balanceOfCollateralInvested,
+        6
+      ),
+
+    [balanceOfSmartWallet, strategy, balanceOfCollateralInvested]
+  )
 
   /**
    * MARKET DATA
@@ -126,7 +128,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
       } else if (strategy == 'Sell') {
         amountByPercent = (Number(balanceOfCollateralInvested) * value) / 100
       }
-      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 4))
+      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
     },
     [sliderValue, balanceOfSmartWallet, isZeroBalance]
   )
@@ -303,9 +305,9 @@ export const TradeForm = ({ ...props }: StackProps) => {
               <Text
                 _hover={{ color: 'font' }}
                 cursor={'pointer'}
-                onClick={() => setCollateralAmount(balanceFormatted)}
+                onClick={() => setCollateralAmount(balance)}
               >
-                {`Balance: ${balanceFormatted}`} {collateralToken.symbol}
+                {`Balance: ${balance}`} {collateralToken.symbol}
               </Text>
             </HStack>
           </Stack>
@@ -379,7 +381,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 <Text color={'fontLight'}>Potential return</Text>
                 <HStack spacing={1}>
                   <Text color={'green'} fontWeight={'bold'} textAlign={'right'}>
-                    {`${NumberUtil.toFixed(quotes?.outcomeTokenAmount, 4)} ${
+                    {`${NumberUtil.toFixed(quotes?.outcomeTokenAmount, 6)} ${
                       collateralToken.symbol
                     }`}
                   </Text>
@@ -397,7 +399,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                     <InfoIcon />
                   </Tooltip>
                 </HStack>
-                <Text textAlign={'right'}>{NumberUtil.toFixed(quotes?.outcomeTokenAmount, 4)}</Text>
+                <Text textAlign={'right'}>{NumberUtil.toFixed(quotes?.outcomeTokenAmount, 6)}</Text>
               </HStack>
             </>
           )}
