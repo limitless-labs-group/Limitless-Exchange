@@ -89,7 +89,7 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
           />
           <Text color={unwrap ? 'font' : 'fontLight'}>ETH</Text>
           <Tooltip
-            label={`Select WETH if you want to transfer wrapped ethers (ERC20) tokens to your web3 wallet.\nSelect ETH if you want to unwrap it and transfer ethers to your web3 wallet or exchange.`}
+            label={`Select WETH if you want to transfer wrapped ether (ERC20) tokens to your web3 wallet.\nSelect ETH if you want to unwrap it and transfer ether to your web3 wallet or exchange.`}
           >
             <InfoIcon fontSize={'9px'} p={'3px'} />
           </Tooltip>
