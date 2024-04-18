@@ -23,7 +23,7 @@ const MainPage = () => {
             <Box w={'full'} h={'3px'} bg={'font'} />
           </Stack>
           <Stack cursor={'not-allowed'}>
-            <Text color={'fontLight'}>Crypto</Text>
+            <Text color={'fontLight'}>Base</Text>
             <Box w={'full'} h={'3px'} bg={'none'} />
           </Stack>
         </HStack>
