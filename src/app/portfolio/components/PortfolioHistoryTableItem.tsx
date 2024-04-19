@@ -47,6 +47,7 @@ export const PortfolioHistoryTableItem = ({
             _hover={{ textDecor: 'underline' }}
             wordBreak={'break-word'}
             maxW={'400px'}
+            minW={'200px'}
           >
             {market?.title ?? 'Noname market'}
           </Heading>
@@ -80,7 +81,7 @@ export const PortfolioHistoryTableItem = ({
         </Text>
       </Td>
 
-      {/* Shares */}
+      {/* Contracts */}
       <Td isNumeric>{NumberUtil.toFixed(trade.outcomeTokenAmount, 6)}</Td>
 
       {/* Tx */}

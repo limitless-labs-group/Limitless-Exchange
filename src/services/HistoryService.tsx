@@ -140,11 +140,11 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   }, [activeMarkets])
 
   const balanceToWin = useMemo(() => {
-    let _balanceShares = 0
+    let _balanceToWin = 0
     activeMarkets?.forEach((marketStats) => {
-      _balanceShares += Number(marketStats.outcomeTokenAmount ?? 0)
+      _balanceToWin += Number(marketStats.outcomeTokenAmount ?? 0)
     })
-    return _balanceShares
+    return _balanceToWin
   }, [activeMarkets])
 
   /**
