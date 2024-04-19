@@ -81,7 +81,7 @@ export const PortfolioHistoryTableItem = ({
         </Text>
       </Td>
 
-      {/* Shares */}
+      {/* Contracts */}
       <Td isNumeric>{NumberUtil.toFixed(trade.outcomeTokenAmount, 6)}</Td>
 
       {/* Tx */}
