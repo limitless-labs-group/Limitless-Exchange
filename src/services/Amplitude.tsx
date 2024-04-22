@@ -28,6 +28,8 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
       defaultTracking: {
         sessions: true,
         pageViews: false,
+        attribution: false,
+        formInteractions: false,
       },
     })
   }, [])
