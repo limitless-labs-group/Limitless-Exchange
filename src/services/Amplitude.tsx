@@ -157,7 +157,6 @@ export enum ClickEvent {
   ShareClicked = 'Share Clicked',
   OpenMarketClicked = 'Open Market Clicked',
   HeaderOptionClicked = 'Header Option Clicked',
-  LogoutClicked = 'Logout Clicked',
   OpenCreatorProfileClicked = 'Open Creator Profile Clicked',
   ProfileBurgerMenuClicked = 'Profile Burger Menu Clicked',
   TradeClicked = 'Trade Clicked',
