@@ -126,7 +126,6 @@ export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
                     option: 'Sign Out',
                   }
                 )
-                trackClicked(ClickEvent.LogoutClicked)
                 signOut()
               }}
             >

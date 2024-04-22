@@ -115,7 +115,6 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               colorScheme={'transparent'}
               justifyContent={'start'}
               onClick={() => {
-                trackClicked(ClickEvent.LogoutClicked)
                 signOut()
               }}
             >
