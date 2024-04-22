@@ -49,7 +49,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     if (isLoggedIn) {
       web3Auth.getUserInfo().then((userInfo) => {
         setEmail(userInfo.email)
-        trackSingUp()
+        trackSignUp()
       })
     }
   }, [isLoggedIn])
@@ -57,14 +57,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   /**
    * ANALYTICS
    */
-  const { trackSignUp: _trackSignUp } = useAmplitude()
-  const trackSingUp = useCallback(() => {
-    _trackSignUp({
-      email,
-      web3WalletAddress: !email ? web3WalletAddress : undefined,
-      smartWalletAddress: account,
-    })
-  }, [email, web3WalletAddress, account])
+  const { trackSignUp } = useAmplitude()
 
   const contextProviderValue: IAccountContext = {
     isLoggedIn,
