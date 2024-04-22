@@ -78,7 +78,7 @@ export const createPortfolioShareUrls = (
 ) => {
   const baseMessage = `"${market?.title}" by ${market?.creator.name}\nMy bet: ${NumberUtil.toFixed(
     marketStats.collateralAmount,
-    4
+    6
   )} ${collateralToken.symbol} for ${
     market?.outcomeTokens[marketStats.outcomeTokenId ?? 0]
   }\nMake yours on`
