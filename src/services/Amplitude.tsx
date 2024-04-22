@@ -1,14 +1,15 @@
 'use client'
 
-import { useEffect, createContext, PropsWithChildren, useContext } from 'react'
+import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
 import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
 import { useAccount } from '@/services'
 import { Address } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
+const NODE_ENV = process.env.NODE_ENV ?? 'development'
 
 interface IAmplitudeContext {
-  trackSignUp: ({ email, web3WalletAddress, smartWalletAddress }: ITrackSignUp) => void
+  trackSignUp: () => void
   trackChanged: <T extends ChangedEventMetadata>(event: ChangeEvent, customData?: T) => void
   trackClicked: <T extends ClickedEventMetadata>(event: ClickEvent, customData?: T) => void
   trackOpened: <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => void
@@ -32,16 +33,28 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     })
   }, [])
 
-  const trackSignUp = async ({ email, web3WalletAddress, smartWalletAddress }: ITrackSignUp) => {
-    console.log('Amplitude.trackSignUp', { email, web3WalletAddress, smartWalletAddress })
-    const result = await amplitudeTrack({
-      event_type: 'Sign Up',
-      event_properties: {
-        email,
-        web3WalletAddress,
-        smartWalletAddress,
-      },
-    }).promise
+  const trackEvent = useCallback(
+    async (eventType: EventType, customData?: EventMetadata) => {
+      if (NODE_ENV === 'development') {
+        return
+      }
+
+      return amplitudeTrack({
+        event_type: String(eventType),
+        event_properties: {
+          ...customData,
+        },
+        user_properties: {
+          ...account,
+        },
+      }).promise
+    },
+    [account]
+  )
+
+  const trackSignUp = async () => {
+    console.log('Amplitude.trackSignUp')
+    const result = await trackEvent(AuthenticationEvent.SignUp)
     console.log('Amplitude.trackSignUp result', result)
   }
 
@@ -50,15 +63,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     customData?: T
   ) => {
     console.log('Amplitude.trackChanged', { event, customData })
-    const result = await amplitudeTrack({
-      event_type: String(event),
-      event_properties: {
-        ...customData,
-      },
-      user_properties: {
-        ...account,
-      },
-    }).promise
+    const result = await trackEvent(event, customData)
     console.log('Amplitude.trackChanged result', result)
   }
 
@@ -67,57 +72,25 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     customData?: T
   ) => {
     console.log('Amplitude.trackClicked', { event, customData })
-    const result = await amplitudeTrack({
-      event_type: String(event),
-      event_properties: {
-        ...customData,
-      },
-      user_properties: {
-        ...account,
-      },
-    }).promise
+    const result = await trackEvent(event, customData)
     console.log('Amplitude.trackClicked result', result)
   }
 
   const trackOpened = async <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => {
     console.log('Amplitude.trackOpened', { event, customData })
-    const result = await amplitudeTrack({
-      event_type: String(event),
-      event_properties: {
-        ...customData,
-      },
-      user_properties: {
-        ...account,
-      },
-    }).promise
+    const result = await trackEvent(event, customData)
     console.log('Amplitude.trackOpened result', result)
   }
 
   const trackLogin = async <T extends LoginEventMetadata>(event: LoginEvent, customData?: T) => {
     console.log('Amplitude.trackLogin', { event, customData })
-    const result = await amplitudeTrack({
-      event_type: String(event),
-      event_properties: {
-        ...customData,
-      },
-      user_properties: {
-        ...account,
-      },
-    }).promise
+    const result = await trackEvent(event, customData)
     console.log('Amplitude.trackLogin result', result)
   }
 
   const trackCopied = async <T extends CopiedEventMetadata>(event: CopyEvent, customData?: T) => {
     console.log('Amplitude.trackCopied', { event, customData })
-    const result = await amplitudeTrack({
-      event_type: String(event),
-      event_properties: {
-        ...customData,
-      },
-      user_properties: {
-        ...account,
-      },
-    }).promise
+    const result = await trackEvent(event, customData)
     console.log('Amplitude.trackCopied result', result)
   }
 
@@ -135,11 +108,13 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
   )
 }
 
-interface ITrackSignUp {
-  email?: string
-  web3WalletAddress?: string
-  smartWalletAddress?: string
-}
+export type EventType =
+  | ChangeEvent
+  | ClickEvent
+  | LoginEvent
+  | OpenEvent
+  | CopyEvent
+  | AuthenticationEvent
 
 export enum ChangeEvent {
   StrategyChanged = 'Strategy Changed',
@@ -174,17 +149,9 @@ export enum CopyEvent {
   WalletAddressCopied = 'Wallet Address Copied',
 }
 
-export type EventMetadata =
-  | StrategyChangedMetadata
-  | OutcomeChangedMetadata
-  | SupportChatClickedMetadata
-  | PricePresetClickedMetadata
-  | ShareClickedMetadata
-  | PageOpenedMetadata
-  | OpenMarketClickedMetadata
-  | HeaderOptionClickedMetadata
-  | LoginWithFarcasterMetadata
-  | WalletAddressCopiedMetadata
+export enum AuthenticationEvent {
+  SignUp = 'Sign Up',
+}
 
 export interface AccountMetadata {
   email?: string
@@ -310,3 +277,10 @@ export type ClickedEventMetadata =
 export type OpenedEventMetadata = PageOpenedMetadata
 export type LoginEventMetadata = LoginWithFarcasterMetadata
 export type CopiedEventMetadata = WalletAddressCopiedMetadata
+
+export type EventMetadata =
+  | ChangedEventMetadata
+  | ClickedEventMetadata
+  | OpenedEventMetadata
+  | LoginEventMetadata
+  | CopiedEventMetadata
