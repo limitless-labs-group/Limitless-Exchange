@@ -9,12 +9,14 @@ import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
 import { FaFileInvoiceDollar, FaLink, FaTrophy, FaXTwitter } from 'react-icons/fa6'
+import { MobileMarketCard } from '@/components/markets/MobileMarketCard'
+import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
 
 interface IPortfolioMarketCard extends StackProps {
   marketStats: HistoryMarketStats
 }
 
-export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfolioMarketCard) => {
+export const PortfolioMarketCard = ({ marketStats, ...props }: IPortfolioMarketCard) => {
   const market: Market | null = useMemo(
     () =>
       markets.find(
@@ -24,13 +26,9 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
     [marketStats, markets]
   )
 
-  const router = useRouter()
-
   const marketURI = `${window.location.origin}/markets/${marketStats.market.id}`
 
-  const { onCopy, hasCopied } = useClipboard(marketURI)
-
-  const { tweetURI, castURI } = createPortfolioShareUrls(market, marketStats)
+  const shareLinks = createPortfolioShareUrls(market, marketStats)
 
   return (
     <Flex pos={'relative'}>
@@ -84,7 +82,7 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
                 <Text color={'fontLight'}>Bet</Text>
                 <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(
                   marketStats.collateralAmount,
-                  4
+                  6
                 )} ${collateralToken.symbol}`}</Text>
               </Stack>
             </HStack>
@@ -97,43 +95,13 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
                 <Text color={'fontLight'}>Max win</Text>
                 <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(
                   marketStats.outcomeTokenAmount,
-                  4
+                  6
                 )} ${collateralToken.symbol}`}</Text>
               </Stack>
             </HStack>
           </HStack>
 
-          <HStack w={'full'} h={'33px'}>
-            <Button
-              bg={'black'}
-              color={'white'}
-              h={'full'}
-              w={'full'}
-              p={1}
-              onClick={() => router.push(marketURI)}
-            >
-              Trade
-            </Button>
-            <Button h={'full'} aspectRatio={'1/1'} p={1} onClick={onCopy}>
-              <FaLink size={'16px'} fill={hasCopied ? colors.brand : colors.font} />
-            </Button>
-            <Button
-              h={'full'}
-              aspectRatio={'1/1'}
-              p={1}
-              onClick={() => window.open(tweetURI, '_blank', 'noopener')}
-            >
-              <FaXTwitter size={'16px'} />
-            </Button>
-            <Button
-              h={'full'}
-              aspectRatio={'1/1'}
-              p={1}
-              onClick={() => window.open(castURI, '_blank', 'noopener')}
-            >
-              <Image src='/assets/images/farcaster.png' h={'full'} />
-            </Button>
-          </HStack>
+          <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} />
         </Stack>
       </MarketCard>
     </Flex>
