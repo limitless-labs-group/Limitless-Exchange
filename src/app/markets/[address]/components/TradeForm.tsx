@@ -69,9 +69,8 @@ export const TradeForm = ({ ...props }: StackProps) => {
 
   const balance = useMemo(
     () =>
-      NumberUtil.toFixed(
-        strategy == 'Buy' ? balanceOfSmartWallet?.formatted : balanceOfCollateralInvested,
-        6
+      NumberUtil.toFixedWSN(
+        strategy == 'Buy' ? balanceOfSmartWallet?.formatted : balanceOfCollateralInvested
       ),
 
     [balanceOfSmartWallet, strategy, balanceOfCollateralInvested]
@@ -128,7 +127,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
       } else if (strategy == 'Sell') {
         amountByPercent = (Number(balanceOfCollateralInvested) * value) / 100
       }
-      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
+      setDisplayAmount(NumberUtil.toFixedWSN(amountByPercent))
     },
     [sliderValue, balanceOfSmartWallet, isZeroBalance]
   )
@@ -367,7 +366,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
         <VStack w={'full'} spacing={0}>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Avg price</Text>
-            <Text textAlign={'right'}>{`${NumberUtil.toFixed(quotes?.outcomeTokenPrice, 4)} ${
+            <Text textAlign={'right'}>{`${NumberUtil.toFixedWSN(quotes?.outcomeTokenPrice)} ${
               collateralToken.symbol
             }`}</Text>
           </HStack>
