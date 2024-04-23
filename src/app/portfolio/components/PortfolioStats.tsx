@@ -22,7 +22,14 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
       gap={{ sm: 4, md: 6 }}
       {...props}
     >
-      <Stack w={'full'} h={'full'} p={5} borderRadius={borderRadius} bg={'bgLight'} spacing={4}>
+      <Stack
+        w={'full'}
+        minH={{ base: '100px', md: '200px' }}
+        p={5}
+        borderRadius={borderRadius}
+        bg={'bgLight'}
+        spacing={4}
+      >
         <HStack w={'full'}>
           <FaFileInvoiceDollar size={'24px'} fill={colors.fontLight} />
           <Text color={'fontLight'}>Invested</Text>
@@ -37,7 +44,14 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
         </Stack>
       </Stack>
 
-      <Stack w={'full'} h={'full'} p={5} borderRadius={borderRadius} bg={'bgLight'} spacing={4}>
+      <Stack
+        w={'full'}
+        minH={{ base: '100px', md: '200px' }}
+        p={5}
+        borderRadius={borderRadius}
+        bg={'bgLight'}
+        spacing={4}
+      >
         <HStack w={'full'}>
           <FaTrophy size={'24px'} fill={colors.fontLight} />
           <Text color={'fontLight'}>To win</Text>
@@ -50,7 +64,14 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
         </Stack>
       </Stack>
 
-      <Stack w={'full'} h={'full'} p={5} borderRadius={borderRadius} bg={'bgLight'} spacing={4}>
+      <Stack
+        w={'full'}
+        minH={{ base: '100px', md: '200px' }}
+        p={5}
+        borderRadius={borderRadius}
+        bg={'bgLight'}
+        spacing={4}
+      >
         <HStack w={'full'}>
           <FaWallet size={'24px'} fill={colors.fontLight} />
           <Text color={'fontLight'}>Balance</Text>

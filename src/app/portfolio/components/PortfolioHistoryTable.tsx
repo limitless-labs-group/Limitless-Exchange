@@ -30,7 +30,7 @@ export const PortfolioHistoryTable = ({ ...props }: GridProps) => {
         {/* <TableCaption>Trading history</TableCaption> */}
         <Thead>
           <Tr>
-            <Th pl={0} pr={2}>
+            <Th pl={0} pr={2} minW={'250px'}>
               Market
             </Th>
             <Th px={2}>Outcome</Th>
