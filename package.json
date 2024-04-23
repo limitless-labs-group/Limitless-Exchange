@@ -5,7 +5,7 @@
   "author": "@MaxSchnaider",
   "license": "MIT",
   "scripts": {
-    "dev": "wagmi generate && next dev",
+    "dev": "NODE_ENV=development wagmi generate && next dev",
     "build": "wagmi generate && next build",
     "analyze": "ANALYZE=true yarn build",
     "start": "next start",
