@@ -32,10 +32,6 @@ export const BalanceCard = ({ ...props }: StackProps) => {
    */
   const { balanceOfSmartWallet, status } = useBalanceService()
 
-  const balanceFormatted = useMemo(() => {
-    return NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4)
-  }, [balanceOfSmartWallet])
-
   /**
    * PRICE ORACLE
    */
@@ -75,7 +71,7 @@ export const BalanceCard = ({ ...props }: StackProps) => {
           </Text>
           <Stack spacing={0}>
             <Text fontWeight={'bold'}>
-              {status == 'Loading' ? <Spinner size={'sm'} /> : balanceFormatted}
+              {status == 'Loading' ? <Spinner size={'sm'} /> : balanceOfSmartWallet?.formatted}
             </Text>
             <Text fontSize={'12px'} color={'fontLight'}>
               ~${balanceUsd}

@@ -4,11 +4,18 @@ export class NumberUtil {
   }
 
   static toFixed = (v?: number | string, decimals = 0, fill = false): string => {
-    let numStr = (Number(v ?? 0) ?? 0).toString()
-    if (numStr.includes('e')) {
-      numStr = '0'
+    const numberValue = Number(v ?? 0)
+    let numberStr = numberValue.toString()
+
+    // Check if the number is in scientific notation
+    if (numberValue.toString().toLowerCase().includes('e')) {
+      // If in scientific notation, convert to string preserving decimal places
+      numberStr = numberValue.toFixed(18).replace(/\.?0+$/, '')
+      decimals = 18
     }
-    const [intPart, floatPart] = numStr.split('.')
+
+    // trim decimals as string to prevent rounding
+    const [intPart, floatPart] = numberStr.split('.')
     return `${intPart}${
       decimals > 0
         ? `.${Array.from(
