@@ -36,7 +36,7 @@ export const PortfolioMobileMarketCard = ({ marketStats, ...props }: IPortfolioM
   }
 
   return (
-    <Flex pos={'relative'}>
+    <Flex>
       {marketStats.market.closed && (
         <Text
           p={'2px 6px'}

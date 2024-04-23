@@ -29,7 +29,7 @@ export const PortfolioMarketCard = ({ marketStats, ...props }: IPortfolioMarketC
   const shareLinks = createPortfolioShareUrls(market, marketStats)
 
   return (
-    <Flex pos={'relative'}>
+    <Flex>
       {marketStats.market.closed && (
         <Text
           p={'2px 6px'}
