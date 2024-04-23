@@ -58,8 +58,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
           `,
         },
       })
-      const trades = res.data.data?.[queryName] as HistoryTrade[]
-      trades.map((trade) => {
+      const _trades = res.data.data?.[queryName] as HistoryTrade[]
+      _trades.map((trade) => {
         const outcomeTokenAmountBI = BigInt(
           trade.outcomeTokenAmounts.find((amount) => BigInt(amount) != 0n) ?? 0
         )
@@ -77,10 +77,12 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         trade.outcomePercent = Number(trade.outcomeTokenPrice)
       })
 
-      trades.sort((tradeA, tradeB) => Number(tradeB.blockTimestamp) - Number(tradeA.blockTimestamp))
-      console.log('trades', trades)
+      _trades.sort(
+        (tradeA, tradeB) => Number(tradeB.blockTimestamp) - Number(tradeA.blockTimestamp)
+      )
+      console.log('trades', _trades)
 
-      return trades
+      return _trades
     },
     enabled: !!smartWalletAddress,
   })
@@ -91,12 +93,10 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       let _activeMarkets: HistoryMarketStats[] = []
       trades?.forEach((trade) => {
         // TODO: replace hardcoded markets and close logic with dynamic
-        if (
-          markets.find(
-            (market) =>
-              market.address[defaultChain.id].toLowerCase() == trade.market.id.toLowerCase()
-          )?.closed
-        ) {
+        const market = markets.find(
+          (market) => market.address[defaultChain.id].toLowerCase() == trade.market.id.toLowerCase()
+        )
+        if (!market || market.closed) {
           return
         }
 
@@ -105,24 +105,25 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
             marketStats.market.id == trade.market.id &&
             marketStats.outcomeTokenId == trade.outcomeTokenId
         )
-        const market = existingMarket ?? {
+        const marketStats = existingMarket ?? {
           market: trade.market,
           outcomeTokenId: trade.outcomeTokenId,
         }
-        market.latestTrade = trade
-        market.collateralAmount = (
-          Number(market.collateralAmount ?? 0) + Number(trade.collateralAmount)
+        marketStats.latestTrade = trade
+        marketStats.collateralAmount = (
+          Number(marketStats.collateralAmount ?? 0) + Number(trade.collateralAmount)
         ).toString()
-        market.outcomeTokenAmount = (
-          Number(market.outcomeTokenAmount ?? 0) + Number(trade.outcomeTokenAmount)
+        marketStats.outcomeTokenAmount = (
+          Number(marketStats.outcomeTokenAmount ?? 0) + Number(trade.outcomeTokenAmount)
         ).toString()
-        // market.costPerShareNow = await
-        // market.balanceUsd = market.costPerShareNow * market.sharesAmount
         if (!existingMarket) {
-          _activeMarkets.push(market)
+          _activeMarkets.push(marketStats)
         }
       })
-      _activeMarkets = _activeMarkets.filter((market) => Number(market.collateralAmount) > 0)
+
+      _activeMarkets = _activeMarkets.filter((market) => Number(market.outcomeTokenAmount) > 0)
+      console.log('activeMarkets', _activeMarkets)
+
       return _activeMarkets
     },
   })
