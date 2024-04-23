@@ -21,7 +21,7 @@ const PortfolioPage = () => {
     <MainLayout>
       <PortfolioStats />
 
-      <Stack w={'full'} spacing={5}>
+      <Stack w={'full'} spacing={5} mt={1}>
         <HStack spacing={5} fontWeight={'bold'} fontSize={'15px'}>
           <Stack cursor={'pointer'} onClick={() => setTab('Markets')}>
             <Text fontWeight={tab == 'Markets' ? 'bold' : 'normal'}>My markets</Text>

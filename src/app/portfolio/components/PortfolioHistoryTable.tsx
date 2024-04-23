@@ -1,13 +1,9 @@
-import { PortfolioMarketCard } from '@/app/portfolio/components'
 import { PortfolioHistoryTableItem } from '@/app/portfolio/components/PortfolioHistoryTableItem'
-import { collateralToken } from '@/constants'
 import { useHistory } from '@/services'
 import {
   Flex,
-  Grid,
   GridProps,
   Table,
-  TableCaption,
   TableContainer,
   Tbody,
   Text,
