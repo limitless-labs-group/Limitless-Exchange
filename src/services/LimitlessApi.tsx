@@ -30,11 +30,11 @@ export class LimitlessApi {
     return message
   }
 
-  static async getMarketMakerAddress() {
-    const { data: marketMakerAddress } = await axios.get(
+  static async getFixedProductMarketMakerAddress() {
+    const { data: fixedProductMarketMakerAddress } = await axios.get(
       `${this.predictionMarketBaseURI}/market-maker-address`
     )
-    console.log('marketMakerAddress:', marketMakerAddress)
-    return marketMakerAddress as Address
+    console.log('fixedProductMarketMakerAddress:', fixedProductMarketMakerAddress)
+    return fixedProductMarketMakerAddress as Address
   }
 }

@@ -28,51 +28,38 @@ export const PortfolioHistoryTableItem = ({
 
   return (
     <Tr pos={'relative'} {...props}>
-      <Td pl={0}>
+      <Td pl={0} pr={2}>
         <HStack
           style={{ textWrap: 'wrap' }}
           cursor={'pointer'}
+          _hover={{ textDecor: 'underline' }}
           onClick={() => router.push(`/markets/${trade.market.id}`)}
         >
           <Image
             src={market?.imageURI}
-            w={{ sm: '40px' }}
-            h={{ sm: '40px' }}
+            w={'40px'}
+            h={'40px'}
             fit={'cover'}
             bg={'brand'}
             borderRadius={borderRadius}
           />
-          <Heading
-            size={'sm'}
-            _hover={{ textDecor: 'underline' }}
-            wordBreak={'break-word'}
-            maxW={'400px'}
-            minW={'200px'}
-          >
+          <Heading size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
             {market?.title ?? 'Noname market'}
           </Heading>
         </HStack>
       </Td>
 
-      <Td>
-        <Box
-          w={'fit-content'}
-          p={'2px 6px'}
-          bg={trade.outcomeTokenId == 0 ? 'green' : 'red'}
-          color={trade.outcomeTokenId == 0 ? 'white' : 'white'}
-          fontWeight={'bold'}
-          borderRadius={'6px'}
-          fontSize={'13px'}
-        >
+      <Td px={2}>
+        <Text color={trade.outcomeTokenId == 0 ? 'green' : 'red'} fontWeight={'bold'}>
           {market?.outcomeTokens[trade.outcomeTokenId ?? 0]}{' '}
           {NumberUtil.toFixed(trade.outcomePercent, 3)} {collateralToken.symbol}
-        </Box>
+        </Text>
       </Td>
 
-      <Td>{trade.strategy}</Td>
+      <Td px={2}>{trade.strategy}</Td>
 
       {/* Amount */}
-      <Td isNumeric>
+      <Td px={2} isNumeric>
         <Text fontWeight={'bold'}>
           {`${NumberUtil.toFixed(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
@@ -82,10 +69,12 @@ export const PortfolioHistoryTableItem = ({
       </Td>
 
       {/* Contracts */}
-      <Td isNumeric>{NumberUtil.toFixed(trade.outcomeTokenAmount, 6)}</Td>
+      <Td px={2} isNumeric>
+        {NumberUtil.toFixed(trade.outcomeTokenAmount, 6)}
+      </Td>
 
       {/* Tx */}
-      <Td pr={0}>
+      <Td pl={2} pr={0}>
         <HStack
           p={'2px 6px'}
           bg={'bgLight'}

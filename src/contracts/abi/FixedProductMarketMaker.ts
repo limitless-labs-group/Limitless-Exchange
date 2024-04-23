@@ -1,4 +1,4 @@
-export const marketMakerABI = [
+export const fixedProductMarketMakerABI = [
   {
     constant: true,
     inputs: [

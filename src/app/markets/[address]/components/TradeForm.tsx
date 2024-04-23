@@ -56,7 +56,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
     collateralAmount,
     setCollateralAmount,
     isExceedsBalance,
-    balanceOfCollateralInvested,
+    balanceOfCollateralToSell,
     quotes,
     trade,
     status,
@@ -70,11 +70,11 @@ export const TradeForm = ({ ...props }: StackProps) => {
   const balance = useMemo(
     () =>
       NumberUtil.toFixed(
-        strategy == 'Buy' ? balanceOfSmartWallet?.formatted : balanceOfCollateralInvested,
+        strategy == 'Buy' ? balanceOfSmartWallet?.formatted : balanceOfCollateralToSell,
         6
       ),
 
-    [balanceOfSmartWallet, strategy, balanceOfCollateralInvested]
+    [balanceOfSmartWallet, strategy, balanceOfCollateralToSell]
   )
 
   /**
@@ -111,9 +111,9 @@ export const TradeForm = ({ ...props }: StackProps) => {
   const isZeroBalance = useMemo(() => {
     return (
       (strategy == 'Buy' && !(Number(balanceOfSmartWallet?.formatted) > 0)) ||
-      (strategy == 'Sell' && !(Number(balanceOfCollateralInvested) > 0))
+      (strategy == 'Sell' && !(Number(balanceOfCollateralToSell) > 0))
     )
-  }, [strategy, balanceOfSmartWallet, balanceOfCollateralInvested])
+  }, [strategy, balanceOfSmartWallet, balanceOfCollateralToSell])
 
   const onSlide = useCallback(
     (value: number) => {
@@ -126,7 +126,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
       if (strategy == 'Buy') {
         amountByPercent = (Number(balanceOfSmartWallet?.formatted) * value) / 100
       } else if (strategy == 'Sell') {
-        amountByPercent = (Number(balanceOfCollateralInvested) * value) / 100
+        amountByPercent = (Number(balanceOfCollateralToSell) * value) / 100
       }
       setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
     },
@@ -145,7 +145,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
     if (strategy == 'Buy') {
       percentByAmount = (Number(collateralAmount) / Number(balanceOfSmartWallet?.formatted)) * 100
     } else if (strategy == 'Sell') {
-      percentByAmount = (Number(collateralAmount) / Number(balanceOfCollateralInvested)) * 100
+      percentByAmount = (Number(collateralAmount) / Number(balanceOfCollateralToSell)) * 100
     }
     percentByAmount = Number(percentByAmount.toFixed())
     setSliderValue(percentByAmount)

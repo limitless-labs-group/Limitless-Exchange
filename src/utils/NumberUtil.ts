@@ -1,11 +1,14 @@
 export class NumberUtil {
-  static formatThousands = (v?: number | string, decimals = 0) => {
+  static formatThousands = (v?: number | string, decimals = 0): string => {
     return this.toFixed(v, decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   }
 
-  static toFixed = (v?: number | string, decimals = 0, fill = false) => {
-    const str = (Number(v ?? 0) ?? 0).toString()
-    const [intPart, floatPart] = str.split('.')
+  static toFixed = (v?: number | string, decimals = 0, fill = false): string => {
+    let numStr = (Number(v ?? 0) ?? 0).toString()
+    if (numStr.includes('e')) {
+      numStr = '0'
+    }
+    const [intPart, floatPart] = numStr.split('.')
     return `${intPart}${
       decimals > 0
         ? `.${Array.from(

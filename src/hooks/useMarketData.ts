@@ -1,5 +1,5 @@
 import { collateralToken, defaultChain, markets, subgraphURI } from '@/constants'
-import { marketMakerABI } from '@/contracts'
+import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers'
 import { Market } from '@/types'
 import { useQuery } from '@tanstack/react-query'
@@ -21,12 +21,12 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
     [marketAddress]
   )
 
-  const marketMakerContract = useMemo(
+  const fixedProductMarketMakerContract = useMemo(
     () =>
       market
         ? getContract({
             address: market.address[defaultChain.id],
-            abi: marketMakerABI,
+            abi: fixedProductMarketMakerABI,
             client: publicClient,
           })
         : null,
@@ -34,19 +34,19 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
   )
 
   const { data: outcomeTokensPrice } = useQuery({
-    queryKey: ['outcomeTokensPrice', marketMakerContract?.address],
+    queryKey: ['outcomeTokensPrice', fixedProductMarketMakerContract?.address],
     queryFn: async () => {
-      if (!marketMakerContract) {
+      if (!fixedProductMarketMakerContract) {
         return [0, 0]
       }
 
       const collateralAmount = `0.0000001`
       const collateralAmountBI = parseUnits(collateralAmount, collateralToken.decimals)
-      const outcomeTokenAmountYesBI = (await marketMakerContract.read.calcBuyAmount([
+      const outcomeTokenAmountYesBI = (await fixedProductMarketMakerContract.read.calcBuyAmount([
         collateralAmountBI,
         0,
       ])) as bigint
-      const outcomeTokenAmountNoBI = (await marketMakerContract.read.calcBuyAmount([
+      const outcomeTokenAmountNoBI = (await fixedProductMarketMakerContract.read.calcBuyAmount([
         collateralAmountBI,
         1,
       ])) as bigint
@@ -66,9 +66,13 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
   })
 
   const { data: outcomeTokensPercent } = useQuery({
-    queryKey: ['outcomeTokensPercent', marketMakerContract?.address, outcomeTokensPrice],
+    queryKey: [
+      'outcomeTokensPercent',
+      fixedProductMarketMakerContract?.address,
+      outcomeTokensPrice,
+    ],
     queryFn: async () => {
-      if (!marketMakerContract || !outcomeTokensPrice) {
+      if (!fixedProductMarketMakerContract || !outcomeTokensPrice) {
         return [50, 50]
       }
 
@@ -91,7 +95,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       if (!marketAddress) {
         return
       }
-      const queryName = 'automatedMarketMakers'
+      const queryName = 'automatedFixedProductMarketMakers'
       const res = await axios.request({
         url: subgraphURI[defaultChain.id],
         method: 'post',
