@@ -20,6 +20,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
       w={'full'}
       alignItems={'start'}
       gap={{ sm: 4, md: 6 }}
+      mb={1}
       {...props}
     >
       <Stack w={'full'} h={'full'} p={5} borderRadius={borderRadius} bg={'bgLight'} spacing={4}>
