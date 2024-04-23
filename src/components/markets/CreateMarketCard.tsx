@@ -38,7 +38,7 @@ export const CreateMarketCard = () => {
 
       <Stack
         h={'full'}
-        p={3}
+        p={4}
         alignItems={'center'}
         textAlign={'center'}
         justifyContent={'space-between'}

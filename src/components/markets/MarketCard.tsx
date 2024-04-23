@@ -52,7 +52,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
         onClick={() => router.push(marketURI)}
       />
 
-      <Stack alignItems={'start'} p={4} spacing={4}>
+      <Stack alignItems={'start'} p={4} spacing={3}>
         {!children && (
           <HStack textTransform={'uppercase'}>
             <Text color={'green'}>
@@ -64,34 +64,36 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
           </HStack>
         )}
 
-        <Stack w={'full'}>
-          <Heading
-            fontSize={'18px'}
-            lineHeight={'20px'}
-            _hover={{ textDecor: 'underline' }}
-            onClick={() => router.push(marketURI)}
-          >
-            {market?.title ?? 'Noname market'}
-          </Heading>
+        <Stack w={'full'} spacing={3}>
+          <Stack w={'full'}>
+            <Heading
+              fontSize={'18px'}
+              lineHeight={'20px'}
+              _hover={{ textDecor: 'underline' }}
+              onClick={() => router.push(marketURI)}
+            >
+              {market?.title ?? 'Noname market'}
+            </Heading>
 
-          <HStack w={'full'} spacing={4} justifyContent={'space-between'}>
-            <HStack>
-              <Text color={'fontLight'}>Pool</Text>
-              <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
-                collateralToken.symbol
-              }`}</Text>
+            <HStack w={'full'} spacing={3} justifyContent={'space-between'}>
+              <HStack>
+                <Text color={'fontLight'}>Pool</Text>
+                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
+                  collateralToken.symbol
+                }`}</Text>
+              </HStack>
+              <HStack>
+                <Text color={'fontLight'}>Investors</Text>
+                <Text fontWeight={'bold'}>{holdersCount ?? 0}</Text>
+              </HStack>
+              <HStack>
+                <Text color={'fontLight'}>Deadline</Text>
+                <Text noOfLines={1} fontWeight={'bold'}>
+                  {market?.expirationData}
+                </Text>
+              </HStack>
             </HStack>
-            <HStack>
-              <Text color={'fontLight'}>Investors</Text>
-              <Text fontWeight={'bold'}>{holdersCount ?? 0}</Text>
-            </HStack>
-            <HStack>
-              <Text color={'fontLight'}>Deadline</Text>
-              <Text noOfLines={1} fontWeight={'bold'}>
-                {market?.expirationData}
-              </Text>
-            </HStack>
-          </HStack>
+          </Stack>
 
           {children ?? <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} />}
         </Stack>

@@ -16,14 +16,13 @@ export const MarketCardUserActions = ({ marketURI, shareLinks }: IMarketCardUser
   const { onCopy, hasCopied } = useClipboard(marketURI)
 
   return (
-    <HStack h={'33px'} m={1}>
+    <HStack h={'33px'}>
       <Button
         bg={'black'}
         color={'white'}
         h={'full'}
         w={'full'}
         p={1}
-        m={1}
         onClick={() => router.push(marketURI)}
       >
         Trade
@@ -45,7 +44,7 @@ export const MarketCardUserActions = ({ marketURI, shareLinks }: IMarketCardUser
         p={1}
         onClick={() => window.open(shareLinks.castURI, '_blank', 'noopener')}
       >
-        <Image src='/assets/images/farcaster.png' h={'22px'} alt={'Farcaster'} />
+        <Image src={'/assets/images/farcaster.png'} h={'22px'} alt={'Farcaster'} />
       </Button>
     </HStack>
   )

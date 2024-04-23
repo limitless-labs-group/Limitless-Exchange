@@ -70,7 +70,7 @@ export const PortfolioHistoryTableItem = ({
 
       {/* Contracts */}
       <Td px={2} isNumeric>
-        {NumberUtil.toFixed(trade.outcomeTokenAmount, 6)}
+        {NumberUtil.toFixed(trade.outcomeTokenAmount, 4)}
       </Td>
 
       {/* Tx */}
