@@ -1,14 +1,13 @@
-import { Button } from '@/components'
 import { collateralToken, defaultChain, markets } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { createMarketShareUrls } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
-import { HStack, Heading, Image, Stack, StackProps, Text, useClipboard } from '@chakra-ui/react'
+import { Heading, HStack, Image, Stack, StackProps, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
-import { FaLink, FaXTwitter } from 'react-icons/fa6'
+import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
 
 interface IMarketCard extends StackProps {
   marketAddress?: Address
@@ -29,9 +28,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
 
   const marketURI = `${window.location.origin}/markets/${marketAddress}`
 
-  const { tweetURI, castURI } = createMarketShareUrls(market, outcomeTokensPercent)
-
-  const { onCopy, hasCopied } = useClipboard(marketURI)
+  const shareLinks = createMarketShareUrls(market, outcomeTokensPercent)
 
   return (
     <Stack
@@ -95,41 +92,9 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
               </Text>
             </HStack>
           </HStack>
-        </Stack>
 
-        {children ?? (
-          <HStack w={'full'} h={'33px'}>
-            <Button
-              bg={'black'}
-              color={'white'}
-              h={'full'}
-              w={'full'}
-              p={1}
-              onClick={() => router.push(marketURI)}
-            >
-              Trade
-            </Button>
-            <Button h={'full'} aspectRatio={'1/1'} p={1} onClick={onCopy}>
-              <FaLink size={'16px'} fill={hasCopied ? colors.brand : colors.font} />
-            </Button>
-            <Button
-              h={'full'}
-              aspectRatio={'1/1'}
-              p={1}
-              onClick={() => window.open(tweetURI, '_blank', 'noopener')}
-            >
-              <FaXTwitter size={'16px'} />
-            </Button>
-            <Button
-              h={'full'}
-              aspectRatio={'1/1'}
-              p={1}
-              onClick={() => window.open(castURI, '_blank', 'noopener')}
-            >
-              <Image src='/assets/images/farcaster.png' h={'22px'} />
-            </Button>
-          </HStack>
-        )}
+          {children ?? <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} />}
+        </Stack>
       </Stack>
     </Stack>
   )

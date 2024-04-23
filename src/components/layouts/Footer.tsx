@@ -1,11 +1,10 @@
 import { colors } from '@/styles'
 import { Flex, HStack, Stack, Text, useMediaQuery } from '@chakra-ui/react'
 import { FaCircle } from 'react-icons/fa'
-
-const iPhone14Width = 430 //430px is the width of iPhone 14 Pro Max
+import { IPHONE14_PRO_MAX_WIDTH } from '@/constants/device'
 
 export const Footer = () => {
-  const [isLargerThan430] = useMediaQuery(`(min-width: ${iPhone14Width + 1}px)`)
+  const [isLargerThan430] = useMediaQuery(`(min-width: ${IPHONE14_PRO_MAX_WIDTH + 1}px)`)
 
   return (
     <Flex
