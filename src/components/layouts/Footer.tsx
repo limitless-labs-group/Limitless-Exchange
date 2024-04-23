@@ -32,39 +32,39 @@ export const Footer = () => {
           _hover={{ color: 'fontLight' }}
           onClick={() =>
             window.open(
-              'https://www.notion.so/limitlesslabs/About-us-260f9f7ca5dc4403b55f7e0493485d09?pvs=4',
+              'https://limitlesslabs.notion.site/About-us-260f9f7ca5dc4403b55f7e0493485d09',
               '_blank',
               'noopener'
             )
           }
         >
-          About us
+          About Us
         </Text>
         <Text
           cursor={'pointer'}
           _hover={{ color: 'fontLight' }}
           onClick={() =>
             window.open(
-              'https://www.notion.so/limitlesslabs/Terms-of-Service-fd732c53ebc34e4aa36ad45b0b32595e?pvs=4',
+              'https://drive.google.com/file/d/1RmObjk7_HBa-Tg6yiA45JSRxKcOSSdrW/view',
               '_blank',
               'noopener'
             )
           }
         >
-          Terms
+          Terms of Service
         </Text>
         <Text
           cursor={'pointer'}
           _hover={{ color: 'fontLight' }}
           onClick={() =>
             window.open(
-              'https://www.notion.so/limitlesslabs/Privacy-Policy-072f1a8cb75b452bb8541d1f53271ad9?pvs=4',
+              'https://drive.google.com/file/d/1HLB69C_X6ckuEzoX0GtGZo1cxXx-U_Eu/view',
               '_blank',
               'noopener'
             )
           }
         >
-          Privacy
+          Privacy Policy
         </Text>
         <Text
           cursor={'pointer'}
@@ -77,7 +77,7 @@ export const Footer = () => {
             )
           }
         >
-          Become a creator
+          Become a Creator
         </Text>
         <Text
           cursor={'pointer'}
