@@ -32,7 +32,7 @@ export const Footer = () => {
           _hover={{ color: 'fontLight' }}
           onClick={() =>
             window.open(
-              'https://www.notion.so/limitlesslabs/About-us-260f9f7ca5dc4403b55f7e0493485d09?pvs=4',
+              'https://limitlesslabs.notion.site/About-us-260f9f7ca5dc4403b55f7e0493485d09',
               '_blank',
               'noopener'
             )
