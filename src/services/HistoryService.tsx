@@ -3,7 +3,7 @@ import { useEtherspot } from '@/services'
 import { Address } from '@/types'
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { PropsWithChildren, createContext, useCallback, useContext, useMemo } from 'react'
+import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { formatEther, formatUnits } from 'viem'
 
 interface IHistoryService {
@@ -13,7 +13,6 @@ interface IHistoryService {
   getActiveMarkets: () => Promise<QueryObserverResult<HistoryMarketStats[], Error>>
   balanceInvested: number
   balanceToWin: number
-  getCollateralBalance: (marketAddress: Address, outcomeTokenId: number) => Promise<string>
 }
 
 const HistoryServiceContext = createContext({} as IHistoryService)
@@ -147,33 +146,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     return _balanceToWin
   }, [activeMarkets])
 
-  /**
-   * Calculates the amount of collateral token invested by the user into a market for a particular outcome token ID, based on the subgraph data.
-   *
-   * @param {Address} marketAddress - The address of the market.
-   * @param {number} outcomeTokenId - ID of the outcome token (eg. 0 for Yes, 1 for No)
-   *
-   * @returns {string} The formatted amount of collateral token invested into market for selected outcome token id.
-   */
-  const getCollateralBalance = useCallback(
-    async (marketAddress: Address, outcomeTokenId: number) => {
-      let collateralBalance = 0
-      const _trades = trades ?? (await getTrades()).data
-      _trades?.forEach((trade) => {
-        if (
-          trade.market.id.toLowerCase() != marketAddress.toLowerCase() ||
-          trade.outcomeTokenId != outcomeTokenId
-        ) {
-          return
-        }
-        collateralBalance += Number(trade.collateralAmount ?? 0)
-      })
-      console.log('getCollateralBalance', marketAddress, outcomeTokenId, trades, collateralBalance)
-      return collateralBalance.toString()
-    },
-    [trades]
-  )
-
   const contextProviderValue: IHistoryService = {
     trades,
     getTrades,
@@ -181,7 +153,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     getActiveMarkets,
     balanceInvested,
     balanceToWin,
-    getCollateralBalance,
   }
 
   return (

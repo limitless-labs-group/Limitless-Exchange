@@ -1,4 +1,6 @@
-export type Address = `0x${string}`
+import { Hash, Address } from 'viem'
+
+export type { Hash, Address }
 
 export type Token = {
   address: {
@@ -15,7 +17,8 @@ export type Market = {
     [chainId: number]: Address
   }
   outcomeTokens: string[]
-  conditionId: Address
+  questionId: Hash
+  conditionId: Hash
   title: string
   imageURI?: string
   description: string

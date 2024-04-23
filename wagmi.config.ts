@@ -1,4 +1,4 @@
-import { conditionalTokensABI, wethABI, marketMakerABI } from '@/contracts'
+import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
 import { defineConfig } from '@wagmi/cli'
 import { actions, react } from '@wagmi/cli/plugins'
 
@@ -16,8 +16,8 @@ export default defineConfig(() => {
         abi: wethABI,
       },
       {
-        name: 'MarketMaker',
-        abi: marketMakerABI,
+        name: 'FixedProductMarketMaker',
+        abi: fixedProductMarketMakerABI,
       },
       {
         name: 'ConditionalTokens',

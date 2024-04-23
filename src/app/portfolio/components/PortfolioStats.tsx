@@ -4,7 +4,7 @@ import { usePriceOracle } from '@/providers'
 import { useBalanceService, useHistory } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
-import { Grid, HStack, Heading, Stack, StackProps, Text } from '@chakra-ui/react'
+import { Flex, Grid, HStack, Heading, Stack, StackProps, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { FaFileInvoiceDollar, FaTrophy, FaWallet } from 'react-icons/fa6'
 
@@ -15,8 +15,8 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
   const { convertEthToUsd } = usePriceOracle()
 
   return (
-    <Grid
-      templateColumns={{ sm: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
+    <Flex
+      flexDir={{ sm: 'column', md: 'row' }}
       w={'full'}
       alignItems={'start'}
       gap={{ sm: 4, md: 6 }}
@@ -79,6 +79,6 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
           </Button>
         </Stack>
       </Stack>
-    </Grid>
+    </Flex>
   )
 }
