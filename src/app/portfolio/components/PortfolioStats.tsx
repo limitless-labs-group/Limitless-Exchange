@@ -4,7 +4,7 @@ import { usePriceOracle } from '@/providers'
 import { useBalanceService, useHistory } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
-import { Grid, HStack, Heading, Stack, StackProps, Text } from '@chakra-ui/react'
+import { Flex, Grid, HStack, Heading, Stack, StackProps, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { FaFileInvoiceDollar, FaTrophy, FaWallet } from 'react-icons/fa6'
 
@@ -15,14 +15,21 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
   const { convertEthToUsd } = usePriceOracle()
 
   return (
-    <Grid
-      templateColumns={{ sm: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
+    <Flex
+      flexDir={{ sm: 'column', md: 'row' }}
       w={'full'}
       alignItems={'start'}
       gap={{ sm: 4, md: 6 }}
       {...props}
     >
-      <Stack w={'full'} h={'full'} p={5} borderRadius={borderRadius} bg={'bgLight'} spacing={4}>
+      <Stack
+        w={'full'}
+        minH={{ base: '100px', md: '200px' }}
+        p={5}
+        borderRadius={borderRadius}
+        bg={'bgLight'}
+        spacing={4}
+      >
         <HStack w={'full'}>
           <FaFileInvoiceDollar size={'24px'} fill={colors.fontLight} />
           <Text color={'fontLight'}>Invested</Text>
@@ -37,7 +44,14 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
         </Stack>
       </Stack>
 
-      <Stack w={'full'} h={'full'} p={5} borderRadius={borderRadius} bg={'bgLight'} spacing={4}>
+      <Stack
+        w={'full'}
+        minH={{ base: '100px', md: '200px' }}
+        p={5}
+        borderRadius={borderRadius}
+        bg={'bgLight'}
+        spacing={4}
+      >
         <HStack w={'full'}>
           <FaTrophy size={'24px'} fill={colors.fontLight} />
           <Text color={'fontLight'}>To win</Text>
@@ -50,7 +64,14 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
         </Stack>
       </Stack>
 
-      <Stack w={'full'} h={'full'} p={5} borderRadius={borderRadius} bg={'bgLight'} spacing={4}>
+      <Stack
+        w={'full'}
+        minH={{ base: '100px', md: '200px' }}
+        p={5}
+        borderRadius={borderRadius}
+        bg={'bgLight'}
+        spacing={4}
+      >
         <HStack w={'full'}>
           <FaWallet size={'24px'} fill={colors.fontLight} />
           <Text color={'fontLight'}>Balance</Text>
@@ -58,7 +79,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
         <Stack w={'full'} spacing={5}>
           <Stack w={'full'} spacing={1}>
             <Heading fontSize={'26px'}>
-              {`${NumberUtil.toFixedWSN(balanceOfSmartWallet?.formatted, 4)} ${
+              {`${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4)} ${
                 collateralToken.symbol
               }`}
             </Heading>
@@ -79,6 +100,6 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
           </Button>
         </Stack>
       </Stack>
-    </Grid>
+    </Flex>
   )
 }

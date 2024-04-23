@@ -525,10 +525,10 @@ export const erc20Abi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// MarketMaker
+// FixedProductMarketMaker
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const marketMakerAbi = [
+export const fixedProductMarketMakerAbi = [
   {
     constant: true,
     payable: false,
@@ -1420,399 +1420,404 @@ export const useWatchErc20WithdrawalEvent =
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__
  */
-export const useReadMarketMaker = /*#__PURE__*/ createUseReadContract({
-  abi: marketMakerAbi,
-})
+export const useReadFixedProductMarketMaker =
+  /*#__PURE__*/ createUseReadContract({ abi: fixedProductMarketMakerAbi })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"supportsInterface"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"supportsInterface"`
  */
-export const useReadMarketMakerSupportsInterface =
+export const useReadFixedProductMarketMakerSupportsInterface =
   /*#__PURE__*/ createUseReadContract({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     functionName: 'supportsInterface',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"feesWithdrawableBy"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"feesWithdrawableBy"`
  */
-export const useReadMarketMakerFeesWithdrawableBy =
+export const useReadFixedProductMarketMakerFeesWithdrawableBy =
   /*#__PURE__*/ createUseReadContract({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     functionName: 'feesWithdrawableBy',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"totalSupply"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"totalSupply"`
  */
-export const useReadMarketMakerTotalSupply =
+export const useReadFixedProductMarketMakerTotalSupply =
   /*#__PURE__*/ createUseReadContract({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     functionName: 'totalSupply',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"calcSellAmount"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"calcSellAmount"`
  */
-export const useReadMarketMakerCalcSellAmount =
+export const useReadFixedProductMarketMakerCalcSellAmount =
   /*#__PURE__*/ createUseReadContract({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     functionName: 'calcSellAmount',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"conditionalTokens"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"conditionalTokens"`
  */
-export const useReadMarketMakerConditionalTokens =
+export const useReadFixedProductMarketMakerConditionalTokens =
   /*#__PURE__*/ createUseReadContract({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     functionName: 'conditionalTokens',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"balanceOf"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"balanceOf"`
  */
-export const useReadMarketMakerBalanceOf = /*#__PURE__*/ createUseReadContract({
-  abi: marketMakerAbi,
-  functionName: 'balanceOf',
-})
+export const useReadFixedProductMarketMakerBalanceOf =
+  /*#__PURE__*/ createUseReadContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'balanceOf',
+  })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"collectedFees"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"collectedFees"`
  */
-export const useReadMarketMakerCollectedFees =
+export const useReadFixedProductMarketMakerCollectedFees =
   /*#__PURE__*/ createUseReadContract({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     functionName: 'collectedFees',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"collateralToken"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"collateralToken"`
  */
-export const useReadMarketMakerCollateralToken =
+export const useReadFixedProductMarketMakerCollateralToken =
   /*#__PURE__*/ createUseReadContract({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     functionName: 'collateralToken',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"conditionIds"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"conditionIds"`
  */
-export const useReadMarketMakerConditionIds =
+export const useReadFixedProductMarketMakerConditionIds =
   /*#__PURE__*/ createUseReadContract({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     functionName: 'conditionIds',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"allowance"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"allowance"`
  */
-export const useReadMarketMakerAllowance = /*#__PURE__*/ createUseReadContract({
-  abi: marketMakerAbi,
-  functionName: 'allowance',
-})
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"fee"`
- */
-export const useReadMarketMakerFee = /*#__PURE__*/ createUseReadContract({
-  abi: marketMakerAbi,
-  functionName: 'fee',
-})
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"calcBuyAmount"`
- */
-export const useReadMarketMakerCalcBuyAmount =
+export const useReadFixedProductMarketMakerAllowance =
   /*#__PURE__*/ createUseReadContract({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'allowance',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"fee"`
+ */
+export const useReadFixedProductMarketMakerFee =
+  /*#__PURE__*/ createUseReadContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'fee',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"calcBuyAmount"`
+ */
+export const useReadFixedProductMarketMakerCalcBuyAmount =
+  /*#__PURE__*/ createUseReadContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'calcBuyAmount',
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link marketMakerAbi}__
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__
  */
-export const useWriteMarketMaker = /*#__PURE__*/ createUseWriteContract({
-  abi: marketMakerAbi,
-})
+export const useWriteFixedProductMarketMaker =
+  /*#__PURE__*/ createUseWriteContract({ abi: fixedProductMarketMakerAbi })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"approve"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"approve"`
  */
-export const useWriteMarketMakerApprove = /*#__PURE__*/ createUseWriteContract({
-  abi: marketMakerAbi,
-  functionName: 'approve',
-})
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"withdrawFees"`
- */
-export const useWriteMarketMakerWithdrawFees =
+export const useWriteFixedProductMarketMakerApprove =
   /*#__PURE__*/ createUseWriteContract({
-    abi: marketMakerAbi,
-    functionName: 'withdrawFees',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"transferFrom"`
- */
-export const useWriteMarketMakerTransferFrom =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: marketMakerAbi,
-    functionName: 'transferFrom',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"increaseAllowance"`
- */
-export const useWriteMarketMakerIncreaseAllowance =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: marketMakerAbi,
-    functionName: 'increaseAllowance',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"buy"`
- */
-export const useWriteMarketMakerBuy = /*#__PURE__*/ createUseWriteContract({
-  abi: marketMakerAbi,
-  functionName: 'buy',
-})
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"decreaseAllowance"`
- */
-export const useWriteMarketMakerDecreaseAllowance =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: marketMakerAbi,
-    functionName: 'decreaseAllowance',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"transfer"`
- */
-export const useWriteMarketMakerTransfer = /*#__PURE__*/ createUseWriteContract(
-  { abi: marketMakerAbi, functionName: 'transfer' },
-)
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"onERC1155BatchReceived"`
- */
-export const useWriteMarketMakerOnErc1155BatchReceived =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: marketMakerAbi,
-    functionName: 'onERC1155BatchReceived',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"sell"`
- */
-export const useWriteMarketMakerSell = /*#__PURE__*/ createUseWriteContract({
-  abi: marketMakerAbi,
-  functionName: 'sell',
-})
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"addFunding"`
- */
-export const useWriteMarketMakerAddFunding =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: marketMakerAbi,
-    functionName: 'addFunding',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"removeFunding"`
- */
-export const useWriteMarketMakerRemoveFunding =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: marketMakerAbi,
-    functionName: 'removeFunding',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"onERC1155Received"`
- */
-export const useWriteMarketMakerOnErc1155Received =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: marketMakerAbi,
-    functionName: 'onERC1155Received',
-  })
-
-/**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link marketMakerAbi}__
- */
-export const useSimulateMarketMaker = /*#__PURE__*/ createUseSimulateContract({
-  abi: marketMakerAbi,
-})
-
-/**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"approve"`
- */
-export const useSimulateMarketMakerApprove =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     functionName: 'approve',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"withdrawFees"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"withdrawFees"`
  */
-export const useSimulateMarketMakerWithdrawFees =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: marketMakerAbi,
+export const useWriteFixedProductMarketMakerWithdrawFees =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'withdrawFees',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"transferFrom"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"transferFrom"`
  */
-export const useSimulateMarketMakerTransferFrom =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: marketMakerAbi,
+export const useWriteFixedProductMarketMakerTransferFrom =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'transferFrom',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"increaseAllowance"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"increaseAllowance"`
  */
-export const useSimulateMarketMakerIncreaseAllowance =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: marketMakerAbi,
+export const useWriteFixedProductMarketMakerIncreaseAllowance =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'increaseAllowance',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"buy"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"buy"`
  */
-export const useSimulateMarketMakerBuy =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: marketMakerAbi,
+export const useWriteFixedProductMarketMakerBuy =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'buy',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"decreaseAllowance"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"decreaseAllowance"`
  */
-export const useSimulateMarketMakerDecreaseAllowance =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: marketMakerAbi,
+export const useWriteFixedProductMarketMakerDecreaseAllowance =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'decreaseAllowance',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"transfer"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"transfer"`
  */
-export const useSimulateMarketMakerTransfer =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: marketMakerAbi,
+export const useWriteFixedProductMarketMakerTransfer =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'transfer',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"onERC1155BatchReceived"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"onERC1155BatchReceived"`
  */
-export const useSimulateMarketMakerOnErc1155BatchReceived =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: marketMakerAbi,
+export const useWriteFixedProductMarketMakerOnErc1155BatchReceived =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'onERC1155BatchReceived',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"sell"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"sell"`
  */
-export const useSimulateMarketMakerSell =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: marketMakerAbi,
+export const useWriteFixedProductMarketMakerSell =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'sell',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"addFunding"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"addFunding"`
  */
-export const useSimulateMarketMakerAddFunding =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: marketMakerAbi,
+export const useWriteFixedProductMarketMakerAddFunding =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'addFunding',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"removeFunding"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"removeFunding"`
  */
-export const useSimulateMarketMakerRemoveFunding =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: marketMakerAbi,
+export const useWriteFixedProductMarketMakerRemoveFunding =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'removeFunding',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"onERC1155Received"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"onERC1155Received"`
  */
-export const useSimulateMarketMakerOnErc1155Received =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: marketMakerAbi,
+export const useWriteFixedProductMarketMakerOnErc1155Received =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'onERC1155Received',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link marketMakerAbi}__
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__
  */
-export const useWatchMarketMakerEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({ abi: marketMakerAbi })
+export const useSimulateFixedProductMarketMaker =
+  /*#__PURE__*/ createUseSimulateContract({ abi: fixedProductMarketMakerAbi })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link marketMakerAbi}__ and `eventName` set to `"FPMMFundingAdded"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"approve"`
  */
-export const useWatchMarketMakerFpmmFundingAddedEvent =
+export const useSimulateFixedProductMarketMakerApprove =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'approve',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"withdrawFees"`
+ */
+export const useSimulateFixedProductMarketMakerWithdrawFees =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'withdrawFees',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useSimulateFixedProductMarketMakerTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"increaseAllowance"`
+ */
+export const useSimulateFixedProductMarketMakerIncreaseAllowance =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'increaseAllowance',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"buy"`
+ */
+export const useSimulateFixedProductMarketMakerBuy =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'buy',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"decreaseAllowance"`
+ */
+export const useSimulateFixedProductMarketMakerDecreaseAllowance =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'decreaseAllowance',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"transfer"`
+ */
+export const useSimulateFixedProductMarketMakerTransfer =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'transfer',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"onERC1155BatchReceived"`
+ */
+export const useSimulateFixedProductMarketMakerOnErc1155BatchReceived =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'onERC1155BatchReceived',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"sell"`
+ */
+export const useSimulateFixedProductMarketMakerSell =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'sell',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"addFunding"`
+ */
+export const useSimulateFixedProductMarketMakerAddFunding =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'addFunding',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"removeFunding"`
+ */
+export const useSimulateFixedProductMarketMakerRemoveFunding =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'removeFunding',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"onERC1155Received"`
+ */
+export const useSimulateFixedProductMarketMakerOnErc1155Received =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'onERC1155Received',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__
+ */
+export const useWatchFixedProductMarketMakerEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({ abi: fixedProductMarketMakerAbi })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `eventName` set to `"FPMMFundingAdded"`
+ */
+export const useWatchFixedProductMarketMakerFpmmFundingAddedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     eventName: 'FPMMFundingAdded',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link marketMakerAbi}__ and `eventName` set to `"FPMMFundingRemoved"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `eventName` set to `"FPMMFundingRemoved"`
  */
-export const useWatchMarketMakerFpmmFundingRemovedEvent =
+export const useWatchFixedProductMarketMakerFpmmFundingRemovedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     eventName: 'FPMMFundingRemoved',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link marketMakerAbi}__ and `eventName` set to `"FPMMBuy"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `eventName` set to `"FPMMBuy"`
  */
-export const useWatchMarketMakerFpmmBuyEvent =
+export const useWatchFixedProductMarketMakerFpmmBuyEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     eventName: 'FPMMBuy',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link marketMakerAbi}__ and `eventName` set to `"FPMMSell"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `eventName` set to `"FPMMSell"`
  */
-export const useWatchMarketMakerFpmmSellEvent =
+export const useWatchFixedProductMarketMakerFpmmSellEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     eventName: 'FPMMSell',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link marketMakerAbi}__ and `eventName` set to `"Transfer"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `eventName` set to `"Transfer"`
  */
-export const useWatchMarketMakerTransferEvent =
+export const useWatchFixedProductMarketMakerTransferEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     eventName: 'Transfer',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link marketMakerAbi}__ and `eventName` set to `"Approval"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `eventName` set to `"Approval"`
  */
-export const useWatchMarketMakerApprovalEvent =
+export const useWatchFixedProductMarketMakerApprovalEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     eventName: 'Approval',
   })
 
@@ -2369,385 +2374,404 @@ export const watchErc20WithdrawalEvent = /*#__PURE__*/ createWatchContractEvent(
 )
 
 /**
- * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__
+ * Wraps __{@link readContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__
  */
-export const readMarketMaker = /*#__PURE__*/ createReadContract({
-  abi: marketMakerAbi,
+export const readFixedProductMarketMaker = /*#__PURE__*/ createReadContract({
+  abi: fixedProductMarketMakerAbi,
 })
 
 /**
- * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"supportsInterface"`
+ * Wraps __{@link readContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"supportsInterface"`
  */
-export const readMarketMakerSupportsInterface =
+export const readFixedProductMarketMakerSupportsInterface =
   /*#__PURE__*/ createReadContract({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     functionName: 'supportsInterface',
   })
 
 /**
- * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"feesWithdrawableBy"`
+ * Wraps __{@link readContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"feesWithdrawableBy"`
  */
-export const readMarketMakerFeesWithdrawableBy =
+export const readFixedProductMarketMakerFeesWithdrawableBy =
   /*#__PURE__*/ createReadContract({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     functionName: 'feesWithdrawableBy',
   })
 
 /**
- * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"totalSupply"`
+ * Wraps __{@link readContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"totalSupply"`
  */
-export const readMarketMakerTotalSupply = /*#__PURE__*/ createReadContract({
-  abi: marketMakerAbi,
-  functionName: 'totalSupply',
-})
-
-/**
- * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"calcSellAmount"`
- */
-export const readMarketMakerCalcSellAmount = /*#__PURE__*/ createReadContract({
-  abi: marketMakerAbi,
-  functionName: 'calcSellAmount',
-})
-
-/**
- * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"conditionalTokens"`
- */
-export const readMarketMakerConditionalTokens =
+export const readFixedProductMarketMakerTotalSupply =
   /*#__PURE__*/ createReadContract({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'totalSupply',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"calcSellAmount"`
+ */
+export const readFixedProductMarketMakerCalcSellAmount =
+  /*#__PURE__*/ createReadContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'calcSellAmount',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"conditionalTokens"`
+ */
+export const readFixedProductMarketMakerConditionalTokens =
+  /*#__PURE__*/ createReadContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'conditionalTokens',
   })
 
 /**
- * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"balanceOf"`
+ * Wraps __{@link readContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"balanceOf"`
  */
-export const readMarketMakerBalanceOf = /*#__PURE__*/ createReadContract({
-  abi: marketMakerAbi,
-  functionName: 'balanceOf',
-})
+export const readFixedProductMarketMakerBalanceOf =
+  /*#__PURE__*/ createReadContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'balanceOf',
+  })
 
 /**
- * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"collectedFees"`
+ * Wraps __{@link readContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"collectedFees"`
  */
-export const readMarketMakerCollectedFees = /*#__PURE__*/ createReadContract({
-  abi: marketMakerAbi,
-  functionName: 'collectedFees',
-})
+export const readFixedProductMarketMakerCollectedFees =
+  /*#__PURE__*/ createReadContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'collectedFees',
+  })
 
 /**
- * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"collateralToken"`
+ * Wraps __{@link readContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"collateralToken"`
  */
-export const readMarketMakerCollateralToken = /*#__PURE__*/ createReadContract({
-  abi: marketMakerAbi,
-  functionName: 'collateralToken',
-})
+export const readFixedProductMarketMakerCollateralToken =
+  /*#__PURE__*/ createReadContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'collateralToken',
+  })
 
 /**
- * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"conditionIds"`
+ * Wraps __{@link readContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"conditionIds"`
  */
-export const readMarketMakerConditionIds = /*#__PURE__*/ createReadContract({
-  abi: marketMakerAbi,
-  functionName: 'conditionIds',
-})
+export const readFixedProductMarketMakerConditionIds =
+  /*#__PURE__*/ createReadContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'conditionIds',
+  })
 
 /**
- * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"allowance"`
+ * Wraps __{@link readContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"allowance"`
  */
-export const readMarketMakerAllowance = /*#__PURE__*/ createReadContract({
-  abi: marketMakerAbi,
-  functionName: 'allowance',
-})
+export const readFixedProductMarketMakerAllowance =
+  /*#__PURE__*/ createReadContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'allowance',
+  })
 
 /**
- * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"fee"`
+ * Wraps __{@link readContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"fee"`
  */
-export const readMarketMakerFee = /*#__PURE__*/ createReadContract({
-  abi: marketMakerAbi,
+export const readFixedProductMarketMakerFee = /*#__PURE__*/ createReadContract({
+  abi: fixedProductMarketMakerAbi,
   functionName: 'fee',
 })
 
 /**
- * Wraps __{@link readContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"calcBuyAmount"`
+ * Wraps __{@link readContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"calcBuyAmount"`
  */
-export const readMarketMakerCalcBuyAmount = /*#__PURE__*/ createReadContract({
-  abi: marketMakerAbi,
-  functionName: 'calcBuyAmount',
-})
-
-/**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link marketMakerAbi}__
- */
-export const writeMarketMaker = /*#__PURE__*/ createWriteContract({
-  abi: marketMakerAbi,
-})
-
-/**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"approve"`
- */
-export const writeMarketMakerApprove = /*#__PURE__*/ createWriteContract({
-  abi: marketMakerAbi,
-  functionName: 'approve',
-})
-
-/**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"withdrawFees"`
- */
-export const writeMarketMakerWithdrawFees = /*#__PURE__*/ createWriteContract({
-  abi: marketMakerAbi,
-  functionName: 'withdrawFees',
-})
-
-/**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"transferFrom"`
- */
-export const writeMarketMakerTransferFrom = /*#__PURE__*/ createWriteContract({
-  abi: marketMakerAbi,
-  functionName: 'transferFrom',
-})
-
-/**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"increaseAllowance"`
- */
-export const writeMarketMakerIncreaseAllowance =
-  /*#__PURE__*/ createWriteContract({
-    abi: marketMakerAbi,
-    functionName: 'increaseAllowance',
+export const readFixedProductMarketMakerCalcBuyAmount =
+  /*#__PURE__*/ createReadContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'calcBuyAmount',
   })
 
 /**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"buy"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__
  */
-export const writeMarketMakerBuy = /*#__PURE__*/ createWriteContract({
-  abi: marketMakerAbi,
-  functionName: 'buy',
+export const writeFixedProductMarketMaker = /*#__PURE__*/ createWriteContract({
+  abi: fixedProductMarketMakerAbi,
 })
 
 /**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"decreaseAllowance"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"approve"`
  */
-export const writeMarketMakerDecreaseAllowance =
+export const writeFixedProductMarketMakerApprove =
   /*#__PURE__*/ createWriteContract({
-    abi: marketMakerAbi,
-    functionName: 'decreaseAllowance',
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'approve',
   })
 
 /**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"transfer"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"withdrawFees"`
  */
-export const writeMarketMakerTransfer = /*#__PURE__*/ createWriteContract({
-  abi: marketMakerAbi,
-  functionName: 'transfer',
-})
-
-/**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"onERC1155BatchReceived"`
- */
-export const writeMarketMakerOnErc1155BatchReceived =
+export const writeFixedProductMarketMakerWithdrawFees =
   /*#__PURE__*/ createWriteContract({
-    abi: marketMakerAbi,
-    functionName: 'onERC1155BatchReceived',
-  })
-
-/**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"sell"`
- */
-export const writeMarketMakerSell = /*#__PURE__*/ createWriteContract({
-  abi: marketMakerAbi,
-  functionName: 'sell',
-})
-
-/**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"addFunding"`
- */
-export const writeMarketMakerAddFunding = /*#__PURE__*/ createWriteContract({
-  abi: marketMakerAbi,
-  functionName: 'addFunding',
-})
-
-/**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"removeFunding"`
- */
-export const writeMarketMakerRemoveFunding = /*#__PURE__*/ createWriteContract({
-  abi: marketMakerAbi,
-  functionName: 'removeFunding',
-})
-
-/**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"onERC1155Received"`
- */
-export const writeMarketMakerOnErc1155Received =
-  /*#__PURE__*/ createWriteContract({
-    abi: marketMakerAbi,
-    functionName: 'onERC1155Received',
-  })
-
-/**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link marketMakerAbi}__
- */
-export const simulateMarketMaker = /*#__PURE__*/ createSimulateContract({
-  abi: marketMakerAbi,
-})
-
-/**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"approve"`
- */
-export const simulateMarketMakerApprove = /*#__PURE__*/ createSimulateContract({
-  abi: marketMakerAbi,
-  functionName: 'approve',
-})
-
-/**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"withdrawFees"`
- */
-export const simulateMarketMakerWithdrawFees =
-  /*#__PURE__*/ createSimulateContract({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     functionName: 'withdrawFees',
   })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"transferFrom"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"transferFrom"`
  */
-export const simulateMarketMakerTransferFrom =
-  /*#__PURE__*/ createSimulateContract({
-    abi: marketMakerAbi,
+export const writeFixedProductMarketMakerTransferFrom =
+  /*#__PURE__*/ createWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'transferFrom',
   })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"increaseAllowance"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"increaseAllowance"`
  */
-export const simulateMarketMakerIncreaseAllowance =
-  /*#__PURE__*/ createSimulateContract({
-    abi: marketMakerAbi,
+export const writeFixedProductMarketMakerIncreaseAllowance =
+  /*#__PURE__*/ createWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'increaseAllowance',
   })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"buy"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"buy"`
  */
-export const simulateMarketMakerBuy = /*#__PURE__*/ createSimulateContract({
-  abi: marketMakerAbi,
-  functionName: 'buy',
-})
+export const writeFixedProductMarketMakerBuy =
+  /*#__PURE__*/ createWriteContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'buy',
+  })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"decreaseAllowance"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"decreaseAllowance"`
  */
-export const simulateMarketMakerDecreaseAllowance =
-  /*#__PURE__*/ createSimulateContract({
-    abi: marketMakerAbi,
+export const writeFixedProductMarketMakerDecreaseAllowance =
+  /*#__PURE__*/ createWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'decreaseAllowance',
   })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"transfer"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"transfer"`
  */
-export const simulateMarketMakerTransfer = /*#__PURE__*/ createSimulateContract(
-  { abi: marketMakerAbi, functionName: 'transfer' },
-)
+export const writeFixedProductMarketMakerTransfer =
+  /*#__PURE__*/ createWriteContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'transfer',
+  })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"onERC1155BatchReceived"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"onERC1155BatchReceived"`
  */
-export const simulateMarketMakerOnErc1155BatchReceived =
-  /*#__PURE__*/ createSimulateContract({
-    abi: marketMakerAbi,
+export const writeFixedProductMarketMakerOnErc1155BatchReceived =
+  /*#__PURE__*/ createWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'onERC1155BatchReceived',
   })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"sell"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"sell"`
  */
-export const simulateMarketMakerSell = /*#__PURE__*/ createSimulateContract({
-  abi: marketMakerAbi,
-  functionName: 'sell',
-})
+export const writeFixedProductMarketMakerSell =
+  /*#__PURE__*/ createWriteContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'sell',
+  })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"addFunding"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"addFunding"`
  */
-export const simulateMarketMakerAddFunding =
-  /*#__PURE__*/ createSimulateContract({
-    abi: marketMakerAbi,
+export const writeFixedProductMarketMakerAddFunding =
+  /*#__PURE__*/ createWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'addFunding',
   })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"removeFunding"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"removeFunding"`
  */
-export const simulateMarketMakerRemoveFunding =
-  /*#__PURE__*/ createSimulateContract({
-    abi: marketMakerAbi,
+export const writeFixedProductMarketMakerRemoveFunding =
+  /*#__PURE__*/ createWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'removeFunding',
   })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link marketMakerAbi}__ and `functionName` set to `"onERC1155Received"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"onERC1155Received"`
  */
-export const simulateMarketMakerOnErc1155Received =
-  /*#__PURE__*/ createSimulateContract({
-    abi: marketMakerAbi,
+export const writeFixedProductMarketMakerOnErc1155Received =
+  /*#__PURE__*/ createWriteContract({
+    abi: fixedProductMarketMakerAbi,
     functionName: 'onERC1155Received',
   })
 
 /**
- * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link marketMakerAbi}__
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__
  */
-export const watchMarketMakerEvent = /*#__PURE__*/ createWatchContractEvent({
-  abi: marketMakerAbi,
-})
+export const simulateFixedProductMarketMaker =
+  /*#__PURE__*/ createSimulateContract({ abi: fixedProductMarketMakerAbi })
 
 /**
- * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link marketMakerAbi}__ and `eventName` set to `"FPMMFundingAdded"`
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"approve"`
  */
-export const watchMarketMakerFpmmFundingAddedEvent =
+export const simulateFixedProductMarketMakerApprove =
+  /*#__PURE__*/ createSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'approve',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"withdrawFees"`
+ */
+export const simulateFixedProductMarketMakerWithdrawFees =
+  /*#__PURE__*/ createSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'withdrawFees',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const simulateFixedProductMarketMakerTransferFrom =
+  /*#__PURE__*/ createSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"increaseAllowance"`
+ */
+export const simulateFixedProductMarketMakerIncreaseAllowance =
+  /*#__PURE__*/ createSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'increaseAllowance',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"buy"`
+ */
+export const simulateFixedProductMarketMakerBuy =
+  /*#__PURE__*/ createSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'buy',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"decreaseAllowance"`
+ */
+export const simulateFixedProductMarketMakerDecreaseAllowance =
+  /*#__PURE__*/ createSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'decreaseAllowance',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"transfer"`
+ */
+export const simulateFixedProductMarketMakerTransfer =
+  /*#__PURE__*/ createSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'transfer',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"onERC1155BatchReceived"`
+ */
+export const simulateFixedProductMarketMakerOnErc1155BatchReceived =
+  /*#__PURE__*/ createSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'onERC1155BatchReceived',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"sell"`
+ */
+export const simulateFixedProductMarketMakerSell =
+  /*#__PURE__*/ createSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'sell',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"addFunding"`
+ */
+export const simulateFixedProductMarketMakerAddFunding =
+  /*#__PURE__*/ createSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'addFunding',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"removeFunding"`
+ */
+export const simulateFixedProductMarketMakerRemoveFunding =
+  /*#__PURE__*/ createSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'removeFunding',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `functionName` set to `"onERC1155Received"`
+ */
+export const simulateFixedProductMarketMakerOnErc1155Received =
+  /*#__PURE__*/ createSimulateContract({
+    abi: fixedProductMarketMakerAbi,
+    functionName: 'onERC1155Received',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__
+ */
+export const watchFixedProductMarketMakerEvent =
+  /*#__PURE__*/ createWatchContractEvent({ abi: fixedProductMarketMakerAbi })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `eventName` set to `"FPMMFundingAdded"`
+ */
+export const watchFixedProductMarketMakerFpmmFundingAddedEvent =
   /*#__PURE__*/ createWatchContractEvent({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     eventName: 'FPMMFundingAdded',
   })
 
 /**
- * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link marketMakerAbi}__ and `eventName` set to `"FPMMFundingRemoved"`
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `eventName` set to `"FPMMFundingRemoved"`
  */
-export const watchMarketMakerFpmmFundingRemovedEvent =
+export const watchFixedProductMarketMakerFpmmFundingRemovedEvent =
   /*#__PURE__*/ createWatchContractEvent({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     eventName: 'FPMMFundingRemoved',
   })
 
 /**
- * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link marketMakerAbi}__ and `eventName` set to `"FPMMBuy"`
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `eventName` set to `"FPMMBuy"`
  */
-export const watchMarketMakerFpmmBuyEvent =
+export const watchFixedProductMarketMakerFpmmBuyEvent =
   /*#__PURE__*/ createWatchContractEvent({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     eventName: 'FPMMBuy',
   })
 
 /**
- * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link marketMakerAbi}__ and `eventName` set to `"FPMMSell"`
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `eventName` set to `"FPMMSell"`
  */
-export const watchMarketMakerFpmmSellEvent =
+export const watchFixedProductMarketMakerFpmmSellEvent =
   /*#__PURE__*/ createWatchContractEvent({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     eventName: 'FPMMSell',
   })
 
 /**
- * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link marketMakerAbi}__ and `eventName` set to `"Transfer"`
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `eventName` set to `"Transfer"`
  */
-export const watchMarketMakerTransferEvent =
+export const watchFixedProductMarketMakerTransferEvent =
   /*#__PURE__*/ createWatchContractEvent({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     eventName: 'Transfer',
   })
 
 /**
- * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link marketMakerAbi}__ and `eventName` set to `"Approval"`
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link fixedProductMarketMakerAbi}__ and `eventName` set to `"Approval"`
  */
-export const watchMarketMakerApprovalEvent =
+export const watchFixedProductMarketMakerApprovalEvent =
   /*#__PURE__*/ createWatchContractEvent({
-    abi: marketMakerAbi,
+    abi: fixedProductMarketMakerAbi,
     eventName: 'Approval',
   })

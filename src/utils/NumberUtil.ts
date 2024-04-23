@@ -1,11 +1,21 @@
 export class NumberUtil {
-  static formatThousands = (v?: number | string, decimals = 0) => {
+  static formatThousands = (v?: number | string, decimals = 0): string => {
     return this.toFixed(v, decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   }
 
-  static toFixed = (v?: number | string, decimals = 0, fill = false) => {
-    const str = (Number(v ?? 0) ?? 0).toString()
-    const [intPart, floatPart] = str.split('.')
+  static toFixed = (v?: number | string, decimals = 0, fill = false): string => {
+    const numberValue = Number(v ?? 0)
+    let numberStr = numberValue.toString()
+
+    // Check if the number is in scientific notation
+    if (numberValue.toString().toLowerCase().includes('e')) {
+      // If in scientific notation, convert to string preserving decimal places
+      numberStr = numberValue.toFixed(18).replace(/\.?0+$/, '')
+      decimals = 18
+    }
+
+    // trim decimals as string to prevent rounding
+    const [intPart, floatPart] = numberStr.split('.')
     return `${intPart}${
       decimals > 0
         ? `.${Array.from(
@@ -14,18 +24,5 @@ export class NumberUtil {
           ).join('')}`
         : ''
     }`
-  }
-
-  // toFixed without scientific notation
-  static toFixedWSN = (input?: string | number, decimals?: number) => {
-    const numberValue = Number(input ?? 0)
-
-    // Check if the number is in scientific notation
-    if (numberValue.toString().includes('e') || numberValue.toString().includes('E')) {
-      // If in scientific notation, convert to string preserving decimal places
-      return numberValue.toFixed(18).replace(/\.?0+$/, '')
-    }
-
-    return numberValue.toFixed(decimals ?? 6).replace(/\.?0+$/, '')
   }
 }

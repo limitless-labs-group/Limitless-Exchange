@@ -1,5 +1,5 @@
 import { collateralToken, conditionalTokensAddress, defaultChain } from '@/constants'
-import { conditionalTokensABI, wethABI, marketMakerABI } from '@/contracts'
+import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient, useWeb3Auth } from '@/providers'
 import { Address } from '@/types'
 import { ArkaPaymaster, EtherspotBundler, PrimeSdk, Web3WalletProvider } from '@etherspot/prime-sdk'
@@ -162,10 +162,10 @@ class Etherspot {
   }
 
   // TODO: incapsulate
-  getMarketMakerContract(address: Address) {
+  getFixedProductMarketMakerContract(address: Address) {
     return getContract({
       address,
-      abi: marketMakerABI,
+      abi: fixedProductMarketMakerABI,
       client: publicClient,
     })
   }
@@ -334,40 +334,40 @@ class Etherspot {
 
   // TODO: incapsulate
   async buyOutcomeTokens(
-    marketMakerAddress: Address,
+    fixedProductMarketMakerAddress: Address,
     collateralAmount: bigint,
     outcomeIndex: number,
     minOutcomeTokensToBuy: bigint
   ) {
-    await this.approveCollateralIfNeeded(marketMakerAddress, collateralAmount)
+    await this.approveCollateralIfNeeded(fixedProductMarketMakerAddress, collateralAmount)
 
     const data = encodeFunctionData({
-      abi: marketMakerABI,
+      abi: fixedProductMarketMakerABI,
       functionName: 'buy',
       args: [collateralAmount, outcomeIndex, minOutcomeTokensToBuy],
     })
 
-    const opHash = await this.batchAndSendUserOp(marketMakerAddress, data)
+    const opHash = await this.batchAndSendUserOp(fixedProductMarketMakerAddress, data)
     const transactionReceipt = await this.waitForTransaction(opHash)
     return transactionReceipt
   }
 
   // TODO: incapsulate
   async sellOutcomeTokens(
-    marketMakerAddress: Address,
+    fixedProductMarketMakerAddress: Address,
     collateralAmount: bigint,
     outcomeIndex: number,
     maxOutcomeTokensToSell: bigint
   ) {
-    await this.approveConditionalIfNeeded(marketMakerAddress)
+    await this.approveConditionalIfNeeded(fixedProductMarketMakerAddress)
 
     const data = encodeFunctionData({
-      abi: marketMakerABI,
+      abi: fixedProductMarketMakerABI,
       functionName: 'sell',
       args: [collateralAmount, outcomeIndex, maxOutcomeTokensToSell],
     })
 
-    const opHash = await this.batchAndSendUserOp(marketMakerAddress, data)
+    const opHash = await this.batchAndSendUserOp(fixedProductMarketMakerAddress, data)
     const transactionReceipt = await this.waitForTransaction(opHash)
     return transactionReceipt
   }

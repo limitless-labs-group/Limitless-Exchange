@@ -93,7 +93,7 @@ export const Header = ({ ...props }: FlexProps) => {
                   <HStack spacing={1}>
                     <Text>Balance</Text>
                     <Text fontWeight={'bold'}>
-                      {NumberUtil.toFixedWSN(balanceOfSmartWallet?.formatted, 4)}
+                      {NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4)}
                     </Text>
                     <Text>{collateralToken.symbol}</Text>
                   </HStack>

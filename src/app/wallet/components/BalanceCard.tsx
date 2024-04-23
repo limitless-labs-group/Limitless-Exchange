@@ -33,7 +33,7 @@ export const BalanceCard = ({ ...props }: StackProps) => {
   const { balanceOfSmartWallet, status } = useBalanceService()
 
   const balanceFormatted = useMemo(() => {
-    return NumberUtil.toFixedWSN(balanceOfSmartWallet?.formatted, 4)
+    return NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4)
   }, [balanceOfSmartWallet])
 
   /**

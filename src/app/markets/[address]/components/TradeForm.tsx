@@ -56,7 +56,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
     collateralAmount,
     setCollateralAmount,
     isExceedsBalance,
-    balanceOfCollateralInvested,
+    balanceOfCollateralToSell,
     quotes,
     trade,
     status,
@@ -68,12 +68,8 @@ export const TradeForm = ({ ...props }: StackProps) => {
   const { balanceOfSmartWallet } = useBalanceService()
 
   const balance = useMemo(
-    () =>
-      NumberUtil.toFixedWSN(
-        strategy == 'Buy' ? balanceOfSmartWallet?.formatted : balanceOfCollateralInvested
-      ),
-
-    [balanceOfSmartWallet, strategy, balanceOfCollateralInvested]
+    () => (strategy == 'Buy' ? balanceOfSmartWallet?.formatted ?? '' : balanceOfCollateralToSell),
+    [balanceOfSmartWallet, strategy, balanceOfCollateralToSell]
   )
 
   /**
@@ -110,9 +106,9 @@ export const TradeForm = ({ ...props }: StackProps) => {
   const isZeroBalance = useMemo(() => {
     return (
       (strategy == 'Buy' && !(Number(balanceOfSmartWallet?.formatted) > 0)) ||
-      (strategy == 'Sell' && !(Number(balanceOfCollateralInvested) > 0))
+      (strategy == 'Sell' && !(Number(balanceOfCollateralToSell) > 0))
     )
-  }, [strategy, balanceOfSmartWallet, balanceOfCollateralInvested])
+  }, [strategy, balanceOfSmartWallet, balanceOfCollateralToSell])
 
   const onSlide = useCallback(
     (value: number) => {
@@ -125,9 +121,9 @@ export const TradeForm = ({ ...props }: StackProps) => {
       if (strategy == 'Buy') {
         amountByPercent = (Number(balanceOfSmartWallet?.formatted) * value) / 100
       } else if (strategy == 'Sell') {
-        amountByPercent = (Number(balanceOfCollateralInvested) * value) / 100
+        amountByPercent = (Number(balanceOfCollateralToSell) * value) / 100
       }
-      setDisplayAmount(NumberUtil.toFixedWSN(amountByPercent))
+      setDisplayAmount(NumberUtil.toFixed(amountByPercent))
     },
     [sliderValue, balanceOfSmartWallet, isZeroBalance]
   )
@@ -144,7 +140,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
     if (strategy == 'Buy') {
       percentByAmount = (Number(collateralAmount) / Number(balanceOfSmartWallet?.formatted)) * 100
     } else if (strategy == 'Sell') {
-      percentByAmount = (Number(collateralAmount) / Number(balanceOfCollateralInvested)) * 100
+      percentByAmount = (Number(collateralAmount) / Number(balanceOfCollateralToSell)) * 100
     }
     percentByAmount = Number(percentByAmount.toFixed())
     setSliderValue(percentByAmount)
@@ -267,14 +263,14 @@ export const TradeForm = ({ ...props }: StackProps) => {
             border={'1px solid'}
             borderColor={isExceedsBalance ? 'red' : 'border'}
           >
-            <HStack h={'34px'} w='full'>
+            <HStack h={'34px'} w='full' spacing={0}>
               <Input
                 type={'number'}
                 h={'full'}
                 fontWeight={'bold'}
                 placeholder={'0'}
                 border={'none'}
-                pl={0}
+                px={0}
                 _focus={{
                   boxShadow: 'none',
                 }}
@@ -306,7 +302,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 cursor={'pointer'}
                 onClick={() => setCollateralAmount(balance)}
               >
-                {`Balance: ${balance}`} {collateralToken.symbol}
+                {`Balance: ${NumberUtil.toFixed(balance, 6)}`} {collateralToken.symbol}
               </Text>
             </HStack>
           </Stack>
@@ -366,7 +362,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
         <VStack w={'full'} spacing={0}>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Avg price</Text>
-            <Text textAlign={'right'}>{`${NumberUtil.toFixedWSN(quotes?.outcomeTokenPrice)} ${
+            <Text textAlign={'right'}>{`${NumberUtil.toFixed(quotes?.outcomeTokenPrice, 4)} ${
               collateralToken.symbol
             }`}</Text>
           </HStack>
