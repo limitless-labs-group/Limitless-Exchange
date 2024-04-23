@@ -2,9 +2,9 @@ import { collateralToken, defaultChain, markets } from '@/constants'
 import { createPortfolioShareUrls, HistoryMarketStats } from '@/services'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
-import { Box, Flex, HStack, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
+import { Flex, HStack, Stack, StackProps, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { MobileMarketCard } from '@/components/markets/MobileMarketCard'
+import { MarketCardMobile } from '@/components/markets/MarketCardMobile'
 import { usePriceOracle } from '@/providers'
 import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
 
@@ -53,19 +53,17 @@ export const PortfolioMobileMarketCard = ({ marketStats, ...props }: IPortfolioM
           {/* : Lose */}
         </Text>
       )}
-      <MobileMarketCard
+      <MarketCardMobile
         marketAddress={marketStats.market.id}
         filter={marketStats.market.closed ? 'blur(4px)' : 'none'}
         {...props}
       >
-        <Stack spacing={4} mb={3}>
-          <VStack w={'full'} lineHeight={'18px'}>
+        <Stack w={'full'} spacing={3}>
+          <Stack w={'full'} lineHeight={'18px'}>
             {/* Outcome Row */}
-            <HStack w='full' justifyContent='space-between'>
-              <Text color='fontLight' justifyContent='start' ml={2}>
-                Outcome
-              </Text>
-              <HStack mr={2} color={getOutcomeNotation() === 'Yes' ? '#48CB9A' : '#EF5D5D'}>
+            <HStack w={'full'} justifyContent={'space-between'}>
+              <Text color={'fontLight'}>Outcome</Text>
+              <HStack color={getOutcomeNotation() === 'Yes' ? 'green' : 'red'}>
                 <Text>
                   {getOutcomeNotation()}&nbsp;
                   {`${NumberUtil.toFixed(marketStats.latestTrade?.outcomePercent, 3)} ${
@@ -76,45 +74,40 @@ export const PortfolioMobileMarketCard = ({ marketStats, ...props }: IPortfolioM
             </HStack>
 
             {/* Bet Row */}
-            <HStack w='full' justifyContent='space-between'>
-              <Text color='fontLight' ml={2}>
-                Bet
-              </Text>
+            <HStack w={'full'} justifyContent={'space-between'}>
+              <Text color={'fontLight'}>Bet</Text>
 
-              <HStack mr={2}>
-                <Text fontFamily='Inter'>
+              <HStack>
+                <Text>
                   {`${NumberUtil.toFixed(marketStats.collateralAmount, 4)} ${
                     collateralToken.symbol
                   }`}
                 </Text>
 
-                <Text fontSize='12px' color='#8E8E8E'>
-                  ~{NumberUtil.toFixed(convertEthToUsd(marketStats.collateralAmount), 2)}
+                <Text fontSize={'12px'} color={'fontLight'}>
+                  ~${NumberUtil.toFixed(convertEthToUsd(marketStats.collateralAmount), 2)}
                 </Text>
               </HStack>
             </HStack>
 
             {/* Max win Row */}
-            <HStack w='full' justifyContent='space-between'>
-              <Text color={'fontLight'} ml={2}>
-                Max win
-              </Text>
-              <HStack mr={2}>
+            <HStack w={'full'} justifyContent={'space-between'}>
+              <Text color={'fontLight'}>Max win</Text>
+              <HStack>
                 <Text>{`${NumberUtil.toFixed(marketStats.outcomeTokenAmount, 4)} ${
                   collateralToken.symbol
                 }`}</Text>
 
-                <Text fontSize='12px' color='#8E8E8E'>
-                  ~{NumberUtil.toFixed(convertEthToUsd(marketStats.outcomeTokenAmount), 2)}
+                <Text fontSize={'12px'} color={'fontLight'}>
+                  ~${NumberUtil.toFixed(convertEthToUsd(marketStats.outcomeTokenAmount), 2)}
                 </Text>
               </HStack>
             </HStack>
-          </VStack>
-        </Stack>
-        <Box mb={2}>
+          </Stack>
+
           <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} />
-        </Box>
-      </MobileMarketCard>
+        </Stack>
+      </MarketCardMobile>
     </Flex>
   )
 }
