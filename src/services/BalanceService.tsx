@@ -125,14 +125,22 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       if (!smartWalletAddress || !etherspot || unwrap) {
         return
       }
+
       const eth = await getBalance(publicClient, { address: smartWalletAddress })
       const ethFormatted = formatEther(eth)
-      const gasFee = defaultChain.testnet ? 0.005 : 0 // there's no paymaster on testnet so it's required to left some eth for gas
       log.info('ETH balance:', ethFormatted)
+
+      const gasFee = defaultChain.testnet ? 0.005 : 0 // there's no paymaster on testnet so it's required to left some eth for gas
+
       if (Number(ethFormatted) > gasFee) {
+        if (!defaultChain.testnet) {
+          await whitelist() // TODO: refactor the logic of whitelisting
+        }
+
         toast({
           render: () => <Toast title={'Wrapping ETH...'} />,
         })
+
         const receipt = await etherspot.wrapEth(eth - parseEther(gasFee.toString()))
         if (!receipt) {
           // TODO: show toast?
