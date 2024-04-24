@@ -92,7 +92,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       queryKey: ['outcomeTokensPrice', market?.address[defaultChain.id]],
     })
     await refetchbalanceOfSmartWallet()
-    await updateBalanceOfCollateralToSell()
+    await updateSellBalance()
   }
 
   // TODO: refactor
@@ -134,6 +134,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * BALANCE TO SELL
    */
   const [balanceOfCollateralToSell, setBalanceOfCollateralToSell] = useState('0')
+  const [outcomeTokenBalance, setOutcomeTokenBalance] = useState('0')
 
   // conditional tokens balance
   // TODO: incapsulate
@@ -165,12 +166,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     return balance
   }
 
-  const updateBalanceOfCollateralToSell = useCallback(async () => {
+  const updateSellBalance = useCallback(async () => {
     setBalanceOfCollateralToSell('0')
+    setOutcomeTokenBalance('0')
+
     if (!market || !fixedProductMarketMakerContract || strategy != 'Sell') {
       return
     }
-    const outcomeTokenBalance = await getCTBalance(account, outcomeTokenId)
+
+    const _outcomeTokenBalance = await getCTBalance(account, outcomeTokenId)
+    setOutcomeTokenBalance(_outcomeTokenBalance.toString())
     const holdings = await getCTBalance(market.address[defaultChain.id], outcomeTokenId)
     const otherHoldings: bigint[] = []
     for (let index = 0; index < market.outcomeTokens.length; index++) {
@@ -181,19 +186,26 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     }
     const feeBI = (await fixedProductMarketMakerContract.read.fee()) as bigint
     const fee = Number(formatUnits(feeBI, collateralToken.decimals))
-    const balanceInCollateralBI = calcSellAmountInCollateral(
-      outcomeTokenBalance,
-      holdings,
-      otherHoldings,
-      fee
+
+    let balanceOfCollateralToSellBI =
+      calcSellAmountInCollateral(_outcomeTokenBalance, holdings, otherHoldings, fee) ?? 0n
+    // small balance to zero
+    if (balanceOfCollateralToSellBI < parseUnits('0.0000001', collateralToken.decimals)) {
+      balanceOfCollateralToSellBI = 0n
+    }
+
+    const _balanceOfCollateralToSell = formatUnits(
+      balanceOfCollateralToSellBI,
+      collateralToken.decimals
     )
-    const balanceInCollateral = formatUnits(balanceInCollateralBI ?? 0n, collateralToken.decimals)
-    console.log('balanceOfCollateralToSell', balanceInCollateral)
-    setBalanceOfCollateralToSell(balanceInCollateral)
+
+    console.log('balanceOfCollateralToSell', _balanceOfCollateralToSell)
+
+    setBalanceOfCollateralToSell(_balanceOfCollateralToSell)
   }, [account, market, outcomeTokenId, strategy])
 
   useEffect(() => {
-    updateBalanceOfCollateralToSell()
+    updateSellBalance()
   }, [market, outcomeTokenId, strategy])
 
   /**
@@ -228,6 +240,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       'tradeQuotes',
       fixedProductMarketMakerContract?.address,
       collateralAmount,
+      outcomeTokenBalance,
       outcomeTokenId,
       strategy,
       outcomeTokensPriceCurrent,
