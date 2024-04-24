@@ -123,7 +123,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 
       // filterin markets with super small balance
       _activeMarkets = _activeMarkets.filter(
-        (market) => Number(market.outcomeTokenAmount) > 0.0000001
+        (market) => Number(market.outcomeTokenAmount) > 0.000001
       )
       console.log('activeMarkets', _activeMarkets)
 

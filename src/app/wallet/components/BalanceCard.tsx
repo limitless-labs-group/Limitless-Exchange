@@ -71,7 +71,11 @@ export const BalanceCard = ({ ...props }: StackProps) => {
           </Text>
           <Stack spacing={0}>
             <Text fontWeight={'bold'}>
-              {status == 'Loading' ? <Spinner size={'sm'} /> : balanceOfSmartWallet?.formatted}
+              {status == 'Loading' ? (
+                <Spinner size={'sm'} />
+              ) : (
+                NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 6)
+              )}
             </Text>
             <Text fontSize={'12px'} color={'fontLight'}>
               ~${balanceUsd}

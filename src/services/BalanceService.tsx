@@ -73,7 +73,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
 
       let newBalanceBI = (await wethContract.read.balanceOf([smartWalletAddress])) as bigint
       // small balance to zero
-      if (newBalanceBI < parseEther('0.0000001')) {
+      if (newBalanceBI < parseEther('0.000001')) {
         newBalanceBI = 0n
       }
 
@@ -92,14 +92,18 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
           whitelist() // TODO: refactor the logic of whitelisting
         }
 
-        const depositAmount = NumberUtil.toFixed(
-          formatUnits(newBalanceBI - balanceOfSmartWallet.value, collateralToken.decimals),
-          4
+        const depositAmount = formatUnits(
+          newBalanceBI - balanceOfSmartWallet.value,
+          collateralToken.decimals
         )
 
         toast({
           render: () => (
-            <Toast title={`Balance top up: ${depositAmount} ${collateralToken.symbol}`} />
+            <Toast
+              title={`Balance top up: ${NumberUtil.toFixed(depositAmount, 6)} ${
+                collateralToken.symbol
+              }`}
+            />
           ),
         })
       }

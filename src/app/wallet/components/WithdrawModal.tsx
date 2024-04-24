@@ -49,7 +49,9 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
                 fontSize={'12px'}
                 onClick={() => setAmount(balanceOfSmartWallet?.formatted ?? '')}
               >
-                {`Balance: ${balanceOfSmartWallet?.formatted} ${collateralToken.symbol}`}
+                {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 6)} ${
+                  collateralToken.symbol
+                }`}
               </Button>
             </HStack>
           </HStack>

@@ -111,11 +111,11 @@ export const TradeForm = ({ ...props }: StackProps) => {
         return
       }
       if (value == 100) {
-        setDisplayAmount(balance)
+        setDisplayAmount(NumberUtil.toFixed(balance, 6))
         return
       }
       const amountByPercent = (Number(balance) * value) / 100
-      setDisplayAmount(amountByPercent.toString())
+      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
     },
     [sliderValue, balance]
   )
@@ -286,9 +286,9 @@ export const TradeForm = ({ ...props }: StackProps) => {
               <Text
                 _hover={{ color: 'font' }}
                 cursor={'pointer'}
-                onClick={() => setCollateralAmount(balance)}
+                onClick={() => setCollateralAmount(NumberUtil.toFixed(balance, 6))}
               >
-                {`Balance: ${NumberUtil.toFixed(balance, 4)}`} {collateralToken.symbol}
+                {`Balance: ${NumberUtil.toFixed(balance, 6)}`} {collateralToken.symbol}
               </Text>
             </HStack>
           </Stack>
@@ -348,7 +348,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
         <VStack w={'full'} spacing={0}>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Avg price</Text>
-            <Text textAlign={'right'}>{`${NumberUtil.toFixed(quotes?.outcomeTokenPrice, 4)} ${
+            <Text textAlign={'right'}>{`${NumberUtil.toFixed(quotes?.outcomeTokenPrice, 6)} ${
               collateralToken.symbol
             }`}</Text>
           </HStack>
@@ -362,7 +362,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                 <Text color={'fontLight'}>Potential return</Text>
                 <HStack spacing={1}>
                   <Text color={'green'} fontWeight={'bold'} textAlign={'right'}>
-                    {`${NumberUtil.toFixed(quotes?.outcomeTokenAmount, 4)} ${
+                    {`${NumberUtil.toFixed(quotes?.outcomeTokenAmount, 6)} ${
                       collateralToken.symbol
                     }`}
                   </Text>
@@ -380,7 +380,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
                     <InfoIcon />
                   </Tooltip>
                 </HStack>
-                <Text textAlign={'right'}>{NumberUtil.toFixed(quotes?.outcomeTokenAmount, 4)}</Text>
+                <Text textAlign={'right'}>{NumberUtil.toFixed(quotes?.outcomeTokenAmount, 6)}</Text>
               </HStack>
             </>
           )}

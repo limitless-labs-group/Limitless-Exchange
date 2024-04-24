@@ -33,8 +33,8 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
     [market]
   )
 
-  const { data: outcomeTokensPrice } = useQuery({
-    queryKey: ['outcomeTokensPrice', fixedProductMarketMakerContract?.address],
+  const { data: outcomeTokensBuyPrice } = useQuery({
+    queryKey: ['outcomeTokensBuyPrice', fixedProductMarketMakerContract?.address],
     queryFn: async () => {
       if (!fixedProductMarketMakerContract) {
         return [0, 0]
@@ -55,7 +55,39 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
       const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
 
-      console.log('outcomeTokensPrice', {
+      console.log('outcomeTokensBuyPrice', {
+        priceYes: outcomeTokenPriceYes,
+        priceNo: outcomeTokenPriceNo,
+      })
+
+      return [outcomeTokenPriceYes, outcomeTokenPriceNo]
+    },
+    // enabled: false,
+  })
+
+  const { data: outcomeTokensSellPrice } = useQuery({
+    queryKey: ['outcomeTokensSellPrice', fixedProductMarketMakerContract?.address],
+    queryFn: async () => {
+      if (!fixedProductMarketMakerContract) {
+        return [0, 0]
+      }
+
+      const collateralAmount = `0.0000001`
+      const collateralAmountBI = parseUnits(collateralAmount, collateralToken.decimals)
+      const outcomeTokenAmountYesBI = (await fixedProductMarketMakerContract.read.calcSellAmount([
+        collateralAmountBI,
+        0,
+      ])) as bigint
+      const outcomeTokenAmountNoBI = (await fixedProductMarketMakerContract.read.calcSellAmount([
+        collateralAmountBI,
+        1,
+      ])) as bigint
+      const outcomeTokenAmountYes = formatUnits(outcomeTokenAmountYesBI, 18)
+      const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, 18)
+      const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
+      const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
+
+      console.log('outcomeTokensSellPrice', {
         priceYes: outcomeTokenPriceYes,
         priceNo: outcomeTokenPriceNo,
       })
@@ -69,16 +101,16 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
     queryKey: [
       'outcomeTokensPercent',
       fixedProductMarketMakerContract?.address,
-      outcomeTokensPrice,
+      outcomeTokensBuyPrice,
     ],
     queryFn: async () => {
-      if (!fixedProductMarketMakerContract || !outcomeTokensPrice) {
+      if (!fixedProductMarketMakerContract || !outcomeTokensBuyPrice) {
         return [50, 50]
       }
 
-      const sum = outcomeTokensPrice[0] + outcomeTokensPrice[1]
-      const outcomeTokensPercentYes = (outcomeTokensPrice[0] / sum) * 100
-      const outcomeTokensPercentNo = (outcomeTokensPrice[1] / sum) * 100
+      const sum = outcomeTokensBuyPrice[0] + outcomeTokensBuyPrice[1]
+      const outcomeTokensPercentYes = (outcomeTokensBuyPrice[0] / sum) * 100
+      const outcomeTokensPercentNo = (outcomeTokensBuyPrice[1] / sum) * 100
 
       console.log('outcomeTokensPercent', {
         outcomeTokensPercentYes,
@@ -124,7 +156,8 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
   })
 
   return {
-    outcomeTokensPrice,
+    outcomeTokensBuyPrice,
+    outcomeTokensSellPrice,
     outcomeTokensPercent,
     ...liquidityAndHolders,
   }
