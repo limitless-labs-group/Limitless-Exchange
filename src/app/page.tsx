@@ -22,10 +22,10 @@ const MainPage = () => {
             <Text>All</Text>
             <Box w={'full'} h={'3px'} bg={'font'} />
           </Stack>
-          <Stack cursor={'not-allowed'}>
+          {/* <Stack cursor={'not-allowed'}>
             <Text color={'fontLight'}>Base</Text>
             <Box w={'full'} h={'3px'} bg={'none'} />
-          </Stack>
+          </Stack> */}
         </HStack>
 
         <Grid
