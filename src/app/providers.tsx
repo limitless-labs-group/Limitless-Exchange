@@ -2,16 +2,17 @@
 
 import * as React from 'react'
 import {
-  AmplitudeProvider,
   ChakraProvider,
-  EtherspotProvider,
   QueryProvider,
   WagmiProvider,
   Web3AuthProvider,
-} from '@/libs'
+  PriceOracleProvider,
+} from '@/providers'
 import {
   AccountProvider,
+  AmplitudeProvider,
   BalanceServiceProvider,
+  EtherspotProvider,
   HistoryServiceProvider,
   LimitlessApiProvider,
   TradingServiceProvider,
@@ -33,7 +34,9 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                     <AccountProvider>
                       <BalanceServiceProvider>
                         <HistoryServiceProvider>
-                          <TradingServiceProvider>{children}</TradingServiceProvider>
+                          <PriceOracleProvider>
+                            <TradingServiceProvider>{children}</TradingServiceProvider>
+                          </PriceOracleProvider>
                         </HistoryServiceProvider>
                       </BalanceServiceProvider>
                     </AccountProvider>

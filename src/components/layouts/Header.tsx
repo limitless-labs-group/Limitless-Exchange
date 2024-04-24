@@ -1,4 +1,4 @@
-import { Box, Flex, FlexProps, HStack, Heading, Image, Stack, Text } from '@chakra-ui/react'
+import { Flex, FlexProps, HStack, Heading, Image, Text } from '@chakra-ui/react'
 import {
   LogInButton,
   HeaderProfileMenuDesktop,
@@ -7,18 +7,20 @@ import {
 } from '@/components'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAccount } from 'wagmi'
-import { useBalanceService, useHistory } from '@/services'
+import { ClickEvent, useAmplitude, useBalanceService, useHistory } from '@/services'
 import { NumberUtil } from '@/utils'
 import { borderRadius, colors } from '@/styles'
-import { FaGlobe, FaWallet } from 'react-icons/fa'
-import { FaBriefcase, FaTableCells, FaTableCellsLarge, FaTableColumns } from 'react-icons/fa6'
+import { FaWallet } from 'react-icons/fa'
+import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
+import { collateralToken } from '@/constants'
 
 export const Header = ({ ...props }: FlexProps) => {
   const router = useRouter()
   const pathname = usePathname()
   const { isConnected } = useAccount()
   const { balanceOfSmartWallet } = useBalanceService()
-  const { balanceUsd: investedUsd, balanceShares } = useHistory()
+  // const { balanceUsd: investedUsd, balanceShares } = useHistory()
+  const { trackClicked } = useAmplitude()
 
   return (
     <Flex
@@ -26,16 +28,17 @@ export const Header = ({ ...props }: FlexProps) => {
       h={`56px`}
       justifyContent={'space-between'}
       alignItems={'center'}
-      py={'8px'}
-      px={{ sm: '16px', md: '24px' }}
+      py={2}
+      px={{ sm: 4, md: 6 }}
       gap={4}
-      boxShadow={'0 0 8px #ddd'}
+      // boxShadow={'0 0 8px #ddd'}
+      borderBottom={`1px solid ${colors.border}`}
       bg={'bg'}
       zIndex={2}
       {...props}
     >
       <HStack spacing={8} h={'full'} alignItems={'center'}>
-        <Heading fontSize={'16px'} onClick={() => router.push('/')} cursor={'pointer'}>
+        <Heading fontSize={'18px'} onClick={() => router.push('/')} cursor={'pointer'}>
           <HStack h={'full'} alignItems={'center'}>
             <Image
               src={'/assets/images/logo.svg'}
@@ -55,7 +58,10 @@ export const Header = ({ ...props }: FlexProps) => {
           h={'40px'}
           display={{ sm: 'none', md: 'block' }}
           fontWeight={pathname == '/' ? 'bold' : 'normal'}
-          onClick={() => router.push('/')}
+          onClick={() => {
+            trackClicked(ClickEvent.ExploreMarketsClicked)
+            router.push('/')
+          }}
         >
           <HStack>
             <FaTableCellsLarge
@@ -76,57 +82,23 @@ export const Header = ({ ...props }: FlexProps) => {
               display={{ sm: 'none', md: 'flex' }}
               alignItems={'center'}
             >
-              {/* <HStack h='full'>
+              <HStack h={'full'} spacing={4}>
                 <Button
-                  colorScheme={'transparent'}
-                  size={'sm'}
-                  h={'full'}
+                  h={'40px'}
+                  gap={2}
+                  fontWeight={'normal'}
                   onClick={() => router.push('/wallet')}
                 >
-                  <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                    <Text color={'brand'} fontSize={'18px'}>
-                      ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted)}
+                  <FaWallet size={'16px'} />
+                  <HStack spacing={1}>
+                    <Text>Balance</Text>
+                    <Text fontWeight={'bold'}>
+                      {NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4)}
                     </Text>
-                    <Text color={'fontLight'} fontSize={'12px'} lineHeight={'12px'}>
-                      Balance
-                    </Text>
-                  </Stack>
+                    <Text>{collateralToken.symbol}</Text>
+                  </HStack>
                 </Button>
 
-                <Button
-                  colorScheme={'transparent'}
-                  size={'sm'}
-                  h={'full'}
-                  onClick={() => router.push('/portfolio')}
-                >
-                  <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                    <Text color={'brand'} fontSize={'18px'}>
-                      ${investedUsd.toFixed()}
-                    </Text>
-                    <Text color={'fontLight'} fontSize={'12px'} lineHeight={'12px'}>
-                      Invested
-                    </Text>
-                  </Stack>
-                </Button>
-
-                <Button
-                  colorScheme={'transparent'}
-                  size={'sm'}
-                  h={'full'}
-                  onClick={() => router.push('/portfolio')}
-                >
-                  <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                    <Text color={'brand'} fontSize={'18px'}>
-                      ${balanceShares.toFixed()}
-                    </Text>
-                    <Text color={'fontLight'} fontSize={'12px'} lineHeight={'12px'}>
-                      To win
-                    </Text>
-                  </Stack>
-                </Button>
-              </HStack> */}
-
-              <HStack h={'full'} spacing={4}>
                 <Button
                   colorScheme={'transparent'}
                   size={'sm'}
@@ -142,16 +114,6 @@ export const Header = ({ ...props }: FlexProps) => {
                     />
                     <Text>Portfolio</Text>
                   </HStack>
-                </Button>
-
-                <Button
-                  colorScheme={'brand'}
-                  h={'40px'}
-                  gap={'8px'}
-                  onClick={() => router.push('/wallet')}
-                >
-                  <FaWallet size={'16px'} />
-                  <Text>Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}</Text>
                 </Button>
               </HStack>
 

@@ -1,8 +1,8 @@
 import { Address } from '@/types'
-import { base, baseSepolia, goerli } from 'viem/chains'
+import { base, baseSepolia } from 'viem/chains'
 
 export const conditionalTokensAddress: { [chainId: number]: Address } = {
-  [base.id]: '0x7FC645Ad1e0D69E679952C40B4D2BebcD38B7018',
-  [baseSepolia.id]: '0xc600379955C8d320ef7EE4335A33A7634A6f8543',
-  [goerli.id]: '0x1DC633D3f9b89610B80f9d3aB2BeE59228ca3fA1',
+  [base.id]: '0x15A61459d65D89A25a9e91e0dc9FC69598791505', // prod
+  // [base.id]: '0x983d539551B219dd40A034Dd63071F1C24b96fcd', // dev
+  [baseSepolia.id]: '0xBe5201F570d405b79273DCeB90AAc7210059caE7',
 }

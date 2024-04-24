@@ -1,11 +1,13 @@
-import { PortfolioMarketCard } from '@/app/portfolio/components'
-import { defaultChain, markets } from '@/constants'
+import { PortfolioMarketCard, PortfolioMobileMarketCard } from '@/app/portfolio/components'
 import { useHistory } from '@/services'
-import { Flex, Grid, GridProps, Text } from '@chakra-ui/react'
+import { Flex, Grid, GridProps, Text, useMediaQuery } from '@chakra-ui/react'
 import { useEffect } from 'react'
+import { IPHONE14_PRO_MAX_WIDTH } from '@/constants/device'
+import { v4 as uuidv4 } from 'uuid'
 
 export const PortfolioMarketsTable = ({ ...props }: GridProps) => {
   const { activeMarkets, getActiveMarkets } = useHistory()
+  const [isLargerThan430] = useMediaQuery(`(min-width: ${IPHONE14_PRO_MAX_WIDTH + 1}px)`)
 
   useEffect(() => {
     getActiveMarkets()
@@ -13,20 +15,21 @@ export const PortfolioMarketsTable = ({ ...props }: GridProps) => {
 
   return activeMarkets?.length == 0 ? (
     <Flex w={'full'} h={'200px'} justifyContent={'center'} alignItems={'center'}>
-      <Text color={'fontLight'}>No trading history yet</Text>
+      <Text color={'fontLight'}>No open markets</Text>
     </Flex>
   ) : (
-    <Grid templateColumns={{ sm: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }} gap={6} {...props}>
-      {activeMarkets?.map((marketStats, id) => {
-        // TODO: replace hardcoded markets with dynamic
-        const market = markets.find(
-          (market) => market.address[defaultChain.id].toLowerCase() == marketStats.market.id
+    <Grid
+      templateColumns={{ sm: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+      gap={{ sm: 6, md: 10 }}
+      {...props}
+    >
+      {activeMarkets?.map((marketStats, id) =>
+        isLargerThan430 ? (
+          <PortfolioMarketCard key={uuidv4()} marketStats={marketStats} />
+        ) : (
+          <PortfolioMobileMarketCard key={uuidv4()} marketStats={marketStats} />
         )
-        if (!market || market.closed) {
-          return <></>
-        }
-        return <PortfolioMarketCard key={id} marketStats={marketStats} />
-      })}
+      )}
     </Grid>
   )
 }

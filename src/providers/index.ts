@@ -1,6 +1,5 @@
 export * from './Web3Auth'
 export * from './Wagmi'
-export * from './Amplitude'
-export * from './Etherspot'
 export * from './ReactQuery'
 export * from './Chakra'
+export * from './PriceOracle'

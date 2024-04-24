@@ -1,7 +1,13 @@
 import { Button } from '@/components'
-import { defaultChain } from '@/constants'
+import { collateralToken, defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
-import { useTradingService } from '@/services'
+import {
+  ClickEvent,
+  ShareClickedMetadata,
+  createMarketShareUrls,
+  useAmplitude,
+  useTradingService,
+} from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
 
@@ -28,18 +34,13 @@ import { FaLink, FaXTwitter } from 'react-icons/fa6'
 
 export const MarketMetadata = ({ ...props }: StackProps) => {
   const { market } = useTradingService()
-  const { liquidity, holdersCount, sharesCost } = useMarketData({
+  const { trackClicked } = useAmplitude()
+  const { liquidity, holdersCount, outcomeTokensPercent } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
   })
   const { onCopy, hasCopied } = useClipboard(window.location.href)
 
-  const tweetURI = encodeURI(
-    `https://x.com/intent/tweet?text="${market?.title}" by ${market?.creator.name}\n${
-      market?.outcomeTokens[0]
-    } ${sharesCost?.[0].toFixed(1) ?? 0}% | ${market?.outcomeTokens[1]} ${
-      sharesCost?.[1].toFixed(1) ?? 0
-    }%\nMake your bet on ${window.location.href}`
-  )
+  const { tweetURI, castURI } = createMarketShareUrls(market, outcomeTokensPercent)
 
   return (
     <Stack w={'full'} alignItems={'start'} spacing={4} {...props}>
@@ -53,8 +54,8 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
           src={market?.imageURI}
           minW={{ sm: 'full', md: '35%' }}
           // minH={{ sm: '200px', md: '30%' }}
-          aspectRatio={'4/3'}
-          fit={'cover'}
+          // aspectRatio={'4/3'}
+          fit={'contain'}
           bg={'brand'}
           borderRadius={borderRadius}
         />
@@ -63,7 +64,9 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
           <HStack spacing={4} px={{ sm: 2, md: 0 }}>
             <HStack>
               <Text color={'fontLight'}>Pool</Text>
-              <Text fontWeight={'bold'}>${NumberUtil.formatThousands(liquidity)}</Text>
+              <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(liquidity, 4)} ${
+                collateralToken.symbol
+              }`}</Text>
             </HStack>
             <HStack>
               <Text color={'fontLight'}>Investors</Text>
@@ -106,7 +109,13 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                   fontWeight={'normal'}
                   colorScheme={'transparent'}
                   justifyContent={'start'}
-                  onClick={onCopy}
+                  onClick={() => {
+                    trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
+                      type: 'Copy Link',
+                      page: 'Market Page',
+                    })
+                    onCopy()
+                  }}
                 >
                   <FaLink />
                   {hasCopied ? 'Copied' : 'Copy link'}
@@ -119,10 +128,29 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                   fontWeight={'normal'}
                   colorScheme={'transparent'}
                   justifyContent={'start'}
-                  onClick={() => window.open(tweetURI, '_blank')}
+                  onClick={() => {
+                    trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
+                      type: 'X/Twitter',
+                      page: 'Market Page',
+                    })
+                    window.open(tweetURI, '_blank', 'noopener')
+                  }}
                 >
                   <FaXTwitter />
                   <Text>Share on X</Text>
+                </Button>
+                <Divider />
+                <Button
+                  w={'full'}
+                  h={'40px'}
+                  gap={2}
+                  fontWeight={'normal'}
+                  colorScheme={'transparent'}
+                  justifyContent={'start'}
+                  onClick={() => window.open(castURI, '_blank', 'noopener')}
+                >
+                  <Image src='/assets/images/farcaster.png' blockSize={'15px'} />
+                  <Text>Share on Farcaster</Text>
                 </Button>
               </PopoverContent>
             </Portal>
@@ -131,7 +159,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
           <HStack>
             <Link href={market?.creator.link} isExternal>
               <Avatar
-                size={'sm'}
+                size={'md'}
                 src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
                 name={market?.creator.name}
                 bg={'brand'}
@@ -139,22 +167,18 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                 cursor={'pointer'}
               />
             </Link>
-            <VStack spacing={0} alignItems={'start'}>
+            <VStack spacing={1} alignItems={'start'}>
               <Link href={market?.creator.link} isExternal>
-                <Text cursor={'pointer'} _hover={{ textDecor: 'underline' }}>
+                <Text fontWeight={'bold'} cursor={'pointer'} _hover={{ textDecor: 'underline' }}>
                   {market?.creator.name}
                 </Text>
               </Link>
               <HStack spacing={1} fontSize={'12px'}>
-                <Text p={'2px 6px'} bg={'bgLight'} borderRadius={'full'}>
-                  Bitcoin
-                </Text>
-                <Text p={'2px 6px'} bg={'bgLight'} borderRadius={'full'}>
-                  Oracle
-                </Text>
-                <Text p={'2px 6px'} bg={'bgLight'} borderRadius={'full'}>
-                  Ethereum
-                </Text>
+                {market?.tags?.map((tag, i) => (
+                  <Text key={i} p={'2px 6px'} bg={'bgLight'} borderRadius={'full'}>
+                    {tag}
+                  </Text>
+                ))}
               </HStack>
             </VStack>
           </HStack>

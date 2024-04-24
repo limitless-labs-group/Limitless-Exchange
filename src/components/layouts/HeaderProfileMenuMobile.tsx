@@ -1,5 +1,6 @@
 import { Button, IButton } from '@/components'
-import { useAccount, useAuth, useBalanceService } from '@/services'
+import { collateralToken } from '@/constants'
+import { ClickEvent, useAccount, useAmplitude, useAuth, useBalanceService } from '@/services'
 import { colors } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
@@ -23,14 +24,15 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
   const { email, account } = useAccount()
   const { onCopy, hasCopied } = useClipboard(account ?? '')
   const { balanceOfSmartWallet } = useBalanceService()
+  const { trackClicked } = useAmplitude()
 
   return (
     <Popover placement={'bottom-end'} trigger={'click'} isLazy>
       <PopoverTrigger>
         <Flex h={'full'}>
-          <Button bg={'none'} h={'full'} alignItems={'center'} pr={0} {...props}>
+          <Button bg={'none'} h={'full'} alignItems={'center'} {...props}>
             <Flex justifyContent={'end'}>
-              <FaBars size={'22px'} fill={colors.fontLight} />
+              <FaBars size={'18px'} fill={colors.fontLight} />
             </Flex>
           </Button>
         </Flex>
@@ -39,13 +41,8 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
         <PopoverContent bg={'bg'} border={`1px solid ${colors.border}`} w={'250px'} p={3}>
           <Stack>
             {!!email && (
-              <HStack
-                w={'full'}
-                justifyContent={'center'}
-                alignItems={'center'}
-                color={'fontLight'}
-              >
-                <FaRegUserCircle size={'15px'} />
+              <HStack w={'full'} px={4} alignItems={'center'} color={'fontLight'}>
+                <FaRegUserCircle size={'16px'} />
                 <Text>{email}</Text>
               </HStack>
             )}
@@ -63,95 +60,22 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
             </Button>
 
             <Button
-              colorScheme={'brand'}
               h={'40px'}
-              fontSize={'15px'}
+              fontWeight={'normal'}
               justifyContent={'start'}
               onClick={() => router.push('/wallet')}
             >
-              <HStack>
+              <HStack spacing={2}>
                 <FaWallet size={'16px'} />
-                <Text>Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}</Text>
+                <HStack spacing={1}>
+                  <Text>Balance</Text>
+                  <Text fontWeight={'bold'}>
+                    {NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4)}
+                  </Text>
+                  <Text>{collateralToken.symbol}</Text>
+                </HStack>
               </HStack>
             </Button>
-
-            {/* <HStack h='40px' w={'full'}>
-              <Button
-                colorScheme={'transparent'}
-                size={'sm'}
-                h={'full'}
-                onClick={() => router.push('/wallet')}
-              >
-                <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                  <Text color={'brand'} fontSize={'18px'}>
-                    ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted)}
-                  </Text>
-                  <Text
-                    color={'fontLight'}
-                    fontSize={'12px'}
-                    lineHeight={'12px'}
-                    fontWeight={'normal'}
-                  >
-                    Balance
-                  </Text>
-                </Stack>
-              </Button>
-
-              <Button
-                colorScheme={'transparent'}
-                size={'sm'}
-                h={'full'}
-                onClick={() => router.push('/portfolio')}
-              >
-                <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                  <Text color={'brand'} fontSize={'18px'}>
-                    ${investedUsd.toFixed()}
-                  </Text>
-                  <Text
-                    color={'fontLight'}
-                    fontSize={'12px'}
-                    lineHeight={'12px'}
-                    fontWeight={'normal'}
-                  >
-                    Invested
-                  </Text>
-                </Stack>
-              </Button>
-
-              <Button
-                colorScheme={'transparent'}
-                size={'sm'}
-                h={'full'}
-                onClick={() => router.push('/portfolio')}
-              >
-                <Stack spacing={0} alignItems={'center'} justifyContent={'center'}>
-                  <Text color={'brand'} fontSize={'18px'}>
-                    ${balanceShares.toFixed()}
-                  </Text>
-                  <Text
-                    color={'fontLight'}
-                    fontSize={'12px'}
-                    lineHeight={'12px'}
-                    fontWeight={'normal'}
-                  >
-                    To win
-                  </Text>
-                </Stack>
-              </Button>
-            </HStack> */}
-
-            {/* <Button
-              w={'full'}
-              h={'40px'}
-              gap={3}
-              fontWeight={'normal'}
-              colorScheme={'transparent'}
-              justifyContent={'start'}
-              onClick={() => router.push('/wallet')}
-            >
-                <FaWallet size={'16px'} fill={colors.fontLight} />
-                <Text>Wallet</Text>
-            </Button> */}
 
             <Button
               w={'full'}
@@ -174,7 +98,10 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               fontWeight={'normal'}
               colorScheme={'transparent'}
               justifyContent={'start'}
-              onClick={() => router.push('/')}
+              onClick={() => {
+                trackClicked(ClickEvent.ExploreMarketsClicked)
+                router.push('/')
+              }}
             >
               <HStack>
                 <FaTableCellsLarge size={'16px'} fill={colors.fontLight} />
@@ -187,7 +114,9 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               h={'40px'}
               colorScheme={'transparent'}
               justifyContent={'start'}
-              onClick={() => signOut()}
+              onClick={() => {
+                signOut()
+              }}
             >
               <HStack>
                 <FaSignOutAlt size={'16px'} fill={colors.fontLight} />

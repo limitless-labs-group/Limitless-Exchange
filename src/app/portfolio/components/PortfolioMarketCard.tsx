@@ -1,20 +1,20 @@
-import { Button, MarketCard } from '@/components'
-import { defaultChain, markets } from '@/constants'
-import { HistoryMarketStats } from '@/services'
+import { MarketCard } from '@/components'
+import { collateralToken, defaultChain, markets } from '@/constants'
+import { createPortfolioShareUrls, HistoryMarketStats } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
-import { Flex, HStack, Stack, StackProps, Text, useClipboard } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
+import { Flex, HStack, Stack, StackProps, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { FaArrowDown } from 'react-icons/fa'
-import { FaFileInvoiceDollar, FaLink, FaTrophy, FaXTwitter } from 'react-icons/fa6'
+import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
+import { FaFileInvoiceDollar, FaTrophy } from 'react-icons/fa6'
+import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
 
 interface IPortfolioMarketCard extends StackProps {
   marketStats: HistoryMarketStats
 }
 
-export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfolioMarketCard) => {
+export const PortfolioMarketCard = ({ marketStats, ...props }: IPortfolioMarketCard) => {
   const market: Market | null = useMemo(
     () =>
       markets.find(
@@ -24,20 +24,12 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
     [marketStats, markets]
   )
 
-  const router = useRouter()
   const marketURI = `${window.location.origin}/markets/${marketStats.market.id}`
-  const { onCopy, hasCopied } = useClipboard(marketURI)
 
-  const tweetURI = encodeURI(
-    `https://x.com/intent/tweet?text="${market?.title}" by ${
-      market?.creator.name
-    }\nMy bet: $${NumberUtil.toFixed(marketStats.investedUsd, 2)} for ${
-      market?.outcomeTokens[marketStats.outcomeId ?? 0]
-    }\nMake yours on ${marketURI}`
-  )
+  const shareLinks = createPortfolioShareUrls(market, marketStats)
 
   return (
-    <Flex pos={'relative'}>
+    <Flex>
       {marketStats.market.closed && (
         <Text
           p={'2px 6px'}
@@ -60,48 +52,22 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
         {...props}
       >
         <Stack spacing={4} w={'full'} justifyContent={'space-between'}>
-          {/* <HStack>
-            <Text
-              p={'2px 6px'}
-              bg={marketStats.outcomeId == 0 ? 'green' : 'red'}
-              color={'white'}
-              fontWeight={'bold'}
-              borderRadius={'6px'}
-            >
-              {market?.outcomeTokens[marketStats.outcomeId ?? 0]}{' '}
-              {NumberUtil.toFixed(marketStats.latestTrade?.costPerShare, 2)}¢
-            </Text>
-            <HStack spacing={1}>
-              <Text>Bet:</Text>
-              <Text fontWeight={'bold'}>${NumberUtil.toFixed(marketStats.investedUsd, 2)}</Text>
-            </HStack>
-          </HStack>
-          <HStack>
-            <HStack spacing={1}>
-              <Text>Shares:</Text>
-              <Text color={'brand'} fontWeight={'bold'}>
-                {NumberUtil.toFixed(marketStats.sharesAmount, 2)}
-              </Text>
-            </HStack>
-            <HStack spacing={1}>
-              <Text>To win:</Text>
-              <Text color={'white'} fontWeight={'bold'}>
-                ${NumberUtil.toFixed(marketStats.sharesAmount, 2)}
-              </Text>
-            </HStack>
-          </HStack> */}
-
           <HStack w={'full'} justifyContent={'space-between'} lineHeight={'18px'}>
             <HStack spacing={1}>
               <Flex p={2} bg={'bgLight'} borderRadius={borderRadius}>
-                <FaArrowDown size={'15px'} fill={colors.fontLight} />
+                {marketStats.outcomeTokenId == 0 ? (
+                  <FaArrowUp size={'15px'} fill={colors.fontLight} />
+                ) : (
+                  <FaArrowDown size={'15px'} fill={colors.fontLight} />
+                )}
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Outcome</Text>
-                <Text fontWeight={'bold'} color={marketStats.outcomeId == 0 ? 'green' : 'red'}>
-                  {market?.outcomeTokens[marketStats.outcomeId ?? 0] ??
-                    ['Yes', 'No'][marketStats.outcomeId ?? 0]}{' '}
-                  {NumberUtil.toFixed(marketStats.latestTrade?.costPerShare, 1)}¢
+                <Text fontWeight={'bold'}>
+                  {market?.outcomeTokens[marketStats.outcomeTokenId ?? 0] ??
+                    ['Yes', 'No'][marketStats.outcomeTokenId ?? 0]}{' '}
+                  {NumberUtil.toFixed(marketStats.latestTrade?.outcomePercent, 3)}{' '}
+                  {collateralToken.symbol}
                 </Text>
               </Stack>
             </HStack>
@@ -112,7 +78,10 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Bet</Text>
-                <Text fontWeight={'bold'}>${NumberUtil.toFixed(marketStats.investedUsd, 2)}</Text>
+                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(
+                  marketStats.collateralAmount,
+                  6
+                )} ${collateralToken.symbol}`}</Text>
               </Stack>
             </HStack>
 
@@ -122,36 +91,15 @@ export const PortfolioMarketCard = ({ marketStats, children, ...props }: IPortfo
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Max win</Text>
-                <Text fontWeight={'bold'} color={'green'}>
-                  ${NumberUtil.toFixed(marketStats.sharesAmount, 2)}
-                </Text>
+                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(
+                  marketStats.outcomeTokenAmount,
+                  6
+                )} ${collateralToken.symbol}`}</Text>
               </Stack>
             </HStack>
           </HStack>
 
-          <HStack h={'33px'}>
-            <Button
-              bg={'black'}
-              color={'white'}
-              h={'full'}
-              w={'full'}
-              p={1}
-              onClick={() => router.push(marketURI)}
-            >
-              Trade
-            </Button>
-            <Button h={'full'} aspectRatio={'1/1'} p={1} onClick={onCopy}>
-              <FaLink size={'16px'} fill={hasCopied ? colors.brand : colors.font} />
-            </Button>
-            <Button
-              h={'full'}
-              aspectRatio={'1/1'}
-              p={1}
-              onClick={() => window.open(tweetURI, '_blank')}
-            >
-              <FaXTwitter size={'16px'} />
-            </Button>
-          </HStack>
+          <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} />
         </Stack>
       </MarketCard>
     </Flex>

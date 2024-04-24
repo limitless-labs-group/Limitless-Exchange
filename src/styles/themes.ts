@@ -7,13 +7,13 @@ export const colors = {
   bgLight: '#f5f5f5',
   border: '#ddd',
   font: '#0F172A',
-  fontLight: '#888',
-  green: '#48cb9b',
+  fontLight: '#747675',
+  green: '#48CB9A',
   red: '#EF5D5D',
   black: '#0F172A',
 }
 
-export const borderRadius = '8px'
+export const borderRadius = 'lg'
 
 export const chakraTheme = ChakraTheme({
   initialColorMode: 'light',
@@ -48,7 +48,7 @@ export const chakraTheme = ChakraTheme({
         bg: `${colors.bg} !important`,
         color: `${colors.font} !important`,
         border: 'none !important',
-        borderRadius: `20px !important`,
+        borderRadius: `${borderRadius} !important`,
       },
       '.w3a-header': {
         paddingTop: '10px !important',
@@ -83,7 +83,7 @@ export const chakraTheme = ChakraTheme({
         fontWeight: 'bold !important',
       },
       '#w3a-modal .w3a-header__logo img, #w3a-modal .w3a-modal__loader-app-logo img': {
-        // filter: 'invert()',
+        filter: 'invert()',
         borderRadius: '50% !important',
       },
     },

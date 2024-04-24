@@ -1,50 +1,96 @@
 import { WithdrawModal } from '@/app/wallet/components'
 import { Button } from '@/components'
+import { collateralToken } from '@/constants'
+import { usePriceOracle } from '@/providers'
 import { useBalanceService } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
-import { HStack, Heading, Spinner, Stack, StackProps, useDisclosure } from '@chakra-ui/react'
-import { FaCircle } from 'react-icons/fa'
+import {
+  HStack,
+  Heading,
+  Image,
+  Spinner,
+  Stack,
+  StackProps,
+  Text,
+  useDisclosure,
+} from '@chakra-ui/react'
+import { useMemo } from 'react'
 
 export const BalanceCard = ({ ...props }: StackProps) => {
-  const { balanceOfSmartWallet, status } = useBalanceService()
+  /**
+   * UI
+   */
   const {
     isOpen: isOpenWithdraw,
     onOpen: onOpenWithdraw,
     onClose: onCloseWithdraw,
   } = useDisclosure()
 
+  /**
+   * BALANCE
+   */
+  const { balanceOfSmartWallet, status } = useBalanceService()
+
+  /**
+   * PRICE ORACLE
+   */
+  const { convertEthToUsd, ethPrice } = usePriceOracle()
+
+  const balanceUsd = useMemo(() => {
+    return NumberUtil.formatThousands(convertEthToUsd(balanceOfSmartWallet?.formatted), 2)
+  }, [balanceOfSmartWallet])
+
+  const ethPriceFormatted = useMemo(() => {
+    return NumberUtil.formatThousands(ethPrice, 2)
+  }, [ethPrice])
+
   return (
     <Stack
       h={'fit-content'}
       w={'full'}
-      p={4}
-      bg={'bgLight'}
+      p={5}
       border={`1px solid ${colors.border}`}
-      // boxShadow={`0 0 8px ${colors.border}`}
       borderRadius={borderRadius}
       alignItems={'start'}
       spacing={3}
       {...props}
     >
       <HStack>
-        <Heading
-          fontSize={'11px'}
-          color={'fontLight'}
-          textTransform={'uppercase'}
-          letterSpacing={'0.15em'}
-        >
-          Balance
-        </Heading>
-        <FaCircle fill='green' size={'8px'} />
+        <Image w={'30px'} src={collateralToken.imageURI} />
+        <Stack spacing={0}>
+          <Heading size={'sm'}>{collateralToken.symbol}</Heading>
+          <Text color={'fontLight'}>{collateralToken.name}</Text>
+        </Stack>
       </HStack>
 
-      <Heading>
-        $
-        {status == 'Loading' ? <Spinner /> : NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}
-      </Heading>
+      <HStack w={'full'} alignItems={'start'}>
+        <Stack flexBasis={'50%'}>
+          <Text fontSize={'12px'} color={'fontLight'}>
+            Balance
+          </Text>
+          <Stack spacing={0}>
+            <Text fontWeight={'bold'}>
+              {status == 'Loading' ? (
+                <Spinner size={'sm'} />
+              ) : (
+                NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 6)
+              )}
+            </Text>
+            <Text fontSize={'12px'} color={'fontLight'}>
+              ~${balanceUsd}
+            </Text>
+          </Stack>
+        </Stack>
+        <Stack>
+          <Text fontSize={'12px'} color={'fontLight'}>
+            Token Price
+          </Text>
+          <Text>~${ethPriceFormatted}</Text>
+        </Stack>
+      </HStack>
 
-      <Button colorScheme={'brand'} h={'30px'} onClick={onOpenWithdraw}>
+      <Button h={'40px'} w={'full'} bg={'gray'} color={'white'} onClick={onOpenWithdraw}>
         Withdraw
       </Button>
 

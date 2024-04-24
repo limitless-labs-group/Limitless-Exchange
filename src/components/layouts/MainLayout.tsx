@@ -1,7 +1,11 @@
-import { Footer, Header, TabbarMobile } from '@/components'
+import { Footer, Header } from '@/components'
 import { Flex, FlexProps, VStack } from '@chakra-ui/react'
 
-export const MainLayout = ({ children, ...props }: FlexProps) => (
+interface IMainLayout extends FlexProps {
+  maxContentWidth?: string | number
+}
+
+export const MainLayout = ({ children, maxContentWidth, ...props }: IMainLayout) => (
   <Flex
     id='main'
     flexDir={'column'}
@@ -11,22 +15,22 @@ export const MainLayout = ({ children, ...props }: FlexProps) => (
     overflow={'hidden'}
     alignItems={'center'}
     justifyContent={'space-between'}
+    gap={{ sm: 6, md: 0 }}
     {...props}
   >
-    <VStack w={'full'} spacing={props.gap ?? { sm: '24px', md: '50px' }}>
+    <VStack w={'full'} spacing={props.gap ?? { sm: 6, md: 12 }}>
       <Header />
       <Flex
         h={'full'}
         w={'full'}
-        maxW={'1200px'}
-        gap={{ sm: '24px', md: 6 }}
+        maxW={maxContentWidth ?? '1000px'}
+        gap={6}
         flexDir={'column'}
-        px={{ sm: '16px', md: '24px' }}
+        px={{ sm: 4, md: 6 }}
       >
         {children}
       </Flex>
     </VStack>
     <Footer />
-    {/* <TabbarMobile /> */}
   </Flex>
 )

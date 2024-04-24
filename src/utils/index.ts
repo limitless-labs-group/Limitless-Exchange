@@ -1,4 +1,4 @@
 export * from './Logger'
 export * from './NumberUtil'
 export * from './truncateEthAddress'
-export * from './Coingecko'
+export * from './tools'

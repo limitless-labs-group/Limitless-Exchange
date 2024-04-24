@@ -1,16 +1,4 @@
-export const erc20ABI = [
-  {
-    constant: false,
-    inputs: [
-      { name: 'to', type: 'address' },
-      { name: '_amount', type: 'uint256' },
-    ],
-    name: 'mint',
-    outputs: [],
-    payable: false,
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
+export const wethABI = [
   {
     constant: true,
     inputs: [],
@@ -154,6 +142,20 @@ export const erc20ABI = [
     constant: false,
     inputs: [
       {
+        name: 'wad',
+        type: 'uint256',
+      },
+    ],
+    name: 'mint',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    constant: false,
+    inputs: [
+      {
         name: 'dst',
         type: 'address',
       },
@@ -209,6 +211,23 @@ export const erc20ABI = [
     payable: true,
     stateMutability: 'payable',
     type: 'fallback',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        name: 'src',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'wad',
+        type: 'uint256',
+      },
+    ],
+    name: 'Mint',
+    type: 'event',
   },
   {
     anonymous: false,

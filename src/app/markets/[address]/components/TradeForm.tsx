@@ -1,36 +1,138 @@
-import { Button, Input, LogInButton } from '@/components'
-import { defaultChain } from '@/constants'
+import { Button, InfoIcon, Input, LogInButton, Tooltip } from '@/components'
+import { collateralToken, defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
-import { useAccount, useBalanceService, useTradingService } from '@/services'
+import { usePriceOracle } from '@/providers'
+import {
+  StrategyChangedMetadata,
+  ChangeEvent,
+  useAccount,
+  useAmplitude,
+  useBalanceService,
+  useTradingService,
+  OutcomeChangedMetadata,
+  ClickEvent,
+  TradeClickedMetadata,
+} from '@/services'
 import { borderRadius } from '@/styles'
 import { NumberUtil } from '@/utils'
-import { Box, Divider, HStack, Heading, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
+import {
+  Avatar,
+  Box,
+  Divider,
+  HStack,
+  Heading,
+  Slider,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderTrack,
+  Stack,
+  StackProps,
+  Text,
+  VStack,
+} from '@chakra-ui/react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { getAddress, zeroAddress } from 'viem'
 
 export const TradeForm = ({ ...props }: StackProps) => {
+  /**
+   * ACCOUNT STATE
+   */
   const { isLoggedIn } = useAccount()
-  const { balanceOfSmartWallet } = useBalanceService()
+
+  /**
+   * ANALITYCS
+   */
+  const { trackChanged, trackClicked } = useAmplitude()
+
+  /**
+   * TRADING SERVICE
+   */
   const {
     market,
     strategy,
     setStrategy,
-    outcomeTokenSelected,
-    setOutcomeTokenSelected,
-    amount,
-    setAmount,
-    decreaseAmount,
-    increaseAmount,
+    outcomeTokenId,
+    setOutcomeTokenId,
+    collateralAmount,
+    setCollateralAmount,
     isExceedsBalance,
-    balanceShares,
-    netCost,
-    shareCost,
-    roi,
+    balanceOfCollateralToSell,
+    quotes,
     trade,
     status,
   } = useTradingService()
 
-  const { sharesCost } = useMarketData({
-    marketAddress: market?.address[defaultChain.id],
+  /**
+   * BALANCE
+   */
+  const { balanceOfSmartWallet } = useBalanceService()
+
+  const balance = useMemo(
+    () => (strategy == 'Buy' ? balanceOfSmartWallet?.formatted ?? '' : balanceOfCollateralToSell),
+    [balanceOfSmartWallet, strategy, balanceOfCollateralToSell]
+  )
+
+  const isZeroBalance = !(Number(balance) > 0)
+
+  /**
+   * MARKET DATA
+   */
+  const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
+  const { outcomeTokensPercent } = useMarketData({
+    marketAddress,
   })
+
+  /**
+   * Amount to display in UI and reduce queries
+   */
+  const [displayAmount, setDisplayAmount] = useState('')
+
+  useEffect(() => {
+    setDisplayAmount(collateralAmount)
+  }, [collateralAmount])
+
+  /**
+   * PRICE ORACLE
+   */
+  const { convertEthToUsd } = usePriceOracle()
+  const amountUsd = useMemo(() => {
+    return NumberUtil.formatThousands(convertEthToUsd(displayAmount), 2)
+  }, [displayAmount])
+
+  /**
+   * SLIDER
+   */
+  const [sliderValue, setSliderValue] = useState(0)
+  const [showTooltip, setShowTooltip] = useState(false)
+
+  const onSlide = useCallback(
+    (value: number) => {
+      setSliderValue(value)
+      if (value == 0 || isZeroBalance) {
+        setDisplayAmount('')
+        return
+      }
+      if (value == 100) {
+        setDisplayAmount(NumberUtil.toFixed(balance, 6))
+        return
+      }
+      const amountByPercent = (Number(balance) * value) / 100
+      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
+    },
+    [sliderValue, balance, isZeroBalance]
+  )
+
+  /**
+   * Effect to automatically set a proper slider value based on the tokens amount
+   */
+  useEffect(() => {
+    if (isZeroBalance) {
+      setSliderValue(0)
+      return
+    }
+    const percentByAmount = Number(((Number(collateralAmount) / Number(balance)) * 100).toFixed())
+    setSliderValue(percentByAmount)
+  }, [collateralAmount, balance, isZeroBalance, outcomeTokenId])
 
   return (
     <Stack
@@ -51,9 +153,17 @@ export const TradeForm = ({ ...props }: StackProps) => {
           variant={'unstyled'}
           borderRadius={0}
           minW={'unset'}
-          onClick={() => setStrategy('Buy')}
+          onClick={() => {
+            trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
+              type: 'Buy selected',
+              marketAddress,
+            })
+            setStrategy('Buy')
+          }}
         >
-          <Text fontWeight={strategy == 'Buy' ? 'bold' : 'nornal'}>Buy</Text>
+          <Text fontWeight={'bold'} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
+            Buy
+          </Text>
           <Box
             pos={'absolute'}
             w={'full'}
@@ -69,9 +179,17 @@ export const TradeForm = ({ ...props }: StackProps) => {
           variant={'unstyled'}
           borderRadius={0}
           minW={'unset'}
-          onClick={() => setStrategy('Sell')}
+          onClick={() => {
+            trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
+              type: 'Sell selected',
+              marketAddress,
+            })
+            setStrategy('Sell')
+          }}
         >
-          <Text fontWeight={strategy == 'Sell' ? 'bold' : 'nornal'}>Sell</Text>
+          <Text fontWeight={'bold'} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
+            Sell
+          </Text>
           <Box
             pos={'absolute'}
             w={'full'}
@@ -91,157 +209,123 @@ export const TradeForm = ({ ...props }: StackProps) => {
           <HStack w={'full'}>
             <Button
               w={'full'}
-              bg={outcomeTokenSelected == 0 ? 'green' : 'bgLight'}
-              color={outcomeTokenSelected == 0 ? 'white' : 'fontLight'}
-              onClick={() => setOutcomeTokenSelected(0)}
+              bg={outcomeTokenId == 0 ? 'green' : 'bgLight'}
+              color={outcomeTokenId == 0 ? 'white' : 'fontLight'}
+              onClick={() => {
+                trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
+                  choice: 'Yes',
+                  marketAddress,
+                })
+                setOutcomeTokenId(0)
+              }}
             >
-              {market?.outcomeTokens[0] ?? 'Yes'} {sharesCost?.[0]?.toFixed(1) ?? '50.0'}¢
+              {market?.outcomeTokens[0] ?? 'Yes'} {(outcomeTokensPercent?.[0] ?? 50).toFixed(2)}%
             </Button>
             <Button
               w={'full'}
-              bg={outcomeTokenSelected == 1 ? 'red' : 'bgLight'}
-              color={outcomeTokenSelected == 1 ? 'white' : 'fontLight'}
-              onClick={() => setOutcomeTokenSelected(1)}
+              bg={outcomeTokenId == 1 ? 'red' : 'bgLight'}
+              color={outcomeTokenId == 1 ? 'white' : 'fontLight'}
+              onClick={() => {
+                trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
+                  choice: 'No',
+                  marketAddress,
+                })
+                setOutcomeTokenId(1)
+              }}
             >
-              {market?.outcomeTokens[1] ?? 'No'} {sharesCost?.[1]?.toFixed(1) ?? '50.0'}¢
+              {market?.outcomeTokens[1] ?? 'No'} {(outcomeTokensPercent?.[1] ?? 50).toFixed(2)}%
             </Button>
           </HStack>
         </VStack>
 
         <Stack w={'full'} spacing={1}>
           <HStack w={'full'} justifyContent={'space-between'} alignItems={'center'}>
-            <Heading fontSize={'14px'}>Shares</Heading>
-            {strategy == 'Buy' ? (
-              <Button h={'24px'} px={2} py={1} fontSize={'13px'} colorScheme={'transparent'}>
-                Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}
-              </Button>
-            ) : (
-              <Button
-                h={'24px'}
-                px={2}
-                py={1}
-                fontSize={'13px'}
-                onClick={() => setAmount(NumberUtil.toIntString(balanceShares))}
-              >
-                Max {NumberUtil.toIntString(balanceShares)} shares
-              </Button>
-            )}
+            <Heading fontSize={'14px'}>{strategy == 'Buy' ? 'You pay' : 'You sell'}</Heading>
           </HStack>
-          <HStack w={'full'} spacing={1}>
-            <HStack pos={'relative'}>
-              <Button
-                pos={'absolute'}
-                h={'40px'}
-                left={'8px'}
-                top={`${(60 - 40) / 2}px`}
-                zIndex={2}
-                fontSize={'26px'}
-                fontWeight={'normal'}
-                p={2}
-                onClick={() => decreaseAmount(10)}
-              >
-                -
-              </Button>
+          <Stack
+            w={'full'}
+            spacing={1}
+            px={3}
+            py={2}
+            borderRadius={borderRadius}
+            border={'1px solid'}
+            borderColor={isExceedsBalance ? 'red' : 'border'}
+          >
+            <HStack h={'34px'} w='full' spacing={0}>
               <Input
                 type={'number'}
+                h={'full'}
                 fontWeight={'bold'}
-                fontSize={'18px'}
-                textAlign={'center'}
                 placeholder={'0'}
-                // zIndex={-1}
-                borderColor={isExceedsBalance && strategy == 'Sell' ? 'red' : 'bgLight'}
-                _hover={{
-                  borderColor: isExceedsBalance && strategy == 'Sell' ? 'red' : 'bgLight',
-                }}
+                border={'none'}
+                px={0}
                 _focus={{
                   boxShadow: 'none',
-                  borderColor: isExceedsBalance && strategy == 'Sell' ? 'red' : 'bgLight',
                 }}
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                value={displayAmount}
+                onChange={(e) => setCollateralAmount(e.target.value)}
               />
 
               <Button
-                pos={'absolute'}
-                h={'40px'}
-                right={'8px'}
-                top={`${(60 - 40) / 2}px`}
-                zIndex={2}
-                fontSize={'22px'}
-                fontWeight={'normal'}
-                p={2}
-                onClick={() => increaseAmount(10)}
+                h={'full'}
+                colorScheme={'transparent'}
+                border={'1px solid'}
+                borderColor={'border'}
+                gap={1}
               >
-                +
+                <Avatar size={'xs'} src={collateralToken.imageURI} />
+                <Text>{collateralToken.symbol}</Text>
               </Button>
-
-              {/* <VStack spacing={1}>
-              <HStack spacing={1}>
-                <Button
-                  fontSize={'12px'}
-                  p={1}
-                  h={'fit-content'}
-                  color={'green'}
-                  bg={'none'}
-                  onClick={() => increaseAmount(1)}
-                >
-                  +$1
-                </Button>
-                <Button
-                  fontSize={'12px'}
-                  p={1}
-                  h={'fit-content'}
-                  color={'green'}
-                  bg={'none'}
-                  onClick={() => increaseAmount(5)}
-                >
-                  +$5
-                </Button>
-              </HStack>
-              <HStack spacing={1}>
-                <Button
-                  fontSize={'12px'}
-                  p={1}
-                  h={'fit-content'}
-                  color={'red'}
-                  bg={'none'}
-                  onClick={() => decreaseAmount(1)}
-                >
-                  -$1
-                </Button>
-                <Button
-                  fontSize={'12px'}
-                  p={1}
-                  h={'fit-content'}
-                  color={'red'}
-                  bg={'none'}
-                  onClick={() => decreaseAmount(5)}
-                >
-                  -$5
-                </Button>
-              </HStack>
-            </VStack> */}
             </HStack>
 
-            <Text color={'fontLight'}>≈</Text>
-
-            {/* <Input
-              // fontWeight={'bold'}
-              fontSize={'16px'}
-              textAlign={'center'}
-              borderColor={isExceedsBalance && strategy == 'Buy' ? 'red' : 'bgLight'}
-              value={`$${NumberUtil.toFixed(netCost, 2)}`}
-              placeholder={'$0'}
-              bg={'none'}
-              pointerEvents={'none'}
-              width={'fit-content%'}
-              px={0}
-            /> */}
-            <Text
-              color={isExceedsBalance && strategy == 'Buy' ? 'red' : 'font'}
-            >{`$${NumberUtil.toFixed(netCost, 2)}`}</Text>
-          </HStack>
+            <HStack
+              w={'full'}
+              justifyContent={'space-between'}
+              color={'fontLight'}
+              fontSize={'12px'}
+            >
+              <Text>~${amountUsd}</Text>
+              <Text
+                _hover={{ color: 'font' }}
+                cursor={'pointer'}
+                onClick={() => setCollateralAmount(NumberUtil.toFixed(balance, 6))}
+              >
+                {`Balance: ${NumberUtil.toFixed(balance, 6)}`} {collateralToken.symbol}
+              </Text>
+            </HStack>
+          </Stack>
         </Stack>
+
+        <Slider
+          w={'95%'}
+          aria-label='slider-ex-6'
+          value={sliderValue}
+          onChange={(val) => onSlide(val)}
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          onChangeEnd={() => setCollateralAmount(displayAmount)}
+          isDisabled={isZeroBalance}
+          focusThumbOnChange={false}
+        >
+          <SliderTrack>
+            <SliderFilledTrack bg={outcomeTokenId == 0 ? 'green' : 'red'} />
+          </SliderTrack>
+          <Tooltip
+            hasArrow
+            bg='bgLight'
+            color='fontLight'
+            fontSize={'12px'}
+            placement='top'
+            isOpen={showTooltip}
+            label={`${sliderValue}%`}
+          >
+            <SliderThumb
+              bg={outcomeTokenId == 0 ? 'green' : 'red'}
+              border={'1px solid'}
+              borderColor={'border'}
+            />
+          </Tooltip>
+        </Slider>
 
         {isLoggedIn ? (
           <Button
@@ -249,7 +333,13 @@ export const TradeForm = ({ ...props }: StackProps) => {
             colorScheme={'brand'}
             isDisabled={status != 'Ready'}
             isLoading={status == 'Loading'}
-            onClick={trade}
+            onClick={() => {
+              trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
+                strategy,
+                marketAddress,
+              })
+              trade()
+            }}
           >
             {strategy}
           </Button>
@@ -260,15 +350,41 @@ export const TradeForm = ({ ...props }: StackProps) => {
         <VStack w={'full'} spacing={0}>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Avg price</Text>
-            <Text textAlign={'right'}>{Number(shareCost ?? 0)}¢</Text>
+            <Text textAlign={'right'}>{`${NumberUtil.toFixed(quotes?.outcomeTokenPrice, 6)} ${
+              collateralToken.symbol
+            }`}</Text>
+          </HStack>
+          <HStack w={'full'} justifyContent={'space-between'}>
+            <Text color={'fontLight'}>Price Impact</Text>
+            <Text textAlign={'right'}>{`${NumberUtil.toFixed(quotes?.priceImpact, 2)}%`}</Text>
           </HStack>
           {strategy == 'Buy' && (
-            <HStack w={'full'} justifyContent={'space-between'}>
-              <Text color={'fontLight'}>Potential return</Text>
-              <Text color={'green'} fontWeight={'bold'} textAlign={'right'}>
-                ${Number(amount ?? 0)} ({Number(roi ?? 0)}%)
-              </Text>
-            </HStack>
+            <>
+              <HStack w={'full'} justifyContent={'space-between'}>
+                <Text color={'fontLight'}>Potential return</Text>
+                <HStack spacing={1}>
+                  <Text color={'green'} fontWeight={'bold'} textAlign={'right'}>
+                    {`${NumberUtil.toFixed(quotes?.outcomeTokenAmount, 6)} ${
+                      collateralToken.symbol
+                    }`}
+                  </Text>
+                  <Text color={'fontLight'}>{NumberUtil.toFixed(quotes?.roi, 2)}%</Text>
+                </HStack>
+              </HStack>
+              <HStack w={'full'} justifyContent={'space-between'}>
+                <HStack spacing={1}>
+                  <Text color={'fontLight'}>Contracts</Text>
+                  <Tooltip
+                    label={
+                      'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
+                    }
+                  >
+                    <InfoIcon />
+                  </Tooltip>
+                </HStack>
+                <Text textAlign={'right'}>{NumberUtil.toFixed(quotes?.outcomeTokenAmount, 6)}</Text>
+              </HStack>
+            </>
           )}
         </VStack>
       </VStack>

@@ -1,29 +1,27 @@
-import { Button, IModal, Input, Modal } from '@/components'
-import { defaultChain } from '@/constants'
+import { Button, IModal, InfoIcon, Input, Modal, Tooltip } from '@/components'
+import { collateralToken, defaultChain } from '@/constants'
 import { useBalanceService } from '@/services'
-import { colors } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { HStack, Heading, InputGroup, InputLeftElement, Stack } from '@chakra-ui/react'
+import { HStack, Heading, InputGroup, Stack, Switch, Text } from '@chakra-ui/react'
 import { useEffect } from 'react'
-import { FaDollarSign } from 'react-icons/fa'
 import { zeroAddress } from 'viem'
 
 export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'children'>) => {
   const {
-    setStrategy,
     balanceOfSmartWallet,
     amount,
     setAmount,
     addressToWithdraw,
     setAddressToWithdraw,
+    unwrap,
+    setUnwrap,
     withdraw,
     status,
   } = useBalanceService()
 
   useEffect(() => {
-    setStrategy('Withdraw')
-    setAmount(undefined)
-    setAddressToWithdraw(undefined)
+    setAmount('')
+    setAddressToWithdraw('')
   }, [isOpen])
 
   return (
@@ -49,30 +47,21 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
                 h={'24px'}
                 px={2}
                 fontSize={'12px'}
-                onClick={() => setAmount(balanceOfSmartWallet?.formatted)}
+                onClick={() => setAmount(balanceOfSmartWallet?.formatted ?? '')}
               >
-                Balance ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 1)}
-              </Button>
-              <Button
-                h={'24px'}
-                px={2}
-                fontSize={'12px'}
-                bg={'black'}
-                color={'white'}
-                onClick={() => setAmount(balanceOfSmartWallet?.formatted)}
-              >
-                Max
+                {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 6)} ${
+                  collateralToken.symbol
+                }`}
               </Button>
             </HStack>
           </HStack>
 
           <InputGroup>
-            <InputLeftElement h={'full'} pointerEvents='none'>
+            {/* <InputLeftElement h={'full'} pointerEvents='none'>
               <FaDollarSign fill={colors.fontLight} />
-            </InputLeftElement>
+            </InputLeftElement> */}
             <Input
               type={'number'}
-              px={7}
               fontWeight={'bold'}
               placeholder={'0'}
               value={amount}
@@ -80,6 +69,21 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
             />
           </InputGroup>
         </Stack>
+
+        <HStack fontWeight={'bold'}>
+          <Text color={unwrap ? 'fontLight' : 'font'}>WETH</Text>
+          <Switch
+            isChecked={unwrap}
+            onChange={(e) => setUnwrap(e.target.checked)}
+            isDisabled={status == 'Loading'}
+          />
+          <Text color={unwrap ? 'font' : 'fontLight'}>ETH</Text>
+          <Tooltip
+            label={`Select WETH if you want to transfer wrapped ether (ERC20) tokens to your external wallet.\nSelect ETH if you want to unwrap it and transfer ether to your external wallet or exchange.`}
+          >
+            <InfoIcon fontSize={'9px'} p={'3px'} />
+          </Tooltip>
+        </HStack>
 
         <Button
           colorScheme={'brand'}

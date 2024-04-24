@@ -1,86 +1,105 @@
 import { Button } from '@/components'
+import { collateralToken } from '@/constants'
+import { usePriceOracle } from '@/providers'
 import { useBalanceService, useHistory } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
-import { Divider, HStack, Heading, Spacer, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
+import { Flex, Grid, HStack, Heading, Stack, StackProps, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { FaFileInvoiceDollar, FaTrophy, FaWallet } from 'react-icons/fa6'
 
 export const PortfolioStats = ({ ...props }: StackProps) => {
   const router = useRouter()
   const { balanceOfSmartWallet } = useBalanceService()
-  const { balanceUsd, balanceShares } = useHistory()
+  const { balanceInvested, balanceToWin } = useHistory()
+  const { convertEthToUsd } = usePriceOracle()
 
   return (
-    <Stack
-      h={'fit-content'}
-      w={'full'}
-      alignItems={{ sm: 'start', md: 'center' }}
+    <Flex
       flexDir={{ sm: 'column', md: 'row' }}
-      spacing={{ sm: 4, md: 6 }}
+      w={'full'}
+      alignItems={'start'}
+      gap={{ sm: 4, md: 6 }}
       {...props}
     >
-      <VStack
+      <Stack
         w={'full'}
-        p={8}
-        justifyContent={'center'}
-        boxShadow={`0 1px 4px ${colors.border}`}
+        minH={{ base: '100px', md: '200px' }}
+        p={5}
         borderRadius={borderRadius}
         bg={'bgLight'}
         spacing={4}
       >
-        <FaFileInvoiceDollar size={'32px'} />
-        <Stack alignItems={'center'}>
-          <Heading fontSize={'28px'}>${balanceUsd.toFixed(2)}</Heading>
+        <HStack w={'full'}>
+          <FaFileInvoiceDollar size={'24px'} fill={colors.fontLight} />
           <Text color={'fontLight'}>Invested</Text>
+        </HStack>
+        <Stack w={'full'} spacing={1}>
+          <Heading fontSize={'26px'}>{`${NumberUtil.toFixed(balanceInvested, 4)} ${
+            collateralToken.symbol
+          }`}</Heading>
+          <Text color={'fontLight'}>
+            ~${NumberUtil.toFixed(convertEthToUsd(balanceInvested), 2)}
+          </Text>
         </Stack>
-      </VStack>
+      </Stack>
 
-      <VStack
+      <Stack
         w={'full'}
-        p={8}
-        justifyContent={'center'}
-        boxShadow={`0 1px 4px ${colors.border}`}
+        minH={{ base: '100px', md: '200px' }}
+        p={5}
         borderRadius={borderRadius}
         bg={'bgLight'}
         spacing={4}
       >
-        <FaTrophy size={'32px'} />
-        <Stack alignItems={'center'}>
-          <Heading fontSize={'28px'}>${balanceShares.toFixed(2)}</Heading>
+        <HStack w={'full'}>
+          <FaTrophy size={'24px'} fill={colors.fontLight} />
           <Text color={'fontLight'}>To win</Text>
+        </HStack>
+        <Stack w={'full'} spacing={1}>
+          <Heading fontSize={'26px'}>{`${NumberUtil.toFixed(balanceToWin, 4)} ${
+            collateralToken.symbol
+          }`}</Heading>
+          <Text color={'fontLight'}>~${NumberUtil.toFixed(convertEthToUsd(balanceToWin), 2)}</Text>
         </Stack>
-      </VStack>
+      </Stack>
 
-      <VStack
+      <Stack
         w={'full'}
-        p={8}
-        justifyContent={'center'}
-        boxShadow={`0 1px 4px ${colors.border}`}
+        minH={{ base: '100px', md: '200px' }}
+        p={5}
         borderRadius={borderRadius}
         bg={'bgLight'}
         spacing={4}
       >
-        <FaWallet size={'32px'} />
-        <Stack alignItems={'center'}>
-          <Heading fontSize={'28px'}>
-            ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted)}
-          </Heading>
-          <HStack>
-            <Text color={'fontLight'}>Balance</Text>
-            <Button
-              bg={'brand'}
-              color={'white'}
-              size={'sm'}
-              h={'auto'}
-              py={1}
-              onClick={() => router.push('/wallet')}
-            >
-              Top up
-            </Button>
-          </HStack>
+        <HStack w={'full'}>
+          <FaWallet size={'24px'} fill={colors.fontLight} />
+          <Text color={'fontLight'}>Balance</Text>
+        </HStack>
+        <Stack w={'full'} spacing={5}>
+          <Stack w={'full'} spacing={1}>
+            <Heading fontSize={'26px'}>
+              {`${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4)} ${
+                collateralToken.symbol
+              }`}
+            </Heading>
+            <Text color={'fontLight'}>
+              ~${NumberUtil.formatThousands(convertEthToUsd(balanceOfSmartWallet?.formatted), 2)}
+            </Text>
+          </Stack>
+
+          <Button
+            bg={'brand'}
+            color={'white'}
+            w={'full'}
+            h={'40px'}
+            py={1}
+            onClick={() => router.push('/wallet')}
+          >
+            Top up
+          </Button>
         </Stack>
-      </VStack>
-    </Stack>
+      </Stack>
+    </Flex>
   )
 }

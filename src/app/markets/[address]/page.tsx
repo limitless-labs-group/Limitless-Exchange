@@ -4,11 +4,20 @@ import { MainLayout } from '@/components'
 import { MarketMetadata, TradeForm } from '@/app/markets/[address]/components'
 import { Flex, Spacer } from '@chakra-ui/react'
 import { useEffect, useMemo } from 'react'
-import { useTradingService } from '@/services'
+import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
 import { defaultChain, markets } from '@/constants'
 import { Market } from '@/types'
+import { getAddress } from 'viem'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
+  const { trackOpened } = useAmplitude()
+  useEffect(() => {
+    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
+      page: 'Market Page',
+      market: getAddress(params.address),
+    })
+  }, [])
+
   const market: Market | null = useMemo(
     () =>
       markets.find(
@@ -25,7 +34,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   }, [market, previousMarket])
 
   return (
-    <MainLayout>
+    <MainLayout maxContentWidth={'1200px'}>
       <Flex gap={{ sm: '40px', md: 8 }} flexDir={{ sm: 'column', lg: 'row' }}>
         <MarketMetadata flexBasis={'66%'} />
         <TradeForm flexBasis={'33%'} />
