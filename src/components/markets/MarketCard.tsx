@@ -41,7 +41,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
       {...props}
     >
       <Image
-        src={market?.imageURI}
+        src={market?.placeholderURI}
         w={{ sm: 'full' }}
         h={{ sm: '200px', md: '150px' }}
         fit={'cover'}

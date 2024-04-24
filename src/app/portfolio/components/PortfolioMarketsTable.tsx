@@ -15,7 +15,7 @@ export const PortfolioMarketsTable = ({ ...props }: GridProps) => {
 
   return activeMarkets?.length == 0 ? (
     <Flex w={'full'} h={'200px'} justifyContent={'center'} alignItems={'center'}>
-      <Text color={'fontLight'}>No trading history yet</Text>
+      <Text color={'fontLight'}>No open markets</Text>
     </Flex>
   ) : (
     <Grid

@@ -54,8 +54,8 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
           src={market?.imageURI}
           minW={{ sm: 'full', md: '35%' }}
           // minH={{ sm: '200px', md: '30%' }}
-          aspectRatio={'4/3'}
-          fit={'cover'}
+          // aspectRatio={'4/3'}
+          fit={'contain'}
           bg={'brand'}
           borderRadius={borderRadius}
         />
@@ -159,7 +159,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
           <HStack>
             <Link href={market?.creator.link} isExternal>
               <Avatar
-                size={'sm'}
+                size={'md'}
                 src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
                 name={market?.creator.name}
                 bg={'brand'}
@@ -167,22 +167,18 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                 cursor={'pointer'}
               />
             </Link>
-            <VStack spacing={0} alignItems={'start'}>
+            <VStack spacing={1} alignItems={'start'}>
               <Link href={market?.creator.link} isExternal>
-                <Text cursor={'pointer'} _hover={{ textDecor: 'underline' }}>
+                <Text fontWeight={'bold'} cursor={'pointer'} _hover={{ textDecor: 'underline' }}>
                   {market?.creator.name}
                 </Text>
               </Link>
               <HStack spacing={1} fontSize={'12px'}>
-                <Text p={'2px 6px'} bg={'bgLight'} borderRadius={'full'}>
-                  Bitcoin
-                </Text>
-                <Text p={'2px 6px'} bg={'bgLight'} borderRadius={'full'}>
-                  Oracle
-                </Text>
-                <Text p={'2px 6px'} bg={'bgLight'} borderRadius={'full'}>
-                  Ethereum
-                </Text>
+                {market?.tags?.map((tag, i) => (
+                  <Text key={i} p={'2px 6px'} bg={'bgLight'} borderRadius={'full'}>
+                    {tag}
+                  </Text>
+                ))}
               </HStack>
             </VStack>
           </HStack>
