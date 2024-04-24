@@ -54,8 +54,8 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
           src={market?.imageURI}
           minW={{ sm: 'full', md: '35%' }}
           // minH={{ sm: '200px', md: '30%' }}
-          aspectRatio={'4/3'}
-          fit={'cover'}
+          // aspectRatio={'4/3'}
+          fit={'contain'}
           bg={'brand'}
           borderRadius={borderRadius}
         />
@@ -167,9 +167,9 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                 cursor={'pointer'}
               />
             </Link>
-            <VStack spacing={0} alignItems={'start'}>
+            <VStack spacing={1} alignItems={'start'}>
               <Link href={market?.creator.link} isExternal>
-                <Text cursor={'pointer'} _hover={{ textDecor: 'underline' }}>
+                <Text fontWeight={'bold'} cursor={'pointer'} _hover={{ textDecor: 'underline' }}>
                   {market?.creator.name}
                 </Text>
               </Link>

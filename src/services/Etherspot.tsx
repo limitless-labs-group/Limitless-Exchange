@@ -232,7 +232,7 @@ class Etherspot {
       return
     }
     let opReceipt = null
-    const timeout = Date.now() + 120000
+    const timeout = Date.now() + 60 * 3 * 1000
     while (opReceipt == null && Date.now() < timeout) {
       await sleep(2)
       opReceipt = await this.primeSdk.getUserOpReceipt(opHash)

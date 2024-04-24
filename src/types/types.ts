@@ -25,6 +25,7 @@ export type Market = {
   outcomeTokens: string[]
   title: string
   description: string
+  placeholderURI: string
   imageURI: string
   ogImageURI?: string
   expirationData: string

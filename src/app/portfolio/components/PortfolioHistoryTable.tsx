@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { useEffect } from 'react'
 
-export const PortfolioHistoryTable = ({ ...props }: GridProps) => {
+export const PortfolioHistoryTable = () => {
   const { trades, getTrades } = useHistory()
 
   useEffect(() => {
@@ -53,10 +53,5 @@ export const PortfolioHistoryTable = ({ ...props }: GridProps) => {
         </Tbody>
       </Table>
     </TableContainer>
-    // <Grid templateColumns={{ sm: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }} gap={6} {...props}>
-    //   {trades?.map((trade, id) => (
-    //     <PortfolioHistoryTableItem key={id} trade={trade} />
-    //   ))}
-    // </Grid>
   )
 }

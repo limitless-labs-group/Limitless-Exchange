@@ -17,6 +17,7 @@ export const markets: Market[] = [
     title: 'Will $DEGEN have 1M+ holders by end of 2024?',
     description:
       'Bet on whether $DEGEN will reach over 1 million holders by the close of 2024! Place your stake and predict the future of the $DEGEN community growth.',
+    placeholderURI: '/assets/images/markets/market1-placeholder.jpg',
     imageURI: '/assets/images/markets/market1.jpg',
     ogImageURI: '/assets/images/markets/market1-og.jpg',
     expirationData: '31 December',
@@ -41,6 +42,7 @@ export const markets: Market[] = [
     outcomeTokens: ['Yes', 'No'],
     title: 'Will Farcaster hit 100k DAUs before Farcon?',
     description: `Think Farcaster will hit 100k DAUs before Farcon finishes on May 5? Bet on your belief and see if Farcaster blows up again!`,
+    placeholderURI: '/assets/images/markets/market2-placeholder.jpg',
     imageURI: '/assets/images/markets/market2.jpg',
     ogImageURI: '/assets/images/markets/market2-og.jpg',
     expirationData: '5 May',
@@ -65,6 +67,7 @@ export const markets: Market[] = [
     outcomeTokens: ['Yes', 'No'],
     title: 'Will $ONCHAIN hit $100M FDV in May?',
     description: `Will $ONCHAIN reach a $100M FDV in May? Place your bets today!.`,
+    placeholderURI: '/assets/images/markets/market3-placeholder.jpg',
     imageURI: '/assets/images/markets/market3.jpg',
     ogImageURI: '/assets/images/markets/market3-og.jpg',
     expirationData: '31 May',
