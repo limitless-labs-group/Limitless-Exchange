@@ -2,9 +2,9 @@ import { Button } from '@/components'
 import { collateralToken, defaultChain } from '@/constants'
 import { useAccount, useBalanceService } from '@/services'
 import { borderRadius, colors } from '@/styles'
-import { Avatar, HStack, Heading, Link, Stack, StackProps, Text } from '@chakra-ui/react'
+import { HStack, Link, Stack, StackProps, Text } from '@chakra-ui/react'
 
-export const DepositTestnetCard = ({ ...props }: StackProps) => {
+export const DepositTestCard = ({ ...props }: StackProps) => {
   const { account } = useAccount()
   const { mint, isLoadingMint } = useBalanceService()
 
@@ -48,19 +48,19 @@ export const DepositTestnetCard = ({ ...props }: StackProps) => {
       {/* <HStack w={'full'} spacing={4}>
         {defaultChain.testnet && (
           <Avatar name='2' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} />
-        )}
-        <Button
-          colorScheme={'brand'}
-          w={{ sm: 'full', md: '150px' }}
-          h={'40px'}
-          onClick={() => {
-            mint()
-          }}
-          isLoading={isLoadingMint}
-        >
-          Mint
-        </Button>
-      </HStack> */}
+        )} */}
+      <Button
+        colorScheme={'brand'}
+        w={{ sm: 'full', md: '150px' }}
+        h={'40px'}
+        onClick={() => {
+          mint()
+        }}
+        isLoading={isLoadingMint}
+      >
+        Mint {collateralToken.symbol}
+      </Button>
+      {/* </HStack> */}
     </Stack>
   )
 }

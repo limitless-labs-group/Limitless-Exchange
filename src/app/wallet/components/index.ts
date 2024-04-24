@@ -1,5 +1,5 @@
 export * from './BalanceCard'
 export * from './WithdrawModal'
 export * from './DepositByQrCard'
-export * from './DepositTestnetCard'
+export * from './DepositTestCard'
 export * from './DepositDisclaimer'

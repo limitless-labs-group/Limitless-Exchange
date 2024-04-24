@@ -181,7 +181,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
     const balanceOfOutcomeTokenBI = await getCTBalance(account, outcomeTokenId)
     const _balanceOfOutcomeToken = formatEther(balanceOfOutcomeTokenBI)
-    const balanceOfOutcomeTokenCropped = NumberUtil.toFixed(_balanceOfOutcomeToken, 6)
+    const balanceOfOutcomeTokenCropped = NumberUtil.toFixed(_balanceOfOutcomeToken, 10)
     setBalanceOfOutcomeToken(balanceOfOutcomeTokenCropped)
     console.log('balanceOfOutcomeToken', _balanceOfOutcomeToken)
 
@@ -266,7 +266,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     ],
     queryFn: async () => {
       if (!fixedProductMarketMakerContract || !(Number(collateralAmount) > 0)) {
-        return setQuotes(null)
+        setQuotes(null)
+        return null
       }
 
       let outcomeTokenAmountBI = 0n
