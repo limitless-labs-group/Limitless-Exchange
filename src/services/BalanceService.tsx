@@ -70,24 +70,30 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         abi: wethABI,
         client: publicClient,
       })
-      const newBalance = (await wethContract.read.balanceOf([smartWalletAddress])) as bigint
+
+      let newBalanceBI = (await wethContract.read.balanceOf([smartWalletAddress])) as bigint
+      // small balance to zero
+      if (newBalanceBI < parseEther('0.0000001')) {
+        newBalanceBI = 0n
+      }
+
       const balanceResult: GetBalanceResult = {
         symbol: collateralToken.symbol,
         decimals: collateralToken.decimals,
-        value: newBalance,
-        formatted: formatUnits(newBalance, collateralToken.decimals),
+        value: newBalanceBI,
+        formatted: formatUnits(newBalanceBI, collateralToken.decimals),
       }
 
       log.success('ON_BALANCE_SUCC', smartWalletAddress, balanceResult)
 
       // TODO: refactor deposit handler
-      if (!!balanceOfSmartWallet && newBalance > balanceOfSmartWallet?.value) {
+      if (!!balanceOfSmartWallet && newBalanceBI > balanceOfSmartWallet?.value) {
         if (!defaultChain.testnet) {
           whitelist() // TODO: refactor the logic of whitelisting
         }
 
         const depositAmount = NumberUtil.toFixed(
-          formatUnits(newBalance - balanceOfSmartWallet.value, collateralToken.decimals),
+          formatUnits(newBalanceBI - balanceOfSmartWallet.value, collateralToken.decimals),
           4
         )
 
