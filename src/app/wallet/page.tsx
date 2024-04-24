@@ -2,7 +2,7 @@
 
 import {
   BalanceCard,
-  DepositTestnetCard,
+  DepositTestCard,
   DepositByQrCard,
   DepositDisclaimer,
 } from '@/app/wallet/components'
@@ -34,7 +34,7 @@ const WalletPage = () => {
         <Stack flexBasis={'66%'}>
           <DepositByQrCard />
           <DepositDisclaimer />
-          {defaultChain.testnet && <DepositTestnetCard />}
+          {defaultChain.testnet && <DepositTestCard />}
         </Stack>
         <Stack flexBasis={'33%'}>
           <BalanceCard />

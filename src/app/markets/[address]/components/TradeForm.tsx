@@ -72,6 +72,8 @@ export const TradeForm = ({ ...props }: StackProps) => {
     [balanceOfSmartWallet, strategy, balanceOfCollateralToSell]
   )
 
+  const isZeroBalance = !(Number(balance) > 0)
+
   /**
    * MARKET DATA
    */
@@ -106,7 +108,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
   const onSlide = useCallback(
     (value: number) => {
       setSliderValue(value)
-      if (value == 0 || balance == '0') {
+      if (value == 0 || isZeroBalance) {
         setDisplayAmount('')
         return
       }
@@ -117,20 +119,20 @@ export const TradeForm = ({ ...props }: StackProps) => {
       const amountByPercent = (Number(balance) * value) / 100
       setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
     },
-    [sliderValue, balance]
+    [sliderValue, balance, isZeroBalance]
   )
 
   /**
    * Effect to automatically set a proper slider value based on the tokens amount
    */
   useEffect(() => {
-    if (balance == '0') {
+    if (isZeroBalance) {
       setSliderValue(0)
       return
     }
     const percentByAmount = Number(((Number(collateralAmount) / Number(balance)) * 100).toFixed())
     setSliderValue(percentByAmount)
-  }, [collateralAmount, balance, outcomeTokenId])
+  }, [collateralAmount, balance, isZeroBalance, outcomeTokenId])
 
   return (
     <Stack
@@ -302,7 +304,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
           onChangeEnd={() => setCollateralAmount(displayAmount)}
-          isDisabled={balance == '0'}
+          isDisabled={isZeroBalance}
           focusThumbOnChange={false}
         >
           <SliderTrack>
