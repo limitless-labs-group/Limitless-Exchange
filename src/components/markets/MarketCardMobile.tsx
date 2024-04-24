@@ -47,7 +47,7 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
         <HStack w={'full'} spacing={3}>
           <Avatar src={market?.imageURI} size={'lg'} onClick={() => router.push(marketURI)} />
 
-          <Stack alignItems={'start'}>
+          <Stack alignItems={'start'} mt={1}>
             <Text fontWeight={'bold'} fontSize={'16px'} noOfLines={2} lineHeight={'18px'}>
               {market?.title ?? 'Noname market'}
             </Text>
@@ -58,7 +58,7 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
               justifyContent={'space-between'}
               divider={<FaCircle size={'3px'} />}
               gap={2}
-              fontWeight={'bold'}
+              fontWeight={'medium'}
             >
               <Text>{market?.expirationData}</Text>
               <Text>{`${NumberUtil.toFixed(liquidity, 4)} ${collateralToken.symbol}`}</Text>

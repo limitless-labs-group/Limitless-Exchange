@@ -58,7 +58,7 @@ export const PortfolioMobileMarketCard = ({ marketStats, ...props }: IPortfolioM
         filter={marketStats.market.closed ? 'blur(4px)' : 'none'}
         {...props}
       >
-        <Stack w={'full'} spacing={3}>
+        <Stack w={'full'} spacing={3} mt={1}>
           <Stack w={'full'} lineHeight={'18px'}>
             {/* Outcome Row */}
             <HStack w={'full'} justifyContent={'space-between'}>
