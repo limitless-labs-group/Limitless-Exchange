@@ -158,13 +158,17 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
 
           <HStack>
             <Link href={market?.creator.link} isExternal>
-              <Avatar
-                size={'md'}
+              <Image
+                w={'44px'}
+                h={'44px'}
                 src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
-                name={market?.creator.name}
+                borderRadius={'full'}
+                border={'1px solid'}
+                borderColor={'border'}
                 bg={'brand'}
                 p={0}
                 cursor={'pointer'}
+                fit={'cover'}
               />
             </Link>
             <VStack spacing={1} alignItems={'start'}>
