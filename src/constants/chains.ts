@@ -1,3 +1,3 @@
 import { base, baseSepolia } from 'viem/chains'
 
-export const defaultChain = baseSepolia
+export const defaultChain = base

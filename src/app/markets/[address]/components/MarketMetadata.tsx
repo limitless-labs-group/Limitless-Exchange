@@ -159,7 +159,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
           <HStack>
             <Link href={market?.creator.link} isExternal>
               <Avatar
-                size={'sm'}
+                size={'md'}
                 src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
                 name={market?.creator.name}
                 bg={'brand'}
@@ -174,15 +174,11 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                 </Text>
               </Link>
               <HStack spacing={1} fontSize={'12px'}>
-                <Text p={'2px 6px'} bg={'bgLight'} borderRadius={'full'}>
-                  Bitcoin
-                </Text>
-                <Text p={'2px 6px'} bg={'bgLight'} borderRadius={'full'}>
-                  Oracle
-                </Text>
-                <Text p={'2px 6px'} bg={'bgLight'} borderRadius={'full'}>
-                  Ethereum
-                </Text>
+                {market?.tags?.map((tag, i) => (
+                  <Text key={i} p={'2px 6px'} bg={'bgLight'} borderRadius={'full'}>
+                    {tag}
+                  </Text>
+                ))}
               </HStack>
             </VStack>
           </HStack>

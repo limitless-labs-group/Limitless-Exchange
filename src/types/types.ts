@@ -16,17 +16,19 @@ export type Market = {
   address: {
     [chainId: number]: Address
   }
-  outcomeTokens: string[]
-  questionId: {
+  questionId?: {
     [chainId: number]: Hash
   }
   conditionId: {
     [chainId: number]: Hash
   }
+  outcomeTokens: string[]
   title: string
-  imageURI?: string
   description: string
+  imageURI: string
+  ogImageURI?: string
   expirationData: string
+  tags?: string[]
   creator: {
     name: string
     imageURI?: string
