@@ -20,7 +20,7 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market1-placeholder.jpg',
     imageURI: '/assets/images/markets/market1.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market1-og.jpg',
-    expirationData: '31 December',
+    expirationData: '31 Dec',
     creator: {
       name: '/skininthegame',
       imageURI: '/assets/images/markets/skininthegame.jpg',
@@ -66,7 +66,7 @@ export const markets: Market[] = [
     },
     outcomeTokens: ['Yes', 'No'],
     title: 'Will $ONCHAIN hit $100M FDV in May?',
-    description: `Will $ONCHAIN reach a $100M FDV in May? Place your bets today!.`,
+    description: `Will $ONCHAIN reach a $100M FDV in May? Place your bets today!`,
     placeholderURI: '/assets/images/markets/market3-placeholder.jpg',
     imageURI: '/assets/images/markets/market3.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market3-og.jpg',
