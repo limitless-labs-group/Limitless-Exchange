@@ -15,22 +15,13 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 export const BalanceCard = ({ ...props }: StackProps) => {
   /**
-   * UI
-   */
-  const {
-    isOpen: isOpenWithdraw,
-    onOpen: onOpenWithdraw,
-    onClose: onCloseWithdraw,
-  } = useDisclosure()
-
-  /**
    * BALANCE
    */
-  const { balanceOfSmartWallet, status } = useBalanceService()
+  const { balanceOfSmartWallet, status, setUnwrap } = useBalanceService()
 
   /**
    * PRICE ORACLE
@@ -44,6 +35,21 @@ export const BalanceCard = ({ ...props }: StackProps) => {
   const ethPriceFormatted = useMemo(() => {
     return NumberUtil.formatThousands(ethPrice, 2)
   }, [ethPrice])
+
+  /**
+   * UI
+   */
+  const {
+    isOpen: isOpenWithdraw,
+    onOpen: onOpenWithdraw,
+    onClose: onCloseWithdraw,
+  } = useDisclosure()
+
+  useEffect(() => {
+    if (!isOpenWithdraw) {
+      setUnwrap(false)
+    }
+  }, [isOpenWithdraw])
 
   return (
     <Stack
