@@ -8,7 +8,7 @@ import { Address, GetBalanceResult } from '@/types'
 import { Logger, NumberUtil } from '@/utils'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
-import { PropsWithChildren, createContext, useContext, useMemo, useState } from 'react'
+import { PropsWithChildren, createContext, useContext, useEffect, useMemo, useState } from 'react'
 import {
   TransactionReceipt,
   formatEther,
@@ -119,6 +119,11 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const [unwrap, setUnwrap] = useState(false) // unwrap on withdrawal
 
+  // disable unwrapping
+  useEffect(() => {
+    setUnwrap(false)
+  }, [pathname])
+
   useQuery({
     queryKey: ['autoWrapEth', smartWalletAddress, unwrap],
     queryFn: async () => {
@@ -206,28 +211,42 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         toast({
           render: () => <Toast title={'Unwrapping ETH...'} />,
         })
+
         const unwrapReceipt = await etherspot?.unwrapEth(amountBI)
         if (!unwrapReceipt) {
           // TODO: show error toast
           log.error('Unwrap is unsuccessful')
           return
         }
+
+        await refetchbalanceOfSmartWallet()
+
+        toast({
+          render: () => <Toast title={'Sending ETH...'} />,
+        })
+
         const transferReceipt = (await etherspot?.transferEthers(
           addressToWithdraw as Address,
           amountBI,
           true
         )) as TransactionReceipt | undefined
+
         if (!transferReceipt) {
           // TODO: show error toast
           log.error('Transfer ETH is unsuccessful')
           return
         }
+
+        setAmount('')
         setUnwrap(false)
+
         toast({
           render: () => <ToastWithdraw receipt={transferReceipt} />,
         })
+
         return
       }
+
       await transferErc20({
         token: collateralToken.address[defaultChain.id],
         to: addressToWithdraw as Address,
@@ -252,14 +271,14 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
    * UI STATUS
    */
   const status: BalanceServiceStatus = useMemo(() => {
+    if (isLoadingMint || isLoadingWithdraw) {
+      return 'Loading'
+    }
     if (isInvalidAddressToWithdraw) {
       return 'InvalidAddress'
     }
     if (isInvalidAmount) {
       return 'InvalidAmount'
-    }
-    if (isLoadingMint || isLoadingWithdraw) {
-      return 'Loading'
     }
     return 'ReadyToFund'
   }, [isInvalidAddressToWithdraw, isInvalidAmount, isLoadingMint, isLoadingWithdraw])
