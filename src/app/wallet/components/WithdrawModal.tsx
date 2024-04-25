@@ -2,7 +2,16 @@ import { Button, IModal, InfoIcon, Input, Modal, Tooltip } from '@/components'
 import { collateralToken, defaultChain } from '@/constants'
 import { useBalanceService } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { HStack, Heading, InputGroup, Stack, Switch, Text } from '@chakra-ui/react'
+import {
+  HStack,
+  Heading,
+  InputGroup,
+  Stack,
+  Switch,
+  Text,
+  useDisclosure,
+  IconButton,
+} from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { zeroAddress } from 'viem'
 
@@ -18,6 +27,8 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
     withdraw,
     status,
   } = useBalanceService()
+
+  const disclosure = useDisclosure()
 
   useEffect(() => {
     setAmount('')
@@ -79,9 +90,20 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
           />
           <Text color={unwrap ? 'font' : 'fontLight'}>ETH</Text>
           <Tooltip
+            isOpen={disclosure.isOpen}
             label={`Select WETH if you want to transfer wrapped ether (ERC20) tokens to your external wallet.\nSelect ETH if you want to unwrap it and transfer ether to your external wallet or exchange.`}
           >
-            <InfoIcon fontSize={'9px'} p={'3px'} />
+            <IconButton
+              variant='unstyled'
+              minW='none'
+              minHeight='auto'
+              height='auto'
+              aria-label='info'
+              onMouseEnter={disclosure.onOpen}
+              onMouseLeave={disclosure.onClose}
+              onClick={disclosure.onToggle}
+              icon={<InfoIcon fontSize={'9px'} p={'3px'} />}
+            />
           </Tooltip>
         </HStack>
 
