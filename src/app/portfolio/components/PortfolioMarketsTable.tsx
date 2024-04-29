@@ -1,13 +1,13 @@
 import { PortfolioMarketCard, PortfolioMobileMarketCard } from '@/app/portfolio/components'
 import { useHistory } from '@/services'
-import { Flex, Grid, GridProps, Text, useMediaQuery } from '@chakra-ui/react'
+import { Flex, Grid, GridProps, Text } from '@chakra-ui/react'
 import { useEffect } from 'react'
-import { IPHONE14_PRO_MAX_WIDTH } from '@/constants/device'
 import { v4 as uuidv4 } from 'uuid'
+import { useIsMobile } from '@/hooks'
 
 export const PortfolioMarketsTable = ({ ...props }: GridProps) => {
   const { activeMarkets, getActiveMarkets } = useHistory()
-  const [isLargerThan430] = useMediaQuery(`(min-width: ${IPHONE14_PRO_MAX_WIDTH + 1}px)`)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     getActiveMarkets()
@@ -24,10 +24,10 @@ export const PortfolioMarketsTable = ({ ...props }: GridProps) => {
       {...props}
     >
       {activeMarkets?.map((marketStats, id) =>
-        isLargerThan430 ? (
-          <PortfolioMarketCard key={uuidv4()} marketStats={marketStats} />
-        ) : (
+        isMobile ? (
           <PortfolioMobileMarketCard key={uuidv4()} marketStats={marketStats} />
+        ) : (
+          <PortfolioMarketCard key={uuidv4()} marketStats={marketStats} />
         )
       )}
     </Grid>

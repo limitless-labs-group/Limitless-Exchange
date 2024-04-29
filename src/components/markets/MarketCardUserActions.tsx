@@ -10,13 +10,17 @@ interface IMarketCardUserActions extends StackProps {
   shareLinks: ShareURI
 }
 
-export const MarketCardUserActions = ({ marketURI, shareLinks }: IMarketCardUserActions) => {
+export const MarketCardUserActions = ({
+  marketURI,
+  shareLinks,
+  ...props
+}: IMarketCardUserActions) => {
   const router = useRouter()
 
   const { onCopy, hasCopied } = useClipboard(marketURI)
 
   return (
-    <HStack h={'33px'}>
+    <HStack h={'33px'} {...props}>
       <Button
         bg={'black'}
         color={'white'}
