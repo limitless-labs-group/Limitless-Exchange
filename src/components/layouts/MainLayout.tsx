@@ -15,10 +15,10 @@ export const MainLayout = ({ children, maxContentWidth, ...props }: IMainLayout)
     overflow={'hidden'}
     alignItems={'center'}
     justifyContent={'space-between'}
-    gap={{ sm: 6, md: 0 }}
+    gap={{ sm: 6, md: 10 }}
     {...props}
   >
-    <VStack w={'full'} spacing={props.gap ?? { sm: 6, md: 12 }}>
+    <VStack w={'full'} spacing={props.gap ?? { sm: 6, md: 10 }}>
       <Header />
       <Flex
         h={'full'}

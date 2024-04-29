@@ -1,4 +1,5 @@
 import { Market } from '@/types'
+import { zeroAddress } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
 
 export const markets: Market[] = [
@@ -77,5 +78,30 @@ export const markets: Market[] = [
       link: 'https://warpcast.com/~/channel/onchain',
     },
     tags: ['Onchain', 'Farcaster', 'Memecoins', 'Base'],
+  },
+  {
+    address: {
+      [base.id]: '0x25168AD58115B4480dE3dB938151782C34e02671', // prod
+      // [base.id]: zeroAddress, // dev
+      [baseSepolia.id]: zeroAddress,
+    },
+    conditionId: {
+      [base.id]: '0x6bcb27f7b07097f2eea2482585eb39d3ab01d39d355b4778c259673638ed81a1', // prod
+      // [base.id]: zeroAddress, // dev
+      [baseSepolia.id]: zeroAddress,
+    },
+    outcomeTokens: ['Yes', 'No'],
+    title: 'Will Limitless achieve $10M in volume in the first year since launch?',
+    description: `Bet on or against new social prediction market Limitless’ success.`,
+    placeholderURI: '/assets/images/markets/market4-placeholder.jpg',
+    imageURI: '/assets/images/markets/market4.jpg',
+    ogImageURI: 'https://limitless.exchange/assets/images/markets/market4-og.jpg',
+    expirationData: 'Apr 25 2025',
+    creator: {
+      name: '@grin',
+      imageURI: '/assets/images/markets/grin.jpg',
+      link: 'https://warpcast.com/grin',
+    },
+    tags: ['Limitless', 'KPI driven', 'Grin'],
   },
 ]
