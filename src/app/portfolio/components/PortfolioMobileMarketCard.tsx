@@ -4,9 +4,8 @@ import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 import { Flex, HStack, Stack, StackProps, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { MarketCardMobile } from '@/components/markets/MarketCardMobile'
 import { usePriceOracle } from '@/providers'
-import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
+import { MarketCardMobile, MarketCardUserActions } from '@/components'
 
 interface IPortfolioMarketCard extends StackProps {
   marketStats: HistoryMarketStats
@@ -63,14 +62,13 @@ export const PortfolioMobileMarketCard = ({ marketStats, ...props }: IPortfolioM
             {/* Outcome Row */}
             <HStack w={'full'} justifyContent={'space-between'}>
               <Text color={'fontLight'}>Outcome</Text>
-              <HStack color={getOutcomeNotation() === 'Yes' ? 'green' : 'red'}>
-                <Text>
-                  {getOutcomeNotation()}&nbsp;
-                  {`${NumberUtil.toFixed(marketStats.latestTrade?.outcomePercent, 3)} ${
-                    collateralToken.symbol
-                  }`}
-                </Text>
-              </HStack>
+
+              <Text color={getOutcomeNotation() === 'Yes' ? 'green' : 'red'}>
+                {`${getOutcomeNotation()} ${NumberUtil.toFixed(
+                  marketStats.latestTrade?.outcomePercent,
+                  3
+                )} ${collateralToken.symbol}`}
+              </Text>
             </HStack>
 
             {/* Bet Row */}
@@ -93,6 +91,7 @@ export const PortfolioMobileMarketCard = ({ marketStats, ...props }: IPortfolioM
             {/* Max win Row */}
             <HStack w={'full'} justifyContent={'space-between'}>
               <Text color={'fontLight'}>Max win</Text>
+
               <HStack>
                 <Text>{`${NumberUtil.toFixed(marketStats.outcomeTokenAmount, 4)} ${
                   collateralToken.symbol

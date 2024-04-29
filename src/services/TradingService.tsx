@@ -288,6 +288,11 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         }
       }
 
+      if (outcomeTokenAmountBI == 0n) {
+        setQuotes(null)
+        return null
+      }
+
       const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 18)
       const outcomeTokenPrice = (Number(collateralAmount) / Number(outcomeTokenAmount)).toString()
       const roi = ((Number(outcomeTokenAmount) / Number(collateralAmount) - 1) * 100).toString()
