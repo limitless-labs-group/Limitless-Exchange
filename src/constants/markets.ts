@@ -81,12 +81,12 @@ export const markets: Market[] = [
   },
   {
     address: {
-      [base.id]: '0x25168AD58115B4480dE3dB938151782C34e02671', // prod
+      [base.id]: '0x4585482A258d66b16a95734E86DCA1Ea338AC100', // prod
       // [base.id]: zeroAddress, // dev
       [baseSepolia.id]: zeroAddress,
     },
     conditionId: {
-      [base.id]: '0x6bcb27f7b07097f2eea2482585eb39d3ab01d39d355b4778c259673638ed81a1', // prod
+      [base.id]: '0x85b3752114969525a2a84dba1c1f2534bf830e64c1293a758095126a4dd165ba', // prod
       // [base.id]: zeroAddress, // dev
       [baseSepolia.id]: zeroAddress,
     },
