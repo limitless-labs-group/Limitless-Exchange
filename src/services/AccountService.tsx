@@ -57,7 +57,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userInfo?.verifierId}`,
         {
           headers: {
-            api_key: 'NEYNAR_API_DOCS',
+            api_key: process.env.NEXT_PUBLIC_NEYNAR_API_KEY,
           },
         }
       )
