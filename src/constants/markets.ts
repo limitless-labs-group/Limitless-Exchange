@@ -5,6 +5,31 @@ import { base, baseSepolia } from 'viem/chains'
 export const markets: Market[] = [
   {
     address: {
+      [base.id]: '0x4585482A258d66b16a95734E86DCA1Ea338AC100', // prod
+      // [base.id]: zeroAddress, // dev
+      [baseSepolia.id]: zeroAddress,
+    },
+    conditionId: {
+      [base.id]: '0x85b3752114969525a2a84dba1c1f2534bf830e64c1293a758095126a4dd165ba', // prod
+      // [base.id]: zeroAddress, // dev
+      [baseSepolia.id]: zeroAddress,
+    },
+    outcomeTokens: ['Yes', 'No'],
+    title: 'Will Limitless achieve $10M in volume in the first year since launch?',
+    description: `Bet on or against new social prediction market Limitless’ success.`,
+    placeholderURI: '/assets/images/markets/market4-placeholder.jpg',
+    imageURI: '/assets/images/markets/market4.jpg',
+    ogImageURI: 'https://limitless.exchange/assets/images/markets/market4-og.jpg',
+    expirationData: 'Apr 25 2025',
+    creator: {
+      name: '@grin',
+      imageURI: '/assets/images/markets/grin.jpg',
+      link: 'https://warpcast.com/grin',
+    },
+    tags: ['Limitless', 'KPI driven', 'Grin'],
+  },
+  {
+    address: {
       [base.id]: '0x0e03edc2a0ba38e803dad62b31b6e6a2f4b216cc', // prod
       // [base.id]: '0x07148374d075792850b71e5c660fc84577a004da', // dev
       [baseSepolia.id]: '0x5665E9160Eb557E711482Cca20a31089a24F89d0',
@@ -78,30 +103,5 @@ export const markets: Market[] = [
       link: 'https://warpcast.com/~/channel/onchain',
     },
     tags: ['Onchain', 'Farcaster', 'Memecoins', 'Base'],
-  },
-  {
-    address: {
-      [base.id]: '0x4585482A258d66b16a95734E86DCA1Ea338AC100', // prod
-      // [base.id]: zeroAddress, // dev
-      [baseSepolia.id]: zeroAddress,
-    },
-    conditionId: {
-      [base.id]: '0x85b3752114969525a2a84dba1c1f2534bf830e64c1293a758095126a4dd165ba', // prod
-      // [base.id]: zeroAddress, // dev
-      [baseSepolia.id]: zeroAddress,
-    },
-    outcomeTokens: ['Yes', 'No'],
-    title: 'Will Limitless achieve $10M in volume in the first year since launch?',
-    description: `Bet on or against new social prediction market Limitless’ success.`,
-    placeholderURI: '/assets/images/markets/market4-placeholder.jpg',
-    imageURI: '/assets/images/markets/market4.jpg',
-    ogImageURI: 'https://limitless.exchange/assets/images/markets/market4-og.jpg',
-    expirationData: 'Apr 25 2025',
-    creator: {
-      name: '@grin',
-      imageURI: '/assets/images/markets/grin.jpg',
-      link: 'https://warpcast.com/grin',
-    },
-    tags: ['Limitless', 'KPI driven', 'Grin'],
   },
 ]

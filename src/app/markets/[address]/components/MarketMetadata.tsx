@@ -65,6 +65,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
         <VStack alignItems={'start'} spacing={4} w={'full'}>
           {isMobile ? (
             <HStack
+              w={'full'}
               fontSize={'12px'}
               color={'fontLight'}
               justifyContent={'space-between'}
@@ -73,34 +74,29 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
               fontWeight={'medium'}
             >
               <Text>{market?.expirationData}</Text>
-
               <Text>{`${NumberUtil.toFixed(liquidity, 4)} ${collateralToken.symbol}`}</Text>
-
               <Text>{holdersCount ?? 0} investors</Text>
             </HStack>
           ) : (
-            <HStack spacing={4} px={{ sm: 2, md: 0 }}>
-              <HStack>
+            <HStack w={'full'} spacing={4} justifyContent={'space-between'}>
+              <Stack spacing={0}>
                 <Text color={'fontLight'}>Pool</Text>
-
                 <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
                   collateralToken.symbol
                 }`}</Text>
-              </HStack>
+              </Stack>
 
-              <HStack>
+              <Stack spacing={0}>
                 <Text color={'fontLight'}>Investors</Text>
-
                 <Text fontWeight={'bold'}>{holdersCount ?? 0}</Text>
-              </HStack>
+              </Stack>
 
-              <HStack>
+              <Stack spacing={0}>
                 <Text color={'fontLight'}>Deadline</Text>
-
                 <Text noOfLines={1} fontWeight={'bold'}>
                   {market?.expirationData}
                 </Text>
-              </HStack>
+              </Stack>
             </HStack>
           )}
 
