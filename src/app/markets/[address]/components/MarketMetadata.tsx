@@ -1,6 +1,6 @@
 import { Button } from '@/components'
 import { collateralToken, defaultChain } from '@/constants'
-import { useMarketData } from '@/hooks'
+import { useIsMobile, useMarketData } from '@/hooks'
 import {
   ClickEvent,
   ShareClickedMetadata,
@@ -30,7 +30,7 @@ import {
   useClipboard,
 } from '@chakra-ui/react'
 import { FaShareSquare } from 'react-icons/fa'
-import { FaLink, FaXTwitter } from 'react-icons/fa6'
+import { FaCircle, FaLink, FaXTwitter } from 'react-icons/fa6'
 
 export const MarketMetadata = ({ ...props }: StackProps) => {
   const { market } = useTradingService()
@@ -41,6 +41,8 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
   const { onCopy, hasCopied } = useClipboard(window.location.href)
 
   const { tweetURI, castURI } = createMarketShareUrls(market, outcomeTokensPercent)
+
+  const isMobile = useIsMobile()
 
   return (
     <Stack w={'full'} alignItems={'start'} spacing={4} {...props}>
@@ -61,24 +63,42 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
         />
 
         <VStack alignItems={'start'} spacing={4} w={'full'}>
-          <HStack spacing={4} px={{ sm: 2, md: 0 }}>
-            <HStack>
-              <Text color={'fontLight'}>Pool</Text>
-              <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(liquidity, 4)} ${
-                collateralToken.symbol
-              }`}</Text>
+          {isMobile ? (
+            <HStack
+              w={'full'}
+              fontSize={'12px'}
+              color={'fontLight'}
+              justifyContent={'space-between'}
+              divider={<FaCircle size={'3px'} />}
+              gap={2}
+              fontWeight={'medium'}
+            >
+              <Text>{market?.expirationData}</Text>
+              <Text>{`${NumberUtil.toFixed(liquidity, 4)} ${collateralToken.symbol}`}</Text>
+              <Text>{holdersCount ?? 0} investors</Text>
             </HStack>
-            <HStack>
-              <Text color={'fontLight'}>Investors</Text>
-              <Text fontWeight={'bold'}>{holdersCount ?? 0}</Text>
+          ) : (
+            <HStack w={'full'} spacing={4} justifyContent={'space-between'}>
+              <Stack spacing={0}>
+                <Text color={'fontLight'}>Pool</Text>
+                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
+                  collateralToken.symbol
+                }`}</Text>
+              </Stack>
+
+              <Stack spacing={0}>
+                <Text color={'fontLight'}>Investors</Text>
+                <Text fontWeight={'bold'}>{holdersCount ?? 0}</Text>
+              </Stack>
+
+              <Stack spacing={0}>
+                <Text color={'fontLight'}>Deadline</Text>
+                <Text noOfLines={1} fontWeight={'bold'}>
+                  {market?.expirationData}
+                </Text>
+              </Stack>
             </HStack>
-            <HStack>
-              <Text color={'fontLight'}>Deadline</Text>
-              <Text noOfLines={1} fontWeight={'bold'}>
-                {market?.expirationData}
-              </Text>
-            </HStack>
-          </HStack>
+          )}
 
           <Heading fontSize={'28px'}>{market?.title}</Heading>
 

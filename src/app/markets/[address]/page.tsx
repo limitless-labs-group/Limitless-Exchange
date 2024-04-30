@@ -7,14 +7,13 @@ import { useEffect, useMemo } from 'react'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
 import { defaultChain, markets } from '@/constants'
 import { Market } from '@/types'
-import { getAddress } from 'viem'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   const { trackOpened } = useAmplitude()
   useEffect(() => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
       page: 'Market Page',
-      market: getAddress(params.address),
+      market: params.address,
     })
   }, [])
 

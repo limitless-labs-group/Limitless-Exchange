@@ -138,9 +138,7 @@ export const TradeForm = ({ ...props }: StackProps) => {
     <Stack
       h={'fit-content'}
       w={'full'}
-      minW={'330px'}
       maxW={'400px'}
-      // border={`1px solid ${colors.border}`}
       boxShadow={'0 0 12px #ddd'}
       borderRadius={borderRadius}
       spacing={0}

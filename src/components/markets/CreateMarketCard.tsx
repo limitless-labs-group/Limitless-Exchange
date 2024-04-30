@@ -27,7 +27,8 @@ export const CreateMarketCard = () => {
       <Image
         src={'/assets/images/create-market.svg'}
         w={{ sm: 'full' }}
-        h={{ sm: '200px', md: '150px' }}
+        // h={{ sm: '200px', md: '150px' }}
+        aspectRatio={'3/1'}
         fit={'contain'}
         bg={'bgLight'}
         borderRadius={borderRadius}

@@ -1,10 +1,12 @@
 'use client'
 
-import { CreateMarketCard, MainLayout, MarketCard } from '@/components'
+import { CreateMarketCard, MainLayout, MarketCard, MarketCardMobile } from '@/components'
 import { defaultChain, markets } from '@/constants'
+import { useIsMobile } from '@/hooks'
 import { OpenEvent, useAmplitude } from '@/services'
 import { Box, Grid, HStack, Stack, Text } from '@chakra-ui/react'
 import { useEffect } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
 const MainPage = () => {
   const { trackOpened } = useAmplitude()
@@ -13,6 +15,8 @@ const MainPage = () => {
       page: 'Explore Markets',
     })
   }, [])
+
+  const isMobile = useIsMobile()
 
   return (
     <MainLayout>
@@ -36,12 +40,12 @@ const MainPage = () => {
 
           {markets.map(
             (market) =>
-              !market.closed && (
-                <MarketCard
-                  key={market.address[defaultChain.id]}
-                  marketAddress={market.address[defaultChain.id]}
-                />
-              )
+              !market.closed &&
+              (isMobile ? (
+                <MarketCardMobile key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
+              ) : (
+                <MarketCard key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
+              ))
           )}
         </Grid>
       </Stack>
