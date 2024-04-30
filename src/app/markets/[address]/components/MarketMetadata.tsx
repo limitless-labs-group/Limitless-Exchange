@@ -83,7 +83,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
               <HStack>
                 <Text color={'fontLight'}>Pool</Text>
 
-                <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(liquidity, 4)} ${
+                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
                   collateralToken.symbol
                 }`}</Text>
               </HStack>
