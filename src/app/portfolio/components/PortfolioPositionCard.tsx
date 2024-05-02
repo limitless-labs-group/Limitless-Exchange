@@ -1,6 +1,6 @@
 import { MarketCard } from '@/components'
 import { collateralToken, defaultChain, markets } from '@/constants'
-import { createPortfolioShareUrls, HistoryMarketStats } from '@/services'
+import { createPortfolioShareUrls, HistoryPosition } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -10,27 +10,34 @@ import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
 import { FaFileInvoiceDollar, FaTrophy } from 'react-icons/fa6'
 import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
 
-interface IPortfolioMarketCard extends StackProps {
-  marketStats: HistoryMarketStats
+export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {
+  position: HistoryPosition
 }
 
-export const PortfolioMarketCard = ({ marketStats, ...props }: IPortfolioMarketCard) => {
+export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPositionCard) => {
   const market: Market | null = useMemo(
     () =>
       markets.find(
         (market) =>
-          market.address[defaultChain.id]?.toLowerCase() === marketStats.market.id.toLowerCase()
+          market.address[defaultChain.id]?.toLowerCase() === position.market.id.toLowerCase()
       ) ?? null,
-    [marketStats, markets]
+    [position, markets]
   )
 
-  const marketURI = `${window.location.origin}/markets/${marketStats.market.id}`
+  const marketURI = `${window.location.origin}/markets/${position.market.id}`
 
-  const shareLinks = createPortfolioShareUrls(market, marketStats)
+  const shareLinks = createPortfolioShareUrls(market, position)
+
+  const getOutcomeNotation = () => {
+    const outcomeTokenId = position.outcomeTokenId ?? 0
+    const defaultOutcomes = ['Yes', 'No']
+
+    return market?.outcomeTokens[outcomeTokenId] ?? defaultOutcomes[outcomeTokenId]
+  }
 
   return (
     <Flex>
-      {marketStats.market.closed && (
+      {position.market.closed && (
         <Text
           p={'2px 6px'}
           bg={'red'}
@@ -47,15 +54,15 @@ export const PortfolioMarketCard = ({ marketStats, ...props }: IPortfolioMarketC
         </Text>
       )}
       <MarketCard
-        marketAddress={marketStats.market.id}
-        filter={marketStats.market.closed ? 'blur(4px)' : 'none'}
+        marketAddress={position.market.id}
+        filter={position.market.closed ? 'blur(4px)' : 'none'}
         {...props}
       >
         <Stack spacing={4} w={'full'} justifyContent={'space-between'}>
           <HStack w={'full'} justifyContent={'space-between'} lineHeight={'18px'}>
             <HStack spacing={1}>
               <Flex p={2} bg={'bgLight'} borderRadius={borderRadius}>
-                {marketStats.outcomeTokenId == 0 ? (
+                {position.outcomeTokenId == 0 ? (
                   <FaArrowUp size={'15px'} fill={colors.fontLight} />
                 ) : (
                   <FaArrowDown size={'15px'} fill={colors.fontLight} />
@@ -63,11 +70,12 @@ export const PortfolioMarketCard = ({ marketStats, ...props }: IPortfolioMarketC
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Outcome</Text>
-                <Text fontWeight={'bold'}>
-                  {market?.outcomeTokens[marketStats.outcomeTokenId ?? 0] ??
-                    ['Yes', 'No'][marketStats.outcomeTokenId ?? 0]}{' '}
-                  {NumberUtil.toFixed(marketStats.latestTrade?.outcomePercent, 3)}{' '}
-                  {collateralToken.symbol}
+
+                <Text color={getOutcomeNotation() === 'Yes' ? 'green' : 'red'}>
+                  {`${getOutcomeNotation()} ${NumberUtil.toFixed(
+                    position.latestTrade?.outcomeTokenPrice,
+                    3
+                  )} ${collateralToken.symbol}`}
                 </Text>
               </Stack>
             </HStack>
@@ -78,10 +86,9 @@ export const PortfolioMarketCard = ({ marketStats, ...props }: IPortfolioMarketC
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Bet</Text>
-                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(
-                  marketStats.collateralAmount,
-                  6
-                )} ${collateralToken.symbol}`}</Text>
+                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
+                  collateralToken.symbol
+                }`}</Text>
               </Stack>
             </HStack>
 
@@ -91,10 +98,9 @@ export const PortfolioMarketCard = ({ marketStats, ...props }: IPortfolioMarketC
               </Flex>
               <Stack spacing={0}>
                 <Text color={'fontLight'}>Max win</Text>
-                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(
-                  marketStats.outcomeTokenAmount,
-                  6
-                )} ${collateralToken.symbol}`}</Text>
+                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(position.outcomeTokenAmount, 6)} ${
+                  collateralToken.symbol
+                }`}</Text>
               </Stack>
             </HStack>
           </HStack>

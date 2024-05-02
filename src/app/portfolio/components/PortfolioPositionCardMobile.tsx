@@ -1,34 +1,31 @@
 import { collateralToken, defaultChain, markets } from '@/constants'
-import { createPortfolioShareUrls, HistoryMarketStats } from '@/services'
+import { createPortfolioShareUrls } from '@/services'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
-import { Flex, HStack, Stack, StackProps, Text } from '@chakra-ui/react'
+import { Flex, HStack, Stack, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { usePriceOracle } from '@/providers'
 import { MarketCardMobile, MarketCardUserActions } from '@/components'
+import { IPortfolioPositionCard } from '@/app/portfolio/components'
 
-interface IPortfolioMarketCard extends StackProps {
-  marketStats: HistoryMarketStats
-}
-
-export const PortfolioMobileMarketCard = ({ marketStats, ...props }: IPortfolioMarketCard) => {
+export const PortfolioPositionCardMobile = ({ position, ...props }: IPortfolioPositionCard) => {
   const market: Market | null = useMemo(
     () =>
       markets.find(
         (market) =>
-          market.address[defaultChain.id]?.toLowerCase() === marketStats.market.id.toLowerCase()
+          market.address[defaultChain.id]?.toLowerCase() === position.market.id.toLowerCase()
       ) ?? null,
-    [marketStats, markets]
+    [position, markets]
   )
 
-  const marketURI = `${window.location.origin}/markets/${marketStats.market.id}`
+  const marketURI = `${window.location.origin}/markets/${position.market.id}`
 
-  const shareLinks = createPortfolioShareUrls(market, marketStats)
+  const shareLinks = createPortfolioShareUrls(market, position)
 
   const { convertEthToUsd } = usePriceOracle()
 
   const getOutcomeNotation = () => {
-    const outcomeTokenId = marketStats.outcomeTokenId ?? 0
+    const outcomeTokenId = position.outcomeTokenId ?? 0
     const defaultOutcomes = ['Yes', 'No']
 
     return market?.outcomeTokens[outcomeTokenId] ?? defaultOutcomes[outcomeTokenId]
@@ -36,7 +33,7 @@ export const PortfolioMobileMarketCard = ({ marketStats, ...props }: IPortfolioM
 
   return (
     <Flex>
-      {marketStats.market.closed && (
+      {position.market.closed && (
         <Text
           p={'2px 6px'}
           bg={'red'}
@@ -53,8 +50,8 @@ export const PortfolioMobileMarketCard = ({ marketStats, ...props }: IPortfolioM
         </Text>
       )}
       <MarketCardMobile
-        marketAddress={marketStats.market.id}
-        filter={marketStats.market.closed ? 'blur(4px)' : 'none'}
+        marketAddress={position.market.id}
+        filter={position.market.closed ? 'blur(4px)' : 'none'}
         {...props}
       >
         <Stack w={'full'} spacing={3} mt={1}>
@@ -65,7 +62,7 @@ export const PortfolioMobileMarketCard = ({ marketStats, ...props }: IPortfolioM
 
               <Text color={getOutcomeNotation() === 'Yes' ? 'green' : 'red'}>
                 {`${getOutcomeNotation()} ${NumberUtil.toFixed(
-                  marketStats.latestTrade?.outcomePercent,
+                  position.latestTrade?.outcomeTokenPrice,
                   3
                 )} ${collateralToken.symbol}`}
               </Text>
@@ -77,13 +74,11 @@ export const PortfolioMobileMarketCard = ({ marketStats, ...props }: IPortfolioM
 
               <HStack>
                 <Text>
-                  {`${NumberUtil.toFixed(marketStats.collateralAmount, 4)} ${
-                    collateralToken.symbol
-                  }`}
+                  {`${NumberUtil.toFixed(position.collateralAmount, 4)} ${collateralToken.symbol}`}
                 </Text>
 
                 <Text fontSize={'12px'} color={'fontLight'}>
-                  ~${NumberUtil.toFixed(convertEthToUsd(marketStats.collateralAmount), 2)}
+                  ~${NumberUtil.toFixed(convertEthToUsd(position.collateralAmount), 2)}
                 </Text>
               </HStack>
             </HStack>
@@ -93,12 +88,12 @@ export const PortfolioMobileMarketCard = ({ marketStats, ...props }: IPortfolioM
               <Text color={'fontLight'}>Max win</Text>
 
               <HStack>
-                <Text>{`${NumberUtil.toFixed(marketStats.outcomeTokenAmount, 4)} ${
+                <Text>{`${NumberUtil.toFixed(position.outcomeTokenAmount, 4)} ${
                   collateralToken.symbol
                 }`}</Text>
 
                 <Text fontSize={'12px'} color={'fontLight'}>
-                  ~${NumberUtil.toFixed(convertEthToUsd(marketStats.outcomeTokenAmount), 2)}
+                  ~${NumberUtil.toFixed(convertEthToUsd(position.outcomeTokenAmount), 2)}
                 </Text>
               </HStack>
             </HStack>

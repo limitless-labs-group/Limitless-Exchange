@@ -43,7 +43,7 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
           <Stack>
             {(!!userInfo?.name || !!userInfo?.email) && (
               <HStack w={'full'} px={4} alignItems={'center'}>
-                {!!userInfo?.profileImage ? (
+                {userInfo?.profileImage?.includes('http') ? (
                   <Image src={userInfo.profileImage} borderRadius={'full'} h={'18px'} w={'18px'} />
                 ) : (
                   <FaRegUserCircle size={'16px'} />
