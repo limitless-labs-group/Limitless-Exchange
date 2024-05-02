@@ -1,19 +1,10 @@
-import { PortfolioHistoryTableItem } from '@/app/portfolio/components/PortfolioHistoryTableItem'
+import { PortfolioTradesItem } from '@/app/portfolio/components/PortfolioTradesItem'
 import { useHistory } from '@/services'
-import {
-  Flex,
-  GridProps,
-  Table,
-  TableContainer,
-  Tbody,
-  Text,
-  Th,
-  Thead,
-  Tr,
-} from '@chakra-ui/react'
+import { Flex, Table, TableContainer, Tbody, Text, Th, Thead, Tr } from '@chakra-ui/react'
 import { useEffect } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
-export const PortfolioHistoryTable = () => {
+export const PortfolioTrades = () => {
   const { trades, getTrades } = useHistory()
 
   useEffect(() => {
@@ -47,8 +38,8 @@ export const PortfolioHistoryTable = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {trades?.map((trade, id) => (
-            <PortfolioHistoryTableItem key={id} trade={trade} />
+          {trades?.map((trade) => (
+            <PortfolioTradesItem key={uuidv4()} trade={trade} />
           ))}
         </Tbody>
       </Table>

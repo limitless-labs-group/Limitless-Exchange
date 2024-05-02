@@ -360,7 +360,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       })
       await sleep(1)
       toast({
-        render: () => <Toast title={`Updating markets data...`} />,
+        render: () => <Toast title={`Updating portfolio...`} />,
       })
 
       // TODO: redesign subgraph refetch logic
@@ -415,7 +415,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       })
       await sleep(1)
       toast({
-        render: () => <Toast title={`Updating markets data...`} />,
+        render: () => <Toast title={`Updating portfolio...`} />,
       })
 
       // TODO: redesign subgraph refetch logic

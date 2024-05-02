@@ -1,4 +1,4 @@
 export * from './PortfolioStats'
-export * from './PortfolioMarketCard'
-export * from './PortfolioMobileMarketCard'
-export * from './PortfolioMarketsTable'
+export * from './PortfolioPositionCard'
+export * from './PortfolioPositionCardMobile'
+export * from './PortfolioPositions'

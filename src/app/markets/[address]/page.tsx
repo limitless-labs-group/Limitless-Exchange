@@ -1,8 +1,8 @@
 'use client'
 
 import { MainLayout } from '@/components'
-import { MarketMetadata, TradeForm } from '@/app/markets/[address]/components'
-import { Flex, Spacer } from '@chakra-ui/react'
+import { MarketMetadata, MarketPositions, TradeForm } from '@/app/markets/[address]/components'
+import { Flex, HStack, Spacer, Stack } from '@chakra-ui/react'
 import { useEffect, useMemo } from 'react'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
 import { defaultChain, markets } from '@/constants'
@@ -34,11 +34,14 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
 
   return (
     <MainLayout maxContentWidth={'1200px'}>
-      <Flex gap={{ sm: '40px', md: 8 }} flexDir={{ sm: 'column', lg: 'row' }}>
-        <MarketMetadata flexBasis={'66%'} />
+      <Stack spacing={{ sm: '40px', md: 8 }} flexDir={{ sm: 'column', lg: 'row' }}>
+        <Stack flexBasis={'66%'} spacing={{ sm: 4, md: 10 }}>
+          <MarketMetadata />
+          <MarketPositions />
+        </Stack>
         <TradeForm flexBasis={'33%'} />
         <Spacer />
-      </Flex>
+      </Stack>
     </MainLayout>
   )
 }

@@ -44,7 +44,7 @@ export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
             {...props}
           >
             <HStack>
-              {!!userInfo?.profileImage ? (
+              {userInfo?.profileImage?.includes('http') ? (
                 <Image src={userInfo.profileImage} borderRadius={'full'} h={'20px'} w={'20px'} />
               ) : (
                 <FaRegUserCircle size={'18px'} />
