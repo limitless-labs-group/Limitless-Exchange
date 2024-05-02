@@ -16,7 +16,7 @@ export const MarketPositions = ({ ...props }: StackProps) => {
       allMarketsPositions?.filter(
         (position) => position.market.id === market?.address[defaultChain.id].toLowerCase()
       ),
-    [allMarketsPositions]
+    [allMarketsPositions, market]
   )
 
   const getOutcomeNotation = (position: HistoryPosition) => {
