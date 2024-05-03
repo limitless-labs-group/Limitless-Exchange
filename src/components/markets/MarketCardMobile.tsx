@@ -70,15 +70,19 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
         <Stack>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Deadline</Text>
-            <Text>{market?.expirationDate}</Text>
+            <Text fontWeight={'bold'}>{market?.expirationDate}</Text>
           </HStack>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Liquidity</Text>
-            <Text>{`${Number(liquidity).toFixed(2)} ${collateralToken.symbol}`}</Text>
+            <Text fontWeight={'bold'}>{`${Number(liquidity).toFixed(2)} ${
+              collateralToken.symbol
+            }`}</Text>
           </HStack>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Volume</Text>
-            <Text>{`${NumberUtil.toFixed(volume, 4)} ${collateralToken.symbol}`}</Text>
+            <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
+              collateralToken.symbol
+            }`}</Text>
           </HStack>
         </Stack>
 

@@ -72,19 +72,24 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
 
       <Grid alignItems={'start'} gap={4} w={'full'}>
         {isMobile ? (
-          <HStack
-            w={'full'}
-            fontSize={'12px'}
-            color={'fontLight'}
-            justifyContent={'space-between'}
-            divider={<FaCircle size={'3px'} />}
-            gap={2}
-            fontWeight={'medium'}
-          >
-            <Text>{market?.expirationDate}</Text>
-            <Text>{`${NumberUtil.toFixed(liquidity, 4)} ${collateralToken.symbol}`}</Text>
-            <Text>{`${NumberUtil.toFixed(volume, 4)} ${collateralToken.symbol} volume`}</Text>
-          </HStack>
+          <Stack>
+            <HStack w={'full'} justifyContent={'space-between'}>
+              <Text color={'fontLight'}>Deadline</Text>
+              <Text fontWeight={'bold'}>{market?.expirationDate}</Text>
+            </HStack>
+            <HStack w={'full'} justifyContent={'space-between'}>
+              <Text color={'fontLight'}>Liquidity</Text>
+              <Text fontWeight={'bold'}>{`${Number(liquidity).toFixed(2)} ${
+                collateralToken.symbol
+              }`}</Text>
+            </HStack>
+            <HStack w={'full'} justifyContent={'space-between'}>
+              <Text color={'fontLight'}>Volume</Text>
+              <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
+                collateralToken.symbol
+              }`}</Text>
+            </HStack>
+          </Stack>
         ) : (
           <HStack w={'full'} spacing={4} justifyContent={'space-between'}>
             <Stack spacing={0}>

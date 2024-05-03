@@ -48,7 +48,7 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market1-placeholder.jpg',
     imageURI: '/assets/images/markets/market1.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market1-og.jpg',
-    expirationDate: '31 Dec',
+    expirationDate: 'Dec 31 2024',
     expirationTimestamp: 1735682399000,
     expired: Date.now() > 1735682399000, // TODO: make dynamic
     creator: {
@@ -75,7 +75,7 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market2-placeholder.jpg',
     imageURI: '/assets/images/markets/market2.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market2-og.jpg',
-    expirationDate: '5 May',
+    expirationDate: 'May 5 2024',
     expirationTimestamp: 1714942799000,
     expired: Date.now() > 1714942799000, // TODO: make dynamic
     winningOutcomeIndex: 0, // TODO: report winners
@@ -103,7 +103,7 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market3-placeholder.jpg',
     imageURI: '/assets/images/markets/market3.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market3-og.jpg',
-    expirationDate: '31 May',
+    expirationDate: 'May 31 2024',
     expirationTimestamp: 1717189199000,
     expired: Date.now() > 1717189199000, // TODO: make dynamic
     creator: {
