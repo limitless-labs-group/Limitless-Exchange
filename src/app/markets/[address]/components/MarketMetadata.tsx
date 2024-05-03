@@ -37,7 +37,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
    */
   const { market } = useTradingService()
 
-  const { liquidity, holdersCount, outcomeTokensPercent } = useMarketData({
+  const { liquidity, volume, outcomeTokensPercent } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
   })
 
@@ -83,20 +83,22 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
           >
             <Text>{market?.expirationDate}</Text>
             <Text>{`${NumberUtil.toFixed(liquidity, 4)} ${collateralToken.symbol}`}</Text>
-            <Text>{holdersCount ?? 0} investors</Text>
+            <Text>{`${NumberUtil.toFixed(volume, 4)} ${collateralToken.symbol} volume`}</Text>
           </HStack>
         ) : (
           <HStack w={'full'} spacing={4} justifyContent={'space-between'}>
             <Stack spacing={0}>
-              <Text color={'fontLight'}>Pool</Text>
+              <Text color={'fontLight'}>Liquidity</Text>
               <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
                 collateralToken.symbol
               }`}</Text>
             </Stack>
 
             <Stack spacing={0}>
-              <Text color={'fontLight'}>Investors</Text>
-              <Text fontWeight={'bold'}>{holdersCount ?? 0}</Text>
+              <Text color={'fontLight'}>Volume</Text>
+              <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
+                collateralToken.symbol
+              }`}</Text>
             </Stack>
 
             <Stack spacing={0}>

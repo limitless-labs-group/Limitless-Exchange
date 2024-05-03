@@ -40,10 +40,7 @@ const MainPage = () => {
 
           {markets.map(
             (market) =>
-              !(
-                market.expired ||
-                (market.winningOutcomeIndex == 0 && window?.location.href.includes('?expired=true'))
-              ) &&
+              !market.expired &&
               (isMobile ? (
                 <MarketCardMobile key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
               ) : (

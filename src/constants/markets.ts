@@ -78,7 +78,7 @@ export const markets: Market[] = [
     expirationDate: '5 May',
     expirationTimestamp: 1714942799000,
     expired: Date.now() > 1714942799000, // TODO: make dynamic
-    winningOutcomeIndex: 0,
+    winningOutcomeIndex: 0, // TODO: report winners
     creator: {
       name: '@rev',
       imageURI: '/assets/images/markets/rev.jpg',

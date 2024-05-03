@@ -16,7 +16,7 @@ export const MarketClaimingForm = ({ ...props }: StackProps) => {
         (position) =>
           position.market.id === market?.address[defaultChain.id].toLowerCase() &&
           position.outcomeIndex === market.winningOutcomeIndex &&
-          (market.expired || window?.location.href.includes('?expired=true'))
+          market.expired
       )?.[0],
     [positions, market]
   )

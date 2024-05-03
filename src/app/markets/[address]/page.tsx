@@ -56,11 +56,6 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
     }
   }, [market])
 
-  /**
-   * CLAIM UI
-   */
-  const isClaimable = market?.expired || window?.location.href.includes('?expired=true')
-
   return (
     <MainLayout maxContentWidth={'1200px'}>
       {!market ? (
@@ -71,11 +66,11 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
         <Stack spacing={{ sm: 10, md: 12 }} flexDir={{ sm: 'column', lg: 'row' }}>
           <Stack flexBasis={'66%'} spacing={{ sm: 4, md: 10 }}>
             <MarketMetadata />
-            {!isClaimable && <MarketPositions />}
+            {!market?.expired && <MarketPositions />}
           </Stack>
 
           <Stack flexBasis={'33%'}>
-            {isClaimable ? <MarketClaimingForm /> : <MarketTradingForm />}
+            {market?.expired ? <MarketClaimingForm /> : <MarketTradingForm />}
           </Stack>
           <Spacer />
         </Stack>

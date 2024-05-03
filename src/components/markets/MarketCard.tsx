@@ -24,7 +24,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
     [marketAddress]
   )
 
-  const { outcomeTokensPercent, liquidity, holdersCount } = useMarketData({ marketAddress })
+  const { outcomeTokensPercent, liquidity, volume } = useMarketData({ marketAddress })
 
   const marketURI = `${window.location.origin}/markets/${marketAddress}`
 
@@ -81,23 +81,27 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
           {market?.title ?? 'Noname market'}
         </Heading>
 
-        <HStack w={'full'} spacing={3} justifyContent={'space-between'}>
-          <HStack>
-            <Text color={'fontLight'}>Pool</Text>
+        <HStack w={'full'} spacing={4} justifyContent={'space-between'}>
+          <Stack spacing={0}>
+            <Text color={'fontLight'}>Liquidity</Text>
             <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
               collateralToken.symbol
             }`}</Text>
-          </HStack>
-          <HStack>
-            <Text color={'fontLight'}>Investors</Text>
-            <Text fontWeight={'bold'}>{holdersCount ?? 0}</Text>
-          </HStack>
-          <HStack>
+          </Stack>
+
+          <Stack spacing={0}>
+            <Text color={'fontLight'}>Volume</Text>
+            <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
+              collateralToken.symbol
+            }`}</Text>
+          </Stack>
+
+          <Stack spacing={0}>
             <Text color={'fontLight'}>Deadline</Text>
             <Text noOfLines={1} fontWeight={'bold'}>
               {market?.expirationDate}
             </Text>
-          </HStack>
+          </Stack>
         </HStack>
 
         {children ?? (
