@@ -1,7 +1,6 @@
 'use client'
 
-import { PortfolioStats, PortfolioPositions } from '@/app/portfolio/components'
-import { PortfolioTrades } from '@/app/portfolio/components/PortfolioTrades'
+import { PortfolioStats, PortfolioPositions, PortfolioHistory } from '@/app/portfolio/components'
 import { MainLayout } from '@/components'
 import { OpenEvent, PageOpenedMetadata, useAmplitude } from '@/services'
 import { Box, HStack, Spacer, Stack, Text } from '@chakra-ui/react'
@@ -51,7 +50,7 @@ const PortfolioPage = () => {
           </Stack>
         </HStack>
 
-        {tab == 'Markets' ? <PortfolioPositions /> : <PortfolioTrades />}
+        {tab == 'Markets' ? <PortfolioPositions /> : <PortfolioHistory />}
       </Stack>
 
       <Spacer />

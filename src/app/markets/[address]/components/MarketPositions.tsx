@@ -20,7 +20,7 @@ export const MarketPositions = ({ ...props }: StackProps) => {
   )
 
   const getOutcomeNotation = (position: HistoryPosition) => {
-    const outcomeTokenId = position.outcomeTokenId ?? 0
+    const outcomeTokenId = position.outcomeIndex ?? 0
     const defaultOutcomes = ['Yes', 'No']
 
     return market?.outcomeTokens[outcomeTokenId] ?? defaultOutcomes[outcomeTokenId]

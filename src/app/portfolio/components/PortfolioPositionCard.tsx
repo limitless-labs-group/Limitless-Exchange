@@ -1,21 +1,29 @@
-import { MarketCard } from '@/components'
+import { Button, MarketCard } from '@/components'
 import { collateralToken, defaultChain, markets } from '@/constants'
 import { createPortfolioShareUrls, HistoryPosition } from '@/services'
 import { borderRadius, colors } from '@/styles'
-import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 import { Flex, HStack, Stack, StackProps, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
 import { FaFileInvoiceDollar, FaTrophy } from 'react-icons/fa6'
 import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
+import { useRouter } from 'next/navigation'
 
 export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {
   position: HistoryPosition
 }
 
 export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPositionCard) => {
-  const market: Market | null = useMemo(
+  /**
+   * NAVIGATION
+   */
+  const router = useRouter()
+
+  /**
+   * MARKET DATA
+   */
+  const market = useMemo(
     () =>
       markets.find(
         (market) =>
@@ -29,7 +37,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   const shareLinks = createPortfolioShareUrls(market, position)
 
   const getOutcomeNotation = () => {
-    const outcomeTokenId = position.outcomeTokenId ?? 0
+    const outcomeTokenId = position.outcomeIndex ?? 0
     const defaultOutcomes = ['Yes', 'No']
 
     return market?.outcomeTokens[outcomeTokenId] ?? defaultOutcomes[outcomeTokenId]
@@ -62,7 +70,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           <HStack w={'full'} justifyContent={'space-between'} lineHeight={'18px'}>
             <HStack spacing={1}>
               <Flex p={2} bg={'bgLight'} borderRadius={borderRadius}>
-                {position.outcomeTokenId == 0 ? (
+                {position.outcomeIndex == 0 ? (
                   <FaArrowUp size={'15px'} fill={colors.fontLight} />
                 ) : (
                   <FaArrowDown size={'15px'} fill={colors.fontLight} />
@@ -105,7 +113,27 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             </HStack>
           </HStack>
 
-          <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} />
+          <MarketCardUserActions
+            marketURI={marketURI}
+            shareLinks={shareLinks}
+            mainActionButton={(() => {
+              if (market?.expired) {
+                return (
+                  <Button
+                    bg={'brand'}
+                    color={'white'}
+                    h={'full'}
+                    w={'full'}
+                    p={1}
+                    onClick={() => router.push(marketURI)}
+                  >
+                    Claim winning
+                  </Button>
+                )
+              }
+              return undefined
+            })()}
+          />
         </Stack>
       </MarketCard>
     </Flex>

@@ -1,15 +1,20 @@
 import { collateralToken, defaultChain, markets } from '@/constants'
 import { createPortfolioShareUrls } from '@/services'
-import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 import { Flex, HStack, Stack, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { usePriceOracle } from '@/providers'
-import { MarketCardMobile, MarketCardUserActions } from '@/components'
+import { Button, MarketCardMobile, MarketCardUserActions } from '@/components'
 import { IPortfolioPositionCard } from '@/app/portfolio/components'
+import { useRouter } from 'next/navigation'
 
 export const PortfolioPositionCardMobile = ({ position, ...props }: IPortfolioPositionCard) => {
-  const market: Market | null = useMemo(
+  /**
+   * NAVIGATION
+   */
+  const router = useRouter()
+
+  const market = useMemo(
     () =>
       markets.find(
         (market) =>
@@ -25,7 +30,7 @@ export const PortfolioPositionCardMobile = ({ position, ...props }: IPortfolioPo
   const { convertEthToUsd } = usePriceOracle()
 
   const getOutcomeNotation = () => {
-    const outcomeTokenId = position.outcomeTokenId ?? 0
+    const outcomeTokenId = position.outcomeIndex ?? 0
     const defaultOutcomes = ['Yes', 'No']
 
     return market?.outcomeTokens[outcomeTokenId] ?? defaultOutcomes[outcomeTokenId]
@@ -99,7 +104,27 @@ export const PortfolioPositionCardMobile = ({ position, ...props }: IPortfolioPo
             </HStack>
           </Stack>
 
-          <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} />
+          <MarketCardUserActions
+            marketURI={marketURI}
+            shareLinks={shareLinks}
+            mainActionButton={(() => {
+              if (market?.expired) {
+                return (
+                  <Button
+                    bg={'brand'}
+                    color={'white'}
+                    h={'full'}
+                    w={'full'}
+                    p={1}
+                    onClick={() => router.push(marketURI)}
+                  >
+                    Claim winning
+                  </Button>
+                )
+              }
+              return undefined
+            })()}
+          />
         </Stack>
       </MarketCardMobile>
     </Flex>

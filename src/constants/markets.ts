@@ -20,7 +20,9 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market4-placeholder.jpg',
     imageURI: '/assets/images/markets/market4.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market4-og.jpg',
-    expirationData: 'Apr 25 2025',
+    expirationDate: 'Apr 25 2025',
+    expirationTimestamp: 1745614799000,
+    expired: Date.now() > 1745614799000, // TODO: make dynamic
     creator: {
       name: '@grin',
       imageURI: '/assets/images/markets/grin.jpg',
@@ -46,7 +48,9 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market1-placeholder.jpg',
     imageURI: '/assets/images/markets/market1.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market1-og.jpg',
-    expirationData: '31 Dec',
+    expirationDate: '31 Dec',
+    expirationTimestamp: 1735682399000,
+    expired: Date.now() > 1735682399000, // TODO: make dynamic
     creator: {
       name: '/skininthegame',
       imageURI: '/assets/images/markets/skininthegame.jpg',
@@ -71,7 +75,12 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market2-placeholder.jpg',
     imageURI: '/assets/images/markets/market2.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market2-og.jpg',
-    expirationData: '5 May',
+    expirationDate: '5 May',
+    // expirationTimestamp: 1714942799000,
+    // expired: Date.now() > 1714942799000, // TODO: make dynamic
+    expirationTimestamp: 1714597199000, // test
+    expired: Date.now() > 1714597199000, // test
+    winningOutcomeTokenId: 0,
     creator: {
       name: '@rev',
       imageURI: '/assets/images/markets/rev.jpg',
@@ -96,7 +105,9 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market3-placeholder.jpg',
     imageURI: '/assets/images/markets/market3.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market3-og.jpg',
-    expirationData: '31 May',
+    expirationDate: '31 May',
+    expirationTimestamp: 1717189199000,
+    expired: Date.now() > 1717189199000, // TODO: make dynamic
     creator: {
       name: '/onchain',
       imageURI: '/assets/images/markets/onchain.jpg',

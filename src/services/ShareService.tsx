@@ -77,7 +77,7 @@ export const createPortfolioShareUrls = (market: Market | null, position: Histor
     position.collateralAmount,
     6
   )} ${collateralToken.symbol} for ${
-    market?.outcomeTokens[position.outcomeTokenId ?? 0]
+    market?.outcomeTokens[position.outcomeIndex ?? 0]
   }\nMake yours on`
 
   const encodedBaseMessage = encodeURI(baseMessage)

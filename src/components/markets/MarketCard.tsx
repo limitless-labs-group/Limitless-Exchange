@@ -95,7 +95,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
           <HStack>
             <Text color={'fontLight'}>Deadline</Text>
             <Text noOfLines={1} fontWeight={'bold'}>
-              {market?.expirationData}
+              {market?.expirationDate}
             </Text>
           </HStack>
         </HStack>

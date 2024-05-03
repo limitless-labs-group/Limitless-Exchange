@@ -81,7 +81,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             gap={2}
             fontWeight={'medium'}
           >
-            <Text>{market?.expirationData}</Text>
+            <Text>{market?.expirationDate}</Text>
             <Text>{`${NumberUtil.toFixed(liquidity, 4)} ${collateralToken.symbol}`}</Text>
             <Text>{holdersCount ?? 0} investors</Text>
           </HStack>
@@ -102,7 +102,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             <Stack spacing={0}>
               <Text color={'fontLight'}>Deadline</Text>
               <Text noOfLines={1} fontWeight={'bold'}>
-                {market?.expirationData}
+                {market?.expirationDate}
               </Text>
             </Stack>
           </HStack>
@@ -187,6 +187,8 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
         <HStack>
           <Link href={market?.creator.link} isExternal>
             <Image
+              minW={'44px'}
+              minH={'44px'}
               w={'44px'}
               h={'44px'}
               src={market?.creator.imageURI ?? '/assets/images/logo.svg'}

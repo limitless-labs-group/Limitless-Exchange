@@ -61,7 +61,7 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
               gap={2}
               fontWeight={'medium'}
             >
-              <Text>{market?.expirationData}</Text>
+              <Text>{market?.expirationDate}</Text>
 
               <Text>{`${NumberUtil.toFixed(liquidity, 4)} ${collateralToken.symbol}`}</Text>
 

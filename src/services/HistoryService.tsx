@@ -3,12 +3,14 @@ import { useEtherspot } from '@/services'
 import { Address } from '@/types'
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { PropsWithChildren, createContext, useCallback, useContext, useMemo } from 'react'
-import { formatEther, formatUnits } from 'viem'
+import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
+import { Hash, formatEther, formatUnits } from 'viem'
 
 interface IHistoryService {
   trades: HistoryTrade[] | undefined
   getTrades: () => Promise<QueryObserverResult<HistoryTrade[], Error>>
+  redeems: HistoryRedeem[] | undefined
+  getRedeems: () => Promise<QueryObserverResult<HistoryRedeem[], Error>>
   positions: HistoryPosition[] | undefined
   getPositions: () => Promise<QueryObserverResult<HistoryPosition[], Error>>
   balanceInvested: number
@@ -34,8 +36,9 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       if (!smartWalletAddress) {
         return []
       }
+
       const queryName = 'trades'
-      const res = await axios.request({
+      const response = await axios.request({
         url: subgraphURI[defaultChain.id],
         method: 'post',
         data: {
@@ -48,6 +51,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
                   id
                   closed
                   funding
+                  conditionId
                 }
                 outcomeTokenAmounts
                 outcomeTokenNetCost
@@ -58,14 +62,14 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
           `,
         },
       })
-      const _trades = res.data.data?.[queryName] as HistoryTrade[]
+      const _trades = response.data.data?.[queryName] as HistoryTrade[]
       _trades.map((trade) => {
         const outcomeTokenAmountBI = BigInt(
           trade.outcomeTokenAmounts.find((amount) => BigInt(amount) != 0n) ?? 0
         )
         trade.outcomeTokenAmount = formatEther(outcomeTokenAmountBI)
         trade.strategy = Number(trade.outcomeTokenAmount) > 0 ? 'Buy' : 'Sell'
-        trade.outcomeTokenId = trade.outcomeTokenAmounts.findIndex((amount) => BigInt(amount) != 0n)
+        trade.outcomeIndex = trade.outcomeTokenAmounts.findIndex((amount) => BigInt(amount) != 0n)
         trade.collateralAmount = formatUnits(
           BigInt(trade.outcomeTokenNetCost),
           collateralToken.decimals
@@ -87,26 +91,75 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     enabled: !!smartWalletAddress,
   })
 
+  const { data: redeems, refetch: getRedeems } = useQuery({
+    queryKey: ['redeems', smartWalletAddress],
+    queryFn: async () => {
+      if (!smartWalletAddress) {
+        return []
+      }
+
+      const queryName = 'payoutRedemptions'
+      const response = await axios.request({
+        url: subgraphURI[defaultChain.id],
+        method: 'post',
+        data: {
+          query: `
+            query ${queryName} {
+              ${queryName} (
+                where: {redeemer: "${smartWalletAddress}"}
+              ) {
+                payout
+                conditionId
+                indexSets
+                blockTimestamp
+                transactionHash
+              }
+            }
+          `,
+        },
+      })
+      const _redeems = response.data.data?.[queryName] as HistoryRedeem[]
+      _redeems.map((redeem) => {
+        redeem.collateralAmount = formatUnits(BigInt(redeem.payout), collateralToken.decimals)
+        redeem.outcomeIndex = redeem.indexSets[0] == '1' ? 0 : 1
+      })
+
+      _redeems.sort(
+        (redeemA, redeemB) => Number(redeemB.blockTimestamp) - Number(redeemA.blockTimestamp)
+      )
+      console.log('redeems', _redeems)
+
+      return _redeems
+    },
+  })
+
+  /**
+   * Consolidate trades and redeems to get open positions
+   */
   const { data: positions, refetch: getPositions } = useQuery({
-    queryKey: ['positions', trades],
+    queryKey: ['positions', trades, redeems],
     queryFn: async () => {
       let _positions: HistoryPosition[] = []
+
       trades?.forEach((trade) => {
-        // TODO: replace hardcoded markets and close logic with dynamic
+        // TODO: replace hardcoded markets with dynamic
         const market = markets.find(
           (market) => market.address[defaultChain.id].toLowerCase() == trade.market.id.toLowerCase()
         )
-        if (!market || market.closed) {
+        if (
+          !market ||
+          (market.expired && market.winningOutcomeTokenId !== trade.outcomeIndex) // TODO: redesign filtering lost positions
+        ) {
           return
         }
 
         const existingMarket = _positions.find(
           (position) =>
-            position.market.id == trade.market.id && position.outcomeTokenId == trade.outcomeTokenId
+            position.market.id == trade.market.id && position.outcomeIndex == trade.outcomeIndex
         )
         const position = existingMarket ?? {
           market: trade.market,
-          outcomeTokenId: trade.outcomeTokenId,
+          outcomeIndex: trade.outcomeIndex,
         }
         position.latestTrade = trade
         position.collateralAmount = (
@@ -118,6 +171,23 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         if (!existingMarket) {
           _positions.push(position)
         }
+      })
+
+      redeems?.forEach((redeem) => {
+        const position = _positions.find(
+          (position) =>
+            position.market.conditionId === redeem.conditionId &&
+            position.outcomeIndex == redeem.outcomeIndex
+        )
+        if (!position) {
+          return
+        }
+        position.collateralAmount = (
+          Number(position.collateralAmount ?? 0) - Number(redeem.collateralAmount)
+        ).toString()
+        position.outcomeTokenAmount = (
+          Number(position.outcomeTokenAmount ?? 0) - Number(redeem.collateralAmount)
+        ).toString()
       })
 
       // filter markets with super small balance
@@ -150,6 +220,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   const contextProviderValue: IHistoryService = {
     trades,
     getTrades,
+    redeems,
+    getRedeems,
     positions,
     getPositions,
     balanceInvested,
@@ -166,7 +238,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 export type HistoryTrade = {
   market: HistoryMarket
   strategy?: 'Buy' | 'Sell'
-  outcomeTokenId?: number
+  outcomeIndex: number
   outcomeTokenAmounts: string[]
   outcomeTokenAmount?: string // outcome token amount traded
   outcomeTokenPrice?: string // collateral per outcome token
@@ -174,20 +246,31 @@ export type HistoryTrade = {
   // outcomePercent?: number // 50% yes / 50% no
   collateralAmount?: string // collateral amount traded
   blockTimestamp: string
-  transactionHash: string
+  transactionHash: Hash
 }
 
 export type HistoryMarket = {
   id: Address
+  conditionId: Hash
   paused?: boolean
   closed?: boolean
   funding?: string
   holdersCount: number
 }
 
+export type HistoryRedeem = {
+  payout: string // collateral amount raw
+  collateralAmount: string // collateral amount formatted
+  conditionId: Hash
+  indexSets: string[] // ["1"] for Yes
+  outcomeIndex: number
+  blockTimestamp: string
+  transactionHash: Hash
+}
+
 export type HistoryPosition = {
   market: HistoryMarket
-  outcomeTokenId?: number
+  outcomeIndex: number
   outcomeTokenAmount?: string
   collateralAmount?: string // collateral amount invested
   latestTrade?: HistoryTrade
