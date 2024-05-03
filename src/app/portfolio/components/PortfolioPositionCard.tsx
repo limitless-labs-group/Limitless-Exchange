@@ -117,7 +117,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             marketURI={marketURI}
             shareLinks={shareLinks}
             mainActionButton={(() => {
-              if (market?.expired) {
+              if (market?.expired || window?.location.href.includes('?expired=true')) {
                 return (
                   <Button
                     bg={'brand'}

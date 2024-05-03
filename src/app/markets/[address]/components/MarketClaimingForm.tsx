@@ -15,8 +15,8 @@ export const MarketClaimingForm = ({ ...props }: StackProps) => {
       positions?.filter(
         (position) =>
           position.market.id === market?.address[defaultChain.id].toLowerCase() &&
-          position.outcomeIndex === market.winningOutcomeTokenId &&
-          market.expired
+          position.outcomeIndex === market.winningOutcomeIndex &&
+          (market.expired || window?.location.href.includes('?expired=true'))
       )?.[0],
     [positions, market]
   )
@@ -34,10 +34,10 @@ export const MarketClaimingForm = ({ ...props }: StackProps) => {
     >
       <FaRegCheckCircle
         size={'30px'}
-        fill={market?.winningOutcomeTokenId == 0 ? colors.green : colors.red}
+        fill={market?.winningOutcomeIndex == 0 ? colors.green : colors.red}
       />
-      <Text fontWeight={'bold'} color={market?.winningOutcomeTokenId == 0 ? 'green' : 'red'}>
-        Outcome: {market?.outcomeTokens[market.winningOutcomeTokenId ?? 0]}
+      <Text fontWeight={'bold'} color={market?.winningOutcomeIndex == 0 ? 'green' : 'red'}>
+        Outcome: {market?.outcomeTokens[market.winningOutcomeIndex ?? 0]}
       </Text>
 
       {positionToClaim && (

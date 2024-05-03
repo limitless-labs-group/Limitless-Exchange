@@ -148,7 +148,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         )
         if (
           !market ||
-          (market.expired && market.winningOutcomeTokenId !== trade.outcomeIndex) // TODO: redesign filtering lost positions
+          ((market.expired || window?.location.href.includes('?expired=true')) &&
+            market.winningOutcomeIndex !== trade.outcomeIndex) // TODO: redesign filtering lost positions
         ) {
           return
         }

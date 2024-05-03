@@ -37,7 +37,7 @@ export type Market = {
     link?: string
   }
   tags?: string[]
-  winningOutcomeTokenId?: number
+  winningOutcomeIndex?: number
 }
 
 export type GetBalanceResult = {

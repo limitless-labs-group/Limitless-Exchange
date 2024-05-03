@@ -76,11 +76,9 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market2.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market2-og.jpg',
     expirationDate: '5 May',
-    // expirationTimestamp: 1714942799000,
-    // expired: Date.now() > 1714942799000, // TODO: make dynamic
-    expirationTimestamp: 1714597199000, // test
-    expired: Date.now() > 1714597199000, // test
-    winningOutcomeTokenId: 0,
+    expirationTimestamp: 1714942799000,
+    expired: Date.now() > 1714942799000, // TODO: make dynamic
+    winningOutcomeIndex: 0,
     creator: {
       name: '@rev',
       imageURI: '/assets/images/markets/rev.jpg',
