@@ -1,21 +1,21 @@
-import { PortfolioMarketCard, PortfolioMobileMarketCard } from '@/app/portfolio/components'
+import { PortfolioPositionCard, PortfolioPositionCardMobile } from '@/app/portfolio/components'
 import { useHistory } from '@/services'
 import { Flex, Grid, GridProps, Text } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useIsMobile } from '@/hooks'
 
-export const PortfolioMarketsTable = ({ ...props }: GridProps) => {
-  const { activeMarkets, getActiveMarkets } = useHistory()
+export const PortfolioPositions = ({ ...props }: GridProps) => {
+  const { positions, getPositions } = useHistory()
   const isMobile = useIsMobile()
 
   useEffect(() => {
-    getActiveMarkets()
+    getPositions()
   }, [])
 
-  return activeMarkets?.length == 0 ? (
+  return positions?.length == 0 ? (
     <Flex w={'full'} h={'200px'} justifyContent={'center'} alignItems={'center'}>
-      <Text color={'fontLight'}>No open markets</Text>
+      <Text color={'fontLight'}>No open positions</Text>
     </Flex>
   ) : (
     <Grid
@@ -23,11 +23,11 @@ export const PortfolioMarketsTable = ({ ...props }: GridProps) => {
       gap={{ sm: 6, md: 10 }}
       {...props}
     >
-      {activeMarkets?.map((marketStats, id) =>
+      {positions?.map((position) =>
         isMobile ? (
-          <PortfolioMobileMarketCard key={uuidv4()} marketStats={marketStats} />
+          <PortfolioPositionCardMobile key={uuidv4()} position={position} />
         ) : (
-          <PortfolioMarketCard key={uuidv4()} marketStats={marketStats} />
+          <PortfolioPositionCard key={uuidv4()} position={position} />
         )
       )}
     </Grid>

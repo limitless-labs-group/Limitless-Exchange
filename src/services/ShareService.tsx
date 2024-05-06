@@ -1,5 +1,5 @@
 import { collateralToken, defaultChain } from '@/constants'
-import { HistoryMarketStats } from '@/services'
+import { HistoryPosition } from '@/services'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
@@ -68,19 +68,16 @@ export const createMarketShareUrls = (
  * It then encodes this message for URL compatibility and constructs URLs for sharing on specified platforms.
  *
  * @param {Market | null} market - The market object containing details like title, creator, and outcomes.
- * @param {HistoryMarketStats} marketStats - The object from HistoryService that represents user's trading statistics on particular market.
+ * @param {HistoryPosition} position - The object from HistoryService that represents user's trading statistics on particular market.
  *
  * @returns {ShareURI} An object containing URLs for sharing the market information
  */
-export const createPortfolioShareUrls = (
-  market: Market | null,
-  marketStats: HistoryMarketStats
-) => {
+export const createPortfolioShareUrls = (market: Market | null, position: HistoryPosition) => {
   const baseMessage = `"${market?.title}" by ${market?.creator.name}\nMy bet: ${NumberUtil.toFixed(
-    marketStats.collateralAmount,
+    position.collateralAmount,
     6
   )} ${collateralToken.symbol} for ${
-    market?.outcomeTokens[marketStats.outcomeTokenId ?? 0]
+    market?.outcomeTokens[position.outcomeIndex ?? 0]
   }\nMake yours on`
 
   const encodedBaseMessage = encodeURI(baseMessage)

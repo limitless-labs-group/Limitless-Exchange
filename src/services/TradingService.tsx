@@ -44,7 +44,8 @@ interface ITradingServiceContext {
   quotes: TradeQuotes | null | undefined
   buy: () => Promise<TransactionReceipt | undefined>
   sell: () => Promise<TransactionReceipt | undefined>
-  trade: () => void
+  trade: () => Promise<TransactionReceipt | undefined>
+  redeem: (outcomeIndex: number) => Promise<TransactionReceipt | undefined>
   status: TradingServiceStatus
 }
 
@@ -60,7 +61,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * SERVICES
    */
   const queryClient = useQueryClient()
-  const { getTrades } = useHistory()
+  const { getTrades, getRedeems } = useHistory()
 
   /**
    * ACCOUNT
@@ -106,6 +107,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       queryKey: ['marketData', market?.address[defaultChain.id]],
     })
     await getTrades()
+    await getRedeems()
   }
 
   /**
@@ -346,6 +348,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       }
 
       setCollateralAmount('')
+
       await refetchChain()
 
       // TODO: incapsulate
@@ -358,15 +361,15 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
           />
         ),
       })
+
       await sleep(1)
+
       toast({
-        render: () => <Toast title={`Updating markets data...`} />,
+        render: () => <Toast title={`Updating portfolio...`} />,
       })
 
       // TODO: redesign subgraph refetch logic
-      sleep(10).then(() => {
-        refetchSubgraph()
-      })
+      sleep(10).then(() => refetchSubgraph())
 
       return receipt
     },
@@ -401,6 +404,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       }
 
       setCollateralAmount('')
+
       await refetchChain()
 
       // TODO: incapsulate
@@ -413,39 +417,79 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
           />
         ),
       })
+
       await sleep(1)
+
       toast({
-        render: () => <Toast title={`Updating markets data...`} />,
+        render: () => <Toast title={`Updating portfolio...`} />,
       })
 
       // TODO: redesign subgraph refetch logic
-      sleep(10).then(() => {
-        refetchSubgraph()
-      })
+      sleep(10).then(() => refetchSubgraph())
 
       return receipt
     },
   })
 
-  const trade = useCallback(() => {
-    strategy == 'Buy' ? buy() : sell()
-  }, [strategy])
+  /**
+   * REDEEM / CLAIM
+   */
+  const { mutateAsync: redeem, isPending: isLoadingRedeem } = useMutation({
+    mutationFn: async (outcomeIndex: number) => {
+      if (!market) {
+        return
+      }
+
+      const receipt = await etherspot?.redeemPositions(
+        collateralToken.address[defaultChain.id],
+        zeroHash,
+        market.conditionId[defaultChain.id],
+        [1 << outcomeIndex]
+      )
+
+      if (!receipt) {
+        toast({
+          render: () => <Toast title={`Unsuccessful transaction. Please, contact our support.`} />,
+        })
+        return
+      }
+
+      await refetchChain()
+
+      toast({
+        render: () => <Toast title={`Successfully redeemed`} />,
+      })
+
+      await sleep(1)
+
+      toast({
+        render: () => <Toast title={`Updating portfolio...`} />,
+      })
+
+      // TODO: redesign subgraph refetch logic
+      sleep(10).then(() => refetchSubgraph())
+
+      return receipt
+    },
+  })
+
+  const trade = useCallback(() => (strategy == 'Buy' ? buy() : sell()), [strategy])
 
   /**
    * STATUS
    */
   const status = useMemo<TradingServiceStatus>(() => {
+    if (isLoadingBuy || isLoadingSell || isLoadingRedeem) {
+      return 'Loading'
+    }
     if (!isLoggedIn) {
       return 'Disconnected'
     }
     if (isInvalidCollateralAmount) {
       return 'InvalidAmount'
     }
-    if (isLoadingBuy || isLoadingSell) {
-      return 'Loading'
-    }
     return 'Ready'
-  }, [isLoggedIn, isInvalidCollateralAmount, isLoadingBuy, isLoadingSell])
+  }, [isLoggedIn, isInvalidCollateralAmount, isLoadingBuy, isLoadingSell, isLoadingRedeem])
 
   const contextProviderValue: ITradingServiceContext = {
     market,
@@ -462,6 +506,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     buy,
     sell,
     trade,
+    redeem,
     status,
   }
 

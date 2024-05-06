@@ -3,20 +3,20 @@ import { HistoryTrade } from '@/services'
 import { borderRadius } from '@/styles'
 import { Market } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { Box, HStack, Heading, Image, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { HStack, Heading, Image, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 
-interface IPortfolioHistoryTableItem extends TableRowProps {
+interface IPortfolioHistoryTradeItem extends TableRowProps {
   trade: HistoryTrade
 }
 
-export const PortfolioHistoryTableItem = ({
+export const PortfolioHistoryTradeItem = ({
   trade,
   children,
   ...props
-}: IPortfolioHistoryTableItem) => {
+}: IPortfolioHistoryTradeItem) => {
   const router = useRouter()
   const market: Market | null = useMemo(
     () =>
@@ -50,9 +50,9 @@ export const PortfolioHistoryTableItem = ({
       </Td>
 
       <Td px={2}>
-        <Text color={trade.outcomeTokenId == 0 ? 'green' : 'red'} fontWeight={'bold'}>
-          {market?.outcomeTokens[trade.outcomeTokenId ?? 0]}{' '}
-          {NumberUtil.toFixed(trade.outcomePercent, 3)} {collateralToken.symbol}
+        <Text color={trade.outcomeIndex == 0 ? 'green' : 'red'} fontWeight={'bold'}>
+          {market?.outcomeTokens[trade.outcomeIndex ?? 0]}{' '}
+          {NumberUtil.toFixed(trade.outcomeTokenPrice, 3)} {collateralToken.symbol}
         </Text>
       </Td>
 
