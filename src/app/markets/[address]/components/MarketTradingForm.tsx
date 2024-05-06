@@ -33,7 +33,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
 
-export const TradeForm = ({ ...props }: StackProps) => {
+export const MarketTradingForm = ({ ...props }: StackProps) => {
   /**
    * ACCOUNT STATE
    */

@@ -25,7 +25,7 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
     [marketAddress]
   )
 
-  const { outcomeTokensPercent, liquidity, holdersCount } = useMarketData({ marketAddress })
+  const { outcomeTokensPercent, liquidity, volume } = useMarketData({ marketAddress })
 
   const marketURI = `${window.location.origin}/markets/${marketAddress}`
 
@@ -53,21 +53,6 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
               {market?.title ?? 'Noname market'}
             </Text>
 
-            <HStack
-              fontSize={'12px'}
-              color={'fontLight'}
-              justifyContent={'space-between'}
-              divider={<FaCircle size={'3px'} />}
-              gap={2}
-              fontWeight={'medium'}
-            >
-              <Text>{market?.expirationData}</Text>
-
-              <Text>{`${NumberUtil.toFixed(liquidity, 4)} ${collateralToken.symbol}`}</Text>
-
-              <Text>{holdersCount ?? 0} investors</Text>
-            </HStack>
-
             {!children && (
               <HStack textTransform={'uppercase'}>
                 <Text color={'green'}>
@@ -82,7 +67,24 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
           </Stack>
         </HStack>
 
-        <Divider borderColor={'border'} />
+        <Stack>
+          <HStack w={'full'} justifyContent={'space-between'}>
+            <Text color={'fontLight'}>Deadline</Text>
+            <Text fontWeight={'bold'}>{market?.expirationDate}</Text>
+          </HStack>
+          <HStack w={'full'} justifyContent={'space-between'}>
+            <Text color={'fontLight'}>Liquidity</Text>
+            <Text fontWeight={'bold'}>{`${Number(liquidity).toFixed(2)} ${
+              collateralToken.symbol
+            }`}</Text>
+          </HStack>
+          <HStack w={'full'} justifyContent={'space-between'}>
+            <Text color={'fontLight'}>Volume</Text>
+            <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
+              collateralToken.symbol
+            }`}</Text>
+          </HStack>
+        </Stack>
 
         {children ?? <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} />}
       </Stack>

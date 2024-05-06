@@ -34,7 +34,7 @@ const WalletPage = () => {
         <Stack flexBasis={'66%'}>
           <DepositByQrCard />
           <DepositDisclaimer />
-          {/* <DepositTestCard /> */}
+          {defaultChain.testnet && <DepositTestCard />}
         </Stack>
         <Stack flexBasis={'33%'}>
           <BalanceCard />

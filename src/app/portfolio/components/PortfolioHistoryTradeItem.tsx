@@ -8,11 +8,15 @@ import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 
-interface IPortfolioTradesItem extends TableRowProps {
+interface IPortfolioHistoryTradeItem extends TableRowProps {
   trade: HistoryTrade
 }
 
-export const PortfolioTradesItem = ({ trade, children, ...props }: IPortfolioTradesItem) => {
+export const PortfolioHistoryTradeItem = ({
+  trade,
+  children,
+  ...props
+}: IPortfolioHistoryTradeItem) => {
   const router = useRouter()
   const market: Market | null = useMemo(
     () =>
@@ -46,8 +50,8 @@ export const PortfolioTradesItem = ({ trade, children, ...props }: IPortfolioTra
       </Td>
 
       <Td px={2}>
-        <Text color={trade.outcomeTokenId == 0 ? 'green' : 'red'} fontWeight={'bold'}>
-          {market?.outcomeTokens[trade.outcomeTokenId ?? 0]}{' '}
+        <Text color={trade.outcomeIndex == 0 ? 'green' : 'red'} fontWeight={'bold'}>
+          {market?.outcomeTokens[trade.outcomeIndex ?? 0]}{' '}
           {NumberUtil.toFixed(trade.outcomeTokenPrice, 3)} {collateralToken.symbol}
         </Text>
       </Td>

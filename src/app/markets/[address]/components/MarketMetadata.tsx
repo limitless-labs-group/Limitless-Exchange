@@ -37,7 +37,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
    */
   const { market } = useTradingService()
 
-  const { liquidity, holdersCount, outcomeTokensPercent } = useMarketData({
+  const { liquidity, volume, outcomeTokensPercent } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
   })
 
@@ -72,37 +72,44 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
 
       <Grid alignItems={'start'} gap={4} w={'full'}>
         {isMobile ? (
-          <HStack
-            w={'full'}
-            fontSize={'12px'}
-            color={'fontLight'}
-            justifyContent={'space-between'}
-            divider={<FaCircle size={'3px'} />}
-            gap={2}
-            fontWeight={'medium'}
-          >
-            <Text>{market?.expirationData}</Text>
-            <Text>{`${NumberUtil.toFixed(liquidity, 4)} ${collateralToken.symbol}`}</Text>
-            <Text>{holdersCount ?? 0} investors</Text>
-          </HStack>
+          <Stack>
+            <HStack w={'full'} justifyContent={'space-between'}>
+              <Text color={'fontLight'}>Deadline</Text>
+              <Text fontWeight={'bold'}>{market?.expirationDate}</Text>
+            </HStack>
+            <HStack w={'full'} justifyContent={'space-between'}>
+              <Text color={'fontLight'}>Liquidity</Text>
+              <Text fontWeight={'bold'}>{`${Number(liquidity).toFixed(2)} ${
+                collateralToken.symbol
+              }`}</Text>
+            </HStack>
+            <HStack w={'full'} justifyContent={'space-between'}>
+              <Text color={'fontLight'}>Volume</Text>
+              <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
+                collateralToken.symbol
+              }`}</Text>
+            </HStack>
+          </Stack>
         ) : (
           <HStack w={'full'} spacing={4} justifyContent={'space-between'}>
             <Stack spacing={0}>
-              <Text color={'fontLight'}>Pool</Text>
+              <Text color={'fontLight'}>Liquidity</Text>
               <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
                 collateralToken.symbol
               }`}</Text>
             </Stack>
 
             <Stack spacing={0}>
-              <Text color={'fontLight'}>Investors</Text>
-              <Text fontWeight={'bold'}>{holdersCount ?? 0}</Text>
+              <Text color={'fontLight'}>Volume</Text>
+              <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
+                collateralToken.symbol
+              }`}</Text>
             </Stack>
 
             <Stack spacing={0}>
               <Text color={'fontLight'}>Deadline</Text>
               <Text noOfLines={1} fontWeight={'bold'}>
-                {market?.expirationData}
+                {market?.expirationDate}
               </Text>
             </Stack>
           </HStack>
@@ -187,6 +194,8 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
         <HStack>
           <Link href={market?.creator.link} isExternal>
             <Image
+              minW={'44px'}
+              minH={'44px'}
               w={'44px'}
               h={'44px'}
               src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
