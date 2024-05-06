@@ -78,7 +78,6 @@ export const markets: Market[] = [
     expirationDate: 'May 5 2024',
     expirationTimestamp: 1714942799000,
     expired: true, // TODO: make dynamic
-    // expired: Date.now() > 1714942799000, // TODO: make dynamic
     winningOutcomeIndex: 1, // TODO: report winners
     creator: {
       name: '@rev',
