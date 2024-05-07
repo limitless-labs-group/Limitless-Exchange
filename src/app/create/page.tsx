@@ -14,6 +14,7 @@ import {
   Box,
   Button,
   ButtonGroup,
+  Image,
 } from '@chakra-ui/react'
 import { borderRadius, colors } from '@/styles'
 import { CgInfo } from 'react-icons/cg'
@@ -48,7 +49,6 @@ const CreateOwnMarketPage = () => {
             <FormField label='Title'>
               <Input
                 placeholder='Bitcoin ATH in May 2024?'
-                size='lg'
                 onChange={(e) => setTitle(e.target.value)}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
@@ -89,14 +89,32 @@ const CreateOwnMarketPage = () => {
             </FormField>
 
             <FormField label='Deadline'>
+              {/*// Todo move to a separate component?*/}
               <SingleDatepicker
                 id='input'
-                triggerVariant='input'
+                triggerVariant='default'
                 propsConfigs={{
                   inputProps: {
                     size: 'md',
                     width: 'full',
                     isReadOnly: true,
+                  },
+                  triggerBtnProps: {
+                    width: '100%',
+                    justifyContent: 'space-between',
+                    rightIcon: (
+                      <Image
+                        src={'/assets/images/calendar.svg'}
+                        h={'24px'}
+                        w={'24px'}
+                        alt='calendar'
+                      />
+                    ),
+                  },
+                  popoverCompProps: {
+                    popoverContentProps: {
+                      width: '360px',
+                    },
                   },
                   dayOfMonthBtnProps: {
                     todayBtnProps: {
@@ -108,6 +126,7 @@ const CreateOwnMarketPage = () => {
                 date={date}
                 usePortal={true}
                 onDateChange={setDate}
+                minDate={new Date()}
               />
             </FormField>
 
@@ -122,17 +141,10 @@ const CreateOwnMarketPage = () => {
             </FormField>
 
             <ButtonGroup spacing='6' mt={5}>
-              <Button
-                colorScheme='blue'
-                size='lg'
-                variant='outline'
-                width='168px'
-                height='52px'
-                disabled
-              >
+              <Button stroke='grey.100' variant='outline' width='168px' height='52px' disabled>
                 Cancel
               </Button>
-              <Button colorScheme='blue' size='lg' width='168px' height='52px'>
+              <Button colorScheme='blue' width='168px' height='52px'>
                 Create
               </Button>
             </ButtonGroup>

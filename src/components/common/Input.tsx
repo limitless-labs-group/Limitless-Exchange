@@ -7,6 +7,7 @@ export const Input = ({ ...props }: InputProps) => (
     outline={'none'}
     // border={'none'}
     bg={'transparent'}
+    fontSize={'16px'}
     color={'text'}
     h={'60px'}
     _placeholder={{ color: 'fontLight' }}
