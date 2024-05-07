@@ -124,6 +124,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         redeem.outcomeIndex = redeem.indexSets[0] == '1' ? 0 : 1
       })
 
+      _redeems.filter((redeem) => Number(redeem.collateralAmount) > 0)
+
       _redeems.sort(
         (redeemA, redeemB) => Number(redeemB.blockTimestamp) - Number(redeemA.blockTimestamp)
       )
@@ -173,25 +175,31 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         }
       })
 
-      redeems?.forEach((redeem) => {
-        const position = _positions.find(
-          (position) =>
-            position.market.conditionId === redeem.conditionId &&
-            position.outcomeIndex == redeem.outcomeIndex
-        )
-        if (!position) {
-          return
-        }
-        position.collateralAmount = (
-          Number(position.collateralAmount ?? 0) - Number(redeem.collateralAmount)
-        ).toString()
-        position.outcomeTokenAmount = (
-          Number(position.outcomeTokenAmount ?? 0) - Number(redeem.collateralAmount)
-        ).toString()
-      })
+      // redeems?.forEach((redeem) => {
+      //   const position = _positions.find(
+      //     (position) =>
+      //       position.market.conditionId === redeem.conditionId &&
+      //       position.outcomeIndex == redeem.outcomeIndex
+      //   )
+      //   if (!position) {
+      //     return
+      //   }
+      //   position.collateralAmount = (
+      //     Number(position.collateralAmount ?? 0) - Number(redeem.collateralAmount)
+      //   ).toString()
+      //   position.outcomeTokenAmount = (
+      //     Number(position.outcomeTokenAmount ?? 0) - Number(redeem.collateralAmount)
+      //   ).toString()
+      // })
+
+      // filter redeemed markets
+      _positions = _positions.filter(
+        (position) => !redeems?.find((redeem) => redeem.conditionId === position.market.conditionId)
+      )
+      console.log('positions', _positions)
 
       // filter markets with super small balance
-      _positions = _positions.filter((market) => Number(market.outcomeTokenAmount) > 0.00001)
+      _positions = _positions.filter((position) => Number(position.outcomeTokenAmount) > 0.00001)
       console.log('positions', _positions)
 
       return _positions
