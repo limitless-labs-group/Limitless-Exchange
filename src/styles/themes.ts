@@ -1,4 +1,4 @@
-import { extendTheme as ChakraTheme } from '@chakra-ui/react'
+import { extendTheme as ChakraTheme, StyleFunctionProps } from '@chakra-ui/react'
 
 const fonts = `Inter, sans-serif`
 export const colors = {
@@ -10,6 +10,7 @@ export const colors = {
   fontLight: '#747675',
   grey: {
     100: '#FAFAF9',
+    800: '#747675',
   },
   green: '#48CB9A',
   red: '#EF5D5D',
@@ -95,6 +96,14 @@ export const chakraTheme = ChakraTheme({
     Button: {
       baseStyle: {
         fontSize: '14px',
+      },
+      variants: {
+        outline: {
+          borderWidth: 0,
+          bg: 'grey.100',
+          color: 'grey.800',
+          height: '52px',
+        },
       },
     },
     FormLabel: {

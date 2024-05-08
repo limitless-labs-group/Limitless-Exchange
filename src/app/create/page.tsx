@@ -101,6 +101,8 @@ const CreateOwnMarketPage = () => {
                   },
                   triggerBtnProps: {
                     width: '100%',
+                    background: 'transparent',
+                    border: '1px solid #E2E8F0',
                     justifyContent: 'space-between',
                     rightIcon: (
                       <Image
@@ -141,7 +143,7 @@ const CreateOwnMarketPage = () => {
             </FormField>
 
             <ButtonGroup spacing='6' mt={5}>
-              <Button stroke='grey.100' variant='outline' width='168px' height='52px' disabled>
+              <Button variant='outline' width='168px' disabled>
                 Cancel
               </Button>
               <Button colorScheme='blue' width='168px' height='52px'>
