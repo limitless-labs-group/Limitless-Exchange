@@ -377,7 +377,7 @@ class Etherspot {
     collateralAddress: Address,
     parentCollectionId: Address,
     marketConditionId: Address,
-    indexSets: bigint[]
+    indexSets: number[]
   ) {
     const data = encodeFunctionData({
       abi: conditionalTokensABI,

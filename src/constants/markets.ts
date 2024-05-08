@@ -1,7 +1,35 @@
 import { Market } from '@/types'
+import { zeroAddress } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
 
 export const markets: Market[] = [
+  {
+    address: {
+      [base.id]: '0x4585482A258d66b16a95734E86DCA1Ea338AC100', // prod
+      // [base.id]: zeroAddress, // dev
+      [baseSepolia.id]: zeroAddress,
+    },
+    conditionId: {
+      [base.id]: '0x85b3752114969525a2a84dba1c1f2534bf830e64c1293a758095126a4dd165ba', // prod
+      // [base.id]: zeroAddress, // dev
+      [baseSepolia.id]: zeroAddress,
+    },
+    outcomeTokens: ['Yes', 'No'],
+    title: 'Will Limitless achieve $10M in volume in the first year since launch?',
+    description: `Bet on or against new social prediction market Limitless’ success.`,
+    placeholderURI: '/assets/images/markets/market4-placeholder.jpg',
+    imageURI: '/assets/images/markets/market4.jpg',
+    ogImageURI: 'https://limitless.exchange/assets/images/markets/market4-og.jpg',
+    expirationDate: 'Apr 25 2025',
+    expirationTimestamp: 1745614799000,
+    expired: Date.now() > 1745614799000, // TODO: make dynamic
+    creator: {
+      name: '@grin',
+      imageURI: '/assets/images/markets/grin.jpg',
+      link: 'https://warpcast.com/grin',
+    },
+    tags: ['Limitless', 'KPI driven', 'Grin'],
+  },
   {
     address: {
       [base.id]: '0x0e03edc2a0ba38e803dad62b31b6e6a2f4b216cc', // prod
@@ -20,7 +48,9 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market1-placeholder.jpg',
     imageURI: '/assets/images/markets/market1.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market1-og.jpg',
-    expirationData: '31 Dec',
+    expirationDate: 'Dec 31 2024',
+    expirationTimestamp: 1735682399000,
+    expired: Date.now() > 1735682399000, // TODO: make dynamic
     creator: {
       name: '/skininthegame',
       imageURI: '/assets/images/markets/skininthegame.jpg',
@@ -32,12 +62,12 @@ export const markets: Market[] = [
     address: {
       [base.id]: '0x2a5254e52e338228dcd82baa4374608bb884e834', // prod
       // [base.id]: '0x4e2fb53162472fd19a0175d55c7b11e2e81a17d7', // dev
-      [baseSepolia.id]: '0xb8e500603DbaDA2172361c978aea5eAbaA12bbC1',
+      [baseSepolia.id]: '0xf59Fca42B6cd29Fc24CE3C5b89442494c9967fcB',
     },
     conditionId: {
       [base.id]: '0xa397e6687681345146d869a05591b002039d1ed88bfc5e871bf36d26cd89e367', // prod
       // [base.id]: '0x42bb72b37a2d8619e1a4ea0634a9df9cbaed5f5cb849cc8122972ef7714dc6a2', // dev
-      [baseSepolia.id]: '0x441a0f1e7edb999dee014dc216a61bf57f35e294930a4bb3e1aaac165948697d',
+      [baseSepolia.id]: '0x0779cb01e2e832bddccb7eb9a17e0b01bb005082ac10e48843ee9fffbad59b89',
     },
     outcomeTokens: ['Yes', 'No'],
     title: 'Will Farcaster hit 100k WAUs before the end of Farcon?',
@@ -45,7 +75,10 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market2-placeholder.jpg',
     imageURI: '/assets/images/markets/market2.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market2-og.jpg',
-    expirationData: '5 May',
+    expirationDate: 'May 5 2024',
+    expirationTimestamp: 1714942799000,
+    expired: true, // TODO: make dynamic
+    winningOutcomeIndex: 1, // TODO: report winners
     creator: {
       name: '@rev',
       imageURI: '/assets/images/markets/rev.jpg',
@@ -70,7 +103,9 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market3-placeholder.jpg',
     imageURI: '/assets/images/markets/market3.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market3-og.jpg',
-    expirationData: '31 May',
+    expirationDate: 'May 31 2024',
+    expirationTimestamp: 1717189199000,
+    expired: Date.now() > 1717189199000, // TODO: make dynamic
     creator: {
       name: '/onchain',
       imageURI: '/assets/images/markets/onchain.jpg',

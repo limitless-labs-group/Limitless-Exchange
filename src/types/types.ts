@@ -28,14 +28,16 @@ export type Market = {
   placeholderURI: string
   imageURI: string
   ogImageURI?: string
-  expirationData: string
-  tags?: string[]
+  expirationDate: string
+  expirationTimestamp: number
+  expired?: boolean
   creator: {
     name: string
     imageURI?: string
     link?: string
   }
-  closed?: boolean
+  tags?: string[]
+  winningOutcomeIndex?: number
 }
 
 export type GetBalanceResult = {

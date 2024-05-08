@@ -11,6 +11,7 @@ import { truncateEthAddress } from '@/utils'
 import {
   Flex,
   HStack,
+  Image,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -26,7 +27,7 @@ import { FaWallet } from 'react-icons/fa6'
 export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
   const { trackClicked } = useAmplitude()
   const { signOut } = useAuth()
-  const { email, account } = useAccount()
+  const { userInfo, account } = useAccount()
   const { onCopy, hasCopied } = useClipboard(account ?? '')
   const router = useRouter()
 
@@ -43,8 +44,12 @@ export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
             {...props}
           >
             <HStack>
-              <FaRegUserCircle size={'18px'} />
-              <Text>{email ?? 'My Profile'}</Text>
+              {userInfo?.profileImage?.includes('http') ? (
+                <Image src={userInfo.profileImage} borderRadius={'full'} h={'20px'} w={'20px'} />
+              ) : (
+                <FaRegUserCircle size={'18px'} />
+              )}
+              <Text>{userInfo?.name ?? userInfo?.email ?? 'My Profile'}</Text>
               <FaChevronDown size={'14px'} fill={'#aaa'} />
             </HStack>
           </Button>

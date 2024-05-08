@@ -27,7 +27,8 @@ export const CreateMarketCard = () => {
       <Image
         src={'/assets/images/create-market.svg'}
         w={{ sm: 'full' }}
-        h={{ sm: '200px', md: '150px' }}
+        // h={{ sm: '200px', md: '150px' }}
+        aspectRatio={'3/1'}
         fit={'contain'}
         bg={'bgLight'}
         borderRadius={borderRadius}
@@ -42,15 +43,14 @@ export const CreateMarketCard = () => {
         alignItems={'center'}
         textAlign={'center'}
         justifyContent={'space-between'}
+        spacing={{ sm: 4, md: 2 }}
       >
-        <Stack>
-          <Heading fontSize={'18px'} lineHeight={'24px'}>
-            Get started with Limitless
-          </Heading>
-          <Text color={'fontLight'}>
-            Learn how to create your markets and join the movement. Have skin in your beliefs.
-          </Text>
-        </Stack>
+        <Heading fontSize={'18px'} lineHeight={'20px'}>
+          Get started with Limitless
+        </Heading>
+        <Text color={'fontLight'} px={{ md: 8 }}>
+          Learn how to create your markets and join the movement. Have skin in your beliefs.
+        </Text>
         <Button bg={'brand'} color={'white'} h={'40px'} w={'full'} p={1}>
           Create own market
         </Button>

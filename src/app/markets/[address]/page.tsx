@@ -1,24 +1,35 @@
 'use client'
 
 import { MainLayout } from '@/components'
-import { MarketMetadata, TradeForm } from '@/app/markets/[address]/components'
-import { Flex, Spacer } from '@chakra-ui/react'
+import {
+  MarketClaimingForm,
+  MarketMetadata,
+  MarketPositions,
+  MarketTradingForm,
+} from '@/app/markets/[address]/components'
+import { Flex, Spacer, Spinner, Stack } from '@chakra-ui/react'
 import { useEffect, useMemo } from 'react'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
 import { defaultChain, markets } from '@/constants'
-import { Market } from '@/types'
-import { getAddress } from 'viem'
+import { useRouter } from 'next/navigation'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
+  /**
+   * ANALYTICS
+   */
   const { trackOpened } = useAmplitude()
+
   useEffect(() => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
       page: 'Market Page',
-      market: getAddress(params.address),
+      market: params.address,
     })
   }, [])
 
-  const market: Market | null = useMemo(
+  /**
+   * SET MARKET
+   */
+  const market = useMemo(
     () =>
       markets.find(
         (market) => market.address[defaultChain.id]?.toLowerCase() === params.address.toLowerCase()
@@ -27,19 +38,43 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   )
 
   const { setMarket, market: previousMarket } = useTradingService()
+
   useEffect(() => {
     if (market != previousMarket) {
       setMarket(market)
     }
   }, [market, previousMarket])
 
+  /**
+   * REDIRECT ON 404
+   */
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!market) {
+      router.replace('/')
+    }
+  }, [market])
+
   return (
     <MainLayout maxContentWidth={'1200px'}>
-      <Flex gap={{ sm: '40px', md: 8 }} flexDir={{ sm: 'column', lg: 'row' }}>
-        <MarketMetadata flexBasis={'66%'} />
-        <TradeForm flexBasis={'33%'} />
-        <Spacer />
-      </Flex>
+      {!market ? (
+        <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
+          <Spinner />
+        </Flex>
+      ) : (
+        <Stack spacing={{ sm: 10, md: 12 }} flexDir={{ sm: 'column', lg: 'row' }}>
+          <Stack flexBasis={'66%'} spacing={{ sm: 4, md: 10 }}>
+            <MarketMetadata />
+            {!market?.expired && <MarketPositions />}
+          </Stack>
+
+          <Stack flexBasis={'33%'}>
+            {market?.expired ? <MarketClaimingForm /> : <MarketTradingForm />}
+          </Stack>
+          <Spacer />
+        </Stack>
+      )}
     </MainLayout>
   )
 }

@@ -121,7 +121,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
     },
   })
 
-  const { data: liquidityAndHolders } = useQuery({
+  const { data: liquidityAndVolume } = useQuery({
     queryKey: ['marketData', marketAddress],
     queryFn: async () => {
       if (!marketAddress) {
@@ -138,7 +138,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
                 where: {id: "${marketAddress}"}
               ) {
                 funding
-                holdersCount
+                totalVolume
               }
             }
           `,
@@ -146,10 +146,11 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       })
       const [_marketData] = res.data.data?.[queryName] as MarketData[]
       const liquidity = formatUnits(BigInt(_marketData.funding), collateralToken.decimals)
+      const volume = formatUnits(BigInt(_marketData.totalVolume ?? '0'), collateralToken.decimals)
 
       return {
         liquidity,
-        holdersCount: _marketData.holdersCount,
+        volume,
       }
     },
     enabled: !!marketAddress,
@@ -159,12 +160,11 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
     outcomeTokensBuyPrice,
     outcomeTokensSellPrice,
     outcomeTokensPercent,
-    ...liquidityAndHolders,
+    ...liquidityAndVolume,
   }
 }
 
 type MarketData = {
   funding: string
-  outcomePools?: string[]
-  holdersCount: number
+  totalVolume: string
 }

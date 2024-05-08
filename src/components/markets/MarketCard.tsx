@@ -24,7 +24,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
     [marketAddress]
   )
 
-  const { outcomeTokensPercent, liquidity, holdersCount } = useMarketData({ marketAddress })
+  const { outcomeTokensPercent, liquidity, volume } = useMarketData({ marketAddress })
 
   const marketURI = `${window.location.origin}/markets/${marketAddress}`
 
@@ -43,7 +43,8 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
       <Image
         src={market?.placeholderURI}
         w={{ sm: 'full' }}
-        h={{ sm: '200px', md: '150px' }}
+        // h={{ sm: '200px', md: '150px' }}
+        aspectRatio={'3/1'}
         fit={'cover'}
         bg={'brand'}
         borderRadius={borderRadius}
@@ -52,7 +53,14 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
         onClick={() => router.push(marketURI)}
       />
 
-      <Stack alignItems={'start'} p={4} spacing={3}>
+      <Stack
+        alignItems={'start'}
+        p={4}
+        spacing={3}
+        h={'full'}
+        w={'full'}
+        justifyContent={'space-between'}
+      >
         {!children && (
           <HStack textTransform={'uppercase'}>
             <Text color={'green'}>
@@ -64,39 +72,41 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
           </HStack>
         )}
 
-        <Stack w={'full'} spacing={3}>
-          <Stack w={'full'}>
-            <Heading
-              fontSize={'18px'}
-              lineHeight={'20px'}
-              _hover={{ textDecor: 'underline' }}
-              onClick={() => router.push(marketURI)}
-            >
-              {market?.title ?? 'Noname market'}
-            </Heading>
+        <Heading
+          fontSize={'18px'}
+          lineHeight={'20px'}
+          _hover={{ textDecor: 'underline' }}
+          onClick={() => router.push(marketURI)}
+        >
+          {market?.title ?? 'Noname market'}
+        </Heading>
 
-            <HStack w={'full'} spacing={3} justifyContent={'space-between'}>
-              <HStack>
-                <Text color={'fontLight'}>Pool</Text>
-                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
-                  collateralToken.symbol
-                }`}</Text>
-              </HStack>
-              <HStack>
-                <Text color={'fontLight'}>Investors</Text>
-                <Text fontWeight={'bold'}>{holdersCount ?? 0}</Text>
-              </HStack>
-              <HStack>
-                <Text color={'fontLight'}>Deadline</Text>
-                <Text noOfLines={1} fontWeight={'bold'}>
-                  {market?.expirationData}
-                </Text>
-              </HStack>
-            </HStack>
+        <HStack w={'full'} spacing={4} justifyContent={'space-between'}>
+          <Stack spacing={0}>
+            <Text color={'fontLight'}>Liquidity</Text>
+            <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
+              collateralToken.symbol
+            }`}</Text>
           </Stack>
 
-          {children ?? <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} />}
-        </Stack>
+          <Stack spacing={0}>
+            <Text color={'fontLight'}>Volume</Text>
+            <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
+              collateralToken.symbol
+            }`}</Text>
+          </Stack>
+
+          <Stack spacing={0}>
+            <Text color={'fontLight'}>Deadline</Text>
+            <Text noOfLines={1} fontWeight={'bold'}>
+              {market?.expirationDate}
+            </Text>
+          </Stack>
+        </HStack>
+
+        {children ?? (
+          <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} w={'full'} />
+        )}
       </Stack>
     </Stack>
   )

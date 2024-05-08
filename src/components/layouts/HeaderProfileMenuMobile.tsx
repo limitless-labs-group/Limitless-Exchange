@@ -6,6 +6,7 @@ import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
   Flex,
   HStack,
+  Image,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -21,7 +22,7 @@ import { FaBriefcase, FaTableCellsLarge, FaWallet } from 'react-icons/fa6'
 export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
   const router = useRouter()
   const { signOut } = useAuth()
-  const { email, account } = useAccount()
+  const { userInfo, account } = useAccount()
   const { onCopy, hasCopied } = useClipboard(account ?? '')
   const { balanceOfSmartWallet } = useBalanceService()
   const { trackClicked } = useAmplitude()
@@ -40,10 +41,14 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
       <Portal>
         <PopoverContent bg={'bg'} border={`1px solid ${colors.border}`} w={'250px'} p={3}>
           <Stack>
-            {!!email && (
-              <HStack w={'full'} px={4} alignItems={'center'} color={'fontLight'}>
-                <FaRegUserCircle size={'16px'} />
-                <Text>{email}</Text>
+            {(!!userInfo?.name || !!userInfo?.email) && (
+              <HStack w={'full'} px={4} alignItems={'center'}>
+                {userInfo?.profileImage?.includes('http') ? (
+                  <Image src={userInfo.profileImage} borderRadius={'full'} h={'18px'} w={'18px'} />
+                ) : (
+                  <FaRegUserCircle size={'16px'} />
+                )}
+                <Text>{userInfo.name ?? userInfo.email}</Text>
               </HStack>
             )}
 
@@ -63,10 +68,11 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               h={'40px'}
               fontWeight={'normal'}
               justifyContent={'start'}
+              colorScheme={'transparent'}
               onClick={() => router.push('/wallet')}
             >
               <HStack spacing={2}>
-                <FaWallet size={'16px'} />
+                <FaWallet size={'16px'} fill={colors.fontLight} />
                 <HStack spacing={1}>
                   <Text>Balance</Text>
                   <Text fontWeight={'bold'}>

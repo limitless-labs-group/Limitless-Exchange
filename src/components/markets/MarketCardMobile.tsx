@@ -25,7 +25,7 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
     [marketAddress]
   )
 
-  const { outcomeTokensPercent, liquidity, holdersCount } = useMarketData({ marketAddress })
+  const { outcomeTokensPercent, liquidity, volume } = useMarketData({ marketAddress })
 
   const marketURI = `${window.location.origin}/markets/${marketAddress}`
 
@@ -40,34 +40,51 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
       transition={'0.2s'}
       spacing={0}
       p={3}
+      pt={4}
       _hover={{ filter: 'none' }}
       {...props}
     >
       <Stack w={'full'} spacing={3}>
-        <HStack w={'full'} spacing={3}>
-          <Avatar src={market?.imageURI} size={'lg'} onClick={() => router.push(marketURI)} />
+        <HStack w={'full'} spacing={3} onClick={() => router.push(marketURI)}>
+          <Avatar src={market?.imageURI} size={'lg'} />
 
-          <Stack alignItems={'start'} mt={1}>
-            <Text fontWeight={'bold'} fontSize={'16px'} noOfLines={2} lineHeight={'18px'}>
+          <Stack alignItems={'start'}>
+            <Text fontWeight={'bold'} fontSize={'16px'} noOfLines={3} lineHeight={'18px'}>
               {market?.title ?? 'Noname market'}
             </Text>
 
-            <HStack
-              fontSize={'12px'}
-              color={'fontLight'}
-              justifyContent={'space-between'}
-              divider={<FaCircle size={'3px'} />}
-              gap={2}
-              fontWeight={'medium'}
-            >
-              <Text>{market?.expirationData}</Text>
-              <Text>{`${NumberUtil.toFixed(liquidity, 4)} ${collateralToken.symbol}`}</Text>
-              <Text>{holdersCount ?? 0} investors</Text>
-            </HStack>
+            {!children && (
+              <HStack textTransform={'uppercase'}>
+                <Text color={'green'}>
+                  {market?.outcomeTokens[0] ?? 'Yes'} {(outcomeTokensPercent?.[0] ?? 50).toFixed(1)}
+                  %
+                </Text>
+                <Text color={'red'}>
+                  {market?.outcomeTokens[1] ?? 'No'} {(outcomeTokensPercent?.[1] ?? 50).toFixed(1)}%
+                </Text>
+              </HStack>
+            )}
           </Stack>
         </HStack>
 
-        <Divider borderColor={'border'} />
+        <Stack>
+          <HStack w={'full'} justifyContent={'space-between'}>
+            <Text color={'fontLight'}>Deadline</Text>
+            <Text fontWeight={'bold'}>{market?.expirationDate}</Text>
+          </HStack>
+          <HStack w={'full'} justifyContent={'space-between'}>
+            <Text color={'fontLight'}>Liquidity</Text>
+            <Text fontWeight={'bold'}>{`${Number(liquidity).toFixed(2)} ${
+              collateralToken.symbol
+            }`}</Text>
+          </HStack>
+          <HStack w={'full'} justifyContent={'space-between'}>
+            <Text color={'fontLight'}>Volume</Text>
+            <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
+              collateralToken.symbol
+            }`}</Text>
+          </HStack>
+        </Stack>
 
         {children ?? <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} />}
       </Stack>
