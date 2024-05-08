@@ -19,7 +19,7 @@ import {
 import { borderRadius, colors } from '@/styles'
 import { CgInfo } from 'react-icons/cg'
 import { SingleDatepicker } from 'chakra-dayzed-datepicker'
-import React, { useState } from 'react'
+import React, { MutableRefObject, useRef, useState } from 'react'
 
 interface FormFieldProps {
   label: string
@@ -39,6 +39,12 @@ const CreateOwnMarketPage = () => {
   const [date, setDate] = useState(new Date())
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+
+  // Todo temp implementation before logic is adjusted
+  const inputRef: MutableRefObject<any> = useRef()
+  const handleFileUploaded = () => {
+    inputRef.current.click()
+  }
 
   return (
     <MainLayout>
@@ -135,8 +141,17 @@ const CreateOwnMarketPage = () => {
 
             <FormField label='Market Logo'>
               <HStack>
-                <Input type='file' id='fileUpload' name='fileUpload' display='none' />
-                <Button colorScheme='gray'>Choose file</Button>
+                <input
+                  type='file'
+                  id='fileUpload'
+                  name='fileUpload'
+                  style={{ display: 'none' }}
+                  ref={inputRef}
+                  accept={'image/png, image/jpeg'}
+                />
+                <Button colorScheme='gray' onClick={handleFileUploaded}>
+                  Choose file
+                </Button>
                 <Text>
                   <strong>No file chosen.</strong>
                 </Text>
