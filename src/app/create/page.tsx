@@ -103,6 +103,7 @@ const CreateOwnMarketPage = () => {
                     width: '100%',
                     background: 'transparent',
                     border: '1px solid #E2E8F0',
+                    color: '#0F172A',
                     justifyContent: 'space-between',
                     rightIcon: (
                       <Image
