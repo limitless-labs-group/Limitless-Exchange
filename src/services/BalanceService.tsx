@@ -2,11 +2,16 @@ import { Toast, ToastWithdraw } from '@/components'
 import { collateralToken, defaultChain } from '@/constants'
 import { wethABI } from '@/contracts'
 import { useToast } from '@/hooks'
-import { publicClient } from '@/providers'
+import { publicClient, usePriceOracle } from '@/providers'
 import { useEtherspot } from '@/services'
 import { Address, GetBalanceResult } from '@/types'
 import { Logger, NumberUtil } from '@/utils'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import {
+  QueryObserverResult,
+  UseMutateAsyncFunction,
+  useMutation,
+  useQuery,
+} from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
 import { PropsWithChildren, createContext, useContext, useEffect, useMemo, useState } from 'react'
 import {
@@ -22,7 +27,10 @@ import { getBalance } from 'viem/actions'
 
 interface IBalanceService {
   balanceOfSmartWallet: GetBalanceResult | undefined
-  refetchbalanceOfSmartWallet: () => Promise<any>
+  refetchbalanceOfSmartWallet: () => Promise<
+    QueryObserverResult<GetBalanceResult | undefined, Error>
+  >
+  overallBalanceUsd: string
 
   mint: () => void
   isLoadingMint: boolean
@@ -33,7 +41,7 @@ interface IBalanceService {
   setAmount: (amount: string) => void
   unwrap: boolean
   setUnwrap: (unwrap: boolean) => void
-  withdraw: () => Promise<any>
+  withdraw: UseMutateAsyncFunction<void, Error, void, unknown>
 
   status: BalanceServiceStatus
 }
@@ -49,6 +57,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
+  const { convertEthToUsd } = usePriceOracle()
 
   /**
    * Etherspot
@@ -283,11 +292,17 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     return 'ReadyToFund'
   }, [isInvalidAddressToWithdraw, isInvalidAmount, isLoadingMint, isLoadingWithdraw])
 
+  const overallBalanceUsd = useMemo(() => {
+    // Todo extend calculation with other tokens
+    return NumberUtil.toFixed(convertEthToUsd(balanceOfSmartWallet?.formatted), 2)
+  }, [balanceOfSmartWallet?.formatted])
+
   return (
     <BalanceService.Provider
       value={{
         balanceOfSmartWallet,
         refetchbalanceOfSmartWallet,
+        overallBalanceUsd,
 
         mint,
         isLoadingMint,
