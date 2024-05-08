@@ -193,10 +193,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
 
   // Amount to be withdrawn
   const [amount, setAmount] = useState<string>('')
-  const amountBI = useMemo(
-    () => parseUnits(amount ?? '0', collateralToken.decimals),
-    [amount, collateralToken]
-  )
+  const amountBI = useMemo(() => parseUnits(amount ?? '0', collateralToken.decimals), [amount])
   const isInvalidAmount = useMemo(() => {
     const isInvalidBalance = balanceOfSmartWallet === undefined
     const isNegativeOrZeroAmount = amountBI <= 0n
