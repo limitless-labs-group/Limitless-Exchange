@@ -56,7 +56,7 @@ export const MarketCardUserActions = ({
         p={1}
         onClick={() => window.open(shareLinks.castURI, '_blank', 'noopener')}
       >
-        <Image src={'/assets/images/farcaster.png'} h={'22px'} alt={'Farcaster'} />
+        <Image src={'/assets/images/warcaster.svg'} h={'16px'} w={'16px'} alt={'warcaster'} />
       </Button>
     </HStack>
   )

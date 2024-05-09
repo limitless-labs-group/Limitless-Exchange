@@ -1,4 +1,4 @@
-import { extendTheme as ChakraTheme, StyleFunctionProps } from '@chakra-ui/react'
+import { extendTheme as ChakraTheme } from '@chakra-ui/react'
 
 const fonts = `Inter, sans-serif`
 export const colors = {
@@ -123,7 +123,7 @@ export const chakraTheme = ChakraTheme({
   breakpoints: {
     sm: '320px',
     md: '768px',
-    lg: '1000px',
+    lg: '1023px',
     xl: '1200px',
     xxl: '1400px',
   },

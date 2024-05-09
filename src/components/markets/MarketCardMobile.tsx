@@ -3,10 +3,9 @@ import { useMarketData } from '@/hooks'
 import { borderRadius, colors } from '@/styles'
 import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
-import { HStack, Stack, StackProps, Text, Divider, Avatar } from '@chakra-ui/react'
+import { HStack, Stack, StackProps, Text, Avatar } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
-import { FaCircle } from 'react-icons/fa'
 import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
 import { createMarketShareUrls } from '@/services'
 
@@ -31,6 +30,10 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
 
   const shareLinks = createMarketShareUrls(market, outcomeTokensPercent)
 
+  const yesPercent = useMemo(() => {
+    return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
+  }, [market, outcomeTokensPercent])
+
   return (
     <Stack
       w={'full'}
@@ -53,17 +56,7 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
               {market?.title ?? 'Noname market'}
             </Text>
 
-            {!children && (
-              <HStack textTransform={'uppercase'}>
-                <Text color={'green'}>
-                  {market?.outcomeTokens[0] ?? 'Yes'} {(outcomeTokensPercent?.[0] ?? 50).toFixed(1)}
-                  %
-                </Text>
-                <Text color={'red'}>
-                  {market?.outcomeTokens[1] ?? 'No'} {(outcomeTokensPercent?.[1] ?? 50).toFixed(1)}%
-                </Text>
-              </HStack>
-            )}
+            {!children && <Text>{yesPercent}% chance</Text>}
           </Stack>
         </HStack>
 
@@ -74,13 +67,13 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
           </HStack>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Liquidity</Text>
-            <Text fontWeight={'bold'}>{`${Number(liquidity).toFixed(2)} ${
+            <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(liquidity, 4)} ${
               collateralToken.symbol
             }`}</Text>
           </HStack>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Volume</Text>
-            <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
+            <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(volume, 4)} ${
               collateralToken.symbol
             }`}</Text>
           </HStack>
