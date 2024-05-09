@@ -24,4 +24,37 @@ export const weth: Token = {
   imageURI: '/assets/images/tokens/weth.png',
 }
 
+export const degen: Token = {
+  address: {
+    [base.id]: '0x', // prod
+    [baseSepolia.id]: '0xca8cd401a4560a0d1b158f8292b85c78cb38ffc1', // dev
+  },
+  symbol: 'DEGEN',
+  name: 'degen market',
+  decimals: 18,
+  imageURI: '/assets/images/tokens/degen.svg',
+}
+
+export const regen: Token = {
+  address: {
+    [base.id]: '0x', // prod
+    [baseSepolia.id]: '0x1a2ba71e69a2ad9ff40555b30586bba0efcd7616',
+  },
+  symbol: 'REGEN',
+  name: 'regen market',
+  decimals: 18,
+  imageURI: '/assets/images/tokens/regen.svg',
+}
+
+export const higher: Token = {
+  address: {
+    [base.id]: '0x', // prod
+    [baseSepolia.id]: '0x729873aa483ced60acb0b7ad815f14c8a7794930',
+  },
+  symbol: 'HIGHER',
+  name: 'higher market',
+  decimals: 18,
+  imageURI: '/assets/images/tokens/higher.svg',
+}
+
 export const collateralToken = weth

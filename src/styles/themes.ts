@@ -101,7 +101,7 @@ export const chakraTheme = ChakraTheme({
   breakpoints: {
     sm: '320px',
     md: '768px',
-    lg: '1000px',
+    lg: '1023px',
     xl: '1200px',
     xxl: '1400px',
   },
