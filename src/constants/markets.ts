@@ -7,7 +7,7 @@ export const markets: Market[] = [
     address: {
       [base.id]: '0x4585482A258d66b16a95734E86DCA1Ea338AC100', // prod
       // [base.id]: zeroAddress, // dev
-      [baseSepolia.id]: zeroAddress,
+      [baseSepolia.id]: '0x9e1cfdAdAf5631A40d9AD3f21233a177DF05b674',
     },
     conditionId: {
       [base.id]: '0x85b3752114969525a2a84dba1c1f2534bf830e64c1293a758095126a4dd165ba', // prod
