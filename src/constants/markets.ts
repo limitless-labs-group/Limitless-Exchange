@@ -126,7 +126,7 @@ export const markets: Market[] = [
     },
     outcomeTokens: ['Yes', 'No'],
     title: 'Will $REGEN reach $20M FDV within the first week of launch?',
-    description: `Will $REGEN reach over 20 million in FDV within the first week after the launch?! Stake your prediction on the growth trajectory of the $REGEN community. The deadline will be added once the launch date is announced by REGEN.`,
+    description: `Will $REGEN reach over 20 million in FDV within the first week after the launch?! Stake your prediction on the growth trajectory of the $REGEN community. The deadline will be added once the launch date is announced by Regen.`,
     placeholderURI: '/assets/images/markets/market5-placeholder.jpg',
     imageURI: '/assets/images/markets/market5.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market5-og.jpg',
