@@ -13,7 +13,6 @@ import { NumberUtil } from '@/utils'
 import {
   Divider,
   Flex,
-  Grid,
   HStack,
   Heading,
   Image,
@@ -29,7 +28,7 @@ import {
   useClipboard,
 } from '@chakra-ui/react'
 import { FaShareSquare } from 'react-icons/fa'
-import { FaCircle, FaLink, FaXTwitter } from 'react-icons/fa6'
+import { FaLink, FaXTwitter } from 'react-icons/fa6'
 
 export const MarketMetadata = ({ ...props }: StackProps) => {
   /**
@@ -70,7 +69,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
         borderRadius={borderRadius}
       />
 
-      <Grid alignItems={'start'} gap={4} w={'full'}>
+      <Flex direction='column' align='stretch' gap='4'>
         {isMobile ? (
           <Stack>
             <HStack w={'full'} justifyContent={'space-between'}>
@@ -223,7 +222,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             </HStack>
           </VStack>
         </HStack>
-      </Grid>
+      </Flex>
     </Stack>
   )
 }
