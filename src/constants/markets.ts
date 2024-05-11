@@ -130,7 +130,7 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market5-placeholder.jpg',
     imageURI: '/assets/images/markets/market5.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market5-og.jpg',
-    expirationDate: 'May 31 2024',
+    expirationDate: 'TBA',
     expirationTimestamp: 1717189199000,
     expired: Date.now() > 1717189199000, // TODO: make dynamic
     creator: {
