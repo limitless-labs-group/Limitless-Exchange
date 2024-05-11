@@ -7,7 +7,7 @@ import {
   MarketPositions,
   MarketTradingForm,
 } from '@/app/markets/[address]/components'
-import { Flex, Spacer, Spinner, Stack } from '@chakra-ui/react'
+import { Box, Flex, Spacer, Spinner } from '@chakra-ui/react'
 import { useEffect, useMemo } from 'react'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
 import { defaultChain, markets } from '@/constants'
@@ -64,10 +64,10 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
         </Flex>
       ) : (
         <Flex direction={{ base: 'column', lg: 'row' }} gap={{ sm: 10, md: 12 }}>
-          <Stack flexBasis={'66%'} spacing={{ sm: 4, md: 10 }}>
+          <Box flexBasis={'66%'} gap={{ sm: 4, md: 10 }}>
             <MarketMetadata />
             {!market?.expired && <MarketPositions />}
-          </Stack>
+          </Box>
 
           <Flex flexBasis={'33%'}>
             {market?.expired ? <MarketClaimingForm /> : <MarketTradingForm />}
