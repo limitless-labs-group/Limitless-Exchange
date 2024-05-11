@@ -64,10 +64,10 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
         </Flex>
       ) : (
         <Stack spacing={{ sm: 10, md: 12 }} flexDir={{ sm: 'column', lg: 'row' }}>
-          <Stack flexBasis={'66%'} spacing={{ sm: 4, md: 10 }}>
+          <Flex flexBasis={'66%'} gap={{ sm: 4, md: 10 }} direction={{ base: 'column' }}>
             <MarketMetadata />
             {!market?.expired && <MarketPositions />}
-          </Stack>
+          </Flex>
 
           <Stack flexBasis={'33%'}>
             {market?.expired ? <MarketClaimingForm /> : <MarketTradingForm />}
