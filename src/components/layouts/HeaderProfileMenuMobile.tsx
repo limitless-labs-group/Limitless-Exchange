@@ -1,8 +1,7 @@
 import { Button, IButton } from '@/components'
-import { collateralToken } from '@/constants'
 import { ClickEvent, useAccount, useAmplitude, useAuth, useBalanceService } from '@/services'
 import { colors } from '@/styles'
-import { NumberUtil, truncateEthAddress } from '@/utils'
+import { truncateEthAddress } from '@/utils'
 import {
   Flex,
   HStack,
@@ -17,14 +16,14 @@ import {
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { FaBars, FaCopy, FaRegUserCircle, FaSignOutAlt } from 'react-icons/fa'
-import { FaBriefcase, FaTableCellsLarge, FaWallet } from 'react-icons/fa6'
+import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
 
 export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
   const router = useRouter()
   const { signOut } = useAuth()
   const { userInfo, account } = useAccount()
   const { onCopy, hasCopied } = useClipboard(account ?? '')
-  const { balanceOfSmartWallet } = useBalanceService()
+  const { overallBalanceUsd } = useBalanceService()
   const { trackClicked } = useAmplitude()
 
   return (
@@ -44,7 +43,13 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
             {(!!userInfo?.name || !!userInfo?.email) && (
               <HStack w={'full'} px={4} alignItems={'center'}>
                 {userInfo?.profileImage?.includes('http') ? (
-                  <Image src={userInfo.profileImage} borderRadius={'full'} h={'18px'} w={'18px'} />
+                  <Image
+                    src={userInfo.profileImage}
+                    borderRadius={'full'}
+                    h={'18px'}
+                    w={'18px'}
+                    alt='profile'
+                  />
                 ) : (
                   <FaRegUserCircle size={'16px'} />
                 )}
@@ -72,13 +77,16 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               onClick={() => router.push('/wallet')}
             >
               <HStack spacing={2}>
-                <FaWallet size={'16px'} fill={colors.fontLight} />
+                <Image
+                  alt='wallet'
+                  src='/assets/images/wallet.svg'
+                  width={'16px'}
+                  height={'16px'}
+                />
                 <HStack spacing={1}>
                   <Text>Balance</Text>
-                  <Text fontWeight={'bold'}>
-                    {NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4)}
-                  </Text>
-                  <Text>{collateralToken.symbol}</Text>
+                  <Text fontWeight={'bold'}>{overallBalanceUsd}</Text>
+                  <Text>USD</Text>
                 </HStack>
               </HStack>
             </Button>
