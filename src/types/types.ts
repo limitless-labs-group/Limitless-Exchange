@@ -31,6 +31,8 @@ export type Market = {
   expirationDate: string
   expirationTimestamp: number
   expired?: boolean
+  tokenTicker: string
+  tokenURI: string
   creator: {
     name: string
     imageURI?: string
