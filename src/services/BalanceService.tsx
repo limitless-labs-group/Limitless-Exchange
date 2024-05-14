@@ -1,14 +1,5 @@
 import { Toast, ToastWithdraw } from '@/components'
-import {
-  collateralToken,
-  defaultChain,
-  degen,
-  higher,
-  mfer,
-  onChain,
-  regen,
-  weth,
-} from '@/constants'
+import { collateralToken, collateralTokensArray, defaultChain } from '@/constants'
 import { wethABI } from '@/contracts'
 import { useToast } from '@/hooks'
 import { publicClient, usePriceOracle } from '@/providers'
@@ -22,15 +13,15 @@ import {
   useQuery,
 } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
-import { PropsWithChildren, createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react'
 import {
-  TransactionReceipt,
   formatEther,
   formatUnits,
   getContract,
   isAddress,
   parseEther,
   parseUnits,
+  TransactionReceipt,
 } from 'viem'
 import { getBalance } from 'viem/actions'
 
@@ -83,159 +74,47 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      const wethContract = getContract({
-        address: collateralToken.address[defaultChain.id],
-        abi: wethABI,
-        client: publicClient,
+      const balanceResult: GetBalanceResult[] = []
+
+      collateralTokensArray.forEach(async (token) => {
+        const contract = getContract({
+          address: token.address[defaultChain.id],
+          abi: wethABI,
+          client: publicClient,
+        })
+        let newBalanceBI = (await contract.read.balanceOf([smartWalletAddress])) as bigint
+        // small balance to zero
+        if (newBalanceBI < parseEther('0.000001')) {
+          newBalanceBI = 0n
+        }
+        balanceResult.push({
+          symbol: token.symbol,
+          id: token.id,
+          name: token.name,
+          decimals: token.decimals,
+          value: newBalanceBI,
+          formatted: formatUnits(newBalanceBI, token.decimals),
+          image: token.imageURI,
+          contractAddress: token.address[defaultChain.id],
+          price: marketTokensPrices ? marketTokensPrices[token.id].usd : 0,
+        })
       })
-
-      const degenContract = getContract({
-        address: degen.address[defaultChain.id],
-        abi: wethABI,
-        client: publicClient,
-      })
-
-      const regenContract = getContract({
-        address: regen.address[defaultChain.id],
-        abi: wethABI,
-        client: publicClient,
-      })
-
-      const higherContract = getContract({
-        address: higher.address[defaultChain.id],
-        abi: wethABI,
-        client: publicClient,
-      })
-
-      const mferContract = getContract({
-        address: mfer.address[defaultChain.id],
-        abi: wethABI,
-        client: publicClient,
-      })
-
-      const onChainContract = getContract({
-        address: onChain.address[defaultChain.id],
-        abi: wethABI,
-        client: publicClient,
-      })
-
-      let newBalanceBIWeth = (await wethContract.read.balanceOf([smartWalletAddress])) as bigint
-      // small balance to zero
-      if (newBalanceBIWeth < parseEther('0.000001')) {
-        newBalanceBIWeth = 0n
-      }
-
-      let newBalanceBIDegen = (await degenContract.read.balanceOf([smartWalletAddress])) as bigint
-
-      if (newBalanceBIDegen < parseEther('0.000001')) {
-        newBalanceBIDegen = 0n
-      }
-
-      let newBalanceBIRegen = (await regenContract.read.balanceOf([smartWalletAddress])) as bigint
-
-      if (newBalanceBIRegen < parseEther('0.000001')) {
-        newBalanceBIRegen = 0n
-      }
-
-      let newBalanceBIHigher = (await higherContract.read.balanceOf([smartWalletAddress])) as bigint
-
-      if (newBalanceBIHigher < parseEther('0.000001')) {
-        newBalanceBIHigher = 0n
-      }
-
-      let newBalanceBIMfer = (await mferContract.read.balanceOf([smartWalletAddress])) as bigint
-
-      if (newBalanceBIMfer < parseEther('0.000001')) {
-        newBalanceBIMfer = 0n
-      }
-
-      let newBalanceBIOnChain = (await onChainContract.read.balanceOf([
-        smartWalletAddress,
-      ])) as bigint
-
-      if (newBalanceBIOnChain < parseEther('0.000001')) {
-        newBalanceBIOnChain = 0n
-      }
-
-      const balanceResult: GetBalanceResult[] = [
-        {
-          symbol: weth.symbol,
-          id: MarketTokensIds.ETH,
-          name: weth.name,
-          decimals: weth.decimals,
-          value: newBalanceBIWeth,
-          formatted: formatUnits(newBalanceBIWeth, weth.decimals),
-          image: weth.imageURI,
-          contractAddress: weth.address[defaultChain.id],
-          price: ethPrice || 0,
-        },
-        {
-          symbol: degen.symbol,
-          id: MarketTokensIds.DEGEN,
-          name: degen.name,
-          decimals: degen.decimals,
-          value: newBalanceBIDegen,
-          formatted: formatUnits(newBalanceBIDegen, degen.decimals),
-          image: degen.imageURI,
-          contractAddress: degen.address[defaultChain.id],
-          price: marketTokensPrices ? marketTokensPrices['degen-base'].usd : 0,
-        },
-        {
-          symbol: regen.symbol,
-          id: MarketTokensIds.REGEN,
-          name: regen.name,
-          decimals: regen.decimals,
-          value: newBalanceBIRegen,
-          formatted: formatUnits(newBalanceBIRegen, regen.decimals),
-          image: regen.imageURI,
-          contractAddress: regen.address[defaultChain.id],
-          price: marketTokensPrices ? marketTokensPrices['regen'].usd : 0,
-        },
-        {
-          symbol: higher.symbol,
-          id: MarketTokensIds.HIGHER,
-          name: higher.name,
-          decimals: higher.decimals,
-          value: newBalanceBIHigher,
-          formatted: formatUnits(newBalanceBIHigher, higher.decimals),
-          image: higher.imageURI,
-          contractAddress: higher.address[defaultChain.id],
-          price: marketTokensPrices ? marketTokensPrices['higher'].usd : 0,
-        },
-        {
-          symbol: mfer.symbol,
-          id: MarketTokensIds.MFER,
-          name: mfer.name,
-          decimals: mfer.decimals,
-          value: newBalanceBIMfer,
-          formatted: formatUnits(newBalanceBIMfer, mfer.decimals),
-          image: mfer.imageURI,
-          contractAddress: mfer.address[defaultChain.id],
-          price: marketTokensPrices ? marketTokensPrices['mfercoin'].usd : 0,
-        },
-        {
-          symbol: onChain.symbol,
-          id: MarketTokensIds.ONCHAIN,
-          name: onChain.name,
-          decimals: onChain.decimals,
-          value: newBalanceBIOnChain,
-          formatted: formatUnits(newBalanceBIOnChain, onChain.decimals),
-          image: onChain.imageURI,
-          contractAddress: onChain.address[defaultChain.id],
-          price: marketTokensPrices ? marketTokensPrices['onchain'].usd : 0,
-        },
-      ]
 
       log.success('ON_BALANCE_SUCC', smartWalletAddress, balanceResult)
 
       // TODO: refactor deposit handler and adjust for multiply tokens
-      if (!!balanceOfSmartWallet && newBalanceBIWeth > balanceOfSmartWallet[0]?.value) {
+      if (
+        !!balanceOfSmartWallet &&
+        Number(balanceResult.find((balance) => balance.id === MarketTokensIds.ETH)?.value) >
+          balanceOfSmartWallet[0]?.value
+      ) {
         if (!defaultChain.testnet) {
           whitelist() // TODO: refactor the logic of whitelisting
         }
 
         const depositAmount = formatUnits(
-          newBalanceBIWeth - balanceOfSmartWallet[0].value,
+          balanceResult.find((balance) => balance.id === MarketTokensIds.ETH)?.value ||
+            BigInt(0) - balanceOfSmartWallet[0].value,
           collateralToken.decimals
         )
 

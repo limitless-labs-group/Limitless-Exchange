@@ -47,7 +47,7 @@ export const WithdrawModal = ({
     return (
       collateralTokensArray.find(
         (collateralToken) => collateralToken.address[defaultChain.id] === selectedToken
-      )?.symbol || '$HIGHER'
+      )?.symbol || higher.symbol
     )
   }, [selectedToken])
 
