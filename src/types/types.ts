@@ -8,8 +8,8 @@ export type Token = {
   }
   symbol: string
   decimals: number
-  name?: string
-  imageURI?: string
+  name: string
+  imageURI: string
 }
 
 export type Market = {
@@ -47,4 +47,7 @@ export type GetBalanceResult = {
   formatted: string
   symbol: string
   value: bigint
+  image: string
+  name: string
+  contractAddress: string
 }

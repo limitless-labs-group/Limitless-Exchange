@@ -48,7 +48,7 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
     queryKey: ['ethPrice'],
     queryFn: fetchEthPrice,
     staleTime: 1000 * 60 * 5, // Data life span 60 seconds
-    refetchInterval: 1000 * 60 * 5, // Refetch data every 60 seconds
+    // refetchInterval: 1000 * 60 * 5, // Refetch data every 60 seconds
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   })

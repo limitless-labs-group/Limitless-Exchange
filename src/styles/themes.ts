@@ -1,4 +1,6 @@
-import { extendTheme as ChakraTheme } from '@chakra-ui/react'
+import { createMultiStyleConfigHelpers, extendTheme as ChakraTheme } from '@chakra-ui/react'
+import { accordionAnatomy, radioAnatomy } from '@chakra-ui/anatomy'
+import { radioTheme } from '@/styles/radio'
 
 const fonts = `Inter, sans-serif`
 export const colors = {
@@ -11,6 +13,11 @@ export const colors = {
   green: '#48CB9A',
   red: '#EF5D5D',
   black: '#0F172A',
+  grey: {
+    100: '#FAFAF9',
+    200: '#EDEDEB',
+    800: '#787A79',
+  },
 }
 
 export const borderRadius = 'lg'
@@ -31,6 +38,11 @@ export const chakraTheme = ChakraTheme({
         color: colors.font,
         background: colors.bg,
         fontSize: '14px',
+      },
+      div: {
+        '::-webkit-scrollbar': {
+          display: 'none',
+        },
       },
       button: {
         fontSize: '14px',
@@ -87,15 +99,16 @@ export const chakraTheme = ChakraTheme({
         borderRadius: '50% !important',
       },
     },
-    components: {
-      Button: {
-        baseStyle: {
-          fontSize: '14px',
-        },
+  },
+  components: {
+    Button: {
+      baseStyle: {
+        fontSize: '14px',
       },
-      HStack: {
-        spacing: '8px',
-      },
+    },
+    Radio: radioTheme,
+    HStack: {
+      spacing: '8px',
     },
   },
   breakpoints: {

@@ -1,5 +1,5 @@
 import { Button, IModal, InfoIcon, Input, Modal, Tooltip } from '@/components'
-import { collateralToken, defaultChain } from '@/constants'
+import { collateralTokensArray, defaultChain, higher, weth } from '@/constants'
 import { useBalanceService } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
@@ -11,11 +11,24 @@ import {
   Text,
   useDisclosure,
   IconButton,
+  Box,
 } from '@chakra-ui/react'
-import { useEffect } from 'react'
+import { Dispatch, SetStateAction, useEffect, useMemo } from 'react'
 import { zeroAddress } from 'viem'
+import SelectTokenField from '@/components/common/SelectTokenField'
 
-export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'children'>) => {
+type WithdrawModalProps = Omit<IModal, 'children'> & {
+  selectedToken: string
+  setSelectedToken: Dispatch<SetStateAction<string>>
+}
+
+export const WithdrawModal = ({
+  onClose,
+  isOpen,
+  selectedToken,
+  setSelectedToken,
+  ...props
+}: WithdrawModalProps) => {
   const {
     balanceOfSmartWallet,
     amount,
@@ -30,13 +43,47 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
 
   const disclosure = useDisclosure()
 
+  const tokenName = useMemo(() => {
+    return (
+      collateralTokensArray.find(
+        (collateralToken) => collateralToken.address[defaultChain.id] === selectedToken
+      )?.symbol || '$HIGHER'
+    )
+  }, [selectedToken])
+
+  const balanceItem = useMemo(() => {
+    if (balanceOfSmartWallet) {
+      return balanceOfSmartWallet.find((balance) => balance.contractAddress === selectedToken)
+    }
+  }, [balanceOfSmartWallet, selectedToken])
+
   useEffect(() => {
     setAmount('')
     setAddressToWithdraw('')
   }, [isOpen])
 
+  useEffect(() => {
+    if (isOpen) {
+      setUnwrap(false)
+      return
+    }
+  }, [isOpen])
+
   return (
-    <Modal size={'md'} title={'Withdraw'} isOpen={isOpen} onClose={onClose} {...props}>
+    <Modal
+      size={'md'}
+      title={`Withdraw ${tokenName} Base`}
+      isOpen={isOpen}
+      onClose={onClose}
+      {...props}
+    >
+      <Box mb='24px' overflowX='scroll'>
+        <SelectTokenField
+          token={selectedToken ? selectedToken : higher.address[defaultChain.id]}
+          setToken={setSelectedToken}
+          defaultValue={selectedToken ? selectedToken : higher.address[defaultChain.id]}
+        />
+      </Box>
       <Stack w={'full'} spacing={4}>
         <Stack w={'full'}>
           <Heading fontSize={'15px'}>Address on {defaultChain.name} network</Heading>
@@ -58,11 +105,12 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
                 h={'24px'}
                 px={2}
                 fontSize={'12px'}
-                onClick={() => setAmount(balanceOfSmartWallet?.formatted ?? '')}
+                onClick={() => setAmount(balanceItem ? balanceItem.formatted : '')}
               >
-                {`Balance: ${NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 6)} ${
-                  collateralToken.symbol
-                }`}
+                {`Balance: ${NumberUtil.toFixed(
+                  balanceItem ? balanceItem.formatted : '',
+                  6
+                )} ${tokenName}`}
               </Button>
             </HStack>
           </HStack>
@@ -80,32 +128,33 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: Omit<IModal, 'child
             />
           </InputGroup>
         </Stack>
-
-        <HStack fontWeight={'bold'}>
-          <Text color={unwrap ? 'fontLight' : 'font'}>WETH</Text>
-          <Switch
-            isChecked={unwrap}
-            onChange={(e) => setUnwrap(e.target.checked)}
-            isDisabled={status == 'Loading'}
-          />
-          <Text color={unwrap ? 'font' : 'fontLight'}>ETH</Text>
-          <Tooltip
-            isOpen={disclosure.isOpen}
-            label={`Select WETH if you want to transfer wrapped ether (ERC20) tokens to your external wallet.\nSelect ETH if you want to unwrap it and transfer ether to your external wallet or exchange.`}
-          >
-            <IconButton
-              variant='unstyled'
-              minW='none'
-              minHeight='auto'
-              height='auto'
-              aria-label='info'
-              onMouseEnter={disclosure.onOpen}
-              onMouseLeave={disclosure.onClose}
-              onClick={disclosure.onToggle}
-              icon={<InfoIcon fontSize={'9px'} p={'3px'} />}
+        {selectedToken === weth.address[defaultChain.id] && (
+          <HStack fontWeight={'bold'}>
+            <Text color={unwrap ? 'fontLight' : 'font'}>WETH</Text>
+            <Switch
+              isChecked={unwrap}
+              onChange={(e) => setUnwrap(e.target.checked)}
+              isDisabled={status == 'Loading'}
             />
-          </Tooltip>
-        </HStack>
+            <Text color={unwrap ? 'font' : 'fontLight'}>ETH</Text>
+            <Tooltip
+              isOpen={disclosure.isOpen}
+              label={`Select WETH if you want to transfer wrapped ether (ERC20) tokens to your external wallet.\nSelect ETH if you want to unwrap it and transfer ether to your external wallet or exchange.`}
+            >
+              <IconButton
+                variant='unstyled'
+                minW='none'
+                minHeight='auto'
+                height='auto'
+                aria-label='info'
+                onMouseEnter={disclosure.onOpen}
+                onMouseLeave={disclosure.onClose}
+                onClick={disclosure.onToggle}
+                icon={<InfoIcon fontSize={'9px'} p={'3px'} />}
+              />
+            </Tooltip>
+          </HStack>
+        )}
 
         <Button
           colorScheme={'brand'}

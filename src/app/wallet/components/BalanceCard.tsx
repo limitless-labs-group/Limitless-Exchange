@@ -1,106 +1,67 @@
-import { WithdrawModal } from '@/app/wallet/components'
 import { Button } from '@/components'
-import { collateralToken } from '@/constants'
-import { usePriceOracle } from '@/providers'
 import { useBalanceService } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
-import {
-  HStack,
-  Heading,
-  Image,
-  Spinner,
-  Stack,
-  StackProps,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react'
-import { useEffect, useMemo } from 'react'
+import { HStack, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
+import { useIsMobile } from '@/hooks'
 
-export const BalanceCard = ({ ...props }: StackProps) => {
+type BalanceCardProps = StackProps & {
+  handleOpenTopUpModal: (token: string) => void
+  handleOpenWithdrawModal: () => void
+}
+
+export const BalanceCard = ({
+  handleOpenTopUpModal,
+  handleOpenWithdrawModal,
+  ...props
+}: BalanceCardProps) => {
   /**
    * BALANCE
    */
-  const { balanceOfSmartWallet, status, setUnwrap } = useBalanceService()
-
-  /**
-   * PRICE ORACLE
-   */
-  const { convertEthToUsd, ethPrice } = usePriceOracle()
-
-  const balanceUsd = useMemo(() => {
-    return NumberUtil.formatThousands(convertEthToUsd(balanceOfSmartWallet?.formatted), 2)
-  }, [balanceOfSmartWallet])
-
-  const ethPriceFormatted = useMemo(() => {
-    return NumberUtil.formatThousands(ethPrice, 2)
-  }, [ethPrice])
-
-  /**
-   * UI
-   */
-  const {
-    isOpen: isOpenWithdraw,
-    onOpen: onOpenWithdraw,
-    onClose: onCloseWithdraw,
-  } = useDisclosure()
-
-  useEffect(() => {
-    if (!isOpenWithdraw) {
-      setUnwrap(false)
-    }
-  }, [isOpenWithdraw])
+  const { overallBalanceUsd } = useBalanceService()
+  const isMobile = useIsMobile()
 
   return (
     <Stack
       h={'fit-content'}
       w={'full'}
-      p={5}
-      border={`1px solid ${colors.border}`}
+      p={isMobile ? 0 : 5}
+      border={isMobile ? 'unset' : `1px solid ${colors.border}`}
       borderRadius={borderRadius}
       alignItems={'start'}
       spacing={3}
       {...props}
     >
-      <HStack>
-        <Image w={'30px'} src={collateralToken.imageURI} />
-        <Stack spacing={0}>
-          <Heading size={'sm'}>{collateralToken.symbol}</Heading>
-          <Text color={'fontLight'}>{collateralToken.name}</Text>
-        </Stack>
-      </HStack>
-
-      <HStack w={'full'} alignItems={'start'}>
-        <Stack flexBasis={'50%'}>
-          <Text fontSize={'12px'} color={'fontLight'}>
-            Balance
+      <HStack
+        justifyContent='space-between'
+        w={'full'}
+        flexDirection={isMobile ? 'column' : 'row'}
+        alignItems={isMobile ? 'flex-start' : 'center'}
+      >
+        <VStack alignItems='left'>
+          <Text fontSize='20px'>Estimated Balance</Text>
+          <Text fontSize='24px' fontWeight={'bold'}>
+            ~ {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
           </Text>
-          <Stack spacing={0}>
-            <Text fontWeight={'bold'}>
-              {status == 'Loading' ? (
-                <Spinner size={'sm'} />
-              ) : (
-                NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 6)
-              )}
-            </Text>
-            <Text fontSize={'12px'} color={'fontLight'}>
-              ~${balanceUsd}
-            </Text>
-          </Stack>
-        </Stack>
-        <Stack>
-          <Text fontSize={'12px'} color={'fontLight'}>
-            Token Price
-          </Text>
-          <Text>~${ethPriceFormatted}</Text>
-        </Stack>
+        </VStack>
+        <VStack
+          flexDirection={isMobile ? 'row' : 'column'}
+          gap={'16px'}
+          w={isMobile ? 'full' : 'unset'}
+        >
+          <Button
+            colorScheme={'brand'}
+            w={isMobile ? 'full' : '200px'}
+            h={'30px'}
+            onClick={() => handleOpenTopUpModal('')}
+          >
+            Top Up
+          </Button>
+          <Button w={isMobile ? 'full' : '200px'} h={'30px'} onClick={handleOpenWithdrawModal}>
+            Withdraw
+          </Button>
+        </VStack>
       </HStack>
-
-      <Button h={'40px'} w={'full'} bg={'gray'} color={'white'} onClick={onOpenWithdraw}>
-        Withdraw
-      </Button>
-
-      <WithdrawModal isOpen={isOpenWithdraw} onClose={onCloseWithdraw} />
     </Stack>
   )
 }
