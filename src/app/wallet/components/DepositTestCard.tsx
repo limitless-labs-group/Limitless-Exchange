@@ -1,5 +1,5 @@
 import { Button } from '@/components'
-import { collateralToken, defaultChain } from '@/constants'
+import { collateralToken, defaultChain, weth } from '@/constants'
 import { useAccount, useBalanceService } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { HStack, Link, Stack, StackProps, Text } from '@chakra-ui/react'
@@ -68,7 +68,10 @@ export const DepositTestCard = ({ ...props }: StackProps) => {
         w={{ sm: 'full', md: '150px' }}
         h={'40px'}
         onClick={() => {
-          mint(selectedToken as Address)
+          mint({
+            address: selectedToken as Address,
+            newToken: selectedToken !== weth.address[defaultChain.id],
+          })
         }}
         isLoading={isLoadingMint}
       >

@@ -19,6 +19,9 @@ import { useBalanceService } from '@/services'
 import { NumberUtil } from '@/utils'
 import { usePriceOracle } from '@/providers'
 import { useIsMobile } from '@/hooks'
+import { useUsersMarkets } from '@/services/MarketsService'
+import { formatUnits } from 'viem'
+import { MarketTokensIds } from '@/types'
 
 type AssetsTableProps = {
   handleOpenTopUpModal: (token: string) => void
@@ -32,8 +35,35 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
 
   const { balanceOfSmartWallet } = useBalanceService()
   const { convertAssetAmountToUsd, ethPrice } = usePriceOracle()
+  const { data: usersMarkets } = useUsersMarkets()
 
-  console.log(balanceOfSmartWallet)
+  const getMarketsCount = (ticker: string) => {
+    return usersMarkets?.filter((market) => market.market.collateral.symbol === ticker).length || 0
+  }
+
+  const getLockedAmount = (ticker: string, decimals: number) => {
+    if (usersMarkets) {
+      const marketsByToken = usersMarkets.filter(
+        (market) => market.market.collateral.symbol === ticker
+      )
+      const totalLocked = marketsByToken.reduce((a, b) => {
+        return a + +formatUnits(BigInt(b.collateralsLocked), decimals)
+      }, 0)
+      return NumberUtil.formatThousands(totalLocked, 4)
+    }
+    return '0'
+  }
+
+  const getLockedAmountUsd = (id: MarketTokensIds, amount: string) => {
+    return convertAssetAmountToUsd(id, amount)
+  }
+
+  const getLeftCellPadding = (index: number) => {
+    if (isMobile) {
+      return index === tableHeaders.length - 1 ? '20px' : 0
+    }
+    return index ? 0 : '24px'
+  }
 
   return (
     <>
@@ -67,7 +97,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                   borderBottom={'unset'}
                   textAlign={index ? 'right' : 'left'}
                   pr={index === tableHeaders.length - 1 ? (isMobile ? 0 : '20px') : 0}
-                  pl={index ? 0 : isMobile ? 0 : '24px'}
+                  pl={getLeftCellPadding(index)}
                   w={index ? 'initial' : '136px'}
                 >
                   {header}
@@ -125,15 +155,25 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                       px={0}
                       w={'120px'}
                     >
-                      <Text fontWeight={'semibold'}>0 markets</Text>
+                      <Text fontWeight={'semibold'}>{getMarketsCount(balance.symbol)} markets</Text>
                     </Td>
                     <Td borderBottom={'unset'} py={'8px'} px={0} w={'100px'}>
                       <VStack gap={0} alignItems='flex-end'>
                         <Text fontWeight={'semibold'}>
-                          {NumberUtil.formatThousands(balance.formatted, 4)}
+                          {NumberUtil.formatThousands(
+                            getLockedAmount(balance.symbol, balance.decimals),
+                            4
+                          )}
                         </Text>
                         <Text fontWeight={'light'} color={'fontLight'}>
-                          ${NumberUtil.formatThousands(0, 2)}
+                          $
+                          {NumberUtil.formatThousands(
+                            getLockedAmountUsd(
+                              balance.id,
+                              getLockedAmount(balance.symbol, balance.decimals)
+                            ),
+                            2
+                          )}
                         </Text>
                       </VStack>
                     </Td>

@@ -41,7 +41,7 @@ interface IBalanceService {
   >
   overallBalanceUsd: string
 
-  mint: (address: Address) => void
+  mint: (params: { address: Address; newToken?: boolean }) => void
   isLoadingMint: boolean
 
   addressToWithdraw: string
@@ -66,7 +66,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
-  const { convertEthToUsd, ethPrice, marketTokensPrices } = usePriceOracle()
+  const { ethPrice, marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
 
   /**
    * Etherspot
@@ -305,14 +305,19 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
    * Mint mocked erc20
    */
   const { mutate: mint, isPending: isLoadingMint } = useMutation({
-    mutationFn: async (address: Address) => {
+    mutationFn: async (params: { address: Address; newToken?: boolean }) => {
       if (!etherspot) {
         return
       }
       toast({
         render: () => <Toast title={'Processing transaction...'} />,
       })
-      await etherspot.mintErc20(address, parseUnits('1', collateralToken.decimals))
+      await etherspot.mintErc20(
+        params.address,
+        parseUnits('1', collateralToken.decimals),
+        smartWalletAddress || '0x',
+        params.newToken
+      )
       toast({
         render: () => <Toast title={'Confirmed. Updating balance...'} />,
       })
@@ -421,9 +426,11 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
 
   const overallBalanceUsd = useMemo(() => {
     if (balanceOfSmartWallet) {
-      return NumberUtil.toFixed(convertEthToUsd(balanceOfSmartWallet[0].formatted), 2)
+      const totalBalance = balanceOfSmartWallet.reduce((a, b) => {
+        return a + convertAssetAmountToUsd(b.id, b.formatted)
+      }, 0)
+      return NumberUtil.toFixed(totalBalance, 2)
     }
-    // Todo extend calculation with other tokens
     return '0'
   }, [balanceOfSmartWallet])
 
