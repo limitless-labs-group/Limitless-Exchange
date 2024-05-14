@@ -31,7 +31,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
     : ['Token', 'Available Balance', 'Token Price', 'Active Markets', 'Locked', 'Deposit']
 
   const { balanceOfSmartWallet } = useBalanceService()
-  const { convertEthToUsd, ethPrice } = usePriceOracle()
+  const { convertAssetAmountToUsd, ethPrice } = usePriceOracle()
 
   console.log(balanceOfSmartWallet)
 
@@ -91,9 +91,15 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                 </Td>
                 <Td borderBottom={'unset'} py={'8px'} px={0} w={'160px'}>
                   <VStack gap={0} alignItems='flex-end'>
-                    <Text fontWeight={'semibold'}>{balance.formatted}</Text>
+                    <Text fontWeight={'semibold'}>
+                      {NumberUtil.formatThousands(balance.formatted, 4)}
+                    </Text>
                     <Text fontWeight={'light'} color={'fontLight'}>
-                      ${NumberUtil.formatThousands(convertEthToUsd(balance.formatted), 2)}
+                      $
+                      {NumberUtil.formatThousands(
+                        convertAssetAmountToUsd(balance.id, balance.formatted),
+                        2
+                      )}
                     </Text>
                   </VStack>
                 </Td>
@@ -107,7 +113,9 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                       px={0}
                       w={'100px'}
                     >
-                      <Text fontWeight={'semibold'}>${ethPrice}</Text>
+                      <Text fontWeight={'semibold'}>
+                        ${NumberUtil.formatThousands(balance.price, 4)}
+                      </Text>
                     </Td>
                     <Td
                       borderBottom={'unset'}
@@ -121,9 +129,11 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                     </Td>
                     <Td borderBottom={'unset'} py={'8px'} px={0} w={'100px'}>
                       <VStack gap={0} alignItems='flex-end'>
-                        <Text fontWeight={'semibold'}>{balance.formatted}</Text>
+                        <Text fontWeight={'semibold'}>
+                          {NumberUtil.formatThousands(balance.formatted, 4)}
+                        </Text>
                         <Text fontWeight={'light'} color={'fontLight'}>
-                          ${NumberUtil.formatThousands(convertEthToUsd(balance.formatted), 2)}
+                          ${NumberUtil.formatThousands(0, 2)}
                         </Text>
                       </VStack>
                     </Td>

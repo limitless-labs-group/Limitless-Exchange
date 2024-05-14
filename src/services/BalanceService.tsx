@@ -13,7 +13,7 @@ import { wethABI } from '@/contracts'
 import { useToast } from '@/hooks'
 import { publicClient, usePriceOracle } from '@/providers'
 import { useEtherspot } from '@/services'
-import { Address, GetBalanceResult } from '@/types'
+import { Address, GetBalanceResult, MarketTokensIds } from '@/types'
 import { Logger, NumberUtil } from '@/utils'
 import {
   QueryObserverResult,
@@ -66,7 +66,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
-  const { convertEthToUsd } = usePriceOracle()
+  const { convertEthToUsd, ethPrice, marketTokensPrices } = usePriceOracle()
 
   /**
    * Etherspot
@@ -160,57 +160,69 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       const balanceResult: GetBalanceResult[] = [
         {
           symbol: weth.symbol,
+          id: MarketTokensIds.ETH,
           name: weth.name,
           decimals: weth.decimals,
           value: newBalanceBIWeth,
           formatted: formatUnits(newBalanceBIWeth, weth.decimals),
           image: weth.imageURI,
           contractAddress: weth.address[defaultChain.id],
+          price: ethPrice || 0,
         },
         {
           symbol: degen.symbol,
+          id: MarketTokensIds.DEGEN,
           name: degen.name,
           decimals: degen.decimals,
           value: newBalanceBIDegen,
           formatted: formatUnits(newBalanceBIDegen, degen.decimals),
           image: degen.imageURI,
           contractAddress: degen.address[defaultChain.id],
+          price: marketTokensPrices ? marketTokensPrices['degen-base'].usd : 0,
         },
         {
           symbol: regen.symbol,
+          id: MarketTokensIds.REGEN,
           name: regen.name,
           decimals: regen.decimals,
           value: newBalanceBIRegen,
           formatted: formatUnits(newBalanceBIRegen, regen.decimals),
           image: regen.imageURI,
           contractAddress: regen.address[defaultChain.id],
+          price: marketTokensPrices ? marketTokensPrices['regen'].usd : 0,
         },
         {
           symbol: higher.symbol,
+          id: MarketTokensIds.HIGHER,
           name: higher.name,
           decimals: higher.decimals,
           value: newBalanceBIHigher,
           formatted: formatUnits(newBalanceBIHigher, higher.decimals),
           image: higher.imageURI,
           contractAddress: higher.address[defaultChain.id],
+          price: marketTokensPrices ? marketTokensPrices['higher'].usd : 0,
         },
         {
           symbol: mfer.symbol,
+          id: MarketTokensIds.MFER,
           name: mfer.name,
           decimals: mfer.decimals,
           value: newBalanceBIMfer,
           formatted: formatUnits(newBalanceBIMfer, mfer.decimals),
           image: mfer.imageURI,
           contractAddress: mfer.address[defaultChain.id],
+          price: marketTokensPrices ? marketTokensPrices['mfercoin'].usd : 0,
         },
         {
           symbol: onChain.symbol,
+          id: MarketTokensIds.ONCHAIN,
           name: onChain.name,
           decimals: onChain.decimals,
           value: newBalanceBIOnChain,
           formatted: formatUnits(newBalanceBIOnChain, onChain.decimals),
           image: onChain.imageURI,
           contractAddress: onChain.address[defaultChain.id],
+          price: marketTokensPrices ? marketTokensPrices['onchain'].usd : 0,
         },
       ]
 

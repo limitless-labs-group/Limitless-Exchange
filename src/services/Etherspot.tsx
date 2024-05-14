@@ -316,6 +316,8 @@ class Etherspot {
       abi: wethABI,
       functionName: 'deposit',
     })
+    console.log(data)
+
     const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, data, value)
     const transactionReceipt = await this.waitForTransaction(opHash)
     return transactionReceipt
