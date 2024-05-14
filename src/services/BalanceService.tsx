@@ -1,10 +1,10 @@
 import { Toast, ToastWithdraw } from '@/components'
-import { collateralToken, defaultChain } from '@/constants'
+import { collateralToken, collateralTokensArray, defaultChain } from '@/constants'
 import { wethABI } from '@/contracts'
 import { useToast } from '@/hooks'
 import { publicClient, usePriceOracle } from '@/providers'
 import { useEtherspot } from '@/services'
-import { Address, GetBalanceResult } from '@/types'
+import { Address, GetBalanceResult, MarketTokensIds } from '@/types'
 import { Logger, NumberUtil } from '@/utils'
 import {
   QueryObserverResult,
@@ -13,26 +13,26 @@ import {
   useQuery,
 } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
-import { PropsWithChildren, createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react'
 import {
-  TransactionReceipt,
   formatEther,
   formatUnits,
   getContract,
   isAddress,
   parseEther,
   parseUnits,
+  TransactionReceipt,
 } from 'viem'
 import { getBalance } from 'viem/actions'
 
 interface IBalanceService {
-  balanceOfSmartWallet: GetBalanceResult | undefined
+  balanceOfSmartWallet: GetBalanceResult[] | undefined
   refetchbalanceOfSmartWallet: () => Promise<
-    QueryObserverResult<GetBalanceResult | undefined, Error>
+    QueryObserverResult<GetBalanceResult[] | undefined, Error>
   >
   overallBalanceUsd: string
 
-  mint: () => void
+  mint: (params: { address: Address; newToken?: boolean }) => void
   isLoadingMint: boolean
 
   addressToWithdraw: string
@@ -57,7 +57,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
-  const { convertEthToUsd } = usePriceOracle()
+  const { ethPrice, marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
 
   /**
    * Etherspot
@@ -74,35 +74,47 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      const wethContract = getContract({
-        address: collateralToken.address[defaultChain.id],
-        abi: wethABI,
-        client: publicClient,
+      const balanceResult: GetBalanceResult[] = []
+
+      collateralTokensArray.forEach(async (token) => {
+        const contract = getContract({
+          address: token.address[defaultChain.id],
+          abi: wethABI,
+          client: publicClient,
+        })
+        let newBalanceBI = (await contract.read.balanceOf([smartWalletAddress])) as bigint
+        // small balance to zero
+        if (newBalanceBI < parseEther('0.000001')) {
+          newBalanceBI = 0n
+        }
+        balanceResult.push({
+          symbol: token.symbol,
+          id: token.id,
+          name: token.name,
+          decimals: token.decimals,
+          value: newBalanceBI,
+          formatted: formatUnits(newBalanceBI, token.decimals),
+          image: token.imageURI,
+          contractAddress: token.address[defaultChain.id],
+          price: marketTokensPrices ? marketTokensPrices[token.id].usd : 0,
+        })
       })
-
-      let newBalanceBI = (await wethContract.read.balanceOf([smartWalletAddress])) as bigint
-      // small balance to zero
-      if (newBalanceBI < parseEther('0.000001')) {
-        newBalanceBI = 0n
-      }
-
-      const balanceResult: GetBalanceResult = {
-        symbol: collateralToken.symbol,
-        decimals: collateralToken.decimals,
-        value: newBalanceBI,
-        formatted: formatUnits(newBalanceBI, collateralToken.decimals),
-      }
 
       log.success('ON_BALANCE_SUCC', smartWalletAddress, balanceResult)
 
-      // TODO: refactor deposit handler
-      if (!!balanceOfSmartWallet && newBalanceBI > balanceOfSmartWallet?.value) {
+      // TODO: refactor deposit handler and adjust for multiply tokens
+      if (
+        !!balanceOfSmartWallet &&
+        Number(balanceResult.find((balance) => balance.id === MarketTokensIds.ETH)?.value) >
+          balanceOfSmartWallet[0]?.value
+      ) {
         if (!defaultChain.testnet) {
           whitelist() // TODO: refactor the logic of whitelisting
         }
 
         const depositAmount = formatUnits(
-          newBalanceBI - balanceOfSmartWallet.value,
+          balanceResult.find((balance) => balance.id === MarketTokensIds.ETH)?.value ||
+            BigInt(0) - balanceOfSmartWallet[0].value,
           collateralToken.decimals
         )
 
@@ -172,7 +184,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
    * Mint mocked erc20
    */
   const { mutate: mint, isPending: isLoadingMint } = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (params: { address: Address; newToken?: boolean }) => {
       if (!etherspot) {
         return
       }
@@ -180,8 +192,10 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         render: () => <Toast title={'Processing transaction...'} />,
       })
       await etherspot.mintErc20(
-        collateralToken.address[defaultChain.id],
-        parseUnits('1', collateralToken.decimals)
+        params.address,
+        parseUnits('1', collateralToken.decimals),
+        smartWalletAddress || '0x',
+        params.newToken
       )
       toast({
         render: () => <Toast title={'Confirmed. Updating balance...'} />,
@@ -206,7 +220,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const isInvalidAmount = useMemo(() => {
     const isInvalidBalance = balanceOfSmartWallet === undefined
     const isNegativeOrZeroAmount = amountBI <= 0n
-    const isExceedsBalance = !!balanceOfSmartWallet && amountBI > balanceOfSmartWallet.value
+    const isExceedsBalance = !!balanceOfSmartWallet && amountBI > balanceOfSmartWallet[0].value
     return isInvalidBalance || isNegativeOrZeroAmount || isExceedsBalance
   }, [balanceOfSmartWallet, amountBI])
 
@@ -290,9 +304,14 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   }, [isInvalidAddressToWithdraw, isInvalidAmount, isLoadingMint, isLoadingWithdraw])
 
   const overallBalanceUsd = useMemo(() => {
-    // Todo extend calculation with other tokens
-    return NumberUtil.toFixed(convertEthToUsd(balanceOfSmartWallet?.formatted), 2)
-  }, [balanceOfSmartWallet?.formatted])
+    if (balanceOfSmartWallet) {
+      const totalBalance = balanceOfSmartWallet.reduce((a, b) => {
+        return a + convertAssetAmountToUsd(b.id, b.formatted)
+      }, 0)
+      return NumberUtil.toFixed(totalBalance, 2)
+    }
+    return '0'
+  }, [balanceOfSmartWallet])
 
   return (
     <BalanceService.Provider

@@ -1,4 +1,5 @@
 import { extendTheme as ChakraTheme } from '@chakra-ui/react'
+import { radioTheme } from '@/styles/radio'
 
 const fonts = `Inter, sans-serif`
 export const colors = {
@@ -8,13 +9,15 @@ export const colors = {
   border: '#ddd',
   font: '#0F172A',
   fontLight: '#747675',
-  grey: {
-    100: '#FAFAF9',
-    800: '#747675',
-  },
   green: '#48CB9A',
   red: '#EF5D5D',
   black: '#0F172A',
+  grey: {
+    100: '#FAFAF9',
+    200: '#EDEDEB',
+    700: '#747675',
+    800: '#787A79',
+  },
 }
 
 export const borderRadius = 'lg'
@@ -35,6 +38,11 @@ export const chakraTheme = ChakraTheme({
         color: colors.font,
         background: colors.bg,
         fontSize: '14px',
+      },
+      div: {
+        '::-webkit-scrollbar': {
+          display: 'none',
+        },
       },
       button: {
         fontSize: '14px',
@@ -119,6 +127,7 @@ export const chakraTheme = ChakraTheme({
     HStack: {
       spacing: '8px',
     },
+    Radio: radioTheme,
   },
   breakpoints: {
     sm: '320px',

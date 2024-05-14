@@ -8,8 +8,9 @@ export type Token = {
   }
   symbol: string
   decimals: number
-  name?: string
-  imageURI?: string
+  name: string
+  imageURI: string
+  id: MarketTokensIds
 }
 
 export type Market = {
@@ -47,4 +48,22 @@ export type GetBalanceResult = {
   formatted: string
   symbol: string
   value: bigint
+  image: string
+  name: string
+  contractAddress: string
+  price: number
+  id: MarketTokensIds
 }
+
+type CoingeckoPriceEntity = { usd: number }
+
+export enum MarketTokensIds {
+  DEGEN = 'degen-base',
+  ETH = 'ethereum',
+  HIGHER = 'higher',
+  MFER = 'mfercoin',
+  ONCHAIN = 'onchain',
+  REGEN = 'regen',
+}
+
+export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>

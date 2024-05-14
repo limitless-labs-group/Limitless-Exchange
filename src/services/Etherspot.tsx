@@ -14,6 +14,7 @@ import {
   useState,
 } from 'react'
 import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, parseEther } from 'viem'
+import { contractABI } from '@/contracts/utils'
 
 interface IEtherspotContext {
   etherspot: Etherspot | null
@@ -209,6 +210,7 @@ class Etherspot {
       await this.primeSdk.addUserOpsToBatch({ to, data, value })
       const op = await this.estimate()
       const opHash = await this.primeSdk.send(op)
+      console.log(opHash)
       return opHash
     } catch (e: any) {
       console.log(e)
@@ -262,13 +264,18 @@ class Etherspot {
     return this.batchAndSendUserOp(token, data)
   }
 
-  async mintErc20(token: Address, value: bigint) {
-    const data = encodeFunctionData({
-      abi: wethABI,
-      functionName: 'mint',
-      args: [value],
-    })
-    return this.batchAndSendUserOp(token, data)
+  async mintErc20(token: Address, value: bigint, smartWalletAddress: Address, newToken?: boolean) {
+    const args = newToken ? [smartWalletAddress, value] : [value]
+    try {
+      const data = encodeFunctionData({
+        abi: newToken ? contractABI[defaultChain.id] : wethABI,
+        functionName: 'mint',
+        args,
+      })
+      return this.batchAndSendUserOp(token, data)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   // TODO: incapsulate
@@ -315,6 +322,8 @@ class Etherspot {
       abi: wethABI,
       functionName: 'deposit',
     })
+    console.log(data)
+
     const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, data, value)
     const transactionReceipt = await this.waitForTransaction(opHash)
     return transactionReceipt

@@ -67,10 +67,15 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
    */
   const { balanceOfSmartWallet } = useBalanceService()
 
-  const balance = useMemo(
-    () => (strategy == 'Buy' ? balanceOfSmartWallet?.formatted ?? '' : balanceOfCollateralToSell),
-    [balanceOfSmartWallet, strategy, balanceOfCollateralToSell]
-  )
+  const balance = useMemo(() => {
+    if (strategy === 'Buy') {
+      if (balanceOfSmartWallet) {
+        return balanceOfSmartWallet[0].formatted
+      }
+      return ''
+    }
+    return balanceOfCollateralToSell
+  }, [balanceOfSmartWallet, strategy, balanceOfCollateralToSell])
 
   const isZeroBalance = !(Number(balance) > 0)
 
