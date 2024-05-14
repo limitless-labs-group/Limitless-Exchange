@@ -46,7 +46,7 @@ export default function TopUpModal({
         <Box
           w={'calc(100% - 115px)'}
           justifyContent={'start'}
-          color={'grey.800'}
+          color={'grey.700'}
           bg='grey.200'
           px='10px'
           py='14px'

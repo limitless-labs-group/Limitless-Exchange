@@ -1,5 +1,4 @@
-import { createMultiStyleConfigHelpers, extendTheme as ChakraTheme } from '@chakra-ui/react'
-import { accordionAnatomy, radioAnatomy } from '@chakra-ui/anatomy'
+import { extendTheme as ChakraTheme } from '@chakra-ui/react'
 import { radioTheme } from '@/styles/radio'
 
 const fonts = `Inter, sans-serif`
@@ -16,6 +15,7 @@ export const colors = {
   grey: {
     100: '#FAFAF9',
     200: '#EDEDEB',
+    700: '#747675',
     800: '#787A79',
   },
 }
@@ -105,11 +105,29 @@ export const chakraTheme = ChakraTheme({
       baseStyle: {
         fontSize: '14px',
       },
+      variants: {
+        outline: {
+          borderWidth: 0,
+          bg: 'grey.100',
+          color: 'grey.800',
+          height: '52px',
+        },
+      },
     },
-    Radio: radioTheme,
+    FormLabel: {
+      baseStyle: {
+        fontSize: '14px',
+      },
+    },
+    Textarea: {
+      baseStyle: {
+        fontSize: '16px',
+      },
+    },
     HStack: {
       spacing: '8px',
     },
+    Radio: radioTheme,
   },
   breakpoints: {
     sm: '320px',

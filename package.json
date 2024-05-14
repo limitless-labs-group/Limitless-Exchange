@@ -5,7 +5,7 @@
   "author": "Limitless Labs",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development wagmi generate && next dev",
+    "dev": " wagmi generate && next dev",
     "build": "wagmi generate && next build",
     "analyze": "ANALYZE=true yarn build",
     "start": "next start",
@@ -44,6 +44,9 @@
     "@web3auth/web3auth-wagmi-connector": "^6.0.0",
     "axios": "^1.6.5",
     "big.js": "^6.2.1",
+    "chakra-dayzed-datepicker": "^0.3.0",
+    "date-fns": "^3.6.0",
+    "dayzed": "^3.2.3",
     "framer-motion": "^10.12.12",
     "graphql": "^16.8.1",
     "next": "^14.2.3",

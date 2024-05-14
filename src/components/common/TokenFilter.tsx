@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Text, HStack, Box, VStack, Image } from '@chakra-ui/react'
+import React from 'react'
+import { Text, HStack, Box, VStack, Image, useDisclosure } from '@chakra-ui/react'
 import { LuListFilter } from 'react-icons/lu'
 import OutsideClickContainer from '@/components/common/OutsideClickContainer'
 import { defaultChain, degen, higher, regen, weth } from '@/constants'
@@ -35,11 +35,11 @@ type TokenFilterProps = {
 }
 
 export default function TokenFilter({ selectedId, onSelect }: TokenFilterProps) {
-  const [filterOpened, setFilterOpened] = useState(false)
-
-  const handleFilterOpened = () => setFilterOpened(true)
-
-  const handleCloseFilter = () => setFilterOpened(false)
+  const {
+    isOpen: filterOpened,
+    onOpen: handleOpenFilter,
+    onClose: handleCloseFilter,
+  } = useDisclosure()
 
   const handleFilterItemClicked = (id: string) => {
     onSelect(id)
@@ -48,7 +48,7 @@ export default function TokenFilter({ selectedId, onSelect }: TokenFilterProps) 
 
   return (
     <Box position='relative'>
-      <HStack cursor='pointer' w={'fit-content'} onClick={handleFilterOpened}>
+      <HStack cursor='pointer' w={'fit-content'} onClick={handleOpenFilter}>
         <LuListFilter />
         <Text>Filter by token</Text>
       </HStack>
