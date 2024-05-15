@@ -26,8 +26,6 @@ type PriceOracleContextType = {
    */
   ethPrice: number | undefined
 
-  degenPrice: number | undefined
-
   marketTokensPrices: GetCoingeckoPricesResponse | undefined
 
   convertAssetAmountToUsd: (id: MarketTokensIds, amount?: number | string) => number
@@ -68,27 +66,11 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
   //   return data
   // }
 
-  const fetchDegenPrice = async () => {
-    const { data } = await axios.get(
-      'https://api.coingecko.com/api/v3/simple/price?ids=degen-base&vs_currencies=usd'
-    )
-    console.log(data)
-    return data['degen-base'].usd as number
-  }
-
   const { data: ethPrice } = useQuery({
     queryKey: ['ethPrice'],
     queryFn: fetchEthPrice,
     staleTime: 1000 * 60 * 5, // Data life span 60 seconds
-    // refetchInterval: 1000 * 60 * 5, // Refetch data every 60 seconds
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-  })
-
-  const { data: degenPrice } = useQuery({
-    queryKey: ['degenPrice'],
-    queryFn: fetchDegenPrice,
-    staleTime: 1000 * 60 * 5, // Data life span 60 seconds
+    refetchInterval: 1000 * 60 * 5, // Refetch data every 60 seconds
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   })
@@ -159,7 +141,6 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
         convertUsdToEth,
         convertEthToUsd,
         ethPrice,
-        degenPrice,
         marketTokensPrices,
         convertAssetAmountToUsd,
         convertTokenAmountToUsd,
