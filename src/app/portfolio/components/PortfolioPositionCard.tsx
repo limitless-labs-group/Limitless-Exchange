@@ -117,14 +117,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
 
             <HStack>
               <Text>
-                {`${NumberUtil.toFixed(position.collateralAmount, 4)} ${
+                {`${NumberUtil.formatThousands(position.collateralAmount, 4)} ${
                   position.market.collateral?.symbol
                 }`}
               </Text>
 
               <Text fontSize={'12px'} color={'fontLight'}>
                 ~$
-                {NumberUtil.toFixed(
+                {NumberUtil.formatThousands(
                   convertTokenAmountToUsd(
                     position.market.collateral?.symbol,
                     position.collateralAmount
@@ -140,7 +140,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             <Text color={'fontLight'}>Outcome</Text>
 
             <Text color={getOutcomeNotation() === 'Yes' ? 'green' : 'red'}>
-              {`${getOutcomeNotation()} ${NumberUtil.toFixed(
+              {`${getOutcomeNotation()} ${NumberUtil.formatThousands(
                 position.latestTrade?.outcomeTokenPrice,
                 3
               )} ${position.market.collateral?.symbol}`}
@@ -152,13 +152,13 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             <Text color={'fontLight'}>Max win</Text>
 
             <HStack>
-              <Text>{`${NumberUtil.toFixed(position.outcomeTokenAmount, 4)} ${
+              <Text>{`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
                 position.market.collateral?.symbol
               }`}</Text>
 
               <Text fontSize={'12px'} color={'fontLight'}>
                 ~$
-                {NumberUtil.toFixed(
+                {NumberUtil.formatThousands(
                   convertTokenAmountToUsd(
                     position.market.collateral?.symbol,
                     position.outcomeTokenAmount
