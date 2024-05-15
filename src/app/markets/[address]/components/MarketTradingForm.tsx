@@ -276,8 +276,8 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
                 borderColor={'border'}
                 gap={1}
               >
-                <Avatar size={'xs'} src={collateralToken.imageURI} />
-                <Text>{collateralToken.symbol}</Text>
+                <Avatar size={'xs'} src={market?.tokenURI} />
+                <Text>{market?.tokenTicker}</Text>
               </Button>
             </HStack>
 
@@ -293,7 +293,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
                 cursor={'pointer'}
                 onClick={() => setCollateralAmount(NumberUtil.toFixed(balance, 6))}
               >
-                {`Balance: ${NumberUtil.toFixed(balance, 6)}`} {collateralToken.symbol}
+                {`Balance: ${NumberUtil.toFixed(balance, 6)}`} {market?.tokenTicker}
               </Text>
             </HStack>
           </Stack>
@@ -354,7 +354,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Avg price</Text>
             <Text textAlign={'right'}>{`${NumberUtil.toFixed(quotes?.outcomeTokenPrice, 6)} ${
-              collateralToken.symbol
+              market?.tokenTicker
             }`}</Text>
           </HStack>
           <HStack w={'full'} justifyContent={'space-between'}>
@@ -367,9 +367,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
                 <Text color={'fontLight'}>Potential return</Text>
                 <HStack spacing={1}>
                   <Text color={'green'} fontWeight={'bold'} textAlign={'right'}>
-                    {`${NumberUtil.toFixed(quotes?.outcomeTokenAmount, 6)} ${
-                      collateralToken.symbol
-                    }`}
+                    {`${NumberUtil.toFixed(quotes?.outcomeTokenAmount, 6)} ${market?.tokenTicker}`}
                   </Text>
                   <Text color={'fontLight'}>{NumberUtil.toFixed(quotes?.roi, 2)}%</Text>
                 </HStack>

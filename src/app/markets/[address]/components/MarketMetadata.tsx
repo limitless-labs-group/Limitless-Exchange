@@ -71,6 +71,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
       />
 
       <Grid alignItems={'start'} gap={4} w={'full'}>
+        <Heading fontSize={'28px'}>{market?.title}</Heading>
         {isMobile ? (
           <Stack>
             <HStack w={'full'} justifyContent={'space-between'}>
@@ -80,13 +81,13 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             <HStack w={'full'} justifyContent={'space-between'}>
               <Text color={'fontLight'}>Liquidity</Text>
               <Text fontWeight={'bold'}>{`${Number(liquidity).toFixed(2)} ${
-                collateralToken.symbol
+                market?.tokenTicker
               }`}</Text>
             </HStack>
             <HStack w={'full'} justifyContent={'space-between'}>
               <Text color={'fontLight'}>Volume</Text>
               <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
-                collateralToken.symbol
+                market?.tokenTicker
               }`}</Text>
             </HStack>
           </Stack>
@@ -95,14 +96,14 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             <Stack spacing={0}>
               <Text color={'fontLight'}>Liquidity</Text>
               <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
-                collateralToken.symbol
+                market?.tokenTicker
               }`}</Text>
             </Stack>
 
             <Stack spacing={0}>
               <Text color={'fontLight'}>Volume</Text>
               <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
-                collateralToken.symbol
+                market?.tokenTicker
               }`}</Text>
             </Stack>
 
@@ -114,8 +115,6 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             </Stack>
           </HStack>
         )}
-
-        <Heading fontSize={'28px'}>{market?.title}</Heading>
 
         <Text>{market?.description}</Text>
 
@@ -190,7 +189,12 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             </PopoverContent>
           </Portal>
         </Popover>
-
+        <VStack gap={'4px'} alignItems={'flex-start'}>
+          <Text fontWeight={'semibold'} color={'fontLight'}>
+            Created by
+          </Text>
+          <Divider />
+        </VStack>
         <HStack>
           <Link href={market?.creator.link} isExternal>
             <Image
