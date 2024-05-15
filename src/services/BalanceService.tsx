@@ -74,30 +74,36 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      const balanceResult: GetBalanceResult[] = []
+      const balances = await Promise.allSettled(
+        collateralTokensArray.map(async (token) => {
+          const contract = getContract({
+            address: token.address[defaultChain.id],
+            abi: wethABI,
+            client: publicClient,
+          })
+          let newBalanceBI = (await contract.read.balanceOf([smartWalletAddress])) as bigint
+          // small balance to zero
+          if (newBalanceBI < parseEther('0.000001')) {
+            newBalanceBI = 0n
+          }
 
-      collateralTokensArray.forEach(async (token) => {
-        const contract = getContract({
-          address: token.address[defaultChain.id],
-          abi: wethABI,
-          client: publicClient,
+          return {
+            symbol: token.symbol,
+            id: token.id,
+            name: token.name,
+            decimals: token.decimals,
+            value: newBalanceBI,
+            formatted: formatUnits(newBalanceBI, token.decimals),
+            image: token.imageURI,
+            contractAddress: token.address[defaultChain.id],
+            price: marketTokensPrices ? marketTokensPrices[token.id].usd : 0,
+          } as GetBalanceResult
         })
-        let newBalanceBI = (await contract.read.balanceOf([smartWalletAddress])) as bigint
-        // small balance to zero
-        if (newBalanceBI < parseEther('0.000001')) {
-          newBalanceBI = 0n
-        }
-        balanceResult.push({
-          symbol: token.symbol,
-          id: token.id,
-          name: token.name,
-          decimals: token.decimals,
-          value: newBalanceBI,
-          formatted: formatUnits(newBalanceBI, token.decimals),
-          image: token.imageURI,
-          contractAddress: token.address[defaultChain.id],
-          price: marketTokensPrices ? marketTokensPrices[token.id].usd : 0,
-        })
+      )
+
+      const balanceResult: GetBalanceResult[] = balances.map((balance) => {
+        // @ts-ignore
+        return balance.value
       })
 
       log.success('ON_BALANCE_SUCC', smartWalletAddress, balanceResult)
@@ -109,12 +115,12 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
           balanceOfSmartWallet[0]?.value
       ) {
         if (!defaultChain.testnet) {
-          whitelist() // TODO: refactor the logic of whitelisting
+          await whitelist() // TODO: refactor the logic of whitelisting
         }
 
         const depositAmount = formatUnits(
           balanceResult.find((balance) => balance.id === MarketTokensIds.ETH)?.value ||
-            BigInt(0) - balanceOfSmartWallet[0].value,
+            BigInt(0) - balanceOfSmartWallet[0]?.value,
           collateralToken.decimals
         )
 
@@ -220,7 +226,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const isInvalidAmount = useMemo(() => {
     const isInvalidBalance = balanceOfSmartWallet === undefined
     const isNegativeOrZeroAmount = amountBI <= 0n
-    const isExceedsBalance = !!balanceOfSmartWallet && amountBI > balanceOfSmartWallet[0].value
+    const isExceedsBalance = !!balanceOfSmartWallet && amountBI > balanceOfSmartWallet[0]?.value
     return isInvalidBalance || isNegativeOrZeroAmount || isExceedsBalance
   }, [balanceOfSmartWallet, amountBI])
 
