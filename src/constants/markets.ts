@@ -180,11 +180,11 @@ export const markets: Market[] = [
   {
     address: {
       [base.id]: '0x96ace74aa1ae07f7baf4e7f2736cbe2a703712fc', // prod
-      [baseSepolia.id]: '0x', // testnet
+      [baseSepolia.id]: '0xf2317d0d51795c1dc779462d10c407de6e8a47cb', // testnet
     },
     conditionId: {
       [base.id]: '0x1b1556cd8fe93497a2dbd7b0c53b237dd73e73b437fadeb2c3532bb1aac9007d', // prod
-      [baseSepolia.id]: '0x1b1556cd8fe93497a2dbd7b0c53b237dd73e73b437fadeb2c3532bb1aac9007d', // testnet
+      [baseSepolia.id]: '0x391b215c25cea677bb3509f53f46b7aa7ae9d6bfe81121c678140250e880b7ee', // testnet
     },
     collateralToken: {
       [base.id]: weth.address[base.id], // prod
@@ -219,11 +219,11 @@ export const markets: Market[] = [
   {
     address: {
       [base.id]: '0x5f3293417b0228bdc1896e34de99b377d31c77d8', // prod
-      [baseSepolia.id]: '0x',
+      [baseSepolia.id]: '0xf59fca42b6cd29fc24ce3c5b89442494c9967fcb',
     },
     conditionId: {
       [base.id]: '0x07ce8a1f7b3107bf3812dba0fbd3aafb60e54f35f7cd5f03ba6e68b1561101d4', // prod
-      [baseSepolia.id]: '0x07ce8a1f7b3107bf3812dba0fbd3aafb60e54f35f7cd5f03ba6e68b1561101d4', // testnet
+      [baseSepolia.id]: '0x0779cb01e2e832bddccb7eb9a17e0b01bb005082ac10e48843ee9fffbad59b89', // testnet
     },
     collateralToken: {
       [base.id]: weth.address[base.id], // prod
