@@ -1,6 +1,5 @@
 export * from './PortfolioStats'
 export * from './PortfolioPositionCard'
-export * from './PortfolioPositionCardMobile'
 export * from './PortfolioPositions'
 export * from './PortfolioHistoryRedeemItem'
 export * from './PortfolioHistoryTradeItem'

@@ -31,6 +31,7 @@ type PriceOracleContextType = {
   marketTokensPrices: GetCoingeckoPricesResponse | undefined
 
   convertAssetAmountToUsd: (id: MarketTokensIds, amount?: number | string) => number
+  convertTokenAmountToUsd: (symbol?: string, amount?: number | string) => number
 }
 
 /**
@@ -54,7 +55,9 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
 
   const fetchTokenPrices = async () => {
     const { data }: AxiosResponse<GetCoingeckoPricesResponse> = await axios.get(
-      'https://api.coingecko.com/api/v3/simple/price?ids=ethereum,degen-base,regen,higher,mfercoin,onchain&vs_currencies=usd'
+      `https://api.coingecko.com/api/v3/simple/price?ids=${Object.values(MarketTokensIds).join(
+        ','
+      )}&vs_currencies=usd`
     )
     return data
   }
@@ -126,6 +129,20 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
     [marketTokensPrices]
   )
 
+  const convertTokenAmountToUsd = useCallback(
+    (symbol?: string, amount?: number | string) => {
+      if (!marketTokensPrices || !amount || isNaN(Number(amount)) || !symbol) {
+        return 0
+      }
+      // @ts-ignore
+      const coingeckoId = MarketTokensIds[symbol] as MarketTokensIds
+      const amountUsd = Number(amount) * marketTokensPrices[coingeckoId]?.usd ?? 0
+      console.log('convertTokenAmountToUsd', symbol, amountUsd)
+      return amountUsd
+    },
+    [marketTokensPrices]
+  )
+
   const convertUsdToEth = useCallback(
     (usd: number) => {
       if (!ethPrice) {
@@ -145,6 +162,7 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
         degenPrice,
         marketTokensPrices,
         convertAssetAmountToUsd,
+        convertTokenAmountToUsd,
       }}
     >
       {children}

@@ -256,6 +256,14 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     refetchInterval: 5000,
   })
 
+  const overallBalanceUsd = useMemo(() => {
+    let _overallBalanceUsd = 0
+    balanceOfSmartWallet?.forEach((balanceResult) => {
+      _overallBalanceUsd += convertAssetAmountToUsd(balanceResult.id, balanceResult.formatted)
+    })
+    return NumberUtil.toFixed(_overallBalanceUsd, 2)
+  }, [balanceOfSmartWallet])
+
   /**
    * Auto-wrap/unwrap Eth
    */
@@ -423,16 +431,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     }
     return 'ReadyToFund'
   }, [isInvalidAddressToWithdraw, isInvalidAmount, isLoadingMint, isLoadingWithdraw])
-
-  const overallBalanceUsd = useMemo(() => {
-    if (balanceOfSmartWallet) {
-      const totalBalance = balanceOfSmartWallet.reduce((a, b) => {
-        return a + convertAssetAmountToUsd(b.id, b.formatted)
-      }, 0)
-      return NumberUtil.toFixed(totalBalance, 2)
-    }
-    return '0'
-  }, [balanceOfSmartWallet])
 
   return (
     <BalanceService.Provider
