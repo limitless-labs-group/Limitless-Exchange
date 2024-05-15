@@ -15,6 +15,7 @@ import {
 import { usePathname } from 'next/navigation'
 import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react'
 import {
+  erc20Abi,
   formatEther,
   formatUnits,
   getContract,
@@ -78,7 +79,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         collateralTokensArray.map(async (token) => {
           const contract = getContract({
             address: token.address[defaultChain.id],
-            abi: wethABI,
+            abi: token.id === MarketTokensIds.WETH ? wethABI : erc20Abi,
             client: publicClient,
           })
           let newBalanceBI = (await contract.read.balanceOf([smartWalletAddress])) as bigint
