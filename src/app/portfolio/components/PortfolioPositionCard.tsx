@@ -1,14 +1,14 @@
-import { Button, MarketCard } from '@/components'
-import { collateralToken, defaultChain, markets } from '@/constants'
+import { Button, MarketCardUserActions } from '@/components'
+import { defaultChain, markets } from '@/constants'
 import { createPortfolioShareUrls, HistoryPosition } from '@/services'
-import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
-import { Flex, HStack, Stack, StackProps, Text } from '@chakra-ui/react'
+import { HStack, Heading, Image, Stack, StackProps, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
-import { FaFileInvoiceDollar, FaTrophy } from 'react-icons/fa6'
-import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
 import { useRouter } from 'next/navigation'
+import { usePriceOracle } from '@/providers'
+import { borderRadius, colors } from '@/styles'
+import { useIsMobile, useMarketData } from '@/hooks'
+import { FaCircle } from 'react-icons/fa'
 
 export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {
   position: HistoryPosition
@@ -32,9 +32,24 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
     [position, markets]
   )
 
-  const marketURI = `${window.location.origin}/markets/${position.market.id}`
+  const { outcomeTokensPercent, volume } = useMarketData({ marketAddress: position.market.id })
 
+  const chancePercent = useMemo(() => {
+    return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
+  }, [market, outcomeTokensPercent])
+
+  /**
+   * SHARE
+   */
+  const marketURI = `${window.location.origin}/markets/${position.market.id}`
   const shareLinks = createPortfolioShareUrls(market, position)
+
+  /**
+   * UTILS
+   */
+  const isMobile = useIsMobile()
+
+  const { convertTokenAmountToUsd } = usePriceOracle()
 
   const getOutcomeNotation = () => {
     const outcomeTokenId = position.outcomeIndex ?? 0
@@ -44,98 +59,139 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   }
 
   return (
-    <Flex>
-      {position.market.closed && (
-        <Text
-          p={'2px 6px'}
-          bg={'red'}
-          color={'white'}
-          pos={'absolute'}
-          top={'-12px'}
-          left={'6px'}
-          borderRadius={'5px'}
-          fontWeight={'bold'}
-          zIndex={2}
-        >
-          Ended
-          {/* : Lose */}
-        </Text>
-      )}
-      <MarketCard
-        marketAddress={position.market.id}
-        filter={position.market.closed ? 'blur(4px)' : 'none'}
-        {...props}
-      >
-        <Stack spacing={4} w={'full'} justifyContent={'space-between'}>
-          <HStack w={'full'} justifyContent={'space-between'} lineHeight={'18px'}>
-            <HStack spacing={1}>
-              <Flex p={2} bg={'bgLight'} borderRadius={borderRadius}>
-                {position.outcomeIndex == 0 ? (
-                  <FaArrowUp size={'15px'} fill={colors.fontLight} />
-                ) : (
-                  <FaArrowDown size={'15px'} fill={colors.fontLight} />
-                )}
-              </Flex>
-              <Stack spacing={0}>
-                <Text color={'fontLight'}>Outcome</Text>
+    <Stack
+      w={'full'}
+      border={`1px solid ${colors.border}`}
+      borderRadius={borderRadius}
+      transition={'0.2s'}
+      p={4}
+      justifyContent={'space-between'}
+      {...props}
+    >
+      <Stack direction='row' onClick={() => router.push(marketURI)}>
+        <Image
+          src={market?.placeholderURI}
+          w='50px'
+          h='50px'
+          borderRadius={'full'}
+          alt={'logo'}
+          bg={'brand'}
+        />
+        <Stack spacing={1}>
+          <Heading fontSize={'18px'} lineHeight={'20px'} _hover={{ textDecor: 'underline' }}>
+            {market?.title ?? 'Noname market'}
+          </Heading>
 
-                <Text color={getOutcomeNotation() === 'Yes' ? 'green' : 'red'}>
-                  {`${getOutcomeNotation()} ${NumberUtil.toFixed(
-                    position.latestTrade?.outcomeTokenPrice,
-                    3
-                  )} ${collateralToken.symbol}`}
-                </Text>
-              </Stack>
-            </HStack>
+          <HStack
+            color={'fontLight'}
+            fontSize={'12px'}
+            divider={<FaCircle size={'3px'} fill={'grey'} />}
+            gap={2}
+          >
+            <Text>{market?.expirationDate}</Text>
+            <Text>{chancePercent}% chance</Text>
+            {!isMobile && (
+              <Text>
+                {volume} {position.market.collateral?.symbol}
+              </Text>
+            )}
+          </HStack>
+        </Stack>
+      </Stack>
 
-            <HStack spacing={1}>
-              <Flex p={2} bg={'bgLight'} borderRadius={borderRadius}>
-                <FaFileInvoiceDollar size={'15px'} fill={colors.fontLight} />
-              </Flex>
-              <Stack spacing={0}>
-                <Text color={'fontLight'}>Bet</Text>
-                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
-                  collateralToken.symbol
-                }`}</Text>
-              </Stack>
-            </HStack>
+      <Stack w={'full'} spacing={3} mt={1}>
+        <Stack w={'full'} lineHeight={'18px'}>
+          {/* Token */}
+          <HStack w={'full'} justifyContent={'space-between'}>
+            <Text color={'fontLight'}>Token</Text>
 
-            <HStack spacing={1}>
-              <Flex p={2} bg={'bgLight'} borderRadius={borderRadius}>
-                <FaTrophy size={'15px'} fill={colors.fontLight} />
-              </Flex>
-              <Stack spacing={0}>
-                <Text color={'fontLight'}>Max win</Text>
-                <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(position.outcomeTokenAmount, 6)} ${
-                  collateralToken.symbol
-                }`}</Text>
-              </Stack>
+            <HStack>
+              <Image src={market?.tokenURI} alt={'token'} width={'20px'} height={'20px'} />
+              <Text>{position.market.collateral?.symbol}</Text>
             </HStack>
           </HStack>
 
-          <MarketCardUserActions
-            marketURI={marketURI}
-            shareLinks={shareLinks}
-            mainActionButton={(() => {
-              if (market?.expired) {
-                return (
-                  <Button
-                    bg={'brand'}
-                    color={'white'}
-                    h={'full'}
-                    w={'full'}
-                    p={1}
-                    onClick={() => router.push(marketURI)}
-                  >
-                    Claim winning
-                  </Button>
-                )
-              }
-              return undefined
-            })()}
-          />
+          {/* Bet Row */}
+          <HStack w={'full'} justifyContent={'space-between'}>
+            <Text color={'fontLight'}>Bet</Text>
+
+            <HStack>
+              <Text>
+                {`${NumberUtil.formatThousands(position.collateralAmount, 4)} ${
+                  position.market.collateral?.symbol
+                }`}
+              </Text>
+
+              <Text fontSize={'12px'} color={'fontLight'}>
+                ~$
+                {NumberUtil.formatThousands(
+                  convertTokenAmountToUsd(
+                    position.market.collateral?.symbol,
+                    position.collateralAmount
+                  ),
+                  2
+                )}
+              </Text>
+            </HStack>
+          </HStack>
+
+          {/* Outcome Row */}
+          <HStack w={'full'} justifyContent={'space-between'}>
+            <Text color={'fontLight'}>Outcome</Text>
+
+            <Text color={getOutcomeNotation() === 'Yes' ? 'green' : 'red'}>
+              {`${getOutcomeNotation()} ${NumberUtil.formatThousands(
+                position.latestTrade?.outcomeTokenPrice,
+                3
+              )} ${position.market.collateral?.symbol}`}
+            </Text>
+          </HStack>
+
+          {/* Max win Row */}
+          <HStack w={'full'} justifyContent={'space-between'}>
+            <Text color={'fontLight'}>Max win</Text>
+
+            <HStack>
+              <Text>{`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
+                position.market.collateral?.symbol
+              }`}</Text>
+
+              <Text fontSize={'12px'} color={'fontLight'}>
+                ~$
+                {NumberUtil.formatThousands(
+                  convertTokenAmountToUsd(
+                    position.market.collateral?.symbol,
+                    position.outcomeTokenAmount
+                  ),
+                  2
+                )}
+              </Text>
+            </HStack>
+          </HStack>
         </Stack>
-      </MarketCard>
-    </Flex>
+
+        <MarketCardUserActions
+          marketURI={marketURI}
+          shareLinks={shareLinks}
+          mainActionButton={(() => {
+            if (market?.expired) {
+              return (
+                <Button
+                  bg={'brand'}
+                  color={'white'}
+                  h={'full'}
+                  w={'full'}
+                  p={1}
+                  onClick={() => router.push(marketURI)}
+                >
+                  Claim winning
+                </Button>
+              )
+            }
+            return undefined
+          })()}
+        />
+      </Stack>
+    </Stack>
   )
 }

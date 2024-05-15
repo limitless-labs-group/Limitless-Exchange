@@ -63,6 +63,7 @@ type CoingeckoPriceEntity = { usd: number }
 export enum MarketTokensIds {
   DEGEN = 'degen-base',
   ETH = 'ethereum',
+  WETH = 'ethereum',
   HIGHER = 'higher',
   MFER = 'mfercoin',
   ONCHAIN = 'onchain',

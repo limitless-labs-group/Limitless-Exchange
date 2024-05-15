@@ -7,7 +7,6 @@ type TextButtonProps = ButtonProps & {
 export default function TextButton({ label, ...props }: TextButtonProps) {
   return (
     <Button
-      {...props}
       minWidth={'136px'}
       bg={'none'}
       justifyContent='flex-start'
@@ -20,6 +19,7 @@ export default function TextButton({ label, ...props }: TextButtonProps) {
           marginLeft: 'auto',
         },
       }}
+      {...props}
     >
       {label}
     </Button>
