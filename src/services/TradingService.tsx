@@ -197,7 +197,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     }
     const feeBI = (await fixedProductMarketMakerContract.read.fee()) as bigint
     const fee = Number(formatUnits(feeBI, collateralToken.decimals))
-
+    console.log(balanceOfOutcomeTokenCropped)
+    console.log(holdings)
+    console.log(otherHoldings)
+    console.log(fee)
     let balanceOfCollateralToSellBI =
       calcSellAmountInCollateral(
         parseEther(balanceOfOutcomeTokenCropped),

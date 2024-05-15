@@ -70,7 +70,9 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
   const balance = useMemo(() => {
     if (strategy === 'Buy') {
       if (balanceOfSmartWallet) {
-        return balanceOfSmartWallet[0]?.formatted
+        return balanceOfSmartWallet.find(
+          (balanceItem) => balanceItem.contractAddress === market?.collateralToken[defaultChain.id]
+        )?.formatted
       }
       return ''
     }
