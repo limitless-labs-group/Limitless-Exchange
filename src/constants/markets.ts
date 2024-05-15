@@ -1,6 +1,5 @@
 import { degen, higher, mfer, onChain, regen, weth } from '@/constants/tokens'
 import { Market } from '@/types'
-import { zeroAddress } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
 
 export const markets: Market[] = [
