@@ -77,7 +77,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
       return ''
     }
     return balanceOfCollateralToSell
-  }, [balanceOfSmartWallet, strategy, balanceOfCollateralToSell])
+  }, [balanceOfSmartWallet, strategy, balanceOfCollateralToSell, market])
 
   const isZeroBalance = !(Number(balance) > 0)
 
