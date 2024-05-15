@@ -106,7 +106,12 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             <Text color={'fontLight'}>Token</Text>
 
             <HStack>
-              <Image src={market?.tokenURI} alt={'token'} width={'20px'} height={'20px'} />
+              <Image
+                src={market?.tokenURI[defaultChain.id]}
+                alt={'token'}
+                width={'20px'}
+                height={'20px'}
+              />
               <Text>{position.market.collateral?.symbol}</Text>
             </HStack>
           </HStack>

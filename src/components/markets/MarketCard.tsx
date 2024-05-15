@@ -8,6 +8,7 @@ import { Divider, Heading, HStack, Image, Stack, StackProps, Text, VStack } from
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
+import { useChainId } from 'wagmi'
 
 interface IMarketCard extends StackProps {
   marketAddress?: Address
@@ -77,8 +78,13 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
         <HStack w={'full'} justifyContent={'space-between'}>
           <Text>Token</Text>
           <HStack>
-            <Image src={market?.tokenURI} alt='token' width={'20px'} height={'20px'} />
-            <Text>{market?.tokenTicker}</Text>
+            <Image
+              src={market?.tokenURI[defaultChain.id]}
+              alt='token'
+              width={'20px'}
+              height={'20px'}
+            />
+            <Text>{market?.tokenTicker[defaultChain.id]}</Text>
           </HStack>
         </HStack>
 
@@ -89,16 +95,20 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
 
         <HStack w={'full'} justifyContent={'space-between'}>
           <Text>Pool</Text>
-          <Text>
-            {NumberUtil.formatThousands(liquidity, 4)} {market?.tokenTicker}
-          </Text>
+          <HStack>
+            <Text>
+              {NumberUtil.formatThousands(liquidity, 4)} {market?.tokenTicker[defaultChain.id]}
+            </Text>
+          </HStack>
         </HStack>
 
         <HStack w={'full'} justifyContent={'space-between'} mb={5}>
           <Text>Volume</Text>
-          <Text>
-            {NumberUtil.formatThousands(volume, 4)} {market?.tokenTicker}
-          </Text>
+          <HStack>
+            <Text>
+              {NumberUtil.formatThousands(volume, 4)} {market?.tokenTicker[defaultChain.id]}
+            </Text>
+          </HStack>
         </HStack>
 
         <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} w={'full'} />

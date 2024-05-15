@@ -60,7 +60,7 @@ export const PortfolioHistoryTradeItem = ({
         <Text color={trade.outcomeIndex == 0 ? 'green' : 'red'} fontWeight={'bold'}>
           {market?.outcomeTokens[trade.outcomeIndex ?? 0]}{' '}
           {NumberUtil.formatThousands(trade.outcomeTokenPrice, 3)}{' '}
-          {market?.tokenTicker ?? collateralToken.symbol}
+          {market?.tokenTicker[defaultChain.id] ?? collateralToken.symbol}
         </Text>
       </Td>
 
