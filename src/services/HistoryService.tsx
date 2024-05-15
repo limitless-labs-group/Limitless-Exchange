@@ -164,12 +164,12 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         const market = markets.find(
           (market) => market.address[defaultChain.id].toLowerCase() == trade.market.id.toLowerCase()
         )
-        // if (
-        //   !market ||
-        //   (market.expired && market.winningOutcomeIndex !== trade.outcomeIndex) // TODO: redesign filtering lost positions
-        // ) {
-        //   return
-        // }
+        if (
+          !market ||
+          (market.expired && market.winningOutcomeIndex !== trade.outcomeIndex) // TODO: redesign filtering lost positions
+        ) {
+          return
+        }
 
         const existingMarket = _positions.find(
           (position) =>

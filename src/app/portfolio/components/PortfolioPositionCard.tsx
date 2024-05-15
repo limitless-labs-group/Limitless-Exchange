@@ -28,7 +28,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       markets.find(
         (market) =>
           market.address[defaultChain.id]?.toLowerCase() === position.market.id.toLowerCase()
-      ) ?? markets[0],
+      ) ?? null,
     [position, markets]
   )
 
