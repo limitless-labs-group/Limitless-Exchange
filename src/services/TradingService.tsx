@@ -160,10 +160,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     const collectionId = (await conditionalTokensContract.read.getCollectionId([
       zeroHash, // Since we don't support complicated conditions at the moment
       market.conditionId[defaultChain.id],
-      1 < outcomeIndex,
+      1 << outcomeIndex,
     ])) as Hash
     const positionId = (await conditionalTokensContract.read.getPositionId([
-      collateralToken.address[defaultChain.id],
+      market.collateralToken[defaultChain.id],
       collectionId,
     ])) as bigint
     const balance = (await conditionalTokensContract.read.balanceOf([
@@ -197,10 +197,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     }
     const feeBI = (await fixedProductMarketMakerContract.read.fee()) as bigint
     const fee = Number(formatUnits(feeBI, collateralToken.decimals))
-    console.log(balanceOfOutcomeTokenCropped)
-    console.log(holdings)
-    console.log(otherHoldings)
-    console.log(fee)
     let balanceOfCollateralToSellBI =
       calcSellAmountInCollateral(
         parseEther(balanceOfOutcomeTokenCropped),
@@ -447,7 +443,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       }
 
       const receipt = await etherspot?.redeemPositions(
-        collateralToken.address[defaultChain.id],
+        market.collateralToken[defaultChain.id],
         zeroHash,
         market.conditionId[defaultChain.id],
         [1 << outcomeIndex]
