@@ -1,5 +1,5 @@
 import { Button } from '@/components'
-import { collateralToken, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { useIsMobile, useMarketData } from '@/hooks'
 import {
   ClickEvent,
@@ -62,10 +62,11 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
     >
       <Image
         src={market?.imageURI}
-        minW={{ sm: 'full', md: '35%' }}
         // minH={{ sm: '200px', md: '30%' }}
         // aspectRatio={'4/3'}
-        fit={'contain'}
+        w={'140px'}
+        h={'140px'}
+        objectFit='cover'
         bg={'brand'}
         borderRadius={borderRadius}
       />
@@ -81,13 +82,13 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             <HStack w={'full'} justifyContent={'space-between'}>
               <Text color={'fontLight'}>Liquidity</Text>
               <Text fontWeight={'bold'}>{`${Number(liquidity).toFixed(2)} ${
-                market?.tokenTicker
+                market?.tokenTicker[defaultChain.id]
               }`}</Text>
             </HStack>
             <HStack w={'full'} justifyContent={'space-between'}>
               <Text color={'fontLight'}>Volume</Text>
               <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
-                market?.tokenTicker
+                market?.tokenTicker[defaultChain.id]
               }`}</Text>
             </HStack>
           </Stack>
@@ -96,14 +97,14 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             <Stack spacing={0}>
               <Text color={'fontLight'}>Liquidity</Text>
               <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
-                market?.tokenTicker
+                market?.tokenTicker[defaultChain.id]
               }`}</Text>
             </Stack>
 
             <Stack spacing={0}>
               <Text color={'fontLight'}>Volume</Text>
               <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
-                market?.tokenTicker
+                market?.tokenTicker[defaultChain.id]
               }`}</Text>
             </Stack>
 

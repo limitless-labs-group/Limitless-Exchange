@@ -276,8 +276,8 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
                 borderColor={'border'}
                 gap={1}
               >
-                <Avatar size={'xs'} src={market?.tokenURI} />
-                <Text>{market?.tokenTicker}</Text>
+                <Avatar size={'xs'} src={market?.tokenURI[defaultChain.id]} />
+                <Text>{market?.tokenTicker[defaultChain.id]}</Text>
               </Button>
             </HStack>
 
@@ -293,7 +293,8 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
                 cursor={'pointer'}
                 onClick={() => setCollateralAmount(NumberUtil.toFixed(balance, 6))}
               >
-                {`Balance: ${NumberUtil.toFixed(balance, 6)}`} {market?.tokenTicker}
+                {`Balance: ${NumberUtil.toFixed(balance, 6)}`}{' '}
+                {market?.tokenTicker[defaultChain.id]}
               </Text>
             </HStack>
           </Stack>
@@ -354,7 +355,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Avg price</Text>
             <Text textAlign={'right'}>{`${NumberUtil.toFixed(quotes?.outcomeTokenPrice, 6)} ${
-              market?.tokenTicker
+              market?.tokenTicker[defaultChain.id]
             }`}</Text>
           </HStack>
           <HStack w={'full'} justifyContent={'space-between'}>
@@ -367,7 +368,9 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
                 <Text color={'fontLight'}>Potential return</Text>
                 <HStack spacing={1}>
                   <Text color={'green'} fontWeight={'bold'} textAlign={'right'}>
-                    {`${NumberUtil.toFixed(quotes?.outcomeTokenAmount, 6)} ${market?.tokenTicker}`}
+                    {`${NumberUtil.toFixed(quotes?.outcomeTokenAmount, 6)} ${
+                      market?.tokenTicker[defaultChain.id]
+                    }`}
                   </Text>
                   <Text color={'fontLight'}>{NumberUtil.toFixed(quotes?.roi, 2)}%</Text>
                 </HStack>
