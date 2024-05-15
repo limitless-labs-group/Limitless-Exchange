@@ -70,7 +70,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
   const balance = useMemo(() => {
     if (strategy === 'Buy') {
       if (balanceOfSmartWallet) {
-        return balanceOfSmartWallet[0].formatted
+        return balanceOfSmartWallet[0]?.formatted
       }
       return ''
     }

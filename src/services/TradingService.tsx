@@ -160,7 +160,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     const collectionId = (await conditionalTokensContract.read.getCollectionId([
       zeroHash, // Since we don't support complicated conditions at the moment
       market.conditionId[defaultChain.id],
-      1 << outcomeIndex,
+      1 < outcomeIndex,
     ])) as Hash
     const positionId = (await conditionalTokensContract.read.getPositionId([
       collateralToken.address[defaultChain.id],
@@ -236,7 +236,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const isExceedsBalance = useMemo(() => {
     if (strategy == 'Buy') {
       if (balanceOfSmartWallet) {
-        return Number(collateralAmount) > Number(balanceOfSmartWallet[0].formatted)
+        return Number(collateralAmount) > Number(balanceOfSmartWallet[0]?.formatted)
       }
       return Number(collateralAmount) > 0
     }
