@@ -80,14 +80,14 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
           <Stack w={'full'} spacing={1}>
             <Heading fontSize={'26px'}>
               {`${NumberUtil.toFixed(
-                balanceOfSmartWallet ? balanceOfSmartWallet[0].formatted : '0',
+                balanceOfSmartWallet ? balanceOfSmartWallet[0]?.formatted : '0',
                 4
               )} ${collateralToken.symbol}`}
             </Heading>
             <Text color={'fontLight'}>
               ~$
               {NumberUtil.formatThousands(
-                convertEthToUsd(balanceOfSmartWallet ? balanceOfSmartWallet[0].formatted : '0'),
+                convertEthToUsd(balanceOfSmartWallet ? balanceOfSmartWallet[0]?.formatted : '0'),
                 2
               )}
             </Text>
