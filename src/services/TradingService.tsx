@@ -235,7 +235,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const isExceedsBalance = useMemo(() => {
     if (strategy == 'Buy') {
-      return Number(collateralAmount) > Number(balanceOfSmartWallet?.formatted ?? 0)
+      if (balanceOfSmartWallet) {
+        return Number(collateralAmount) > Number(balanceOfSmartWallet[0].formatted)
+      }
+      return Number(collateralAmount) > 0
     }
     return Number(collateralAmount) > Number(balanceOfCollateralToSell)
   }, [strategy, balanceOfCollateralToSell, collateralAmount, balanceOfSmartWallet])

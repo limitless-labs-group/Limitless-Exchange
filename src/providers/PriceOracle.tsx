@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
+import { GetCoingeckoPricesResponse, MarketTokensIds } from '@/types'
 
 /**
  * Context type providing utility functions for currency conversion between USD and ETH (Ethereum).
@@ -24,6 +25,10 @@ type PriceOracleContextType = {
    * The current ETH price fetched from Coingecko API
    */
   ethPrice: number | undefined
+
+  marketTokensPrices: GetCoingeckoPricesResponse | undefined
+
+  convertAssetAmountToUsd: (id: MarketTokensIds, amount?: number | string) => number
 }
 
 /**
@@ -37,12 +42,26 @@ const PriceOracleContext = createContext<PriceOracleContextType | undefined>(und
  * @param children The child components to be rendered within this provider.
  */
 export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
+  // coingecko ids ethereum, degen-base, regen, higher, mfercoin, onchain
   const fetchEthPrice = async () => {
     const { data } = await axios.get(
       'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
     )
     return data.ethereum.usd as number
   }
+
+  const fetchTokenPrices = async () => {
+    const { data }: AxiosResponse<GetCoingeckoPricesResponse> = await axios.get(
+      'https://api.coingecko.com/api/v3/simple/price?ids=ethereum,degen-base,regen,higher,mfercoin,onchain&vs_currencies=usd'
+    )
+    return data
+  }
+
+  // const fetchCoinsList = async () => {
+  //   const { data } = await axios.get('https://api.coingecko.com/api/v3/coins/list')
+  //   console.info(data.filter((item: any) => item.name.toLowerCase().includes('degen')))
+  //   return data
+  // }
 
   const { data: ethPrice } = useQuery({
     queryKey: ['ethPrice'],
@@ -53,6 +72,22 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
     refetchOnReconnect: false,
   })
 
+  const { data: marketTokensPrices } = useQuery({
+    queryKey: ['tokenPrices'],
+    queryFn: fetchTokenPrices,
+    staleTime: 1000 * 60 * 5, // Data life span 60 seconds
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  })
+
+  // const { data } = useQuery({
+  //   queryKey: ['coinlist'],
+  //   queryFn: fetchCoinsList,
+  //   staleTime: 1000 * 60 * 5, // Data life span 60 seconds
+  //   refetchOnWindowFocus: false,
+  //   refetchOnReconnect: false,
+  // })
+
   const convertEthToUsd = useCallback(
     (eth: number | string | undefined) => {
       if (!ethPrice || !eth || isNaN(Number(eth))) {
@@ -61,6 +96,16 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
       return Number(eth) * ethPrice
     },
     [ethPrice]
+  )
+
+  const convertAssetAmountToUsd = useCallback(
+    (id: MarketTokensIds, amount?: number | string) => {
+      if (!marketTokensPrices || !amount || isNaN(Number(amount))) {
+        return 0
+      }
+      return Number(amount) * marketTokensPrices[id].usd
+    },
+    [marketTokensPrices]
   )
 
   const convertUsdToEth = useCallback(
@@ -74,7 +119,15 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
   )
 
   return (
-    <PriceOracleContext.Provider value={{ convertUsdToEth, convertEthToUsd, ethPrice }}>
+    <PriceOracleContext.Provider
+      value={{
+        convertUsdToEth,
+        convertEthToUsd,
+        ethPrice,
+        marketTokensPrices,
+        convertAssetAmountToUsd,
+      }}
+    >
       {children}
     </PriceOracleContext.Provider>
   )

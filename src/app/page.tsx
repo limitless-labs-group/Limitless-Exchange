@@ -4,12 +4,16 @@ import { CreateMarketCard, MainLayout, MarketCard, MarketCardMobile } from '@/co
 import { defaultChain, markets } from '@/constants'
 import { useIsMobile } from '@/hooks'
 import { OpenEvent, useAmplitude } from '@/services'
-import { Box, Grid, HStack, Stack, Text } from '@chakra-ui/react'
-import { useEffect } from 'react'
+import { Grid, Stack } from '@chakra-ui/react'
+import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import Filter from '@/components/common/TokenFilter'
 
 const MainPage = () => {
   const { trackOpened } = useAmplitude()
+
+  const [selectedFilterTokenId, setSelectedFilterTokenId] = useState<string>('')
+
   useEffect(() => {
     trackOpened(OpenEvent.PageOpened, {
       page: 'Explore Markets',
@@ -18,34 +22,31 @@ const MainPage = () => {
 
   const isMobile = useIsMobile()
 
-  return (
-    <MainLayout>
-      <Stack w={'full'} spacing={5}>
-        <HStack spacing={5} fontWeight={'bold'} fontSize={'15px'}>
-          <Stack>
-            <Text>All</Text>
-            <Box w={'full'} h={'3px'} bg={'font'} />
-          </Stack>
-          {/* <Stack cursor={'not-allowed'}>
-            <Text color={'fontLight'}>Base</Text>
-            <Box w={'full'} h={'3px'} bg={'none'} />
-          </Stack> */}
-        </HStack>
+  const handleSelectFilterToken = (id: string) => setSelectedFilterTokenId(id)
 
+  const marketsToShow = useMemo(() => {
+    return markets
+      .filter((market) => !market.expired)
+      .filter((market) =>
+        !!selectedFilterTokenId ? market.address[defaultChain.id] === selectedFilterTokenId : true
+      )
+  }, [selectedFilterTokenId])
+
+  return (
+    <MainLayout maxContentWidth={'unset'}>
+      <Stack w={'full'} spacing={5} px={{ md: 14 }}>
+        <Filter selectedId={selectedFilterTokenId} onSelect={handleSelectFilterToken} />
         <Grid
-          templateColumns={{ sm: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
-          gap={{ sm: 6, md: 10 }}
+          templateColumns={{ sm: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)', xl: 'repeat(4, 1fr)' }}
+          gap={6}
         >
           <CreateMarketCard />
-
-          {markets.map(
-            (market) =>
-              !market.expired &&
-              (isMobile ? (
-                <MarketCardMobile key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
-              ) : (
-                <MarketCard key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
-              ))
+          {marketsToShow.map((market) =>
+            isMobile ? (
+              <MarketCardMobile key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
+            ) : (
+              <MarketCard key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
+            )
           )}
         </Grid>
       </Stack>

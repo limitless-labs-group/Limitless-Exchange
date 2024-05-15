@@ -25,9 +25,10 @@ export const Modal = ({
   isOpen,
   children,
   size,
+  isCentered = true,
   ...props
 }: IModal) => (
-  <ChakraModal onClose={onClose} isOpen={isOpen} size={size} isCentered>
+  <ChakraModal onClose={onClose} isOpen={isOpen} size={size} isCentered={isCentered}>
     <ModalOverlay />
     <ModalContent
       borderRadius={borderRadius}
@@ -39,8 +40,9 @@ export const Modal = ({
       {...props}
     >
       <ModalHeader display='flex' justifyContent='space-between' p={0}>
-        <Flex w={'26px'} />
-        <Heading fontSize={{ sm: '20px', md: '24px' }}>{title}</Heading>
+        <Heading fontSize={{ sm: '20px', md: '24px' }} w={'full'} textAlign='left'>
+          {title}
+        </Heading>
         {showCloseButton && (
           <Button
             w={'26px'}
