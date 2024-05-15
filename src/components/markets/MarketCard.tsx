@@ -15,7 +15,14 @@ interface IMarketCard extends StackProps {
 }
 
 export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) => {
+  /**
+   * NAVIGATION
+   */
   const router = useRouter()
+
+  /**
+   * MARKET DATA
+   */
   const market: Market | null = useMemo(
     () =>
       markets.find(
@@ -27,13 +34,15 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
 
   const { outcomeTokensPercent, liquidity, volume } = useMarketData({ marketAddress })
 
-  const marketURI = `${window.location.origin}/markets/${marketAddress}`
-
-  const shareLinks = createMarketShareUrls(market, outcomeTokensPercent)
-
-  const yesPercent = useMemo(() => {
+  const chancePercent = useMemo(() => {
     return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
   }, [market, outcomeTokensPercent])
+
+  /**
+   * SHARE
+   */
+  const marketURI = `${window.location.origin}/markets/${marketAddress}`
+  const shareLinks = createMarketShareUrls(market, outcomeTokensPercent)
 
   return (
     <Stack
@@ -41,23 +50,30 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
       border={`1px solid ${colors.border}`}
       borderRadius={borderRadius}
       transition={'0.2s'}
-      spacing={0}
-      minH='300px'
       p={4}
       _hover={{ filter: 'none' }}
-      justifyContent='space-between'
+      justifyContent={'space-between'}
       {...props}
     >
-      <Stack direction='row' onClick={() => router.push(marketURI)} h={'86px'}>
-        <Image src={market?.placeholderURI} w='50px' h='50px' borderRadius={'full'} alt='logo' />
+      <Stack direction='row' onClick={() => router.push(marketURI)}>
+        <Image
+          src={market?.placeholderURI}
+          w='50px'
+          h='50px'
+          borderRadius={'full'}
+          alt={'logo'}
+          bg={'brand'}
+        />
         <Stack spacing={1}>
           <Heading fontSize={'18px'} lineHeight={'20px'} _hover={{ textDecor: 'underline' }}>
             {market?.title ?? 'Noname market'}
           </Heading>
-          <Text>{yesPercent}% chance</Text>
+          <Text>{chancePercent}% chance</Text>
         </Stack>
       </Stack>
+
       <Divider />
+
       <VStack alignItems={'start'} spacing={1} pt={4} w={'full'}>
         <HStack w={'full'} justifyContent={'space-between'}>
           <Text>Token</Text>
@@ -71,12 +87,12 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
             <Text>{market?.tokenTicker[defaultChain.id]}</Text>
           </HStack>
         </HStack>
+
         <HStack w={'full'} justifyContent={'space-between'}>
           <Text>Deadline</Text>
-          <HStack>
-            <Text>{market?.expirationDate}</Text>
-          </HStack>
+          <Text>{market?.expirationDate}</Text>
         </HStack>
+
         <HStack w={'full'} justifyContent={'space-between'}>
           <Text>Pool</Text>
           <HStack>
@@ -85,6 +101,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
             </Text>
           </HStack>
         </HStack>
+
         <HStack w={'full'} justifyContent={'space-between'} mb={5}>
           <Text>Volume</Text>
           <HStack>
@@ -94,9 +111,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
           </HStack>
         </HStack>
 
-        {children ?? (
-          <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} w={'full'} />
-        )}
+        <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} w={'full'} />
       </VStack>
     </Stack>
   )
