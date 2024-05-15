@@ -1,5 +1,5 @@
 import { Button, InfoIcon, Input, LogInButton, Tooltip } from '@/components'
-import { collateralToken, defaultChain } from '@/constants'
+import { collateralTokensArray, defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { usePriceOracle } from '@/providers'
 import {
@@ -32,6 +32,7 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
+import { MarketTokensIds } from '@/types'
 
 export const MarketTradingForm = ({ ...props }: StackProps) => {
   /**
@@ -101,10 +102,17 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
   /**
    * PRICE ORACLE
    */
-  const { convertEthToUsd } = usePriceOracle()
+  const { convertAssetAmountToUsd } = usePriceOracle()
   const amountUsd = useMemo(() => {
-    return NumberUtil.formatThousands(convertEthToUsd(displayAmount), 2)
-  }, [displayAmount])
+    const tokenId = collateralTokensArray.find(
+      (collateralToken) =>
+        collateralToken.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
+    )?.id
+    return NumberUtil.formatThousands(
+      convertAssetAmountToUsd(tokenId as MarketTokensIds, displayAmount),
+      2
+    )
+  }, [displayAmount, market])
 
   /**
    * SLIDER
