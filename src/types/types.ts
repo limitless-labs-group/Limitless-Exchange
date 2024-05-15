@@ -23,6 +23,9 @@ export type Market = {
   conditionId: {
     [chainId: number]: Hash
   }
+  collateralToken?: {
+    [chainId: number]: Address
+  }
   outcomeTokens: string[]
   title: string
   description: string

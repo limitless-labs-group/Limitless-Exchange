@@ -7,12 +7,20 @@ export const markets: Market[] = [
     address: {
       [base.id]: '0x4585482A258d66b16a95734E86DCA1Ea338AC100', // prod
       // [base.id]: zeroAddress, // dev
-      [baseSepolia.id]: '0x9e1cfdAdAf5631A40d9AD3f21233a177DF05b674',
+      [baseSepolia.id]: '0x5856Fb2BAB01b7b8330903eCb61374A9b2fb648c',
+    },
+    questionId: {
+      [base.id]: '0x0000000000000000000000000000000000000031373135373333323233363833',
+      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135373333323233363833',
     },
     conditionId: {
-      [base.id]: '0x85b3752114969525a2a84dba1c1f2534bf830e64c1293a758095126a4dd165ba', // prod
+      [base.id]: '0xcfe3e3db08f015e99b4ec97ad3aa01ee694937ce6af526b8c17a3c844788e311', // prod
       // [base.id]: zeroAddress, // dev
-      [baseSepolia.id]: zeroAddress,
+      [baseSepolia.id]: '0xcfe3e3db08f015e99b4ec97ad3aa01ee694937ce6af526b8c17a3c844788e311',
+    },
+    collateralToken: {
+      [base.id]: '0x9e1cfdAdAf5631A40d9AD3f21233a177DF05b674',
+      [baseSepolia.id]: '0x9e1cfdAdAf5631A40d9AD3f21233a177DF05b674',
     },
     tokenTicker: 'WETH',
     tokenURI: '/assets/images/tokens/weth.png',
