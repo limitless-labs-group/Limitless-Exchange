@@ -8,15 +8,15 @@ export const markets: Market[] = [
   {
     address: {
       [base.id]: '0x06F8d688249083D3B32A0584FD4e8af25337aF41', // prod
-      [baseSepolia.id]: '0x', // testnet
+      [baseSepolia.id]: '0xF2317D0D51795c1dC779462D10C407De6E8a47CB', // testnet
     },
     conditionId: {
       [base.id]: '0x011d67202405ffb10c810192eb73c41c3f5fe356daed529569804d12b752a19d', // prod
-      [baseSepolia.id]: '0x', // testnet
+      [baseSepolia.id]: '0x391b215c25cea677bb3509f53f46b7aa7ae9d6bfe81121c678140250e880b7ee', // testnet
     },
     questionId: {
       [base.id]: '0x', // prod
-      [baseSepolia.id]: '0x', // testnet
+      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135323437303836383934', // testnet
     },
     collateralToken: {
       [base.id]: mfer.address[base.id], // prod
@@ -51,15 +51,15 @@ export const markets: Market[] = [
   {
     address: {
       [base.id]: '0x09b856c4c8eCcEf87577F3fA16bEc32da3c4433b', // prod
-      [baseSepolia.id]: '0x', // testnet
+      [baseSepolia.id]: '0x5e116ea80879d528041919e589cb88382c3745E0', // testnet
     },
     conditionId: {
       [base.id]: '0x8ab9929b54805ee46f575a7d0269fe8abd023f4a6f88d358c09f11ab0332c93e', // prod
-      [baseSepolia.id]: '0x', // testnet
+      [baseSepolia.id]: '0x76b194a525fbc7eb87a69f8fc8dc34496c168bd8df4dde4be67fa57ee65f61e6', // testnet
     },
     questionId: {
       [base.id]: '0x', // prod
-      [baseSepolia.id]: '0x', // testnet
+      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135323436383835383533', // testnet
     },
     collateralToken: {
       [base.id]: onChain.address[base.id], // prod
@@ -94,15 +94,15 @@ export const markets: Market[] = [
   {
     address: {
       [base.id]: '0x062B14f02fA7c79532a0E248090EEa6beDbbeb31', // prod
-      [baseSepolia.id]: '0x', // testnet
+      [baseSepolia.id]: '0x729873AA483CEd60ACb0B7Ad815f14C8A7794930', // testnet
     },
     conditionId: {
       [base.id]: '0x2bd54d8008e0c79a1b7e9c048fef1ff7ee2d8989f00c22bb3907542f2528f19d', // prod
-      [baseSepolia.id]: '0x', // testnet
+      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135323436373136313237', // testnet
     },
     questionId: {
       [base.id]: '0x', // prod
-      [baseSepolia.id]: '0x', // testnet
+      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135323436373136313237', // testnet
     },
     collateralToken: {
       [base.id]: higher.address[base.id], // prod
@@ -137,27 +137,27 @@ export const markets: Market[] = [
   {
     address: {
       [base.id]: '0xf1722e6101a4eABC285ef0a202b9890DB159818d', // prod
-      [baseSepolia.id]: '0x', // testnet
+      [baseSepolia.id]: '0xCA8CD401A4560A0D1B158f8292b85C78cB38Ffc1', // testnet
     },
     conditionId: {
       [base.id]: '0x113a8d05722eb109a450000c1626a9f4bc3634ed1ee88ffef2615bb541efd2e9', // prod
-      [baseSepolia.id]: '0x', // testnet
+      [baseSepolia.id]: '0x84d5169ac2cecd75741c02d71eb85e11c51ec6d8ed442b37e4d3210fbc03192c', // testnet
     },
     questionId: {
       [base.id]: '0x', // prod
-      [baseSepolia.id]: '0x', // testnet
+      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135323436343231383432', // testnet
     },
     collateralToken: {
       [base.id]: degen.address[base.id], // prod
-      [baseSepolia.id]: weth.address[baseSepolia.id], // testnet
+      [baseSepolia.id]: degen.address[baseSepolia.id], // testnet
     },
     tokenTicker: {
       [base.id]: degen.symbol,
-      [baseSepolia.id]: weth.symbol,
+      [baseSepolia.id]: degen.symbol,
     },
     tokenURI: {
       [base.id]: degen.imageURI,
-      [baseSepolia.id]: weth.imageURI,
+      [baseSepolia.id]: degen.imageURI,
     },
     outcomeTokens: ['Yes', 'No'],
     title: 'Will Real Madrid win the Champions League',
