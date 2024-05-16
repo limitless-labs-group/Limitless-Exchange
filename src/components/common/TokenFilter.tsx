@@ -10,7 +10,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { LuListFilter } from 'react-icons/lu'
-import { collateralTokensArray } from '@/constants'
+import { collateralTokensArray, defaultChain } from '@/constants'
 import { v4 as uuidv4 } from 'uuid'
 import TextButton from '@/components/common/buttons/TextButton'
 import { colors } from '@/styles'
@@ -28,9 +28,15 @@ export default function TokenFilter({ onChange }: TokenFilterProps) {
   const [selectedFilterTokens, setSelectedFilterTokens] = useState<Token[]>([])
 
   const handleFilterItemClicked = (token: Token) => {
-    if (selectedFilterTokens.find((_token) => _token.symbol == token.symbol)) {
+    if (
+      !!selectedFilterTokens.find(
+        (_token) => _token.address[defaultChain.id] == token.address[defaultChain.id]
+      )
+    ) {
       setSelectedFilterTokens(
-        selectedFilterTokens.filter((_token) => _token.symbol != token.symbol)
+        selectedFilterTokens.filter(
+          (_token) => _token.address[defaultChain.id] != token.address[defaultChain.id]
+        )
       )
     } else {
       setSelectedFilterTokens([...selectedFilterTokens, token])
