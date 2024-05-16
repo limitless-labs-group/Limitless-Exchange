@@ -53,12 +53,12 @@ export const MarketPositions = ({ ...props }: StackProps) => {
                   {`${getOutcomeNotation(position)} ${NumberUtil.toFixed(
                     position.latestTrade?.outcomeTokenPrice,
                     3
-                  )} ${collateralToken.symbol}`}
+                  )} ${market?.tokenTicker[defaultChain.id]}`}
                 </Text>
               </Td>
               <Td px={2} isNumeric>
                 <Text>{`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
-                  collateralToken.symbol
+                  market?.tokenTicker[defaultChain.id]
                 }`}</Text>
               </Td>
               <Td px={2} isNumeric>
@@ -66,7 +66,7 @@ export const MarketPositions = ({ ...props }: StackProps) => {
               </Td>
               <Td pl={2} pr={0} isNumeric>
                 <Text>{`${NumberUtil.toFixed(position.outcomeTokenAmount, 6)} ${
-                  collateralToken.symbol
+                  market?.tokenTicker[defaultChain.id]
                 }`}</Text>
               </Td>
             </Tr>
