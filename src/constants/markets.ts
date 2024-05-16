@@ -3,8 +3,12 @@ import { Market } from '@/types'
 import { base, baseSepolia } from 'viem/chains'
 
 export const markets: Market[] = [
-  // done: mfer
+  // mfer
   {
+    hidden: {
+      [base.id]: true,
+      [baseSepolia.id]: false,
+    },
     address: {
       [base.id]: '0x06F8d688249083D3B32A0584FD4e8af25337aF41', // prod
       [baseSepolia.id]: '0xF2317D0D51795c1dC779462D10C407De6E8a47CB', // testnet
@@ -46,8 +50,12 @@ export const markets: Market[] = [
     tags: ['mfer', 'memecoins', 'FDV'],
   },
 
-  // done: onchain
+  // onchain
   {
+    hidden: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     address: {
       [base.id]: '0x09b856c4c8eCcEf87577F3fA16bEc32da3c4433b', // prod
       [baseSepolia.id]: '0x5e116ea80879d528041919e589cb88382c3745E0', // testnet
@@ -89,8 +97,12 @@ export const markets: Market[] = [
     tags: ['FarCabana', 'Onchain', 'OnchainSummer', 'FarCon'],
   },
 
-  // done: higher
+  // higher
   {
+    hidden: {
+      [base.id]: true,
+      [baseSepolia.id]: false,
+    },
     address: {
       [base.id]: '0x062B14f02fA7c79532a0E248090EEa6beDbbeb31', // prod
       [baseSepolia.id]: '0x729873AA483CEd60ACb0B7Ad815f14C8A7794930', // testnet
@@ -132,8 +144,12 @@ export const markets: Market[] = [
     tags: ['Higher', 'kugusha', 'Farcaster', 'Warpcast'],
   },
 
-  // done: degen
+  // degen
   {
+    hidden: {
+      [base.id]: true,
+      [baseSepolia.id]: false,
+    },
     address: {
       [base.id]: '0xf1722e6101a4eABC285ef0a202b9890DB159818d', // prod
       [baseSepolia.id]: '0xCA8CD401A4560A0D1B158f8292b85C78cB38Ffc1', // testnet
@@ -175,15 +191,19 @@ export const markets: Market[] = [
     tags: ['Football', 'ChampionsLeague', 'Final', 'RealMadrid', 'Borussia'],
   },
 
-  // correct
+  // weth
   {
+    hidden: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     address: {
       [base.id]: '0x96ace74aa1ae07f7baf4e7f2736cbe2a703712fc', // prod
-      [baseSepolia.id]: '0xf2317d0d51795c1dc779462d10c407de6e8a47cb', // testnet
+      [baseSepolia.id]: '0x5665e9160eb557e711482cca20a31089a24f89d0', // testnet
     },
     conditionId: {
       [base.id]: '0x1b1556cd8fe93497a2dbd7b0c53b237dd73e73b437fadeb2c3532bb1aac9007d', // prod
-      [baseSepolia.id]: '0x391b215c25cea677bb3509f53f46b7aa7ae9d6bfe81121c678140250e880b7ee', // testnet
+      [baseSepolia.id]: '0x2ead7a90a1d0d8cccf11eb8e50f931cfff2e523e9f067765025c097048702517', // testnet
     },
     collateralToken: {
       [base.id]: weth.address[base.id], // prod
@@ -214,8 +234,12 @@ export const markets: Market[] = [
     tags: ['LexFriedman', 'ayahuasca', 'AutismCapital'],
   },
 
-  // correct
+  // weth
   {
+    hidden: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     address: {
       [base.id]: '0x5f3293417b0228bdc1896e34de99b377d31c77d8', // prod
       [baseSepolia.id]: '0xf59fca42b6cd29fc24ce3c5b89442494c9967fcb',
@@ -253,31 +277,35 @@ export const markets: Market[] = [
     tags: ['Regen', 'Memecoins', 'Optimism', 'Farcaster '],
   },
 
-  // correct
+  // weth
   {
+    hidden: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     address: {
       [base.id]: '0xE47907110663A3F0c06c1929ea52f50bC9821d13', // prod
-      [baseSepolia.id]: '0x729873AA483CEd60ACb0B7Ad815f14C8A7794930',
+      [baseSepolia.id]: '0x106646bc99c1deb24be1ec54a2229956d55f9e17',
     },
     questionId: {
       [base.id]: '0x0000000000000000000000000000000000000031373133383836363839313539', // prod
-      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135323436373136313237', // testnet
+      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373133333538323632353531', // testnet
     },
     conditionId: {
       [base.id]: '0x1f7ac97795fbb425912193fc477b009cc6d1bc7b503e9dd938b8a3281093a513', // prod
-      [baseSepolia.id]: '0xf0344b254c603d3d44d38629cd6b0c4c6c3c4115411d41c54e0ce2748072685a', // testnet
+      [baseSepolia.id]: '0x8a8e864ce0016717fa1027ef3714506b605e560b88d1914f47b448c8333491c9', // testnet
     },
     collateralToken: {
       [base.id]: weth.address[base.id], // prod
-      [baseSepolia.id]: higher.address[baseSepolia.id], // testnet
+      [baseSepolia.id]: weth.address[baseSepolia.id], // testnet
     },
     tokenTicker: {
       [base.id]: weth.symbol,
-      [baseSepolia.id]: higher.symbol,
+      [baseSepolia.id]: weth.symbol,
     },
     tokenURI: {
       [base.id]: weth.imageURI,
-      [baseSepolia.id]: higher.imageURI,
+      [baseSepolia.id]: weth.imageURI,
     },
     outcomeTokens: ['Yes', 'No'],
     title: 'Will $HIGHER hit $100M FDV in May?',
@@ -296,8 +324,12 @@ export const markets: Market[] = [
     tags: ['Onchain', 'Farcaster', 'Memecoins', 'Base'],
   },
 
-  // correct
+  // weth
   {
+    hidden: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     address: {
       [base.id]: '0x4585482A258d66b16a95734E86DCA1Ea338AC100', // prod
       [baseSepolia.id]: '0x5856Fb2BAB01b7b8330903eCb61374A9b2fb648c', //testnet
@@ -339,31 +371,35 @@ export const markets: Market[] = [
     tags: ['Limitless', 'KPI driven', 'Grin'],
   },
 
-  // correct
+  // weth
   {
+    hidden: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     address: {
       [base.id]: '0x0e03eDc2A0ba38E803DaD62b31b6e6A2f4b216cc', // prod
-      [baseSepolia.id]: '0xCA8CD401A4560A0D1B158f8292b85C78cB38Ffc1', // testnet
+      [baseSepolia.id]: '0x1a4d070a56037fbe01a75c22bc306c29122e72de', // testnet
     },
     questionId: {
       [base.id]: '0x0000000000000000000000000000000000000031373133383836363736333632', // prod
-      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135323436343231383432', // testnet
+      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135373333313536353538', // testnet
     },
     conditionId: {
       [base.id]: '0x33173bef347cb768b208efd547d445aec0fa1fc16f869093a7783e13ac2c2fff', // prod
-      [baseSepolia.id]: '0x84d5169ac2cecd75741c02d71eb85e11c51ec6d8ed442b37e4d3210fbc03192c', // testnet
+      [baseSepolia.id]: '0x3cc5029eca5f500ef868b44ac60064723c21297109d1d06aab801c23c68e0340', // testnet
     },
     collateralToken: {
       [base.id]: weth.address[base.id], // prod
-      [baseSepolia.id]: degen.address[baseSepolia.id], // testnet
+      [baseSepolia.id]: weth.address[baseSepolia.id], // testnet
     },
     tokenURI: {
       [base.id]: weth.imageURI,
-      [baseSepolia.id]: degen.imageURI,
+      [baseSepolia.id]: weth.imageURI,
     },
     tokenTicker: {
       [base.id]: weth.symbol,
-      [baseSepolia.id]: degen.symbol,
+      [baseSepolia.id]: weth.symbol,
     },
     outcomeTokens: ['Yes', 'No'],
     title: 'Will $DEGEN have 1M+ holders by the end of 2024?',
@@ -383,31 +419,35 @@ export const markets: Market[] = [
     tags: ['Degen', 'Memecoins', 'Base', 'Farcaster'],
   },
 
-  // correct
+  // weth
   {
+    hidden: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     address: {
       [base.id]: '0x2a5254e52e338228dcd82baa4374608bb884e834', // prod
-      [baseSepolia.id]: '0x1a2ba71e69a2ad9ff40555b30586bba0efcd7616', // testnet
+      [baseSepolia.id]: '0x52c83059b747bcc4fa29bb4da30d662ad8990ac2', // testnet
     },
     questionId: {
       [base.id]: '0x0000000000000000000000000000000000000031373133383836353239313438', // prod
-      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135323436353432323633', // testnet
+      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135373332393932393539', // testnet
     },
     conditionId: {
       [base.id]: '0xa397e6687681345146d869a05591b002039d1ed88bfc5e871bf36d26cd89e367', // prod
-      [baseSepolia.id]: '0x97e1b00a92cf8041deb17ccf2ea22ff61bec9b8474f77fc66cf2bec33aad4d58', // testnet
+      [baseSepolia.id]: '0x50941b2b450523e307fde4badbf1dc6670022f7bc8396e46a30f793ce21a9eef', // testnet
     },
     collateralToken: {
       [base.id]: weth.address[base.id], // prod
-      [baseSepolia.id]: regen.address[baseSepolia.id], // testnet
+      [baseSepolia.id]: weth.address[baseSepolia.id], // testnet
     },
     tokenTicker: {
       [base.id]: weth.symbol,
-      [baseSepolia.id]: regen.symbol,
+      [baseSepolia.id]: weth.symbol,
     },
     tokenURI: {
       [base.id]: weth.imageURI,
-      [baseSepolia.id]: regen.imageURI,
+      [baseSepolia.id]: weth.imageURI,
     },
     outcomeTokens: ['Yes', 'No'],
     title: 'Will Farcaster hit 100k WAUs before the end of Farcon?',
