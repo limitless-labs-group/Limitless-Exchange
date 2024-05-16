@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Filter from '@/components/common/TokenFilter'
 import { Token } from '@/types'
+import { getAddress } from 'viem'
 
 const MainPage = () => {
   /**
@@ -32,9 +33,14 @@ const MainPage = () => {
   const marketsToShow = useMemo(() => {
     return markets
       .filter((market) => !market.expired)
+      .filter((market) => !market.hidden[defaultChain.id])
       .filter((market) =>
         selectedFilterTokens.length > 0
-          ? !!selectedFilterTokens.find((filterToken) => filterToken.symbol === market.tokenTicker)
+          ? !!selectedFilterTokens.find(
+              (filterToken) =>
+                getAddress(filterToken.address[defaultChain.id]) ===
+                getAddress(market.collateralToken[defaultChain.id])
+            )
           : true
       )
   }, [selectedFilterTokens])
