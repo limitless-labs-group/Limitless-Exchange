@@ -6,10 +6,11 @@ import { Box, HStack, Text, useClipboard } from '@chakra-ui/react'
 import { truncateEthAddress } from '@/utils'
 import SelectTokenField from '@/components/common/SelectTokenField'
 import { collateralTokensArray, defaultChain, higher } from '@/constants'
+import { Address } from 'viem'
 
 type TopUpModalProps = Omit<IModal, 'children'> & {
-  selectedToken: string
-  setSelectedToken: Dispatch<SetStateAction<string>>
+  selectedToken: Address
+  setSelectedToken: Dispatch<SetStateAction<Address>>
 }
 
 export default function TopUpModal({
