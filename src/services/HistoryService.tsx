@@ -218,7 +218,18 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       _positions = _positions.filter((position) => Number(position.outcomeTokenAmount) > 0.00001)
       console.log('positions', _positions)
 
-      return _positions
+      // Todo remove this mapping
+      return _positions.map((position) => ({
+        ...position,
+        market: {
+          ...position.market,
+          collateral: {
+            symbol: position.market.collateral?.symbol
+              ? position.market.collateral?.symbol
+              : 'MFER',
+          },
+        },
+      }))
     },
   })
 
