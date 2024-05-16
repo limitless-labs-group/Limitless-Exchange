@@ -1,5 +1,10 @@
 import { Toast } from '@/components'
-import { collateralToken, conditionalTokensAddress, defaultChain } from '@/constants'
+import {
+  collateralToken,
+  collateralTokensArray,
+  conditionalTokensAddress,
+  defaultChain,
+} from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'
 import { publicClient } from '@/providers'
@@ -357,12 +362,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       await refetchChain()
 
+      const token = collateralTokensArray.find(
+        (token) => token.address[defaultChain.id] === market.collateralToken[defaultChain.id]
+      )
+
       // TODO: incapsulate
       toast({
         render: () => (
           <Toast
             title={`Successfully invested ${NumberUtil.toFixed(collateralAmount, 6)} ${
-              collateralToken.symbol
+              token?.symbol
             }`}
           />
         ),
@@ -413,12 +422,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       await refetchChain()
 
+      const token = collateralTokensArray.find(
+        (token) => token.address[defaultChain.id] === market.collateralToken[defaultChain.id]
+      )
+
       // TODO: incapsulate
       toast({
         render: () => (
           <Toast
             title={`Successfully redeemed ${NumberUtil.toFixed(collateralAmount, 6)} ${
-              collateralToken.symbol
+              token?.symbol
             }`}
           />
         ),
