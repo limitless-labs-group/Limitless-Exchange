@@ -63,6 +63,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
           borderRadius={'full'}
           alt={'logo'}
           bg={'brand'}
+          objectFit='cover'
         />
         <Stack spacing={1}>
           <Heading fontSize={'18px'} lineHeight={'20px'} _hover={{ textDecor: 'underline' }}>
