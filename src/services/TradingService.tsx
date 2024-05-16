@@ -339,7 +339,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         market.address[defaultChain.id],
         collateralAmountBI,
         outcomeTokenId,
-        parseUnits(quotes.outcomeTokenAmount, 18)
+        parseUnits(quotes.outcomeTokenAmount, 18),
+        market.collateralToken[defaultChain.id]
       )
 
       if (!receipt) {
