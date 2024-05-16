@@ -1,6 +1,14 @@
-import { collateralToken, defaultChain, markets, subgraphURI } from '@/constants'
+import {
+  collateralToken,
+  collateralTokensArray,
+  defaultChain,
+  markets,
+  subgraphURI,
+} from '@/constants'
+import { usePriceOracle } from '@/providers'
 import { useEtherspot } from '@/services'
 import { Address } from '@/types'
+import { NumberUtil } from '@/utils'
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
@@ -13,8 +21,8 @@ interface IHistoryService {
   getRedeems: () => Promise<QueryObserverResult<HistoryRedeem[], Error>>
   positions: HistoryPosition[] | undefined
   getPositions: () => Promise<QueryObserverResult<HistoryPosition[], Error>>
-  balanceInvested: number
-  balanceToWin: number
+  balanceInvested: string
+  balanceToWin: string
 }
 
 const HistoryServiceContext = createContext({} as IHistoryService)
@@ -26,6 +34,11 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * ACCOUNT
    */
   const { smartWalletAddress } = useEtherspot()
+
+  /**
+   * UTILS
+   */
+  const { convertAssetAmountToUsd } = usePriceOracle()
 
   /**
    * QUERIES
@@ -52,6 +65,9 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
                   closed
                   funding
                   conditionId
+                  collateral {
+                    symbol
+                  }
                 }
                 outcomeTokenAmounts
                 outcomeTokenNetCost
@@ -212,17 +228,31 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   const balanceInvested = useMemo(() => {
     let _balanceInvested = 0
     positions?.forEach((position) => {
-      _balanceInvested += Number(position.collateralAmount ?? 0)
+      let positionUsdAmount = 0
+      const token = collateralTokensArray.find(
+        (token) => token.symbol === position.market.collateral?.symbol
+      )
+      if (!!token) {
+        positionUsdAmount = convertAssetAmountToUsd(token.id, position.collateralAmount)
+      }
+      _balanceInvested += positionUsdAmount
     })
-    return _balanceInvested
+    return NumberUtil.toFixed(_balanceInvested, 2)
   }, [positions])
 
   const balanceToWin = useMemo(() => {
     let _balanceToWin = 0
     positions?.forEach((position) => {
-      _balanceToWin += Number(position.outcomeTokenAmount ?? 0)
+      let positionOutcomeUsdAmount = 0
+      const token = collateralTokensArray.find(
+        (token) => token.symbol === position.market.collateral?.symbol
+      )
+      if (!!token) {
+        positionOutcomeUsdAmount = convertAssetAmountToUsd(token.id, position.outcomeTokenAmount)
+      }
+      _balanceToWin += positionOutcomeUsdAmount
     })
-    return _balanceToWin
+    return NumberUtil.toFixed(_balanceToWin, 2)
   }, [positions])
 
   const contextProviderValue: IHistoryService = {
@@ -263,7 +293,10 @@ export type HistoryMarket = {
   paused?: boolean
   closed?: boolean
   funding?: string
-  holdersCount: number
+  holdersCount?: number
+  collateral?: {
+    symbol: string
+  }
 }
 
 export type HistoryRedeem = {

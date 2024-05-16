@@ -1,5 +1,5 @@
 import { Button, InfoIcon, Input, LogInButton, Tooltip } from '@/components'
-import { collateralToken, defaultChain } from '@/constants'
+import { collateralTokensArray, defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { usePriceOracle } from '@/providers'
 import {
@@ -32,6 +32,7 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
+import { MarketTokensIds } from '@/types'
 
 export const MarketTradingForm = ({ ...props }: StackProps) => {
   /**
@@ -70,12 +71,14 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
   const balance = useMemo(() => {
     if (strategy === 'Buy') {
       if (balanceOfSmartWallet) {
-        return balanceOfSmartWallet[0]?.formatted
+        return balanceOfSmartWallet.find(
+          (balanceItem) => balanceItem.contractAddress === market?.collateralToken[defaultChain.id]
+        )?.formatted
       }
       return ''
     }
     return balanceOfCollateralToSell
-  }, [balanceOfSmartWallet, strategy, balanceOfCollateralToSell])
+  }, [balanceOfSmartWallet, strategy, balanceOfCollateralToSell, market])
 
   const isZeroBalance = !(Number(balance) > 0)
 
@@ -99,10 +102,17 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
   /**
    * PRICE ORACLE
    */
-  const { convertEthToUsd } = usePriceOracle()
+  const { convertAssetAmountToUsd } = usePriceOracle()
   const amountUsd = useMemo(() => {
-    return NumberUtil.formatThousands(convertEthToUsd(displayAmount), 2)
-  }, [displayAmount])
+    const tokenId = collateralTokensArray.find(
+      (collateralToken) =>
+        collateralToken.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
+    )?.id
+    return NumberUtil.formatThousands(
+      convertAssetAmountToUsd(tokenId as MarketTokensIds, displayAmount),
+      2
+    )
+  }, [displayAmount, market])
 
   /**
    * SLIDER
@@ -276,8 +286,8 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
                 borderColor={'border'}
                 gap={1}
               >
-                <Avatar size={'xs'} src={collateralToken.imageURI} />
-                <Text>{collateralToken.symbol}</Text>
+                <Avatar size={'xs'} src={market?.tokenURI[defaultChain.id]} />
+                <Text>{market?.tokenTicker[defaultChain.id]}</Text>
               </Button>
             </HStack>
 
@@ -293,7 +303,8 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
                 cursor={'pointer'}
                 onClick={() => setCollateralAmount(NumberUtil.toFixed(balance, 6))}
               >
-                {`Balance: ${NumberUtil.toFixed(balance, 6)}`} {collateralToken.symbol}
+                {`Balance: ${NumberUtil.toFixed(balance, 6)}`}{' '}
+                {market?.tokenTicker[defaultChain.id]}
               </Text>
             </HStack>
           </Stack>
@@ -354,7 +365,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Avg price</Text>
             <Text textAlign={'right'}>{`${NumberUtil.toFixed(quotes?.outcomeTokenPrice, 6)} ${
-              collateralToken.symbol
+              market?.tokenTicker[defaultChain.id]
             }`}</Text>
           </HStack>
           <HStack w={'full'} justifyContent={'space-between'}>
@@ -368,7 +379,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
                 <HStack spacing={1}>
                   <Text color={'green'} fontWeight={'bold'} textAlign={'right'}>
                     {`${NumberUtil.toFixed(quotes?.outcomeTokenAmount, 6)} ${
-                      collateralToken.symbol
+                      market?.tokenTicker[defaultChain.id]
                     }`}
                   </Text>
                   <Text color={'fontLight'}>{NumberUtil.toFixed(quotes?.roi, 2)}%</Text>

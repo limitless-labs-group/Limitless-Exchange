@@ -23,7 +23,7 @@ export type Market = {
   conditionId: {
     [chainId: number]: Hash
   }
-  collateralToken?: {
+  collateralToken: {
     [chainId: number]: Address
   }
   outcomeTokens: string[]
@@ -35,8 +35,12 @@ export type Market = {
   expirationDate: string
   expirationTimestamp: number
   expired?: boolean
-  tokenTicker: string
-  tokenURI: string
+  tokenTicker: {
+    [chainId: number]: string
+  }
+  tokenURI: {
+    [chainId: number]: string
+  }
   creator: {
     name: string
     imageURI?: string
@@ -63,6 +67,7 @@ type CoingeckoPriceEntity = { usd: number }
 export enum MarketTokensIds {
   DEGEN = 'degen-base',
   ETH = 'ethereum',
+  WETH = 'ethereum',
   HIGHER = 'higher',
   MFER = 'mfercoin',
   ONCHAIN = 'onchain',

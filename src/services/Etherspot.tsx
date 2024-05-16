@@ -1,4 +1,4 @@
-import { collateralToken, conditionalTokensAddress, defaultChain } from '@/constants'
+import { collateralToken, conditionalTokensAddress, defaultChain, weth } from '@/constants'
 import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient, useWeb3Auth } from '@/providers'
 import { Address } from '@/types'
@@ -13,7 +13,7 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, parseEther } from 'viem'
+import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, erc20Abi } from 'viem'
 import { contractABI } from '@/contracts/utils'
 
 interface IEtherspotContext {
@@ -210,7 +210,6 @@ class Etherspot {
       await this.primeSdk.addUserOpsToBatch({ to, data, value })
       const op = await this.estimate()
       const opHash = await this.primeSdk.send(op)
-      console.log(opHash)
       return opHash
     } catch (e: any) {
       console.log(e)
@@ -287,7 +286,7 @@ class Etherspot {
     ])) as bigint
     if (allowance < amount) {
       const data = encodeFunctionData({
-        abi: wethABI,
+        abi: spender === weth.address[defaultChain.id] ? wethABI : erc20Abi,
         functionName: 'approve',
         args: [spender, maxUint256],
       })
@@ -322,7 +321,6 @@ class Etherspot {
       abi: wethABI,
       functionName: 'deposit',
     })
-    console.log(data)
 
     const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, data, value)
     const transactionReceipt = await this.waitForTransaction(opHash)
