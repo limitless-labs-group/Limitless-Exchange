@@ -2,7 +2,7 @@
 
 import { BalanceCard, DepositTestCard, WithdrawModal } from '@/app/wallet/components'
 import { Button, MainLayout } from '@/components'
-import { defaultChain } from '@/constants'
+import { defaultChain, higher } from '@/constants'
 import { OpenEvent, useAmplitude, useAuth } from '@/services'
 import { colors } from '@/styles'
 import {
@@ -21,13 +21,14 @@ import Paper from '@/components/common/Paper'
 import DepositInfo from '@/app/wallet/components/DepositInfo'
 import TopUpModal from '@/app/wallet/components/TopUpModal'
 import { useIsMobile } from '@/hooks'
+import { Address } from 'viem'
 
 const WalletPage = () => {
   const { signIn: signInWithW3A, isLoggedIn } = useAuth()
   const { trackOpened } = useAmplitude()
   const isMobile = useIsMobile()
 
-  const [selectedToken, setSelectedToken] = useState('')
+  const [selectedToken, setSelectedToken] = useState<Address>(higher.address[defaultChain.id])
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -46,13 +47,13 @@ const WalletPage = () => {
     onClose: onCloseWithdraw,
   } = useDisclosure()
 
-  const handleOpenTopUpModal = (token: string) => {
+  const handleOpenTopUpModal = (token: Address) => {
     setSelectedToken(token)
     onOpenTopUp()
   }
 
   const handleCloseTopUpModal = () => {
-    setSelectedToken('')
+    setSelectedToken(higher.address[defaultChain.id])
     onCloseTopUp()
   }
 
@@ -61,7 +62,7 @@ const WalletPage = () => {
   }
 
   const handleCloseWithdrawModal = () => {
-    setSelectedToken('')
+    setSelectedToken(higher.address[defaultChain.id])
     onCloseWithdraw()
   }
 
@@ -80,7 +81,7 @@ const WalletPage = () => {
             <h2>
               <AccordionButton justifyContent='space-between' py={4} px={isMobile ? 0 : '16px'}>
                 <Text fontWeight={'semibold'} fontSize={'14px'}>
-                  How to deposit my balance
+                  How to deposit my balance?
                 </Text>
                 <AccordionIcon />
               </AccordionButton>

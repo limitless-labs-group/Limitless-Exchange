@@ -81,13 +81,13 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             </HStack>
             <HStack w={'full'} justifyContent={'space-between'}>
               <Text color={'fontLight'}>Liquidity</Text>
-              <Text fontWeight={'bold'}>{`${Number(liquidity).toFixed(2)} ${
+              <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(liquidity, 2)} ${
                 market?.tokenTicker[defaultChain.id]
               }`}</Text>
             </HStack>
             <HStack w={'full'} justifyContent={'space-between'}>
               <Text color={'fontLight'}>Volume</Text>
-              <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
+              <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(volume, 4)} ${
                 market?.tokenTicker[defaultChain.id]
               }`}</Text>
             </HStack>
@@ -96,14 +96,14 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
           <HStack w={'full'} spacing={4} justifyContent={'space-between'}>
             <Stack spacing={0}>
               <Text color={'fontLight'}>Liquidity</Text>
-              <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
+              <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(liquidity, 4)} ${
                 market?.tokenTicker[defaultChain.id]
               }`}</Text>
             </Stack>
 
             <Stack spacing={0}>
               <Text color={'fontLight'}>Volume</Text>
-              <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
+              <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(volume, 4)} ${
                 market?.tokenTicker[defaultChain.id]
               }`}</Text>
             </Stack>

@@ -1,7 +1,7 @@
 import { Button, IButton } from '@/components'
 import { ClickEvent, useAccount, useAmplitude, useAuth, useBalanceService } from '@/services'
 import { colors } from '@/styles'
-import { truncateEthAddress } from '@/utils'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
   Flex,
   HStack,
@@ -85,7 +85,7 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
                 />
                 <HStack spacing={1}>
                   <Text>Balance</Text>
-                  <Text fontWeight={'bold'}>{overallBalanceUsd}</Text>
+                  <Text fontWeight={'bold'}>{NumberUtil.formatThousands(overallBalanceUsd)}</Text>
                   <Text>USD</Text>
                 </HStack>
               </HStack>

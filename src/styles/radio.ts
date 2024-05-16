@@ -6,6 +6,9 @@ const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpe
 )
 
 const baseStyle = definePartsStyle({
+  label: {
+    marginInlineStart: '8px',
+  },
   control: {
     borderRadius: '12px',
     borderColor: 'black',

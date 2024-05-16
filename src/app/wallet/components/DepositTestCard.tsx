@@ -1,5 +1,5 @@
 import { Button } from '@/components'
-import { collateralToken, defaultChain, weth } from '@/constants'
+import { collateralTokensArray, defaultChain, higher, weth } from '@/constants'
 import { useAccount, useBalanceService } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { HStack, Link, Stack, StackProps, Text } from '@chakra-ui/react'
@@ -13,9 +13,11 @@ export const DepositTestCard = ({ ...props }: StackProps) => {
   const { mint, isLoadingMint } = useBalanceService()
   const isMobile = useIsMobile()
 
-  const [selectedToken, setSelectedToken] = useState('')
+  const [selectedToken, setSelectedToken] = useState<Address>(higher.address[defaultChain.id])
 
-  console.log(selectedToken)
+  const tokenTitle = collateralTokensArray.find(
+    (collToken) => collToken.address[defaultChain.id] === selectedToken
+  )?.symbol
 
   return (
     <Stack
@@ -75,7 +77,7 @@ export const DepositTestCard = ({ ...props }: StackProps) => {
         }}
         isLoading={isLoadingMint}
       >
-        Mint {collateralToken.symbol}
+        Mint {tokenTitle}
       </Button>
       {/* </HStack> */}
     </Stack>

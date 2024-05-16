@@ -20,11 +20,11 @@ import { NumberUtil } from '@/utils'
 import { usePriceOracle } from '@/providers'
 import { useIsMobile } from '@/hooks'
 import { useUsersMarkets } from '@/services/MarketsService'
-import { formatUnits } from 'viem'
+import { Address, formatUnits } from 'viem'
 import { MarketTokensIds } from '@/types'
 
 type AssetsTableProps = {
-  handleOpenTopUpModal: (token: string) => void
+  handleOpenTopUpModal: (token: Address) => void
 }
 
 export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) {
@@ -34,7 +34,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
     : ['Token', 'Available Balance', 'Token Price', 'Active Markets', 'Locked', 'Deposit']
 
   const { balanceOfSmartWallet } = useBalanceService()
-  const { convertAssetAmountToUsd, ethPrice } = usePriceOracle()
+  const { convertAssetAmountToUsd } = usePriceOracle()
   const { data: usersMarkets } = useUsersMarkets()
 
   const getMarketsCount = (ticker: string) => {
@@ -58,13 +58,6 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
     return convertAssetAmountToUsd(id, amount)
   }
 
-  const getLeftCellPadding = (index: number) => {
-    if (isMobile) {
-      return index === tableHeaders.length - 1 ? '20px' : 0
-    }
-    return index ? 0 : '24px'
-  }
-
   return (
     <>
       {isMobile && <Divider />}
@@ -72,6 +65,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
         borderColor={'#E7E7EA'}
         borderWidth={isMobile ? 0 : '1px'}
         borderRadius={'12px'}
+        px={isMobile ? 0 : '12px'}
         pb={'12px'}
       >
         <Table variant='simple'>
@@ -82,7 +76,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
             fontWeight={'normal'}
             color={'black'}
             w={'fit-content'}
-            pl={isMobile ? 0 : '24px'}
+            pl={isMobile ? 0 : '12px'}
           >
             All tokens
           </TableCaption>
@@ -96,9 +90,8 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                   fontWeight={'normal'}
                   borderBottom={'unset'}
                   textAlign={index ? 'right' : 'left'}
-                  pr={index === tableHeaders.length - 1 ? (isMobile ? 0 : '20px') : 0}
-                  pl={getLeftCellPadding(index)}
                   w={index ? 'initial' : '136px'}
+                  px={isMobile ? 0 : '12px'}
                 >
                   {header}
                 </Th>
@@ -108,22 +101,20 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
           <Tbody>
             {balanceOfSmartWallet?.map((balance) => (
               <Tr key={uuidv4()}>
-                <Td borderBottom={'unset'} py={'8px'} pr={0} w={'136px'} pl={isMobile ? 0 : '24px'}>
+                <Td borderBottom={'unset'} w={'136px'} px={isMobile ? 0 : '12px'}>
                   <HStack>
                     <Image src={balance.image} alt='token' w={'20px'} h={'20px'} />
                     <VStack gap={0} alignItems='flex-start'>
-                      <Text fontWeight={'semibold'}>{balance.symbol}</Text>
+                      <Text>{balance.symbol}</Text>
                       <Text fontWeight={'light'} color={'fontLight'}>
                         {balance.name}
                       </Text>
                     </VStack>
                   </HStack>
                 </Td>
-                <Td borderBottom={'unset'} py={'8px'} px={0} w={'160px'}>
+                <Td borderBottom={'unset'} w={'160px'} px={isMobile ? 0 : '12px'}>
                   <VStack gap={0} alignItems='flex-end'>
-                    <Text fontWeight={'semibold'}>
-                      {NumberUtil.formatThousands(balance.formatted, 4)}
-                    </Text>
+                    <Text>{NumberUtil.formatThousands(balance.formatted, 4)}</Text>
                     <Text fontWeight={'light'} color={'fontLight'}>
                       $
                       {NumberUtil.formatThousands(
@@ -137,29 +128,25 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                   <>
                     <Td
                       borderBottom={'unset'}
-                      py={'8px'}
                       textAlign='right'
                       verticalAlign='top'
-                      px={0}
                       w={'100px'}
+                      px={'12px'}
                     >
-                      <Text fontWeight={'semibold'}>
-                        ${NumberUtil.formatThousands(balance.price, 4)}
-                      </Text>
+                      <Text>${NumberUtil.formatThousands(balance.price, 4)}</Text>
                     </Td>
                     <Td
                       borderBottom={'unset'}
-                      py={'8px'}
                       textAlign='right'
                       verticalAlign='top'
-                      px={0}
                       w={'120px'}
+                      px={'12px'}
                     >
-                      <Text fontWeight={'semibold'}>{getMarketsCount(balance.symbol)} markets</Text>
+                      <Text>{getMarketsCount(balance.symbol)} markets</Text>
                     </Td>
-                    <Td borderBottom={'unset'} py={'8px'} px={0} w={'100px'}>
+                    <Td borderBottom={'unset'} w={'100px'} px={'12px'}>
                       <VStack gap={0} alignItems='flex-end'>
-                        <Text fontWeight={'semibold'}>
+                        <Text>
                           {NumberUtil.formatThousands(
                             getLockedAmount(balance.symbol, balance.decimals),
                             4
@@ -181,11 +168,10 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                 )}
                 <Td
                   borderBottom={'unset'}
-                  py={'8px'}
                   textAlign='right'
                   verticalAlign='top'
-                  pl={0}
-                  pr={isMobile ? 0 : '20px'}
+                  pr={isMobile ? 0 : '12px'}
+                  pl={'12px'}
                 >
                   <Button
                     variant='link'
@@ -193,7 +179,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                     textDecor='underline'
                     fontWeight={'normal'}
                     fontSize={'14px'}
-                    onClick={() => handleOpenTopUpModal(balance.contractAddress)}
+                    onClick={() => handleOpenTopUpModal(balance.contractAddress as Address)}
                   >
                     Deposit
                   </Button>

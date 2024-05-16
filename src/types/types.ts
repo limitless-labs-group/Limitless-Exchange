@@ -26,6 +26,12 @@ export type Market = {
   collateralToken: {
     [chainId: number]: Address
   }
+  hidden: {
+    [chainId: number]: boolean
+  }
+  resolved: {
+    [chainId: number]: boolean
+  }
   outcomeTokens: string[]
   title: string
   description: string

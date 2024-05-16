@@ -1,10 +1,10 @@
 import { Toast, ToastWithdraw } from '@/components'
-import { collateralToken, collateralTokensArray, defaultChain } from '@/constants'
+import { collateralToken, collateralTokensArray, defaultChain, weth } from '@/constants'
 import { wethABI } from '@/contracts'
 import { useToast } from '@/hooks'
 import { publicClient, usePriceOracle } from '@/providers'
 import { useEtherspot } from '@/services'
-import { Address, GetBalanceResult, MarketTokensIds } from '@/types'
+import { Address, GetBalanceResult, MarketTokensIds, Token } from '@/types'
 import { Logger, NumberUtil } from '@/utils'
 import {
   QueryObserverResult,
@@ -13,7 +13,16 @@ import {
   useQuery,
 } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
-import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react'
+import {
+  createContext,
+  Dispatch,
+  PropsWithChildren,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import {
   erc20Abi,
   formatEther,
@@ -45,6 +54,7 @@ interface IBalanceService {
   withdraw: UseMutateAsyncFunction<void, Error, void, unknown>
 
   status: BalanceServiceStatus
+  setToken: Dispatch<SetStateAction<Token>>
 }
 
 const BalanceService = createContext({} as IBalanceService)
@@ -109,32 +119,30 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
 
       log.success('ON_BALANCE_SUCC', smartWalletAddress, balanceResult)
 
-      // TODO: refactor deposit handler and adjust for multiply tokens
-      if (
-        !!balanceOfSmartWallet &&
-        Number(balanceResult.find((balance) => balance.id === MarketTokensIds.ETH)?.value) >
-          balanceOfSmartWallet[0]?.value
-      ) {
-        if (!defaultChain.testnet) {
-          await whitelist() // TODO: refactor the logic of whitelisting
+      balanceResult.forEach((balance) => {
+        if (!!balanceOfSmartWallet) {
+          const currentBalance = balanceOfSmartWallet.find((currentBalanceEntity) => {
+            return currentBalanceEntity.id === balance.id
+          })
+          if (currentBalance && balance.value > currentBalance.value) {
+            !defaultChain.testnet && whitelist()
+            const depositAmount = formatUnits(
+              balance.value - currentBalance.value,
+              collateralToken.decimals
+            )
+
+            toast({
+              render: () => (
+                <Toast
+                  title={`Balance top up: ${NumberUtil.toFixed(depositAmount, 6)} ${
+                    balance.symbol
+                  }`}
+                />
+              ),
+            })
+          }
         }
-
-        const depositAmount = formatUnits(
-          balanceResult.find((balance) => balance.id === MarketTokensIds.ETH)?.value ||
-            BigInt(0) - balanceOfSmartWallet[0]?.value,
-          collateralToken.decimals
-        )
-
-        toast({
-          render: () => (
-            <Toast
-              title={`Balance top up: ${NumberUtil.toFixed(depositAmount, 6)} ${
-                collateralToken.symbol
-              }`}
-            />
-          ),
-        })
-      }
+      })
 
       return balanceResult
     },
@@ -171,7 +179,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       const ethFormatted = formatEther(eth)
       log.info('ETH balance:', ethFormatted)
 
-      const gasFee = defaultChain.testnet ? 0.005 : 0 // there's no paymaster on testnet so it's required to left some eth for gas
+      const gasFee = defaultChain.testnet ? 0.01 : 0 // there's no paymaster on testnet so it's required to left some eth for gas
 
       if (Number(ethFormatted) > gasFee) {
         if (!defaultChain.testnet) {
@@ -231,13 +239,17 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
 
   // Amount to be withdrawn
   const [amount, setAmount] = useState<string>('')
+  const [token, setToken] = useState(weth)
   const amountBI = useMemo(() => parseUnits(amount ?? '0', collateralToken.decimals), [amount])
   const isInvalidAmount = useMemo(() => {
     const isInvalidBalance = balanceOfSmartWallet === undefined
     const isNegativeOrZeroAmount = amountBI <= 0n
-    const isExceedsBalance = !!balanceOfSmartWallet && amountBI > balanceOfSmartWallet[0]?.value
+    const balanceEntity = balanceOfSmartWallet?.find(
+      (balance) => balance.id === token.id
+    ) as GetBalanceResult
+    const isExceedsBalance = !!balanceOfSmartWallet && amountBI > balanceEntity.value
     return isInvalidBalance || isNegativeOrZeroAmount || isExceedsBalance
-  }, [balanceOfSmartWallet, amountBI])
+  }, [balanceOfSmartWallet, amountBI, token])
 
   // Mutation
   const { mutateAsync: withdraw, isPending: isLoadingWithdraw } = useMutation({
@@ -335,6 +347,8 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         unwrap,
         setUnwrap,
         withdraw,
+
+        setToken,
 
         status,
       }}

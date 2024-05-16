@@ -4,6 +4,7 @@ import { borderRadius, colors } from '@/styles'
 import { Flex, HStack, Heading, Spacer, Stack, StackProps, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { FaFileInvoiceDollar, FaTrophy, FaWallet } from 'react-icons/fa6'
+import { NumberUtil } from '@/utils'
 
 export const PortfolioStats = ({ ...props }: StackProps) => {
   const router = useRouter()
@@ -30,7 +31,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
           <FaFileInvoiceDollar size={'24px'} fill={colors.fontLight} />
           <Text color={'fontLight'}>Invested</Text>
         </HStack>
-        <Heading fontSize={'26px'}>{balanceInvested} USD</Heading>
+        <Heading fontSize={'26px'}>{NumberUtil.formatThousands(balanceInvested, 2)} USD</Heading>
       </Stack>
 
       <Stack
@@ -45,7 +46,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
           <FaTrophy size={'24px'} fill={colors.fontLight} />
           <Text color={'fontLight'}>To win</Text>
         </HStack>
-        <Heading fontSize={'26px'}>{balanceToWin} USD</Heading>
+        <Heading fontSize={'26px'}>{NumberUtil.formatThousands(balanceToWin, 2)} USD</Heading>
       </Stack>
 
       <Stack
@@ -60,7 +61,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
           <FaWallet size={'24px'} fill={colors.fontLight} />
           <Text color={'fontLight'}>Balance</Text>
         </HStack>
-        <Heading fontSize={'26px'}>{overallBalanceUsd} USD</Heading>
+        <Heading fontSize={'26px'}>{NumberUtil.formatThousands(overallBalanceUsd, 2)} USD</Heading>
         <Spacer />
         <Button
           bg={'brand'}
