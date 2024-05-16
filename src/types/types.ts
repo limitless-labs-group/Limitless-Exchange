@@ -29,6 +29,9 @@ export type Market = {
   hidden: {
     [chainId: number]: boolean
   }
+  resolved: {
+    [chainId: number]: boolean
+  }
   outcomeTokens: string[]
   title: string
   description: string
