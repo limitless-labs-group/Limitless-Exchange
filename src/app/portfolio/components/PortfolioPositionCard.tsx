@@ -73,6 +73,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           src={market?.placeholderURI}
           w='50px'
           h='50px'
+          minW={'50px'}
           borderRadius={'full'}
           alt={'logo'}
           bg={'brand'}

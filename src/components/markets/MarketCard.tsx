@@ -60,6 +60,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
           src={market?.placeholderURI}
           w='50px'
           h='50px'
+          minW={'50px'}
           borderRadius={'full'}
           alt={'logo'}
           bg={'brand'}

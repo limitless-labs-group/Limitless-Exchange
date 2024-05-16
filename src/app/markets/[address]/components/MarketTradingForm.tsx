@@ -32,7 +32,7 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
-import { MarketTokensIds } from '@/types'
+import { MarketTokensIds, Token } from '@/types'
 
 export const MarketTradingForm = ({ ...props }: StackProps) => {
   /**
@@ -66,7 +66,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
   /**
    * BALANCE
    */
-  const { balanceOfSmartWallet } = useBalanceService()
+  const { balanceOfSmartWallet, setToken } = useBalanceService()
 
   const balance = useMemo(() => {
     if (strategy === 'Buy') {
@@ -148,6 +148,17 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
     const percentByAmount = Number(((Number(collateralAmount) / Number(balance)) * 100).toFixed())
     setSliderValue(percentByAmount)
   }, [collateralAmount, balance, isZeroBalance, outcomeTokenId])
+
+  useEffect(() => {
+    if (market) {
+      setToken(
+        collateralTokensArray.find(
+          (collateralToken) =>
+            collateralToken.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
+        ) as Token
+      )
+    }
+  }, [market])
 
   return (
     <Stack
