@@ -4,9 +4,11 @@ import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
 import { HStack, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
 import { useIsMobile } from '@/hooks'
+import { Address } from 'viem'
+import { defaultChain, higher } from '@/constants'
 
 type BalanceCardProps = StackProps & {
-  handleOpenTopUpModal: (token: string) => void
+  handleOpenTopUpModal: (token: Address) => void
   handleOpenWithdrawModal: () => void
 }
 
@@ -53,7 +55,7 @@ export const BalanceCard = ({
             colorScheme={'brand'}
             w={isMobile ? 'full' : '200px'}
             h={'30px'}
-            onClick={() => handleOpenTopUpModal('')}
+            onClick={() => handleOpenTopUpModal(higher.address[defaultChain.id])}
           >
             Top Up
           </Button>

@@ -14,12 +14,12 @@ import {
   Box,
 } from '@chakra-ui/react'
 import { Dispatch, SetStateAction, useEffect, useMemo } from 'react'
-import { zeroAddress } from 'viem'
+import { Address, zeroAddress } from 'viem'
 import SelectTokenField from '@/components/common/SelectTokenField'
 
 type WithdrawModalProps = Omit<IModal, 'children'> & {
-  selectedToken: string
-  setSelectedToken: Dispatch<SetStateAction<string>>
+  selectedToken: Address
+  setSelectedToken: Dispatch<SetStateAction<Address>>
 }
 
 export const WithdrawModal = ({

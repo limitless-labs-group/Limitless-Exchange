@@ -109,32 +109,30 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
 
       log.success('ON_BALANCE_SUCC', smartWalletAddress, balanceResult)
 
-      // TODO: refactor deposit handler and adjust for multiply tokens
-      if (
-        !!balanceOfSmartWallet &&
-        Number(balanceResult.find((balance) => balance.id === MarketTokensIds.ETH)?.value) >
-          balanceOfSmartWallet[0]?.value
-      ) {
-        if (!defaultChain.testnet) {
-          await whitelist() // TODO: refactor the logic of whitelisting
+      balanceResult.forEach((balance) => {
+        if (!!balanceOfSmartWallet) {
+          const currentBalance = balanceOfSmartWallet.find((currentBalanceEntity) => {
+            return currentBalanceEntity.id === balance.id
+          })
+          if (currentBalance && balance.value > currentBalance.value) {
+            !defaultChain.testnet && whitelist()
+            const depositAmount = formatUnits(
+              balance.value - currentBalance.value,
+              collateralToken.decimals
+            )
+
+            toast({
+              render: () => (
+                <Toast
+                  title={`Balance top up: ${NumberUtil.toFixed(depositAmount, 6)} ${
+                    balance.symbol
+                  }`}
+                />
+              ),
+            })
+          }
         }
-
-        const depositAmount = formatUnits(
-          balanceResult.find((balance) => balance.id === MarketTokensIds.ETH)?.value ||
-            BigInt(0) - balanceOfSmartWallet[0]?.value,
-          collateralToken.decimals
-        )
-
-        toast({
-          render: () => (
-            <Toast
-              title={`Balance top up: ${NumberUtil.toFixed(depositAmount, 6)} ${
-                collateralToken.symbol
-              }`}
-            />
-          ),
-        })
-      }
+      })
 
       return balanceResult
     },

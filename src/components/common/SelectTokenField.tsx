@@ -1,11 +1,13 @@
 import { Box, HStack, Image, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react'
 import { Dispatch, SetStateAction, useEffect } from 'react'
 import { collateralTokensArray, defaultChain, higher } from '@/constants'
+import { v4 as uuidv4 } from 'uuid'
+import { Address } from 'viem'
 
 type SelectTokenFieldProps = {
-  setToken: Dispatch<SetStateAction<string>>
-  token: string
-  defaultValue: string
+  setToken: Dispatch<SetStateAction<Address>>
+  token: Address
+  defaultValue: Address
 }
 
 export default function SelectTokenField({ setToken, token, defaultValue }: SelectTokenFieldProps) {
@@ -16,10 +18,10 @@ export default function SelectTokenField({ setToken, token, defaultValue }: Sele
   }, [token])
 
   return (
-    <RadioGroup onChange={setToken} defaultValue={defaultValue}>
-      <Stack direction='row' overflowX={'scroll'} gap={'12px'}>
+    <RadioGroup onChange={(val: string) => setToken(val as Address)} defaultValue={defaultValue}>
+      <Stack direction='row' overflowX={'scroll'} gap={'20px'}>
         {collateralTokensArray.map((collateralToken) => (
-          <Box key={collateralToken.address[defaultChain.id]} minW={'fit-content'}>
+          <Box key={uuidv4()} minW={'fit-content'}>
             <Radio
               value={collateralToken.address[defaultChain.id]}
               colorScheme='blackVariants'
