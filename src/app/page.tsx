@@ -32,6 +32,7 @@ const MainPage = () => {
   const marketsToShow = useMemo(() => {
     return markets
       .filter((market) => !market.expired)
+      .filter((market) => !market.hidden[defaultChain.id])
       .filter((market) =>
         selectedFilterTokens.length > 0
           ? !!selectedFilterTokens.find((filterToken) => filterToken.symbol === market.tokenTicker)
