@@ -29,7 +29,7 @@ export default function TokenFilter({ onChange }: TokenFilterProps) {
 
   const handleFilterItemClicked = (token: Token) => {
     if (
-      !!selectedFilterTokens.find(
+      selectedFilterTokens.find(
         (_token) => _token.address[defaultChain.id] == token.address[defaultChain.id]
       )
     ) {
