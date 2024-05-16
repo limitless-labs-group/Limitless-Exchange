@@ -53,7 +53,7 @@ export const markets: Market[] = [
   // onchain
   {
     hidden: {
-      [base.id]: true,
+      [base.id]: false,
       [baseSepolia.id]: false,
     },
     address: {
@@ -191,11 +191,11 @@ export const markets: Market[] = [
     tags: ['Football', 'ChampionsLeague', 'Final', 'RealMadrid', 'Borussia'],
   },
 
-  // correct
+  // weth
   {
     hidden: {
-      [base.id]: true,
-      [baseSepolia.id]: true,
+      [base.id]: false,
+      [baseSepolia.id]: false,
     },
     address: {
       [base.id]: '0x96ace74aa1ae07f7baf4e7f2736cbe2a703712fc', // prod
@@ -234,11 +234,11 @@ export const markets: Market[] = [
     tags: ['LexFriedman', 'ayahuasca', 'AutismCapital'],
   },
 
-  // correct
+  // weth
   {
     hidden: {
-      [base.id]: true,
-      [baseSepolia.id]: true,
+      [base.id]: false,
+      [baseSepolia.id]: false,
     },
     address: {
       [base.id]: '0x5f3293417b0228bdc1896e34de99b377d31c77d8', // prod
@@ -277,11 +277,11 @@ export const markets: Market[] = [
     tags: ['Regen', 'Memecoins', 'Optimism', 'Farcaster '],
   },
 
-  // correct
+  // weth
   {
     hidden: {
-      [base.id]: true,
-      [baseSepolia.id]: true,
+      [base.id]: false,
+      [baseSepolia.id]: false,
     },
     address: {
       [base.id]: '0xE47907110663A3F0c06c1929ea52f50bC9821d13', // prod
@@ -324,11 +324,11 @@ export const markets: Market[] = [
     tags: ['Onchain', 'Farcaster', 'Memecoins', 'Base'],
   },
 
-  // correct
+  // weth
   {
     hidden: {
-      [base.id]: true,
-      [baseSepolia.id]: true,
+      [base.id]: false,
+      [baseSepolia.id]: false,
     },
     address: {
       [base.id]: '0x4585482A258d66b16a95734E86DCA1Ea338AC100', // prod
@@ -371,11 +371,11 @@ export const markets: Market[] = [
     tags: ['Limitless', 'KPI driven', 'Grin'],
   },
 
-  // correct
+  // weth
   {
     hidden: {
-      [base.id]: true,
-      [baseSepolia.id]: true,
+      [base.id]: false,
+      [baseSepolia.id]: false,
     },
     address: {
       [base.id]: '0x0e03eDc2A0ba38E803DaD62b31b6e6A2f4b216cc', // prod
@@ -419,11 +419,11 @@ export const markets: Market[] = [
     tags: ['Degen', 'Memecoins', 'Base', 'Farcaster'],
   },
 
-  // correct
+  // weth
   {
     hidden: {
-      [base.id]: true,
-      [baseSepolia.id]: true,
+      [base.id]: false,
+      [baseSepolia.id]: false,
     },
     address: {
       [base.id]: '0x2a5254e52e338228dcd82baa4374608bb884e834', // prod
@@ -467,14 +467,3 @@ export const markets: Market[] = [
     tags: ['Farcaster', 'Warpcast'],
   },
 ]
-// .filter((market) => {
-//   /**
-//    * Hide the other markets, only show /onchain & WETH.
-//    */
-//   const HIDDEN_MARKETS = [
-//     '0x06F8d688249083D3B32A0584FD4e8af25337aF41',
-//     '0x062B14f02fA7c79532a0E248090EEa6beDbbeb31',
-//     '0xf1722e6101a4eABC285ef0a202b9890DB159818d',
-//   ]
-//   return !HIDDEN_MARKETS.includes(market.address[base.id])
-// })
