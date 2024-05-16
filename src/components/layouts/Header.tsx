@@ -10,6 +10,7 @@ import { useAccount } from 'wagmi'
 import { ClickEvent, useAmplitude, useBalanceService } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
+import { NumberUtil } from '@/utils'
 
 export const Header = ({ ...props }: FlexProps) => {
   const router = useRouter()
@@ -97,7 +98,9 @@ export const Header = ({ ...props }: FlexProps) => {
                   <HStack spacing={2}>
                     <Text fontWeight={'medium'}>Balance</Text>
                     <HStack spacing={1}>
-                      <Text fontWeight={'bold'}>{overallBalanceUsd}</Text>
+                      <Text fontWeight={'bold'}>
+                        {NumberUtil.formatThousands(overallBalanceUsd)}
+                      </Text>
                       <Text fontWeight={'medium'}>USD</Text>
                     </HStack>
                   </HStack>
