@@ -5,6 +5,10 @@ import { base, baseSepolia } from 'viem/chains'
 export const markets: Market[] = [
   // mfer
   {
+    resolved: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     hidden: {
       [base.id]: true,
       [baseSepolia.id]: false,
@@ -52,6 +56,10 @@ export const markets: Market[] = [
 
   // onchain
   {
+    resolved: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     hidden: {
       [base.id]: false,
       [baseSepolia.id]: false,
@@ -99,6 +107,10 @@ export const markets: Market[] = [
 
   // higher
   {
+    resolved: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     hidden: {
       [base.id]: true,
       [baseSepolia.id]: false,
@@ -146,6 +158,10 @@ export const markets: Market[] = [
 
   // degen
   {
+    resolved: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     hidden: {
       [base.id]: true,
       [baseSepolia.id]: false,
@@ -193,6 +209,10 @@ export const markets: Market[] = [
 
   // weth
   {
+    resolved: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     hidden: {
       [base.id]: false,
       [baseSepolia.id]: false,
@@ -236,6 +256,10 @@ export const markets: Market[] = [
 
   // weth
   {
+    resolved: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     hidden: {
       [base.id]: false,
       [baseSepolia.id]: false,
@@ -279,6 +303,10 @@ export const markets: Market[] = [
 
   // weth
   {
+    resolved: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     hidden: {
       [base.id]: false,
       [baseSepolia.id]: false,
@@ -326,6 +354,10 @@ export const markets: Market[] = [
 
   // weth
   {
+    resolved: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     hidden: {
       [base.id]: false,
       [baseSepolia.id]: false,
@@ -373,6 +405,10 @@ export const markets: Market[] = [
 
   // weth
   {
+    resolved: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
     hidden: {
       [base.id]: false,
       [baseSepolia.id]: false,
@@ -421,6 +457,10 @@ export const markets: Market[] = [
 
   // weth
   {
+    resolved: {
+      [base.id]: true,
+      [baseSepolia.id]: true,
+    },
     hidden: {
       [base.id]: false,
       [baseSepolia.id]: false,
