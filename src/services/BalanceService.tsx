@@ -179,7 +179,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       const ethFormatted = formatEther(eth)
       log.info('ETH balance:', ethFormatted)
 
-      const gasFee = defaultChain.testnet ? 0.005 : 0 // there's no paymaster on testnet so it's required to left some eth for gas
+      const gasFee = defaultChain.testnet ? 0.01 : 0 // there's no paymaster on testnet so it's required to left some eth for gas
 
       if (Number(ethFormatted) > gasFee) {
         if (!defaultChain.testnet) {
