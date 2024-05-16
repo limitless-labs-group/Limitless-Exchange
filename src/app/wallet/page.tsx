@@ -73,7 +73,7 @@ const WalletPage = () => {
         handleOpenWithdrawModal={handleOpenWithdrawModal}
       />
       <AssetsTable handleOpenTopUpModal={handleOpenTopUpModal} />
-      {defaultChain.testnet && <DepositTestCard />}
+      {/*{defaultChain.testnet && <DepositTestCard />}*/}
       <Paper>
         <Text fontSize={{ md: '20px' }}>FAQ</Text>
         <Accordion allowMultiple mt='16px'>
