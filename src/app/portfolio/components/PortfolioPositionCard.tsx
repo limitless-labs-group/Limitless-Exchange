@@ -94,7 +94,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             <Text>{chancePercent}% chance</Text>
             {!isMobile && (
               <Text>
-                {volume} {market?.tokenTicker[defaultChain.id]}
+                {NumberUtil.formatThousands(volume, 6)} {market?.tokenTicker[defaultChain.id]}
               </Text>
             )}
           </HStack>

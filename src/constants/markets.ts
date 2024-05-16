@@ -241,7 +241,7 @@ export const markets: Market[] = [
     title: 'Will Lex Fridman come back from his ayahuasca trip with one of these?',
     description: `Two weeks ago Lex Friedman announced he will be out for his trip to Amazon jungle with Paul Rosolie, who was Lex Podcast’s guest a year ago where they discussed ayahuasca. The deadline will be added once Lex is back from Amazon jungle.`,
     placeholderURI: '/assets/images/markets/market8.png',
-    imageURI: '/assets/images/market8.png',
+    imageURI: '/assets/images/markets/market8.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market6-og.png',
     expirationDate: 'TBA',
     expirationTimestamp: 1717189199000,
