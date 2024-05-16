@@ -20,9 +20,8 @@ import { NumberUtil } from '@/utils'
 import { usePriceOracle } from '@/providers'
 import { useIsMobile } from '@/hooks'
 import { useUsersMarkets } from '@/services/MarketsService'
-import { Address, formatEther, formatUnits, parseEther } from 'viem'
+import { Address, formatUnits } from 'viem'
 import { MarketTokensIds } from '@/types'
-import { BigNumber } from 'ethers'
 
 type AssetsTableProps = {
   handleOpenTopUpModal: (token: Address) => void
@@ -42,20 +41,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
     return usersMarkets?.filter((market) => market.market.collateral.symbol === ticker).length || 0
   }
 
-  const getLockedAmount = (ticker: string, decimals: number) => {
-    if (usersMarkets) {
-      const marketsByToken = usersMarkets.filter(
-        (market) => market.market.collateral.symbol === ticker
-      )
-      const totalLocked = marketsByToken.reduce((a, b) => {
-        return a + +formatUnits(BigInt(b.collateralsLocked), decimals)
-      }, 0)
-      return NumberUtil.formatThousands(totalLocked, 4)
-    }
-    return '0'
-  }
-
-  const getLockedAmountUsd = (id: MarketTokensIds, amount: string) => {
+  const getLockedAmountUsd = (id: MarketTokensIds, amount: number) => {
     return convertAssetAmountToUsd(id, amount)
   }
 
@@ -65,11 +51,11 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
     )
     if (marketsByCollateral?.length) {
       return marketsByCollateral.reduce(
-        (a, b) => a + formatUnits(BigInt(b.collateralsLocked), 18),
-        '0'
+        (a, b) => a + +formatUnits(BigInt(b.collateralsLocked), 18),
+        0
       )
     }
-    return '0'
+    return 0
   }
 
   return (
@@ -171,7 +157,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                           {NumberUtil.formatThousands(
                             getLockedAmountUsd(
                               balance.id,
-                              getLockedAmount(balance.symbol, balance.decimals)
+                              calculateLockedAmount(balance.contractAddress)
                             ),
                             2
                           )}
