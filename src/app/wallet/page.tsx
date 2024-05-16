@@ -81,7 +81,7 @@ const WalletPage = () => {
             <h2>
               <AccordionButton justifyContent='space-between' py={4} px={isMobile ? 0 : '16px'}>
                 <Text fontWeight={'semibold'} fontSize={'14px'}>
-                  How to deposit my balance
+                  How to deposit my balance?
                 </Text>
                 <AccordionIcon />
               </AccordionButton>
