@@ -16,6 +16,7 @@ import {
 import { Dispatch, SetStateAction, useEffect, useMemo } from 'react'
 import { Address, zeroAddress } from 'viem'
 import SelectTokenField from '@/components/common/SelectTokenField'
+import { Token } from '@/types'
 
 type WithdrawModalProps = Omit<IModal, 'children'> & {
   selectedToken: Address
@@ -39,6 +40,7 @@ export const WithdrawModal = ({
     setUnwrap,
     withdraw,
     status,
+    setToken,
   } = useBalanceService()
 
   const disclosure = useDisclosure()
@@ -68,6 +70,14 @@ export const WithdrawModal = ({
       return
     }
   }, [isOpen])
+
+  useEffect(() => {
+    setToken(
+      collateralTokensArray.find(
+        (collateralToken) => collateralToken.address[defaultChain.id] === selectedToken
+      ) as Token
+    )
+  }, [selectedToken])
 
   return (
     <Modal

@@ -73,9 +73,11 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           src={market?.placeholderURI}
           w='50px'
           h='50px'
+          minW={'50px'}
           borderRadius={'full'}
           alt={'logo'}
           bg={'brand'}
+          objectFit='cover'
         />
         <Stack spacing={1}>
           <Heading fontSize={'18px'} lineHeight={'20px'} _hover={{ textDecor: 'underline' }}>
@@ -92,7 +94,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             <Text>{chancePercent}% chance</Text>
             {!isMobile && (
               <Text>
-                {volume} {position.market.collateral?.symbol}
+                {volume} {market?.tokenTicker[defaultChain.id]}
               </Text>
             )}
           </HStack>
@@ -112,7 +114,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
                 width={'20px'}
                 height={'20px'}
               />
-              <Text>{position.market.collateral?.symbol}</Text>
+              <Text>{market?.tokenTicker[defaultChain.id]}</Text>
             </HStack>
           </HStack>
 
@@ -123,7 +125,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             <HStack>
               <Text>
                 {`${NumberUtil.formatThousands(position.collateralAmount, 4)} ${
-                  position.market.collateral?.symbol
+                  market?.tokenTicker[defaultChain.id]
                 }`}
               </Text>
 
@@ -131,7 +133,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
                 ~$
                 {NumberUtil.formatThousands(
                   convertTokenAmountToUsd(
-                    position.market.collateral?.symbol,
+                    market?.tokenTicker[defaultChain.id],
                     position.collateralAmount
                   ),
                   2
@@ -148,7 +150,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
               {`${getOutcomeNotation()} ${NumberUtil.formatThousands(
                 position.latestTrade?.outcomeTokenPrice,
                 3
-              )} ${position.market.collateral?.symbol}`}
+              )} ${market?.tokenTicker[defaultChain.id]}`}
             </Text>
           </HStack>
 
@@ -158,14 +160,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
 
             <HStack>
               <Text>{`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
-                position.market.collateral?.symbol
+                market?.tokenTicker[defaultChain.id]
               }`}</Text>
 
               <Text fontSize={'12px'} color={'fontLight'}>
                 ~$
                 {NumberUtil.formatThousands(
                   convertTokenAmountToUsd(
-                    position.market.collateral?.symbol,
+                    market?.tokenTicker[defaultChain.id],
                     position.outcomeTokenAmount
                   ),
                   2

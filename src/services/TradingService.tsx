@@ -235,12 +235,15 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const isExceedsBalance = useMemo(() => {
     if (strategy == 'Buy') {
       if (balanceOfSmartWallet) {
-        return Number(collateralAmount) > Number(balanceOfSmartWallet[0]?.formatted)
+        const balanceItem = balanceOfSmartWallet.find(
+          (balance) => balance.contractAddress === market?.collateralToken[defaultChain.id]
+        )
+        return Number(collateralAmount) > Number(balanceItem?.formatted)
       }
       return Number(collateralAmount) > 0
     }
     return Number(collateralAmount) > Number(balanceOfCollateralToSell)
-  }, [strategy, balanceOfCollateralToSell, collateralAmount, balanceOfSmartWallet])
+  }, [strategy, balanceOfCollateralToSell, collateralAmount, balanceOfSmartWallet, market])
 
   const isInvalidCollateralAmount = collateralAmountBI <= 0n || isExceedsBalance
 

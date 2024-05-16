@@ -72,7 +72,7 @@ export const PortfolioHistoryTradeItem = ({
           {`${NumberUtil.formatThousands(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
             6
-          )} ${market?.tokenTicker ?? collateralToken.symbol}`}
+          )} ${market?.tokenTicker[defaultChain.id] ?? collateralToken.symbol}`}
         </Text>
       </Td>
 

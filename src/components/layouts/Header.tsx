@@ -99,7 +99,7 @@ export const Header = ({ ...props }: FlexProps) => {
                     <Text fontWeight={'medium'}>Balance</Text>
                     <HStack spacing={1}>
                       <Text fontWeight={'bold'}>
-                        {NumberUtil.formatThousands(overallBalanceUsd)}
+                        {NumberUtil.formatThousands(overallBalanceUsd, 2)}
                       </Text>
                       <Text fontWeight={'medium'}>USD</Text>
                     </HStack>
