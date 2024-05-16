@@ -20,8 +20,9 @@ import { NumberUtil } from '@/utils'
 import { usePriceOracle } from '@/providers'
 import { useIsMobile } from '@/hooks'
 import { useUsersMarkets } from '@/services/MarketsService'
-import { Address, formatUnits } from 'viem'
+import { Address, formatEther, formatUnits, parseEther } from 'viem'
 import { MarketTokensIds } from '@/types'
+import { BigNumber } from 'ethers'
 
 type AssetsTableProps = {
   handleOpenTopUpModal: (token: Address) => void
@@ -56,6 +57,19 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
 
   const getLockedAmountUsd = (id: MarketTokensIds, amount: string) => {
     return convertAssetAmountToUsd(id, amount)
+  }
+
+  const calculateLockedAmount = (collateralAddress: string) => {
+    const marketsByCollateral = usersMarkets?.filter(
+      (market) => market.market.collateral.id === collateralAddress
+    )
+    if (marketsByCollateral?.length) {
+      return marketsByCollateral.reduce(
+        (a, b) => a + formatUnits(BigInt(b.collateralsLocked), 18),
+        '0'
+      )
+    }
+    return '0'
   }
 
   return (
@@ -148,7 +162,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                       <VStack gap={0} alignItems='flex-end'>
                         <Text>
                           {NumberUtil.formatThousands(
-                            getLockedAmount(balance.symbol, balance.decimals),
+                            calculateLockedAmount(balance.contractAddress),
                             4
                           )}
                         </Text>

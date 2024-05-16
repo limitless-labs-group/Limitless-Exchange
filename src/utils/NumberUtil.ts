@@ -1,3 +1,5 @@
+import { parseEther } from 'viem'
+
 export class NumberUtil {
   static formatThousands = (v?: number | string, decimals = 0): string => {
     const parts = `${this.toFixed(v, decimals)}`.split('.')
