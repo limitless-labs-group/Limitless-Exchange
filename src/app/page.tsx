@@ -28,33 +28,21 @@ const MainPage = () => {
   const isMobile = useIsMobile()
 
   const [selectedFilterTokens, setSelectedFilterTokens] = useState<Token[]>([])
-  const handleSelectFilterTokens = (tokens: Token[]) => {
-    console.log('filter tokens', tokens)
-    setSelectedFilterTokens(tokens)
-  }
+  const handleSelectFilterTokens = (tokens: Token[]) => setSelectedFilterTokens(tokens)
 
   const marketsToShow = useMemo(() => {
-    const filteredMarkets = markets
+    return markets
       .filter((market) => !market.expired)
       .filter((market) => !market.hidden[defaultChain.id])
-      .filter((market) => {
-        if (selectedFilterTokens.length > 0) {
-          const found = !!selectedFilterTokens.find(
-            (filterToken) =>
-              getAddress(filterToken.address[defaultChain.id]) ===
-              getAddress(market.collateralToken[defaultChain.id])
-          )
-          console.log('found', found)
-          return found
-        }
-
-        console.log('default', true)
-
-        return true
-      })
-    console.log('filteredMarkets', filteredMarkets)
-
-    return filteredMarkets
+      .filter((market) =>
+        selectedFilterTokens.length > 0
+          ? !!selectedFilterTokens.find(
+              (filterToken) =>
+                getAddress(filterToken.address[defaultChain.id]) ===
+                getAddress(market.collateralToken[defaultChain.id])
+            )
+          : true
+      )
   }, [selectedFilterTokens])
 
   return (
