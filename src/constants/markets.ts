@@ -44,9 +44,9 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market11-placeholder.png',
     imageURI: '/assets/images/markets/market11.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market11-og.png',
-    expirationDate: 'May 31',
-    expirationTimestamp: new Date('May 31').getTime(),
-    expired: Date.now() > new Date('May 31').getTime(), // TODO: make dynamic
+    expirationDate: 'May 31, 2024',
+    expirationTimestamp: new Date('May 31, 2024').getTime(),
+    expired: Date.now() > new Date('May 31, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '/onchain',
       imageURI: '/assets/images/markets/onchain.jpg',
