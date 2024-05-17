@@ -103,7 +103,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
               <Tr key={uuidv4()}>
                 <Td borderBottom={'unset'} w={'136px'} px={isMobile ? 0 : '12px'}>
                   <HStack>
-                    <Image src={balance.image} alt='token' w={'20px'} h={'20px'} />
+                    <Image src={balance.image} alt='token' w={'20px'} h={'20px'} rounded={'full'} />
                     <VStack gap={0} alignItems='flex-start'>
                       <Text>{balance.symbol}</Text>
                       <Text fontWeight={'light'} color={'fontLight'}>

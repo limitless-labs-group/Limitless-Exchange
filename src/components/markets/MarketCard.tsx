@@ -85,6 +85,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
               alt='token'
               width={'20px'}
               height={'20px'}
+              rounded={'full'}
             />
             <Text>{market?.tokenTicker[defaultChain.id]}</Text>
           </HStack>

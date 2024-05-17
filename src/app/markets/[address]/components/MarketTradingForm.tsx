@@ -296,6 +296,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
                 border={'1px solid'}
                 borderColor={'border'}
                 gap={1}
+                minW={'110px'}
               >
                 <Avatar size={'xs'} src={market?.tokenURI[defaultChain.id]} />
                 <Text>{market?.tokenTicker[defaultChain.id]}</Text>
