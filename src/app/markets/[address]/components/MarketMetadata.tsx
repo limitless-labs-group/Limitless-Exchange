@@ -28,7 +28,7 @@ import {
   useClipboard,
 } from '@chakra-ui/react'
 import { FaShareSquare } from 'react-icons/fa'
-import { FaCircle, FaLink, FaXTwitter } from 'react-icons/fa6'
+import { FaLink, FaXTwitter } from 'react-icons/fa6'
 
 export const MarketMetadata = ({ ...props }: StackProps) => {
   /**

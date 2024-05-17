@@ -63,11 +63,11 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
           <Spinner />
         </Flex>
       ) : (
-        <Flex gap={{ sm: 10, md: 12 }} direction={{ sm: 'column', lg: 'row' }}>
-          <Box flexBasis={'66%'} gap={{ sm: 4, md: 10 }}>
+        <Flex gap={{ sm: 10, md: 12 }} flexDir={{ sm: 'column', lg: 'row' }}>
+          <Flex flexBasis={'66%'} flexDir={{ sm: 'column' }} gap={{ sm: 4, md: 10 }}>
             <MarketMetadata />
             {!market?.expired && <MarketPositions />}
-          </Box>
+          </Flex>
 
           <Flex flexBasis={'33%'}>
             {market?.expired ? <MarketClaimingForm /> : <MarketTradingForm />}
