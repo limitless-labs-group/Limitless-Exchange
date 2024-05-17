@@ -3,7 +3,9 @@ import {
   collateralTokensArray,
   defaultChain,
   markets,
+  onChain,
   subgraphURI,
+  weth,
 } from '@/constants'
 import { usePriceOracle } from '@/providers'
 import { useEtherspot } from '@/services'
@@ -102,7 +104,9 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       )
       console.log('trades', _trades)
 
-      return _trades
+      return _trades.filter((trade) =>
+        [weth.symbol, onChain.symbol].includes(trade.market.collateral?.symbol || '')
+      )
     },
     enabled: !!smartWalletAddress,
   })
@@ -219,17 +223,24 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       console.log('positions', _positions)
 
       // Todo remove this mapping
-      return _positions.map((position) => ({
-        ...position,
-        market: {
-          ...position.market,
-          collateral: {
-            symbol: position.market.collateral?.symbol
-              ? position.market.collateral?.symbol
-              : 'MFER',
-          },
-        },
-      }))
+      return (
+        _positions
+          .map((position) => ({
+            ...position,
+            market: {
+              ...position.market,
+              collateral: {
+                symbol: position.market.collateral?.symbol
+                  ? position.market.collateral?.symbol
+                  : 'MFER',
+              },
+            },
+          }))
+          // Todo remove this filter
+          .filter((position) =>
+            [weth.symbol, onChain.symbol].includes(position.market.collateral.symbol)
+          )
+      )
     },
   })
 

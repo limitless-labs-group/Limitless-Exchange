@@ -11,7 +11,7 @@ export const markets: Market[] = [
     },
     hidden: {
       [base.id]: true,
-      [baseSepolia.id]: false,
+      [baseSepolia.id]: true,
     },
     address: {
       [base.id]: '0x06F8d688249083D3B32A0584FD4e8af25337aF41', // prod
@@ -113,7 +113,7 @@ export const markets: Market[] = [
     },
     hidden: {
       [base.id]: true,
-      [baseSepolia.id]: false,
+      [baseSepolia.id]: true,
     },
     address: {
       [base.id]: '0x062B14f02fA7c79532a0E248090EEa6beDbbeb31', // prod
@@ -164,7 +164,7 @@ export const markets: Market[] = [
     },
     hidden: {
       [base.id]: true,
-      [baseSepolia.id]: false,
+      [baseSepolia.id]: true,
     },
     address: {
       [base.id]: '0xf1722e6101a4eABC285ef0a202b9890DB159818d', // prod
