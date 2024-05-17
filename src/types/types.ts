@@ -8,8 +8,9 @@ export type Token = {
   }
   symbol: string
   decimals: number
-  name?: string
-  imageURI?: string
+  name: string
+  imageURI: string
+  id: MarketTokensIds
 }
 
 export type Market = {
@@ -22,6 +23,15 @@ export type Market = {
   conditionId: {
     [chainId: number]: Hash
   }
+  collateralToken: {
+    [chainId: number]: Address
+  }
+  hidden: {
+    [chainId: number]: boolean
+  }
+  resolved: {
+    [chainId: number]: boolean
+  }
   outcomeTokens: string[]
   title: string
   description: string
@@ -31,6 +41,12 @@ export type Market = {
   expirationDate: string
   expirationTimestamp: number
   expired?: boolean
+  tokenTicker: {
+    [chainId: number]: string
+  }
+  tokenURI: {
+    [chainId: number]: string
+  }
   creator: {
     name: string
     imageURI?: string
@@ -45,4 +61,23 @@ export type GetBalanceResult = {
   formatted: string
   symbol: string
   value: bigint
+  image: string
+  name: string
+  contractAddress: string
+  price: number
+  id: MarketTokensIds
 }
+
+type CoingeckoPriceEntity = { usd: number }
+
+export enum MarketTokensIds {
+  DEGEN = 'degen-base',
+  ETH = 'ethereum',
+  WETH = 'ethereum',
+  HIGHER = 'higher',
+  MFER = 'mfercoin',
+  ONCHAIN = 'onchain',
+  REGEN = 'regen',
+}
+
+export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>

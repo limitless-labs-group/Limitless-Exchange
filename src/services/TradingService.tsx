@@ -1,5 +1,10 @@
 import { Toast } from '@/components'
-import { collateralToken, conditionalTokensAddress, defaultChain } from '@/constants'
+import {
+  collateralToken,
+  collateralTokensArray,
+  conditionalTokensAddress,
+  defaultChain,
+} from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'
 import { publicClient } from '@/providers'
@@ -163,7 +168,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       1 << outcomeIndex,
     ])) as Hash
     const positionId = (await conditionalTokensContract.read.getPositionId([
-      collateralToken.address[defaultChain.id],
+      market.collateralToken[defaultChain.id],
       collectionId,
     ])) as bigint
     const balance = (await conditionalTokensContract.read.balanceOf([
@@ -197,7 +202,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     }
     const feeBI = (await fixedProductMarketMakerContract.read.fee()) as bigint
     const fee = Number(formatUnits(feeBI, collateralToken.decimals))
-
     let balanceOfCollateralToSellBI =
       calcSellAmountInCollateral(
         parseEther(balanceOfOutcomeTokenCropped),
@@ -235,10 +239,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const isExceedsBalance = useMemo(() => {
     if (strategy == 'Buy') {
-      return Number(collateralAmount) > Number(balanceOfSmartWallet?.formatted ?? 0)
+      if (balanceOfSmartWallet) {
+        const balanceItem = balanceOfSmartWallet.find(
+          (balance) => balance.contractAddress === market?.collateralToken[defaultChain.id]
+        )
+        return Number(collateralAmount) > Number(balanceItem?.formatted)
+      }
+      return Number(collateralAmount) > 0
     }
     return Number(collateralAmount) > Number(balanceOfCollateralToSell)
-  }, [strategy, balanceOfCollateralToSell, collateralAmount, balanceOfSmartWallet])
+  }, [strategy, balanceOfCollateralToSell, collateralAmount, balanceOfSmartWallet, market])
 
   const isInvalidCollateralAmount = collateralAmountBI <= 0n || isExceedsBalance
 
@@ -337,7 +347,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         market.address[defaultChain.id],
         collateralAmountBI,
         outcomeTokenId,
-        parseUnits(quotes.outcomeTokenAmount, 18)
+        parseUnits(quotes.outcomeTokenAmount, 18),
+        market.collateralToken[defaultChain.id]
       )
 
       if (!receipt) {
@@ -351,12 +362,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       await refetchChain()
 
+      const token = collateralTokensArray.find(
+        (token) => token.address[defaultChain.id] === market.collateralToken[defaultChain.id]
+      )
+
       // TODO: incapsulate
       toast({
         render: () => (
           <Toast
             title={`Successfully invested ${NumberUtil.toFixed(collateralAmount, 6)} ${
-              collateralToken.symbol
+              token?.symbol
             }`}
           />
         ),
@@ -407,12 +422,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       await refetchChain()
 
+      const token = collateralTokensArray.find(
+        (token) => token.address[defaultChain.id] === market.collateralToken[defaultChain.id]
+      )
+
       // TODO: incapsulate
       toast({
         render: () => (
           <Toast
             title={`Successfully redeemed ${NumberUtil.toFixed(collateralAmount, 6)} ${
-              collateralToken.symbol
+              token?.symbol
             }`}
           />
         ),
@@ -441,7 +460,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       }
 
       const receipt = await etherspot?.redeemPositions(
-        collateralToken.address[defaultChain.id],
+        market.collateralToken[defaultChain.id],
         zeroHash,
         market.conditionId[defaultChain.id],
         [1 << outcomeIndex]

@@ -1,4 +1,4 @@
-import { collateralToken, conditionalTokensAddress, defaultChain } from '@/constants'
+import { collateralToken, conditionalTokensAddress, defaultChain, weth } from '@/constants'
 import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient, useWeb3Auth } from '@/providers'
 import { Address } from '@/types'
@@ -13,7 +13,8 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, parseEther } from 'viem'
+import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, erc20Abi } from 'viem'
+import { contractABI } from '@/contracts/utils'
 
 interface IEtherspotContext {
   etherspot: Etherspot | null
@@ -262,29 +263,36 @@ class Etherspot {
     return this.batchAndSendUserOp(token, data)
   }
 
-  async mintErc20(token: Address, value: bigint) {
-    const data = encodeFunctionData({
-      abi: wethABI,
-      functionName: 'mint',
-      args: [value],
-    })
-    return this.batchAndSendUserOp(token, data)
+  async mintErc20(token: Address, value: bigint, smartWalletAddress: Address, newToken?: boolean) {
+    const args = newToken ? [smartWalletAddress, value] : [value]
+    try {
+      const data = encodeFunctionData({
+        abi: newToken ? contractABI[defaultChain.id] : wethABI,
+        functionName: 'mint',
+        args,
+      })
+      return this.batchAndSendUserOp(token, data)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   // TODO: incapsulate
-  async approveCollateralIfNeeded(spender: Address, amount: bigint) {
+  async approveCollateralIfNeeded(spender: Address, amount: bigint, collateralContract: Address) {
     const owner = await this.getAddress()
-    const allowance = (await this.getCollateralTokenContract().read.allowance([
-      owner,
-      spender,
-    ])) as bigint
+    const contract = getContract({
+      address: collateralContract,
+      abi: erc20Abi,
+      client: publicClient,
+    })
+    const allowance = (await contract.read.allowance([owner, spender])) as bigint
     if (allowance < amount) {
       const data = encodeFunctionData({
-        abi: wethABI,
+        abi: spender === weth.address[defaultChain.id] ? wethABI : erc20Abi,
         functionName: 'approve',
         args: [spender, maxUint256],
       })
-      const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, data)
+      const opHash = await this.batchAndSendUserOp(collateralContract, data)
       const transactionReceipt = await this.waitForTransaction(opHash)
       return transactionReceipt
     }
@@ -293,17 +301,19 @@ class Etherspot {
   // TODO: incapsulate
   async approveConditionalIfNeeded(spender: Address) {
     const owner = await this.getAddress()
-    const isApproved = await this.getConditionalTokensContract().read.isApprovedForAll([
-      owner,
-      spender,
-    ])
+    const contract = getContract({
+      address: conditionalTokensAddress[defaultChain.id],
+      abi: conditionalTokensABI,
+      client: publicClient,
+    })
+    const isApproved = await contract.read.isApprovedForAll([owner, spender])
     if (!isApproved) {
       const data = encodeFunctionData({
         abi: conditionalTokensABI,
         functionName: 'setApprovalForAll',
         args: [spender, true],
       })
-      const opHash = await this.batchAndSendUserOp(this.conditionalTokensAddress, data)
+      const opHash = await this.batchAndSendUserOp(conditionalTokensAddress[defaultChain.id], data)
       const transactionReceipt = await this.waitForTransaction(opHash)
       return transactionReceipt
     }
@@ -315,6 +325,7 @@ class Etherspot {
       abi: wethABI,
       functionName: 'deposit',
     })
+
     const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, data, value)
     const transactionReceipt = await this.waitForTransaction(opHash)
     return transactionReceipt
@@ -337,9 +348,14 @@ class Etherspot {
     fixedProductMarketMakerAddress: Address,
     collateralAmount: bigint,
     outcomeIndex: number,
-    minOutcomeTokensToBuy: bigint
+    minOutcomeTokensToBuy: bigint,
+    collateralContract: Address
   ) {
-    await this.approveCollateralIfNeeded(fixedProductMarketMakerAddress, collateralAmount)
+    await this.approveCollateralIfNeeded(
+      fixedProductMarketMakerAddress,
+      collateralAmount,
+      collateralContract
+    )
 
     const data = encodeFunctionData({
       abi: fixedProductMarketMakerABI,
