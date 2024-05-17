@@ -1,8 +1,60 @@
 import { degen, higher, mfer, onChain, regen, weth } from '@/constants/tokens'
 import { Market } from '@/types'
+import { zeroAddress, zeroHash } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
 
 export const markets: Market[] = [
+  // onchain
+  {
+    resolved: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
+    hidden: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
+    address: {
+      [base.id]: '0x6BfA371c460B3719eb18E360765949328199d21d', // prod
+      [baseSepolia.id]: zeroAddress, // testnet
+    },
+    conditionId: {
+      [base.id]: '0x701614f7a08a05a7db9ad27f086c4476bded1786b2f6e4bd656ecf9ca7cbcaf0', // prod
+      [baseSepolia.id]: zeroHash, // testnet
+    },
+    questionId: {
+      [base.id]: '0x0000000000000000000000000000000000000031373135393531353735383230', // prod
+      [baseSepolia.id]: zeroHash, // testnet
+    },
+    collateralToken: {
+      [base.id]: onChain.address[base.id], // prod
+      [baseSepolia.id]: onChain.address[baseSepolia.id], // testnet
+    },
+    tokenTicker: {
+      [base.id]: onChain.symbol,
+      [baseSepolia.id]: onChain.symbol,
+    },
+    tokenURI: {
+      [base.id]: onChain.imageURI,
+      [baseSepolia.id]: onChain.imageURI,
+    },
+    outcomeTokens: ['Yes', 'No'],
+    title: 'Will Jesse Pollak get #1 nominations on build.top by end of May?',
+    description: `The primary resolution source will be the build.top website. This market will resolve to "Yes" if Jessy Pollak is ranked as the top builder by May 31, 2024, at 11:59 PM ET.`,
+    placeholderURI: '/assets/images/markets/market11-placeholder.png',
+    imageURI: '/assets/images/markets/market11.png',
+    ogImageURI: 'https://limitless.exchange/assets/images/markets/market11-og.png',
+    expirationDate: 'May 31, 2024',
+    expirationTimestamp: new Date('May 31, 2024').getTime(),
+    expired: Date.now() > new Date('May 31, 2024').getTime(), // TODO: make dynamic
+    creator: {
+      name: '/onchain',
+      imageURI: '/assets/images/markets/onchain.jpg',
+      link: 'https://warpcast.com/~/channel/onchain',
+    },
+    tags: ['Jesse', 'BuildTop', 'Builders', 'onchain'],
+  },
+
   // mfer
   {
     resolved: {
@@ -61,7 +113,7 @@ export const markets: Market[] = [
       [baseSepolia.id]: false,
     },
     hidden: {
-      [base.id]: false,
+      [base.id]: true,
       [baseSepolia.id]: false,
     },
     address: {
