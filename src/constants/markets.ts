@@ -40,7 +40,7 @@ export const markets: Market[] = [
     },
     outcomeTokens: ['Yes', 'No'],
     title: 'Will Jesse Pollak get #1 nominations on build.top by end of May?',
-    description: `The primary resolution source will be the build.top website. This market will resolve to "Yes" if Jessy Pollak is ranked as the top builder by May 31, 2024, at 11:59 PM ET.`,
+    description: `The primary resolution source will be the build.top website. This market will resolve to "Yes" if Jesse Pollak is ranked as the top builder by May 31, 2024, at 11:59 PM ET.`,
     placeholderURI: '/assets/images/markets/market11-placeholder.png',
     imageURI: '/assets/images/markets/market11.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market11-og.png',
