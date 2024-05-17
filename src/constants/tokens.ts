@@ -86,6 +86,6 @@ export const onChain: Token = {
   id: MarketTokensIds.ONCHAIN,
 }
 
-export const collateralTokensArray = [higher, weth, degen, mfer, onChain]
+export const collateralTokensArray = [weth, onChain]
 
 export const collateralToken = weth

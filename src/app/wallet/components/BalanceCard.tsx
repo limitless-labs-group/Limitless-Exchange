@@ -5,7 +5,7 @@ import { NumberUtil } from '@/utils'
 import { HStack, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
 import { useIsMobile } from '@/hooks'
 import { Address } from 'viem'
-import { defaultChain, higher } from '@/constants'
+import { defaultChain, weth } from '@/constants'
 
 type BalanceCardProps = StackProps & {
   handleOpenTopUpModal: (token: Address) => void
@@ -55,7 +55,7 @@ export const BalanceCard = ({
             colorScheme={'brand'}
             w={isMobile ? 'full' : '200px'}
             h={'30px'}
-            onClick={() => handleOpenTopUpModal(higher.address[defaultChain.id])}
+            onClick={() => handleOpenTopUpModal(weth.address[defaultChain.id])}
           >
             Top Up
           </Button>

@@ -2,7 +2,7 @@
 
 import { BalanceCard, DepositTestCard, WithdrawModal } from '@/app/wallet/components'
 import { Button, MainLayout } from '@/components'
-import { defaultChain, higher } from '@/constants'
+import { defaultChain, weth } from '@/constants'
 import { OpenEvent, useAmplitude, useAuth } from '@/services'
 import { colors } from '@/styles'
 import {
@@ -28,7 +28,7 @@ const WalletPage = () => {
   const { trackOpened } = useAmplitude()
   const isMobile = useIsMobile()
 
-  const [selectedToken, setSelectedToken] = useState<Address>(higher.address[defaultChain.id])
+  const [selectedToken, setSelectedToken] = useState<Address>(weth.address[defaultChain.id])
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -53,7 +53,7 @@ const WalletPage = () => {
   }
 
   const handleCloseTopUpModal = () => {
-    setSelectedToken(higher.address[defaultChain.id])
+    setSelectedToken(weth.address[defaultChain.id])
     onCloseTopUp()
   }
 
@@ -62,7 +62,7 @@ const WalletPage = () => {
   }
 
   const handleCloseWithdrawModal = () => {
-    setSelectedToken(higher.address[defaultChain.id])
+    setSelectedToken(weth.address[defaultChain.id])
     onCloseWithdraw()
   }
 
