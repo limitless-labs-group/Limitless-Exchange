@@ -9,5 +9,5 @@ export const subgraphURI = {
 
 export const newSubgraphURI = {
   [base.id]: '',
-  [baseSepolia.id]: 'https://indexer.bigdevenergy.link/35efc24/v1/graphql',
+  [baseSepolia.id]: 'https://indexer.bigdevenergy.link/a31af60/v1/graphql',
 }

@@ -13,7 +13,7 @@ export const DepositTestCard = ({ ...props }: StackProps) => {
   const { mint, isLoadingMint } = useBalanceService()
   const isMobile = useIsMobile()
 
-  const [selectedToken, setSelectedToken] = useState<Address>(higher.address[defaultChain.id])
+  const [selectedToken, setSelectedToken] = useState<Address>(weth.address[defaultChain.id])
 
   const tokenTitle = collateralTokensArray.find(
     (collToken) => collToken.address[defaultChain.id] === selectedToken

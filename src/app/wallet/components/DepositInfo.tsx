@@ -1,4 +1,4 @@
-import { Avatar, HStack, Spacer, Text } from '@chakra-ui/react'
+import { Avatar, HStack, Link, Spacer, Text } from '@chakra-ui/react'
 
 export default function DepositInfo() {
   return (
@@ -18,6 +18,17 @@ export default function DepositInfo() {
           <b>Send it (Base)</b> to the address below & ensure to select Base as the network.
         </Text>
       </HStack>
+      <Text mt={'12px'}>
+        Power user? Try our multi tokens feature by buying{' '}
+        <Link
+          href='https://app.uniswap.org/swap?outputCurrency=0xFeF2D7B013b88FEc2BFe4D2FEE0AEb719af73481&chain=base'
+          isExternal
+          color='brand'
+        >
+          /onchain on Uniswap
+        </Link>{' '}
+        & depositing it to your smart wallet in the same way as above.
+      </Text>
     </>
   )
 }

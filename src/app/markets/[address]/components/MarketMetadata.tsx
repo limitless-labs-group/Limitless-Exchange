@@ -13,7 +13,6 @@ import { NumberUtil } from '@/utils'
 import {
   Divider,
   Flex,
-  Grid,
   HStack,
   Heading,
   Image,
@@ -71,10 +70,12 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
         borderRadius={borderRadius}
       />
 
-      <Grid alignItems={'start'} gap={4} w={'full'}>
-        <Heading fontSize={'28px'}>{market?.title}</Heading>
+      <Flex alignItems={'start'} gap={4} w={'full'} flexDirection={'column'}>
+        <Heading fontSize={'28px'} w={'full'}>
+          {market?.title}
+        </Heading>
         {isMobile ? (
-          <Stack>
+          <Stack w={'full'}>
             <HStack w={'full'} justifyContent={'space-between'}>
               <Text color={'fontLight'}>Deadline</Text>
               <Text fontWeight={'bold'}>{market?.expirationDate}</Text>
@@ -190,7 +191,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             </PopoverContent>
           </Portal>
         </Popover>
-        <VStack gap={'4px'} alignItems={'flex-start'}>
+        <VStack gap={'4px'} alignItems={'flex-start'} w={'full'}>
           <Text fontWeight={'semibold'} color={'fontLight'}>
             Created by
           </Text>
@@ -228,7 +229,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             </HStack>
           </VStack>
         </HStack>
-      </Grid>
+      </Flex>
     </Stack>
   )
 }

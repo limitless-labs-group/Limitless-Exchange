@@ -1,6 +1,6 @@
 import { Box, HStack, Image, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react'
 import { Dispatch, SetStateAction, useEffect } from 'react'
-import { collateralTokensArray, defaultChain, higher } from '@/constants'
+import { collateralTokensArray, defaultChain, weth } from '@/constants'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 
@@ -13,7 +13,7 @@ type SelectTokenFieldProps = {
 export default function SelectTokenField({ setToken, token, defaultValue }: SelectTokenFieldProps) {
   useEffect(() => {
     if (!token) {
-      setToken(higher.address[defaultChain.id])
+      setToken(weth.address[defaultChain.id])
     }
   }, [token])
 

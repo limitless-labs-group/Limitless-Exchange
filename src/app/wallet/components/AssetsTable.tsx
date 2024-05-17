@@ -41,21 +41,21 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
     return usersMarkets?.filter((market) => market.market.collateral.symbol === ticker).length || 0
   }
 
-  const getLockedAmount = (ticker: string, decimals: number) => {
-    if (usersMarkets) {
-      const marketsByToken = usersMarkets.filter(
-        (market) => market.market.collateral.symbol === ticker
-      )
-      const totalLocked = marketsByToken.reduce((a, b) => {
-        return a + +formatUnits(BigInt(b.collateralsLocked), decimals)
-      }, 0)
-      return NumberUtil.formatThousands(totalLocked, 4)
-    }
-    return '0'
+  const getLockedAmountUsd = (id: MarketTokensIds, amount: number) => {
+    return convertAssetAmountToUsd(id, amount)
   }
 
-  const getLockedAmountUsd = (id: MarketTokensIds, amount: string) => {
-    return convertAssetAmountToUsd(id, amount)
+  const calculateLockedAmount = (collateralAddress: string) => {
+    const marketsByCollateral = usersMarkets?.filter(
+      (market) => market.market.collateral.id === collateralAddress
+    )
+    if (marketsByCollateral?.length) {
+      return marketsByCollateral.reduce(
+        (a, b) => a + +formatUnits(BigInt(b.collateralsLocked), 18),
+        0
+      )
+    }
+    return 0
   }
 
   return (
@@ -103,7 +103,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
               <Tr key={uuidv4()}>
                 <Td borderBottom={'unset'} w={'136px'} px={isMobile ? 0 : '12px'}>
                   <HStack>
-                    <Image src={balance.image} alt='token' w={'20px'} h={'20px'} />
+                    <Image src={balance.image} alt='token' w={'20px'} h={'20px'} rounded={'full'} />
                     <VStack gap={0} alignItems='flex-start'>
                       <Text>{balance.symbol}</Text>
                       <Text fontWeight={'light'} color={'fontLight'}>
@@ -148,7 +148,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                       <VStack gap={0} alignItems='flex-end'>
                         <Text>
                           {NumberUtil.formatThousands(
-                            getLockedAmount(balance.symbol, balance.decimals),
+                            calculateLockedAmount(balance.contractAddress),
                             4
                           )}
                         </Text>
@@ -157,7 +157,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                           {NumberUtil.formatThousands(
                             getLockedAmountUsd(
                               balance.id,
-                              getLockedAmount(balance.symbol, balance.decimals)
+                              calculateLockedAmount(balance.contractAddress)
                             ),
                             2
                           )}

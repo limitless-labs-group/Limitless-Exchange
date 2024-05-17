@@ -49,7 +49,7 @@ export const WithdrawModal = ({
     return (
       collateralTokensArray.find(
         (collateralToken) => collateralToken.address[defaultChain.id] === selectedToken
-      )?.symbol || higher.symbol
+      )?.symbol || weth.symbol
     )
   }, [selectedToken])
 
@@ -89,9 +89,9 @@ export const WithdrawModal = ({
     >
       <Box mb='24px' overflowX='scroll'>
         <SelectTokenField
-          token={selectedToken ? selectedToken : higher.address[defaultChain.id]}
+          token={selectedToken ? selectedToken : weth.address[defaultChain.id]}
           setToken={setSelectedToken}
-          defaultValue={selectedToken ? selectedToken : higher.address[defaultChain.id]}
+          defaultValue={selectedToken ? selectedToken : weth.address[defaultChain.id]}
         />
       </Box>
       <Stack w={'full'} spacing={4}>

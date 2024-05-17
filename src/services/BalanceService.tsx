@@ -150,6 +150,8 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     refetchInterval: 5000,
   })
 
+  console.log(balanceOfSmartWallet)
+
   const overallBalanceUsd = useMemo(() => {
     let _overallBalanceUsd = 0
     balanceOfSmartWallet?.forEach((balanceResult) => {
@@ -244,9 +246,11 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const isInvalidAmount = useMemo(() => {
     const isInvalidBalance = balanceOfSmartWallet === undefined
     const isNegativeOrZeroAmount = amountBI <= 0n
-    const balanceEntity = balanceOfSmartWallet?.find(
-      (balance) => balance.id === token.id
-    ) as GetBalanceResult
+    const balanceEntity = balanceOfSmartWallet?.find((balance) => {
+      console.log(token)
+      console.log(balance)
+      return balance.id === token.id
+    }) as GetBalanceResult
     const isExceedsBalance = !!balanceOfSmartWallet && amountBI > balanceEntity.value
     return isInvalidBalance || isNegativeOrZeroAmount || isExceedsBalance
   }, [balanceOfSmartWallet, amountBI, token])
