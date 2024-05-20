@@ -3,7 +3,7 @@
 // import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 import { defaultChain } from '@/constants'
 import { web3AuthConnector } from '@/providers'
-import { createPublicClient } from 'viem'
+import { createPublicClient, Transport } from 'viem'
 import { WagmiProvider as WagmiDefaultProvider, http, createConfig } from 'wagmi'
 
 // const { publicClient, webSocketPublicClient } = configureChains(
@@ -23,7 +23,7 @@ const config = createConfig({
   chains: [defaultChain],
   transports: {
     [defaultChain.id]: http(),
-  },
+  } as Record<8453 | 84532, Transport>,
   connectors: [web3AuthConnector],
 })
 
