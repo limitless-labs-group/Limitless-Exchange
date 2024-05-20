@@ -6,3 +6,8 @@ export const subgraphURI = {
   [baseSepolia.id]:
     'https://api.studio.thegraph.com/query/67933/limitless-markets-base-sepolia/v0.1.3',
 }
+
+export const newSubgraphURI = {
+  [base.id]: 'https://indexer.bigdevenergy.link/35efc24/v1/graphql',
+  [baseSepolia.id]: 'https://indexer.bigdevenergy.link/35efc24/v1/graphql',
+}

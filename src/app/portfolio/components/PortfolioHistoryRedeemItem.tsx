@@ -17,9 +17,15 @@ export const PortfolioHistoryRedeemItem = ({
   children,
   ...props
 }: IPortfolioHistoryRedeemItem) => {
+  /**
+   * NAVIGATION
+   */
   const router = useRouter()
 
-  const market: Market | null = useMemo(
+  /**
+   * MARKET DATA
+   */
+  const market = useMemo(
     () =>
       markets.find(
         (market) =>
@@ -63,7 +69,7 @@ export const PortfolioHistoryRedeemItem = ({
       <Td px={2} isNumeric>
         <Text fontWeight={'bold'}>
           {`${NumberUtil.toFixed(Number(redeem.collateralAmount ?? 0), 6)} ${
-            collateralToken.symbol
+            market?.tokenTicker ?? collateralToken.symbol
           }`}
         </Text>
       </Td>

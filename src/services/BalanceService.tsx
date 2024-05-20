@@ -1,30 +1,48 @@
 import { Toast, ToastWithdraw } from '@/components'
-import { collateralToken, defaultChain } from '@/constants'
+import { collateralToken, collateralTokensArray, defaultChain, weth } from '@/constants'
 import { wethABI } from '@/contracts'
 import { useToast } from '@/hooks'
-import { publicClient } from '@/providers'
+import { publicClient, usePriceOracle } from '@/providers'
 import { useEtherspot } from '@/services'
-import { Address, GetBalanceResult } from '@/types'
+import { Address, GetBalanceResult, MarketTokensIds, Token } from '@/types'
 import { Logger, NumberUtil } from '@/utils'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { usePathname } from 'next/navigation'
-import { PropsWithChildren, createContext, useContext, useEffect, useMemo, useState } from 'react'
 import {
-  TransactionReceipt,
+  QueryObserverResult,
+  UseMutateAsyncFunction,
+  useMutation,
+  useQuery,
+} from '@tanstack/react-query'
+import { usePathname } from 'next/navigation'
+import {
+  createContext,
+  Dispatch,
+  PropsWithChildren,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
+import {
+  erc20Abi,
   formatEther,
   formatUnits,
   getContract,
   isAddress,
   parseEther,
   parseUnits,
+  TransactionReceipt,
 } from 'viem'
 import { getBalance } from 'viem/actions'
 
 interface IBalanceService {
-  balanceOfSmartWallet: GetBalanceResult | undefined
-  refetchbalanceOfSmartWallet: () => Promise<any>
+  balanceOfSmartWallet: GetBalanceResult[] | undefined
+  refetchbalanceOfSmartWallet: () => Promise<
+    QueryObserverResult<GetBalanceResult[] | undefined, Error>
+  >
+  overallBalanceUsd: string
 
-  mint: () => void
+  mint: (params: { address: Address; newToken?: boolean }) => void
   isLoadingMint: boolean
 
   addressToWithdraw: string
@@ -33,9 +51,10 @@ interface IBalanceService {
   setAmount: (amount: string) => void
   unwrap: boolean
   setUnwrap: (unwrap: boolean) => void
-  withdraw: () => Promise<any>
+  withdraw: UseMutateAsyncFunction<void, Error, void, unknown>
 
   status: BalanceServiceStatus
+  setToken: Dispatch<SetStateAction<Token>>
 }
 
 const BalanceService = createContext({} as IBalanceService)
@@ -49,6 +68,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
+  const { ethPrice, marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
 
   /**
    * Etherspot
@@ -65,54 +85,80 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      const wethContract = getContract({
-        address: collateralToken.address[defaultChain.id],
-        abi: wethABI,
-        client: publicClient,
+      const balances = await Promise.allSettled(
+        collateralTokensArray.map(async (token) => {
+          const contract = getContract({
+            address: token.address[defaultChain.id],
+            abi: token.id === MarketTokensIds.WETH ? wethABI : erc20Abi,
+            client: publicClient,
+          })
+          let newBalanceBI = (await contract.read.balanceOf([smartWalletAddress])) as bigint
+          // small balance to zero
+          if (newBalanceBI < parseEther('0.000001')) {
+            newBalanceBI = 0n
+          }
+
+          return {
+            symbol: token.symbol,
+            id: token.id,
+            name: token.name,
+            decimals: token.decimals,
+            value: newBalanceBI,
+            formatted: formatUnits(newBalanceBI, token.decimals),
+            image: token.imageURI,
+            contractAddress: token.address[defaultChain.id],
+            price: marketTokensPrices ? marketTokensPrices[token.id].usd : 0,
+          } as GetBalanceResult
+        })
+      )
+
+      const balanceResult: GetBalanceResult[] = balances.map((balance) => {
+        // @ts-ignore
+        return balance.value
       })
-
-      let newBalanceBI = (await wethContract.read.balanceOf([smartWalletAddress])) as bigint
-      // small balance to zero
-      if (newBalanceBI < parseEther('0.000001')) {
-        newBalanceBI = 0n
-      }
-
-      const balanceResult: GetBalanceResult = {
-        symbol: collateralToken.symbol,
-        decimals: collateralToken.decimals,
-        value: newBalanceBI,
-        formatted: formatUnits(newBalanceBI, collateralToken.decimals),
-      }
 
       log.success('ON_BALANCE_SUCC', smartWalletAddress, balanceResult)
 
-      // TODO: refactor deposit handler
-      if (!!balanceOfSmartWallet && newBalanceBI > balanceOfSmartWallet?.value) {
-        if (!defaultChain.testnet) {
-          whitelist() // TODO: refactor the logic of whitelisting
+      balanceResult.forEach((balance) => {
+        if (!!balanceOfSmartWallet) {
+          const currentBalance = balanceOfSmartWallet.find((currentBalanceEntity) => {
+            return currentBalanceEntity.id === balance.id
+          })
+          if (currentBalance && balance.value > currentBalance.value) {
+            !defaultChain.testnet && whitelist()
+            const depositAmount = formatUnits(
+              balance.value - currentBalance.value,
+              collateralToken.decimals
+            )
+
+            toast({
+              render: () => (
+                <Toast
+                  title={`Balance top up: ${NumberUtil.toFixed(depositAmount, 6)} ${
+                    balance.symbol
+                  }`}
+                />
+              ),
+            })
+          }
         }
-
-        const depositAmount = formatUnits(
-          newBalanceBI - balanceOfSmartWallet.value,
-          collateralToken.decimals
-        )
-
-        toast({
-          render: () => (
-            <Toast
-              title={`Balance top up: ${NumberUtil.toFixed(depositAmount, 6)} ${
-                collateralToken.symbol
-              }`}
-            />
-          ),
-        })
-      }
+      })
 
       return balanceResult
     },
     enabled: !!smartWalletAddress,
     refetchInterval: 5000,
   })
+
+  console.log(balanceOfSmartWallet)
+
+  const overallBalanceUsd = useMemo(() => {
+    let _overallBalanceUsd = 0
+    balanceOfSmartWallet?.forEach((balanceResult) => {
+      _overallBalanceUsd += convertAssetAmountToUsd(balanceResult.id, balanceResult.formatted)
+    })
+    return NumberUtil.toFixed(_overallBalanceUsd, 2)
+  }, [balanceOfSmartWallet])
 
   /**
    * Auto-wrap/unwrap Eth
@@ -135,7 +181,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       const ethFormatted = formatEther(eth)
       log.info('ETH balance:', ethFormatted)
 
-      const gasFee = defaultChain.testnet ? 0.005 : 0 // there's no paymaster on testnet so it's required to left some eth for gas
+      const gasFee = defaultChain.testnet ? 0.01 : 0 // there's no paymaster on testnet so it's required to left some eth for gas
 
       if (Number(ethFormatted) > gasFee) {
         if (!defaultChain.testnet) {
@@ -163,7 +209,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
    * Mint mocked erc20
    */
   const { mutate: mint, isPending: isLoadingMint } = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (params: { address: Address; newToken?: boolean }) => {
       if (!etherspot) {
         return
       }
@@ -171,8 +217,10 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         render: () => <Toast title={'Processing transaction...'} />,
       })
       await etherspot.mintErc20(
-        collateralToken.address[defaultChain.id],
-        parseUnits('1', collateralToken.decimals)
+        params.address,
+        parseUnits('1', collateralToken.decimals),
+        smartWalletAddress || '0x',
+        params.newToken
       )
       toast({
         render: () => <Toast title={'Confirmed. Updating balance...'} />,
@@ -193,16 +241,19 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
 
   // Amount to be withdrawn
   const [amount, setAmount] = useState<string>('')
-  const amountBI = useMemo(
-    () => parseUnits(amount ?? '0', collateralToken.decimals),
-    [amount, collateralToken]
-  )
+  const [token, setToken] = useState(weth)
+  const amountBI = useMemo(() => parseUnits(amount ?? '0', collateralToken.decimals), [amount])
   const isInvalidAmount = useMemo(() => {
     const isInvalidBalance = balanceOfSmartWallet === undefined
     const isNegativeOrZeroAmount = amountBI <= 0n
-    const isExceedsBalance = !!balanceOfSmartWallet && amountBI > balanceOfSmartWallet.value
+    const balanceEntity = balanceOfSmartWallet?.find((balance) => {
+      console.log(token)
+      console.log(balance)
+      return balance.id === token.id
+    }) as GetBalanceResult
+    const isExceedsBalance = !!balanceOfSmartWallet && amountBI > balanceEntity.value
     return isInvalidBalance || isNegativeOrZeroAmount || isExceedsBalance
-  }, [balanceOfSmartWallet, amountBI])
+  }, [balanceOfSmartWallet, amountBI, token])
 
   // Mutation
   const { mutateAsync: withdraw, isPending: isLoadingWithdraw } = useMutation({
@@ -288,6 +339,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       value={{
         balanceOfSmartWallet,
         refetchbalanceOfSmartWallet,
+        overallBalanceUsd,
 
         mint,
         isLoadingMint,
@@ -299,6 +351,8 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         unwrap,
         setUnwrap,
         withdraw,
+
+        setToken,
 
         status,
       }}

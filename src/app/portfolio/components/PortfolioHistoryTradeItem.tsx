@@ -17,8 +17,15 @@ export const PortfolioHistoryTradeItem = ({
   children,
   ...props
 }: IPortfolioHistoryTradeItem) => {
+  /**
+   * NAVIGATION
+   */
   const router = useRouter()
-  const market: Market | null = useMemo(
+
+  /**
+   * MARKET DATA
+   */
+  const market = useMemo(
     () =>
       markets.find(
         (market) => market.address[defaultChain.id]?.toLowerCase() === trade.market.id.toLowerCase()
@@ -52,7 +59,8 @@ export const PortfolioHistoryTradeItem = ({
       <Td px={2}>
         <Text color={trade.outcomeIndex == 0 ? 'green' : 'red'} fontWeight={'bold'}>
           {market?.outcomeTokens[trade.outcomeIndex ?? 0]}{' '}
-          {NumberUtil.toFixed(trade.outcomeTokenPrice, 3)} {collateralToken.symbol}
+          {NumberUtil.formatThousands(trade.outcomeTokenPrice, 3)}{' '}
+          {market?.tokenTicker[defaultChain.id] ?? collateralToken.symbol}
         </Text>
       </Td>
 
@@ -61,16 +69,16 @@ export const PortfolioHistoryTradeItem = ({
       {/* Amount */}
       <Td px={2} isNumeric>
         <Text fontWeight={'bold'}>
-          {`${NumberUtil.toFixed(
+          {`${NumberUtil.formatThousands(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
             6
-          )} ${collateralToken.symbol}`}
+          )} ${market?.tokenTicker[defaultChain.id] ?? collateralToken.symbol}`}
         </Text>
       </Td>
 
       {/* Contracts */}
       <Td px={2} isNumeric>
-        {NumberUtil.toFixed(trade.outcomeTokenAmount, 4)}
+        {NumberUtil.formatThousands(trade.outcomeTokenAmount, 4)}
       </Td>
 
       {/* Tx */}

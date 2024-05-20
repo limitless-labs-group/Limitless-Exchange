@@ -1,5 +1,4 @@
-import { collateralToken, defaultChain } from '@/constants'
-import { useIsMobile } from '@/hooks'
+import { defaultChain } from '@/constants'
 import { HistoryPosition, useHistory, useTradingService } from '@/services'
 import { NumberUtil } from '@/utils'
 import { StackProps, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react'
@@ -26,10 +25,8 @@ export const MarketPositions = ({ ...props }: StackProps) => {
     return market?.outcomeTokens[outcomeTokenId] ?? defaultOutcomes[outcomeTokenId]
   }
 
-  const isMobile = useIsMobile()
-
   return Number(positions?.length) > 0 ? (
-    <TableContainer overflow={'auto'}>
+    <TableContainer mt={'12px'}>
       <Table variant={'simple'}>
         <Thead>
           <Tr>
@@ -53,12 +50,12 @@ export const MarketPositions = ({ ...props }: StackProps) => {
                   {`${getOutcomeNotation(position)} ${NumberUtil.toFixed(
                     position.latestTrade?.outcomeTokenPrice,
                     3
-                  )} ${collateralToken.symbol}`}
+                  )} ${market?.tokenTicker[defaultChain.id]}`}
                 </Text>
               </Td>
               <Td px={2} isNumeric>
                 <Text>{`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
-                  collateralToken.symbol
+                  market?.tokenTicker[defaultChain.id]
                 }`}</Text>
               </Td>
               <Td px={2} isNumeric>
@@ -66,7 +63,7 @@ export const MarketPositions = ({ ...props }: StackProps) => {
               </Td>
               <Td pl={2} pr={0} isNumeric>
                 <Text>{`${NumberUtil.toFixed(position.outcomeTokenAmount, 6)} ${
-                  collateralToken.symbol
+                  market?.tokenTicker[defaultChain.id]
                 }`}</Text>
               </Td>
             </Tr>

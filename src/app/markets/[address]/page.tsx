@@ -7,7 +7,7 @@ import {
   MarketPositions,
   MarketTradingForm,
 } from '@/app/markets/[address]/components'
-import { Flex, Spacer, Spinner } from '@chakra-ui/react'
+import { Box, Flex, Spacer, Spinner } from '@chakra-ui/react'
 import { useEffect, useMemo } from 'react'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
 import { defaultChain, markets } from '@/constants'
