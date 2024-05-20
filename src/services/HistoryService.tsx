@@ -1,6 +1,16 @@
-import { collateralToken, defaultChain, markets, subgraphURI } from '@/constants'
+import {
+  collateralToken,
+  collateralTokensArray,
+  defaultChain,
+  markets,
+  onChain,
+  subgraphURI,
+  weth,
+} from '@/constants'
+import { usePriceOracle } from '@/providers'
 import { useEtherspot } from '@/services'
 import { Address } from '@/types'
+import { NumberUtil } from '@/utils'
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
@@ -13,8 +23,8 @@ interface IHistoryService {
   getRedeems: () => Promise<QueryObserverResult<HistoryRedeem[], Error>>
   positions: HistoryPosition[] | undefined
   getPositions: () => Promise<QueryObserverResult<HistoryPosition[], Error>>
-  balanceInvested: number
-  balanceToWin: number
+  balanceInvested: string
+  balanceToWin: string
 }
 
 const HistoryServiceContext = createContext({} as IHistoryService)
@@ -26,6 +36,11 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * ACCOUNT
    */
   const { smartWalletAddress } = useEtherspot()
+
+  /**
+   * UTILS
+   */
+  const { convertAssetAmountToUsd } = usePriceOracle()
 
   /**
    * QUERIES
@@ -52,6 +67,9 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
                   closed
                   funding
                   conditionId
+                  collateral {
+                    symbol
+                  }
                 }
                 outcomeTokenAmounts
                 outcomeTokenNetCost
@@ -86,7 +104,9 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       )
       console.log('trades', _trades)
 
-      return _trades
+      return _trades.filter((trade) =>
+        [weth.symbol, onChain.symbol].includes(trade.market.collateral?.symbol || '')
+      )
     },
     enabled: !!smartWalletAddress,
   })
@@ -123,6 +143,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         redeem.collateralAmount = formatUnits(BigInt(redeem.payout), collateralToken.decimals)
         redeem.outcomeIndex = redeem.indexSets[0] == '1' ? 0 : 1
       })
+
+      _redeems.filter((redeem) => Number(redeem.collateralAmount) > 0)
 
       _redeems.sort(
         (redeemA, redeemB) => Number(redeemB.blockTimestamp) - Number(redeemA.blockTimestamp)
@@ -173,28 +195,52 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         }
       })
 
-      redeems?.forEach((redeem) => {
-        const position = _positions.find(
-          (position) =>
-            position.market.conditionId === redeem.conditionId &&
-            position.outcomeIndex == redeem.outcomeIndex
-        )
-        if (!position) {
-          return
-        }
-        position.collateralAmount = (
-          Number(position.collateralAmount ?? 0) - Number(redeem.collateralAmount)
-        ).toString()
-        position.outcomeTokenAmount = (
-          Number(position.outcomeTokenAmount ?? 0) - Number(redeem.collateralAmount)
-        ).toString()
-      })
+      // redeems?.forEach((redeem) => {
+      //   const position = _positions.find(
+      //     (position) =>
+      //       position.market.conditionId === redeem.conditionId &&
+      //       position.outcomeIndex == redeem.outcomeIndex
+      //   )
+      //   if (!position) {
+      //     return
+      //   }
+      //   position.collateralAmount = (
+      //     Number(position.collateralAmount ?? 0) - Number(redeem.collateralAmount)
+      //   ).toString()
+      //   position.outcomeTokenAmount = (
+      //     Number(position.outcomeTokenAmount ?? 0) - Number(redeem.collateralAmount)
+      //   ).toString()
+      // })
 
-      // filter markets with super small balance
-      _positions = _positions.filter((market) => Number(market.outcomeTokenAmount) > 0.00001)
+      // filter redeemed markets
+      _positions = _positions.filter(
+        (position) => !redeems?.find((redeem) => redeem.conditionId === position.market.conditionId)
+      )
       console.log('positions', _positions)
 
-      return _positions
+      // filter markets with super small balance
+      _positions = _positions.filter((position) => Number(position.outcomeTokenAmount) > 0.00001)
+      console.log('positions', _positions)
+
+      // Todo remove this mapping
+      return (
+        _positions
+          .map((position) => ({
+            ...position,
+            market: {
+              ...position.market,
+              collateral: {
+                symbol: position.market.collateral?.symbol
+                  ? position.market.collateral?.symbol
+                  : 'MFER',
+              },
+            },
+          }))
+          // Todo remove this filter
+          .filter((position) =>
+            [weth.symbol, onChain.symbol].includes(position.market.collateral.symbol)
+          )
+      )
     },
   })
 
@@ -204,17 +250,31 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   const balanceInvested = useMemo(() => {
     let _balanceInvested = 0
     positions?.forEach((position) => {
-      _balanceInvested += Number(position.collateralAmount ?? 0)
+      let positionUsdAmount = 0
+      const token = collateralTokensArray.find(
+        (token) => token.symbol === position.market.collateral?.symbol
+      )
+      if (!!token) {
+        positionUsdAmount = convertAssetAmountToUsd(token.id, position.collateralAmount)
+      }
+      _balanceInvested += positionUsdAmount
     })
-    return _balanceInvested
+    return NumberUtil.toFixed(_balanceInvested, 2)
   }, [positions])
 
   const balanceToWin = useMemo(() => {
     let _balanceToWin = 0
     positions?.forEach((position) => {
-      _balanceToWin += Number(position.outcomeTokenAmount ?? 0)
+      let positionOutcomeUsdAmount = 0
+      const token = collateralTokensArray.find(
+        (token) => token.symbol === position.market.collateral?.symbol
+      )
+      if (!!token) {
+        positionOutcomeUsdAmount = convertAssetAmountToUsd(token.id, position.outcomeTokenAmount)
+      }
+      _balanceToWin += positionOutcomeUsdAmount
     })
-    return _balanceToWin
+    return NumberUtil.toFixed(_balanceToWin, 2)
   }, [positions])
 
   const contextProviderValue: IHistoryService = {
@@ -255,7 +315,10 @@ export type HistoryMarket = {
   paused?: boolean
   closed?: boolean
   funding?: string
-  holdersCount: number
+  holdersCount?: number
+  collateral?: {
+    symbol: string
+  }
 }
 
 export type HistoryRedeem = {

@@ -1,6 +1,9 @@
 export class NumberUtil {
   static formatThousands = (v?: number | string, decimals = 0): string => {
-    return this.toFixed(v, decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    const parts = `${this.toFixed(v, decimals)}`.split('.')
+    return `${parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${
+      parts[1]?.length ? `.${parts[1]}` : ''
+    }`
   }
 
   static toFixed = (v?: number | string, decimals = 0, fill = false, truncate = true): string => {

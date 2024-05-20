@@ -7,18 +7,16 @@ import {
 } from '@/components'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAccount } from 'wagmi'
-import { ClickEvent, useAmplitude, useBalanceService, useHistory } from '@/services'
-import { NumberUtil } from '@/utils'
+import { ClickEvent, useAmplitude, useBalanceService } from '@/services'
 import { borderRadius, colors } from '@/styles'
-import { FaWallet } from 'react-icons/fa'
 import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
-import { collateralToken } from '@/constants'
+import { NumberUtil } from '@/utils'
 
 export const Header = ({ ...props }: FlexProps) => {
   const router = useRouter()
   const pathname = usePathname()
   const { isConnected } = useAccount()
-  const { balanceOfSmartWallet } = useBalanceService()
+  const { overallBalanceUsd } = useBalanceService()
   // const { balanceUsd: investedUsd, balanceShares } = useHistory()
   const { trackClicked } = useAmplitude()
 
@@ -46,6 +44,7 @@ export const Header = ({ ...props }: FlexProps) => {
               w={'30px'}
               borderRadius={borderRadius}
               filter={'invert()'}
+              alt='logo'
             />
             <Text>Limitless</Text>
             {/* <Text>Play</Text> */}
@@ -85,17 +84,25 @@ export const Header = ({ ...props }: FlexProps) => {
               <HStack h={'full'} spacing={4}>
                 <Button
                   h={'40px'}
+                  minWidth={'218px'}
                   gap={2}
                   fontWeight={'normal'}
                   onClick={() => router.push('/wallet')}
                 >
-                  <FaWallet size={'16px'} />
-                  <HStack spacing={1}>
-                    <Text>Balance</Text>
-                    <Text fontWeight={'bold'}>
-                      {NumberUtil.toFixed(balanceOfSmartWallet?.formatted, 4)}
-                    </Text>
-                    <Text>{collateralToken.symbol}</Text>
+                  <Image
+                    alt='wallet'
+                    src='/assets/images/wallet.svg'
+                    width={'16px'}
+                    height={'16px'}
+                  />
+                  <HStack spacing={2}>
+                    <Text fontWeight={'medium'}>Balance</Text>
+                    <HStack spacing={1}>
+                      <Text fontWeight={'bold'}>
+                        {NumberUtil.formatThousands(overallBalanceUsd, 2)}
+                      </Text>
+                      <Text fontWeight={'medium'}>USD</Text>
+                    </HStack>
                   </HStack>
                 </Button>
 

@@ -1,19 +1,30 @@
 import { Button } from '@/components'
-import { collateralToken, defaultChain } from '@/constants'
+import { collateralTokensArray, defaultChain, higher, weth } from '@/constants'
 import { useAccount, useBalanceService } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { HStack, Link, Stack, StackProps, Text } from '@chakra-ui/react'
+import { useIsMobile } from '@/hooks'
+import SelectTokenField from '@/components/common/SelectTokenField'
+import { useState } from 'react'
+import { Address } from 'viem'
 
 export const DepositTestCard = ({ ...props }: StackProps) => {
   const { account } = useAccount()
   const { mint, isLoadingMint } = useBalanceService()
+  const isMobile = useIsMobile()
+
+  const [selectedToken, setSelectedToken] = useState<Address>(weth.address[defaultChain.id])
+
+  const tokenTitle = collateralTokensArray.find(
+    (collToken) => collToken.address[defaultChain.id] === selectedToken
+  )?.symbol
 
   return (
     <Stack
       h={'fit-content'}
       w={'full'}
-      p={5}
-      border={`1px solid ${colors.border}`}
+      p={isMobile ? 0 : 5}
+      border={isMobile ? 'unset' : `1px solid ${colors.border}`}
       //   boxShadow={'0 0 8px #ddd'}
       borderRadius={borderRadius}
       spacing={4}
@@ -49,16 +60,24 @@ export const DepositTestCard = ({ ...props }: StackProps) => {
         {defaultChain.testnet && (
           <Avatar name='2' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} />
         )} */}
+      <SelectTokenField
+        token={selectedToken}
+        setToken={setSelectedToken}
+        defaultValue={selectedToken}
+      />
       <Button
         colorScheme={'brand'}
         w={{ sm: 'full', md: '150px' }}
         h={'40px'}
         onClick={() => {
-          mint()
+          mint({
+            address: selectedToken as Address,
+            newToken: selectedToken !== weth.address[defaultChain.id],
+          })
         }}
         isLoading={isLoadingMint}
       >
-        Mint {collateralToken.symbol}
+        Mint {tokenTitle}
       </Button>
       {/* </HStack> */}
     </Stack>

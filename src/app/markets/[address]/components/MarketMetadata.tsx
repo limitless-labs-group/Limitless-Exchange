@@ -1,5 +1,5 @@
 import { Button } from '@/components'
-import { collateralToken, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { useIsMobile, useMarketData } from '@/hooks'
 import {
   ClickEvent,
@@ -13,7 +13,6 @@ import { NumberUtil } from '@/utils'
 import {
   Divider,
   Flex,
-  Grid,
   HStack,
   Heading,
   Image,
@@ -29,7 +28,7 @@ import {
   useClipboard,
 } from '@chakra-ui/react'
 import { FaShareSquare } from 'react-icons/fa'
-import { FaCircle, FaLink, FaXTwitter } from 'react-icons/fa6'
+import { FaLink, FaXTwitter } from 'react-icons/fa6'
 
 export const MarketMetadata = ({ ...props }: StackProps) => {
   /**
@@ -62,31 +61,35 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
     >
       <Image
         src={market?.imageURI}
-        minW={{ sm: 'full', md: '35%' }}
         // minH={{ sm: '200px', md: '30%' }}
         // aspectRatio={'4/3'}
-        fit={'contain'}
+        w={'140px'}
+        h={'140px'}
+        objectFit='cover'
         bg={'brand'}
         borderRadius={borderRadius}
       />
 
-      <Grid alignItems={'start'} gap={4} w={'full'}>
+      <Flex alignItems={'start'} gap={4} w={'full'} flexDirection={'column'}>
+        <Heading fontSize={'28px'} w={'full'}>
+          {market?.title}
+        </Heading>
         {isMobile ? (
-          <Stack>
+          <Stack w={'full'}>
             <HStack w={'full'} justifyContent={'space-between'}>
               <Text color={'fontLight'}>Deadline</Text>
               <Text fontWeight={'bold'}>{market?.expirationDate}</Text>
             </HStack>
             <HStack w={'full'} justifyContent={'space-between'}>
               <Text color={'fontLight'}>Liquidity</Text>
-              <Text fontWeight={'bold'}>{`${Number(liquidity).toFixed(2)} ${
-                collateralToken.symbol
+              <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(liquidity, 2)} ${
+                market?.tokenTicker[defaultChain.id]
               }`}</Text>
             </HStack>
             <HStack w={'full'} justifyContent={'space-between'}>
               <Text color={'fontLight'}>Volume</Text>
-              <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
-                collateralToken.symbol
+              <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(volume, 4)} ${
+                market?.tokenTicker[defaultChain.id]
               }`}</Text>
             </HStack>
           </Stack>
@@ -94,15 +97,15 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
           <HStack w={'full'} spacing={4} justifyContent={'space-between'}>
             <Stack spacing={0}>
               <Text color={'fontLight'}>Liquidity</Text>
-              <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(liquidity, 4)} ${
-                collateralToken.symbol
+              <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(liquidity, 4)} ${
+                market?.tokenTicker[defaultChain.id]
               }`}</Text>
             </Stack>
 
             <Stack spacing={0}>
               <Text color={'fontLight'}>Volume</Text>
-              <Text fontWeight={'bold'}>{`${NumberUtil.toFixed(volume, 4)} ${
-                collateralToken.symbol
+              <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(volume, 4)} ${
+                market?.tokenTicker[defaultChain.id]
               }`}</Text>
             </Stack>
 
@@ -114,8 +117,6 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             </Stack>
           </HStack>
         )}
-
-        <Heading fontSize={'28px'}>{market?.title}</Heading>
 
         <Text>{market?.description}</Text>
 
@@ -190,7 +191,12 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             </PopoverContent>
           </Portal>
         </Popover>
-
+        <VStack gap={'4px'} alignItems={'flex-start'} w={'full'}>
+          <Text fontWeight={'semibold'} color={'fontLight'}>
+            Created by
+          </Text>
+          <Divider />
+        </VStack>
         <HStack>
           <Link href={market?.creator.link} isExternal>
             <Image
@@ -223,7 +229,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             </HStack>
           </VStack>
         </HStack>
-      </Grid>
+      </Flex>
     </Stack>
   )
 }
