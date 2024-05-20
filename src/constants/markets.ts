@@ -5,6 +5,90 @@ import { base, baseSepolia } from 'viem/chains'
 export const markets: Market[] = [
   {
     address: {
+      [base.id]: '0x96ace74aa1ae07f7baf4e7f2736cbe2a703712fc', // prod
+      // [base.id]: '0x883ece27b8021135f494603bd5a1477a8d144c39', // dev
+      [baseSepolia.id]: '0x',
+    },
+    conditionId: {
+      [base.id]: '0x1b1556cd8fe93497a2dbd7b0c53b237dd73e73b437fadeb2c3532bb1aac9007d', // prod
+      // [base.id]: '0xc69515f490d8a89ec3bdeef2ed4a52403f3f4521c78a6db4cde0f83447e7f4d2', // dev
+      [baseSepolia.id]: '0x1b1556cd8fe93497a2dbd7b0c53b237dd73e73b437fadeb2c3532bb1aac9007d',
+    },
+    outcomeTokens: ['Yes', 'No'],
+    title: 'Will Lex Fridman come back from his ayahuasca trip with one of these?',
+    description: `Two weeks ago Lex Friedman announced he will be out for his trip to Amazon jungle with Paul Rosolie, who was Lex Podcast’s guest a year ago where they discussed ayahuasca. The deadline will be added once Lex is back from Amazon jungle.`,
+    placeholderURI: '/assets/images/markets/market6-placeholder.png',
+    imageURI: '/assets/images/markets/market6.png',
+    ogImageURI: 'https://limitless.exchange/assets/images/markets/market6-og.png',
+    expirationDate: 'TBA',
+    expirationTimestamp: 1717189199000,
+    expired: Date.now() > 1717189199000, // TODO: make dynamic
+    creator: {
+      name: '@AutismCapital',
+      imageURI: '/assets/images/markets/autism-capital.png',
+      link: 'https://twitter.com/AutismCapital',
+    },
+    tags: ['LexFriedman', 'ayahuasca', 'AutismCapital'],
+  },
+
+  {
+    address: {
+      [base.id]: '0x5f3293417b0228bdc1896e34de99b377d31c77d8', // prod
+      // [base.id]: '0x883ece27b8021135f494603bd5a1477a8d144c39', // dev
+      [baseSepolia.id]: '0x',
+    },
+    conditionId: {
+      [base.id]: '0x07ce8a1f7b3107bf3812dba0fbd3aafb60e54f35f7cd5f03ba6e68b1561101d4', // prod
+      // [base.id]: '0xc69515f490d8a89ec3bdeef2ed4a52403f3f4521c78a6db4cde0f83447e7f4d2', // dev
+      [baseSepolia.id]: '0x07ce8a1f7b3107bf3812dba0fbd3aafb60e54f35f7cd5f03ba6e68b1561101d4',
+    },
+    outcomeTokens: ['Yes', 'No'],
+    title: 'Will $REGEN reach $20M FDV within the first week of launch?',
+    description: `Will $REGEN reach over 20 million in FDV within the first week after the launch?! Stake your prediction on the growth trajectory of the $REGEN community. The deadline will be added once the launch date is announced by Regen.`,
+    placeholderURI: '/assets/images/markets/market5-placeholder.jpg',
+    imageURI: '/assets/images/markets/market5.jpg',
+    ogImageURI: 'https://limitless.exchange/assets/images/markets/market5-og.jpg',
+    expirationDate: 'TBA',
+    expirationTimestamp: 1717189199000,
+    expired: Date.now() > 1717189199000, // TODO: make dynamic
+    creator: {
+      name: '@rev',
+      imageURI: '/assets/images/markets/rev.jpg',
+      link: 'https://warpcast.com/rev',
+    },
+    tags: ['Regen', 'Memecoins', 'Optimism', 'Farcaster '],
+  },
+
+  {
+    address: {
+      [base.id]: '0xe47907110663a3f0c06c1929ea52f50bc9821d13', // prod
+      // [base.id]: '0x883ece27b8021135f494603bd5a1477a8d144c39', // dev
+      [baseSepolia.id]: '0x106646bc99c1dEb24BE1EC54a2229956d55F9e17',
+    },
+    conditionId: {
+      [base.id]: '0x1f7ac97795fbb425912193fc477b009cc6d1bc7b503e9dd938b8a3281093a513', // prod
+      // [base.id]: '0xc69515f490d8a89ec3bdeef2ed4a52403f3f4521c78a6db4cde0f83447e7f4d2', // dev
+      [baseSepolia.id]: '0x8a8e864ce0016717fa1027ef3714506b605e560b88d1914f47b448c8333491c9',
+    },
+    outcomeTokens: ['Yes', 'No'],
+    title: 'Will $ONCHAIN hit $100M FDV in May?',
+    description: `Will $ONCHAIN reach a $100M FDV in May? Place your bets today!`,
+    placeholderURI: '/assets/images/markets/market3-placeholder.jpg',
+    imageURI: '/assets/images/markets/market3.jpg',
+    ogImageURI: 'https://limitless.exchange/assets/images/markets/market3-og.jpg',
+    expirationDate: 'May 31 2024',
+    expirationTimestamp: 1717189199000,
+    expired: Date.now() > 1717189199000, // TODO: make dynamic
+    creator: {
+      name: '/onchain',
+      imageURI: '/assets/images/markets/onchain.jpg',
+      link: 'https://warpcast.com/~/channel/onchain',
+    },
+    tags: ['Onchain', 'Farcaster', 'Memecoins', 'Base'],
+  },
+
+  {
+    address: {
       [base.id]: '0x4585482A258d66b16a95734E86DCA1Ea338AC100', // prod
       // [base.id]: zeroAddress, // dev
       [baseSepolia.id]: zeroAddress,
@@ -30,6 +114,7 @@ export const markets: Market[] = [
     },
     tags: ['Limitless', 'KPI driven', 'Grin'],
   },
+
   {
     address: {
       [base.id]: '0x0e03edc2a0ba38e803dad62b31b6e6a2f4b216cc', // prod
@@ -58,6 +143,7 @@ export const markets: Market[] = [
     },
     tags: ['Degen', 'Memecoins', 'Base', 'Farcaster'],
   },
+
   {
     address: {
       [base.id]: '0x2a5254e52e338228dcd82baa4374608bb884e834', // prod
@@ -85,32 +171,5 @@ export const markets: Market[] = [
       link: 'https://warpcast.com/rev',
     },
     tags: ['Farcaster', 'Warpcast'],
-  },
-  {
-    address: {
-      [base.id]: '0xe47907110663a3f0c06c1929ea52f50bc9821d13', // prod
-      // [base.id]: '0x883ece27b8021135f494603bd5a1477a8d144c39', // dev
-      [baseSepolia.id]: '0x106646bc99c1dEb24BE1EC54a2229956d55F9e17',
-    },
-    conditionId: {
-      [base.id]: '0x1f7ac97795fbb425912193fc477b009cc6d1bc7b503e9dd938b8a3281093a513', // prod
-      // [base.id]: '0xc69515f490d8a89ec3bdeef2ed4a52403f3f4521c78a6db4cde0f83447e7f4d2', // dev
-      [baseSepolia.id]: '0x8a8e864ce0016717fa1027ef3714506b605e560b88d1914f47b448c8333491c9',
-    },
-    outcomeTokens: ['Yes', 'No'],
-    title: 'Will $ONCHAIN hit $100M FDV in May?',
-    description: `Will $ONCHAIN reach a $100M FDV in May? Place your bets today!`,
-    placeholderURI: '/assets/images/markets/market3-placeholder.jpg',
-    imageURI: '/assets/images/markets/market3.jpg',
-    ogImageURI: 'https://limitless.exchange/assets/images/markets/market3-og.jpg',
-    expirationDate: 'May 31 2024',
-    expirationTimestamp: 1717189199000,
-    expired: Date.now() > 1717189199000, // TODO: make dynamic
-    creator: {
-      name: '/onchain',
-      imageURI: '/assets/images/markets/onchain.jpg',
-      link: 'https://warpcast.com/~/channel/onchain',
-    },
-    tags: ['Onchain', 'Farcaster', 'Memecoins', 'Base'],
   },
 ]
