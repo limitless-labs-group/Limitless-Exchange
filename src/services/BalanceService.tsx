@@ -68,7 +68,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
-  const { ethPrice, marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
+  const { marketTokensPrices, convertTokenAmountToUsd } = usePriceOracle()
 
   /**
    * Etherspot
@@ -153,7 +153,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const overallBalanceUsd = useMemo(() => {
     let _overallBalanceUsd = 0
     balanceOfSmartWallet?.forEach((balanceResult) => {
-      _overallBalanceUsd += convertAssetAmountToUsd(balanceResult.id, balanceResult.formatted)
+      _overallBalanceUsd += convertTokenAmountToUsd(balanceResult.symbol, balanceResult.formatted)
     })
     return NumberUtil.toFixed(_overallBalanceUsd, 2)
   }, [balanceOfSmartWallet])

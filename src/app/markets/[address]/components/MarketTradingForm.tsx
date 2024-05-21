@@ -106,16 +106,13 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
   /**
    * PRICE ORACLE
    */
-  const { convertAssetAmountToUsd } = usePriceOracle()
+  const { convertTokenAmountToUsd } = usePriceOracle()
   const amountUsd = useMemo(() => {
     const tokenId = collateralTokensArray.find(
       (collateralToken) =>
         collateralToken.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
-    )?.id
-    return NumberUtil.formatThousands(
-      convertAssetAmountToUsd(tokenId as MarketTokensIds, displayAmount),
-      2
-    )
+    )?.symbol
+    return NumberUtil.formatThousands(convertTokenAmountToUsd(tokenId, displayAmount), 2)
   }, [displayAmount, market])
 
   /**

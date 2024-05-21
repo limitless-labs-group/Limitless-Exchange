@@ -40,7 +40,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * UTILS
    */
-  const { convertAssetAmountToUsd } = usePriceOracle()
+  const { convertTokenAmountToUsd } = usePriceOracle()
 
   /**
    * QUERIES
@@ -259,7 +259,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         (token) => token.symbol === position.market.collateral?.symbol
       )
       if (!!token) {
-        positionUsdAmount = convertAssetAmountToUsd(token.id, position.collateralAmount)
+        positionUsdAmount = convertTokenAmountToUsd(token.symbol, position.collateralAmount)
       }
       _balanceInvested += positionUsdAmount
     })
@@ -274,7 +274,10 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         (token) => token.symbol === position.market.collateral?.symbol
       )
       if (!!token) {
-        positionOutcomeUsdAmount = convertAssetAmountToUsd(token.id, position.outcomeTokenAmount)
+        positionOutcomeUsdAmount = convertTokenAmountToUsd(
+          token.symbol,
+          position.outcomeTokenAmount
+        )
       }
       _balanceToWin += positionOutcomeUsdAmount
     })
