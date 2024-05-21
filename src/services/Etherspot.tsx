@@ -272,7 +272,6 @@ class Etherspot {
     }
   }
 
-  // TODO: incapsulate
   async approveCollateralIfNeeded(spender: Address, amount: bigint, collateralContract: Address) {
     const owner = await this.getAddress()
     const contract = getContract({
@@ -293,7 +292,6 @@ class Etherspot {
     }
   }
 
-  // TODO: incapsulate
   async approveConditionalIfNeeded(spender: Address) {
     const owner = await this.getAddress()
     const contract = getContract({
@@ -314,7 +312,6 @@ class Etherspot {
     }
   }
 
-  // TODO: incapsulate
   async wrapEth(value: bigint) {
     const data = encodeFunctionData({
       abi: wethABI,
@@ -326,7 +323,6 @@ class Etherspot {
     return transactionReceipt
   }
 
-  // TODO: incapsulate
   async unwrapEth(value: bigint) {
     const data = encodeFunctionData({
       abi: wethABI,
@@ -338,7 +334,6 @@ class Etherspot {
     return transactionReceipt
   }
 
-  // TODO: incapsulate
   async buyOutcomeTokens(
     fixedProductMarketMakerAddress: Address,
     collateralAmount: bigint,
@@ -363,7 +358,6 @@ class Etherspot {
     return transactionReceipt
   }
 
-  // TODO: incapsulate
   async sellOutcomeTokens(
     fixedProductMarketMakerAddress: Address,
     collateralAmount: bigint,
