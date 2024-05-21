@@ -79,7 +79,7 @@ export const MarketPriceChart = () => {
           events: {
             mouseOver: function () {
               //@ts-ignore
-              setYesDate(Highcharts.dateFormat('%b %e, %Y %H:%M', Number(this.x)))
+              setYesDate(Highcharts.dateFormat('%B %e, %Y %I:%M %p', Number(this.x)))
               //@ts-ignore
               setYesChance(this.y.toFixed(2))
             },
