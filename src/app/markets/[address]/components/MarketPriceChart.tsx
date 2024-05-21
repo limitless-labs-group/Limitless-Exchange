@@ -17,6 +17,7 @@ interface YesBuyChartData {
 export const MarketPriceChart = () => {
   const pathname = usePathname()
   const [yesChance, setYesChance] = useState(0)
+  const [yesDate, setYesDate] = useState('')
 
   // Function to generate chart options
   const getChartOptions = (data: number[][] | undefined): Highcharts.Options => ({
@@ -33,12 +34,15 @@ export const MarketPriceChart = () => {
     xAxis: {
       type: 'datetime',
       ordinal: false,
-      tickAmount: 10,
-      tickInterval: null,
+      tickInterval: 24 * 3600 * 1000 * 10,
       tickPosition: 'outside',
       labels: {
         rotation: 0,
         align: 'right',
+        style: {
+          fontFamily: 'Inter',
+          fontSize: '14px',
+        },
         formatter: function () {
           return Highcharts.dateFormat('%b %e', Number(this.value))
         },
@@ -70,13 +74,15 @@ export const MarketPriceChart = () => {
     },
     plotOptions: {
       series: {
-        lineWidth: 2,
+        lineWidth: 4,
         marker: {
           enabled: false,
         },
         point: {
           events: {
             mouseOver: function () {
+              //@ts-ignore
+              setYesDate(Highcharts.dateFormat('%b %e, %Y %H:%M', Number(this.x)))
               //@ts-ignore
               setYesChance(this.y.toFixed(2))
             },
@@ -93,9 +99,9 @@ export const MarketPriceChart = () => {
           },
           stops: [
             //@ts-ignore
-            [0, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0.5).get('rgba')],
+            [0, Highcharts.color('#2492FF').setOpacity(0.5).get('rgba')],
             //@ts-ignore
-            [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')],
+            [1, Highcharts.color('#2492FF').setOpacity(0).get('rgba')],
           ],
           brighten: 0.2,
         },
@@ -191,12 +197,15 @@ export const MarketPriceChart = () => {
       <Divider orientation='horizontal' mt={1} mb={2} />
       <HStack>
         <VStack gap={-1} alignItems={'flex-start'}>
-          <Text fontSize='sm' mt={1} ml={3}>
+          <Text fontSize='sm' color={'fontLight'} as='b' mt={1} ml={3}>
             YES
             <br />
           </Text>
           <Text fontSize='2xl' as='b' ml={3}>
-            ${yesChance}% chance
+            {yesChance}% chance
+          </Text>
+          <Text fontSize='sm' color={'fontLight'} ml={3}>
+            {yesDate}
           </Text>
         </VStack>
         <Spacer />
