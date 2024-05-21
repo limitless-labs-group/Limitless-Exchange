@@ -119,7 +119,6 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
       // @ts-ignore
       const coingeckoId = MarketTokensIds[symbol] as MarketTokensIds
       const amountUsd = Number(amount) * marketTokensPrices[coingeckoId]?.usd ?? 0
-      console.log('convertTokenAmountToUsd', symbol, amountUsd)
       return amountUsd
     },
     [marketTokensPrices]

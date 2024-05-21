@@ -55,11 +55,6 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
       const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
 
-      console.log('outcomeTokensBuyPrice', {
-        priceYes: outcomeTokenPriceYes,
-        priceNo: outcomeTokenPriceNo,
-      })
-
       return [outcomeTokenPriceYes, outcomeTokenPriceNo]
     },
     // enabled: false,
@@ -87,11 +82,6 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
       const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
 
-      console.log('outcomeTokensSellPrice', {
-        priceYes: outcomeTokenPriceYes,
-        priceNo: outcomeTokenPriceNo,
-      })
-
       return [outcomeTokenPriceYes, outcomeTokenPriceNo]
     },
     // enabled: false,
@@ -112,11 +102,6 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const outcomeTokensPercentYes = (outcomeTokensBuyPrice[0] / sum) * 100
       const outcomeTokensPercentNo = (outcomeTokensBuyPrice[1] / sum) * 100
 
-      console.log('outcomeTokensPercent', {
-        outcomeTokensPercentYes,
-        outcomeTokensPercentNo,
-      })
-
       return [outcomeTokensPercentYes, outcomeTokensPercentNo]
     },
   })
@@ -127,20 +112,23 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       if (!marketAddress) {
         return
       }
-      const queryName = 'AutomatedMarketMakers'
+      const queryName = 'automatedMarketMakers'
       const res = await axios.request({
         url: subgraphURI[defaultChain.id],
         method: 'post',
         data: {
           query: `
-            query ${queryName} {
-              ${queryName} (
-                where: {id: "${marketAddress}"}
-              ) {
-                funding
-                totalVolume
+            query GetMarketTotalVolumeAndFunding(
+              $marketId: String = "0x5e116ea80879d528041919e589cb88382c3745E0"
+              $chainId: Int = 8453
+            ) {
+                automatedMarketMakers: AutomatedMarketMaker(
+                  where: { id: { _ilike: $marketId }, chainId: { _eq: $chainId } }
+                ) {
+                    funding
+                    totalVolume
+                }
               }
-            }
           `,
         },
       })

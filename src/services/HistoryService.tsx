@@ -52,7 +52,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         return []
       }
 
-      const queryName = 'Trade'
       const response = await axios.request({
         url: subgraphURI[defaultChain.id],
         method: 'post',
@@ -86,7 +85,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
           `,
         },
       })
-      const _trades = response.data.data?.[queryName] as HistoryTrade[]
+      const _trades = response.data.data?.['trades'] as HistoryTrade[]
       _trades.map((trade) => {
         const outcomeTokenAmountBI = BigInt(
           trade.outcomeTokenAmounts.find((amount) => BigInt(amount) != 0n) ?? 0
@@ -108,7 +107,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       _trades.sort(
         (tradeA, tradeB) => Number(tradeB.blockTimestamp) - Number(tradeA.blockTimestamp)
       )
-      console.log('trades', _trades)
 
       return _trades.filter((trade) =>
         [weth.symbol, onChain.symbol].includes(trade.market.collateral?.symbol || '')
@@ -131,19 +129,19 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         data: {
           query: `
             query GetAccountRedemptions(
-  $account: String = "${smartWalletAddress}"
-  $chainId: Int = ${defaultChain.id}
-) {
-  ${queryName}: Redemption(
-    where: { redeemer: { _ilike: $account }, chainId: { _eq: $chainId } }
-  ) {
-    payout
-    conditionId
-    indexSets
-    blockTimestamp
-    transactionHash
-  }
-}
+              $account: String = "${smartWalletAddress}"
+              $chainId: Int = ${defaultChain.id}
+            ) {
+              ${queryName}: Redemption(
+                where: { redeemer: { _ilike: $account }, chainId: { _eq: $chainId } }
+              ) {
+                  payout
+                  conditionId
+                  indexSets
+                  blockTimestamp
+                  transactionHash
+              }
+            }
           `,
         },
       })
@@ -158,7 +156,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       _redeems.sort(
         (redeemA, redeemB) => Number(redeemB.blockTimestamp) - Number(redeemA.blockTimestamp)
       )
-      console.log('redeems', _redeems)
 
       return _redeems
     },
@@ -225,11 +222,9 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       _positions = _positions.filter(
         (position) => !redeems?.find((redeem) => redeem.conditionId === position.market.conditionId)
       )
-      console.log('positions', _positions)
 
       // filter markets with super small balance
       _positions = _positions.filter((position) => Number(position.outcomeTokenAmount) > 0.00001)
-      console.log('positions', _positions)
 
       // Todo remove this mapping
       return (

@@ -42,7 +42,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       web3Auth.getUserInfo().then((userInfo) => {
         setUserInfo(userInfo)
         trackSignUp()
-        console.log('w3a userInfo:', userInfo)
       })
     }
   }, [isLoggedIn])
@@ -62,7 +61,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         }
       )
       const [farcasterUserData] = data.users
-      console.log('farcasterUserData', farcasterUserData)
       return farcasterUserData
     },
     enabled: userInfo?.typeOfLogin === 'farcaster',
