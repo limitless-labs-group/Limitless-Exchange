@@ -66,10 +66,7 @@ export const MarketPriceChart = () => {
     tooltip: {
       shared: true,
       formatter: function () {
-        return `Date: <b>${Highcharts.dateFormat(
-          '%b %e, %Y %H:%M',
-          Number(this.x)
-        )}</b><br/>YES: <b>${Number(this.y).toFixed(2)}%</b>`
+        return `YES: <b>${Number(this.y).toFixed(2)}%</b>`
       },
     },
     plotOptions: {
