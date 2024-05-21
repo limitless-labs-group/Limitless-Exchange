@@ -127,7 +127,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       if (!marketAddress) {
         return
       }
-      const queryName = 'automatedMarketMakers'
+      const queryName = 'AutomatedMarketMakers'
       const res = await axios.request({
         url: subgraphURI[defaultChain.id],
         method: 'post',

@@ -52,31 +52,37 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         return []
       }
 
-      const queryName = 'trades'
+      const queryName = 'Trade'
       const response = await axios.request({
         url: subgraphURI[defaultChain.id],
         method: 'post',
         data: {
           query: `
-            query ${queryName} {
-              ${queryName} (
-                where: {transactor: "${smartWalletAddress}"}
-              ) {
-                market {
-                  id
-                  closed
-                  funding
-                  conditionId
-                  collateral {
-                    symbol
-                  }
-                }
-                outcomeTokenAmounts
-                outcomeTokenNetCost
-                blockTimestamp
-                transactionHash
+            query GetAccountTrades(
+              $account: String = "${smartWalletAddress}"
+              $chainId: Int = ${defaultChain.id}
+          ) {
+            trades: Trade(
+              where: {
+                transactor: { _ilike: $account }
+                chainId: { _eq: $chainId }
               }
+            ) {
+              market {
+                id
+                closed
+                funding
+                condition_id
+                collateral {
+                  symbol
+                }
+              }
+              outcomeTokenAmounts
+              outcomeTokenNetCost
+              blockTimestamp
+              transactionHash
             }
+          }
           `,
         },
       })
@@ -124,17 +130,20 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         method: 'post',
         data: {
           query: `
-            query ${queryName} {
-              ${queryName} (
-                where: {redeemer: "${smartWalletAddress}"}
-              ) {
-                payout
-                conditionId
-                indexSets
-                blockTimestamp
-                transactionHash
-              }
-            }
+            query GetAccountRedemptions(
+  $account: String = "${smartWalletAddress}"
+  $chainId: Int = ${defaultChain.id}
+) {
+  ${queryName}: Redemption(
+    where: { redeemer: { _ilike: $account }, chainId: { _eq: $chainId } }
+  ) {
+    payout
+    conditionId
+    indexSets
+    blockTimestamp
+    transactionHash
+  }
+}
           `,
         },
       })

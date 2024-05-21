@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEtherspot } from '@/services/Etherspot'
 import axios from 'axios'
-import { defaultChain, newSubgraphURI } from '@/constants'
+import { defaultChain, subgraphURI } from '@/constants'
 
 export type AccountMarketResponse = {
   account_id: string
@@ -28,7 +28,7 @@ export function useUsersMarkets() {
       }
       const queryName = 'GetAccountDetails'
       const response = await axios.request({
-        url: newSubgraphURI[defaultChain.id],
+        url: subgraphURI[defaultChain.id],
         method: 'post',
         data: {
           query: `
