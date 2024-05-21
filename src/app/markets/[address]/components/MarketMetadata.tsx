@@ -1,4 +1,3 @@
-import { Button } from '@/components'
 import { defaultChain } from '@/constants'
 import { useIsMobile, useMarketData } from '@/hooks'
 import {
@@ -26,9 +25,11 @@ import {
   Text,
   VStack,
   useClipboard,
+  Button,
 } from '@chakra-ui/react'
 import { FaShareSquare } from 'react-icons/fa'
 import { FaLink, FaXTwitter } from 'react-icons/fa6'
+import { Fragment } from 'react'
 
 export const MarketMetadata = ({ ...props }: StackProps) => {
   /**
@@ -51,6 +52,48 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
 
   const isMobile = useIsMobile()
 
+  const shareContent = [
+    {
+      onClick: () => {
+        trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
+          type: 'Copy Link',
+          page: 'Market Page',
+        })
+        onCopy()
+      },
+      content: (
+        <>
+          <FaLink />
+          {hasCopied ? 'Copied' : 'Copy link'}
+        </>
+      ),
+    },
+    {
+      onClick: () => {
+        trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
+          type: 'X/Twitter',
+          page: 'Market Page',
+        })
+        window.open(tweetURI, '_blank', 'noopener')
+      },
+      content: (
+        <>
+          <FaXTwitter />
+          <Text>Share on X</Text>
+        </>
+      ),
+    },
+    {
+      onClick: () => window.open(castURI, '_blank', 'noopener'),
+      content: (
+        <>
+          <Image src='/assets/images/farcaster.png' blockSize={'15px'} alt='farcaster' />
+          <Text>Share on Farcaster</Text>
+        </>
+      ),
+    },
+  ]
+
   return (
     <Stack
       flexDir={{ sm: 'column', md: 'row' }}
@@ -68,6 +111,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
         objectFit='cover'
         bg={'brand'}
         borderRadius={borderRadius}
+        alt='cover'
       />
 
       <Flex alignItems={'start'} gap={4} w={'full'} flexDirection={'column'}>
@@ -125,10 +169,9 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             <Flex h={'full'} w={'full'}>
               <Button
                 w={'full'}
-                h={'40px'}
                 gap={2}
                 fontWeight={'normal'}
-                colorScheme={'transparent'}
+                variant={'transparent'}
                 border={`1px solid ${colors.border}`}
               >
                 <FaShareSquare />
@@ -137,57 +180,28 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
             </Flex>
           </PopoverTrigger>
           <Portal>
-            <PopoverContent bg={'bg'} border={`1px solid ${colors.border}`} w={'200px'}>
-              <Button
-                w={'full'}
-                h={'40px'}
-                gap={2}
-                fontWeight={'normal'}
-                colorScheme={'transparent'}
-                justifyContent={'start'}
-                onClick={() => {
-                  trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
-                    type: 'Copy Link',
-                    page: 'Market Page',
-                  })
-                  onCopy()
-                }}
-              >
-                <FaLink />
-                {hasCopied ? 'Copied' : 'Copy link'}
-              </Button>
-              <Divider />
-              <Button
-                w={'full'}
-                h={'40px'}
-                gap={2}
-                fontWeight={'normal'}
-                colorScheme={'transparent'}
-                justifyContent={'start'}
-                onClick={() => {
-                  trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
-                    type: 'X/Twitter',
-                    page: 'Market Page',
-                  })
-                  window.open(tweetURI, '_blank', 'noopener')
-                }}
-              >
-                <FaXTwitter />
-                <Text>Share on X</Text>
-              </Button>
-              <Divider />
-              <Button
-                w={'full'}
-                h={'40px'}
-                gap={2}
-                fontWeight={'normal'}
-                colorScheme={'transparent'}
-                justifyContent={'start'}
-                onClick={() => window.open(castURI, '_blank', 'noopener')}
-              >
-                <Image src='/assets/images/farcaster.png' blockSize={'15px'} />
-                <Text>Share on Farcaster</Text>
-              </Button>
+            <PopoverContent
+              bg={'bg'}
+              border={`1px solid ${colors.border}`}
+              w={'200px'}
+              overflow='hidden'
+            >
+              {shareContent.map(({ onClick, content }, index) => (
+                <Fragment key={index}>
+                  <Button
+                    w={'full'}
+                    gap={2}
+                    fontWeight={'normal'}
+                    variant={'transparent'}
+                    justifyContent={'start'}
+                    borderRadius={0}
+                    onClick={onClick}
+                  >
+                    {content}
+                  </Button>
+                  {index !== shareContent.length - 1 && <Divider />}
+                </Fragment>
+              ))}
             </PopoverContent>
           </Portal>
         </Popover>
@@ -212,6 +226,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
               p={0}
               cursor={'pointer'}
               fit={'cover'}
+              alt='logo'
             />
           </Link>
           <VStack spacing={1} alignItems={'start'}>

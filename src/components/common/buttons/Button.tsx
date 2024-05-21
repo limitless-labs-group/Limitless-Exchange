@@ -11,8 +11,8 @@ export const Button = ({ children, colorScheme = 'neural', ...props }: IButton) 
     colorScheme='blackAlpha'
     bg={colorScheme == 'brand' ? 'brand' : colorScheme == 'neural' ? 'bgLight' : 'transparent'}
     color={colorScheme == 'brand' ? 'white' : 'text'}
-    borderRadius={borderRadius}
-    fontSize={'14px'}
+    // borderRadius={borderRadius}
+    // fontSize={'14px'}
     // px={4}
     gap={0}
     alignItems={'center'}

@@ -1,5 +1,5 @@
-import { Button, IModal, InfoIcon, Input, Modal, Tooltip } from '@/components'
-import { collateralTokensArray, defaultChain, higher, weth } from '@/constants'
+import { IModal, InfoIcon, Input, Modal, Tooltip } from '@/components'
+import { collateralTokensArray, defaultChain, weth } from '@/constants'
 import { useBalanceService } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
@@ -12,6 +12,7 @@ import {
   useDisclosure,
   IconButton,
   Box,
+  Button,
 } from '@chakra-ui/react'
 import { Dispatch, SetStateAction, useEffect, useMemo } from 'react'
 import { Address, zeroAddress } from 'viem'
@@ -113,8 +114,8 @@ export const WithdrawModal = ({
             <HStack>
               <Button
                 h={'24px'}
-                px={2}
                 fontSize={'12px'}
+                variant='text'
                 onClick={() => setAmount(balanceItem ? balanceItem.formatted : '')}
               >
                 {`Balance: ${NumberUtil.toFixed(

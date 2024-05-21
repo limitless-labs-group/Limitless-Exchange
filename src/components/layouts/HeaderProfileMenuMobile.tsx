@@ -1,8 +1,8 @@
-import { Button, IButton } from '@/components'
-import { ClickEvent, useAccount, useAmplitude, useAuth, useBalanceService } from '@/services'
+import { useAccount } from '@/services'
 import { colors } from '@/styles'
-import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
+  Button,
+  ButtonProps,
   Flex,
   HStack,
   Image,
@@ -12,25 +12,18 @@ import {
   Portal,
   Stack,
   Text,
-  useClipboard,
 } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import { FaBars, FaCopy, FaRegUserCircle, FaSignOutAlt } from 'react-icons/fa'
-import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
+import { FaBars, FaRegUserCircle } from 'react-icons/fa'
+import HeaderButtons from '@/components/layouts/HeaderButtons'
 
-export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
-  const router = useRouter()
-  const { signOut } = useAuth()
+export const HeaderProfileMenuMobile = ({ ...props }: ButtonProps) => {
   const { userInfo, account } = useAccount()
-  const { onCopy, hasCopied } = useClipboard(account ?? '')
-  const { overallBalanceUsd } = useBalanceService()
-  const { trackClicked } = useAmplitude()
 
   return (
     <Popover placement={'bottom-end'} trigger={'click'} isLazy>
       <PopoverTrigger>
         <Flex h={'full'}>
-          <Button bg={'none'} h={'full'} alignItems={'center'} {...props}>
+          <Button variant='transparent' alignItems={'center'} {...props}>
             <Flex justifyContent={'end'}>
               <FaBars size={'18px'} fill={colors.fontLight} />
             </Flex>
@@ -57,86 +50,7 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               </HStack>
             )}
 
-            <Button
-              w={'full'}
-              justifyContent={'space-between'}
-              color={'grey'}
-              fontWeight={'normal'}
-              h={'40px'}
-              onClick={onCopy}
-            >
-              <Text>{truncateEthAddress(account)}</Text>
-              <FaCopy fontSize={'14px'} fill={hasCopied ? colors.brand : colors.fontLight} />
-            </Button>
-
-            <Button
-              h={'40px'}
-              fontWeight={'normal'}
-              justifyContent={'start'}
-              colorScheme={'transparent'}
-              onClick={() => router.push('/wallet')}
-            >
-              <HStack spacing={2}>
-                <Image
-                  alt='wallet'
-                  src='/assets/images/wallet.svg'
-                  width={'16px'}
-                  height={'16px'}
-                />
-                <HStack spacing={1}>
-                  <Text>Balance</Text>
-                  <Text fontWeight={'bold'}>{NumberUtil.formatThousands(overallBalanceUsd)}</Text>
-                  <Text>USD</Text>
-                </HStack>
-              </HStack>
-            </Button>
-
-            <Button
-              w={'full'}
-              h={'40px'}
-              fontWeight={'normal'}
-              colorScheme={'transparent'}
-              justifyContent={'start'}
-              gap={2}
-              onClick={() => router.push('/portfolio')}
-            >
-              <HStack>
-                <FaBriefcase size={'16px'} fill={colors.fontLight} />
-                <Text>Portfolio</Text>
-              </HStack>
-            </Button>
-
-            <Button
-              w={'full'}
-              h={'40px'}
-              fontWeight={'normal'}
-              colorScheme={'transparent'}
-              justifyContent={'start'}
-              onClick={() => {
-                trackClicked(ClickEvent.ExploreMarketsClicked)
-                router.push('/')
-              }}
-            >
-              <HStack>
-                <FaTableCellsLarge size={'16px'} fill={colors.fontLight} />
-                <Text>Explore markets</Text>
-              </HStack>
-            </Button>
-
-            <Button
-              w={'full'}
-              h={'40px'}
-              colorScheme={'transparent'}
-              justifyContent={'start'}
-              onClick={() => {
-                signOut()
-              }}
-            >
-              <HStack>
-                <FaSignOutAlt size={'16px'} fill={colors.fontLight} />
-                <Text>Sign Out</Text>
-              </HStack>
-            </Button>
+            <HeaderButtons account={account || ''} />
           </Stack>
         </PopoverContent>
       </Portal>

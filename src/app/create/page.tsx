@@ -149,7 +149,7 @@ const CreateOwnMarketPage = () => {
                   ref={inputRef}
                   accept={'image/png, image/jpeg'}
                 />
-                <Button colorScheme='gray' onClick={handleFileUploaded}>
+                <Button variant='gray' onClick={handleFileUploaded}>
                   Choose file
                 </Button>
                 <Text>
@@ -158,11 +158,11 @@ const CreateOwnMarketPage = () => {
               </HStack>
             </FormField>
 
-            <ButtonGroup spacing='6' mt={5}>
-              <Button variant='outline' width='168px' disabled>
+            <ButtonGroup spacing='6' mt={5} w={'full'}>
+              <Button variant='outline' disabled height='52px' w='full'>
                 Cancel
               </Button>
-              <Button colorScheme='blue' width='168px' height='52px'>
+              <Button height='52px' w='full'>
                 Create
               </Button>
             </ButtonGroup>

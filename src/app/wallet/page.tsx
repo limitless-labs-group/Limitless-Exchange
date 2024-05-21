@@ -1,7 +1,7 @@
 'use client'
 
-import { BalanceCard, DepositTestCard, WithdrawModal } from '@/app/wallet/components'
-import { Button, MainLayout } from '@/components'
+import { BalanceCard, WithdrawModal } from '@/app/wallet/components'
+import { MainLayout } from '@/components'
 import { defaultChain, weth } from '@/constants'
 import { OpenEvent, useAmplitude, useAuth } from '@/services'
 import { colors } from '@/styles'
@@ -11,6 +11,7 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
+  Button,
   Text,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -22,6 +23,7 @@ import DepositInfo from '@/app/wallet/components/DepositInfo'
 import TopUpModal from '@/app/wallet/components/TopUpModal'
 import { useIsMobile } from '@/hooks'
 import { Address } from 'viem'
+import { DepositTestCard } from '@/app/wallet/components/DepositTestCard'
 
 const WalletPage = () => {
   const { signIn: signInWithW3A, isLoggedIn } = useAuth()
@@ -73,7 +75,7 @@ const WalletPage = () => {
         handleOpenWithdrawModal={handleOpenWithdrawModal}
       />
       <AssetsTable handleOpenTopUpModal={handleOpenTopUpModal} />
-      {/*{defaultChain.testnet && <DepositTestCard />}*/}
+      {defaultChain.testnet && <DepositTestCard />}
       <Paper>
         <Text fontSize={{ md: '20px' }}>FAQ</Text>
         <Accordion allowMultiple mt='16px'>
@@ -118,7 +120,7 @@ const WalletPage = () => {
             </h2>
             <AccordionPanel pb={4} px={{ md: 2 }}>
               <Button
-                colorScheme={'transparent'}
+                variant={'transparent'}
                 border={`1px solid ${colors.border}`}
                 leftIcon={<FaComments size={'18px'} />}
                 rightIcon={<FaCircle fill='green' size={'8px'} />}

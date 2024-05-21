@@ -1,7 +1,6 @@
-import { Button } from '@/components'
 import { ClickEvent, CreateMarketClickedMetadata, useAmplitude } from '@/services'
 import { borderRadius, colors } from '@/styles'
-import { Heading, Image, Stack, Text } from '@chakra-ui/react'
+import { Button, Heading, Image, Stack, Text } from '@chakra-ui/react'
 
 export const CreateMarketCard = () => {
   const { trackClicked } = useAmplitude()
@@ -51,9 +50,7 @@ export const CreateMarketCard = () => {
         <Text color={'fontLight'} px={{ md: 8 }}>
           Learn how to create your markets and join the movement. Have skin in your beliefs.
         </Text>
-        <Button bg={'brand'} color={'white'} h={'40px'} w={'full'} p={1}>
-          Create own market
-        </Button>
+        <Button w={'full'}>Create own market</Button>
       </Stack>
     </Stack>
   )

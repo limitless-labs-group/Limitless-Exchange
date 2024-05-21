@@ -1,8 +1,8 @@
-import { Button, MarketCardUserActions } from '@/components'
+import { MarketCardUserActions } from '@/components'
 import { defaultChain, markets } from '@/constants'
 import { createPortfolioShareUrls, HistoryPosition } from '@/services'
 import { NumberUtil } from '@/utils'
-import { HStack, Heading, Image, Stack, StackProps, Text } from '@chakra-ui/react'
+import { HStack, Heading, Image, Stack, StackProps, Text, Button } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { usePriceOracle } from '@/providers'
@@ -184,14 +184,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           mainActionButton={(() => {
             if (market?.expired) {
               return (
-                <Button
-                  bg={'brand'}
-                  color={'white'}
-                  h={'full'}
-                  w={'full'}
-                  p={1}
-                  onClick={() => router.push(marketURI)}
-                >
+                <Button w={'full'} p={1} onClick={() => router.push(marketURI)}>
                   Claim winning
                 </Button>
               )
