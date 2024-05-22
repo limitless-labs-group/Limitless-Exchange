@@ -148,12 +148,10 @@ export const MarketPriceChart = () => {
     // Append current timestamp with the last price
     const lastTrade = [...data[data.length - 1].yesBuyChartData]
     lastTrade[0] = Math.floor(Date.now())
-    lastTrade[1] *= 100 // Convert the last price to percentage
     data.push({ yesBuyChartData: lastTrade as [number, number] })
 
     for (let i = 0; i < data.length - 1; i++) {
       const currentTrade = data[i].yesBuyChartData
-      currentTrade[1] *= 100 // Convert the price to percentage
       const nextTrade = data[i + 1].yesBuyChartData
 
       flattenData.push(currentTrade)
