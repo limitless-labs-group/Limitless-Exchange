@@ -67,7 +67,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
         <Flex gap={{ sm: 10, md: 12 }} flexDir={{ sm: 'column', lg: 'row' }}>
           <Flex flexBasis={'66%'} flexDir={{ sm: 'column' }} gap={{ sm: 4, md: 10 }}>
             <MarketMetadata />
-            <MarketPriceChart />
+            <MarketPriceChart market={market} />
             {!market?.expired && <MarketPositions />}
           </Flex>
 

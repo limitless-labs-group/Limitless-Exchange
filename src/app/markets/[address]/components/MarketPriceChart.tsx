@@ -7,6 +7,9 @@ import { defaultChain, newSubgraphURI } from '@/constants'
 import { usePathname } from 'next/navigation'
 import { Box, Divider, Text, Image, HStack, VStack, Spacer } from '@chakra-ui/react'
 import { useState } from 'react'
+import { getAddress, zeroAddress } from 'viem'
+import { useMarketData } from '@/hooks'
+import { Market } from '@/types'
 
 // Define the interface for the chart data
 interface YesBuyChartData {
@@ -14,10 +17,22 @@ interface YesBuyChartData {
 }
 
 // Define the MarketPriceChart component
-export const MarketPriceChart = () => {
+interface MarketPriceChartProps {
+  market?: Market | null
+}
+
+export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
+  /**
+   * MARKET DATA
+   */
+  const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
+  const { outcomeTokensPercent } = useMarketData({ marketAddress })
+
   const pathname = usePathname()
-  const [yesChance, setYesChance] = useState(0)
-  const [yesDate, setYesDate] = useState('')
+  const [yesChance, setYesChance] = useState((outcomeTokensPercent?.[0] ?? 50).toFixed(2))
+  const [yesDate, setYesDate] = useState(
+    Highcharts.dateFormat('%B %e, %Y %I:%M %p', Date.now()) ?? ''
+  )
 
   // Function to generate chart options
   const getChartOptions = (data: number[][] | undefined): Highcharts.Options => ({
