@@ -34,7 +34,6 @@ export class LimitlessApi {
     const { data: fixedProductMarketMakerAddress } = await axios.get(
       `${this.predictionMarketBaseURI}/market-maker-address`
     )
-    console.log('fixedProductMarketMakerAddress:', fixedProductMarketMakerAddress)
     return fixedProductMarketMakerAddress as Address
   }
 }

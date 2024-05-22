@@ -34,15 +34,15 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
     : ['Token', 'Available Balance', 'Token Price', 'Active Markets', 'Locked', 'Deposit']
 
   const { balanceOfSmartWallet } = useBalanceService()
-  const { convertAssetAmountToUsd } = usePriceOracle()
+  const { convertTokenAmountToUsd } = usePriceOracle()
   const { data: usersMarkets } = useUsersMarkets()
 
   const getMarketsCount = (ticker: string) => {
     return usersMarkets?.filter((market) => market.market.collateral.symbol === ticker).length || 0
   }
 
-  const getLockedAmountUsd = (id: MarketTokensIds, amount: number) => {
-    return convertAssetAmountToUsd(id, amount)
+  const getLockedAmountUsd = (symbol: string, amount: number) => {
+    return convertTokenAmountToUsd(symbol, amount)
   }
 
   const calculateLockedAmount = (collateralAddress: string) => {
@@ -118,7 +118,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                     <Text fontWeight={'light'} color={'fontLight'}>
                       $
                       {NumberUtil.formatThousands(
-                        convertAssetAmountToUsd(balance.id, balance.formatted),
+                        convertTokenAmountToUsd(balance.symbol, balance.formatted),
                         2
                       )}
                     </Text>
@@ -156,7 +156,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                           $
                           {NumberUtil.formatThousands(
                             getLockedAmountUsd(
-                              balance.id,
+                              balance.symbol,
                               calculateLockedAmount(balance.contractAddress)
                             ),
                             2

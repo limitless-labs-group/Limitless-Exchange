@@ -157,11 +157,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     if (!market || !account) {
       return 0n
     }
-    // const conditionId = await conditionalTokensContract.read.getConditionId([
-    //   zeroAddress,
-    //   market.questionId[defaultChain.id],
-    //   market.outcomeTokens.length,
-    // ])
     const collectionId = (await conditionalTokensContract.read.getCollectionId([
       zeroHash, // Since we don't support complicated conditions at the moment
       market.conditionId[defaultChain.id],
@@ -190,7 +185,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     const _balanceOfOutcomeToken = formatEther(balanceOfOutcomeTokenBI)
     const balanceOfOutcomeTokenCropped = NumberUtil.toFixed(_balanceOfOutcomeToken, 10)
     setBalanceOfOutcomeToken(balanceOfOutcomeTokenCropped)
-    console.log('balanceOfOutcomeToken', _balanceOfOutcomeToken)
 
     const holdings = await getCTBalance(market.address[defaultChain.id], outcomeTokenId)
     const otherHoldings: bigint[] = []
@@ -218,8 +212,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       balanceOfCollateralToSellBI,
       collateralToken.decimals
     )
-
-    console.log('balanceOfCollateralToSell', _balanceOfCollateralToSell)
 
     setBalanceOfCollateralToSell(_balanceOfCollateralToSell)
   }, [account, market, outcomeTokenId, strategy])
@@ -321,7 +313,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         roi,
         priceImpact,
       }
-      console.log('tradeQuotes', _quotes)
 
       setQuotes(_quotes)
       return quotes

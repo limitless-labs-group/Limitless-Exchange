@@ -8,14 +8,13 @@ import {
   Portal,
   PopoverContent,
   useDisclosure,
+  Button,
 } from '@chakra-ui/react'
 import { LuListFilter } from 'react-icons/lu'
 import { collateralTokensArray, defaultChain } from '@/constants'
 import { v4 as uuidv4 } from 'uuid'
-import TextButton from '@/components/common/buttons/TextButton'
 import { colors } from '@/styles'
 import { Token } from '@/types'
-import { Button } from '@/components/common/buttons/Button'
 import { FaXmark } from 'react-icons/fa6'
 
 type TokenFilterProps = {
@@ -58,16 +57,19 @@ export default function TokenFilter({ onChange }: TokenFilterProps) {
           </HStack>
         </PopoverTrigger>
         <Portal>
-          <PopoverContent bg={'bg'} border={`1px solid ${colors.border}`} w={'fit-content'} p={3}>
-            <TextButton onClick={() => setSelectedFilterTokens([])} label='Clear all' py={2} />
+          <PopoverContent bg={'bg'} border={`1px solid ${colors.border}`} w={'160px'} p={3}>
+            <Button variant='text' py={2} onClick={() => setSelectedFilterTokens([])} w='full'>
+              Clear all
+            </Button>
             {collateralTokensArray.map(
               (token) =>
                 !selectedFilterTokens.includes(token) && (
-                  <TextButton
+                  <Button
                     key={uuidv4()}
-                    label={token.symbol}
+                    variant='text'
                     onClick={() => handleFilterItemClicked(token)}
                     py={2}
+                    w='full'
                     leftIcon={
                       <Image
                         src={token.imageURI}
@@ -77,7 +79,9 @@ export default function TokenFilter({ onChange }: TokenFilterProps) {
                         borderRadius={'full'}
                       />
                     }
-                  />
+                  >
+                    {token.symbol}
+                  </Button>
                 )
             )}
           </PopoverContent>
@@ -85,27 +89,24 @@ export default function TokenFilter({ onChange }: TokenFilterProps) {
       </Popover>
 
       {selectedFilterTokens.map((filterToken) => (
-        <HStack key={uuidv4()}>
-          <Button
-            key={uuidv4()}
-            h={'33px'}
-            px={2}
-            fontWeight={'normal'}
-            onClick={() => handleFilterItemClicked(filterToken)}
-            leftIcon={
-              <Image
-                src={filterToken.imageURI}
-                alt='token'
-                width={'20px'}
-                height={'20px'}
-                borderRadius={'full'}
-              />
-            }
-            rightIcon={<FaXmark fill={colors.fontLight} />}
-          >
-            {filterToken.symbol}
-          </Button>
-        </HStack>
+        <Button
+          key={uuidv4()}
+          variant='text'
+          px={2}
+          onClick={() => handleFilterItemClicked(filterToken)}
+          leftIcon={
+            <Image
+              src={filterToken.imageURI}
+              alt='token'
+              width={'20px'}
+              height={'20px'}
+              borderRadius={'full'}
+            />
+          }
+          rightIcon={<FaXmark fill={colors.fontLight} />}
+        >
+          {filterToken.symbol}
+        </Button>
       ))}
     </HStack>
   )

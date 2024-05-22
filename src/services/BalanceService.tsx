@@ -68,7 +68,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
-  const { ethPrice, marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
+  const { marketTokensPrices, convertTokenAmountToUsd } = usePriceOracle()
 
   /**
    * Etherspot
@@ -150,12 +150,10 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     refetchInterval: 5000,
   })
 
-  console.log(balanceOfSmartWallet)
-
   const overallBalanceUsd = useMemo(() => {
     let _overallBalanceUsd = 0
     balanceOfSmartWallet?.forEach((balanceResult) => {
-      _overallBalanceUsd += convertAssetAmountToUsd(balanceResult.id, balanceResult.formatted)
+      _overallBalanceUsd += convertTokenAmountToUsd(balanceResult.symbol, balanceResult.formatted)
     })
     return NumberUtil.toFixed(_overallBalanceUsd, 2)
   }, [balanceOfSmartWallet])
@@ -247,8 +245,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     const isInvalidBalance = balanceOfSmartWallet === undefined
     const isNegativeOrZeroAmount = amountBI <= 0n
     const balanceEntity = balanceOfSmartWallet?.find((balance) => {
-      console.log(token)
-      console.log(balance)
       return balance.id === token.id
     }) as GetBalanceResult
     const isExceedsBalance = !!balanceOfSmartWallet && amountBI > balanceEntity.value

@@ -40,7 +40,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * UTILS
    */
-  const { convertAssetAmountToUsd } = usePriceOracle()
+  const { convertTokenAmountToUsd } = usePriceOracle()
 
   /**
    * QUERIES
@@ -52,35 +52,40 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         return []
       }
 
-      const queryName = 'trades'
       const response = await axios.request({
         url: subgraphURI[defaultChain.id],
         method: 'post',
         data: {
           query: `
-            query ${queryName} {
-              ${queryName} (
-                where: {transactor: "${smartWalletAddress}"}
-              ) {
-                market {
-                  id
-                  closed
-                  funding
-                  conditionId
-                  collateral {
-                    symbol
-                  }
-                }
-                outcomeTokenAmounts
-                outcomeTokenNetCost
-                blockTimestamp
-                transactionHash
+            query GetAccountTrades(
+              $account: String = "${smartWalletAddress}"
+              $chainId: Int = ${defaultChain.id}
+          ) {
+            trades: Trade(
+              where: {
+                transactor: { _ilike: $account }
+                chainId: { _eq: $chainId }
               }
+            ) {
+              market {
+                id
+                closed
+                funding
+                condition_id
+                collateral {
+                  symbol
+                }
+              }
+              outcomeTokenAmounts
+              outcomeTokenNetCost
+              blockTimestamp
+              transactionHash
             }
+          }
           `,
         },
       })
-      const _trades = response.data.data?.[queryName] as HistoryTrade[]
+      const _trades = response.data.data?.['trades'] as HistoryTrade[]
       _trades.map((trade) => {
         const outcomeTokenAmountBI = BigInt(
           trade.outcomeTokenAmounts.find((amount) => BigInt(amount) != 0n) ?? 0
@@ -102,7 +107,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       _trades.sort(
         (tradeA, tradeB) => Number(tradeB.blockTimestamp) - Number(tradeA.blockTimestamp)
       )
-      console.log('trades', _trades)
 
       return _trades.filter((trade) =>
         [weth.symbol, onChain.symbol].includes(trade.market.collateral?.symbol || '')
@@ -124,15 +128,18 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         method: 'post',
         data: {
           query: `
-            query ${queryName} {
-              ${queryName} (
-                where: {redeemer: "${smartWalletAddress}"}
+            query GetAccountRedemptions(
+              $account: String = "${smartWalletAddress}"
+              $chainId: Int = ${defaultChain.id}
+            ) {
+              ${queryName}: Redemption(
+                where: { redeemer: { _ilike: $account }, chainId: { _eq: $chainId } }
               ) {
-                payout
-                conditionId
-                indexSets
-                blockTimestamp
-                transactionHash
+                  payout
+                  conditionId
+                  indexSets
+                  blockTimestamp
+                  transactionHash
               }
             }
           `,
@@ -149,7 +156,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       _redeems.sort(
         (redeemA, redeemB) => Number(redeemB.blockTimestamp) - Number(redeemA.blockTimestamp)
       )
-      console.log('redeems', _redeems)
 
       return _redeems
     },
@@ -216,11 +222,9 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       _positions = _positions.filter(
         (position) => !redeems?.find((redeem) => redeem.conditionId === position.market.conditionId)
       )
-      console.log('positions', _positions)
 
       // filter markets with super small balance
       _positions = _positions.filter((position) => Number(position.outcomeTokenAmount) > 0.00001)
-      console.log('positions', _positions)
 
       // Todo remove this mapping
       return (
@@ -255,7 +259,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         (token) => token.symbol === position.market.collateral?.symbol
       )
       if (!!token) {
-        positionUsdAmount = convertAssetAmountToUsd(token.id, position.collateralAmount)
+        positionUsdAmount = convertTokenAmountToUsd(token.symbol, position.collateralAmount)
       }
       _balanceInvested += positionUsdAmount
     })
@@ -270,7 +274,10 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         (token) => token.symbol === position.market.collateral?.symbol
       )
       if (!!token) {
-        positionOutcomeUsdAmount = convertAssetAmountToUsd(token.id, position.outcomeTokenAmount)
+        positionOutcomeUsdAmount = convertTokenAmountToUsd(
+          token.symbol,
+          position.outcomeTokenAmount
+        )
       }
       _balanceToWin += positionOutcomeUsdAmount
     })
