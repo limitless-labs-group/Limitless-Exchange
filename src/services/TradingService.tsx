@@ -157,11 +157,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     if (!market || !account) {
       return 0n
     }
-    // const conditionId = await conditionalTokensContract.read.getConditionId([
-    //   zeroAddress,
-    //   market.questionId[defaultChain.id],
-    //   market.outcomeTokens.length,
-    // ])
     const collectionId = (await conditionalTokensContract.read.getCollectionId([
       zeroHash, // Since we don't support complicated conditions at the moment
       market.conditionId[defaultChain.id],
