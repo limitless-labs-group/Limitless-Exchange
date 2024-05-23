@@ -266,8 +266,8 @@ export const markets: Market[] = [
       [baseSepolia.id]: true,
     },
     hidden: {
-      [base.id]: false,
-      [baseSepolia.id]: false,
+      [base.id]: true,
+      [baseSepolia.id]: true,
     },
     address: {
       [base.id]: '0x96ace74aa1ae07f7baf4e7f2736cbe2a703712fc', // prod
@@ -296,8 +296,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market6.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market6-og.png',
     expirationDate: 'TBA',
-    expirationTimestamp: 1717189199000,
-    expired: Date.now() > 1717189199000, // TODO: make dynamic
+    expirationTimestamp: new Date('May 23, 2024').getTime(),
+    expired: Date.now() > new Date('May 23, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '@AutismCapital',
       imageURI: '/assets/images/markets/autism-capital.png',
