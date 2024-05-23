@@ -17,6 +17,7 @@ import {
   LimitlessApiProvider,
   TradingServiceProvider,
 } from '@/services'
+import PrivyAuthProvider from '@/providers/Privy'
 
 export const Providers = ({ children }: React.PropsWithChildren) => {
   const [mounted, setMounted] = React.useState(false)
@@ -27,7 +28,8 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
       <AmplitudeProvider>
         <ChakraProvider>
           <WagmiProvider>
-            <Web3AuthProvider>
+            {/*<Web3AuthProvider>*/}
+            <PrivyAuthProvider>
               <QueryProvider>
                 <LimitlessApiProvider>
                   <EtherspotProvider>
@@ -43,7 +45,8 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                   </EtherspotProvider>
                 </LimitlessApiProvider>
               </QueryProvider>
-            </Web3AuthProvider>
+            </PrivyAuthProvider>
+            {/*</Web3AuthProvider>*/}
           </WagmiProvider>
         </ChakraProvider>
       </AmplitudeProvider>
