@@ -8,6 +8,7 @@ import { useAmplitude, useEtherspot } from '@/services'
 import { UserInfo } from '@web3auth/base'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
+import { QueryKeys } from '@/constants/query-keys'
 
 export interface IAccountContext {
   isLoggedIn: boolean
@@ -50,7 +51,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
    * FARCASTER
    */
   const { data: farcasterInfo } = useQuery({
-    queryKey: ['farcaster', userInfo],
+    queryKey: [QueryKeys.Farcaster, userInfo],
     queryFn: async () => {
       const { data } = await axios.get<FarcasterUsersRequestResponse>(
         `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userInfo?.verifierId}`,
@@ -104,7 +105,9 @@ export const useAuth = () => {
    * SIGN OUT
    */
   const { disconnectAsync } = useDisconnect()
-  const signOut = useCallback(async () => disconnectAsync(), [])
+  const signOut = useCallback(async () => {
+    await disconnectAsync()
+  }, [])
 
   return {
     isLoggedIn,

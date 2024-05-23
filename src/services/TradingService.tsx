@@ -34,6 +34,7 @@ import {
   parseUnits,
   zeroHash,
 } from 'viem'
+import { QueryKeys } from '@/constants/query-keys'
 
 interface ITradingServiceContext {
   market: Market | null
@@ -97,10 +98,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   // TODO: refactor
   const refetchChain = async () => {
     await queryClient.invalidateQueries({
-      queryKey: ['outcomeTokensBuyPrice', market?.address[defaultChain.id]],
+      queryKey: [QueryKeys.OutcomeTokensBuyPrice, market?.address[defaultChain.id]],
     })
     await queryClient.invalidateQueries({
-      queryKey: ['outcomeTokensSellPrice', market?.address[defaultChain.id]],
+      queryKey: [QueryKeys.OutcomeTokensSellPrice, market?.address[defaultChain.id]],
     })
     await refetchbalanceOfSmartWallet()
     await updateSellBalance()
@@ -109,7 +110,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   // TODO: refactor
   const refetchSubgraph = async () => {
     await queryClient.invalidateQueries({
-      queryKey: ['marketData', market?.address[defaultChain.id]],
+      queryKey: [QueryKeys.MarketData, market?.address[defaultChain.id]],
     })
     await getTrades()
     await getRedeems()
@@ -259,7 +260,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   useQuery({
     queryKey: [
-      'tradeQuotes',
+      QueryKeys.TradeQuotes,
       fixedProductMarketMakerContract?.address,
       collateralAmount,
       balanceOfOutcomeToken,

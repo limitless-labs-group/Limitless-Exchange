@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useEtherspot } from '@/services/Etherspot'
 import axios from 'axios'
 import { defaultChain, subgraphURI } from '@/constants'
+import { QueryKeys } from '@/constants/query-keys'
 
 export type AccountMarketResponse = {
   account_id: string
@@ -21,7 +22,7 @@ export type AccountMarketResponse = {
 export function useUsersMarkets() {
   const { smartWalletAddress } = useEtherspot()
   return useQuery<AccountMarketResponse[]>({
-    queryKey: ['createdMarkets', smartWalletAddress],
+    queryKey: [QueryKeys.CreatedMarkets, smartWalletAddress],
     queryFn: async () => {
       if (!smartWalletAddress) {
         return []

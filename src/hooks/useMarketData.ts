@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useMemo } from 'react'
 import { Address, formatUnits, getContract, parseUnits } from 'viem'
+import { QueryKeys } from '@/constants/query-keys'
 
 interface IUseMarketData {
   marketAddress?: Address
@@ -34,7 +35,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
   )
 
   const { data: outcomeTokensBuyPrice } = useQuery({
-    queryKey: ['outcomeTokensBuyPrice', fixedProductMarketMakerContract?.address],
+    queryKey: [QueryKeys.OutcomeTokensBuyPrice, fixedProductMarketMakerContract?.address],
     queryFn: async () => {
       if (!fixedProductMarketMakerContract) {
         return [0, 0]
@@ -61,7 +62,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
   })
 
   const { data: outcomeTokensSellPrice } = useQuery({
-    queryKey: ['outcomeTokensSellPrice', fixedProductMarketMakerContract?.address],
+    queryKey: [QueryKeys.OutcomeTokensSellPrice, fixedProductMarketMakerContract?.address],
     queryFn: async () => {
       if (!fixedProductMarketMakerContract) {
         return [0, 0]
@@ -89,7 +90,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
 
   const { data: outcomeTokensPercent } = useQuery({
     queryKey: [
-      'outcomeTokensPercent',
+      QueryKeys.OutcomeTokensPercent,
       fixedProductMarketMakerContract?.address,
       outcomeTokensBuyPrice,
     ],
@@ -107,7 +108,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
   })
 
   const { data: liquidityAndVolume } = useQuery({
-    queryKey: ['marketData', marketAddress],
+    queryKey: [QueryKeys.MarketData, marketAddress],
     queryFn: async () => {
       if (!marketAddress) {
         return

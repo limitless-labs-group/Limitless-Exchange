@@ -15,6 +15,7 @@ import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash, formatEther, formatUnits } from 'viem'
+import { QueryKeys } from '@/constants/query-keys'
 
 interface IHistoryService {
   trades: HistoryTrade[] | undefined
@@ -46,7 +47,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * QUERIES
    */
   const { data: trades, refetch: getTrades } = useQuery({
-    queryKey: ['trades', smartWalletAddress],
+    queryKey: [QueryKeys.Trades, smartWalletAddress],
     queryFn: async () => {
       if (!smartWalletAddress) {
         return []
@@ -116,7 +117,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   })
 
   const { data: redeems, refetch: getRedeems } = useQuery({
-    queryKey: ['redeems', smartWalletAddress],
+    queryKey: [QueryKeys.Redeems, smartWalletAddress],
     queryFn: async () => {
       if (!smartWalletAddress) {
         return []
@@ -165,7 +166,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * Consolidate trades and redeems to get open positions
    */
   const { data: positions, refetch: getPositions } = useQuery({
-    queryKey: ['positions', trades, redeems],
+    queryKey: [QueryKeys.Positions, trades, redeems],
     queryFn: async () => {
       let _positions: HistoryPosition[] = []
 

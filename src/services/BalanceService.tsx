@@ -34,6 +34,7 @@ import {
   TransactionReceipt,
 } from 'viem'
 import { getBalance } from 'viem/actions'
+import { QueryKeys } from '@/constants/query-keys'
 
 interface IBalanceService {
   balanceOfSmartWallet: GetBalanceResult[] | undefined
@@ -79,10 +80,10 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
    * Weth balance
    */
   const { data: balanceOfSmartWallet, refetch: refetchbalanceOfSmartWallet } = useQuery({
-    queryKey: ['balance', smartWalletAddress],
+    queryKey: [QueryKeys.Balance, smartWalletAddress],
     queryFn: async () => {
       if (!smartWalletAddress) {
-        return
+        return []
       }
 
       const balances = await Promise.allSettled(
@@ -150,6 +151,8 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     refetchInterval: 5000,
   })
 
+  console.log(balanceOfSmartWallet)
+
   const overallBalanceUsd = useMemo(() => {
     let _overallBalanceUsd = 0
     balanceOfSmartWallet?.forEach((balanceResult) => {
@@ -169,7 +172,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   }, [pathname])
 
   useQuery({
-    queryKey: ['autoWrapEth', smartWalletAddress, unwrap],
+    queryKey: [QueryKeys.AutoWrapETH, smartWalletAddress, unwrap],
     queryFn: async () => {
       if (!smartWalletAddress || !etherspot || unwrap) {
         return

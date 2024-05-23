@@ -2,6 +2,7 @@ import React, { createContext, useContext, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
 import { GetCoingeckoPricesResponse, MarketTokensIds } from '@/types'
+import { QueryKeys } from '@/constants/query-keys'
 
 /**
  * Context type providing utility functions for currency conversion between USD and ETH (Ethereum).
@@ -40,7 +41,7 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
   // }
 
   const { data: marketTokensPrices } = useQuery({
-    queryKey: ['tokenPrices'],
+    queryKey: [QueryKeys.TokenPrices],
     queryFn: fetchTokenPrices,
     staleTime: 1000 * 60 * 5, // Data life span 60 seconds
     refetchOnWindowFocus: false,

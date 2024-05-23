@@ -15,6 +15,7 @@ import {
 } from 'react'
 import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, erc20Abi } from 'viem'
 import { contractABI } from '@/contracts/utils'
+import { QueryKeys } from '@/constants/query-keys'
 
 interface IEtherspotContext {
   etherspot: Etherspot | null
@@ -74,7 +75,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    * Query to fetch smart wallet address
    */
   const { data: smartWalletAddress } = useQuery({
-    queryKey: ['smartWalletAddress', !!etherspot],
+    queryKey: [QueryKeys.SmartWalletAddress, !!etherspot],
     queryFn: async () => {
       const address = await etherspot?.getAddress()
       return address
