@@ -262,8 +262,8 @@ export const markets: Market[] = [
   // weth
   {
     resolved: {
-      [base.id]: false,
-      [baseSepolia.id]: false,
+      [base.id]: true,
+      [baseSepolia.id]: true,
     },
     hidden: {
       [base.id]: false,
