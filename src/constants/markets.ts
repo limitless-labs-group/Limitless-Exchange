@@ -114,7 +114,7 @@ export const markets: Market[] = [
     },
     hidden: {
       [base.id]: true,
-      [baseSepolia.id]: false,
+      [baseSepolia.id]: true,
     },
     address: {
       [base.id]: '0x09b856c4c8eCcEf87577F3fA16bEc32da3c4433b', // prod
@@ -394,8 +394,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market3.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market3-og.jpg',
     expirationDate: 'May 31, 2024',
-    expirationTimestamp: 1716305451000,
-    expired: Date.now() > 1716305451000, // TODO: make dynamic
+    expirationTimestamp: new Date('May 31, 2024').getTime(),
+    expired: Date.now() > new Date('May 31, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '/onchain',
       imageURI: '/assets/images/markets/onchain.jpg',
@@ -445,8 +445,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market4.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market4-og.jpg',
     expirationDate: 'Apr 25, 2025',
-    expirationTimestamp: 1745614799000,
-    expired: Date.now() > 1745614799000, // TODO: make dynamic
+    expirationTimestamp: new Date('Apr 25, 2025').getTime(),
+    expired: Date.now() > new Date('Apr 25, 2025').getTime(), // TODO: make dynamic
     creator: {
       name: '@grin',
       imageURI: '/assets/images/markets/grin.jpg',
@@ -497,8 +497,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market1.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market1-og.jpg',
     expirationDate: 'Dec 31, 2024',
-    expirationTimestamp: 1735682399000,
-    expired: Date.now() > 1735682399000, // TODO: make dynamic
+    expirationTimestamp: new Date('Dec 31, 2024').getTime(),
+    expired: Date.now() > new Date('Dec 31, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '/skininthegame',
       imageURI: '/assets/images/markets/skininthegame.jpg',
