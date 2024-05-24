@@ -1,8 +1,8 @@
-import { Button, IModal, Modal } from '@/components'
+import { IModal, Modal } from '@/components'
 import { Dispatch, SetStateAction, useMemo } from 'react'
 import DepositInfo from '@/app/wallet/components/DepositInfo'
 import { CopyEvent, useAccount, useAmplitude } from '@/services'
-import { Box, HStack, Text, useClipboard } from '@chakra-ui/react'
+import { Box, Button, HStack, Text, useClipboard } from '@chakra-ui/react'
 import { truncateEthAddress } from '@/utils'
 import SelectTokenField from '@/components/common/SelectTokenField'
 import { collateralTokensArray, defaultChain, weth } from '@/constants'
@@ -47,7 +47,7 @@ export default function TopUpModal({
         <Box
           w={'calc(100% - 115px)'}
           justifyContent={'start'}
-          color={'grey.700'}
+          color={'fontLight'}
           bg='grey.200'
           px='10px'
           py='14px'
@@ -64,7 +64,7 @@ export default function TopUpModal({
           <Text display={{ sm: 'none', md: 'contents' }}>{account}</Text>
           <Text display={{ sm: 'contents', md: 'none' }}>{truncateEthAddress(account)}</Text>
         </Box>
-        <Button colorScheme={'brand'} w={'100px'} onClick={onCopy} h='52px'>
+        <Button w={'100px'} onClick={onCopy} h='52px'>
           {hasCopied ? 'Copied!' : 'Copy'}
         </Button>
       </HStack>

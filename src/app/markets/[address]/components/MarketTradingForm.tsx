@@ -1,4 +1,4 @@
-import { Button, InfoIcon, Input, LogInButton, Tooltip } from '@/components'
+import { InfoIcon, Input, Tooltip } from '@/components'
 import { collateralTokensArray, defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { usePriceOracle } from '@/providers'
@@ -12,6 +12,7 @@ import {
   OutcomeChangedMetadata,
   ClickEvent,
   TradeClickedMetadata,
+  useAuth,
 } from '@/services'
 import { borderRadius } from '@/styles'
 import { NumberUtil } from '@/utils'
@@ -29,6 +30,8 @@ import {
   StackProps,
   Text,
   VStack,
+  Button,
+  Flex,
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
@@ -39,6 +42,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
    * ACCOUNT STATE
    */
   const { isLoggedIn } = useAccount()
+  const { signIn } = useAuth()
 
   /**
    * ANALITYCS
@@ -233,8 +237,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
           <HStack w={'full'}>
             <Button
               w={'full'}
-              bg={outcomeTokenId == 0 ? 'green' : 'bgLight'}
-              color={outcomeTokenId == 0 ? 'white' : 'fontLight'}
+              variant={outcomeTokenId === 0 ? 'green' : 'outline'}
               onClick={() => {
                 trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
                   choice: 'Yes',
@@ -247,8 +250,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
             </Button>
             <Button
               w={'full'}
-              bg={outcomeTokenId == 1 ? 'red' : 'bgLight'}
-              color={outcomeTokenId == 1 ? 'white' : 'fontLight'}
+              variant={outcomeTokenId === 1 ? 'red' : 'outline'}
               onClick={() => {
                 trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
                   choice: 'No',
@@ -290,17 +292,19 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
                 onChange={(e) => setCollateralAmount(e.target.value)}
               />
 
-              <Button
+              <Flex
                 h={'full'}
-                colorScheme={'transparent'}
                 border={'1px solid'}
                 borderColor={'border'}
+                borderRadius='lg'
                 gap={1}
                 minW={'110px'}
+                alignItems='center'
+                justifyContent='center'
               >
                 <Avatar size={'xs'} src={market?.tokenURI[defaultChain.id]} />
                 <Text>{market?.tokenTicker[defaultChain.id]}</Text>
-              </Button>
+              </Flex>
             </HStack>
 
             <HStack
@@ -356,7 +360,6 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
         {isLoggedIn ? (
           <Button
             w={'full'}
-            colorScheme={'brand'}
             isDisabled={status != 'Ready'}
             isLoading={status == 'Loading'}
             onClick={() => {
@@ -370,7 +373,9 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
             {strategy}
           </Button>
         ) : (
-          <LogInButton w={'full'} />
+          <Button w={'full'} onClick={signIn}>
+            Sign In
+          </Button>
         )}
 
         <VStack w={'full'} spacing={0}>

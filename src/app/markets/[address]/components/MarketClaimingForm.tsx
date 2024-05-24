@@ -1,9 +1,8 @@
-import { Button } from '@/components'
 import { collateralToken, defaultChain } from '@/constants'
 import { useHistory, useTradingService } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
-import { Stack, StackProps, Text } from '@chakra-ui/react'
+import { Button, Stack, StackProps, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { FaRegCheckCircle } from 'react-icons/fa'
 
@@ -47,8 +46,6 @@ export const MarketClaimingForm = ({ ...props }: StackProps) => {
             {collateralToken.symbol} 🎉
           </Text>
           <Button
-            bg={'brand'}
-            color={'white'}
             w={'full'}
             isLoading={status == 'Loading'}
             isDisabled={!positionToClaim}
