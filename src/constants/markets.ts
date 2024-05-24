@@ -11,7 +11,7 @@ export const markets: Market[] = [
       [baseSepolia.id]: false,
     },
     hidden: {
-      [base.id]: false,
+      [base.id]: true,
       [baseSepolia.id]: true,
     },
     address: {
@@ -41,9 +41,9 @@ export const markets: Market[] = [
     outcomeTokens: ['Yes', 'No'],
     title: 'Will Real Madrid win the Champions League?',
     description: `The 2023–24 UEFA Champions League is the 69th season of Europe's premier club football tournament organized by UEFA. The final is scheduled to be played on June 1, 2024 at the Wembley Stadium in London, England. This market will resolve to “Yes” if Real Madrid wins the 2023-24 UEFA Champions League. Otherwise, this market will resolve to "No". This market will immediately resolve to "No" if this team is eliminated from contention to win the 2023-2024 Champions League.`,
-    placeholderURI: '/assets/images/markets/market7.png',
-    imageURI: '/assets/images/markets/market7.png',
-    ogImageURI: 'https://limitless.exchange/assets/images/markets/market7.png',
+    placeholderURI: '/assets/images/markets/market7.jpg',
+    imageURI: '/assets/images/markets/market7.jpg',
+    ogImageURI: 'https://limitless.exchange/assets/images/markets/market7.jpg',
     expirationDate: 'June 1, 2024',
     expirationTimestamp: new Date('June 1, 2024').getTime(),
     expired: Date.now() > new Date('June 1, 2024').getTime(), // TODO: make dynamic
