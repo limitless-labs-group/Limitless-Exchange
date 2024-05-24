@@ -11,19 +11,19 @@ export const markets: Market[] = [
       [baseSepolia.id]: false,
     },
     hidden: {
-      [base.id]: true,
+      [base.id]: false,
       [baseSepolia.id]: true,
     },
     address: {
-      [base.id]: '0x7EF0B1754801BfF61b8a69D0878D4425782BdFf2', // prod
+      [base.id]: '0xEFB58DB22aC58336050Cf5c403EB097517f4803C', // prod
       [baseSepolia.id]: '0xCA8CD401A4560A0D1B158f8292b85C78cB38Ffc1', // testnet
     },
     conditionId: {
-      [base.id]: '0x96a3893ffb843004037d6bb9cd87e73340ab3c4c80d24cfaa5fff8a8bb325e88', // prod
+      [base.id]: '0xada622de7412558ee1f492c14939cdea0dd276f07a11db337d816071e03b4d6c', // prod
       [baseSepolia.id]: '0x84d5169ac2cecd75741c02d71eb85e11c51ec6d8ed442b37e4d3210fbc03192c', // testnet
     },
     questionId: {
-      [base.id]: '0x0000000000000000000000000000000000000031373136353434363936313232', // prod
+      [base.id]: '0x0000000000000000000000000000000000000031373136353533313836353936', // prod
       [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135323436343231383432', // testnet
     },
     collateralToken: {
