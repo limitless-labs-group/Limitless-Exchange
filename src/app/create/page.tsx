@@ -15,6 +15,13 @@ import {
   Button,
   ButtonGroup,
   Image,
+  Select,
+  NumberInput,
+  NumberInputField,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
 } from '@chakra-ui/react'
 import { borderRadius, colors } from '@/styles'
 import { CgInfo } from 'react-icons/cg'
@@ -24,6 +31,29 @@ import React, { MutableRefObject, useRef, useState } from 'react'
 interface FormFieldProps {
   label: string
   children: React.ReactNode
+}
+
+interface TokenLimit {
+  min: number
+  max: number
+  step: number
+}
+
+interface TokenLimits {
+  [key: string]: TokenLimit
+}
+
+const tokenLimits: TokenLimits = {
+  onchain: {
+    min: 390000,
+    max: 3900000,
+    step: 10000,
+  },
+  WETH: {
+    min: 0.3,
+    max: 3,
+    step: 0.1,
+  },
 }
 
 const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
@@ -38,7 +68,17 @@ const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
 const CreateOwnMarketPage = () => {
   const [date, setDate] = useState(new Date())
   const [title, setTitle] = useState('')
+  const [token, setToken] = useState('WETH')
   const [description, setDescription] = useState('')
+  const [liquidity, setLiquidity] = React.useState(0.3)
+  const [probability, setProbability] = React.useState(50)
+  const handleLiquidityChange = (value: number) => setLiquidity(value)
+  const handleProbabilityChange = (value: number) => setProbability(value)
+  const handleTokenSelect = (option: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedToken = option.target.value
+    setToken(selectedToken)
+    setLiquidity(tokenLimits[selectedToken].min)
+  }
 
   // Todo temp implementation before logic is adjusted
   const inputRef: MutableRefObject<any> = useRef()
@@ -49,7 +89,7 @@ const CreateOwnMarketPage = () => {
   return (
     <MainLayout>
       <Flex justifyContent={'center'}>
-        <VStack w='360px' spacing={4}>
+        <VStack w='468px' spacing={4}>
           <Heading>Create Market</Heading>
           <FormControl>
             <FormField label='Title'>
@@ -85,13 +125,78 @@ const CreateOwnMarketPage = () => {
               <Textarea
                 placeholder='Bitcoin is the first decentralized cryptocurrency. Nodes in the peer-to-peer bitcoin network verify transactions through cryptography and record them in a public distributed ledger, called a blockchain, without central oversig.'
                 resize='none'
-                rows={7}
+                rows={5}
                 overflow='hidden'
                 onChange={(e) => setDescription(e.target.value)}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {description?.length}/320 characters
               </FormHelperText>
+            </FormField>
+
+            <FormField label='Token'>
+              <HStack>
+                <Select onChange={handleTokenSelect}>
+                  <option value='onchain'>onchain</option>
+                  <option value='WETH' selected={true}>
+                    WETH
+                  </option>
+                </Select>
+              </HStack>
+            </FormField>
+
+            <FormField label={`${token} Liquidity`}>
+              <HStack>
+                <NumberInput maxW='120px' mr='2rem' value={liquidity}>
+                  <NumberInputField disabled w={'120px'} />
+                </NumberInput>
+                <Slider
+                  flex='1'
+                  focusThumbOnChange={false}
+                  value={liquidity}
+                  onChange={handleLiquidityChange}
+                  min={tokenLimits[token].min}
+                  max={tokenLimits[token].max}
+                  step={tokenLimits[token].step}
+                >
+                  <SliderTrack>
+                    <SliderFilledTrack />
+                  </SliderTrack>
+                  <SliderThumb fontSize='sm' boxSize='32px' />
+                </Slider>
+              </HStack>
+            </FormField>
+
+            <FormField label='Starting YES Probability'>
+              <HStack>
+                <NumberInput maxW='120px' mr='2rem' value={probability}>
+                  <NumberInputField disabled w={'120px'} />
+                </NumberInput>
+                <Slider
+                  flex='1'
+                  focusThumbOnChange={false}
+                  value={probability}
+                  onChange={handleProbabilityChange}
+                  min={1}
+                  max={99}
+                  step={1}
+                >
+                  <SliderTrack>
+                    <SliderFilledTrack />
+                  </SliderTrack>
+                  <SliderThumb fontSize='sm' boxSize='32px' />
+                </Slider>
+              </HStack>
+            </FormField>
+
+            <FormField label='Creator'>
+              <HStack>
+                <Select placeholder='Select creator'>
+                  <option value='@rev'>@rev</option>
+                  <option value='Dima Horshkov'>Dima Horshkov</option>
+                  <option value='CJ'>CJ</option>
+                </Select>
+              </HStack>
             </FormField>
 
             <FormField label='Deadline'>
@@ -139,7 +244,26 @@ const CreateOwnMarketPage = () => {
               />
             </FormField>
 
-            <FormField label='Market Logo'>
+            <FormField label='Picture'>
+              <HStack>
+                <input
+                  type='file'
+                  id='fileUpload'
+                  name='fileUpload'
+                  style={{ display: 'none' }}
+                  ref={inputRef}
+                  accept={'image/png, image/jpeg'}
+                />
+                <Button colorScheme='gray' onClick={handleFileUploaded}>
+                  Choose file
+                </Button>
+                <Text>
+                  <strong>No file chosen.</strong>
+                </Text>
+              </HStack>
+            </FormField>
+
+            <FormField label='OG'>
               <HStack>
                 <input
                   type='file'
