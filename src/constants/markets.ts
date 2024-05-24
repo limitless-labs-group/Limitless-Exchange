@@ -441,7 +441,7 @@ export const markets: Market[] = [
     outcomeTokens: ['Yes', 'No'],
     title: 'Will Limitless achieve $10M in volume in the first year since launch?',
     description: `Bet on or against new social prediction market Limitless’ success.`,
-    placeholderURI: '/assets/images/markets/market4-placeholder.jpg',
+    placeholderURI: '/assets/images/markets/50*50.jpg',
     imageURI: '/assets/images/markets/market4.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market4-og.jpg',
     expirationDate: 'Apr 25, 2025',
