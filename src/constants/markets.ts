@@ -4,6 +4,57 @@ import { zeroAddress, zeroHash } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
 
 export const markets: Market[] = [
+  // weth
+  {
+    resolved: {
+      [base.id]: false,
+      [baseSepolia.id]: false,
+    },
+    hidden: {
+      [base.id]: false,
+      [baseSepolia.id]: true,
+    },
+    address: {
+      [base.id]: '0x7EF0B1754801BfF61b8a69D0878D4425782BdFf2', // prod
+      [baseSepolia.id]: '0xCA8CD401A4560A0D1B158f8292b85C78cB38Ffc1', // testnet
+    },
+    conditionId: {
+      [base.id]: '0x96a3893ffb843004037d6bb9cd87e73340ab3c4c80d24cfaa5fff8a8bb325e88', // prod
+      [baseSepolia.id]: '0x84d5169ac2cecd75741c02d71eb85e11c51ec6d8ed442b37e4d3210fbc03192c', // testnet
+    },
+    questionId: {
+      [base.id]: '0x0000000000000000000000000000000000000031373136353434363936313232', // prod
+      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135323436343231383432', // testnet
+    },
+    collateralToken: {
+      [base.id]: weth.address[base.id], // prod
+      [baseSepolia.id]: degen.address[baseSepolia.id], // testnet
+    },
+    tokenTicker: {
+      [base.id]: weth.symbol,
+      [baseSepolia.id]: degen.symbol,
+    },
+    tokenURI: {
+      [base.id]: weth.imageURI,
+      [baseSepolia.id]: degen.imageURI,
+    },
+    outcomeTokens: ['Yes', 'No'],
+    title: 'Will Real Madrid win the Champions League?',
+    description: `The 2023–24 UEFA Champions League is the 69th season of Europe's premier club football tournament organized by UEFA. The final is scheduled to be played on June 1, 2024 at the Wembley Stadium in London, England. This market will resolve to “Yes” if Real Madrid wins the 2023-24 UEFA Champions League. Otherwise, this market will resolve to "No". This market will immediately resolve to "No" if this team is eliminated from contention to win the 2023-2024 Champions League.`,
+    placeholderURI: '/assets/images/markets/market7.png',
+    imageURI: '/assets/images/markets/market7.png',
+    ogImageURI: 'https://limitless.exchange/assets/images/markets/market7.png',
+    expirationDate: 'June 1, 2024',
+    expirationTimestamp: new Date('June 1, 2024').getTime(),
+    expired: Date.now() > new Date('June 1, 2024').getTime(), // TODO: make dynamic
+    creator: {
+      name: 'Dima Horshkov',
+      imageURI: '/assets/images/markets/dima-horshkov.png',
+      link: 'https://x.com/dimahorshkov',
+    },
+    tags: ['Football', 'ChampionsLeague', 'Final', 'RealMadrid', 'Borussia'],
+  },
+
   // onchain
   {
     resolved: {
@@ -208,66 +259,15 @@ export const markets: Market[] = [
     tags: ['Higher', 'kugusha', 'Farcaster', 'Warpcast'],
   },
 
-  // degen
+  // weth
   {
     resolved: {
-      [base.id]: false,
-      [baseSepolia.id]: false,
+      [base.id]: true,
+      [baseSepolia.id]: true,
     },
     hidden: {
       [base.id]: true,
       [baseSepolia.id]: true,
-    },
-    address: {
-      [base.id]: '0xf1722e6101a4eABC285ef0a202b9890DB159818d', // prod
-      [baseSepolia.id]: '0xCA8CD401A4560A0D1B158f8292b85C78cB38Ffc1', // testnet
-    },
-    conditionId: {
-      [base.id]: '0x113a8d05722eb109a450000c1626a9f4bc3634ed1ee88ffef2615bb541efd2e9', // prod
-      [baseSepolia.id]: '0x84d5169ac2cecd75741c02d71eb85e11c51ec6d8ed442b37e4d3210fbc03192c', // testnet
-    },
-    questionId: {
-      [base.id]: '0x', // prod
-      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135323436343231383432', // testnet
-    },
-    collateralToken: {
-      [base.id]: degen.address[base.id], // prod
-      [baseSepolia.id]: degen.address[baseSepolia.id], // testnet
-    },
-    tokenTicker: {
-      [base.id]: degen.symbol,
-      [baseSepolia.id]: degen.symbol,
-    },
-    tokenURI: {
-      [base.id]: degen.imageURI,
-      [baseSepolia.id]: degen.imageURI,
-    },
-    outcomeTokens: ['Yes', 'No'],
-    title: 'Will Real Madrid win the Champions League?',
-    description: `The 2023–24 UEFA Champions League is the 69th season of Europe's premier club football tournament organized by UEFA. The final is scheduled to be played on June 1, 2024 at the Wembley Stadium in London, England. This market will resolve to “Yes” if Real Madrid wins the 2023-24 UEFA Champions League. Otherwise, this market will resolve to "No". This market will immediately resolve to "No" if this team is eliminated from contention to win the 2023-2024 Champions League.`,
-    placeholderURI: '/assets/images/markets/market7.png',
-    imageURI: '/assets/images/markets/market7.png',
-    ogImageURI: 'https://limitless.exchange/assets/images/markets/market7.png',
-    expirationDate: 'June 1, 2024',
-    expirationTimestamp: new Date('June 1, 2024').getTime(),
-    expired: Date.now() > new Date('June 1, 2024').getTime(), // TODO: make dynamic
-    creator: {
-      name: '@ZinedineYazidZi',
-      imageURI: '/assets/images/markets/zinedine-yazid-zi.png',
-      link: 'https://twitter.com/ZinedineYazidZi',
-    },
-    tags: ['Football', 'ChampionsLeague', 'Final', 'RealMadrid', 'Borussia'],
-  },
-
-  // weth
-  {
-    resolved: {
-      [base.id]: false,
-      [baseSepolia.id]: false,
-    },
-    hidden: {
-      [base.id]: false,
-      [baseSepolia.id]: false,
     },
     address: {
       [base.id]: '0x96ace74aa1ae07f7baf4e7f2736cbe2a703712fc', // prod
@@ -295,9 +295,9 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market6-placeholder.png',
     imageURI: '/assets/images/markets/market6.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market6-og.png',
-    expirationDate: 'TBA',
-    expirationTimestamp: 1717189199000,
-    expired: Date.now() > 1717189199000, // TODO: make dynamic
+    expirationDate: 'May 23, 2024',
+    expirationTimestamp: new Date('May 23, 2024').getTime(),
+    expired: Date.now() > new Date('May 23, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '@AutismCapital',
       imageURI: '/assets/images/markets/autism-capital.png',
