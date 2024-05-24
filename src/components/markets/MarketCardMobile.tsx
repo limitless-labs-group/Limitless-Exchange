@@ -49,7 +49,7 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
     >
       <Stack w={'full'} spacing={3}>
         <HStack w={'full'} spacing={3} onClick={() => router.push(marketURI)}>
-          <Avatar src={market?.imageURI} size={'lg'} />
+          <Avatar src={market?.placeholderURI} size={'lg'} />
 
           <Stack alignItems={'start'}>
             <Text fontWeight={'bold'} fontSize={'16px'} noOfLines={3} lineHeight={'18px'}>
