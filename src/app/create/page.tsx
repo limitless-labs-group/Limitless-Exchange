@@ -27,6 +27,7 @@ import { borderRadius, colors } from '@/styles'
 import { CgInfo } from 'react-icons/cg'
 import { SingleDatepicker } from 'chakra-dayzed-datepicker'
 import React, { MutableRefObject, useRef, useState } from 'react'
+import CreatableSelect from 'react-select/creatable'
 
 interface FormFieldProps {
   label: string
@@ -50,7 +51,7 @@ const tokenLimits: TokenLimits = {
     step: 10000,
   },
   WETH: {
-    min: 0.3,
+    min: 0.1,
     max: 3,
     step: 0.1,
   },
@@ -70,7 +71,7 @@ const CreateOwnMarketPage = () => {
   const [title, setTitle] = useState('')
   const [token, setToken] = useState('WETH')
   const [description, setDescription] = useState('')
-  const [liquidity, setLiquidity] = React.useState(0.3)
+  const [liquidity, setLiquidity] = React.useState(tokenLimits['WETH'].min)
   const [probability, setProbability] = React.useState(50)
   const handleLiquidityChange = (value: number) => setLiquidity(value)
   const handleProbabilityChange = (value: number) => setProbability(value)
@@ -96,6 +97,7 @@ const CreateOwnMarketPage = () => {
               <Input
                 placeholder='Bitcoin ATH in May 2024?'
                 onChange={(e) => setTitle(e.target.value)}
+                maxLength={70}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {title?.length}/70 characters
@@ -127,6 +129,7 @@ const CreateOwnMarketPage = () => {
                 resize='none'
                 rows={5}
                 overflow='hidden'
+                maxLength={320}
                 onChange={(e) => setDescription(e.target.value)}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
@@ -199,6 +202,14 @@ const CreateOwnMarketPage = () => {
               </HStack>
             </FormField>
 
+            <FormField label='Tags'>
+              <HStack w={'full'}>
+                <Box width='full'>
+                  <CreatableSelect isMulti />
+                </Box>
+              </HStack>
+            </FormField>
+
             <FormField label='Deadline'>
               {/*// Todo move to a separate component?*/}
               <SingleDatepicker
@@ -257,9 +268,7 @@ const CreateOwnMarketPage = () => {
                 <Button colorScheme='gray' onClick={handleFileUploaded}>
                   Choose file
                 </Button>
-                <Text>
-                  <strong>No file chosen.</strong>
-                </Text>
+                <Text>No file chosen.</Text>
               </HStack>
             </FormField>
 
@@ -276,17 +285,15 @@ const CreateOwnMarketPage = () => {
                 <Button colorScheme='gray' onClick={handleFileUploaded}>
                   Choose file
                 </Button>
-                <Text>
-                  <strong>No file chosen.</strong>
-                </Text>
+                <Text>No file chosen.</Text>
               </HStack>
             </FormField>
 
             <ButtonGroup spacing='6' mt={5}>
-              <Button variant='outline' width='168px' disabled>
+              <Button variant='outline' width='222px' disabled>
                 Cancel
               </Button>
-              <Button colorScheme='blue' width='168px' height='52px'>
+              <Button colorScheme='blue' width='222px' height='52px'>
                 Create
               </Button>
             </ButtonGroup>
