@@ -10,11 +10,9 @@ import { NumberUtil } from '@/utils'
 export const Header = ({ ...props }: FlexProps) => {
   const router = useRouter()
   const pathname = usePathname()
-  const { isConnected } = useAccount()
   const { overallBalanceUsd } = useBalanceService()
-  // const { balanceUsd: investedUsd, balanceShares } = useHistory()
   const { trackClicked } = useAmplitude()
-  const { signIn } = useAuth()
+  const { signIn, isLoggedIn } = useAuth()
 
   return (
     <Flex
@@ -67,7 +65,7 @@ export const Header = ({ ...props }: FlexProps) => {
       </HStack>
 
       <HStack h={'full'}>
-        {isConnected ? (
+        {isLoggedIn ? (
           <>
             <HStack
               h='full'

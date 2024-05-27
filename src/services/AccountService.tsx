@@ -1,20 +1,17 @@
 import { PropsWithChildren, createContext, useCallback, useContext } from 'react'
-// import { useWeb3Auth } from '@/providers'
 import { useEffect, useState } from 'react'
-import { useConnect, useDisconnect } from 'wagmi'
+import { useDisconnect } from 'wagmi'
 import { Address } from '@/types'
-import { defaultChain } from '@/constants'
 import { useAmplitude, useEtherspot } from '@/services'
-import { UserInfo } from '@web3auth/base'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { QueryKeys } from '@/constants/query-keys'
-import { useLogin, usePrivy } from '@privy-io/react-auth'
+import { usePrivy, User } from '@privy-io/react-auth'
 
 export interface IAccountContext {
   isLoggedIn: boolean
   account: Address | undefined
-  userInfo: Partial<UserInfo> | undefined
+  userInfo: Partial<User> | undefined
   farcasterInfo: FarcasterUserData | undefined
 }
 
@@ -26,11 +23,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   /**
    * WEB3AUTH
    */
-  const { ready, authenticated } = usePrivy()
-  // Disable login when Privy is not ready or the user is already authenticated
-  const disableLogin = !ready || (ready && authenticated)
-  // const { provider, web3Auth, isConnected } = useWeb3Auth()
-  const isLoggedIn = authenticated
+  const { ready, authenticated, user } = usePrivy()
+
+  const isLoggedIn = authenticated && ready
 
   /**
    * ADDRESSES
@@ -40,16 +35,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   /**
    * USER INFO / METADATA
    */
-  const [userInfo, setUserInfo] = useState<Partial<UserInfo> | undefined>()
+  const [userInfo, setUserInfo] = useState<Partial<User> | undefined>()
 
-  // useEffect(() => {
-  //   if (isLoggedIn) {
-  //     web3Auth.getUserInfo().then((userInfo) => {
-  //       setUserInfo(userInfo)
-  //       trackSignUp()
-  //     })
-  //   }
-  // }, [isLoggedIn])
+  useEffect(() => {
+    if (user) {
+      setUserInfo(user)
+      trackSignUp()
+    }
+  }, [isLoggedIn])
 
   /**
    * FARCASTER
@@ -58,7 +51,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     queryKey: [QueryKeys.Farcaster, userInfo],
     queryFn: async () => {
       const { data } = await axios.get<FarcasterUsersRequestResponse>(
-        `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userInfo?.verifierId}`,
+        `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userInfo?.id}`,
         {
           headers: {
             api_key: process.env.NEXT_PUBLIC_NEYNAR_API_KEY,
@@ -66,9 +59,11 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         }
       )
       const [farcasterUserData] = data.users
+      console.log(farcasterUserData)
       return farcasterUserData
     },
-    enabled: userInfo?.typeOfLogin === 'farcaster',
+    // Todo check farcaster data
+    enabled: !!userInfo?.farcaster,
   })
 
   /**
@@ -91,23 +86,11 @@ export const useAuth = () => {
    * STATE
    */
   const { isLoggedIn } = useAccount()
-  const { login } = usePrivy()
-  // const { login } = useLogin({
-  //   onComplete: (user, isNewUser, wasAlreadyAuthenticated, loginMethod, linkedAccount) => {
-  //     console.log(user, isNewUser, wasAlreadyAuthenticated, loginMethod, linkedAccount)
-  //     // Any logic you'd like to execute if the user is/becomes authenticated while this
-  //     // component is mounted
-  //   },
-  //   onError: (error) => {
-  //     console.log(error)
-  //     // Any logic you'd like to execute after a user exits the login flow or there is an error
-  //   },
-  // })
+  const { login, logout } = usePrivy()
 
   /**
    * SIGN IN
    */
-  const { connectAsync, connectors } = useConnect()
   const signIn = () => login()
 
   /**
@@ -115,6 +98,7 @@ export const useAuth = () => {
    */
   const { disconnectAsync } = useDisconnect()
   const signOut = useCallback(async () => {
+    await logout()
     await disconnectAsync()
   }, [])
 

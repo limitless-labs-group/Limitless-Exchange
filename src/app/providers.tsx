@@ -1,13 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import {
-  ChakraProvider,
-  QueryProvider,
-  WagmiProvider,
-  Web3AuthProvider,
-  PriceOracleProvider,
-} from '@/providers'
+import { ChakraProvider, PriceOracleProvider } from '@/providers'
 import {
   AccountProvider,
   AmplitudeProvider,
@@ -27,27 +21,21 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
     mounted && (
       <AmplitudeProvider>
         <ChakraProvider>
-          <WagmiProvider>
-            {/*<Web3AuthProvider>*/}
-            <PrivyAuthProvider>
-              <QueryProvider>
-                <LimitlessApiProvider>
-                  <EtherspotProvider>
-                    <AccountProvider>
-                      <PriceOracleProvider>
-                        <BalanceServiceProvider>
-                          <HistoryServiceProvider>
-                            <TradingServiceProvider>{children}</TradingServiceProvider>
-                          </HistoryServiceProvider>
-                        </BalanceServiceProvider>
-                      </PriceOracleProvider>
-                    </AccountProvider>
-                  </EtherspotProvider>
-                </LimitlessApiProvider>
-              </QueryProvider>
-            </PrivyAuthProvider>
-            {/*</Web3AuthProvider>*/}
-          </WagmiProvider>
+          <PrivyAuthProvider>
+            <LimitlessApiProvider>
+              <EtherspotProvider>
+                <AccountProvider>
+                  <PriceOracleProvider>
+                    <BalanceServiceProvider>
+                      <HistoryServiceProvider>
+                        <TradingServiceProvider>{children}</TradingServiceProvider>
+                      </HistoryServiceProvider>
+                    </BalanceServiceProvider>
+                  </PriceOracleProvider>
+                </AccountProvider>
+              </EtherspotProvider>
+            </LimitlessApiProvider>
+          </PrivyAuthProvider>
         </ChakraProvider>
       </AmplitudeProvider>
     )

@@ -5,7 +5,6 @@ import {
   ButtonProps,
   Flex,
   HStack,
-  Image,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -33,22 +32,33 @@ export const HeaderProfileMenuMobile = ({ ...props }: ButtonProps) => {
       <Portal>
         <PopoverContent bg={'bg'} border={`1px solid ${colors.border}`} w={'250px'} p={3}>
           <Stack>
-            {(!!userInfo?.name || !!userInfo?.email) && (
-              <HStack w={'full'} px={4} alignItems={'center'}>
-                {userInfo?.profileImage?.includes('http') ? (
-                  <Image
-                    src={userInfo.profileImage}
-                    borderRadius={'full'}
-                    h={'18px'}
-                    w={'18px'}
-                    alt='profile'
-                  />
-                ) : (
-                  <FaRegUserCircle size={'16px'} />
-                )}
-                <Text>{userInfo.name ?? userInfo.email}</Text>
-              </HStack>
-            )}
+            {/*{(!!userInfo?.name || !!userInfo?.email) && (*/}
+            {/*  <HStack w={'full'} px={4} alignItems={'center'}>*/}
+            {/*    {userInfo?.profileImage?.includes('http') ? (*/}
+            {/*      <Image*/}
+            {/*        src={userInfo.profileImage}*/}
+            {/*        borderRadius={'full'}*/}
+            {/*        h={'18px'}*/}
+            {/*        w={'18px'}*/}
+            {/*        alt='profile'*/}
+            {/*      />*/}
+            {/*    ) : (*/}
+            {/*      <FaRegUserCircle size={'16px'} />*/}
+            {/*    )}*/}
+            {/*    <Text>{userInfo.name ?? userInfo.email}</Text>*/}
+            {/*  </HStack>*/}
+            {/*)}*/}
+
+            <HStack>
+              {/*{userInfo?.profileImage?.includes('http') ? (*/}
+              {/*  <Image src={userInfo.profileImage} borderRadius={'full'} h={'20px'} w={'20px'} />*/}
+              {/*) : (*/}
+              {/*  <FaRegUserCircle size={'18px'} />*/}
+              {/*)}*/}
+              <FaRegUserCircle size={'18px'} />
+              {/*Todo search for a name*/}
+              <Text>{userInfo?.email?.address ? userInfo.email.address : 'My Profile'}</Text>
+            </HStack>
 
             <HeaderButtons account={account || ''} />
           </Stack>

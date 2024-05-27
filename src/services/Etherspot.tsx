@@ -1,8 +1,14 @@
 import { collateralToken, conditionalTokensAddress, defaultChain, weth } from '@/constants'
 import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
-import { publicClient, useWeb3Auth } from '@/providers'
+import { publicClient } from '@/providers'
 import { Address } from '@/types'
-import { ArkaPaymaster, EtherspotBundler, PrimeSdk, Web3WalletProvider } from '@etherspot/prime-sdk'
+import {
+  ArkaPaymaster,
+  EtherspotBundler,
+  isWalletProvider,
+  PrimeSdk,
+  Web3eip1193WalletProvider,
+} from '@etherspot/prime-sdk'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common/utils'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import {
@@ -16,6 +22,7 @@ import {
 import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, erc20Abi } from 'viem'
 import { contractABI } from '@/contracts/utils'
 import { QueryKeys } from '@/constants/query-keys'
+import { usePrivy, useWallets } from '@privy-io/react-auth'
 
 interface IEtherspotContext {
   etherspot: Etherspot | null
@@ -33,7 +40,8 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
   /**
    * WEB3AUTH
    */
-  const { provider: web3AuthProvider, isConnected } = useWeb3Auth()
+  const { wallets, ready } = useWallets()
+  const { authenticated } = usePrivy()
 
   /**
    * ETHERSPOT INSTANCE
@@ -44,14 +52,29 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    * Initialize Etherspot with Prime SDK instance on top of W3A wallet, once user signed in
    */
   const initEtherspot = useCallback(async () => {
-    if (!web3AuthProvider || !isConnected) {
+    if (!ready || !authenticated) {
       setEtherspot(null)
       return
     }
+    const privyProvider = await wallets[0].getWeb3jsProvider()
+    // @ts-ignore
+    const provider = privyProvider.walletProvider
+    let mappedProvider
+    if (!isWalletProvider(provider)) {
+      try {
+        // @ts-ignore
+        mappedProvider = new Web3eip1193WalletProvider(provider)
+        await mappedProvider.refresh()
+      } catch (e) {
+        // no need to log, this is an attempt
+      }
 
-    const mappedProvider = new Web3WalletProvider(web3AuthProvider)
-    await mappedProvider.refresh()
-    const primeSdk = new PrimeSdk(mappedProvider, {
+      if (!mappedProvider) {
+        throw new Error('Invalid provider!')
+      }
+    }
+
+    const primeSdk = new PrimeSdk(mappedProvider ?? provider, {
       chainId: defaultChain.id,
       bundlerProvider: new EtherspotBundler(
         defaultChain.id,
@@ -65,22 +88,23 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
       collateralToken.address[defaultChain.id]
     )
     setEtherspot(etherspot)
-  }, [web3AuthProvider, isConnected])
+  }, [ready, wallets])
 
   useEffect(() => {
     initEtherspot()
-  }, [web3AuthProvider, isConnected])
+  }, [ready, wallets])
 
   /**
    * Query to fetch smart wallet address
    */
   const { data: smartWalletAddress } = useQuery({
-    queryKey: [QueryKeys.SmartWalletAddress, !!etherspot],
+    queryKey: [QueryKeys.SmartWalletAddress],
     queryFn: async () => {
       const address = await etherspot?.getAddress()
       return address
     },
     refetchOnWindowFocus: false,
+    enabled: !!etherspot,
   })
 
   /**
