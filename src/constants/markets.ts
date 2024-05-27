@@ -114,7 +114,7 @@ export const markets: Market[] = [
     },
     hidden: {
       [base.id]: true,
-      [baseSepolia.id]: false,
+      [baseSepolia.id]: true,
     },
     address: {
       [base.id]: '0x09b856c4c8eCcEf87577F3fA16bEc32da3c4433b', // prod
@@ -262,12 +262,12 @@ export const markets: Market[] = [
   // weth
   {
     resolved: {
-      [base.id]: false,
-      [baseSepolia.id]: false,
+      [base.id]: true,
+      [baseSepolia.id]: true,
     },
     hidden: {
-      [base.id]: false,
-      [baseSepolia.id]: false,
+      [base.id]: true,
+      [baseSepolia.id]: true,
     },
     address: {
       [base.id]: '0x96ace74aa1ae07f7baf4e7f2736cbe2a703712fc', // prod
@@ -295,9 +295,9 @@ export const markets: Market[] = [
     placeholderURI: '/assets/images/markets/market6-placeholder.png',
     imageURI: '/assets/images/markets/market6.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market6-og.png',
-    expirationDate: 'TBA',
-    expirationTimestamp: 1717189199000,
-    expired: Date.now() > 1717189199000, // TODO: make dynamic
+    expirationDate: 'May 23, 2024',
+    expirationTimestamp: new Date('May 23, 2024').getTime(),
+    expired: Date.now() > new Date('May 23, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '@AutismCapital',
       imageURI: '/assets/images/markets/autism-capital.png',
@@ -394,8 +394,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market3.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market3-og.jpg',
     expirationDate: 'May 31, 2024',
-    expirationTimestamp: 1716305451000,
-    expired: Date.now() > 1716305451000, // TODO: make dynamic
+    expirationTimestamp: new Date('May 31, 2024').getTime(),
+    expired: Date.now() > new Date('May 31, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '/onchain',
       imageURI: '/assets/images/markets/onchain.jpg',
@@ -441,12 +441,12 @@ export const markets: Market[] = [
     outcomeTokens: ['Yes', 'No'],
     title: 'Will Limitless achieve $10M in volume in the first year since launch?',
     description: `Bet on or against new social prediction market Limitless’ success.`,
-    placeholderURI: '/assets/images/markets/market4-placeholder.jpg',
+    placeholderURI: '/assets/images/markets/market4.jpg',
     imageURI: '/assets/images/markets/market4.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market4-og.jpg',
     expirationDate: 'Apr 25, 2025',
-    expirationTimestamp: 1745614799000,
-    expired: Date.now() > 1745614799000, // TODO: make dynamic
+    expirationTimestamp: new Date('Apr 25, 2025').getTime(),
+    expired: Date.now() > new Date('Apr 25, 2025').getTime(), // TODO: make dynamic
     creator: {
       name: '@grin',
       imageURI: '/assets/images/markets/grin.jpg',
@@ -497,8 +497,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market1.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market1-og.jpg',
     expirationDate: 'Dec 31, 2024',
-    expirationTimestamp: 1735682399000,
-    expired: Date.now() > 1735682399000, // TODO: make dynamic
+    expirationTimestamp: new Date('Dec 31, 2024').getTime(),
+    expired: Date.now() > new Date('Dec 31, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '/skininthegame',
       imageURI: '/assets/images/markets/skininthegame.jpg',

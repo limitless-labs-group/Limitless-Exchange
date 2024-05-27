@@ -104,11 +104,9 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
     >
       <Image
         src={market?.imageURI}
-        // minH={{ sm: '200px', md: '30%' }}
-        // aspectRatio={'4/3'}
-        w={'140px'}
-        h={'140px'}
         objectFit='cover'
+        maxW={'140px'}
+        maxH={'140px'}
         bg={'brand'}
         borderRadius={borderRadius}
         alt='cover'
