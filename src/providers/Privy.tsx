@@ -33,7 +33,7 @@ const privvyConfig: PrivyClientConfig = {
   },
   defaultChain: defaultChain,
   supportedChains: [baseSepolia, base],
-  loginMethods: ['email', 'wallet', 'google', 'apple', 'farcaster'],
+  loginMethods: ['email', 'wallet', 'google', 'farcaster'],
 }
 
 export default function PrivyAuthProvider({ children }: { children: React.ReactNode }) {
