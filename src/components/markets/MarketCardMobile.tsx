@@ -1,4 +1,4 @@
-import { collateralToken, defaultChain, markets } from '@/constants'
+import { defaultChain, markets } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { borderRadius, colors } from '@/styles'
 import { Address, Market } from '@/types'
@@ -49,7 +49,7 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
     >
       <Stack w={'full'} spacing={3}>
         <HStack w={'full'} spacing={3} onClick={() => router.push(marketURI)}>
-          <Avatar src={market?.imageURI} size={'lg'} />
+          <Avatar src={market?.placeholderURI} size={'lg'} />
 
           <Stack alignItems={'start'}>
             <Text fontWeight={'bold'} fontSize={'16px'} noOfLines={3} lineHeight={'18px'}>
@@ -68,13 +68,13 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Liquidity</Text>
             <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(liquidity, 4)} ${
-              collateralToken.symbol
+              market?.tokenTicker[defaultChain.id]
             }`}</Text>
           </HStack>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Volume</Text>
             <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(volume, 4)} ${
-              collateralToken.symbol
+              market?.tokenTicker[defaultChain.id]
             }`}</Text>
           </HStack>
         </Stack>
