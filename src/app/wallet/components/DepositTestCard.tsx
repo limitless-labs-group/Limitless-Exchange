@@ -1,8 +1,7 @@
-import { Button } from '@/components'
-import { collateralTokensArray, defaultChain, higher, weth } from '@/constants'
+import { collateralTokensArray, defaultChain, weth } from '@/constants'
 import { useAccount, useBalanceService } from '@/services'
 import { borderRadius, colors } from '@/styles'
-import { HStack, Link, Stack, StackProps, Text } from '@chakra-ui/react'
+import { Button, HStack, Link, Stack, StackProps, Text } from '@chakra-ui/react'
 import { useIsMobile } from '@/hooks'
 import SelectTokenField from '@/components/common/SelectTokenField'
 import { useState } from 'react'
@@ -41,12 +40,7 @@ export const DepositTestCard = ({ ...props }: StackProps) => {
           TEST METHOD
         </Text>
       </HStack>
-      {/* <HStack w={'full'}>
-        <Heading fontSize={'24px'}>Mint mock {collateralToken.symbol}</Heading>
-      </HStack> */}
-
       <HStack w={'full'} spacing={4}>
-        {/* <Avatar name='1' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} /> */}
         <Text wordBreak={'break-word'}>
           Fund your Limitless account <b>{account}</b> with {defaultChain.name} <b>ETH</b>. It will
           be automatically wrapped into WETH. You can request some on{' '}
@@ -55,11 +49,6 @@ export const DepositTestCard = ({ ...props }: StackProps) => {
           </Link>
         </Text>
       </HStack>
-
-      {/* <HStack w={'full'} spacing={4}>
-        {defaultChain.testnet && (
-          <Avatar name='2' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} />
-        )} */}
       <SelectTokenField
         token={selectedToken}
         setToken={setSelectedToken}
@@ -79,7 +68,6 @@ export const DepositTestCard = ({ ...props }: StackProps) => {
       >
         Mint {tokenTitle}
       </Button>
-      {/* </HStack> */}
     </Stack>
   )
 }

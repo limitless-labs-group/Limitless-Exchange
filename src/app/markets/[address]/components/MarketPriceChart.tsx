@@ -3,7 +3,7 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { defaultChain, newSubgraphURI } from '@/constants'
+import { defaultChain, subgraphURI } from '@/constants'
 import { usePathname } from 'next/navigation'
 import { Box, Divider, Text, Image, HStack, VStack, Spacer } from '@chakra-ui/react'
 import { useState } from 'react'
@@ -192,7 +192,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
           }
       }`
 
-      const response = await axios.post(newSubgraphURI[defaultChain.id], { query })
+      const response = await axios.post(subgraphURI[defaultChain.id], { query })
       const pricingData = response.data.data?.AutomatedMarketMakerPricing as YesBuyChartData[]
 
       return flattenPriceData(pricingData)

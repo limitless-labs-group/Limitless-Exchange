@@ -1,0 +1,33 @@
+export enum QueryKeys {
+  Balance = 'balance',
+  TokenPrices = 'tokenPrices',
+  Farcaster = 'farcaster',
+  OutcomeTokensBuyPrice = 'outcomeTokensBuyPrice',
+  OutcomeTokensSellPrice = 'outcomeTokensSellPrice',
+  SmartWalletAddress = 'smartWalletAddress',
+  Trades = 'trades',
+  MarketData = 'marketData',
+  AutoWrapETH = 'autoWrapEth',
+  TradeQuotes = 'tradeQuotes',
+  CreatedMarkets = 'createdMarkets',
+  Redeems = 'redeems',
+  Positions = 'positions',
+  OutcomeTokensPercent = 'outcomeTokensPercent',
+}
+
+export const queryKeysArray = [
+  QueryKeys.Balance,
+  QueryKeys.TokenPrices,
+  QueryKeys.Farcaster,
+  QueryKeys.OutcomeTokensBuyPrice,
+  QueryKeys.OutcomeTokensSellPrice,
+  QueryKeys.SmartWalletAddress,
+  QueryKeys.Trades,
+  QueryKeys.MarketData,
+  QueryKeys.AutoWrapETH,
+  QueryKeys.TradeQuotes,
+  QueryKeys.CreatedMarkets,
+  QueryKeys.Redeems,
+  QueryKeys.Positions,
+  QueryKeys.OutcomeTokensPercent,
+]

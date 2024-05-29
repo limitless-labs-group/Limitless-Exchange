@@ -1,18 +1,17 @@
 import { PropsWithChildren, createContext, useCallback, useContext } from 'react'
-import { useWeb3Auth } from '@/providers'
 import { useEffect, useState } from 'react'
-import { useConnect, useDisconnect } from 'wagmi'
+import { useDisconnect } from 'wagmi'
 import { Address } from '@/types'
-import { defaultChain } from '@/constants'
 import { useAmplitude, useEtherspot } from '@/services'
-import { UserInfo } from '@web3auth/base'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
+import { QueryKeys } from '@/constants/query-keys'
+import { usePrivy, User } from '@privy-io/react-auth'
 
 export interface IAccountContext {
   isLoggedIn: boolean
   account: Address | undefined
-  userInfo: Partial<UserInfo> | undefined
+  userInfo: Partial<User> | undefined
   farcasterInfo: FarcasterUserData | undefined
 }
 
@@ -24,8 +23,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   /**
    * WEB3AUTH
    */
-  const { provider, web3Auth, isConnected } = useWeb3Auth()
-  const isLoggedIn = isConnected && !!provider
+  const { ready, authenticated, user } = usePrivy()
+
+  const isLoggedIn = authenticated && ready
 
   /**
    * ADDRESSES
@@ -35,15 +35,12 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   /**
    * USER INFO / METADATA
    */
-  const [userInfo, setUserInfo] = useState<Partial<UserInfo> | undefined>()
+  const [userInfo, setUserInfo] = useState<Partial<User> | undefined>()
 
   useEffect(() => {
-    if (isLoggedIn) {
-      web3Auth.getUserInfo().then((userInfo) => {
-        setUserInfo(userInfo)
-        trackSignUp()
-        console.log('w3a userInfo:', userInfo)
-      })
+    if (user) {
+      setUserInfo(user)
+      trackSignUp()
     }
   }, [isLoggedIn])
 
@@ -51,10 +48,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
    * FARCASTER
    */
   const { data: farcasterInfo } = useQuery({
-    queryKey: ['farcaster', userInfo],
+    queryKey: [QueryKeys.Farcaster, userInfo],
     queryFn: async () => {
       const { data } = await axios.get<FarcasterUsersRequestResponse>(
-        `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userInfo?.verifierId}`,
+        `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userInfo?.id}`,
         {
           headers: {
             api_key: process.env.NEXT_PUBLIC_NEYNAR_API_KEY,
@@ -62,10 +59,11 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         }
       )
       const [farcasterUserData] = data.users
-      console.log('farcasterUserData', farcasterUserData)
+      console.log(farcasterUserData)
       return farcasterUserData
     },
-    enabled: userInfo?.typeOfLogin === 'farcaster',
+    // Todo check farcaster data
+    enabled: !!userInfo?.farcaster,
   })
 
   /**
@@ -88,25 +86,21 @@ export const useAuth = () => {
    * STATE
    */
   const { isLoggedIn } = useAccount()
+  const { login, logout } = usePrivy()
 
   /**
    * SIGN IN
    */
-  const { connectAsync, connectors } = useConnect()
-  const signIn = useCallback(
-    () =>
-      connectAsync({
-        chainId: defaultChain.id,
-        connector: connectors.find((c) => c.id === 'web3auth')!,
-      }),
-    []
-  )
+  const signIn = () => login()
 
   /**
    * SIGN OUT
    */
   const { disconnectAsync } = useDisconnect()
-  const signOut = useCallback(async () => disconnectAsync(), [])
+  const signOut = useCallback(async () => {
+    await logout()
+    await disconnectAsync()
+  }, [])
 
   return {
     isLoggedIn,

@@ -34,6 +34,7 @@ import {
   parseUnits,
   zeroHash,
 } from 'viem'
+import { QueryKeys } from '@/constants/query-keys'
 
 interface ITradingServiceContext {
   market: Market | null
@@ -97,10 +98,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   // TODO: refactor
   const refetchChain = async () => {
     await queryClient.invalidateQueries({
-      queryKey: ['outcomeTokensBuyPrice', market?.address[defaultChain.id]],
+      queryKey: [QueryKeys.OutcomeTokensBuyPrice, market?.address[defaultChain.id]],
     })
     await queryClient.invalidateQueries({
-      queryKey: ['outcomeTokensSellPrice', market?.address[defaultChain.id]],
+      queryKey: [QueryKeys.OutcomeTokensSellPrice, market?.address[defaultChain.id]],
     })
     await refetchbalanceOfSmartWallet()
     await updateSellBalance()
@@ -109,7 +110,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   // TODO: refactor
   const refetchSubgraph = async () => {
     await queryClient.invalidateQueries({
-      queryKey: ['marketData', market?.address[defaultChain.id]],
+      queryKey: [QueryKeys.MarketData, market?.address[defaultChain.id]],
     })
     await getTrades()
     await getRedeems()
@@ -157,11 +158,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     if (!market || !account) {
       return 0n
     }
-    // const conditionId = await conditionalTokensContract.read.getConditionId([
-    //   zeroAddress,
-    //   market.questionId[defaultChain.id],
-    //   market.outcomeTokens.length,
-    // ])
     const collectionId = (await conditionalTokensContract.read.getCollectionId([
       zeroHash, // Since we don't support complicated conditions at the moment
       market.conditionId[defaultChain.id],
@@ -190,7 +186,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     const _balanceOfOutcomeToken = formatEther(balanceOfOutcomeTokenBI)
     const balanceOfOutcomeTokenCropped = NumberUtil.toFixed(_balanceOfOutcomeToken, 10)
     setBalanceOfOutcomeToken(balanceOfOutcomeTokenCropped)
-    console.log('balanceOfOutcomeToken', _balanceOfOutcomeToken)
 
     const holdings = await getCTBalance(market.address[defaultChain.id], outcomeTokenId)
     const otherHoldings: bigint[] = []
@@ -218,8 +213,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       balanceOfCollateralToSellBI,
       collateralToken.decimals
     )
-
-    console.log('balanceOfCollateralToSell', _balanceOfCollateralToSell)
 
     setBalanceOfCollateralToSell(_balanceOfCollateralToSell)
   }, [account, market, outcomeTokenId, strategy])
@@ -267,7 +260,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   useQuery({
     queryKey: [
-      'tradeQuotes',
+      QueryKeys.TradeQuotes,
       fixedProductMarketMakerContract?.address,
       collateralAmount,
       balanceOfOutcomeToken,
@@ -321,7 +314,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         roi,
         priceImpact,
       }
-      console.log('tradeQuotes', _quotes)
 
       setQuotes(_quotes)
       return quotes

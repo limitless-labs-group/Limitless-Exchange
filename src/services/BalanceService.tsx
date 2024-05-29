@@ -34,6 +34,7 @@ import {
   TransactionReceipt,
 } from 'viem'
 import { getBalance } from 'viem/actions'
+import { QueryKeys } from '@/constants/query-keys'
 
 interface IBalanceService {
   balanceOfSmartWallet: GetBalanceResult[] | undefined
@@ -68,7 +69,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
-  const { ethPrice, marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
+  const { marketTokensPrices, convertTokenAmountToUsd } = usePriceOracle()
 
   /**
    * Etherspot
@@ -79,10 +80,10 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
    * Weth balance
    */
   const { data: balanceOfSmartWallet, refetch: refetchbalanceOfSmartWallet } = useQuery({
-    queryKey: ['balance', smartWalletAddress],
+    queryKey: [QueryKeys.Balance, smartWalletAddress],
     queryFn: async () => {
       if (!smartWalletAddress) {
-        return
+        return []
       }
 
       const balances = await Promise.allSettled(
@@ -155,7 +156,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const overallBalanceUsd = useMemo(() => {
     let _overallBalanceUsd = 0
     balanceOfSmartWallet?.forEach((balanceResult) => {
-      _overallBalanceUsd += convertAssetAmountToUsd(balanceResult.id, balanceResult.formatted)
+      _overallBalanceUsd += convertTokenAmountToUsd(balanceResult.symbol, balanceResult.formatted)
     })
     return NumberUtil.toFixed(_overallBalanceUsd, 2)
   }, [balanceOfSmartWallet])
@@ -171,7 +172,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   }, [pathname])
 
   useQuery({
-    queryKey: ['autoWrapEth', smartWalletAddress, unwrap],
+    queryKey: [QueryKeys.AutoWrapETH, smartWalletAddress, unwrap],
     queryFn: async () => {
       if (!smartWalletAddress || !etherspot || unwrap) {
         return
@@ -247,8 +248,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     const isInvalidBalance = balanceOfSmartWallet === undefined
     const isNegativeOrZeroAmount = amountBI <= 0n
     const balanceEntity = balanceOfSmartWallet?.find((balance) => {
-      console.log(token)
-      console.log(balance)
       return balance.id === token.id
     }) as GetBalanceResult
     const isExceedsBalance = !!balanceOfSmartWallet && amountBI > balanceEntity.value

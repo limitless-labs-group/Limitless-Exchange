@@ -9,7 +9,6 @@ import {
   ModalHeader,
   ModalOverlay,
   ModalProps,
-  Flex,
 } from '@chakra-ui/react'
 
 export type IModal = ModalProps &
@@ -49,14 +48,11 @@ export const Modal = ({
             h={'26px'}
             color={'fontLight'}
             bg={'bgLight'}
-            colorScheme={'none'}
+            variant={'gray'}
             borderRadius={'full'}
             size={'xs'}
             fontSize={13}
             onClick={onClose}
-            // transition={'0.2s'}
-            // _hover={{ transform: 'scale(1.1)' }}
-            // _active={{ transform: 'none' }}
           >
             ⛌
           </Button>

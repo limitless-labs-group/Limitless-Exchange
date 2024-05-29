@@ -1,8 +1,7 @@
-import { Button } from '@/components'
 import { useBalanceService } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
-import { HStack, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
+import { Button, HStack, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
 import { useIsMobile } from '@/hooks'
 import { Address } from 'viem'
 import { defaultChain, weth } from '@/constants'
@@ -52,14 +51,18 @@ export const BalanceCard = ({
           w={isMobile ? 'full' : 'unset'}
         >
           <Button
-            colorScheme={'brand'}
             w={isMobile ? 'full' : '200px'}
             h={'30px'}
             onClick={() => handleOpenTopUpModal(weth.address[defaultChain.id])}
           >
             Top Up
           </Button>
-          <Button w={isMobile ? 'full' : '200px'} h={'30px'} onClick={handleOpenWithdrawModal}>
+          <Button
+            w={isMobile ? 'full' : '200px'}
+            h={'30px'}
+            onClick={handleOpenWithdrawModal}
+            variant='outline'
+          >
             Withdraw
           </Button>
         </VStack>

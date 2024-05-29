@@ -1,7 +1,6 @@
-import { Button } from '@/components'
 import { ShareURI } from '@/services'
 import { colors } from '@/styles'
-import { HStack, Image, StackProps, useClipboard } from '@chakra-ui/react'
+import { Button, HStack, Image, StackProps, useClipboard } from '@chakra-ui/react'
 import { FaLink, FaXTwitter } from 'react-icons/fa6'
 import { useRouter } from 'next/navigation'
 import { ReactElement } from 'react'
@@ -28,34 +27,17 @@ export const MarketCardUserActions = ({
   return (
     <HStack h={'33px'} {...props}>
       {mainActionButton ?? (
-        <Button
-          bg={'black'}
-          color={'white'}
-          h={'full'}
-          w={'full'}
-          p={1}
-          onClick={() => router.push(marketURI)}
-        >
+        <Button variant='black' h={'full'} w={'full'} p={1} onClick={() => router.push(marketURI)}>
           Trade
         </Button>
       )}
-      <Button h={'full'} aspectRatio={'1/1'} p={1} onClick={onCopy}>
+      <Button onClick={onCopy} variant='icon'>
         <FaLink size={'16px'} fill={hasCopied ? colors.brand : colors.font} />
       </Button>
-      <Button
-        h={'full'}
-        aspectRatio={'1/1'}
-        p={1}
-        onClick={() => window.open(shareLinks.tweetURI, '_blank', 'noopener')}
-      >
+      <Button variant='icon' onClick={() => window.open(shareLinks.tweetURI, '_blank', 'noopener')}>
         <FaXTwitter size={'16px'} />
       </Button>
-      <Button
-        h={'full'}
-        aspectRatio={'1/1'}
-        p={1}
-        onClick={() => window.open(shareLinks.castURI, '_blank', 'noopener')}
-      >
+      <Button onClick={() => window.open(shareLinks.castURI, '_blank', 'noopener')} variant='icon'>
         <Image src={'/assets/images/warpcast.svg'} h={'16px'} w={'16px'} alt={'warpcast'} />
       </Button>
     </HStack>

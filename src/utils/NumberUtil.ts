@@ -2,7 +2,7 @@ export class NumberUtil {
   static formatThousands = (v?: number | string, decimals = 0): string => {
     const parts = `${this.toFixed(v, decimals)}`.split('.')
     return `${parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${
-      parts[1]?.length ? `.${parts[1]}` : ''
+      parts[1]?.length && +parts[0] < 1000 ? `.${parts[1]}` : ''
     }`
   }
 

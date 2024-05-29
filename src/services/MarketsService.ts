@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEtherspot } from '@/services/Etherspot'
 import axios from 'axios'
-import { defaultChain, newSubgraphURI } from '@/constants'
+import { defaultChain, subgraphURI } from '@/constants'
+import { QueryKeys } from '@/constants/query-keys'
 
 export type AccountMarketResponse = {
   account_id: string
@@ -21,33 +22,33 @@ export type AccountMarketResponse = {
 export function useUsersMarkets() {
   const { smartWalletAddress } = useEtherspot()
   return useQuery<AccountMarketResponse[]>({
-    queryKey: ['createdMarkets', smartWalletAddress],
+    queryKey: [QueryKeys.CreatedMarkets, smartWalletAddress],
     queryFn: async () => {
       if (!smartWalletAddress) {
         return []
       }
       const queryName = 'GetAccountDetails'
       const response = await axios.request({
-        url: newSubgraphURI[defaultChain.id],
+        url: subgraphURI[defaultChain.id],
         method: 'post',
         data: {
           query: `
             query ${queryName} {
-  AccountMarket(where: {account_id: {_eq: "${smartWalletAddress}"}, chainId: {_eq: ${defaultChain.id} }}, order_by: {collateralsLocked: desc}) {
-    account_id
-    market {
-      id
-      closed
-      collateral {
-      id
-      name
-      symbol
-    }
-    }
-    collateralsInvested
-    collateralsLocked
-  }
-}
+              AccountMarket(where: {account_id: {_eq: "${smartWalletAddress}"}, chainId: {_eq: ${defaultChain.id} }}, order_by: {collateralsLocked: desc}) {
+                account_id
+                market {
+                  id
+                  closed
+                  collateral {
+                    id
+                    name
+                    symbol
+                  }
+                }
+                collateralsInvested
+                collateralsLocked
+              }
+            }
           `,
         },
       })

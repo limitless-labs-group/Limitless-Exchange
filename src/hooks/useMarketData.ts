@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useMemo } from 'react'
 import { Address, formatUnits, getContract, parseUnits } from 'viem'
+import { QueryKeys } from '@/constants/query-keys'
 
 interface IUseMarketData {
   marketAddress?: Address
@@ -34,7 +35,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
   )
 
   const { data: outcomeTokensBuyPrice } = useQuery({
-    queryKey: ['outcomeTokensBuyPrice', fixedProductMarketMakerContract?.address],
+    queryKey: [QueryKeys.OutcomeTokensBuyPrice, fixedProductMarketMakerContract?.address],
     queryFn: async () => {
       if (!fixedProductMarketMakerContract) {
         return [0, 0]
@@ -55,18 +56,13 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
       const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
 
-      console.log('outcomeTokensBuyPrice', {
-        priceYes: outcomeTokenPriceYes,
-        priceNo: outcomeTokenPriceNo,
-      })
-
       return [outcomeTokenPriceYes, outcomeTokenPriceNo]
     },
     // enabled: false,
   })
 
   const { data: outcomeTokensSellPrice } = useQuery({
-    queryKey: ['outcomeTokensSellPrice', fixedProductMarketMakerContract?.address],
+    queryKey: [QueryKeys.OutcomeTokensSellPrice, fixedProductMarketMakerContract?.address],
     queryFn: async () => {
       if (!fixedProductMarketMakerContract) {
         return [0, 0]
@@ -87,11 +83,6 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
       const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
 
-      console.log('outcomeTokensSellPrice', {
-        priceYes: outcomeTokenPriceYes,
-        priceNo: outcomeTokenPriceNo,
-      })
-
       return [outcomeTokenPriceYes, outcomeTokenPriceNo]
     },
     // enabled: false,
@@ -99,7 +90,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
 
   const { data: outcomeTokensPercent } = useQuery({
     queryKey: [
-      'outcomeTokensPercent',
+      QueryKeys.OutcomeTokensPercent,
       fixedProductMarketMakerContract?.address,
       outcomeTokensBuyPrice,
     ],
@@ -112,17 +103,12 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const outcomeTokensPercentYes = (outcomeTokensBuyPrice[0] / sum) * 100
       const outcomeTokensPercentNo = (outcomeTokensBuyPrice[1] / sum) * 100
 
-      console.log('outcomeTokensPercent', {
-        outcomeTokensPercentYes,
-        outcomeTokensPercentNo,
-      })
-
       return [outcomeTokensPercentYes, outcomeTokensPercentNo]
     },
   })
 
   const { data: liquidityAndVolume } = useQuery({
-    queryKey: ['marketData', marketAddress],
+    queryKey: [QueryKeys.MarketData, marketAddress],
     queryFn: async () => {
       if (!marketAddress) {
         return
@@ -133,14 +119,17 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
         method: 'post',
         data: {
           query: `
-            query ${queryName} {
-              ${queryName} (
-                where: {id: "${marketAddress}"}
-              ) {
-                funding
-                totalVolume
+            query GetMarketTotalVolumeAndFunding(
+              $marketId: String = "0x5e116ea80879d528041919e589cb88382c3745E0"
+              $chainId: Int = 8453
+            ) {
+                automatedMarketMakers: AutomatedMarketMaker(
+                  where: { id: { _ilike: $marketId }, chainId: { _eq: $chainId } }
+                ) {
+                    funding
+                    totalVolume
+                }
               }
-            }
           `,
         },
       })

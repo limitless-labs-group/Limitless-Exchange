@@ -1,13 +1,8 @@
-import { Flex, FlexProps, HStack, Heading, Image, Text } from '@chakra-ui/react'
-import {
-  LogInButton,
-  HeaderProfileMenuDesktop,
-  Button,
-  HeaderProfileMenuMobile,
-} from '@/components'
+import { Flex, FlexProps, HStack, Heading, Image, Text, Button } from '@chakra-ui/react'
+import { HeaderProfileMenuDesktop, HeaderProfileMenuMobile } from '@/components'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAccount } from 'wagmi'
-import { ClickEvent, useAmplitude, useBalanceService } from '@/services'
+import { ClickEvent, useAmplitude, useAuth, useBalanceService } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
 import { NumberUtil } from '@/utils'
@@ -15,10 +10,9 @@ import { NumberUtil } from '@/utils'
 export const Header = ({ ...props }: FlexProps) => {
   const router = useRouter()
   const pathname = usePathname()
-  const { isConnected } = useAccount()
   const { overallBalanceUsd } = useBalanceService()
-  // const { balanceUsd: investedUsd, balanceShares } = useHistory()
   const { trackClicked } = useAmplitude()
+  const { signIn, isLoggedIn } = useAuth()
 
   return (
     <Flex
@@ -52,9 +46,7 @@ export const Header = ({ ...props }: FlexProps) => {
         </Heading>
 
         <Button
-          colorScheme={'transparent'}
-          size={'sm'}
-          h={'40px'}
+          variant={'transparent'}
           display={{ sm: 'none', md: 'block' }}
           fontWeight={pathname == '/' ? 'bold' : 'normal'}
           onClick={() => {
@@ -73,7 +65,7 @@ export const Header = ({ ...props }: FlexProps) => {
       </HStack>
 
       <HStack h={'full'}>
-        {isConnected ? (
+        {isLoggedIn ? (
           <>
             <HStack
               h='full'
@@ -86,6 +78,8 @@ export const Header = ({ ...props }: FlexProps) => {
                   h={'40px'}
                   minWidth={'218px'}
                   gap={2}
+                  variant='outline'
+                  color='black'
                   fontWeight={'normal'}
                   onClick={() => router.push('/wallet')}
                 >
@@ -107,9 +101,10 @@ export const Header = ({ ...props }: FlexProps) => {
                 </Button>
 
                 <Button
-                  colorScheme={'transparent'}
+                  variant={'transparent'}
                   size={'sm'}
                   h={'40px'}
+                  minW={'110px'}
                   fontWeight={pathname.includes('portfolio') ? 'bold' : 'normal'}
                   display={{ sm: 'none', md: 'block' }}
                   onClick={() => router.push('/portfolio')}
@@ -124,13 +119,13 @@ export const Header = ({ ...props }: FlexProps) => {
                 </Button>
               </HStack>
 
-              <HeaderProfileMenuDesktop h={'full'} />
+              <HeaderProfileMenuDesktop />
             </HStack>
 
             <HeaderProfileMenuMobile display={{ sm: 'block', md: 'none' }} />
           </>
         ) : (
-          <LogInButton h={'full'} />
+          <Button onClick={signIn}>Sign in</Button>
         )}
       </HStack>
     </Flex>

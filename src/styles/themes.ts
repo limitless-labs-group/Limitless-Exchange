@@ -1,5 +1,6 @@
 import { extendTheme as ChakraTheme } from '@chakra-ui/react'
 import { radioTheme } from '@/styles/radio'
+import { buttonTheme } from '@/styles/button'
 
 const fonts = `Inter, sans-serif`
 export const colors = {
@@ -15,7 +16,7 @@ export const colors = {
   grey: {
     100: '#FAFAF9',
     200: '#EDEDEB',
-    700: '#747675',
+    300: '#E7E7E7',
     800: '#787A79',
   },
 }
@@ -101,19 +102,7 @@ export const chakraTheme = ChakraTheme({
     },
   },
   components: {
-    Button: {
-      baseStyle: {
-        fontSize: '14px',
-      },
-      variants: {
-        outline: {
-          borderWidth: 0,
-          bg: 'grey.100',
-          color: 'grey.800',
-          height: '52px',
-        },
-      },
-    },
+    Button: buttonTheme,
     FormLabel: {
       baseStyle: {
         fontSize: '14px',
