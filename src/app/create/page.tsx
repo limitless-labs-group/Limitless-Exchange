@@ -1,6 +1,6 @@
 'use client'
 
-import { Input, MainLayout } from '@/components'
+import { Input, MainLayout, Toast } from '@/components'
 import {
   Flex,
   Heading,
@@ -26,8 +26,13 @@ import {
 import { borderRadius, colors } from '@/styles'
 import { CgInfo } from 'react-icons/cg'
 import { SingleDatepicker } from 'chakra-dayzed-datepicker'
-import React, { MutableRefObject, useRef, useState } from 'react'
+import React, { ChangeEvent, MutableRefObject, useRef, useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
+import axios from 'axios'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { defaultChain, newSubgraphURI } from '@/constants'
+import { ActionMeta, OnChangeValue } from 'react-select/dist/declarations/src/types'
+import { useToast } from '@/hooks'
 
 interface FormFieldProps {
   label: string
@@ -57,6 +62,24 @@ const tokenLimits: TokenLimits = {
   },
 }
 
+interface TagOption {
+  id: string
+  label: string
+  value: string
+}
+
+interface Creator {
+  id: string
+  name: string
+}
+
+interface Token {
+  id: string
+  name: string
+}
+
+const defaultTokenName = 'WETH'
+
 const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
   <Box mt={4}>
     <FormLabel>
@@ -67,24 +90,131 @@ const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
 )
 
 const CreateOwnMarketPage = () => {
-  const [date, setDate] = useState(new Date())
+  const [formData, setFormData] = useState<FormData | null>(new FormData())
+
+  const [deadline, setDeadline] = useState(new Date())
   const [title, setTitle] = useState('')
-  const [token, setToken] = useState('WETH')
+  const [token, setToken] = useState<Token>({ name: defaultTokenName, id: '1' })
   const [description, setDescription] = useState('')
-  const [liquidity, setLiquidity] = React.useState(tokenLimits['WETH'].min)
-  const [probability, setProbability] = React.useState(50)
+  const [liquidity, setLiquidity] = useState(tokenLimits[defaultTokenName].min)
+  const [probability, setProbability] = useState(50)
+  const [tags, setTags] = useState<TagOption[]>([])
+  const [creator, setCreator] = useState('')
+
+  const queryClient = useQueryClient()
   const handleLiquidityChange = (value: number) => setLiquidity(value)
   const handleProbabilityChange = (value: number) => setProbability(value)
   const handleTokenSelect = (option: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedToken = option.target.value
-    setToken(selectedToken)
-    setLiquidity(tokenLimits[selectedToken].min)
+    const selectedTokenId = option.target.value
+    const selectedTokenName =
+      option.target.selectedOptions[0].getAttribute('data-name') ?? defaultTokenName
+    setToken({ name: selectedTokenName, id: selectedTokenId })
+    setLiquidity(tokenLimits[selectedTokenName].min)
   }
 
-  // Todo temp implementation before logic is adjusted
-  const inputRef: MutableRefObject<any> = useRef()
-  const handleFileUploaded = () => {
-    inputRef.current.click()
+  const toast = useToast()
+
+  const createOption = (id: string, name: string): TagOption => ({
+    id,
+    label: name,
+    value: name,
+  })
+
+  const { data: tagOptions } = useQuery({
+    queryKey: ['tagOptions'],
+    queryFn: async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`)
+
+      //@ts-ignore
+      return response.data.map((tag) => createOption(tag.id, tag.name))
+    },
+  })
+
+  const { data: creators } = useQuery({
+    queryKey: ['creators'],
+    queryFn: async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/creators`)
+
+      //@ts-ignore
+      return response.data
+    },
+  })
+
+  const { data: tokens } = useQuery({
+    queryKey: ['tokens'],
+    queryFn: async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tokens`)
+
+      //@ts-ignore
+      return response.data
+    },
+  })
+
+  const ogLogoRef: MutableRefObject<any> = useRef()
+  const marketLogoFileUpload = () => {
+    ogLogoRef.current.click()
+  }
+  const marketLogoRef: MutableRefObject<any> = useRef()
+  const ogLogoFileUpload = () => {
+    marketLogoRef.current.click()
+  }
+
+  const handleFileUpload = (key: string) => (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event?.target?.files?.[0]
+    if (file) {
+      formData?.append(key, file)
+      setFormData(formData)
+    }
+  }
+
+  const handleTagCreation = async (tagToCreate: string) => {
+    const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`, {
+      name: tagToCreate,
+    })
+
+    queryClient.setQueryData(['tagOptions'], (oldData: TagOption[]) => [
+      ...oldData,
+      createOption(res.data.id, res.data.name),
+    ])
+  }
+
+  const handleActiveTags = (selectedOptions: TagOption[]) => {
+    console.log(selectedOptions)
+    setTags(selectedOptions)
+  }
+
+  const createMarket = async () => {
+    formData?.set('title', title)
+    formData?.set('description', description)
+    formData?.set('tokenId', token.id)
+    formData?.set('liquidity', liquidity.toString())
+    formData?.set('probability', probability.toString())
+    formData?.set('deadline', deadline.toString())
+    formData?.set('creatorId', creator)
+    formData?.set('tagsId', tags.map((tag) => tag.id).join(','))
+
+    const res = await axios.post(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/admin`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+
+    if (res.status === 200) {
+      toast({
+        render: () => (
+          <Toast
+            title={
+              'Market creation request registered successfully. Please wait for SafeUI redirect'
+            }
+          />
+        ),
+      })
+      //redirect logic to SafeUI
+    }
   }
 
   return (
@@ -140,15 +270,16 @@ const CreateOwnMarketPage = () => {
             <FormField label='Token'>
               <HStack>
                 <Select onChange={handleTokenSelect}>
-                  <option value='onchain'>onchain</option>
-                  <option value='WETH' selected={true}>
-                    WETH
-                  </option>
+                  {tokens?.map((token: Token) => (
+                    <option key={token.id} value={token.id} data-name={token.name}>
+                      {token.name}
+                    </option>
+                  ))}
                 </Select>
               </HStack>
             </FormField>
 
-            <FormField label={`${token} Liquidity`}>
+            <FormField label={`${token.name} Liquidity`}>
               <HStack>
                 <NumberInput maxW='120px' mr='2rem' value={liquidity}>
                   <NumberInputField disabled w={'120px'} />
@@ -158,9 +289,9 @@ const CreateOwnMarketPage = () => {
                   focusThumbOnChange={false}
                   value={liquidity}
                   onChange={handleLiquidityChange}
-                  min={tokenLimits[token].min}
-                  max={tokenLimits[token].max}
-                  step={tokenLimits[token].step}
+                  min={tokenLimits[token.name].min}
+                  max={tokenLimits[token.name].max}
+                  step={tokenLimits[token.name].step}
                 >
                   <SliderTrack>
                     <SliderFilledTrack />
@@ -194,10 +325,12 @@ const CreateOwnMarketPage = () => {
 
             <FormField label='Creator'>
               <HStack>
-                <Select placeholder='Select creator'>
-                  <option value='@rev'>@rev</option>
-                  <option value='Dima Horshkov'>Dima Horshkov</option>
-                  <option value='CJ'>CJ</option>
+                <Select onChange={(e) => setCreator(e?.target?.value)}>
+                  {creators?.map((creator: Creator) => (
+                    <option key={creator.id} value={creator.id}>
+                      {creator.name}
+                    </option>
+                  ))}
                 </Select>
               </HStack>
             </FormField>
@@ -205,7 +338,13 @@ const CreateOwnMarketPage = () => {
             <FormField label='Tags'>
               <HStack w={'full'}>
                 <Box width='full'>
-                  <CreatableSelect isMulti />
+                  <CreatableSelect
+                    isMulti
+                    onCreateOption={handleTagCreation}
+                    //@ts-ignore
+                    onChange={handleActiveTags}
+                    options={tagOptions}
+                  />
                 </Box>
               </HStack>
             </FormField>
@@ -248,9 +387,9 @@ const CreateOwnMarketPage = () => {
                   },
                 }}
                 name='date-input'
-                date={date}
+                date={deadline}
                 usePortal={true}
-                onDateChange={setDate}
+                onDateChange={setDeadline}
                 minDate={new Date()}
               />
             </FormField>
@@ -259,13 +398,14 @@ const CreateOwnMarketPage = () => {
               <HStack>
                 <input
                   type='file'
-                  id='fileUpload'
-                  name='fileUpload'
+                  id='marketLogoUpload'
+                  name='marketLogoUpload'
                   style={{ display: 'none' }}
-                  ref={inputRef}
+                  ref={ogLogoRef}
                   accept={'image/png, image/jpeg'}
+                  onChange={handleFileUpload('marketLogo')}
                 />
-                <Button colorScheme='gray' onClick={handleFileUploaded}>
+                <Button colorScheme='gray' onClick={marketLogoFileUpload}>
                   Choose file
                 </Button>
                 <Text>No file chosen.</Text>
@@ -276,13 +416,14 @@ const CreateOwnMarketPage = () => {
               <HStack>
                 <input
                   type='file'
-                  id='fileUpload'
-                  name='fileUpload'
+                  id='ogLogoUpload'
+                  name='ogLogoUpload'
                   style={{ display: 'none' }}
-                  ref={inputRef}
+                  ref={marketLogoRef}
                   accept={'image/png, image/jpeg'}
+                  onChange={handleFileUpload('ogLogo')}
                 />
-                <Button colorScheme='gray' onClick={handleFileUploaded}>
+                <Button colorScheme='gray' onClick={ogLogoFileUpload}>
                   Choose file
                 </Button>
                 <Text>No file chosen.</Text>
@@ -293,7 +434,7 @@ const CreateOwnMarketPage = () => {
               <Button variant='outline' width='222px' disabled>
                 Cancel
               </Button>
-              <Button colorScheme='blue' width='222px' height='52px'>
+              <Button colorScheme='blue' width='222px' height='52px' onClick={createMarket}>
                 Create
               </Button>
             </ButtonGroup>
