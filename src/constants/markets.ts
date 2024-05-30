@@ -1,4 +1,4 @@
-import { degen, higher, mfer, onChain, regen, weth } from '@/constants/tokens'
+import { degen, higher, mfer, onChain, weth } from '@/constants/tokens'
 import { Market } from '@/types'
 import { zeroAddress, zeroHash } from 'viem'
 import { base, baseSepolia } from 'viem/chains'

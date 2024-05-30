@@ -19,7 +19,7 @@ import { useBalanceService } from '@/services'
 import { NumberUtil } from '@/utils'
 import { usePriceOracle } from '@/providers'
 import { useIsMobile } from '@/hooks'
-import { useUsersMarkets } from '@/services/MarketsService'
+import { useUsersMarkets } from '@/services/UsersMarketsService'
 import { Address, formatUnits } from 'viem'
 import { MarketTokensIds } from '@/types'
 

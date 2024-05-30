@@ -1,12 +1,12 @@
-import { collateralToken, defaultChain, markets } from '@/constants'
+import { collateralToken, defaultChain } from '@/constants'
 import { HistoryTrade } from '@/services'
 import { borderRadius } from '@/styles'
-import { Market } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { HStack, Heading, Image, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { FaExternalLinkAlt } from 'react-icons/fa'
+import { useMarkets } from '@/services/MarketsService'
 
 interface IPortfolioHistoryTradeItem extends TableRowProps {
   trade: HistoryTrade
@@ -25,6 +25,8 @@ export const PortfolioHistoryTradeItem = ({
   /**
    * MARKET DATA
    */
+  const markets = useMarkets()
+
   const market = useMemo(
     () =>
       markets.find(

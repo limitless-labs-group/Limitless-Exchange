@@ -10,9 +10,10 @@ import {
 import { Flex, Spacer, Spinner } from '@chakra-ui/react'
 import { useEffect, useMemo } from 'react'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
-import { defaultChain, markets } from '@/constants'
+import { defaultChain } from '@/constants'
 import { useRouter } from 'next/navigation'
 import { MarketPriceChart } from '@/app/markets/[address]/components/MarketPriceChart'
+import { useMarkets } from '@/services/MarketsService'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
@@ -30,6 +31,8 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
    * SET MARKET
    */
+  const markets = useMarkets()
+
   const market = useMemo(
     () =>
       markets.find(

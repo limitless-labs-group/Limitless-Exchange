@@ -22,16 +22,15 @@ import {
   SliderTrack,
   SliderFilledTrack,
   SliderThumb,
+  Spinner,
 } from '@chakra-ui/react'
 import { borderRadius, colors } from '@/styles'
 import { CgInfo } from 'react-icons/cg'
 import { SingleDatepicker } from 'chakra-dayzed-datepicker'
-import React, { ChangeEvent, MutableRefObject, useRef, useState } from 'react'
+import React, { MutableRefObject, useRef, useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 import axios from 'axios'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { defaultChain, newSubgraphURI } from '@/constants'
-import { ActionMeta, OnChangeValue } from 'react-select/dist/declarations/src/types'
 import { useToast } from '@/hooks'
 
 interface FormFieldProps {
@@ -50,7 +49,7 @@ interface TokenLimits {
 }
 
 const tokenLimits: TokenLimits = {
-  onchain: {
+  ONCHAIN: {
     min: 390000,
     max: 3900000,
     step: 10000,
@@ -75,10 +74,12 @@ interface Creator {
 
 interface Token {
   id: string
-  name: string
+  symbol: string
 }
 
-const defaultTokenName = 'WETH'
+const defaultTokenSymbol = 'WETH'
+const defaultProbability = 50
+const defaultCreatorId = '1'
 
 const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
   <Box mt={4}>
@@ -90,29 +91,54 @@ const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
 )
 
 const CreateOwnMarketPage = () => {
-  const [formData, setFormData] = useState<FormData | null>(new FormData())
+  const [formData, setFormData] = useState<FormData>(new FormData())
 
-  const [deadline, setDeadline] = useState(new Date())
-  const [title, setTitle] = useState('')
-  const [token, setToken] = useState<Token>({ name: defaultTokenName, id: '1' })
-  const [description, setDescription] = useState('')
-  const [liquidity, setLiquidity] = useState(tokenLimits[defaultTokenName].min)
-  const [probability, setProbability] = useState(50)
-  const [tags, setTags] = useState<TagOption[]>([])
-  const [creator, setCreator] = useState('')
+  const [deadline, setDeadline] = useState<Date>(new Date())
+  const [title, setTitle] = useState<string>('')
+  const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: '1' })
+  const [description, setDescription] = useState<string>('')
+  const [liquidity, setLiquidity] = useState<number>(tokenLimits[defaultTokenSymbol].min)
+  const [probability, setProbability] = useState<number>(defaultProbability)
+  const [tag, setTag] = useState<TagOption[]>([])
+  const [creatorId, setCreatorId] = useState<string>(defaultCreatorId)
+  const [marketLogo, setMarketLogo] = useState<File | undefined>()
+  const [ogLogo, setOgLogo] = useState<File | undefined>()
+
+  const [isCreating, setIsCreating] = useState<boolean>(false)
 
   const queryClient = useQueryClient()
+
   const handleLiquidityChange = (value: number) => setLiquidity(value)
+
   const handleProbabilityChange = (value: number) => setProbability(value)
+
   const handleTokenSelect = (option: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedTokenId = option.target.value
-    const selectedTokenName =
-      option.target.selectedOptions[0].getAttribute('data-name') ?? defaultTokenName
-    setToken({ name: selectedTokenName, id: selectedTokenId })
-    setLiquidity(tokenLimits[selectedTokenName].min)
+    const selectedTokenSymbol =
+      option.target.selectedOptions[0].getAttribute('data-name') ?? defaultTokenSymbol
+    setToken({ symbol: selectedTokenSymbol, id: selectedTokenId })
+    setLiquidity(tokenLimits[selectedTokenSymbol].min)
+  }
+
+  const cleanMarketState = () => {
+    setFormData(new FormData())
+    setDeadline(new Date())
+    setTitle('')
+    setToken({ symbol: defaultTokenSymbol, id: '1' })
+    setDescription('')
+    setLiquidity(tokenLimits[defaultTokenSymbol].min)
+    setProbability(defaultProbability)
+    setTag([])
+    setCreatorId(defaultCreatorId)
+    setIsCreating(false)
+    setMarketLogo(undefined)
+    setOgLogo(undefined)
   }
 
   const toast = useToast()
+
+  const ogLogoRef: MutableRefObject<any> = useRef()
+  const marketLogoRef: MutableRefObject<any> = useRef()
 
   const createOption = (id: string, name: string): TagOption => ({
     id,
@@ -125,8 +151,9 @@ const CreateOwnMarketPage = () => {
     queryFn: async () => {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`)
 
-      //@ts-ignore
-      return response.data.map((tag) => createOption(tag.id, tag.name))
+      return response.data.map((tag: { id: string; name: string }) =>
+        createOption(tag.id, tag.name)
+      ) as TagOption[]
     },
   })
 
@@ -134,9 +161,7 @@ const CreateOwnMarketPage = () => {
     queryKey: ['creators'],
     queryFn: async () => {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/creators`)
-
-      //@ts-ignore
-      return response.data
+      return response.data as Creator[]
     },
   })
 
@@ -144,28 +169,9 @@ const CreateOwnMarketPage = () => {
     queryKey: ['tokens'],
     queryFn: async () => {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tokens`)
-
-      //@ts-ignore
-      return response.data
+      return response.data as Token[]
     },
   })
-
-  const ogLogoRef: MutableRefObject<any> = useRef()
-  const marketLogoFileUpload = () => {
-    ogLogoRef.current.click()
-  }
-  const marketLogoRef: MutableRefObject<any> = useRef()
-  const ogLogoFileUpload = () => {
-    marketLogoRef.current.click()
-  }
-
-  const handleFileUpload = (key: string) => (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event?.target?.files?.[0]
-    if (file) {
-      formData?.append(key, file)
-      setFormData(formData)
-    }
-  }
 
   const handleTagCreation = async (tagToCreate: string) => {
     const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`, {
@@ -180,18 +186,36 @@ const CreateOwnMarketPage = () => {
 
   const handleActiveTags = (selectedOptions: TagOption[]) => {
     console.log(selectedOptions)
-    setTags(selectedOptions)
+    setTag(selectedOptions)
   }
 
   const createMarket = async () => {
+    if (!title || !description || !creatorId || !marketLogo || !ogLogo || !tag) {
+      toast({
+        render: () => (
+          <Toast title={'Title, Description, Creator, Market Logo, Og Logo, Tags are required!'} />
+        ),
+      })
+      return
+    }
+
     formData?.set('title', title)
     formData?.set('description', description)
     formData?.set('tokenId', token.id)
     formData?.set('liquidity', liquidity.toString())
-    formData?.set('probability', probability.toString())
-    formData?.set('deadline', deadline.toString())
-    formData?.set('creatorId', creator)
-    formData?.set('tagsId', tags.map((tag) => tag.id).join(','))
+    formData?.set('initialYesProbability', (probability / 100).toString())
+    formData?.set('deadline', deadline.toISOString())
+    formData?.set('creatorId', creatorId)
+    formData?.set('imageFile', marketLogo)
+    formData?.set('ogFile', ogLogo)
+    formData?.set('tagIds', tag.map((tag) => tag.id).join(','))
+
+    toast({
+      render: () => (
+        <Toast title={'Request for market creation has been registered successfully.'} />
+      ),
+    })
+    setIsCreating(true)
 
     const res = await axios.post(
       `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/admin`,
@@ -202,18 +226,20 @@ const CreateOwnMarketPage = () => {
         },
       }
     )
+    cleanMarketState()
 
-    if (res.status === 200) {
+    if (res.status === 201) {
+      const newTab = window.open('', '_blank')
+      if (newTab) {
+        newTab.location.href = res.data.multisigTxLink
+      } else {
+        // Fallback if the browser blocks the popup
+        window.location.href = res.data.multisigTxLink
+      }
+    } else {
       toast({
-        render: () => (
-          <Toast
-            title={
-              'Market creation request registered successfully. Please wait for SafeUI redirect'
-            }
-          />
-        ),
+        render: () => <Toast title={`Error: ${res.statusText}`} />,
       })
-      //redirect logic to SafeUI
     }
   }
 
@@ -271,15 +297,15 @@ const CreateOwnMarketPage = () => {
               <HStack>
                 <Select onChange={handleTokenSelect}>
                   {tokens?.map((token: Token) => (
-                    <option key={token.id} value={token.id} data-name={token.name}>
-                      {token.name}
+                    <option key={token.id} value={token.id} data-name={token.symbol}>
+                      {token.symbol}
                     </option>
                   ))}
                 </Select>
               </HStack>
             </FormField>
 
-            <FormField label={`${token.name} Liquidity`}>
+            <FormField label={`${token.symbol} Liquidity`}>
               <HStack>
                 <NumberInput maxW='120px' mr='2rem' value={liquidity}>
                   <NumberInputField disabled w={'120px'} />
@@ -289,9 +315,9 @@ const CreateOwnMarketPage = () => {
                   focusThumbOnChange={false}
                   value={liquidity}
                   onChange={handleLiquidityChange}
-                  min={tokenLimits[token.name].min}
-                  max={tokenLimits[token.name].max}
-                  step={tokenLimits[token.name].step}
+                  min={tokenLimits[token.symbol].min}
+                  max={tokenLimits[token.symbol].max}
+                  step={tokenLimits[token.symbol].step}
                 >
                   <SliderTrack>
                     <SliderFilledTrack />
@@ -325,7 +351,7 @@ const CreateOwnMarketPage = () => {
 
             <FormField label='Creator'>
               <HStack>
-                <Select onChange={(e) => setCreator(e?.target?.value)}>
+                <Select onChange={(e) => setCreatorId(e?.target?.value)}>
                   {creators?.map((creator: Creator) => (
                     <option key={creator.id} value={creator.id}>
                       {creator.name}
@@ -403,12 +429,12 @@ const CreateOwnMarketPage = () => {
                   style={{ display: 'none' }}
                   ref={ogLogoRef}
                   accept={'image/png, image/jpeg'}
-                  onChange={handleFileUpload('marketLogo')}
+                  onChange={(e) => setMarketLogo(e?.target?.files?.[0])}
                 />
-                <Button colorScheme='gray' onClick={marketLogoFileUpload}>
+                <Button colorScheme='gray' onClick={() => ogLogoRef.current.click()}>
                   Choose file
                 </Button>
-                <Text>No file chosen.</Text>
+                <Text>{marketLogo?.name ?? 'No file chosen.'}</Text>
               </HStack>
             </FormField>
 
@@ -421,12 +447,12 @@ const CreateOwnMarketPage = () => {
                   style={{ display: 'none' }}
                   ref={marketLogoRef}
                   accept={'image/png, image/jpeg'}
-                  onChange={handleFileUpload('ogLogo')}
+                  onChange={(e) => setOgLogo(e?.target?.files?.[0])}
                 />
-                <Button colorScheme='gray' onClick={ogLogoFileUpload}>
+                <Button colorScheme='gray' onClick={() => marketLogoRef.current.click()}>
                   Choose file
                 </Button>
-                <Text>No file chosen.</Text>
+                <Text>{ogLogo?.name ?? 'No file chosen.'}</Text>
               </HStack>
             </FormField>
 
@@ -434,9 +460,15 @@ const CreateOwnMarketPage = () => {
               <Button variant='outline' width='222px' disabled>
                 Cancel
               </Button>
-              <Button colorScheme='blue' width='222px' height='52px' onClick={createMarket}>
-                Create
-              </Button>
+              {isCreating ? (
+                <Box width='222px' display='flex' justifyContent='center' alignItems='center'>
+                  <Spinner />
+                </Box>
+              ) : (
+                <Button colorScheme='blue' width='222px' height='52px' onClick={createMarket}>
+                  Create
+                </Button>
+              )}
             </ButtonGroup>
           </FormControl>
         </VStack>
