@@ -96,8 +96,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market11.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market11-og.png',
     expirationDate: 'May 31, 2024',
-    expirationTimestamp: new Date('May 31, 2024').getTime(),
-    expired: Date.now() > new Date('May 31, 2024').getTime(), // TODO: make dynamic
+    expirationTimestamp: new Date('Jun 1, 2024').getTime(),
+    expired: Date.now() > new Date('Jun 1, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '/onchain',
       imageURI: '/assets/images/markets/onchain.jpg',
@@ -147,8 +147,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market10.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market10.png',
     expirationDate: 'July 1, 2024',
-    expirationTimestamp: new Date('July 1, 2024').getTime(),
-    expired: Date.now() > new Date('July 1, 2024').getTime(), // TODO: make dynamic
+    expirationTimestamp: new Date('July 2, 2024').getTime(),
+    expired: Date.now() > new Date('July 2, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '/mfers',
       imageURI: '/assets/images/markets/mfers.png',
@@ -198,8 +198,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market9.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market9.png',
     expirationDate: 'June 1, 2024',
-    expirationTimestamp: new Date('June 1, 2024').getTime(),
-    expired: Date.now() > new Date('June 1, 2024').getTime(), // TODO: make dynamic
+    expirationTimestamp: new Date('June 2, 2024').getTime(),
+    expired: Date.now() > new Date('June 2, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '/onchain',
       imageURI: '/assets/images/markets/onchain.jpg',
@@ -249,8 +249,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market8.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market8.png',
     expirationDate: 'May 22, 2024',
-    expirationTimestamp: new Date('May 22, 2024').getTime(),
-    expired: Date.now() > new Date('May 22, 2024').getTime(), // TODO: make dynamic
+    expirationTimestamp: new Date('May 23, 2024').getTime(),
+    expired: Date.now() > new Date('May 23, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '/higher',
       imageURI: '/assets/images/markets/higher.png',
@@ -296,8 +296,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market6.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market6-og.png',
     expirationDate: 'May 23, 2024',
-    expirationTimestamp: new Date('May 23, 2024').getTime(),
-    expired: Date.now() > new Date('May 23, 2024').getTime(), // TODO: make dynamic
+    expirationTimestamp: new Date('May 24, 2024').getTime(),
+    expired: Date.now() > new Date('May 24, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '@AutismCapital',
       imageURI: '/assets/images/markets/autism-capital.png',
@@ -394,8 +394,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market3.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market3-og.jpg',
     expirationDate: 'May 31, 2024',
-    expirationTimestamp: new Date('May 31, 2024').getTime(),
-    expired: Date.now() > new Date('May 31, 2024').getTime(), // TODO: make dynamic
+    expirationTimestamp: new Date('Jun 1, 2024').getTime(),
+    expired: Date.now() > new Date('Jun 1, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '/onchain',
       imageURI: '/assets/images/markets/onchain.jpg',
@@ -445,8 +445,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market4.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market4-og.jpg',
     expirationDate: 'Apr 25, 2025',
-    expirationTimestamp: new Date('Apr 25, 2025').getTime(),
-    expired: Date.now() > new Date('Apr 25, 2025').getTime(), // TODO: make dynamic
+    expirationTimestamp: new Date('Apr 26, 2025').getTime(),
+    expired: Date.now() > new Date('Apr 26, 2025').getTime(), // TODO: make dynamic
     creator: {
       name: '@grin',
       imageURI: '/assets/images/markets/grin.jpg',
@@ -497,8 +497,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market1.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market1-og.jpg',
     expirationDate: 'Dec 31, 2024',
-    expirationTimestamp: new Date('Dec 31, 2024').getTime(),
-    expired: Date.now() > new Date('Dec 31, 2024').getTime(), // TODO: make dynamic
+    expirationTimestamp: new Date('Jan 1, 2025').getTime(),
+    expired: Date.now() > new Date('Jan 1, 2025').getTime(), // TODO: make dynamic
     creator: {
       name: '/skininthegame',
       imageURI: '/assets/images/markets/skininthegame.jpg',
@@ -548,8 +548,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market2.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market2-og.jpg',
     expirationDate: 'May 5, 2024',
-    expirationTimestamp: 1716305451000,
-    expired: false, // TODO: make dynamic
+    expirationTimestamp: new Date('May 6, 2024').getTime(),
+    expired: Date.now() > new Date('May 6, 2024').getTime(), // TODO: make dynamic
     winningOutcomeIndex: 1, // TODO: report winners
     creator: {
       name: '@rev',
