@@ -8,12 +8,11 @@ import {
   MarketTradingForm,
 } from '@/app/markets/[address]/components'
 import { Flex, Spacer, Spinner } from '@chakra-ui/react'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
-import { defaultChain } from '@/constants'
 import { useRouter } from 'next/navigation'
 import { MarketPriceChart } from '@/app/markets/[address]/components/MarketPriceChart'
-import { useMarkets } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
@@ -31,15 +30,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
    * SET MARKET
    */
-  const markets = useMarkets()
-
-  const market = useMemo(
-    () =>
-      markets.find(
-        (market) => market.address[defaultChain.id]?.toLowerCase() === params.address.toLowerCase()
-      ) ?? null,
-    [params.address]
-  )
+  const market = useMarket(params.address)
 
   const { setMarket, market: previousMarket } = useTradingService()
 

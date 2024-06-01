@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { Market } from '@/types'
+import { useMemo } from 'react'
 
 export function useMarkets() {
   const { data: markets } = useQuery({
@@ -11,5 +12,19 @@ export function useMarkets() {
     },
   })
 
-  return markets ?? []
+  return useMemo(() => markets ?? [], [markets])
+}
+
+export function useMarket(address: string) {
+  const { data: market } = useQuery({
+    queryKey: ['market', address],
+    queryFn: async () => {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${address}`
+      )
+      return response.data as Market
+    },
+  })
+
+  return useMemo(() => market ?? null, [market])
 }
