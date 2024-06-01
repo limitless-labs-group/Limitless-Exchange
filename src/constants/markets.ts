@@ -58,7 +58,7 @@ export const markets: Market[] = [
   // onchain
   {
     resolved: {
-      [base.id]: false,
+      [base.id]: true,
       [baseSepolia.id]: false,
     },
     hidden: {
@@ -345,7 +345,7 @@ export const markets: Market[] = [
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market5-og.jpg',
     expirationDate: 'TBA',
     expirationTimestamp: 1717189199000,
-    expired: Date.now() > 1717189199000, // TODO: make dynamic
+    expired: false,
     creator: {
       name: '@rev',
       imageURI: '/assets/images/markets/rev.jpg',
@@ -357,7 +357,7 @@ export const markets: Market[] = [
   // weth
   {
     resolved: {
-      [base.id]: false,
+      [base.id]: true,
       [baseSepolia.id]: false,
     },
     hidden: {
