@@ -1,5 +1,5 @@
 import { Button } from '@/components'
-import { collateralToken, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { useHistory, useTradingService } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
@@ -14,7 +14,7 @@ interface MarketClaimingFormProps extends StackProps {
 
 export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market, ...props }) => {
   const { redeem: claim, status } = useTradingService()
-  const { positions, redeems } = useHistory()
+  const { positions } = useHistory()
   const positionToClaim = useMemo(
     () =>
       positions?.filter(
@@ -24,17 +24,6 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market, 
           market.expired
       )?.[0],
     [positions, market]
-  )
-
-  const positionRedeem = useMemo(
-    () =>
-      redeems?.filter(
-        (redeem) =>
-          redeem.conditionId.toLowerCase() === market?.conditionId[defaultChain.id].toLowerCase() &&
-          redeem.outcomeIndex === market.winningOutcomeIndex &&
-          market.expired
-      )?.[0],
-    [redeems, market]
   )
 
   return (
@@ -56,31 +45,27 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market, 
         Outcome: {market?.outcomeTokens[market?.winningOutcomeIndex ?? 0]}
       </Text>
 
-      {positionToClaim && (
+      {positionToClaim ? (
         <Stack w={'full'} alignItems={'center'} spacing={3}>
-          {positionRedeem ? (
-            <Text>
-              <strong>You have claimed the winnings 🎉</strong>
-            </Text>
-          ) : (
-            <>
-              <Text>
-                You won {NumberUtil.toFixed(positionToClaim.outcomeTokenAmount, 6)}{' '}
-                {market?.tokenTicker[defaultChain.id]} 🎉
-              </Text>
-              <Button
-                bg={'brand'}
-                color={'white'}
-                w={'full'}
-                isLoading={status === 'Loading'}
-                isDisabled={!positionToClaim}
-                onClick={() => claim(positionToClaim.outcomeIndex)}
-              >
-                Claim
-              </Button>
-            </>
-          )}
+          <Text>
+            You won {NumberUtil.toFixed(positionToClaim.outcomeTokenAmount, 6)}{' '}
+            {market?.tokenTicker[defaultChain.id]} 🎉
+          </Text>
+          <Button
+            bg={'brand'}
+            color={'white'}
+            w={'full'}
+            isLoading={status === 'Loading'}
+            isDisabled={!positionToClaim}
+            onClick={() => claim(positionToClaim.outcomeIndex)}
+          >
+            Claim
+          </Button>
         </Stack>
+      ) : (
+        <Text>
+          <strong>You have claimed the winnings 🎉</strong>
+        </Text>
       )}
     </Stack>
   )
