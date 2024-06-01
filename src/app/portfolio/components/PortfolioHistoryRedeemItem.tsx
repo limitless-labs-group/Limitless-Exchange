@@ -68,9 +68,8 @@ export const PortfolioHistoryRedeemItem = ({
       {/* Amount */}
       <Td px={2} isNumeric>
         <Text fontWeight={'bold'}>
-          {`${NumberUtil.toFixed(Number(redeem.collateralAmount ?? 0), 6)} ${
-            market?.tokenTicker ?? collateralToken.symbol
-          }`}
+          {`${NumberUtil.toFixed(Number(redeem.collateralAmount ?? 0), 6)} 
+          ${market?.tokenTicker[defaultChain.id] ?? collateralToken.symbol}`}
         </Text>
       </Td>
 
