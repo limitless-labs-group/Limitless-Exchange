@@ -67,7 +67,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
                   id
                   closed
                   funding
-                  condition_id
+                  conditionId: condition_id
                   collateral {
                     symbol
                   }
