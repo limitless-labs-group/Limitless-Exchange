@@ -1,4 +1,4 @@
-import { collateralToken, defaultChain, markets, subgraphURI } from '@/constants'
+import { collateralToken, defaultChain, markets, newSubgraphURI, subgraphURI } from '@/constants'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers'
 import { Market } from '@/types'
@@ -127,15 +127,19 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       if (!marketAddress) {
         return
       }
-      const queryName = 'automatedMarketMakers'
+      const queryName = 'AutomatedMarketMaker'
       const res = await axios.request({
-        url: subgraphURI[defaultChain.id],
+        url: newSubgraphURI[defaultChain.id],
         method: 'post',
         data: {
           query: `
             query ${queryName} {
               ${queryName} (
-                where: {id: "${marketAddress}"}
+                where: {
+                  id: { 
+                    _ilike: "${marketAddress}" 
+                  } 
+                }
               ) {
                 funding
                 totalVolume
@@ -144,6 +148,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
           `,
         },
       })
+      console.log('GetMarkets query response', res)
       const [_marketData] = res.data.data?.[queryName] as MarketData[]
       const liquidity = formatUnits(BigInt(_marketData.funding), collateralToken.decimals)
       const volume = formatUnits(BigInt(_marketData.totalVolume ?? '0'), collateralToken.decimals)
