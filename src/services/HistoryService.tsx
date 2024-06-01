@@ -219,7 +219,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 
       // filter redeemed markets
       _positions = _positions.filter(
-        (position) => !redeems?.find((redeem) => redeem.conditionId === position.market.conditionId)
+        (position) =>
+          !redeems?.find((redeem) => redeem.conditionId === position.market.condition_id)
       )
       console.log('positions', _positions)
 
@@ -316,7 +317,7 @@ export type HistoryTrade = {
 
 export type HistoryMarket = {
   id: Address
-  conditionId: Hash
+  condition_id: Hash //#TODO align namings to conditionId
   paused?: boolean
   closed?: boolean
   funding?: string
