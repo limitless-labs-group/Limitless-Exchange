@@ -49,7 +49,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market, 
         <Stack w={'full'} alignItems={'center'} spacing={3}>
           <Text>
             You won {NumberUtil.toFixed(positionToClaim.outcomeTokenAmount, 6)}{' '}
-            {collateralToken.symbol} 🎉
+            {market?.tokenTicker[defaultChain.id]} 🎉
           </Text>
           <Button
             bg={'brand'}
