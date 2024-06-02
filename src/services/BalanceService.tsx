@@ -73,6 +73,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * Etherspot
    */
+  // Todo rework
   const { smartWalletAddress, transferErc20, whitelist, etherspot } = useEtherspot()
 
   /**

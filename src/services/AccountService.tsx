@@ -8,6 +8,7 @@ import { useAmplitude, useEtherspot } from '@/services'
 import { UserInfo } from '@web3auth/base'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 export interface IAccountContext {
   isLoggedIn: boolean
@@ -30,7 +31,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   /**
    * ADDRESSES
    */
-  const { smartWalletAddress: account } = useEtherspot()
+  const walletAddress = useWalletAddress()
 
   /**
    * USER INFO / METADATA
@@ -75,7 +76,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const contextProviderValue: IAccountContext = {
     isLoggedIn,
-    account,
+    account: walletAddress,
     userInfo,
     farcasterInfo,
   }

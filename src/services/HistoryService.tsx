@@ -15,6 +15,7 @@ import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash, formatEther, formatUnits } from 'viem'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 interface IHistoryService {
   trades: HistoryTrade[] | undefined
@@ -35,7 +36,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * ACCOUNT
    */
-  const { smartWalletAddress } = useEtherspot()
+  const walletAddress = useWalletAddress()
 
   /**
    * UTILS
@@ -46,9 +47,9 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * QUERIES
    */
   const { data: trades, refetch: getTrades } = useQuery({
-    queryKey: ['trades', smartWalletAddress],
+    queryKey: ['trades', walletAddress],
     queryFn: async () => {
-      if (!smartWalletAddress) {
+      if (!walletAddress) {
         return []
       }
 
@@ -60,7 +61,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
           query: `
             query ${queryName} {
               ${queryName} (
-                where: {transactor: "${smartWalletAddress}"}
+                where: {transactor: "${walletAddress}"}
               ) {
                 market {
                   id
@@ -108,13 +109,13 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         [weth.symbol, onChain.symbol].includes(trade.market.collateral?.symbol || '')
       )
     },
-    enabled: !!smartWalletAddress,
+    enabled: !!walletAddress,
   })
 
   const { data: redeems, refetch: getRedeems } = useQuery({
-    queryKey: ['redeems', smartWalletAddress],
+    queryKey: ['redeems', walletAddress],
     queryFn: async () => {
-      if (!smartWalletAddress) {
+      if (!walletAddress) {
         return []
       }
 
@@ -126,7 +127,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
           query: `
             query ${queryName} {
               ${queryName} (
-                where: {redeemer: "${smartWalletAddress}"}
+                where: {redeemer: "${walletAddress}"}
               ) {
                 payout
                 conditionId

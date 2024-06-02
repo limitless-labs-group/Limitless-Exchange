@@ -17,6 +17,11 @@ import {
 import { useAccount as useWagmi } from 'wagmi'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { OpenEvent, useAmplitude } from '@/services'
+import {
+  getWalletConnectV2Settings,
+  WalletConnectV2Adapter,
+} from '@web3auth/wallet-connect-v2-adapter'
+import { WalletConnectModal } from '@walletconnect/modal'
 
 const chainConfig: CustomChainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
@@ -86,7 +91,7 @@ web3Auth.configureAdapter(coinbaseAdapter)
 //   adapterSettings: { qrcodeModal: walletConnectModal, ...defaultWcSettings.adapterSettings },
 //   loginSettings: { ...defaultWcSettings.loginSettings },
 // })
-// web3auth.configureAdapter(walletConnectV2Adapter)
+// web3Auth.configureAdapter(walletConnectV2Adapter)
 
 // Add openlogin adapter for customisations
 // const openloginAdapterInstance = new OpenloginAdapter({
@@ -142,6 +147,8 @@ export const Web3AuthProvider = ({ children }: PropsWithChildren) => {
    * INIT
    */
   const { isConnected: isConnectedWagmi } = useWagmi()
+
+  console.log(web3Auth)
 
   const initWeb3Auth = useCallback(async () => {
     if (!isConnectedWagmi) {

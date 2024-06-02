@@ -35,12 +35,12 @@
     "@vercel/analytics": "^1.0.1",
     "@vercel/speed-insights": "^1.0.2",
     "@walletconnect/modal": "^2.6.2",
-    "@web3auth/base": "^8.0.0",
-    "@web3auth/coinbase-adapter": "^8.0.1",
-    "@web3auth/ethereum-provider": "^8.0.1",
-    "@web3auth/metamask-adapter": "^8.0.1",
-    "@web3auth/modal": "^8.0.1",
-    "@web3auth/wallet-connect-v2-adapter": "^8.0.1",
+    "@web3auth/base": "^8.6.2",
+    "@web3auth/coinbase-adapter": "^8.6.2",
+    "@web3auth/ethereum-provider": "^8.6.2",
+    "@web3auth/metamask-adapter": "^8.6.2",
+    "@web3auth/modal": "^8.6.2",
+    "@web3auth/wallet-connect-v2-adapter": "^8.6.2",
     "@web3auth/web3auth-wagmi-connector": "^6.0.0",
     "axios": "^1.6.5",
     "big.js": "^6.2.1",
@@ -60,7 +60,7 @@
     "subscriptions-transport-ws": "^0.11.0",
     "uuid": "^9.0.1",
     "viem": "^2.7.22",
-    "wagmi": "^2.5.7"
+    "wagmi": "^2.9.8"
   },
   "devDependencies": {
     "@types/node": "^17.0.31",

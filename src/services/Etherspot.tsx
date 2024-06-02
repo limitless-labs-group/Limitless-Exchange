@@ -32,7 +32,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
   /**
    * WEB3AUTH
    */
-  const { provider: web3AuthProvider, isConnected } = useWeb3Auth()
+  const { provider: web3AuthProvider, isConnected, web3Auth } = useWeb3Auth()
 
   /**
    * ETHERSPOT INSTANCE
@@ -44,7 +44,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    */
   const initEtherspot = useCallback(async () => {
     console.log('initEtherspot', web3AuthProvider, isConnected)
-    if (!web3AuthProvider || !isConnected) {
+    if (!web3AuthProvider || !isConnected || web3Auth.connectedAdapterName !== 'openLogin') {
       setEtherspot(null)
       return
     }
@@ -81,6 +81,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
       console.log(`Smart wallet address: ${smartWalletAddress}`)
       return address
     },
+    enabled: !!etherspot,
     refetchOnWindowFocus: false,
   })
 
