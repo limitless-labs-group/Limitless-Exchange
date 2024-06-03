@@ -32,31 +32,28 @@ export function useUsersMarkets() {
         method: 'post',
         data: {
           query: `
-            query ${queryName} {
-              AccountMarket(where: {
-                account_id: {
-                  _eq: "${smartWalletAddress}"
-                }, 
-                chainId: {
-                  _eq: ${defaultChain.id} 
-                }, 
-                order_by: {
-                  collateralsLocked: desc
-                }) {
-                account_id
-                market {
-                  id
-                  closed
-                  collateral {
-                    id
-                    name
-                    symbol
-                  }
-                }
-                collateralsInvested
-                collateralsLocked
+          query ${queryName} {
+            AccountMarket(
+              where: {
+                account_id: { _eq: "${smartWalletAddress}" }
+                chainId: { _eq: ${defaultChain.id} }
               }
+              order_by: { collateralsLocked: desc }
+            ) {
+              account_id
+              market {
+                id
+                closed
+                collateral {
+                  id
+                  name
+                  symbol
+                }
+              }
+              collateralsInvested
+              collateralsLocked
             }
+          }
           `,
         },
       })
