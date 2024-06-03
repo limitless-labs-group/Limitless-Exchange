@@ -340,10 +340,8 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         balanceOfSmartWallet,
         refetchbalanceOfSmartWallet,
         overallBalanceUsd,
-
         mint,
         isLoadingMint,
-
         addressToWithdraw,
         setAddressToWithdraw,
         amount,
@@ -351,9 +349,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         unwrap,
         setUnwrap,
         withdraw,
-
         setToken,
-
         status,
       }}
     >

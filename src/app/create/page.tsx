@@ -49,6 +49,21 @@ interface TokenLimits {
 }
 
 const tokenLimits: TokenLimits = {
+  HIGHER: {
+    min: 39000,
+    max: 390000,
+    step: 1000,
+  },
+  MFER: {
+    min: 39000,
+    max: 390000,
+    step: 1000,
+  },
+  DEGEN: {
+    min: 390,
+    max: 390000,
+    step: 1000,
+  },
   ONCHAIN: {
     min: 390000,
     max: 3900000,
@@ -417,7 +432,9 @@ const CreateOwnMarketPage = () => {
                 name='date-input'
                 date={deadline}
                 usePortal={true}
-                onDateChange={setDeadline}
+                onDateChange={(date) => {
+                  setDeadline(new Date(date.getTime() - date.getTimezoneOffset() * 60000)) // fixed the discrepancy between local date and ISO date
+                }}
                 minDate={new Date()}
               />
             </FormField>
