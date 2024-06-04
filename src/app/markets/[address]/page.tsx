@@ -10,7 +10,6 @@ import {
 import { Flex, Spacer, Spinner } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
-import { useRouter } from 'next/navigation'
 import { MarketPriceChart } from '@/app/markets/[address]/components/MarketPriceChart'
 import { useMarket } from '@/services/MarketsService'
 
@@ -39,17 +38,6 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
       setMarket(market)
     }
   }, [market, previousMarket])
-
-  /**
-   * REDIRECT ON 404
-   */
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!market) {
-      router.replace('/')
-    }
-  }, [market])
 
   return (
     <MainLayout maxContentWidth={'1200px'}>
