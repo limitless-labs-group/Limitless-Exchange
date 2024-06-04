@@ -243,7 +243,6 @@ const CreateOwnMarketPage = () => {
     )
 
     cleanMarketState()
-    setIsCreating(false)
 
     if (res.status === 201) {
       const newTab = window.open('', '_blank')
