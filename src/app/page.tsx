@@ -43,7 +43,7 @@ const MainPage = () => {
           )
         : true
     )
-  }, [selectedFilterTokens])
+  }, [markets, selectedFilterTokens])
 
   return (
     <MainLayout maxContentWidth={'unset'}>
@@ -54,7 +54,7 @@ const MainPage = () => {
           gap={6}
         >
           <CreateMarketCard />
-          {markets?.map((market) =>
+          {marketsToShow?.map((market) =>
             isMobile ? (
               <MarketCardMobile key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
             ) : (
