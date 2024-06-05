@@ -2,8 +2,8 @@ import {
   collateralToken,
   collateralTokensArray,
   defaultChain,
+  newSubgraphURI,
   onChain,
-  subgraphURI,
   weth,
 } from '@/constants'
 import { usePriceOracle } from '@/providers'
@@ -53,21 +53,21 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         return []
       }
 
-      const queryName = 'trades'
+      const queryName = 'Trade'
       const response = await axios.request({
-        url: subgraphURI[defaultChain.id],
+        url: newSubgraphURI[defaultChain.id],
         method: 'post',
         data: {
           query: `
             query ${queryName} {
               ${queryName} (
-                where: {transactor: "${smartWalletAddress}"}
+                where: {transactor: { _ilike: "${smartWalletAddress}" } }
               ) {
                 market {
                   id
                   closed
                   funding
-                  conditionId
+                  condition_id
                   collateral {
                     symbol
                   }
@@ -119,15 +119,19 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         return []
       }
 
-      const queryName = 'payoutRedemptions'
+      const queryName = 'Redemption'
       const response = await axios.request({
-        url: subgraphURI[defaultChain.id],
+        url: newSubgraphURI[defaultChain.id],
         method: 'post',
         data: {
           query: `
             query ${queryName} {
               ${queryName} (
-                where: {redeemer: "${smartWalletAddress}"}
+                where: {
+                  redeemer: {
+                    _ilike: "${smartWalletAddress}"
+                  } 
+                }
               ) {
                 payout
                 conditionId
