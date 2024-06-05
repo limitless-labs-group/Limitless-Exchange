@@ -4,10 +4,61 @@ import { zeroAddress, zeroHash } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
 
 export const markets: Market[] = [
-  // onchain
+  // weth
   {
     resolved: {
       [base.id]: false,
+      [baseSepolia.id]: false,
+    },
+    hidden: {
+      [base.id]: false,
+      [baseSepolia.id]: true,
+    },
+    address: {
+      [base.id]: '0xEFB58DB22aC58336050Cf5c403EB097517f4803C', // prod
+      [baseSepolia.id]: '0xCA8CD401A4560A0D1B158f8292b85C78cB38Ffc1', // testnet
+    },
+    conditionId: {
+      [base.id]: '0xada622de7412558ee1f492c14939cdea0dd276f07a11db337d816071e03b4d6c', // prod
+      [baseSepolia.id]: '0x84d5169ac2cecd75741c02d71eb85e11c51ec6d8ed442b37e4d3210fbc03192c', // testnet
+    },
+    questionId: {
+      [base.id]: '0x0000000000000000000000000000000000000031373136353533313836353936', // prod
+      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135323436343231383432', // testnet
+    },
+    collateralToken: {
+      [base.id]: weth.address[base.id], // prod
+      [baseSepolia.id]: degen.address[baseSepolia.id], // testnet
+    },
+    tokenTicker: {
+      [base.id]: weth.symbol,
+      [baseSepolia.id]: degen.symbol,
+    },
+    tokenURI: {
+      [base.id]: weth.imageURI,
+      [baseSepolia.id]: degen.imageURI,
+    },
+    outcomeTokens: ['Yes', 'No'],
+    title: 'Will Real Madrid win the Champions League?',
+    description: `The 2023–24 UEFA Champions League is the 69th season of Europe's premier club football tournament organized by UEFA. The final is scheduled to be played on June 1, 2024 at the Wembley Stadium in London, England. This market will resolve to “Yes” if Real Madrid wins the 2023-24 UEFA Champions League. Otherwise, this market will resolve to "No". This market will immediately resolve to "No" if this team is eliminated from contention to win the 2023-2024 Champions League.`,
+    placeholderURI: '/assets/images/markets/market7.jpg',
+    imageURI: '/assets/images/markets/market7.jpg',
+    ogImageURI: 'https://limitless.exchange/assets/images/markets/market7.jpg',
+    expirationDate: 'June 1, 2024',
+    expirationTimestamp: 1717275000000, // June 1 4:50pm New York time
+    expired: new Date().getTime() > 1717275000000, // TODO: make dynamic
+    creator: {
+      name: 'Dima Horshkov',
+      imageURI: '/assets/images/markets/dima-horshkov.png',
+      link: 'https://x.com/dimahorshkov',
+    },
+    tags: ['Football', 'ChampionsLeague', 'Final', 'RealMadrid', 'Borussia'],
+  },
+
+  // onchain
+  {
+    resolved: {
+      [base.id]: true,
       [baseSepolia.id]: false,
     },
     hidden: {
@@ -45,8 +96,9 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market11.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market11-og.png',
     expirationDate: 'May 31, 2024',
-    expirationTimestamp: new Date('May 31, 2024').getTime(),
-    expired: Date.now() > new Date('May 31, 2024').getTime(), // TODO: make dynamic
+    expirationTimestamp: 1717214399000, // 31 May 2024 11:59:59 pm New York
+    expired: new Date().getTime() > 1717214399000, // TODO: make dynamic
+    winningOutcomeIndex: 0,
     creator: {
       name: '/onchain',
       imageURI: '/assets/images/markets/onchain.jpg',
@@ -96,8 +148,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market10.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market10.png',
     expirationDate: 'July 1, 2024',
-    expirationTimestamp: new Date('July 1, 2024').getTime(),
-    expired: Date.now() > new Date('July 1, 2024').getTime(), // TODO: make dynamic
+    expirationTimestamp: new Date('July 2, 2024').getTime(),
+    expired: Date.now() > new Date('July 2, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '/mfers',
       imageURI: '/assets/images/markets/mfers.png',
@@ -147,8 +199,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market9.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market9.png',
     expirationDate: 'June 1, 2024',
-    expirationTimestamp: new Date('June 1, 2024').getTime(),
-    expired: Date.now() > new Date('June 1, 2024').getTime(), // TODO: make dynamic
+    expirationTimestamp: new Date('June 2, 2024').getTime(),
+    expired: Date.now() > new Date('June 2, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '/onchain',
       imageURI: '/assets/images/markets/onchain.jpg',
@@ -198,65 +250,14 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market8.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market8.png',
     expirationDate: 'May 22, 2024',
-    expirationTimestamp: new Date('May 22, 2024').getTime(),
-    expired: Date.now() > new Date('May 22, 2024').getTime(), // TODO: make dynamic
+    expirationTimestamp: new Date('May 23, 2024').getTime(),
+    expired: Date.now() > new Date('May 23, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '/higher',
       imageURI: '/assets/images/markets/higher.png',
       link: 'https://warpcast.com/~/channel/higher',
     },
     tags: ['Higher', 'kugusha', 'Farcaster', 'Warpcast'],
-  },
-
-  // degen
-  {
-    resolved: {
-      [base.id]: false,
-      [baseSepolia.id]: false,
-    },
-    hidden: {
-      [base.id]: true,
-      [baseSepolia.id]: true,
-    },
-    address: {
-      [base.id]: '0xf1722e6101a4eABC285ef0a202b9890DB159818d', // prod
-      [baseSepolia.id]: '0xCA8CD401A4560A0D1B158f8292b85C78cB38Ffc1', // testnet
-    },
-    conditionId: {
-      [base.id]: '0x113a8d05722eb109a450000c1626a9f4bc3634ed1ee88ffef2615bb541efd2e9', // prod
-      [baseSepolia.id]: '0x84d5169ac2cecd75741c02d71eb85e11c51ec6d8ed442b37e4d3210fbc03192c', // testnet
-    },
-    questionId: {
-      [base.id]: '0x', // prod
-      [baseSepolia.id]: '0x0000000000000000000000000000000000000031373135323436343231383432', // testnet
-    },
-    collateralToken: {
-      [base.id]: degen.address[base.id], // prod
-      [baseSepolia.id]: degen.address[baseSepolia.id], // testnet
-    },
-    tokenTicker: {
-      [base.id]: degen.symbol,
-      [baseSepolia.id]: degen.symbol,
-    },
-    tokenURI: {
-      [base.id]: degen.imageURI,
-      [baseSepolia.id]: degen.imageURI,
-    },
-    outcomeTokens: ['Yes', 'No'],
-    title: 'Will Real Madrid win the Champions League?',
-    description: `The 2023–24 UEFA Champions League is the 69th season of Europe's premier club football tournament organized by UEFA. The final is scheduled to be played on June 1, 2024 at the Wembley Stadium in London, England. This market will resolve to “Yes” if Real Madrid wins the 2023-24 UEFA Champions League. Otherwise, this market will resolve to "No". This market will immediately resolve to "No" if this team is eliminated from contention to win the 2023-2024 Champions League.`,
-    placeholderURI: '/assets/images/markets/market7.png',
-    imageURI: '/assets/images/markets/market7.png',
-    ogImageURI: 'https://limitless.exchange/assets/images/markets/market7.png',
-    expirationDate: 'June 1, 2024',
-    expirationTimestamp: new Date('June 1, 2024').getTime(),
-    expired: Date.now() > new Date('June 1, 2024').getTime(), // TODO: make dynamic
-    creator: {
-      name: '@ZinedineYazidZi',
-      imageURI: '/assets/images/markets/zinedine-yazid-zi.png',
-      link: 'https://twitter.com/ZinedineYazidZi',
-    },
-    tags: ['Football', 'ChampionsLeague', 'Final', 'RealMadrid', 'Borussia'],
   },
 
   // weth
@@ -296,8 +297,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market6.png',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market6-og.png',
     expirationDate: 'May 23, 2024',
-    expirationTimestamp: new Date('May 23, 2024').getTime(),
-    expired: Date.now() > new Date('May 23, 2024').getTime(), // TODO: make dynamic
+    expirationTimestamp: new Date('May 24, 2024').getTime(),
+    expired: Date.now() > new Date('May 24, 2024').getTime(), // TODO: make dynamic
     creator: {
       name: '@AutismCapital',
       imageURI: '/assets/images/markets/autism-capital.png',
@@ -344,7 +345,7 @@ export const markets: Market[] = [
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market5-og.jpg',
     expirationDate: 'TBA',
     expirationTimestamp: 1717189199000,
-    expired: Date.now() > 1717189199000, // TODO: make dynamic
+    expired: false,
     creator: {
       name: '@rev',
       imageURI: '/assets/images/markets/rev.jpg',
@@ -356,7 +357,7 @@ export const markets: Market[] = [
   // weth
   {
     resolved: {
-      [base.id]: false,
+      [base.id]: true,
       [baseSepolia.id]: false,
     },
     hidden: {
@@ -394,8 +395,9 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market3.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market3-og.jpg',
     expirationDate: 'May 31, 2024',
-    expirationTimestamp: new Date('May 31, 2024').getTime(),
-    expired: Date.now() > new Date('May 31, 2024').getTime(), // TODO: make dynamic
+    expirationTimestamp: 1717214399000, // 31 May 2024 11:59:59 pm New York
+    expired: new Date().getTime() > 1717214399000, // TODO: make dynamic
+    winningOutcomeIndex: 1,
     creator: {
       name: '/onchain',
       imageURI: '/assets/images/markets/onchain.jpg',
@@ -445,8 +447,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market4.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market4-og.jpg',
     expirationDate: 'Apr 25, 2025',
-    expirationTimestamp: new Date('Apr 25, 2025').getTime(),
-    expired: Date.now() > new Date('Apr 25, 2025').getTime(), // TODO: make dynamic
+    expirationTimestamp: new Date('Apr 26, 2025').getTime(),
+    expired: Date.now() > new Date('Apr 26, 2025').getTime(), // TODO: make dynamic
     creator: {
       name: '@grin',
       imageURI: '/assets/images/markets/grin.jpg',
@@ -497,8 +499,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market1.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market1-og.jpg',
     expirationDate: 'Dec 31, 2024',
-    expirationTimestamp: new Date('Dec 31, 2024').getTime(),
-    expired: Date.now() > new Date('Dec 31, 2024').getTime(), // TODO: make dynamic
+    expirationTimestamp: new Date('Jan 1, 2025').getTime(),
+    expired: Date.now() > new Date('Jan 1, 2025').getTime(), // TODO: make dynamic
     creator: {
       name: '/skininthegame',
       imageURI: '/assets/images/markets/skininthegame.jpg',
@@ -548,8 +550,8 @@ export const markets: Market[] = [
     imageURI: '/assets/images/markets/market2.jpg',
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market2-og.jpg',
     expirationDate: 'May 5, 2024',
-    expirationTimestamp: 1716305451000,
-    expired: false, // TODO: make dynamic
+    expirationTimestamp: new Date('May 6, 2024').getTime(),
+    expired: Date.now() > new Date('May 6, 2024').getTime(), // TODO: make dynamic
     winningOutcomeIndex: 1, // TODO: report winners
     creator: {
       name: '@rev',
