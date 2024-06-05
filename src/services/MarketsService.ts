@@ -13,6 +13,9 @@ export type AccountMarketResponse = {
       name: string
       symbol: string
     }
+    condition: {
+      resolutionTimestamp: string | null
+    }
   }
   collateralsInvested: string
   collateralsLocked: string
@@ -48,6 +51,9 @@ export function useUsersMarkets() {
                   id
                   name
                   symbol
+                }
+                condition {
+                  resolutionTimestamp
                 }
               }
               collateralsInvested

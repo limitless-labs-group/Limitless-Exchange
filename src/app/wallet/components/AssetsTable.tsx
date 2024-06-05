@@ -38,7 +38,11 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
   const { data: usersMarkets } = useUsersMarkets()
 
   const getMarketsCount = (ticker: string) => {
-    return usersMarkets?.filter((market) => market.market.collateral.symbol === ticker).length || 0
+    return (
+      usersMarkets
+        ?.filter((market) => market.market.condition.resolutionTimestamp)
+        ?.filter((market) => market.market.collateral.symbol === ticker).length || 0
+    )
   }
 
   const getLockedAmountUsd = (id: MarketTokensIds, amount: number) => {
