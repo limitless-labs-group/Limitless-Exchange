@@ -54,7 +54,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
           </Flex>
 
           <Flex flexBasis={'33%'}>
-            {market?.expired ? <MarketClaimingForm /> : <MarketTradingForm />}
+            {market?.expired ? <MarketClaimingForm market={market} /> : <MarketTradingForm />}
           </Flex>
           <Spacer />
         </Flex>

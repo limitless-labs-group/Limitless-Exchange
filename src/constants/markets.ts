@@ -46,7 +46,8 @@ export const markets: Market[] = [
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market7.jpg',
     expirationDate: 'June 1, 2024',
     expirationTimestamp: 1717275000000, // June 1 4:50pm New York time
-    expired: new Date().getTime() > 1717275000000, // TODO: make dynamic
+    expired: true, // TODO: make dynamic
+    winningOutcomeIndex: 0,
     creator: {
       name: 'Dima Horshkov',
       imageURI: '/assets/images/markets/dima-horshkov.png',
@@ -97,7 +98,7 @@ export const markets: Market[] = [
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market11-og.png',
     expirationDate: 'May 31, 2024',
     expirationTimestamp: 1717214399000, // 31 May 2024 11:59:59 pm New York
-    expired: new Date().getTime() > 1717214399000, // TODO: make dynamic
+    expired: true, // TODO: make dynamic
     winningOutcomeIndex: 0,
     creator: {
       name: '/onchain',
@@ -396,7 +397,7 @@ export const markets: Market[] = [
     ogImageURI: 'https://limitless.exchange/assets/images/markets/market3-og.jpg',
     expirationDate: 'May 31, 2024',
     expirationTimestamp: 1717214399000, // 31 May 2024 11:59:59 pm New York
-    expired: new Date().getTime() > 1717214399000, // TODO: make dynamic
+    expired: true, // TODO: make dynamic
     winningOutcomeIndex: 1,
     creator: {
       name: '/onchain',
