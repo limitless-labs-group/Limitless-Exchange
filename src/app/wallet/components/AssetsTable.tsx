@@ -37,12 +37,14 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
   const { convertAssetAmountToUsd } = usePriceOracle()
   const { data: usersMarkets } = useUsersMarkets()
 
+  const getActiveMarkets = (ticker: string) => {
+    return usersMarkets
+      ?.filter((market) => market.market.condition.resolutionTimestamp === null)
+      ?.filter((market) => market.market.collateral.symbol === ticker)
+  }
+
   const getMarketsCount = (ticker: string) => {
-    return (
-      usersMarkets
-        ?.filter((market) => market.market.condition.resolutionTimestamp)
-        ?.filter((market) => market.market.collateral.symbol === ticker).length || 0
-    )
+    return getActiveMarkets(ticker)?.length || 0
   }
 
   const getLockedAmountUsd = (id: MarketTokensIds, amount: number) => {
@@ -50,9 +52,10 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
   }
 
   const calculateLockedAmount = (collateralAddress: string) => {
-    const marketsByCollateral = usersMarkets?.filter(
-      (market) => market.market.collateral.id === collateralAddress
-    )
+    const marketsByCollateral = usersMarkets
+      // ?.filter((market) => market.market.condition.resolutionTimestamp === null)
+      ?.filter((market) => market.market.collateral.id === collateralAddress)
+    console.log('calculateLockedAmount', marketsByCollateral)
     if (marketsByCollateral?.length) {
       return marketsByCollateral.reduce(
         (a, b) => a + +formatUnits(BigInt(b.collateralsLocked), 18),
