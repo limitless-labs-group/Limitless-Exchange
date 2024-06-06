@@ -5,7 +5,6 @@ import { usePriceOracle } from '@/providers'
 import {
   StrategyChangedMetadata,
   ChangeEvent,
-  useAccount,
   useAmplitude,
   useBalanceService,
   useTradingService,
@@ -33,12 +32,13 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
 import { MarketTokensIds, Token } from '@/types'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 export const MarketTradingForm = ({ ...props }: StackProps) => {
   /**
    * ACCOUNT STATE
    */
-  const { isLoggedIn } = useAccount()
+  const address = useWalletAddress()
 
   /**
    * ANALITYCS
@@ -353,7 +353,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
           </Tooltip>
         </Slider>
 
-        {isLoggedIn ? (
+        {address ? (
           <Button
             w={'full'}
             colorScheme={'brand'}
