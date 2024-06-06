@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useConnect, useDisconnect } from 'wagmi'
 import { Address } from '@/types'
 import { defaultChain } from '@/constants'
-import { useAmplitude, useEtherspot } from '@/services'
+import { useAmplitude } from '@/services'
 import { UserInfo } from '@web3auth/base'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
@@ -86,11 +86,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
 export const useAuth = () => {
   /**
-   * STATE
-   */
-  const { isLoggedIn } = useAccount()
-
-  /**
    * SIGN IN
    */
   const { connectAsync, connectors } = useConnect()
@@ -110,7 +105,6 @@ export const useAuth = () => {
   const signOut = useCallback(async () => disconnectAsync(), [])
 
   return {
-    isLoggedIn,
     signIn,
     signOut,
   }

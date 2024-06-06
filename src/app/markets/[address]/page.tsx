@@ -13,6 +13,7 @@ import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '
 import { defaultChain, markets } from '@/constants'
 import { useRouter } from 'next/navigation'
 import { MarketPriceChart } from '@/app/markets/[address]/components/MarketPriceChart'
+import ApproveModal from '@/components/common/ApproveModal'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
@@ -38,13 +39,23 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
     [params.address]
   )
 
-  const { setMarket, market: previousMarket } = useTradingService()
+  const {
+    setMarket,
+    market: previousMarket,
+    approveBuy,
+    strategy,
+    approveSell,
+  } = useTradingService()
 
   useEffect(() => {
     if (market != previousMarket) {
       setMarket(market)
     }
   }, [market, previousMarket])
+
+  const handleApproveMarket = async () => {
+    return strategy === 'Buy' ? approveBuy() : approveSell()
+  }
 
   /**
    * REDIRECT ON 404
@@ -64,18 +75,21 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
           <Spinner />
         </Flex>
       ) : (
-        <Flex gap={{ sm: 10, md: 12 }} flexDir={{ sm: 'column', lg: 'row' }}>
-          <Flex flexBasis={'66%'} flexDir={{ sm: 'column' }} gap={{ sm: 4, md: 10 }}>
-            <MarketMetadata />
-            <MarketPriceChart market={market} />
-            {!market?.expired && <MarketPositions />}
-          </Flex>
+        <>
+          <Flex gap={{ sm: 10, md: 12 }} flexDir={{ sm: 'column', lg: 'row' }}>
+            <Flex flexBasis={'66%'} flexDir={{ sm: 'column' }} gap={{ sm: 4, md: 10 }}>
+              <MarketMetadata />
+              <MarketPriceChart market={market} />
+              {!market?.expired && <MarketPositions />}
+            </Flex>
 
-          <Flex flexBasis={'33%'}>
-            {market?.expired ? <MarketClaimingForm /> : <MarketTradingForm />}
+            <Flex flexBasis={'33%'}>
+              {market?.expired ? <MarketClaimingForm /> : <MarketTradingForm />}
+            </Flex>
+            <Spacer />
           </Flex>
-          <Spacer />
-        </Flex>
+          <ApproveModal onApprove={handleApproveMarket} />
+        </>
       )}
     </MainLayout>
   )

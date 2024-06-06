@@ -1,6 +1,6 @@
 import { collateralToken, conditionalTokensAddress, defaultChain, weth } from '@/constants'
 import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
-import { publicClient, useWeb3Auth } from '@/providers'
+import { useWeb3Auth } from '@/providers'
 import { Address } from '@/types'
 import { ArkaPaymaster, EtherspotBundler, PrimeSdk, Web3WalletProvider } from '@etherspot/prime-sdk'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common/utils'
@@ -15,6 +15,7 @@ import {
 } from 'react'
 import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, erc20Abi } from 'viem'
 import { contractABI } from '@/contracts/utils'
+import { publicClient } from '@/providers'
 
 interface IEtherspotContext {
   etherspot: Etherspot | null
@@ -44,7 +45,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    */
   const initEtherspot = useCallback(async () => {
     console.log('initEtherspot', web3AuthProvider, isConnected)
-    if (!web3AuthProvider || !isConnected || web3Auth.connectedAdapterName !== 'openLogin') {
+    if (!web3AuthProvider || !isConnected || web3Auth.connectedAdapterName !== 'openlogin') {
       setEtherspot(null)
       return
     }
@@ -65,11 +66,11 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
       collateralToken.address[defaultChain.id]
     )
     setEtherspot(etherspot)
-  }, [web3AuthProvider, isConnected])
+  }, [web3AuthProvider, isConnected, web3Auth.connectedAdapterName])
 
   useEffect(() => {
     initEtherspot()
-  }, [web3AuthProvider, isConnected])
+  }, [web3AuthProvider, isConnected, web3Auth.connectedAdapterName])
 
   /**
    * Query to fetch smart wallet address
@@ -243,16 +244,13 @@ class Etherspot {
     return opReceipt.receipt as TransactionReceipt
   }
 
-  async transferEthers(to: Address, value: bigint, waitForTransaction = false) {
+  async transferEthers(to: Address, value: bigint) {
     await this.primeSdk.clearUserOpsFromBatch()
     await this.primeSdk.addUserOpsToBatch({ to, value })
     const op = await this.estimate()
     const opHash = await this.primeSdk.send(op)
-    if (waitForTransaction) {
-      const transactionReceipt = await this.waitForTransaction(opHash)
-      return transactionReceipt
-    }
-    return opHash
+    const transactionReceipt = await this.waitForTransaction(opHash)
+    return transactionReceipt?.transactionHash
   }
 
   async transferErc20(token: Address, to: Address, value: bigint) {
@@ -366,7 +364,7 @@ class Etherspot {
 
     const opHash = await this.batchAndSendUserOp(fixedProductMarketMakerAddress, data)
     const transactionReceipt = await this.waitForTransaction(opHash)
-    return transactionReceipt
+    return transactionReceipt?.transactionHash
   }
 
   // TODO: incapsulate
@@ -386,7 +384,7 @@ class Etherspot {
 
     const opHash = await this.batchAndSendUserOp(fixedProductMarketMakerAddress, data)
     const transactionReceipt = await this.waitForTransaction(opHash)
-    return transactionReceipt
+    return transactionReceipt?.transactionHash
   }
 
   // TODO: incapsulate
@@ -403,7 +401,7 @@ class Etherspot {
     })
     const opHash = await this.batchAndSendUserOp(this.conditionalTokensAddress, data)
     const transactionReceipt = await this.waitForTransaction(opHash)
-    return transactionReceipt
+    return transactionReceipt?.transactionHash
   }
 }
 

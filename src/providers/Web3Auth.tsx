@@ -1,10 +1,9 @@
+'use client'
 import { Web3AuthConnector } from '@web3auth/web3auth-wagmi-connector'
 import { Web3Auth } from '@web3auth/modal'
 import { LOGIN_MODAL_EVENTS } from '@web3auth/ui'
 import { CHAIN_NAMESPACES, CustomChainConfig, IProvider, WEB3AUTH_NETWORK } from '@web3auth/base'
 import { EthereumPrivateKeyProvider } from '@web3auth/ethereum-provider'
-import { MetamaskAdapter } from '@web3auth/metamask-adapter'
-import { CoinbaseAdapter } from '@web3auth/coinbase-adapter'
 import { defaultChain } from '@/constants'
 import {
   PropsWithChildren,
@@ -17,11 +16,8 @@ import {
 import { useAccount as useWagmi } from 'wagmi'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { OpenEvent, useAmplitude } from '@/services'
-import {
-  getWalletConnectV2Settings,
-  WalletConnectV2Adapter,
-} from '@web3auth/wallet-connect-v2-adapter'
-import { WalletConnectModal } from '@walletconnect/modal'
+import { MetamaskAdapter } from '@web3auth/metamask-adapter'
+import { CoinbaseAdapter } from '@web3auth/coinbase-adapter'
 
 const chainConfig: CustomChainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
@@ -136,7 +132,7 @@ const Web3AuthContext = createContext({} as IWeb3AuthContext)
 
 export const useWeb3Auth = () => useContext(Web3AuthContext)
 
-export const Web3AuthProvider = ({ children }: PropsWithChildren) => {
+export function Web3AuthProvider({ children }: PropsWithChildren) {
   /**
    * STATE
    */

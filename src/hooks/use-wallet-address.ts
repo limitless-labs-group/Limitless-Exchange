@@ -9,7 +9,7 @@ export function useWalletAddress(): Address | undefined {
 
   const { smartWalletAddress } = useEtherspot()
 
-  if (web3Auth.connectedAdapterName !== 'openLogin') {
+  if (web3Auth.connectedAdapterName !== 'openlogin') {
     return address
   }
   if (smartWalletAddress) {

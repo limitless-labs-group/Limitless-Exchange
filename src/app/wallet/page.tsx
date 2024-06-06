@@ -22,16 +22,18 @@ import DepositInfo from '@/app/wallet/components/DepositInfo'
 import TopUpModal from '@/app/wallet/components/TopUpModal'
 import { useIsMobile } from '@/hooks'
 import { Address } from 'viem'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 const WalletPage = () => {
-  const { signIn: signInWithW3A, isLoggedIn } = useAuth()
+  const { signIn: signInWithW3A } = useAuth()
   const { trackOpened } = useAmplitude()
   const isMobile = useIsMobile()
+  const account = useWalletAddress()
 
   const [selectedToken, setSelectedToken] = useState<Address>(weth.address[defaultChain.id])
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!account) {
       signInWithW3A()
     }
 
@@ -73,7 +75,7 @@ const WalletPage = () => {
         handleOpenWithdrawModal={handleOpenWithdrawModal}
       />
       <AssetsTable handleOpenTopUpModal={handleOpenTopUpModal} />
-      {/*{defaultChain.testnet && <DepositTestCard />}*/}
+      {defaultChain.testnet && <DepositTestCard />}
       <Paper>
         <Text fontSize={{ md: '20px' }}>FAQ</Text>
         <Accordion allowMultiple mt='16px'>
