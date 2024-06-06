@@ -1,6 +1,6 @@
 'use client'
 
-import { Input, MainLayout } from '@/components'
+import { Input, MainLayout, Toast } from '@/components'
 import {
   Flex,
   Heading,
@@ -15,16 +15,86 @@ import {
   Button,
   ButtonGroup,
   Image,
+  Select,
+  NumberInput,
+  NumberInputField,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  Spinner,
 } from '@chakra-ui/react'
 import { borderRadius, colors } from '@/styles'
 import { CgInfo } from 'react-icons/cg'
 import { SingleDatepicker } from 'chakra-dayzed-datepicker'
 import React, { MutableRefObject, useRef, useState } from 'react'
+import CreatableSelect from 'react-select/creatable'
+import axios from 'axios'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useToast } from '@/hooks'
 
 interface FormFieldProps {
   label: string
   children: React.ReactNode
 }
+
+interface TokenLimit {
+  min: number
+  max: number
+  step: number
+}
+
+interface TokenLimits {
+  [key: string]: TokenLimit
+}
+
+const tokenLimits: TokenLimits = {
+  HIGHER: {
+    min: 39000,
+    max: 390000,
+    step: 1000,
+  },
+  MFER: {
+    min: 39000,
+    max: 390000,
+    step: 1000,
+  },
+  DEGEN: {
+    min: 390,
+    max: 390000,
+    step: 1000,
+  },
+  ONCHAIN: {
+    min: 390000,
+    max: 3900000,
+    step: 10000,
+  },
+  WETH: {
+    min: 0.1,
+    max: 3,
+    step: 0.1,
+  },
+}
+
+interface TagOption {
+  id: string
+  label: string
+  value: string
+}
+
+interface Creator {
+  id: string
+  name: string
+}
+
+interface Token {
+  id: string
+  symbol: string
+}
+
+const defaultTokenSymbol = 'WETH'
+const defaultProbability = 50
+const defaultCreatorId = '1'
 
 const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
   <Box mt={4}>
@@ -36,26 +106,170 @@ const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
 )
 
 const CreateOwnMarketPage = () => {
-  const [date, setDate] = useState(new Date())
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
+  const [formData, setFormData] = useState<FormData>(new FormData())
 
-  // Todo temp implementation before logic is adjusted
-  const inputRef: MutableRefObject<any> = useRef()
-  const handleFileUploaded = () => {
-    inputRef.current.click()
+  const [deadline, setDeadline] = useState<Date>(new Date())
+  const [title, setTitle] = useState<string>('')
+  const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: '1' })
+  const [description, setDescription] = useState<string>('')
+  const [liquidity, setLiquidity] = useState<number>(tokenLimits[defaultTokenSymbol].min)
+  const [probability, setProbability] = useState<number>(defaultProbability)
+  const [tag, setTag] = useState<TagOption[]>([])
+  const [creatorId, setCreatorId] = useState<string>(defaultCreatorId)
+  const [marketLogo, setMarketLogo] = useState<File | undefined>()
+  const [ogLogo, setOgLogo] = useState<File | undefined>()
+
+  const [isCreating, setIsCreating] = useState<boolean>(false)
+
+  const queryClient = useQueryClient()
+
+  const handleLiquidityChange = (value: number) => setLiquidity(value)
+
+  const handleProbabilityChange = (value: number) => setProbability(value)
+
+  const handleTokenSelect = (option: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedTokenId = option.target.value
+    const selectedTokenSymbol =
+      option.target.selectedOptions[0].getAttribute('data-name') ?? defaultTokenSymbol
+    setToken({ symbol: selectedTokenSymbol, id: selectedTokenId })
+    setLiquidity(tokenLimits[selectedTokenSymbol].min)
+  }
+
+  const cleanMarketState = () => {
+    setFormData(new FormData())
+    setDeadline(new Date())
+    setTitle('')
+    setToken({ symbol: defaultTokenSymbol, id: '1' })
+    setDescription('')
+    setLiquidity(tokenLimits[defaultTokenSymbol].min)
+    setProbability(defaultProbability)
+    setTag([])
+    setCreatorId(defaultCreatorId)
+    setIsCreating(false)
+    setMarketLogo(undefined)
+    setOgLogo(undefined)
+  }
+
+  const toast = useToast()
+
+  const ogLogoRef: MutableRefObject<any> = useRef()
+  const marketLogoRef: MutableRefObject<any> = useRef()
+
+  const createOption = (id: string, name: string): TagOption => ({
+    id,
+    label: name,
+    value: name,
+  })
+
+  const { data: tagOptions } = useQuery({
+    queryKey: ['tagOptions'],
+    queryFn: async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`)
+
+      return response.data.map((tag: { id: string; name: string }) =>
+        createOption(tag.id, tag.name)
+      ) as TagOption[]
+    },
+  })
+
+  const { data: creators } = useQuery({
+    queryKey: ['creators'],
+    queryFn: async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/creators`)
+      return response.data as Creator[]
+    },
+  })
+
+  const { data: tokens } = useQuery({
+    queryKey: ['tokens'],
+    queryFn: async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tokens`)
+      return response.data as Token[]
+    },
+  })
+
+  const handleTagCreation = async (tagToCreate: string) => {
+    const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`, {
+      name: tagToCreate,
+    })
+
+    queryClient.setQueryData(['tagOptions'], (oldData: TagOption[]) => [
+      ...oldData,
+      createOption(res.data.id, res.data.name),
+    ])
+  }
+
+  const handleActiveTags = (selectedOptions: TagOption[]) => {
+    console.log(selectedOptions)
+    setTag(selectedOptions)
+  }
+
+  const createMarket = async () => {
+    if (!title || !description || !creatorId || !marketLogo || !ogLogo || !tag) {
+      toast({
+        render: () => (
+          <Toast title={'Title, Description, Creator, Market Logo, Og Logo, Tags are required!'} />
+        ),
+      })
+      return
+    }
+
+    formData?.set('title', title)
+    formData?.set('description', description)
+    formData?.set('tokenId', token.id)
+    formData?.set('liquidity', liquidity.toString())
+    formData?.set('initialYesProbability', (probability / 100).toString())
+    formData?.set('deadline', deadline.toISOString())
+    formData?.set('creatorId', creatorId)
+    formData?.set('imageFile', marketLogo)
+    formData?.set('ogFile', ogLogo)
+    formData?.set('tagIds', tag.map((tag) => tag.id).join(','))
+
+    toast({
+      render: () => (
+        <Toast title={'Request for market creation has been registered successfully.'} />
+      ),
+    })
+    setIsCreating(true)
+
+    const res = await axios.post(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/admin`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+
+    cleanMarketState()
+
+    if (res.status === 201) {
+      const newTab = window.open('', '_blank')
+      if (newTab) {
+        newTab.location.href = res.data.multisigTxLink
+      } else {
+        // Fallback if the browser blocks the popup
+        window.location.href = res.data.multisigTxLink
+      }
+    } else {
+      toast({
+        render: () => <Toast title={`Error: ${res.statusText}`} />,
+      })
+    }
   }
 
   return (
     <MainLayout>
       <Flex justifyContent={'center'}>
-        <VStack w='360px' spacing={4}>
+        <VStack w='468px' spacing={4}>
           <Heading>Create Market</Heading>
           <FormControl>
             <FormField label='Title'>
               <Input
                 placeholder='Bitcoin ATH in May 2024?'
                 onChange={(e) => setTitle(e.target.value)}
+                maxLength={70}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {title?.length}/70 characters
@@ -85,13 +299,96 @@ const CreateOwnMarketPage = () => {
               <Textarea
                 placeholder='Bitcoin is the first decentralized cryptocurrency. Nodes in the peer-to-peer bitcoin network verify transactions through cryptography and record them in a public distributed ledger, called a blockchain, without central oversig.'
                 resize='none'
-                rows={7}
+                rows={5}
                 overflow='hidden'
+                maxLength={320}
                 onChange={(e) => setDescription(e.target.value)}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {description?.length}/320 characters
               </FormHelperText>
+            </FormField>
+
+            <FormField label='Token'>
+              <HStack>
+                <Select onChange={handleTokenSelect}>
+                  {tokens?.map((token: Token) => (
+                    <option key={token.id} value={token.id} data-name={token.symbol}>
+                      {token.symbol}
+                    </option>
+                  ))}
+                </Select>
+              </HStack>
+            </FormField>
+
+            <FormField label={`${token.symbol} Liquidity`}>
+              <HStack>
+                <NumberInput maxW='120px' mr='2rem' value={liquidity}>
+                  <NumberInputField disabled w={'120px'} />
+                </NumberInput>
+                <Slider
+                  flex='1'
+                  focusThumbOnChange={false}
+                  value={liquidity}
+                  onChange={handleLiquidityChange}
+                  min={tokenLimits[token.symbol].min}
+                  max={tokenLimits[token.symbol].max}
+                  step={tokenLimits[token.symbol].step}
+                >
+                  <SliderTrack>
+                    <SliderFilledTrack />
+                  </SliderTrack>
+                  <SliderThumb fontSize='sm' boxSize='32px' />
+                </Slider>
+              </HStack>
+            </FormField>
+
+            <FormField label='Starting YES Probability'>
+              <HStack>
+                <NumberInput maxW='120px' mr='2rem' value={probability}>
+                  <NumberInputField disabled w={'120px'} />
+                </NumberInput>
+                <Slider
+                  flex='1'
+                  focusThumbOnChange={false}
+                  value={probability}
+                  onChange={handleProbabilityChange}
+                  min={1}
+                  max={99}
+                  step={1}
+                >
+                  <SliderTrack>
+                    <SliderFilledTrack />
+                  </SliderTrack>
+                  <SliderThumb fontSize='sm' boxSize='32px' />
+                </Slider>
+              </HStack>
+            </FormField>
+
+            <FormField label='Creator'>
+              <HStack>
+                <Select onChange={(e) => setCreatorId(e?.target?.value)}>
+                  {creators?.map((creator: Creator) => (
+                    <option key={creator.id} value={creator.id}>
+                      {creator.name}
+                    </option>
+                  ))}
+                </Select>
+              </HStack>
+            </FormField>
+
+            <FormField label='Tags'>
+              <HStack w={'full'}>
+                <Box width='full'>
+                  <CreatableSelect
+                    isMulti
+                    onCreateOption={handleTagCreation}
+                    //@ts-ignore
+                    onChange={handleActiveTags}
+                    options={tagOptions}
+                  />
+                </Box>
+              </HStack>
             </FormField>
 
             <FormField label='Deadline'>
@@ -132,39 +429,64 @@ const CreateOwnMarketPage = () => {
                   },
                 }}
                 name='date-input'
-                date={date}
+                date={deadline}
                 usePortal={true}
-                onDateChange={setDate}
+                onDateChange={(date) => {
+                  setDeadline(new Date(date.getTime() - date.getTimezoneOffset() * 60000)) // fixed the discrepancy between local date and ISO date
+                }}
                 minDate={new Date()}
               />
             </FormField>
 
-            <FormField label='Market Logo'>
+            <FormField label='Picture'>
               <HStack>
                 <input
                   type='file'
-                  id='fileUpload'
-                  name='fileUpload'
+                  id='marketLogoUpload'
+                  name='marketLogoUpload'
                   style={{ display: 'none' }}
-                  ref={inputRef}
+                  ref={ogLogoRef}
                   accept={'image/png, image/jpeg'}
+                  onChange={(e) => setMarketLogo(e?.target?.files?.[0])}
                 />
-                <Button colorScheme='gray' onClick={handleFileUploaded}>
+                <Button colorScheme='gray' onClick={() => ogLogoRef.current.click()}>
                   Choose file
                 </Button>
-                <Text>
-                  <strong>No file chosen.</strong>
-                </Text>
+                <Text>{marketLogo?.name ?? 'No file chosen.'}</Text>
+              </HStack>
+            </FormField>
+
+            <FormField label='OG'>
+              <HStack>
+                <input
+                  type='file'
+                  id='ogLogoUpload'
+                  name='ogLogoUpload'
+                  style={{ display: 'none' }}
+                  ref={marketLogoRef}
+                  accept={'image/png, image/jpeg'}
+                  onChange={(e) => setOgLogo(e?.target?.files?.[0])}
+                />
+                <Button colorScheme='gray' onClick={() => marketLogoRef.current.click()}>
+                  Choose file
+                </Button>
+                <Text>{ogLogo?.name ?? 'No file chosen.'}</Text>
               </HStack>
             </FormField>
 
             <ButtonGroup spacing='6' mt={5}>
-              <Button variant='outline' width='168px' disabled>
+              <Button variant='outline' width='222px' disabled>
                 Cancel
               </Button>
-              <Button colorScheme='blue' width='168px' height='52px'>
-                Create
-              </Button>
+              {isCreating ? (
+                <Box width='222px' display='flex' justifyContent='center' alignItems='center'>
+                  <Spinner />
+                </Box>
+              ) : (
+                <Button colorScheme='blue' width='222px' height='52px' onClick={createMarket}>
+                  Create
+                </Button>
+              )}
             </ButtonGroup>
           </FormControl>
         </VStack>
