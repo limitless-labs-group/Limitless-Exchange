@@ -44,8 +44,8 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
         <Button
           mt='24px'
           colorScheme={'brand'}
-          isDisabled={status != 'Ready'}
-          isLoading={status == 'Loading'}
+          isDisabled={status !== 'Ready'}
+          isLoading={status === 'Loading'}
           onClick={handleApproveClicked}
         >
           Approve
