@@ -2,10 +2,8 @@ import {
   collateralToken,
   collateralTokensArray,
   defaultChain,
-  markets,
   newSubgraphURI,
   onChain,
-  subgraphURI,
   weth,
 } from '@/constants'
 import { usePriceOracle } from '@/providers'
@@ -16,6 +14,7 @@ import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash, formatEther, formatUnits } from 'viem'
+import { useMarkets } from '@/services/MarketsService'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 interface IHistoryService {
@@ -43,6 +42,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * UTILS
    */
   const { convertAssetAmountToUsd } = usePriceOracle()
+  const markets = useMarkets()
 
   /**
    * QUERIES
@@ -220,7 +220,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 
       // filter redeemed markets
       _positions = _positions.filter(
-        (position) => !redeems?.find((redeem) => redeem.conditionId === position.market.conditionId)
+        (position) =>
+          !redeems?.find((redeem) => redeem.conditionId === position.market.condition_id)
       )
       console.log('positions', _positions)
 
@@ -317,7 +318,7 @@ export type HistoryTrade = {
 
 export type HistoryMarket = {
   id: Address
-  conditionId: Hash
+  condition_id: Hash //#TODO align namings to conditionId
   paused?: boolean
   closed?: boolean
   funding?: string
