@@ -5,9 +5,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Filter from '@/components/common/TokenFilter'
 import { Token } from '@/types'
+import { useUsersMarkets } from '@/services/UsersMarketsService'
+import { getAddress } from 'viem'
 
 export const PortfolioPositions = ({ ...props }: GridProps) => {
   const { positions, getPositions } = useHistory()
+  const { data: userMarkets } = useUsersMarkets()
 
   useEffect(() => {
     getPositions()
@@ -21,13 +24,20 @@ export const PortfolioPositions = ({ ...props }: GridProps) => {
 
   const positionsFiltered = useMemo(
     () =>
-      positions?.filter((position) =>
-        selectedFilterTokens.length > 0
-          ? selectedFilterTokens.some(
-              (filterToken) => filterToken.symbol == position.market.collateral?.symbol
-            )
-          : true
-      ),
+      positions
+        ?.filter((position) =>
+          selectedFilterTokens.length > 0
+            ? selectedFilterTokens.some(
+                (filterToken) => filterToken.symbol == position.market.collateral?.symbol
+              )
+            : true
+        )
+        .filter((position) => {
+          const market = userMarkets?.find(
+            (userMarket) => getAddress(userMarket.market.id) === getAddress(position.market.id)
+          )
+          return !market?.market.closed
+        }),
     [positions, selectedFilterTokens]
   )
 
