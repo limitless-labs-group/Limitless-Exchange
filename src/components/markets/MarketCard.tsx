@@ -1,4 +1,4 @@
-import { defaultChain, markets } from '@/constants'
+import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { createMarketShareUrls } from '@/services'
 import { borderRadius, colors } from '@/styles'
@@ -8,7 +8,7 @@ import { Divider, Heading, HStack, Image, Stack, StackProps, Text, VStack } from
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
-import { useChainId } from 'wagmi'
+import { useMarket, useMarkets } from '@/services/MarketsService'
 
 interface IMarketCard extends StackProps {
   marketAddress?: Address
@@ -20,17 +20,7 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
    */
   const router = useRouter()
 
-  /**
-   * MARKET DATA
-   */
-  const market: Market | null = useMemo(
-    () =>
-      markets.find(
-        (market) =>
-          market.address[defaultChain.id]?.toLowerCase() === marketAddress?.toLocaleLowerCase()
-      ) ?? null,
-    [marketAddress]
-  )
+  const market = useMarket(marketAddress as string)
 
   const { outcomeTokensPercent, liquidity, volume } = useMarketData({ marketAddress })
 

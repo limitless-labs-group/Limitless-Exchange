@@ -2,10 +2,8 @@ import {
   collateralToken,
   collateralTokensArray,
   defaultChain,
-  markets,
   newSubgraphURI,
   onChain,
-  subgraphURI,
   weth,
 } from '@/constants'
 import { usePriceOracle } from '@/providers'
@@ -16,6 +14,7 @@ import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash, formatEther, formatUnits } from 'viem'
+import { useMarkets } from '@/services/MarketsService'
 
 interface IHistoryService {
   trades: HistoryTrade[] | undefined
@@ -42,6 +41,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * UTILS
    */
   const { convertAssetAmountToUsd } = usePriceOracle()
+  const markets = useMarkets()
 
   /**
    * QUERIES
