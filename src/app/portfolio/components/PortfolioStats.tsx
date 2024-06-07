@@ -5,11 +5,13 @@ import { Flex, HStack, Heading, Spacer, Stack, StackProps, Text } from '@chakra-
 import { useRouter } from 'next/navigation'
 import { FaFileInvoiceDollar, FaTrophy, FaWallet } from 'react-icons/fa6'
 import { NumberUtil } from '@/utils'
+import { useWeb3Service } from '@/services/Web3Service'
 
 export const PortfolioStats = ({ ...props }: StackProps) => {
   const router = useRouter()
   const { overallBalanceUsd } = useBalanceService()
   const { balanceInvested, balanceToWin } = useHistory()
+  const { client } = useWeb3Service()
 
   return (
     <Flex
@@ -63,16 +65,18 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
         </HStack>
         <Heading fontSize={'26px'}>{NumberUtil.formatThousands(overallBalanceUsd, 2)} USD</Heading>
         <Spacer />
-        <Button
-          bg={'brand'}
-          color={'white'}
-          w={'full'}
-          h={'32px'}
-          py={1}
-          onClick={() => router.push('/wallet')}
-        >
-          Top up
-        </Button>
+        {client === 'etherspot' && (
+          <Button
+            bg={'brand'}
+            color={'white'}
+            w={'full'}
+            h={'32px'}
+            py={1}
+            onClick={() => router.push('/wallet')}
+          >
+            Top up
+          </Button>
+        )}
       </Stack>
     </Flex>
   )
