@@ -102,7 +102,10 @@ export const useAuth = () => {
    * SIGN OUT
    */
   const { disconnectAsync } = useDisconnect()
-  const signOut = useCallback(async () => disconnectAsync(), [])
+  const signOut = useCallback(async () => {
+    connectors.forEach(async (connector) => await connector.disconnect())
+    await disconnectAsync()
+  }, [])
 
   return {
     signIn,
