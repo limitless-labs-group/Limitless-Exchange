@@ -17,7 +17,7 @@ export const Header = ({ ...props }: FlexProps) => {
   const router = useRouter()
   const pathname = usePathname()
   const { isConnected } = useAccount()
-  const { overallBalanceUsd, setEOAWrapModalOpened } = useBalanceService()
+  const { overallBalanceUsd } = useBalanceService()
   const { trackClicked } = useAmplitude()
   const { etherspot } = useEtherspot()
 
@@ -83,7 +83,7 @@ export const Header = ({ ...props }: FlexProps) => {
               alignItems={'center'}
             >
               <HStack h={'full'} spacing={4}>
-                {!!etherspot ? (
+                {!!etherspot && (
                   <Button
                     h={'40px'}
                     minWidth={'218px'}
@@ -106,15 +106,6 @@ export const Header = ({ ...props }: FlexProps) => {
                         <Text fontWeight={'medium'}>USD</Text>
                       </HStack>
                     </HStack>
-                  </Button>
-                ) : (
-                  <Button
-                    colorScheme='brand'
-                    fontWeight={'bold'}
-                    h='36px'
-                    onClick={() => setEOAWrapModalOpened(true)}
-                  >
-                    Wrap ETH
                   </Button>
                 )}
                 <Button

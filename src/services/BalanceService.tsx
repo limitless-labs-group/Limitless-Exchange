@@ -241,7 +241,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       await wrapEth(parseUnits(amount, 18))
       setEOAWrapModalOpened(false)
       toast({
-        render: () => <Toast title={'Confirmed. Updating balance...'} />,
+        render: () => <Toast title={'ETH wrapped successfully.'} />,
       })
     },
   })
