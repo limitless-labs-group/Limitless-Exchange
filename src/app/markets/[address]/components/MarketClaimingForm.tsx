@@ -44,8 +44,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market, 
       <Text fontWeight={'bold'} color={market?.winningOutcomeIndex == 0 ? 'green' : 'red'}>
         Outcome: {market?.outcomeTokens[market?.winningOutcomeIndex ?? 0]}
       </Text>
-
-      {positionToClaim ? (
+      {positionToClaim && (
         <Stack w={'full'} alignItems={'center'} spacing={3}>
           <Text>
             You won {NumberUtil.toFixed(positionToClaim.outcomeTokenAmount, 6)}{' '}
@@ -55,17 +54,13 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market, 
             bg={'brand'}
             color={'white'}
             w={'full'}
-            isLoading={status === 'Loading'}
+            isLoading={status == 'Loading'}
             isDisabled={!positionToClaim}
             onClick={() => claim(positionToClaim.outcomeIndex)}
           >
             Claim
           </Button>
         </Stack>
-      ) : (
-        <Text>
-          <strong>You have claimed the winnings 🎉</strong>
-        </Text>
       )}
     </Stack>
   )
