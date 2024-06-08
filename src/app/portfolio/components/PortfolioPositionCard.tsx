@@ -9,7 +9,7 @@ import { usePriceOracle } from '@/providers'
 import { borderRadius, colors } from '@/styles'
 import { useIsMobile, useMarketData } from '@/hooks'
 import { FaCircle } from 'react-icons/fa'
-import { useMarkets } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
 
 export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {
   position: HistoryPosition
@@ -24,16 +24,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   /**
    * MARKET DATA
    */
-  const markets = useMarkets()
-
-  const market = useMemo(
-    () =>
-      markets.find(
-        (market) =>
-          market.address[defaultChain.id]?.toLowerCase() === position.market.id.toLowerCase()
-      ) ?? null,
-    [position, markets]
-  )
+  const market = useMarket(position.market.id)
 
   const { outcomeTokensPercent, volume } = useMarketData({ marketAddress: position.market.id })
 

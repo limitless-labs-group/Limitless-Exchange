@@ -34,19 +34,15 @@ const MainPage = () => {
   const markets = useMarkets()
 
   const marketsToShow = useMemo(() => {
-    return markets
-      ?.filter((market) => !market.expired)
-      ?.filter((market) => !market.hidden[defaultChain.id])
-      ?.filter((market) => !market.resolved[defaultChain.id])
-      ?.filter((market) =>
-        selectedFilterTokens.length > 0
-          ? selectedFilterTokens.find(
-              (filterToken) =>
-                getAddress(filterToken.address[defaultChain.id]) ===
-                getAddress(market.collateralToken[defaultChain.id])
-            )
-          : true
-      )
+    return markets?.filter((market) =>
+      selectedFilterTokens.length > 0
+        ? selectedFilterTokens.find(
+            (filterToken) =>
+              getAddress(filterToken.address[defaultChain.id]) ===
+              getAddress(market.collateralToken[defaultChain.id])
+          )
+        : true
+    )
   }, [markets, selectedFilterTokens])
 
   return (
