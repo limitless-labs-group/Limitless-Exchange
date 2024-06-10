@@ -86,6 +86,18 @@ export const onChain: Token = {
   id: MarketTokensIds.ONCHAIN,
 }
 
-export const collateralTokensArray = [weth, onChain, degen, mfer, higher]
+export const usdc: Token = {
+  address: {
+    [base.id]: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+    [baseSepolia.id]: '0x8071602D710552078bF93249dCd2B0d85C5C834C',
+  },
+  symbol: 'USDC',
+  name: 'USDC',
+  decimals: 6,
+  imageURI: 'https://assets.coingecko.com/coins/images/6319/standard/usdc.png?1696506694',
+  id: MarketTokensIds.USDC,
+}
+
+export const collateralTokensArray = [weth, onChain, degen, mfer, higher, usdc]
 
 export const collateralToken = weth
