@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useCallback } from 'react'
+import React, { createContext, useCallback, useContext } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
 import { GetCoingeckoPricesResponse, MarketTokensIds } from '@/types'
@@ -106,7 +106,7 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
       if (!marketTokensPrices || !amount || isNaN(Number(amount))) {
         return 0
       }
-      return Number(amount) * marketTokensPrices[id].usd
+      return Number(amount) * marketTokensPrices[id]?.usd
     },
     [marketTokensPrices]
   )
