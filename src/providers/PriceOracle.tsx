@@ -1,7 +1,10 @@
 import React, { createContext, useCallback, useContext } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import axios, { AxiosResponse } from 'axios'
-import { GetCoingeckoPricesResponse, MarketTokensIds } from '@/types'
+import type { AxiosResponse } from 'axios'
+import axios from 'axios'
+
+import type { GetCoingeckoPricesResponse } from '@/types'
+import { MarketTokensIds } from '@/types'
 
 /**
  * Context type providing utility functions for currency conversion between USD and ETH (Ethereum).
@@ -116,7 +119,7 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
       if (!marketTokensPrices || !amount || isNaN(Number(amount)) || !symbol) {
         return 0
       }
-      // @ts-ignore
+      // @ts-expect-error
       const coingeckoId = MarketTokensIds[symbol] as MarketTokensIds
       const amountUsd = Number(amount) * marketTokensPrices[coingeckoId]?.usd ?? 0
       console.log('convertTokenAmountToUsd', symbol, amountUsd)

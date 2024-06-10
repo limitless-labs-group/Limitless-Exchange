@@ -1,5 +1,7 @@
+import type { InputProps } from '@chakra-ui/react'
+import { Input as ChakraInput } from '@chakra-ui/react'
+
 import { borderRadius } from '@/styles'
-import { Input as ChakraInput, InputProps } from '@chakra-ui/react'
 
 export const Input = ({ ...props }: InputProps) => (
   <ChakraInput

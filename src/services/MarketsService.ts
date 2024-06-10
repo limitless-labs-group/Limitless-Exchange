@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { Market } from '@/types'
 import { useMemo } from 'react'
+
+import type { Market } from '@/types'
 
 export function useMarkets() {
   const { data: markets } = useQuery({

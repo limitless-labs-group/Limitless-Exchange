@@ -1,5 +1,7 @@
+import type { FlexProps } from '@chakra-ui/react'
+import { Flex, VStack } from '@chakra-ui/react'
+
 import { Footer, Header } from '@/components'
-import { Flex, FlexProps, VStack } from '@chakra-ui/react'
 
 interface IMainLayout extends FlexProps {
   maxContentWidth?: string | number

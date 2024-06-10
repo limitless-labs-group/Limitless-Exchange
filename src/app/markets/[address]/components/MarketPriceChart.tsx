@@ -3,13 +3,14 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { defaultChain, newSubgraphURI } from '@/constants'
 import { usePathname } from 'next/navigation'
-import { Box, Divider, Text, Image, HStack, VStack, Spacer } from '@chakra-ui/react'
+import { Box, Divider, HStack, Image, Spacer, Text, VStack } from '@chakra-ui/react'
 import { useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
+
+import { defaultChain, newSubgraphURI } from '@/constants'
 import { useMarketData } from '@/hooks'
-import { Market } from '@/types'
+import type { Market } from '@/types'
 
 // Define the interface for the chart data
 interface YesBuyChartData {
@@ -45,7 +46,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
     title: {
       text: undefined,
     },
-    //@ts-ignore
+    //@ts-expect-error
     xAxis: {
       type: 'datetime',
       ordinal: false,
@@ -93,9 +94,9 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
         point: {
           events: {
             mouseOver: function () {
-              //@ts-ignore
+              //@ts-expect-error
               setYesDate(Highcharts.dateFormat('%B %e, %Y %I:%M %p', Number(this.x)))
-              //@ts-ignore
+              //@ts-expect-error
               setYesChance(this.y.toFixed(2))
             },
           },
@@ -110,9 +111,9 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
             y2: 1,
           },
           stops: [
-            //@ts-ignore
+            //@ts-expect-error
             [0, Highcharts.color('#2492FF').setOpacity(0.5).get('rgba')],
-            //@ts-ignore
+            //@ts-expect-error
             [1, Highcharts.color('#2492FF').setOpacity(0).get('rgba')],
           ],
           brighten: 0.2,

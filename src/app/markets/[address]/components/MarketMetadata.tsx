@@ -1,20 +1,9 @@
-import { Button } from '@/components'
-import { defaultChain } from '@/constants'
-import { useIsMobile, useMarketData } from '@/hooks'
-import {
-  ClickEvent,
-  ShareClickedMetadata,
-  createMarketShareUrls,
-  useAmplitude,
-  useTradingService,
-} from '@/services'
-import { borderRadius, colors } from '@/styles'
-import { NumberUtil } from '@/utils'
+import type { StackProps } from '@chakra-ui/react'
 import {
   Divider,
   Flex,
-  HStack,
   Heading,
+  HStack,
   Image,
   Link,
   Popover,
@@ -22,13 +11,20 @@ import {
   PopoverTrigger,
   Portal,
   Stack,
-  StackProps,
   Text,
-  VStack,
   useClipboard,
+  VStack,
 } from '@chakra-ui/react'
 import { FaShareSquare } from 'react-icons/fa'
 import { FaLink, FaXTwitter } from 'react-icons/fa6'
+
+import { Button } from '@/components'
+import { defaultChain } from '@/constants'
+import { useIsMobile, useMarketData } from '@/hooks'
+import type { ShareClickedMetadata } from '@/services'
+import { ClickEvent, createMarketShareUrls, useAmplitude, useTradingService } from '@/services'
+import { borderRadius, colors } from '@/styles'
+import { NumberUtil } from '@/utils'
 
 export const MarketMetadata = ({ ...props }: StackProps) => {
   /**
@@ -66,6 +62,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
         maxH={'140px'}
         bg={'brand'}
         borderRadius={borderRadius}
+        alt={'Market Logo'}
       />
 
       <Flex alignItems={'start'} gap={4} w={'full'} flexDirection={'column'}>
@@ -183,7 +180,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                 justifyContent={'start'}
                 onClick={() => window.open(castURI, '_blank', 'noopener')}
               >
-                <Image src='/assets/images/farcaster.png' blockSize={'15px'} />
+                <Image src='/assets/images/farcaster.png' alt={'Farcaster'} blockSize={'15px'} />
                 <Text>Share on Farcaster</Text>
               </Button>
             </PopoverContent>
@@ -210,6 +207,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
               p={0}
               cursor={'pointer'}
               fit={'cover'}
+              alt={'Market Logo'}
             />
           </Link>
           <VStack spacing={1} alignItems={'start'}>

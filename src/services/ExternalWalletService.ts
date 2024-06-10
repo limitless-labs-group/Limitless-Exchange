@@ -1,9 +1,11 @@
+import type { Address } from 'viem'
+import { encodeFunctionData, erc20Abi, getContract, maxUint256 } from 'viem'
+import { useSendTransaction, useWriteContract } from 'wagmi'
+
 import { publicClient } from '@/providers'
 import { useAccount } from '@/services/AccountService'
-import { Address, encodeFunctionData, erc20Abi, getContract, maxUint256 } from 'viem'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
 import { collateralToken, conditionalTokensAddress, defaultChain, weth } from '@/constants'
-import { useSendTransaction, useWriteContract } from 'wagmi'
 import { contractABI } from '@/contracts/utils'
 
 export const useExternalWalletService = () => {

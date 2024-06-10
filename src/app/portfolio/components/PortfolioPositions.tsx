@@ -1,12 +1,14 @@
-import { PortfolioPositionCard } from '@/app/portfolio/components'
-import { useHistory } from '@/services'
-import { Flex, Grid, GridProps, Text } from '@chakra-ui/react'
+import type { GridProps } from '@chakra-ui/react'
+import { Flex, Grid, Text } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import Filter from '@/components/common/TokenFilter'
-import { Token } from '@/types'
-import { useUsersMarkets } from '@/services/UsersMarketsService'
 import { getAddress } from 'viem'
+
+import { PortfolioPositionCard } from '@/app/portfolio/components'
+import { useHistory } from '@/services'
+import Filter from '@/components/common/TokenFilter'
+import type { Token } from '@/types'
+import { useUsersMarkets } from '@/services/UsersMarketsService'
 
 export const PortfolioPositions = ({ ...props }: GridProps) => {
   const { positions, getPositions } = useHistory()

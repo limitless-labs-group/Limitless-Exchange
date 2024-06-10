@@ -1,14 +1,17 @@
-import { Button, MarketCardUserActions } from '@/components'
-import { defaultChain } from '@/constants'
-import { createPortfolioShareUrls, HistoryPosition } from '@/services'
-import { NumberUtil } from '@/utils'
-import { HStack, Heading, Image, Stack, StackProps, Text } from '@chakra-ui/react'
+import type { StackProps } from '@chakra-ui/react'
+import { Heading, HStack, Image, Stack, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import { FaCircle } from 'react-icons/fa'
+
+import { Button, MarketCardUserActions } from '@/components'
+import { defaultChain } from '@/constants'
+import type { HistoryPosition } from '@/services'
+import { createPortfolioShareUrls } from '@/services'
+import { NumberUtil } from '@/utils'
 import { usePriceOracle } from '@/providers'
 import { borderRadius, colors } from '@/styles'
 import { useIsMobile, useMarketData } from '@/hooks'
-import { FaCircle } from 'react-icons/fa'
 import { useMarket } from '@/services/MarketsService'
 
 export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {

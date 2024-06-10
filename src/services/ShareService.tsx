@@ -1,6 +1,6 @@
 import { collateralToken, defaultChain } from '@/constants'
-import { HistoryPosition } from '@/services'
-import { Market } from '@/types'
+import type { HistoryPosition } from '@/services'
+import type { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
 /*

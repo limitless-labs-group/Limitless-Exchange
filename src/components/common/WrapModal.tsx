@@ -1,11 +1,12 @@
 import { Box, Heading, HStack, Stack, Text, VStack } from '@chakra-ui/react'
+import { FaEthereum } from 'react-icons/fa6'
+import { FaArrowAltCircleRight } from 'react-icons/fa'
+import { useMemo, useState } from 'react'
+
 import { Button, Input, Modal } from '@/components'
 import { useBalanceService } from '@/services'
 import { borderRadius } from '@/styles'
-import { FaEthereum } from 'react-icons/fa6'
 import { NumberUtil } from '@/utils'
-import { FaArrowAltCircleRight } from 'react-icons/fa'
-import { useMemo, useState } from 'react'
 
 export default function WrapModal() {
   const [displayAmount, setDisplayAmount] = useState('')

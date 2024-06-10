@@ -1,15 +1,16 @@
 'use client'
 
+import { Grid, Stack } from '@chakra-ui/react'
+import { useEffect, useMemo, useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+import { getAddress } from 'viem'
+
 import { CreateMarketCard, MainLayout, MarketCard, MarketCardMobile } from '@/components'
 import { defaultChain } from '@/constants'
 import { useIsMobile } from '@/hooks'
 import { OpenEvent, useAmplitude } from '@/services'
-import { Grid, Stack } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import Filter from '@/components/common/TokenFilter'
-import { Token } from '@/types'
-import { getAddress } from 'viem'
+import type { Token } from '@/types'
 import { useMarkets } from '@/services/MarketsService'
 
 const MainPage = () => {

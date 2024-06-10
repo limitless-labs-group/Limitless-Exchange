@@ -1,8 +1,9 @@
-import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
 import { defineConfig } from '@wagmi/cli'
 import { actions, react } from '@wagmi/cli/plugins'
 
-// @ts-ignore
+import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
+
+// @ts-expect-error
 export default defineConfig(() => {
   // const env = loadEnv({
   //   mode: process.env.NODE_ENV,

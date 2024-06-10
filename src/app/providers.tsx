@@ -1,12 +1,13 @@
 'use client'
 
 import * as React from 'react'
+
 import {
   ChakraProvider,
+  PriceOracleProvider,
   QueryProvider,
   WagmiProvider,
   Web3AuthProvider,
-  PriceOracleProvider,
 } from '@/providers'
 import {
   AccountProvider,

@@ -1,21 +1,16 @@
-import { collateralToken, conditionalTokensAddress, defaultChain, weth } from '@/constants'
-import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
-import { useWeb3Auth } from '@/providers'
-import { Address } from '@/types'
 import { ArkaPaymaster, EtherspotBundler, PrimeSdk, Web3WalletProvider } from '@etherspot/prime-sdk'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common/utils'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import {
-  PropsWithChildren,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
-import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, erc20Abi } from 'viem'
+import type { PropsWithChildren } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import type { TransactionReceipt } from 'viem'
+import { encodeFunctionData, erc20Abi, getContract, maxUint256 } from 'viem'
+
+import type { Address } from '@/types'
+import { publicClient, useWeb3Auth } from '@/providers'
+import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
+import { collateralToken, conditionalTokensAddress, defaultChain, weth } from '@/constants'
 import { contractABI } from '@/contracts/utils'
-import { publicClient } from '@/providers'
 
 interface IEtherspotContext {
   etherspot: Etherspot | null

@@ -1,10 +1,5 @@
 'use client'
 
-import { BalanceCard, DepositTestCard, WithdrawModal } from '@/app/wallet/components'
-import { Button, MainLayout } from '@/components'
-import { defaultChain, weth } from '@/constants'
-import { OpenEvent, useAmplitude, useAuth } from '@/services'
-import { colors } from '@/styles'
 import {
   Accordion,
   AccordionButton,
@@ -16,12 +11,18 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { FaCircle, FaComments } from 'react-icons/fa'
+import type { Address } from 'viem'
+
+import { BalanceCard, DepositTestCard, WithdrawModal } from '@/app/wallet/components'
+import { Button, MainLayout } from '@/components'
+import { defaultChain, weth } from '@/constants'
+import { OpenEvent, useAmplitude, useAuth } from '@/services'
+import { colors } from '@/styles'
 import AssetsTable from '@/app/wallet/components/AssetsTable'
 import Paper from '@/components/common/Paper'
 import DepositInfo from '@/app/wallet/components/DepositInfo'
 import TopUpModal from '@/app/wallet/components/TopUpModal'
 import { useIsMobile } from '@/hooks'
-import { Address } from 'viem'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 const WalletPage = () => {

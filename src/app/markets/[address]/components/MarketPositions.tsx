@@ -1,10 +1,7 @@
-import { defaultChain } from '@/constants'
-import { HistoryPosition, useHistory, useTradingService } from '@/services'
-import { NumberUtil } from '@/utils'
+import type { StackProps } from '@chakra-ui/react'
 import {
   Box,
   Divider,
-  StackProps,
   Table,
   TableContainer,
   Tbody,
@@ -16,6 +13,11 @@ import {
 } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+
+import { defaultChain } from '@/constants'
+import type { HistoryPosition } from '@/services'
+import { useHistory, useTradingService } from '@/services'
+import { NumberUtil } from '@/utils'
 
 export const MarketPositions = ({ ...props }: StackProps) => {
   const { market } = useTradingService()

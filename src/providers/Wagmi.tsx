@@ -1,10 +1,12 @@
 // import { WagmiConfig, configureChains, createConfig } from 'wagmi'
 // import { publicProvider } from 'wagmi/providers/public'
 // import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
+import type { Transport } from 'viem'
+import { createPublicClient } from 'viem'
+import { WagmiProvider as WagmiDefaultProvider, http, createConfig } from 'wagmi'
+
 import { defaultChain } from '@/constants'
 import { web3AuthConnector } from '@/providers'
-import { createPublicClient, Transport } from 'viem'
-import { WagmiProvider as WagmiDefaultProvider, http, createConfig } from 'wagmi'
 
 // const { publicClient, webSocketPublicClient } = configureChains(
 //   [defaultChain],

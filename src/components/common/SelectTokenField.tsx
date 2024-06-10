@@ -1,8 +1,10 @@
 import { Box, HStack, Image, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react'
-import { Dispatch, SetStateAction, useEffect } from 'react'
-import { collateralTokensArray, defaultChain, weth } from '@/constants'
+import type { Dispatch, SetStateAction } from 'react'
+import { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { Address } from 'viem'
+import type { Address } from 'viem'
+
+import { collateralTokensArray, defaultChain, weth } from '@/constants'
 
 type SelectTokenFieldProps = {
   setToken: Dispatch<SetStateAction<Address>>

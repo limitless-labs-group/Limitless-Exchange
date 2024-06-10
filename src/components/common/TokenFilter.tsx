@@ -10,13 +10,14 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { LuListFilter } from 'react-icons/lu'
-import { collateralTokensArray, defaultChain } from '@/constants'
 import { v4 as uuidv4 } from 'uuid'
+import { FaXmark } from 'react-icons/fa6'
+
+import { collateralTokensArray, defaultChain } from '@/constants'
 import TextButton from '@/components/common/buttons/TextButton'
 import { colors } from '@/styles'
-import { Token } from '@/types'
+import type { Token } from '@/types'
 import { Button } from '@/components/common/buttons/Button'
-import { FaXmark } from 'react-icons/fa6'
 
 type TokenFilterProps = {
   onChange: (tokens: Token[]) => void

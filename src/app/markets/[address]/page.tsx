@@ -1,5 +1,8 @@
 'use client'
 
+import { Flex, Spacer, Spinner } from '@chakra-ui/react'
+import { useEffect } from 'react'
+
 import { MainLayout } from '@/components'
 import {
   MarketClaimingForm,
@@ -7,9 +10,8 @@ import {
   MarketPositions,
   MarketTradingForm,
 } from '@/app/markets/[address]/components'
-import { Flex, Spacer, Spinner } from '@chakra-ui/react'
-import { useEffect } from 'react'
-import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
+import type { PageOpenedMetadata } from '@/services'
+import { OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { MarketPriceChart } from '@/app/markets/[address]/components/MarketPriceChart'
 import { useMarket } from '@/services/MarketsService'
 import ApproveModal from '@/components/common/ApproveModal'

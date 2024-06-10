@@ -1,7 +1,3 @@
-import { Button, IModal, InfoIcon, Input, Modal, Tooltip } from '@/components'
-import { collateralTokensArray, defaultChain, higher, weth } from '@/constants'
-import { useBalanceService } from '@/services'
-import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
   HStack,
   Heading,
@@ -13,10 +9,18 @@ import {
   IconButton,
   Box,
 } from '@chakra-ui/react'
-import { Dispatch, SetStateAction, useEffect, useMemo } from 'react'
-import { Address, zeroAddress } from 'viem'
+import type { Dispatch, SetStateAction } from 'react'
+import { useEffect, useMemo } from 'react'
+import type { Address } from 'viem'
+import { zeroAddress } from 'viem'
+
+import type { IModal } from '@/components'
+import { Button, InfoIcon, Input, Modal, Tooltip } from '@/components'
+import { collateralTokensArray, defaultChain, higher, weth } from '@/constants'
+import { useBalanceService } from '@/services'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 import SelectTokenField from '@/components/common/SelectTokenField'
-import { Token } from '@/types'
+import type { Token } from '@/types'
 
 type WithdrawModalProps = Omit<IModal, 'children'> & {
   selectedToken: Address

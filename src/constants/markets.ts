@@ -1,7 +1,8 @@
-import { degen, higher, mfer, onChain, weth } from '@/constants/tokens'
-import { Market } from '@/types'
 import { zeroAddress, zeroHash } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
+
+import { degen, higher, mfer, onChain, weth } from '@/constants/tokens'
+import type { Market } from '@/types'
 
 export const markets: Market[] = [
   // weth

@@ -1,10 +1,12 @@
-import { Button } from '@/components'
-import { ShareURI } from '@/services'
-import { colors } from '@/styles'
-import { HStack, Image, StackProps, useClipboard } from '@chakra-ui/react'
+import type { StackProps } from '@chakra-ui/react'
+import { HStack, Image, useClipboard } from '@chakra-ui/react'
 import { FaLink, FaXTwitter } from 'react-icons/fa6'
 import { useRouter } from 'next/navigation'
-import { ReactElement } from 'react'
+import type { ReactElement } from 'react'
+
+import { colors } from '@/styles'
+import type { ShareURI } from '@/services'
+import { Button } from '@/components'
 
 interface IMarketCardUserActions extends StackProps {
   marketURI: string

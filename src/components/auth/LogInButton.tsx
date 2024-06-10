@@ -1,4 +1,5 @@
-import { Button, IButton } from '@/components'
+import type { IButton } from '@/components'
+import { Button } from '@/components'
 import { useAuth } from '@/services'
 
 export const LogInButton = ({ children, ...props }: IButton) => {

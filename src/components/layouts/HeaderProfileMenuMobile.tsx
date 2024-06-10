@@ -1,14 +1,3 @@
-import { Button, IButton } from '@/components'
-import {
-  ClickEvent,
-  useAccount,
-  useAmplitude,
-  useAuth,
-  useBalanceService,
-  useEtherspot,
-} from '@/services'
-import { colors } from '@/styles'
-import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
   Flex,
   HStack,
@@ -24,6 +13,19 @@ import {
 import { useRouter } from 'next/navigation'
 import { FaBars, FaCopy, FaRegUserCircle, FaSignOutAlt } from 'react-icons/fa'
 import { FaBriefcase, FaEthereum, FaTableCellsLarge } from 'react-icons/fa6'
+
+import type { IButton } from '@/components'
+import { Button } from '@/components'
+import {
+  ClickEvent,
+  useAccount,
+  useAmplitude,
+  useAuth,
+  useBalanceService,
+  useEtherspot,
+} from '@/services'
+import { colors } from '@/styles'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 
 export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
   const router = useRouter()

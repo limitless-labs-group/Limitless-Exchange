@@ -1,7 +1,9 @@
-import { Button } from '@/components'
-import { ClickEvent, CreateMarketClickedMetadata, useAmplitude } from '@/services'
-import { borderRadius, colors } from '@/styles'
 import { Heading, Image, Stack, Text } from '@chakra-ui/react'
+
+import { Button } from '@/components'
+import type { CreateMarketClickedMetadata } from '@/services'
+import { ClickEvent, useAmplitude } from '@/services'
+import { borderRadius, colors } from '@/styles'
 
 export const CreateMarketCard = () => {
   const { trackClicked } = useAmplitude()
@@ -35,6 +37,7 @@ export const CreateMarketCard = () => {
         borderEndStartRadius={0}
         borderEndEndRadius={0}
         p={4}
+        alt={'Create Market Logo'}
       />
 
       <Stack

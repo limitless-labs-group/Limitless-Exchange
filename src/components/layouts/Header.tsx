@@ -1,15 +1,17 @@
-import { Flex, FlexProps, HStack, Heading, Image, Text } from '@chakra-ui/react'
-import {
-  LogInButton,
-  HeaderProfileMenuDesktop,
-  Button,
-  HeaderProfileMenuMobile,
-} from '@/components'
+import type { FlexProps } from '@chakra-ui/react'
+import { Flex, Heading, HStack, Image, Text } from '@chakra-ui/react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAccount } from 'wagmi'
+import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
+
+import {
+  Button,
+  HeaderProfileMenuDesktop,
+  HeaderProfileMenuMobile,
+  LogInButton,
+} from '@/components'
 import { ClickEvent, useAmplitude, useBalanceService, useEtherspot } from '@/services'
 import { borderRadius, colors } from '@/styles'
-import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
 import { NumberUtil } from '@/utils'
 import WrapModal from '@/components/common/WrapModal'
 

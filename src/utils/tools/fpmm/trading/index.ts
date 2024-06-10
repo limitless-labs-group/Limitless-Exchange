@@ -1,5 +1,5 @@
 import { newtonRaphson } from '@fvictorio/newton-raphson-method'
-// @ts-ignore
+// @ts-expect-error
 import Big from 'big.js'
 
 export const calcSellAmountInCollateral = (

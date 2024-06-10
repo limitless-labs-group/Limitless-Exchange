@@ -1,3 +1,11 @@
+import type { QueryObserverResult } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import type { PropsWithChildren } from 'react'
+import { createContext, useContext, useMemo } from 'react'
+import type { Hash } from 'viem'
+import { formatEther, formatUnits } from 'viem'
+
 import {
   collateralToken,
   collateralTokensArray,
@@ -7,13 +15,8 @@ import {
   weth,
 } from '@/constants'
 import { usePriceOracle } from '@/providers'
-import { useEtherspot } from '@/services'
-import { Address } from '@/types'
+import type { Address } from '@/types'
 import { NumberUtil } from '@/utils'
-import { QueryObserverResult, useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
-import { Hash, formatEther, formatUnits } from 'viem'
 import { useMarkets } from '@/services/MarketsService'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 

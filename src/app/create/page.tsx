@@ -1,6 +1,5 @@
 'use client'
 
-import { Input, MainLayout, Toast } from '@/components'
 import {
   Box,
   Button,
@@ -24,13 +23,16 @@ import {
   Textarea,
   VStack,
 } from '@chakra-ui/react'
-import { borderRadius, colors } from '@/styles'
 import { CgInfo } from 'react-icons/cg'
 import { SingleDatepicker } from 'chakra-dayzed-datepicker'
-import React, { MutableRefObject, useRef, useState } from 'react'
+import type { MutableRefObject } from 'react'
+import React, { useRef, useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 import axios from 'axios'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+
+import { borderRadius, colors } from '@/styles'
+import { Input, MainLayout, Toast } from '@/components'
 import { useToast } from '@/hooks'
 
 interface FormFieldProps {
@@ -396,7 +398,7 @@ const CreateOwnMarketPage = () => {
                   <CreatableSelect
                     isMulti
                     onCreateOption={handleTagCreation}
-                    //@ts-ignore
+                    //@ts-expect-error
                     onChange={handleActiveTags}
                     options={tagOptions}
                   />

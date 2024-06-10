@@ -1,13 +1,14 @@
-import { PropsWithChildren, createContext, useCallback, useContext } from 'react'
-import { useWeb3Auth } from '@/providers'
-import { useEffect, useState } from 'react'
+import type { PropsWithChildren } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { useConnect, useDisconnect } from 'wagmi'
-import { Address } from '@/types'
-import { defaultChain } from '@/constants'
-import { useAmplitude } from '@/services'
-import { UserInfo } from '@web3auth/base'
+import type { UserInfo } from '@web3auth/base'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
+
+import { useAmplitude } from '@/services'
+import { defaultChain } from '@/constants'
+import { useWeb3Auth } from '@/providers'
+import type { Address } from '@/types'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 export interface IAccountContext {

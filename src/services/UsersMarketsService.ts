@@ -1,7 +1,8 @@
-import { defaultChain, newSubgraphURI } from '@/constants'
-import { useEtherspot } from '@/services/Etherspot'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
+
+import { defaultChain, newSubgraphURI } from '@/constants'
+import { useEtherspot } from '@/services/Etherspot'
 
 export type AccountMarketResponse = {
   account_id: string

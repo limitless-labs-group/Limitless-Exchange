@@ -1,10 +1,12 @@
+import type { StackProps } from '@chakra-ui/react'
+import { HStack, Stack, Text, VStack } from '@chakra-ui/react'
+import type { Address } from 'viem'
+
 import { Button } from '@/components'
 import { useBalanceService } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
-import { HStack, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
 import { useIsMobile } from '@/hooks'
-import { Address } from 'viem'
 import { defaultChain, weth } from '@/constants'
 
 type BalanceCardProps = StackProps & {
