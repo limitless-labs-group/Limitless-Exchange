@@ -213,7 +213,10 @@ const CreateOwnMarketPage = () => {
     if (!title || !description || !creatorId || !marketLogo || !ogLogo || !tag) {
       toast({
         render: () => (
-          <Toast title={'Title, Description, Creator, Market Logo, Og Logo, Tags are required!'} />
+          <Toast
+            bg={'warn'}
+            title={'Title, Description, Creator, Market Logo, Og Logo, Tags are required!'}
+          />
         ),
       })
       return
@@ -235,33 +238,38 @@ const CreateOwnMarketPage = () => {
         <Toast title={'Request for market creation has been registered successfully.'} />
       ),
     })
+
     setIsCreating(true)
 
-    const res = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/admin`,
-      formData,
-      {
+    axios
+      .post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/admin`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-      }
-    )
-
-    cleanMarketState()
-
-    if (res.status === 201) {
-      const newTab = window.open('', '_blank')
-      if (newTab) {
-        newTab.location.href = res.data.multisigTxLink
-      } else {
-        // Fallback if the browser blocks the popup
-        window.location.href = res.data.multisigTxLink
-      }
-    } else {
-      toast({
-        render: () => <Toast title={`Error: ${res.statusText}`} />,
       })
-    }
+      .then((res) => {
+        if (res.status === 201) {
+          const newTab = window.open('', '_blank')
+          if (newTab) {
+            newTab.location.href = res.data.multisigTxLink
+          } else {
+            // Fallback if the browser blocks the popup
+            window.location.href = res.data.multisigTxLink
+          }
+        } else {
+          toast({
+            render: () => <Toast bg={'red'} title={`Error: ${res.statusText}`} />,
+          })
+        }
+      })
+      .catch((res) => {
+        toast({
+          render: () => <Toast bg={'red'} title={`Error: ${res.message}`} />,
+        })
+      })
+      .finally(() => {
+        cleanMarketState()
+      })
   }
 
   return (
