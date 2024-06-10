@@ -136,6 +136,7 @@ export enum ClickEvent {
   OpenCreatorProfileClicked = 'Open Creator Profile Clicked',
   ProfileBurgerMenuClicked = 'Profile Burger Menu Clicked',
   TradeClicked = 'Trade Clicked',
+  ApproveClicked = 'Approve Clicked',
 }
 
 export enum LoginEvent {
@@ -177,6 +178,10 @@ export type TradeClickedStrategy = 'Buy' | 'Sell'
 export interface TradeClickedMetadata {
   strategy: TradeClickedStrategy
   marketAddress: Address
+}
+
+export interface ClickedApproveMetadata {
+  address: Address
 }
 
 export type CreateMarketClickedPage = 'Explore Markets'
@@ -276,6 +281,7 @@ export type ClickedEventMetadata =
   | ProfileBurgerMenuClickedMetadata
   | TradeClickedMetadata
   | DepositClickedMetadata
+  | ClickedApproveMetadata
 export type OpenedEventMetadata = PageOpenedMetadata
 export type LoginEventMetadata = LoginWithFarcasterMetadata
 export type CopiedEventMetadata = WalletAddressCopiedMetadata

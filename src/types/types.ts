@@ -78,6 +78,7 @@ export enum MarketTokensIds {
   MFER = 'mfercoin',
   ONCHAIN = 'onchain',
   REGEN = 'regen',
+  USDC = 'usdc',
 }
 
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>
