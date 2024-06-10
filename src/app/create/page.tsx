@@ -2,27 +2,27 @@
 
 import { Input, MainLayout, Toast } from '@/components'
 import {
-  Flex,
-  Heading,
-  Text,
-  VStack,
-  HStack,
-  Textarea,
-  FormControl,
-  FormHelperText,
-  FormLabel,
   Box,
   Button,
   ButtonGroup,
+  Flex,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Heading,
+  HStack,
   Image,
-  Select,
   NumberInput,
   NumberInputField,
+  Select,
   Slider,
-  SliderTrack,
   SliderFilledTrack,
   SliderThumb,
+  SliderTrack,
   Spinner,
+  Text,
+  Textarea,
+  VStack,
 } from '@chakra-ui/react'
 import { borderRadius, colors } from '@/styles'
 import { CgInfo } from 'react-icons/cg'
@@ -73,6 +73,11 @@ const tokenLimits: TokenLimits = {
     min: 0.1,
     max: 3,
     step: 0.1,
+  },
+  USDC: {
+    min: 350,
+    max: 5000,
+    step: 25,
   },
 }
 
