@@ -1,1 +1,1 @@
-yarn run format
+yarn run prettier:check & yarn run prettier:fix
