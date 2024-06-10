@@ -46,7 +46,6 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
     title: {
       text: undefined,
     },
-    //@ts-expect-error
     xAxis: {
       type: 'datetime',
       ordinal: false,
@@ -94,10 +93,8 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
         point: {
           events: {
             mouseOver: function () {
-              //@ts-expect-error
               setYesDate(Highcharts.dateFormat('%B %e, %Y %I:%M %p', Number(this.x)))
-              //@ts-expect-error
-              setYesChance(this.y.toFixed(2))
+              setYesChance((this.y as number).toFixed(2))
             },
           },
         },

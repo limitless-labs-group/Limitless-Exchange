@@ -23,6 +23,7 @@
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/consistent-type-imports": "warn",
     "@typescript-eslint/prefer-ts-expect-error": "warn",
+    "@ts-expect-error": "off",
     "react/react-in-jsx-scope": "off",
     "react/jsx-props-no-spreading": "off",
     "react/forbid-prop-types": "off",
