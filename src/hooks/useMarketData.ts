@@ -1,4 +1,4 @@
-import { collateralToken, defaultChain, markets, newSubgraphURI, subgraphURI } from '@/constants'
+import { collateralToken, defaultChain, newSubgraphURI } from '@/constants'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers'
 import { Market } from '@/types'
@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useMemo } from 'react'
 import { Address, formatUnits, getContract, parseUnits } from 'viem'
+import { useMarkets } from '@/services/MarketsService'
 
 interface IUseMarketData {
   marketAddress?: Address
@@ -13,6 +14,8 @@ interface IUseMarketData {
 
 // TODO: incapsulate with context provider to reduce requests
 export const useMarketData = ({ marketAddress }: IUseMarketData) => {
+  const markets = useMarkets()
+
   const market: Market | null = useMemo(
     () =>
       markets.find(

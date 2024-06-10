@@ -7,18 +7,19 @@ import {
 } from '@/components'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAccount } from 'wagmi'
-import { ClickEvent, useAmplitude, useBalanceService } from '@/services'
+import { ClickEvent, useAmplitude, useBalanceService, useEtherspot } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
 import { NumberUtil } from '@/utils'
+import WrapModal from '@/components/common/WrapModal'
 
 export const Header = ({ ...props }: FlexProps) => {
   const router = useRouter()
   const pathname = usePathname()
   const { isConnected } = useAccount()
   const { overallBalanceUsd } = useBalanceService()
-  // const { balanceUsd: investedUsd, balanceShares } = useHistory()
   const { trackClicked } = useAmplitude()
+  const { etherspot } = useEtherspot()
 
   return (
     <Flex
@@ -82,30 +83,31 @@ export const Header = ({ ...props }: FlexProps) => {
               alignItems={'center'}
             >
               <HStack h={'full'} spacing={4}>
-                <Button
-                  h={'40px'}
-                  minWidth={'218px'}
-                  gap={2}
-                  fontWeight={'normal'}
-                  onClick={() => router.push('/wallet')}
-                >
-                  <Image
-                    alt='wallet'
-                    src='/assets/images/wallet.svg'
-                    width={'16px'}
-                    height={'16px'}
-                  />
-                  <HStack spacing={2}>
-                    <Text fontWeight={'medium'}>Balance</Text>
-                    <HStack spacing={1}>
-                      <Text fontWeight={'bold'}>
-                        {NumberUtil.formatThousands(overallBalanceUsd, 2)}
-                      </Text>
-                      <Text fontWeight={'medium'}>USD</Text>
+                {!!etherspot && (
+                  <Button
+                    h={'40px'}
+                    minWidth={'218px'}
+                    gap={2}
+                    fontWeight={'normal'}
+                    onClick={() => router.push('/wallet')}
+                  >
+                    <Image
+                      alt='wallet'
+                      src='/assets/images/wallet.svg'
+                      width={'16px'}
+                      height={'16px'}
+                    />
+                    <HStack spacing={2}>
+                      <Text fontWeight={'medium'}>Balance</Text>
+                      <HStack spacing={1}>
+                        <Text fontWeight={'bold'}>
+                          {NumberUtil.formatThousands(overallBalanceUsd, 2)}
+                        </Text>
+                        <Text fontWeight={'medium'}>USD</Text>
+                      </HStack>
                     </HStack>
-                  </HStack>
-                </Button>
-
+                  </Button>
+                )}
                 <Button
                   colorScheme={'transparent'}
                   size={'sm'}
@@ -133,6 +135,7 @@ export const Header = ({ ...props }: FlexProps) => {
           <LogInButton h={'full'} />
         )}
       </HStack>
+      <WrapModal />
     </Flex>
   )
 }

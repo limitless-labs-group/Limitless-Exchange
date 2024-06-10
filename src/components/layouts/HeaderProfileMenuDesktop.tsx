@@ -5,6 +5,8 @@ import {
   useAccount,
   useAmplitude,
   useAuth,
+  useBalanceService,
+  useEtherspot,
 } from '@/services'
 import { colors } from '@/styles'
 import { truncateEthAddress } from '@/utils'
@@ -22,7 +24,7 @@ import {
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { FaBriefcase, FaChevronDown, FaCopy, FaRegUserCircle, FaSignOutAlt } from 'react-icons/fa'
-import { FaWallet } from 'react-icons/fa6'
+import { FaEthereum, FaWallet } from 'react-icons/fa6'
 
 export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
   const { trackClicked } = useAmplitude()
@@ -30,6 +32,8 @@ export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
   const { userInfo, account } = useAccount()
   const { onCopy, hasCopied } = useClipboard(account ?? '')
   const router = useRouter()
+  const { etherspot } = useEtherspot()
+  const { setEOAWrapModalOpened } = useBalanceService()
 
   return (
     <Popover placement={'bottom-end'} trigger={'hover'} isLazy>
@@ -77,27 +81,44 @@ export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
               <Text>{truncateEthAddress(account)}</Text>
               <FaCopy fontSize={'14px'} fill={hasCopied ? colors.brand : colors.fontLight} />
             </Button>
-            <Button
-              w={'full'}
-              fontWeight={'normal'}
-              h={'40px'}
-              colorScheme={'transparent'}
-              justifyContent={'start'}
-              onClick={() => {
-                trackClicked<ProfileBurgerMenuClickedMetadata>(
-                  ClickEvent.ProfileBurgerMenuClicked,
-                  {
-                    option: 'Wallet',
-                  }
-                )
-                router.push('/wallet')
-              }}
-            >
-              <HStack w={'full'}>
-                <FaWallet size={'16px'} fill={colors.fontLight} />
-                <Text>Wallet</Text>
-              </HStack>
-            </Button>
+            {!!etherspot ? (
+              <Button
+                w={'full'}
+                fontWeight={'normal'}
+                h={'40px'}
+                colorScheme={'transparent'}
+                justifyContent={'start'}
+                onClick={() => {
+                  trackClicked<ProfileBurgerMenuClickedMetadata>(
+                    ClickEvent.ProfileBurgerMenuClicked,
+                    {
+                      option: 'Wallet',
+                    }
+                  )
+                  router.push('/wallet')
+                }}
+              >
+                <HStack w={'full'}>
+                  <FaWallet size={'16px'} fill={colors.fontLight} />
+                  <Text>Wallet</Text>
+                </HStack>
+              </Button>
+            ) : (
+              <Button
+                w={'full'}
+                fontWeight={'normal'}
+                h={'40px'}
+                colorScheme={'transparent'}
+                justifyContent={'start'}
+                onClick={() => setEOAWrapModalOpened(true)}
+              >
+                <HStack w={'full'}>
+                  <FaEthereum size={'16px'} fill={colors.fontLight} />
+                  <Text>Wrap ETH</Text>
+                </HStack>
+              </Button>
+            )}
+
             <Button
               w={'full'}
               fontWeight={'normal'}

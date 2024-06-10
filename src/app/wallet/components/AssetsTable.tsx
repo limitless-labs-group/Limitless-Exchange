@@ -19,7 +19,7 @@ import { useBalanceService } from '@/services'
 import { NumberUtil } from '@/utils'
 import { usePriceOracle } from '@/providers'
 import { useIsMobile } from '@/hooks'
-import { useUsersMarkets } from '@/services/MarketsService'
+import { useUsersMarkets } from '@/services/UsersMarketsService'
 import { Address, formatUnits } from 'viem'
 import { MarketTokensIds } from '@/types'
 
@@ -37,8 +37,12 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
   const { convertAssetAmountToUsd } = usePriceOracle()
   const { data: usersMarkets } = useUsersMarkets()
 
-  const getMarketsCount = (ticker: string) => {
-    return usersMarkets?.filter((market) => market.market.collateral.symbol === ticker).length || 0
+  const getActiveMarketsCount = (ticker: string) => {
+    return (
+      usersMarkets
+        ?.filter((market) => !market.market.closed)
+        .filter((market) => market.market.collateral.symbol === ticker).length || 0
+    )
   }
 
   const getLockedAmountUsd = (id: MarketTokensIds, amount: number) => {
@@ -142,7 +146,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                       w={'120px'}
                       px={'12px'}
                     >
-                      <Text>{getMarketsCount(balance.symbol)} markets</Text>
+                      <Text>{getActiveMarketsCount(balance.symbol)} markets</Text>
                     </Td>
                     <Td borderBottom={'unset'} w={'100px'} px={'12px'}>
                       <VStack gap={0} alignItems='flex-end'>

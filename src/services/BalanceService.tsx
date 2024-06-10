@@ -2,7 +2,7 @@ import { Toast, ToastWithdraw } from '@/components'
 import { collateralToken, collateralTokensArray, defaultChain, weth } from '@/constants'
 import { wethABI } from '@/contracts'
 import { useToast } from '@/hooks'
-import { publicClient, usePriceOracle } from '@/providers'
+import { usePriceOracle } from '@/providers'
 import { useEtherspot } from '@/services'
 import { Address, GetBalanceResult, MarketTokensIds, Token } from '@/types'
 import { Logger, NumberUtil } from '@/utils'
@@ -31,9 +31,11 @@ import {
   isAddress,
   parseEther,
   parseUnits,
-  TransactionReceipt,
 } from 'viem'
 import { getBalance } from 'viem/actions'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { useWeb3Service } from '@/services/Web3Service'
+import { publicClient } from '@/providers'
 
 interface IBalanceService {
   balanceOfSmartWallet: GetBalanceResult[] | undefined
@@ -55,6 +57,14 @@ interface IBalanceService {
 
   status: BalanceServiceStatus
   setToken: Dispatch<SetStateAction<Token>>
+  token: Token
+
+  eoaWrapModalOpened: boolean
+  setEOAWrapModalOpened: Dispatch<SetStateAction<boolean>>
+
+  ethBalance?: string
+  wrapETHManual: (amount: string) => Promise<void>
+  isWrapPending: boolean
 }
 
 const BalanceService = createContext({} as IBalanceService)
@@ -68,20 +78,26 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
-  const { ethPrice, marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
+  const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
+  const [eoaWrapModalOpened, setEOAWrapModalOpened] = useState(false)
 
   /**
    * Etherspot
    */
-  const { smartWalletAddress, transferErc20, whitelist, etherspot } = useEtherspot()
+  // Todo rework
+  const { whitelist, etherspot } = useEtherspot()
+
+  const walletAddress = useWalletAddress()
+
+  const { mintErc20, transferErc20, unwrapEth, transferEthers, wrapEth } = useWeb3Service()
 
   /**
    * Weth balance
    */
   const { data: balanceOfSmartWallet, refetch: refetchbalanceOfSmartWallet } = useQuery({
-    queryKey: ['balance', smartWalletAddress],
+    queryKey: ['balance', walletAddress],
     queryFn: async () => {
-      if (!smartWalletAddress) {
+      if (!walletAddress) {
         return
       }
 
@@ -92,7 +108,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
             abi: token.id === MarketTokensIds.WETH ? wethABI : erc20Abi,
             client: publicClient,
           })
-          let newBalanceBI = (await contract.read.balanceOf([smartWalletAddress])) as bigint
+          let newBalanceBI = (await contract.read.balanceOf([walletAddress])) as bigint
           // small balance to zero
           if (newBalanceBI < parseEther('0.000001')) {
             newBalanceBI = 0n
@@ -117,7 +133,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         return balance.value
       })
 
-      log.success('ON_BALANCE_SUCC', smartWalletAddress, balanceResult)
+      log.success('ON_BALANCE_SUCC', walletAddress, balanceResult)
 
       balanceResult.forEach((balance) => {
         if (!!balanceOfSmartWallet) {
@@ -125,7 +141,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
             return currentBalanceEntity.id === balance.id
           })
           if (currentBalance && balance.value > currentBalance.value) {
-            !defaultChain.testnet && whitelist()
+            !defaultChain.testnet && etherspot && whitelist()
             const depositAmount = formatUnits(
               balance.value - currentBalance.value,
               collateralToken.decimals
@@ -146,11 +162,20 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
 
       return balanceResult
     },
-    enabled: !!smartWalletAddress,
+    enabled: !!walletAddress,
     refetchInterval: 5000,
   })
 
-  console.log(balanceOfSmartWallet)
+  const { data: ethBalance } = useQuery({
+    queryKey: ['ethBalance', walletAddress],
+    queryFn: async () => {
+      if (!walletAddress || !!etherspot) {
+        return
+      }
+      const eth = await getBalance(publicClient, { address: walletAddress })
+      return formatEther(eth)
+    },
+  })
 
   const overallBalanceUsd = useMemo(() => {
     let _overallBalanceUsd = 0
@@ -171,20 +196,20 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   }, [pathname])
 
   useQuery({
-    queryKey: ['autoWrapEth', smartWalletAddress, unwrap],
+    queryKey: ['autoWrapEth', walletAddress, unwrap],
     queryFn: async () => {
-      if (!smartWalletAddress || !etherspot || unwrap) {
+      if (!walletAddress || unwrap || !etherspot) {
         return
       }
 
-      const eth = await getBalance(publicClient, { address: smartWalletAddress })
+      const eth = await getBalance(publicClient, { address: walletAddress })
       const ethFormatted = formatEther(eth)
       log.info('ETH balance:', ethFormatted)
 
       const gasFee = defaultChain.testnet ? 0.01 : 0 // there's no paymaster on testnet so it's required to left some eth for gas
 
       if (Number(ethFormatted) > gasFee) {
-        if (!defaultChain.testnet) {
+        if (!defaultChain.testnet && etherspot) {
           await whitelist() // TODO: refactor the logic of whitelisting
         }
 
@@ -192,17 +217,33 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
           render: () => <Toast title={'Wrapping ETH...'} />,
         })
 
-        const receipt = await etherspot.wrapEth(eth - parseEther(gasFee.toString()))
-        if (!receipt) {
+        const txHash = await etherspot.wrapEth(eth - parseEther(gasFee.toString()))
+
+        setUnwrap(true)
+
+        if (!txHash) {
           // TODO: show toast?
           log.error('autoWrapEth')
         } else {
-          log.success('autoWrapEth', receipt)
+          log.success('autoWrapEth', txHash)
         }
       }
     },
-    enabled: !!smartWalletAddress && !!etherspot && !unwrap,
+    enabled: !!walletAddress && !unwrap,
     refetchInterval: pathname.includes('wallet') && 5000, // polling on wallet page only
+  })
+
+  const { mutateAsync: wrapETHManual, isPending: isWrapPending } = useMutation({
+    mutationFn: async (amount: string) => {
+      toast({
+        render: () => <Toast title={'Processing transaction...'} />,
+      })
+      await wrapEth(parseUnits(amount, 18))
+      setEOAWrapModalOpened(false)
+      toast({
+        render: () => <Toast title={'ETH wrapped successfully.'} />,
+      })
+    },
   })
 
   /**
@@ -210,16 +251,13 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const { mutate: mint, isPending: isLoadingMint } = useMutation({
     mutationFn: async (params: { address: Address; newToken?: boolean }) => {
-      if (!etherspot) {
-        return
-      }
       toast({
         render: () => <Toast title={'Processing transaction...'} />,
       })
-      await etherspot.mintErc20(
+      await mintErc20(
         params.address,
         parseUnits('1', collateralToken.decimals),
-        smartWalletAddress || '0x',
+        walletAddress || '0x',
         params.newToken
       )
       toast({
@@ -247,8 +285,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     const isInvalidBalance = balanceOfSmartWallet === undefined
     const isNegativeOrZeroAmount = amountBI <= 0n
     const balanceEntity = balanceOfSmartWallet?.find((balance) => {
-      console.log(token)
-      console.log(balance)
       return balance.id === token.id
     }) as GetBalanceResult
     const isExceedsBalance = !!balanceOfSmartWallet && amountBI > balanceEntity.value
@@ -263,7 +299,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
           render: () => <Toast title={'Unwrapping ETH...'} />,
         })
 
-        const unwrapReceipt = await etherspot?.unwrapEth(amountBI)
+        const unwrapReceipt = await unwrapEth(amountBI)
         if (!unwrapReceipt) {
           // TODO: show error toast
           log.error('Unwrap is unsuccessful')
@@ -276,11 +312,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
           render: () => <Toast title={'Sending ETH...'} />,
         })
 
-        const transferReceipt = (await etherspot?.transferEthers(
-          addressToWithdraw as Address,
-          amountBI,
-          true
-        )) as TransactionReceipt | undefined
+        const transferReceipt = await transferEthers(addressToWithdraw as Address, amountBI)
 
         if (!transferReceipt) {
           // TODO: show error toast
@@ -292,28 +324,31 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         setUnwrap(false)
 
         toast({
-          render: () => <ToastWithdraw receipt={transferReceipt} />,
+          render: () => <ToastWithdraw transactionHash={transferReceipt} />,
         })
 
         return
       }
 
-      await transferErc20({
-        token: collateralToken.address[defaultChain.id],
-        to: addressToWithdraw as Address,
-        amount: amountBI,
-        onSign: () => {
-          toast({
-            render: () => <Toast title={'Processing transaction...'} />,
-          })
-        },
-        onConfirm: async (receipt) => {
-          setAmount('')
-          await refetchbalanceOfSmartWallet()
-          toast({
-            render: () => <ToastWithdraw receipt={receipt} />,
-          })
-        },
+      toast({
+        render: () => <Toast title={'Processing transaction...'} />,
+      })
+
+      const transferReceipt = await transferErc20(
+        token.address[defaultChain.id],
+        addressToWithdraw as Address,
+        amountBI
+      )
+
+      if (!transferReceipt) {
+        // TODO: show error toast
+        log.error(`Transfer ${token.symbol} is unsuccessful`)
+        return
+      }
+      setAmount('')
+
+      toast({
+        render: () => <ToastWithdraw transactionHash={transferReceipt} />,
       })
     },
   })
@@ -340,10 +375,8 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         balanceOfSmartWallet,
         refetchbalanceOfSmartWallet,
         overallBalanceUsd,
-
         mint,
         isLoadingMint,
-
         addressToWithdraw,
         setAddressToWithdraw,
         amount,
@@ -351,10 +384,14 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         unwrap,
         setUnwrap,
         withdraw,
-
         setToken,
-
+        token,
         status,
+        eoaWrapModalOpened,
+        setEOAWrapModalOpened,
+        ethBalance,
+        wrapETHManual,
+        isWrapPending,
       }}
     >
       {children}
