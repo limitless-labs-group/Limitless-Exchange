@@ -1,4 +1,4 @@
-import { collateralToken, defaultChain, markets } from '@/constants'
+import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { borderRadius, colors } from '@/styles'
 import { Address, Market } from '@/types'
@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
 import { createMarketShareUrls } from '@/services'
+import { useMarket, useMarkets } from '@/services/MarketsService'
 
 interface IMarketCard extends StackProps {
   marketAddress?: Address
@@ -15,14 +16,8 @@ interface IMarketCard extends StackProps {
 
 export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketCard) => {
   const router = useRouter()
-  const market: Market | null = useMemo(
-    () =>
-      markets.find(
-        (market) =>
-          market.address[defaultChain.id]?.toLowerCase() === marketAddress?.toLocaleLowerCase()
-      ) ?? null,
-    [marketAddress]
-  )
+
+  const market = useMarket(marketAddress as string)
 
   const { outcomeTokensPercent, liquidity, volume } = useMarketData({ marketAddress })
 
@@ -49,7 +44,7 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
     >
       <Stack w={'full'} spacing={3}>
         <HStack w={'full'} spacing={3} onClick={() => router.push(marketURI)}>
-          <Avatar src={market?.imageURI} size={'lg'} />
+          <Avatar src={market?.placeholderURI} size={'lg'} />
 
           <Stack alignItems={'start'}>
             <Text fontWeight={'bold'} fontSize={'16px'} noOfLines={3} lineHeight={'18px'}>
@@ -68,13 +63,13 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Liquidity</Text>
             <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(liquidity, 4)} ${
-              collateralToken.symbol
+              market?.tokenTicker[defaultChain.id]
             }`}</Text>
           </HStack>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Volume</Text>
             <Text fontWeight={'bold'}>{`${NumberUtil.formatThousands(volume, 4)} ${
-              collateralToken.symbol
+              market?.tokenTicker[defaultChain.id]
             }`}</Text>
           </HStack>
         </Stack>

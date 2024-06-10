@@ -2,9 +2,8 @@ import {
   collateralToken,
   collateralTokensArray,
   defaultChain,
-  markets,
+  newSubgraphURI,
   onChain,
-  subgraphURI,
   weth,
 } from '@/constants'
 import { usePriceOracle } from '@/providers'
@@ -15,6 +14,7 @@ import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash, formatEther, formatUnits } from 'viem'
+import { useAllMarkets, useMarkets } from '@/services/MarketsService'
 
 interface IHistoryService {
   trades: HistoryTrade[] | undefined
@@ -41,6 +41,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * UTILS
    */
   const { convertAssetAmountToUsd } = usePriceOracle()
+  const markets = useAllMarkets()
 
   /**
    * QUERIES
@@ -52,21 +53,21 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         return []
       }
 
-      const queryName = 'trades'
+      const queryName = 'Trade'
       const response = await axios.request({
-        url: subgraphURI[defaultChain.id],
+        url: newSubgraphURI[defaultChain.id],
         method: 'post',
         data: {
           query: `
             query ${queryName} {
               ${queryName} (
-                where: {transactor: "${smartWalletAddress}"}
+                where: {transactor: { _ilike: "${smartWalletAddress}" } }
               ) {
                 market {
                   id
                   closed
                   funding
-                  conditionId
+                  condition_id
                   collateral {
                     symbol
                   }
@@ -118,15 +119,19 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         return []
       }
 
-      const queryName = 'payoutRedemptions'
+      const queryName = 'Redemption'
       const response = await axios.request({
-        url: subgraphURI[defaultChain.id],
+        url: newSubgraphURI[defaultChain.id],
         method: 'post',
         data: {
           query: `
             query ${queryName} {
               ${queryName} (
-                where: {redeemer: "${smartWalletAddress}"}
+                where: {
+                  redeemer: {
+                    _ilike: "${smartWalletAddress}"
+                  } 
+                }
               ) {
                 payout
                 conditionId
@@ -166,7 +171,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       trades?.forEach((trade) => {
         // TODO: replace hardcoded markets with dynamic
         const market = markets.find(
-          (market) => market.address[defaultChain.id].toLowerCase() == trade.market.id.toLowerCase()
+          (market) =>
+            market.address[defaultChain.id].toLowerCase() === trade.market.id.toLowerCase()
         )
         if (
           !market ||
@@ -177,7 +183,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 
         const existingMarket = _positions.find(
           (position) =>
-            position.market.id == trade.market.id && position.outcomeIndex == trade.outcomeIndex
+            position.market.id === trade.market.id && position.outcomeIndex === trade.outcomeIndex
         )
         const position = existingMarket ?? {
           market: trade.market,
@@ -214,7 +220,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 
       // filter redeemed markets
       _positions = _positions.filter(
-        (position) => !redeems?.find((redeem) => redeem.conditionId === position.market.conditionId)
+        (position) =>
+          !redeems?.find((redeem) => redeem.conditionId === position.market.condition_id)
       )
       console.log('positions', _positions)
 
@@ -311,7 +318,7 @@ export type HistoryTrade = {
 
 export type HistoryMarket = {
   id: Address
-  conditionId: Hash
+  condition_id: Hash //#TODO align namings to conditionId
   paused?: boolean
   closed?: boolean
   funding?: string
