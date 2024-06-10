@@ -89,7 +89,7 @@ export const onChain: Token = {
 export const usdc: Token = {
   address: {
     [base.id]: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
-    [baseSepolia.id]: '0x8071602D710552078bF93249dCd2B0d85C5C834C',
+    [baseSepolia.id]: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
   },
   symbol: 'USDC',
   name: 'USDC',
