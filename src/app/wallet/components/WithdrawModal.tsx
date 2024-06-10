@@ -1,35 +1,19 @@
-import { Button, IModal, InfoIcon, Input, Modal, Tooltip } from '@/components'
-import { collateralTokensArray, defaultChain, higher, weth } from '@/constants'
-import { useBalanceService } from '@/services'
-import { NumberUtil, truncateEthAddress } from '@/utils'
-import {
-  HStack,
-  Heading,
-  InputGroup,
-  Stack,
-  Switch,
-  Text,
-  useDisclosure,
-  IconButton,
-  Box,
-} from '@chakra-ui/react'
-import { Dispatch, SetStateAction, useEffect, useMemo } from 'react'
-import { Address, zeroAddress } from 'viem'
-import SelectTokenField from '@/components/common/SelectTokenField'
-import { Token } from '@/types'
+import { Button, IModal, InfoIcon, Input, Modal, Tooltip } from '@/components';
+import { collateralTokensArray, defaultChain, higher, weth } from '@/constants';
+import { useBalanceService } from '@/services';
+import { NumberUtil, truncateEthAddress } from '@/utils';
+import { HStack, Heading, InputGroup, Stack, Switch, Text, useDisclosure, IconButton, Box } from '@chakra-ui/react';
+import { Dispatch, SetStateAction, useEffect, useMemo } from 'react';
+import { Address, zeroAddress } from 'viem';
+import SelectTokenField from '@/components/common/SelectTokenField';
+import { Token } from '@/types';
 
 type WithdrawModalProps = Omit<IModal, 'children'> & {
-  selectedToken: Address
-  setSelectedToken: Dispatch<SetStateAction<Address>>
-}
+  selectedToken: Address;
+  setSelectedToken: Dispatch<SetStateAction<Address>>;
+};
 
-export const WithdrawModal = ({
-  onClose,
-  isOpen,
-  selectedToken,
-  setSelectedToken,
-  ...props
-}: WithdrawModalProps) => {
+export const WithdrawModal = ({ onClose, isOpen, selectedToken, setSelectedToken, ...props }: WithdrawModalProps) => {
   const {
     balanceOfSmartWallet,
     amount,
@@ -41,52 +25,45 @@ export const WithdrawModal = ({
     withdraw,
     status,
     setToken,
-  } = useBalanceService()
+  } = useBalanceService();
 
-  const disclosure = useDisclosure()
+  const disclosure = useDisclosure();
 
   const tokenName = useMemo(() => {
     return (
-      collateralTokensArray.find(
-        (collateralToken) => collateralToken.address[defaultChain.id] === selectedToken
-      )?.symbol || weth.symbol
-    )
-  }, [selectedToken])
+      collateralTokensArray.find((collateralToken) => collateralToken.address[defaultChain.id] === selectedToken)
+        ?.symbol || weth.symbol
+    );
+  }, [selectedToken]);
 
   const balanceItem = useMemo(() => {
     if (balanceOfSmartWallet) {
-      return balanceOfSmartWallet.find((balance) => balance.contractAddress === selectedToken)
+      return balanceOfSmartWallet.find((balance) => balance.contractAddress === selectedToken);
     }
-  }, [balanceOfSmartWallet, selectedToken])
+  }, [balanceOfSmartWallet, selectedToken]);
 
   useEffect(() => {
-    setAmount('')
-    setAddressToWithdraw('')
-  }, [isOpen])
+    setAmount('');
+    setAddressToWithdraw('');
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
-      setUnwrap(false)
-      return
+      setUnwrap(false);
+      return;
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   useEffect(() => {
     setToken(
       collateralTokensArray.find(
-        (collateralToken) => collateralToken.address[defaultChain.id] === selectedToken
-      ) as Token
-    )
-  }, [selectedToken])
+        (collateralToken) => collateralToken.address[defaultChain.id] === selectedToken,
+      ) as Token,
+    );
+  }, [selectedToken]);
 
   return (
-    <Modal
-      size={'md'}
-      title={`Withdraw ${tokenName} Base`}
-      isOpen={isOpen}
-      onClose={onClose}
-      {...props}
-    >
+    <Modal size={'md'} title={`Withdraw ${tokenName} Base`} isOpen={isOpen} onClose={onClose} {...props}>
       <Box mb='24px' overflowX='scroll'>
         <SelectTokenField
           token={selectedToken ? selectedToken : weth.address[defaultChain.id]}
@@ -117,10 +94,7 @@ export const WithdrawModal = ({
                 fontSize={'12px'}
                 onClick={() => setAmount(balanceItem ? balanceItem.formatted : '')}
               >
-                {`Balance: ${NumberUtil.toFixed(
-                  balanceItem ? balanceItem.formatted : '',
-                  6
-                )} ${tokenName}`}
+                {`Balance: ${NumberUtil.toFixed(balanceItem ? balanceItem.formatted : '', 6)} ${tokenName}`}
               </Button>
             </HStack>
           </HStack>
@@ -141,11 +115,7 @@ export const WithdrawModal = ({
         {selectedToken === weth.address[defaultChain.id] && (
           <HStack fontWeight={'bold'}>
             <Text color={unwrap ? 'fontLight' : 'font'}>WETH</Text>
-            <Switch
-              isChecked={unwrap}
-              onChange={(e) => setUnwrap(e.target.checked)}
-              isDisabled={status == 'Loading'}
-            />
+            <Switch isChecked={unwrap} onChange={(e) => setUnwrap(e.target.checked)} isDisabled={status == 'Loading'} />
             <Text color={unwrap ? 'font' : 'fontLight'}>ETH</Text>
             <Tooltip
               isOpen={disclosure.isOpen}
@@ -172,13 +142,13 @@ export const WithdrawModal = ({
           isLoading={status == 'Loading'}
           isDisabled={status != 'ReadyToFund'}
           onClick={async () => {
-            await withdraw()
-            onClose()
+            await withdraw();
+            onClose();
           }}
         >
           Withdraw
         </Button>
       </Stack>
     </Modal>
-  )
-}
+  );
+};

@@ -1,6 +1,6 @@
-import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
-import { defineConfig } from '@wagmi/cli'
-import { actions, react } from '@wagmi/cli/plugins'
+import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts';
+import { defineConfig } from '@wagmi/cli';
+import { actions, react } from '@wagmi/cli/plugins';
 
 // @ts-ignore
 export default defineConfig(() => {
@@ -33,5 +33,5 @@ export default defineConfig(() => {
       react(),
       actions(),
     ],
-  }
-})
+  };
+});

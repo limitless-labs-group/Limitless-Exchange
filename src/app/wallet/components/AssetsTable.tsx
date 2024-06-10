@@ -13,54 +13,49 @@ import {
   Td,
   Button,
   Divider,
-} from '@chakra-ui/react'
-import { v4 as uuidv4 } from 'uuid'
-import { useBalanceService } from '@/services'
-import { NumberUtil } from '@/utils'
-import { usePriceOracle } from '@/providers'
-import { useIsMobile } from '@/hooks'
-import { useUsersMarkets } from '@/services/UsersMarketsService'
-import { Address, formatUnits } from 'viem'
-import { MarketTokensIds } from '@/types'
+} from '@chakra-ui/react';
+import { v4 as uuidv4 } from 'uuid';
+import { useBalanceService } from '@/services';
+import { NumberUtil } from '@/utils';
+import { usePriceOracle } from '@/providers';
+import { useIsMobile } from '@/hooks';
+import { useUsersMarkets } from '@/services/UsersMarketsService';
+import { Address, formatUnits } from 'viem';
+import { MarketTokensIds } from '@/types';
 
 type AssetsTableProps = {
-  handleOpenTopUpModal: (token: Address) => void
-}
+  handleOpenTopUpModal: (token: Address) => void;
+};
 
 export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) {
-  const isMobile = useIsMobile()
+  const isMobile = useIsMobile();
   const tableHeaders = isMobile
     ? ['Token', 'Available Balance', 'Deposit']
-    : ['Token', 'Available Balance', 'Token Price', 'Active Markets', 'Locked', 'Deposit']
+    : ['Token', 'Available Balance', 'Token Price', 'Active Markets', 'Locked', 'Deposit'];
 
-  const { balanceOfSmartWallet } = useBalanceService()
-  const { convertAssetAmountToUsd } = usePriceOracle()
-  const { data: usersMarkets } = useUsersMarkets()
+  const { balanceOfSmartWallet } = useBalanceService();
+  const { convertAssetAmountToUsd } = usePriceOracle();
+  const { data: usersMarkets } = useUsersMarkets();
 
   const getActiveMarketsCount = (ticker: string) => {
     return (
       usersMarkets
         ?.filter((market) => !market.market.closed)
         .filter((market) => market.market.collateral.symbol === ticker).length || 0
-    )
-  }
+    );
+  };
 
   const getLockedAmountUsd = (id: MarketTokensIds, amount: number) => {
-    return convertAssetAmountToUsd(id, amount)
-  }
+    return convertAssetAmountToUsd(id, amount);
+  };
 
   const calculateLockedAmount = (collateralAddress: string) => {
-    const marketsByCollateral = usersMarkets?.filter(
-      (market) => market.market.collateral.id === collateralAddress
-    )
+    const marketsByCollateral = usersMarkets?.filter((market) => market.market.collateral.id === collateralAddress);
     if (marketsByCollateral?.length) {
-      return marketsByCollateral.reduce(
-        (a, b) => a + +formatUnits(BigInt(b.collateralsLocked), 18),
-        0
-      )
+      return marketsByCollateral.reduce((a, b) => a + +formatUnits(BigInt(b.collateralsLocked), 18), 0);
     }
-    return 0
-  }
+    return 0;
+  };
 
   return (
     <>
@@ -120,63 +115,33 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
                   <VStack gap={0} alignItems='flex-end'>
                     <Text>{NumberUtil.formatThousands(balance.formatted, 4)}</Text>
                     <Text fontWeight={'light'} color={'fontLight'}>
-                      $
-                      {NumberUtil.formatThousands(
-                        convertAssetAmountToUsd(balance.id, balance.formatted),
-                        2
-                      )}
+                      ${NumberUtil.formatThousands(convertAssetAmountToUsd(balance.id, balance.formatted), 2)}
                     </Text>
                   </VStack>
                 </Td>
                 {!isMobile && (
                   <>
-                    <Td
-                      borderBottom={'unset'}
-                      textAlign='right'
-                      verticalAlign='top'
-                      w={'100px'}
-                      px={'12px'}
-                    >
+                    <Td borderBottom={'unset'} textAlign='right' verticalAlign='top' w={'100px'} px={'12px'}>
                       <Text>${NumberUtil.formatThousands(balance.price, 4)}</Text>
                     </Td>
-                    <Td
-                      borderBottom={'unset'}
-                      textAlign='right'
-                      verticalAlign='top'
-                      w={'120px'}
-                      px={'12px'}
-                    >
+                    <Td borderBottom={'unset'} textAlign='right' verticalAlign='top' w={'120px'} px={'12px'}>
                       <Text>{getActiveMarketsCount(balance.symbol)} markets</Text>
                     </Td>
                     <Td borderBottom={'unset'} w={'100px'} px={'12px'}>
                       <VStack gap={0} alignItems='flex-end'>
-                        <Text>
-                          {NumberUtil.formatThousands(
-                            calculateLockedAmount(balance.contractAddress),
-                            4
-                          )}
-                        </Text>
+                        <Text>{NumberUtil.formatThousands(calculateLockedAmount(balance.contractAddress), 4)}</Text>
                         <Text fontWeight={'light'} color={'fontLight'}>
                           $
                           {NumberUtil.formatThousands(
-                            getLockedAmountUsd(
-                              balance.id,
-                              calculateLockedAmount(balance.contractAddress)
-                            ),
-                            2
+                            getLockedAmountUsd(balance.id, calculateLockedAmount(balance.contractAddress)),
+                            2,
                           )}
                         </Text>
                       </VStack>
                     </Td>
                   </>
                 )}
-                <Td
-                  borderBottom={'unset'}
-                  textAlign='right'
-                  verticalAlign='top'
-                  pr={isMobile ? 0 : '12px'}
-                  pl={'12px'}
-                >
+                <Td borderBottom={'unset'} textAlign='right' verticalAlign='top' pr={isMobile ? 0 : '12px'} pl={'12px'}>
                   <Button
                     variant='link'
                     color={'brand'}
@@ -195,5 +160,5 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
       </TableContainer>
       {isMobile && <Divider />}
     </>
-  )
+  );
 }

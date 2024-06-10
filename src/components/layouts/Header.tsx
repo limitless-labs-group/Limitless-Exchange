@@ -1,24 +1,19 @@
-import { Flex, FlexProps, HStack, Heading, Image, Text } from '@chakra-ui/react'
-import {
-  LogInButton,
-  HeaderProfileMenuDesktop,
-  Button,
-  HeaderProfileMenuMobile,
-} from '@/components'
-import { usePathname, useRouter } from 'next/navigation'
-import { useAccount } from 'wagmi'
-import { ClickEvent, useAmplitude, useBalanceService } from '@/services'
-import { borderRadius, colors } from '@/styles'
-import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
-import { NumberUtil } from '@/utils'
+import { Flex, FlexProps, HStack, Heading, Image, Text } from '@chakra-ui/react';
+import { LogInButton, HeaderProfileMenuDesktop, Button, HeaderProfileMenuMobile } from '@/components';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAccount } from 'wagmi';
+import { ClickEvent, useAmplitude, useBalanceService } from '@/services';
+import { borderRadius, colors } from '@/styles';
+import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6';
+import { NumberUtil } from '@/utils';
 
 export const Header = ({ ...props }: FlexProps) => {
-  const router = useRouter()
-  const pathname = usePathname()
-  const { isConnected } = useAccount()
-  const { overallBalanceUsd } = useBalanceService()
+  const router = useRouter();
+  const pathname = usePathname();
+  const { isConnected } = useAccount();
+  const { overallBalanceUsd } = useBalanceService();
   // const { balanceUsd: investedUsd, balanceShares } = useHistory()
-  const { trackClicked } = useAmplitude()
+  const { trackClicked } = useAmplitude();
 
   return (
     <Flex
@@ -58,15 +53,12 @@ export const Header = ({ ...props }: FlexProps) => {
           display={{ sm: 'none', md: 'block' }}
           fontWeight={pathname == '/' ? 'bold' : 'normal'}
           onClick={() => {
-            trackClicked(ClickEvent.ExploreMarketsClicked)
-            router.push('/')
+            trackClicked(ClickEvent.ExploreMarketsClicked);
+            router.push('/');
           }}
         >
           <HStack>
-            <FaTableCellsLarge
-              size={'16px'}
-              fill={pathname == '/' ? colors.font : colors.fontLight}
-            />
+            <FaTableCellsLarge size={'16px'} fill={pathname == '/' ? colors.font : colors.fontLight} />
             <Text>Explore markets</Text>
           </HStack>
         </Button>
@@ -75,12 +67,7 @@ export const Header = ({ ...props }: FlexProps) => {
       <HStack h={'full'}>
         {isConnected ? (
           <>
-            <HStack
-              h='full'
-              spacing={{ sm: 2, md: 6 }}
-              display={{ sm: 'none', md: 'flex' }}
-              alignItems={'center'}
-            >
+            <HStack h='full' spacing={{ sm: 2, md: 6 }} display={{ sm: 'none', md: 'flex' }} alignItems={'center'}>
               <HStack h={'full'} spacing={4}>
                 <Button
                   h={'40px'}
@@ -89,18 +76,11 @@ export const Header = ({ ...props }: FlexProps) => {
                   fontWeight={'normal'}
                   onClick={() => router.push('/wallet')}
                 >
-                  <Image
-                    alt='wallet'
-                    src='/assets/images/wallet.svg'
-                    width={'16px'}
-                    height={'16px'}
-                  />
+                  <Image alt='wallet' src='/assets/images/wallet.svg' width={'16px'} height={'16px'} />
                   <HStack spacing={2}>
                     <Text fontWeight={'medium'}>Balance</Text>
                     <HStack spacing={1}>
-                      <Text fontWeight={'bold'}>
-                        {NumberUtil.formatThousands(overallBalanceUsd, 2)}
-                      </Text>
+                      <Text fontWeight={'bold'}>{NumberUtil.formatThousands(overallBalanceUsd, 2)}</Text>
                       <Text fontWeight={'medium'}>USD</Text>
                     </HStack>
                   </HStack>
@@ -115,10 +95,7 @@ export const Header = ({ ...props }: FlexProps) => {
                   onClick={() => router.push('/portfolio')}
                 >
                   <HStack>
-                    <FaBriefcase
-                      size={'16px'}
-                      fill={pathname.includes('portfolio') ? colors.font : colors.fontLight}
-                    />
+                    <FaBriefcase size={'16px'} fill={pathname.includes('portfolio') ? colors.font : colors.fontLight} />
                     <Text>Portfolio</Text>
                   </HStack>
                 </Button>
@@ -134,5 +111,5 @@ export const Header = ({ ...props }: FlexProps) => {
         )}
       </HStack>
     </Flex>
-  )
-}
+  );
+};

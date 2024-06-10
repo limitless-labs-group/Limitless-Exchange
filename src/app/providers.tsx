@@ -1,13 +1,7 @@
-'use client'
+'use client';
 
-import * as React from 'react'
-import {
-  ChakraProvider,
-  QueryProvider,
-  WagmiProvider,
-  Web3AuthProvider,
-  PriceOracleProvider,
-} from '@/providers'
+import * as React from 'react';
+import { ChakraProvider, QueryProvider, WagmiProvider, Web3AuthProvider, PriceOracleProvider } from '@/providers';
 import {
   AccountProvider,
   AmplitudeProvider,
@@ -16,11 +10,11 @@ import {
   HistoryServiceProvider,
   LimitlessApiProvider,
   TradingServiceProvider,
-} from '@/services'
+} from '@/services';
 
 export const Providers = ({ children }: React.PropsWithChildren) => {
-  const [mounted, setMounted] = React.useState(false)
-  React.useEffect(() => setMounted(true), [])
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
 
   return (
     mounted && (
@@ -48,5 +42,5 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
         </ChakraProvider>
       </AmplitudeProvider>
     )
-  )
-}
+  );
+};

@@ -1,8 +1,8 @@
-import { Button, ButtonProps } from '@chakra-ui/react'
+import { Button, ButtonProps } from '@chakra-ui/react';
 
 type TextButtonProps = ButtonProps & {
-  label: string
-}
+  label: string;
+};
 
 export default function TextButton({ label, ...props }: TextButtonProps) {
   return (
@@ -23,5 +23,5 @@ export default function TextButton({ label, ...props }: TextButtonProps) {
     >
       {label}
     </Button>
-  )
+  );
 }

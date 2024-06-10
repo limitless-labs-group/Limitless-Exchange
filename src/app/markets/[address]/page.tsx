@@ -1,43 +1,43 @@
-'use client'
+'use client';
 
-import { MainLayout } from '@/components'
+import { MainLayout } from '@/components';
 import {
   MarketClaimingForm,
   MarketMetadata,
   MarketPositions,
   MarketTradingForm,
-} from '@/app/markets/[address]/components'
-import { Flex, Spacer, Spinner } from '@chakra-ui/react'
-import { useEffect } from 'react'
-import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
-import { MarketPriceChart } from '@/app/markets/[address]/components/MarketPriceChart'
-import { useMarket } from '@/services/MarketsService'
+} from '@/app/markets/[address]/components';
+import { Flex, Spacer, Spinner } from '@chakra-ui/react';
+import { useEffect } from 'react';
+import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services';
+import { MarketPriceChart } from '@/app/markets/[address]/components/MarketPriceChart';
+import { useMarket } from '@/services/MarketsService';
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
    * ANALYTICS
    */
-  const { trackOpened } = useAmplitude()
+  const { trackOpened } = useAmplitude();
 
   useEffect(() => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
       page: 'Market Page',
       market: params.address,
-    })
-  }, [])
+    });
+  }, []);
 
   /**
    * SET MARKET
    */
-  const market = useMarket(params.address)
+  const market = useMarket(params.address);
 
-  const { setMarket, market: previousMarket } = useTradingService()
+  const { setMarket, market: previousMarket } = useTradingService();
 
   useEffect(() => {
     if (market != previousMarket) {
-      setMarket(market)
+      setMarket(market);
     }
-  }, [market, previousMarket])
+  }, [market, previousMarket]);
 
   return (
     <MainLayout maxContentWidth={'1200px'}>
@@ -60,7 +60,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
         </Flex>
       )}
     </MainLayout>
-  )
-}
+  );
+};
 
-export default MarketPage
+export default MarketPage;

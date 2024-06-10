@@ -1,5 +1,5 @@
-import { MarketTokensIds, Token } from '@/types'
-import { base, baseSepolia } from 'viem/chains'
+import { MarketTokensIds, Token } from '@/types';
+import { base, baseSepolia } from 'viem/chains';
 
 // export const usdc: Token = {
 //   address: {
@@ -24,7 +24,7 @@ export const weth: Token = {
   decimals: 18,
   imageURI: '/assets/images/tokens/weth.png',
   id: MarketTokensIds.ETH,
-}
+};
 
 export const degen: Token = {
   address: {
@@ -36,7 +36,7 @@ export const degen: Token = {
   decimals: 18,
   imageURI: '/assets/images/tokens/degen.svg',
   id: MarketTokensIds.DEGEN,
-}
+};
 
 export const regen: Token = {
   address: {
@@ -48,7 +48,7 @@ export const regen: Token = {
   decimals: 18,
   imageURI: '/assets/images/tokens/regen.svg',
   id: MarketTokensIds.REGEN,
-}
+};
 
 export const higher: Token = {
   address: {
@@ -60,7 +60,7 @@ export const higher: Token = {
   decimals: 18,
   imageURI: '/assets/images/tokens/higher.svg',
   id: MarketTokensIds.HIGHER,
-}
+};
 
 export const mfer: Token = {
   address: {
@@ -72,7 +72,7 @@ export const mfer: Token = {
   decimals: 18,
   imageURI: '/assets/images/tokens/mfer.png',
   id: MarketTokensIds.MFER,
-}
+};
 
 export const onChain: Token = {
   address: {
@@ -84,8 +84,8 @@ export const onChain: Token = {
   decimals: 18,
   imageURI: '/assets/images/tokens/onchain.png',
   id: MarketTokensIds.ONCHAIN,
-}
+};
 
-export const collateralTokensArray = [weth, onChain, degen, mfer, higher]
+export const collateralTokensArray = [weth, onChain, degen, mfer, higher];
 
-export const collateralToken = weth
+export const collateralToken = weth;

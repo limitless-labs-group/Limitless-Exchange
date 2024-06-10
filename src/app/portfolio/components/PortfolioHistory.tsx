@@ -1,22 +1,22 @@
-import { PortfolioHistoryRedeemItem, PortfolioHistoryTradeItem } from '@/app/portfolio/components'
-import { HistoryRedeem, HistoryTrade, useHistory } from '@/services'
-import { Flex, Table, TableContainer, Tbody, Text, Th, Thead, Tr } from '@chakra-ui/react'
-import { useEffect, useMemo } from 'react'
-import { v4 as uuidv4 } from 'uuid'
+import { PortfolioHistoryRedeemItem, PortfolioHistoryTradeItem } from '@/app/portfolio/components';
+import { HistoryRedeem, HistoryTrade, useHistory } from '@/services';
+import { Flex, Table, TableContainer, Tbody, Text, Th, Thead, Tr } from '@chakra-ui/react';
+import { useEffect, useMemo } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 export const PortfolioHistory = () => {
-  const { trades, getTrades, redeems, getRedeems } = useHistory()
+  const { trades, getTrades, redeems, getRedeems } = useHistory();
 
   useEffect(() => {
-    getTrades()
-    getRedeems()
-  }, [])
+    getTrades();
+    getRedeems();
+  }, []);
 
   const tradesAndRedeems = useMemo(() => {
-    const _tradesAndRedeems = [...(trades ?? []), ...(redeems ?? [])]
-    _tradesAndRedeems.sort((a, b) => Number(b.blockTimestamp) - Number(a.blockTimestamp))
-    return _tradesAndRedeems
-  }, [trades, redeems])
+    const _tradesAndRedeems = [...(trades ?? []), ...(redeems ?? [])];
+    _tradesAndRedeems.sort((a, b) => Number(b.blockTimestamp) - Number(a.blockTimestamp));
+    return _tradesAndRedeems;
+  }, [trades, redeems]);
 
   return tradesAndRedeems?.length == 0 ? (
     <Flex w={'full'} h={'200px'} justifyContent={'center'} alignItems={'center'}>
@@ -50,10 +50,10 @@ export const PortfolioHistory = () => {
               <PortfolioHistoryTradeItem key={uuidv4()} trade={item as HistoryTrade} />
             ) : (
               <PortfolioHistoryRedeemItem key={uuidv4()} redeem={item as HistoryRedeem} />
-            )
+            ),
           )}
         </Tbody>
       </Table>
     </TableContainer>
-  )
-}
+  );
+};

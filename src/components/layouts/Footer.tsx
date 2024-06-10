@@ -1,10 +1,10 @@
-import { colors } from '@/styles'
-import { Flex, HStack, Stack, Text, useMediaQuery } from '@chakra-ui/react'
-import { FaCircle } from 'react-icons/fa'
-import { IPHONE14_PRO_MAX_WIDTH } from '@/constants/devices'
+import { colors } from '@/styles';
+import { Flex, HStack, Stack, Text, useMediaQuery } from '@chakra-ui/react';
+import { FaCircle } from 'react-icons/fa';
+import { IPHONE14_PRO_MAX_WIDTH } from '@/constants/devices';
 
 export const Footer = () => {
-  const [isLargerThan430] = useMediaQuery(`(min-width: ${IPHONE14_PRO_MAX_WIDTH + 1}px)`)
+  const [isLargerThan430] = useMediaQuery(`(min-width: ${IPHONE14_PRO_MAX_WIDTH + 1}px)`);
 
   return (
     <Flex
@@ -34,7 +34,7 @@ export const Footer = () => {
             window.open(
               'https://limitlesslabs.notion.site/About-us-260f9f7ca5dc4403b55f7e0493485d09',
               '_blank',
-              'noopener'
+              'noopener',
             )
           }
         >
@@ -44,11 +44,7 @@ export const Footer = () => {
           cursor={'pointer'}
           _hover={{ color: 'fontLight' }}
           onClick={() =>
-            window.open(
-              'https://drive.google.com/file/d/1RmObjk7_HBa-Tg6yiA45JSRxKcOSSdrW/view',
-              '_blank',
-              'noopener'
-            )
+            window.open('https://drive.google.com/file/d/1RmObjk7_HBa-Tg6yiA45JSRxKcOSSdrW/view', '_blank', 'noopener')
           }
         >
           Terms of Service
@@ -57,11 +53,7 @@ export const Footer = () => {
           cursor={'pointer'}
           _hover={{ color: 'fontLight' }}
           onClick={() =>
-            window.open(
-              'https://drive.google.com/file/d/1HLB69C_X6ckuEzoX0GtGZo1cxXx-U_Eu/view',
-              '_blank',
-              'noopener'
-            )
+            window.open('https://drive.google.com/file/d/1HLB69C_X6ckuEzoX0GtGZo1cxXx-U_Eu/view', '_blank', 'noopener')
           }
         >
           Privacy Policy
@@ -73,7 +65,7 @@ export const Footer = () => {
             window.open(
               'https://limitlesslabs.notion.site/Limitless-Creators-101-fbbde33a51104fcb83c57f6ce9d69d2a?pvs=4',
               '_blank',
-              'noopener'
+              'noopener',
             )
           }
         >
@@ -86,7 +78,7 @@ export const Footer = () => {
             window.open(
               'https://limitlesslabs.notion.site/FAQ-a911ea2f7ef24a8bbbaf7a5989f912ea?pvs=4',
               '_blank',
-              'noopener'
+              'noopener',
             )
           }
         >
@@ -111,13 +103,11 @@ export const Footer = () => {
         <Text
           cursor={'pointer'}
           _hover={{ color: 'fontLight' }}
-          onClick={() =>
-            window.open('https://warpcast.com/~/channel/limitless', '_blank', 'noopener')
-          }
+          onClick={() => window.open('https://warpcast.com/~/channel/limitless', '_blank', 'noopener')}
         >
           Warpcast
         </Text>
       </HStack>
     </Flex>
-  )
-}
+  );
+};

@@ -1,19 +1,19 @@
-import { Button, IButton } from '@/components'
-import { useAuth } from '@/services'
+import { Button, IButton } from '@/components';
+import { useAuth } from '@/services';
 
 export const LogInButton = ({ children, ...props }: IButton) => {
-  const { signIn } = useAuth()
+  const { signIn } = useAuth();
 
   return (
     <Button
       colorScheme={'brand'}
       fontWeight={'bold'}
       onClick={() => {
-        signIn()
+        signIn();
       }}
       {...props}
     >
       {children ?? 'Sign In'}
     </Button>
-  )
-}
+  );
+};

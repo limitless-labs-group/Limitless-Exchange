@@ -1,9 +1,7 @@
-import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
-import { radioAnatomy } from '@chakra-ui/anatomy'
+import { createMultiStyleConfigHelpers } from '@chakra-ui/react';
+import { radioAnatomy } from '@chakra-ui/anatomy';
 
-const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(
-  radioAnatomy.keys
-)
+const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(radioAnatomy.keys);
 
 const baseStyle = definePartsStyle({
   label: {
@@ -29,6 +27,6 @@ const baseStyle = definePartsStyle({
       boxShadow: 'unset!',
     },
   },
-})
+});
 
-export const radioTheme = defineMultiStyleConfig({ baseStyle })
+export const radioTheme = defineMultiStyleConfig({ baseStyle });

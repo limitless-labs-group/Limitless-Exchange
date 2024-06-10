@@ -1,28 +1,28 @@
-'use client'
+'use client';
 
-import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
-import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
-import { useAccount } from '@/services'
-import { Address } from '@/types'
+import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react';
+import { init, track as amplitudeTrack } from '@amplitude/analytics-browser';
+import { useAccount } from '@/services';
+import { Address } from '@/types';
 
-const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
-const NODE_ENV = process.env.NODE_ENV ?? 'development'
+const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? '';
+const NODE_ENV = process.env.NODE_ENV ?? 'development';
 
 interface IAmplitudeContext {
-  trackSignUp: () => void
-  trackChanged: <T extends ChangedEventMetadata>(event: ChangeEvent, customData?: T) => void
-  trackClicked: <T extends ClickedEventMetadata>(event: ClickEvent, customData?: T) => void
-  trackOpened: <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => void
-  trackLogin: <T extends LoginEventMetadata>(event: LoginEvent, customData?: T) => void
-  trackCopied: <T extends CopiedEventMetadata>(event: CopyEvent, customData?: T) => void
+  trackSignUp: () => void;
+  trackChanged: <T extends ChangedEventMetadata>(event: ChangeEvent, customData?: T) => void;
+  trackClicked: <T extends ClickedEventMetadata>(event: ClickEvent, customData?: T) => void;
+  trackOpened: <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => void;
+  trackLogin: <T extends LoginEventMetadata>(event: LoginEvent, customData?: T) => void;
+  trackCopied: <T extends CopiedEventMetadata>(event: CopyEvent, customData?: T) => void;
 }
 
-const AmplitudeContext = createContext<IAmplitudeContext>({} as IAmplitudeContext)
+const AmplitudeContext = createContext<IAmplitudeContext>({} as IAmplitudeContext);
 
-export const useAmplitude = () => useContext(AmplitudeContext)
+export const useAmplitude = () => useContext(AmplitudeContext);
 
 export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
-  const { account, userInfo } = useAccount()
+  const { account, userInfo } = useAccount();
 
   useEffect(() => {
     init(AMPLITUDE_API_KEY, undefined, {
@@ -32,13 +32,13 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         attribution: false,
         formInteractions: false,
       },
-    })
-  }, [])
+    });
+  }, []);
 
   const trackEvent = useCallback(
     async (eventType: EventType, customData?: EventMetadata) => {
       if (NODE_ENV === 'development') {
-        return
+        return;
       }
 
       return amplitudeTrack({
@@ -50,52 +50,46 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
           account,
           ...userInfo,
         },
-      }).promise
+      }).promise;
     },
-    [account]
-  )
+    [account],
+  );
 
   const trackSignUp = async () => {
-    console.log('Amplitude.trackSignUp')
-    const result = await trackEvent(AuthenticationEvent.SignUp)
-    console.log('Amplitude.trackSignUp result', result)
-  }
+    console.log('Amplitude.trackSignUp');
+    const result = await trackEvent(AuthenticationEvent.SignUp);
+    console.log('Amplitude.trackSignUp result', result);
+  };
 
-  const trackChanged = async <T extends ChangedEventMetadata>(
-    event: ChangeEvent,
-    customData?: T
-  ) => {
-    console.log('Amplitude.trackChanged', { event, customData })
-    const result = await trackEvent(event, customData)
-    console.log('Amplitude.trackChanged result', result)
-  }
+  const trackChanged = async <T extends ChangedEventMetadata>(event: ChangeEvent, customData?: T) => {
+    console.log('Amplitude.trackChanged', { event, customData });
+    const result = await trackEvent(event, customData);
+    console.log('Amplitude.trackChanged result', result);
+  };
 
-  const trackClicked = async <T extends ClickedEventMetadata>(
-    event: ClickEvent,
-    customData?: T
-  ) => {
-    console.log('Amplitude.trackClicked', { event, customData })
-    const result = await trackEvent(event, customData)
-    console.log('Amplitude.trackClicked result', result)
-  }
+  const trackClicked = async <T extends ClickedEventMetadata>(event: ClickEvent, customData?: T) => {
+    console.log('Amplitude.trackClicked', { event, customData });
+    const result = await trackEvent(event, customData);
+    console.log('Amplitude.trackClicked result', result);
+  };
 
   const trackOpened = async <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => {
-    console.log('Amplitude.trackOpened', { event, customData })
-    const result = await trackEvent(event, customData)
-    console.log('Amplitude.trackOpened result', result)
-  }
+    console.log('Amplitude.trackOpened', { event, customData });
+    const result = await trackEvent(event, customData);
+    console.log('Amplitude.trackOpened result', result);
+  };
 
   const trackLogin = async <T extends LoginEventMetadata>(event: LoginEvent, customData?: T) => {
-    console.log('Amplitude.trackLogin', { event, customData })
-    const result = await trackEvent(event, customData)
-    console.log('Amplitude.trackLogin result', result)
-  }
+    console.log('Amplitude.trackLogin', { event, customData });
+    const result = await trackEvent(event, customData);
+    console.log('Amplitude.trackLogin result', result);
+  };
 
   const trackCopied = async <T extends CopiedEventMetadata>(event: CopyEvent, customData?: T) => {
-    console.log('Amplitude.trackCopied', { event, customData })
-    const result = await trackEvent(event, customData)
-    console.log('Amplitude.trackCopied result', result)
-  }
+    console.log('Amplitude.trackCopied', { event, customData });
+    const result = await trackEvent(event, customData);
+    console.log('Amplitude.trackCopied result', result);
+  };
 
   const contextProviderValue: IAmplitudeContext = {
     trackSignUp,
@@ -104,20 +98,12 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     trackOpened,
     trackLogin,
     trackCopied,
-  }
+  };
 
-  return (
-    <AmplitudeContext.Provider value={contextProviderValue}>{children}</AmplitudeContext.Provider>
-  )
-}
+  return <AmplitudeContext.Provider value={contextProviderValue}>{children}</AmplitudeContext.Provider>;
+};
 
-export type EventType =
-  | ChangeEvent
-  | ClickEvent
-  | LoginEvent
-  | OpenEvent
-  | CopyEvent
-  | AuthenticationEvent
+export type EventType = ChangeEvent | ClickEvent | LoginEvent | OpenEvent | CopyEvent | AuthenticationEvent;
 
 export enum ChangeEvent {
   StrategyChanged = 'Strategy Changed',
@@ -156,32 +142,32 @@ export enum AuthenticationEvent {
 }
 
 export interface AccountMetadata {
-  email?: string
-  web3WalletAddress?: Address
-  smartWalletAddress?: Address
+  email?: string;
+  web3WalletAddress?: Address;
+  smartWalletAddress?: Address;
 }
 
-export type StrategyChangedType = 'Buy selected' | 'Sell selected'
+export type StrategyChangedType = 'Buy selected' | 'Sell selected';
 export interface StrategyChangedMetadata {
-  type: StrategyChangedType
-  marketAddress: Address
+  type: StrategyChangedType;
+  marketAddress: Address;
 }
 
-export type OutcomeChangedChoice = 'Yes' | 'No'
+export type OutcomeChangedChoice = 'Yes' | 'No';
 export interface OutcomeChangedMetadata {
-  choice: OutcomeChangedChoice
-  marketAddress: Address
+  choice: OutcomeChangedChoice;
+  marketAddress: Address;
 }
 
-export type TradeClickedStrategy = 'Buy' | 'Sell'
+export type TradeClickedStrategy = 'Buy' | 'Sell';
 export interface TradeClickedMetadata {
-  strategy: TradeClickedStrategy
-  marketAddress: Address
+  strategy: TradeClickedStrategy;
+  marketAddress: Address;
 }
 
-export type CreateMarketClickedPage = 'Explore Markets'
+export type CreateMarketClickedPage = 'Explore Markets';
 export interface CreateMarketClickedMetadata {
-  page: CreateMarketClickedPage
+  page: CreateMarketClickedPage;
 }
 
 export type DepositClickedPage =
@@ -189,26 +175,26 @@ export type DepositClickedPage =
   | 'Portfolio - Top up Button'
   | 'Market Page'
   | 'Creator Cabinet'
-  | 'Explore Markets'
+  | 'Explore Markets';
 export interface DepositClickedMetadata {
-  page: DepositClickedPage
+  page: DepositClickedPage;
 }
 
-export type SupportChatClickedPage = 'Deposit Page' | 'Header Dropdown Menu'
+export type SupportChatClickedPage = 'Deposit Page' | 'Header Dropdown Menu';
 export interface SupportChatClickedMetadata {
-  page: SupportChatClickedPage
+  page: SupportChatClickedPage;
 }
 
-export type PricePresetClickedType = '+10 clicked' | '-10 clicked'
+export type PricePresetClickedType = '+10 clicked' | '-10 clicked';
 export interface PricePresetClickedMetadata {
-  type: PricePresetClickedType
+  type: PricePresetClickedType;
 }
 
-export type ShareClickedPage = 'Investor Page' | 'Creator Page' | 'Explore Markets' | 'Market Page'
-export type ShareClickedType = 'Copy Link' | 'X/Twitter' | 'Farcaster'
+export type ShareClickedPage = 'Investor Page' | 'Creator Page' | 'Explore Markets' | 'Market Page';
+export type ShareClickedType = 'Copy Link' | 'X/Twitter' | 'Farcaster';
 export interface ShareClickedMetadata {
-  type: ShareClickedType
-  page: ShareClickedPage
+  type: ShareClickedType;
+  page: ShareClickedPage;
 }
 
 export type PageOpenedPage =
@@ -217,16 +203,16 @@ export type PageOpenedPage =
   | 'Portfolio - History tab'
   | 'Portfolio Page'
   | 'Deposit Page'
-  | 'Explore Markets'
+  | 'Explore Markets';
 export interface PageOpenedMetadata {
-  page: PageOpenedPage
-  marketAddress?: Address
-  [key: string]: any
+  page: PageOpenedPage;
+  marketAddress?: Address;
+  [key: string]: any;
 }
 
-export type OpenMarketClickedPage = 'Creator Cabinet' | 'Portfolio Page' | 'Explore Markets'
+export type OpenMarketClickedPage = 'Creator Cabinet' | 'Portfolio Page' | 'Explore Markets';
 export interface OpenMarketClickedMetadata {
-  page: OpenMarketClickedPage
+  page: OpenMarketClickedPage;
 }
 
 export type HeaderOptionClickedOption =
@@ -236,36 +222,27 @@ export type HeaderOptionClickedOption =
   | 'Invested Clicked'
   | 'Balance Clicked'
   | 'To Win Clicked'
-  | 'Become a Creator Clicked'
+  | 'Become a Creator Clicked';
 export interface HeaderOptionClickedMetadata {
-  option: HeaderOptionClickedOption
+  option: HeaderOptionClickedOption;
 }
 
-export type LoginWithFarcasterType =
-  | 'Farcaster'
-  | 'Google'
-  | 'X/Twitter'
-  | 'Discord'
-  | 'Email/Phone'
+export type LoginWithFarcasterType = 'Farcaster' | 'Google' | 'X/Twitter' | 'Discord' | 'Email/Phone';
 export interface LoginWithFarcasterMetadata {
-  type: LoginWithFarcasterType
+  type: LoginWithFarcasterType;
 }
 
-export type WalletAddressCopiedPage = 'Deposit'
+export type WalletAddressCopiedPage = 'Deposit';
 export interface WalletAddressCopiedMetadata {
-  page: WalletAddressCopiedPage
+  page: WalletAddressCopiedPage;
 }
 
-export type ProfileBurgerMenuClickedOption =
-  | 'Copy Wallet Address'
-  | 'Wallet'
-  | 'Portfolio'
-  | 'Sign Out'
+export type ProfileBurgerMenuClickedOption = 'Copy Wallet Address' | 'Wallet' | 'Portfolio' | 'Sign Out';
 export interface ProfileBurgerMenuClickedMetadata {
-  option: ProfileBurgerMenuClickedOption
+  option: ProfileBurgerMenuClickedOption;
 }
 
-export type ChangedEventMetadata = StrategyChangedMetadata | OutcomeChangedMetadata
+export type ChangedEventMetadata = StrategyChangedMetadata | OutcomeChangedMetadata;
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
   | PricePresetClickedMetadata
@@ -275,14 +252,14 @@ export type ClickedEventMetadata =
   | CreateMarketClickedMetadata
   | ProfileBurgerMenuClickedMetadata
   | TradeClickedMetadata
-  | DepositClickedMetadata
-export type OpenedEventMetadata = PageOpenedMetadata
-export type LoginEventMetadata = LoginWithFarcasterMetadata
-export type CopiedEventMetadata = WalletAddressCopiedMetadata
+  | DepositClickedMetadata;
+export type OpenedEventMetadata = PageOpenedMetadata;
+export type LoginEventMetadata = LoginWithFarcasterMetadata;
+export type CopiedEventMetadata = WalletAddressCopiedMetadata;
 
 export type EventMetadata =
   | ChangedEventMetadata
   | ClickedEventMetadata
   | OpenedEventMetadata
   | LoginEventMetadata
-  | CopiedEventMetadata
+  | CopiedEventMetadata;

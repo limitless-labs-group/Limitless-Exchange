@@ -1,15 +1,9 @@
-import { Button } from '@/components'
-import { defaultChain } from '@/constants'
-import { useIsMobile, useMarketData } from '@/hooks'
-import {
-  ClickEvent,
-  ShareClickedMetadata,
-  createMarketShareUrls,
-  useAmplitude,
-  useTradingService,
-} from '@/services'
-import { borderRadius, colors } from '@/styles'
-import { NumberUtil } from '@/utils'
+import { Button } from '@/components';
+import { defaultChain } from '@/constants';
+import { useIsMobile, useMarketData } from '@/hooks';
+import { ClickEvent, ShareClickedMetadata, createMarketShareUrls, useAmplitude, useTradingService } from '@/services';
+import { borderRadius, colors } from '@/styles';
+import { NumberUtil } from '@/utils';
 import {
   Divider,
   Flex,
@@ -26,30 +20,30 @@ import {
   Text,
   VStack,
   useClipboard,
-} from '@chakra-ui/react'
-import { FaShareSquare } from 'react-icons/fa'
-import { FaLink, FaXTwitter } from 'react-icons/fa6'
+} from '@chakra-ui/react';
+import { FaShareSquare } from 'react-icons/fa';
+import { FaLink, FaXTwitter } from 'react-icons/fa6';
 
 export const MarketMetadata = ({ ...props }: StackProps) => {
   /**
    * MARKET DATA
    */
-  const { market } = useTradingService()
+  const { market } = useTradingService();
 
   const { liquidity, volume, outcomeTokensPercent } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
-  })
+  });
 
   /**
    * ANALYTICS
    */
-  const { trackClicked } = useAmplitude()
+  const { trackClicked } = useAmplitude();
 
-  const { onCopy, hasCopied } = useClipboard(window.location.href)
+  const { onCopy, hasCopied } = useClipboard(window.location.href);
 
-  const { tweetURI, castURI } = createMarketShareUrls(market, outcomeTokensPercent)
+  const { tweetURI, castURI } = createMarketShareUrls(market, outcomeTokensPercent);
 
-  const isMobile = useIsMobile()
+  const isMobile = useIsMobile();
 
   return (
     <Stack
@@ -147,8 +141,8 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                   trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
                     type: 'Copy Link',
                     page: 'Market Page',
-                  })
-                  onCopy()
+                  });
+                  onCopy();
                 }}
               >
                 <FaLink />
@@ -166,8 +160,8 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                   trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
                     type: 'X/Twitter',
                     page: 'Market Page',
-                  })
-                  window.open(tweetURI, '_blank', 'noopener')
+                  });
+                  window.open(tweetURI, '_blank', 'noopener');
                 }}
               >
                 <FaXTwitter />
@@ -229,5 +223,5 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
         </HStack>
       </Flex>
     </Stack>
-  )
-}
+  );
+};

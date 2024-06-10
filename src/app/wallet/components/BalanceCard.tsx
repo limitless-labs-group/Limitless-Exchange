@@ -1,27 +1,23 @@
-import { Button } from '@/components'
-import { useBalanceService } from '@/services'
-import { borderRadius, colors } from '@/styles'
-import { NumberUtil } from '@/utils'
-import { HStack, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
-import { useIsMobile } from '@/hooks'
-import { Address } from 'viem'
-import { defaultChain, weth } from '@/constants'
+import { Button } from '@/components';
+import { useBalanceService } from '@/services';
+import { borderRadius, colors } from '@/styles';
+import { NumberUtil } from '@/utils';
+import { HStack, Stack, StackProps, Text, VStack } from '@chakra-ui/react';
+import { useIsMobile } from '@/hooks';
+import { Address } from 'viem';
+import { defaultChain, weth } from '@/constants';
 
 type BalanceCardProps = StackProps & {
-  handleOpenTopUpModal: (token: Address) => void
-  handleOpenWithdrawModal: () => void
-}
+  handleOpenTopUpModal: (token: Address) => void;
+  handleOpenWithdrawModal: () => void;
+};
 
-export const BalanceCard = ({
-  handleOpenTopUpModal,
-  handleOpenWithdrawModal,
-  ...props
-}: BalanceCardProps) => {
+export const BalanceCard = ({ handleOpenTopUpModal, handleOpenWithdrawModal, ...props }: BalanceCardProps) => {
   /**
    * BALANCE
    */
-  const { overallBalanceUsd } = useBalanceService()
-  const isMobile = useIsMobile()
+  const { overallBalanceUsd } = useBalanceService();
+  const isMobile = useIsMobile();
 
   return (
     <Stack
@@ -46,11 +42,7 @@ export const BalanceCard = ({
             ~ {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
           </Text>
         </VStack>
-        <VStack
-          flexDirection={isMobile ? 'row' : 'column'}
-          gap={'16px'}
-          w={isMobile ? 'full' : 'unset'}
-        >
+        <VStack flexDirection={isMobile ? 'row' : 'column'} gap={'16px'} w={isMobile ? 'full' : 'unset'}>
           <Button
             colorScheme={'brand'}
             w={isMobile ? 'full' : '200px'}
@@ -65,5 +57,5 @@ export const BalanceCard = ({
         </VStack>
       </HStack>
     </Stack>
-  )
-}
+  );
+};

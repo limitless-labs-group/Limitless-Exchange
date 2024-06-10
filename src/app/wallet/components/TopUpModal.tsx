@@ -1,36 +1,29 @@
-import { Button, IModal, Modal } from '@/components'
-import { Dispatch, SetStateAction, useMemo } from 'react'
-import DepositInfo from '@/app/wallet/components/DepositInfo'
-import { CopyEvent, useAccount, useAmplitude } from '@/services'
-import { Box, HStack, Text, useClipboard } from '@chakra-ui/react'
-import { truncateEthAddress } from '@/utils'
-import SelectTokenField from '@/components/common/SelectTokenField'
-import { collateralTokensArray, defaultChain, weth } from '@/constants'
-import { Address } from 'viem'
+import { Button, IModal, Modal } from '@/components';
+import { Dispatch, SetStateAction, useMemo } from 'react';
+import DepositInfo from '@/app/wallet/components/DepositInfo';
+import { CopyEvent, useAccount, useAmplitude } from '@/services';
+import { Box, HStack, Text, useClipboard } from '@chakra-ui/react';
+import { truncateEthAddress } from '@/utils';
+import SelectTokenField from '@/components/common/SelectTokenField';
+import { collateralTokensArray, defaultChain, weth } from '@/constants';
+import { Address } from 'viem';
 
 type TopUpModalProps = Omit<IModal, 'children'> & {
-  selectedToken: Address
-  setSelectedToken: Dispatch<SetStateAction<Address>>
-}
+  selectedToken: Address;
+  setSelectedToken: Dispatch<SetStateAction<Address>>;
+};
 
-export default function TopUpModal({
-  isOpen,
-  onClose,
-  selectedToken,
-  setSelectedToken,
-  ...props
-}: TopUpModalProps) {
-  const { trackCopied } = useAmplitude()
-  const { account } = useAccount()
-  const { onCopy, hasCopied } = useClipboard(account ?? '')
+export default function TopUpModal({ isOpen, onClose, selectedToken, setSelectedToken, ...props }: TopUpModalProps) {
+  const { trackCopied } = useAmplitude();
+  const { account } = useAccount();
+  const { onCopy, hasCopied } = useClipboard(account ?? '');
 
   const tokenName = useMemo(() => {
     return (
-      collateralTokensArray.find(
-        (collateralToken) => collateralToken.address[defaultChain.id] === selectedToken
-      )?.symbol || '$HIGHER'
-    )
-  }, [selectedToken])
+      collateralTokensArray.find((collateralToken) => collateralToken.address[defaultChain.id] === selectedToken)
+        ?.symbol || '$HIGHER'
+    );
+  }, [selectedToken]);
 
   return (
     <Modal
@@ -55,10 +48,10 @@ export default function TopUpModal({
           rounded='3px'
           fontWeight={'normal'}
           onClick={() => {
-            onCopy()
+            onCopy();
             trackCopied(CopyEvent.WalletAddressCopied, {
               page: 'Deposit',
-            })
+            });
           }}
         >
           <Text display={{ sm: 'none', md: 'contents' }}>{account}</Text>
@@ -74,5 +67,5 @@ export default function TopUpModal({
         defaultValue={selectedToken ? selectedToken : weth.address[defaultChain.id]}
       />
     </Modal>
-  )
+  );
 }

@@ -1,7 +1,7 @@
-import { Button, InfoIcon, Input, LogInButton, Tooltip } from '@/components'
-import { collateralTokensArray, defaultChain } from '@/constants'
-import { useMarketData } from '@/hooks'
-import { usePriceOracle } from '@/providers'
+import { Button, InfoIcon, Input, LogInButton, Tooltip } from '@/components';
+import { collateralTokensArray, defaultChain } from '@/constants';
+import { useMarketData } from '@/hooks';
+import { usePriceOracle } from '@/providers';
 import {
   StrategyChangedMetadata,
   ChangeEvent,
@@ -12,9 +12,9 @@ import {
   OutcomeChangedMetadata,
   ClickEvent,
   TradeClickedMetadata,
-} from '@/services'
-import { borderRadius } from '@/styles'
-import { NumberUtil } from '@/utils'
+} from '@/services';
+import { borderRadius } from '@/styles';
+import { NumberUtil } from '@/utils';
 import {
   Avatar,
   Box,
@@ -29,21 +29,21 @@ import {
   StackProps,
   Text,
   VStack,
-} from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getAddress, zeroAddress } from 'viem'
-import { MarketTokensIds, Token } from '@/types'
+} from '@chakra-ui/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { getAddress, zeroAddress } from 'viem';
+import { MarketTokensIds, Token } from '@/types';
 
 export const MarketTradingForm = ({ ...props }: StackProps) => {
   /**
    * ACCOUNT STATE
    */
-  const { isLoggedIn } = useAccount()
+  const { isLoggedIn } = useAccount();
 
   /**
    * ANALITYCS
    */
-  const { trackChanged, trackClicked } = useAmplitude()
+  const { trackChanged, trackClicked } = useAmplitude();
 
   /**
    * TRADING SERVICE
@@ -61,104 +61,99 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
     quotes,
     trade,
     status,
-  } = useTradingService()
+  } = useTradingService();
 
   /**
    * BALANCE
    */
-  const { balanceOfSmartWallet, setToken } = useBalanceService()
+  const { balanceOfSmartWallet, setToken } = useBalanceService();
 
   const balance = useMemo(() => {
     if (strategy === 'Buy') {
       if (balanceOfSmartWallet) {
         return balanceOfSmartWallet.find(
-          (balanceItem) => balanceItem.contractAddress === market?.collateralToken[defaultChain.id]
-        )?.formatted
+          (balanceItem) => balanceItem.contractAddress === market?.collateralToken[defaultChain.id],
+        )?.formatted;
       }
-      return ''
+      return '';
     }
-    return balanceOfCollateralToSell
-  }, [balanceOfSmartWallet, strategy, balanceOfCollateralToSell, market])
+    return balanceOfCollateralToSell;
+  }, [balanceOfSmartWallet, strategy, balanceOfCollateralToSell, market]);
 
-  const isZeroBalance = !(Number(balance) > 0)
+  const isZeroBalance = !(Number(balance) > 0);
 
   /**
    * MARKET DATA
    */
-  const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
+  const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress);
   const { outcomeTokensPercent } = useMarketData({
     marketAddress,
-  })
+  });
 
   /**
    * Amount to display in UI and reduce queries
    */
-  const [displayAmount, setDisplayAmount] = useState('')
+  const [displayAmount, setDisplayAmount] = useState('');
 
   useEffect(() => {
-    setDisplayAmount(collateralAmount)
-  }, [collateralAmount])
+    setDisplayAmount(collateralAmount);
+  }, [collateralAmount]);
 
   /**
    * PRICE ORACLE
    */
-  const { convertAssetAmountToUsd } = usePriceOracle()
+  const { convertAssetAmountToUsd } = usePriceOracle();
   const amountUsd = useMemo(() => {
     const tokenId = collateralTokensArray.find(
-      (collateralToken) =>
-        collateralToken.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
-    )?.id
-    return NumberUtil.formatThousands(
-      convertAssetAmountToUsd(tokenId as MarketTokensIds, displayAmount),
-      2
-    )
-  }, [displayAmount, market])
+      (collateralToken) => collateralToken.address[defaultChain.id] === market?.collateralToken[defaultChain.id],
+    )?.id;
+    return NumberUtil.formatThousands(convertAssetAmountToUsd(tokenId as MarketTokensIds, displayAmount), 2);
+  }, [displayAmount, market]);
 
   /**
    * SLIDER
    */
-  const [sliderValue, setSliderValue] = useState(0)
-  const [showTooltip, setShowTooltip] = useState(false)
+  const [sliderValue, setSliderValue] = useState(0);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const onSlide = useCallback(
     (value: number) => {
-      setSliderValue(value)
+      setSliderValue(value);
       if (value == 0 || isZeroBalance) {
-        setDisplayAmount('')
-        return
+        setDisplayAmount('');
+        return;
       }
       if (value == 100) {
-        setDisplayAmount(NumberUtil.toFixed(balance, 6))
-        return
+        setDisplayAmount(NumberUtil.toFixed(balance, 6));
+        return;
       }
-      const amountByPercent = (Number(balance) * value) / 100
-      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
+      const amountByPercent = (Number(balance) * value) / 100;
+      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6));
     },
-    [sliderValue, balance, isZeroBalance]
-  )
+    [sliderValue, balance, isZeroBalance],
+  );
 
   /**
    * Effect to automatically set a proper slider value based on the tokens amount
    */
   useEffect(() => {
     if (isZeroBalance) {
-      setSliderValue(0)
-      return
+      setSliderValue(0);
+      return;
     }
-    const percentByAmount = Number(((Number(collateralAmount) / Number(balance)) * 100).toFixed())
-    setSliderValue(percentByAmount)
-  }, [collateralAmount, balance, isZeroBalance, outcomeTokenId])
+    const percentByAmount = Number(((Number(collateralAmount) / Number(balance)) * 100).toFixed());
+    setSliderValue(percentByAmount);
+  }, [collateralAmount, balance, isZeroBalance, outcomeTokenId]);
 
   useEffect(() => {
     if (market) {
       setToken(
         collateralTokensArray.find(
-          (collateralToken) =>
-            collateralToken.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
-        ) as Token
-      )
+          (collateralToken) => collateralToken.address[defaultChain.id] === market?.collateralToken[defaultChain.id],
+        ) as Token,
+      );
     }
-  }, [market])
+  }, [market]);
 
   return (
     <Stack
@@ -181,8 +176,8 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Buy selected',
               marketAddress,
-            })
-            setStrategy('Buy')
+            });
+            setStrategy('Buy');
           }}
         >
           <Text fontWeight={'bold'} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
@@ -207,8 +202,8 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Sell selected',
               marketAddress,
-            })
-            setStrategy('Sell')
+            });
+            setStrategy('Sell');
           }}
         >
           <Text fontWeight={'bold'} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
@@ -239,8 +234,8 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
                 trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
                   choice: 'Yes',
                   marketAddress,
-                })
-                setOutcomeTokenId(0)
+                });
+                setOutcomeTokenId(0);
               }}
             >
               {market?.outcomeTokens[0] ?? 'Yes'} {(outcomeTokensPercent?.[0] ?? 50).toFixed(2)}%
@@ -253,8 +248,8 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
                 trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
                   choice: 'No',
                   marketAddress,
-                })
-                setOutcomeTokenId(1)
+                });
+                setOutcomeTokenId(1);
               }}
             >
               {market?.outcomeTokens[1] ?? 'No'} {(outcomeTokensPercent?.[1] ?? 50).toFixed(2)}%
@@ -303,20 +298,14 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
               </Button>
             </HStack>
 
-            <HStack
-              w={'full'}
-              justifyContent={'space-between'}
-              color={'fontLight'}
-              fontSize={'12px'}
-            >
+            <HStack w={'full'} justifyContent={'space-between'} color={'fontLight'} fontSize={'12px'}>
               <Text>~${amountUsd}</Text>
               <Text
                 _hover={{ color: 'font' }}
                 cursor={'pointer'}
                 onClick={() => setCollateralAmount(NumberUtil.toFixed(balance, 6))}
               >
-                {`Balance: ${NumberUtil.formatThousands(balance, 6)}`}{' '}
-                {market?.tokenTicker[defaultChain.id]}
+                {`Balance: ${NumberUtil.formatThousands(balance, 6)}`} {market?.tokenTicker[defaultChain.id]}
               </Text>
             </HStack>
           </Stack>
@@ -345,11 +334,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
             isOpen={showTooltip}
             label={`${sliderValue}%`}
           >
-            <SliderThumb
-              bg={outcomeTokenId == 0 ? 'green' : 'red'}
-              border={'1px solid'}
-              borderColor={'border'}
-            />
+            <SliderThumb bg={outcomeTokenId == 0 ? 'green' : 'red'} border={'1px solid'} borderColor={'border'} />
           </Tooltip>
         </Slider>
 
@@ -363,8 +348,8 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
               trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
                 strategy,
                 marketAddress,
-              })
-              trade()
+              });
+              trade();
             }}
           >
             {strategy}
@@ -376,10 +361,9 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
         <VStack w={'full'} spacing={0}>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Avg price</Text>
-            <Text textAlign={'right'}>{`${NumberUtil.formatThousands(
-              quotes?.outcomeTokenPrice,
-              6
-            )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
+            <Text textAlign={'right'}>{`${NumberUtil.formatThousands(quotes?.outcomeTokenPrice, 6)} ${
+              market?.tokenTicker[defaultChain.id]
+            }`}</Text>
           </HStack>
           <HStack w={'full'} justifyContent={'space-between'}>
             <Text color={'fontLight'}>Price Impact</Text>
@@ -409,14 +393,12 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
                     <InfoIcon />
                   </Tooltip>
                 </HStack>
-                <Text textAlign={'right'}>
-                  {NumberUtil.formatThousands(quotes?.outcomeTokenAmount, 6)}
-                </Text>
+                <Text textAlign={'right'}>{NumberUtil.formatThousands(quotes?.outcomeTokenAmount, 6)}</Text>
               </HStack>
             </>
           )}
         </VStack>
       </VStack>
     </Stack>
-  )
-}
+  );
+};

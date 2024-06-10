@@ -1,9 +1,9 @@
-import { Providers } from '@/app/providers'
-import { Analytics } from '@vercel/analytics/react'
-import { SpeedInsights } from '@vercel/speed-insights/next'
-import { Metadata } from 'next'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { PropsWithChildren } from 'react'
+import { Providers } from '@/app/providers';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Metadata } from 'next';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { PropsWithChildren } from 'react';
 
 export const metadata: Metadata = {
   title: 'Limitless',
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     maximumScale: 1,
     userScalable: false,
   },
-}
+};
 
 const RootLayout = ({ children }: PropsWithChildren) => {
   return (
@@ -27,7 +27,7 @@ const RootLayout = ({ children }: PropsWithChildren) => {
         </Providers>
       </body>
     </html>
-  )
-}
+  );
+};
 
-export default RootLayout
+export default RootLayout;

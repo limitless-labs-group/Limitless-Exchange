@@ -1,13 +1,7 @@
-import { Button, IButton } from '@/components'
-import {
-  ClickEvent,
-  ProfileBurgerMenuClickedMetadata,
-  useAccount,
-  useAmplitude,
-  useAuth,
-} from '@/services'
-import { colors } from '@/styles'
-import { truncateEthAddress } from '@/utils'
+import { Button, IButton } from '@/components';
+import { ClickEvent, ProfileBurgerMenuClickedMetadata, useAccount, useAmplitude, useAuth } from '@/services';
+import { colors } from '@/styles';
+import { truncateEthAddress } from '@/utils';
 import {
   Flex,
   HStack,
@@ -19,30 +13,23 @@ import {
   Stack,
   Text,
   useClipboard,
-} from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import { FaBriefcase, FaChevronDown, FaCopy, FaRegUserCircle, FaSignOutAlt } from 'react-icons/fa'
-import { FaWallet } from 'react-icons/fa6'
+} from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
+import { FaBriefcase, FaChevronDown, FaCopy, FaRegUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import { FaWallet } from 'react-icons/fa6';
 
 export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
-  const { trackClicked } = useAmplitude()
-  const { signOut } = useAuth()
-  const { userInfo, account } = useAccount()
-  const { onCopy, hasCopied } = useClipboard(account ?? '')
-  const router = useRouter()
+  const { trackClicked } = useAmplitude();
+  const { signOut } = useAuth();
+  const { userInfo, account } = useAccount();
+  const { onCopy, hasCopied } = useClipboard(account ?? '');
+  const router = useRouter();
 
   return (
     <Popover placement={'bottom-end'} trigger={'hover'} isLazy>
       <PopoverTrigger>
         <Flex h={'full'}>
-          <Button
-            bg={'none'}
-            h={'full'}
-            alignItems={'center'}
-            fontWeight={'normal'}
-            px={0}
-            {...props}
-          >
+          <Button bg={'none'} h={'full'} alignItems={'center'} fontWeight={'normal'} px={0} {...props}>
             <HStack>
               {userInfo?.profileImage?.includes('http') ? (
                 <Image src={userInfo.profileImage} borderRadius={'full'} h={'20px'} w={'20px'} />
@@ -65,13 +52,10 @@ export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
               fontWeight={'normal'}
               h={'40px'}
               onClick={() => {
-                trackClicked<ProfileBurgerMenuClickedMetadata>(
-                  ClickEvent.ProfileBurgerMenuClicked,
-                  {
-                    option: 'Copy Wallet Address',
-                  }
-                )
-                onCopy()
+                trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                  option: 'Copy Wallet Address',
+                });
+                onCopy();
               }}
             >
               <Text>{truncateEthAddress(account)}</Text>
@@ -84,13 +68,10 @@ export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
               colorScheme={'transparent'}
               justifyContent={'start'}
               onClick={() => {
-                trackClicked<ProfileBurgerMenuClickedMetadata>(
-                  ClickEvent.ProfileBurgerMenuClicked,
-                  {
-                    option: 'Wallet',
-                  }
-                )
-                router.push('/wallet')
+                trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                  option: 'Wallet',
+                });
+                router.push('/wallet');
               }}
             >
               <HStack w={'full'}>
@@ -105,13 +86,10 @@ export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
               colorScheme={'transparent'}
               justifyContent={'start'}
               onClick={() => {
-                trackClicked<ProfileBurgerMenuClickedMetadata>(
-                  ClickEvent.ProfileBurgerMenuClicked,
-                  {
-                    option: 'Portfolio',
-                  }
-                )
-                router.push('/portfolio')
+                trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                  option: 'Portfolio',
+                });
+                router.push('/portfolio');
               }}
             >
               <HStack w={'full'}>
@@ -125,13 +103,10 @@ export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
               colorScheme={'transparent'}
               justifyContent={'start'}
               onClick={() => {
-                trackClicked<ProfileBurgerMenuClickedMetadata>(
-                  ClickEvent.ProfileBurgerMenuClicked,
-                  {
-                    option: 'Sign Out',
-                  }
-                )
-                signOut()
+                trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                  option: 'Sign Out',
+                });
+                signOut();
               }}
             >
               <HStack w={'full'}>
@@ -143,5 +118,5 @@ export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
         </PopoverContent>
       </Portal>
     </Popover>
-  )
-}
+  );
+};

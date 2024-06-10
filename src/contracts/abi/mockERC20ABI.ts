@@ -349,4 +349,4 @@ export const mockERC20ABI = [
     name: 'Approval',
     type: 'event',
   },
-]
+];

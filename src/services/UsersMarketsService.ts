@@ -1,32 +1,32 @@
-import { defaultChain, newSubgraphURI } from '@/constants'
-import { useEtherspot } from '@/services/Etherspot'
-import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+import { defaultChain, newSubgraphURI } from '@/constants';
+import { useEtherspot } from '@/services/Etherspot';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 
 export type AccountMarketResponse = {
-  account_id: string
+  account_id: string;
   market: {
-    id: string
-    closed: boolean
+    id: string;
+    closed: boolean;
     collateral: {
-      id: string
-      name: string
-      symbol: string
-    }
-  }
-  collateralsInvested: string
-  collateralsLocked: string
-}
+      id: string;
+      name: string;
+      symbol: string;
+    };
+  };
+  collateralsInvested: string;
+  collateralsLocked: string;
+};
 
 export function useUsersMarkets() {
-  const { smartWalletAddress } = useEtherspot()
+  const { smartWalletAddress } = useEtherspot();
   return useQuery<AccountMarketResponse[]>({
     queryKey: ['createdMarkets', smartWalletAddress],
     queryFn: async () => {
       if (!smartWalletAddress) {
-        return []
+        return [];
       }
-      const queryName = 'GetAccountDetails'
+      const queryName = 'GetAccountDetails';
       const response = await axios.request({
         url: newSubgraphURI[defaultChain.id],
         method: 'post',
@@ -59,9 +59,9 @@ export function useUsersMarkets() {
             }
           }`,
         },
-      })
-      return response.data.data['AccountMarket']
+      });
+      return response.data.data['AccountMarket'];
     },
     enabled: !!smartWalletAddress,
-  })
+  });
 }

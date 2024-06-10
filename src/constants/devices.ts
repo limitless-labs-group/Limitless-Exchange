@@ -1,1 +1,1 @@
-export const IPHONE14_PRO_MAX_WIDTH = 430
+export const IPHONE14_PRO_MAX_WIDTH = 430;

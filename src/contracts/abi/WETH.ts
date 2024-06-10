@@ -307,4 +307,4 @@ export const wethABI = [
     name: 'Withdrawal',
     type: 'event',
   },
-]
+];

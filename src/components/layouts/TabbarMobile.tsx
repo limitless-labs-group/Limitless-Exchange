@@ -1,10 +1,10 @@
-import { Button } from '@/components'
-import { Image, Stack, StackProps } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import { FaGlobe, FaSearch } from 'react-icons/fa'
+import { Button } from '@/components';
+import { Image, Stack, StackProps } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
+import { FaGlobe, FaSearch } from 'react-icons/fa';
 
 export const TabbarMobile = ({ ...props }: StackProps) => {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <Stack
@@ -29,5 +29,5 @@ export const TabbarMobile = ({ ...props }: StackProps) => {
         <FaGlobe size={'20px'} />
       </Button>
     </Stack>
-  )
-}
+  );
+};

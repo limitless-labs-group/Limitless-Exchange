@@ -1,5 +1,5 @@
-import { borderRadius } from '@/styles'
-import { Input as ChakraInput, InputProps } from '@chakra-ui/react'
+import { borderRadius } from '@/styles';
+import { Input as ChakraInput, InputProps } from '@chakra-ui/react';
 
 export const Input = ({ ...props }: InputProps) => (
   <ChakraInput
@@ -13,4 +13,4 @@ export const Input = ({ ...props }: InputProps) => (
     _placeholder={{ color: 'fontLight' }}
     {...props}
   />
-)
+);

@@ -1,4 +1,4 @@
-import { borderRadius } from '@/styles'
+import { borderRadius } from '@/styles';
 import {
   Button,
   Heading,
@@ -10,13 +10,13 @@ import {
   ModalOverlay,
   ModalProps,
   Flex,
-} from '@chakra-ui/react'
+} from '@chakra-ui/react';
 
 export type IModal = ModalProps &
   ModalContentProps & {
-    title?: string
-    showCloseButton?: boolean
-  }
+    title?: string;
+    showCloseButton?: boolean;
+  };
 
 export const Modal = ({
   title,
@@ -65,4 +65,4 @@ export const Modal = ({
       <ModalBody p={0}>{children}</ModalBody>
     </ModalContent>
   </ChakraModal>
-)
+);

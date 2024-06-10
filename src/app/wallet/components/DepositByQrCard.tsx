@@ -1,26 +1,16 @@
-import { Button, Modal } from '@/components'
-import { CopyEvent, useAccount, useAmplitude } from '@/services'
-import { borderRadius, colors } from '@/styles'
-import { truncateEthAddress } from '@/utils'
-import {
-  Avatar,
-  Flex,
-  HStack,
-  Heading,
-  Stack,
-  StackProps,
-  Text,
-  useClipboard,
-  useDisclosure,
-} from '@chakra-ui/react'
-import { FaQrcode } from 'react-icons/fa'
-import QRCode from 'react-qr-code'
+import { Button, Modal } from '@/components';
+import { CopyEvent, useAccount, useAmplitude } from '@/services';
+import { borderRadius, colors } from '@/styles';
+import { truncateEthAddress } from '@/utils';
+import { Avatar, Flex, HStack, Heading, Stack, StackProps, Text, useClipboard, useDisclosure } from '@chakra-ui/react';
+import { FaQrcode } from 'react-icons/fa';
+import QRCode from 'react-qr-code';
 
 export const DepositByQrCard = ({ ...props }: StackProps) => {
-  const { trackCopied } = useAmplitude()
-  const { account } = useAccount()
-  const { isOpen: isOpenQR, onOpen: onOpenQR, onClose: onCloseQR } = useDisclosure()
-  const { onCopy, hasCopied } = useClipboard(account ?? '')
+  const { trackCopied } = useAmplitude();
+  const { account } = useAccount();
+  const { isOpen: isOpenQR, onOpen: onOpenQR, onClose: onCloseQR } = useDisclosure();
+  const { onCopy, hasCopied } = useClipboard(account ?? '');
 
   return (
     <Stack
@@ -56,8 +46,7 @@ export const DepositByQrCard = ({ ...props }: StackProps) => {
       <HStack w={'full'} spacing={4}>
         <Avatar name='1' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} />
         <Text>
-          <b>Buy ETH</b> on Coinbase, Binance or any other exchange / fiat onramp that supports
-          withdrawals on Base.
+          <b>Buy ETH</b> on Coinbase, Binance or any other exchange / fiat onramp that supports withdrawals on Base.
         </Text>
       </HStack>
 
@@ -76,10 +65,10 @@ export const DepositByQrCard = ({ ...props }: StackProps) => {
             color={'grey'}
             fontWeight={'normal'}
             onClick={() => {
-              onCopy()
+              onCopy();
               trackCopied(CopyEvent.WalletAddressCopied, {
                 page: 'Deposit',
-              })
+              });
             }}
           >
             <Text display={{ sm: 'none', md: 'contents' }}>{account}</Text>
@@ -105,11 +94,9 @@ export const DepositByQrCard = ({ ...props }: StackProps) => {
 
       <Modal isOpen={isOpenQR} onClose={onCloseQR} size={'xs'} title={`Send ETH (Base)`}>
         <Flex w={'full'} justifyContent={'center'}>
-          {account && (
-            <QRCode value={account} fgColor={'black'} style={{ paddingBottom: '24px' }} />
-          )}
+          {account && <QRCode value={account} fgColor={'black'} style={{ paddingBottom: '24px' }} />}
         </Flex>
       </Modal>
     </Stack>
-  )
-}
+  );
+};

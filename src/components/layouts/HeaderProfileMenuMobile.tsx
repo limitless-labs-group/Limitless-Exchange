@@ -1,7 +1,7 @@
-import { Button, IButton } from '@/components'
-import { ClickEvent, useAccount, useAmplitude, useAuth, useBalanceService } from '@/services'
-import { colors } from '@/styles'
-import { NumberUtil, truncateEthAddress } from '@/utils'
+import { Button, IButton } from '@/components';
+import { ClickEvent, useAccount, useAmplitude, useAuth, useBalanceService } from '@/services';
+import { colors } from '@/styles';
+import { NumberUtil, truncateEthAddress } from '@/utils';
 import {
   Flex,
   HStack,
@@ -13,18 +13,18 @@ import {
   Stack,
   Text,
   useClipboard,
-} from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import { FaBars, FaCopy, FaRegUserCircle, FaSignOutAlt } from 'react-icons/fa'
-import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
+} from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
+import { FaBars, FaCopy, FaRegUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6';
 
 export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
-  const router = useRouter()
-  const { signOut } = useAuth()
-  const { userInfo, account } = useAccount()
-  const { onCopy, hasCopied } = useClipboard(account ?? '')
-  const { overallBalanceUsd } = useBalanceService()
-  const { trackClicked } = useAmplitude()
+  const router = useRouter();
+  const { signOut } = useAuth();
+  const { userInfo, account } = useAccount();
+  const { onCopy, hasCopied } = useClipboard(account ?? '');
+  const { overallBalanceUsd } = useBalanceService();
+  const { trackClicked } = useAmplitude();
 
   return (
     <Popover placement={'bottom-end'} trigger={'click'} isLazy>
@@ -43,13 +43,7 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
             {(!!userInfo?.name || !!userInfo?.email) && (
               <HStack w={'full'} px={4} alignItems={'center'}>
                 {userInfo?.profileImage?.includes('http') ? (
-                  <Image
-                    src={userInfo.profileImage}
-                    borderRadius={'full'}
-                    h={'18px'}
-                    w={'18px'}
-                    alt='profile'
-                  />
+                  <Image src={userInfo.profileImage} borderRadius={'full'} h={'18px'} w={'18px'} alt='profile' />
                 ) : (
                   <FaRegUserCircle size={'16px'} />
                 )}
@@ -77,12 +71,7 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               onClick={() => router.push('/wallet')}
             >
               <HStack spacing={2}>
-                <Image
-                  alt='wallet'
-                  src='/assets/images/wallet.svg'
-                  width={'16px'}
-                  height={'16px'}
-                />
+                <Image alt='wallet' src='/assets/images/wallet.svg' width={'16px'} height={'16px'} />
                 <HStack spacing={1}>
                   <Text>Balance</Text>
                   <Text fontWeight={'bold'}>{NumberUtil.formatThousands(overallBalanceUsd)}</Text>
@@ -113,8 +102,8 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               colorScheme={'transparent'}
               justifyContent={'start'}
               onClick={() => {
-                trackClicked(ClickEvent.ExploreMarketsClicked)
-                router.push('/')
+                trackClicked(ClickEvent.ExploreMarketsClicked);
+                router.push('/');
               }}
             >
               <HStack>
@@ -129,7 +118,7 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               colorScheme={'transparent'}
               justifyContent={'start'}
               onClick={() => {
-                signOut()
+                signOut();
               }}
             >
               <HStack>
@@ -141,5 +130,5 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
         </PopoverContent>
       </Portal>
     </Popover>
-  )
-}
+  );
+};

@@ -1,56 +1,56 @@
-import { Button, MarketCardUserActions } from '@/components'
-import { defaultChain } from '@/constants'
-import { createPortfolioShareUrls, HistoryPosition } from '@/services'
-import { NumberUtil } from '@/utils'
-import { HStack, Heading, Image, Stack, StackProps, Text } from '@chakra-ui/react'
-import { useMemo } from 'react'
-import { useRouter } from 'next/navigation'
-import { usePriceOracle } from '@/providers'
-import { borderRadius, colors } from '@/styles'
-import { useIsMobile, useMarketData } from '@/hooks'
-import { FaCircle } from 'react-icons/fa'
-import { useMarket } from '@/services/MarketsService'
+import { Button, MarketCardUserActions } from '@/components';
+import { defaultChain } from '@/constants';
+import { createPortfolioShareUrls, HistoryPosition } from '@/services';
+import { NumberUtil } from '@/utils';
+import { HStack, Heading, Image, Stack, StackProps, Text } from '@chakra-ui/react';
+import { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { usePriceOracle } from '@/providers';
+import { borderRadius, colors } from '@/styles';
+import { useIsMobile, useMarketData } from '@/hooks';
+import { FaCircle } from 'react-icons/fa';
+import { useMarket } from '@/services/MarketsService';
 
 export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {
-  position: HistoryPosition
+  position: HistoryPosition;
 }
 
 export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPositionCard) => {
   /**
    * NAVIGATION
    */
-  const router = useRouter()
+  const router = useRouter();
 
   /**
    * MARKET DATA
    */
-  const market = useMarket(position.market.id)
+  const market = useMarket(position.market.id);
 
-  const { outcomeTokensPercent, volume } = useMarketData({ marketAddress: position.market.id })
+  const { outcomeTokensPercent, volume } = useMarketData({ marketAddress: position.market.id });
 
   const chancePercent = useMemo(() => {
-    return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
-  }, [market, outcomeTokensPercent])
+    return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1);
+  }, [market, outcomeTokensPercent]);
 
   /**
    * SHARE
    */
-  const marketURI = `${window.location.origin}/markets/${position.market.id}`
-  const shareLinks = createPortfolioShareUrls(market, position)
+  const marketURI = `${window.location.origin}/markets/${position.market.id}`;
+  const shareLinks = createPortfolioShareUrls(market, position);
 
   /**
    * UTILS
    */
-  const isMobile = useIsMobile()
+  const isMobile = useIsMobile();
 
-  const { convertTokenAmountToUsd } = usePriceOracle()
+  const { convertTokenAmountToUsd } = usePriceOracle();
 
   const getOutcomeNotation = () => {
-    const outcomeTokenId = position.outcomeIndex ?? 0
-    const defaultOutcomes = ['Yes', 'No']
+    const outcomeTokenId = position.outcomeIndex ?? 0;
+    const defaultOutcomes = ['Yes', 'No'];
 
-    return market?.outcomeTokens[outcomeTokenId] ?? defaultOutcomes[outcomeTokenId]
-  }
+    return market?.outcomeTokens[outcomeTokenId] ?? defaultOutcomes[outcomeTokenId];
+  };
 
   return (
     <Stack
@@ -78,12 +78,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             {market?.title ?? 'Noname market'}
           </Heading>
 
-          <HStack
-            color={'fontLight'}
-            fontSize={'12px'}
-            divider={<FaCircle size={'3px'} fill={'grey'} />}
-            gap={2}
-          >
+          <HStack color={'fontLight'} fontSize={'12px'} divider={<FaCircle size={'3px'} fill={'grey'} />} gap={2}>
             <Text>{market?.expirationDate}</Text>
             <Text>{chancePercent}% chance</Text>
             {!isMobile && (
@@ -119,19 +114,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
 
             <HStack>
               <Text>
-                {`${NumberUtil.formatThousands(position.collateralAmount, 4)} ${
-                  market?.tokenTicker[defaultChain.id]
-                }`}
+                {`${NumberUtil.formatThousands(position.collateralAmount, 4)} ${market?.tokenTicker[defaultChain.id]}`}
               </Text>
 
               <Text fontSize={'12px'} color={'fontLight'}>
                 ~$
                 {NumberUtil.formatThousands(
-                  convertTokenAmountToUsd(
-                    market?.tokenTicker[defaultChain.id],
-                    position.collateralAmount
-                  ),
-                  2
+                  convertTokenAmountToUsd(market?.tokenTicker[defaultChain.id], position.collateralAmount),
+                  2,
                 )}
               </Text>
             </HStack>
@@ -142,10 +132,9 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             <Text color={'fontLight'}>Outcome</Text>
 
             <Text color={getOutcomeNotation() === 'Yes' ? 'green' : 'red'}>
-              {`${getOutcomeNotation()} ${NumberUtil.formatThousands(
-                position.latestTrade?.outcomeTokenPrice,
-                3
-              )} ${market?.tokenTicker[defaultChain.id]}`}
+              {`${getOutcomeNotation()} ${NumberUtil.formatThousands(position.latestTrade?.outcomeTokenPrice, 3)} ${
+                market?.tokenTicker[defaultChain.id]
+              }`}
             </Text>
           </HStack>
 
@@ -161,11 +150,8 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
               <Text fontSize={'12px'} color={'fontLight'}>
                 ~$
                 {NumberUtil.formatThousands(
-                  convertTokenAmountToUsd(
-                    market?.tokenTicker[defaultChain.id],
-                    position.outcomeTokenAmount
-                  ),
-                  2
+                  convertTokenAmountToUsd(market?.tokenTicker[defaultChain.id], position.outcomeTokenAmount),
+                  2,
                 )}
               </Text>
             </HStack>
@@ -178,22 +164,15 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           mainActionButton={(() => {
             if (market?.expired) {
               return (
-                <Button
-                  bg={'brand'}
-                  color={'white'}
-                  h={'full'}
-                  w={'full'}
-                  p={1}
-                  onClick={() => router.push(marketURI)}
-                >
+                <Button bg={'brand'} color={'white'} h={'full'} w={'full'} p={1} onClick={() => router.push(marketURI)}>
                   Claim winning
                 </Button>
-              )
+              );
             }
-            return undefined
+            return undefined;
           })()}
         />
       </Stack>
     </Stack>
-  )
-}
+  );
+};

@@ -1,2 +1,2 @@
-export * from './ui'
-export * from './useMarketData'
+export * from './ui';
+export * from './useMarketData';

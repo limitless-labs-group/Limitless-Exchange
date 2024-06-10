@@ -1,1 +1,1 @@
-export * from './fpmm'
+export * from './fpmm';

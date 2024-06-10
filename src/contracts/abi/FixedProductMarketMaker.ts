@@ -650,4 +650,4 @@ export const fixedProductMarketMakerABI = [
     name: 'Approval',
     type: 'event',
   },
-]
+];

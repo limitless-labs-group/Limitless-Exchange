@@ -1,20 +1,20 @@
-'use client'
+'use client';
 
-import { PortfolioStats, PortfolioPositions, PortfolioHistory } from '@/app/portfolio/components'
-import { MainLayout } from '@/components'
-import { OpenEvent, PageOpenedMetadata, useAmplitude } from '@/services'
-import { Box, HStack, Spacer, Stack, Text } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { PortfolioStats, PortfolioPositions, PortfolioHistory } from '@/app/portfolio/components';
+import { MainLayout } from '@/components';
+import { OpenEvent, PageOpenedMetadata, useAmplitude } from '@/services';
+import { Box, HStack, Spacer, Stack, Text } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 
 const PortfolioPage = () => {
-  const [tab, setTab] = useState<'Markets' | 'History'>('Markets')
+  const [tab, setTab] = useState<'Markets' | 'History'>('Markets');
 
-  const { trackOpened } = useAmplitude()
+  const { trackOpened } = useAmplitude();
   useEffect(() => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
       page: 'Portfolio Page',
-    })
-  }, [])
+    });
+  }, []);
 
   return (
     <MainLayout>
@@ -24,29 +24,19 @@ const PortfolioPage = () => {
         <HStack spacing={5} fontWeight={'bold'} fontSize={'15px'}>
           <Stack cursor={'pointer'} onClick={() => setTab('Markets')}>
             <Text fontWeight={tab == 'Markets' ? 'bold' : 'normal'}>My markets</Text>
-            <Box
-              w={'full'}
-              h={'3px'}
-              bg={'black'}
-              visibility={tab == 'Markets' ? 'visible' : 'hidden'}
-            />
+            <Box w={'full'} h={'3px'} bg={'black'} visibility={tab == 'Markets' ? 'visible' : 'hidden'} />
           </Stack>
           <Stack
             cursor={'pointer'}
             onClick={() => {
               trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
                 page: 'Portfolio - History tab',
-              })
-              setTab('History')
+              });
+              setTab('History');
             }}
           >
             <Text fontWeight={tab == 'History' ? 'bold' : 'normal'}>History</Text>
-            <Box
-              w={'full'}
-              h={'3px'}
-              bg={'black'}
-              visibility={tab == 'History' ? 'visible' : 'hidden'}
-            />
+            <Box w={'full'} h={'3px'} bg={'black'} visibility={tab == 'History' ? 'visible' : 'hidden'} />
           </Stack>
         </HStack>
 
@@ -55,7 +45,7 @@ const PortfolioPage = () => {
 
       <Spacer />
     </MainLayout>
-  )
-}
+  );
+};
 
-export default PortfolioPage
+export default PortfolioPage;

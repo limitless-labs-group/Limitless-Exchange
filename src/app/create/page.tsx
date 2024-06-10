@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { Input, MainLayout, Toast } from '@/components'
+import { Input, MainLayout, Toast } from '@/components';
 import {
   Flex,
   Heading,
@@ -23,29 +23,29 @@ import {
   SliderFilledTrack,
   SliderThumb,
   Spinner,
-} from '@chakra-ui/react'
-import { borderRadius, colors } from '@/styles'
-import { CgInfo } from 'react-icons/cg'
-import { SingleDatepicker } from 'chakra-dayzed-datepicker'
-import React, { MutableRefObject, useRef, useState } from 'react'
-import CreatableSelect from 'react-select/creatable'
-import axios from 'axios'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useToast } from '@/hooks'
+} from '@chakra-ui/react';
+import { borderRadius, colors } from '@/styles';
+import { CgInfo } from 'react-icons/cg';
+import { SingleDatepicker } from 'chakra-dayzed-datepicker';
+import React, { MutableRefObject, useRef, useState } from 'react';
+import CreatableSelect from 'react-select/creatable';
+import axios from 'axios';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/hooks';
 
 interface FormFieldProps {
-  label: string
-  children: React.ReactNode
+  label: string;
+  children: React.ReactNode;
 }
 
 interface TokenLimit {
-  min: number
-  max: number
-  step: number
+  min: number;
+  max: number;
+  step: number;
 }
 
 interface TokenLimits {
-  [key: string]: TokenLimit
+  [key: string]: TokenLimit;
 }
 
 const tokenLimits: TokenLimits = {
@@ -74,27 +74,27 @@ const tokenLimits: TokenLimits = {
     max: 3,
     step: 0.1,
   },
-}
+};
 
 interface TagOption {
-  id: string
-  label: string
-  value: string
+  id: string;
+  label: string;
+  value: string;
 }
 
 interface Creator {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
 interface Token {
-  id: string
-  symbol: string
+  id: string;
+  symbol: string;
 }
 
-const defaultTokenSymbol = 'WETH'
-const defaultProbability = 50
-const defaultCreatorId = '1'
+const defaultTokenSymbol = 'WETH';
+const defaultProbability = 50;
+const defaultCreatorId = '1';
 
 const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
   <Box mt={4}>
@@ -103,161 +103,150 @@ const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
     </FormLabel>
     {children}
   </Box>
-)
+);
 
 const CreateOwnMarketPage = () => {
-  const [formData, setFormData] = useState<FormData>(new FormData())
+  const [formData, setFormData] = useState<FormData>(new FormData());
 
-  const [deadline, setDeadline] = useState<Date>(new Date())
-  const [title, setTitle] = useState<string>('')
-  const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: '1' })
-  const [description, setDescription] = useState<string>('')
-  const [liquidity, setLiquidity] = useState<number>(tokenLimits[defaultTokenSymbol].min)
-  const [probability, setProbability] = useState<number>(defaultProbability)
-  const [tag, setTag] = useState<TagOption[]>([])
-  const [creatorId, setCreatorId] = useState<string>(defaultCreatorId)
-  const [marketLogo, setMarketLogo] = useState<File | undefined>()
-  const [ogLogo, setOgLogo] = useState<File | undefined>()
+  const [deadline, setDeadline] = useState<Date>(new Date());
+  const [title, setTitle] = useState<string>('');
+  const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: '1' });
+  const [description, setDescription] = useState<string>('');
+  const [liquidity, setLiquidity] = useState<number>(tokenLimits[defaultTokenSymbol].min);
+  const [probability, setProbability] = useState<number>(defaultProbability);
+  const [tag, setTag] = useState<TagOption[]>([]);
+  const [creatorId, setCreatorId] = useState<string>(defaultCreatorId);
+  const [marketLogo, setMarketLogo] = useState<File | undefined>();
+  const [ogLogo, setOgLogo] = useState<File | undefined>();
 
-  const [isCreating, setIsCreating] = useState<boolean>(false)
+  const [isCreating, setIsCreating] = useState<boolean>(false);
 
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
-  const handleLiquidityChange = (value: number) => setLiquidity(value)
+  const handleLiquidityChange = (value: number) => setLiquidity(value);
 
-  const handleProbabilityChange = (value: number) => setProbability(value)
+  const handleProbabilityChange = (value: number) => setProbability(value);
 
   const handleTokenSelect = (option: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedTokenId = option.target.value
-    const selectedTokenSymbol =
-      option.target.selectedOptions[0].getAttribute('data-name') ?? defaultTokenSymbol
-    setToken({ symbol: selectedTokenSymbol, id: selectedTokenId })
-    setLiquidity(tokenLimits[selectedTokenSymbol].min)
-  }
+    const selectedTokenId = option.target.value;
+    const selectedTokenSymbol = option.target.selectedOptions[0].getAttribute('data-name') ?? defaultTokenSymbol;
+    setToken({ symbol: selectedTokenSymbol, id: selectedTokenId });
+    setLiquidity(tokenLimits[selectedTokenSymbol].min);
+  };
 
   const cleanMarketState = () => {
-    setFormData(new FormData())
-    setDeadline(new Date())
-    setTitle('')
-    setToken({ symbol: defaultTokenSymbol, id: '1' })
-    setDescription('')
-    setLiquidity(tokenLimits[defaultTokenSymbol].min)
-    setProbability(defaultProbability)
-    setTag([])
-    setCreatorId(defaultCreatorId)
-    setIsCreating(false)
-    setMarketLogo(undefined)
-    setOgLogo(undefined)
-  }
+    setFormData(new FormData());
+    setDeadline(new Date());
+    setTitle('');
+    setToken({ symbol: defaultTokenSymbol, id: '1' });
+    setDescription('');
+    setLiquidity(tokenLimits[defaultTokenSymbol].min);
+    setProbability(defaultProbability);
+    setTag([]);
+    setCreatorId(defaultCreatorId);
+    setIsCreating(false);
+    setMarketLogo(undefined);
+    setOgLogo(undefined);
+  };
 
-  const toast = useToast()
+  const toast = useToast();
 
-  const ogLogoRef: MutableRefObject<any> = useRef()
-  const marketLogoRef: MutableRefObject<any> = useRef()
+  const ogLogoRef: MutableRefObject<any> = useRef();
+  const marketLogoRef: MutableRefObject<any> = useRef();
 
   const createOption = (id: string, name: string): TagOption => ({
     id,
     label: name,
     value: name,
-  })
+  });
 
   const { data: tagOptions } = useQuery({
     queryKey: ['tagOptions'],
     queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`)
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`);
 
-      return response.data.map((tag: { id: string; name: string }) =>
-        createOption(tag.id, tag.name)
-      ) as TagOption[]
+      return response.data.map((tag: { id: string; name: string }) => createOption(tag.id, tag.name)) as TagOption[];
     },
-  })
+  });
 
   const { data: creators } = useQuery({
     queryKey: ['creators'],
     queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/creators`)
-      return response.data as Creator[]
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/creators`);
+      return response.data as Creator[];
     },
-  })
+  });
 
   const { data: tokens } = useQuery({
     queryKey: ['tokens'],
     queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tokens`)
-      return response.data as Token[]
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tokens`);
+      return response.data as Token[];
     },
-  })
+  });
 
   const handleTagCreation = async (tagToCreate: string) => {
     const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`, {
       name: tagToCreate,
-    })
+    });
 
     queryClient.setQueryData(['tagOptions'], (oldData: TagOption[]) => [
       ...oldData,
       createOption(res.data.id, res.data.name),
-    ])
-  }
+    ]);
+  };
 
   const handleActiveTags = (selectedOptions: TagOption[]) => {
-    console.log(selectedOptions)
-    setTag(selectedOptions)
-  }
+    console.log(selectedOptions);
+    setTag(selectedOptions);
+  };
 
   const createMarket = async () => {
     if (!title || !description || !creatorId || !marketLogo || !ogLogo || !tag) {
       toast({
-        render: () => (
-          <Toast title={'Title, Description, Creator, Market Logo, Og Logo, Tags are required!'} />
-        ),
-      })
-      return
+        render: () => <Toast title={'Title, Description, Creator, Market Logo, Og Logo, Tags are required!'} />,
+      });
+      return;
     }
 
-    formData?.set('title', title)
-    formData?.set('description', description)
-    formData?.set('tokenId', token.id)
-    formData?.set('liquidity', liquidity.toString())
-    formData?.set('initialYesProbability', (probability / 100).toString())
-    formData?.set('deadline', deadline.toISOString())
-    formData?.set('creatorId', creatorId)
-    formData?.set('imageFile', marketLogo)
-    formData?.set('ogFile', ogLogo)
-    formData?.set('tagIds', tag.map((tag) => tag.id).join(','))
+    formData?.set('title', title);
+    formData?.set('description', description);
+    formData?.set('tokenId', token.id);
+    formData?.set('liquidity', liquidity.toString());
+    formData?.set('initialYesProbability', (probability / 100).toString());
+    formData?.set('deadline', deadline.toISOString());
+    formData?.set('creatorId', creatorId);
+    formData?.set('imageFile', marketLogo);
+    formData?.set('ogFile', ogLogo);
+    formData?.set('tagIds', tag.map((tag) => tag.id).join(','));
 
     toast({
-      render: () => (
-        <Toast title={'Request for market creation has been registered successfully.'} />
-      ),
-    })
-    setIsCreating(true)
+      render: () => <Toast title={'Request for market creation has been registered successfully.'} />,
+    });
+    setIsCreating(true);
 
-    const res = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/admin`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    )
+    const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/admin`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
 
-    cleanMarketState()
+    cleanMarketState();
 
     if (res.status === 201) {
-      const newTab = window.open('', '_blank')
+      const newTab = window.open('', '_blank');
       if (newTab) {
-        newTab.location.href = res.data.multisigTxLink
+        newTab.location.href = res.data.multisigTxLink;
       } else {
         // Fallback if the browser blocks the popup
-        window.location.href = res.data.multisigTxLink
+        window.location.href = res.data.multisigTxLink;
       }
     } else {
       toast({
         render: () => <Toast title={`Error: ${res.statusText}`} />,
-      })
+      });
     }
-  }
+  };
 
   return (
     <MainLayout>
@@ -266,11 +255,7 @@ const CreateOwnMarketPage = () => {
           <Heading>Create Market</Heading>
           <FormControl>
             <FormField label='Title'>
-              <Input
-                placeholder='Bitcoin ATH in May 2024?'
-                onChange={(e) => setTitle(e.target.value)}
-                maxLength={70}
-              />
+              <Input placeholder='Bitcoin ATH in May 2024?' onChange={(e) => setTitle(e.target.value)} maxLength={70} />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {title?.length}/70 characters
               </FormHelperText>
@@ -288,9 +273,8 @@ const CreateOwnMarketPage = () => {
                   <CgInfo />
                 </Box>
                 <Box flex={1} ml={2}>
-                  Imagine people only have a second to understand your market. It&apos;s important
-                  to create a clear and concise title so that everyone in the community can
-                  understand it, or at least become interested.
+                  Imagine people only have a second to understand your market. It&apos;s important to create a clear and
+                  concise title so that everyone in the community can understand it, or at least become interested.
                 </Box>
               </FormHelperText>
             </FormField>
@@ -408,14 +392,7 @@ const CreateOwnMarketPage = () => {
                     border: '1px solid #E2E8F0',
                     color: '#0F172A',
                     justifyContent: 'space-between',
-                    rightIcon: (
-                      <Image
-                        src={'/assets/images/calendar.svg'}
-                        h={'24px'}
-                        w={'24px'}
-                        alt='calendar'
-                      />
-                    ),
+                    rightIcon: <Image src={'/assets/images/calendar.svg'} h={'24px'} w={'24px'} alt='calendar' />,
                   },
                   popoverCompProps: {
                     popoverContentProps: {
@@ -432,7 +409,7 @@ const CreateOwnMarketPage = () => {
                 date={deadline}
                 usePortal={true}
                 onDateChange={(date) => {
-                  setDeadline(new Date(date.getTime() - date.getTimezoneOffset() * 60000)) // fixed the discrepancy between local date and ISO date
+                  setDeadline(new Date(date.getTime() - date.getTimezoneOffset() * 60000)); // fixed the discrepancy between local date and ISO date
                 }}
                 minDate={new Date()}
               />
@@ -492,7 +469,7 @@ const CreateOwnMarketPage = () => {
         </VStack>
       </Flex>
     </MainLayout>
-  )
-}
+  );
+};
 
-export default CreateOwnMarketPage
+export default CreateOwnMarketPage;

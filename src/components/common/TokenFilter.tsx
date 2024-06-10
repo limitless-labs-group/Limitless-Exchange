@@ -1,52 +1,37 @@
-import React, { useEffect, useState } from 'react'
-import {
-  Text,
-  HStack,
-  Image,
-  Popover,
-  PopoverTrigger,
-  Portal,
-  PopoverContent,
-  useDisclosure,
-} from '@chakra-ui/react'
-import { LuListFilter } from 'react-icons/lu'
-import { collateralTokensArray, defaultChain } from '@/constants'
-import { v4 as uuidv4 } from 'uuid'
-import TextButton from '@/components/common/buttons/TextButton'
-import { colors } from '@/styles'
-import { Token } from '@/types'
-import { Button } from '@/components/common/buttons/Button'
-import { FaXmark } from 'react-icons/fa6'
+import React, { useEffect, useState } from 'react';
+import { Text, HStack, Image, Popover, PopoverTrigger, Portal, PopoverContent, useDisclosure } from '@chakra-ui/react';
+import { LuListFilter } from 'react-icons/lu';
+import { collateralTokensArray, defaultChain } from '@/constants';
+import { v4 as uuidv4 } from 'uuid';
+import TextButton from '@/components/common/buttons/TextButton';
+import { colors } from '@/styles';
+import { Token } from '@/types';
+import { Button } from '@/components/common/buttons/Button';
+import { FaXmark } from 'react-icons/fa6';
 
 type TokenFilterProps = {
-  onChange: (tokens: Token[]) => void
-}
+  onChange: (tokens: Token[]) => void;
+};
 
 export default function TokenFilter({ onChange }: TokenFilterProps) {
-  const { onOpen, onClose, isOpen } = useDisclosure()
+  const { onOpen, onClose, isOpen } = useDisclosure();
 
-  const [selectedFilterTokens, setSelectedFilterTokens] = useState<Token[]>([])
+  const [selectedFilterTokens, setSelectedFilterTokens] = useState<Token[]>([]);
 
   const handleFilterItemClicked = (token: Token) => {
-    if (
-      selectedFilterTokens.find(
-        (_token) => _token.address[defaultChain.id] == token.address[defaultChain.id]
-      )
-    ) {
+    if (selectedFilterTokens.find((_token) => _token.address[defaultChain.id] == token.address[defaultChain.id])) {
       setSelectedFilterTokens(
-        selectedFilterTokens.filter(
-          (_token) => _token.address[defaultChain.id] != token.address[defaultChain.id]
-        )
-      )
+        selectedFilterTokens.filter((_token) => _token.address[defaultChain.id] != token.address[defaultChain.id]),
+      );
     } else {
-      setSelectedFilterTokens([...selectedFilterTokens, token])
+      setSelectedFilterTokens([...selectedFilterTokens, token]);
     }
-    onClose()
-  }
+    onClose();
+  };
 
   useEffect(() => {
-    onChange(selectedFilterTokens)
-  }, [selectedFilterTokens])
+    onChange(selectedFilterTokens);
+  }, [selectedFilterTokens]);
 
   return (
     <HStack minH={'33px'} spacing={2} wrap={'wrap'}>
@@ -69,16 +54,10 @@ export default function TokenFilter({ onChange }: TokenFilterProps) {
                     onClick={() => handleFilterItemClicked(token)}
                     py={2}
                     leftIcon={
-                      <Image
-                        src={token.imageURI}
-                        alt='token'
-                        width={'20px'}
-                        height={'20px'}
-                        borderRadius={'full'}
-                      />
+                      <Image src={token.imageURI} alt='token' width={'20px'} height={'20px'} borderRadius={'full'} />
                     }
                   />
-                )
+                ),
             )}
           </PopoverContent>
         </Portal>
@@ -93,13 +72,7 @@ export default function TokenFilter({ onChange }: TokenFilterProps) {
             fontWeight={'normal'}
             onClick={() => handleFilterItemClicked(filterToken)}
             leftIcon={
-              <Image
-                src={filterToken.imageURI}
-                alt='token'
-                width={'20px'}
-                height={'20px'}
-                borderRadius={'full'}
-              />
+              <Image src={filterToken.imageURI} alt='token' width={'20px'} height={'20px'} borderRadius={'full'} />
             }
             rightIcon={<FaXmark fill={colors.fontLight} />}
           >
@@ -108,5 +81,5 @@ export default function TokenFilter({ onChange }: TokenFilterProps) {
         </HStack>
       ))}
     </HStack>
-  )
+  );
 }

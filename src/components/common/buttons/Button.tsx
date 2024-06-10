@@ -1,7 +1,7 @@
-import { borderRadius } from '@/styles'
-import { ButtonProps, Button as ChakraButton } from '@chakra-ui/react'
+import { borderRadius } from '@/styles';
+import { ButtonProps, Button as ChakraButton } from '@chakra-ui/react';
 export interface IButton extends ButtonProps {
-  colorScheme?: 'brand' | 'neural' | 'transparent'
+  colorScheme?: 'brand' | 'neural' | 'transparent';
 }
 
 export const Button = ({ children, colorScheme = 'neural', ...props }: IButton) => (
@@ -30,4 +30,4 @@ export const Button = ({ children, colorScheme = 'neural', ...props }: IButton) 
   >
     {children}
   </ChakraButton>
-)
+);

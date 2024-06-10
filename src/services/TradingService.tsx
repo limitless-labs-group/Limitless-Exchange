@@ -1,28 +1,15 @@
-import { Toast } from '@/components'
-import {
-  collateralToken,
-  collateralTokensArray,
-  conditionalTokensAddress,
-  defaultChain,
-} from '@/constants'
-import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
-import { useMarketData, useToast } from '@/hooks'
-import { publicClient } from '@/providers'
-import { useAccount, useBalanceService, useEtherspot, useHistory } from '@/services'
-import { Market } from '@/types'
-import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
-import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { usePathname } from 'next/navigation'
-import {
-  PropsWithChildren,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+import { Toast } from '@/components';
+import { collateralToken, collateralTokensArray, conditionalTokensAddress, defaultChain } from '@/constants';
+import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts';
+import { useMarketData, useToast } from '@/hooks';
+import { publicClient } from '@/providers';
+import { useAccount, useBalanceService, useEtherspot, useHistory } from '@/services';
+import { Market } from '@/types';
+import { NumberUtil, calcSellAmountInCollateral } from '@/utils';
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { usePathname } from 'next/navigation';
+import { PropsWithChildren, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   Address,
   Hash,
@@ -33,87 +20,87 @@ import {
   parseEther,
   parseUnits,
   zeroHash,
-} from 'viem'
+} from 'viem';
 
 interface ITradingServiceContext {
-  market: Market | null
-  setMarket: (market: Market | null) => void
-  strategy: 'Buy' | 'Sell'
-  setStrategy: (side: 'Buy' | 'Sell') => void
-  outcomeTokenId: number
-  setOutcomeTokenId: (outcomeOption: number) => void
-  balanceOfCollateralToSell: string
-  collateralAmount: string
-  setCollateralAmount: (amount: string) => void
-  isExceedsBalance: boolean
-  quotes: TradeQuotes | null | undefined
-  buy: () => Promise<TransactionReceipt | undefined>
-  sell: () => Promise<TransactionReceipt | undefined>
-  trade: () => Promise<TransactionReceipt | undefined>
-  redeem: (outcomeIndex: number) => Promise<TransactionReceipt | undefined>
-  status: TradingServiceStatus
+  market: Market | null;
+  setMarket: (market: Market | null) => void;
+  strategy: 'Buy' | 'Sell';
+  setStrategy: (side: 'Buy' | 'Sell') => void;
+  outcomeTokenId: number;
+  setOutcomeTokenId: (outcomeOption: number) => void;
+  balanceOfCollateralToSell: string;
+  collateralAmount: string;
+  setCollateralAmount: (amount: string) => void;
+  isExceedsBalance: boolean;
+  quotes: TradeQuotes | null | undefined;
+  buy: () => Promise<TransactionReceipt | undefined>;
+  sell: () => Promise<TransactionReceipt | undefined>;
+  trade: () => Promise<TransactionReceipt | undefined>;
+  redeem: (outcomeIndex: number) => Promise<TransactionReceipt | undefined>;
+  status: TradingServiceStatus;
 }
 
-const TradingServiceContext = createContext({} as ITradingServiceContext)
+const TradingServiceContext = createContext({} as ITradingServiceContext);
 
 export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * UI HELPERS
    */
-  const toast = useToast()
+  const toast = useToast();
 
   /**
    * SERVICES
    */
-  const queryClient = useQueryClient()
-  const { getTrades, getRedeems } = useHistory()
+  const queryClient = useQueryClient();
+  const { getTrades, getRedeems } = useHistory();
 
   /**
    * ACCOUNT
    */
-  const { isLoggedIn, account } = useAccount()
+  const { isLoggedIn, account } = useAccount();
 
   /**
    * OPTIONS
    */
-  const [market, setMarket] = useState<Market | null>(null)
-  const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
-  const [outcomeTokenId, setOutcomeTokenId] = useState(0)
+  const [market, setMarket] = useState<Market | null>(null);
+  const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy');
+  const [outcomeTokenId, setOutcomeTokenId] = useState(0);
 
   /**
    * REFRESH / REFETCH
    */
-  const pathname = usePathname()
+  const pathname = usePathname();
   useEffect(() => {
     if (pathname.includes('markets/0x')) {
-      return
+      return;
     }
-    setMarket(null)
-    setCollateralAmount('')
-    setStrategy('Buy')
-    setOutcomeTokenId(0)
-  }, [pathname])
+    setMarket(null);
+    setCollateralAmount('');
+    setStrategy('Buy');
+    setOutcomeTokenId(0);
+  }, [pathname]);
 
   // TODO: refactor
   const refetchChain = async () => {
     await queryClient.invalidateQueries({
       queryKey: ['outcomeTokensBuyPrice', market?.address[defaultChain.id]],
-    })
+    });
     await queryClient.invalidateQueries({
       queryKey: ['outcomeTokensSellPrice', market?.address[defaultChain.id]],
-    })
-    await refetchbalanceOfSmartWallet()
-    await updateSellBalance()
-  }
+    });
+    await refetchbalanceOfSmartWallet();
+    await updateSellBalance();
+  };
 
   // TODO: refactor
   const refetchSubgraph = async () => {
     await queryClient.invalidateQueries({
       queryKey: ['marketData', market?.address[defaultChain.id]],
-    })
-    await getTrades()
-    await getRedeems()
-  }
+    });
+    await getTrades();
+    await getRedeems();
+  };
 
   /**
    * CONTRACTS
@@ -128,34 +115,31 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
             client: publicClient,
           })
         : undefined,
-    [market]
-  )
+    [market],
+  );
 
   const conditionalTokensContract = getContract({
     address: conditionalTokensAddress[defaultChain.id],
     abi: conditionalTokensABI,
     client: publicClient,
-  })
+  });
 
   /**
    * BALANCE TO BUY
    */
-  const { balanceOfSmartWallet, refetchbalanceOfSmartWallet } = useBalanceService()
+  const { balanceOfSmartWallet, refetchbalanceOfSmartWallet } = useBalanceService();
 
   /**
    * BALANCE TO SELL
    */
-  const [balanceOfOutcomeToken, setBalanceOfOutcomeToken] = useState('0') // getCTBalance
-  const [balanceOfCollateralToSell, setBalanceOfCollateralToSell] = useState('0') // ctBalance converted to collateral
+  const [balanceOfOutcomeToken, setBalanceOfOutcomeToken] = useState('0'); // getCTBalance
+  const [balanceOfCollateralToSell, setBalanceOfCollateralToSell] = useState('0'); // ctBalance converted to collateral
 
   // conditional tokens balance
   // TODO: incapsulate
-  const getCTBalance = async (
-    account: Address | undefined,
-    outcomeIndex: number
-  ): Promise<bigint> => {
+  const getCTBalance = async (account: Address | undefined, outcomeIndex: number): Promise<bigint> => {
     if (!market || !account) {
-      return 0n
+      return 0n;
     }
     // const conditionId = await conditionalTokensContract.read.getConditionId([
     //   zeroAddress,
@@ -166,104 +150,91 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       zeroHash, // Since we don't support complicated conditions at the moment
       market.conditionId[defaultChain.id],
       1 << outcomeIndex,
-    ])) as Hash
+    ])) as Hash;
     const positionId = (await conditionalTokensContract.read.getPositionId([
       market.collateralToken[defaultChain.id],
       collectionId,
-    ])) as bigint
-    const balance = (await conditionalTokensContract.read.balanceOf([
-      account,
-      positionId,
-    ])) as bigint
-    return balance
-  }
+    ])) as bigint;
+    const balance = (await conditionalTokensContract.read.balanceOf([account, positionId])) as bigint;
+    return balance;
+  };
 
   const updateSellBalance = useCallback(async () => {
-    setBalanceOfCollateralToSell('0')
-    setBalanceOfOutcomeToken('0')
+    setBalanceOfCollateralToSell('0');
+    setBalanceOfOutcomeToken('0');
 
     if (!market || !fixedProductMarketMakerContract || strategy != 'Sell') {
-      return
+      return;
     }
 
-    const balanceOfOutcomeTokenBI = await getCTBalance(account, outcomeTokenId)
-    const _balanceOfOutcomeToken = formatEther(balanceOfOutcomeTokenBI)
-    const balanceOfOutcomeTokenCropped = NumberUtil.toFixed(_balanceOfOutcomeToken, 10)
-    setBalanceOfOutcomeToken(balanceOfOutcomeTokenCropped)
-    console.log('balanceOfOutcomeToken', _balanceOfOutcomeToken)
+    const balanceOfOutcomeTokenBI = await getCTBalance(account, outcomeTokenId);
+    const _balanceOfOutcomeToken = formatEther(balanceOfOutcomeTokenBI);
+    const balanceOfOutcomeTokenCropped = NumberUtil.toFixed(_balanceOfOutcomeToken, 10);
+    setBalanceOfOutcomeToken(balanceOfOutcomeTokenCropped);
+    console.log('balanceOfOutcomeToken', _balanceOfOutcomeToken);
 
-    const holdings = await getCTBalance(market.address[defaultChain.id], outcomeTokenId)
-    const otherHoldings: bigint[] = []
+    const holdings = await getCTBalance(market.address[defaultChain.id], outcomeTokenId);
+    const otherHoldings: bigint[] = [];
     for (let index = 0; index < market.outcomeTokens.length; index++) {
       if (index != outcomeTokenId) {
-        const balance = await getCTBalance(market.address[defaultChain.id], index)
-        otherHoldings.push(balance)
+        const balance = await getCTBalance(market.address[defaultChain.id], index);
+        otherHoldings.push(balance);
       }
     }
-    const feeBI = (await fixedProductMarketMakerContract.read.fee()) as bigint
-    const fee = Number(formatUnits(feeBI, collateralToken.decimals))
+    const feeBI = (await fixedProductMarketMakerContract.read.fee()) as bigint;
+    const fee = Number(formatUnits(feeBI, collateralToken.decimals));
     let balanceOfCollateralToSellBI =
-      calcSellAmountInCollateral(
-        parseEther(balanceOfOutcomeTokenCropped),
-        holdings,
-        otherHoldings,
-        fee
-      ) ?? 0n
+      calcSellAmountInCollateral(parseEther(balanceOfOutcomeTokenCropped), holdings, otherHoldings, fee) ?? 0n;
     // small balance to zero
     if (balanceOfCollateralToSellBI < parseUnits('0.000001', collateralToken.decimals)) {
-      balanceOfCollateralToSellBI = 0n
+      balanceOfCollateralToSellBI = 0n;
     }
 
-    const _balanceOfCollateralToSell = formatUnits(
-      balanceOfCollateralToSellBI,
-      collateralToken.decimals
-    )
+    const _balanceOfCollateralToSell = formatUnits(balanceOfCollateralToSellBI, collateralToken.decimals);
 
-    console.log('balanceOfCollateralToSell', _balanceOfCollateralToSell)
+    console.log('balanceOfCollateralToSell', _balanceOfCollateralToSell);
 
-    setBalanceOfCollateralToSell(_balanceOfCollateralToSell)
-  }, [account, market, outcomeTokenId, strategy])
+    setBalanceOfCollateralToSell(_balanceOfCollateralToSell);
+  }, [account, market, outcomeTokenId, strategy]);
 
   useEffect(() => {
-    updateSellBalance()
-  }, [market, outcomeTokenId, strategy])
+    updateSellBalance();
+  }, [market, outcomeTokenId, strategy]);
 
   /**
    * AMOUNT
    */
-  const [collateralAmount, setCollateralAmount] = useState<string>('')
+  const [collateralAmount, setCollateralAmount] = useState<string>('');
   const collateralAmountBI = useMemo(
     () => parseUnits(collateralAmount ?? '0', collateralToken.decimals),
-    [collateralAmount, collateralToken]
-  )
+    [collateralAmount, collateralToken],
+  );
 
   const isExceedsBalance = useMemo(() => {
     if (strategy == 'Buy') {
       if (balanceOfSmartWallet) {
         const balanceItem = balanceOfSmartWallet.find(
-          (balance) => balance.contractAddress === market?.collateralToken[defaultChain.id]
-        )
-        return Number(collateralAmount) > Number(balanceItem?.formatted)
+          (balance) => balance.contractAddress === market?.collateralToken[defaultChain.id],
+        );
+        return Number(collateralAmount) > Number(balanceItem?.formatted);
       }
-      return Number(collateralAmount) > 0
+      return Number(collateralAmount) > 0;
     }
-    return Number(collateralAmount) > Number(balanceOfCollateralToSell)
-  }, [strategy, balanceOfCollateralToSell, collateralAmount, balanceOfSmartWallet, market])
+    return Number(collateralAmount) > Number(balanceOfCollateralToSell);
+  }, [strategy, balanceOfCollateralToSell, collateralAmount, balanceOfSmartWallet, market]);
 
-  const isInvalidCollateralAmount = collateralAmountBI <= 0n || isExceedsBalance
+  const isInvalidCollateralAmount = collateralAmountBI <= 0n || isExceedsBalance;
 
   /**
    * QUOTES
    */
-  const [quotes, setQuotes] = useState<TradeQuotes | null>(null)
+  const [quotes, setQuotes] = useState<TradeQuotes | null>(null);
 
   // current price for price impact calculation
-  const {
-    outcomeTokensBuyPrice: outcomeTokensBuyPriceCurrent,
-    outcomeTokensSellPrice: outcomeTokensSellPriceCurrent,
-  } = useMarketData({
-    marketAddress: market?.address[defaultChain.id],
-  })
+  const { outcomeTokensBuyPrice: outcomeTokensBuyPriceCurrent, outcomeTokensSellPrice: outcomeTokensSellPriceCurrent } =
+    useMarketData({
+      marketAddress: market?.address[defaultChain.id],
+    });
 
   useQuery({
     queryKey: [
@@ -278,117 +249,112 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     ],
     queryFn: async () => {
       if (!fixedProductMarketMakerContract || !(Number(collateralAmount) > 0)) {
-        setQuotes(null)
-        return null
+        setQuotes(null);
+        return null;
       }
 
-      let outcomeTokenAmountBI = 0n
+      let outcomeTokenAmountBI = 0n;
       if (strategy == 'Buy') {
         outcomeTokenAmountBI = (await fixedProductMarketMakerContract.read.calcBuyAmount([
           collateralAmountBI,
           outcomeTokenId,
-        ])) as bigint
+        ])) as bigint;
       } else if (strategy == 'Sell') {
         outcomeTokenAmountBI = (await fixedProductMarketMakerContract.read.calcSellAmount([
           collateralAmountBI,
           outcomeTokenId,
-        ])) as bigint
+        ])) as bigint;
         // limit max outcome token amount to balance
-        const balanceOfOutcomeTokenBI = parseEther(balanceOfOutcomeToken)
+        const balanceOfOutcomeTokenBI = parseEther(balanceOfOutcomeToken);
         if (outcomeTokenAmountBI > balanceOfOutcomeTokenBI) {
-          outcomeTokenAmountBI = balanceOfOutcomeTokenBI
+          outcomeTokenAmountBI = balanceOfOutcomeTokenBI;
         }
       }
 
       if (outcomeTokenAmountBI == 0n) {
-        setQuotes(null)
-        return null
+        setQuotes(null);
+        return null;
       }
 
-      const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 18)
-      const outcomeTokenPrice = (Number(collateralAmount) / Number(outcomeTokenAmount)).toString()
-      const roi = ((Number(outcomeTokenAmount) / Number(collateralAmount) - 1) * 100).toString()
+      const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 18);
+      const outcomeTokenPrice = (Number(collateralAmount) / Number(outcomeTokenAmount)).toString();
+      const roi = ((Number(outcomeTokenAmount) / Number(collateralAmount) - 1) * 100).toString();
       const outcomeTokensPriceCurrent =
-        strategy == 'Buy' ? outcomeTokensBuyPriceCurrent : outcomeTokensSellPriceCurrent
+        strategy == 'Buy' ? outcomeTokensBuyPriceCurrent : outcomeTokensSellPriceCurrent;
       const priceImpact = Math.abs(
-        (Number(outcomeTokenPrice) / Number(outcomeTokensPriceCurrent?.[outcomeTokenId] ?? 1) - 1) *
-          100
-      ).toString()
+        (Number(outcomeTokenPrice) / Number(outcomeTokensPriceCurrent?.[outcomeTokenId] ?? 1) - 1) * 100,
+      ).toString();
 
       const _quotes: TradeQuotes = {
         outcomeTokenPrice,
         outcomeTokenAmount,
         roi,
         priceImpact,
-      }
-      console.log('tradeQuotes', _quotes)
+      };
+      console.log('tradeQuotes', _quotes);
 
-      setQuotes(_quotes)
-      return quotes
+      setQuotes(_quotes);
+      return quotes;
     },
-  })
+  });
 
   /**
    * BUY
    */
-  const { etherspot } = useEtherspot()
+  const { etherspot } = useEtherspot();
   const { mutateAsync: buy, isPending: isLoadingBuy } = useMutation({
     mutationFn: async () => {
       if (!etherspot || !account || !market || isInvalidCollateralAmount || !quotes) {
-        return
+        return;
       }
 
       // TODO: incapsulate
       toast({
         render: () => <Toast title={'Processing transaction...'} />,
-      })
+      });
 
       const receipt = await etherspot.buyOutcomeTokens(
         market.address[defaultChain.id],
         collateralAmountBI,
         outcomeTokenId,
         parseUnits(quotes.outcomeTokenAmount, 18),
-        market.collateralToken[defaultChain.id]
-      )
+        market.collateralToken[defaultChain.id],
+      );
 
       if (!receipt) {
         toast({
           render: () => <Toast title={`Unsuccessful transaction. Please, contact our support.`} />,
-        })
-        return
+        });
+        return;
       }
 
-      setCollateralAmount('')
+      setCollateralAmount('');
 
-      await refetchChain()
+      await refetchChain();
 
       const token = collateralTokensArray.find(
-        (token) => token.address[defaultChain.id] === market.collateralToken[defaultChain.id]
-      )
+        (token) => token.address[defaultChain.id] === market.collateralToken[defaultChain.id],
+      );
 
       // TODO: incapsulate
       toast({
         render: () => (
-          <Toast
-            title={`Successfully invested ${NumberUtil.toFixed(collateralAmount, 6)} ${
-              token?.symbol
-            }`}
-          />
+          <Toast title={`Successfully invested ${NumberUtil.toFixed(collateralAmount, 6)} ${token?.symbol}`} />
         ),
-      })
+      });
 
-      await sleep(1)
+      await sleep(1);
 
       toast({
         render: () => <Toast title={`Updating portfolio...`} />,
-      })
+      });
 
       // TODO: redesign subgraph refetch logic
-      sleep(10).then(() => refetchSubgraph())
+      sleep(10).then(() => refetchSubgraph());
 
-      return receipt
+      return receipt;
     },
-  })
+  });
 
   /**
    * SELL
@@ -396,59 +362,55 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const { mutateAsync: sell, isPending: isLoadingSell } = useMutation({
     mutationFn: async () => {
       if (!etherspot || !account || !market || isInvalidCollateralAmount || !quotes) {
-        return
+        return;
       }
 
       // TODO: incapsulate
       toast({
         render: () => <Toast title={'Processing transaction...'} />,
-      })
+      });
 
       const receipt = await etherspot.sellOutcomeTokens(
         market.address[defaultChain.id],
         collateralAmountBI,
         outcomeTokenId,
-        parseUnits(quotes.outcomeTokenAmount, 18)
-      )
+        parseUnits(quotes.outcomeTokenAmount, 18),
+      );
 
       if (!receipt) {
         toast({
           render: () => <Toast title={`Unsuccessful transaction. Please, contact our support.`} />,
-        })
-        return
+        });
+        return;
       }
 
-      setCollateralAmount('')
+      setCollateralAmount('');
 
-      await refetchChain()
+      await refetchChain();
 
       const token = collateralTokensArray.find(
-        (token) => token.address[defaultChain.id] === market.collateralToken[defaultChain.id]
-      )
+        (token) => token.address[defaultChain.id] === market.collateralToken[defaultChain.id],
+      );
 
       // TODO: incapsulate
       toast({
         render: () => (
-          <Toast
-            title={`Successfully redeemed ${NumberUtil.toFixed(collateralAmount, 6)} ${
-              token?.symbol
-            }`}
-          />
+          <Toast title={`Successfully redeemed ${NumberUtil.toFixed(collateralAmount, 6)} ${token?.symbol}`} />
         ),
-      })
+      });
 
-      await sleep(1)
+      await sleep(1);
 
       toast({
         render: () => <Toast title={`Updating portfolio...`} />,
-      })
+      });
 
       // TODO: redesign subgraph refetch logic
-      sleep(10).then(() => refetchSubgraph())
+      sleep(10).then(() => refetchSubgraph());
 
-      return receipt
+      return receipt;
     },
-  })
+  });
 
   /**
    * REDEEM / CLAIM
@@ -456,59 +418,59 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const { mutateAsync: redeem, isPending: isLoadingRedeem } = useMutation({
     mutationFn: async (outcomeIndex: number) => {
       if (!market) {
-        return
+        return;
       }
 
       const receipt = await etherspot?.redeemPositions(
         market.collateralToken[defaultChain.id],
         zeroHash,
         market.conditionId[defaultChain.id],
-        [1 << outcomeIndex]
-      )
+        [1 << outcomeIndex],
+      );
 
       if (!receipt) {
         toast({
           render: () => <Toast title={`Unsuccessful transaction. Please, contact our support.`} />,
-        })
-        return
+        });
+        return;
       }
 
-      await refetchChain()
+      await refetchChain();
 
       toast({
         render: () => <Toast title={`Successfully redeemed`} />,
-      })
+      });
 
-      await sleep(1)
+      await sleep(1);
 
       toast({
         render: () => <Toast title={`Updating portfolio...`} />,
-      })
+      });
 
       // TODO: redesign subgraph refetch logic
-      sleep(10).then(() => refetchSubgraph())
+      sleep(10).then(() => refetchSubgraph());
 
-      return receipt
+      return receipt;
     },
-  })
+  });
 
-  const trade = useCallback(() => (strategy == 'Buy' ? buy() : sell()), [strategy])
+  const trade = useCallback(() => (strategy == 'Buy' ? buy() : sell()), [strategy]);
 
   /**
    * STATUS
    */
   const status = useMemo<TradingServiceStatus>(() => {
     if (isLoadingBuy || isLoadingSell || isLoadingRedeem) {
-      return 'Loading'
+      return 'Loading';
     }
     if (!isLoggedIn) {
-      return 'Disconnected'
+      return 'Disconnected';
     }
     if (isInvalidCollateralAmount) {
-      return 'InvalidAmount'
+      return 'InvalidAmount';
     }
-    return 'Ready'
-  }, [isLoggedIn, isInvalidCollateralAmount, isLoadingBuy, isLoadingSell, isLoadingRedeem])
+    return 'Ready';
+  }, [isLoggedIn, isInvalidCollateralAmount, isLoadingBuy, isLoadingSell, isLoadingRedeem]);
 
   const contextProviderValue: ITradingServiceContext = {
     market,
@@ -527,28 +489,18 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     trade,
     redeem,
     status,
-  }
+  };
 
-  return (
-    <TradingServiceContext.Provider value={contextProviderValue}>
-      {children}
-    </TradingServiceContext.Provider>
-  )
-}
+  return <TradingServiceContext.Provider value={contextProviderValue}>{children}</TradingServiceContext.Provider>;
+};
 
-export const useTradingService = () => useContext(TradingServiceContext)
+export const useTradingService = () => useContext(TradingServiceContext);
 
-export type TradingServiceStatus =
-  | 'Disconnected'
-  | 'InvalidAmount'
-  | 'Ready'
-  | 'Submitted'
-  | 'Loading'
-  | 'Idle'
+export type TradingServiceStatus = 'Disconnected' | 'InvalidAmount' | 'Ready' | 'Submitted' | 'Loading' | 'Idle';
 
 export type TradeQuotes = {
-  outcomeTokenAmount: string // amount of outcome token to be traded based on collateral amount input or ctBalance
-  outcomeTokenPrice: string // average cost per outcome token
-  roi: string // return on investment aka profitability percentage
-  priceImpact: string // price fluctuation percentage
-}
+  outcomeTokenAmount: string; // amount of outcome token to be traded based on collateral amount input or ctBalance
+  outcomeTokenPrice: string; // average cost per outcome token
+  roi: string; // return on investment aka profitability percentage
+  priceImpact: string; // price fluctuation percentage
+};

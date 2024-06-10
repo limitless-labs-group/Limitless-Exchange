@@ -702,4 +702,4 @@ export const conditionalTokensABI = [
     name: 'URI',
     type: 'event',
   },
-]
+];

@@ -1,23 +1,23 @@
-import { Button } from '@/components'
-import { collateralTokensArray, defaultChain, higher, weth } from '@/constants'
-import { useAccount, useBalanceService } from '@/services'
-import { borderRadius, colors } from '@/styles'
-import { HStack, Link, Stack, StackProps, Text } from '@chakra-ui/react'
-import { useIsMobile } from '@/hooks'
-import SelectTokenField from '@/components/common/SelectTokenField'
-import { useState } from 'react'
-import { Address } from 'viem'
+import { Button } from '@/components';
+import { collateralTokensArray, defaultChain, higher, weth } from '@/constants';
+import { useAccount, useBalanceService } from '@/services';
+import { borderRadius, colors } from '@/styles';
+import { HStack, Link, Stack, StackProps, Text } from '@chakra-ui/react';
+import { useIsMobile } from '@/hooks';
+import SelectTokenField from '@/components/common/SelectTokenField';
+import { useState } from 'react';
+import { Address } from 'viem';
 
 export const DepositTestCard = ({ ...props }: StackProps) => {
-  const { account } = useAccount()
-  const { mint, isLoadingMint } = useBalanceService()
-  const isMobile = useIsMobile()
+  const { account } = useAccount();
+  const { mint, isLoadingMint } = useBalanceService();
+  const isMobile = useIsMobile();
 
-  const [selectedToken, setSelectedToken] = useState<Address>(weth.address[defaultChain.id])
+  const [selectedToken, setSelectedToken] = useState<Address>(weth.address[defaultChain.id]);
 
   const tokenTitle = collateralTokensArray.find(
-    (collToken) => collToken.address[defaultChain.id] === selectedToken
-  )?.symbol
+    (collToken) => collToken.address[defaultChain.id] === selectedToken,
+  )?.symbol;
 
   return (
     <Stack
@@ -48,8 +48,8 @@ export const DepositTestCard = ({ ...props }: StackProps) => {
       <HStack w={'full'} spacing={4}>
         {/* <Avatar name='1' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} /> */}
         <Text wordBreak={'break-word'}>
-          Fund your Limitless account <b>{account}</b> with {defaultChain.name} <b>ETH</b>. It will
-          be automatically wrapped into WETH. You can request some on{' '}
+          Fund your Limitless account <b>{account}</b> with {defaultChain.name} <b>ETH</b>. It will be automatically
+          wrapped into WETH. You can request some on{' '}
           <Link href='https://app.optimism.io/faucet' color={'brand'} isExternal>
             https://app.optimism.io/faucet
           </Link>
@@ -60,11 +60,7 @@ export const DepositTestCard = ({ ...props }: StackProps) => {
         {defaultChain.testnet && (
           <Avatar name='2' size={'sm'} bg={'blue.50'} color={'font'} fontWeight={'bold'} />
         )} */}
-      <SelectTokenField
-        token={selectedToken}
-        setToken={setSelectedToken}
-        defaultValue={selectedToken}
-      />
+      <SelectTokenField token={selectedToken} setToken={setSelectedToken} defaultValue={selectedToken} />
       <Button
         colorScheme={'brand'}
         w={{ sm: 'full', md: '150px' }}
@@ -73,7 +69,7 @@ export const DepositTestCard = ({ ...props }: StackProps) => {
           mint({
             address: selectedToken as Address,
             newToken: selectedToken !== weth.address[defaultChain.id],
-          })
+          });
         }}
         isLoading={isLoadingMint}
       >
@@ -81,5 +77,5 @@ export const DepositTestCard = ({ ...props }: StackProps) => {
       </Button>
       {/* </HStack> */}
     </Stack>
-  )
-}
+  );
+};

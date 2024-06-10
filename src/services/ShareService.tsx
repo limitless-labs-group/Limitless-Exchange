@@ -1,7 +1,7 @@
-import { collateralToken, defaultChain } from '@/constants'
-import { HistoryPosition } from '@/services'
-import { Market } from '@/types'
-import { NumberUtil } from '@/utils'
+import { collateralToken, defaultChain } from '@/constants';
+import { HistoryPosition } from '@/services';
+import { Market } from '@/types';
+import { NumberUtil } from '@/utils';
 
 /*
  * tweetURI: A URL for sharing the market details on Twitter. This URL is pre-configured with an intent to tweet,
@@ -10,9 +10,9 @@ import { NumberUtil } from '@/utils'
  *           to provide a direct link along with the cast.
  */
 export type ShareURI = {
-  tweetURI: string
-  castURI: string
-}
+  tweetURI: string;
+  castURI: string;
+};
 
 /**
  * Generates URLs for sharing market information on social media platforms.
@@ -38,29 +38,23 @@ export type ShareURI = {
  * console.log(tweetURI);  // Outputs: URL for X tweet intent
  * console.log(castURI);   // Outputs: URL for Farcaster cast intent
  */
-export const createMarketShareUrls = (
-  market: Market | null,
-  outcomeTokensPercent: number[] | undefined
-): ShareURI => {
-  const formatOutcomeTokenPercent = (index: number) =>
-    `${(outcomeTokensPercent?.[index] ?? 50).toFixed(2)}%`
+export const createMarketShareUrls = (market: Market | null, outcomeTokensPercent: number[] | undefined): ShareURI => {
+  const formatOutcomeTokenPercent = (index: number) => `${(outcomeTokensPercent?.[index] ?? 50).toFixed(2)}%`;
 
   const baseMessage = `"${market?.title}" by ${market?.creator.name}\n${
     market?.outcomeTokens[0]
-  } ${formatOutcomeTokenPercent(0)} | ${market?.outcomeTokens[1]} ${formatOutcomeTokenPercent(
-    1
-  )}\nMake your bet on`
+  } ${formatOutcomeTokenPercent(0)} | ${market?.outcomeTokens[1]} ${formatOutcomeTokenPercent(1)}\nMake your bet on`;
 
-  const encodedBaseMessage = encodeURI(baseMessage)
+  const encodedBaseMessage = encodeURI(baseMessage);
 
-  const marketURI = `${window.location.origin}/markets/${market?.address[defaultChain.id]}`
+  const marketURI = `${window.location.origin}/markets/${market?.address[defaultChain.id]}`;
 
   return {
     tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
     //embeds is a param which gives ability to make pre-screen from market as Image/Link
     castURI: `https://warpcast.com/~/compose?text=${encodedBaseMessage}&embeds[]=${marketURI}`,
-  }
-}
+  };
+};
 
 /**
  * Generates URLs for sharing portfolio information on social media platforms.
@@ -75,18 +69,16 @@ export const createMarketShareUrls = (
 export const createPortfolioShareUrls = (market: Market | null, position: HistoryPosition) => {
   const baseMessage = `"${market?.title}" by ${market?.creator.name}\nMy bet: ${NumberUtil.toFixed(
     position.collateralAmount,
-    6
-  )} ${collateralToken.symbol} for ${
-    market?.outcomeTokens[position.outcomeIndex ?? 0]
-  }\nMake yours on`
+    6,
+  )} ${collateralToken.symbol} for ${market?.outcomeTokens[position.outcomeIndex ?? 0]}\nMake yours on`;
 
-  const encodedBaseMessage = encodeURI(baseMessage)
+  const encodedBaseMessage = encodeURI(baseMessage);
 
-  const marketURI = `${window.location.origin}/markets/${market?.address[defaultChain.id]}`
+  const marketURI = `${window.location.origin}/markets/${market?.address[defaultChain.id]}`;
 
   return {
     tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
     //embeds is a param which gives ability to make pre-screen from market as Image/Link
     castURI: `https://warpcast.com/~/compose?text=${encodedBaseMessage}&embeds[]=${marketURI}`,
-  }
-}
+  };
+};

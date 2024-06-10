@@ -1,38 +1,38 @@
-import { defaultChain } from '@/constants'
-import { useMarketData } from '@/hooks'
-import { createMarketShareUrls } from '@/services'
-import { borderRadius, colors } from '@/styles'
-import { Address, Market } from '@/types'
-import { NumberUtil } from '@/utils'
-import { Divider, Heading, HStack, Image, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import { useMemo } from 'react'
-import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
-import { useMarket, useMarkets } from '@/services/MarketsService'
+import { defaultChain } from '@/constants';
+import { useMarketData } from '@/hooks';
+import { createMarketShareUrls } from '@/services';
+import { borderRadius, colors } from '@/styles';
+import { Address, Market } from '@/types';
+import { NumberUtil } from '@/utils';
+import { Divider, Heading, HStack, Image, Stack, StackProps, Text, VStack } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
+import { useMemo } from 'react';
+import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions';
+import { useMarket, useMarkets } from '@/services/MarketsService';
 
 interface IMarketCard extends StackProps {
-  marketAddress?: Address
+  marketAddress?: Address;
 }
 
 export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) => {
   /**
    * NAVIGATION
    */
-  const router = useRouter()
+  const router = useRouter();
 
-  const market = useMarket(marketAddress as string)
+  const market = useMarket(marketAddress as string);
 
-  const { outcomeTokensPercent, liquidity, volume } = useMarketData({ marketAddress })
+  const { outcomeTokensPercent, liquidity, volume } = useMarketData({ marketAddress });
 
   const chancePercent = useMemo(() => {
-    return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
-  }, [market, outcomeTokensPercent])
+    return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1);
+  }, [market, outcomeTokensPercent]);
 
   /**
    * SHARE
    */
-  const marketURI = `${window.location.origin}/markets/${marketAddress}`
-  const shareLinks = createMarketShareUrls(market, outcomeTokensPercent)
+  const marketURI = `${window.location.origin}/markets/${marketAddress}`;
+  const shareLinks = createMarketShareUrls(market, outcomeTokensPercent);
 
   return (
     <Stack
@@ -107,5 +107,5 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
         <MarketCardUserActions marketURI={marketURI} shareLinks={shareLinks} w={'full'} />
       </VStack>
     </Stack>
-  )
-}
+  );
+};

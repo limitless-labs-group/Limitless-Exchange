@@ -1,10 +1,10 @@
 // import { WagmiConfig, configureChains, createConfig } from 'wagmi'
 // import { publicProvider } from 'wagmi/providers/public'
 // import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
-import { defaultChain } from '@/constants'
-import { web3AuthConnector } from '@/providers'
-import { createPublicClient, Transport } from 'viem'
-import { WagmiProvider as WagmiDefaultProvider, http, createConfig } from 'wagmi'
+import { defaultChain } from '@/constants';
+import { web3AuthConnector } from '@/providers';
+import { createPublicClient, Transport } from 'viem';
+import { WagmiProvider as WagmiDefaultProvider, http, createConfig } from 'wagmi';
 
 // const { publicClient, webSocketPublicClient } = configureChains(
 //   [defaultChain],
@@ -25,15 +25,15 @@ const config = createConfig({
     [defaultChain.id]: http(),
   } as Record<8453 | 84532, Transport>,
   connectors: [web3AuthConnector],
-})
+});
 
 export const publicClient = createPublicClient({
   chain: defaultChain,
   transport: http(),
-})
+});
 
 export const WagmiProvider = ({ children }: React.PropsWithChildren) => (
   <WagmiDefaultProvider reconnectOnMount={true} config={config}>
     {children}
   </WagmiDefaultProvider>
-)
+);

@@ -1,41 +1,27 @@
-import { defaultChain } from '@/constants'
-import { HistoryPosition, useHistory, useTradingService } from '@/services'
-import { NumberUtil } from '@/utils'
-import {
-  Box,
-  Divider,
-  StackProps,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-} from '@chakra-ui/react'
-import { useMemo } from 'react'
-import { v4 as uuidv4 } from 'uuid'
+import { defaultChain } from '@/constants';
+import { HistoryPosition, useHistory, useTradingService } from '@/services';
+import { NumberUtil } from '@/utils';
+import { Box, Divider, StackProps, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react';
+import { useMemo } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 export const MarketPositions = ({ ...props }: StackProps) => {
-  const { market } = useTradingService()
+  const { market } = useTradingService();
 
-  const { positions: allMarketsPositions } = useHistory()
+  const { positions: allMarketsPositions } = useHistory();
 
   const positions = useMemo(
     () =>
-      allMarketsPositions?.filter(
-        (position) => position.market.id === market?.address[defaultChain.id].toLowerCase()
-      ),
-    [allMarketsPositions, market]
-  )
+      allMarketsPositions?.filter((position) => position.market.id === market?.address[defaultChain.id].toLowerCase()),
+    [allMarketsPositions, market],
+  );
 
   const getOutcomeNotation = (position: HistoryPosition) => {
-    const outcomeTokenId = position.outcomeIndex ?? 0
-    const defaultOutcomes = ['Yes', 'No']
+    const outcomeTokenId = position.outcomeIndex ?? 0;
+    const defaultOutcomes = ['Yes', 'No'];
 
-    return market?.outcomeTokens[outcomeTokenId] ?? defaultOutcomes[outcomeTokenId]
-  }
+    return market?.outcomeTokens[outcomeTokenId] ?? defaultOutcomes[outcomeTokenId];
+  };
 
   return Number(positions?.length) > 0 ? (
     <Box mt={-5}>
@@ -66,7 +52,7 @@ export const MarketPositions = ({ ...props }: StackProps) => {
                   <Text color={getOutcomeNotation(position) === 'Yes' ? 'green' : 'red'}>
                     {`${getOutcomeNotation(position)} ${NumberUtil.toFixed(
                       position.latestTrade?.outcomeTokenPrice,
-                      3
+                      3,
                     )} ${market?.tokenTicker[defaultChain.id]}`}
                   </Text>
                 </Td>
@@ -91,5 +77,5 @@ export const MarketPositions = ({ ...props }: StackProps) => {
     </Box>
   ) : (
     <></>
-  )
-}
+  );
+};

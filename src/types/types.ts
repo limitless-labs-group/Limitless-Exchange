@@ -1,74 +1,74 @@
-import { Hash, Address } from 'viem'
+import { Hash, Address } from 'viem';
 
-export type { Hash, Address }
+export type { Hash, Address };
 
 export type Token = {
   address: {
-    [chainId: number]: Address
-  }
-  symbol: string
-  decimals: number
-  name: string
-  imageURI: string
-  id: MarketTokensIds
-}
+    [chainId: number]: Address;
+  };
+  symbol: string;
+  decimals: number;
+  name: string;
+  imageURI: string;
+  id: MarketTokensIds;
+};
 
 export type Market = {
   address: {
-    [chainId: number]: Address
-  }
+    [chainId: number]: Address;
+  };
   questionId?: {
-    [chainId: number]: Hash
-  }
+    [chainId: number]: Hash;
+  };
   conditionId: {
-    [chainId: number]: Hash
-  }
+    [chainId: number]: Hash;
+  };
   collateralToken: {
-    [chainId: number]: Address
-  }
+    [chainId: number]: Address;
+  };
   hidden: {
-    [chainId: number]: boolean
-  }
+    [chainId: number]: boolean;
+  };
   resolved: {
-    [chainId: number]: boolean
-  }
-  outcomeTokens: string[]
-  title: string
-  description: string
-  placeholderURI: string
-  imageURI: string
-  ogImageURI?: string
-  expirationDate: string
-  expirationTimestamp: number
-  expired?: boolean
+    [chainId: number]: boolean;
+  };
+  outcomeTokens: string[];
+  title: string;
+  description: string;
+  placeholderURI: string;
+  imageURI: string;
+  ogImageURI?: string;
+  expirationDate: string;
+  expirationTimestamp: number;
+  expired?: boolean;
   tokenTicker: {
-    [chainId: number]: string
-  }
+    [chainId: number]: string;
+  };
   tokenURI: {
-    [chainId: number]: string
-  }
+    [chainId: number]: string;
+  };
   creator: {
-    name: string
-    imageURI?: string
-    link?: string
-  }
-  tags?: string[]
-  winningOutcomeIndex?: number
-}
+    name: string;
+    imageURI?: string;
+    link?: string;
+  };
+  tags?: string[];
+  winningOutcomeIndex?: number;
+};
 
 export type GetBalanceResult = {
-  decimals: number
-  formatted: string
-  symbol: string
-  value: bigint
-  image: string
-  name: string
-  contractAddress: string
-  price: number
-  id: MarketTokensIds
-}
+  decimals: number;
+  formatted: string;
+  symbol: string;
+  value: bigint;
+  image: string;
+  name: string;
+  contractAddress: string;
+  price: number;
+  id: MarketTokensIds;
+};
 
-type CoingeckoPriceEntity = { usd: number }
+type CoingeckoPriceEntity = { usd: number };
 
 export enum MarketTokensIds {
   DEGEN = 'degen-base',
@@ -80,4 +80,4 @@ export enum MarketTokensIds {
   REGEN = 'regen',
 }
 
-export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>
+export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>;

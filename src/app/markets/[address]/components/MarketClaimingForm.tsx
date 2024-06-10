@@ -1,30 +1,30 @@
-import { Button } from '@/components'
-import { defaultChain } from '@/constants'
-import { useHistory, useTradingService } from '@/services'
-import { borderRadius, colors } from '@/styles'
-import { NumberUtil } from '@/utils'
-import { Stack, StackProps, Text } from '@chakra-ui/react'
-import { useMemo } from 'react'
-import { FaRegCheckCircle } from 'react-icons/fa'
-import { Market } from '@/types'
+import { Button } from '@/components';
+import { defaultChain } from '@/constants';
+import { useHistory, useTradingService } from '@/services';
+import { borderRadius, colors } from '@/styles';
+import { NumberUtil } from '@/utils';
+import { Stack, StackProps, Text } from '@chakra-ui/react';
+import { useMemo } from 'react';
+import { FaRegCheckCircle } from 'react-icons/fa';
+import { Market } from '@/types';
 
 interface MarketClaimingFormProps extends StackProps {
-  market: Market | null
+  market: Market | null;
 }
 
 export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market, ...props }) => {
-  const { redeem: claim, status } = useTradingService()
-  const { positions } = useHistory()
+  const { redeem: claim, status } = useTradingService();
+  const { positions } = useHistory();
   const positionToClaim = useMemo(
     () =>
       positions?.filter(
         (position) =>
           position.market.id.toLowerCase() === market?.address[defaultChain.id].toLowerCase() &&
           position.outcomeIndex === market.winningOutcomeIndex &&
-          market.expired
+          market.expired,
       )?.[0],
-    [positions, market]
-  )
+    [positions, market],
+  );
 
   return (
     <Stack
@@ -37,18 +37,15 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market, 
       spacing={3}
       {...props}
     >
-      <FaRegCheckCircle
-        size={'30px'}
-        fill={market?.winningOutcomeIndex == 0 ? colors.green : colors.red}
-      />
+      <FaRegCheckCircle size={'30px'} fill={market?.winningOutcomeIndex == 0 ? colors.green : colors.red} />
       <Text fontWeight={'bold'} color={market?.winningOutcomeIndex == 0 ? 'green' : 'red'}>
         Outcome: {market?.outcomeTokens[market?.winningOutcomeIndex ?? 0]}
       </Text>
       {positionToClaim && (
         <Stack w={'full'} alignItems={'center'} spacing={3}>
           <Text>
-            You won {NumberUtil.toFixed(positionToClaim.outcomeTokenAmount, 6)}{' '}
-            {market?.tokenTicker[defaultChain.id]} 🎉
+            You won {NumberUtil.toFixed(positionToClaim.outcomeTokenAmount, 6)} {market?.tokenTicker[defaultChain.id]}{' '}
+            🎉
           </Text>
           <Button
             bg={'brand'}
@@ -63,5 +60,5 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market, 
         </Stack>
       )}
     </Stack>
-  )
-}
+  );
+};

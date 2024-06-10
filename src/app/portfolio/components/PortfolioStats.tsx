@@ -1,24 +1,18 @@
-import { Button } from '@/components'
-import { useBalanceService, useHistory } from '@/services'
-import { borderRadius, colors } from '@/styles'
-import { Flex, HStack, Heading, Spacer, Stack, StackProps, Text } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import { FaFileInvoiceDollar, FaTrophy, FaWallet } from 'react-icons/fa6'
-import { NumberUtil } from '@/utils'
+import { Button } from '@/components';
+import { useBalanceService, useHistory } from '@/services';
+import { borderRadius, colors } from '@/styles';
+import { Flex, HStack, Heading, Spacer, Stack, StackProps, Text } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
+import { FaFileInvoiceDollar, FaTrophy, FaWallet } from 'react-icons/fa6';
+import { NumberUtil } from '@/utils';
 
 export const PortfolioStats = ({ ...props }: StackProps) => {
-  const router = useRouter()
-  const { overallBalanceUsd } = useBalanceService()
-  const { balanceInvested, balanceToWin } = useHistory()
+  const router = useRouter();
+  const { overallBalanceUsd } = useBalanceService();
+  const { balanceInvested, balanceToWin } = useHistory();
 
   return (
-    <Flex
-      flexDir={{ sm: 'column', md: 'row' }}
-      w={'full'}
-      alignItems={'start'}
-      gap={{ sm: 4, md: 6 }}
-      {...props}
-    >
+    <Flex flexDir={{ sm: 'column', md: 'row' }} w={'full'} alignItems={'start'} gap={{ sm: 4, md: 6 }} {...props}>
       <Stack
         w={'full'}
         minH={{ base: '100px', md: '200px' }}
@@ -63,17 +57,10 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
         </HStack>
         <Heading fontSize={'26px'}>{NumberUtil.formatThousands(overallBalanceUsd, 2)} USD</Heading>
         <Spacer />
-        <Button
-          bg={'brand'}
-          color={'white'}
-          w={'full'}
-          h={'32px'}
-          py={1}
-          onClick={() => router.push('/wallet')}
-        >
+        <Button bg={'brand'} color={'white'} w={'full'} h={'32px'} py={1} onClick={() => router.push('/wallet')}>
           Top up
         </Button>
       </Stack>
     </Flex>
-  )
-}
+  );
+};

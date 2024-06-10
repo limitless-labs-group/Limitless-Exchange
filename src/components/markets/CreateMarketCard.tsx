@@ -1,10 +1,10 @@
-import { Button } from '@/components'
-import { ClickEvent, CreateMarketClickedMetadata, useAmplitude } from '@/services'
-import { borderRadius, colors } from '@/styles'
-import { Heading, Image, Stack, Text } from '@chakra-ui/react'
+import { Button } from '@/components';
+import { ClickEvent, CreateMarketClickedMetadata, useAmplitude } from '@/services';
+import { borderRadius, colors } from '@/styles';
+import { Heading, Image, Stack, Text } from '@chakra-ui/react';
 
 export const CreateMarketCard = () => {
-  const { trackClicked } = useAmplitude()
+  const { trackClicked } = useAmplitude();
 
   return (
     <Stack
@@ -16,12 +16,12 @@ export const CreateMarketCard = () => {
       onClick={() => {
         trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
           page: 'Explore Markets',
-        })
+        });
         window.open(
           'https://limitlesslabs.notion.site/Limitless-Creators-101-fbbde33a51104fcb83c57f6ce9d69d2a?pvs=4',
           '_blank',
-          'noopener'
-        )
+          'noopener',
+        );
       }}
     >
       <Image
@@ -56,5 +56,5 @@ export const CreateMarketCard = () => {
         </Button>
       </Stack>
     </Stack>
-  )
-}
+  );
+};

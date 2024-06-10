@@ -1,75 +1,65 @@
-import { collateralToken, conditionalTokensAddress, defaultChain, weth } from '@/constants'
-import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
-import { publicClient, useWeb3Auth } from '@/providers'
-import { Address } from '@/types'
-import { ArkaPaymaster, EtherspotBundler, PrimeSdk, Web3WalletProvider } from '@etherspot/prime-sdk'
-import { sleep } from '@etherspot/prime-sdk/dist/sdk/common/utils'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import {
-  PropsWithChildren,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
-import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, erc20Abi } from 'viem'
-import { contractABI } from '@/contracts/utils'
+import { collateralToken, conditionalTokensAddress, defaultChain, weth } from '@/constants';
+import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts';
+import { publicClient, useWeb3Auth } from '@/providers';
+import { Address } from '@/types';
+import { ArkaPaymaster, EtherspotBundler, PrimeSdk, Web3WalletProvider } from '@etherspot/prime-sdk';
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common/utils';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { PropsWithChildren, createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, erc20Abi } from 'viem';
+import { contractABI } from '@/contracts/utils';
 
 interface IEtherspotContext {
-  etherspot: Etherspot | null
-  smartWalletAddress?: Address
-  signMessage: (message: string) => Promise<string | undefined>
-  whitelist: () => Promise<void>
-  transferErc20: (data: ITransferErc20) => Promise<TransactionReceipt | undefined>
+  etherspot: Etherspot | null;
+  smartWalletAddress?: Address;
+  signMessage: (message: string) => Promise<string | undefined>;
+  whitelist: () => Promise<void>;
+  transferErc20: (data: ITransferErc20) => Promise<TransactionReceipt | undefined>;
 }
 
-const EtherspotContext = createContext<IEtherspotContext>({} as IEtherspotContext)
+const EtherspotContext = createContext<IEtherspotContext>({} as IEtherspotContext);
 
-export const useEtherspot = () => useContext(EtherspotContext)
+export const useEtherspot = () => useContext(EtherspotContext);
 
 export const EtherspotProvider = ({ children }: PropsWithChildren) => {
   /**
    * WEB3AUTH
    */
-  const { provider: web3AuthProvider, isConnected } = useWeb3Auth()
+  const { provider: web3AuthProvider, isConnected } = useWeb3Auth();
 
   /**
    * ETHERSPOT INSTANCE
    */
-  const [etherspot, setEtherspot] = useState<Etherspot | null>(null)
+  const [etherspot, setEtherspot] = useState<Etherspot | null>(null);
 
   /**
    * Initialize Etherspot with Prime SDK instance on top of W3A wallet, once user signed in
    */
   const initEtherspot = useCallback(async () => {
-    console.log('initEtherspot', web3AuthProvider, isConnected)
+    console.log('initEtherspot', web3AuthProvider, isConnected);
     if (!web3AuthProvider || !isConnected) {
-      setEtherspot(null)
-      return
+      setEtherspot(null);
+      return;
     }
 
-    const mappedProvider = new Web3WalletProvider(web3AuthProvider)
-    await mappedProvider.refresh()
+    const mappedProvider = new Web3WalletProvider(web3AuthProvider);
+    await mappedProvider.refresh();
     const primeSdk = new PrimeSdk(mappedProvider, {
       chainId: defaultChain.id,
-      bundlerProvider: new EtherspotBundler(
-        defaultChain.id,
-        process.env.NEXT_PUBLIC_ETHERSPOT_API_KEY
-      ),
-    })
+      bundlerProvider: new EtherspotBundler(defaultChain.id, process.env.NEXT_PUBLIC_ETHERSPOT_API_KEY),
+    });
 
     const etherspot = new Etherspot(
       primeSdk,
       conditionalTokensAddress[defaultChain.id],
-      collateralToken.address[defaultChain.id]
-    )
-    setEtherspot(etherspot)
-  }, [web3AuthProvider, isConnected])
+      collateralToken.address[defaultChain.id],
+    );
+    setEtherspot(etherspot);
+  }, [web3AuthProvider, isConnected]);
 
   useEffect(() => {
-    initEtherspot()
-  }, [web3AuthProvider, isConnected])
+    initEtherspot();
+  }, [web3AuthProvider, isConnected]);
 
   /**
    * Query to fetch smart wallet address
@@ -77,12 +67,12 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
   const { data: smartWalletAddress } = useQuery({
     queryKey: ['smartWalletAddress', !!etherspot],
     queryFn: async () => {
-      const address = await etherspot?.getAddress()
-      console.log(`Smart wallet address: ${smartWalletAddress}`)
-      return address
+      const address = await etherspot?.getAddress();
+      console.log(`Smart wallet address: ${smartWalletAddress}`);
+      return address;
     },
     refetchOnWindowFocus: false,
-  })
+  });
 
   /**
    * Whitelisting for paymaster
@@ -90,15 +80,15 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
   const { mutateAsync: whitelist } = useMutation({
     mutationFn: async () => {
       if (!etherspot) {
-        return
+        return;
       }
-      const address = await etherspot.getAddress()
-      const isWhitelisted = await etherspot.isWhitelisted(address)
+      const address = await etherspot.getAddress();
+      const isWhitelisted = await etherspot.isWhitelisted(address);
       if (!isWhitelisted) {
-        await etherspot.whitelist(address)
+        await etherspot.whitelist(address);
       }
     },
-  })
+  });
   // useEffect(() => {
   //   whitelist() // TODO: whitelist when user wants to trade / deposit funds
   // }, [etherspot])
@@ -108,7 +98,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    */
   const { mutateAsync: signMessage, data: signature } = useMutation({
     mutationFn: async (message: string) => etherspot?.primeSdk.signMessage({ message }),
-  })
+  });
 
   /**
    * Mutation to transfer ERC20 from smart wallet to given address
@@ -116,18 +106,18 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
   const { mutateAsync: transferErc20 } = useMutation({
     mutationFn: async ({ token, to, amount, onSign, onConfirm }: ITransferErc20) => {
       if (!etherspot || !token || !to || !smartWalletAddress || amount === 0n) {
-        return
+        return;
       }
 
-      onSign?.()
-      const opHash = await etherspot.transferErc20(token, to, amount)
-      const receipt = await etherspot.waitForTransaction(opHash)
+      onSign?.();
+      const opHash = await etherspot.transferErc20(token, to, amount);
+      const receipt = await etherspot.waitForTransaction(opHash);
       if (!!receipt) {
-        await onConfirm?.(receipt)
+        await onConfirm?.(receipt);
       }
-      return receipt
+      return receipt;
     },
-  })
+  });
 
   const contextProviderValue: IEtherspotContext = {
     etherspot,
@@ -135,31 +125,25 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
     signMessage,
     transferErc20,
     whitelist,
-  }
+  };
 
-  return (
-    <EtherspotContext.Provider value={contextProviderValue}>{children}</EtherspotContext.Provider>
-  )
-}
+  return <EtherspotContext.Provider value={contextProviderValue}>{children}</EtherspotContext.Provider>;
+};
 
 class Etherspot {
-  primeSdk: PrimeSdk
-  conditionalTokensAddress: Address
-  collateralTokenAddress: Address
+  primeSdk: PrimeSdk;
+  conditionalTokensAddress: Address;
+  collateralTokenAddress: Address;
 
-  paymasterApiKey = process.env.NEXT_PUBLIC_ETHERSPOT_API_KEY ?? ''
-  paymasterUrl = `https://arka.etherspot.io`
-  paymaster = new ArkaPaymaster(defaultChain.id, this.paymasterApiKey, this.paymasterUrl)
-  isEnabledPaymaster = !defaultChain.testnet
+  paymasterApiKey = process.env.NEXT_PUBLIC_ETHERSPOT_API_KEY ?? '';
+  paymasterUrl = `https://arka.etherspot.io`;
+  paymaster = new ArkaPaymaster(defaultChain.id, this.paymasterApiKey, this.paymasterUrl);
+  isEnabledPaymaster = !defaultChain.testnet;
 
-  constructor(
-    _primeSdk: PrimeSdk,
-    _conditionalTokensAddress: Address,
-    _collateralTokenAddress: Address
-  ) {
-    this.primeSdk = _primeSdk
-    this.conditionalTokensAddress = _conditionalTokensAddress
-    this.collateralTokenAddress = _collateralTokenAddress
+  constructor(_primeSdk: PrimeSdk, _conditionalTokensAddress: Address, _collateralTokenAddress: Address) {
+    this.primeSdk = _primeSdk;
+    this.conditionalTokensAddress = _conditionalTokensAddress;
+    this.collateralTokenAddress = _collateralTokenAddress;
   }
 
   // TODO: incapsulate
@@ -168,7 +152,7 @@ class Etherspot {
       address,
       abi: fixedProductMarketMakerABI,
       client: publicClient,
-    })
+    });
   }
 
   // TODO: incapsulate
@@ -177,7 +161,7 @@ class Etherspot {
       address: this.collateralTokenAddress,
       abi: wethABI,
       client: publicClient,
-    })
+    });
   }
 
   // TODO: incapsulate
@@ -186,33 +170,33 @@ class Etherspot {
       address: this.conditionalTokensAddress,
       abi: conditionalTokensABI,
       client: publicClient,
-    })
+    });
   }
 
   async getAddress() {
-    return this.primeSdk.getCounterFactualAddress() as Promise<Address>
+    return this.primeSdk.getCounterFactualAddress() as Promise<Address>;
   }
 
   async whitelist(address: Address) {
-    const response = await this.paymaster.addWhitelist([address])
-    console.log('PAYMASTER_ADD_WHITELIST_RESPONSE:', address, response)
+    const response = await this.paymaster.addWhitelist([address]);
+    console.log('PAYMASTER_ADD_WHITELIST_RESPONSE:', address, response);
   }
 
   async isWhitelisted(address: Address) {
-    const response = await this.paymaster.checkWhitelist(address)
-    console.log('PAYMASTER_IS_WHITELISTED_RESPONSE:', address, response)
-    return response === 'Already added'
+    const response = await this.paymaster.checkWhitelist(address);
+    console.log('PAYMASTER_IS_WHITELISTED_RESPONSE:', address, response);
+    return response === 'Already added';
   }
 
   async batchAndSendUserOp(to: string, data: string, value: bigint | undefined = undefined) {
     try {
-      await this.primeSdk.clearUserOpsFromBatch()
-      await this.primeSdk.addUserOpsToBatch({ to, data, value })
-      const op = await this.estimate()
-      const opHash = await this.primeSdk.send(op)
-      return opHash
+      await this.primeSdk.clearUserOpsFromBatch();
+      await this.primeSdk.addUserOpsToBatch({ to, data, value });
+      const op = await this.estimate();
+      const opHash = await this.primeSdk.send(op);
+      return opHash;
     } catch (e: any) {
-      console.log(e)
+      console.log(e);
     }
   }
 
@@ -224,34 +208,34 @@ class Etherspot {
             context: { mode: 'sponsor' },
           }
         : undefined,
-    })
-    return op
+    });
+    return op;
   }
 
   async waitForTransaction(opHash: string | undefined) {
     if (!opHash) {
-      return
+      return;
     }
-    let opReceipt = null
-    const timeout = Date.now() + 60 * 3 * 1000
+    let opReceipt = null;
+    const timeout = Date.now() + 60 * 3 * 1000;
     while (opReceipt == null && Date.now() < timeout) {
-      await sleep(2)
-      opReceipt = await this.primeSdk.getUserOpReceipt(opHash)
+      await sleep(2);
+      opReceipt = await this.primeSdk.getUserOpReceipt(opHash);
     }
-    console.log('\x1b[33m%s\x1b[0m', `Transaction Receipt: `, opReceipt)
-    return opReceipt.receipt as TransactionReceipt
+    console.log('\x1b[33m%s\x1b[0m', `Transaction Receipt: `, opReceipt);
+    return opReceipt.receipt as TransactionReceipt;
   }
 
   async transferEthers(to: Address, value: bigint, waitForTransaction = false) {
-    await this.primeSdk.clearUserOpsFromBatch()
-    await this.primeSdk.addUserOpsToBatch({ to, value })
-    const op = await this.estimate()
-    const opHash = await this.primeSdk.send(op)
+    await this.primeSdk.clearUserOpsFromBatch();
+    await this.primeSdk.addUserOpsToBatch({ to, value });
+    const op = await this.estimate();
+    const opHash = await this.primeSdk.send(op);
     if (waitForTransaction) {
-      const transactionReceipt = await this.waitForTransaction(opHash)
-      return transactionReceipt
+      const transactionReceipt = await this.waitForTransaction(opHash);
+      return transactionReceipt;
     }
-    return opHash
+    return opHash;
   }
 
   async transferErc20(token: Address, to: Address, value: bigint) {
@@ -259,63 +243,63 @@ class Etherspot {
       abi: wethABI,
       functionName: 'transfer',
       args: [to, value],
-    })
-    return this.batchAndSendUserOp(token, data)
+    });
+    return this.batchAndSendUserOp(token, data);
   }
 
   async mintErc20(token: Address, value: bigint, smartWalletAddress: Address, newToken?: boolean) {
-    const args = newToken ? [smartWalletAddress, value] : [value]
+    const args = newToken ? [smartWalletAddress, value] : [value];
     try {
       const data = encodeFunctionData({
         abi: newToken ? contractABI[defaultChain.id] : wethABI,
         functionName: 'mint',
         args,
-      })
-      return this.batchAndSendUserOp(token, data)
+      });
+      return this.batchAndSendUserOp(token, data);
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
   }
 
   // TODO: incapsulate
   async approveCollateralIfNeeded(spender: Address, amount: bigint, collateralContract: Address) {
-    const owner = await this.getAddress()
+    const owner = await this.getAddress();
     const contract = getContract({
       address: collateralContract,
       abi: erc20Abi,
       client: publicClient,
-    })
-    const allowance = (await contract.read.allowance([owner, spender])) as bigint
+    });
+    const allowance = (await contract.read.allowance([owner, spender])) as bigint;
     if (allowance < amount) {
       const data = encodeFunctionData({
         abi: spender === weth.address[defaultChain.id] ? wethABI : erc20Abi,
         functionName: 'approve',
         args: [spender, maxUint256],
-      })
-      const opHash = await this.batchAndSendUserOp(collateralContract, data)
-      const transactionReceipt = await this.waitForTransaction(opHash)
-      return transactionReceipt
+      });
+      const opHash = await this.batchAndSendUserOp(collateralContract, data);
+      const transactionReceipt = await this.waitForTransaction(opHash);
+      return transactionReceipt;
     }
   }
 
   // TODO: incapsulate
   async approveConditionalIfNeeded(spender: Address) {
-    const owner = await this.getAddress()
+    const owner = await this.getAddress();
     const contract = getContract({
       address: conditionalTokensAddress[defaultChain.id],
       abi: conditionalTokensABI,
       client: publicClient,
-    })
-    const isApproved = await contract.read.isApprovedForAll([owner, spender])
+    });
+    const isApproved = await contract.read.isApprovedForAll([owner, spender]);
     if (!isApproved) {
       const data = encodeFunctionData({
         abi: conditionalTokensABI,
         functionName: 'setApprovalForAll',
         args: [spender, true],
-      })
-      const opHash = await this.batchAndSendUserOp(conditionalTokensAddress[defaultChain.id], data)
-      const transactionReceipt = await this.waitForTransaction(opHash)
-      return transactionReceipt
+      });
+      const opHash = await this.batchAndSendUserOp(conditionalTokensAddress[defaultChain.id], data);
+      const transactionReceipt = await this.waitForTransaction(opHash);
+      return transactionReceipt;
     }
   }
 
@@ -324,11 +308,11 @@ class Etherspot {
     const data = encodeFunctionData({
       abi: wethABI,
       functionName: 'deposit',
-    })
+    });
 
-    const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, data, value)
-    const transactionReceipt = await this.waitForTransaction(opHash)
-    return transactionReceipt
+    const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, data, value);
+    const transactionReceipt = await this.waitForTransaction(opHash);
+    return transactionReceipt;
   }
 
   // TODO: incapsulate
@@ -337,10 +321,10 @@ class Etherspot {
       abi: wethABI,
       functionName: 'withdraw',
       args: [value],
-    })
-    const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, data)
-    const transactionReceipt = await this.waitForTransaction(opHash)
-    return transactionReceipt
+    });
+    const opHash = await this.batchAndSendUserOp(this.collateralTokenAddress, data);
+    const transactionReceipt = await this.waitForTransaction(opHash);
+    return transactionReceipt;
   }
 
   // TODO: incapsulate
@@ -349,23 +333,19 @@ class Etherspot {
     collateralAmount: bigint,
     outcomeIndex: number,
     minOutcomeTokensToBuy: bigint,
-    collateralContract: Address
+    collateralContract: Address,
   ) {
-    await this.approveCollateralIfNeeded(
-      fixedProductMarketMakerAddress,
-      collateralAmount,
-      collateralContract
-    )
+    await this.approveCollateralIfNeeded(fixedProductMarketMakerAddress, collateralAmount, collateralContract);
 
     const data = encodeFunctionData({
       abi: fixedProductMarketMakerABI,
       functionName: 'buy',
       args: [collateralAmount, outcomeIndex, minOutcomeTokensToBuy],
-    })
+    });
 
-    const opHash = await this.batchAndSendUserOp(fixedProductMarketMakerAddress, data)
-    const transactionReceipt = await this.waitForTransaction(opHash)
-    return transactionReceipt
+    const opHash = await this.batchAndSendUserOp(fixedProductMarketMakerAddress, data);
+    const transactionReceipt = await this.waitForTransaction(opHash);
+    return transactionReceipt;
   }
 
   // TODO: incapsulate
@@ -373,19 +353,19 @@ class Etherspot {
     fixedProductMarketMakerAddress: Address,
     collateralAmount: bigint,
     outcomeIndex: number,
-    maxOutcomeTokensToSell: bigint
+    maxOutcomeTokensToSell: bigint,
   ) {
-    await this.approveConditionalIfNeeded(fixedProductMarketMakerAddress)
+    await this.approveConditionalIfNeeded(fixedProductMarketMakerAddress);
 
     const data = encodeFunctionData({
       abi: fixedProductMarketMakerABI,
       functionName: 'sell',
       args: [collateralAmount, outcomeIndex, maxOutcomeTokensToSell],
-    })
+    });
 
-    const opHash = await this.batchAndSendUserOp(fixedProductMarketMakerAddress, data)
-    const transactionReceipt = await this.waitForTransaction(opHash)
-    return transactionReceipt
+    const opHash = await this.batchAndSendUserOp(fixedProductMarketMakerAddress, data);
+    const transactionReceipt = await this.waitForTransaction(opHash);
+    return transactionReceipt;
   }
 
   // TODO: incapsulate
@@ -393,23 +373,23 @@ class Etherspot {
     collateralAddress: Address,
     parentCollectionId: Address,
     marketConditionId: Address,
-    indexSets: number[]
+    indexSets: number[],
   ) {
     const data = encodeFunctionData({
       abi: conditionalTokensABI,
       functionName: 'redeemPositions',
       args: [collateralAddress, parentCollectionId, marketConditionId, indexSets],
-    })
-    const opHash = await this.batchAndSendUserOp(this.conditionalTokensAddress, data)
-    const transactionReceipt = await this.waitForTransaction(opHash)
-    return transactionReceipt
+    });
+    const opHash = await this.batchAndSendUserOp(this.conditionalTokensAddress, data);
+    const transactionReceipt = await this.waitForTransaction(opHash);
+    return transactionReceipt;
   }
 }
 
 interface ITransferErc20 {
-  token?: Address
-  to?: Address
-  amount: bigint
-  onSign?: () => void
-  onConfirm?: (receipt: TransactionReceipt | undefined) => Promise<any>
+  token?: Address;
+  to?: Address;
+  amount: bigint;
+  onSign?: () => void;
+  onConfirm?: (receipt: TransactionReceipt | undefined) => Promise<any>;
 }
