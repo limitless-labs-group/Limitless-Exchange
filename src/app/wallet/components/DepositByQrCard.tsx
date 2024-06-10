@@ -1,20 +1,21 @@
-import { Button, Modal } from '@/components'
-import { CopyEvent, useAccount, useAmplitude } from '@/services'
-import { borderRadius, colors } from '@/styles'
-import { truncateEthAddress } from '@/utils'
+import type { StackProps } from '@chakra-ui/react'
 import {
   Avatar,
   Flex,
-  HStack,
   Heading,
+  HStack,
   Stack,
-  StackProps,
   Text,
   useClipboard,
   useDisclosure,
 } from '@chakra-ui/react'
 import { FaQrcode } from 'react-icons/fa'
 import QRCode from 'react-qr-code'
+
+import { Button, Modal } from '@/components'
+import { CopyEvent, useAccount, useAmplitude } from '@/services'
+import { borderRadius, colors } from '@/styles'
+import { truncateEthAddress } from '@/utils'
 
 export const DepositByQrCard = ({ ...props }: StackProps) => {
   const { trackCopied } = useAmplitude()

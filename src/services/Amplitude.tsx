@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
+import type { PropsWithChildren } from 'react'
+import { createContext, useCallback, useContext, useEffect } from 'react'
 import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
+
 import { useAccount } from '@/services'
-import { Address } from '@/types'
+import type { Address } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 const NODE_ENV = process.env.NODE_ENV ?? 'development'

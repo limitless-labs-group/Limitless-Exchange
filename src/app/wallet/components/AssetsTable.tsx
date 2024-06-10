@@ -1,27 +1,29 @@
 import {
+  Button,
+  Divider,
   HStack,
   Image,
   Table,
   TableCaption,
   TableContainer,
   Tbody,
+  Td,
+  Text,
   Th,
   Thead,
   Tr,
   VStack,
-  Text,
-  Td,
-  Button,
-  Divider,
 } from '@chakra-ui/react'
 import { v4 as uuidv4 } from 'uuid'
+import type { Address } from 'viem'
+import { formatUnits } from 'viem'
+
 import { useBalanceService } from '@/services'
 import { NumberUtil } from '@/utils'
 import { usePriceOracle } from '@/providers'
 import { useIsMobile } from '@/hooks'
 import { useUsersMarkets } from '@/services/UsersMarketsService'
-import { Address, formatUnits } from 'viem'
-import { MarketTokensIds } from '@/types'
+import type { MarketTokensIds } from '@/types'
 
 type AssetsTableProps = {
   handleOpenTopUpModal: (token: Address) => void

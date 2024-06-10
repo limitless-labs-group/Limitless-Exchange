@@ -1,11 +1,13 @@
-import { collateralToken, defaultChain, newSubgraphURI } from '@/constants'
-import { fixedProductMarketMakerABI } from '@/contracts'
-import { publicClient } from '@/providers'
-import { Market } from '@/types'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useMemo } from 'react'
-import { Address, formatUnits, getContract, parseUnits } from 'viem'
+import type { Address } from 'viem'
+import { formatUnits, getContract, parseUnits } from 'viem'
+
+import { collateralToken, defaultChain, newSubgraphURI } from '@/constants'
+import { fixedProductMarketMakerABI } from '@/contracts'
+import { publicClient } from '@/providers'
+import type { Market } from '@/types'
 import { useMarkets } from '@/services/MarketsService'
 
 interface IUseMarketData {

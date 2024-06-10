@@ -1,37 +1,40 @@
-import { Button, InfoIcon, Input, LogInButton, Tooltip } from '@/components'
-import { collateralTokensArray, defaultChain } from '@/constants'
-import { useMarketData } from '@/hooks'
-import { usePriceOracle } from '@/providers'
-import {
-  StrategyChangedMetadata,
-  ChangeEvent,
-  useAmplitude,
-  useBalanceService,
-  useTradingService,
-  OutcomeChangedMetadata,
-  ClickEvent,
-  TradeClickedMetadata,
-} from '@/services'
-import { borderRadius } from '@/styles'
-import { NumberUtil } from '@/utils'
+import type { StackProps } from '@chakra-ui/react'
 import {
   Avatar,
   Box,
   Divider,
-  HStack,
   Heading,
+  HStack,
   Slider,
   SliderFilledTrack,
   SliderThumb,
   SliderTrack,
   Stack,
-  StackProps,
   Text,
   VStack,
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
-import { MarketTokensIds, Token } from '@/types'
+
+import { Button, InfoIcon, Input, LogInButton, Tooltip } from '@/components'
+import { collateralTokensArray, defaultChain } from '@/constants'
+import { useMarketData } from '@/hooks'
+import { usePriceOracle } from '@/providers'
+import type {
+  OutcomeChangedMetadata,
+  StrategyChangedMetadata,
+  TradeClickedMetadata,
+} from '@/services'
+import {
+  ChangeEvent,
+  ClickEvent,
+  useAmplitude,
+  useBalanceService,
+  useTradingService,
+} from '@/services'
+import { borderRadius } from '@/styles'
+import { NumberUtil } from '@/utils'
+import type { MarketTokensIds, Token } from '@/types'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 export const MarketTradingForm = ({ ...props }: StackProps) => {

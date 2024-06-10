@@ -1,12 +1,14 @@
+import type { StackProps } from '@chakra-ui/react'
+import { Stack, Text } from '@chakra-ui/react'
+import { useMemo } from 'react'
+import { FaRegCheckCircle } from 'react-icons/fa'
+
 import { Button } from '@/components'
 import { defaultChain } from '@/constants'
 import { useHistory, useTradingService } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
-import { Stack, StackProps, Text } from '@chakra-ui/react'
-import { useMemo } from 'react'
-import { FaRegCheckCircle } from 'react-icons/fa'
-import { Market } from '@/types'
+import type { Market } from '@/types'
 
 interface MarketClaimingFormProps extends StackProps {
   market: Market | null

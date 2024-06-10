@@ -1,6 +1,8 @@
-import { Address } from '@/types'
 import axios from 'axios'
-import { PropsWithChildren, createContext, useContext } from 'react'
+import type { PropsWithChildren } from 'react'
+import { createContext, useContext } from 'react'
+
+import type { Address } from '@/types'
 
 interface ILimitlessApi {
   any?: any

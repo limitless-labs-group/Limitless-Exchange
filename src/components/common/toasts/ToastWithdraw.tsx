@@ -1,8 +1,9 @@
+import { Text, HStack } from '@chakra-ui/react'
+import { FaExternalLinkAlt } from 'react-icons/fa'
+
 import { Toast } from '@/components'
 import { defaultChain } from '@/constants'
 import { truncateEthAddress } from '@/utils'
-import { Text, HStack } from '@chakra-ui/react'
-import { FaExternalLinkAlt } from 'react-icons/fa'
 
 interface IToastWithdraw {
   transactionHash: string

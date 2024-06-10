@@ -1,5 +1,6 @@
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import { Box } from '@chakra-ui/react'
+
 import { useIsMobile } from '@/hooks'
 
 export default function Paper({ children }: PropsWithChildren) {

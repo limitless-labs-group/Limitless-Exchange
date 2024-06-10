@@ -1,9 +1,11 @@
+import type { StackProps } from '@chakra-ui/react'
+import { Flex, Heading, HStack, Spacer, Stack, Text } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
+import { FaFileInvoiceDollar, FaTrophy, FaWallet } from 'react-icons/fa6'
+
 import { Button } from '@/components'
 import { useBalanceService, useHistory } from '@/services'
 import { borderRadius, colors } from '@/styles'
-import { Flex, HStack, Heading, Spacer, Stack, StackProps, Text } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import { FaFileInvoiceDollar, FaTrophy, FaWallet } from 'react-icons/fa6'
 import { NumberUtil } from '@/utils'
 import { useWeb3Service } from '@/services/Web3Service'
 

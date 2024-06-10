@@ -1,14 +1,16 @@
+import type { StackProps } from '@chakra-ui/react'
+import { Avatar, HStack, Stack, Text } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
+import { useMemo } from 'react'
+
 import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { borderRadius, colors } from '@/styles'
-import { Address, Market } from '@/types'
+import type { Address } from '@/types'
 import { NumberUtil } from '@/utils'
-import { HStack, Stack, StackProps, Text, Avatar } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import { useMemo } from 'react'
 import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
 import { createMarketShareUrls } from '@/services'
-import { useMarket, useMarkets } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
 
 interface IMarketCard extends StackProps {
   marketAddress?: Address

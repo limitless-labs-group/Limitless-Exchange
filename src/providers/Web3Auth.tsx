@@ -2,22 +2,18 @@
 import { Web3AuthConnector } from '@web3auth/web3auth-wagmi-connector'
 import { Web3Auth } from '@web3auth/modal'
 import { LOGIN_MODAL_EVENTS } from '@web3auth/ui'
-import { CHAIN_NAMESPACES, CustomChainConfig, IProvider, WEB3AUTH_NETWORK } from '@web3auth/base'
+import type { CustomChainConfig, IProvider } from '@web3auth/base'
+import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK } from '@web3auth/base'
 import { EthereumPrivateKeyProvider } from '@web3auth/ethereum-provider'
-import { defaultChain } from '@/constants'
-import {
-  PropsWithChildren,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import type { PropsWithChildren } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { useAccount as useWagmi } from 'wagmi'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
-import { OpenEvent, useAmplitude } from '@/services'
 import { MetamaskAdapter } from '@web3auth/metamask-adapter'
 import { CoinbaseAdapter } from '@web3auth/coinbase-adapter'
+
+import { OpenEvent, useAmplitude } from '@/services'
+import { defaultChain } from '@/constants'
 
 const chainConfig: CustomChainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,

@@ -1,6 +1,7 @@
-import { colors } from '@/styles'
 import { Flex, HStack, Stack, Text, useMediaQuery } from '@chakra-ui/react'
 import { FaCircle } from 'react-icons/fa'
+
+import { colors } from '@/styles'
 import { IPHONE14_PRO_MAX_WIDTH } from '@/constants/devices'
 
 export const Footer = () => {

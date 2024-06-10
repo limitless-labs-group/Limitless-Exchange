@@ -1,9 +1,10 @@
-import { Providers } from '@/app/providers'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
+
+import { Providers } from '@/app/providers'
 
 export const metadata: Metadata = {
   title: 'Limitless',

@@ -1,6 +1,6 @@
 import { useEtherspot } from '@/services/Etherspot'
 import { useExternalWalletService } from '@/services/ExternalWalletService'
-import { Address } from '@/types'
+import type { Address } from '@/types'
 
 type Web3Service = {
   wrapEth: (value: bigint) => Promise<string>

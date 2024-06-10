@@ -1,4 +1,4 @@
-import { Hash, Address } from 'viem'
+import type { Hash, Address } from 'viem'
 
 export type { Hash, Address }
 

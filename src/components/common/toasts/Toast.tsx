@@ -1,5 +1,7 @@
+import type { BoxProps } from '@chakra-ui/react'
+import { Box, Text, VStack } from '@chakra-ui/react'
+
 import { borderRadius } from '@/styles'
-import { Box, BoxProps, Text, VStack } from '@chakra-ui/react'
 
 interface IToast extends BoxProps {
   title?: string

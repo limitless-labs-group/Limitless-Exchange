@@ -1,12 +1,14 @@
+import type { StackProps } from '@chakra-ui/react'
+import { HStack, Link, Stack, Text } from '@chakra-ui/react'
+import { useState } from 'react'
+import type { Address } from 'viem'
+
 import { Button } from '@/components'
-import { collateralTokensArray, defaultChain, higher, weth } from '@/constants'
+import { collateralTokensArray, defaultChain, weth } from '@/constants'
 import { useAccount, useBalanceService } from '@/services'
 import { borderRadius, colors } from '@/styles'
-import { HStack, Link, Stack, StackProps, Text } from '@chakra-ui/react'
 import { useIsMobile } from '@/hooks'
 import SelectTokenField from '@/components/common/SelectTokenField'
-import { useState } from 'react'
-import { Address } from 'viem'
 
 export const DepositTestCard = ({ ...props }: StackProps) => {
   const { account } = useAccount()

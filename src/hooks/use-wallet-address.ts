@@ -1,7 +1,8 @@
+import { useAccount } from 'wagmi'
+import type { Address } from 'viem'
+
 import { useWeb3Auth } from '@/providers'
 import { useEtherspot } from '@/services'
-import { useAccount } from 'wagmi'
-import { Address } from 'viem'
 
 export function useWalletAddress(): Address | undefined {
   const { web3Auth } = useWeb3Auth()

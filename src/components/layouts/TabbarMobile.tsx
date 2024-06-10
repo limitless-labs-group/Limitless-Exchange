@@ -1,7 +1,9 @@
-import { Button } from '@/components'
-import { Image, Stack, StackProps } from '@chakra-ui/react'
+import type { StackProps } from '@chakra-ui/react'
+import { Stack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import { FaGlobe, FaSearch } from 'react-icons/fa'
+import { FaGlobe } from 'react-icons/fa'
+
+import { Button } from '@/components'
 
 export const TabbarMobile = ({ ...props }: StackProps) => {
   const router = useRouter()

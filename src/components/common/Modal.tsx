@@ -1,16 +1,15 @@
-import { borderRadius } from '@/styles'
+import type { ModalContentProps, ModalProps } from '@chakra-ui/react'
 import {
   Button,
   Heading,
   Modal as ChakraModal,
   ModalBody,
   ModalContent,
-  ModalContentProps,
   ModalHeader,
   ModalOverlay,
-  ModalProps,
-  Flex,
 } from '@chakra-ui/react'
+
+import { borderRadius } from '@/styles'
 
 export type IModal = ModalProps &
   ModalContentProps & {

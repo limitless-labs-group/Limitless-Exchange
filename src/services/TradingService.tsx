@@ -1,3 +1,11 @@
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { usePathname } from 'next/navigation'
+import type { PropsWithChildren, Dispatch, SetStateAction } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import type { Address, Hash } from 'viem'
+import { formatEther, formatUnits, getContract, parseEther, parseUnits, zeroHash } from 'viem'
+
 import { Toast } from '@/components'
 import {
   collateralToken,
@@ -9,32 +17,8 @@ import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'
 import { publicClient } from '@/providers'
 import { useAccount, useBalanceService, useHistory } from '@/services'
-import { Market } from '@/types'
+import type { Market } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
-import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { usePathname } from 'next/navigation'
-import {
-  PropsWithChildren,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  Dispatch,
-  SetStateAction,
-} from 'react'
-import {
-  Address,
-  Hash,
-  formatEther,
-  formatUnits,
-  getContract,
-  parseEther,
-  parseUnits,
-  zeroHash,
-} from 'viem'
 import { useWeb3Service } from '@/services/Web3Service'
 
 interface ITradingServiceContext {

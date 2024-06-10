@@ -1,14 +1,10 @@
-import {
-  ClickedApproveMetadata,
-  ClickEvent,
-  useAmplitude,
-  useBalanceService,
-  useTradingService,
-} from '@/services'
-import { Button, Modal } from '@/components'
 import { Text, VStack } from '@chakra-ui/react'
+import type { Address } from 'viem'
+
+import type { ClickedApproveMetadata } from '@/services'
+import { ClickEvent, useAmplitude, useBalanceService, useTradingService } from '@/services'
+import { Button, Modal } from '@/components'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
-import { Address } from 'viem'
 
 type ApproveModalProps = {
   onApprove: () => Promise<void>

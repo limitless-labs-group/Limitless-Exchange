@@ -1,6 +1,8 @@
+import type { StackProps } from '@chakra-ui/react'
+import { HStack, Stack, Text } from '@chakra-ui/react'
+
 import { InfoIcon } from '@/components'
 import { borderRadius, colors } from '@/styles'
-import { HStack, Stack, StackProps, Text } from '@chakra-ui/react'
 
 export const DepositDisclaimer = ({ ...props }: StackProps) => (
   <Stack

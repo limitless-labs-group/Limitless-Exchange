@@ -1,5 +1,7 @@
-import { MarketTokensIds, Token } from '@/types'
 import { base, baseSepolia } from 'viem/chains'
+
+import type { Token } from '@/types'
+import { MarketTokensIds } from '@/types'
 
 // export const usdc: Token = {
 //   address: {

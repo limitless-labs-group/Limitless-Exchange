@@ -1,10 +1,12 @@
 'use client'
 
-import { PortfolioStats, PortfolioPositions, PortfolioHistory } from '@/app/portfolio/components'
-import { MainLayout } from '@/components'
-import { OpenEvent, PageOpenedMetadata, useAmplitude } from '@/services'
 import { Box, HStack, Spacer, Stack, Text } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
+
+import { PortfolioHistory, PortfolioPositions, PortfolioStats } from '@/app/portfolio/components'
+import { MainLayout } from '@/components'
+import type { PageOpenedMetadata } from '@/services'
+import { OpenEvent, useAmplitude } from '@/services'
 
 const PortfolioPage = () => {
   const [tab, setTab] = useState<'Markets' | 'History'>('Markets')

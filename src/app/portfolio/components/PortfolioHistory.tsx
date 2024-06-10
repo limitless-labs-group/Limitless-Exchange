@@ -1,8 +1,10 @@
-import { PortfolioHistoryRedeemItem, PortfolioHistoryTradeItem } from '@/app/portfolio/components'
-import { HistoryRedeem, HistoryTrade, useHistory } from '@/services'
 import { Flex, Table, TableContainer, Tbody, Text, Th, Thead, Tr } from '@chakra-ui/react'
 import { useEffect, useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+
+import type { HistoryRedeem, HistoryTrade } from '@/services'
+import { useHistory } from '@/services'
+import { PortfolioHistoryRedeemItem, PortfolioHistoryTradeItem } from '@/app/portfolio/components'
 
 export const PortfolioHistory = () => {
   const { trades, getTrades, redeems, getRedeems } = useHistory()

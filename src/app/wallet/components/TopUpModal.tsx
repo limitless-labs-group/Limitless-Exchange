@@ -1,12 +1,15 @@
-import { Button, IModal, Modal } from '@/components'
-import { Dispatch, SetStateAction, useMemo } from 'react'
+import type { Dispatch, SetStateAction } from 'react'
+import { useMemo } from 'react'
+import { Box, HStack, Text, useClipboard } from '@chakra-ui/react'
+import type { Address } from 'viem'
+
+import type { IModal } from '@/components'
+import { Button, Modal } from '@/components'
 import DepositInfo from '@/app/wallet/components/DepositInfo'
 import { CopyEvent, useAccount, useAmplitude } from '@/services'
-import { Box, HStack, Text, useClipboard } from '@chakra-ui/react'
 import { truncateEthAddress } from '@/utils'
 import SelectTokenField from '@/components/common/SelectTokenField'
 import { collateralTokensArray, defaultChain, weth } from '@/constants'
-import { Address } from 'viem'
 
 type TopUpModalProps = Omit<IModal, 'children'> & {
   selectedToken: Address

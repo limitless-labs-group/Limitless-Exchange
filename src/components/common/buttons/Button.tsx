@@ -1,5 +1,8 @@
+import type { ButtonProps } from '@chakra-ui/react'
+import { Button as ChakraButton } from '@chakra-ui/react'
+
 import { borderRadius } from '@/styles'
-import { ButtonProps, Button as ChakraButton } from '@chakra-ui/react'
+
 export interface IButton extends ButtonProps {
   colorScheme?: 'brand' | 'neural' | 'transparent'
 }

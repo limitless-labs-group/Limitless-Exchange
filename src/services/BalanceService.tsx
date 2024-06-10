@@ -1,28 +1,8 @@
-import { Toast, ToastWithdraw } from '@/components'
-import { collateralToken, collateralTokensArray, defaultChain, weth } from '@/constants'
-import { wethABI } from '@/contracts'
-import { useToast } from '@/hooks'
-import { usePriceOracle } from '@/providers'
-import { useEtherspot } from '@/services'
-import { Address, GetBalanceResult, MarketTokensIds, Token } from '@/types'
-import { Logger, NumberUtil } from '@/utils'
-import {
-  QueryObserverResult,
-  UseMutateAsyncFunction,
-  useMutation,
-  useQuery,
-} from '@tanstack/react-query'
+import type { QueryObserverResult, UseMutateAsyncFunction } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
-import {
-  createContext,
-  Dispatch,
-  PropsWithChildren,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+import type { Dispatch, PropsWithChildren, SetStateAction } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import {
   erc20Abi,
   formatEther,
@@ -33,9 +13,18 @@ import {
   parseUnits,
 } from 'viem'
 import { getBalance } from 'viem/actions'
+
+import { Toast, ToastWithdraw } from '@/components'
+import { collateralToken, collateralTokensArray, defaultChain, weth } from '@/constants'
+import { wethABI } from '@/contracts'
+import { useToast } from '@/hooks'
+import { publicClient, usePriceOracle } from '@/providers'
+import { useEtherspot } from '@/services'
+import type { Address, GetBalanceResult, Token } from '@/types'
+import { MarketTokensIds } from '@/types'
+import { Logger, NumberUtil } from '@/utils'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useWeb3Service } from '@/services/Web3Service'
-import { publicClient } from '@/providers'
 
 interface IBalanceService {
   balanceOfSmartWallet: GetBalanceResult[] | undefined
@@ -129,7 +118,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       )
 
       const balanceResult: GetBalanceResult[] = balances.map((balance) => {
-        // @ts-ignore
+        // @ts-expect-error
         return balance.value
       })
 

@@ -1,15 +1,3 @@
-import { Button, IButton } from '@/components'
-import {
-  ClickEvent,
-  ProfileBurgerMenuClickedMetadata,
-  useAccount,
-  useAmplitude,
-  useAuth,
-  useBalanceService,
-  useEtherspot,
-} from '@/services'
-import { colors } from '@/styles'
-import { truncateEthAddress } from '@/utils'
 import {
   Flex,
   HStack,
@@ -25,6 +13,20 @@ import {
 import { useRouter } from 'next/navigation'
 import { FaBriefcase, FaChevronDown, FaCopy, FaRegUserCircle, FaSignOutAlt } from 'react-icons/fa'
 import { FaEthereum, FaWallet } from 'react-icons/fa6'
+
+import type { IButton } from '@/components'
+import { Button } from '@/components'
+import type { ProfileBurgerMenuClickedMetadata } from '@/services'
+import {
+  ClickEvent,
+  useAccount,
+  useAmplitude,
+  useAuth,
+  useBalanceService,
+  useEtherspot,
+} from '@/services'
+import { colors } from '@/styles'
+import { truncateEthAddress } from '@/utils'
 
 export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
   const { trackClicked } = useAmplitude()
@@ -49,7 +51,13 @@ export const HeaderProfileMenuDesktop = ({ ...props }: IButton) => {
           >
             <HStack>
               {userInfo?.profileImage?.includes('http') ? (
-                <Image src={userInfo.profileImage} borderRadius={'full'} h={'20px'} w={'20px'} />
+                <Image
+                  src={userInfo.profileImage}
+                  borderRadius={'full'}
+                  h={'20px'}
+                  w={'20px'}
+                  alt={'User Profile Logo'}
+                />
               ) : (
                 <FaRegUserCircle size={'18px'} />
               )}
