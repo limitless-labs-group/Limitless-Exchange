@@ -82,6 +82,7 @@ export enum MarketTokensIds {
   ONCHAIN = 'onchain',
   REGEN = 'regen',
   USDC = 'usd-coin',
+  VITA = 'vitadao',
 }
 
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>

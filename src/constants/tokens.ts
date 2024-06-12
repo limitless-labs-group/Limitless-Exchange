@@ -98,4 +98,17 @@ export const usdc: Token = {
   id: MarketTokensIds.USDC,
 }
 
-export const collateralTokensArray = [weth, onChain, degen, mfer, higher, usdc]
+export const vita: Token = {
+  address: {
+    [base.id]: '0x490a4b510d0ea9f835d2df29eb73b4fca5071937',
+    [baseSepolia.id]: '0x9fDc773e5a00aae411cC74FE3c27B0E16FA69027',
+  },
+  symbol: 'VITA',
+  name: 'VitaDAO',
+  decimals: 18,
+  imageURI:
+    'https://assets.coingecko.com/coins/images/16580/standard/QmRjwywiAfpzSfQTuWM3zCTghSHN7G6ohQaar7Ht6WANUp.png?1696516140',
+  id: MarketTokensIds.VITA,
+}
+
+export const collateralTokensArray = [weth, onChain, degen, mfer, higher, usdc, vita]
