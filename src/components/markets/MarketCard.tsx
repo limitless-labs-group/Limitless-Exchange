@@ -1,4 +1,4 @@
-import { defaultChain } from '@/constants'
+import { collateralTokensArray, defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { createMarketShareUrls } from '@/services'
 import { borderRadius, colors } from '@/styles'
@@ -19,10 +19,13 @@ export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) =
    * NAVIGATION
    */
   const router = useRouter()
-
   const market = useMarket(marketAddress as string)
-
-  const { outcomeTokensPercent, liquidity, volume } = useMarketData({ marketAddress })
+  const { outcomeTokensPercent, liquidity, volume } = useMarketData({
+    marketAddress,
+    collateralToken: collateralTokensArray.find(
+      (token) => token.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
+    ),
+  })
 
   const chancePercent = useMemo(() => {
     return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)

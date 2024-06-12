@@ -1,28 +1,21 @@
-import { collateralToken, defaultChain, newSubgraphURI } from '@/constants'
+import { defaultChain, newSubgraphURI } from '@/constants'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers'
-import { Market } from '@/types'
+import { Token } from '@/types'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useMemo } from 'react'
 import { Address, formatUnits, getContract, parseUnits } from 'viem'
-import { useMarkets } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
 
 interface IUseMarketData {
   marketAddress?: Address
+  collateralToken?: Token
 }
 
 // TODO: incapsulate with context provider to reduce requests
-export const useMarketData = ({ marketAddress }: IUseMarketData) => {
-  const markets = useMarkets()
-
-  const market: Market | null = useMemo(
-    () =>
-      markets.find(
-        (market) => market.address[defaultChain.id]?.toLowerCase() == marketAddress?.toLowerCase()
-      ) ?? null,
-    [marketAddress]
-  )
+export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData) => {
+  const market = useMarket(marketAddress as string)
 
   const fixedProductMarketMakerContract = useMemo(
     () =>
@@ -44,7 +37,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       }
 
       const collateralAmount = `0.0000001`
-      const collateralAmountBI = parseUnits(collateralAmount, collateralToken.decimals)
+      const collateralAmountBI = parseUnits(collateralAmount, 18)
       const outcomeTokenAmountYesBI = (await fixedProductMarketMakerContract.read.calcBuyAmount([
         collateralAmountBI,
         0,
@@ -57,11 +50,6 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, 18)
       const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
       const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
-
-      console.log('outcomeTokensBuyPrice', {
-        priceYes: outcomeTokenPriceYes,
-        priceNo: outcomeTokenPriceNo,
-      })
 
       return [outcomeTokenPriceYes, outcomeTokenPriceNo]
     },
@@ -76,7 +64,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       }
 
       const collateralAmount = `0.0000001`
-      const collateralAmountBI = parseUnits(collateralAmount, collateralToken.decimals)
+      const collateralAmountBI = parseUnits(collateralAmount, collateralToken?.decimals || 18)
       const outcomeTokenAmountYesBI = (await fixedProductMarketMakerContract.read.calcSellAmount([
         collateralAmountBI,
         0,
@@ -89,11 +77,6 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, 18)
       const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
       const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
-
-      console.log('outcomeTokensSellPrice', {
-        priceYes: outcomeTokenPriceYes,
-        priceNo: outcomeTokenPriceNo,
-      })
 
       return [outcomeTokenPriceYes, outcomeTokenPriceNo]
     },
@@ -114,11 +97,6 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const sum = outcomeTokensBuyPrice[0] + outcomeTokensBuyPrice[1]
       const outcomeTokensPercentYes = (outcomeTokensBuyPrice[0] / sum) * 100
       const outcomeTokensPercentNo = (outcomeTokensBuyPrice[1] / sum) * 100
-
-      console.log('outcomeTokensPercent', {
-        outcomeTokensPercentYes,
-        outcomeTokensPercentNo,
-      })
 
       return [outcomeTokensPercentYes, outcomeTokensPercentNo]
     },
@@ -151,17 +129,20 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
           `,
         },
       })
-      console.log('GetMarkets query response', res)
+
       const [_marketData] = res.data.data?.[queryName] as MarketData[]
-      const liquidity = formatUnits(BigInt(_marketData.funding), collateralToken.decimals)
-      const volume = formatUnits(BigInt(_marketData.totalVolume ?? '0'), collateralToken.decimals)
+      const liquidity = formatUnits(BigInt(_marketData.funding), collateralToken?.decimals || 18)
+      const volume = formatUnits(
+        BigInt(_marketData.totalVolume ?? '0'),
+        collateralToken?.decimals || 18
+      )
 
       return {
         liquidity,
         volume,
       }
     },
-    enabled: !!marketAddress,
+    enabled: !!market,
   })
 
   return {

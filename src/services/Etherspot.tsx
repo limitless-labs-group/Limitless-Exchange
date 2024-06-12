@@ -1,4 +1,4 @@
-import { collateralToken, conditionalTokensAddress, defaultChain, weth } from '@/constants'
+import { conditionalTokensAddress, defaultChain, weth } from '@/constants'
 import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useWeb3Auth } from '@/providers'
 import { Address } from '@/types'
@@ -44,7 +44,6 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    * Initialize Etherspot with Prime SDK instance on top of W3A wallet, once user signed in
    */
   const initEtherspot = useCallback(async () => {
-    console.log('initEtherspot', web3AuthProvider, isConnected)
     if (!web3AuthProvider || !isConnected || web3Auth.connectedAdapterName !== 'openlogin') {
       setEtherspot(null)
       return
@@ -63,7 +62,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
     const etherspot = new Etherspot(
       primeSdk,
       conditionalTokensAddress[defaultChain.id],
-      collateralToken.address[defaultChain.id]
+      weth.address[defaultChain.id]
     )
     setEtherspot(etherspot)
   }, [web3AuthProvider, isConnected, web3Auth.connectedAdapterName])
@@ -79,7 +78,6 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
     queryKey: ['smartWalletAddress', !!etherspot],
     queryFn: async () => {
       const address = await etherspot?.getAddress()
-      console.log(`Smart wallet address: ${smartWalletAddress}`)
       return address
     },
     enabled: !!etherspot,
@@ -196,13 +194,11 @@ class Etherspot {
   }
 
   async whitelist(address: Address) {
-    const response = await this.paymaster.addWhitelist([address])
-    console.log('PAYMASTER_ADD_WHITELIST_RESPONSE:', address, response)
+    return this.paymaster.addWhitelist([address])
   }
 
   async isWhitelisted(address: Address) {
     const response = await this.paymaster.checkWhitelist(address)
-    console.log('PAYMASTER_IS_WHITELISTED_RESPONSE:', address, response)
     return response === 'Already added'
   }
 
@@ -240,7 +236,6 @@ class Etherspot {
       await sleep(2)
       opReceipt = await this.primeSdk.getUserOpReceipt(opHash)
     }
-    console.log('\x1b[33m%s\x1b[0m', `Transaction Receipt: `, opReceipt)
     return opReceipt.receipt as TransactionReceipt
   }
 

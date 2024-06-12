@@ -15,23 +15,23 @@ export class Logger {
     this.level = level ?? 'verbose'
   }
 
-  verbose = (...args: any) => {
+  verbose = (...args: unknown[]) => {
     console.log('👀', this.title, '|', ...args)
   }
 
-  info = (...args: any) => {
+  info = (...args: unknown[]) => {
     console.info('💡', this.title, '|', ...args)
   }
 
-  success = (...args: any) => {
+  success = (...args: unknown[]) => {
     console.log('✅', this.title, '|', ...args)
   }
 
-  error = (...args: any) => {
+  error = (...args: unknown[]) => {
     console.error('🐞', this.title, '|', ...args)
   }
 
-  warn = (...args: any) => {
+  warn = (...args: unknown[]) => {
     console.warn('⚠️', this.title, '|', ...args)
   }
 }

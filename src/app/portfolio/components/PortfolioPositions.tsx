@@ -38,7 +38,7 @@ export const PortfolioPositions = ({ ...props }: GridProps) => {
           )
           return !market?.market.closed
         }),
-    [positions, selectedFilterTokens]
+    [positions, selectedFilterTokens, userMarkets]
   )
 
   return (

@@ -22,6 +22,7 @@ import { useIsMobile } from '@/hooks'
 import { useUsersMarkets } from '@/services/UsersMarketsService'
 import { Address, formatUnits } from 'viem'
 import { MarketTokensIds } from '@/types'
+import { collateralTokensArray, defaultChain } from '@/constants'
 
 type AssetsTableProps = {
   handleOpenTopUpModal: (token: Address) => void
@@ -54,10 +55,12 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
       (market) => market.market.collateral.id === collateralAddress
     )
     if (marketsByCollateral?.length) {
-      return marketsByCollateral.reduce(
-        (a, b) => a + +formatUnits(BigInt(b.collateralsLocked), 18),
-        0
-      )
+      return marketsByCollateral.reduce((a, b) => {
+        const collateral = collateralTokensArray.find(
+          (token) => token.address[defaultChain.id] === b.market.collateral.id
+        )
+        return a + +formatUnits(BigInt(b.collateralsLocked), collateral?.decimals || 18)
+      }, 0)
     }
     return 0
   }

@@ -1,4 +1,4 @@
-import { defaultChain } from '@/constants'
+import { collateralTokensArray, defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { borderRadius, colors } from '@/styles'
 import { Address, Market } from '@/types'
@@ -16,10 +16,13 @@ interface IMarketCard extends StackProps {
 
 export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketCard) => {
   const router = useRouter()
-
   const market = useMarket(marketAddress as string)
-
-  const { outcomeTokensPercent, liquidity, volume } = useMarketData({ marketAddress })
+  const { outcomeTokensPercent, liquidity, volume } = useMarketData({
+    marketAddress,
+    collateralToken: collateralTokensArray.find(
+      (token) => token.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
+    ),
+  })
 
   const marketURI = `${window.location.origin}/markets/${marketAddress}`
 

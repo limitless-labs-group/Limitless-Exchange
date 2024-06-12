@@ -31,10 +31,14 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
-import { MarketTokensIds, Token } from '@/types'
+import { Market, MarketTokensIds, Token } from '@/types'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 
-export const MarketTradingForm = ({ ...props }: StackProps) => {
+interface MarketTradingFormProps extends StackProps {
+  market: Market
+}
+
+export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) => {
   /**
    * ACCOUNT STATE
    */
@@ -49,7 +53,6 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
    * TRADING SERVICE
    */
   const {
-    market,
     strategy,
     setStrategy,
     outcomeTokenId,
@@ -88,6 +91,9 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
   const { outcomeTokensPercent } = useMarketData({
     marketAddress,
+    collateralToken: collateralTokensArray.find(
+      (token) => token.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
+    ),
   })
 
   /**

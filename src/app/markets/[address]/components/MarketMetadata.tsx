@@ -1,5 +1,5 @@
 import { Button } from '@/components'
-import { defaultChain } from '@/constants'
+import { collateralTokensArray, defaultChain } from '@/constants'
 import { useIsMobile, useMarketData } from '@/hooks'
 import {
   ClickEvent,
@@ -29,6 +29,7 @@ import {
 } from '@chakra-ui/react'
 import { FaShareSquare } from 'react-icons/fa'
 import { FaLink, FaXTwitter } from 'react-icons/fa6'
+import { Token } from '@/types'
 
 export const MarketMetadata = ({ ...props }: StackProps) => {
   /**
@@ -36,8 +37,12 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
    */
   const { market } = useTradingService()
 
+  const collateralToken: Token | undefined = collateralTokensArray.find((collateralToken) => {
+    return collateralToken.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
+  })
   const { liquidity, volume, outcomeTokensPercent } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
+    collateralToken,
   })
 
   /**

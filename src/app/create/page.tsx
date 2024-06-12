@@ -205,7 +205,6 @@ const CreateOwnMarketPage = () => {
   }
 
   const handleActiveTags = (selectedOptions: TagOption[]) => {
-    console.log(selectedOptions)
     setTag(selectedOptions)
   }
 

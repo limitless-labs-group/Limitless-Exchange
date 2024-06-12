@@ -1,5 +1,5 @@
 import { Toast, ToastWithdraw } from '@/components'
-import { collateralToken, collateralTokensArray, defaultChain, weth } from '@/constants'
+import { collateralTokensArray, defaultChain, weth } from '@/constants'
 import { wethABI } from '@/contracts'
 import { useToast } from '@/hooks'
 import { usePriceOracle } from '@/providers'
@@ -110,7 +110,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
           })
           let newBalanceBI = (await contract.read.balanceOf([walletAddress])) as bigint
           // small balance to zero
-          if (newBalanceBI < parseEther('0.000001')) {
+          if (newBalanceBI < parseUnits('0.000001', token.decimals)) {
             newBalanceBI = 0n
           }
 
@@ -144,7 +144,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
             !defaultChain.testnet && etherspot && whitelist()
             const depositAmount = formatUnits(
               balance.value - currentBalance.value,
-              collateralToken.decimals
+              currentBalance.decimals
             )
 
             toast({
@@ -254,9 +254,12 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       toast({
         render: () => <Toast title={'Processing transaction...'} />,
       })
+      const token = collateralTokensArray.find(
+        (token) => token.address[defaultChain.id] === params.address
+      )
       await mintErc20(
         params.address,
-        parseUnits('1', collateralToken.decimals),
+        parseUnits('1', token?.decimals || 18),
         walletAddress || '0x',
         params.newToken
       )
@@ -280,7 +283,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   // Amount to be withdrawn
   const [amount, setAmount] = useState<string>('')
   const [token, setToken] = useState(weth)
-  const amountBI = useMemo(() => parseUnits(amount ?? '0', collateralToken.decimals), [amount])
+  const amountBI = useMemo(() => parseUnits(amount ?? '0', token.decimals), [amount])
   const isInvalidAmount = useMemo(() => {
     const isInvalidBalance = balanceOfSmartWallet === undefined
     const isNegativeOrZeroAmount = amountBI <= 0n

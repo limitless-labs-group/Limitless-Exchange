@@ -1,10 +1,5 @@
 import { Toast } from '@/components'
-import {
-  collateralToken,
-  collateralTokensArray,
-  conditionalTokensAddress,
-  defaultChain,
-} from '@/constants'
+import { collateralTokensArray, conditionalTokensAddress, defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'
 import { publicClient } from '@/providers'
@@ -25,16 +20,7 @@ import {
   Dispatch,
   SetStateAction,
 } from 'react'
-import {
-  Address,
-  Hash,
-  formatEther,
-  formatUnits,
-  getContract,
-  parseEther,
-  parseUnits,
-  zeroHash,
-} from 'viem'
+import { Address, Hash, formatUnits, getContract, parseUnits, zeroHash } from 'viem'
 import { useWeb3Service } from '@/services/Web3Service'
 
 interface ITradingServiceContext {
@@ -147,7 +133,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * BALANCE TO BUY
    */
-  const { balanceOfSmartWallet, refetchbalanceOfSmartWallet } = useBalanceService()
+  const { balanceOfSmartWallet, refetchbalanceOfSmartWallet, token } = useBalanceService()
 
   /**
    * BALANCE TO SELL
@@ -187,10 +173,9 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     }
 
     const balanceOfOutcomeTokenBI = await getCTBalance(account, outcomeTokenId)
-    const _balanceOfOutcomeToken = formatEther(balanceOfOutcomeTokenBI)
-    const balanceOfOutcomeTokenCropped = NumberUtil.toFixed(_balanceOfOutcomeToken, 10)
+    const _balanceOfOutcomeToken = formatUnits(balanceOfOutcomeTokenBI, token.decimals)
+    const balanceOfOutcomeTokenCropped = NumberUtil.toFixed(_balanceOfOutcomeToken.toString(), 10)
     setBalanceOfOutcomeToken(balanceOfOutcomeTokenCropped)
-    console.log('balanceOfOutcomeToken', _balanceOfOutcomeToken)
 
     const holdings = await getCTBalance(market.address[defaultChain.id], outcomeTokenId)
     const otherHoldings: bigint[] = []
@@ -201,25 +186,20 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       }
     }
     const feeBI = (await fixedProductMarketMakerContract.read.fee()) as bigint
-    const fee = Number(formatUnits(feeBI, collateralToken.decimals))
+    const fee = Number(formatUnits(feeBI, 18))
     let balanceOfCollateralToSellBI =
       calcSellAmountInCollateral(
-        parseEther(balanceOfOutcomeTokenCropped),
+        parseUnits(balanceOfOutcomeTokenCropped, token.decimals),
         holdings,
         otherHoldings,
         fee
       ) ?? 0n
     // small balance to zero
-    if (balanceOfCollateralToSellBI < parseUnits('0.000001', collateralToken.decimals)) {
+    if (balanceOfCollateralToSellBI < parseUnits('0.000001', token.decimals)) {
       balanceOfCollateralToSellBI = 0n
     }
 
-    const _balanceOfCollateralToSell = formatUnits(
-      balanceOfCollateralToSellBI,
-      collateralToken.decimals
-    )
-
-    console.log('balanceOfCollateralToSell', _balanceOfCollateralToSell)
+    const _balanceOfCollateralToSell = formatUnits(balanceOfCollateralToSellBI, token.decimals)
 
     setBalanceOfCollateralToSell(_balanceOfCollateralToSell)
   }, [account, market, outcomeTokenId, strategy])
@@ -233,8 +213,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const [collateralAmount, setCollateralAmount] = useState<string>('')
   const collateralAmountBI = useMemo(
-    () => parseUnits(collateralAmount ?? '0', collateralToken.decimals),
-    [collateralAmount, collateralToken]
+    () => parseUnits(collateralAmount ?? '0', token.decimals),
+    [collateralAmount, token]
   )
 
   const isExceedsBalance = useMemo(() => {
@@ -256,13 +236,15 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * QUOTES
    */
   const [quotes, setQuotes] = useState<TradeQuotes | null>(null)
-
   // current price for price impact calculation
   const {
     outcomeTokensBuyPrice: outcomeTokensBuyPriceCurrent,
     outcomeTokensSellPrice: outcomeTokensSellPriceCurrent,
   } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
+    collateralToken: collateralTokensArray.find(
+      (token) => token.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
+    ),
   })
 
   useQuery({
@@ -293,8 +275,15 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
           collateralAmountBI,
           outcomeTokenId,
         ])) as bigint
+
+        const token = collateralTokensArray.find(
+          (collateral) =>
+            collateral.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
+        )
         // limit max outcome token amount to balance
-        const balanceOfOutcomeTokenBI = parseEther(balanceOfOutcomeToken)
+        const balanceOfOutcomeTokenBI = BigInt(
+          formatUnits(BigInt(balanceOfOutcomeToken), token?.decimals || 18)
+        )
         if (outcomeTokenAmountBI > balanceOfOutcomeTokenBI) {
           outcomeTokenAmountBI = balanceOfOutcomeTokenBI
         }
@@ -305,7 +294,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         return null
       }
 
-      const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 18)
+      const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, token?.decimals || 18)
       const outcomeTokenPrice = (Number(collateralAmount) / Number(outcomeTokenAmount)).toString()
       const roi = ((Number(outcomeTokenAmount) / Number(collateralAmount) - 1) * 100).toString()
       const outcomeTokensPriceCurrent =
@@ -321,7 +310,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         roi,
         priceImpact,
       }
-      console.log('tradeQuotes', _quotes)
 
       setQuotes(_quotes)
       return quotes
@@ -365,11 +353,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         render: () => <Toast title={'Processing transaction...'} />,
       })
 
+      const collateralToken = collateralTokensArray.find(
+        (collateral) =>
+          collateral.address[defaultChain.id] === market.collateralToken[defaultChain.id]
+      )
+
       const receipt = await buyOutcomeTokens(
         market.address[defaultChain.id],
         collateralAmountBI,
         outcomeTokenId,
-        parseUnits(quotes.outcomeTokenAmount, 18),
+        parseUnits(quotes.outcomeTokenAmount, collateralToken?.decimals || 18),
         market.collateralToken[defaultChain.id]
       )
 
@@ -492,11 +485,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         }
       }
 
+      const collateralToken = collateralTokensArray.find(
+        (collateral) =>
+          collateral.address[defaultChain.id] === market.collateralToken[defaultChain.id]
+      )
+
       const receipt = await sellOutcomeTokens(
         market.address[defaultChain.id],
         collateralAmountBI,
         outcomeTokenId,
-        parseUnits(quotes.outcomeTokenAmount, 18)
+        parseUnits(quotes.outcomeTokenAmount, collateralToken?.decimals || 18)
       )
 
       if (!receipt) {
