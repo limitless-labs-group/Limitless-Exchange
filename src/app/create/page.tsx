@@ -80,9 +80,9 @@ const tokenLimits: TokenLimits = {
     step: 25,
   },
   VITA: {
-    min: 39000,
-    max: 390000,
-    step: 1000,
+    min: 150,
+    max: 3000,
+    step: 25,
   },
 }
 
