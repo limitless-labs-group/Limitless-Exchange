@@ -4,6 +4,7 @@ import {
   defaultChain,
   newSubgraphURI,
   onChain,
+  vita,
   weth,
 } from '@/constants'
 import { usePriceOracle } from '@/providers'
@@ -105,9 +106,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       )
       console.log('trades', _trades)
 
-      return _trades.filter((trade) =>
-        [weth.symbol, onChain.symbol].includes(trade.market.collateral?.symbol || '')
-      )
+      return _trades
     },
     enabled: !!walletAddress,
   })
@@ -174,17 +173,18 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
           (market) =>
             market.address[defaultChain.id].toLowerCase() === trade.market.id.toLowerCase()
         )
+
         if (
           !market ||
           (market.expired && market.winningOutcomeIndex !== trade.outcomeIndex) // TODO: redesign filtering lost positions
         ) {
           return
         }
-
         const existingMarket = _positions.find(
           (position) =>
             position.market.id === trade.market.id && position.outcomeIndex === trade.outcomeIndex
         )
+
         const position = existingMarket ?? {
           market: trade.market,
           outcomeIndex: trade.outcomeIndex,
@@ -230,24 +230,17 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       console.log('positions', _positions)
 
       // Todo remove this mapping
-      return (
-        _positions
-          .map((position) => ({
-            ...position,
-            market: {
-              ...position.market,
-              collateral: {
-                symbol: position.market.collateral?.symbol
-                  ? position.market.collateral?.symbol
-                  : 'MFER',
-              },
-            },
-          }))
-          // Todo remove this filter
-          .filter((position) =>
-            [weth.symbol, onChain.symbol].includes(position.market.collateral.symbol)
-          )
-      )
+      return _positions.map((position) => ({
+        ...position,
+        market: {
+          ...position.market,
+          collateral: {
+            symbol: position.market.collateral?.symbol
+              ? position.market.collateral?.symbol
+              : 'MFER',
+          },
+        },
+      }))
     },
   })
 

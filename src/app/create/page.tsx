@@ -79,6 +79,11 @@ const tokenLimits: TokenLimits = {
     max: 5000,
     step: 25,
   },
+  VITA: {
+    min: 150,
+    max: 3000,
+    step: 25,
+  },
 }
 
 interface TagOption {

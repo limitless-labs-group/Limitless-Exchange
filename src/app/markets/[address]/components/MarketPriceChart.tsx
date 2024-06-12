@@ -161,13 +161,13 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
     const oneHour = 3600000 // milliseconds in an hour
 
     // Append current timestamp with the last price
-    const lastTrade = [...data[data.length - 1].yesBuyChartData]
+    const lastTrade = [...filterBrokenPrice(data[data.length - 1].yesBuyChartData)]
     lastTrade[0] = Math.floor(Date.now())
     data.push({ yesBuyChartData: lastTrade as [number, number] })
 
     for (let i = 0; i < data.length - 1; i++) {
-      const currentTrade = data[i].yesBuyChartData
-      const nextTrade = data[i + 1].yesBuyChartData
+      const currentTrade = filterBrokenPrice(data[i].yesBuyChartData)
+      const nextTrade = filterBrokenPrice(data[i + 1].yesBuyChartData)
 
       flattenData.push(currentTrade)
 
@@ -179,6 +179,17 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
     }
 
     return flattenData
+  }
+
+  /**
+   * Sometimes indexer returns the first price as NaN
+   *
+   * @param nums
+   */
+  const filterBrokenPrice = (nums: [number, number]) => {
+    nums[0] = isNaN(nums[0]) ? 0 : nums[0]
+    nums[1] = isNaN(nums[1]) ? Number(yesChance) : nums[1]
+    return nums
   }
 
   // React Query to fetch the price data
