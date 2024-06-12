@@ -8,7 +8,7 @@ import {
 import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'
 import { publicClient } from '@/providers'
-import { useAccount, useBalanceService, useEtherspot, useHistory } from '@/services'
+import { useAccount, useBalanceService, useHistory } from '@/services'
 import { Market } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
@@ -22,11 +22,12 @@ import {
   useEffect,
   useMemo,
   useState,
+  Dispatch,
+  SetStateAction,
 } from 'react'
 import {
   Address,
   Hash,
-  TransactionReceipt,
   formatEther,
   formatUnits,
   getContract,
@@ -34,6 +35,7 @@ import {
   parseUnits,
   zeroHash,
 } from 'viem'
+import { useWeb3Service } from '@/services/Web3Service'
 
 interface ITradingServiceContext {
   market: Market | null
@@ -47,11 +49,15 @@ interface ITradingServiceContext {
   setCollateralAmount: (amount: string) => void
   isExceedsBalance: boolean
   quotes: TradeQuotes | null | undefined
-  buy: () => Promise<TransactionReceipt | undefined>
-  sell: () => Promise<TransactionReceipt | undefined>
-  trade: () => Promise<TransactionReceipt | undefined>
-  redeem: (outcomeIndex: number) => Promise<TransactionReceipt | undefined>
+  buy: () => Promise<string | undefined>
+  sell: () => Promise<string | undefined>
+  trade: () => Promise<string | undefined>
+  redeem: (outcomeIndex: number) => Promise<string | undefined>
   status: TradingServiceStatus
+  approveModalOpened: boolean
+  setApproveModalOpened: Dispatch<SetStateAction<boolean>>
+  approveBuy: () => Promise<void>
+  approveSell: () => Promise<void>
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -71,7 +77,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * ACCOUNT
    */
-  const { isLoggedIn, account } = useAccount()
+  const { account } = useAccount()
 
   /**
    * OPTIONS
@@ -79,6 +85,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const [market, setMarket] = useState<Market | null>(null)
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
   const [outcomeTokenId, setOutcomeTokenId] = useState(0)
+  const [approveModalOpened, setApproveModalOpened] = useState(false)
 
   /**
    * REFRESH / REFETCH
@@ -148,8 +155,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const [balanceOfOutcomeToken, setBalanceOfOutcomeToken] = useState('0') // getCTBalance
   const [balanceOfCollateralToSell, setBalanceOfCollateralToSell] = useState('0') // ctBalance converted to collateral
 
-  // conditional tokens balance
-  // TODO: incapsulate
   const getCTBalance = async (
     account: Address | undefined,
     outcomeIndex: number
@@ -157,11 +162,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     if (!market || !account) {
       return 0n
     }
-    // const conditionId = await conditionalTokensContract.read.getConditionId([
-    //   zeroAddress,
-    //   market.questionId[defaultChain.id],
-    //   market.outcomeTokens.length,
-    // ])
     const collectionId = (await conditionalTokensContract.read.getCollectionId([
       zeroHash, // Since we don't support complicated conditions at the moment
       market.conditionId[defaultChain.id],
@@ -331,19 +331,41 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * BUY
    */
-  const { etherspot } = useEtherspot()
+  const {
+    buyOutcomeTokens,
+    client,
+    checkAllowance,
+    approveContract,
+    sellOutcomeTokens,
+    checkAllowanceForAll,
+    approveAllowanceForAll,
+    redeemPositions,
+  } = useWeb3Service()
   const { mutateAsync: buy, isPending: isLoadingBuy } = useMutation({
     mutationFn: async () => {
-      if (!etherspot || !account || !market || isInvalidCollateralAmount || !quotes) {
+      if (!account || !market || isInvalidCollateralAmount || !quotes) {
         return
       }
 
       // TODO: incapsulate
+
+      if (client === 'eoa') {
+        const allowance = await checkAllowance(
+          market.address[defaultChain.id],
+          market.collateralToken[defaultChain.id]
+        )
+
+        if (allowance < collateralAmountBI) {
+          setApproveModalOpened(true)
+          return
+        }
+      }
+
       toast({
         render: () => <Toast title={'Processing transaction...'} />,
       })
 
-      const receipt = await etherspot.buyOutcomeTokens(
+      const receipt = await buyOutcomeTokens(
         market.address[defaultChain.id],
         collateralAmountBI,
         outcomeTokenId,
@@ -390,12 +412,66 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
+  const { mutateAsync: approveContractBuy, isPending: isLoadingApproveBuy } = useMutation({
+    mutationFn: async () => {
+      if (!market) {
+        return
+      }
+      toast({
+        render: () => <Toast title={'Processing approve transaction...'} />,
+      })
+      try {
+        await approveContract(
+          market.address[defaultChain.id],
+          market.collateralToken[defaultChain.id]
+        )
+        toast({
+          render: () => <Toast title={`Successfully approved. Proceed with buy now.`} />,
+        })
+        await sleep(3)
+      } catch (e) {
+        toast({
+          render: () => (
+            <Toast title={`Something went wrong during approve transaction broadcast.`} />
+          ),
+        })
+      }
+    },
+  })
+
+  const { mutateAsync: approveContractSell, isPending: isLoadingApproveSell } = useMutation({
+    mutationFn: async () => {
+      if (!market) {
+        return
+      }
+      toast({
+        render: () => <Toast title={'Processing approve transaction...'} />,
+      })
+      try {
+        await approveAllowanceForAll(
+          market.address[defaultChain.id],
+          conditionalTokensAddress[defaultChain.id]
+        )
+        toast({
+          render: () => <Toast title={`Successfully approved. Proceed with buy now.`} />,
+        })
+        await sleep(3)
+      } catch (e) {
+        toast({
+          render: () => (
+            <Toast title={`Something went wrong during approve transaction broadcast.`} />
+          ),
+        })
+      }
+    },
+  })
+
   /**
    * SELL
    */
   const { mutateAsync: sell, isPending: isLoadingSell } = useMutation({
     mutationFn: async () => {
-      if (!etherspot || !account || !market || isInvalidCollateralAmount || !quotes) {
+      if (!account || !market || isInvalidCollateralAmount || !quotes) {
         return
       }
 
@@ -404,7 +480,19 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         render: () => <Toast title={'Processing transaction...'} />,
       })
 
-      const receipt = await etherspot.sellOutcomeTokens(
+      if (client === 'eoa') {
+        const approvedForAll = await checkAllowanceForAll(
+          market.address[defaultChain.id],
+          conditionalTokensAddress[defaultChain.id]
+        )
+
+        if (!approvedForAll) {
+          setApproveModalOpened(true)
+          return
+        }
+      }
+
+      const receipt = await sellOutcomeTokens(
         market.address[defaultChain.id],
         collateralAmountBI,
         outcomeTokenId,
@@ -426,7 +514,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         (token) => token.address[defaultChain.id] === market.collateralToken[defaultChain.id]
       )
 
-      // TODO: incapsulate
       toast({
         render: () => (
           <Toast
@@ -459,7 +546,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      const receipt = await etherspot?.redeemPositions(
+      const receipt = await redeemPositions(
         market.collateralToken[defaultChain.id],
         zeroHash,
         market.conditionId[defaultChain.id],
@@ -494,21 +581,35 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const trade = useCallback(() => (strategy == 'Buy' ? buy() : sell()), [strategy])
 
+  const approveBuy = useCallback(() => approveContractBuy(), [])
+
+  const approveSell = useCallback(() => approveContractSell(), [])
+
   /**
    * STATUS
    */
   const status = useMemo<TradingServiceStatus>(() => {
-    if (isLoadingBuy || isLoadingSell || isLoadingRedeem) {
+    if (
+      isLoadingBuy ||
+      isLoadingSell ||
+      isLoadingRedeem ||
+      isLoadingApproveBuy ||
+      isLoadingApproveSell
+    ) {
       return 'Loading'
-    }
-    if (!isLoggedIn) {
-      return 'Disconnected'
     }
     if (isInvalidCollateralAmount) {
       return 'InvalidAmount'
     }
     return 'Ready'
-  }, [isLoggedIn, isInvalidCollateralAmount, isLoadingBuy, isLoadingSell, isLoadingRedeem])
+  }, [
+    isInvalidCollateralAmount,
+    isLoadingBuy,
+    isLoadingSell,
+    isLoadingRedeem,
+    isLoadingApproveBuy,
+    isLoadingApproveSell,
+  ])
 
   const contextProviderValue: ITradingServiceContext = {
     market,
@@ -527,6 +628,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     trade,
     redeem,
     status,
+    approveModalOpened,
+    setApproveModalOpened,
+    approveBuy,
+    approveSell,
   }
 
   return (

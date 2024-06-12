@@ -3,24 +3,23 @@ import { defaultChain } from '@/constants'
 import { truncateEthAddress } from '@/utils'
 import { Text, HStack } from '@chakra-ui/react'
 import { FaExternalLinkAlt } from 'react-icons/fa'
-import { TransactionReceipt } from 'viem'
 
 interface IToastWithdraw {
-  receipt?: TransactionReceipt
+  transactionHash: string
 }
 
-export const ToastWithdraw = ({ receipt }: IToastWithdraw) => (
+export const ToastWithdraw = ({ transactionHash }: IToastWithdraw) => (
   <Toast
-    title={`Withdrawal is ${receipt?.status == 'reverted' ? 'failed' : 'successful'}`}
+    title='Withdrawal is successful'
     onClick={() =>
       window.open(
-        `${defaultChain.blockExplorers.default.url}/tx/${receipt?.transactionHash}`,
+        `${defaultChain.blockExplorers.default.url}/tx/${transactionHash}`,
         '_blank',
         'noopener'
       )
     }
   >
-    <Text>Tx hash: {truncateEthAddress(receipt?.transactionHash)}</Text>
+    <Text>Tx hash: {truncateEthAddress(transactionHash)}</Text>
     <HStack>
       <Text>Open in explorer</Text>
       <FaExternalLinkAlt size={'14px'} />

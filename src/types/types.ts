@@ -70,6 +70,9 @@ export type GetBalanceResult = {
 
 type CoingeckoPriceEntity = { usd: number }
 
+/**
+ * coingecko ids
+ */
 export enum MarketTokensIds {
   DEGEN = 'degen-base',
   ETH = 'ethereum',
@@ -78,6 +81,8 @@ export enum MarketTokensIds {
   MFER = 'mfercoin',
   ONCHAIN = 'onchain',
   REGEN = 'regen',
+  USDC = 'usd-coin',
+  VITA = 'vitadao',
 }
 
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>

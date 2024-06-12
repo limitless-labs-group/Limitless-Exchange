@@ -11,6 +11,7 @@ export const colors = {
   fontLight: '#747675',
   green: '#48CB9A',
   red: '#EF5D5D',
+  warn: '#d8b812',
   black: '#0F172A',
   grey: {
     100: '#FAFAF9',
