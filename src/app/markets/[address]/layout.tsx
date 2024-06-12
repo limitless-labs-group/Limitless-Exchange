@@ -1,5 +1,4 @@
 import { Metadata } from 'next'
-import { useMarket } from '@/services/MarketsService'
 import axios from 'axios'
 import { Market } from '@/types'
 
@@ -8,24 +7,17 @@ type Props = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  let market: Market | null = null
-
-  try {
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${params.address}`
-    )
-    market = response.data
-  } catch (error) {
-    console.error('Failed to fetch market data:', error)
-    return {}
-  }
+  const response = await axios.get(
+    `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${params.address}`
+  )
+  const market = response.data as Market
 
   return {
-    title: market?.title ?? 'Limitless',
+    title: market?.title,
     openGraph: {
-      title: market?.title ?? 'Limitless',
-      description: market?.description ?? 'Limitless',
-      images: [market?.ogImageURI ?? ''],
+      title: market?.title,
+      description: market?.description,
+      images: [`${market?.ogImageURI}`],
     },
   }
 }
