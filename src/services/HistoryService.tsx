@@ -7,14 +7,13 @@ import {
   weth,
 } from '@/constants'
 import { usePriceOracle } from '@/providers'
-import { useEtherspot } from '@/services'
 import { Address } from '@/types'
 import { NumberUtil } from '@/utils'
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash, formatEther, formatUnits } from 'viem'
-import { useMarkets } from '@/services/MarketsService'
+import { useAllMarkets } from '@/services/MarketsService'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 interface IHistoryService {
@@ -42,7 +41,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * UTILS
    */
   const { convertAssetAmountToUsd } = usePriceOracle()
-  const markets = useMarkets()
+  const markets = useAllMarkets()
 
   /**
    * QUERIES
@@ -172,7 +171,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       trades?.forEach((trade) => {
         // TODO: replace hardcoded markets with dynamic
         const market = markets.find(
-          (market) => market.address[defaultChain.id].toLowerCase() == trade.market.id.toLowerCase()
+          (market) =>
+            market.address[defaultChain.id].toLowerCase() === trade.market.id.toLowerCase()
         )
         if (
           !market ||
@@ -183,7 +183,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 
         const existingMarket = _positions.find(
           (position) =>
-            position.market.id == trade.market.id && position.outcomeIndex == trade.outcomeIndex
+            position.market.id === trade.market.id && position.outcomeIndex === trade.outcomeIndex
         )
         const position = existingMarket ?? {
           market: trade.market,
