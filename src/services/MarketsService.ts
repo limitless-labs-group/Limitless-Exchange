@@ -50,7 +50,7 @@ export function useMarket(address?: string) {
       )
       return response.data as Market
     },
-    enabled: !!address,
+    enabled: address !== '0x',
   })
 
   return useMemo(() => market ?? null, [market])

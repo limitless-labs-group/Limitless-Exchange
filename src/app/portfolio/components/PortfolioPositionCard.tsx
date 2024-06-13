@@ -1,5 +1,5 @@
 import { Button, MarketCardUserActions } from '@/components'
-import { collateralTokensArray, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { createPortfolioShareUrls, HistoryPosition } from '@/services'
 import { NumberUtil } from '@/utils'
 import { HStack, Heading, Image, Stack, StackProps, Text } from '@chakra-ui/react'
@@ -10,6 +10,7 @@ import { borderRadius, colors } from '@/styles'
 import { useIsMobile, useMarketData } from '@/hooks'
 import { FaCircle } from 'react-icons/fa'
 import { useMarket } from '@/services/MarketsService'
+import { useToken } from '@/hooks/use-token'
 
 export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {
   position: HistoryPosition
@@ -25,11 +26,10 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
    * MARKET DATA
    */
   const market = useMarket(position.market.id)
+  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
   const { outcomeTokensPercent, volume } = useMarketData({
     marketAddress: position.market.id,
-    collateralToken: collateralTokensArray.find(
-      (token) => token.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
-    ),
+    collateralToken,
   })
 
   const chancePercent = useMemo(() => {

@@ -1,5 +1,5 @@
 import { Button, InfoIcon, Input, LogInButton, Tooltip } from '@/components'
-import { collateralTokensArray, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { usePriceOracle } from '@/providers'
 import {
@@ -33,6 +33,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
 import { Market, MarketTokensIds, Token } from '@/types'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { useToken } from '@/hooks/use-token'
 
 interface MarketTradingFormProps extends StackProps {
   market: Market
@@ -89,11 +90,10 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
    * MARKET DATA
    */
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
+  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
   const { outcomeTokensPercent } = useMarketData({
     marketAddress,
-    collateralToken: collateralTokensArray.find(
-      (token) => token.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
-    ),
+    collateralToken,
   })
 
   /**
@@ -110,10 +110,7 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
    */
   const { convertAssetAmountToUsd } = usePriceOracle()
   const amountUsd = useMemo(() => {
-    const tokenId = collateralTokensArray.find(
-      (collateralToken) =>
-        collateralToken.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
-    )?.id
+    const tokenId = collateralToken?.priceOracleId
     return NumberUtil.formatThousands(
       convertAssetAmountToUsd(tokenId as MarketTokensIds, displayAmount),
       2
@@ -156,15 +153,10 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
   }, [collateralAmount, balance, isZeroBalance, outcomeTokenId])
 
   useEffect(() => {
-    if (market) {
-      setToken(
-        collateralTokensArray.find(
-          (collateralToken) =>
-            collateralToken.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
-        ) as Token
-      )
+    if (market && collateralToken) {
+      setToken(collateralToken)
     }
-  }, [market])
+  }, [market, collateralToken])
 
   return (
     <Stack

@@ -1,17 +1,30 @@
-import { Address } from '@/types'
+import { Address, Token } from '@/types'
 import axios from 'axios'
 import { PropsWithChildren, createContext, useContext } from 'react'
+import { useQuery } from '@tanstack/react-query'
 
 interface ILimitlessApi {
-  any?: any
+  supportedTokens?: Token[]
 }
+
+export const limitlessApi = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
+})
 
 const LimitlessApiContext = createContext({} as ILimitlessApi)
 
 export const useLimitlessApi = () => useContext(LimitlessApiContext)
 
 export const LimitlessApiProvider = ({ children }: PropsWithChildren) => {
-  const contextProviderValue: ILimitlessApi = {}
+  const { data: supportedTokens } = useQuery({
+    queryKey: ['tokens'],
+    queryFn: async () => {
+      const response = await limitlessApi.get(`/tokens`)
+      return response.data as Token[]
+    },
+  })
+
+  const contextProviderValue: ILimitlessApi = { supportedTokens }
 
   return (
     <LimitlessApiContext.Provider value={contextProviderValue}>

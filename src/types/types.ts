@@ -3,13 +3,12 @@ import { Hash, Address } from 'viem'
 export type { Hash, Address }
 
 export type Token = {
-  address: {
-    [chainId: number]: Address
-  }
+  address: Address
   symbol: string
   decimals: number
   name: string
-  imageURI: string
+  logoUrl: string
+  priceOracleId: MarketTokensIds
   id: MarketTokensIds
 }
 

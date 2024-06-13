@@ -38,7 +38,7 @@ const MainPage = () => {
       selectedFilterTokens.length > 0
         ? selectedFilterTokens.find(
             (filterToken) =>
-              getAddress(filterToken.address[defaultChain.id]) ===
+              getAddress(filterToken.address) ===
               getAddress(market.collateralToken[defaultChain.id])
           )
         : true

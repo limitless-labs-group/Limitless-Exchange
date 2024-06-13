@@ -1,30 +1,30 @@
-import { collateralTokensArray, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { createMarketShareUrls } from '@/services'
 import { borderRadius, colors } from '@/styles'
-import { Address, Market } from '@/types'
+import { Address } from '@/types'
 import { NumberUtil } from '@/utils'
 import { Divider, Heading, HStack, Image, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
-import { useMarket, useMarkets } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
+import { useToken } from '@/hooks/use-token'
 
 interface IMarketCard extends StackProps {
   marketAddress?: Address
 }
 
-export const MarketCard = ({ marketAddress, children, ...props }: IMarketCard) => {
+export const MarketCard = ({ marketAddress, ...props }: IMarketCard) => {
   /**
    * NAVIGATION
    */
   const router = useRouter()
   const market = useMarket(marketAddress as string)
+  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
   const { outcomeTokensPercent, liquidity, volume } = useMarketData({
     marketAddress,
-    collateralToken: collateralTokensArray.find(
-      (token) => token.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
-    ),
+    collateralToken,
   })
 
   const chancePercent = useMemo(() => {

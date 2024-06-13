@@ -5,8 +5,8 @@ import { CopyEvent, useAccount, useAmplitude } from '@/services'
 import { Box, HStack, Text, useClipboard } from '@chakra-ui/react'
 import { truncateEthAddress } from '@/utils'
 import SelectTokenField from '@/components/common/SelectTokenField'
-import { collateralTokensArray, defaultChain, weth } from '@/constants'
 import { Address } from 'viem'
+import { useToken } from '@/hooks/use-token'
 
 type TopUpModalProps = Omit<IModal, 'children'> & {
   selectedToken: Address
@@ -23,14 +23,11 @@ export default function TopUpModal({
   const { trackCopied } = useAmplitude()
   const { account } = useAccount()
   const { onCopy, hasCopied } = useClipboard(account ?? '')
+  const { data: collateralToken } = useToken(selectedToken)
 
   const tokenName = useMemo(() => {
-    return (
-      collateralTokensArray.find(
-        (collateralToken) => collateralToken.address[defaultChain.id] === selectedToken
-      )?.symbol || '$HIGHER'
-    )
-  }, [selectedToken])
+    return collateralToken?.symbol
+  }, [collateralToken])
 
   return (
     <Modal
@@ -69,9 +66,9 @@ export default function TopUpModal({
         </Button>
       </HStack>
       <SelectTokenField
-        token={selectedToken ? selectedToken : weth.address[defaultChain.id]}
+        token={selectedToken}
         setToken={setSelectedToken}
-        defaultValue={selectedToken ? selectedToken : weth.address[defaultChain.id]}
+        defaultValue={selectedToken}
       />
     </Modal>
   )

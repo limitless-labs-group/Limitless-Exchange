@@ -1,11 +1,10 @@
 import { Button } from '@/components'
-import { useBalanceService } from '@/services'
+import { useBalanceService, useLimitlessApi } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { NumberUtil } from '@/utils'
 import { HStack, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
 import { useIsMobile } from '@/hooks'
 import { Address } from 'viem'
-import { defaultChain, weth } from '@/constants'
 
 type BalanceCardProps = StackProps & {
   handleOpenTopUpModal: (token: Address) => void
@@ -22,6 +21,8 @@ export const BalanceCard = ({
    */
   const { overallBalanceUsd } = useBalanceService()
   const isMobile = useIsMobile()
+
+  const { supportedTokens } = useLimitlessApi()
 
   return (
     <Stack
@@ -55,7 +56,9 @@ export const BalanceCard = ({
             colorScheme={'brand'}
             w={isMobile ? 'full' : '200px'}
             h={'30px'}
-            onClick={() => handleOpenTopUpModal(weth.address[defaultChain.id])}
+            onClick={() =>
+              handleOpenTopUpModal(supportedTokens ? supportedTokens[0].address : '0x')
+            }
           >
             Top Up
           </Button>

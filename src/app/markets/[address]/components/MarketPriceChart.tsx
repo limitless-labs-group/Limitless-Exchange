@@ -3,13 +3,14 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { collateralTokensArray, defaultChain, newSubgraphURI } from '@/constants'
+import { defaultChain, newSubgraphURI } from '@/constants'
 import { usePathname } from 'next/navigation'
 import { Box, Divider, Text, Image, HStack, VStack, Spacer } from '@chakra-ui/react'
 import { useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
 import { useMarketData } from '@/hooks'
 import { Market } from '@/types'
+import { useToken } from '@/hooks/use-token'
 
 // Define the interface for the chart data
 interface YesBuyChartData {
@@ -26,11 +27,10 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
    * MARKET DATA
    */
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
+  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
   const { outcomeTokensPercent } = useMarketData({
     marketAddress,
-    collateralToken: collateralTokensArray.find(
-      (token) => token.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
-    ),
+    collateralToken,
   })
 
   const pathname = usePathname()

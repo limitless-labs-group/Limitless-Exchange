@@ -1,5 +1,5 @@
 import { Button } from '@/components'
-import { collateralTokensArray, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { useIsMobile, useMarketData } from '@/hooks'
 import {
   ClickEvent,
@@ -29,7 +29,7 @@ import {
 } from '@chakra-ui/react'
 import { FaShareSquare } from 'react-icons/fa'
 import { FaLink, FaXTwitter } from 'react-icons/fa6'
-import { Token } from '@/types'
+import { useToken } from '@/hooks/use-token'
 
 export const MarketMetadata = ({ ...props }: StackProps) => {
   /**
@@ -37,9 +37,8 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
    */
   const { market } = useTradingService()
 
-  const collateralToken: Token | undefined = collateralTokensArray.find((collateralToken) => {
-    return collateralToken.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
-  })
+  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
+
   const { liquidity, volume, outcomeTokensPercent } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
     collateralToken,
@@ -71,6 +70,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
         maxH={'140px'}
         bg={'brand'}
         borderRadius={borderRadius}
+        alt='market'
       />
 
       <Flex alignItems={'start'} gap={4} w={'full'} flexDirection={'column'}>
@@ -188,7 +188,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
                 justifyContent={'start'}
                 onClick={() => window.open(castURI, '_blank', 'noopener')}
               >
-                <Image src='/assets/images/farcaster.png' blockSize={'15px'} />
+                <Image src='/assets/images/farcaster.png' blockSize={'15px'} alt='warpcast' />
                 <Text>Share on Farcaster</Text>
               </Button>
             </PopoverContent>
@@ -215,6 +215,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
               p={0}
               cursor={'pointer'}
               fit={'cover'}
+              alt='creator'
             />
           </Link>
           <VStack spacing={1} alignItems={'start'}>

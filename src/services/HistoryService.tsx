@@ -1,20 +1,14 @@
-import {
-  collateralTokensArray,
-  defaultChain,
-  newSubgraphURI,
-  onChain,
-  vita,
-  weth,
-} from '@/constants'
+import { defaultChain, newSubgraphURI } from '@/constants'
 import { usePriceOracle } from '@/providers'
 import { Address } from '@/types'
 import { NumberUtil } from '@/utils'
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
-import { Hash, formatEther, formatUnits } from 'viem'
+import { Hash, formatUnits } from 'viem'
 import { useAllMarkets } from '@/services/MarketsService'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { useLimitlessApi } from '@/services/LimitlessApi'
 
 interface IHistoryService {
   trades: HistoryTrade[] | undefined
@@ -42,6 +36,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const { convertAssetAmountToUsd } = usePriceOracle()
   const markets = useAllMarkets()
+
+  const { supportedTokens } = useLimitlessApi()
 
   /**
    * QUERIES
@@ -83,7 +79,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       })
       const _trades = response.data.data?.[queryName] as HistoryTrade[]
       _trades.map((trade) => {
-        const collateralToken = collateralTokensArray.find(
+        const collateralToken = supportedTokens?.find(
           (token) => token.symbol === trade.market.collateral?.symbol
         )
         const outcomeTokenAmountBI = BigInt(
@@ -150,9 +146,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       _redeems.map((redeem) => {
         redeem.collateralAmount = formatUnits(
           BigInt(redeem.payout),
-          collateralTokensArray.find(
-            (token) => token.address[defaultChain.id] === redeem.collateralToken
-          )?.decimals || 18
+          supportedTokens?.find((token) => token.address === redeem.collateralToken)?.decimals || 18
         )
         redeem.outcomeIndex = redeem.indexSets[0] == '1' ? 0 : 1
       })
@@ -259,11 +253,11 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     let _balanceInvested = 0
     positions?.forEach((position) => {
       let positionUsdAmount = 0
-      const token = collateralTokensArray.find(
+      const token = supportedTokens?.find(
         (token) => token.symbol === position.market.collateral?.symbol
       )
       if (!!token) {
-        positionUsdAmount = convertAssetAmountToUsd(token.id, position.collateralAmount)
+        positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, position.collateralAmount)
       }
       _balanceInvested += positionUsdAmount
     })
@@ -274,11 +268,14 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     let _balanceToWin = 0
     positions?.forEach((position) => {
       let positionOutcomeUsdAmount = 0
-      const token = collateralTokensArray.find(
+      const token = supportedTokens?.find(
         (token) => token.symbol === position.market.collateral?.symbol
       )
       if (!!token) {
-        positionOutcomeUsdAmount = convertAssetAmountToUsd(token.id, position.outcomeTokenAmount)
+        positionOutcomeUsdAmount = convertAssetAmountToUsd(
+          token.priceOracleId,
+          position.outcomeTokenAmount
+        )
       }
       _balanceToWin += positionOutcomeUsdAmount
     })

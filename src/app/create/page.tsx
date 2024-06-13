@@ -32,6 +32,7 @@ import CreatableSelect from 'react-select/creatable'
 import axios from 'axios'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks'
+import { useLimitlessApi } from '@/services'
 
 interface FormFieldProps {
   label: string
@@ -133,6 +134,8 @@ const CreateOwnMarketPage = () => {
 
   const queryClient = useQueryClient()
 
+  const { supportedTokens } = useLimitlessApi()
+
   const handleLiquidityChange = (value: number) => setLiquidity(value)
 
   const handleProbabilityChange = (value: number) => setProbability(value)
@@ -187,14 +190,6 @@ const CreateOwnMarketPage = () => {
     queryFn: async () => {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/creators`)
       return response.data as Creator[]
-    },
-  })
-
-  const { data: tokens } = useQuery({
-    queryKey: ['tokens'],
-    queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tokens`)
-      return response.data as Token[]
     },
   })
 
@@ -329,7 +324,7 @@ const CreateOwnMarketPage = () => {
             <FormField label='Token'>
               <HStack>
                 <Select onChange={handleTokenSelect}>
-                  {tokens?.map((token: Token) => (
+                  {supportedTokens?.map((token: Token) => (
                     <option key={token.id} value={token.id} data-name={token.symbol}>
                       {token.symbol}
                     </option>
