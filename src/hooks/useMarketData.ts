@@ -32,7 +32,7 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
   const { data: outcomeTokensBuyPrice } = useQuery({
     queryKey: ['outcomeTokensBuyPrice', fixedProductMarketMakerContract?.address],
     queryFn: async () => {
-      if (!fixedProductMarketMakerContract) {
+      if (!fixedProductMarketMakerContract || !collateralToken) {
         return [0, 0]
       }
 
@@ -54,6 +54,7 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
 
       return [outcomeTokenPriceYes, outcomeTokenPriceNo]
     },
+    enabled: !!collateralToken,
     // enabled: false,
   })
 
