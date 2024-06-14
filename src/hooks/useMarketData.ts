@@ -36,8 +36,9 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
         return [0, 0]
       }
 
-      const collateralAmount = `0.0000001`
-      const collateralAmountBI = parseUnits(collateralAmount, 18)
+      const collateralDecimals = collateralToken?.decimals ?? 18
+      const collateralAmount = collateralDecimals <= 6 ? `0.0001` : `0.0000001`
+      const collateralAmountBI = parseUnits(collateralAmount, collateralDecimals)
       const outcomeTokenAmountYesBI = (await fixedProductMarketMakerContract.read.calcBuyAmount([
         collateralAmountBI,
         0,
@@ -46,8 +47,8 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
         collateralAmountBI,
         1,
       ])) as bigint
-      const outcomeTokenAmountYes = formatUnits(outcomeTokenAmountYesBI, 18)
-      const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, 18)
+      const outcomeTokenAmountYes = formatUnits(outcomeTokenAmountYesBI, collateralDecimals)
+      const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, collateralDecimals)
       const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
       const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
 
@@ -63,8 +64,9 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
         return [0, 0]
       }
 
-      const collateralAmount = `0.0000001`
-      const collateralAmountBI = parseUnits(collateralAmount, collateralToken?.decimals || 18)
+      const collateralDecimals = collateralToken?.decimals ?? 18
+      const collateralAmount = collateralDecimals <= 6 ? `0.0001` : `0.0000001`
+      const collateralAmountBI = parseUnits(collateralAmount, collateralDecimals)
       const outcomeTokenAmountYesBI = (await fixedProductMarketMakerContract.read.calcSellAmount([
         collateralAmountBI,
         0,
@@ -73,8 +75,8 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
         collateralAmountBI,
         1,
       ])) as bigint
-      const outcomeTokenAmountYes = formatUnits(outcomeTokenAmountYesBI, 18)
-      const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, 18)
+      const outcomeTokenAmountYes = formatUnits(outcomeTokenAmountYesBI, collateralDecimals)
+      const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, collateralDecimals)
       const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
       const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
 
