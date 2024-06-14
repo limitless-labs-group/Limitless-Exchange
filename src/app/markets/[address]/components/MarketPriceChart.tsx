@@ -6,7 +6,7 @@ import axios from 'axios'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { usePathname } from 'next/navigation'
 import { Box, Divider, Text, Image, HStack, VStack, Spacer } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
 import { useMarketData } from '@/hooks'
 import { Market } from '@/types'
@@ -34,7 +34,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
   })
 
   const pathname = usePathname()
-  const [yesChance, setYesChance] = useState((outcomeTokensPercent?.[0] ?? 50).toFixed(2))
+  const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%B %e, %Y %I:%M %p', Date.now()) ?? ''
   )
@@ -215,6 +215,13 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
     },
   })
 
+  const initialYesChance = useMemo(() => {
+    if (outcomeTokensPercent) {
+      return outcomeTokensPercent[0].toFixed(2)
+    }
+    return '50.00'
+  }, [outcomeTokensPercent])
+
   return (
     <Box>
       <Text fontWeight={'semibold'} color={'fontLight'} mb={1}>
@@ -228,7 +235,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
             <br />
           </Text>
           <Text fontSize='2xl' as='b' ml={3}>
-            {yesChance}% chance
+            {yesChance ? yesChance : initialYesChance}% chance
           </Text>
           <Text fontSize='sm' color={'fontLight'} ml={3}>
             {yesDate}

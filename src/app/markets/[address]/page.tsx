@@ -13,6 +13,8 @@ import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '
 import { MarketPriceChart } from '@/app/markets/[address]/components/MarketPriceChart'
 import { useMarket } from '@/services/MarketsService'
 import ApproveModal from '@/components/common/ApproveModal'
+import { useToken } from '@/hooks/use-token'
+import { defaultChain } from '@/constants'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
@@ -31,6 +33,8 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
    * SET MARKET
    */
   const market = useMarket(params.address)
+
+  const { isLoading: isCollateralLoading } = useToken(market?.collateralToken[defaultChain.id])
 
   const {
     setMarket,
@@ -52,7 +56,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
 
   return (
     <MainLayout maxContentWidth={'1200px'}>
-      {!market ? (
+      {!market || isCollateralLoading ? (
         <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
           <Spinner />
         </Flex>

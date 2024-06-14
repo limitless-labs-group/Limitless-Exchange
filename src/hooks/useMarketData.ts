@@ -105,7 +105,7 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
   const { data: liquidityAndVolume } = useQuery({
     queryKey: ['marketData', marketAddress],
     queryFn: async () => {
-      if (!marketAddress) {
+      if (!marketAddress && !collateralToken) {
         return
       }
       const queryName = 'AutomatedMarketMaker'
@@ -142,7 +142,7 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
         volume,
       }
     },
-    enabled: !!market,
+    enabled: !!market && !!collateralToken,
   })
 
   return {
