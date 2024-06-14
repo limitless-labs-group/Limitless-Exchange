@@ -32,7 +32,7 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
   const { data: outcomeTokensBuyPrice } = useQuery({
     queryKey: ['outcomeTokensBuyPrice', fixedProductMarketMakerContract?.address],
     queryFn: async () => {
-      if (!fixedProductMarketMakerContract) {
+      if (!fixedProductMarketMakerContract || !collateralToken) {
         return [0, 0]
       }
 
@@ -54,6 +54,7 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
 
       return [outcomeTokenPriceYes, outcomeTokenPriceNo]
     },
+    enabled: !!collateralToken,
     // enabled: false,
   })
 
@@ -107,7 +108,7 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
   const { data: liquidityAndVolume } = useQuery({
     queryKey: ['marketData', marketAddress],
     queryFn: async () => {
-      if (!marketAddress) {
+      if (!marketAddress && !collateralToken) {
         return
       }
       const queryName = 'AutomatedMarketMaker'
@@ -144,7 +145,7 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
         volume,
       }
     },
-    enabled: !!market,
+    enabled: !!market && !!collateralToken,
   })
 
   return {
