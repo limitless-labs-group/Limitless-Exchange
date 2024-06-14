@@ -97,8 +97,8 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
       }
 
       const sum = outcomeTokensBuyPrice[0] + outcomeTokensBuyPrice[1]
-      const outcomeTokensPercentYes = (outcomeTokensBuyPrice[0] / sum) * 100
-      const outcomeTokensPercentNo = (outcomeTokensBuyPrice[1] / sum) * 100
+      const outcomeTokensPercentYes = +((outcomeTokensBuyPrice[0] / sum) * 100).toFixed(1)
+      const outcomeTokensPercentNo = +((outcomeTokensBuyPrice[1] / sum) * 100).toFixed(1)
 
       return [outcomeTokensPercentYes, outcomeTokensPercentNo]
     },
