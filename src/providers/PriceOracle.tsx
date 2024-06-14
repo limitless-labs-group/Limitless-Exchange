@@ -43,7 +43,7 @@ const PriceOracleContext = createContext<PriceOracleContextType | undefined>(und
  * @param children The child components to be rendered within this provider.
  */
 export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
-  // coingecko ids ethereum, degen-base, regen, higher, mfercoin, onchain
+  // coingecko ids ethereum, degen-base, regen, higher, mfercoin, onchain, usd-coin
   const fetchEthPrice = async () => {
     const { data } = await axios.get(
       'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
@@ -119,7 +119,6 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
       // @ts-ignore
       const coingeckoId = MarketTokensIds[symbol] as MarketTokensIds
       const amountUsd = Number(amount) * marketTokensPrices[coingeckoId]?.usd ?? 0
-      console.log('convertTokenAmountToUsd', symbol, amountUsd)
       return amountUsd
     },
     [marketTokensPrices]

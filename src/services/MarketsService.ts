@@ -15,6 +15,18 @@ export function useMarkets() {
   return useMemo(() => markets ?? [], [markets])
 }
 
+export function useAllMarkets() {
+  const { data: markets } = useQuery({
+    queryKey: ['allMarkets'],
+    queryFn: async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets`)
+      return response.data as Market[]
+    },
+  })
+
+  return useMemo(() => markets ?? [], [markets])
+}
+
 export function useMarketByConditionId(conditionId: string) {
   const { data: market } = useQuery({
     queryKey: ['marketByConditionId', conditionId],
@@ -29,7 +41,7 @@ export function useMarketByConditionId(conditionId: string) {
   return useMemo(() => market ?? null, [market])
 }
 
-export function useMarket(address: string) {
+export function useMarket(address?: string) {
   const { data: market } = useQuery({
     queryKey: ['market', address],
     queryFn: async () => {
@@ -38,6 +50,7 @@ export function useMarket(address: string) {
       )
       return response.data as Market
     },
+    enabled: address !== '0x',
   })
 
   return useMemo(() => market ?? null, [market])

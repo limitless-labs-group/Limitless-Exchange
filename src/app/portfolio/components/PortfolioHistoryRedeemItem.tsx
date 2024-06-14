@@ -1,22 +1,17 @@
-import { collateralToken, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { HistoryRedeem } from '@/services'
 import { borderRadius } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { HStack, Heading, Image, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import { useMemo } from 'react'
 import { FaExternalLinkAlt } from 'react-icons/fa'
-import { useMarket, useMarketByConditionId, useMarkets } from '@/services/MarketsService'
+import { useMarketByConditionId } from '@/services/MarketsService'
 
 interface IPortfolioHistoryRedeemItem extends TableRowProps {
   redeem: HistoryRedeem
 }
 
-export const PortfolioHistoryRedeemItem = ({
-  redeem,
-  children,
-  ...props
-}: IPortfolioHistoryRedeemItem) => {
+export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHistoryRedeemItem) => {
   /**
    * NAVIGATION
    */
@@ -43,6 +38,7 @@ export const PortfolioHistoryRedeemItem = ({
             fit={'cover'}
             bg={'brand'}
             borderRadius={borderRadius}
+            alt='token'
           />
           <Heading size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
             {market?.title ?? 'Noname market'}
@@ -62,7 +58,7 @@ export const PortfolioHistoryRedeemItem = ({
       <Td px={2} isNumeric>
         <Text fontWeight={'bold'}>
           {`${NumberUtil.toFixed(Number(redeem.collateralAmount ?? 0), 6)} 
-          ${market?.tokenTicker[defaultChain.id] ?? collateralToken.symbol}`}
+          ${market?.tokenTicker[defaultChain.id]}`}
         </Text>
       </Td>
 

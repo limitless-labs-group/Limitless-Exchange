@@ -1,22 +1,17 @@
-import { collateralToken, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { HistoryTrade } from '@/services'
 import { borderRadius } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { HStack, Heading, Image, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import { useMemo } from 'react'
 import { FaExternalLinkAlt } from 'react-icons/fa'
-import { useMarket, useMarkets } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
 
 interface IPortfolioHistoryTradeItem extends TableRowProps {
   trade: HistoryTrade
 }
 
-export const PortfolioHistoryTradeItem = ({
-  trade,
-  children,
-  ...props
-}: IPortfolioHistoryTradeItem) => {
+export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistoryTradeItem) => {
   /**
    * NAVIGATION
    */
@@ -43,6 +38,7 @@ export const PortfolioHistoryTradeItem = ({
             fit={'cover'}
             bg={'brand'}
             borderRadius={borderRadius}
+            alt='token'
           />
           <Heading size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
             {market?.title ?? 'Noname market'}
@@ -54,7 +50,7 @@ export const PortfolioHistoryTradeItem = ({
         <Text color={trade.outcomeIndex == 0 ? 'green' : 'red'} fontWeight={'bold'}>
           {market?.outcomeTokens[trade.outcomeIndex ?? 0]}{' '}
           {NumberUtil.formatThousands(trade.outcomeTokenPrice, 3)}{' '}
-          {market?.tokenTicker[defaultChain.id] ?? collateralToken.symbol}
+          {market?.tokenTicker[defaultChain.id]}
         </Text>
       </Td>
 
@@ -66,7 +62,7 @@ export const PortfolioHistoryTradeItem = ({
           {`${NumberUtil.formatThousands(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
             6
-          )} ${market?.tokenTicker[defaultChain.id] ?? collateralToken.symbol}`}
+          )} ${market?.tokenTicker[defaultChain.id]}`}
         </Text>
       </Td>
 

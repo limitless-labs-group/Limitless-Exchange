@@ -1,23 +1,26 @@
 import { Button } from '@/components'
-import { collateralTokensArray, defaultChain, higher, weth } from '@/constants'
-import { useAccount, useBalanceService } from '@/services'
+import { defaultChain } from '@/constants'
+import { useAccount, useBalanceService, useLimitlessApi } from '@/services'
 import { borderRadius, colors } from '@/styles'
 import { HStack, Link, Stack, StackProps, Text } from '@chakra-ui/react'
 import { useIsMobile } from '@/hooks'
 import SelectTokenField from '@/components/common/SelectTokenField'
 import { useState } from 'react'
 import { Address } from 'viem'
+import { useToken } from '@/hooks/use-token'
 
 export const DepositTestCard = ({ ...props }: StackProps) => {
   const { account } = useAccount()
   const { mint, isLoadingMint } = useBalanceService()
   const isMobile = useIsMobile()
 
-  const [selectedToken, setSelectedToken] = useState<Address>(weth.address[defaultChain.id])
+  const { supportedTokens } = useLimitlessApi()
 
-  const tokenTitle = collateralTokensArray.find(
-    (collToken) => collToken.address[defaultChain.id] === selectedToken
-  )?.symbol
+  const [selectedToken, setSelectedToken] = useState<Address>(
+    supportedTokens ? supportedTokens[0].address : '0x'
+  )
+
+  const { data: token } = useToken(selectedToken)
 
   return (
     <Stack
@@ -72,12 +75,13 @@ export const DepositTestCard = ({ ...props }: StackProps) => {
         onClick={() => {
           mint({
             address: selectedToken as Address,
-            newToken: selectedToken !== weth.address[defaultChain.id],
+            newToken:
+              selectedToken !== supportedTokens?.find((token) => token.symbol === 'WETH')?.address,
           })
         }}
         isLoading={isLoadingMint}
       >
-        Mint {tokenTitle}
+        Mint {token?.symbol}
       </Button>
       {/* </HStack> */}
     </Stack>

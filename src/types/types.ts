@@ -3,13 +3,12 @@ import { Hash, Address } from 'viem'
 export type { Hash, Address }
 
 export type Token = {
-  address: {
-    [chainId: number]: Address
-  }
+  address: Address
   symbol: string
   decimals: number
   name: string
-  imageURI: string
+  logoUrl: string
+  priceOracleId: MarketTokensIds
   id: MarketTokensIds
 }
 
@@ -70,6 +69,9 @@ export type GetBalanceResult = {
 
 type CoingeckoPriceEntity = { usd: number }
 
+/**
+ * coingecko ids
+ */
 export enum MarketTokensIds {
   DEGEN = 'degen-base',
   ETH = 'ethereum',
@@ -78,7 +80,8 @@ export enum MarketTokensIds {
   MFER = 'mfercoin',
   ONCHAIN = 'onchain',
   REGEN = 'regen',
-  USDC = 'usdc',
+  USDC = 'usd-coin',
+  VITA = 'vitadao',
 }
 
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>

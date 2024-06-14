@@ -32,6 +32,7 @@ import CreatableSelect from 'react-select/creatable'
 import axios from 'axios'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks'
+import { useLimitlessApi } from '@/services'
 
 interface FormFieldProps {
   label: string
@@ -77,6 +78,11 @@ const tokenLimits: TokenLimits = {
   USDC: {
     min: 350,
     max: 5000,
+    step: 25,
+  },
+  VITA: {
+    min: 150,
+    max: 3000,
     step: 25,
   },
 }
@@ -127,6 +133,8 @@ const CreateOwnMarketPage = () => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
 
   const queryClient = useQueryClient()
+
+  const { supportedTokens } = useLimitlessApi()
 
   const handleLiquidityChange = (value: number) => setLiquidity(value)
 
@@ -185,14 +193,6 @@ const CreateOwnMarketPage = () => {
     },
   })
 
-  const { data: tokens } = useQuery({
-    queryKey: ['tokens'],
-    queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tokens`)
-      return response.data as Token[]
-    },
-  })
-
   const handleTagCreation = async (tagToCreate: string) => {
     const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`, {
       name: tagToCreate,
@@ -205,7 +205,6 @@ const CreateOwnMarketPage = () => {
   }
 
   const handleActiveTags = (selectedOptions: TagOption[]) => {
-    console.log(selectedOptions)
     setTag(selectedOptions)
   }
 
@@ -325,7 +324,7 @@ const CreateOwnMarketPage = () => {
             <FormField label='Token'>
               <HStack>
                 <Select onChange={handleTokenSelect}>
-                  {tokens?.map((token: Token) => (
+                  {supportedTokens?.map((token: Token) => (
                     <option key={token.id} value={token.id} data-name={token.symbol}>
                       {token.symbol}
                     </option>

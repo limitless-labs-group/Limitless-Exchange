@@ -10,13 +10,14 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { LuListFilter } from 'react-icons/lu'
-import { collateralTokensArray, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { v4 as uuidv4 } from 'uuid'
 import TextButton from '@/components/common/buttons/TextButton'
 import { colors } from '@/styles'
 import { Token } from '@/types'
 import { Button } from '@/components/common/buttons/Button'
 import { FaXmark } from 'react-icons/fa6'
+import { useLimitlessApi } from '@/services'
 
 type TokenFilterProps = {
   onChange: (tokens: Token[]) => void
@@ -24,19 +25,14 @@ type TokenFilterProps = {
 
 export default function TokenFilter({ onChange }: TokenFilterProps) {
   const { onOpen, onClose, isOpen } = useDisclosure()
+  const { supportedTokens } = useLimitlessApi()
 
   const [selectedFilterTokens, setSelectedFilterTokens] = useState<Token[]>([])
 
   const handleFilterItemClicked = (token: Token) => {
-    if (
-      selectedFilterTokens.find(
-        (_token) => _token.address[defaultChain.id] == token.address[defaultChain.id]
-      )
-    ) {
+    if (selectedFilterTokens.find((_token) => _token.address == token.address)) {
       setSelectedFilterTokens(
-        selectedFilterTokens.filter(
-          (_token) => _token.address[defaultChain.id] != token.address[defaultChain.id]
-        )
+        selectedFilterTokens.filter((_token) => _token.address != token.address)
       )
     } else {
       setSelectedFilterTokens([...selectedFilterTokens, token])
@@ -60,7 +56,7 @@ export default function TokenFilter({ onChange }: TokenFilterProps) {
         <Portal>
           <PopoverContent bg={'bg'} border={`1px solid ${colors.border}`} w={'fit-content'} p={3}>
             <TextButton onClick={() => setSelectedFilterTokens([])} label='Clear all' py={2} />
-            {collateralTokensArray.map(
+            {supportedTokens?.map(
               (token) =>
                 !selectedFilterTokens.includes(token) && (
                   <TextButton
@@ -70,7 +66,7 @@ export default function TokenFilter({ onChange }: TokenFilterProps) {
                     py={2}
                     leftIcon={
                       <Image
-                        src={token.imageURI}
+                        src={token.logoUrl}
                         alt='token'
                         width={'20px'}
                         height={'20px'}
@@ -94,7 +90,7 @@ export default function TokenFilter({ onChange }: TokenFilterProps) {
             onClick={() => handleFilterItemClicked(filterToken)}
             leftIcon={
               <Image
-                src={filterToken.imageURI}
+                src={filterToken.logoUrl}
                 alt='token'
                 width={'20px'}
                 height={'20px'}

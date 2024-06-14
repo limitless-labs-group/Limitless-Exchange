@@ -1,6 +1,6 @@
 import { Button, IModal, InfoIcon, Input, Modal, Tooltip } from '@/components'
-import { collateralTokensArray, defaultChain, higher, weth } from '@/constants'
-import { useBalanceService } from '@/services'
+import { defaultChain } from '@/constants'
+import { useBalanceService, useLimitlessApi } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
   HStack,
@@ -17,6 +17,7 @@ import { Dispatch, SetStateAction, useEffect, useMemo } from 'react'
 import { Address, zeroAddress } from 'viem'
 import SelectTokenField from '@/components/common/SelectTokenField'
 import { Token } from '@/types'
+import { useToken } from '@/hooks/use-token'
 
 type WithdrawModalProps = Omit<IModal, 'children'> & {
   selectedToken: Address
@@ -45,13 +46,9 @@ export const WithdrawModal = ({
 
   const disclosure = useDisclosure()
 
-  const tokenName = useMemo(() => {
-    return (
-      collateralTokensArray.find(
-        (collateralToken) => collateralToken.address[defaultChain.id] === selectedToken
-      )?.symbol || weth.symbol
-    )
-  }, [selectedToken])
+  const { data: collateralToken } = useToken(selectedToken)
+
+  const { supportedTokens } = useLimitlessApi()
 
   const balanceItem = useMemo(() => {
     if (balanceOfSmartWallet) {
@@ -72,26 +69,22 @@ export const WithdrawModal = ({
   }, [isOpen])
 
   useEffect(() => {
-    setToken(
-      collateralTokensArray.find(
-        (collateralToken) => collateralToken.address[defaultChain.id] === selectedToken
-      ) as Token
-    )
-  }, [selectedToken])
+    setToken(collateralToken as Token)
+  }, [collateralToken])
 
   return (
     <Modal
       size={'md'}
-      title={`Withdraw ${tokenName} Base`}
+      title={`Withdraw ${collateralToken?.symbol} Base`}
       isOpen={isOpen}
       onClose={onClose}
       {...props}
     >
       <Box mb='24px' overflowX='scroll'>
         <SelectTokenField
-          token={selectedToken ? selectedToken : weth.address[defaultChain.id]}
+          token={selectedToken}
           setToken={setSelectedToken}
-          defaultValue={selectedToken ? selectedToken : weth.address[defaultChain.id]}
+          defaultValue={selectedToken}
         />
       </Box>
       <Stack w={'full'} spacing={4}>
@@ -117,10 +110,9 @@ export const WithdrawModal = ({
                 fontSize={'12px'}
                 onClick={() => setAmount(balanceItem ? balanceItem.formatted : '')}
               >
-                {`Balance: ${NumberUtil.toFixed(
-                  balanceItem ? balanceItem.formatted : '',
-                  6
-                )} ${tokenName}`}
+                {`Balance: ${NumberUtil.toFixed(balanceItem ? balanceItem.formatted : '', 6)} ${
+                  collateralToken?.symbol
+                }`}
               </Button>
             </HStack>
           </HStack>
@@ -138,7 +130,7 @@ export const WithdrawModal = ({
             />
           </InputGroup>
         </Stack>
-        {selectedToken === weth.address[defaultChain.id] && (
+        {selectedToken === supportedTokens?.find((token) => token.symbol === 'WETH')?.address && (
           <HStack fontWeight={'bold'}>
             <Text color={unwrap ? 'fontLight' : 'font'}>WETH</Text>
             <Switch
