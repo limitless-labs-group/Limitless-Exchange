@@ -41,7 +41,7 @@ export function useMarketByConditionId(conditionId: string) {
   return useMemo(() => market ?? null, [market])
 }
 
-export function useMarket(address: string) {
+export function useMarket(address?: string) {
   const { data: market } = useQuery({
     queryKey: ['market', address],
     queryFn: async () => {
@@ -50,6 +50,7 @@ export function useMarket(address: string) {
       )
       return response.data as Market
     },
+    enabled: address !== '0x',
   })
 
   return useMemo(() => market ?? null, [market])

@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
 import { useMarketData } from '@/hooks'
 import { Market } from '@/types'
+import { useToken } from '@/hooks/use-token'
 
 // Define the interface for the chart data
 interface YesBuyChartData {
@@ -26,7 +27,11 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
    * MARKET DATA
    */
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
-  const { outcomeTokensPercent } = useMarketData({ marketAddress })
+  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
+  const { outcomeTokensPercent } = useMarketData({
+    marketAddress,
+    collateralToken,
+  })
 
   const pathname = usePathname()
   const [yesChance, setYesChance] = useState((outcomeTokensPercent?.[0] ?? 50).toFixed(2))

@@ -56,45 +56,33 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
   )
 
   const trackSignUp = async () => {
-    console.log('Amplitude.trackSignUp')
-    const result = await trackEvent(AuthenticationEvent.SignUp)
-    console.log('Amplitude.trackSignUp result', result)
+    return trackEvent(AuthenticationEvent.SignUp)
   }
 
   const trackChanged = async <T extends ChangedEventMetadata>(
     event: ChangeEvent,
     customData?: T
   ) => {
-    console.log('Amplitude.trackChanged', { event, customData })
-    const result = await trackEvent(event, customData)
-    console.log('Amplitude.trackChanged result', result)
+    return trackEvent(event, customData)
   }
 
   const trackClicked = async <T extends ClickedEventMetadata>(
     event: ClickEvent,
     customData?: T
   ) => {
-    console.log('Amplitude.trackClicked', { event, customData })
-    const result = await trackEvent(event, customData)
-    console.log('Amplitude.trackClicked result', result)
+    return trackEvent(event, customData)
   }
 
   const trackOpened = async <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => {
-    console.log('Amplitude.trackOpened', { event, customData })
-    const result = await trackEvent(event, customData)
-    console.log('Amplitude.trackOpened result', result)
+    return trackEvent(event, customData)
   }
 
   const trackLogin = async <T extends LoginEventMetadata>(event: LoginEvent, customData?: T) => {
-    console.log('Amplitude.trackLogin', { event, customData })
-    const result = await trackEvent(event, customData)
-    console.log('Amplitude.trackLogin result', result)
+    return trackEvent(event, customData)
   }
 
   const trackCopied = async <T extends CopiedEventMetadata>(event: CopyEvent, customData?: T) => {
-    console.log('Amplitude.trackCopied', { event, customData })
-    const result = await trackEvent(event, customData)
-    console.log('Amplitude.trackCopied result', result)
+    return trackEvent(event, customData)
   }
 
   const contextProviderValue: IAmplitudeContext = {

@@ -1,6 +1,7 @@
-import { collateralToken, defaultChain, newSubgraphURI } from '@/constants'
+import { defaultChain, newSubgraphURI } from '@/constants'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers'
+import { Token } from '@/types'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useMemo } from 'react'
@@ -9,10 +10,11 @@ import { useMarket } from '@/services/MarketsService'
 
 interface IUseMarketData {
   marketAddress?: Address
+  collateralToken?: Token
 }
 
 // TODO: incapsulate with context provider to reduce requests
-export const useMarketData = ({ marketAddress }: IUseMarketData) => {
+export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData) => {
   const market = useMarket(marketAddress as string)
 
   const fixedProductMarketMakerContract = useMemo(
@@ -35,7 +37,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       }
 
       const collateralAmount = `0.0000001`
-      const collateralAmountBI = parseUnits(collateralAmount, collateralToken.decimals)
+      const collateralAmountBI = parseUnits(collateralAmount, 18)
       const outcomeTokenAmountYesBI = (await fixedProductMarketMakerContract.read.calcBuyAmount([
         collateralAmountBI,
         0,
@@ -48,11 +50,6 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, 18)
       const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
       const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
-
-      console.log('outcomeTokensBuyPrice', {
-        priceYes: outcomeTokenPriceYes,
-        priceNo: outcomeTokenPriceNo,
-      })
 
       return [outcomeTokenPriceYes, outcomeTokenPriceNo]
     },
@@ -67,7 +64,7 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       }
 
       const collateralAmount = `0.0000001`
-      const collateralAmountBI = parseUnits(collateralAmount, collateralToken.decimals)
+      const collateralAmountBI = parseUnits(collateralAmount, collateralToken?.decimals || 18)
       const outcomeTokenAmountYesBI = (await fixedProductMarketMakerContract.read.calcSellAmount([
         collateralAmountBI,
         0,
@@ -80,11 +77,6 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, 18)
       const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
       const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
-
-      console.log('outcomeTokensSellPrice', {
-        priceYes: outcomeTokenPriceYes,
-        priceNo: outcomeTokenPriceNo,
-      })
 
       return [outcomeTokenPriceYes, outcomeTokenPriceNo]
     },
@@ -105,11 +97,6 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
       const sum = outcomeTokensBuyPrice[0] + outcomeTokensBuyPrice[1]
       const outcomeTokensPercentYes = (outcomeTokensBuyPrice[0] / sum) * 100
       const outcomeTokensPercentNo = (outcomeTokensBuyPrice[1] / sum) * 100
-
-      console.log('outcomeTokensPercent', {
-        outcomeTokensPercentYes,
-        outcomeTokensPercentNo,
-      })
 
       return [outcomeTokensPercentYes, outcomeTokensPercentNo]
     },
@@ -142,17 +129,20 @@ export const useMarketData = ({ marketAddress }: IUseMarketData) => {
           `,
         },
       })
-      console.log('GetMarkets query response', res)
+
       const [_marketData] = res.data.data?.[queryName] as MarketData[]
-      const liquidity = formatUnits(BigInt(_marketData.funding), collateralToken.decimals)
-      const volume = formatUnits(BigInt(_marketData.totalVolume ?? '0'), collateralToken.decimals)
+      const liquidity = formatUnits(BigInt(_marketData.funding), collateralToken?.decimals || 18)
+      const volume = formatUnits(
+        BigInt(_marketData.totalVolume ?? '0'),
+        collateralToken?.decimals || 18
+      )
 
       return {
         liquidity,
         volume,
       }
     },
-    enabled: !!marketAddress,
+    enabled: !!market,
   })
 
   return {

@@ -1,14 +1,15 @@
 import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { borderRadius, colors } from '@/styles'
-import { Address, Market } from '@/types'
+import { Address } from '@/types'
 import { NumberUtil } from '@/utils'
 import { HStack, Stack, StackProps, Text, Avatar } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
 import { createMarketShareUrls } from '@/services'
-import { useMarket, useMarkets } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
+import { useToken } from '@/hooks/use-token'
 
 interface IMarketCard extends StackProps {
   marketAddress?: Address
@@ -16,10 +17,12 @@ interface IMarketCard extends StackProps {
 
 export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketCard) => {
   const router = useRouter()
-
   const market = useMarket(marketAddress as string)
-
-  const { outcomeTokensPercent, liquidity, volume } = useMarketData({ marketAddress })
+  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
+  const { outcomeTokensPercent, liquidity, volume } = useMarketData({
+    marketAddress,
+    collateralToken,
+  })
 
   const marketURI = `${window.location.origin}/markets/${marketAddress}`
 

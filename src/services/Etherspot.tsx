@@ -1,7 +1,7 @@
-import { collateralToken, conditionalTokensAddress, defaultChain, weth } from '@/constants'
+import { conditionalTokensAddress, defaultChain } from '@/constants'
 import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useWeb3Auth } from '@/providers'
-import { Address } from '@/types'
+import { Address, Token } from '@/types'
 import { ArkaPaymaster, EtherspotBundler, PrimeSdk, Web3WalletProvider } from '@etherspot/prime-sdk'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common/utils'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -16,6 +16,7 @@ import {
 import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, erc20Abi } from 'viem'
 import { contractABI } from '@/contracts/utils'
 import { publicClient } from '@/providers'
+import { useLimitlessApi } from '@/services/LimitlessApi'
 
 interface IEtherspotContext {
   etherspot: Etherspot | null
@@ -35,6 +36,8 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    */
   const { provider: web3AuthProvider, isConnected, web3Auth } = useWeb3Auth()
 
+  const { supportedTokens } = useLimitlessApi()
+
   /**
    * ETHERSPOT INSTANCE
    */
@@ -44,8 +47,12 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    * Initialize Etherspot with Prime SDK instance on top of W3A wallet, once user signed in
    */
   const initEtherspot = useCallback(async () => {
-    console.log('initEtherspot', web3AuthProvider, isConnected)
-    if (!web3AuthProvider || !isConnected || web3Auth.connectedAdapterName !== 'openlogin') {
+    if (
+      !web3AuthProvider ||
+      !isConnected ||
+      web3Auth.connectedAdapterName !== 'openlogin' ||
+      !supportedTokens
+    ) {
       setEtherspot(null)
       return
     }
@@ -63,7 +70,8 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
     const etherspot = new Etherspot(
       primeSdk,
       conditionalTokensAddress[defaultChain.id],
-      collateralToken.address[defaultChain.id]
+      supportedTokens[0].address,
+      supportedTokens
     )
     setEtherspot(etherspot)
   }, [web3AuthProvider, isConnected, web3Auth.connectedAdapterName])
@@ -79,7 +87,6 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
     queryKey: ['smartWalletAddress', !!etherspot],
     queryFn: async () => {
       const address = await etherspot?.getAddress()
-      console.log(`Smart wallet address: ${smartWalletAddress}`)
       return address
     },
     enabled: !!etherspot,
@@ -148,6 +155,7 @@ class Etherspot {
   primeSdk: PrimeSdk
   conditionalTokensAddress: Address
   collateralTokenAddress: Address
+  supportedTokens: Token[]
 
   paymasterApiKey = process.env.NEXT_PUBLIC_ETHERSPOT_API_KEY ?? ''
   paymasterUrl = `https://arka.etherspot.io`
@@ -157,11 +165,13 @@ class Etherspot {
   constructor(
     _primeSdk: PrimeSdk,
     _conditionalTokensAddress: Address,
-    _collateralTokenAddress: Address
+    _collateralTokenAddress: Address,
+    _supportedTokens: Token[]
   ) {
     this.primeSdk = _primeSdk
     this.conditionalTokensAddress = _conditionalTokensAddress
     this.collateralTokenAddress = _collateralTokenAddress
+    this.supportedTokens = _supportedTokens
   }
 
   // TODO: incapsulate
@@ -196,13 +206,11 @@ class Etherspot {
   }
 
   async whitelist(address: Address) {
-    const response = await this.paymaster.addWhitelist([address])
-    console.log('PAYMASTER_ADD_WHITELIST_RESPONSE:', address, response)
+    return this.paymaster.addWhitelist([address])
   }
 
   async isWhitelisted(address: Address) {
     const response = await this.paymaster.checkWhitelist(address)
-    console.log('PAYMASTER_IS_WHITELISTED_RESPONSE:', address, response)
     return response === 'Already added'
   }
 
@@ -240,7 +248,6 @@ class Etherspot {
       await sleep(2)
       opReceipt = await this.primeSdk.getUserOpReceipt(opHash)
     }
-    console.log('\x1b[33m%s\x1b[0m', `Transaction Receipt: `, opReceipt)
     return opReceipt.receipt as TransactionReceipt
   }
 
@@ -287,7 +294,7 @@ class Etherspot {
     const allowance = (await contract.read.allowance([owner, spender])) as bigint
     if (allowance < amount) {
       const data = encodeFunctionData({
-        abi: spender === weth.address[defaultChain.id] ? wethABI : erc20Abi,
+        abi: spender === this.supportedTokens[0].address ? wethABI : erc20Abi,
         functionName: 'approve',
         args: [spender, maxUint256],
       })
