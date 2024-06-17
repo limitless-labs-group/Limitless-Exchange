@@ -9,9 +9,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Filter from '@/components/common/TokenFilter'
 import SortFilter from '@/components/common/SortFilter'
-import { Sort, Token } from '@/types'
+import { Market, Sort, Token } from '@/types'
 import { getAddress } from 'viem'
 import { useMarkets } from '@/services/MarketsService'
+import InfiniteScroll from 'react-infinite-scroll-component'
 
 const MainPage = () => {
   /**
@@ -34,7 +35,15 @@ const MainPage = () => {
   const handleSelectFilterTokens = (tokens: Token[]) => setSelectedFilterTokens(tokens)
   const handleSelectSort = (options: Sort) => setSelectedSort(options)
 
-  const markets = useMarkets()
+  const { data, fetchNextPage, hasNextPage } = useMarkets()
+
+  const dataLength = data?.pages.reduce((counter, page) => {
+    return counter + page.data.length
+  }, 0)
+
+  const markets: Market[] = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data) || []
+  }, [data?.pages])
 
   const filteredMarkets = useMemo(() => {
     return markets?.filter((market) =>
@@ -68,28 +77,39 @@ const MainPage = () => {
         return filteredMarkets
     }
   }, [filteredMarkets, selectedSort])
+
   return (
-    <MainLayout maxContentWidth={'unset'}>
-      <Stack w={'full'} spacing={5} px={{ md: 14 }}>
-        <Stack direction={{ base: 'column', md: 'row' }} spacing={4}>
-          <Filter onChange={handleSelectFilterTokens} />
-          <SortFilter onChange={handleSelectSort} />
+    <InfiniteScroll
+      dataLength={dataLength ?? 0}
+      next={fetchNextPage}
+      hasMore={hasNextPage}
+      loader={<h4></h4>}
+      scrollThreshold={0.1}
+      refreshFunction={fetchNextPage}
+      pullDownToRefresh
+    >
+      <MainLayout maxContentWidth={'unset'}>
+        <Stack w={'full'} spacing={5} px={{ md: 14 }}>
+          <Stack direction={{ base: 'column', md: 'row' }} spacing={4}>
+            <Filter onChange={handleSelectFilterTokens} />
+            <SortFilter onChange={handleSelectSort} />
+          </Stack>
+          <Grid
+            templateColumns={{ sm: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)', xl: 'repeat(4, 1fr)' }}
+            gap={6}
+          >
+            <CreateMarketCard />
+            {sortedMarkets?.map((market) =>
+              isMobile ? (
+                <MarketCardMobile key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
+              ) : (
+                <MarketCard key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
+              )
+            )}
+          </Grid>
         </Stack>
-        <Grid
-          templateColumns={{ sm: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)', xl: 'repeat(4, 1fr)' }}
-          gap={6}
-        >
-          <CreateMarketCard />
-          {sortedMarkets?.map((market) =>
-            isMobile ? (
-              <MarketCardMobile key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
-            ) : (
-              <MarketCard key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
-            )
-          )}
-        </Grid>
-      </Stack>
-    </MainLayout>
+      </MainLayout>
+    </InfiniteScroll>
   )
 }
 

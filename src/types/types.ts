@@ -12,6 +12,11 @@ export type Token = {
   id: MarketTokensIds
 }
 
+export type MarketData = {
+  data: Market[]
+  next: number
+}
+
 export type Market = {
   address: {
     [chainId: number]: Address
