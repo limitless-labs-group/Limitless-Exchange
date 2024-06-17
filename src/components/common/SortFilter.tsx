@@ -40,7 +40,13 @@ export default function SortFilter({ onChange }: SortFilterProps) {
         <PopoverTrigger>
           <HStack cursor='pointer'>
             <LuArrowUpDown />
-            <Text>Sort</Text>
+            {selectedSortFilter === Sort.BASE ? (
+              <Text>Sort</Text>
+            ) : (
+              <Text fontWeight={600} color={colors.brand}>
+                {selectedSortFilter}
+              </Text>
+            )}
           </HStack>
         </PopoverTrigger>
         <Portal>
