@@ -1,4 +1,4 @@
-import { conditionalTokensAddress, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useWeb3Auth } from '@/providers'
 import { Address, Token } from '@/types'
@@ -67,12 +67,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
       ),
     })
 
-    const etherspot = new Etherspot(
-      primeSdk,
-      conditionalTokensAddress[defaultChain.id],
-      supportedTokens[0].address,
-      supportedTokens
-    )
+    const etherspot = new Etherspot(primeSdk, supportedTokens[0].address, supportedTokens)
     setEtherspot(etherspot)
   }, [web3AuthProvider, isConnected, web3Auth.connectedAdapterName])
 
@@ -153,7 +148,6 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
 
 class Etherspot {
   primeSdk: PrimeSdk
-  conditionalTokensAddress: Address
   collateralTokenAddress: Address
   supportedTokens: Token[]
 
@@ -162,14 +156,8 @@ class Etherspot {
   paymaster = new ArkaPaymaster(defaultChain.id, this.paymasterApiKey, this.paymasterUrl)
   isEnabledPaymaster = !defaultChain.testnet
 
-  constructor(
-    _primeSdk: PrimeSdk,
-    _conditionalTokensAddress: Address,
-    _collateralTokenAddress: Address,
-    _supportedTokens: Token[]
-  ) {
+  constructor(_primeSdk: PrimeSdk, _collateralTokenAddress: Address, _supportedTokens: Token[]) {
     this.primeSdk = _primeSdk
-    this.conditionalTokensAddress = _conditionalTokensAddress
     this.collateralTokenAddress = _collateralTokenAddress
     this.supportedTokens = _supportedTokens
   }
@@ -193,9 +181,9 @@ class Etherspot {
   }
 
   // TODO: incapsulate
-  getConditionalTokensContract() {
+  getConditionalTokensContract(conditionalTokensAddress: Address) {
     return getContract({
-      address: this.conditionalTokensAddress,
+      address: conditionalTokensAddress,
       abi: conditionalTokensABI,
       client: publicClient,
     })
@@ -305,10 +293,10 @@ class Etherspot {
   }
 
   // TODO: incapsulate
-  async approveConditionalIfNeeded(spender: Address) {
+  async approveConditionalIfNeeded(spender: Address, conditionalTokensAddress: Address) {
     const owner = await this.getAddress()
     const contract = getContract({
-      address: conditionalTokensAddress[defaultChain.id],
+      address: conditionalTokensAddress,
       abi: conditionalTokensABI,
       client: publicClient,
     })
@@ -319,7 +307,7 @@ class Etherspot {
         functionName: 'setApprovalForAll',
         args: [spender, true],
       })
-      const opHash = await this.batchAndSendUserOp(conditionalTokensAddress[defaultChain.id], data)
+      const opHash = await this.batchAndSendUserOp(conditionalTokensAddress, data)
       const transactionReceipt = await this.waitForTransaction(opHash)
       return transactionReceipt
     }
@@ -376,12 +364,13 @@ class Etherspot {
 
   // TODO: incapsulate
   async sellOutcomeTokens(
+    conditionalTokensAddress: Address,
     fixedProductMarketMakerAddress: Address,
     collateralAmount: bigint,
     outcomeIndex: number,
     maxOutcomeTokensToSell: bigint
   ) {
-    await this.approveConditionalIfNeeded(fixedProductMarketMakerAddress)
+    await this.approveConditionalIfNeeded(fixedProductMarketMakerAddress, conditionalTokensAddress)
 
     const data = encodeFunctionData({
       abi: fixedProductMarketMakerABI,
@@ -396,6 +385,7 @@ class Etherspot {
 
   // TODO: incapsulate
   async redeemPositions(
+    conditionalTokensAddress: Address,
     collateralAddress: Address,
     parentCollectionId: Address,
     marketConditionId: Address,
@@ -406,7 +396,7 @@ class Etherspot {
       functionName: 'redeemPositions',
       args: [collateralAddress, parentCollectionId, marketConditionId, indexSets],
     })
-    const opHash = await this.batchAndSendUserOp(this.conditionalTokensAddress, data)
+    const opHash = await this.batchAndSendUserOp(conditionalTokensAddress, data)
     const transactionReceipt = await this.waitForTransaction(opHash)
     return transactionReceipt?.transactionHash
   }
