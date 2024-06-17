@@ -240,6 +240,10 @@ const CreateOwnMarketPage = () => {
             // Fallback if the browser blocks the popup
             window.location.href = res.data.multisigTxLink
           }
+        } else if (res.status === 413) {
+          toast({
+            render: () => <Toast bg={'red'} title={`Error: Payload Too Large, max 1MB per file`} />,
+          })
         } else {
           toast({
             render: () => <Toast bg={'red'} title={`Error: ${res.statusText}`} />,
