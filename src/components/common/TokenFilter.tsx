@@ -10,7 +10,6 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { LuListFilter } from 'react-icons/lu'
-import { defaultChain } from '@/constants'
 import { v4 as uuidv4 } from 'uuid'
 import TextButton from '@/components/common/buttons/TextButton'
 import { colors } from '@/styles'
