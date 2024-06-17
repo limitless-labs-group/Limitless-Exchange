@@ -28,10 +28,6 @@ export function useMarkets() {
     },
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {
-      if (lastPage.data.length === 0 || lastPage.data.length < LIMIT_PER_PAGE) {
-        //returning undefined you stop further requesting pages, since if you get less than limit that means no more data on the nex pages
-        return undefined
-      }
       return lastPage.next
     },
   })
