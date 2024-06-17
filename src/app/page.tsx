@@ -71,10 +71,10 @@ const MainPage = () => {
   return (
     <MainLayout maxContentWidth={'unset'}>
       <Stack w={'full'} spacing={5} px={{ md: 14 }}>
-        <HStack>
+        <Stack direction={{ base: 'column', md: 'row' }} spacing={4}>
           <Filter onChange={handleSelectFilterTokens} />
           <SortFilter onChange={handleSelectSort} />
-        </HStack>
+        </Stack>
         <Grid
           templateColumns={{ sm: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)', xl: 'repeat(4, 1fr)' }}
           gap={6}
