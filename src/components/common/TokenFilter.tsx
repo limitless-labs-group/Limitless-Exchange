@@ -10,7 +10,6 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { LuListFilter } from 'react-icons/lu'
-import { defaultChain } from '@/constants'
 import { v4 as uuidv4 } from 'uuid'
 import TextButton from '@/components/common/buttons/TextButton'
 import { colors } from '@/styles'
@@ -56,47 +55,53 @@ export default function TokenFilter({ onChange }: TokenFilterProps) {
         <Portal>
           <PopoverContent bg={'bg'} border={`1px solid ${colors.border}`} w={'fit-content'} p={3}>
             <TextButton onClick={() => setSelectedFilterTokens([])} label='Clear all' py={2} />
-            {supportedTokens?.map((token) =>
-              !selectedFilterTokens.includes(token) ? (
-                <TextButton
-                  key={uuidv4()}
-                  label={token.symbol}
-                  onClick={() => handleFilterItemClicked(token)}
-                  py={2}
-                  leftIcon={
-                    <Image
-                      src={token.logoUrl}
-                      alt='token'
-                      width={'20px'}
-                      height={'20px'}
-                      borderRadius={'full'}
-                    />
-                  }
-                />
-              ) : (
-                <TextButton
-                  key={uuidv4()}
-                  h={'33px'}
-                  px={2}
-                  fontWeight={'normal'}
-                  label={token.symbol}
-                  onClick={() => handleFilterItemClicked(token)}
-                  leftIcon={
-                    <Image
-                      src={token.logoUrl}
-                      alt='token'
-                      width={'20px'}
-                      height={'20px'}
-                      borderRadius={'full'}
-                    />
-                  }
-                  rightIcon={<FaXmark fill={colors.fontLight} />}
-                />
-              )
+            {supportedTokens?.map(
+              (token) =>
+                !selectedFilterTokens.includes(token) && (
+                  <TextButton
+                    key={uuidv4()}
+                    label={token.symbol}
+                    onClick={() => handleFilterItemClicked(token)}
+                    py={2}
+                    leftIcon={
+                      <Image
+                        src={token.logoUrl}
+                        alt='token'
+                        width={'20px'}
+                        height={'20px'}
+                        borderRadius={'full'}
+                      />
+                    }
+                  />
+                )
             )}
           </PopoverContent>
         </Portal>
       </Popover>
+
+      {selectedFilterTokens.map((filterToken) => (
+        <HStack key={uuidv4()}>
+          <Button
+            key={uuidv4()}
+            h={'33px'}
+            px={2}
+            fontWeight={'normal'}
+            onClick={() => handleFilterItemClicked(filterToken)}
+            leftIcon={
+              <Image
+                src={filterToken.logoUrl}
+                alt='token'
+                width={'20px'}
+                height={'20px'}
+                borderRadius={'full'}
+              />
+            }
+            rightIcon={<FaXmark fill={colors.fontLight} />}
+          >
+            {filterToken.symbol}
+          </Button>
+        </HStack>
+      ))}
     </HStack>
   )
 }
