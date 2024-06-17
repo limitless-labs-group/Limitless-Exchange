@@ -148,21 +148,6 @@ const CreateOwnMarketPage = () => {
     setLiquidity(tokenLimits[selectedTokenSymbol].min)
   }
 
-  const cleanMarketState = () => {
-    setFormData(new FormData())
-    setDeadline(new Date())
-    setTitle('')
-    setToken({ symbol: defaultTokenSymbol, id: '1' })
-    setDescription('')
-    setLiquidity(tokenLimits[defaultTokenSymbol].min)
-    setProbability(defaultProbability)
-    setTag([])
-    setCreatorId(defaultCreatorId)
-    setIsCreating(false)
-    setMarketLogo(undefined)
-    setOgLogo(undefined)
-  }
-
   const toast = useToast()
 
   const ogLogoRef: MutableRefObject<any> = useRef()
@@ -267,7 +252,7 @@ const CreateOwnMarketPage = () => {
         })
       })
       .finally(() => {
-        cleanMarketState()
+        setIsCreating(false)
       })
   }
 
