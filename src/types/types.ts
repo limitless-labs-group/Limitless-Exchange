@@ -39,6 +39,7 @@ export type Market = {
   ogImageURI?: string
   expirationDate: string
   expirationTimestamp: number
+  createdAt: number
   expired?: boolean
   tokenTicker: {
     [chainId: number]: string
@@ -53,6 +54,8 @@ export type Market = {
   }
   tags?: string[]
   winningOutcomeIndex?: number
+  volume?: string
+  liquidity?: string
 }
 
 export type GetBalanceResult = {
@@ -82,6 +85,14 @@ export enum MarketTokensIds {
   REGEN = 'regen',
   USDC = 'usd-coin',
   VITA = 'vitadao',
+}
+
+export enum Sort {
+  BASE = '',
+  NEWEST = 'Newest',
+  COMING_DEADLINE = 'Coming Deadline',
+  HIGHEST_LIQUIDITY = 'Highest Liquidity',
+  HIGHEST_VOLUME = 'Highest Volume',
 }
 
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>
