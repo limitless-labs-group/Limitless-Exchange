@@ -8,7 +8,7 @@ import {
   PopoverContent,
   useDisclosure,
 } from '@chakra-ui/react'
-import { LuArrowUpDown } from 'react-icons/lu'
+import { LuArrowUpDown, LuCheck } from 'react-icons/lu'
 import { v4 as uuidv4 } from 'uuid'
 import TextButton from '@/components/common/buttons/TextButton'
 import { colors } from '@/styles'
@@ -50,8 +50,11 @@ export default function SortFilter({ onChange }: SortFilterProps) {
               <TextButton
                 key={uuidv4()}
                 label={option}
+                h={'33px'}
+                fontWeight={'normal'}
                 onClick={() => handleFilterItemClicked(option)}
                 py={2}
+                rightIcon={option === selectedSortFilter ? <LuCheck /> : undefined}
               />
             ))}
           </PopoverContent>
