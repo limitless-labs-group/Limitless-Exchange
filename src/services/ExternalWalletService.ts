@@ -2,7 +2,7 @@ import { publicClient } from '@/providers'
 import { useAccount } from '@/services/AccountService'
 import { Address, encodeFunctionData, erc20Abi, getContract, maxUint256 } from 'viem'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
-import { conditionalTokensAddress, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { useSendTransaction, useWriteContract } from 'wagmi'
 import { contractABI } from '@/contracts/utils'
 import { useLimitlessApi } from '@/services/LimitlessApi'
@@ -228,6 +228,7 @@ export const useExternalWalletService = () => {
   }
 
   const redeemPositions = async (
+    conditionalTokensAddress: Address,
     collateralAddress: Address,
     parentCollectionId: Address,
     marketConditionId: Address,
@@ -238,7 +239,7 @@ export const useExternalWalletService = () => {
       {
         abi: conditionalTokensABI,
         functionName: 'redeemPositions',
-        address: conditionalTokensAddress[defaultChain.id],
+        address: conditionalTokensAddress,
         args: [collateralAddress, parentCollectionId, marketConditionId, indexSets],
       },
       {

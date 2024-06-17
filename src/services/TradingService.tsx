@@ -1,5 +1,5 @@
 import { Toast } from '@/components'
-import { conditionalTokensAddress, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'
 import { publicClient } from '@/providers'
@@ -20,9 +20,10 @@ import {
   Dispatch,
   SetStateAction,
 } from 'react'
-import { Address, Hash, formatUnits, getContract, parseUnits, zeroHash } from 'viem'
+import { Address, Hash, formatUnits, getAddress, getContract, parseUnits, zeroHash } from 'viem'
 import { useWeb3Service } from '@/services/Web3Service'
 import { useToken } from '@/hooks/use-token'
+import { useConditionalTokensAddr } from '@/hooks/use-conditional-tokens-addr'
 
 interface ITradingServiceContext {
   market: Market | null
@@ -88,6 +89,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setOutcomeTokenId(0)
   }, [pathname])
 
+  const { data: conditionalTokensAddress, refetch: getConditionalTokensAddress } =
+    useConditionalTokensAddr({
+      marketAddr: !market ? undefined : getAddress(market.address[defaultChain.id]),
+    })
+  useEffect(() => {
+    if (!market) {
+      getConditionalTokensAddress()
+    }
+  }, [market])
+
   // TODO: refactor
   const refetchChain = async () => {
     await queryClient.invalidateQueries({
@@ -126,7 +137,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   )
 
   const conditionalTokensContract = getContract({
-    address: conditionalTokensAddress[defaultChain.id],
+    address: conditionalTokensAddress!,
     abi: conditionalTokensABI,
     client: publicClient,
   })
@@ -435,10 +446,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         render: () => <Toast title={'Processing approve transaction...'} />,
       })
       try {
-        await approveAllowanceForAll(
-          market.address[defaultChain.id],
-          conditionalTokensAddress[defaultChain.id]
-        )
+        await approveAllowanceForAll(market.address[defaultChain.id], conditionalTokensAddress!)
         toast({
           render: () => <Toast title={`Successfully approved. Proceed with buy now.`} />,
         })
@@ -470,7 +478,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       if (client === 'eoa') {
         const approvedForAll = await checkAllowanceForAll(
           market.address[defaultChain.id],
-          conditionalTokensAddress[defaultChain.id]
+          conditionalTokensAddress!
         )
 
         if (!approvedForAll) {
@@ -480,6 +488,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       }
 
       const receipt = await sellOutcomeTokens(
+        conditionalTokensAddress!,
         market.address[defaultChain.id],
         collateralAmountBI,
         outcomeTokenId,
@@ -530,6 +539,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       }
 
       const receipt = await redeemPositions(
+        conditionalTokensAddress!,
         market.collateralToken[defaultChain.id],
         zeroHash,
         market.conditionId[defaultChain.id],
