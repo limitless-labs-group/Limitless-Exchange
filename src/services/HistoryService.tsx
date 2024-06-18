@@ -4,17 +4,18 @@ import {
   defaultChain,
   newSubgraphURI,
   onChain,
+  vita,
   weth,
 } from '@/constants'
 import { usePriceOracle } from '@/providers'
-import { useEtherspot } from '@/services'
 import { Address } from '@/types'
 import { NumberUtil } from '@/utils'
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash, formatEther, formatUnits } from 'viem'
-import { useAllMarkets, useMarkets } from '@/services/MarketsService'
+import { useAllMarkets } from '@/services/MarketsService'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 interface IHistoryService {
   trades: HistoryTrade[] | undefined
@@ -35,7 +36,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * ACCOUNT
    */
-  const { smartWalletAddress } = useEtherspot()
+  const walletAddress = useWalletAddress()
 
   /**
    * UTILS
@@ -47,9 +48,9 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * QUERIES
    */
   const { data: trades, refetch: getTrades } = useQuery({
-    queryKey: ['trades', smartWalletAddress],
+    queryKey: ['trades', walletAddress],
     queryFn: async () => {
-      if (!smartWalletAddress) {
+      if (!walletAddress) {
         return []
       }
 
@@ -61,7 +62,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
           query: `
             query ${queryName} {
               ${queryName} (
-                where: {transactor: { _ilike: "${smartWalletAddress}" } }
+                where: {transactor: { _ilike: "${walletAddress}" } }
               ) {
                 market {
                   id
@@ -105,17 +106,15 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       )
       console.log('trades', _trades)
 
-      return _trades.filter((trade) =>
-        [weth.symbol, onChain.symbol].includes(trade.market.collateral?.symbol || '')
-      )
+      return _trades
     },
-    enabled: !!smartWalletAddress,
+    enabled: !!walletAddress,
   })
 
   const { data: redeems, refetch: getRedeems } = useQuery({
-    queryKey: ['redeems', smartWalletAddress],
+    queryKey: ['redeems', walletAddress],
     queryFn: async () => {
-      if (!smartWalletAddress) {
+      if (!walletAddress) {
         return []
       }
 
@@ -129,7 +128,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
               ${queryName} (
                 where: {
                   redeemer: {
-                    _ilike: "${smartWalletAddress}"
+                    _ilike: "${walletAddress}"
                   } 
                 }
               ) {
@@ -174,17 +173,18 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
           (market) =>
             market.address[defaultChain.id].toLowerCase() === trade.market.id.toLowerCase()
         )
+
         if (
           !market ||
           (market.expired && market.winningOutcomeIndex !== trade.outcomeIndex) // TODO: redesign filtering lost positions
         ) {
           return
         }
-
         const existingMarket = _positions.find(
           (position) =>
             position.market.id === trade.market.id && position.outcomeIndex === trade.outcomeIndex
         )
+
         const position = existingMarket ?? {
           market: trade.market,
           outcomeIndex: trade.outcomeIndex,
@@ -230,24 +230,17 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       console.log('positions', _positions)
 
       // Todo remove this mapping
-      return (
-        _positions
-          .map((position) => ({
-            ...position,
-            market: {
-              ...position.market,
-              collateral: {
-                symbol: position.market.collateral?.symbol
-                  ? position.market.collateral?.symbol
-                  : 'MFER',
-              },
-            },
-          }))
-          // Todo remove this filter
-          .filter((position) =>
-            [weth.symbol, onChain.symbol].includes(position.market.collateral.symbol)
-          )
-      )
+      return _positions.map((position) => ({
+        ...position,
+        market: {
+          ...position.market,
+          collateral: {
+            symbol: position.market.collateral?.symbol
+              ? position.market.collateral?.symbol
+              : 'MFER',
+          },
+        },
+      }))
     },
   })
 

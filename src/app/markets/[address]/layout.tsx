@@ -1,9 +1,25 @@
-import { defaultChain } from '@/constants'
 import { Metadata } from 'next'
-import { useMarkets } from '@/services/MarketsService'
+import axios from 'axios'
+import { Market } from '@/types'
 
 type Props = {
   params: { address: string }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const response = await axios.get(
+    `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${params.address}`
+  )
+  const market = response.data as Market
+
+  return {
+    title: market?.title,
+    openGraph: {
+      title: market?.title,
+      description: market?.description,
+      images: [`${market?.ogImageURI}`],
+    },
+  }
 }
 
 const Layout = ({ children }: React.PropsWithChildren) => {

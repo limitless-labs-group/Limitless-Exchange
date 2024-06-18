@@ -1,5 +1,12 @@
 import { Button, IButton } from '@/components'
-import { ClickEvent, useAccount, useAmplitude, useAuth, useBalanceService } from '@/services'
+import {
+  ClickEvent,
+  useAccount,
+  useAmplitude,
+  useAuth,
+  useBalanceService,
+  useEtherspot,
+} from '@/services'
 import { colors } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
@@ -16,15 +23,16 @@ import {
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { FaBars, FaCopy, FaRegUserCircle, FaSignOutAlt } from 'react-icons/fa'
-import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
+import { FaBriefcase, FaEthereum, FaTableCellsLarge } from 'react-icons/fa6'
 
 export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
   const router = useRouter()
   const { signOut } = useAuth()
   const { userInfo, account } = useAccount()
   const { onCopy, hasCopied } = useClipboard(account ?? '')
-  const { overallBalanceUsd } = useBalanceService()
+  const { overallBalanceUsd, setEOAWrapModalOpened } = useBalanceService()
   const { trackClicked } = useAmplitude()
+  const { etherspot } = useEtherspot()
 
   return (
     <Popover placement={'bottom-end'} trigger={'click'} isLazy>
@@ -69,27 +77,43 @@ export const HeaderProfileMenuMobile = ({ ...props }: IButton) => {
               <FaCopy fontSize={'14px'} fill={hasCopied ? colors.brand : colors.fontLight} />
             </Button>
 
-            <Button
-              h={'40px'}
-              fontWeight={'normal'}
-              justifyContent={'start'}
-              colorScheme={'transparent'}
-              onClick={() => router.push('/wallet')}
-            >
-              <HStack spacing={2}>
-                <Image
-                  alt='wallet'
-                  src='/assets/images/wallet.svg'
-                  width={'16px'}
-                  height={'16px'}
-                />
-                <HStack spacing={1}>
-                  <Text>Balance</Text>
-                  <Text fontWeight={'bold'}>{NumberUtil.formatThousands(overallBalanceUsd)}</Text>
-                  <Text>USD</Text>
+            {!!etherspot ? (
+              <Button
+                h={'40px'}
+                fontWeight={'normal'}
+                justifyContent={'start'}
+                colorScheme={'transparent'}
+                onClick={() => router.push('/wallet')}
+              >
+                <HStack spacing={2}>
+                  <Image
+                    alt='wallet'
+                    src='/assets/images/wallet.svg'
+                    width={'16px'}
+                    height={'16px'}
+                  />
+                  <HStack spacing={1}>
+                    <Text>Balance</Text>
+                    <Text fontWeight={'bold'}>{NumberUtil.formatThousands(overallBalanceUsd)}</Text>
+                    <Text>USD</Text>
+                  </HStack>
                 </HStack>
-              </HStack>
-            </Button>
+              </Button>
+            ) : (
+              <Button
+                w={'full'}
+                fontWeight={'normal'}
+                h={'40px'}
+                colorScheme={'transparent'}
+                justifyContent={'start'}
+                onClick={() => setEOAWrapModalOpened(true)}
+              >
+                <HStack w={'full'}>
+                  <FaEthereum size={'16px'} fill={colors.fontLight} />
+                  <Text>Wrap ETH</Text>
+                </HStack>
+              </Button>
+            )}
 
             <Button
               w={'full'}

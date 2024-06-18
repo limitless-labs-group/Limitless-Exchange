@@ -2,27 +2,27 @@
 
 import { Input, MainLayout, Toast } from '@/components'
 import {
-  Flex,
-  Heading,
-  Text,
-  VStack,
-  HStack,
-  Textarea,
-  FormControl,
-  FormHelperText,
-  FormLabel,
   Box,
   Button,
   ButtonGroup,
+  Flex,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Heading,
+  HStack,
   Image,
-  Select,
   NumberInput,
   NumberInputField,
+  Select,
   Slider,
-  SliderTrack,
   SliderFilledTrack,
   SliderThumb,
+  SliderTrack,
   Spinner,
+  Text,
+  Textarea,
+  VStack,
 } from '@chakra-ui/react'
 import { borderRadius, colors } from '@/styles'
 import { CgInfo } from 'react-icons/cg'
@@ -73,6 +73,16 @@ const tokenLimits: TokenLimits = {
     min: 0.1,
     max: 3,
     step: 0.1,
+  },
+  USDC: {
+    min: 350,
+    max: 5000,
+    step: 25,
+  },
+  VITA: {
+    min: 150,
+    max: 3000,
+    step: 25,
   },
 }
 
@@ -208,7 +218,10 @@ const CreateOwnMarketPage = () => {
     if (!title || !description || !creatorId || !marketLogo || !ogLogo || !tag) {
       toast({
         render: () => (
-          <Toast title={'Title, Description, Creator, Market Logo, Og Logo, Tags are required!'} />
+          <Toast
+            bg={'warn'}
+            title={'Title, Description, Creator, Market Logo, Og Logo, Tags are required!'}
+          />
         ),
       })
       return
@@ -230,33 +243,38 @@ const CreateOwnMarketPage = () => {
         <Toast title={'Request for market creation has been registered successfully.'} />
       ),
     })
+
     setIsCreating(true)
 
-    const res = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/admin`,
-      formData,
-      {
+    axios
+      .post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/admin`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-      }
-    )
-
-    cleanMarketState()
-
-    if (res.status === 201) {
-      const newTab = window.open('', '_blank')
-      if (newTab) {
-        newTab.location.href = res.data.multisigTxLink
-      } else {
-        // Fallback if the browser blocks the popup
-        window.location.href = res.data.multisigTxLink
-      }
-    } else {
-      toast({
-        render: () => <Toast title={`Error: ${res.statusText}`} />,
       })
-    }
+      .then((res) => {
+        if (res.status === 201) {
+          const newTab = window.open('', '_blank')
+          if (newTab) {
+            newTab.location.href = res.data.multisigTxLink
+          } else {
+            // Fallback if the browser blocks the popup
+            window.location.href = res.data.multisigTxLink
+          }
+        } else {
+          toast({
+            render: () => <Toast bg={'red'} title={`Error: ${res.statusText}`} />,
+          })
+        }
+      })
+      .catch((res) => {
+        toast({
+          render: () => <Toast bg={'red'} title={`Error: ${res.message}`} />,
+        })
+      })
+      .finally(() => {
+        cleanMarketState()
+      })
   }
 
   return (
