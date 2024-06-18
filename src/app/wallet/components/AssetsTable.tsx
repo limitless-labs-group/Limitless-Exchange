@@ -15,13 +15,14 @@ import {
   Divider,
 } from '@chakra-ui/react'
 import { v4 as uuidv4 } from 'uuid'
-import { useBalanceService } from '@/services'
+import { useBalanceService, useLimitlessApi } from '@/services'
 import { NumberUtil } from '@/utils'
 import { usePriceOracle } from '@/providers'
 import { useIsMobile } from '@/hooks'
 import { useUsersMarkets } from '@/services/UsersMarketsService'
 import { Address, formatUnits } from 'viem'
 import { MarketTokensIds } from '@/types'
+import { defaultChain } from '@/constants'
 
 type AssetsTableProps = {
   handleOpenTopUpModal: (token: Address) => void
@@ -36,6 +37,7 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
   const { balanceOfSmartWallet } = useBalanceService()
   const { convertAssetAmountToUsd } = usePriceOracle()
   const { data: usersMarkets } = useUsersMarkets()
+  const { supportedTokens } = useLimitlessApi()
 
   const getActiveMarketsCount = (ticker: string) => {
     return (
@@ -54,10 +56,12 @@ export default function AssetsTable({ handleOpenTopUpModal }: AssetsTableProps) 
       (market) => market.market.collateral.id === collateralAddress
     )
     if (marketsByCollateral?.length) {
-      return marketsByCollateral.reduce(
-        (a, b) => a + +formatUnits(BigInt(b.collateralsLocked), 18),
-        0
-      )
+      return marketsByCollateral.reduce((a, b) => {
+        const collateral = supportedTokens?.find(
+          (token) => token.address === b.market.collateral.id
+        )
+        return a + +formatUnits(BigInt(b.collateralsLocked), collateral?.decimals || 18)
+      }, 0)
     }
     return 0
   }

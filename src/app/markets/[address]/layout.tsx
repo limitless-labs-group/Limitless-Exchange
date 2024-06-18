@@ -7,10 +7,10 @@ type Props = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const response = await axios.get(
+  const response = await axios.get<Market>(
     `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${params.address}`
   )
-  const market = response.data as Market
+  const market = response.data
 
   return {
     title: market?.title,

@@ -144,8 +144,6 @@ export function Web3AuthProvider({ children }: PropsWithChildren) {
    */
   const { isConnected: isConnectedWagmi } = useWagmi()
 
-  console.log(web3Auth)
-
   const initWeb3Auth = useCallback(async () => {
     if (!isConnectedWagmi) {
       setProvider(null)

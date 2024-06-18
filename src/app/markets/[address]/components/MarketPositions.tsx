@@ -4,7 +4,6 @@ import { NumberUtil } from '@/utils'
 import {
   Box,
   Divider,
-  StackProps,
   Table,
   TableContainer,
   Tbody,
@@ -17,7 +16,7 @@ import {
 import { useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
-export const MarketPositions = ({ ...props }: StackProps) => {
+export const MarketPositions = () => {
   const { market } = useTradingService()
 
   const { positions: allMarketsPositions } = useHistory()
@@ -25,7 +24,8 @@ export const MarketPositions = ({ ...props }: StackProps) => {
   const positions = useMemo(
     () =>
       allMarketsPositions?.filter(
-        (position) => position.market.id === market?.address[defaultChain.id].toLowerCase()
+        (position) =>
+          position.market.id.toLowerCase() === market?.address[defaultChain.id].toLowerCase()
       ),
     [allMarketsPositions, market]
   )

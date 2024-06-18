@@ -21,6 +21,7 @@ type Web3Service = {
     collateralContract: Address
   ) => Promise<string | undefined>
   sellOutcomeTokens: (
+    conditionalTokensAddress: Address,
     fixedProductMarketMakerAddress: Address,
     collateralAmount: bigint,
     outcomeIndex: number,
@@ -35,6 +36,7 @@ type Web3Service = {
     spender: Address
   ) => Promise<string | undefined>
   redeemPositions: (
+    conditionalTokensAddress: Address,
     collateralAddress: Address,
     parentCollectionId: Address,
     marketConditionId: Address,
@@ -115,6 +117,7 @@ export function useWeb3Service(): Web3Service {
   }
 
   const sellOutcomeTokens = async (
+    conditionalTokensAddress: Address,
     fixedProductMarketMakerAddress: Address,
     collateralAmount: bigint,
     outcomeIndex: number,
@@ -122,6 +125,7 @@ export function useWeb3Service(): Web3Service {
   ) => {
     if (client === 'etherspot') {
       return etherspot?.sellOutcomeTokens(
+        conditionalTokensAddress,
         fixedProductMarketMakerAddress,
         collateralAmount,
         outcomeIndex,
@@ -137,6 +141,7 @@ export function useWeb3Service(): Web3Service {
   }
 
   const redeemPositions = async (
+    conditionalTokensAddress: Address,
     collateralAddress: Address,
     parentCollectionId: Address,
     marketConditionId: Address,
@@ -144,6 +149,7 @@ export function useWeb3Service(): Web3Service {
   ) => {
     if (client === 'etherspot') {
       return etherspot?.redeemPositions(
+        conditionalTokensAddress,
         collateralAddress,
         parentCollectionId,
         marketConditionId,
@@ -151,6 +157,7 @@ export function useWeb3Service(): Web3Service {
       )
     }
     return externalWalletService.redeemPositions(
+      conditionalTokensAddress,
       collateralAddress,
       parentCollectionId,
       marketConditionId,
