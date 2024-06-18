@@ -449,7 +449,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       try {
         await approveAllowanceForAll(market.address[defaultChain.id], conditionalTokensAddress!)
         toast({
-          render: () => <Toast title={`Successfully approved. Proceed with buy now.`} />,
+          render: () => <Toast title={`Successfully approved. Proceed with sell now.`} />,
         })
         await sleep(3)
       } catch (e) {
