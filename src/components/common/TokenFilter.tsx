@@ -13,7 +13,7 @@ import { LuListFilter } from 'react-icons/lu'
 import { v4 as uuidv4 } from 'uuid'
 import TextButton from '@/components/common/buttons/TextButton'
 import { colors } from '@/styles'
-import { Token } from '@/types'
+import { Sort, Token } from '@/types'
 import { Button } from '@/components/common/buttons/Button'
 import { FaXmark } from 'react-icons/fa6'
 import { useLimitlessApi } from '@/services'
@@ -49,7 +49,12 @@ export default function TokenFilter({ onChange }: TokenFilterProps) {
         <PopoverTrigger>
           <HStack cursor='pointer'>
             <LuListFilter />
-            <Text>Filter by token</Text>
+            <Text
+              fontWeight={selectedFilterTokens.length === 0 ? 'normal' : 600}
+              color={selectedFilterTokens.length === 0 ? 'inherit' : colors.brand}
+            >
+              Filter by token
+            </Text>
           </HStack>
         </PopoverTrigger>
         <Portal>

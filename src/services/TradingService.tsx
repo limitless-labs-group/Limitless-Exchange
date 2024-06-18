@@ -295,8 +295,9 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         ])) as bigint
 
         // limit max outcome token amount to balance
-        const balanceOfOutcomeTokenBI = BigInt(
-          formatUnits(BigInt(balanceOfOutcomeToken), collateralToken?.decimals || 18)
+        const balanceOfOutcomeTokenBI = parseUnits(
+          balanceOfOutcomeToken,
+          collateralToken?.decimals || 18
         )
         if (outcomeTokenAmountBI > balanceOfOutcomeTokenBI) {
           outcomeTokenAmountBI = balanceOfOutcomeTokenBI
@@ -448,7 +449,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       try {
         await approveAllowanceForAll(market.address[defaultChain.id], conditionalTokensAddress!)
         toast({
-          render: () => <Toast title={`Successfully approved. Proceed with buy now.`} />,
+          render: () => <Toast title={`Successfully approved. Proceed with sell now.`} />,
         })
         await sleep(3)
       } catch (e) {
