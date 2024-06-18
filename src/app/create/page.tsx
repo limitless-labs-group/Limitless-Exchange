@@ -148,21 +148,6 @@ const CreateOwnMarketPage = () => {
     setLiquidity(tokenLimits[selectedTokenSymbol].min)
   }
 
-  const cleanMarketState = () => {
-    setFormData(new FormData())
-    setDeadline(new Date())
-    setTitle('')
-    setToken({ symbol: defaultTokenSymbol, id: '1' })
-    setDescription('')
-    setLiquidity(tokenLimits[defaultTokenSymbol].min)
-    setProbability(defaultProbability)
-    setTag([])
-    setCreatorId(defaultCreatorId)
-    setIsCreating(false)
-    setMarketLogo(undefined)
-    setOgLogo(undefined)
-  }
-
   const toast = useToast()
 
   const ogLogoRef: MutableRefObject<any> = useRef()
@@ -255,19 +240,21 @@ const CreateOwnMarketPage = () => {
             // Fallback if the browser blocks the popup
             window.location.href = res.data.multisigTxLink
           }
-        } else {
-          toast({
-            render: () => <Toast bg={'red'} title={`Error: ${res.statusText}`} />,
-          })
         }
       })
       .catch((res) => {
-        toast({
-          render: () => <Toast bg={'red'} title={`Error: ${res.message}`} />,
-        })
+        if (res?.response?.status === 413) {
+          toast({
+            render: () => <Toast bg={'red'} title={`Error: Payload Too Large, max 1MB per file`} />,
+          })
+        } else {
+          toast({
+            render: () => <Toast bg={'red'} title={`Error: ${res.message}`} />,
+          })
+        }
       })
       .finally(() => {
-        cleanMarketState()
+        setIsCreating(false)
       })
   }
 
