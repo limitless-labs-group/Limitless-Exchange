@@ -295,8 +295,9 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         ])) as bigint
 
         // limit max outcome token amount to balance
-        const balanceOfOutcomeTokenBI = BigInt(
-          formatUnits(BigInt(balanceOfOutcomeToken), collateralToken?.decimals || 18)
+        const balanceOfOutcomeTokenBI = parseUnits(
+          balanceOfOutcomeToken,
+          collateralToken?.decimals || 18
         )
         if (outcomeTokenAmountBI > balanceOfOutcomeTokenBI) {
           outcomeTokenAmountBI = balanceOfOutcomeTokenBI
