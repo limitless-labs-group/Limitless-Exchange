@@ -31,7 +31,7 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
   return (
     <Modal
       size={'sm'}
-      title={`Approve ${token.symbol} (Base) spend`}
+      title={`Approve ${token?.symbol} (Base) spend`}
       isOpen={approveModalOpened}
       onClose={() => setApproveModalOpened(false)}
       isCentered={false}
