@@ -1,8 +1,8 @@
 import { Box, HStack, Image, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react'
 import { Dispatch, SetStateAction, useEffect } from 'react'
-import { collateralTokensArray, defaultChain, weth } from '@/constants'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
+import { useLimitlessApi } from '@/services'
 
 type SelectTokenFieldProps = {
   setToken: Dispatch<SetStateAction<Address>>
@@ -11,26 +11,26 @@ type SelectTokenFieldProps = {
 }
 
 export default function SelectTokenField({ setToken, token, defaultValue }: SelectTokenFieldProps) {
+  const { supportedTokens } = useLimitlessApi()
+
   useEffect(() => {
-    if (!token) {
-      setToken(weth.address[defaultChain.id])
+    if (!token && supportedTokens) {
+      setToken(supportedTokens[0].address)
     }
-  }, [token])
+  }, [token, supportedTokens])
 
   return (
     <RadioGroup onChange={(val: string) => setToken(val as Address)} defaultValue={defaultValue}>
       <Stack direction='row' overflowX={'scroll'} gap={'20px'}>
-        {collateralTokensArray.map((collateralToken) => (
+        {supportedTokens?.map((collateralToken) => (
           <Box key={uuidv4()} minW={'fit-content'}>
             <Radio
-              value={collateralToken.address[defaultChain.id]}
+              value={collateralToken.address}
               colorScheme='blackVariants'
-              checked={
-                collateralToken.address[defaultChain.id].toLowerCase() === token.toLowerCase()
-              }
+              checked={collateralToken.address.toLowerCase() === token.toLowerCase()}
             >
               <HStack gap='2px'>
-                <Image src={collateralToken.imageURI} alt='token' width={'20px'} height={'20px'} />
+                <Image src={collateralToken.logoUrl} alt='token' width={'20px'} height={'20px'} />
                 <Text>{collateralToken.symbol}</Text>
               </HStack>
             </Radio>

@@ -1,13 +1,6 @@
 import { base, baseSepolia } from 'viem/chains'
 
-export const subgraphURI = {
-  [base.id]: 'https://api.studio.thegraph.com/query/67933/base-mainnet-production/hanson-v0.1.4', // prod
-  // [base.id]: 'https://api.studio.thegraph.com/query/67933/base-mainnet-test/hanson-v0.1.2', // dev
-  [baseSepolia.id]:
-    'https://api.studio.thegraph.com/query/67933/limitless-markets-base-sepolia/v0.1.3',
-}
-
 export const newSubgraphURI = {
-  [base.id]: 'https://indexer.bigdevenergy.link/df187de/v1/graphql',
-  [baseSepolia.id]: 'https://indexer.bigdevenergy.link/db9950f/v1/graphql',
+  [base.id]: 'https://indexer.bigdevenergy.link/bd7abc0/v1/graphql',
+  [baseSepolia.id]: 'https://indexer.bigdevenergy.link/24f533c/v1/graphql',
 }

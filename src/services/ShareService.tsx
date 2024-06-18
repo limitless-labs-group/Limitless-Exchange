@@ -1,4 +1,4 @@
-import { collateralToken, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { HistoryPosition } from '@/services'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -76,7 +76,7 @@ export const createPortfolioShareUrls = (market: Market | null, position: Histor
   const baseMessage = `"${market?.title}" by ${market?.creator.name}\nMy bet: ${NumberUtil.toFixed(
     position.collateralAmount,
     6
-  )} ${collateralToken.symbol} for ${
+  )} ${position.market.collateral?.symbol} for ${
     market?.outcomeTokens[position.outcomeIndex ?? 0]
   }\nMake yours on`
 

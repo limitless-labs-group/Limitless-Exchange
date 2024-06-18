@@ -3,14 +3,18 @@ import { Hash, Address } from 'viem'
 export type { Hash, Address }
 
 export type Token = {
-  address: {
-    [chainId: number]: Address
-  }
+  address: Address
   symbol: string
   decimals: number
   name: string
-  imageURI: string
+  logoUrl: string
+  priceOracleId: MarketTokensIds
   id: MarketTokensIds
+}
+
+export type MarketData = {
+  data: Market[]
+  next: number
 }
 
 export type Market = {
@@ -40,6 +44,7 @@ export type Market = {
   ogImageURI?: string
   expirationDate: string
   expirationTimestamp: number
+  createdAt: number
   expired?: boolean
   tokenTicker: {
     [chainId: number]: string
@@ -54,6 +59,8 @@ export type Market = {
   }
   tags?: string[]
   winningOutcomeIndex?: number
+  volume?: string
+  liquidity?: string
 }
 
 export type GetBalanceResult = {
@@ -83,6 +90,14 @@ export enum MarketTokensIds {
   REGEN = 'regen',
   USDC = 'usd-coin',
   VITA = 'vitadao',
+}
+
+export enum Sort {
+  BASE = '',
+  NEWEST = 'Newest',
+  COMING_DEADLINE = 'Coming Deadline',
+  HIGHEST_LIQUIDITY = 'Highest Liquidity',
+  HIGHEST_VOLUME = 'Highest Volume',
 }
 
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>
