@@ -1,2 +1,6 @@
 export * from './ui'
 export * from './useMarketData'
+export * from './use-wallet-address'
+export * from './use-condition-resolved'
+export * from './use-winning-outcome-index'
+export * from './use-conditional-tokens-balance-of'
