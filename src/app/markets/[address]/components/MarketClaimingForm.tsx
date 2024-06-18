@@ -7,14 +7,30 @@ import { Stack, StackProps, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { FaRegCheckCircle } from 'react-icons/fa'
 import { Market } from '@/types'
+import { useConditionalTokensBalanceOf, useWalletAddress, useWinningOutcomeIndex } from '@/hooks'
 
 interface MarketClaimingFormProps extends StackProps {
   market: Market | null
 }
 
 export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market, ...props }) => {
-  const { redeem: claim, status } = useTradingService()
+  const {
+    redeem: claim,
+    status,
+    conditionalTokensAddress: conditionalTokensAddr,
+  } = useTradingService()
   const { positions } = useHistory()
+  const account = useWalletAddress()
+  const { data: conditionalTokensBalanceOfResult } = useConditionalTokensBalanceOf({
+    account,
+    collateralTokenAddr: market?.collateralToken[defaultChain.id],
+    conditionalTokensAddr,
+    conditionId: market?.conditionId[defaultChain.id],
+  })
+  const { data: winningOutcomeIndex } = useWinningOutcomeIndex({
+    marketAddr: market?.address[defaultChain.id],
+  })
+
   const positionToClaim = useMemo(
     () =>
       positions?.filter(
