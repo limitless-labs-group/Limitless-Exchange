@@ -46,6 +46,9 @@ interface ITradingServiceContext {
   setApproveModalOpened: Dispatch<SetStateAction<boolean>>
   approveBuy: () => Promise<void>
   approveSell: () => Promise<void>
+  // It could break the encapsulation logic, yet makes it easier to add support
+  // for the dynamic ConditionalTokens contract address of the market
+  conditionalTokensAddress: Address | undefined
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -625,6 +628,9 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setApproveModalOpened,
     approveBuy,
     approveSell,
+    // It could break the encapsulation logic, yet makes it easier to add support
+    // for the dynamic ConditionalTokens contract address of the market
+    conditionalTokensAddress,
   }
 
   return (
