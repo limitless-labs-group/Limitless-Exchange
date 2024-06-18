@@ -32,6 +32,7 @@ import CreatableSelect from 'react-select/creatable'
 import axios from 'axios'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks'
+import { useLimitlessApi } from '@/services'
 
 interface FormFieldProps {
   label: string
@@ -133,6 +134,8 @@ const CreateOwnMarketPage = () => {
 
   const queryClient = useQueryClient()
 
+  const { supportedTokens } = useLimitlessApi()
+
   const handleLiquidityChange = (value: number) => setLiquidity(value)
 
   const handleProbabilityChange = (value: number) => setProbability(value)
@@ -143,21 +146,6 @@ const CreateOwnMarketPage = () => {
       option.target.selectedOptions[0].getAttribute('data-name') ?? defaultTokenSymbol
     setToken({ symbol: selectedTokenSymbol, id: selectedTokenId })
     setLiquidity(tokenLimits[selectedTokenSymbol].min)
-  }
-
-  const cleanMarketState = () => {
-    setFormData(new FormData())
-    setDeadline(new Date())
-    setTitle('')
-    setToken({ symbol: defaultTokenSymbol, id: '1' })
-    setDescription('')
-    setLiquidity(tokenLimits[defaultTokenSymbol].min)
-    setProbability(defaultProbability)
-    setTag([])
-    setCreatorId(defaultCreatorId)
-    setIsCreating(false)
-    setMarketLogo(undefined)
-    setOgLogo(undefined)
   }
 
   const toast = useToast()
@@ -190,14 +178,6 @@ const CreateOwnMarketPage = () => {
     },
   })
 
-  const { data: tokens } = useQuery({
-    queryKey: ['tokens'],
-    queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tokens`)
-      return response.data as Token[]
-    },
-  })
-
   const handleTagCreation = async (tagToCreate: string) => {
     const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`, {
       name: tagToCreate,
@@ -210,7 +190,6 @@ const CreateOwnMarketPage = () => {
   }
 
   const handleActiveTags = (selectedOptions: TagOption[]) => {
-    console.log(selectedOptions)
     setTag(selectedOptions)
   }
 
@@ -261,19 +240,21 @@ const CreateOwnMarketPage = () => {
             // Fallback if the browser blocks the popup
             window.location.href = res.data.multisigTxLink
           }
-        } else {
-          toast({
-            render: () => <Toast bg={'red'} title={`Error: ${res.statusText}`} />,
-          })
         }
       })
       .catch((res) => {
-        toast({
-          render: () => <Toast bg={'red'} title={`Error: ${res.message}`} />,
-        })
+        if (res?.response?.status === 413) {
+          toast({
+            render: () => <Toast bg={'red'} title={`Error: Payload Too Large, max 1MB per file`} />,
+          })
+        } else {
+          toast({
+            render: () => <Toast bg={'red'} title={`Error: ${res.message}`} />,
+          })
+        }
       })
       .finally(() => {
-        cleanMarketState()
+        setIsCreating(false)
       })
   }
 
@@ -330,7 +311,7 @@ const CreateOwnMarketPage = () => {
             <FormField label='Token'>
               <HStack>
                 <Select onChange={handleTokenSelect}>
-                  {tokens?.map((token: Token) => (
+                  {supportedTokens?.map((token: Token) => (
                     <option key={token.id} value={token.id} data-name={token.symbol}>
                       {token.symbol}
                     </option>

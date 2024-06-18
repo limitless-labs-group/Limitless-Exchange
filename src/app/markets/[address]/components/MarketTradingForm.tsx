@@ -1,5 +1,5 @@
 import { Button, InfoIcon, Input, LogInButton, Tooltip } from '@/components'
-import { collateralTokensArray, defaultChain } from '@/constants'
+import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { usePriceOracle } from '@/providers'
 import {
@@ -31,10 +31,15 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
-import { MarketTokensIds, Token } from '@/types'
+import { Market, MarketTokensIds, Token } from '@/types'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { useToken } from '@/hooks/use-token'
 
-export const MarketTradingForm = ({ ...props }: StackProps) => {
+interface MarketTradingFormProps extends StackProps {
+  market: Market
+}
+
+export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) => {
   /**
    * ACCOUNT STATE
    */
@@ -49,7 +54,6 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
    * TRADING SERVICE
    */
   const {
-    market,
     strategy,
     setStrategy,
     outcomeTokenId,
@@ -86,8 +90,10 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
    * MARKET DATA
    */
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
+  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
   const { outcomeTokensPercent } = useMarketData({
     marketAddress,
+    collateralToken,
   })
 
   /**
@@ -104,10 +110,7 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
    */
   const { convertAssetAmountToUsd } = usePriceOracle()
   const amountUsd = useMemo(() => {
-    const tokenId = collateralTokensArray.find(
-      (collateralToken) =>
-        collateralToken.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
-    )?.id
+    const tokenId = collateralToken?.priceOracleId
     return NumberUtil.formatThousands(
       convertAssetAmountToUsd(tokenId as MarketTokensIds, displayAmount),
       2
@@ -150,15 +153,10 @@ export const MarketTradingForm = ({ ...props }: StackProps) => {
   }, [collateralAmount, balance, isZeroBalance, outcomeTokenId])
 
   useEffect(() => {
-    if (market) {
-      setToken(
-        collateralTokensArray.find(
-          (collateralToken) =>
-            collateralToken.address[defaultChain.id] === market?.collateralToken[defaultChain.id]
-        ) as Token
-      )
+    if (market && collateralToken) {
+      setToken(collateralToken)
     }
-  }, [market])
+  }, [market, collateralToken])
 
   return (
     <Stack
