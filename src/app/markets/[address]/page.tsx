@@ -15,6 +15,8 @@ import { useMarket } from '@/services/MarketsService'
 import ApproveModal from '@/components/common/ApproveModal'
 import { useToken } from '@/hooks/use-token'
 import { defaultChain } from '@/constants'
+import { useConditionResolved } from '@/hooks'
+import { getAddress } from 'viem'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
@@ -34,6 +36,9 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
    */
   const market = useMarket(params.address)
 
+  const { data: resolved } = useConditionResolved({
+    marketAddr: !!market ? getAddress(market.address[defaultChain.id]) : undefined,
+  })
   const { isLoading: isCollateralLoading } = useToken(market?.collateralToken[defaultChain.id])
 
   const {
@@ -66,11 +71,11 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
             <Flex flexBasis={'66%'} flexDir={{ sm: 'column' }} gap={{ sm: 4, md: 10 }}>
               <MarketMetadata />
               <MarketPriceChart market={market} />
-              {!market?.expired && <MarketPositions />}
+              {!resolved && <MarketPositions />}
             </Flex>
 
             <Flex flexBasis={'33%'}>
-              {market?.expired ? (
+              {resolved ? (
                 <MarketClaimingForm market={market} />
               ) : (
                 <MarketTradingForm market={market} />
