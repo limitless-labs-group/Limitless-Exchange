@@ -31,7 +31,7 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
-import { Market, MarketTokensIds, Token } from '@/types'
+import { Market, MarketTokensIds } from '@/types'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useToken } from '@/hooks/use-token'
 
