@@ -70,7 +70,7 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
   /**
    * BALANCE
    */
-  const { balanceOfSmartWallet, setToken } = useBalanceService()
+  const { balanceOfSmartWallet, setToken, token } = useBalanceService()
 
   const balance = useMemo(() => {
     if (strategy === 'Buy') {
@@ -131,14 +131,27 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
         return
       }
       if (value == 100) {
-        setDisplayAmount(NumberUtil.toFixed(balance, 6))
+        setDisplayAmount(NumberUtil.toFixed(balance, token?.symbol === 'USDC' ? 1 : 6))
         return
       }
       const amountByPercent = (Number(balance) * value) / 100
-      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
+      setDisplayAmount(NumberUtil.toFixed(amountByPercent, token?.symbol === 'USDC' ? 1 : 6))
     },
     [sliderValue, balance, isZeroBalance]
   )
+
+  const handleInputValueChange = (value: string) => {
+    if (token?.symbol === 'USDC') {
+      const decimals = value.split('.')[1]
+      if (decimals && decimals.length > 1) {
+        return
+      }
+      setCollateralAmount(value)
+      return
+    }
+    setCollateralAmount(value)
+    return
+  }
 
   /**
    * Effect to automatically set a proper slider value based on the tokens amount
@@ -285,7 +298,7 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
                   boxShadow: 'none',
                 }}
                 value={displayAmount}
-                onChange={(e) => setCollateralAmount(e.target.value)}
+                onChange={(e) => handleInputValueChange(e.target.value)}
               />
 
               <Button
@@ -311,9 +324,14 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
               <Text
                 _hover={{ color: 'font' }}
                 cursor={'pointer'}
-                onClick={() => setCollateralAmount(NumberUtil.toFixed(balance, 6))}
+                onClick={() =>
+                  setCollateralAmount(NumberUtil.toFixed(balance, token?.symbol === 'USDC' ? 1 : 6))
+                }
               >
-                {`Balance: ${NumberUtil.formatThousands(balance, 6)}`}{' '}
+                {`Balance: ${NumberUtil.formatThousands(
+                  balance,
+                  token?.symbol === 'USDC' ? 1 : 6
+                )}`}{' '}
                 {market?.tokenTicker[defaultChain.id]}
               </Text>
             </HStack>
