@@ -111,25 +111,41 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
                 abi: supportedToken.priceOracleId === MarketTokensIds.WETH ? wethABI : erc20Abi,
                 client: publicClient,
               })
-              let newBalanceBI = (await contract.read.balanceOf([walletAddress])) as bigint
-              // small balance to zero
-              if (newBalanceBI < parseUnits('0.000001', supportedToken.decimals)) {
-                newBalanceBI = 0n
-              }
+              try {
+                let newBalanceBI = (await contract.read.balanceOf([walletAddress])) as bigint
+                // small balance to zero
+                if (newBalanceBI < parseUnits('0.000001', supportedToken.decimals)) {
+                  newBalanceBI = 0n
+                }
 
-              return {
-                symbol: supportedToken.symbol,
-                id: supportedToken.priceOracleId,
-                name: supportedToken.name,
-                decimals: supportedToken.decimals,
-                value: newBalanceBI,
-                formatted: formatUnits(newBalanceBI, supportedToken.decimals),
-                image: supportedToken.logoUrl,
-                contractAddress: supportedToken.address,
-                price: marketTokensPrices
-                  ? marketTokensPrices[supportedToken.priceOracleId].usd
-                  : 0,
-              } as GetBalanceResult
+                return {
+                  symbol: supportedToken.symbol,
+                  id: supportedToken.priceOracleId,
+                  name: supportedToken.name,
+                  decimals: supportedToken.decimals,
+                  value: newBalanceBI,
+                  formatted: formatUnits(newBalanceBI, supportedToken.decimals),
+                  image: supportedToken.logoUrl,
+                  contractAddress: supportedToken.address,
+                  price: marketTokensPrices
+                    ? marketTokensPrices[supportedToken.priceOracleId].usd
+                    : 0,
+                } as GetBalanceResult
+              } catch (e) {
+                return {
+                  symbol: supportedToken.symbol,
+                  id: supportedToken.priceOracleId,
+                  name: supportedToken.name,
+                  decimals: supportedToken.decimals,
+                  value: 0n,
+                  formatted: formatUnits(0n, supportedToken.decimals),
+                  image: supportedToken.logoUrl,
+                  contractAddress: supportedToken.address,
+                  price: marketTokensPrices
+                    ? marketTokensPrices[supportedToken.priceOracleId].usd
+                    : 0,
+                } as GetBalanceResult
+              }
             })
           : []
       )
