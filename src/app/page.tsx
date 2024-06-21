@@ -101,9 +101,9 @@ const MainPage = () => {
             <CreateMarketCard />
             {sortedMarkets?.map((market) =>
               isMobile ? (
-                <MarketCardMobile key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
+                <MarketCardMobile key={uuidv4()} market={market} />
               ) : (
-                <MarketCard key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
+                <MarketCard key={uuidv4()} market={market} />
               )
             )}
           </Grid>

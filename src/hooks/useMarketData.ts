@@ -86,25 +86,6 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
     // enabled: false,
   })
 
-  const { data: outcomeTokensPercent } = useQuery({
-    queryKey: [
-      'outcomeTokensPercent',
-      fixedProductMarketMakerContract?.address,
-      outcomeTokensBuyPrice,
-    ],
-    queryFn: async () => {
-      if (!fixedProductMarketMakerContract || !outcomeTokensBuyPrice) {
-        return [50, 50]
-      }
-
-      const sum = outcomeTokensBuyPrice[0] + outcomeTokensBuyPrice[1]
-      const outcomeTokensPercentYes = +((outcomeTokensBuyPrice[0] / sum) * 100).toFixed(1)
-      const outcomeTokensPercentNo = +((outcomeTokensBuyPrice[1] / sum) * 100).toFixed(1)
-
-      return [outcomeTokensPercentYes, outcomeTokensPercentNo]
-    },
-  })
-
   const { data: liquidityAndVolume } = useQuery({
     queryKey: ['marketData', marketAddress],
     queryFn: async () => {
@@ -151,7 +132,6 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
   return {
     outcomeTokensBuyPrice,
     outcomeTokensSellPrice,
-    outcomeTokensPercent,
     ...liquidityAndVolume,
   }
 }

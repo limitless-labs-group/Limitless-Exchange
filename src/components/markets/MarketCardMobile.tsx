@@ -1,36 +1,34 @@
 import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
 import { borderRadius, colors } from '@/styles'
-import { Address } from '@/types'
+import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
 import { HStack, Stack, StackProps, Text, Avatar } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
 import { createMarketShareUrls } from '@/services'
-import { useMarket } from '@/services/MarketsService'
 import { useToken } from '@/hooks/use-token'
 
 interface IMarketCard extends StackProps {
-  marketAddress?: Address
+  market: Market
 }
 
-export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketCard) => {
+export const MarketCardMobile = ({ market, children, ...props }: IMarketCard) => {
   const router = useRouter()
-  const market = useMarket(marketAddress as string)
   const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
-  const { outcomeTokensPercent, liquidity, volume } = useMarketData({
-    marketAddress,
+  const { liquidity, volume } = useMarketData({
+    marketAddress: market.address[defaultChain.id],
     collateralToken,
   })
 
-  const marketURI = `${window.location.origin}/markets/${marketAddress}`
+  const marketURI = `${window.location.origin}/markets/${market.address[defaultChain.id]}`
 
-  const shareLinks = createMarketShareUrls(market, outcomeTokensPercent)
+  const shareLinks = createMarketShareUrls(market, market.prices)
 
   const yesPercent = useMemo(() => {
-    return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
-  }, [market, outcomeTokensPercent])
+    return market.prices[0].toFixed(1)
+  }, [market])
 
   return (
     <Stack
