@@ -45,6 +45,7 @@ export type Market = {
   expirationDate: string
   expirationTimestamp: number
   createdAt: number
+  prices: number[]
   expired?: boolean
   tokenTicker: {
     [chainId: number]: string

@@ -7,10 +7,7 @@ import { defaultChain, newSubgraphURI } from '@/constants'
 import { usePathname } from 'next/navigation'
 import { Box, Divider, Text, Image, HStack, VStack, Spacer } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
-import { getAddress, zeroAddress } from 'viem'
-import { useMarketData } from '@/hooks'
 import { Market } from '@/types'
-import { useToken } from '@/hooks/use-token'
 
 // Define the interface for the chart data
 interface YesBuyChartData {
@@ -23,16 +20,6 @@ interface MarketPriceChartProps {
 }
 
 export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
-  /**
-   * MARKET DATA
-   */
-  const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
-  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
-  const { outcomeTokensPercent } = useMarketData({
-    marketAddress,
-    collateralToken,
-  })
-
   const pathname = usePathname()
   const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
@@ -216,11 +203,11 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
   })
 
   const initialYesChance = useMemo(() => {
-    if (outcomeTokensPercent) {
-      return outcomeTokensPercent[0].toFixed(2)
+    if (market) {
+      return market.prices[0].toFixed(2)
     }
     return '50.00'
-  }, [outcomeTokensPercent])
+  }, [market])
 
   return (
     <Box>

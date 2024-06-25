@@ -39,7 +39,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
 
   const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
 
-  const { liquidity, volume, outcomeTokensPercent } = useMarketData({
+  const { liquidity, volume } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
     collateralToken,
   })
@@ -51,7 +51,7 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
 
   const { onCopy, hasCopied } = useClipboard(window.location.href)
 
-  const { tweetURI, castURI } = createMarketShareUrls(market, outcomeTokensPercent)
+  const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices || [0, 0])
 
   const isMobile = useIsMobile()
 

@@ -1,6 +1,5 @@
 import { Button, InfoIcon, Input, LogInButton, Tooltip } from '@/components'
 import { defaultChain } from '@/constants'
-import { useMarketData } from '@/hooks'
 import { usePriceOracle } from '@/providers'
 import {
   StrategyChangedMetadata,
@@ -91,10 +90,6 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
    */
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
   const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
-  const { outcomeTokensPercent } = useMarketData({
-    marketAddress,
-    collateralToken,
-  })
 
   /**
    * Amount to display in UI and reduce queries
@@ -254,7 +249,7 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
                 setOutcomeTokenId(0)
               }}
             >
-              {market?.outcomeTokens[0] ?? 'Yes'} {(outcomeTokensPercent?.[0] ?? 50).toFixed(2)}%
+              {market.prices[0].toFixed(2)}%
             </Button>
             <Button
               w={'full'}
@@ -268,7 +263,7 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
                 setOutcomeTokenId(1)
               }}
             >
-              {market?.outcomeTokens[1] ?? 'No'} {(outcomeTokensPercent?.[1] ?? 50).toFixed(2)}%
+              {market.prices[1].toFixed(2)}%
             </Button>
           </HStack>
         </VStack>

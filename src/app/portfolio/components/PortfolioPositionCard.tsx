@@ -27,14 +27,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
    */
   const market = useMarket(position.market.id)
   const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
-  const { outcomeTokensPercent, volume } = useMarketData({
+  const { volume } = useMarketData({
     marketAddress: position.market.id,
     collateralToken,
   })
 
   const chancePercent = useMemo(() => {
-    return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
-  }, [market, outcomeTokensPercent])
+    return market?.prices[0].toFixed(1)
+  }, [market, market])
 
   /**
    * SHARE
