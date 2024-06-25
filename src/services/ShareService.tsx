@@ -53,7 +53,9 @@ export const createMarketShareUrls = (
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${window.location.origin}/markets/${market?.address[defaultChain.id]}`
+  const marketURI = `https://limitless-trade-frame.vercel.app/markets/${
+    market?.address[defaultChain.id]
+  }`
 
   return {
     tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
@@ -82,7 +84,9 @@ export const createPortfolioShareUrls = (market: Market | null, position: Histor
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${window.location.origin}/markets/${market?.address[defaultChain.id]}`
+  const marketURI = `https://limitless-trade-frame.vercel.app/markets/${
+    market?.address[defaultChain.id]
+  }`
 
   return {
     tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
