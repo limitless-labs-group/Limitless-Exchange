@@ -53,7 +53,9 @@ export const createMarketShareUrls = (
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${process.env.NEXT_PUBLIC_ENV_URL}/markets/${market?.address[defaultChain.id]}`
+  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${
+    market?.address[defaultChain.id]
+  }`
 
   return {
     tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
@@ -82,7 +84,9 @@ export const createPortfolioShareUrls = (market: Market | null, position: Histor
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${process.env.NEXT_PUBLIC_ENV_URL}/markets/${market?.address[defaultChain.id]}`
+  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${
+    market?.address[defaultChain.id]
+  }`
 
   return {
     tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
