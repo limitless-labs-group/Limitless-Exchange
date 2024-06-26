@@ -1,13 +1,14 @@
-import { Button, FrameIntent, Frog, TextInput } from 'frog'
-import { handle } from 'frog/next'
+/** @jsxImportSource frog/jsx */
 
+import { Button, Frog, TextInput } from 'frog'
+import { devtools } from 'frog/dev'
+import { handle } from 'frog/next'
+import { serveStatic } from 'frog/serve-static'
 import { Address, erc20Abi, formatUnits, parseUnits } from 'viem'
 import { Token } from '@/types'
 import { defaultChain } from '@/constants'
-import { fixedProductMarketMakerABI } from '@/contracts'
 import { getQuote, getViemClient } from '@/app/api/frog/[[...routes]]/helpers/queries'
-import { devtools } from 'frog/dev'
-import { serveStatic } from 'frog/serve-static/noop'
+import { fixedProductMarketMakerABI } from '@/contracts'
 
 type State = {
   marketAddress: string
@@ -15,7 +16,7 @@ type State = {
 }
 
 const app = new Frog<{ State: State }>({
-  title: 'Limitless Trade Frame',
+  title: 'Market',
   assetsPath: '/',
   basePath: '/api/frog',
   initialState: {
@@ -51,8 +52,8 @@ app.frame('/:address', async (c) => {
       token.address.toLowerCase() === marketResponse.collateralToken[defaultChain.id].toLowerCase()
   ) as Token
   return c.res({
+    browserLocation: `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${marketAddress}`,
     action: `/buy/${marketAddress}`,
-    // @ts-ignore
     image: (
       <div
         style={{
@@ -108,20 +109,19 @@ app.frame('/:address', async (c) => {
       </div>
     ),
     intents: [
-      <TextInput placeholder={`Enter amount ${collateralToken.symbol}`} key='input' />,
+      // eslint-disable-next-line react/jsx-key
+      <TextInput placeholder={`Enter amount ${collateralToken.symbol}`} />,
+      // eslint-disable-next-line react/jsx-key
       <Button.Transaction
         target={`/approve-tx/${marketAddress}/${collateralToken.decimals}/${collateralToken.address}`}
-        key='transaction'
       >
         Approve spend
       </Button.Transaction>,
-      <Button.Link
-        href={`https://dev.limitless.echange/markets/${marketAddress}`}
-        key='limitless-link'
-      >
+      // eslint-disable-next-line react/jsx-key
+      <Button.Link href={`https://limitless.exchange/markets/${marketAddress}`}>
         Open Limitless
       </Button.Link>,
-    ] as unknown as FrameIntent[],
+    ],
   })
 })
 
@@ -268,35 +268,32 @@ app.frame('/buy/:address', async (c) => {
   const getIntents = () => {
     if (!['buyYes', 'buyNo'].includes(buttonValue || '')) {
       return [
-        <Button value='buyYes' key='buyYes'>
-          Yes {marketResponse.prices[0].toFixed(2)}%
-        </Button>,
-        <Button value='buyNo' key='buyNo'>
-          No {marketResponse.prices[1].toFixed(2)}%
-        </Button>,
-        <Button.Link
-          href={`https://dev.limitless.echange/markets/${marketAddress}`}
-          key='link-to-app'
-        >
+        // eslint-disable-next-line react/jsx-key
+        <Button value='buyYes'>Yes {marketResponse.prices[0].toFixed(2)}%</Button>,
+        // eslint-disable-next-line react/jsx-key
+        <Button value='buyNo'>No {marketResponse.prices[1].toFixed(2)}%</Button>,
+        // eslint-disable-next-line react/jsx-key
+        <Button.Link href={`https://limitless.exchange/markets/${marketAddress}`}>
           Open Limitless
         </Button.Link>,
-      ] as unknown as FrameIntent[]
+      ]
     }
     return [
+      // eslint-disable-next-line react/jsx-key
       <Button.Transaction
         target={`/${collateralToken.address}/buy/${buttonValue === 'buyYes' ? '0' : '1'}`}
-        key='buyShares'
       >
         Buy
       </Button.Transaction>,
-      <Button.Link href={`https://dev.limitless.echange/markets/${marketAddress}`} key='app-link'>
+      // eslint-disable-next-line react/jsx-key
+      <Button.Link href={`https://limitless.exchange/markets/${marketAddress}`}>
         Open Limitless
       </Button.Link>,
-    ] as unknown as FrameIntent[]
+    ]
   }
 
   return c.res({
-    // @ts-ignore
+    browserLocation: `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${marketAddress}`,
     image: (
       <div
         style={{
@@ -353,7 +350,7 @@ app.transaction('/:collateralContract/buy/:index', async (c) => {
 })
 
 devtools(app, {
-  basePath: '/debug',
+  basePath: '/debug', // devtools available at `http://localhost:5173/debug`
   serveStatic,
 })
 
