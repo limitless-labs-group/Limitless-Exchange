@@ -8,6 +8,7 @@
     "dev": "NODE_ENV=development wagmi generate && next dev",
     "build": "wagmi generate && next build",
     "analyze": "ANALYZE=true yarn build",
+    "deploy": "vercel",
     "start": "next start",
     "lint": "next lint",
     "wagmi": "wagmi generate",
@@ -48,9 +49,11 @@
     "date-fns": "^3.6.0",
     "dayzed": "^3.2.3",
     "framer-motion": "^10.12.12",
+    "frog": "latest",
     "graphql": "^16.8.1",
     "highcharts": "^11.4.1",
     "highcharts-react-official": "^3.2.1",
+    "hono": "^4",
     "moment": "^2.30.1",
     "next": "^14.2.3",
     "react": "^18.3.1",
@@ -60,6 +63,7 @@
     "react-qr-code": "^2.0.12",
     "react-select": "^5.8.0",
     "subscriptions-transport-ws": "^0.11.0",
+    "supports-color": "^8.1.1",
     "uuid": "^9.0.1",
     "viem": "^2.7.22",
     "wagmi": "^2.9.8"
@@ -80,6 +84,7 @@
     "jest-environment-jsdom": "^29.5.0",
     "lint-staged": "^13.2.2",
     "prettier": "^2.8.8",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "vercel": "^32.4.1"
   }
 }

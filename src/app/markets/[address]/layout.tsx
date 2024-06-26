@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import axios from 'axios'
 import { Market } from '@/types'
+import { getFrameMetadata } from 'frog/next'
 
 type Props = {
   params: { address: string }
@@ -9,6 +10,9 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const response = await axios.get<Market>(
     `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${params.address}`
+  )
+  const frameMetadata = await getFrameMetadata(
+    `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${params.address}`
   )
   const market = response.data
 
@@ -19,6 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: market?.description,
       images: [`${market?.ogImageURI}`],
     },
+    //@ts-ignore
+    other: frameMetadata,
   }
 }
 
