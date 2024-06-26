@@ -85,6 +85,11 @@ const tokenLimits: TokenLimits = {
     max: 3000,
     step: 25,
   },
+  BETS: {
+    min: 835000,
+    max: 8350000,
+    step: 5000,
+  },
 }
 
 interface TagOption {
