@@ -4,11 +4,12 @@ import { Button, Frog, TextInput } from 'frog'
 import { devtools } from 'frog/dev'
 import { handle } from 'frog/next'
 import { serveStatic } from 'frog/serve-static'
-import { Address, erc20Abi, formatUnits, parseUnits } from 'viem'
+import { Address, erc20Abi, parseUnits } from 'viem'
 import { Token } from '@/types'
 import { defaultChain } from '@/constants'
 import { getQuote, getViemClient } from '@/app/api/frog/[[...routes]]/helpers/queries'
 import { fixedProductMarketMakerABI } from '@/contracts'
+import { formatFixedEther } from '@/app/api/frog/[[...routes]]/helpers/utils'
 
 type State = {
   marketAddress: string
@@ -94,7 +95,7 @@ app.frame('/:address', async (c) => {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <span style={{ color: '#71FF65', fontSize: '28px' }}>
-              {formatUnits(marketResponse.liquidity, collateralToken.decimals)}{' '}
+              {formatFixedEther(marketResponse.liquidity, collateralToken.decimals)}{' '}
               {collateralToken.symbol}
             </span>
             <span style={{ color: '#747675', fontSize: '28px' }}>Liquidity</span>
@@ -250,7 +251,7 @@ app.frame('/buy/:address', async (c) => {
               fontSize: '28px',
             }}
           >
-            {formatUnits(marketResponse.liquidity, collateralToken.decimals)}{' '}
+            {formatFixedEther(marketResponse.liquidity, collateralToken.decimals)}{' '}
             {collateralToken.symbol}
           </span>
           <span style={{ color: '#747675', fontSize: '28px' }}>Liquidity</span>
