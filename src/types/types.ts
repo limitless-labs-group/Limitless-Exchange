@@ -90,6 +90,7 @@ export enum MarketTokensIds {
   REGEN = 'regen',
   USDC = 'usd-coin',
   VITA = 'vitadao',
+  BETS = 'all-street-bets',
 }
 
 export enum Sort {
