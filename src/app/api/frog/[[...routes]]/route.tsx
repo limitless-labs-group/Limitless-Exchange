@@ -95,7 +95,7 @@ app.frame('/:address', async (c) => {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <span style={{ color: '#71FF65', fontSize: '28px' }}>
-              {formatFixedEther(marketResponse.liquidity, collateralToken.decimals, 6)}{' '}
+              {formatFixedEther(BigInt(marketResponse.liquidity), collateralToken.decimals, 6)}{' '}
               {collateralToken.symbol}
             </span>
             <span style={{ color: '#747675', fontSize: '28px' }}>Liquidity</span>
@@ -251,7 +251,7 @@ app.frame('/buy/:address', async (c) => {
               fontSize: '28px',
             }}
           >
-            {formatFixedEther(marketResponse.liquidity, collateralToken.decimals, 6)}{' '}
+            {formatFixedEther(BigInt(marketResponse.liquidity), collateralToken.decimals, 6)}{' '}
             {collateralToken.symbol}
           </span>
           <span style={{ color: '#747675', fontSize: '28px' }}>Liquidity</span>
