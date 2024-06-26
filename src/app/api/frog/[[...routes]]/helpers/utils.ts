@@ -1,7 +1,7 @@
-import { formatEther } from 'viem'
+import { formatUnits } from 'viem'
 
-export function formatFixedEther(value: bigint, fractionDigits?: number) {
+export function formatFixedEther(value: bigint, decimals: number, fractionDigits?: number) {
   return Intl.NumberFormat('en-US', {
     maximumFractionDigits: fractionDigits,
-  }).format(Number(formatEther(value)))
+  }).format(Number(formatUnits(value, decimals)))
 }
