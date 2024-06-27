@@ -1,7 +1,8 @@
-import { extendTheme as ChakraTheme } from '@chakra-ui/react'
+import { extendTheme as ChakraTheme, theme, ThemeConfig } from '@chakra-ui/react'
 import { radioTheme } from '@/styles/radio'
+import { lightThemeColors } from '@/styles/light-theme-colors'
 
-const fonts = `Inter, sans-serif`
+const fonts = `Helvetica Neue`
 export const colors = {
   brand: '#2492ff',
   bg: 'white',
@@ -21,16 +22,20 @@ export const colors = {
   },
 }
 
+const config: ThemeConfig = {
+  initialColorMode: 'light',
+  useSystemColorMode: false,
+}
+
 export const borderRadius = 'lg'
 
 export const chakraTheme = ChakraTheme({
-  initialColorMode: 'light',
-  useSystemColorMode: false,
+  ...config,
   fonts: {
     heading: fonts,
     body: fonts,
   },
-  colors,
+  colors: lightThemeColors,
   styles: {
     global: {
       body: {

@@ -60,7 +60,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
         rotation: 0,
         align: 'right',
         style: {
-          fontFamily: 'Inter',
+          fontFamily: 'Helvetica Neue',
           fontSize: '14px',
         },
         formatter: function () {
