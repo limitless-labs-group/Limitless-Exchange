@@ -4,15 +4,16 @@ import { CreateMarketCard, MainLayout, MarketCard, MarketCardMobile } from '@/co
 import { defaultChain } from '@/constants'
 import { useIsMobile } from '@/hooks'
 import { OpenEvent, useAmplitude } from '@/services'
-import { Grid, HStack, Stack } from '@chakra-ui/react'
+import { Grid, Stack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Filter from '@/components/common/TokenFilter'
 import SortFilter from '@/components/common/SortFilter'
 import { Market, Sort, Token } from '@/types'
-import { getAddress } from 'viem'
+import { formatUnits, getAddress } from 'viem'
 import { useMarkets } from '@/services/MarketsService'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import { usePriceOracle } from '@/providers'
 
 const MainPage = () => {
   /**
@@ -35,6 +36,7 @@ const MainPage = () => {
   const handleSelectFilterTokens = (tokens: Token[]) => setSelectedFilterTokens(tokens)
   const handleSelectSort = (options: Sort) => setSelectedSort(options)
 
+  const { convertTokenAmountToUsd } = usePriceOracle()
   const { data, fetchNextPage, hasNextPage } = useMarkets()
 
   const dataLength = data?.pages.reduce((counter, page) => {
@@ -44,6 +46,14 @@ const MainPage = () => {
   const markets: Market[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data) || []
   }, [data?.pages])
+
+  //it helps to get integer value form solidity representation
+  const formatMarketNumber = (market: Market, amount: string | undefined) => {
+    return convertTokenAmountToUsd(
+      market.tokenTicker[defaultChain.id],
+      formatUnits(BigInt(amount ?? 0), market.tokenTicker[defaultChain.id] === 'USDC' ? 6 : 18)
+    )
+  }
 
   const filteredMarkets = useMemo(() => {
     return markets?.filter((market) =>
@@ -65,9 +75,13 @@ const MainPage = () => {
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )
       case Sort.HIGHEST_VOLUME:
-        return [...filteredMarkets].sort((a, b) => Number(b.volume) - Number(a.volume))
+        return [...filteredMarkets].sort(
+          (a, b) => formatMarketNumber(b, b.volume) - formatMarketNumber(a, a.volume)
+        )
       case Sort.HIGHEST_LIQUIDITY:
-        return [...filteredMarkets].sort((a, b) => Number(b.liquidity) - Number(a.liquidity))
+        return [...filteredMarkets].sort(
+          (a, b) => formatMarketNumber(b, b.liquidity) - formatMarketNumber(a, a.liquidity)
+        )
       case Sort.COMING_DEADLINE:
         return [...filteredMarkets].sort(
           (a, b) =>
