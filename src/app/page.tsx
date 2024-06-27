@@ -90,7 +90,7 @@ const MainPage = () => {
       default:
         return filteredMarkets
     }
-  }, [filteredMarkets, selectedSort])
+  }, [markets, filteredMarkets, selectedSort])
 
   return (
     <InfiniteScroll
