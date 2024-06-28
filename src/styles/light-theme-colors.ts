@@ -1,6 +1,7 @@
 export const lightThemeColors = {
   white: '#FFFFFF',
-  black: {
+  black: '#000000',
+  grey: {
     50: '#FFFFFF',
     100: '#F3F3F3',
     200: '#E7E7E7',
