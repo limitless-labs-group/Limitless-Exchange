@@ -89,7 +89,7 @@ app.frame('/start/:address', async (c) => {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <span style={{ color: '#71FF65', fontSize: '28px' }}>
-              {marketResponse.liquidityFormatted} {token.symbol}
+              {+marketResponse.liquidityFormatted} {token.symbol}
             </span>
             <span style={{ color: '#747675', fontSize: '28px' }}>Liquidity</span>
           </div>
