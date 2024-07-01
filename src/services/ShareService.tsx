@@ -53,7 +53,7 @@ export const createMarketShareUrls = (
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${
+  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/api/frog/start/${
     market?.address[defaultChain.id]
   }`
 
@@ -84,7 +84,7 @@ export const createPortfolioShareUrls = (market: Market | null, position: Histor
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${
+  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/api/frog/start/${
     market?.address[defaultChain.id]
   }`
 
