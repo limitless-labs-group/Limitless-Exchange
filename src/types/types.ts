@@ -61,6 +61,7 @@ export type Market = {
   winningOutcomeIndex?: number
   volume?: string
   liquidity?: string
+  prices: number[]
 }
 
 export type GetBalanceResult = {
