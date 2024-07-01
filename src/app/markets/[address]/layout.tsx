@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${params.address}`
   )
   const frameMetadata = await getFrameMetadata(
-    `${process.env.NEXT_PUBLIC_FRAME_URL}/api/frog/${params.address}`
+    `${process.env.NEXT_PUBLIC_FRAME_URL}/api/frog/start/${params.address}`
   )
   const market = response.data
 
