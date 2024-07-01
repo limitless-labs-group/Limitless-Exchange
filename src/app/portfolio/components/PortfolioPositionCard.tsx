@@ -33,6 +33,9 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   })
 
   const chancePercent = useMemo(() => {
+    if (market?.expired) {
+      return market?.winningOutcomeIndex === 0 ? '100' : '0'
+    }
     return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
   }, [market, outcomeTokensPercent])
 
