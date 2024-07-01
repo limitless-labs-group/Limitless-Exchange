@@ -61,6 +61,7 @@ export type Market = {
   winningOutcomeIndex?: number
   volume?: string
   liquidity?: string
+  prices: number[]
 }
 
 export type GetBalanceResult = {
@@ -90,6 +91,7 @@ export enum MarketTokensIds {
   REGEN = 'regen',
   USDC = 'usd-coin',
   VITA = 'vitadao',
+  BETS = 'all-street-bets',
 }
 
 export enum Sort {
