@@ -4,7 +4,7 @@ import { CreateMarketCard, MainLayout, MarketCard, MarketCardMobile } from '@/co
 import { defaultChain } from '@/constants'
 import { useIsMobile } from '@/hooks'
 import { OpenEvent, useAmplitude } from '@/services'
-import { Grid, HStack, Stack } from '@chakra-ui/react'
+import { Grid, Stack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Filter from '@/components/common/TokenFilter'
