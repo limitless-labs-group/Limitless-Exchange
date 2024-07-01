@@ -20,7 +20,7 @@ export const MainLayout = ({ children, maxContentWidth, ...props }: IMainLayout)
     {...props}
   >
     <Header />
-    <HStack minH={'calc(100vh - 20px)'}>
+    <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
       <Sidebar />
       {children}
     </HStack>
