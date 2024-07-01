@@ -24,20 +24,13 @@ export const PortfolioPositions = ({ ...props }: GridProps) => {
 
   const positionsFiltered = useMemo(
     () =>
-      positions
-        ?.filter((position) =>
-          selectedFilterTokens.length > 0
-            ? selectedFilterTokens.some(
-                (filterToken) => filterToken.symbol == position.market.collateral?.symbol
-              )
-            : true
-        )
-        .filter((position) => {
-          const market = userMarkets?.find(
-            (userMarket) => getAddress(userMarket.market.id) === getAddress(position.market.id)
-          )
-          return !market?.market.closed
-        }),
+      positions?.filter((position) =>
+        selectedFilterTokens.length > 0
+          ? selectedFilterTokens.some(
+              (filterToken) => filterToken.symbol == position.market.collateral?.symbol
+            )
+          : true
+      ),
     [positions, selectedFilterTokens, userMarkets]
   )
 
