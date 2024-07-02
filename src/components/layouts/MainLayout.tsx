@@ -1,12 +1,13 @@
-import { Footer, Header } from '@/components'
-import { Flex, FlexProps, VStack } from '@chakra-ui/react'
+import { Header } from '@/components'
+import { Box, Flex, FlexProps, HStack, VStack } from '@chakra-ui/react'
+import Sidebar from '@/components/layouts/sidebar'
 
 interface IMainLayout extends FlexProps {
   maxContentWidth?: string | number
 }
 
 export const MainLayout = ({ children, maxContentWidth, ...props }: IMainLayout) => (
-  <Flex
+  <Box
     id='main'
     flexDir={'column'}
     w={'full'}
@@ -18,19 +19,10 @@ export const MainLayout = ({ children, maxContentWidth, ...props }: IMainLayout)
     gap={{ sm: 6, md: 10 }}
     {...props}
   >
-    <VStack w={'full'} spacing={props.gap ?? { sm: 6, md: 10 }}>
-      <Header />
-      <Flex
-        h={'full'}
-        w={'full'}
-        maxW={maxContentWidth ?? '1000px'}
-        gap={6}
-        flexDir={'column'}
-        px={{ sm: 4, md: 6 }}
-      >
-        {children}
-      </Flex>
-    </VStack>
-    <Footer />
-  </Flex>
+    <Header />
+    <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
+      <Sidebar />
+      {children}
+    </HStack>
+  </Box>
 )

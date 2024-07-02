@@ -1,4 +1,4 @@
-import { extendTheme as ChakraTheme, theme, ThemeConfig } from '@chakra-ui/react'
+import { extendTheme as ChakraTheme, ThemeConfig } from '@chakra-ui/react'
 import { radioTheme } from '@/styles/radio'
 import { lightThemeColors } from '@/styles/light-theme-colors'
 
@@ -44,6 +44,9 @@ export const chakraTheme = ChakraTheme({
         color: colors.font,
         background: colors.bg,
         fontSize: '14px',
+      },
+      hr: {
+        opacity: '1 !important',
       },
       div: {
         '::-webkit-scrollbar': {
