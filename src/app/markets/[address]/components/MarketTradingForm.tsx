@@ -16,30 +16,31 @@ import { borderRadius } from '@/styles'
 import { NumberUtil } from '@/utils'
 import {
   Avatar,
-  Box,
-  Divider,
   HStack,
   Heading,
-  Slider,
+  Slider as ChakraSlider,
   SliderFilledTrack,
   SliderThumb,
   SliderTrack,
   Stack,
-  StackProps,
   Text,
   VStack,
+  Flex,
+  SliderMark,
+  Box,
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
 import { Market, MarketTokensIds } from '@/types'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useToken } from '@/hooks/use-token'
+import Paper from '@/components/common-new/paper'
 
-interface MarketTradingFormProps extends StackProps {
+interface MarketTradingFormProps {
   market: Market
 }
 
-export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) => {
+export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
   /**
    * ACCOUNT STATE
    */
@@ -171,23 +172,24 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
     }
   }, [market, collateralToken])
 
+  console.log(sliderValue)
+
   return (
-    <Stack
-      h={'fit-content'}
-      w={'full'}
-      maxW={'400px'}
-      boxShadow={'0 0 12px #ddd'}
-      borderRadius={borderRadius}
-      spacing={0}
-      {...props}
-    >
-      <HStack px={5} pt={2} spacing={4}>
+    <Paper bg='blue.500' w={'296px'}>
+      <HStack
+        w={'236px'}
+        mx='auto'
+        bg='rgba(255, 255, 255, 0.20)'
+        borderRadius='2px'
+        p='2px'
+        mb='24px'
+      >
         <Button
-          pos={'relative'}
-          bg={'none'}
-          variant={'unstyled'}
-          borderRadius={0}
-          minW={'unset'}
+          h='unset'
+          flex='1'
+          borderRadius='2px'
+          bg={strategy === 'Buy' ? 'white' : 'unset'}
+          color={strategy === 'Buy' ? 'black' : 'white'}
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Buy selected',
@@ -199,21 +201,13 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
           <Text fontWeight={'bold'} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
             Buy
           </Text>
-          <Box
-            pos={'absolute'}
-            w={'full'}
-            h={'3px'}
-            bg={'black'}
-            bottom={0}
-            visibility={strategy == 'Buy' ? 'visible' : 'hidden'}
-          />
         </Button>
         <Button
-          pos={'relative'}
-          bg={'none'}
-          variant={'unstyled'}
-          borderRadius={0}
-          minW={'unset'}
+          h='unset'
+          flex='1'
+          borderRadius='2px'
+          bg={strategy === 'Sell' ? 'white' : 'unset'}
+          color={strategy === 'Sell' ? 'black' : 'white'}
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Sell selected',
@@ -225,18 +219,156 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
           <Text fontWeight={'bold'} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
             Sell
           </Text>
-          <Box
-            pos={'absolute'}
-            w={'full'}
-            h={'3px'}
-            bg={'black'}
-            bottom={0}
-            visibility={strategy == 'Sell' ? 'visible' : 'hidden'}
-          />
         </Button>
       </HStack>
+      <Flex justifyContent='space-between'>
+        <Text color='white' fontWeight={500}>
+          Balance
+        </Text>
+        <Text color='white' fontWeight={500}>
+          {NumberUtil.formatThousands(balance, token?.symbol === 'USDC' ? 1 : 6)} {token?.symbol}
+        </Text>
+      </Flex>
+      <ChakraSlider
+        min={0}
+        max={100}
+        defaultValue={0}
+        onChange={(v) => setSliderValue(v)}
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+        isDisabled={false}
+      >
+        <SliderMark
+          value={0}
+          borderRadius='100%'
+          display='flex'
+          alignItems='center'
+          justifyContent='center'
+          mt='-1.5'
+          w='12px'
+          h='12px'
+          bg='blue.500'
+          zIndex='100'
+          onClick={() => setSliderValue(0)}
+          sx={{
+            pointerEvents: 'auto !important',
+          }}
+        >
+          <Box rounded='full' bg={'white'} w='8px' h='8px' />
+        </SliderMark>
+        {[20, 40, 60, 80].map((value) => (
+          <SliderMark
+            value={value}
+            borderRadius='100%'
+            display='flex'
+            alignItems='center'
+            justifyContent='center'
+            mt='-1.5'
+            key={value}
+            bg='blue.500'
+            w='12px'
+            h='12px'
+            zIndex='100'
+            sx={{
+              pointerEvents: 'auto !important',
+            }}
+            onClick={() => setSliderValue(value)}
+          >
+            <Box
+              rounded='full'
+              bg={sliderValue < value ? 'rgba(255, 255, 255, 0.2)' : 'white'}
+              w='8px'
+              h='8px'
+            />
+          </SliderMark>
+        ))}
+        <SliderMark
+          value={100}
+          borderRadius='100%'
+          display='flex'
+          alignItems='center'
+          justifyContent='center'
+          mt='-1.5'
+          ml='-2.5'
+          w='12px'
+          h='12px'
+          bg='blue.500'
+          zIndex='100'
+          sx={{
+            pointerEvents: 'auto !important',
+          }}
+          onClick={() => {
+            setSliderValue(100)
+          }}
+        >
+          <Box
+            rounded='full'
+            bg={sliderValue === 100 ? 'white' : 'rgba(255, 255, 255, 0.2)'}
+            w='8px'
+            h='8px'
+          />
+        </SliderMark>
+        <SliderTrack bg='rgba(255, 255, 255, 0.20)'>
+          <SliderFilledTrack bg='white' />
+        </SliderTrack>
+      </ChakraSlider>
 
-      <Divider />
+      <Stack w={'full'} spacing={1} mt='8px'>
+        <Text fontSize={'14px'} color='white'>
+          {strategy == 'Buy' ? 'You pay' : 'You sell'}
+        </Text>
+        <Stack
+          w={'full'}
+          spacing={1}
+          px={3}
+          py={2}
+          borderRadius={borderRadius}
+          border={'1px solid'}
+          borderColor={isExceedsBalance ? 'red' : 'border'}
+        >
+          <HStack h={'34px'} w='full' spacing={0}>
+            <Input
+              type={'number'}
+              h={'full'}
+              fontWeight={'bold'}
+              placeholder={'0'}
+              border={'none'}
+              px={0}
+              _focus={{
+                boxShadow: 'none',
+              }}
+              value={displayAmount}
+              onChange={(e) => handleInputValueChange(e.target.value)}
+            />
+
+            <Button
+              h={'full'}
+              colorScheme={'transparent'}
+              border={'1px solid'}
+              borderColor={'border'}
+              gap={1}
+              minW={'110px'}
+            >
+              <Avatar size={'xs'} src={market?.tokenURI[defaultChain.id]} />
+              <Text>{market?.tokenTicker[defaultChain.id]}</Text>
+            </Button>
+          </HStack>
+
+          <HStack w={'full'} justifyContent={'space-between'} color={'fontLight'} fontSize={'12px'}>
+            <Text>~${amountUsd}</Text>
+            <Text
+              _hover={{ color: 'font' }}
+              cursor={'pointer'}
+              onClick={() =>
+                setCollateralAmount(NumberUtil.toFixed(balance, token?.symbol === 'USDC' ? 1 : 6))
+              }
+            >
+              {`Balance: ${NumberUtil.formatThousands(balance, token?.symbol === 'USDC' ? 1 : 6)}`}{' '}
+              {market?.tokenTicker[defaultChain.id]}
+            </Text>
+          </HStack>
+        </Stack>
+      </Stack>
 
       <VStack w={'full'} spacing={5} p={5}>
         <VStack w={'full'} alignItems={'start'}>
@@ -272,102 +404,6 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
             </Button>
           </HStack>
         </VStack>
-
-        <Stack w={'full'} spacing={1}>
-          <HStack w={'full'} justifyContent={'space-between'} alignItems={'center'}>
-            <Heading fontSize={'14px'}>{strategy == 'Buy' ? 'You pay' : 'You sell'}</Heading>
-          </HStack>
-          <Stack
-            w={'full'}
-            spacing={1}
-            px={3}
-            py={2}
-            borderRadius={borderRadius}
-            border={'1px solid'}
-            borderColor={isExceedsBalance ? 'red' : 'border'}
-          >
-            <HStack h={'34px'} w='full' spacing={0}>
-              <Input
-                type={'number'}
-                h={'full'}
-                fontWeight={'bold'}
-                placeholder={'0'}
-                border={'none'}
-                px={0}
-                _focus={{
-                  boxShadow: 'none',
-                }}
-                value={displayAmount}
-                onChange={(e) => handleInputValueChange(e.target.value)}
-              />
-
-              <Button
-                h={'full'}
-                colorScheme={'transparent'}
-                border={'1px solid'}
-                borderColor={'border'}
-                gap={1}
-                minW={'110px'}
-              >
-                <Avatar size={'xs'} src={market?.tokenURI[defaultChain.id]} />
-                <Text>{market?.tokenTicker[defaultChain.id]}</Text>
-              </Button>
-            </HStack>
-
-            <HStack
-              w={'full'}
-              justifyContent={'space-between'}
-              color={'fontLight'}
-              fontSize={'12px'}
-            >
-              <Text>~${amountUsd}</Text>
-              <Text
-                _hover={{ color: 'font' }}
-                cursor={'pointer'}
-                onClick={() =>
-                  setCollateralAmount(NumberUtil.toFixed(balance, token?.symbol === 'USDC' ? 1 : 6))
-                }
-              >
-                {`Balance: ${NumberUtil.formatThousands(
-                  balance,
-                  token?.symbol === 'USDC' ? 1 : 6
-                )}`}{' '}
-                {market?.tokenTicker[defaultChain.id]}
-              </Text>
-            </HStack>
-          </Stack>
-        </Stack>
-
-        <Slider
-          w={'95%'}
-          aria-label='slider-ex-6'
-          value={sliderValue}
-          onChange={(val) => onSlide(val)}
-          onMouseEnter={() => setShowTooltip(true)}
-          onMouseLeave={() => setShowTooltip(false)}
-          onChangeEnd={() => setCollateralAmount(displayAmount)}
-          isDisabled={isZeroBalance}
-          focusThumbOnChange={false}
-        >
-          <SliderTrack>
-            <SliderFilledTrack bg={outcomeTokenId == 0 ? 'green' : 'red'} />
-          </SliderTrack>
-          <Tooltip
-            hasArrow
-            bg='bgLight'
-            color='fontLight'
-            fontSize={'12px'}
-            placement='top'
-            isOpen={showTooltip}
-            label={`${sliderValue}%`}
-          >
-            <SliderThumb
-              bg={outcomeTokenId == 0 ? 'green' : 'red'}
-              border={'1px solid'}
-              borderColor={'border'}
-            />
-          </Tooltip>
-        </Slider>
 
         {address ? (
           <Button
@@ -433,6 +469,6 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
           )}
         </VStack>
       </VStack>
-    </Stack>
+    </Paper>
   )
 }

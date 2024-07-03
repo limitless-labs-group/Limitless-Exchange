@@ -4,7 +4,7 @@ import { Button, Frog, TextInput } from 'frog'
 import { devtools } from 'frog/dev'
 import { handle } from 'frog/next'
 import { serveStatic } from 'frog/serve-static'
-import { Address, erc20Abi, formatUnits, parseUnits } from 'viem'
+import { Address, erc20Abi, parseUnits } from 'viem'
 import { Market, Token } from '@/types'
 import { TradeQuotes } from '@/services'
 import { defaultChain } from '@/constants'
@@ -12,7 +12,7 @@ import { getQuote, getViemClient } from '@/app/api/frog/[[...routes]]/helpers/qu
 import { fixedProductMarketMakerABI } from '@/contracts'
 
 const app = new Frog({
-  title: 'asd',
+  title: '',
   assetsPath: '/',
   basePath: '/api/frog',
 })

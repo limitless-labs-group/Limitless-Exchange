@@ -120,7 +120,7 @@ export const chakraTheme = ChakraTheme({
         outline: {
           borderWidth: 0,
           bg: 'grey.100',
-          color: 'grey.800',
+          color: 'black',
           height: '52px',
         },
         grey: {
