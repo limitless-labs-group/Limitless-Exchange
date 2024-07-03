@@ -1,13 +1,12 @@
 'use client'
 
-import { CreateMarketCard, MainLayout, MarketCard, MarketCardMobile } from '@/components'
+import { MainLayout, MarketCard, MarketCardMobile } from '@/components'
 import { defaultChain } from '@/constants'
 import { useIsMobile } from '@/hooks'
 import { OpenEvent, useAmplitude } from '@/services'
-import { Divider, Stack, VStack, Text, Box } from '@chakra-ui/react'
+import { Divider, VStack, Text, Box } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import Filter from '@/components/common/TokenFilter'
 import SortFilter from '@/components/common/SortFilter'
 import { Market, Sort, Token } from '@/types'
 import { formatUnits, getAddress } from 'viem'
@@ -35,7 +34,6 @@ const MainPage = () => {
 
   const [selectedFilterTokens, setSelectedFilterTokens] = useState<Token[]>([])
   const [selectedSort, setSelectedSort] = useState<Sort>(Sort.BASE)
-  const handleSelectFilterTokens = (tokens: Token[]) => setSelectedFilterTokens(tokens)
   const handleSelectSort = (options: Sort) => setSelectedSort(options)
 
   const { convertTokenAmountToUsd } = usePriceOracle()
@@ -105,19 +103,18 @@ const MainPage = () => {
       pullDownToRefresh
     >
       <MainLayout maxContentWidth={'unset'}>
-        <Box w='664px' mx='auto'>
-          <Divider bg='grey.800' orientation='horizontal' h='3px' />
-          <TextWithPixels text={'Explore Limitless Prediction Markets'} fontSize={'32px'} />
-          <Text color='grey.800' fontSize={'14px'}>
+        <Box w={isMobile ? 'auto' : '664px'} ml={isMobile ? 'auto' : '200px'}>
+          <Divider bg='black' orientation='horizontal' h='3px' />
+          <TextWithPixels text={'Explore Limitless Prediction Markets'} fontSize={'32px'} gap={2} />
+          <Text color='black' fontSize={'14px'}>
             Predict outcomes in crypto, tech, sports, and more. Use different tokens, participate in
             transparent voting for upcoming markets, and engage in markets created by the community.
             It’s all decentralized and secure.
           </Text>
+
+          <SortFilter onChange={handleSelectSort} />
+
           <VStack w={'full'} spacing={5} px={{ md: 14 }}>
-            <Stack direction={'row'} spacing={4}>
-              <Filter onChange={handleSelectFilterTokens} />
-              <SortFilter onChange={handleSelectSort} />
-            </Stack>
             <VStack gap={2}>
               {sortedMarkets?.map((market) =>
                 isMobile ? (
