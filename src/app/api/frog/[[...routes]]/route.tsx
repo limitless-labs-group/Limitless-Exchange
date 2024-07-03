@@ -12,7 +12,7 @@ import { getQuote, getViemClient } from '@/app/api/frog/[[...routes]]/helpers/qu
 import { fixedProductMarketMakerABI } from '@/contracts'
 
 const app = new Frog({
-  title: 'asd',
+  title: '',
   assetsPath: '/',
   basePath: '/api/frog',
 })
