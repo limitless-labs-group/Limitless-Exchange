@@ -30,16 +30,15 @@ interface ITradingServiceContext {
   setMarket: (market: Market | null) => void
   strategy: 'Buy' | 'Sell'
   setStrategy: (side: 'Buy' | 'Sell') => void
-  outcomeTokenId: number
-  setOutcomeTokenId: (outcomeOption: number) => void
   balanceOfCollateralToSell: string
   collateralAmount: string
   setCollateralAmount: (amount: string) => void
   isExceedsBalance: boolean
-  quotes: TradeQuotes | null | undefined
-  buy: () => Promise<string | undefined>
-  sell: () => Promise<string | undefined>
-  trade: () => Promise<string | undefined>
+  quotesYes: TradeQuotes | null | undefined
+  quotesNo: TradeQuotes | null | undefined
+  buy: (outcomeTokenId: number) => Promise<string | undefined>
+  sell: (outcomeTokenId: number) => Promise<string | undefined>
+  trade: (outcomeTokenId: number) => Promise<string | undefined>
   redeem: (outcomeIndex: number) => Promise<string | undefined>
   status: TradingServiceStatus
   approveModalOpened: boolean
@@ -72,7 +71,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const [market, setMarket] = useState<Market | null>(null)
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
-  const [outcomeTokenId, setOutcomeTokenId] = useState(0)
   const [approveModalOpened, setApproveModalOpened] = useState(false)
 
   /**
@@ -86,7 +84,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setMarket(null)
     setCollateralAmount('')
     setStrategy('Buy')
-    setOutcomeTokenId(0)
   }, [pathname])
 
   const { data: conditionalTokensAddress, refetch: getConditionalTokensAddress } =
@@ -186,7 +183,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       return
     }
 
-    const balanceOfOutcomeTokenBI = await getCTBalance(account, outcomeTokenId)
+    const balanceOfOutcomeTokenBI = await getCTBalance(account, 0)
     const _balanceOfOutcomeToken = formatUnits(
       balanceOfOutcomeTokenBI,
       collateralToken?.decimals || 18
@@ -194,10 +191,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     const balanceOfOutcomeTokenCropped = NumberUtil.toFixed(_balanceOfOutcomeToken.toString(), 10)
     setBalanceOfOutcomeToken(balanceOfOutcomeTokenCropped)
 
-    const holdings = await getCTBalance(market.address[defaultChain.id], outcomeTokenId)
+    const holdings = await getCTBalance(market.address[defaultChain.id], 0)
     const otherHoldings: bigint[] = []
     for (let index = 0; index < market.outcomeTokens.length; index++) {
-      if (index != outcomeTokenId) {
+      if (index != 0) {
         const balance = await getCTBalance(market.address[defaultChain.id], index)
         otherHoldings.push(balance)
       }
@@ -222,11 +219,11 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     )
 
     setBalanceOfCollateralToSell(_balanceOfCollateralToSell)
-  }, [account, market, outcomeTokenId, strategy])
+  }, [account, market, strategy])
 
   useEffect(() => {
     updateSellBalance()
-  }, [market, outcomeTokenId, strategy])
+  }, [market, strategy])
 
   /**
    * AMOUNT
@@ -255,7 +252,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * QUOTES
    */
-  const [quotes, setQuotes] = useState<TradeQuotes | null>(null)
+  const [quotesYes, setQuotesYes] = useState<TradeQuotes | null>(null)
+  const [quotesNo, setQuotesNo] = useState<TradeQuotes | null>(null)
   // current price for price impact calculation
   const {
     outcomeTokensBuyPrice: outcomeTokensBuyPriceCurrent,
@@ -265,20 +263,22 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     collateralToken,
   })
 
+  console.log(collateralAmount)
+
   useQuery({
     queryKey: [
-      'tradeQuotes',
+      'tradeQuotesYes',
       fixedProductMarketMakerContract?.address,
       collateralAmount,
       balanceOfOutcomeToken,
-      outcomeTokenId,
+      0,
       strategy,
       outcomeTokensBuyPriceCurrent,
       outcomeTokensSellPriceCurrent,
     ],
     queryFn: async () => {
       if (!fixedProductMarketMakerContract || !(Number(collateralAmount) > 0)) {
-        setQuotes(null)
+        setQuotesYes(null)
         return null
       }
 
@@ -286,12 +286,12 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       if (strategy == 'Buy') {
         outcomeTokenAmountBI = (await fixedProductMarketMakerContract.read.calcBuyAmount([
           collateralAmountBI,
-          outcomeTokenId,
+          0,
         ])) as bigint
       } else if (strategy == 'Sell') {
         outcomeTokenAmountBI = (await fixedProductMarketMakerContract.read.calcSellAmount([
           collateralAmountBI,
-          outcomeTokenId,
+          0,
         ])) as bigint
 
         // limit max outcome token amount to balance
@@ -304,8 +304,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         }
       }
 
+      console.log(outcomeTokenAmountBI)
+
       if (outcomeTokenAmountBI == 0n) {
-        setQuotes(null)
+        setQuotesYes(null)
         return null
       }
 
@@ -315,8 +317,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       const outcomeTokensPriceCurrent =
         strategy == 'Buy' ? outcomeTokensBuyPriceCurrent : outcomeTokensSellPriceCurrent
       const priceImpact = Math.abs(
-        (Number(outcomeTokenPrice) / Number(outcomeTokensPriceCurrent?.[outcomeTokenId] ?? 1) - 1) *
-          100
+        (Number(outcomeTokenPrice) / Number(outcomeTokensPriceCurrent?.[0] ?? 1) - 1) * 100
       ).toString()
 
       const _quotes: TradeQuotes = {
@@ -326,8 +327,75 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         priceImpact,
       }
 
-      setQuotes(_quotes)
-      return quotes
+      setQuotesYes(_quotes)
+      return quotesYes
+    },
+  })
+
+  useQuery({
+    queryKey: [
+      'tradeQuotesNo',
+      fixedProductMarketMakerContract?.address,
+      collateralAmount,
+      balanceOfOutcomeToken,
+      1,
+      strategy,
+      outcomeTokensBuyPriceCurrent,
+      outcomeTokensSellPriceCurrent,
+    ],
+    queryFn: async () => {
+      if (!fixedProductMarketMakerContract || !(Number(collateralAmount) > 0)) {
+        setQuotesNo(null)
+        return null
+      }
+
+      let outcomeTokenAmountBI = 0n
+      if (strategy == 'Buy') {
+        outcomeTokenAmountBI = (await fixedProductMarketMakerContract.read.calcBuyAmount([
+          collateralAmountBI,
+          1,
+        ])) as bigint
+      } else if (strategy == 'Sell') {
+        outcomeTokenAmountBI = (await fixedProductMarketMakerContract.read.calcSellAmount([
+          collateralAmountBI,
+          1,
+        ])) as bigint
+
+        // limit max outcome token amount to balance
+        const balanceOfOutcomeTokenBI = parseUnits(
+          balanceOfOutcomeToken,
+          collateralToken?.decimals || 18
+        )
+        if (outcomeTokenAmountBI > balanceOfOutcomeTokenBI) {
+          outcomeTokenAmountBI = balanceOfOutcomeTokenBI
+        }
+      }
+
+      console.log(outcomeTokenAmountBI)
+
+      if (outcomeTokenAmountBI == 0n) {
+        setQuotesNo(null)
+        return null
+      }
+
+      const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, collateralToken?.decimals || 18)
+      const outcomeTokenPrice = (Number(collateralAmount) / Number(outcomeTokenAmount)).toString()
+      const roi = ((Number(outcomeTokenAmount) / Number(collateralAmount) - 1) * 100).toString()
+      const outcomeTokensPriceCurrent =
+        strategy == 'Buy' ? outcomeTokensBuyPriceCurrent : outcomeTokensSellPriceCurrent
+      const priceImpact = Math.abs(
+        (Number(outcomeTokenPrice) / Number(outcomeTokensPriceCurrent?.[1] ?? 1) - 1) * 100
+      ).toString()
+
+      const _quotes: TradeQuotes = {
+        outcomeTokenPrice,
+        outcomeTokenAmount,
+        roi,
+        priceImpact,
+      }
+
+      setQuotesNo(_quotes)
+      return quotesNo
     },
   })
 
@@ -345,8 +413,9 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     redeemPositions,
   } = useWeb3Service()
   const { mutateAsync: buy, isPending: isLoadingBuy } = useMutation({
-    mutationFn: async () => {
-      if (!account || !market || isInvalidCollateralAmount || !quotes) {
+    mutationFn: async (outcomeTokenId: number) => {
+      debugger
+      if (!account || !market || isInvalidCollateralAmount) {
         return
       }
 
@@ -372,7 +441,12 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         market.address[defaultChain.id],
         collateralAmountBI,
         outcomeTokenId,
-        parseUnits(quotes.outcomeTokenAmount, collateralToken?.decimals || 18),
+        parseUnits(
+          outcomeTokenId
+            ? (quotesNo?.outcomeTokenAmount as string)
+            : (quotesYes?.outcomeTokenAmount as string),
+          collateralToken?.decimals || 18
+        ),
         market.collateralToken[defaultChain.id]
       )
 
@@ -466,8 +540,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * SELL
    */
   const { mutateAsync: sell, isPending: isLoadingSell } = useMutation({
-    mutationFn: async () => {
-      if (!account || !market || isInvalidCollateralAmount || !quotes) {
+    mutationFn: async (outcomeTokenId: number) => {
+      if (!account || !market || isInvalidCollateralAmount) {
         return
       }
 
@@ -493,7 +567,12 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         market.address[defaultChain.id],
         collateralAmountBI,
         outcomeTokenId,
-        parseUnits(quotes.outcomeTokenAmount, collateralToken?.decimals || 18)
+        parseUnits(
+          outcomeTokenId
+            ? (quotesNo?.outcomeTokenAmount as string)
+            : (quotesYes?.outcomeTokenAmount as string),
+          collateralToken?.decimals || 18
+        )
       )
 
       if (!receipt) {
@@ -573,7 +652,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const trade = useCallback(() => (strategy == 'Buy' ? buy() : sell()), [strategy])
+  const trade = useCallback(
+    (outcomeTokenId: number) => (strategy == 'Buy' ? buy(outcomeTokenId) : sell(outcomeTokenId)),
+    [strategy]
+  )
 
   const approveBuy = useCallback(() => approveContractBuy(), [])
 
@@ -610,13 +692,12 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setMarket,
     strategy,
     setStrategy,
-    outcomeTokenId,
-    setOutcomeTokenId,
     collateralAmount,
     setCollateralAmount,
     isExceedsBalance,
     balanceOfCollateralToSell,
-    quotes,
+    quotesYes,
+    quotesNo,
     buy,
     sell,
     trade,
