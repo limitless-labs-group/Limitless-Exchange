@@ -5,12 +5,15 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { usePathname } from 'next/navigation'
-import { Box, Divider, Text, Image, HStack, VStack, Spacer } from '@chakra-ui/react'
+import { Text, Image, HStack, VStack, Spacer } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
 import { useMarketData } from '@/hooks'
 import { Market } from '@/types'
 import { useToken } from '@/hooks/use-token'
+import Paper from '@/components/common-new/paper'
+import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 
 // Define the interface for the chart data
 interface YesBuyChartData {
@@ -116,9 +119,9 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
           },
           stops: [
             //@ts-ignore
-            [0, Highcharts.color('#2492FF').setOpacity(0.5).get('rgba')],
+            [0, Highcharts.color('#238020').setOpacity(0.5).get('rgba')],
             //@ts-ignore
-            [1, Highcharts.color('#2492FF').setOpacity(0).get('rgba')],
+            [1, Highcharts.color('#238020').setOpacity(0).get('rgba')],
           ],
           brighten: 0.2,
         },
@@ -223,21 +226,16 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
   }, [outcomeTokensPercent])
 
   return (
-    <Box>
-      <Text fontWeight={'semibold'} color={'fontLight'} mb={1}>
-        Chart
-      </Text>
-      <Divider orientation='horizontal' mt={1} mb={2} />
+    <Paper my='24px'>
+      <HStack gap={'4px'} color='green.500'>
+        <ThumbsUpIcon width={16} height={16} />
+        <Text fontWeight={500}>{market?.prices[0]}%</Text>
+        <Text fontWeight={500}>Yes</Text>
+        <ChevronDownIcon width={16} height={16} />
+      </HStack>
       <HStack>
         <VStack gap={-1} alignItems={'flex-start'}>
-          <Text fontSize='sm' color={'fontLight'} as='b' mt={1} ml={3}>
-            YES
-            <br />
-          </Text>
-          <Text fontSize='2xl' as='b' ml={3}>
-            {yesChance ? yesChance : initialYesChance}% chance
-          </Text>
-          <Text fontSize='sm' color={'fontLight'} ml={3}>
+          <Text fontSize='sm' color={'fontLight'}>
             {yesDate}
           </Text>
         </VStack>
@@ -245,6 +243,6 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
         <Image mr={4} boxSize={'20%'} src='/assets/images/limitless.png' alt='Limitless Logo' />
       </HStack>
       <HighchartsReact highcharts={Highcharts} options={getChartOptions(prices)} />
-    </Box>
+    </Paper>
   )
 }

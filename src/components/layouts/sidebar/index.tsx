@@ -1,5 +1,6 @@
-import { Box, Divider, Image, useTheme, VStack, Text } from '@chakra-ui/react'
+import { Box, Divider, useTheme, VStack, Text } from '@chakra-ui/react'
 import React from 'react'
+import Image from 'next/image'
 
 export default function Sidebar() {
   const theme = useTheme()
@@ -10,8 +11,14 @@ export default function Sidebar() {
   const cryptoTags = ['All', 'WETH', 'ONCHAIN', 'DEGEN', 'MFER', 'HIGHER', 'USDC', 'VITA']
 
   return (
-    <VStack padding='16px' borderRight={`1px solid ${theme.colors.grey['200']}`} h='full'>
-      <Image src={'/logo-black.svg'} h={'32px'} w={'156px'} alt='calendar' />
+    <VStack
+      padding='16px'
+      borderRight={`1px solid ${theme.colors.grey['200']}`}
+      h='full'
+      minW={'188px'}
+      minH={'100vh'}
+    >
+      <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
       <Divider />
       <Box marginTop='20px' w='full'>
         <Text

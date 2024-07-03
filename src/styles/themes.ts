@@ -3,6 +3,7 @@ import { radioTheme } from '@/styles/radio'
 import { lightThemeColors } from '@/styles/light-theme-colors'
 
 const fonts = `Helvetica Neue`
+const pixels = 'Neue Pixel Sans'
 export const colors = {
   brand: '#2492ff',
   bg: 'white',
@@ -34,6 +35,7 @@ export const chakraTheme = ChakraTheme({
   fonts: {
     heading: fonts,
     body: fonts,
+    pixels,
   },
   colors: lightThemeColors,
   styles: {
@@ -137,6 +139,8 @@ export const chakraTheme = ChakraTheme({
       spacing: '8px',
     },
     Radio: radioTheme,
+    // Divider
+    // Button link
   },
   breakpoints: {
     sm: '320px',

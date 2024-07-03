@@ -60,7 +60,9 @@ export type Market = {
   tags?: string[]
   winningOutcomeIndex?: number
   volume?: string
+  volumeFormatted?: string
   liquidity?: string
+  liquidityFormatted?: string
   prices: number[]
 }
 
