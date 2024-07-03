@@ -123,6 +123,14 @@ export const chakraTheme = ChakraTheme({
           color: 'grey.800',
           height: '52px',
         },
+        grey: {
+          padding: '4px 8px',
+          gap: '4px',
+          borderRadius: '2px',
+          background: 'grey.300',
+          height: 'unset',
+          fontWeight: 500,
+        },
       },
     },
     FormLabel: {
