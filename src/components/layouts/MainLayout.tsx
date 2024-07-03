@@ -1,12 +1,13 @@
 import { Header } from '@/components'
-import { Box, Flex, FlexProps, HStack, VStack } from '@chakra-ui/react'
+import { Box, Flex, FlexProps, HStack, Spinner } from '@chakra-ui/react'
 import Sidebar from '@/components/layouts/sidebar'
 
 interface IMainLayout extends FlexProps {
   maxContentWidth?: string | number
+  isLoading?: boolean
 }
 
-export const MainLayout = ({ children, maxContentWidth, ...props }: IMainLayout) => (
+export const MainLayout = ({ children, isLoading, ...props }: IMainLayout) => (
   <Box
     id='main'
     flexDir={'column'}
@@ -22,7 +23,15 @@ export const MainLayout = ({ children, maxContentWidth, ...props }: IMainLayout)
     <Header />
     <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
       <Sidebar />
-      {children}
+      {isLoading ? (
+        <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
+          <Spinner />
+        </Flex>
+      ) : (
+        <Box p={'16px'} w={'full'}>
+          {children}
+        </Box>
+      )}
     </HStack>
   </Box>
 )

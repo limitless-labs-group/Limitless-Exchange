@@ -8,22 +8,28 @@ export default function TextWithPixels({ text, highlightWord = 2, ...props }: Te
   const parts = text.split(' ')
   if (parts.length === 2) {
     return (
-      <HStack gap={'2px'}>
-        <Text {...props}>{parts[0]}</Text>
-        <Text {...props} fontFamily='Neue Pixel Sans'>
-          {parts[1]}
+      <>
+        <Text as='span' {...props}>
+          {parts[0]}
         </Text>
-      </HStack>
+        <Text fontFamily='pixels' as='span' {...props}>
+          {parts[1]}{' '}
+        </Text>
+      </>
     )
   }
 
   return (
-    <HStack gap={'2px'}>
-      <Text {...props}>{parts.slice(0, highlightWord - 1).join(' ')}</Text>
-      <Text {...props} fontFamily='Neue Pixel Sans'>
-        {parts[highlightWord - 1]}
+    <>
+      <Text as='span' {...props}>
+        {parts.slice(0, highlightWord - 1).join(' ')}{' '}
       </Text>
-      <Text {...props}>{parts.slice(highlightWord).join(' ')}</Text>
-    </HStack>
+      <Text as='span' {...props} fontFamily='pixels'>
+        {parts[highlightWord - 1]}{' '}
+      </Text>
+      <Text as='span' {...props}>
+        {parts.slice(highlightWord).join(' ')}
+      </Text>
+    </>
   )
 }

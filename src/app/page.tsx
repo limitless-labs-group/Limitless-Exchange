@@ -14,6 +14,7 @@ import { formatUnits, getAddress } from 'viem'
 import { useMarkets } from '@/services/MarketsService'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { usePriceOracle } from '@/providers'
+import './style.css'
 
 const MainPage = () => {
   /**

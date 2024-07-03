@@ -1,26 +1,33 @@
 'use client'
 
-import { MainLayout } from '@/components'
+import { Button, MainLayout } from '@/components'
 import {
   MarketClaimingForm,
   MarketMetadata,
   MarketPositions,
   MarketTradingForm,
 } from '@/app/markets/[address]/components'
-import { Flex, Spacer, Spinner } from '@chakra-ui/react'
+import { Box, Divider, Flex, HStack, Text, Spinner, Image as ChakraImage } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
-import { MarketPriceChart } from '@/app/markets/[address]/components/MarketPriceChart'
+import { MarketPriceChart } from '@/app/markets/[address]/components/market-price-chart'
 import { useMarket } from '@/services/MarketsService'
 import ApproveModal from '@/components/common/ApproveModal'
 import { useToken } from '@/hooks/use-token'
 import { defaultChain } from '@/constants'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import TextWithPixels from '@/components/common/text-with-pixels'
+import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
+import ShareIcon from '@/resources/icons/share-icon.svg'
+import DescriptionIcon from '@/resources/icons/description-icon.svg'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
    * ANALYTICS
    */
   const { trackOpened } = useAmplitude()
+  const router = useRouter()
 
   useEffect(() => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
@@ -33,8 +40,9 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
    * SET MARKET
    */
   const market = useMarket(params.address)
+  console.log(market)
 
-  const { isLoading: isCollateralLoading } = useToken(market?.collateralToken[defaultChain.id])
+  // const { isLoading: isCollateralLoading } = useToken(market?.collateralToken[defaultChain.id])
 
   const {
     setMarket,
@@ -55,32 +63,60 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   }
 
   return (
-    <MainLayout maxContentWidth={'1200px'}>
-      {!market || isCollateralLoading ? (
-        <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
-          <Spinner />
-        </Flex>
-      ) : (
-        <>
-          <Flex gap={{ sm: 10, md: 12 }} flexDir={{ sm: 'column', lg: 'row' }}>
-            <Flex flexBasis={'66%'} flexDir={{ sm: 'column' }} gap={{ sm: 4, md: 10 }}>
-              <MarketMetadata />
-              <MarketPriceChart market={market} />
-              {!market?.expired && <MarketPositions />}
-            </Flex>
-
-            <Flex flexBasis={'33%'}>
-              {market?.expired ? (
-                <MarketClaimingForm market={market} />
-              ) : (
-                <MarketTradingForm market={market} />
-              )}
-            </Flex>
-            <Spacer />
-          </Flex>
-          <ApproveModal onApprove={handleApproveMarket} />
-        </>
-      )}
+    <MainLayout maxContentWidth={'1200px'} isLoading={!market}>
+      {/*{!market || isCollateralLoading ? (*/}
+      <HStack gap='40px'>
+        <Box w={'664px'}>
+          <Divider bg='grey.800' orientation='horizontal' h='3px' />
+          <HStack justifyContent='space-between' mt='10px' mb='24px'>
+            <Button
+              p='4px 8px'
+              gap='4px'
+              borderRadius='2px'
+              bg='grey.300'
+              h='unset'
+              onClick={() => router.push('/')}
+            >
+              <ArrowLeftIcon width={16} height={16} />
+              Back
+            </Button>
+            <Button p='4px 8px' gap='4px' borderRadius='2px' bg='grey.300' h='unset'>
+              <ShareIcon width={16} height={16} />
+              Share
+            </Button>
+          </HStack>
+          <Box>
+            <TextWithPixels text={market?.title || ''} fontSize={'32px'} />
+          </Box>
+          <HStack gap='16px' mt='16px' mb='24px'>
+            <HStack gap='8px'>
+              <ChakraImage
+                width={6}
+                height={6}
+                src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+                alt='creator'
+                borderRadius={'2px'}
+              />
+              <Text color='grey.500'>{market?.creator.name}</Text>
+            </HStack>
+            <HStack gap='8px'>
+              {market?.tags?.map((tag) => (
+                <Text color='grey.500' key='tag'>
+                  #{tag}
+                </Text>
+              ))}
+            </HStack>
+          </HStack>
+          <MarketMetadata market={market} />
+          <MarketPriceChart market={market} />
+          <MarketPositions market={market} />
+          <HStack gap='4px' marginTop='24px' mb='8px'>
+            <DescriptionIcon width='16px' height='16px' />
+            <Text fontWeight={700}>Description</Text>
+          </HStack>
+          <Text>{market?.description}</Text>
+        </Box>
+      </HStack>
     </MainLayout>
   )
 }
