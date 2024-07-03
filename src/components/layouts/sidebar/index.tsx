@@ -1,6 +1,8 @@
 import { Box, Divider, useTheme, VStack, Text } from '@chakra-ui/react'
 import React from 'react'
 import Image from 'next/image'
+import { useAccount } from 'wagmi'
+import { LogInButton } from '@/components'
 
 export default function Sidebar() {
   const theme = useTheme()
@@ -9,6 +11,7 @@ export default function Sidebar() {
   const politicsTags = ['All', 'WETH', 'ONCHAIN', 'DEGEN', 'MFER', 'HIGHER', 'USDC', 'VITA']
 
   const cryptoTags = ['All', 'WETH', 'ONCHAIN', 'DEGEN', 'MFER', 'HIGHER', 'USDC', 'VITA']
+  const { isConnected } = useAccount()
 
   return (
     <VStack
@@ -18,6 +21,7 @@ export default function Sidebar() {
       minW={'188px'}
       minH={'100vh'}
     >
+      {!isConnected && <LogInButton h={'full'} />}
       <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
       <Divider />
       <Box marginTop='20px' w='full'>

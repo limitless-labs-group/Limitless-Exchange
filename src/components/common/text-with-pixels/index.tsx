@@ -1,4 +1,4 @@
-import { HStack, Text, TextProps } from '@chakra-ui/react'
+import { Text, TextProps } from '@chakra-ui/react'
 
 type TextWithPixelsProps = TextProps & {
   text: string
