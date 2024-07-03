@@ -1,13 +1,7 @@
 'use client'
 
-import { Button, MainLayout } from '@/components'
-import {
-  MarketClaimingForm,
-  MarketMetadata,
-  MarketPositions,
-  MarketTradingForm,
-} from '@/app/markets/[address]/components'
-import { Box, Divider, Flex, HStack, Text, Spinner, Image as ChakraImage } from '@chakra-ui/react'
+import { MainLayout } from '@/components'
+import { Box, Divider, Flex, HStack, Text, Button, Image as ChakraImage } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
 import { MarketPriceChart } from '@/app/markets/[address]/components/market-price-chart'
@@ -21,6 +15,8 @@ import TextWithPixels from '@/components/common/text-with-pixels'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
 import DescriptionIcon from '@/resources/icons/description-icon.svg'
+import { MarketPositions } from '@/app/markets/[address]/components/market-positions'
+import { MarketMetadata } from '@/app/markets/[address]/components'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
@@ -69,18 +65,11 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
         <Box w={'664px'}>
           <Divider bg='grey.800' orientation='horizontal' h='3px' />
           <HStack justifyContent='space-between' mt='10px' mb='24px'>
-            <Button
-              p='4px 8px'
-              gap='4px'
-              borderRadius='2px'
-              bg='grey.300'
-              h='unset'
-              onClick={() => router.push('/')}
-            >
+            <Button variant='grey' onClick={() => router.push('/')}>
               <ArrowLeftIcon width={16} height={16} />
               Back
             </Button>
-            <Button p='4px 8px' gap='4px' borderRadius='2px' bg='grey.300' h='unset'>
+            <Button variant='grey'>
               <ShareIcon width={16} height={16} />
               Share
             </Button>

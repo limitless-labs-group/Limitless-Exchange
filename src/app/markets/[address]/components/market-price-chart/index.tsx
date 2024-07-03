@@ -49,6 +49,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
         type: 'x',
       },
       height: 230,
+      backgroundColor: '#E7E7E7',
     },
     title: {
       text: undefined,
@@ -79,6 +80,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
       max: 100,
       opposite: true,
       tickInterval: 20,
+      gridLineColor: '#B7B7B7',
     },
     legend: {
       enabled: false,
@@ -144,6 +146,8 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
         data: data,
         turboThreshold: 2000,
         boostThreshold: 2000,
+        color: '#238020',
+        lineWidth: 2,
       },
     ],
   })
