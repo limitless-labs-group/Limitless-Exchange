@@ -4,7 +4,7 @@ import { CreateMarketCard, MainLayout, MarketCard, MarketCardMobile } from '@/co
 import { defaultChain } from '@/constants'
 import { useIsMobile } from '@/hooks'
 import { OpenEvent, useAmplitude } from '@/services'
-import { Grid, Stack } from '@chakra-ui/react'
+import { Divider, Stack, VStack, Text, Box } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Filter from '@/components/common/TokenFilter'
@@ -15,6 +15,7 @@ import { useMarkets } from '@/services/MarketsService'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { usePriceOracle } from '@/providers'
 import './style.css'
+import TextWithPixels from '@/components/common/text-with-pixels'
 
 const MainPage = () => {
   /**
@@ -104,25 +105,33 @@ const MainPage = () => {
       pullDownToRefresh
     >
       <MainLayout maxContentWidth={'unset'}>
-        <Stack w={'full'} spacing={5} px={{ md: 14 }}>
-          <Stack direction={{ base: 'column', md: 'row' }} spacing={4}>
-            <Filter onChange={handleSelectFilterTokens} />
-            <SortFilter onChange={handleSelectSort} />
-          </Stack>
-          <Grid
-            templateColumns={{ sm: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)', xl: 'repeat(4, 1fr)' }}
-            gap={6}
-          >
-            <CreateMarketCard />
-            {sortedMarkets?.map((market) =>
-              isMobile ? (
-                <MarketCardMobile key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
-              ) : (
-                <MarketCard key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
-              )
-            )}
-          </Grid>
-        </Stack>
+        <Box m={'auto'}>
+          <Divider bg='grey.800' orientation='horizontal' h='3px' />
+          <TextWithPixels text={'Explore Limitless Prediction Markets'} fontSize={'32px'} />
+          <Text color='grey.800' fontSize={'14px'}>
+            Predict outcomes in crypto, tech, sports, and more. Use different tokens, participate in
+            transparent voting for upcoming markets, and engage in markets created by the community.
+            It’s all decentralized and secure.
+          </Text>
+          <VStack w={'full'} spacing={5} px={{ md: 14 }}>
+            <Stack direction={'row'} spacing={4}>
+              <Filter onChange={handleSelectFilterTokens} />
+              <SortFilter onChange={handleSelectSort} />
+            </Stack>
+            <VStack gap={2}>
+              {sortedMarkets?.map((market) =>
+                isMobile ? (
+                  <MarketCardMobile
+                    key={uuidv4()}
+                    marketAddress={market.address[defaultChain.id]}
+                  />
+                ) : (
+                  <MarketCard key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
+                )
+              )}
+            </VStack>
+          </VStack>
+        </Box>
       </MainLayout>
     </InfiniteScroll>
   )

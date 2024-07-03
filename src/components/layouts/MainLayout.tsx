@@ -28,9 +28,7 @@ export const MainLayout = ({ children, isLoading, ...props }: IMainLayout) => (
           <Spinner />
         </Flex>
       ) : (
-        <Box p={'16px'} w={'full'}>
-          {children}
-        </Box>
+        <Box p={'16px'}>{children}</Box>
       )}
     </HStack>
   </Box>
