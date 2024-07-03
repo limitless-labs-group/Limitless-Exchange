@@ -239,8 +239,6 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
             {yesDate}
           </Text>
         </VStack>
-        <Spacer />
-        <Image mr={4} boxSize={'20%'} src='/assets/images/limitless.png' alt='Limitless Logo' />
       </HStack>
       <HighchartsReact highcharts={Highcharts} options={getChartOptions(prices)} />
     </Paper>
