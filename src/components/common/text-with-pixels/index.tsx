@@ -10,7 +10,7 @@ export default function TextWithPixels({ text, highlightWord = 2, ...props }: Te
     return (
       <>
         <Text as='span' {...props}>
-          {parts[0]}
+          {parts[0]}{' '}
         </Text>
         <Text fontFamily='pixels' as='span' {...props}>
           {parts[1]}{' '}
