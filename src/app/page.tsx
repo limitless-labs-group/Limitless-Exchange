@@ -105,7 +105,7 @@ const MainPage = () => {
       pullDownToRefresh
     >
       <MainLayout maxContentWidth={'unset'}>
-        <Box m={'auto'}>
+        <Box w='664px' mx='auto'>
           <Divider bg='grey.800' orientation='horizontal' h='3px' />
           <TextWithPixels text={'Explore Limitless Prediction Markets'} fontSize={'32px'} />
           <Text color='grey.800' fontSize={'14px'}>
