@@ -185,7 +185,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       return balanceResult
     },
     enabled: !!walletAddress && !!supportedTokens,
-    refetchInterval: 5000,
+    refetchInterval: 10000,
   })
 
   const { data: ethBalance } = useQuery({
@@ -252,7 +252,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       }
     },
     enabled: !!walletAddress && !unwrap,
-    refetchInterval: pathname.includes('wallet') && 5000, // polling on wallet page only
+    refetchInterval: pathname.includes('wallet') && 10000, // polling on wallet page only
   })
 
   const { mutateAsync: wrapETHManual, isPending: isWrapPending } = useMutation({

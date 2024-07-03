@@ -77,7 +77,7 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
 
   return (
     <Box>
-      <Flex w='full' pb='10px' borderBottom='1px solid' borderColor='grey.800'>
+      <Flex w='full' pb='10px' borderBottom='1px solid' borderColor='black'>
         <HStack gap='24px'>
           <HStack gap={'4px'} color='green.500'>
             <ThumbsUpIcon width={16} height={16} />
@@ -99,7 +99,7 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
             key={stat.title}
             flex={1}
             borderRight={stat.border ? '1px solid' : 'unset'}
-            borderColor='grey.800'
+            borderColor='black'
             pl={index ? '8px' : 0}
           >
             <Text fontWeight={500}>{stat.value}</Text>

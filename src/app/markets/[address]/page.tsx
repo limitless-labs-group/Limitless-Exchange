@@ -16,7 +16,7 @@ import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
 import DescriptionIcon from '@/resources/icons/description-icon.svg'
 import { MarketPositions } from '@/app/markets/[address]/components/market-positions'
-import { MarketMetadata } from '@/app/markets/[address]/components'
+import { MarketMetadata, MarketTradingForm } from '@/app/markets/[address]/components'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
@@ -61,9 +61,9 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   return (
     <MainLayout maxContentWidth={'1200px'} isLoading={!market}>
       {/*{!market || isCollateralLoading ? (*/}
-      <HStack gap='40px'>
+      <HStack gap='40px' alignItems='flex-start'>
         <Box w={'664px'}>
-          <Divider bg='grey.800' orientation='horizontal' h='3px' />
+          <Divider bg='black' orientation='horizontal' h='3px' />
           <HStack justifyContent='space-between' mt='10px' mb='24px'>
             <Button variant='grey' onClick={() => router.push('/')}>
               <ArrowLeftIcon width={16} height={16} />
@@ -90,7 +90,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
             </HStack>
             <HStack gap='8px'>
               {market?.tags?.map((tag) => (
-                <Text color='grey.500' key='tag'>
+                <Text color='grey.500' key={tag}>
                   #{tag}
                 </Text>
               ))}
@@ -105,6 +105,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
           </HStack>
           <Text>{market?.description}</Text>
         </Box>
+        {market && <MarketTradingForm market={market} />}
       </HStack>
     </MainLayout>
   )
