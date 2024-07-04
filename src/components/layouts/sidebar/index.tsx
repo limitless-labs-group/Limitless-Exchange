@@ -1,8 +1,33 @@
-import { Box, Divider, useTheme, VStack, Text } from '@chakra-ui/react'
-import React from 'react'
+import {
+  Box,
+  Divider,
+  useTheme,
+  VStack,
+  Text,
+  Button,
+  HStack,
+  Image as ChakraImage,
+  Flex,
+} from '@chakra-ui/react'
 import Image from 'next/image'
-import { useAccount } from 'wagmi'
+import React from 'react'
+import { useAccount as useWagmiAccount } from 'wagmi'
 import { LogInButton } from '@/components'
+import {
+  ClickEvent,
+  CreateMarketClickedMetadata,
+  useAmplitude,
+  useBalanceService,
+  useHistory,
+  useAccount,
+} from '@/services'
+import WalletIcon from '@/resources/icons/wallet-icon.svg'
+import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import { NumberUtil, truncateEthAddress } from '@/utils'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { cutUsername } from '@/utils/string'
+import { useRouter } from 'next/navigation'
 
 export default function Sidebar() {
   const theme = useTheme()
@@ -11,7 +36,14 @@ export default function Sidebar() {
   const politicsTags = ['All', 'WETH', 'ONCHAIN', 'DEGEN', 'MFER', 'HIGHER', 'USDC', 'VITA']
 
   const cryptoTags = ['All', 'WETH', 'ONCHAIN', 'DEGEN', 'MFER', 'HIGHER', 'USDC', 'VITA']
-  const { isConnected } = useAccount()
+  const { isConnected } = useWagmiAccount()
+  const { trackClicked } = useAmplitude()
+
+  const { overallBalanceUsd } = useBalanceService()
+  const { balanceInvested } = useHistory()
+  const { userInfo } = useAccount()
+  const address = useWalletAddress()
+  const router = useRouter()
 
   return (
     <VStack
@@ -21,8 +53,78 @@ export default function Sidebar() {
       minW={'188px'}
       minH={'100vh'}
     >
-      {!isConnected && <LogInButton h={'full'} />}
-      <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
+      <Button variant='transparent' onClick={() => router.push('/')}>
+        <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
+      </Button>
+      {isConnected && (
+        <VStack my='16px' w='full' gap='16px'>
+          <HStack w='full'>
+            <WalletIcon width={16} height={16} />
+            <Text fontWeight={500} fontSize='14px'>
+              {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+            </Text>
+          </HStack>
+          <Button variant='transparent' onClick={() => router.push('/portfolio')} w='full'>
+            <HStack w='full'>
+              <PortfolioIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                {NumberUtil.formatThousands(balanceInvested, 2)} USD
+              </Text>
+            </HStack>
+          </Button>
+          <HStack w='full' justifyContent='space-between'>
+            <HStack gap='8px'>
+              {userInfo?.profileImage?.includes('http') ? (
+                <ChakraImage
+                  src={userInfo.profileImage}
+                  borderRadius={'2px'}
+                  h={'16px'}
+                  w={'16px'}
+                />
+              ) : (
+                <Flex
+                  borderRadius={'2px'}
+                  h={'16px'}
+                  w={'16px'}
+                  bg='grey.300'
+                  alignItems='center'
+                  justifyContent='center'
+                >
+                  <Text fontWeight={500}>{userInfo?.name?.[0].toUpperCase()}</Text>
+                </Flex>
+              )}
+              <Text fontWeight={500}>
+                {userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address)}
+              </Text>
+            </HStack>
+            <ChevronDownIcon width={16} height={16} />
+          </HStack>
+        </VStack>
+      )}
+      {isConnected ? (
+        <Button
+          variant='contained'
+          bg='grey.300'
+          color='black'
+          w='full'
+          h='unset'
+          py='4px'
+          onClick={() => {
+            trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
+              page: 'Explore Markets',
+            })
+            window.open(
+              'https://limitlesslabs.notion.site/Limitless-Creators-101-fbbde33a51104fcb83c57f6ce9d69d2a?pvs=4',
+              '_blank',
+              'noopener'
+            )
+          }}
+        >
+          Create Market
+        </Button>
+      ) : (
+        <LogInButton />
+      )}
       <Divider />
       <Box marginTop='20px' w='full'>
         <Text

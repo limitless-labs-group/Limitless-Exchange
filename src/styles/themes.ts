@@ -123,6 +123,7 @@ export const chakraTheme = ChakraTheme({
           bg: 'grey.100',
           color: 'black',
           height: '52px',
+          fontWeight: 500,
         },
         contained: {
           bg: 'blue.500',
@@ -131,6 +132,8 @@ export const chakraTheme = ChakraTheme({
           py: '16px',
           px: '8px',
           h: '48px',
+          fontSize: '14px',
+          fontWeight: 500,
         },
         grey: {
           padding: '4px 8px',
@@ -139,6 +142,18 @@ export const chakraTheme = ChakraTheme({
           background: 'grey.300',
           height: 'unset',
           fontWeight: 500,
+          fontSize: '14px',
+        },
+        transparent: {
+          background: 'unset',
+          p: 0,
+          fontSize: '14px',
+          height: 'unset',
+          fontWeight: 500,
+          gap: '8px',
+          _focus: {
+            bg: 'unset',
+          },
         },
       },
     },
