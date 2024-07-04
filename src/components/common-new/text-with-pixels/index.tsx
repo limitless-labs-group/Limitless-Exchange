@@ -1,4 +1,4 @@
-import { Text, TextProps } from '@chakra-ui/react'
+import { Heading, Text, TextProps } from '@chakra-ui/react'
 
 type TextWithPixelsProps = TextProps & {
   text: string
@@ -12,9 +12,9 @@ export default function TextWithPixels({ text, highlightWord = 2, ...props }: Te
         <Text as='span' {...props}>
           {parts[0]}{' '}
         </Text>
-        <Text fontFamily='pixels' as='span' {...props}>
+        <Heading as='span' {...props}>
           {parts[1]}{' '}
-        </Text>
+        </Heading>
       </>
     )
   }
@@ -24,9 +24,9 @@ export default function TextWithPixels({ text, highlightWord = 2, ...props }: Te
       <Text as='span' {...props}>
         {parts.slice(0, highlightWord - 1).join(' ')}{' '}
       </Text>
-      <Text as='span' {...props} fontFamily='pixels'>
+      <Heading as='span' {...props}>
         {parts[highlightWord - 1]}{' '}
-      </Text>
+      </Heading>
       <Text as='span' {...props}>
         {parts.slice(highlightWord).join(' ')}
       </Text>

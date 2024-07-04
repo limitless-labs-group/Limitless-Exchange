@@ -35,9 +35,8 @@ export const borderRadius = 'lg'
 export const chakraTheme = ChakraTheme({
   ...config,
   fonts: {
-    heading: fonts,
+    heading: pixels,
     body: fonts,
-    pixels,
   },
   colors: lightThemeColors,
   styles: {
