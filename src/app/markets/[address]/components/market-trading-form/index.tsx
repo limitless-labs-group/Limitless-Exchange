@@ -1,23 +1,15 @@
-import { Button, Input, LogInButton, Tooltip } from '@/components'
+import { Button, Input, Tooltip } from '@/components'
 import { defaultChain } from '@/constants'
-import { useMarketData } from '@/hooks'
-import { usePriceOracle } from '@/providers'
 import {
   StrategyChangedMetadata,
   ChangeEvent,
   useAmplitude,
   useBalanceService,
   useTradingService,
-  OutcomeChangedMetadata,
-  ClickEvent,
-  TradeClickedMetadata,
 } from '@/services'
-import { borderRadius } from '@/styles'
 import { NumberUtil } from '@/utils'
 import {
-  Avatar,
   HStack,
-  Heading,
   Slider,
   SliderFilledTrack,
   SliderThumb,
@@ -26,29 +18,22 @@ import {
   Text,
   VStack,
   Flex,
-  SliderMark,
-  Box,
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
-import { Market, MarketTokensIds } from '@/types'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { Market } from '@/types'
 import { useToken } from '@/hooks/use-token'
 import Paper from '@/components/common-new/paper'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
+import { isMobile } from 'react-device-detect'
 
 interface MarketTradingFormProps {
   market: Market
 }
 
 export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
-  /**
-   * ACCOUNT STATE
-   */
-  const address = useWalletAddress()
-
   /**
    * ANALITYCS
    */
@@ -94,10 +79,6 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
    */
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
   const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
-  const { outcomeTokensPercent } = useMarketData({
-    marketAddress,
-    collateralToken,
-  })
 
   /**
    * Amount to display in UI and reduce queries
@@ -107,18 +88,6 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
   useEffect(() => {
     setDisplayAmount(collateralAmount)
   }, [collateralAmount])
-
-  /**
-   * PRICE ORACLE
-   */
-  const { convertAssetAmountToUsd } = usePriceOracle()
-  const amountUsd = useMemo(() => {
-    const tokenId = collateralToken?.priceOracleId
-    return NumberUtil.formatThousands(
-      convertAssetAmountToUsd(tokenId as MarketTokensIds, displayAmount),
-      2
-    )
-  }, [displayAmount, market])
 
   /**
    * SLIDER
@@ -159,14 +128,14 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
   /**
    * Effect to automatically set a proper slider value based on the tokens amount
    */
-  // useEffect(() => {
-  //   if (isZeroBalance) {
-  //     setSliderValue(0)
-  //     return
-  //   }
-  //   const percentByAmount = Number(((Number(collateralAmount) / Number(balance)) * 100).toFixed())
-  //   setSliderValue(percentByAmount)
-  // }, [collateralAmount, balance, isZeroBalance, outcomeTokenId])
+  useEffect(() => {
+    if (isZeroBalance) {
+      setSliderValue(0)
+      return
+    }
+    const percentByAmount = Number(((Number(collateralAmount) / Number(balance)) * 100).toFixed())
+    setSliderValue(percentByAmount)
+  }, [collateralAmount, balance, isZeroBalance])
 
   useEffect(() => {
     if (market && collateralToken) {
@@ -174,12 +143,10 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
     }
   }, [market, collateralToken])
 
-  console.log(quotesYes)
-
   return (
-    <Paper bg='blue.500' w={'296px'}>
+    <Paper bg='blue.500' w={isMobile ? 'full' : '296px'} p={isMobile ? 0 : '8px'}>
       <HStack
-        w={'236px'}
+        w={'240px'}
         mx='auto'
         bg='rgba(255, 255, 255, 0.20)'
         borderRadius='2px'
@@ -187,7 +154,7 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
         mb='24px'
       >
         <Button
-          h='unset'
+          h={isMobile ? '28px' : 'unset'}
           flex='1'
           borderRadius='2px'
           bg={strategy === 'Buy' ? 'white' : 'unset'}
@@ -205,7 +172,7 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
           </Text>
         </Button>
         <Button
-          h='unset'
+          h={isMobile ? '28px' : 'unset'}
           flex='1'
           borderRadius='2px'
           bg={strategy === 'Sell' ? 'white' : 'unset'}
@@ -373,6 +340,7 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
           alignItems='flex-start'
           flexDir='column'
           onClick={() => trade(0)}
+          borderRadius='2px'
         >
           <HStack gap='8px' color='white'>
             <ThumbsUpIcon width='16px' height='16px' />
@@ -388,9 +356,9 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
                   Avg price
                 </Text>
                 <Tooltip
-                  label={
-                    'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                  }
+                // label={
+                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
+                // }
                 >
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
@@ -406,9 +374,9 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
                   Price impact
                 </Text>
                 <Tooltip
-                  label={
-                    'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                  }
+                // label={
+                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
+                // }
                 >
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
@@ -424,9 +392,9 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
                   Ets. ROI
                 </Text>
                 <Tooltip
-                  label={
-                    'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                  }
+                // label={
+                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
+                // }
                 >
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
@@ -446,6 +414,7 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
           alignItems='flex-start'
           flexDir='column'
           onClick={() => trade(1)}
+          borderRadius='2px'
         >
           <HStack gap='8px' color='white'>
             <ThumbsDownIcon width='16px' height='16px' />
@@ -461,9 +430,9 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
                   Avg price
                 </Text>
                 <Tooltip
-                  label={
-                    'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                  }
+                // label={
+                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
+                // }
                 >
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
@@ -479,9 +448,9 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
                   Price impact
                 </Text>
                 <Tooltip
-                  label={
-                    'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                  }
+                // label={
+                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
+                // }
                 >
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
@@ -497,9 +466,9 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
                   Ets. ROI
                 </Text>
                 <Tooltip
-                  label={
-                    'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                  }
+                // label={
+                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
+                // }
                 >
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>

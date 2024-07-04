@@ -1,23 +1,35 @@
 'use client'
 
 import { MainLayout } from '@/components'
-import { Box, Divider, Flex, HStack, Text, Button, Image as ChakraImage } from '@chakra-ui/react'
-import { useEffect } from 'react'
+import {
+  Box,
+  Divider,
+  HStack,
+  Text,
+  Button,
+  Image as ChakraImage,
+  useDisclosure,
+} from '@chakra-ui/react'
+import { useEffect, useMemo } from 'react'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
 import { MarketPriceChart } from '@/app/markets/[address]/components/market-price-chart'
 import { useMarket } from '@/services/MarketsService'
 import ApproveModal from '@/components/common/ApproveModal'
 import { useToken } from '@/hooks/use-token'
 import { defaultChain } from '@/constants'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import TextWithPixels from '@/components/common/text-with-pixels'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
 import DescriptionIcon from '@/resources/icons/description-icon.svg'
 import { MarketPositions } from '@/app/markets/[address]/components/market-positions'
-import { MarketMetadata, MarketTradingForm } from '@/app/markets/[address]/components'
+import {
+  MarketClaimingForm,
+  MarketMetadata,
+  MarketTradingForm,
+} from '@/app/markets/[address]/components'
 import { isMobile } from 'react-device-detect'
+import MarketTradingModal from '@/app/markets/[address]/components/market-trading-modal'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
@@ -25,6 +37,12 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
    */
   const { trackOpened } = useAmplitude()
   const router = useRouter()
+
+  const {
+    isOpen: tradeModalOpened,
+    onOpen: openTradeModal,
+    onClose: closeTradeModal,
+  } = useDisclosure()
 
   useEffect(() => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
@@ -37,9 +55,8 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
    * SET MARKET
    */
   const market = useMarket(params.address)
-  console.log(market)
 
-  // const { isLoading: isCollateralLoading } = useToken(market?.collateralToken[defaultChain.id])
+  const { isLoading: isCollateralLoading } = useToken(market?.collateralToken[defaultChain.id])
 
   const {
     setMarket,
@@ -59,9 +76,19 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
     return strategy === 'Buy' ? approveBuy() : approveSell()
   }
 
+  const marketActionForm = useMemo(() => {
+    if (market) {
+      return market.expired ? (
+        <MarketClaimingForm market={market} />
+      ) : (
+        <MarketTradingForm market={market} />
+      )
+    }
+    return null
+  }, [market])
+
   return (
-    <MainLayout maxContentWidth={'1200px'} isLoading={!market}>
-      {/*{!market || isCollateralLoading ? (*/}
+    <MainLayout maxContentWidth={'1200px'} isLoading={!market || isCollateralLoading}>
       <HStack gap='40px' alignItems='flex-start'>
         <Box w={isMobile ? 'full' : '664px'}>
           <Divider bg='black' orientation='horizontal' h='3px' />
@@ -112,13 +139,22 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
           </HStack>
           <Text>{market?.description}</Text>
         </Box>
-        {market && !isMobile && <MarketTradingForm market={market} />}
+        {!isMobile && marketActionForm}
       </HStack>
       {isMobile && (
-        <Button variant='contained' w='full' mt='32px'>
+        <Button variant='contained' w='full' mt='32px' onClick={openTradeModal}>
           Trade
         </Button>
       )}
+      {isMobile && market && (
+        <MarketTradingModal
+          open={tradeModalOpened}
+          onClose={closeTradeModal}
+          title={market?.title || ''}
+          market={market}
+        />
+      )}
+      <ApproveModal onApprove={handleApproveMarket} />
     </MainLayout>
   )
 }

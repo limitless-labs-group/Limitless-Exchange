@@ -1,23 +1,7 @@
 import { defaultChain } from '@/constants'
-import { HistoryPosition, useHistory, useTradingService } from '@/services'
-import { NumberUtil } from '@/utils'
-import {
-  Box,
-  Divider,
-  Flex,
-  HStack,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-  VStack,
-} from '@chakra-ui/react'
+import { useHistory } from '@/services'
+import { Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import { Market } from '@/types'
 import ChartIcon from '@/resources/icons/chart-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'

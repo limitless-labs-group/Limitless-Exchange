@@ -1,42 +1,13 @@
-import { Button } from '@/components'
 import { defaultChain } from '@/constants'
-import { useIsMobile, useMarketData } from '@/hooks'
-import {
-  ClickEvent,
-  ShareClickedMetadata,
-  createMarketShareUrls,
-  useAmplitude,
-  useTradingService,
-} from '@/services'
-import { borderRadius, colors } from '@/styles'
-import { NumberUtil } from '@/utils'
-import {
-  Divider,
-  Flex,
-  HStack,
-  Heading,
-  Image,
-  Link,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Portal,
-  Stack,
-  StackProps,
-  Text,
-  VStack,
-  useClipboard,
-  Box,
-} from '@chakra-ui/react'
-import { FaShareSquare } from 'react-icons/fa'
-import { FaLink, FaXTwitter } from 'react-icons/fa6'
-import { useToken } from '@/hooks/use-token'
+import { createMarketShareUrls, useAmplitude } from '@/services'
+import { Flex, HStack, Text, useClipboard, Box } from '@chakra-ui/react'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import { Market } from '@/types'
+import { isMobile } from 'react-device-detect'
 
 interface MarketMetadataProps {
   market: Market | null
@@ -51,8 +22,6 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
   const { onCopy, hasCopied } = useClipboard(window.location.href)
 
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices)
-
-  const isMobile = useIsMobile()
 
   const stats = [
     {
@@ -91,25 +60,61 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
           </HStack>
         </HStack>
       </Flex>
-      <Flex>
-        {stats.map((stat, index) => (
-          <Box
-            pt='7px'
-            pb='11px'
-            key={stat.title}
-            flex={1}
-            borderRight={stat.border ? '1px solid' : 'unset'}
-            borderColor='black'
-            pl={index ? '8px' : 0}
-          >
-            <Text fontWeight={500}>{stat.value}</Text>
-            <HStack gap='4px' color='grey.500'>
-              {stat.icon}
-              <Text fontWeight={500}>{stat.title}</Text>
-            </HStack>
-          </Box>
-        ))}
+      <Flex borderBottom={isMobile ? '1px solid' : 'unset'} borderColor='black'>
+        {!isMobile &&
+          stats.map((stat, index) => (
+            <Box
+              pt='7px'
+              pb='11px'
+              key={stat.title}
+              flex={1}
+              borderRight={stat.border ? '1px solid' : 'unset'}
+              borderColor='black'
+              pl={index ? '8px' : 0}
+            >
+              <Text fontWeight={500}>{stat.value}</Text>
+              <HStack gap='4px' color='grey.500'>
+                {stat.icon}
+                <Text fontWeight={500}>{stat.title}</Text>
+              </HStack>
+            </Box>
+          ))}
+        {isMobile &&
+          [0, 1].map((index) => (
+            <Box
+              pt='7px'
+              pb='11px'
+              key={stats[index].title}
+              flex={1}
+              borderRight={stats[index].border ? '1px solid' : 'unset'}
+              borderColor='black'
+              pl={index ? '8px' : 0}
+            >
+              <Text fontWeight={500}>{stats[index].value}</Text>
+              <HStack gap='4px' color='grey.500'>
+                {stats[index].icon}
+                <Text fontWeight={500}>{stats[index].title}</Text>
+              </HStack>
+            </Box>
+          ))}
       </Flex>
+      {isMobile && (
+        <Box
+          pt='7px'
+          pb='11px'
+          key={stats[2].title}
+          flex={1}
+          borderRight={stats[2].border ? '1px solid' : 'unset'}
+          borderColor='black'
+          pl={0}
+        >
+          <Text fontWeight={500}>{stats[2].value}</Text>
+          <HStack gap='4px' color='grey.500'>
+            {stats[2].icon}
+            <Text fontWeight={500}>{stats[2].title}</Text>
+          </HStack>
+        </Box>
+      )}
     </Box>
   )
 }

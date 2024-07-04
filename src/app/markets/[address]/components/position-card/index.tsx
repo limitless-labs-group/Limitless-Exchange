@@ -1,14 +1,12 @@
 import Paper from '@/components/common-new/paper'
-import { Box, Flex, HStack, Text } from '@chakra-ui/react'
+import { Flex, HStack, Text } from '@chakra-ui/react'
 import { HistoryPosition } from '@/services'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import { NumberUtil } from '@/utils'
-import { defaultChain } from '@/constants'
-import { useToken } from '@/hooks/use-token'
-import { useMarketData } from '@/hooks'
 import { Market } from '@/types'
 import { useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
 
 interface PositionCardProps {
   position: HistoryPosition
@@ -16,12 +14,6 @@ interface PositionCardProps {
 }
 
 export default function PositionCard({ position, market }: PositionCardProps) {
-  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
-  const { outcomeTokensPercent } = useMarketData({
-    marketAddress: position.market.id,
-    collateralToken,
-  })
-  console.log(outcomeTokensPercent)
   const getOutcomeNotation = () => {
     const outcomeTokenId = position.outcomeIndex ?? 0
     const defaultOutcomes = ['Yes', 'No']
@@ -37,7 +29,7 @@ export default function PositionCard({ position, market }: PositionCardProps) {
 
   const contractPrice =
     (+(position.latestTrade?.outcomeTokenPrice || 0) /
-      (outcomeTokensPercent?.[position.outcomeIndex] || 1)) *
+      (market?.prices[position.outcomeIndex] || 1)) *
     100
 
   const currentContractsPrice = +(position.collateralAmount || 0) * contractPrice
@@ -75,9 +67,11 @@ export default function PositionCard({ position, market }: PositionCardProps) {
           <Text fontWeight={500}>{getOutcomeNotation()}</Text>
         </HStack>
         <HStack gap='12px'>
-          <Text fontWeight={500}>
-            {`${NumberUtil.toFixed(position.outcomeTokenAmount, 6)} Contracts`}
-          </Text>
+          {!isMobile && (
+            <Text fontWeight={500}>
+              {`${NumberUtil.toFixed(position.outcomeTokenAmount, 6)} Contracts`}
+            </Text>
+          )}
           <HStack gap='4px'>
             <Text fontWeight={500}>{`${NumberUtil.toFixed(currentContractsPrice, 6)} ${
               position.market.collateral?.symbol
@@ -86,33 +80,64 @@ export default function PositionCard({ position, market }: PositionCardProps) {
           </HStack>
         </HStack>
       </Flex>
-      <HStack gap='24px'>
-        <Box>
+      <HStack
+        gap={isMobile ? '8px' : '24px'}
+        flexDir={isMobile ? 'column' : 'row'}
+        alignItems={isMobile ? 'flex-start' : 'center'}
+      >
+        {isMobile && (
+          <Flex
+            flexDir={isMobile ? 'row' : 'column'}
+            justifyContent={isMobile ? 'space-between' : 'unset'}
+            w={isMobile ? 'full' : 'unset'}
+          >
+            <Text fontWeight={500} color='grey.500'>
+              Contracts
+            </Text>
+            <Text>{NumberUtil.toFixed(position.outcomeTokenAmount, 6)}</Text>
+          </Flex>
+        )}
+        <Flex
+          flexDir={isMobile ? 'row' : 'column'}
+          justifyContent={isMobile ? 'space-between' : 'unset'}
+          w={isMobile ? 'full' : 'unset'}
+        >
           <Text fontWeight={500} color='grey.500'>
             Invested
           </Text>
           <Text>{`${NumberUtil.toFixed(position.collateralAmount, 3)} ${
             position.market.collateral?.symbol
           }`}</Text>
-        </Box>
-        <Box>
+        </Flex>
+        <Flex
+          flexDir={isMobile ? 'row' : 'column'}
+          justifyContent={isMobile ? 'space-between' : 'unset'}
+          w={isMobile ? 'full' : 'unset'}
+        >
           <Text fontWeight={500} color='grey.500'>
             Initial Price
           </Text>
           <Text>{`${NumberUtil.toFixed(position.latestTrade?.outcomeTokenPrice, 3)} ${
             position.market.collateral?.symbol
           }`}</Text>
-        </Box>
-        <Box>
+        </Flex>
+        <Flex
+          flexDir={isMobile ? 'row' : 'column'}
+          justifyContent={isMobile ? 'space-between' : 'unset'}
+          w={isMobile ? 'full' : 'unset'}
+        >
           <Text fontWeight={500} color='grey.500'>
             Current Price
           </Text>
-          <Text>{`${NumberUtil.toFixed(
-            (outcomeTokensPercent?.[position.outcomeIndex] || 1) / 100,
-            3
-          )} ${position.market.collateral?.symbol}`}</Text>
-        </Box>
-        <Box>
+          <Text>{`${NumberUtil.toFixed((market?.prices[position.outcomeIndex] || 1) / 100, 3)} ${
+            position.market.collateral?.symbol
+          }`}</Text>
+        </Flex>
+        <Flex
+          flexDir={isMobile ? 'row' : 'column'}
+          justifyContent={isMobile ? 'space-between' : 'unset'}
+          w={isMobile ? 'full' : 'unset'}
+        >
           <Text fontWeight={500} color='grey.500'>
             To Win
           </Text>
@@ -121,7 +146,7 @@ export default function PositionCard({ position, market }: PositionCardProps) {
               position.market.collateral?.symbol
             }`}
           </Text>
-        </Box>
+        </Flex>
       </HStack>
     </Paper>
   )

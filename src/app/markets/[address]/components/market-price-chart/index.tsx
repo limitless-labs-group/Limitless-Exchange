@@ -5,12 +5,9 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { usePathname } from 'next/navigation'
-import { Text, Image, HStack, VStack, Spacer } from '@chakra-ui/react'
+import { Text, HStack, VStack } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
-import { getAddress, zeroAddress } from 'viem'
-import { useMarketData } from '@/hooks'
 import { Market } from '@/types'
-import { useToken } from '@/hooks/use-token'
 import Paper from '@/components/common-new/paper'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
@@ -26,16 +23,6 @@ interface MarketPriceChartProps {
 }
 
 export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
-  /**
-   * MARKET DATA
-   */
-  const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
-  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
-  const { outcomeTokensPercent } = useMarketData({
-    marketAddress,
-    collateralToken,
-  })
-
   const pathname = usePathname()
   const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
@@ -223,11 +210,11 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
   })
 
   const initialYesChance = useMemo(() => {
-    if (outcomeTokensPercent) {
-      return outcomeTokensPercent[0].toFixed(2)
+    if (market?.prices) {
+      return market.prices[0].toFixed(2)
     }
     return '50.00'
-  }, [outcomeTokensPercent])
+  }, [market?.prices])
 
   return (
     <Paper my='24px'>
