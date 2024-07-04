@@ -31,7 +31,10 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
         size={'30px'}
         fill={market?.winningOutcomeIndex == 0 ? colors.green : colors.red}
       />
-      <Text fontWeight={'bold'} color={market?.winningOutcomeIndex == 0 ? 'green' : 'red'}>
+      <Text
+        fontWeight={'bold'}
+        color={market?.winningOutcomeIndex == 0 ? colors.green : colors.red}
+      >
         Outcome: {market?.outcomeTokens[market?.winningOutcomeIndex ?? 0]}
       </Text>
 
