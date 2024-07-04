@@ -414,7 +414,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   } = useWeb3Service()
   const { mutateAsync: buy, isPending: isLoadingBuy } = useMutation({
     mutationFn: async (outcomeTokenId: number) => {
-      debugger
       if (!account || !market || isInvalidCollateralAmount) {
         return
       }

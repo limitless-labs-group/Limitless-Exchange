@@ -1,18 +1,17 @@
-import { Button } from '@/components'
 import { defaultChain } from '@/constants'
 import { useHistory, useTradingService } from '@/services'
-import { borderRadius, colors } from '@/styles'
+import { colors } from '@/styles'
 import { NumberUtil } from '@/utils'
-import { Stack, StackProps, Text } from '@chakra-ui/react'
+import { Stack, Text, Button } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { FaRegCheckCircle } from 'react-icons/fa'
 import { Market } from '@/types'
 
-interface MarketClaimingFormProps extends StackProps {
+interface MarketClaimingFormProps {
   market: Market | null
 }
 
-export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market, ...props }) => {
+export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }) => {
   const { redeem: claim, status } = useTradingService()
   const { positions } = useHistory()
   const positionToClaim = useMemo(
@@ -27,16 +26,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market, 
   )
 
   return (
-    <Stack
-      h={'fit-content'}
-      w={'full'}
-      p={5}
-      border={`1px solid ${colors.border}`}
-      borderRadius={borderRadius}
-      alignItems={'center'}
-      spacing={3}
-      {...props}
-    >
+    <Stack h={'fit-content'} w='312px' p={5} bg='blue.500' alignItems={'center'} spacing={3}>
       <FaRegCheckCircle
         size={'30px'}
         fill={market?.winningOutcomeIndex == 0 ? colors.green : colors.red}
@@ -44,16 +34,18 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market, 
       <Text fontWeight={'bold'} color={market?.winningOutcomeIndex == 0 ? 'green' : 'red'}>
         Outcome: {market?.outcomeTokens[market?.winningOutcomeIndex ?? 0]}
       </Text>
+
       {positionToClaim && (
         <Stack w={'full'} alignItems={'center'} spacing={3}>
-          <Text>
+          <Text color='white'>
             You won {NumberUtil.toFixed(positionToClaim.outcomeTokenAmount, 6)}{' '}
             {market?.tokenTicker[defaultChain.id]} 🎉
           </Text>
           <Button
-            bg={'brand'}
-            color={'white'}
+            variant='contained'
             w={'full'}
+            bg='white'
+            color='black'
             isLoading={status == 'Loading'}
             isDisabled={!positionToClaim}
             onClick={() => claim(positionToClaim.outcomeIndex)}

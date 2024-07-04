@@ -5,10 +5,11 @@ import {
   useBalanceService,
   useTradingService,
 } from '@/services'
-import { Button, Modal } from '@/components'
-import { Text, VStack } from '@chakra-ui/react'
+import { Button } from '@/components'
+import { ModalBody, ModalContent, ModalHeader, ModalOverlay, Text, VStack } from '@chakra-ui/react'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { Address } from 'viem'
+import { Modal, ModalCloseButton } from '@chakra-ui/modal'
 
 type ApproveModalProps = {
   onApprove: () => Promise<void>
@@ -30,27 +31,36 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
 
   return (
     <Modal
-      size={'sm'}
-      title={`Approve ${token?.symbol} (Base) spend`}
+      size={'full'}
+      variant='blueModal'
       isOpen={approveModalOpened}
       onClose={() => setApproveModalOpened(false)}
-      isCentered={false}
-      maxW='460px'
     >
-      <VStack>
-        <Text>
-          In order to proceed with transaction you should approve token for smart-contract spend.
-        </Text>
-        <Button
-          mt='24px'
-          colorScheme={'brand'}
-          isDisabled={status !== 'Ready'}
-          isLoading={status === 'Loading'}
-          onClick={handleApproveClicked}
-        >
-          Approve
-        </Button>
-      </VStack>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>{`Approve ${token?.symbol} (Base) spend`}</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <VStack>
+            <Text color='white'>
+              In order to proceed with transaction you should approve token for smart-contract
+              spend.
+            </Text>
+            <Button
+              mt='24px'
+              variant='contained'
+              color='black'
+              bg='white'
+              w='full'
+              isDisabled={status !== 'Ready'}
+              isLoading={status === 'Loading'}
+              onClick={handleApproveClicked}
+            >
+              Approve
+            </Button>
+          </VStack>
+        </ModalBody>
+      </ModalContent>
     </Modal>
   )
 }

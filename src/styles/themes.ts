@@ -1,6 +1,7 @@
 import { extendTheme as ChakraTheme, ThemeConfig } from '@chakra-ui/react'
 import { radioTheme } from '@/styles/radio'
 import { lightThemeColors } from '@/styles/light-theme-colors'
+import { modalTheme } from '@/styles/modals'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
@@ -155,6 +156,7 @@ export const chakraTheme = ChakraTheme({
       spacing: '8px',
     },
     Radio: radioTheme,
+    Modal: modalTheme,
     // Divider
     // Button link
   },
