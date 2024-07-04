@@ -9,12 +9,14 @@ import { isMobile } from 'react-device-detect'
 import BuyForm from '@/app/markets/[address]/components/market-trading-form/components/buy-form'
 import SellForm from '@/app/markets/[address]/components/market-trading-form/components/sell-form'
 import InitiateForm from '@/app/markets/[address]/components/market-trading-form/components/initiate-form'
+import { useState } from 'react'
 
 interface MarketTradingFormProps {
   market: Market
 }
 
 export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
+  const [widgetState, setWidgetState] = useState<'idle' | 'processing'>('idle')
   /**
    * ANALITYCS
    */
@@ -29,6 +31,8 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
    * MARKET DATA
    */
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
+
+  const handleInitiateTx = () => setWidgetState('processing')
 
   return (
     <Paper bg='blue.500' w={isMobile ? 'full' : '296px'} p={isMobile ? 0 : '8px'}>
@@ -77,8 +81,14 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
           </Text>
         </Button>
       </HStack>
-      {tradeStatus === 'Ready' ? (
-        <>{strategy === 'Buy' ? <BuyForm market={market} /> : <SellForm market={market} />}</>
+      {widgetState === 'idle' ? (
+        <>
+          {strategy === 'Buy' ? (
+            <BuyForm market={market} handleInitiateTx={handleInitiateTx} />
+          ) : (
+            <SellForm market={market} handleInitiateTx={handleInitiateTx} />
+          )}
+        </>
       ) : (
         <InitiateForm />
       )}
