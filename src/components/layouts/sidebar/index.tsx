@@ -26,6 +26,8 @@ import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { cutUsername } from '@/utils/string'
+import { useRouter } from 'next/navigation'
 
 export default function Sidebar() {
   const theme = useTheme()
@@ -41,13 +43,7 @@ export default function Sidebar() {
   const { balanceInvested } = useHistory()
   const { userInfo } = useAccount()
   const address = useWalletAddress()
-
-  const cutUsername = (username: string) => {
-    if (username.length < 10) {
-      return username
-    }
-    return `${username.slice(0, 10)}...`
-  }
+  const router = useRouter()
 
   return (
     <VStack
@@ -57,17 +53,25 @@ export default function Sidebar() {
       minW={'188px'}
       minH={'100vh'}
     >
-      <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
+      <Button variant='transparent' onClick={() => router.push('/')}>
+        <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
+      </Button>
       {isConnected && (
         <VStack my='16px' w='full' gap='16px'>
           <HStack w='full'>
             <WalletIcon width={16} height={16} />
-            <Text fontWeight={500}>{NumberUtil.formatThousands(overallBalanceUsd, 2)} USD</Text>
+            <Text fontWeight={500} fontSize='14px'>
+              {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+            </Text>
           </HStack>
-          <HStack w='full'>
-            <PortfolioIcon width={16} height={16} />
-            <Text fontWeight={500}>{NumberUtil.formatThousands(balanceInvested, 2)} USD</Text>
-          </HStack>
+          <Button variant='transparent' onClick={() => router.push('/portfolio')} w='full'>
+            <HStack w='full'>
+              <PortfolioIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                {NumberUtil.formatThousands(balanceInvested, 2)} USD
+              </Text>
+            </HStack>
+          </Button>
           <HStack w='full' justifyContent='space-between'>
             <HStack gap='8px'>
               {userInfo?.profileImage?.includes('http') ? (
@@ -89,7 +93,7 @@ export default function Sidebar() {
                   <Text fontWeight={500}>{userInfo?.name?.[0].toUpperCase()}</Text>
                 </Flex>
               )}
-              <Text>
+              <Text fontWeight={500}>
                 {userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address)}
               </Text>
             </HStack>

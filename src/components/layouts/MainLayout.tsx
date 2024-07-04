@@ -2,6 +2,8 @@ import { Header } from '@/components'
 import { Box, Flex, FlexProps, HStack, Spinner } from '@chakra-ui/react'
 import Sidebar from '@/components/layouts/sidebar'
 import { useIsMobile } from '@/hooks'
+import React from 'react'
+import MobileHeader from '@/components/layouts/mobile-header'
 
 interface IMainLayout extends FlexProps {
   maxContentWidth?: string | number
@@ -25,8 +27,9 @@ export const MainLayout = ({ children, isLoading, ...props }: IMainLayout) => {
       {...props}
     >
       <Header />
+      {isMobile && <MobileHeader />}
       <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
-        {isMobile ? <></> : <Sidebar />}
+        {!isMobile && <Sidebar />}
         {isLoading ? (
           <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
             <Spinner />
