@@ -8,6 +8,11 @@ import {
   HStack,
   Image as ChakraImage,
   Flex,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionIcon,
+  AccordionPanel,
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React from 'react'
@@ -20,10 +25,11 @@ import {
   useBalanceService,
   useHistory,
   useAccount,
+  ProfileBurgerMenuClickedMetadata,
+  useAuth,
 } from '@/services'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { cutUsername } from '@/utils/string'
@@ -44,6 +50,7 @@ export default function Sidebar() {
   const { userInfo } = useAccount()
   const address = useWalletAddress()
   const router = useRouter()
+  const { signOut } = useAuth()
 
   return (
     <VStack
@@ -72,33 +79,57 @@ export default function Sidebar() {
               </Text>
             </HStack>
           </Button>
-          <HStack w='full' justifyContent='space-between'>
-            <HStack gap='8px'>
-              {userInfo?.profileImage?.includes('http') ? (
-                <ChakraImage
-                  src={userInfo.profileImage}
-                  borderRadius={'2px'}
-                  h={'16px'}
-                  w={'16px'}
-                />
-              ) : (
-                <Flex
-                  borderRadius={'2px'}
-                  h={'16px'}
-                  w={'16px'}
-                  bg='grey.300'
-                  alignItems='center'
-                  justifyContent='center'
+          <Accordion allowToggle>
+            <AccordionItem>
+              <h2>
+                <AccordionButton>
+                  <HStack gap='8px'>
+                    {userInfo?.profileImage?.includes('http') ? (
+                      <ChakraImage
+                        src={userInfo.profileImage}
+                        borderRadius={'2px'}
+                        h={'16px'}
+                        w={'16px'}
+                      />
+                    ) : (
+                      <Flex
+                        borderRadius={'2px'}
+                        h={'16px'}
+                        w={'16px'}
+                        bg='grey.300'
+                        alignItems='center'
+                        justifyContent='center'
+                      >
+                        <Text fontWeight={500}>{userInfo?.name?.[0].toUpperCase()}</Text>
+                      </Flex>
+                    )}
+                    <Text fontWeight={500}>
+                      {userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address)}
+                    </Text>
+                  </HStack>
+                  <AccordionIcon />
+                </AccordionButton>
+              </h2>
+              <AccordionPanel p={0}>
+                <Button
+                  variant='grey'
+                  w='full'
+                  mt='8px'
+                  onClick={() => {
+                    trackClicked<ProfileBurgerMenuClickedMetadata>(
+                      ClickEvent.ProfileBurgerMenuClicked,
+                      {
+                        option: 'Sign Out',
+                      }
+                    )
+                    signOut()
+                  }}
                 >
-                  <Text fontWeight={500}>{userInfo?.name?.[0].toUpperCase()}</Text>
-                </Flex>
-              )}
-              <Text fontWeight={500}>
-                {userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address)}
-              </Text>
-            </HStack>
-            <ChevronDownIcon width={16} height={16} />
-          </HStack>
+                  Log Out
+                </Button>
+              </AccordionPanel>
+            </AccordionItem>
+          </Accordion>
         </VStack>
       )}
       {isConnected ? (
