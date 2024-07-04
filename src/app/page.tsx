@@ -13,8 +13,7 @@ import { formatUnits, getAddress } from 'viem'
 import { useMarkets } from '@/services/MarketsService'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { usePriceOracle } from '@/providers'
-import './style.css'
-import TextWithPixels from '@/components/common/text-with-pixels'
+import TextWithPixels from 'src/components/common-new/text-with-pixels'
 
 const MainPage = () => {
   /**

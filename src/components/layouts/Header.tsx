@@ -23,7 +23,7 @@ import { FaBriefcase, FaTableCellsLarge } from 'react-icons/fa6'
 import { NumberUtil } from '@/utils'
 import WrapModal from '@/components/common/WrapModal'
 import Marquee from 'react-fast-marquee'
-import TextWithPixels from '@/components/common/text-with-pixels'
+import TextWithPixels from 'src/components/common-new/text-with-pixels'
 import { Fragment, useMemo } from 'react'
 import HeaderMarquee from '@/components/layouts/header-marquee'
 
