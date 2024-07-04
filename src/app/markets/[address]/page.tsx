@@ -17,6 +17,7 @@ import ShareIcon from '@/resources/icons/share-icon.svg'
 import DescriptionIcon from '@/resources/icons/description-icon.svg'
 import { MarketPositions } from '@/app/markets/[address]/components/market-positions'
 import { MarketMetadata, MarketTradingForm } from '@/app/markets/[address]/components'
+import { isMobile } from 'react-device-detect'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
@@ -62,7 +63,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
     <MainLayout maxContentWidth={'1200px'} isLoading={!market}>
       {/*{!market || isCollateralLoading ? (*/}
       <HStack gap='40px' alignItems='flex-start'>
-        <Box w={'664px'}>
+        <Box w={isMobile ? 'full' : '664px'}>
           <Divider bg='black' orientation='horizontal' h='3px' />
           <HStack justifyContent='space-between' mt='10px' mb='24px'>
             <Button variant='grey' onClick={() => router.push('/')}>
@@ -77,7 +78,13 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
           <Box>
             <TextWithPixels text={market?.title || ''} fontSize={'32px'} />
           </Box>
-          <HStack gap='16px' mt='16px' mb='24px'>
+          <HStack
+            gap={isMobile ? '4px' : '16px'}
+            mt='16px'
+            mb='24px'
+            flexDir={isMobile ? 'column' : 'row'}
+            alignItems={isMobile ? 'flex-start' : 'center'}
+          >
             <HStack gap='8px'>
               <ChakraImage
                 width={6}
@@ -105,8 +112,13 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
           </HStack>
           <Text>{market?.description}</Text>
         </Box>
-        {market && <MarketTradingForm market={market} />}
+        {market && !isMobile && <MarketTradingForm market={market} />}
       </HStack>
+      {isMobile && (
+        <Button variant='contained' w='full' mt='32px'>
+          Trade
+        </Button>
+      )}
     </MainLayout>
   )
 }

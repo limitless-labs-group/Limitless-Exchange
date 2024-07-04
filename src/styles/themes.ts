@@ -123,6 +123,14 @@ export const chakraTheme = ChakraTheme({
           color: 'black',
           height: '52px',
         },
+        contained: {
+          bg: 'blue.500',
+          color: 'white',
+          borderRadius: '2px',
+          py: '16px',
+          px: '8px',
+          h: '48px',
+        },
         grey: {
           padding: '4px 8px',
           gap: '4px',

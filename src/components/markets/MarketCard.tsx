@@ -45,6 +45,7 @@ export const MarketCard = ({ marketAddress, ...props }: IMarketCard) => {
       w={'664px'}
       justifyContent={'space-between'}
       onClick={() => router.push(marketURI)}
+      cursor='pointer'
       {...props}
     >
       <HStack>
