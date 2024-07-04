@@ -24,9 +24,10 @@ import { useToken } from '@/hooks/use-token'
 
 interface BuyFormProps {
   market: Market
+  handleInitiateTx: () => void
 }
 
-export default function SellForm({ market }: BuyFormProps) {
+export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
   const [sliderValue, setSliderValue] = useState(0)
   const [outcomeIndex, setOutcomeIndex] = useState<string | null>(null)
 
@@ -132,6 +133,22 @@ export default function SellForm({ market }: BuyFormProps) {
   const positionsYes = positions?.find((position) => position.outcomeIndex === 0)
   const positionsNo = positions?.find((position) => position.outcomeIndex === 1)
 
+  const perShareYes = useMemo(() => {
+    return quotesYes
+      ? `${NumberUtil.formatThousands(quotesYes.outcomeTokenPrice, 6)} ${
+          market?.tokenTicker[defaultChain.id]
+        }`
+      : `${NumberUtil.toFixed((market?.prices[0] || 1) / 100, 3)} ${token?.symbol}`
+  }, [quotesYes, market?.tokenTicker, market?.prices, token?.symbol])
+
+  const perShareNo = useMemo(() => {
+    return quotesNo
+      ? `${NumberUtil.formatThousands(quotesNo.outcomeTokenPrice, 6)} ${
+          market?.tokenTicker[defaultChain.id]
+        }`
+      : `${NumberUtil.toFixed((market?.prices[1] || 1) / 100, 3)} ${token?.symbol}`
+  }, [quotesNo, market?.tokenTicker, market?.prices, token?.symbol])
+
   useEffect(() => {
     if (isZeroBalance) {
       setSliderValue(0)
@@ -190,12 +207,9 @@ export default function SellForm({ market }: BuyFormProps) {
                     <InfoIcon width='16px' height='16px' />
                   </Tooltip>
                 </HStack>
-                <Text
-                  fontWeight={500}
-                  color={outcomeIndex === 'yes' ? 'black' : 'white'}
-                >{`${NumberUtil.formatThousands(quotesYes?.outcomeTokenPrice, 6)} ${
-                  market?.tokenTicker[defaultChain.id]
-                }`}</Text>
+                <Text fontWeight={500} color={outcomeIndex === 'yes' ? 'black' : 'white'}>
+                  {perShareYes}
+                </Text>
               </HStack>
               {/*<HStack justifyContent='space-between' w='full'>*/}
               {/*  <HStack gap='4px'>*/}
@@ -215,23 +229,23 @@ export default function SellForm({ market }: BuyFormProps) {
               {/*    color={outcomeIndex === 'yes' ? 'black' : 'white'}*/}
               {/*  >{`${NumberUtil.toFixed(quotesYes?.priceImpact, 2)}%`}</Text>*/}
               {/*</HStack>*/}
-              <HStack justifyContent='space-between' w='full'>
-                <HStack gap='4px'>
-                  <Text fontWeight={500} color={outcomeIndex === 'yes' ? 'black' : 'white'}>
-                    ROI
-                  </Text>
-                  <Tooltip
-                  // label={
-                  //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                  // }
-                  >
-                    <InfoIcon width='16px' height='16px' />
-                  </Tooltip>
-                </HStack>
-                <Text fontWeight={500} color={outcomeIndex === 'yes' ? 'black' : 'white'}>
-                  {NumberUtil.toFixed(quotesYes?.roi, 2)}%
-                </Text>
-              </HStack>
+              {/*<HStack justifyContent='space-between' w='full'>*/}
+              {/*  <HStack gap='4px'>*/}
+              {/*    <Text fontWeight={500} color={outcomeIndex === 'yes' ? 'black' : 'white'}>*/}
+              {/*      ROI*/}
+              {/*    </Text>*/}
+              {/*    <Tooltip*/}
+              {/*    // label={*/}
+              {/*    //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
+              {/*    // }*/}
+              {/*    >*/}
+              {/*      <InfoIcon width='16px' height='16px' />*/}
+              {/*    </Tooltip>*/}
+              {/*  </HStack>*/}
+              {/*  <Text fontWeight={500} color={outcomeIndex === 'yes' ? 'black' : 'white'}>*/}
+              {/*    {NumberUtil.toFixed(quotesYes?.roi, 2)}%*/}
+              {/*  </Text>*/}
+              {/*</HStack>*/}
               <HStack justifyContent='space-between' w='full'>
                 <HStack gap='4px'>
                   <Text fontWeight={500} color={outcomeIndex === 'yes' ? 'black' : 'white'}>
@@ -295,12 +309,11 @@ export default function SellForm({ market }: BuyFormProps) {
                     <InfoIcon width='16px' height='16px' />
                   </Tooltip>
                 </HStack>
-                <Text
-                  fontWeight={500}
-                  color={outcomeIndex === 'no' ? 'black' : 'white'}
-                >{`${NumberUtil.formatThousands(quotesNo?.outcomeTokenPrice, 6)} ${
-                  market?.tokenTicker[defaultChain.id]
-                }`}</Text>
+                <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>
+                  <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>
+                    {perShareNo}
+                  </Text>
+                </Text>
               </HStack>
               {/*<HStack justifyContent='space-between' w='full'>*/}
               {/*  <HStack gap='4px'>*/}
@@ -320,23 +333,23 @@ export default function SellForm({ market }: BuyFormProps) {
               {/*    color={outcomeIndex === 'no' ? 'black' : 'white'}*/}
               {/*  >{`${NumberUtil.toFixed(quotesNo?.priceImpact, 2)}%`}</Text>*/}
               {/*</HStack>*/}
-              <HStack justifyContent='space-between' w='full'>
-                <HStack gap='4px'>
-                  <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>
-                    ROI
-                  </Text>
-                  <Tooltip
-                  // label={
-                  //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                  // }
-                  >
-                    <InfoIcon width='16px' height='16px' />
-                  </Tooltip>
-                </HStack>
-                <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>
-                  {NumberUtil.toFixed(quotesNo?.roi, 2)}%
-                </Text>
-              </HStack>
+              {/*<HStack justifyContent='space-between' w='full'>*/}
+              {/*  <HStack gap='4px'>*/}
+              {/*    <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>*/}
+              {/*      ROI*/}
+              {/*    </Text>*/}
+              {/*    <Tooltip*/}
+              {/*    // label={*/}
+              {/*    //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
+              {/*    // }*/}
+              {/*    >*/}
+              {/*      <InfoIcon width='16px' height='16px' />*/}
+              {/*    </Tooltip>*/}
+              {/*  </HStack>*/}
+              {/*  <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>*/}
+              {/*    {NumberUtil.toFixed(quotesNo?.roi, 2)}%*/}
+              {/*  </Text>*/}
+              {/*</HStack>*/}
               <HStack justifyContent='space-between' w='full'>
                 <HStack gap='4px'>
                   <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>
@@ -485,6 +498,7 @@ export default function SellForm({ market }: BuyFormProps) {
               mt='24px'
               h='unset'
               py='4px'
+              onClick={handleInitiateTx}
             >
               Trade
             </Button>

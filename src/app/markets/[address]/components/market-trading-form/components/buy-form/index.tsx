@@ -23,9 +23,10 @@ import { useToken } from '@/hooks/use-token'
 
 interface BuyFormProps {
   market: Market
+  handleInitiateTx: () => void
 }
 
-export default function BuyForm({ market }: BuyFormProps) {
+export default function BuyForm({ market, handleInitiateTx }: BuyFormProps) {
   const [sliderValue, setSliderValue] = useState(0)
 
   /**
@@ -280,7 +281,7 @@ export default function BuyForm({ market }: BuyFormProps) {
           h='unset'
           alignItems='flex-start'
           flexDir='column'
-          onClick={() => trade(0)}
+          onClick={handleInitiateTx}
           borderRadius='2px'
         >
           <HStack gap='8px' color='white'>
@@ -354,7 +355,7 @@ export default function BuyForm({ market }: BuyFormProps) {
           h='unset'
           alignItems='flex-start'
           flexDir='column'
-          onClick={() => trade(1)}
+          onClick={handleInitiateTx}
           borderRadius='2px'
         >
           <HStack gap='8px' color='white'>
