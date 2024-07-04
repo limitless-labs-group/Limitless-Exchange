@@ -41,6 +41,7 @@ interface ITradingServiceContext {
   trade: (outcomeTokenId: number) => Promise<string | undefined>
   redeem: (outcomeIndex: number) => Promise<string | undefined>
   status: TradingServiceStatus
+  tradeStatus: TradingServiceStatus
   approveModalOpened: boolean
   setApproveModalOpened: Dispatch<SetStateAction<boolean>>
   approveBuy: () => Promise<void>
@@ -686,6 +687,13 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     isLoadingApproveSell,
   ])
 
+  const tradeStatus = useMemo<TradingServiceStatus>(() => {
+    if (isLoadingBuy || isLoadingSell) {
+      return 'Loading'
+    }
+    return 'Ready'
+  }, [])
+
   const contextProviderValue: ITradingServiceContext = {
     market,
     setMarket,
@@ -702,6 +710,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     trade,
     redeem,
     status,
+    tradeStatus,
     approveModalOpened,
     setApproveModalOpened,
     approveBuy,
