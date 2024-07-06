@@ -38,6 +38,7 @@ import { cutUsername } from '@/utils/string'
 import { useRouter } from 'next/navigation'
 import WalletPage from '@/components/layouts/wallet-page'
 import TokenFilter from '@/components/common/TokenFilter'
+import { useWeb3Service } from '@/services/Web3Service'
 
 export default function Sidebar() {
   const theme = useTheme()
@@ -51,8 +52,15 @@ export default function Sidebar() {
   const address = useWalletAddress()
   const router = useRouter()
   const { signOut } = useAuth()
+  const { client } = useWeb3Service()
 
   const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
+
+  const handleOpenWalletPage = () => {
+    if (client !== 'eoa') {
+      onToggleWalletPage()
+    }
+  }
 
   return (
     <>
@@ -68,8 +76,8 @@ export default function Sidebar() {
           <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
         </Button>
         {isConnected && (
-          <VStack my='16px' w='full' gap='16px'>
-            <Button variant='transparent' onClick={onToggleWalletPage} w='full'>
+          <VStack my='16px' w='full' gap='8px'>
+            <Button variant='transparent' onClick={handleOpenWalletPage} w='full'>
               <HStack w='full'>
                 <WalletIcon width={16} height={16} />
                 <Text fontWeight={500} fontSize='14px'>

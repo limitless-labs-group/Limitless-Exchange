@@ -1,10 +1,8 @@
-import { Button, IModal, InfoIcon, Input, Modal, Tooltip } from '@/components'
-import { defaultChain } from '@/constants'
+import { IModal, InfoIcon, Modal, Tooltip } from '@/components'
 import { useBalanceService, useLimitlessApi } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
   HStack,
-  Heading,
   InputGroup,
   Stack,
   Switch,
@@ -12,12 +10,16 @@ import {
   useDisclosure,
   IconButton,
   Box,
+  Input,
+  Button,
 } from '@chakra-ui/react'
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
-import { Address, zeroAddress } from 'viem'
+import React, { useEffect, useMemo, useState } from 'react'
+import { zeroAddress } from 'viem'
 import SelectTokenField from '@/components/common/SelectTokenField'
 import { Token } from '@/types'
-import { useToken } from '@/hooks/use-token'
+import BaseIcon from '@/resources/crypto/base.svg'
+import BigNumber from 'bignumber.js'
+import { isMobile } from 'react-device-detect'
 
 type WithdrawModalProps = Omit<IModal, 'children'>
 
@@ -49,6 +51,12 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: WithdrawModalProps)
     }
   }, [balanceOfSmartWallet, selectedToken])
 
+  const isSubmitDisabled = useMemo(() => {
+    if (balanceItem) {
+      return new BigNumber(balanceItem.formatted).isLessThanOrEqualTo(amount)
+    }
+  }, [balanceItem, amount])
+
   useEffect(() => {
     setAmount('')
     setAddressToWithdraw('')
@@ -67,50 +75,54 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: WithdrawModalProps)
 
   return (
     <Modal size={'md'} title={`Withdraw crypto`} isOpen={isOpen} onClose={onClose} {...props}>
-      <Box mb='24px' overflowX='scroll'>
-        {/*<SelectTokenField token={selectedToken.address} setToken={setSelectedToken} />*/}
+      <Box mb='24px' overflowX='scroll' mt='24px'>
+        <Text fontWeight={500} fontSize='16px' mb='4px'>
+          Select coin
+        </Text>
+        <SelectTokenField token={selectedToken} setToken={setSelectedToken} />
       </Box>
+      <HStack gap='4px' mt='24px'>
+        <Text fontWeight={500}>Address</Text>
+        <BaseIcon />
+        <Text fontWeight={500}>Base network</Text>
+      </HStack>
+      <Input
+        variant='outlined'
+        placeholder={truncateEthAddress(zeroAddress)}
+        value={addressToWithdraw}
+        onChange={(e) => setAddressToWithdraw(e.target.value)}
+      />
+      <HStack w={'full'} justifyContent={'space-between'} mt='24px' mb='4px'>
+        <Text fontWeight={500}>Balance</Text>
+        <Button
+          variant='transparent'
+          h='unset'
+          onClick={() => setAmount(balanceItem ? balanceItem.formatted : '')}
+        >
+          {`${NumberUtil.toFixed(balanceItem ? balanceItem.formatted : '', 6)} ${
+            selectedToken?.symbol
+          }`}
+        </Button>
+      </HStack>
+      <Input
+        variant='outlined'
+        placeholder='0'
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+      />
       <Stack w={'full'} spacing={4}>
         <Stack w={'full'}>
-          <Heading fontSize={'15px'}>Address on {defaultChain.name} network</Heading>
-
-          <Input
-            fontSize={{ sm: '12px', md: '14px' }}
-            pr={0}
-            placeholder={truncateEthAddress(zeroAddress)}
-            value={addressToWithdraw}
-            onChange={(e) => setAddressToWithdraw(e.target.value)}
-          />
-        </Stack>
-
-        <Stack w={'full'}>
-          <HStack w={'full'} justifyContent={'space-between'}>
-            <Heading fontSize={'15px'}>Amount</Heading>
-            <HStack>
-              <Button
-                h={'24px'}
-                px={2}
-                fontSize={'12px'}
-                onClick={() => setAmount(balanceItem ? balanceItem.formatted : '')}
-              >
-                {`Balance: ${NumberUtil.toFixed(balanceItem ? balanceItem.formatted : '', 6)} ${
-                  selectedToken?.symbol
-                }`}
-              </Button>
-            </HStack>
-          </HStack>
-
           <InputGroup>
             {/* <InputLeftElement h={'full'} pointerEvents='none'>
               <FaDollarSign fill={colors.fontLight} />
             </InputLeftElement> */}
-            <Input
-              type={'number'}
-              fontWeight={'bold'}
-              placeholder={'0'}
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
+            {/*<Input*/}
+            {/*  type={'number'}*/}
+            {/*  fontWeight={'bold'}*/}
+            {/*  placeholder={'0'}*/}
+            {/*  value={amount}*/}
+            {/*  onChange={(e) => setAmount(e.target.value)}*/}
+            {/*/>*/}
           </InputGroup>
         </Stack>
         {selectedToken.address ===
@@ -143,14 +155,14 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: WithdrawModalProps)
         )}
 
         <Button
-          colorScheme={'brand'}
-          w={'full'}
+          variant='contained'
           isLoading={status == 'Loading'}
-          isDisabled={status != 'ReadyToFund'}
+          isDisabled={isSubmitDisabled || status === 'Loading' || !amount}
           onClick={async () => {
-            await withdraw()
+            await withdraw(selectedToken.address)
             onClose()
           }}
+          w={isMobile ? 'full' : 'fit-content'}
         >
           Withdraw
         </Button>

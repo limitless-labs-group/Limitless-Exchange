@@ -12,7 +12,8 @@ import { useToast } from '@/hooks'
 import BaseIcon from '@/resources/crypto/base.svg'
 import Image from 'next/image'
 import { usePriceOracle } from '@/providers'
-import { WithdrawModal } from '@/app/wallet/components'
+import { WithdrawModal } from '@/components/layouts/wallet-page/components/withdraw-modal'
+import { isMobile } from 'react-device-detect'
 
 interface WalletPageProps {
   onClose: () => void
@@ -44,7 +45,14 @@ export default function WalletPage({ onClose }: WalletPageProps) {
   }
 
   return (
-    <Box bg='white' w='328px' p='8px' h='full' onClick={(e) => e.stopPropagation()} overflow='auto'>
+    <Box
+      bg='white'
+      w={isMobile ? 'full' : '328px'}
+      p='8px'
+      h='full'
+      onClick={(e) => e.stopPropagation()}
+      overflow='auto'
+    >
       <Text fontSize='32px'>Wallet</Text>
       <Paper bg='blue.500' mt='24px'>
         <HStack w='full' justifyContent='space-between'>
@@ -64,18 +72,18 @@ export default function WalletPage({ onClose }: WalletPageProps) {
           </Button>
         </HStack>
         <Text color='white' fontSize='24px' fontWeight={500} mb='16px'>
-          ~{overallBalanceUsd} USD
+          ~{NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
         </Text>
         <Text color='white' fontWeight={500}>
           Address
         </Text>
         <HStack gap='4px' color='white'>
           <Text fontWeight={500}>{truncateEthAddress(address)}</Text>
-          <CopyToClipboard text={address as string} onCopy={onClickCopy}>
-            <Button variant='transparent' minW='unset'>
+          <Box cursor='pointer'>
+            <CopyToClipboard text={address as string} onCopy={onClickCopy}>
               <CopyIcon width='16px' height='16px' />
-            </Button>
-          </CopyToClipboard>
+            </CopyToClipboard>
+          </Box>
         </HStack>
       </Paper>
       <HStack gap='4px' mt='16px'>

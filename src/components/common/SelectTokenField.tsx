@@ -1,40 +1,55 @@
-import { Box, HStack, Image, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react'
-import { Dispatch, SetStateAction, useEffect } from 'react'
-import { v4 as uuidv4 } from 'uuid'
-import { Address } from 'viem'
+import { Box, HStack, Menu, MenuButton, MenuItem, MenuList, Text } from '@chakra-ui/react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import { useLimitlessApi } from '@/services'
 import { Token } from '@/types'
+import Image from 'next/image'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 
 type SelectTokenFieldProps = {
-  setToken: Dispatch<SetStateAction<Address>>
-  token: Address
-  defaultValue: Address
+  setToken: Dispatch<SetStateAction<Token>>
+  token: Token
 }
 
-export default function SelectTokenField({ setToken, token }: SelectTokenFieldProps) {
+export default function SelectTokenField({ token, setToken }: SelectTokenFieldProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { supportedTokens } = useLimitlessApi()
 
   return (
-    <RadioGroup
-      onChange={(val: string) => setToken(val as Address)}
-      defaultValue={supportedTokens?.[0].address}
-    >
-      <Stack direction='row' overflowX={'scroll'} gap={'20px'}>
-        {supportedTokens?.map((collateralToken) => (
-          <Box key={uuidv4()} minW={'fit-content'}>
-            <Radio
-              value={collateralToken.address}
-              colorScheme='blackVariants'
-              checked={collateralToken.address.toLowerCase() === token.toLowerCase()}
-            >
-              <HStack gap='2px'>
-                <Image src={collateralToken.logoUrl} alt='token' width={'20px'} height={'20px'} />
-                <Text>{collateralToken.symbol}</Text>
-              </HStack>
-            </Radio>
+    <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
+      <MenuButton
+        w='full'
+        py='4px'
+        px='8px'
+        borderRadius='2px'
+        border='1px solid'
+        borderColor='grey.300'
+        onClick={() => setIsMenuOpen(true)}
+      >
+        <HStack justifyContent='space-between'>
+          <HStack gap='4px'>
+            <Image src={token.logoUrl} alt={token.symbol} width={16} height={16} />
+            <Text fontWeight={500}>{token.symbol}</Text>
+          </HStack>
+          <Box transform={`rotate(${isMenuOpen ? '180deg' : 0})`} transition='0.5s'>
+            <ChevronDownIcon width='16px' height='16px' />
           </Box>
+        </HStack>
+      </MenuButton>
+      <MenuList borderRadius='2px' w='full'>
+        {supportedTokens?.map((supportedToken) => (
+          <MenuItem onClick={() => setToken(supportedToken)} key={supportedToken.symbol}>
+            <HStack gap='4px'>
+              <Image
+                src={supportedToken.logoUrl}
+                alt={supportedToken.symbol}
+                width={16}
+                height={16}
+              />
+              <Text fontWeight={500}>{supportedToken.symbol}</Text>
+            </HStack>
+          </MenuItem>
         ))}
-      </Stack>
-    </RadioGroup>
+      </MenuList>
+    </Menu>
   )
 }

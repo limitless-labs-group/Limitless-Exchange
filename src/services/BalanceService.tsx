@@ -53,7 +53,7 @@ interface IBalanceService {
   setAmount: (amount: string) => void
   unwrap: boolean
   setUnwrap: (unwrap: boolean) => void
-  withdraw: UseMutateAsyncFunction<void, Error, void, unknown>
+  withdraw: UseMutateAsyncFunction<void, Error, string, unknown>
 
   status: BalanceServiceStatus
   setToken: Dispatch<SetStateAction<Token | null>>
@@ -319,7 +319,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
 
   // Mutation
   const { mutateAsync: withdraw, isPending: isLoadingWithdraw } = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (address: string) => {
       if (unwrap) {
         toast({
           render: () => <Toast title={'Unwrapping ETH...'} />,
@@ -338,7 +338,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
           render: () => <Toast title={'Sending ETH...'} />,
         })
 
-        const transferReceipt = await transferEthers(addressToWithdraw as Address, amountBI)
+        const transferReceipt = await transferEthers(address as Address, amountBI)
 
         if (!transferReceipt) {
           // TODO: show error toast
