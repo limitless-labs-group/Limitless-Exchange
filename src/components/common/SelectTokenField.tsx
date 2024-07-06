@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction, useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 import { useLimitlessApi } from '@/services'
+import { Token } from '@/types'
 
 type SelectTokenFieldProps = {
   setToken: Dispatch<SetStateAction<Address>>
@@ -10,17 +11,14 @@ type SelectTokenFieldProps = {
   defaultValue: Address
 }
 
-export default function SelectTokenField({ setToken, token, defaultValue }: SelectTokenFieldProps) {
+export default function SelectTokenField({ setToken, token }: SelectTokenFieldProps) {
   const { supportedTokens } = useLimitlessApi()
 
-  useEffect(() => {
-    if (!token && supportedTokens) {
-      setToken(supportedTokens[0].address)
-    }
-  }, [token, supportedTokens])
-
   return (
-    <RadioGroup onChange={(val: string) => setToken(val as Address)} defaultValue={defaultValue}>
+    <RadioGroup
+      onChange={(val: string) => setToken(val as Address)}
+      defaultValue={supportedTokens?.[0].address}
+    >
       <Stack direction='row' overflowX={'scroll'} gap={'20px'}>
         {supportedTokens?.map((collateralToken) => (
           <Box key={uuidv4()} minW={'fit-content'}>

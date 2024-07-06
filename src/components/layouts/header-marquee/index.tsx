@@ -5,7 +5,15 @@ import Marquee from 'react-fast-marquee'
 export default function HeaderMarquee() {
   const theme = useTheme()
   return (
-    <Marquee style={{ height: '20px', background: theme.colors.black, color: theme.colors.white }}>
+    <Marquee
+      style={{
+        height: '20px',
+        background: theme.colors.black,
+        color: theme.colors.white,
+        position: 'fixed',
+        zIndex: 100,
+      }}
+    >
       <Box marginX='6px'>
         <TextWithPixels
           text='Transparent Voting'

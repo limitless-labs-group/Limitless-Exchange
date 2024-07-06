@@ -138,12 +138,12 @@ const WalletPage = () => {
         selectedToken={selectedToken}
         setSelectedToken={setSelectedToken}
       />
-      <WithdrawModal
-        isOpen={isWithdrawOpen}
-        onClose={handleCloseWithdrawModal}
-        selectedToken={selectedToken}
-        setSelectedToken={setSelectedToken}
-      />
+      {/*<WithdrawModal*/}
+      {/*  isOpen={isWithdrawOpen}*/}
+      {/*  onClose={handleCloseWithdrawModal}*/}
+      {/*  selectedToken={selectedToken}*/}
+      {/*  setSelectedToken={setSelectedToken}*/}
+      {/*/>*/}
     </MainLayout>
   )
 }
