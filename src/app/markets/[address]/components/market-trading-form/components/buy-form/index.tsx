@@ -15,18 +15,25 @@ import { defaultChain } from '@/constants'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useAmplitude, useBalanceService, useTradingService } from '@/services'
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  ClickEvent,
+  TradeClickedMetadata,
+  useAmplitude,
+  useBalanceService,
+  useTradingService,
+} from '@/services'
 import { Market } from '@/types'
 import { getAddress, zeroAddress } from 'viem'
 import { useToken } from '@/hooks/use-token'
+import BigNumber from 'bignumber.js'
 
 interface BuyFormProps {
   market: Market
-  handleInitiateTx: () => void
+  setOutcomeIndex: Dispatch<SetStateAction<number>>
 }
 
-export default function BuyForm({ market, handleInitiateTx }: BuyFormProps) {
+export default function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
   const [sliderValue, setSliderValue] = useState(0)
 
   /**
@@ -37,17 +44,8 @@ export default function BuyForm({ market, handleInitiateTx }: BuyFormProps) {
   /**
    * TRADING SERVICE
    */
-  const {
-    strategy,
-    collateralAmount,
-    setCollateralAmount,
-    isExceedsBalance,
-    balanceOfCollateralToSell,
-    quotesYes,
-    quotesNo,
-    trade,
-    status,
-  } = useTradingService()
+  const { strategy, collateralAmount, setCollateralAmount, quotesYes, quotesNo, trade } =
+    useTradingService()
 
   /**
    * BALANCE
@@ -57,14 +55,17 @@ export default function BuyForm({ market, handleInitiateTx }: BuyFormProps) {
   const balance = useMemo(() => {
     if (strategy === 'Buy') {
       if (balanceOfSmartWallet) {
-        return balanceOfSmartWallet.find(
-          (balanceItem) => balanceItem.contractAddress === market?.collateralToken[defaultChain.id]
-        )?.formatted
+        return (
+          balanceOfSmartWallet.find(
+            (balanceItem) =>
+              balanceItem.contractAddress === market?.collateralToken[defaultChain.id]
+          )?.formatted || ''
+        )
       }
       return ''
     }
-    return balanceOfCollateralToSell
-  }, [balanceOfSmartWallet, strategy, balanceOfCollateralToSell, market])
+    return ''
+  }, [balanceOfSmartWallet, strategy, market])
 
   const isZeroBalance = !(Number(balance) > 0)
 
@@ -114,6 +115,10 @@ export default function BuyForm({ market, handleInitiateTx }: BuyFormProps) {
     },
     [sliderValue, balance, isZeroBalance]
   )
+
+  const isExceedsBalance = useMemo(() => {
+    return new BigNumber(collateralAmount).isGreaterThan(balance)
+  }, [collateralAmount, balance])
 
   useEffect(() => {
     if (isZeroBalance) {
@@ -281,7 +286,15 @@ export default function BuyForm({ market, handleInitiateTx }: BuyFormProps) {
           h='unset'
           alignItems='flex-start'
           flexDir='column'
-          onClick={handleInitiateTx}
+          isDisabled={isExceedsBalance || !collateralAmount}
+          onClick={async () => {
+            trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
+              strategy: 'Buy',
+              marketAddress: market.address[defaultChain.id],
+            })
+            setOutcomeIndex(0)
+            await trade(0)
+          }}
           borderRadius='2px'
         >
           <HStack gap='8px' color='white'>
@@ -355,7 +368,15 @@ export default function BuyForm({ market, handleInitiateTx }: BuyFormProps) {
           h='unset'
           alignItems='flex-start'
           flexDir='column'
-          onClick={handleInitiateTx}
+          isDisabled={isExceedsBalance || !collateralAmount}
+          onClick={async () => {
+            trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
+              strategy: 'Buy',
+              marketAddress: market.address[defaultChain.id],
+            })
+            setOutcomeIndex(0)
+            await trade(1)
+          }}
           borderRadius='2px'
         >
           <HStack gap='8px' color='white'>

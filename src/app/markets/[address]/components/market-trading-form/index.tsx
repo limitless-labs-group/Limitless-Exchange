@@ -8,7 +8,7 @@ import Paper from '@/components/common-new/paper'
 import { isMobile } from 'react-device-detect'
 import BuyForm from '@/app/markets/[address]/components/market-trading-form/components/buy-form'
 import SellForm from '@/app/markets/[address]/components/market-trading-form/components/sell-form'
-import InitiateForm from '@/app/markets/[address]/components/market-trading-form/components/initiate-form'
+import LoadingForm from 'src/app/markets/[address]/components/market-trading-form/components/loading-form'
 import { useState } from 'react'
 
 interface MarketTradingFormProps {
@@ -16,7 +16,7 @@ interface MarketTradingFormProps {
 }
 
 export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
-  const [widgetState, setWidgetState] = useState<'idle' | 'processing'>('idle')
+  const [outcomeIndex, setOutcomeIndex] = useState(0)
   /**
    * ANALITYCS
    */
@@ -25,14 +25,12 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
   /**
    * TRADING SERVICE
    */
-  const { strategy, setStrategy, tradeStatus } = useTradingService()
+  const { strategy, setStrategy, status, trade } = useTradingService()
 
   /**
    * MARKET DATA
    */
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
-
-  const handleInitiateTx = () => setWidgetState('processing')
 
   return (
     <Paper bg='blue.500' w={isMobile ? 'full' : '296px'} p={isMobile ? 0 : '8px'}>
@@ -81,16 +79,16 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
           </Text>
         </Button>
       </HStack>
-      {widgetState === 'idle' ? (
+      {status !== 'Loading' ? (
         <>
           {strategy === 'Buy' ? (
-            <BuyForm market={market} handleInitiateTx={handleInitiateTx} />
+            <BuyForm market={market} setOutcomeIndex={setOutcomeIndex} />
           ) : (
-            <SellForm market={market} handleInitiateTx={handleInitiateTx} />
+            <SellForm market={market} setOutcomeIndex={setOutcomeIndex} />
           )}
         </>
       ) : (
-        <InitiateForm />
+        <LoadingForm market={market} outcomeIndex={outcomeIndex} />
       )}
     </Paper>
   )
