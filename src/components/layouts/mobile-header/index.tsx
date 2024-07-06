@@ -229,6 +229,7 @@ export default function MobileHeader() {
           zIndex: 150,
           background: 'rgba(0, 0, 0, 0.3)',
           paddingTop: isWalletModalOpen ? '60px' : 0,
+          height: '100%',
         }}
         onClick={() => {
           onToggleWalletModal()
