@@ -33,6 +33,31 @@ export function useMarkets() {
   })
 }
 
+/**
+ * Fetches and manages paginated active market data using the `useInfiniteQuery` hook.
+ * Active market is FUNDED market and not hidden only
+ *
+ * @returns {MarketData[]} which represents pages of markets
+ */
+export function useEthCCMarkets() {
+  return useInfiniteQuery<MarketData, Error>({
+    queryKey: ['ethccMarkets'],
+    queryFn: async ({ pageParam = 1 }) => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/ethcc`, {
+        params: {
+          page: pageParam,
+          limit: LIMIT_PER_PAGE,
+        },
+      })
+      return { data: response.data, next: (pageParam as number) + 1 }
+    },
+    initialPageParam: 1, //default page number
+    getNextPageParam: (lastPage) => {
+      return lastPage.next
+    },
+  })
+}
+
 export function useAllMarkets() {
   const { data: markets } = useQuery({
     queryKey: ['allMarkets'],
