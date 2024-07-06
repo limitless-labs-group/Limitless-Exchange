@@ -28,6 +28,14 @@ const blueModal = definePartsStyle({
   },
 })
 
+const commonModal = definePartsStyle({
+  dialog: {
+    borderRadius: '2px',
+    bg: 'white',
+    p: '16px',
+  },
+})
+
 export const modalTheme = defineMultiStyleConfig({
-  variants: { blueModal },
+  variants: { blueModal, commonModal },
 })

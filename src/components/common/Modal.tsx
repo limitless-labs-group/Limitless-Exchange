@@ -1,7 +1,5 @@
-import { borderRadius } from '@/styles'
 import {
   Button,
-  Heading,
   Modal as ChakraModal,
   ModalBody,
   ModalContent,
@@ -9,7 +7,7 @@ import {
   ModalHeader,
   ModalOverlay,
   ModalProps,
-  Flex,
+  Text,
 } from '@chakra-ui/react'
 
 export type IModal = ModalProps &
@@ -24,25 +22,19 @@ export const Modal = ({
   onClose,
   isOpen,
   children,
-  size,
   isCentered = true,
   ...props
 }: IModal) => (
-  <ChakraModal onClose={onClose} isOpen={isOpen} size={size} isCentered={isCentered}>
+  <ChakraModal onClose={onClose} isOpen={isOpen} isCentered={isCentered} variant='commonModal'>
     <ModalOverlay />
     <ModalContent
-      borderRadius={borderRadius}
-      bg={'bg'}
-      p={'20px 20px 24px'}
-      mx={{ sm: '8px', md: '20px' }}
-      gap={8}
       // boxShadow={'0 0 300px #500'}
       {...props}
     >
       <ModalHeader display='flex' justifyContent='space-between' p={0}>
-        <Heading fontSize={{ sm: '20px', md: '24px' }} w={'full'} textAlign='left'>
+        <Text fontSize='16px' w={'full'} textAlign='left'>
           {title}
-        </Heading>
+        </Text>
         {showCloseButton && (
           <Button
             w={'26px'}

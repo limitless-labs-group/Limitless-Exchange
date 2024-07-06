@@ -13,24 +13,15 @@ import {
   IconButton,
   Box,
 } from '@chakra-ui/react'
-import { Dispatch, SetStateAction, useEffect, useMemo } from 'react'
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { Address, zeroAddress } from 'viem'
 import SelectTokenField from '@/components/common/SelectTokenField'
 import { Token } from '@/types'
 import { useToken } from '@/hooks/use-token'
 
-type WithdrawModalProps = Omit<IModal, 'children'> & {
-  selectedToken: Address
-  setSelectedToken: Dispatch<SetStateAction<Address>>
-}
+type WithdrawModalProps = Omit<IModal, 'children'>
 
-export const WithdrawModal = ({
-  onClose,
-  isOpen,
-  selectedToken,
-  setSelectedToken,
-  ...props
-}: WithdrawModalProps) => {
+export const WithdrawModal = ({ onClose, isOpen, ...props }: WithdrawModalProps) => {
   const {
     balanceOfSmartWallet,
     amount,
@@ -46,13 +37,15 @@ export const WithdrawModal = ({
 
   const disclosure = useDisclosure()
 
-  const { data: collateralToken } = useToken(selectedToken)
-
   const { supportedTokens } = useLimitlessApi()
+
+  const [selectedToken, setSelectedToken] = useState((supportedTokens as Token[])[0])
 
   const balanceItem = useMemo(() => {
     if (balanceOfSmartWallet) {
-      return balanceOfSmartWallet.find((balance) => balance.contractAddress === selectedToken)
+      return balanceOfSmartWallet.find(
+        (balance) => balance.contractAddress === selectedToken.address
+      )
     }
   }, [balanceOfSmartWallet, selectedToken])
 
@@ -69,23 +62,13 @@ export const WithdrawModal = ({
   }, [isOpen])
 
   useEffect(() => {
-    setToken(collateralToken as Token)
-  }, [collateralToken])
+    setToken(selectedToken as Token)
+  }, [selectedToken])
 
   return (
-    <Modal
-      size={'md'}
-      title={`Withdraw ${collateralToken?.symbol} Base`}
-      isOpen={isOpen}
-      onClose={onClose}
-      {...props}
-    >
+    <Modal size={'md'} title={`Withdraw crypto`} isOpen={isOpen} onClose={onClose} {...props}>
       <Box mb='24px' overflowX='scroll'>
-        <SelectTokenField
-          token={selectedToken}
-          setToken={setSelectedToken}
-          defaultValue={selectedToken}
-        />
+        {/*<SelectTokenField token={selectedToken.address} setToken={setSelectedToken} />*/}
       </Box>
       <Stack w={'full'} spacing={4}>
         <Stack w={'full'}>
@@ -111,7 +94,7 @@ export const WithdrawModal = ({
                 onClick={() => setAmount(balanceItem ? balanceItem.formatted : '')}
               >
                 {`Balance: ${NumberUtil.toFixed(balanceItem ? balanceItem.formatted : '', 6)} ${
-                  collateralToken?.symbol
+                  selectedToken?.symbol
                 }`}
               </Button>
             </HStack>
@@ -130,7 +113,8 @@ export const WithdrawModal = ({
             />
           </InputGroup>
         </Stack>
-        {selectedToken === supportedTokens?.find((token) => token.symbol === 'WETH')?.address && (
+        {selectedToken.address ===
+          supportedTokens?.find((token) => token.symbol === 'WETH')?.address && (
           <HStack fontWeight={'bold'}>
             <Text color={unwrap ? 'fontLight' : 'font'}>WETH</Text>
             <Switch

@@ -9,6 +9,10 @@ module.exports = withBundleAnalyzer({
         protocol: 'https',
         hostname: 'storage.googleapis.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'assets.coingecko.com',
+      },
     ],
   },
   webpack(config) {
