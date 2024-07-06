@@ -30,6 +30,7 @@ import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import { useRouter } from 'next/navigation'
 import WalletPage from '@/components/layouts/wallet-page'
+import { useWeb3Service } from '@/services/Web3Service'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -40,6 +41,7 @@ export default function MobileHeader() {
   const router = useRouter()
   const { signOut } = useAuth()
   const { trackClicked } = useAmplitude()
+  const { client } = useWeb3Service()
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
   const { isOpen: isWalletModalOpen, onToggle: onToggleWalletModal } = useDisclosure()
@@ -149,8 +151,10 @@ export default function MobileHeader() {
                       w='full'
                       mt='8px'
                       onClick={() => {
-                        onToggleWalletModal()
-                        onToggleUserMenu()
+                        if (client !== 'eoa') {
+                          onToggleWalletModal()
+                          onToggleUserMenu()
+                        }
                       }}
                     >
                       <HStack justifyContent='space-between' w='full'>
