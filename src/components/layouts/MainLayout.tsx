@@ -1,6 +1,6 @@
 import { Box, Flex, FlexProps, HStack, Spinner } from '@chakra-ui/react'
 import Sidebar from '@/components/layouts/sidebar'
-import { useIsMobile } from '@/hooks'
+import { isMobile } from 'react-device-detect'
 import React from 'react'
 import MobileHeader from '@/components/layouts/mobile-header'
 import HeaderMarquee from '@/components/layouts/header-marquee'
@@ -11,8 +11,6 @@ interface IMainLayout extends FlexProps {
 }
 
 export const MainLayout = ({ children, isLoading, ...props }: IMainLayout) => {
-  const isMobile = useIsMobile()
-
   return (
     <Box
       id='main'

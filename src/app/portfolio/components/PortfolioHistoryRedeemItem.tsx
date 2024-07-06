@@ -31,15 +31,6 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           _hover={{ textDecor: 'underline' }}
           onClick={() => router.push(`/markets/${market?.address[defaultChain.id]}`)}
         >
-          <Image
-            src={market?.imageURI}
-            w={'40px'}
-            h={'40px'}
-            fit={'cover'}
-            bg={'brand'}
-            borderRadius={borderRadius}
-            alt='token'
-          />
           <Heading size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
             {market?.title ?? 'Noname market'}
           </Heading>
@@ -57,7 +48,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
       {/* Amount */}
       <Td px={2} isNumeric>
         <Text fontWeight={'bold'}>
-          {`${NumberUtil.toFixed(Number(redeem.collateralAmount ?? 0), 6)} 
+          {`${NumberUtil.formatThousands(Number(redeem.collateralAmount ?? 0), 6)} 
           ${market?.tokenTicker[defaultChain.id]}`}
         </Text>
       </Td>

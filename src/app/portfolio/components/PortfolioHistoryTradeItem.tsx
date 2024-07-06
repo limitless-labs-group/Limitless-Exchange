@@ -31,15 +31,6 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
           _hover={{ textDecor: 'underline' }}
           onClick={() => router.push(`/markets/${trade.market.id}`)}
         >
-          <Image
-            src={market?.imageURI}
-            w={'40px'}
-            h={'40px'}
-            fit={'cover'}
-            bg={'brand'}
-            borderRadius={borderRadius}
-            alt='token'
-          />
           <Heading size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
             {market?.title ?? 'Noname market'}
           </Heading>
