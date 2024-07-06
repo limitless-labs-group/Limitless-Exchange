@@ -10,13 +10,13 @@ import { v4 as uuidv4 } from 'uuid'
 import SortFilter from '@/components/common/SortFilter'
 import { Market, Sort } from '@/types'
 import { formatUnits, getAddress } from 'viem'
-import { useMarkets } from '@/services/MarketsService'
+import { useEthCCMarkets } from '@/services/MarketsService'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { usePriceOracle } from '@/providers'
 import TextWithPixels from 'src/components/common-new/text-with-pixels'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 
-const MainPage = () => {
+const ETHCCPage = () => {
   /**
    * ANALYTICS
    */
@@ -32,13 +32,13 @@ const MainPage = () => {
    */
   const isMobile = useIsMobile()
 
+  const { selectedFilterTokens } = useTokenFilter()
+
   const [selectedSort, setSelectedSort] = useState<Sort>(Sort.BASE)
   const handleSelectSort = (options: Sort) => setSelectedSort(options)
 
-  const { selectedFilterTokens } = useTokenFilter()
-
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage } = useMarkets()
+  const { data, fetchNextPage, hasNextPage } = useEthCCMarkets()
 
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.length
@@ -135,4 +135,4 @@ const MainPage = () => {
   )
 }
 
-export default MainPage
+export default ETHCCPage

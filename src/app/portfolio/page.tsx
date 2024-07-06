@@ -5,7 +5,6 @@ import { MainLayout } from '@/components'
 import { OpenEvent, PageOpenedMetadata, useAmplitude } from '@/services'
 import { Box, Divider, HStack, Icon, Spacer, Stack, Text } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
-
 import HistoryIcon from '@/resources/icons/history-icon.svg'
 import { isMobile } from 'react-device-detect'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
