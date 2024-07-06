@@ -105,7 +105,7 @@ const MainPage = () => {
     >
       <MainLayout maxContentWidth={'unset'}>
         <Box w={isMobile ? 'auto' : '664px'} ml={isMobile ? 'auto' : '200px'}>
-          <Divider bg='black' orientation='horizontal' h='3px' />
+          <Divider bg='black' orientation='horizontal' h='3px' mb='16px' />
           <TextWithPixels text={'Explore Limitless Prediction Markets'} fontSize={'32px'} gap={2} />
           <Text color='black' fontSize={'14px'}>
             Predict outcomes in crypto, tech, sports, and more. Use different tokens, participate in
