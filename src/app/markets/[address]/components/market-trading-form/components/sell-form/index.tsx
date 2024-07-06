@@ -17,19 +17,27 @@ import { defaultChain } from '@/constants'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useAmplitude, useBalanceService, useHistory, useTradingService } from '@/services'
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  ClickEvent,
+  TradeClickedMetadata,
+  useAmplitude,
+  useBalanceService,
+  useHistory,
+  useTradingService,
+} from '@/services'
 import { Market } from '@/types'
 import { useToken } from '@/hooks/use-token'
+import BigNumber from 'bignumber.js'
 
 interface BuyFormProps {
   market: Market
-  handleInitiateTx: () => void
+  setOutcomeIndex: Dispatch<SetStateAction<number>>
 }
 
-export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
+export default function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
   const [sliderValue, setSliderValue] = useState(0)
-  const [outcomeIndex, setOutcomeIndex] = useState<string | null>(null)
+  const [outcomeChoice, setOutcomeChoice] = useState<string | null>(null)
 
   const { positions: allMarketsPositions } = useHistory()
 
@@ -42,44 +50,34 @@ export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
     [allMarketsPositions, market]
   )
 
-  console.log(positions)
-
   /**
    * ANALITYCS
    */
-  const { trackChanged, trackClicked } = useAmplitude()
+  const { trackClicked } = useAmplitude()
 
   /**
    * TRADING SERVICE
    */
   const {
-    strategy,
     collateralAmount,
     setCollateralAmount,
-    isExceedsBalance,
-    balanceOfCollateralToSell,
+    balanceOfCollateralToSellYes,
+    balanceOfCollateralToSellNo,
     quotesYes,
     quotesNo,
     trade,
-    status,
   } = useTradingService()
 
   /**
    * BALANCE
    */
-  const { balanceOfSmartWallet, setToken, token } = useBalanceService()
+  const { setToken, token } = useBalanceService()
 
   const balance = useMemo(() => {
-    if (strategy === 'Buy') {
-      if (balanceOfSmartWallet) {
-        return balanceOfSmartWallet.find(
-          (balanceItem) => balanceItem.contractAddress === market?.collateralToken[defaultChain.id]
-        )?.formatted
-      }
-      return ''
+    if (outcomeChoice) {
+      return outcomeChoice === 'yes' ? balanceOfCollateralToSellYes : balanceOfCollateralToSellNo
     }
-    return balanceOfCollateralToSell
-  }, [balanceOfSmartWallet, strategy, balanceOfCollateralToSell, market])
+  }, [outcomeChoice, balanceOfCollateralToSellYes, balanceOfCollateralToSellNo])
 
   const isZeroBalance = !(Number(balance) > 0)
 
@@ -149,6 +147,27 @@ export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
       : `${NumberUtil.toFixed((market?.prices[1] || 1) / 100, 3)} ${token?.symbol}`
   }, [quotesNo, market?.tokenTicker, market?.prices, token?.symbol])
 
+  const handleTradeClicked = async () => {
+    trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
+      strategy: 'Sell',
+      marketAddress: market.address[defaultChain.id],
+    })
+    const index = outcomeChoice === 'yes' ? 0 : 1
+    setOutcomeIndex(index)
+    await trade(index)
+  }
+
+  const isExceedsBalance = useMemo(() => {
+    if (outcomeChoice) {
+      return new BigNumber(collateralAmount).isGreaterThan(
+        new BigNumber(
+          outcomeChoice === 'yes' ? balanceOfCollateralToSellYes : balanceOfCollateralToSellNo
+        )
+      )
+    }
+    return false
+  }, [collateralAmount, outcomeChoice, balanceOfCollateralToSellYes, balanceOfCollateralToSellNo])
+
   useEffect(() => {
     if (isZeroBalance) {
       setSliderValue(0)
@@ -169,25 +188,24 @@ export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
       <VStack mt='24px'>
         {positionsYes && (
           <Button
-            bg={outcomeIndex === 'yes' ? 'white' : 'rgba(255, 255, 255, 0.2)'}
+            bg={outcomeChoice === 'yes' ? 'white' : 'rgba(255, 255, 255, 0.2)'}
             px='12px'
             py='8px'
             w='full'
             h='unset'
             alignItems='flex-start'
             flexDir='column'
-            onClick={() => setOutcomeIndex('yes')}
-            // onClick={() => trade(0)}
+            onClick={() => setOutcomeChoice('yes')}
             borderRadius='2px'
           >
             <HStack
-              color={outcomeIndex === 'yes' ? 'black' : 'white'}
+              color={outcomeChoice === 'yes' ? 'black' : 'white'}
               justifyContent='space-between'
               w='full'
             >
               <HStack gap='8px'>
                 <ThumbsUpIcon width='16px' height='16px' />
-                <Text fontWeight={500} color={outcomeIndex === 'yes' ? 'black' : 'white'}>
+                <Text fontWeight={500} color={outcomeChoice === 'yes' ? 'black' : 'white'}>
                   Yes
                 </Text>
               </HStack>
@@ -196,7 +214,7 @@ export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
             <VStack ml='24px' mt='8px' w='calc(100% - 24px)'>
               <HStack justifyContent='space-between' w='full'>
                 <HStack gap='4px'>
-                  <Text fontWeight={500} color={outcomeIndex === 'yes' ? 'black' : 'white'}>
+                  <Text fontWeight={500} color={outcomeChoice === 'yes' ? 'black' : 'white'}>
                     Per Share
                   </Text>
                   <Tooltip
@@ -207,7 +225,7 @@ export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
                     <InfoIcon width='16px' height='16px' />
                   </Tooltip>
                 </HStack>
-                <Text fontWeight={500} color={outcomeIndex === 'yes' ? 'black' : 'white'}>
+                <Text fontWeight={500} color={outcomeChoice === 'yes' ? 'black' : 'white'}>
                   {perShareYes}
                 </Text>
               </HStack>
@@ -248,7 +266,7 @@ export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
               {/*</HStack>*/}
               <HStack justifyContent='space-between' w='full'>
                 <HStack gap='4px'>
-                  <Text fontWeight={500} color={outcomeIndex === 'yes' ? 'black' : 'white'}>
+                  <Text fontWeight={500} color={outcomeChoice === 'yes' ? 'black' : 'white'}>
                     Total
                   </Text>
                   <Tooltip
@@ -261,7 +279,7 @@ export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
                 </HStack>
                 <Text
                   fontWeight={500}
-                  color={outcomeIndex === 'yes' ? 'black' : 'white'}
+                  color={outcomeChoice === 'yes' ? 'black' : 'white'}
                 >{`${NumberUtil.toFixed(positionsYes.collateralAmount, 3)} ${
                   positionsYes.market.collateral?.symbol
                 }`}</Text>
@@ -271,25 +289,24 @@ export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
         )}
         {positionsNo && (
           <Button
-            bg={outcomeIndex === 'no' ? 'white' : 'rgba(255, 255, 255, 0.2)'}
+            bg={outcomeChoice === 'no' ? 'white' : 'rgba(255, 255, 255, 0.2)'}
             px='12px'
             py='8px'
             w='full'
             h='unset'
             alignItems='flex-start'
             flexDir='column'
-            onClick={() => setOutcomeIndex('no')}
-            // onClick={() => trade(1)}
+            onClick={() => setOutcomeChoice('no')}
             borderRadius='2px'
           >
             <HStack
-              color={outcomeIndex === 'no' ? 'black' : 'white'}
+              color={outcomeChoice === 'no' ? 'black' : 'white'}
               justifyContent='space-between'
               w='full'
             >
               <HStack gap='8px'>
                 <ThumbsDownIcon width='16px' height='16px' />
-                <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>
+                <Text fontWeight={500} color={outcomeChoice === 'no' ? 'black' : 'white'}>
                   No
                 </Text>
               </HStack>
@@ -298,7 +315,7 @@ export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
             <VStack ml='24px' mt='8px' w='calc(100% - 24px)'>
               <HStack justifyContent='space-between' w='full'>
                 <HStack gap='4px'>
-                  <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>
+                  <Text fontWeight={500} color={outcomeChoice === 'no' ? 'black' : 'white'}>
                     Per Share
                   </Text>
                   <Tooltip
@@ -309,8 +326,8 @@ export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
                     <InfoIcon width='16px' height='16px' />
                   </Tooltip>
                 </HStack>
-                <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>
-                  <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>
+                <Text fontWeight={500} color={outcomeChoice === 'no' ? 'black' : 'white'}>
+                  <Text fontWeight={500} color={outcomeChoice === 'no' ? 'black' : 'white'}>
                     {perShareNo}
                   </Text>
                 </Text>
@@ -352,7 +369,7 @@ export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
               {/*</HStack>*/}
               <HStack justifyContent='space-between' w='full'>
                 <HStack gap='4px'>
-                  <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>
+                  <Text fontWeight={500} color={outcomeChoice === 'no' ? 'black' : 'white'}>
                     Total
                   </Text>
                   <Tooltip
@@ -365,7 +382,7 @@ export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
                 </HStack>
                 <Text
                   fontWeight={500}
-                  color={outcomeIndex === 'no' ? 'black' : 'white'}
+                  color={outcomeChoice === 'no' ? 'black' : 'white'}
                 >{`${NumberUtil.toFixed(positionsNo.collateralAmount, 3)} ${
                   positionsNo.market.collateral?.symbol
                 }`}</Text>
@@ -374,7 +391,7 @@ export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
           </Button>
         )}
       </VStack>
-      {outcomeIndex && (
+      {outcomeChoice && (
         <Box mt='24px'>
           <Flex justifyContent='space-between'>
             <Text color='white' fontWeight={500}>
@@ -498,7 +515,8 @@ export default function SellForm({ market, handleInitiateTx }: BuyFormProps) {
               mt='24px'
               h='unset'
               py='4px'
-              onClick={handleInitiateTx}
+              onClick={handleTradeClicked}
+              disabled={isExceedsBalance}
             >
               Trade
             </Button>

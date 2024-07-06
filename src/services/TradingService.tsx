@@ -30,10 +30,10 @@ interface ITradingServiceContext {
   setMarket: (market: Market | null) => void
   strategy: 'Buy' | 'Sell'
   setStrategy: (side: 'Buy' | 'Sell') => void
-  balanceOfCollateralToSell: string
+  balanceOfCollateralToSellYes: string
+  balanceOfCollateralToSellNo: string
   collateralAmount: string
   setCollateralAmount: (amount: string) => void
-  isExceedsBalance: boolean
   quotesYes: TradeQuotes | null | undefined
   quotesNo: TradeQuotes | null | undefined
   buy: (outcomeTokenId: number) => Promise<string | undefined>
@@ -150,8 +150,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * BALANCE TO SELL
    */
-  const [balanceOfOutcomeToken, setBalanceOfOutcomeToken] = useState('0') // getCTBalance
-  const [balanceOfCollateralToSell, setBalanceOfCollateralToSell] = useState('0') // ctBalance converted to collateral
+  const [balanceOfOutcomeTokenYes, setBalanceOfOutcomeTokenYes] = useState('0') // getCTBalance
+  const [balanceOfOutcomeTokenNo, setBalanceOfOutcomeTokenNo] = useState('0')
+  const [balanceOfCollateralToSellYes, setBalanceOfCollateralToSellYes] = useState('0') // ctBalance converted to collateral
+  const [balanceOfCollateralToSellNo, setBalanceOfCollateralToSellNo] = useState('0')
 
   const getCTBalance = async (
     account: Address | undefined,
@@ -177,49 +179,93 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   }
 
   const updateSellBalance = useCallback(async () => {
-    setBalanceOfCollateralToSell('0')
-    setBalanceOfOutcomeToken('0')
+    setBalanceOfOutcomeTokenYes('0')
+    setBalanceOfOutcomeTokenNo('0')
+    setBalanceOfCollateralToSellYes('0')
+    setBalanceOfCollateralToSellNo('0')
 
     if (!market || !fixedProductMarketMakerContract || strategy != 'Sell') {
       return
     }
 
-    const balanceOfOutcomeTokenBI = await getCTBalance(account, 0)
-    const _balanceOfOutcomeToken = formatUnits(
-      balanceOfOutcomeTokenBI,
+    const balanceOfOutcomeTokenBIYes = await getCTBalance(account, 0)
+    const _balanceOfOutcomeTokenYes = formatUnits(
+      balanceOfOutcomeTokenBIYes,
       collateralToken?.decimals || 18
     )
-    const balanceOfOutcomeTokenCropped = NumberUtil.toFixed(_balanceOfOutcomeToken.toString(), 10)
-    setBalanceOfOutcomeToken(balanceOfOutcomeTokenCropped)
+    const balanceOfOutcomeTokenCroppedYes = NumberUtil.toFixed(
+      _balanceOfOutcomeTokenYes.toString(),
+      10
+    )
+    setBalanceOfOutcomeTokenYes(balanceOfOutcomeTokenCroppedYes)
 
-    const holdings = await getCTBalance(market.address[defaultChain.id], 0)
-    const otherHoldings: bigint[] = []
+    const balanceOfOutcomeTokenBINo = await getCTBalance(account, 1)
+    const _balanceOfOutcomeTokenNo = formatUnits(
+      balanceOfOutcomeTokenBINo,
+      collateralToken?.decimals || 18
+    )
+    const balanceOfOutcomeTokenCroppedNo = NumberUtil.toFixed(
+      _balanceOfOutcomeTokenNo.toString(),
+      10
+    )
+    setBalanceOfOutcomeTokenNo(balanceOfOutcomeTokenCroppedNo)
+
+    const holdingsYes = await getCTBalance(market.address[defaultChain.id], 0)
+    const otherHoldingsYes: bigint[] = []
     for (let index = 0; index < market.outcomeTokens.length; index++) {
       if (index != 0) {
         const balance = await getCTBalance(market.address[defaultChain.id], index)
-        otherHoldings.push(balance)
+        otherHoldingsYes.push(balance)
       }
     }
     const feeBI = (await fixedProductMarketMakerContract.read.fee()) as bigint
     const fee = Number(formatUnits(feeBI, 18))
-    let balanceOfCollateralToSellBI =
+    let balanceOfCollateralToSellBIYes =
       calcSellAmountInCollateral(
-        parseUnits(balanceOfOutcomeTokenCropped, collateralToken?.decimals || 18),
-        holdings,
-        otherHoldings,
+        parseUnits(balanceOfOutcomeTokenCroppedYes, collateralToken?.decimals || 18),
+        holdingsYes,
+        otherHoldingsYes,
         fee
       ) ?? 0n
     // small balance to zero
-    if (balanceOfCollateralToSellBI < parseUnits('0.000001', collateralToken?.decimals || 18)) {
-      balanceOfCollateralToSellBI = 0n
+    if (balanceOfCollateralToSellBIYes < parseUnits('0.000001', collateralToken?.decimals || 18)) {
+      balanceOfCollateralToSellBIYes = 0n
     }
 
-    const _balanceOfCollateralToSell = formatUnits(
-      balanceOfCollateralToSellBI,
+    const _balanceOfCollateralToSellYes = formatUnits(
+      balanceOfCollateralToSellBIYes,
       collateralToken?.decimals || 18
     )
 
-    setBalanceOfCollateralToSell(_balanceOfCollateralToSell)
+    setBalanceOfCollateralToSellYes(_balanceOfCollateralToSellYes)
+
+    const holdingsNo = await getCTBalance(market.address[defaultChain.id], 1)
+    const otherHoldingsNo: bigint[] = []
+    for (let index = 0; index < market.outcomeTokens.length; index++) {
+      if (index != 1) {
+        const balance = await getCTBalance(market.address[defaultChain.id], index)
+        otherHoldingsNo.push(balance)
+      }
+    }
+
+    let balanceOfCollateralToSellBINo =
+      calcSellAmountInCollateral(
+        parseUnits(balanceOfOutcomeTokenCroppedNo, collateralToken?.decimals || 18),
+        holdingsNo,
+        otherHoldingsNo,
+        fee
+      ) ?? 0n
+    // small balance to zero
+    if (balanceOfCollateralToSellBINo < parseUnits('0.000001', collateralToken?.decimals || 18)) {
+      balanceOfCollateralToSellBINo = 0n
+    }
+
+    const _balanceOfCollateralToSellNo = formatUnits(
+      balanceOfCollateralToSellBINo,
+      collateralToken?.decimals || 18
+    )
+
+    setBalanceOfCollateralToSellNo(_balanceOfCollateralToSellNo)
   }, [account, market, strategy])
 
   useEffect(() => {
@@ -235,20 +281,20 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     [collateralAmount, collateralToken]
   )
 
-  const isExceedsBalance = useMemo(() => {
-    if (strategy == 'Buy') {
-      if (balanceOfSmartWallet) {
-        const balanceItem = balanceOfSmartWallet.find(
-          (balance) => balance.contractAddress === market?.collateralToken[defaultChain.id]
-        )
-        return Number(collateralAmount) > Number(balanceItem?.formatted)
-      }
-      return Number(collateralAmount) > 0
-    }
-    return Number(collateralAmount) > Number(balanceOfCollateralToSell)
-  }, [strategy, balanceOfCollateralToSell, collateralAmount, balanceOfSmartWallet, market])
+  // const isExceedsBalance = useMemo(() => {
+  //   if (strategy == 'Buy') {
+  //     if (balanceOfSmartWallet) {
+  //       const balanceItem = balanceOfSmartWallet.find(
+  //         (balance) => balance.contractAddress === market?.collateralToken[defaultChain.id]
+  //       )
+  //       return Number(collateralAmount) > Number(balanceItem?.formatted)
+  //     }
+  //     return Number(collateralAmount) > 0
+  //   }
+  //   return Number(collateralAmount) > Number(balanceOfCollateralToSell)
+  // }, [strategy, balanceOfCollateralToSell, collateralAmount, balanceOfSmartWallet, market])
 
-  const isInvalidCollateralAmount = collateralAmountBI <= 0n || isExceedsBalance
+  const isInvalidCollateralAmount = collateralAmountBI <= 0n
 
   /**
    * QUOTES
@@ -271,7 +317,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       'tradeQuotesYes',
       fixedProductMarketMakerContract?.address,
       collateralAmount,
-      balanceOfOutcomeToken,
+      balanceOfOutcomeTokenYes,
       0,
       strategy,
       outcomeTokensBuyPriceCurrent,
@@ -297,7 +343,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
         // limit max outcome token amount to balance
         const balanceOfOutcomeTokenBI = parseUnits(
-          balanceOfOutcomeToken,
+          balanceOfOutcomeTokenYes,
           collateralToken?.decimals || 18
         )
         if (outcomeTokenAmountBI > balanceOfOutcomeTokenBI) {
@@ -338,7 +384,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       'tradeQuotesNo',
       fixedProductMarketMakerContract?.address,
       collateralAmount,
-      balanceOfOutcomeToken,
+      balanceOfOutcomeTokenNo,
       1,
       strategy,
       outcomeTokensBuyPriceCurrent,
@@ -364,7 +410,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
         // limit max outcome token amount to balance
         const balanceOfOutcomeTokenBI = parseUnits(
-          balanceOfOutcomeToken,
+          balanceOfOutcomeTokenNo,
           collateralToken?.decimals || 18
         )
         if (outcomeTokenAmountBI > balanceOfOutcomeTokenBI) {
@@ -701,8 +747,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setStrategy,
     collateralAmount,
     setCollateralAmount,
-    isExceedsBalance,
-    balanceOfCollateralToSell,
+    balanceOfCollateralToSellYes,
+    balanceOfCollateralToSellNo,
     quotesYes,
     quotesNo,
     buy,

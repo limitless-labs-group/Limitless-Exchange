@@ -2,6 +2,7 @@ import { Modal, ModalCloseButton } from '@chakra-ui/modal'
 import { ModalBody, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react'
 import { MarketTradingForm } from '@/app/markets/[address]/components'
 import { Market } from '@/types'
+import { useTradingService } from '@/services'
 
 interface MarketTradingModalProps {
   open: boolean
@@ -16,8 +17,15 @@ export default function MarketTradingModal({
   title,
   market,
 }: MarketTradingModalProps) {
+  const { setCollateralAmount } = useTradingService()
+
+  const handleCloseModal = () => {
+    setCollateralAmount('')
+    onClose()
+  }
+
   return (
-    <Modal isOpen={open} onClose={onClose} size='full' variant='blueModal'>
+    <Modal isOpen={open} onClose={handleCloseModal} size='full' variant='blueModal'>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{title}</ModalHeader>
