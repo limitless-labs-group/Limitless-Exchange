@@ -143,6 +143,7 @@ export const chakraTheme = ChakraTheme({
         grey: {
           background: 'grey.300',
           h: '24px',
+          px: '8px',
         },
         transparent: {
           background: 'unset',

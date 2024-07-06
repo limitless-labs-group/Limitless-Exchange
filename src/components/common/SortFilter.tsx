@@ -25,21 +25,35 @@ export default function SortFilter({ onChange }: SortFilterProps) {
   }, [selectedSortFilter])
 
   return (
-    <HStack spacing={2} mt={'16px'} mb={'24px'} wrap={'wrap'} alignItems={'start'} w={'full'}>
-      <ButtonGroup variant='outline' spacing='0' gap={0}>
+    <HStack
+      spacing={2}
+      mt={'16px'}
+      mb={'24px'}
+      wrap={'wrap'}
+      alignItems={'start'}
+      w={'full'}
+      overflowX='auto'
+    >
+      <ButtonGroup
+        variant='outline'
+        gap={0}
+        w='fit-content'
+        p='2px'
+        bg='grey.300'
+        borderRadius='2px'
+      >
         {sortOptions.map((option) => (
           <Button
+            variant='grey'
             key={uuidv4()}
-            h={'24px'}
-            fontWeight={'normal'}
             fontSize={isMobile ? '14px' : '12px'}
             color={option === selectedSortFilter ? 'white' : 'black'}
-            bg={option === selectedSortFilter ? 'black' : 'white'}
+            bg={option === selectedSortFilter ? 'black' : 'unset'}
             onClick={() => handleFilterItemClicked(option)}
             rounded={0}
-            py={2}
-            maxW={'105px'}
+            flex={1}
             _hover={{ bg: option === selectedSortFilter ? 'black' : 'grey.200' }}
+            borderRadius='2px'
           >
             {option}
           </Button>
