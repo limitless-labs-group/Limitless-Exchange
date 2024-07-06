@@ -3,6 +3,7 @@ import { radioTheme } from '@/styles/radio'
 import { lightThemeColors } from '@/styles/light-theme-colors'
 import { modalTheme } from '@/styles/modals'
 import { accordionTheme } from '@/styles/accordion'
+import { inputTheme } from '@/styles/input'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
@@ -116,6 +117,11 @@ export const chakraTheme = ChakraTheme({
     Button: {
       baseStyle: {
         fontSize: '14px',
+        py: '4px',
+        px: '8px',
+        fontWeight: 500,
+        gap: '4px',
+        borderRadius: '2px',
       },
       variants: {
         outline: {
@@ -123,33 +129,25 @@ export const chakraTheme = ChakraTheme({
           bg: 'grey.100',
           color: 'black',
           height: '52px',
-          fontWeight: 500,
         },
         contained: {
           bg: 'blue.500',
           color: 'white',
-          borderRadius: '2px',
-          py: '16px',
-          px: '8px',
-          h: '48px',
-          fontSize: '14px',
-          fontWeight: 500,
+          h: '24px',
+          _disabled: {
+            _hover: {
+              bg: 'blue.500 !important',
+            },
+          },
         },
         grey: {
-          padding: '4px 8px',
-          gap: '4px',
-          borderRadius: '2px',
           background: 'grey.300',
-          height: 'unset',
-          fontWeight: 500,
-          fontSize: '14px',
+          h: '24px',
         },
         transparent: {
           background: 'unset',
+          h: '24px',
           p: 0,
-          fontSize: '14px',
-          height: 'unset',
-          fontWeight: 500,
           gap: '8px',
           _focus: {
             bg: 'unset',
@@ -173,6 +171,7 @@ export const chakraTheme = ChakraTheme({
     Radio: radioTheme,
     Modal: modalTheme,
     Accordion: accordionTheme,
+    Input: inputTheme,
     // Divider
     // Button link
   },

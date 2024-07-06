@@ -1,4 +1,4 @@
-import { Box, Heading, HStack, Stack, Text, VStack } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text, VStack } from '@chakra-ui/react'
 import { Button, Input, Modal } from '@/components'
 import { useBalanceService } from '@/services'
 import { borderRadius } from '@/styles'
@@ -35,7 +35,7 @@ export default function WrapModal() {
         <HStack w={'full'}>
           <Text color={'fontLight'}>ETH balance</Text>
         </HStack>
-        <Heading fontSize={'26px'}>{NumberUtil.formatThousands(ethBalance, 6)} ETH</Heading>
+        <Text fontSize={'26px'}>{NumberUtil.formatThousands(ethBalance, 6)} ETH</Text>
       </Stack>
       <Text fontSize={'24px'} fontWeight={'bold'} textAlign='center' mb={5}>
         Wrap outcome
@@ -45,7 +45,7 @@ export default function WrapModal() {
           <HStack w={'full'}>
             <Text color={'fontLight'}>ETH</Text>
           </HStack>
-          <Heading fontSize={'18px'}>{+displayAmount ? displayAmount : '0.00'} ETH</Heading>
+          <Text fontSize={'18px'}>{+displayAmount ? displayAmount : '0.00'} ETH</Text>
         </Stack>
         <Box>
           <FaArrowAltCircleRight />
@@ -54,7 +54,7 @@ export default function WrapModal() {
           <HStack w={'full'}>
             <Text color={'fontLight'}>WETH</Text>
           </HStack>
-          <Heading fontSize={'18px'}>{+displayAmount ? displayAmount : '0.00'} WETH</Heading>
+          <Text fontSize={'18px'}>{+displayAmount ? displayAmount : '0.00'} WETH</Text>
         </Stack>
       </HStack>
       <Stack

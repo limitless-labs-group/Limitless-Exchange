@@ -9,7 +9,6 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  Heading,
   HStack,
   Image,
   NumberInput,
@@ -267,7 +266,7 @@ const CreateOwnMarketPage = () => {
     <MainLayout>
       <Flex justifyContent={'center'}>
         <VStack w='468px' spacing={4}>
-          <Heading>Create Market</Heading>
+          <Text>Create Market</Text>
           <FormControl>
             <FormField label='Title'>
               <Input

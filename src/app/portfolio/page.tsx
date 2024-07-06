@@ -5,10 +5,11 @@ import { MainLayout } from '@/components'
 import { OpenEvent, PageOpenedMetadata, useAmplitude } from '@/services'
 import { Box, Divider, HStack, Icon, Spacer, Stack, Text } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
-import TextWithPixels from '@/components/common/text-with-pixels'
+
 import HistoryIcon from '@/resources/icons/history-icon.svg'
 import { isMobile } from 'react-device-detect'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
+import TextWithPixels from '@/components/common-new/text-with-pixels'
 
 const PortfolioPage = () => {
   const [tab, setTab] = useState<'Investments' | 'History'>('Investments')

@@ -51,9 +51,9 @@ export const MarketCard = ({ marketAddress, ...props }: IMarketCard) => {
       <HStack>
         <VStack w='428px' h={'96px'} justifyContent='space-between'>
           <Stack spacing={1} align={'start'} justifyItems={'start'} w={'full'}>
-            <Heading color={'black'} fontSize={'14px'} lineHeight={'20px'} textDecor={'underline'}>
+            <Text color={'black'} fontSize={'14px'} lineHeight={'20px'} textDecor={'underline'}>
               {market?.title ?? 'Noname market'}
-            </Heading>
+            </Text>
           </Stack>
 
           <Stack

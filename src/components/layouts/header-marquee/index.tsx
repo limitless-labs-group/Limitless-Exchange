@@ -11,7 +11,7 @@ export default function HeaderMarquee() {
         background: theme.colors.black,
         color: theme.colors.white,
         position: 'fixed',
-        zIndex: 100,
+        zIndex: 200,
       }}
     >
       <Box marginX='6px'>

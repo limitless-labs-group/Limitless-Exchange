@@ -29,6 +29,7 @@ import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import { useRouter } from 'next/navigation'
+import WalletPage from '@/components/layouts/wallet-page'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -41,6 +42,7 @@ export default function MobileHeader() {
   const { trackClicked } = useAmplitude()
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
+  const { isOpen: isWalletModalOpen, onToggle: onToggleWalletModal } = useDisclosure()
 
   const handleNavigateToPortfolioPage = () => {
     onToggleUserMenu()
@@ -87,7 +89,14 @@ export default function MobileHeader() {
               style={{ zIndex: 100, background: 'rgba(0, 0, 0, 0.3)', marginTop: '20px' }}
               onClick={onToggleUserMenu}
             >
-              <VStack ml='40px' bg='white' h='full' p='16px' justifyContent='space-between'>
+              <VStack
+                ml='40px'
+                bg='white'
+                h='full'
+                p='16px'
+                justifyContent='space-between'
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Box w='full'>
                   <HStack gap='8px'>
                     {userInfo?.profileImage?.includes('http') ? (
@@ -135,7 +144,15 @@ export default function MobileHeader() {
                         </HStack>
                       </HStack>
                     </Button>
-                    <Button variant='transparent' w='full' mt='8px'>
+                    <Button
+                      variant='transparent'
+                      w='full'
+                      mt='8px'
+                      onClick={() => {
+                        onToggleWalletModal()
+                        onToggleUserMenu()
+                      }}
+                    >
                       <HStack justifyContent='space-between' w='full'>
                         <HStack color='grey.500' gap='4px'>
                           <WalletIcon width={16} height={16} />
@@ -201,6 +218,20 @@ export default function MobileHeader() {
           <LogInButton />
         )}
       </HStack>
+      <Slide
+        direction='top'
+        in={isWalletModalOpen}
+        style={{
+          zIndex: 150,
+          background: 'rgba(0, 0, 0, 0.3)',
+          paddingTop: isWalletModalOpen ? '60px' : 0,
+        }}
+        onClick={() => {
+          onToggleWalletModal()
+        }}
+      >
+        <WalletPage onClose={onToggleWalletModal} />
+      </Slide>
     </HStack>
   )
 }

@@ -2,17 +2,7 @@ import { Button } from '@/components'
 import { defaultChain } from '@/constants'
 import { HistoryPosition } from '@/services'
 import { NumberUtil } from '@/utils'
-import {
-  HStack,
-  Heading,
-  Stack,
-  StackProps,
-  Text,
-  Box,
-  Icon,
-  VStack,
-  Divider,
-} from '@chakra-ui/react'
+import { HStack, Stack, StackProps, Text, Box, Icon, VStack, Divider } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMarketData } from '@/hooks'
@@ -127,7 +117,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
     >
       <Stack spacing={'8px'}>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
-          <Heading
+          <Text
             color={getColor()}
             fontSize={'16px'}
             fontWeight={500}
@@ -135,7 +125,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             textDecor='underline'
           >
             {market?.title ?? 'Noname market'}
-          </Heading>
+          </Text>
           <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={getColor()} />
         </HStack>
         <HStack>
@@ -147,10 +137,10 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             </Text>
           ) : (
             <HStack>
-              <Heading fontSize={'16px'} lineHeight={'20px'} fontWeight={500}>
+              <Text fontSize={'16px'} lineHeight={'20px'} fontWeight={500}>
                 {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} 
                     ${market?.tokenTicker[defaultChain.id]}`}
-              </Heading>
+              </Text>
               <Box gap={0} fontSize={'16px'} fontWeight={500}>
                 {(position?.outcomeIndex === 0 ? (
                   <Text color={'green.500'}>↑{chancePercent}%</Text>
@@ -213,7 +203,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       <Stack direction='row'>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
           <Box>
-            <Heading
+            <Text
               fontSize={'14px'}
               color={getColor()}
               fontWeight={500}
@@ -221,7 +211,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
               textDecor='underline'
             >
               {market?.title ?? 'Noname market'}
-            </Heading>
+            </Text>
           </Box>
 
           <HStack>
@@ -229,10 +219,10 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
               <ClaimButton />
             ) : (
               <>
-                <Heading fontSize={'14px'} lineHeight={'20px'}>
+                <Text fontSize={'14px'} lineHeight={'20px'}>
                   {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} 
                     ${market?.tokenTicker[defaultChain.id]}`}
-                </Heading>
+                </Text>
 
                 <Box gap={0}>
                   {(position?.outcomeIndex === 0 ? (

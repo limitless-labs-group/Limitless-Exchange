@@ -1,8 +1,7 @@
 import { defaultChain } from '@/constants'
 import { HistoryRedeem } from '@/services'
-import { borderRadius } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { HStack, Heading, Image, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { useMarketByConditionId } from '@/services/MarketsService'
@@ -31,9 +30,9 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           _hover={{ textDecor: 'underline' }}
           onClick={() => router.push(`/markets/${market?.address[defaultChain.id]}`)}
         >
-          <Heading size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
+          <Text size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
             {market?.title ?? 'Noname market'}
-          </Heading>
+          </Text>
         </HStack>
       </Td>
 
