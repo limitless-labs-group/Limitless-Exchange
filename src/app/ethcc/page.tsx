@@ -8,12 +8,13 @@ import { Divider, VStack, Text, Box } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import SortFilter from '@/components/common/SortFilter'
-import { Market, Sort, Token } from '@/types'
+import { Market, Sort } from '@/types'
 import { formatUnits, getAddress } from 'viem'
 import { useEthCCMarkets } from '@/services/MarketsService'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { usePriceOracle } from '@/providers'
 import TextWithPixels from 'src/components/common-new/text-with-pixels'
+import { useTokenFilter } from '@/contexts/TokenFilterContext'
 
 const ETHCCPage = () => {
   /**
@@ -31,7 +32,8 @@ const ETHCCPage = () => {
    */
   const isMobile = useIsMobile()
 
-  const [selectedFilterTokens, setSelectedFilterTokens] = useState<Token[]>([])
+  const { selectedFilterTokens } = useTokenFilter()
+
   const [selectedSort, setSelectedSort] = useState<Sort>(Sort.BASE)
   const handleSelectSort = (options: Sort) => setSelectedSort(options)
 
