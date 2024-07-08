@@ -35,7 +35,7 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
       {...props}
     >
       <HStack>
-        <VStack w='428px' h={'96px'} justifyContent='space-between'>
+        <VStack w='428px' h={'80px'} justifyContent='space-between'>
           <Stack spacing={1} align={'start'} justifyItems={'start'} w={'full'}>
             <Text color={'black'} fontSize={'14px'} lineHeight={'20px'} textDecor={'underline'}>
               {market?.title ?? 'Noname market'}
@@ -77,7 +77,7 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
           </Stack>
         </VStack>
 
-        <VStack w='196px' h={'96px'}>
+        <VStack w='196px' h={'80px'}>
           <Stack justifyContent='space-between' alignItems='flex-end' h={'full'} w={'full'}>
             <HStack gap={1}>
               <ThumbsUpIcon width={'16px'} height={'16px'} />
