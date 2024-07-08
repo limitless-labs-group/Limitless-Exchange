@@ -17,7 +17,7 @@ export type MarketData = {
   next: number
 }
 
-export type Market = {
+export type MarketResponse = {
   address: {
     [chainId: number]: Address
   }
@@ -66,6 +66,11 @@ export type Market = {
   prices: number[]
 }
 
+export type Market = MarketResponse & {
+  buyYesNo: number[]
+  sellYesNo: number[]
+}
+
 export type GetBalanceResult = {
   decimals: number
   formatted: string
@@ -105,3 +110,8 @@ export enum Sort {
 }
 
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>
+
+export type OddsData = {
+  buyYesNo: number[]
+  sellYesNo: number[]
+}

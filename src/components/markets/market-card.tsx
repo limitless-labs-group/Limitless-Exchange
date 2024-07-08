@@ -1,44 +1,30 @@
 import { defaultChain } from '@/constants'
-import { useMarketData } from '@/hooks'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
-import { Address } from '@/types'
+import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 import { Box, Heading, HStack, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import { useMemo } from 'react'
-import { useMarket } from '@/services/MarketsService'
-import { useToken } from '@/hooks/use-token'
 import Paper from '@/components/common/paper'
 import { Icon } from '@chakra-ui/react'
 
 interface IMarketCard extends StackProps {
-  marketAddress?: Address
+  market: Market
 }
 
-export const MarketCard = ({ marketAddress, ...props }: IMarketCard) => {
+export const MarketCard = ({ market, ...props }: IMarketCard) => {
   /**
    * NAVIGATION
    */
   const router = useRouter()
-  const market = useMarket(marketAddress as string)
-  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
-  const { outcomeTokensPercent, liquidity, volume } = useMarketData({
-    marketAddress,
-    collateralToken,
-  })
-
-  const chancePercent = useMemo(() => {
-    return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
-  }, [market, outcomeTokensPercent])
 
   /**
    * SHARE
    */
-  const marketURI = `${window.location.origin}/markets/${marketAddress}`
+  const marketURI = `${window.location.origin}/markets/${market.address[defaultChain.id]}`
 
   return (
     <Paper
@@ -71,7 +57,8 @@ export const MarketCard = ({ marketAddress, ...props }: IMarketCard) => {
                 </Text>
               </HStack>
               <Text mt={1}>
-                {NumberUtil.formatThousands(liquidity, 4)} {market?.tokenTicker[defaultChain.id]}
+                {NumberUtil.formatThousands(market?.liquidityFormatted, 4)}{' '}
+                {market?.tokenTicker[defaultChain.id]}
               </Text>
             </Box>
 
@@ -83,7 +70,8 @@ export const MarketCard = ({ marketAddress, ...props }: IMarketCard) => {
                 </Text>
               </HStack>
               <Text mt={1}>
-                {NumberUtil.formatThousands(volume, 4)} {market?.tokenTicker[defaultChain.id]}
+                {NumberUtil.formatThousands(market?.volumeFormatted, 4)}{' '}
+                {market?.tokenTicker[defaultChain.id]}
               </Text>
             </Box>
           </Stack>
@@ -94,7 +82,7 @@ export const MarketCard = ({ marketAddress, ...props }: IMarketCard) => {
             <HStack gap={1}>
               <ThumbsUpIcon width={'16px'} height={'16px'} />
               <Heading color={'black'} lineHeight={'20px'} fontSize={'14px'}>
-                {chancePercent}% YES
+                {market?.buyYesNo[0]}% YES
               </Heading>
               <ArrowRightIcon width={'16px'} height={'16px'} />
             </HStack>
