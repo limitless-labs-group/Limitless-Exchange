@@ -289,6 +289,11 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           alignItems='flex-start'
           flexDir='column'
           isDisabled={isExceedsBalance || !collateralAmount}
+          // _hover={{
+          //   _disabled: {
+          //     bg:
+          //   }
+          // }}
           onClick={async () => {
             trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
               strategy: 'Buy',
