@@ -28,11 +28,12 @@ import { useWalletAddress } from '@/hooks/use-wallet-address'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import WalletPage from '@/components/layouts/wallet-page'
 import { useWeb3Service } from '@/services/Web3Service'
 import TokenFilterMobile from '@/components/common/token-filter-mobile'
 import { LogInButton } from '@/components/common/login-button'
+import { isMobile } from 'react-device-detect'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -44,6 +45,7 @@ export default function MobileHeader() {
   const { signOut } = useAuth()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
+  const pathname = usePathname()
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
   const { isOpen: isWalletModalOpen, onToggle: onToggleWalletModal } = useDisclosure()
@@ -260,7 +262,7 @@ export default function MobileHeader() {
           </Slide>
         </HStack>
       </Box>
-      <TokenFilterMobile />
+      {isMobile && pathname === '/' && <TokenFilterMobile />}
     </>
   )
 }
