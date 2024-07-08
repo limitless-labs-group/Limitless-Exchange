@@ -11,7 +11,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { NumberUtil } from '@/utils'
-import { LogInButton } from '@/components'
+
 import React from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import {
@@ -31,7 +31,8 @@ import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import { useRouter } from 'next/navigation'
 import WalletPage from '@/components/layouts/wallet-page'
 import { useWeb3Service } from '@/services/Web3Service'
-import TokenFilterMobile from '@/components/common-new/token-filter-mobile'
+import TokenFilterMobile from '@/components/common/token-filter-mobile'
+import { LogInButton } from '@/components/common/login-button'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()

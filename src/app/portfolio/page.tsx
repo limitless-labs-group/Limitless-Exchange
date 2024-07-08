@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
 import HistoryIcon from '@/resources/icons/history-icon.svg'
 import { isMobile } from 'react-device-detect'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import TextWithPixels from '@/components/common-new/text-with-pixels'
+import TextWithPixels from '@/components/common/text-with-pixels'
 
 const PortfolioPage = () => {
   const [tab, setTab] = useState<'Investments' | 'History'>('Investments')

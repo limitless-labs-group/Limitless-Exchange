@@ -1,4 +1,4 @@
-import { Toast } from '@/components'
+import { Toast } from '@/components/common/toast'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'

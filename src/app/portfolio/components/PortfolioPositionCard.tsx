@@ -1,15 +1,24 @@
-import { Button } from '@/components'
 import { defaultChain } from '@/constants'
 import { HistoryPosition } from '@/services'
 import { NumberUtil } from '@/utils'
-import { HStack, Stack, StackProps, Text, Box, Icon, VStack, Divider } from '@chakra-ui/react'
+import {
+  HStack,
+  Stack,
+  StackProps,
+  Text,
+  Box,
+  Icon,
+  VStack,
+  Divider,
+  Button,
+} from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMarketData } from '@/hooks'
 import { useMarket } from '@/services/MarketsService'
 import { useToken } from '@/hooks/use-token'
 import { isMobile } from 'react-device-detect'
-import Paper from '@/components/common-new/paper'
+import Paper from '@/components/common/paper'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ClosedIcon from '@/resources/icons/close-rounded-icon.svg'
 import ActiveIcon from '@/resources/icons/active-icon.svg'

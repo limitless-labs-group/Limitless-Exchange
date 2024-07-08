@@ -1,4 +1,3 @@
-import { IModal, InfoIcon, Modal, Tooltip } from '@/components'
 import { useBalanceService, useLimitlessApi } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import {
@@ -15,11 +14,14 @@ import {
 } from '@chakra-ui/react'
 import React, { useEffect, useMemo, useState } from 'react'
 import { zeroAddress } from 'viem'
-import SelectTokenField from '@/components/common/SelectTokenField'
+import SelectTokenField from '@/components/common/select-token-field'
 import { Token } from '@/types'
 import BaseIcon from '@/resources/crypto/base.svg'
 import BigNumber from 'bignumber.js'
 import { isMobile } from 'react-device-detect'
+import InfoIcon from '@/resources/icons/tooltip-icon.svg'
+import { IModal, Modal } from '@/components/common/modals/modal'
+import { Tooltip } from '@/components/common/tooltip'
 
 type WithdrawModalProps = Omit<IModal, 'children'>
 
@@ -148,7 +150,7 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: WithdrawModalProps)
                 onMouseEnter={disclosure.onOpen}
                 onMouseLeave={disclosure.onClose}
                 onClick={disclosure.onToggle}
-                icon={<InfoIcon fontSize={'9px'} p={'3px'} />}
+                icon={<InfoIcon />}
               />
             </Tooltip>
           </HStack>

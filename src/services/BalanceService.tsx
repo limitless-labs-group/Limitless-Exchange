@@ -1,4 +1,3 @@
-import { Toast, ToastWithdraw } from '@/components'
 import { defaultChain } from '@/constants'
 import { wethABI } from '@/contracts'
 import { useToast } from '@/hooks'
@@ -36,6 +35,8 @@ import { getBalance } from 'viem/actions'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useWeb3Service } from '@/services/Web3Service'
 import { publicClient } from '@/providers'
+import { Toast } from '@/components/common/toast'
+import { ToastWithdraw } from '@/components/common/toast-withdraw'
 
 interface IBalanceService {
   balanceOfSmartWallet: GetBalanceResult[] | undefined
