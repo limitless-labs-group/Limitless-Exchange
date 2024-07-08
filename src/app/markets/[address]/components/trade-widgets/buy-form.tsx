@@ -346,7 +346,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
             <HStack justifyContent='space-between' w='full'>
               <HStack gap='4px'>
                 <Text fontWeight={500} color='white'>
-                  Ets. ROI
+                  Est. ROI
                 </Text>
                 <Tooltip
                 // label={
@@ -358,6 +358,24 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
               </HStack>
               <Text fontWeight={500} color='white'>
                 {NumberUtil.toFixed(quotesYes?.roi, 2)}%
+              </Text>
+            </HStack>
+            <HStack justifyContent='space-between' w='full'>
+              <HStack gap='4px'>
+                <Text fontWeight={500} color='white'>
+                  Return
+                </Text>
+                <Tooltip
+                // label={
+                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
+                // }
+                >
+                  <InfoIcon width='16px' height='16px' />
+                </Tooltip>
+              </HStack>
+              <Text fontWeight={500} color='white'>
+                {NumberUtil.formatThousands(quotesYes?.outcomeTokenAmount, 6)}{' '}
+                {market.tokenTicker[defaultChain.id]}
               </Text>
             </HStack>
           </VStack>
@@ -428,7 +446,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
             <HStack justifyContent='space-between' w='full'>
               <HStack gap='4px'>
                 <Text fontWeight={500} color='white'>
-                  Ets. ROI
+                  Est. ROI
                 </Text>
                 <Tooltip
                 // label={
@@ -440,6 +458,24 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
               </HStack>
               <Text fontWeight={500} color='white'>
                 {NumberUtil.toFixed(quotesNo?.roi, 2)}%
+              </Text>
+            </HStack>
+            <HStack justifyContent='space-between' w='full'>
+              <HStack gap='4px'>
+                <Text fontWeight={500} color='white'>
+                  Return
+                </Text>
+                <Tooltip
+                // label={
+                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
+                // }
+                >
+                  <InfoIcon width='16px' height='16px' />
+                </Tooltip>
+              </HStack>
+              <Text fontWeight={500} color='white'>
+                {NumberUtil.formatThousands(quotesNo?.outcomeTokenAmount, 6)}{' '}
+                {market.tokenTicker[defaultChain.id]}
               </Text>
             </HStack>
           </VStack>
