@@ -94,27 +94,26 @@ const MainPage = () => {
   }, [markets, filteredMarkets, selectedSort])
 
   return (
-    <InfiniteScroll
-      dataLength={dataLength ?? 0}
-      next={fetchNextPage}
-      hasMore={hasNextPage}
-      loader={<h4></h4>}
-      scrollThreshold={0.1}
-      refreshFunction={fetchNextPage}
-      pullDownToRefresh
-    >
-      <MainLayout maxContentWidth={'unset'}>
-        <Box w={isMobile ? 'auto' : '664px'} ml={isMobile ? 'auto' : '200px'}>
-          <Divider bg='black' orientation='horizontal' h='3px' mb='16px' />
-          <TextWithPixels text={'Explore Limitless Prediction Markets'} fontSize={'32px'} gap={2} />
-          <Text color='black' fontSize={'14px'}>
-            Predict outcomes in crypto, tech, sports, and more. Use different tokens, participate in
-            transparent voting for upcoming markets, and engage in markets created by the community.
-            It’s all decentralized and secure.
-          </Text>
+    <MainLayout maxContentWidth={'unset'}>
+      <Box w={isMobile ? 'auto' : '664px'} ml={isMobile ? 'auto' : '200px'}>
+        <Divider bg='black' orientation='horizontal' h='3px' mb='16px' />
+        <TextWithPixels text={'Explore Limitless Prediction Markets'} fontSize={'32px'} gap={2} />
+        <Text color='black' fontSize={'14px'}>
+          Predict outcomes in crypto, tech, sports, and more. Use different tokens, participate in
+          transparent voting for upcoming markets, and engage in markets created by the community.
+          It’s all decentralized and secure.
+        </Text>
 
-          <SortFilter onChange={handleSelectSort} />
-
+        <SortFilter onChange={handleSelectSort} />
+        <InfiniteScroll
+          dataLength={dataLength ?? 0}
+          next={fetchNextPage}
+          hasMore={hasNextPage}
+          loader={<h4></h4>}
+          scrollThreshold={0.1}
+          refreshFunction={fetchNextPage}
+          pullDownToRefresh
+        >
           <VStack w={'full'} spacing={5} px={{ md: 14 }}>
             <VStack gap={2}>
               {sortedMarkets?.map((market) =>
@@ -129,9 +128,9 @@ const MainPage = () => {
               )}
             </VStack>
           </VStack>
-        </Box>
-      </MainLayout>
-    </InfiniteScroll>
+        </InfiniteScroll>
+      </Box>
+    </MainLayout>
   )
 }
 
