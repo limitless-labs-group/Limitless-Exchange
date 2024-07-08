@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { HStack, ButtonGroup, Button } from '@chakra-ui/react'
+import { HStack, ButtonGroup, Button, Flex } from '@chakra-ui/react'
 import { v4 as uuidv4 } from 'uuid'
 
 import { Sort } from '@/types'
@@ -25,41 +25,42 @@ export default function SortFilter({ onChange }: SortFilterProps) {
   }, [selectedSortFilter])
 
   return (
-    <HStack
-      spacing={2}
-      mt={'16px'}
-      mb={'24px'}
-      wrap={'wrap'}
-      alignItems={'start'}
-      w={'full'}
-      overflowX='auto'
-      zIndex={-1}
-    >
-      <ButtonGroup
-        variant='outline'
-        gap={0}
-        w='fit-content'
-        p='2px'
-        bg='grey.300'
-        borderRadius='2px'
+    <Flex zIndex={-1}>
+      <HStack
+        spacing={2}
+        mt={'16px'}
+        mb={'24px'}
+        wrap={'wrap'}
+        alignItems={'start'}
+        w={'full'}
+        overflowX='auto'
       >
-        {sortOptions.map((option) => (
-          <Button
-            variant='grey'
-            key={uuidv4()}
-            fontSize={isMobile ? '14px' : '12px'}
-            color={option === selectedSortFilter ? 'white' : 'black'}
-            bg={option === selectedSortFilter ? 'black' : 'unset'}
-            onClick={() => handleFilterItemClicked(option)}
-            rounded={0}
-            flex={1}
-            _hover={{ bg: option === selectedSortFilter ? 'black' : 'grey.200' }}
-            borderRadius='2px'
-          >
-            {option}
-          </Button>
-        ))}
-      </ButtonGroup>
-    </HStack>
+        <ButtonGroup
+          variant='outline'
+          gap={0}
+          w='fit-content'
+          p='2px'
+          bg='grey.300'
+          borderRadius='2px'
+        >
+          {sortOptions.map((option) => (
+            <Button
+              variant='grey'
+              key={uuidv4()}
+              fontSize={isMobile ? '14px' : '12px'}
+              color={option === selectedSortFilter ? 'white' : 'black'}
+              bg={option === selectedSortFilter ? 'black' : 'unset'}
+              onClick={() => handleFilterItemClicked(option)}
+              rounded={0}
+              flex={1}
+              _hover={{ bg: option === selectedSortFilter ? 'black' : 'grey.200' }}
+              borderRadius='2px'
+            >
+              {option}
+            </Button>
+          ))}
+        </ButtonGroup>
+      </HStack>
+    </Flex>
   )
 }
