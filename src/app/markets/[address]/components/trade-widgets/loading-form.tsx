@@ -1,13 +1,4 @@
-import {
-  CircularProgress,
-  CircularProgressLabel,
-  Spinner,
-  VStack,
-  Text,
-  HStack,
-} from '@chakra-ui/react'
-import { useEffect, useRef, useState } from 'react'
-import Loader from '@web3auth/ui/dist/types/components/Loader'
+import { Spinner, VStack, Text, HStack } from '@chakra-ui/react'
 import { useTradingService } from '@/services'
 import { Market } from '@/types'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
@@ -19,7 +10,7 @@ interface LoadingFormProps {
   outcomeIndex: number
 }
 
-export default function LoadingForm({ market, outcomeIndex }: LoadingFormProps) {
+export function LoadingForm({ market, outcomeIndex }: LoadingFormProps) {
   const { strategy, collateralAmount } = useTradingService()
 
   return (

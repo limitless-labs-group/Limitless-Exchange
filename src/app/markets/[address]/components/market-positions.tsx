@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { Market } from '@/types'
 import ChartIcon from '@/resources/icons/chart-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import PositionCard from '@/app/markets/[address]/components/position-card'
+import { PositionCard } from '@/app/markets/[address]/components'
 
 interface MarketPositionsProps {
   market: Market | null
