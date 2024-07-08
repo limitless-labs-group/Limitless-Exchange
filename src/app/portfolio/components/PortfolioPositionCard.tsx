@@ -72,14 +72,13 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   const ClaimButton = () => {
     return (
       <Button
-        w={isMobile ? 'full' : '163px'}
-        h={isMobile ? '32px' : '24px'}
-        bg={'grey.50'}
-        rounded={2}
+        variant='contained'
+        bg='white'
+        color='black'
         p={isMobile ? '8px 12px 8px 12px' : 'auto'}
-        leftIcon={<Icon as={WinIcon} color={'grey.800'} />}
         onClick={() => router.push(marketURI)}
       >
+        <Icon as={WinIcon} color={'grey.800'} />
         Claim{' '}
         {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
           market?.tokenTicker[defaultChain.id]
