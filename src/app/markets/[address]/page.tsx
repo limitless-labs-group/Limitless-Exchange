@@ -121,13 +121,20 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
                 </HStack>
               </MenuButton>
               <MenuList borderRadius='2px' w='full' zIndex={2}>
-                <MenuItem onClick={() => window.open(castURI, '_blank', 'noopener')}>
+                <MenuItem
+                  onClick={() => window.open(castURI, '_blank', 'noopener')}
+                  _focus={{ bg: 'grey.200' }}
+                  _hover={{ bg: 'grey.200' }}
+                >
                   <HStack gap='4px'>
                     <WarpcastIcon />
                     <Text fontWeight={500}>Warpcast</Text>
                   </HStack>
                 </MenuItem>
-                <MenuItem onClick={() => window.open(tweetURI, '_blank', 'noopener')}>
+                <MenuItem
+                  onClick={() => window.open(tweetURI, '_blank', 'noopener')}
+                  _hover={{ bg: 'grey.200' }}
+                >
                   <HStack gap='4px'>
                     <FaXTwitter size={'16px'} />
                     <Text fontWeight={500}>X</Text>

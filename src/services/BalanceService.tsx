@@ -131,6 +131,12 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         balanceResult = supportedTokens?.map((token) => {
           const result = results.results[token.address]
           const balance = BigInt(result.callsReturnContext[0].returnValues[0].hex)
+          let formatted = formatUnits(balance, token.decimals)
+
+          if (Number(formatted) < 0.00001) {
+            //Filter small balances
+            formatted = '0'
+          }
 
           return {
             symbol: token.symbol,
@@ -138,7 +144,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
             name: token.name,
             decimals: token.decimals,
             value: balance,
-            formatted: formatUnits(balance, token.decimals),
+            formatted: formatted,
             image: token.logoUrl,
             contractAddress: token.address,
             price: marketTokensPrices ? marketTokensPrices[token.priceOracleId].usd : 0,
