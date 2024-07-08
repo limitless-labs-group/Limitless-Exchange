@@ -37,6 +37,8 @@ import { useWeb3Service } from '@/services/Web3Service'
 import { publicClient } from '@/providers'
 import { Toast } from '@/components/common/toast'
 import { ToastWithdraw } from '@/components/common/toast-withdraw'
+import { Multicall } from 'ethereum-multicall'
+import { ethers } from 'ethers'
 
 interface IBalanceService {
   balanceOfSmartWallet: GetBalanceResult[] | undefined
@@ -104,57 +106,60 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      const balances = await Promise.allSettled(
-        supportedTokens
-          ? supportedTokens.map(async (supportedToken) => {
-              const contract = getContract({
-                address: supportedToken.address,
-                abi: supportedToken.priceOracleId === MarketTokensIds.WETH ? wethABI : erc20Abi,
-                client: publicClient,
-              })
-              try {
-                let newBalanceBI = (await contract.read.balanceOf([walletAddress])) as bigint
-                // small balance to zero
-                if (newBalanceBI < parseUnits('0.000001', supportedToken.decimals)) {
-                  newBalanceBI = 0n
-                }
-
-                return {
-                  symbol: supportedToken.symbol,
-                  id: supportedToken.priceOracleId,
-                  name: supportedToken.name,
-                  decimals: supportedToken.decimals,
-                  value: newBalanceBI,
-                  formatted: formatUnits(newBalanceBI, supportedToken.decimals),
-                  image: supportedToken.logoUrl,
-                  contractAddress: supportedToken.address,
-                  price: marketTokensPrices
-                    ? marketTokensPrices[supportedToken.priceOracleId].usd
-                    : 0,
-                } as GetBalanceResult
-              } catch (e) {
-                return {
-                  symbol: supportedToken.symbol,
-                  id: supportedToken.priceOracleId,
-                  name: supportedToken.name,
-                  decimals: supportedToken.decimals,
-                  value: 0n,
-                  formatted: formatUnits(0n, supportedToken.decimals),
-                  image: supportedToken.logoUrl,
-                  contractAddress: supportedToken.address,
-                  price: marketTokensPrices
-                    ? marketTokensPrices[supportedToken.priceOracleId].usd
-                    : 0,
-                } as GetBalanceResult
-              }
-            })
-          : []
-      )
-
-      const balanceResult: GetBalanceResult[] = balances.map((balance) => {
-        // @ts-ignore
-        return balance.value
+      const multicall = new Multicall({
+        ethersProvider: new ethers.providers.JsonRpcProvider(
+          defaultChain.rpcUrls.default.http.toString()
+        ),
+        tryAggregate: true,
       })
+
+      //@ts-ignore
+      const contractCallContext: ContractCallContext[] = supportedTokens?.map((token) => ({
+        reference: token.address,
+        contractAddress: token.address,
+        abi: token.priceOracleId === MarketTokensIds.WETH ? wethABI : erc20Abi,
+        calls: [
+          { reference: 'balance', methodName: 'balanceOf', methodParameters: [walletAddress] },
+        ],
+      }))
+      let balanceResult: GetBalanceResult[]
+
+      try {
+        const results = await multicall.call(contractCallContext)
+
+        //@ts-ignore
+        balanceResult = supportedTokens?.map((token) => {
+          const result = results.results[token.address]
+          const balance = BigInt(result.callsReturnContext[0].returnValues[0].hex)
+
+          return {
+            symbol: token.symbol,
+            id: token.priceOracleId,
+            name: token.name,
+            decimals: token.decimals,
+            value: balance,
+            formatted: formatUnits(balance, token.decimals),
+            image: token.logoUrl,
+            contractAddress: token.address,
+            price: marketTokensPrices ? marketTokensPrices[token.priceOracleId].usd : 0,
+          } as GetBalanceResult
+        })
+      } catch (err) {
+        //@ts-ignore
+        balanceResult = supportedTokens?.map((token) => {
+          return {
+            symbol: token.symbol,
+            id: token.priceOracleId,
+            name: token.name,
+            decimals: token.decimals,
+            value: 0n,
+            formatted: formatUnits(0n, token.decimals),
+            image: token.logoUrl,
+            contractAddress: token.address,
+            price: marketTokensPrices ? marketTokensPrices[token.priceOracleId].usd : 0,
+          } as GetBalanceResult
+        })
+      }
 
       log.success('ON_BALANCE_SUCC', walletAddress, balanceResult)
 
