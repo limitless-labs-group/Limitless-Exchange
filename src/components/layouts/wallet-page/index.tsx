@@ -111,7 +111,8 @@ export default function WalletPage({ onClose }: WalletPageProps) {
                 <Image src={balanceItem.image} alt='token' width={16} height={16} />
                 <Text fontWeight={500}>{balanceItem.symbol}</Text>
               </HStack>
-              <Text fontWeight={500}>{balanceItem.formatted}</Text>
+
+              <Text fontWeight={500}>{NumberUtil.formatThousands(balanceItem.formatted, 4)}</Text>
             </HStack>
             <Divider my='12px' bg='grey.400' orientation='horizontal' h='1px' />
             <HStack justifyContent='space-between' mb='8px'>
