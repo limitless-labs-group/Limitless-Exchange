@@ -167,7 +167,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
                 <Text color='grey.500'>{market?.creator.name}</Text>
               </Link>
             </HStack>
-            <HStack gap='8px'>
+            <HStack gap='8px' overflowX={'scroll'} wrap={'wrap'}>
               {market?.tags?.map((tag) => (
                 <Text color='grey.500' key={tag}>
                   #{tag}
