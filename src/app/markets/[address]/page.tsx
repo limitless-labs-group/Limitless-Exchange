@@ -9,34 +9,49 @@ import {
   Button,
   Image as ChakraImage,
   useDisclosure,
+  MenuButton,
+  Menu,
+  MenuItem,
+  MenuList,
 } from '@chakra-ui/react'
-import { useEffect, useMemo } from 'react'
-import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
-import { MarketPriceChart } from '@/app/markets/[address]/components/market-price-chart'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  createMarketShareUrls,
+  OpenEvent,
+  PageOpenedMetadata,
+  useAmplitude,
+  useTradingService,
+} from '@/services'
 import { useMarket } from '@/services/MarketsService'
-import ApproveModal from '@/components/common/ApproveModal'
+import ApproveModal from '@/components/common/modals/approve-modal'
 import { useToken } from '@/hooks/use-token'
 import { defaultChain } from '@/constants'
 import { useRouter } from 'next/navigation'
-import TextWithPixels from 'src/components/common-new/text-with-pixels'
+import TextWithPixels from '@/components/common/text-with-pixels'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
 import DescriptionIcon from '@/resources/icons/description-icon.svg'
-import { MarketPositions } from '@/app/markets/[address]/components/market-positions'
+import { isMobile } from 'react-device-detect'
+import WarpcastIcon from '@/resources/icons/warpcast-icon.svg'
+import { FaXTwitter } from 'react-icons/fa6'
 import {
   MarketClaimingForm,
   MarketMetadata,
+  MarketPositions,
+  MarketPriceChart,
   MarketTradingForm,
-} from '@/app/markets/[address]/components'
-import { isMobile } from 'react-device-detect'
-import MarketTradingModal from '@/app/markets/[address]/components/market-trading-modal'
+  MarketTradingModal,
+} from './components'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
+  const [isShareMenuOpen, setShareMenuOpen] = useState(false)
   /**
    * ANALYTICS
    */
   const { trackOpened } = useAmplitude()
   const router = useRouter()
+  const market = useMarket(params.address)
+  const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices)
 
   const {
     isOpen: tradeModalOpened,
@@ -50,11 +65,6 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
       market: params.address,
     })
   }, [])
-
-  /**
-   * SET MARKET
-   */
-  const market = useMarket(params.address)
 
   const { isLoading: isCollateralLoading } = useToken(market?.collateralToken[defaultChain.id])
 
@@ -93,14 +103,38 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
         <Box w={isMobile ? 'full' : '664px'}>
           <Divider bg='black' orientation='horizontal' h='3px' />
           <HStack justifyContent='space-between' mt='10px' mb='24px'>
-            <Button variant='grey' onClick={() => router.push('/')}>
+            <Button variant='grey' onClick={() => router.back()}>
               <ArrowLeftIcon width={16} height={16} />
               Back
             </Button>
-            <Button variant='grey'>
-              <ShareIcon width={16} height={16} />
-              Share
-            </Button>
+            <Menu isOpen={isShareMenuOpen} onClose={() => setShareMenuOpen(false)}>
+              <MenuButton
+                py='4px'
+                px='8px'
+                borderRadius='2px'
+                bg='grey.300'
+                onClick={() => setShareMenuOpen(true)}
+              >
+                <HStack gap='4px'>
+                  <ShareIcon width={16} height={16} />
+                  <Text fontWeight={500}>Share</Text>
+                </HStack>
+              </MenuButton>
+              <MenuList borderRadius='2px' w='full'>
+                <MenuItem onClick={() => window.open(castURI, '_blank', 'noopener')}>
+                  <HStack gap='4px'>
+                    <WarpcastIcon />
+                    <Text fontWeight={500}>Warpcast</Text>
+                  </HStack>
+                </MenuItem>
+                <MenuItem onClick={() => window.open(tweetURI, '_blank', 'noopener')}>
+                  <HStack gap='4px'>
+                    <FaXTwitter size={'16px'} />
+                    <Text fontWeight={500}>X</Text>
+                  </HStack>
+                </MenuItem>
+              </MenuList>
+            </Menu>
           </HStack>
           <Box>
             <TextWithPixels text={market?.title || ''} fontSize={'32px'} />

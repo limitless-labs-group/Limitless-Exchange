@@ -1,5 +1,5 @@
 import { Box, Divider, useTheme } from '@chakra-ui/react'
-import TextWithPixels from 'src/components/common-new/text-with-pixels'
+import TextWithPixels from '@/components/common/text-with-pixels'
 import Marquee from 'react-fast-marquee'
 
 export default function HeaderMarquee() {

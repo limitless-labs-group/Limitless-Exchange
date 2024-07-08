@@ -18,7 +18,7 @@ import {
 import Image from 'next/image'
 import React from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
-import { LogInButton } from '@/components'
+
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
@@ -36,8 +36,9 @@ import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { cutUsername } from '@/utils/string'
 import { useRouter } from 'next/navigation'
 import WalletPage from '@/components/layouts/wallet-page'
-import TokenFilter from '@/components/common/TokenFilter'
+import TokenFilter from '@/components/common/token-filter'
 import { useWeb3Service } from '@/services/Web3Service'
+import { LogInButton } from '@/components/common/login-button'
 
 export default function Sidebar() {
   const theme = useTheme()
