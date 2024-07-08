@@ -122,6 +122,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       w={'full'}
       bg={market?.expired ? 'green.500' : 'grey.200'}
       p={'16px'}
+      _hover={{ bg: 'grey.400', boxShadow: 'md' }}
       {...props}
     >
       <Stack spacing={'8px'}>
