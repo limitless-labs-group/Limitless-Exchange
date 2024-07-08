@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { HStack, ButtonGroup, Button } from '@chakra-ui/react'
+import { HStack, ButtonGroup, Button, Flex } from '@chakra-ui/react'
 import { v4 as uuidv4 } from 'uuid'
 
 import { Sort } from '@/types'
