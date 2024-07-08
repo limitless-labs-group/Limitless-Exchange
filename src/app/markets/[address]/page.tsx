@@ -120,7 +120,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
                   <Text fontWeight={500}>Share</Text>
                 </HStack>
               </MenuButton>
-              <MenuList borderRadius='2px' w='full'>
+              <MenuList borderRadius='2px' w='full' zIndex={2}>
                 <MenuItem
                   onClick={() => window.open(castURI, '_blank', 'noopener')}
                   _focus={{ bg: 'grey.200' }}
