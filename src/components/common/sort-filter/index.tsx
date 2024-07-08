@@ -25,42 +25,40 @@ export default function SortFilter({ onChange }: SortFilterProps) {
   }, [selectedSortFilter])
 
   return (
-    <Flex zIndex={-1}>
-      <HStack
-        spacing={2}
-        mt={'16px'}
-        mb={'24px'}
-        wrap={'wrap'}
-        alignItems={'start'}
-        w={'full'}
-        overflowX='auto'
+    <HStack
+      spacing={2}
+      mt={'16px'}
+      mb={'24px'}
+      wrap={'wrap'}
+      alignItems={'start'}
+      w={'full'}
+      overflowX='auto'
+    >
+      <ButtonGroup
+        variant='outline'
+        gap={0}
+        w='fit-content'
+        p='2px'
+        bg='grey.300'
+        borderRadius='2px'
       >
-        <ButtonGroup
-          variant='outline'
-          gap={0}
-          w='fit-content'
-          p='2px'
-          bg='grey.300'
-          borderRadius='2px'
-        >
-          {sortOptions.map((option) => (
-            <Button
-              variant='grey'
-              key={uuidv4()}
-              fontSize={isMobile ? '14px' : '12px'}
-              color={option === selectedSortFilter ? 'white' : 'black'}
-              bg={option === selectedSortFilter ? 'black' : 'unset'}
-              onClick={() => handleFilterItemClicked(option)}
-              rounded={0}
-              flex={1}
-              _hover={{ bg: option === selectedSortFilter ? 'black' : 'grey.200' }}
-              borderRadius='2px'
-            >
-              {option}
-            </Button>
-          ))}
-        </ButtonGroup>
-      </HStack>
-    </Flex>
+        {sortOptions.map((option) => (
+          <Button
+            variant='grey'
+            key={uuidv4()}
+            fontSize={isMobile ? '14px' : '12px'}
+            color={option === selectedSortFilter ? 'white' : 'black'}
+            bg={option === selectedSortFilter ? 'black' : 'unset'}
+            onClick={() => handleFilterItemClicked(option)}
+            rounded={0}
+            flex={1}
+            _hover={{ bg: option === selectedSortFilter ? 'black' : 'grey.200' }}
+            borderRadius='2px'
+          >
+            {option}
+          </Button>
+        ))}
+      </ButtonGroup>
+    </HStack>
   )
 }
