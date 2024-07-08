@@ -37,7 +37,7 @@ export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketC
       justifyContent={'space-between'}
       onClick={() => router.push(marketURI)}
       w={'full'}
-      _hover={{ bg: 'grey.400', boxShadow: 'md' }}
+      _hover={{ bg: 'grey.300', boxShadow: 'md' }}
       {...props}
     >
       <Stack w={'full'} spacing={3}>
