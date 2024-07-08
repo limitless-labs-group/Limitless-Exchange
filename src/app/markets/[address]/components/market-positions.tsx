@@ -32,10 +32,6 @@ export const MarketPositions = ({ market }: MarketPositionsProps) => {
           <ChartIcon width='16px' height='16px' />
           <Text fontWeight={700}>Portfolio</Text>
         </HStack>
-        <HStack color='black' gap='4px'>
-          <Text fontWeight={700}>{market?.tokenTicker[defaultChain.id]}</Text>
-          <ChevronDownIcon width='16px' height='16px' />
-        </HStack>
       </Flex>
       <VStack gap='8px' flexDir='column' w='full'>
         {positions?.map((position, index) => (
