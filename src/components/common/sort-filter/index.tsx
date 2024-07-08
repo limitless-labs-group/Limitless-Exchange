@@ -33,6 +33,7 @@ export default function SortFilter({ onChange }: SortFilterProps) {
       alignItems={'start'}
       w={'full'}
       overflowX='auto'
+      zIndex={1}
     >
       <ButtonGroup
         variant='outline'
