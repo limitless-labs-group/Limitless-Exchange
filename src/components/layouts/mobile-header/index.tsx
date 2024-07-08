@@ -184,7 +184,17 @@ export default function MobileHeader() {
                           </HStack>
                         </Button>
                       </VStack>
-                      <Button variant='contained' w='full' h='32px'>
+                      <Button
+                        variant='contained'
+                        w='full'
+                        h='32px'
+                        onClick={() => {
+                          if (client !== 'eoa') {
+                            onToggleWalletModal()
+                            onToggleUserMenu()
+                          }
+                        }}
+                      >
                         Top Up
                       </Button>
                       <Button

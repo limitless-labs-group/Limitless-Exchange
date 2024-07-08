@@ -133,7 +133,9 @@ export const chakraTheme = ChakraTheme({
         contained: {
           bg: 'blue.500',
           color: 'white',
+          px: '8px',
           h: '24px',
+          gap: '8px',
           _disabled: {
             _hover: {
               bg: 'blue.500 !important',
