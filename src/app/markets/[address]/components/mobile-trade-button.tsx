@@ -66,8 +66,6 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
     }
   }, [hasPositions, market?.tokenTicker, positionToClaim, status])
 
-  console.log(hasPositions)
-
   const buttonColor = useMemo(() => {
     if (!positionToClaim) {
       return 'black'
@@ -101,12 +99,24 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
         Market is closed
         {buttonText}
       </Button>
+      {!isClaimMenuOpen && (
+        <Box
+          position='fixed'
+          top={0}
+          left={0}
+          bottom={0}
+          w='full'
+          zIndex={100}
+          bg='rgba(0, 0, 0, 0.3)'
+          mt='20px'
+        ></Box>
+      )}
       <Slide
         direction='bottom'
         in={isClaimMenuOpen}
         style={{
           zIndex: 100,
-          background: 'rgba(0, 0, 0, 0.3)',
+          // background: 'rgba(0, 0, 0, 0.3)',
           marginTop: '20px',
           height: '100%',
           display: 'flex',
