@@ -7,12 +7,22 @@ import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import { Market } from '@/types'
 import { isMobile } from 'react-device-detect'
+import { useMarketData } from '@/hooks'
+import { useLimitlessApi } from '@/services'
+import { NumberUtil } from '@/utils'
 
 interface MarketMetadataProps {
   market: Market | null
 }
 
 export const MarketMetadata = ({ market }: MarketMetadataProps) => {
+  const { supportedTokens } = useLimitlessApi()
+  const { outcomeTokensBuyPrice: outcomeTokensBuyPriceCurrent } = useMarketData({
+    marketAddress: market?.address[defaultChain.id],
+    collateralToken: supportedTokens?.find(
+      (token) => token.address === market?.collateralToken[defaultChain.id]
+    ),
+  })
   const stats = [
     {
       title: 'Liquidity',
@@ -40,12 +50,16 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
         <HStack gap='24px'>
           <HStack gap={'4px'} color='green.500'>
             <ThumbsUpIcon width={16} height={16} />
-            <Text fontWeight={500}>{market?.prices[0]}%</Text>
+            <Text fontWeight={500}>
+              {NumberUtil.toFixed((outcomeTokensBuyPriceCurrent?.[0] || 0) * 100, 2)}%
+            </Text>
             <Text fontWeight={500}>Yes</Text>
           </HStack>
           <HStack gap={'4px'} color='red.500'>
             <ThumbsDownIcon width={16} height={16} />
-            <Text fontWeight={500}>{market?.prices[1]}%</Text>
+            <Text fontWeight={500}>
+              {NumberUtil.toFixed((outcomeTokensBuyPriceCurrent?.[1] || 0) * 100, 2)}%
+            </Text>
             <Text fontWeight={500}>No</Text>
           </HStack>
         </HStack>
