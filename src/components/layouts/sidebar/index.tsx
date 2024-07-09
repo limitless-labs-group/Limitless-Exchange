@@ -78,14 +78,16 @@ export default function Sidebar() {
         </Button>
         {isConnected && (
           <VStack my='16px' w='full' gap='8px'>
-            <Button variant='transparent' onClick={handleOpenWalletPage} w='full'>
-              <HStack w='full'>
-                <WalletIcon width={16} height={16} />
-                <Text fontWeight={500} fontSize='14px'>
-                  {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-                </Text>
-              </HStack>
-            </Button>
+            {client !== 'eoa' && (
+              <Button variant='transparent' onClick={handleOpenWalletPage} w='full'>
+                <HStack w='full'>
+                  <WalletIcon width={16} height={16} />
+                  <Text fontWeight={500} fontSize='14px'>
+                    {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+                  </Text>
+                </HStack>
+              </Button>
+            )}
             <Button variant='transparent' onClick={() => router.push('/portfolio')} w='full'>
               <HStack w='full'>
                 <PortfolioIcon width={16} height={16} />

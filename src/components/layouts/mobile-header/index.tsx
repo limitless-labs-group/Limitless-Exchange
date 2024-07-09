@@ -168,49 +168,49 @@ export default function MobileHeader() {
                             </HStack>
                           </HStack>
                         </Button>
-                        <Button
-                          variant='transparent'
-                          w='full'
-                          mt='8px'
-                          onClick={() => {
-                            if (client !== 'eoa') {
+                        {client !== 'eoa' && (
+                          <Button
+                            variant='transparent'
+                            w='full'
+                            mt='8px'
+                            onClick={() => {
                               onToggleWalletModal()
                               onToggleUserMenu()
-                            }
-                          }}
-                        >
-                          <HStack justifyContent='space-between' w='full'>
-                            <HStack color='grey.500' gap='4px'>
-                              <WalletIcon width={16} height={16} />
-                              <Text fontWeight={500} fontSize='16px'>
-                                Wallet
-                              </Text>
-                            </HStack>
+                            }}
+                          >
+                            <HStack justifyContent='space-between' w='full'>
+                              <HStack color='grey.500' gap='4px'>
+                                <WalletIcon width={16} height={16} />
+                                <Text fontWeight={500} fontSize='16px'>
+                                  Wallet
+                                </Text>
+                              </HStack>
 
-                            <HStack gap='4px'>
-                              <Text fontWeight={500}>
-                                {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-                              </Text>
-                              <Box transform='rotate(270deg)' color='grey.500'>
-                                <ChevronDownIcon width={16} height={16} />
-                              </Box>
+                              <HStack gap='4px'>
+                                <Text fontWeight={500}>
+                                  {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+                                </Text>
+                                <Box transform='rotate(270deg)' color='grey.500'>
+                                  <ChevronDownIcon width={16} height={16} />
+                                </Box>
+                              </HStack>
                             </HStack>
-                          </HStack>
-                        </Button>
+                          </Button>
+                        )}
                       </VStack>
-                      <Button
-                        variant='contained'
-                        w='full'
-                        h='32px'
-                        onClick={() => {
-                          if (client !== 'eoa') {
+                      {client !== 'eoa' && (
+                        <Button
+                          variant='contained'
+                          w='full'
+                          h='32px'
+                          onClick={() => {
                             onToggleWalletModal()
                             onToggleUserMenu()
-                          }
-                        }}
-                      >
-                        Top Up
-                      </Button>
+                          }}
+                        >
+                          Top Up
+                        </Button>
+                      )}
                       <Button
                         variant='grey'
                         w='full'
