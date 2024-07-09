@@ -60,34 +60,36 @@ export default function TokenFilterMobile() {
                 <Text fontWeight={500}>/{category}</Text>
               </Button>
             ))
-          : supportedTokens?.map((token) => (
-              <Button
-                bg={
-                  selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                    ? 'black'
-                    : 'grey.300'
-                }
-                color={
-                  selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                    ? 'white'
-                    : 'black'
-                }
-                variant='grey'
-                key={token.symbol}
-                onClick={() => handleFilterItemClicked(token)}
-              >
-                <Text
+          : supportedTokens
+              ?.filter((token) => !['ONCHAIN', 'MFER', 'BETS'].includes(token.symbol))
+              .map((token) => (
+                <Button
+                  bg={
+                    selectedFilterTokens.findLast((_token) => _token.address === token.address)
+                      ? 'black'
+                      : 'grey.300'
+                  }
                   color={
                     selectedFilterTokens.findLast((_token) => _token.address === token.address)
                       ? 'white'
                       : 'black'
                   }
-                  fontWeight={500}
+                  variant='grey'
+                  key={token.symbol}
+                  onClick={() => handleFilterItemClicked(token)}
                 >
-                  /{token.symbol}
-                </Text>
-              </Button>
-            ))}
+                  <Text
+                    color={
+                      selectedFilterTokens.findLast((_token) => _token.address === token.address)
+                        ? 'white'
+                        : 'black'
+                    }
+                    fontWeight={500}
+                  >
+                    /{token.symbol}
+                  </Text>
+                </Button>
+              ))}
       </HStack>
       <Slide
         direction='left'

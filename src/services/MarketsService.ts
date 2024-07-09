@@ -8,7 +8,7 @@ import { defaultChain } from '@/constants'
 import { Address, formatUnits, parseUnits } from 'viem'
 import { fixedProductMarketMakerABI } from '@/contracts'
 
-const LIMIT_PER_PAGE = 10
+const LIMIT_PER_PAGE = 20
 
 /**
  * Fetches and manages paginated active market data using the `useInfiniteQuery` hook.
@@ -51,16 +51,16 @@ export function useMarkets() {
               methodName: 'calcBuyAmount',
               methodParameters: [collateralAmountBI.toString(), 1],
             },
-            {
-              reference: 'calcSellAmountYes',
-              methodName: 'calcSellAmount',
-              methodParameters: [collateralAmountBI.toString(), 0],
-            },
-            {
-              reference: 'calcSellAmountNo',
-              methodName: 'calcSellAmount',
-              methodParameters: [collateralAmountBI.toString(), 1],
-            },
+            // {
+            //   reference: 'calcSellAmountYes',
+            //   methodName: 'calcSellAmount',
+            //   methodParameters: [collateralAmountBI.toString(), 0],
+            // },
+            // {
+            //   reference: 'calcSellAmountNo',
+            //   methodName: 'calcSellAmount',
+            //   methodParameters: [collateralAmountBI.toString(), 1],
+            // },
           ],
         }
       })
@@ -82,34 +82,34 @@ export function useMarkets() {
 
         const outcomeTokenBuyAmountYesBI = BigInt(result[0].returnValues[0].hex)
         const outcomeTokenBuyAmountNoBI = BigInt(result[1].returnValues[0].hex)
-        const outcomeTokenSellAmountYesBI = BigInt(result[2].returnValues[0].hex)
-        const outcomeTokenSellAmountNoBI = BigInt(result[3].returnValues[0].hex)
+        // const outcomeTokenSellAmountYesBI = BigInt(result[2].returnValues[0].hex)
+        // const outcomeTokenSellAmountNoBI = BigInt(result[3].returnValues[0].hex)
 
         const outcomeTokenBuyAmountYes = formatUnits(outcomeTokenBuyAmountYesBI, collateralDecimals)
         const outcomeTokenBuyAmountNo = formatUnits(outcomeTokenBuyAmountNoBI, collateralDecimals)
-        const outcomeTokenSellAmountYes = formatUnits(
-          outcomeTokenSellAmountYesBI,
-          collateralDecimals
-        )
-        const outcomeTokenSellAmountNo = formatUnits(outcomeTokenSellAmountNoBI, collateralDecimals)
+        // const outcomeTokenSellAmountYes = formatUnits(
+        //   outcomeTokenSellAmountYesBI,
+        //   collateralDecimals
+        // )
+        // const outcomeTokenSellAmountNo = formatUnits(outcomeTokenSellAmountNoBI, collateralDecimals)
 
         const outcomeTokenBuyPriceYes = Number(collateralAmount) / Number(outcomeTokenBuyAmountYes)
         const outcomeTokenBuyPriceNo = Number(collateralAmount) / Number(outcomeTokenBuyAmountNo)
-        const outcomeTokenSellPriceYes =
-          Number(collateralAmount) / Number(outcomeTokenSellAmountYes)
-        const outcomeTokenSellPriceNo = Number(collateralAmount) / Number(outcomeTokenSellAmountNo)
+        // const outcomeTokenSellPriceYes =
+        //   Number(collateralAmount) / Number(outcomeTokenSellAmountYes)
+        // const outcomeTokenSellPriceNo = Number(collateralAmount) / Number(outcomeTokenSellAmountNo)
 
         const buySum = outcomeTokenBuyPriceYes + outcomeTokenBuyPriceNo
         const outcomeTokensBuyPercentYes = +((outcomeTokenBuyPriceYes / buySum) * 100).toFixed(1)
         const outcomeTokensBuyPercentNo = +((outcomeTokenBuyPriceNo / buySum) * 100).toFixed(1)
 
-        const sellSum = outcomeTokenSellPriceYes + outcomeTokenSellPriceNo
-        const outcomeTokensSellPercentYes = +((outcomeTokenSellPriceYes / sellSum) * 100).toFixed(1)
-        const outcomeTokensSellPercentNo = +((outcomeTokenSellPriceNo / sellSum) * 100).toFixed(1)
+        // const sellSum = outcomeTokenSellPriceYes + outcomeTokenSellPriceNo
+        // const outcomeTokensSellPercentYes = +((outcomeTokenSellPriceYes / sellSum) * 100).toFixed(1)
+        // const outcomeTokensSellPercentNo = +((outcomeTokenSellPriceNo / sellSum) * 100).toFixed(1)
 
         acc.set(marketAddress, {
           buyYesNo: [outcomeTokensBuyPercentYes, outcomeTokensBuyPercentNo],
-          sellYesNo: [outcomeTokensSellPercentYes, outcomeTokensSellPercentNo],
+          // sellYesNo: [outcomeTokensSellPercentYes, outcomeTokensSellPercentNo],
         })
 
         return acc
