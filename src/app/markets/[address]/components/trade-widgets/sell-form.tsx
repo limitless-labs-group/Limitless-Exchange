@@ -198,6 +198,9 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
             flexDir='column'
             onClick={() => setOutcomeChoice('yes')}
             borderRadius='2px'
+            _hover={{
+              backgroundColor: 'grey.400',
+            }}
           >
             <HStack
               color={outcomeChoice === 'yes' ? 'black' : 'white'}

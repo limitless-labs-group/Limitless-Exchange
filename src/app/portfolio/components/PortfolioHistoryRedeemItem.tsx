@@ -1,7 +1,7 @@
 import { defaultChain } from '@/constants'
 import { HistoryRedeem } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { Box, HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { useMarketByConditionId } from '@/services/MarketsService'
@@ -20,6 +20,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
    * MARKET DATA
    */
   const market = useMarketByConditionId(redeem.conditionId)
+  console.log(redeem)
 
   return (
     <Tr pos={'relative'} {...props}>
@@ -44,17 +45,19 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
 
       <Td px={2}>Claim</Td>
 
-      {/* Amount */}
-      <Td px={2} isNumeric>
-        <Text fontWeight={'bold'}>
-          {`${NumberUtil.formatThousands(Number(redeem.collateralAmount ?? 0), 6)} 
+      <Td px={2} isNumeric colSpan={2}>
+        <Box textAlign='center' verticalAlign='middle'>
+          <Text fontWeight={'bold'}>
+            {/* that's temporal solution since the bug is on indexer side. it returns not formatted values that's why we need to * on 10e12 */}
+            {`${NumberUtil.formatThousands(
+              (market?.tokenTicker[defaultChain.id] === 'USDC'
+                ? Math.pow(10, 12) * Number(redeem.collateralAmount)
+                : Number(redeem.collateralAmount)) ?? 0,
+              4
+            )} 
           ${market?.tokenTicker[defaultChain.id]}`}
-        </Text>
-      </Td>
-
-      {/* Contracts */}
-      <Td px={2} isNumeric>
-        {NumberUtil.toFixed(redeem.collateralAmount, 6)}
+          </Text>
+        </Box>
       </Td>
 
       {/* Tx */}

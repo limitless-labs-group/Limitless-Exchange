@@ -13,6 +13,7 @@ import {
   Menu,
   MenuItem,
   MenuList,
+  Link,
 } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import {
@@ -155,6 +156,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
                 <MenuItem
                   onClick={() => window.open(tweetURI, '_blank', 'noopener')}
                   _hover={{ bg: 'grey.200' }}
+                  _focus={{ bg: 'grey.200' }}
                 >
                   <HStack gap='4px'>
                     <FaXTwitter size={'16px'} />
@@ -182,9 +184,11 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
                 alt='creator'
                 borderRadius={'2px'}
               />
-              <Text color='grey.500'>{market?.creator.name}</Text>
+              <Link href={market?.creator.link}>
+                <Text color='grey.500'>{market?.creator.name}</Text>
+              </Link>
             </HStack>
-            <HStack gap='8px'>
+            <HStack gap='8px' overflowX={'scroll'} wrap={'wrap'}>
               {market?.tags?.map((tag) => (
                 <Text color='grey.500' key={tag}>
                   #{tag}
