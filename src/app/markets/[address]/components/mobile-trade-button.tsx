@@ -31,11 +31,14 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
   const { isOpen: isClaimMenuOpen, onToggle: toggleClaimMenu } = useDisclosure()
 
   const hasPositions = useMemo(() => {
-    return positions?.filter(
+    const position = positions?.filter(
       (position) =>
         market?.expired &&
         position.market.id.toLowerCase() === market?.address[defaultChain.id].toLowerCase()
     )
+    if (position?.length) {
+      return position
+    }
   }, [market?.address, market?.expired, positions])
 
   const buttonText = useMemo(() => {
@@ -62,6 +65,8 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
       return <Text fontWeight={500}>Processing claim</Text>
     }
   }, [hasPositions, market?.tokenTicker, positionToClaim, status])
+
+  console.log(hasPositions)
 
   const buttonColor = useMemo(() => {
     if (!positionToClaim) {
