@@ -7,6 +7,14 @@ import { inputTheme } from '@/styles/input'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
+const commonButtonProps = {
+  fontSize: '14px',
+  py: '4px',
+  px: '8px',
+  fontWeight: 500,
+  borderRadius: '2px',
+  h: '24px',
+}
 export const colors = {
   brand: '#2492ff',
   bg: 'white',
@@ -134,6 +142,7 @@ export const chakraTheme = ChakraTheme({
           height: '52px',
         },
         contained: {
+          ...commonButtonProps,
           bg: 'blue.500',
           color: 'white',
           px: '8px',
@@ -147,13 +156,12 @@ export const chakraTheme = ChakraTheme({
         },
         grey: {
           background: 'grey.300',
-          h: '24px',
-          px: '8px',
+          ...commonButtonProps,
         },
         transparent: {
           background: 'unset',
-          h: '24px',
-          p: 0,
+          ...commonButtonProps,
+          px: 0,
           gap: '8px',
           _focus: {
             bg: 'unset',

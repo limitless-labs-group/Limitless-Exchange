@@ -21,6 +21,7 @@ import {
   OpenEvent,
   PageOpenedMetadata,
   useAmplitude,
+  useHistory,
   useTradingService,
 } from '@/services'
 import { useMarket } from '@/services/MarketsService'
@@ -42,7 +43,9 @@ import {
   MarketPriceChart,
   MarketTradingForm,
   MarketTradingModal,
+  MobileTradeButton,
 } from './components'
+import { useAccount } from 'wagmi'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -50,25 +53,12 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
    * ANALYTICS
    */
   const { trackOpened } = useAmplitude()
+  const { positions } = useHistory()
+  const { isConnected } = useAccount()
   const router = useRouter()
   const market = useMarket(params.address)
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices)
-
-  const {
-    isOpen: tradeModalOpened,
-    onOpen: openTradeModal,
-    onClose: closeTradeModal,
-  } = useDisclosure()
-
-  useEffect(() => {
-    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
-      page: 'Market Page',
-      market: params.address,
-    })
-  }, [])
-
   const { isLoading: isCollateralLoading } = useToken(market?.collateralToken[defaultChain.id])
-
   const {
     setMarket,
     market: previousMarket,
@@ -76,16 +66,11 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
     strategy,
     approveSell,
   } = useTradingService()
-
-  useEffect(() => {
-    if (market != previousMarket) {
-      setMarket(market)
-    }
-  }, [market, previousMarket])
-
-  const handleApproveMarket = async () => {
-    return strategy === 'Buy' ? approveBuy() : approveSell()
-  }
+  const {
+    isOpen: tradeModalOpened,
+    onOpen: openTradeModal,
+    onClose: closeTradeModal,
+  } = useDisclosure()
 
   const marketActionForm = useMemo(() => {
     if (market) {
@@ -98,8 +83,44 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
     return null
   }, [market])
 
+  const handleApproveMarket = async () => {
+    return strategy === 'Buy' ? approveBuy() : approveSell()
+  }
+
+  const mobileTradeButton = useMemo(() => {
+    return market?.expired ? (
+      <MobileTradeButton market={market} />
+    ) : (
+      <Button
+        variant='contained'
+        w='full'
+        mt='32px'
+        onClick={openTradeModal}
+        justifyContent='space-between'
+      >
+        Trade
+      </Button>
+    )
+  }, [market])
+
+  useEffect(() => {
+    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
+      page: 'Market Page',
+      market: params.address,
+    })
+  }, [])
+
+  useEffect(() => {
+    if (market != previousMarket) {
+      setMarket(market)
+    }
+  }, [market, previousMarket])
+
   return (
-    <MainLayout maxContentWidth={'1200px'} isLoading={!market || isCollateralLoading}>
+    <MainLayout
+      maxContentWidth={'1200px'}
+      isLoading={!market || isCollateralLoading || (isConnected && !positions)}
+    >
       <HStack gap='40px' alignItems='flex-start'>
         <Box w={isMobile ? 'full' : '664px'}>
           <Divider bg='black' orientation='horizontal' h='3px' />
@@ -186,11 +207,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
         </Box>
         {!isMobile && marketActionForm}
       </HStack>
-      {isMobile && (
-        <Button variant='contained' w='full' mt='32px' onClick={openTradeModal}>
-          Trade
-        </Button>
-      )}
+      {isMobile && mobileTradeButton}
       {isMobile && market && (
         <MarketTradingModal
           open={tradeModalOpened}
