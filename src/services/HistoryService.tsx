@@ -243,7 +243,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         },
       }))
     },
-    enabled: !!walletAddress && !!markets.length,
+    enabled: !!walletAddress && !!markets.length && !!trades,
   })
 
   /**

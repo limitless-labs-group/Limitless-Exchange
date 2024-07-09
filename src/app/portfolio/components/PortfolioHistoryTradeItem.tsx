@@ -1,8 +1,7 @@
 import { defaultChain } from '@/constants'
 import { HistoryTrade } from '@/services'
-import { borderRadius } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { HStack, Heading, Image, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { useMarket } from '@/services/MarketsService'
@@ -31,18 +30,9 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
           _hover={{ textDecor: 'underline' }}
           onClick={() => router.push(`/markets/${trade.market.id}`)}
         >
-          <Image
-            src={market?.imageURI}
-            w={'40px'}
-            h={'40px'}
-            fit={'cover'}
-            bg={'brand'}
-            borderRadius={borderRadius}
-            alt='token'
-          />
-          <Heading size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
+          <Text size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
             {market?.title ?? 'Noname market'}
-          </Heading>
+          </Text>
         </HStack>
       </Td>
 

@@ -17,7 +17,7 @@ export type MarketData = {
   next: number
 }
 
-export type Market = {
+export type MarketResponse = {
   address: {
     [chainId: number]: Address
   }
@@ -60,8 +60,15 @@ export type Market = {
   tags?: string[]
   winningOutcomeIndex?: number
   volume?: string
+  volumeFormatted?: string
   liquidity?: string
+  liquidityFormatted?: string
   prices: number[]
+}
+
+export type Market = MarketResponse & {
+  buyYesNo: number[]
+  sellYesNo: number[]
 }
 
 export type GetBalanceResult = {
@@ -97,9 +104,14 @@ export enum MarketTokensIds {
 export enum Sort {
   BASE = '',
   NEWEST = 'Newest',
-  COMING_DEADLINE = 'Coming Deadline',
-  HIGHEST_LIQUIDITY = 'Highest Liquidity',
-  HIGHEST_VOLUME = 'Highest Volume',
+  COMING_DEADLINE = 'Coming Soon',
+  HIGHEST_LIQUIDITY = 'High Liquidity',
+  HIGHEST_VOLUME = 'High Volume',
 }
 
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>
+
+export type OddsData = {
+  buyYesNo: number[]
+  sellYesNo: number[]
+}

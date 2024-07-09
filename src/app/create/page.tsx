@@ -1,6 +1,6 @@
 'use client'
 
-import { Input, MainLayout, Toast } from '@/components'
+import { MainLayout } from '@/components'
 import {
   Box,
   Button,
@@ -9,7 +9,6 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  Heading,
   HStack,
   Image,
   NumberInput,
@@ -33,6 +32,8 @@ import axios from 'axios'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks'
 import { useLimitlessApi } from '@/services'
+import { Toast } from '@/components/common/toast'
+import { Input } from '@/components/common/input'
 
 interface FormFieldProps {
   label: string
@@ -267,7 +268,7 @@ const CreateOwnMarketPage = () => {
     <MainLayout>
       <Flex justifyContent={'center'}>
         <VStack w='468px' spacing={4}>
-          <Heading>Create Market</Heading>
+          <Text>Create Market</Text>
           <FormControl>
             <FormField label='Title'>
               <Input

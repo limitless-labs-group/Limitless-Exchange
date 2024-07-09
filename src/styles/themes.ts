@@ -1,7 +1,20 @@
-import { extendTheme as ChakraTheme } from '@chakra-ui/react'
+import { extendTheme as ChakraTheme, ThemeConfig } from '@chakra-ui/react'
 import { radioTheme } from '@/styles/radio'
+import { lightThemeColors } from '@/styles/light-theme-colors'
+import { modalTheme } from '@/styles/modals'
+import { accordionTheme } from '@/styles/accordion'
+import { inputTheme } from '@/styles/input'
 
-const fonts = `Inter, sans-serif`
+const fonts = `Helvetica Neue`
+const pixels = 'Neue Pixel Sans'
+const commonButtonProps = {
+  fontSize: '14px',
+  py: '4px',
+  px: '8px',
+  fontWeight: 500,
+  borderRadius: '2px',
+  h: '24px',
+}
 export const colors = {
   brand: '#2492ff',
   bg: 'white',
@@ -21,16 +34,20 @@ export const colors = {
   },
 }
 
+const config: ThemeConfig = {
+  initialColorMode: 'light',
+  useSystemColorMode: false,
+}
+
 export const borderRadius = 'lg'
 
 export const chakraTheme = ChakraTheme({
-  initialColorMode: 'light',
-  useSystemColorMode: false,
+  ...config,
   fonts: {
-    heading: fonts,
+    heading: pixels,
     body: fonts,
   },
-  colors,
+  colors: lightThemeColors,
   styles: {
     global: {
       body: {
@@ -39,6 +56,9 @@ export const chakraTheme = ChakraTheme({
         color: colors.font,
         background: colors.bg,
         fontSize: '14px',
+      },
+      hr: {
+        opacity: '1 !important',
       },
       div: {
         '::-webkit-scrollbar': {
@@ -105,13 +125,47 @@ export const chakraTheme = ChakraTheme({
     Button: {
       baseStyle: {
         fontSize: '14px',
+        py: '4px',
+        px: '8px',
+        fontWeight: 500,
+        gap: '4px',
+        borderRadius: '2px',
+        _disabled: {
+          pointerEvents: 'none',
+        },
       },
       variants: {
         outline: {
           borderWidth: 0,
           bg: 'grey.100',
-          color: 'grey.800',
+          color: 'black',
           height: '52px',
+        },
+        contained: {
+          ...commonButtonProps,
+          bg: 'blue.500',
+          color: 'white',
+          px: '8px',
+          h: '24px',
+          gap: '8px',
+          _disabled: {
+            _hover: {
+              bg: 'blue.500 !important',
+            },
+          },
+        },
+        grey: {
+          background: 'grey.300',
+          ...commonButtonProps,
+        },
+        transparent: {
+          background: 'unset',
+          ...commonButtonProps,
+          px: 0,
+          gap: '8px',
+          _focus: {
+            bg: 'unset',
+          },
         },
       },
     },
@@ -129,6 +183,11 @@ export const chakraTheme = ChakraTheme({
       spacing: '8px',
     },
     Radio: radioTheme,
+    Modal: modalTheme,
+    Accordion: accordionTheme,
+    Input: inputTheme,
+    // Divider
+    // Button link
   },
   breakpoints: {
     sm: '320px',
