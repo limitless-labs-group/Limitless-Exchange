@@ -51,14 +51,14 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
           <HStack gap={'4px'} color='green.500'>
             <ThumbsUpIcon width={16} height={16} />
             <Text fontWeight={500}>
-              {NumberUtil.toFixed((outcomeTokensBuyPriceCurrent?.[0] || 0) * 100, 2)}%
+              {NumberUtil.toFixed((outcomeTokensBuyPriceCurrent?.[0] || 0) * 100, 0)}%
             </Text>
             <Text fontWeight={500}>Yes</Text>
           </HStack>
           <HStack gap={'4px'} color='red.500'>
             <ThumbsDownIcon width={16} height={16} />
             <Text fontWeight={500}>
-              {NumberUtil.toFixed((outcomeTokensBuyPriceCurrent?.[1] || 0) * 100, 2)}%
+              {NumberUtil.toFixed((outcomeTokensBuyPriceCurrent?.[1] || 0) * 100, 0)}%
             </Text>
             <Text fontWeight={500}>No</Text>
           </HStack>
