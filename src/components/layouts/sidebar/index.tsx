@@ -14,6 +14,7 @@ import {
   AccordionPanel,
   useDisclosure,
   Slide,
+  Box,
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React from 'react'
@@ -173,12 +174,24 @@ export default function Sidebar() {
         <Divider />
         <TokenFilter />
       </VStack>
+      {isOpenWalletPage && (
+        <Box
+          position='fixed'
+          top={0}
+          left={0}
+          bottom={0}
+          w='full'
+          zIndex={100}
+          bg='rgba(0, 0, 0, 0.3)'
+          mt='20px'
+          ml='188px'
+        ></Box>
+      )}
       <Slide
         direction='left'
         in={isOpenWalletPage}
         style={{
           zIndex: 100,
-          background: 'rgba(0, 0, 0, 0.3)',
           marginTop: '20px',
           marginLeft: isOpenWalletPage ? '188px' : 0,
         }}
