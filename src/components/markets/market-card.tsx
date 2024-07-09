@@ -32,6 +32,7 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
       justifyContent={'space-between'}
       onClick={() => router.push(marketURI)}
       cursor='pointer'
+      _hover={{ bg: 'grey.300', boxShadow: 'md' }}
       {...props}
     >
       <HStack justifyContent='space-between' mb='12px'>
