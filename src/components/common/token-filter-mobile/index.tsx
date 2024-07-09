@@ -1,29 +1,9 @@
 import React, { useState } from 'react'
-import {
-  Text,
-  Box,
-  useTheme,
-  Button,
-  HStack,
-  useDisclosure,
-  VStack,
-  Flex,
-  Slide,
-} from '@chakra-ui/react'
+import { Text, Box, Button, HStack, useDisclosure, VStack, Slide } from '@chakra-ui/react'
 import { Token } from '@/types'
-import {
-  ClickEvent,
-  CreateMarketClickedMetadata,
-  ProfileBurgerMenuClickedMetadata,
-  useLimitlessApi,
-} from '@/services'
+import { useLimitlessApi } from '@/services'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import MenuIcon from '@/resources/icons/menu-icon.svg'
-import { Image as ChakraImage } from '@chakra-ui/image/dist/image'
-import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import { NumberUtil } from '@/utils'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import Image from 'next/image'
 
 export default function TokenFilterMobile() {

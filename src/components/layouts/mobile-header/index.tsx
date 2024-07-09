@@ -10,7 +10,7 @@ import {
   Box,
   VStack,
 } from '@chakra-ui/react'
-import { NumberUtil } from '@/utils'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 
 import React from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
@@ -129,7 +129,7 @@ export default function MobileHeader() {
                           </Flex>
                         )}
                         <Text fontSize='16px' fontWeight={500}>
-                          {userInfo?.name ? userInfo.name : address}
+                          {userInfo?.name ? userInfo.name : truncateEthAddress(address)}
                         </Text>
                       </HStack>
                       <VStack my='24px'>
