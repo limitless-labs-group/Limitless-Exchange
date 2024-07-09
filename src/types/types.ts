@@ -68,7 +68,7 @@ export type MarketResponse = {
 
 export type Market = MarketResponse & {
   buyYesNo: number[]
-  sellYesNo: number[]
+  sellYesNo?: number[]
 }
 
 export type GetBalanceResult = {
@@ -113,5 +113,5 @@ export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceE
 
 export type OddsData = {
   buyYesNo: number[]
-  sellYesNo: number[]
+  sellYesNo?: number[]
 }

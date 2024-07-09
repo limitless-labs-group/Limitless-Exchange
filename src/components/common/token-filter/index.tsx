@@ -47,33 +47,35 @@ export default function TokenFilter() {
           /All
         </Text>
       </Box>
-      {supportedTokens?.map((token) => (
-        <Box
-          bg={
-            selectedFilterTokens.findLast((_token) => _token.address === token.address)
-              ? 'black'
-              : theme.colors.grey['300']
-          }
-          padding='2px 4px'
-          key={token.symbol}
-          borderRadius='2px'
-          w='fit-content'
-          marginBottom='4px'
-          cursor='pointer'
-          onClick={() => handleFilterItemClicked(token)}
-        >
-          <Text
-            color={
+      {supportedTokens
+        ?.filter((token) => !['ONCHAIN', 'MFER', 'BETS'].includes(token.symbol))
+        .map((token) => (
+          <Box
+            bg={
               selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                ? 'white'
-                : 'black'
+                ? 'black'
+                : theme.colors.grey['300']
             }
-            fontWeight={500}
+            padding='2px 4px'
+            key={token.symbol}
+            borderRadius='2px'
+            w='fit-content'
+            marginBottom='4px'
+            cursor='pointer'
+            onClick={() => handleFilterItemClicked(token)}
           >
-            /{token.symbol}
-          </Text>
-        </Box>
-      ))}
+            <Text
+              color={
+                selectedFilterTokens.findLast((_token) => _token.address === token.address)
+                  ? 'white'
+                  : 'black'
+              }
+              fontWeight={500}
+            >
+              /{token.symbol}
+            </Text>
+          </Box>
+        ))}
     </Box>
   )
 }
