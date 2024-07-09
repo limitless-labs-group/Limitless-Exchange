@@ -91,10 +91,22 @@ export default function MobileHeader() {
                     </Flex>
                   )}
                 </Button>
+                {isOpenUserMenu && (
+                  <Box
+                    position='fixed'
+                    top={0}
+                    left={0}
+                    bottom={0}
+                    w='full'
+                    zIndex={100}
+                    bg='rgba(0, 0, 0, 0.3)'
+                    mt='20px'
+                  ></Box>
+                )}
                 <Slide
                   direction='right'
                   in={isOpenUserMenu}
-                  style={{ zIndex: 100, background: 'rgba(0, 0, 0, 0.3)', marginTop: '20px' }}
+                  style={{ zIndex: 100, marginTop: '20px' }}
                   onClick={onToggleUserMenu}
                 >
                   <VStack
@@ -245,12 +257,23 @@ export default function MobileHeader() {
               <LogInButton />
             )}
           </HStack>
+          {isWalletModalOpen && (
+            <Box
+              position='fixed'
+              top={0}
+              left={0}
+              bottom={0}
+              w='full'
+              zIndex={100}
+              bg='rgba(0, 0, 0, 0.3)'
+              mt='20px'
+            ></Box>
+          )}
           <Slide
             direction='top'
             in={isWalletModalOpen}
             style={{
               zIndex: 150,
-              background: 'rgba(0, 0, 0, 0.3)',
               paddingTop: isWalletModalOpen ? '60px' : 0,
               height: '100%',
             }}

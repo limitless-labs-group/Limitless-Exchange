@@ -71,10 +71,22 @@ export default function TokenFilterMobile() {
                 </Button>
               ))}
       </HStack>
+      {isOpenTagsMenu && (
+        <Box
+          position='fixed'
+          top={0}
+          left={0}
+          bottom={0}
+          w='full'
+          zIndex={100}
+          bg='rgba(0, 0, 0, 0.3)'
+          mt='20px'
+        ></Box>
+      )}
       <Slide
         direction='left'
         in={isOpenTagsMenu}
-        style={{ zIndex: 100, background: 'rgba(0, 0, 0, 0.3)', marginTop: '20px' }}
+        style={{ zIndex: 100, marginTop: '20px' }}
         onClick={onToggleTagsMenu}
       >
         <Box p='16px' w='80%' bg='white' h='full' onClick={(e) => e.stopPropagation()}>
