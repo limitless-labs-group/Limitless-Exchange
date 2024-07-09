@@ -292,11 +292,6 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
             backgroundColor: 'grey.400',
           }}
           isDisabled={isExceedsBalance || !collateralAmount}
-          // _hover={{
-          //   _disabled: {
-          //     bg:
-          //   }
-          // }}
           onClick={async () => {
             trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
               strategy: 'Buy',
@@ -405,7 +400,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
               strategy: 'Buy',
               marketAddress: market.address[defaultChain.id],
             })
-            setOutcomeIndex(0)
+            setOutcomeIndex(1)
             await trade(1)
           }}
           borderRadius='2px'
