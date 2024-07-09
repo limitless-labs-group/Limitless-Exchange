@@ -58,7 +58,10 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
         </Text>
       )
     }
-  }, [hasPositions, market?.tokenTicker, positionToClaim])
+    if (status === 'Loading') {
+      return <Text fontWeight={500}>Processing claim</Text>
+    }
+  }, [hasPositions, market?.tokenTicker, positionToClaim, status])
 
   const buttonColor = useMemo(() => {
     if (!positionToClaim) {
@@ -133,22 +136,21 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
             color='black'
             w='full'
             mt='40px'
-            onClick={() => positionToClaim && claim(positionToClaim?.outcomeIndex)}
+            onClick={async () => {
+              toggleClaimMenu()
+              if (positionToClaim) {
+                await claim(positionToClaim?.outcomeIndex)
+              }
+            }}
             disabled={status === 'Loading'}
           >
-            {status === 'Loading' ? (
-              'Processing'
-            ) : (
-              <>
-                <Icon as={WinIcon} />
-                <Text fontWeight={500}>
-                  Claim{' '}
-                  {`${NumberUtil.formatThousands(positionToClaim?.outcomeTokenAmount, 4)} ${
-                    market?.tokenTicker[defaultChain.id]
-                  }`}
-                </Text>
-              </>
-            )}
+            <Icon as={WinIcon} />
+            <Text fontWeight={500}>
+              Claim{' '}
+              {`${NumberUtil.formatThousands(positionToClaim?.outcomeTokenAmount, 4)} ${
+                market?.tokenTicker[defaultChain.id]
+              }`}
+            </Text>
           </Button>
         </Box>
       </Slide>
