@@ -114,8 +114,8 @@ const MainPage = () => {
           refreshFunction={fetchNextPage}
           pullDownToRefresh
         >
-          <VStack w={'full'} spacing={5} px={{ md: 14 }}>
-            <VStack gap={2}>
+          <VStack w={'full'} spacing={5}>
+            <VStack gap={2} w='full'>
               {sortedMarkets?.map((market) =>
                 isMobile ? (
                   <MarketCardMobile key={uuidv4()} market={market} />
