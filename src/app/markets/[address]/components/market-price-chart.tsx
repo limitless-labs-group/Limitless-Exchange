@@ -11,6 +11,7 @@ import { Market } from '@/types'
 import Paper from '@/components/common/paper'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import { isMobile } from 'react-device-detect'
 
 // Define the interface for the chart data
 interface YesBuyChartData {
@@ -51,6 +52,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
       tickPosition: 'outside',
       labels: {
         x: 10,
+        step: isMobile ? 2 : 0,
         rotation: 0,
         align: 'center',
         style: {
@@ -220,7 +222,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
   }, [market?.prices])
 
   return (
-    <Paper my='24px'>
+    <Paper my='24px' p='8px'>
       <HStack gap={'4px'} color='green.500'>
         <ThumbsUpIcon width={16} height={16} />
         <Text fontWeight={500}>{market?.prices[0]}%</Text>
