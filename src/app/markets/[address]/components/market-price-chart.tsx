@@ -51,13 +51,13 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
       tickInterval: 24 * 3600 * 1000 * 10,
       tickPosition: 'outside',
       labels: {
-        x: 10,
-        step: isMobile ? 2 : 0,
+        x: isMobile ? 20 : 10,
+        step: isMobile ? 3 : 0,
         rotation: 0,
         align: 'center',
         style: {
           fontFamily: 'Helvetica Neue',
-          fontSize: '12px',
+          fontSize: isMobile ? '14px' : '12px',
         },
         formatter: function () {
           return Highcharts.dateFormat('%b %e', Number(this.value))
