@@ -194,6 +194,7 @@ class Etherspot {
       await this.primeSdk.clearUserOpsFromBatch()
       await this.primeSdk.addUserOpsToBatch({ to, data, value })
       const op = await this.estimate()
+      debugger
       const opHash = await this.primeSdk.send(op)
       return opHash
     } catch (e: any) {

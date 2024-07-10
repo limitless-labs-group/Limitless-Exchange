@@ -9,6 +9,7 @@ import {
   QueryObserverResult,
   UseMutateAsyncFunction,
   useMutation,
+  UseMutationOptions,
   useQuery,
 } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
@@ -50,13 +51,16 @@ interface IBalanceService {
   mint: (params: { address: Address; newToken?: boolean }) => void
   isLoadingMint: boolean
 
-  addressToWithdraw: string
-  setAddressToWithdraw: (amount: string) => void
   amount: string
   setAmount: (amount: string) => void
   unwrap: boolean
   setUnwrap: (unwrap: boolean) => void
-  withdraw: UseMutateAsyncFunction<void, Error, string, unknown>
+  withdraw: UseMutateAsyncFunction<
+    void,
+    Error,
+    { receiver: string; token: Token; amount: string },
+    unknown
+  >
 
   status: BalanceServiceStatus
   setToken: Dispatch<SetStateAction<Token | null>>
@@ -302,16 +306,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  /**
-   * WITHDRAW
-   */
-  // Address to withdraw funds to
-  const [addressToWithdraw, setAddressToWithdraw] = useState<string>('')
-  const isInvalidAddressToWithdraw = useMemo(
-    () => !addressToWithdraw || !isAddress(addressToWithdraw),
-    [addressToWithdraw]
-  )
-
   // Amount to be withdrawn
   const [amount, setAmount] = useState<string>('')
   const [token, setToken] = useState<Token | null>(supportedTokens ? supportedTokens[0] : null)
@@ -331,11 +325,22 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
 
   // Mutation
   const { mutateAsync: withdraw, isPending: isLoadingWithdraw } = useMutation({
-    mutationFn: async (address: string) => {
+    mutationFn: async ({
+      receiver,
+      token,
+      amount,
+    }: {
+      receiver: string
+      token: Token
+      amount: string
+    }) => {
+      debugger
       if (unwrap) {
         toast({
           render: () => <Toast title={'Unwrapping ETH...'} />,
         })
+
+        const amountBI = parseUnits(amount, token.decimals)
 
         const unwrapReceipt = await unwrapEth(amountBI)
         if (!unwrapReceipt) {
@@ -350,7 +355,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
           render: () => <Toast title={'Sending ETH...'} />,
         })
 
-        const transferReceipt = await transferEthers(address as Address, amountBI)
+        const transferReceipt = await transferEthers(receiver as Address, amountBI)
 
         if (!transferReceipt) {
           // TODO: show error toast
@@ -371,10 +376,10 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       toast({
         render: () => <Toast title={'Processing transaction...'} />,
       })
-
+      debugger
       const transferReceipt = await transferErc20(
-        token?.address as Address,
-        addressToWithdraw as Address,
+        token.address as Address,
+        receiver as Address,
         amountBI
       )
 
@@ -398,14 +403,11 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     if (isLoadingMint || isLoadingWithdraw) {
       return 'Loading'
     }
-    if (isInvalidAddressToWithdraw) {
-      return 'InvalidAddress'
-    }
     if (isInvalidAmount) {
       return 'InvalidAmount'
     }
     return 'ReadyToFund'
-  }, [isInvalidAddressToWithdraw, isInvalidAmount, isLoadingMint, isLoadingWithdraw])
+  }, [isInvalidAmount, isLoadingMint, isLoadingWithdraw])
 
   return (
     <BalanceService.Provider
@@ -415,8 +417,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         overallBalanceUsd,
         mint,
         isLoadingMint,
-        addressToWithdraw,
-        setAddressToWithdraw,
         amount,
         setAmount,
         unwrap,
