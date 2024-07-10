@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid'
 import SortFilter from '@/components/common/sort-filter'
 import { Market, Sort } from '@/types'
 import { formatUnits, getAddress } from 'viem'
-import { useEthCCMarkets } from '@/services/MarketsService'
+import { useEthCCMarkets, useMarkets } from '@/services/MarketsService'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { usePriceOracle } from '@/providers'
 import TextWithPixels from '@/components/common/text-with-pixels'
@@ -32,10 +32,10 @@ const ETHCCPage = () => {
    */
   const isMobile = useIsMobile()
 
-  const { selectedFilterTokens } = useTokenFilter()
-
   const [selectedSort, setSelectedSort] = useState<Sort>(Sort.BASE)
   const handleSelectSort = (options: Sort) => setSelectedSort(options)
+
+  const { selectedFilterTokens } = useTokenFilter()
 
   const { convertTokenAmountToUsd } = usePriceOracle()
   const { data, fetchNextPage, hasNextPage } = useEthCCMarkets()
@@ -94,29 +94,28 @@ const ETHCCPage = () => {
   }, [markets, filteredMarkets, selectedSort])
 
   return (
-    <InfiniteScroll
-      dataLength={dataLength ?? 0}
-      next={fetchNextPage}
-      hasMore={hasNextPage}
-      loader={<h4></h4>}
-      scrollThreshold={0.1}
-      refreshFunction={fetchNextPage}
-      pullDownToRefresh
-    >
-      <MainLayout>
-        <Box w={isMobile ? 'auto' : '664px'} ml={isMobile ? 'auto' : '200px'}>
-          <Divider bg='black' orientation='horizontal' h='3px' mb='16px' />
-          <TextWithPixels text={'Explore Limitless Prediction Markets'} fontSize={'32px'} gap={2} />
-          <Text color='black' fontSize={'14px'}>
-            Predict outcomes in crypto, tech, sports, and more. Use different tokens, participate in
-            transparent voting for upcoming markets, and engage in markets created by the community.
-            It’s all decentralized and secure.
-          </Text>
+    <MainLayout>
+      <Box w={isMobile ? 'auto' : '664px'} ml={isMobile ? 'auto' : '200px'}>
+        <Divider bg='black' orientation='horizontal' h='3px' mb='16px' />
+        <TextWithPixels text={'Explore Limitless Prediction Markets'} fontSize={'32px'} gap={2} />
+        <Text color='black' fontSize={'14px'}>
+          Predict outcomes in crypto, tech, sports, and more. Use different tokens, participate in
+          transparent voting for upcoming markets, and engage in markets created by the community.
+          It’s all decentralized and secure.
+        </Text>
 
-          <SortFilter onChange={handleSelectSort} />
-
-          <VStack w={'full'} spacing={5} px={{ md: 14 }}>
-            <VStack gap={2}>
+        <SortFilter onChange={handleSelectSort} />
+        <InfiniteScroll
+          dataLength={dataLength ?? 0}
+          next={fetchNextPage}
+          hasMore={hasNextPage}
+          loader={<h4></h4>}
+          scrollThreshold={0.1}
+          refreshFunction={fetchNextPage}
+          pullDownToRefresh
+        >
+          <VStack w={'full'} spacing={5}>
+            <VStack gap={2} w='full'>
               {sortedMarkets?.map((market) =>
                 isMobile ? (
                   <MarketCardMobile key={uuidv4()} market={market} />
@@ -126,9 +125,9 @@ const ETHCCPage = () => {
               )}
             </VStack>
           </VStack>
-        </Box>
-      </MainLayout>
-    </InfiniteScroll>
+        </InfiniteScroll>
+      </Box>
+    </MainLayout>
   )
 }
 
