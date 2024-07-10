@@ -43,9 +43,10 @@ export const PriceOracleProvider = ({ children }: React.PropsWithChildren) => {
   const { data: marketTokensPrices } = useQuery({
     queryKey: ['tokenPrices'],
     queryFn: fetchTokenPrices,
-    staleTime: 1000 * 60 * 5, // Data life span 60 seconds
+    staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    refetchInterval: 1000 * 60 * 5, // Data life span 60 seconds
   })
 
   // const { data } = useQuery({
