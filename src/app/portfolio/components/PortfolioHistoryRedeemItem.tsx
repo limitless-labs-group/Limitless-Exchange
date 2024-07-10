@@ -37,7 +37,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
       </Td>
 
       <Td px={2}>
-        <Text color={redeem.outcomeIndex == 0 ? 'green' : 'red'} fontWeight={'bold'}>
+        <Text color={redeem.outcomeIndex == 0 ? 'green' : 'red'}>
           {market?.outcomeTokens[redeem.outcomeIndex ?? 0]}
         </Text>
       </Td>
@@ -46,7 +46,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
 
       <Td px={2} isNumeric colSpan={2}>
         <Box textAlign='center' verticalAlign='middle'>
-          <Text fontWeight={'bold'}>
+          <Text>
             {/* that's temporal solution since the bug is on indexer side. it returns not formatted values that's why we need to * on 10e12 */}
             {`${NumberUtil.formatThousands(
               (market?.tokenTicker[defaultChain.id] === 'USDC'
