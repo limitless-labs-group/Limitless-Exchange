@@ -48,7 +48,7 @@ export default function TokenFilter() {
         </Text>
       </Box>
       {supportedTokens
-        ?.filter((token) => !['ONCHAIN', 'MFER', 'BETS'].includes(token.symbol))
+        ?.filter((token) => !['MFER', 'BETS'].includes(token.symbol))
         .map((token) => (
           <Box
             bg={
