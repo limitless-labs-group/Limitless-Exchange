@@ -37,7 +37,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
       </Td>
 
       <Td px={2}>
-        <Text color={trade.outcomeIndex == 0 ? 'green' : 'red'} fontWeight={'bold'}>
+        <Text color={trade.outcomeIndex == 0 ? 'green' : 'red'}>
           {market?.outcomeTokens[trade.outcomeIndex ?? 0]}{' '}
           {NumberUtil.formatThousands(trade.outcomeTokenPrice, 3)}{' '}
           {market?.tokenTicker[defaultChain.id]}
@@ -48,7 +48,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
 
       {/* Amount */}
       <Td px={2} isNumeric>
-        <Text fontWeight={'bold'}>
+        <Text>
           {`${NumberUtil.formatThousands(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
             6
