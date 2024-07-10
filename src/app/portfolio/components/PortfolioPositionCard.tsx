@@ -60,7 +60,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   /**
    * UTILS
    */
-  const getColor = (defaultColor = 'gray.800') => (market?.expired ? 'grey.50' : defaultColor)
+  const getColor = (defaultColor = 'black') => (market?.expired ? 'grey.50' : defaultColor)
 
   const getOutcomeNotation = () => {
     const outcomeTokenId = position.outcomeIndex ?? 0
@@ -121,7 +121,6 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       w={'full'}
       bg={market?.expired ? 'green.500' : 'grey.200'}
       p={'16px'}
-      _hover={{ bg: market?.expired ? 'grey.300' : 'green.300', boxShadow: 'md' }}
       {...props}
     >
       <Stack spacing={'8px'}>
