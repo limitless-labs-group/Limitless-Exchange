@@ -31,7 +31,7 @@ export default function TokenFilter() {
         textTransform='uppercase'
         marginBottom='4px'
       >
-        Crypto
+        Tokens
       </Text>
       <Box
         padding='2px 4px'

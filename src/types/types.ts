@@ -12,6 +12,11 @@ export type Token = {
   id: MarketTokensIds
 }
 
+export type Category = {
+  id: number
+  name: string
+}
+
 export type MarketData = {
   data: Market[]
   next: number
@@ -64,6 +69,7 @@ export type MarketResponse = {
   liquidity?: string
   liquidityFormatted?: string
   prices: number[]
+  category: string
 }
 
 export type Market = MarketResponse & {
