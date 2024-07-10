@@ -23,7 +23,7 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
   /**
    * TRADING SERVICE
    */
-  const { strategy, setStrategy, status, trade } = useTradingService()
+  const { strategy, setStrategy, status } = useTradingService()
 
   /**
    * MARKET DATA
@@ -31,7 +31,7 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
 
   return (
-    <Paper bg='blue.500' w={isMobile ? 'full' : '296px'} p={isMobile ? 0 : '8px'}>
+    <Paper bg='blue.500' w={isMobile ? 'full' : '312px'} p={isMobile ? 0 : '8px'}>
       <HStack
         w={'240px'}
         mx='auto'
