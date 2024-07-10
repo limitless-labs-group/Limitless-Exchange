@@ -154,6 +154,11 @@ export const chakraTheme = ChakraTheme({
             },
           },
         },
+        white: {
+          ...commonButtonProps,
+          bg: 'white',
+          color: 'black',
+        },
         grey: {
           background: 'grey.300',
           ...commonButtonProps,
