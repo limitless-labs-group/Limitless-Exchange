@@ -26,18 +26,9 @@ import { Tooltip } from '@/components/common/tooltip'
 type WithdrawModalProps = Omit<IModal, 'children'>
 
 export const WithdrawModal = ({ onClose, isOpen, ...props }: WithdrawModalProps) => {
-  const {
-    balanceOfSmartWallet,
-    amount,
-    setAmount,
-    addressToWithdraw,
-    setAddressToWithdraw,
-    unwrap,
-    setUnwrap,
-    withdraw,
-    status,
-    setToken,
-  } = useBalanceService()
+  const [amount, setAmount] = useState('')
+  const [address, setAddress] = useState('')
+  const { balanceOfSmartWallet, unwrap, setUnwrap, withdraw, status } = useBalanceService()
 
   const disclosure = useDisclosure()
 
@@ -61,7 +52,6 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: WithdrawModalProps)
 
   useEffect(() => {
     setAmount('')
-    setAddressToWithdraw('')
   }, [isOpen])
 
   useEffect(() => {
@@ -70,10 +60,6 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: WithdrawModalProps)
       return
     }
   }, [isOpen])
-
-  useEffect(() => {
-    setToken(selectedToken as Token)
-  }, [selectedToken])
 
   return (
     <Modal size={'md'} title={`Withdraw crypto`} isOpen={isOpen} onClose={onClose} {...props}>
@@ -91,8 +77,8 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: WithdrawModalProps)
       <Input
         variant='outlined'
         placeholder={truncateEthAddress(zeroAddress)}
-        value={addressToWithdraw}
-        onChange={(e) => setAddressToWithdraw(e.target.value)}
+        value={address}
+        onChange={(e) => setAddress(e.target.value)}
       />
       <HStack w={'full'} justifyContent={'space-between'} mt='24px' mb='4px'>
         <Text fontWeight={500}>Balance</Text>
@@ -161,7 +147,7 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: WithdrawModalProps)
           isLoading={status == 'Loading'}
           isDisabled={isSubmitDisabled || status === 'Loading' || !amount}
           onClick={async () => {
-            await withdraw(selectedToken.address)
+            await withdraw({ receiver: address, token: selectedToken, amount })
             onClose()
           }}
           w={isMobile ? 'full' : 'fit-content'}
