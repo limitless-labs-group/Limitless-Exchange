@@ -20,7 +20,6 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
    * MARKET DATA
    */
   const market = useMarketByConditionId(redeem.conditionId)
-  console.log(redeem)
 
   return (
     <Tr pos={'relative'} {...props}>

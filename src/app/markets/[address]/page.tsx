@@ -111,10 +111,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   }, [market, previousMarket])
 
   return (
-    <MainLayout
-      maxContentWidth={'1200px'}
-      isLoading={!market || isCollateralLoading || (isConnected && !positions)}
-    >
+    <MainLayout isLoading={!market || isCollateralLoading || (isConnected && !positions)}>
       <HStack gap='40px' alignItems='flex-start'>
         <Box w={isMobile ? 'full' : '664px'}>
           <Divider bg='black' orientation='horizontal' h='3px' />

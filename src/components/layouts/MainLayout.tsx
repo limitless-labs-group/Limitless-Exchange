@@ -6,7 +6,6 @@ import MobileHeader from '@/components/layouts/mobile-header'
 import HeaderMarquee from '@/components/layouts/header-marquee'
 
 interface IMainLayout extends FlexProps {
-  maxContentWidth?: string | number
   isLoading?: boolean
 }
 

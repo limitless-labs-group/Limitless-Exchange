@@ -23,8 +23,6 @@ export const MarketPositions = ({ market }: MarketPositionsProps) => {
     [allMarketsPositions, market]
   )
 
-  console.log(positions)
-
   return Number(positions?.length) > 0 ? (
     <>
       <Flex mt='24px' justifyContent='space-between' mb='8px'>

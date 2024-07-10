@@ -310,8 +310,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     collateralToken,
   })
 
-  console.log(collateralAmount)
-
   useQuery({
     queryKey: [
       'tradeQuotesYes',
@@ -350,8 +348,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
           outcomeTokenAmountBI = balanceOfOutcomeTokenBI
         }
       }
-
-      console.log(outcomeTokenAmountBI)
 
       if (outcomeTokenAmountBI == 0n) {
         setQuotesYes(null)
@@ -417,8 +413,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
           outcomeTokenAmountBI = balanceOfOutcomeTokenBI
         }
       }
-
-      console.log(outcomeTokenAmountBI)
 
       if (outcomeTokenAmountBI == 0n) {
         setQuotesNo(null)
