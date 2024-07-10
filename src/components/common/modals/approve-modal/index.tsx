@@ -17,6 +17,7 @@ import {
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { Address } from 'viem'
 import { Modal, ModalCloseButton } from '@chakra-ui/modal'
+import { isMobile } from 'react-device-detect'
 
 type ApproveModalProps = {
   onApprove: () => Promise<void>
@@ -38,8 +39,8 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
 
   return (
     <Modal
-      size={'full'}
-      variant='blueModal'
+      size={isMobile ? 'full' : 'md'}
+      variant={isMobile ? 'blueModal' : ''}
       isOpen={approveModalOpened}
       onClose={() => setApproveModalOpened(false)}
     >
@@ -49,15 +50,13 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
         <ModalCloseButton />
         <ModalBody>
           <VStack>
-            <Text color='white'>
+            <Text color={isMobile ? 'white' : 'black'}>
               In order to proceed with transaction you should approve token for smart-contract
               spend.
             </Text>
             <Button
               mt='24px'
-              variant='contained'
-              color='black'
-              bg='white'
+              variant={isMobile ? 'white' : 'contained'}
               w='full'
               isDisabled={status !== 'Ready'}
               isLoading={status === 'Loading'}
