@@ -57,8 +57,6 @@ export function PositionCard({ position, market }: PositionCardProps) {
     )
   }, [contractPrice])
 
-  console.log(contractPriceChanged)
-
   return (
     <Paper w='full'>
       <Flex justifyContent='space-between' mb='12px'>

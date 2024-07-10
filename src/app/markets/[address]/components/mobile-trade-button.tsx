@@ -99,7 +99,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
         Market is closed
         {buttonText}
       </Button>
-      {!isClaimMenuOpen && (
+      {isClaimMenuOpen && (
         <Box
           position='fixed'
           top={0}
