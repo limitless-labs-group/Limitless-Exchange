@@ -1,6 +1,6 @@
 // src/contexts/TokenFilterContext.tsx
 import React, { createContext, useContext, useState, ReactNode, FC } from 'react'
-import { Token } from '@/types'
+import { Category, Token } from '@/types'
 
 const TokenFilterContext = createContext<TokenFilterContextType | undefined>(undefined)
 
@@ -19,17 +19,27 @@ interface TokenFilterProviderProps {
 interface TokenFilterContextType {
   selectedFilterTokens: Token[]
   handleTokenChange: (tokens: Token[]) => void
+
+  selectedCategory: Category | undefined
+  handleCategory: (category: Category | undefined) => void
 }
 
 export const TokenFilterProvider: FC<TokenFilterProviderProps> = ({ children }) => {
   const [selectedFilterTokens, setSelectedFilterTokens] = useState<Token[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<Category | undefined>()
 
   const handleTokenChange = (tokens: Token[]) => {
     setSelectedFilterTokens(tokens)
   }
 
+  const handleCategory = (category: Category | undefined) => {
+    setSelectedCategory(category)
+  }
+
   return (
-    <TokenFilterContext.Provider value={{ selectedFilterTokens, handleTokenChange }}>
+    <TokenFilterContext.Provider
+      value={{ selectedFilterTokens, handleTokenChange, selectedCategory, handleCategory }}
+    >
       {children}
     </TokenFilterContext.Provider>
   )
