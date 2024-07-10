@@ -37,6 +37,8 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
       },
       height: 230,
       backgroundColor: '#E7E7E7',
+      marginLeft: 0,
+      marginRight: 0,
     },
     title: {
       text: undefined,
@@ -48,11 +50,12 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
       tickInterval: 24 * 3600 * 1000 * 10,
       tickPosition: 'outside',
       labels: {
+        x: 10,
         rotation: 0,
-        align: 'right',
+        align: 'center',
         style: {
           fontFamily: 'Helvetica Neue',
-          fontSize: '14px',
+          fontSize: '12px',
         },
         formatter: function () {
           return Highcharts.dateFormat('%b %e', Number(this.value))

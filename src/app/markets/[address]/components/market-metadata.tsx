@@ -27,13 +27,17 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
     {
       title: 'Liquidity',
       icon: <LiquidityIcon width={16} height={16} />,
-      value: `${market?.liquidityFormatted} ${market?.tokenTicker[defaultChain.id]}`,
+      value: `${NumberUtil.formatThousands(market?.liquidityFormatted, 6)} ${
+        market?.tokenTicker[defaultChain.id]
+      }`,
       border: true,
     },
     {
       title: 'Volume',
       icon: <VolumeIcon width={16} height={16} />,
-      value: `${market?.volumeFormatted} ${market?.tokenTicker[defaultChain.id]}`,
+      value: `${NumberUtil.formatThousands(market?.volumeFormatted, 6)} ${
+        market?.tokenTicker[defaultChain.id]
+      }`,
       border: !isMobile,
     },
     {
