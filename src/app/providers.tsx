@@ -27,9 +27,9 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
     mounted && (
       <AmplitudeProvider>
         <ChakraProvider>
-          <WagmiProvider>
-            <Web3AuthProvider>
-              <QueryProvider>
+          <QueryProvider>
+            <WagmiProvider>
+              <Web3AuthProvider>
                 <LimitlessApiProvider>
                   <EtherspotProvider>
                     <AccountProvider>
@@ -45,9 +45,9 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                     </AccountProvider>
                   </EtherspotProvider>
                 </LimitlessApiProvider>
-              </QueryProvider>
-            </Web3AuthProvider>
-          </WagmiProvider>
+              </Web3AuthProvider>
+            </WagmiProvider>
+          </QueryProvider>
         </ChakraProvider>
       </AmplitudeProvider>
     )

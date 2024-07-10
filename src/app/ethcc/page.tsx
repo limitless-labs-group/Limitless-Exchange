@@ -103,7 +103,7 @@ const ETHCCPage = () => {
       refreshFunction={fetchNextPage}
       pullDownToRefresh
     >
-      <MainLayout maxContentWidth={'unset'}>
+      <MainLayout>
         <Box w={isMobile ? 'auto' : '664px'} ml={isMobile ? 'auto' : '200px'}>
           <Divider bg='black' orientation='horizontal' h='3px' mb='16px' />
           <TextWithPixels text={'Explore Limitless Prediction Markets'} fontSize={'32px'} gap={2} />
