@@ -46,13 +46,13 @@ export default function TokenFilterMobile() {
                 <Button
                   bg={
                     selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                      ? 'black'
+                      ? 'grey.800'
                       : 'grey.300'
                   }
                   color={
                     selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                      ? 'white'
-                      : 'black'
+                      ? 'grey.50'
+                      : 'grey.800'
                   }
                   variant='grey'
                   key={token.symbol}
@@ -61,8 +61,8 @@ export default function TokenFilterMobile() {
                   <Text
                     color={
                       selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                        ? 'white'
-                        : 'black'
+                        ? 'grey.50'
+                        : 'grey.800'
                     }
                     fontWeight={500}
                   >
@@ -89,7 +89,7 @@ export default function TokenFilterMobile() {
         style={{ zIndex: 100, marginTop: '20px' }}
         onClick={onToggleTagsMenu}
       >
-        <Box p='16px' w='80%' bg='white' h='full' onClick={(e) => e.stopPropagation()}>
+        <Box p='16px' w='80%' bg='grey.50' h='full' onClick={(e) => e.stopPropagation()}>
           <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
           <Box mt='28px'>
             <Text fontWeight={500} color='grey.600'>
@@ -98,9 +98,13 @@ export default function TokenFilterMobile() {
           </Box>
           <VStack gap='4px' mt='4px' alignItems='flex-start'>
             <Button
-              bg={category === categories[0] && !selectedFilterTokens.length ? 'black' : 'grey.300'}
+              bg={
+                category === categories[0] && !selectedFilterTokens.length ? 'grey.800' : 'grey.300'
+              }
               variant='grey'
-              color={category === categories[0] && !selectedFilterTokens.length ? 'white' : 'black'}
+              color={
+                category === categories[0] && !selectedFilterTokens.length ? 'grey.50' : 'grey.800'
+              }
               onClick={() => {
                 if (selectedFilterTokens.length) {
                   handleFilterItemClicked(null)
@@ -115,13 +119,13 @@ export default function TokenFilterMobile() {
               <Button
                 bg={
                   selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                    ? 'black'
+                    ? 'grey.800'
                     : 'grey.300'
                 }
                 color={
                   selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                    ? 'white'
-                    : 'black'
+                    ? 'grey.50'
+                    : 'grey.800'
                 }
                 variant='grey'
                 key={token.symbol}
@@ -130,8 +134,8 @@ export default function TokenFilterMobile() {
                 <Text
                   color={
                     selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                      ? 'white'
-                      : 'black'
+                      ? 'grey.50'
+                      : 'grey.800'
                   }
                   fontWeight={500}
                 >

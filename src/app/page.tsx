@@ -96,9 +96,9 @@ const MainPage = () => {
   return (
     <MainLayout>
       <Box w={isMobile ? 'auto' : '664px'} ml={isMobile ? 'auto' : '200px'}>
-        <Divider bg='black' orientation='horizontal' h='3px' mb='16px' />
+        <Divider bg='grey.800' orientation='horizontal' h='3px' mb='16px' />
         <TextWithPixels text={'Explore Limitless Prediction Markets'} fontSize={'32px'} gap={2} />
-        <Text color='black' fontSize={'14px'}>
+        <Text color='grey.800' fontSize={'14px'}>
           Predict outcomes in crypto, tech, sports, and more. Use different tokens, participate in
           transparent voting for upcoming markets, and engage in markets created by the community.
           It’s all decentralized and secure.

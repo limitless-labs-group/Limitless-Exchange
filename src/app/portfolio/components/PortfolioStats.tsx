@@ -24,7 +24,7 @@ const StatBox = ({
     pb='11px'
     flex={1}
     borderRight={border && !isLast ? '1px solid' : 'unset'}
-    borderColor='black'
+    borderColor='grey.800'
     borderTop='1px solid'
     pl={'8px'}
   >
@@ -75,7 +75,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
                 pt='7px'
                 pb='11px'
                 flex={1}
-                borderColor='black'
+                borderColor='grey.800'
                 borderTop='1px solid'
                 pl={'8px'}
                 w={'full'}

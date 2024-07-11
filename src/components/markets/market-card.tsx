@@ -36,12 +36,12 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
       {...props}
     >
       <HStack justifyContent='space-between' mb='12px'>
-        <Text color={'black'} fontSize={'14px'} lineHeight={'20px'} textDecor={'underline'}>
+        <Text color={'grey.800'} fontSize={'14px'} lineHeight={'20px'} textDecor={'underline'}>
           {market?.title ?? 'Noname market'}
         </Text>
         <HStack gap={1}>
           <ThumbsUpIcon width={'16px'} height={'16px'} />
-          <Heading color={'black'} lineHeight={'20px'} fontSize={'14px'}>
+          <Heading color={'grey.800'} lineHeight={'20px'} fontSize={'14px'}>
             {market?.buyYesNo[0]}% YES
           </Heading>
           <ArrowRightIcon width={'16px'} height={'16px'} />

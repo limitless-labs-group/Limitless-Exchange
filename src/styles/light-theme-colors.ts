@@ -5,7 +5,7 @@ export const lightThemeColors = {
     50: '#FFFFFF',
     100: '#F3F3F3',
     200: '#E7E7E7',
-    300: '#DCDCDC',
+    300: '#D4D4D4',
     400: '#B7B7B7',
     500: '#848484',
     600: '#696969',

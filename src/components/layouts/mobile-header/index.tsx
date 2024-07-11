@@ -111,7 +111,7 @@ export default function MobileHeader() {
                 >
                   <VStack
                     ml='40px'
-                    bg='white'
+                    bg='grey.50'
                     h='full'
                     p='16px'
                     justifyContent='space-between'

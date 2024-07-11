@@ -23,7 +23,7 @@ const PortfolioPage = () => {
   return (
     <MainLayout>
       <Box w={isMobile ? 'auto' : '1016px'}>
-        <Divider bg='black' orientation='horizontal' h='3px' />
+        <Divider bg='grey.800' orientation='horizontal' h='3px' />
         <TextWithPixels text={'Portfolio Overview'} fontSize={'32px'} gap={2} />
         <PortfolioStats mt={'20px'} />
 
@@ -43,7 +43,7 @@ const PortfolioPage = () => {
               <Box
                 w={'full'}
                 h={'3px'}
-                bg={'black'}
+                bg={'grey.800'}
                 visibility={tab == 'Investments' ? 'visible' : 'hidden'}
               />
             </Stack>
@@ -63,7 +63,7 @@ const PortfolioPage = () => {
               <Box
                 w={'full'}
                 h={'3px'}
-                bg={'black'}
+                bg={'grey.800'}
                 visibility={tab == 'History' ? 'visible' : 'hidden'}
               />
             </Stack>

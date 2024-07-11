@@ -60,7 +60,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   /**
    * UTILS
    */
-  const getColor = (defaultColor = 'black') => (market?.expired ? 'grey.50' : defaultColor)
+  const getColor = (defaultColor = 'grey.800') => (market?.expired ? 'grey.50' : defaultColor)
 
   const getOutcomeNotation = () => {
     const outcomeTokenId = position.outcomeIndex ?? 0
@@ -71,13 +71,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
 
   const ClaimButton = () => {
     return (
-      <Button
-        variant='contained'
-        bg='white'
-        color='black'
-        p={isMobile ? '8px 12px 8px 12px' : 'auto'}
-        onClick={() => router.push(marketURI)}
-      >
+      <Button variant='white' onClick={() => router.push(marketURI)}>
         <Icon as={WinIcon} color={'grey.800'} />
         Claim{' '}
         {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${

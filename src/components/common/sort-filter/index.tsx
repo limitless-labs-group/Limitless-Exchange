@@ -47,12 +47,12 @@ export default function SortFilter({ onChange }: SortFilterProps) {
             variant='grey'
             key={uuidv4()}
             fontSize={isMobile ? '14px' : '12px'}
-            color={option === selectedSortFilter ? 'white' : 'black'}
-            bg={option === selectedSortFilter ? 'black' : 'unset'}
+            color={option === selectedSortFilter ? 'grey.50' : 'grey.800'}
+            bg={option === selectedSortFilter ? 'grey.800' : 'unset'}
             onClick={() => handleFilterItemClicked(option)}
             rounded={0}
             flex={1}
-            _hover={{ bg: option === selectedSortFilter ? 'black' : 'grey.200' }}
+            _hover={{ bg: option === selectedSortFilter ? 'grey.800' : 'grey.200' }}
             borderRadius='2px'
           >
             {option}

@@ -11,7 +11,7 @@ const baseStyle = definePartsStyle({
   },
   control: {
     borderRadius: '12px',
-    borderColor: 'black',
+    borderColor: 'grey.800',
 
     _checked: {
       background: 'black!',

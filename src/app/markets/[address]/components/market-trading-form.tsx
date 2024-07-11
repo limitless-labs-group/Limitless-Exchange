@@ -44,10 +44,10 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
           h={isMobile ? '28px' : 'unset'}
           flex='1'
           borderRadius='2px'
-          bg={strategy === 'Buy' ? 'white' : 'unset'}
-          color={strategy === 'Buy' ? 'black' : 'white'}
+          bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
+          color={strategy === 'Buy' ? 'grey.800' : 'grey.50'}
           _hover={{
-            backgroundColor: strategy === 'Buy' ? 'white' : 'grey.400',
+            backgroundColor: strategy === 'Buy' ? 'grey.50' : 'grey.400',
           }}
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
@@ -65,10 +65,10 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
           h={isMobile ? '28px' : 'unset'}
           flex='1'
           borderRadius='2px'
-          bg={strategy === 'Sell' ? 'white' : 'unset'}
-          color={strategy === 'Sell' ? 'black' : 'white'}
+          bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
+          color={strategy === 'Sell' ? 'grey.800' : 'grey.50'}
           _hover={{
-            backgroundColor: strategy === 'Sell' ? 'white' : 'grey.400',
+            backgroundColor: strategy === 'Sell' ? 'grey.50' : 'grey.400',
           }}
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
