@@ -91,7 +91,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
     return market?.expired ? (
       <MobileTradeButton market={market} />
     ) : (
-      <Button variant='contained' w='full' mt='32px' onClick={openTradeModal}>
+      <Button variant='contained' w='full' h='48px' mt='32px' onClick={openTradeModal}>
         Trade
       </Button>
     )
@@ -112,7 +112,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
 
   return (
     <MainLayout isLoading={!market || isCollateralLoading || (isConnected && !positions)}>
-      <HStack gap='40px' alignItems='flex-start'>
+      <HStack gap='40px' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
         <Box w={isMobile ? 'full' : '664px'}>
           <Divider bg='black' orientation='horizontal' h='3px' />
           <HStack justifyContent='space-between' mt='10px' mb='24px'>
@@ -198,7 +198,11 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
         </Box>
         {!isMobile && marketActionForm}
       </HStack>
-      {isMobile && mobileTradeButton}
+      {isMobile && (
+        <Box position='fixed' bottom='12px' w='calc(100% - 32px)'>
+          {mobileTradeButton}
+        </Box>
+      )}
       {isMobile && market && (
         <MarketTradingModal
           open={tradeModalOpened}

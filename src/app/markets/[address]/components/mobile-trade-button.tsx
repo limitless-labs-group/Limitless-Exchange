@@ -92,6 +92,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
         variant='contained'
         w='full'
         mt='32px'
+        h='48px'
         bg={buttonColor}
         justifyContent='space-between'
         onClick={action}
