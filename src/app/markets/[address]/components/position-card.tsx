@@ -7,6 +7,7 @@ import { NumberUtil } from '@/utils'
 import { Market } from '@/types'
 import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
+import { defaultChain } from '@/constants'
 
 interface PositionCardProps {
   position: HistoryPosition
@@ -72,7 +73,7 @@ export function PositionCard({ position, market }: PositionCardProps) {
           )}
           <HStack gap='4px'>
             <Text fontWeight={500}>{`${NumberUtil.toFixed(currentContractsPrice, 6)} ${
-              position.market.collateral?.symbol
+              market?.tokenTicker[defaultChain.id]
             }`}</Text>
             {contractPriceChanged}
           </HStack>
@@ -104,7 +105,7 @@ export function PositionCard({ position, market }: PositionCardProps) {
             Invested
           </Text>
           <Text>{`${NumberUtil.toFixed(position.collateralAmount, 3)} ${
-            position.market.collateral?.symbol
+            market?.tokenTicker[defaultChain.id]
           }`}</Text>
         </Flex>
         <Flex
@@ -116,7 +117,7 @@ export function PositionCard({ position, market }: PositionCardProps) {
             Initial Price
           </Text>
           <Text>{`${NumberUtil.toFixed(position.latestTrade?.outcomeTokenPrice, 3)} ${
-            position.market.collateral?.symbol
+            market?.tokenTicker[defaultChain.id]
           }`}</Text>
         </Flex>
         <Flex
@@ -128,7 +129,7 @@ export function PositionCard({ position, market }: PositionCardProps) {
             Current Price
           </Text>
           <Text>{`${NumberUtil.toFixed((market?.prices[position.outcomeIndex] || 1) / 100, 3)} ${
-            position.market.collateral?.symbol
+            market?.tokenTicker[defaultChain.id]
           }`}</Text>
         </Flex>
         <Flex
@@ -141,7 +142,7 @@ export function PositionCard({ position, market }: PositionCardProps) {
           </Text>
           <Text>
             {`${NumberUtil.toFixed(position.outcomeTokenAmount, 6)} ${
-              position.market.collateral?.symbol
+              market?.tokenTicker[defaultChain.id]
             }`}
           </Text>
         </Flex>
