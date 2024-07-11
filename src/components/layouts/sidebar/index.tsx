@@ -153,12 +153,8 @@ export default function Sidebar() {
         )}
         {isConnected ? (
           <Button
-            variant='contained'
-            bg='grey.300'
-            color='black'
+            variant='grey'
             w='full'
-            h='unset'
-            py='4px'
             onClick={() => {
               trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
                 page: 'Explore Markets',

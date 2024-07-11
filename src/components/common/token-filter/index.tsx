@@ -40,10 +40,10 @@ export default function TokenFilter() {
         w='fit-content'
         marginBottom='4px'
         cursor='pointer'
-        bg={selectedFilterTokens.length === 0 ? 'black' : theme.colors.grey['300']}
+        bg={selectedFilterTokens.length === 0 ? 'grey.800' : theme.colors.grey['300']}
         onClick={() => handleFilterItemClicked(null)}
       >
-        <Text color={selectedFilterTokens.length === 0 ? 'white' : 'black'} fontWeight={500}>
+        <Text color={selectedFilterTokens.length === 0 ? 'grey.50' : 'grey.800'} fontWeight={500}>
           /All
         </Text>
       </Box>
@@ -53,7 +53,7 @@ export default function TokenFilter() {
           <Box
             bg={
               selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                ? 'black'
+                ? 'grey.800'
                 : theme.colors.grey['300']
             }
             padding='2px 4px'
@@ -67,8 +67,8 @@ export default function TokenFilter() {
             <Text
               color={
                 selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                  ? 'white'
-                  : 'black'
+                  ? 'grey.50'
+                  : 'grey.800'
               }
               fontWeight={500}
             >

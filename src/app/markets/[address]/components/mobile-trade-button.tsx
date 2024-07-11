@@ -55,7 +55,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
     }
     if (hasPositions) {
       return (
-        <Text color='white'>
+        <Text color='grey.50'>
           Lost {`${NumberUtil.formatThousands(hasPositions[0].outcomeTokenAmount, 4)}`}{' '}
           {market?.tokenTicker[defaultChain.id]}
         </Text>
@@ -68,7 +68,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
 
   const buttonColor = useMemo(() => {
     if (!positionToClaim) {
-      return 'black'
+      return 'grey.800'
     }
     if (hasPositions) {
       return 'green.500'
@@ -131,7 +131,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
           p='16px'
           pt='24px'
           w='full'
-          color='white'
+          color='grey.50'
         >
           <Text fontWeight={500} mt='16px'>
             Market is closed
@@ -147,11 +147,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
             <Text fontWeight={500}>did come true</Text>
           </HStack>
           <Button
-            variant='contained'
-            bg='white'
-            color='black'
-            w='full'
-            mt='40px'
+            variant='white'
             onClick={async () => {
               toggleClaimMenu()
               if (positionToClaim) {

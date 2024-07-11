@@ -189,7 +189,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
       <VStack mt='24px'>
         {positionsYes && (
           <Button
-            bg={outcomeChoice === 'yes' ? 'white' : 'rgba(255, 255, 255, 0.2)'}
+            bg={outcomeChoice === 'yes' ? 'grey.50' : 'rgba(255, 255, 255, 0.2)'}
             px='12px'
             py='8px'
             w='full'
@@ -203,13 +203,13 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
             }}
           >
             <HStack
-              color={outcomeChoice === 'yes' ? 'black' : 'white'}
+              color={outcomeChoice === 'yes' ? 'grey.800' : 'grey.50'}
               justifyContent='space-between'
               w='full'
             >
               <HStack gap='8px'>
                 <ThumbsUpIcon width='16px' height='16px' />
-                <Text fontWeight={500} color={outcomeChoice === 'yes' ? 'black' : 'white'}>
+                <Text fontWeight={500} color={outcomeChoice === 'yes' ? 'grey.800' : 'grey.50'}>
                   Yes
                 </Text>
               </HStack>
@@ -218,7 +218,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
             <VStack ml='24px' mt='8px' w='calc(100% - 24px)'>
               <HStack justifyContent='space-between' w='full'>
                 <HStack gap='4px'>
-                  <Text fontWeight={500} color={outcomeChoice === 'yes' ? 'black' : 'white'}>
+                  <Text fontWeight={500} color={outcomeChoice === 'yes' ? 'grey.800' : 'grey.50'}>
                     Per Share
                   </Text>
                   <Tooltip
@@ -229,7 +229,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                     <InfoIcon width='16px' height='16px' />
                   </Tooltip>
                 </HStack>
-                <Text fontWeight={500} color={outcomeChoice === 'yes' ? 'black' : 'white'}>
+                <Text fontWeight={500} color={outcomeChoice === 'yes' ? 'grey.800' : 'grey.50'}>
                   {perShareYes}
                 </Text>
               </HStack>
@@ -270,7 +270,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
               {/*</HStack>*/}
               <HStack justifyContent='space-between' w='full'>
                 <HStack gap='4px'>
-                  <Text fontWeight={500} color={outcomeChoice === 'yes' ? 'black' : 'white'}>
+                  <Text fontWeight={500} color={outcomeChoice === 'yes' ? 'grey.800' : 'grey.50'}>
                     Total
                   </Text>
                   <Tooltip
@@ -283,7 +283,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 </HStack>
                 <Text
                   fontWeight={500}
-                  color={outcomeChoice === 'yes' ? 'black' : 'white'}
+                  color={outcomeChoice === 'yes' ? 'grey.800' : 'grey.50'}
                 >{`${NumberUtil.toFixed(positionsYes.collateralAmount, 3)} ${
                   positionsYes.market.collateral?.symbol
                 }`}</Text>
@@ -293,7 +293,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
         )}
         {positionsNo && (
           <Button
-            bg={outcomeChoice === 'no' ? 'white' : 'rgba(255, 255, 255, 0.2)'}
+            bg={outcomeChoice === 'no' ? 'grey.50' : 'rgba(255, 255, 255, 0.2)'}
             px='12px'
             py='8px'
             w='full'
@@ -304,13 +304,13 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
             borderRadius='2px'
           >
             <HStack
-              color={outcomeChoice === 'no' ? 'black' : 'white'}
+              color={outcomeChoice === 'no' ? 'grey.800' : 'grey.50'}
               justifyContent='space-between'
               w='full'
             >
               <HStack gap='8px'>
                 <ThumbsDownIcon width='16px' height='16px' />
-                <Text fontWeight={500} color={outcomeChoice === 'no' ? 'black' : 'white'}>
+                <Text fontWeight={500} color={outcomeChoice === 'no' ? 'grey.800' : 'grey.50'}>
                   No
                 </Text>
               </HStack>
@@ -319,7 +319,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
             <VStack ml='24px' mt='8px' w='calc(100% - 24px)'>
               <HStack justifyContent='space-between' w='full'>
                 <HStack gap='4px'>
-                  <Text fontWeight={500} color={outcomeChoice === 'no' ? 'black' : 'white'}>
+                  <Text fontWeight={500} color={outcomeChoice === 'no' ? 'grey.800' : 'grey.50'}>
                     Per Share
                   </Text>
                   <Tooltip
@@ -330,8 +330,8 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                     <InfoIcon width='16px' height='16px' />
                   </Tooltip>
                 </HStack>
-                <Text fontWeight={500} color={outcomeChoice === 'no' ? 'black' : 'white'}>
-                  <Text fontWeight={500} color={outcomeChoice === 'no' ? 'black' : 'white'}>
+                <Text fontWeight={500} color={outcomeChoice === 'no' ? 'grey.800' : 'grey.50'}>
+                  <Text fontWeight={500} color={outcomeChoice === 'no' ? 'grey.800' : 'grey.50'}>
                     {perShareNo}
                   </Text>
                 </Text>
@@ -373,7 +373,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
               {/*</HStack>*/}
               <HStack justifyContent='space-between' w='full'>
                 <HStack gap='4px'>
-                  <Text fontWeight={500} color={outcomeChoice === 'no' ? 'black' : 'white'}>
+                  <Text fontWeight={500} color={outcomeChoice === 'no' ? 'grey.800' : 'grey.50'}>
                     Total
                   </Text>
                   <Tooltip
@@ -386,7 +386,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 </HStack>
                 <Text
                   fontWeight={500}
-                  color={outcomeChoice === 'no' ? 'black' : 'white'}
+                  color={outcomeChoice === 'no' ? 'grey.800' : 'grey.50'}
                 >{`${NumberUtil.toFixed(positionsNo.collateralAmount, 3)} ${
                   positionsNo.market.collateral?.symbol
                 }`}</Text>
@@ -398,10 +398,10 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
       {outcomeChoice && (
         <Box mt='24px'>
           <Flex justifyContent='space-between'>
-            <Text color='white' fontWeight={500}>
+            <Text color='grey.50' fontWeight={500}>
               Balance
             </Text>
-            <Text color='white' fontWeight={500}>
+            <Text color='grey.50' fontWeight={500}>
               {NumberUtil.formatThousands(balance, token?.symbol === 'USDC' ? 1 : 6)}{' '}
               {token?.symbol}
             </Text>
@@ -417,12 +417,12 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
             focusThumbOnChange={false}
           >
             <SliderTrack bg='rgba(255, 255, 255, 0.2)'>
-              <SliderFilledTrack bg='white' />
+              <SliderFilledTrack bg='grey.50' />
             </SliderTrack>
-            <SliderThumb bg='white' />
+            <SliderThumb bg='grey.50' />
           </Slider>
           <Stack w={'full'} mt='8px'>
-            <Text color='white' fontWeight={500}>
+            <Text color='grey.50' fontWeight={500}>
               Enter amount
             </Text>
             <Stack
@@ -431,7 +431,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
               px={2}
               py={1}
               borderRadius='2px'
-              border={'1px solid white'}
+              border={'1px solid grey.50'}
               borderColor={isExceedsBalance ? 'red' : 'border'}
             >
               <HStack h={'20px'} w='full' spacing={0}>
@@ -446,11 +446,11 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                     boxShadow: 'none',
                   }}
                   value={displayAmount}
-                  color='white'
+                  color='grey.50'
                   onChange={(e) => handleInputValueChange(e.target.value)}
                 />
 
-                <Text color='white' fontWeight={500}>
+                <Text color='grey.50' fontWeight={500}>
                   {market?.tokenTicker[defaultChain.id]}
                 </Text>
               </HStack>
@@ -459,7 +459,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
           <Box mt='24px'>
             <HStack justifyContent='space-between' w='full'>
               <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
+                <Text fontWeight={500} color='grey.50'>
                   Price impact
                 </Text>
                 <Tooltip
@@ -470,14 +470,14 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
               </HStack>
-              <Text fontWeight={500} color='white'>{`${NumberUtil.toFixed(
+              <Text fontWeight={500} color='grey.50'>{`${NumberUtil.toFixed(
                 quotesYes?.priceImpact,
                 2
               )}%`}</Text>
             </HStack>
             <HStack justifyContent='space-between' w='full'>
               <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
+                <Text fontWeight={500} color='grey.50'>
                   ROI
                 </Text>
                 <Tooltip
@@ -488,13 +488,13 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
               </HStack>
-              <Text fontWeight={500} color='white'>
+              <Text fontWeight={500} color='grey.50'>
                 {NumberUtil.toFixed(quotesYes?.roi, 2)}%
               </Text>
             </HStack>
             <HStack justifyContent='space-between' w='full'>
               <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
+                <Text fontWeight={500} color='grey.50'>
                   Total
                 </Text>
                 <Tooltip
@@ -505,23 +505,13 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
               </HStack>
-              <Text fontWeight={500} color='white'>
+              <Text fontWeight={500} color='grey.50'>
                 {displayAmount} {token?.symbol}
               </Text>
             </HStack>
           </Box>
           {displayAmount && (
-            <Button
-              variant='contained'
-              bg='white'
-              color='black'
-              w='full'
-              mt='24px'
-              h='unset'
-              py='4px'
-              onClick={handleTradeClicked}
-              disabled={isExceedsBalance}
-            >
+            <Button variant='white' onClick={handleTradeClicked} disabled={isExceedsBalance}>
               Trade
             </Button>
           )}

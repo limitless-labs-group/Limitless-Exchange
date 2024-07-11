@@ -34,8 +34,8 @@ import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
 import DescriptionIcon from '@/resources/icons/description-icon.svg'
 import { isMobile } from 'react-device-detect'
-import WarpcastIcon from '@/resources/icons/warpcast-icon.svg'
-import { FaXTwitter } from 'react-icons/fa6'
+import WarpcastIcon from '@/resources/icons/Farcaster.svg'
+import TwitterIcon from '@/resources/icons/X.svg'
 import {
   MarketClaimingForm,
   MarketMetadata,
@@ -114,44 +114,30 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
     <MainLayout isLoading={!market || isCollateralLoading || (isConnected && !positions)}>
       <HStack gap='40px' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
         <Box w={isMobile ? 'full' : '664px'}>
-          <Divider bg='black' orientation='horizontal' h='3px' />
+          <Divider bg='grey.800' orientation='horizontal' h='3px' />
           <HStack justifyContent='space-between' mt='10px' mb='24px'>
             <Button variant='grey' onClick={() => router.back()}>
               <ArrowLeftIcon width={16} height={16} />
               Back
             </Button>
             <Menu isOpen={isShareMenuOpen} onClose={() => setShareMenuOpen(false)}>
-              <MenuButton
-                py='4px'
-                px='8px'
-                borderRadius='2px'
-                bg='grey.300'
-                onClick={() => setShareMenuOpen(true)}
-              >
+              <MenuButton onClick={() => setShareMenuOpen(true)}>
                 <HStack gap='4px'>
                   <ShareIcon width={16} height={16} />
                   <Text fontWeight={500}>Share</Text>
                 </HStack>
               </MenuButton>
-              <MenuList borderRadius='2px' w='full' zIndex={2}>
-                <MenuItem
-                  onClick={() => window.open(castURI, '_blank', 'noopener')}
-                  _focus={{ bg: 'grey.200' }}
-                  _hover={{ bg: 'grey.200' }}
-                >
+              <MenuList borderRadius='2px' w='122px' zIndex={2}>
+                <MenuItem onClick={() => window.open(castURI, '_blank', 'noopener')}>
                   <HStack gap='4px'>
                     <WarpcastIcon />
-                    <Text fontWeight={500}>Warpcast</Text>
+                    <Text fontWeight={500}>On Warpcast</Text>
                   </HStack>
                 </MenuItem>
-                <MenuItem
-                  onClick={() => window.open(tweetURI, '_blank', 'noopener')}
-                  _hover={{ bg: 'grey.200' }}
-                  _focus={{ bg: 'grey.200' }}
-                >
+                <MenuItem onClick={() => window.open(tweetURI, '_blank', 'noopener')}>
                   <HStack gap='4px'>
-                    <FaXTwitter size={'16px'} />
-                    <Text fontWeight={500}>X</Text>
+                    <TwitterIcon />
+                    <Text fontWeight={500}>On X</Text>
                   </HStack>
                 </MenuItem>
               </MenuList>

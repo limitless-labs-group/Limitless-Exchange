@@ -46,7 +46,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
 
   return (
     <Box
-      bg='white'
+      bg='grey.50'
       w={isMobile ? 'full' : '328px'}
       p='8px'
       h='full'
@@ -56,14 +56,14 @@ export default function WalletPage({ onClose }: WalletPageProps) {
       <Text fontSize='32px'>Wallet</Text>
       <Paper bg='blue.500' mt='24px'>
         <HStack w='full' justifyContent='space-between'>
-          <HStack gap='4px' color='white'>
+          <HStack gap='4px' color='grey.50'>
             <WalletIcon width='16px' height='16px' />
             <Text fontWeight={500}>Available balance</Text>
           </HStack>
           <Button
             variant='contained'
-            bg='white'
-            color='black'
+            bg='grey.50'
+            color='grey.800'
             py='4px'
             h='unset'
             onClick={handleOpenWithdrawModal}
@@ -71,13 +71,13 @@ export default function WalletPage({ onClose }: WalletPageProps) {
             Withdraw
           </Button>
         </HStack>
-        <Text color='white' fontSize='24px' fontWeight={500} mb='16px'>
+        <Text color='grey.50' fontSize='24px' fontWeight={500} mb='16px'>
           ~{NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
         </Text>
-        <Text color='white' fontWeight={500}>
+        <Text color='grey.50' fontWeight={500}>
           Address
         </Text>
-        <HStack gap='4px' color='white'>
+        <HStack gap='4px' color='grey.50'>
           <Text fontWeight={500}>{truncateEthAddress(address)}</Text>
           <Box cursor='pointer'>
             <CopyToClipboard text={address as string} onCopy={onClickCopy}>

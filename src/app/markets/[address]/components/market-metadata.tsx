@@ -51,7 +51,7 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
 
   return (
     <Box>
-      <Flex w='full' pb='10px' borderBottom='1px solid' borderColor='black'>
+      <Flex w='full' pb='10px' borderBottom='1px solid' borderColor='grey.800'>
         <HStack gap='24px'>
           <HStack gap={'4px'} color='green.500'>
             <ThumbsUpIcon width={16} height={16} />
@@ -65,7 +65,7 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
           </HStack>
         </HStack>
       </Flex>
-      <Flex borderBottom={isMobile ? '1px solid' : 'unset'} borderColor='black'>
+      <Flex borderBottom={isMobile ? '1px solid' : 'unset'} borderColor='grey.800'>
         {!isMobile &&
           stats.map((stat, index) => (
             <Box
@@ -74,7 +74,7 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
               key={stat.title}
               flex={1}
               borderRight={stat.border ? '1px solid' : 'unset'}
-              borderColor='black'
+              borderColor='grey.800'
               pl={index ? '8px' : 0}
             >
               <Text fontWeight={500}>{stat.value}</Text>
@@ -92,7 +92,7 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
               key={stats[index].title}
               flex={1}
               borderRight={stats[index].border ? '1px solid' : 'unset'}
-              borderColor='black'
+              borderColor='grey.800'
               pl={index ? '8px' : 0}
             >
               <Text fontWeight={500}>{stats[index].value}</Text>
@@ -110,7 +110,7 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
           key={stats[2].title}
           flex={1}
           borderRight={stats[2].border ? '1px solid' : 'unset'}
-          borderColor='black'
+          borderColor='grey.800'
           pl={0}
         >
           <Text fontWeight={500}>{stats[2].value}</Text>

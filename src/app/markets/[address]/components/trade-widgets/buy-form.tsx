@@ -140,10 +140,10 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
   return (
     <>
       <Flex justifyContent='space-between'>
-        <Text color='white' fontWeight={500}>
+        <Text color='grey.50' fontWeight={500}>
           Balance
         </Text>
-        <Text color='white' fontWeight={500}>
+        <Text color='grey.50' fontWeight={500}>
           {NumberUtil.formatThousands(balance, token?.symbol === 'USDC' ? 1 : 6)} {token?.symbol}
         </Text>
       </Flex>
@@ -158,9 +158,9 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
         focusThumbOnChange={false}
       >
         <SliderTrack bg='rgba(255, 255, 255, 0.2)'>
-          <SliderFilledTrack bg='white' />
+          <SliderFilledTrack bg='grey.50' />
         </SliderTrack>
-        <SliderThumb bg='white' />
+        <SliderThumb bg='grey.50' />
       </Slider>
       {/*<ChakraSlider*/}
       {/*  defaultValue={0}*/}
@@ -245,7 +245,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
       {/*</ChakraSlider>*/}
 
       <Stack w={'full'} mt='8px'>
-        <Text color='white' fontWeight={500}>
+        <Text color='grey.50' fontWeight={500}>
           {strategy == 'Buy' ? 'You pay' : 'You sell'}
         </Text>
         <Stack
@@ -254,7 +254,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           px={2}
           py={1}
           borderRadius='2px'
-          border={'1px solid white'}
+          border={'1px solid grey.50'}
           borderColor={isExceedsBalance ? 'red' : 'border'}
         >
           <HStack h={'20px'} w='full' spacing={0}>
@@ -269,11 +269,11 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
                 boxShadow: 'none',
               }}
               value={displayAmount}
-              color='white'
+              color='grey.50'
               onChange={(e) => handleInputValueChange(e.target.value)}
             />
 
-            <Text color='white' fontWeight={500}>
+            <Text color='grey.50' fontWeight={500}>
               {market?.tokenTicker[defaultChain.id]}
             </Text>
           </HStack>
@@ -302,7 +302,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           }}
           borderRadius='2px'
         >
-          <HStack gap='8px' color='white'>
+          <HStack gap='8px' color='grey.50'>
             <ThumbsUpIcon width='16px' height='16px' />
             <HStack gap='4px'>
               <Text fontWeight={500}>{market.prices[0]}%</Text>
@@ -312,7 +312,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           <VStack ml='24px' mt='8px' w='calc(100% - 24px)'>
             <HStack justifyContent='space-between' w='full'>
               <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
+                <Text fontWeight={500} color='grey.50'>
                   Avg price
                 </Text>
                 <Tooltip
@@ -323,14 +323,14 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
               </HStack>
-              <Text fontWeight={500} color='white'>{`${NumberUtil.formatThousands(
+              <Text fontWeight={500} color='grey.50'>{`${NumberUtil.formatThousands(
                 quotesYes?.outcomeTokenPrice,
                 6
               )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
             </HStack>
             <HStack justifyContent='space-between' w='full'>
               <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
+                <Text fontWeight={500} color='grey.50'>
                   Price impact
                 </Text>
                 <Tooltip
@@ -341,14 +341,14 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
               </HStack>
-              <Text fontWeight={500} color='white'>{`${NumberUtil.toFixed(
+              <Text fontWeight={500} color='grey.50'>{`${NumberUtil.toFixed(
                 quotesYes?.priceImpact,
                 2
               )}%`}</Text>
             </HStack>
             <HStack justifyContent='space-between' w='full'>
               <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
+                <Text fontWeight={500} color='grey.50'>
                   Est. ROI
                 </Text>
                 <Tooltip
@@ -359,13 +359,13 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
               </HStack>
-              <Text fontWeight={500} color='white'>
+              <Text fontWeight={500} color='grey.50'>
                 {NumberUtil.toFixed(quotesYes?.roi, 2)}%
               </Text>
             </HStack>
             <HStack justifyContent='space-between' w='full'>
               <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
+                <Text fontWeight={500} color='grey.50'>
                   Return
                 </Text>
                 <Tooltip
@@ -376,7 +376,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
               </HStack>
-              <Text fontWeight={500} color='white'>
+              <Text fontWeight={500} color='grey.50'>
                 {NumberUtil.formatThousands(quotesYes?.outcomeTokenAmount, 6)}{' '}
                 {market.tokenTicker[defaultChain.id]}
               </Text>
@@ -405,7 +405,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           }}
           borderRadius='2px'
         >
-          <HStack gap='8px' color='white'>
+          <HStack gap='8px' color='grey.50'>
             <ThumbsDownIcon width='16px' height='16px' />
             <HStack gap='4px'>
               <Text fontWeight={500}>{market.prices[1]}%</Text>
@@ -415,7 +415,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           <VStack ml='24px' mt='8px' w='calc(100% - 24px)'>
             <HStack justifyContent='space-between' w='full'>
               <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
+                <Text fontWeight={500} color='grey.50'>
                   Avg price
                 </Text>
                 <Tooltip
@@ -426,14 +426,14 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
               </HStack>
-              <Text fontWeight={500} color='white'>{`${NumberUtil.formatThousands(
+              <Text fontWeight={500} color='grey.50'>{`${NumberUtil.formatThousands(
                 quotesNo?.outcomeTokenPrice,
                 6
               )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
             </HStack>
             <HStack justifyContent='space-between' w='full'>
               <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
+                <Text fontWeight={500} color='grey.50'>
                   Price impact
                 </Text>
                 <Tooltip
@@ -444,14 +444,14 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
               </HStack>
-              <Text fontWeight={500} color='white'>{`${NumberUtil.toFixed(
+              <Text fontWeight={500} color='grey.50'>{`${NumberUtil.toFixed(
                 quotesNo?.priceImpact,
                 2
               )}%`}</Text>
             </HStack>
             <HStack justifyContent='space-between' w='full'>
               <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
+                <Text fontWeight={500} color='grey.50'>
                   Est. ROI
                 </Text>
                 <Tooltip
@@ -462,13 +462,13 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
               </HStack>
-              <Text fontWeight={500} color='white'>
+              <Text fontWeight={500} color='grey.50'>
                 {NumberUtil.toFixed(quotesNo?.roi, 2)}%
               </Text>
             </HStack>
             <HStack justifyContent='space-between' w='full'>
               <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
+                <Text fontWeight={500} color='grey.50'>
                   Return
                 </Text>
                 <Tooltip
@@ -479,7 +479,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
                   <InfoIcon width='16px' height='16px' />
                 </Tooltip>
               </HStack>
-              <Text fontWeight={500} color='white'>
+              <Text fontWeight={500} color='grey.50'>
                 {NumberUtil.formatThousands(quotesNo?.outcomeTokenAmount, 6)}{' '}
                 {market.tokenTicker[defaultChain.id]}
               </Text>

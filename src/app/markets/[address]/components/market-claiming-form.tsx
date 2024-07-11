@@ -40,7 +40,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
 
   const formColor = useMemo(() => {
     if (!positionToClaim) {
-      return 'black'
+      return 'grey.800'
     }
     if (hasPositions) {
       return 'green.500'
@@ -51,7 +51,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
   const actionText = useMemo(() => {
     if (!positionToClaim) {
       return (
-        <Button variant='contained' bg='white' color='black' onClick={() => router.push('/')}>
+        <Button variant='white' onClick={() => router.push('/')}>
           Explore Opened Markets
         </Button>
       )
@@ -59,9 +59,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
     if (positionToClaim) {
       return (
         <Button
-          variant='contained'
-          color='blacl'
-          bg='white'
+          variant='white'
           onClick={() => claim(positionToClaim.outcomeIndex)}
           disabled={status === 'Loading'}
         >
@@ -79,7 +77,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
     }
     if (hasPositions) {
       return (
-        <Text color='white'>
+        <Text color='grey.50'>
           You lost {`${NumberUtil.formatThousands(hasPositions[0].outcomeTokenAmount, 4)}`}{' '}
           {market?.tokenTicker[defaultChain.id]}
         </Text>
@@ -89,11 +87,11 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
 
   return (
     <Paper bg={formColor} w='312px'>
-      <Text fontWeight={500} color='white'>
+      <Text fontWeight={500} color='grey.50'>
         Market is closed
       </Text>
       {!!hasPositions?.length && (
-        <HStack gap='4px' color='white'>
+        <HStack gap='4px' color='grey.50'>
           <Text fontWeight={500}>Your prediction of</Text>
           {hasPositions[0].outcomeIndex ? (
             <ThumbsDownIcon width={16} height={16} />
