@@ -334,7 +334,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       token: Token
       amount: string
     }) => {
-      debugger
       if (unwrap) {
         toast({
           render: () => <Toast title={'Unwrapping ETH...'} />,
@@ -376,7 +375,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       toast({
         render: () => <Toast title={'Processing transaction...'} />,
       })
-      debugger
       const transferReceipt = await transferErc20(
         token.address as Address,
         receiver as Address,

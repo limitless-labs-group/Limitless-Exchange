@@ -17,12 +17,13 @@ interface MarketMetadataProps {
 
 export const MarketMetadata = ({ market }: MarketMetadataProps) => {
   const { supportedTokens } = useLimitlessApi()
-  const { outcomeTokensBuyPrice: outcomeTokensBuyPriceCurrent } = useMarketData({
+  const { outcomeTokensPercent } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
     collateralToken: supportedTokens?.find(
       (token) => token.address === market?.collateralToken[defaultChain.id]
     ),
   })
+
   const stats = [
     {
       title: 'Liquidity',
@@ -54,16 +55,12 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
         <HStack gap='24px'>
           <HStack gap={'4px'} color='green.500'>
             <ThumbsUpIcon width={16} height={16} />
-            <Text fontWeight={500}>
-              {NumberUtil.toFixed((outcomeTokensBuyPriceCurrent?.[0] || 0) * 100, 0)}%
-            </Text>
+            <Text fontWeight={500}>{NumberUtil.toFixed(outcomeTokensPercent?.[0], 1)}%</Text>
             <Text fontWeight={500}>Yes</Text>
           </HStack>
           <HStack gap={'4px'} color='red.500'>
             <ThumbsDownIcon width={16} height={16} />
-            <Text fontWeight={500}>
-              {NumberUtil.toFixed((outcomeTokensBuyPriceCurrent?.[1] || 0) * 100, 0)}%
-            </Text>
+            <Text fontWeight={500}>{NumberUtil.toFixed(outcomeTokensPercent?.[1], 1)}%</Text>
             <Text fontWeight={500}>No</Text>
           </HStack>
         </HStack>
