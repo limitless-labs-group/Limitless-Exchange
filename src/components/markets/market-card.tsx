@@ -10,6 +10,7 @@ import { Box, Heading, HStack, StackProps, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import Paper from '@/components/common/paper'
 import { Icon } from '@chakra-ui/react'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 interface IMarketCard extends StackProps {
   market: Market
@@ -36,14 +37,12 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
       {...props}
     >
       <HStack justifyContent='space-between' mb='12px'>
-        <Text color={'grey.800'} fontSize={'14px'} lineHeight={'20px'} textDecor={'underline'}>
+        <Text color={'grey.800'} fontSize={'14px'} lineHeight={'20px'}>
           {market?.title ?? 'Noname market'}
         </Text>
         <HStack gap={1}>
-          <ThumbsUpIcon width={'16px'} height={'16px'} />
-          <Heading color={'grey.800'} lineHeight={'20px'} fontSize={'14px'}>
-            {market?.buyYesNo[0]}% YES
-          </Heading>
+          <ThumbsUpIcon width={'16px'} height={'16px'} color={'red.500'} />
+          <Text {...paragraphMedium}>{market?.buyYesNo[0]}% YES</Text>
           <ArrowRightIcon width={'16px'} height={'16px'} />
         </HStack>
       </HStack>
@@ -52,7 +51,7 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
           <Box>
             <HStack gap={1}>
               <Icon as={LiquidityIcon} color={'grey.500'} width={'16px'} height={'16px'} />
-              <Text color={'grey.500'} fontSize={'14px'} fontWeight={'bold'}>
+              <Text {...paragraphMedium} color={'grey.500'}>
                 Liquidity
               </Text>
             </HStack>
@@ -64,7 +63,7 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
           <Box>
             <HStack gap={1}>
               <Icon as={VolumeIcon} color={'grey.500'} width={'16px'} height={'16px'} />
-              <Text color={'grey.500'} fontSize={'14px'} fontWeight={'bold'}>
+              <Text {...paragraphMedium} color={'grey.500'}>
                 Volume
               </Text>
             </HStack>
@@ -75,8 +74,8 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
           </Box>
         </HStack>
         <HStack gap={1}>
-          <CalendarIcon width={'16px'} height={'16px'} />
-          <Text color={'grey.500'} fontSize={'14px'}>
+          <Icon as={CalendarIcon} width={'16px'} height={'16px'} color={'grey.500'} />
+          <Text {...paragraphMedium} color={'grey.500'}>
             {market?.expirationDate}
           </Text>
         </HStack>
