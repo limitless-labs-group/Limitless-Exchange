@@ -1,5 +1,7 @@
 import { inputAnatomy } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { isMobile } from 'react-device-detect'
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(
   inputAnatomy.keys
@@ -9,13 +11,24 @@ const outlined = definePartsStyle({
   field: {
     border: '1px solid',
     borderRadius: '2px',
-    borderColor: 'grey.300',
+    borderColor: 'transparent.200',
     p: '4px 8px',
-    fontWeight: 500,
-    h: '24px',
-    _placeholder: {
-      color: 'grey.300',
+    h: isMobile ? '32px' : '24px',
+    bg: 'unset',
+    ...paragraphMedium,
+    color: 'grey.50',
+    _hover: {
+      borderColor: 'transparent.700',
     },
+    _focus: {
+      borderColor: 'grey.50',
+    },
+    _placeholder: {
+      color: 'transparent.700',
+    },
+  },
+  element: {
+    h: '24px',
   },
 })
 

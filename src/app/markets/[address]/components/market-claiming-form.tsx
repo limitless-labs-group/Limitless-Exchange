@@ -61,7 +61,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
         <Button
           variant='white'
           onClick={() => claim(positionToClaim.outcomeIndex)}
-          disabled={status === 'Loading'}
+          isDisabled={status === 'Loading'}
         >
           {status === 'Loading' ? (
             'Processing'

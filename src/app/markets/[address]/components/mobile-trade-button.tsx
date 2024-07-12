@@ -154,7 +154,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
                 await claim(positionToClaim?.outcomeIndex)
               }
             }}
-            disabled={status === 'Loading'}
+            isDisabled={status === 'Loading'}
           >
             <Icon as={WinIcon} />
             <Text fontWeight={500}>
