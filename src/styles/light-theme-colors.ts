@@ -76,4 +76,9 @@ export const lightThemeColors = {
     700: '#2C02A1',
     800: '#1D007A',
   },
+  transparent: {
+    200: 'rgba(255, 255, 255, 0.2)',
+    300: 'rgba(255, 255, 255, 0.3)',
+    700: 'rgba(255, 255, 255, 0.7)',
+  },
 }
