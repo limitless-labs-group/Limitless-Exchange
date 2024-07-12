@@ -97,6 +97,13 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
     )
   }, [market])
 
+  const handleBackClicked = () => {
+    if (window.history.length > 2) {
+      return router.back()
+    }
+    return router.push('/')
+  }
+
   useEffect(() => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
       page: 'Market Page',
@@ -116,7 +123,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
         <Box w={isMobile ? 'full' : '664px'}>
           <Divider bg='grey.800' orientation='horizontal' h='3px' />
           <HStack justifyContent='space-between' mt='10px' mb='24px'>
-            <Button variant='grey' onClick={() => router.back()}>
+            <Button variant='grey' onClick={handleBackClicked}>
               <ArrowLeftIcon width={16} height={16} />
               Back
             </Button>
