@@ -10,10 +10,10 @@ type SortFilterProps = {
   onChange: (option: Sort) => void
 }
 
-const sortOptions = [Sort.NEWEST, Sort.COMING_DEADLINE, Sort.HIGHEST_LIQUIDITY, Sort.HIGHEST_VOLUME]
+const sortOptions = [Sort.HIGHEST_VOLUME, Sort.HIGHEST_LIQUIDITY, Sort.COMING_DEADLINE, Sort.NEWEST]
 
 export default function SortFilter({ onChange }: SortFilterProps) {
-  const [selectedSortFilter, setSelectedSortFilter] = useState<Sort>(Sort.NEWEST)
+  const [selectedSortFilter, setSelectedSortFilter] = useState<Sort>(Sort.HIGHEST_VOLUME)
 
   const handleFilterItemClicked = (option: Sort) => {
     setSelectedSortFilter(option)
