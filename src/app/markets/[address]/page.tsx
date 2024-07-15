@@ -119,7 +119,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   }, [market, previousMarket])
 
   return (
-    <MainLayout>
+    <MainLayout isLoading={!market || isCollateralLoading || (isConnected && !positions)}>
       <HStack gap='40px' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
         <Box w={isMobile ? 'full' : '664px'}>
           <Divider bg='grey.800' orientation='horizontal' h='3px' />

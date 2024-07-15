@@ -71,7 +71,7 @@ export default function Sidebar() {
         h='full'
         minW={'188px'}
         minH={'100vh'}
-        zIndex={100}
+        zIndex={200}
         bg={isOpenWalletPage ? 'grey.100' : 'grey.50'}
       >
         <Button variant='transparent' onClick={() => router.push('/')}>
@@ -184,6 +184,7 @@ export default function Sidebar() {
           bg='rgba(0, 0, 0, 0.3)'
           mt='20px'
           ml='188px'
+          transition='background-color 0.5s'
         ></Box>
       )}
       <Slide
@@ -192,7 +193,8 @@ export default function Sidebar() {
         style={{
           zIndex: 100,
           marginTop: '20px',
-          marginLeft: isOpenWalletPage ? '188px' : 0,
+          marginLeft: '188px',
+          transition: '0.1s',
         }}
         onClick={onToggleWalletPage}
       >

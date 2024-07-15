@@ -5,6 +5,7 @@ import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import { isMobile } from 'react-device-detect'
+import { useMemo } from 'react'
 
 const StatBox = ({
   title,
@@ -22,22 +23,39 @@ const StatBox = ({
   isLast?: boolean
   isFirst?: boolean
   w?: string
-}) => (
-  <Box
-    pt='7px'
-    pb='11px'
-    flex={isMobile ? 1 : 'unset'}
-    borderRight={border && !isLast ? '1px solid' : 'unset'}
-    pl={!isFirst ? '8px' : 0}
-    w={w && !isMobile ? w : 'unset'}
-  >
-    <Text fontWeight={500}>{value}</Text>
-    <HStack gap='4px' color='grey.500'>
-      {icon}
-      <Text fontWeight={500}>{title}</Text>
-    </HStack>
-  </Box>
-)
+}) => {
+  const paddingLeft = useMemo(() => {
+    if (isMobile) {
+      return !isFirst && !isLast
+    }
+    return !isFirst
+  }, [isLast, isFirst])
+
+  const borderRight = useMemo(() => {
+    if (isMobile) {
+      return isFirst || isLast
+    }
+    return border && !isLast
+  }, [isLast, isFirst, border])
+
+  return (
+    <Box
+      pt='7px'
+      pb='11px'
+      flex={isMobile ? 1 : 'unset'}
+      borderRight={borderRight ? '1px solid' : 'unset'}
+      pl={paddingLeft ? '8px' : 0}
+      w={w && !isMobile ? w : 'unset'}
+      borderTop={isMobile ? '1px solid' : 'unset'}
+    >
+      <Text fontWeight={500}>{value}</Text>
+      <HStack gap='4px' color='grey.500'>
+        {icon}
+        <Text fontWeight={500}>{title}</Text>
+      </HStack>
+    </Box>
+  )
+}
 
 export const PortfolioStats = ({ ...props }: StackProps) => {
   const { overallBalanceUsd } = useBalanceService()
@@ -66,16 +84,16 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
   ]
 
   return (
-    <Stack w={'full'}>
+    <Stack w={'full'} mb={isMobile ? '56px' : 0}>
       {isMobile ? (
         <Flex mt={'24px'}>
           <VStack w={'full'} gap={0}>
             <HStack gap={0} w={'full'}>
               <StatBox {...stats[0]} isFirst />
-              <StatBox {...stats[1]} isLast />
+              <StatBox {...stats[1]} />
             </HStack>
             <HStack gap={0} w={'full'} h={'full'}>
-              <StatBox {...stats[2]} />
+              <StatBox {...stats[2]} isLast />
               <Box
                 pt='7px'
                 pb='11px'

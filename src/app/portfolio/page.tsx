@@ -31,7 +31,12 @@ const PortfolioPage = () => {
         <Stack w={'full'} spacing={5} mt={1}>
           <HStack gap={0} borderBottom={'1px solid'} borderColor={'grey.400'} alignItems='flex-end'>
             <Stack cursor={'pointer'} onClick={() => setTab('Investments')} mb='-1px' gap={0}>
-              <HStack color={tab === 'Investments' ? 'grey.800' : 'grey.500'} px='8px' gap='4px'>
+              <HStack
+                color={tab === 'Investments' ? 'grey.800' : 'grey.500'}
+                px='8px'
+                gap='4px'
+                mb='4px'
+              >
                 <Icon as={PortfolioIcon} w={'16px'} h={'16px'} />
                 <Text {...paragraphMedium} color={tab === 'Investments' ? 'grey.800' : 'grey.500'}>
                   Investments
@@ -55,7 +60,12 @@ const PortfolioPage = () => {
               mb='-1px'
               gap={0}
             >
-              <HStack color={tab === 'History' ? 'grey.800' : 'grey.500'} px='8px' gap='4px'>
+              <HStack
+                color={tab === 'History' ? 'grey.800' : 'grey.500'}
+                px='8px'
+                gap='4px'
+                mb='4px'
+              >
                 <Icon as={HistoryIcon} w={'16px'} h={'16px'} />
                 <Text {...paragraphMedium} color={tab === 'History' ? 'grey.800' : 'grey.500'}>
                   History
