@@ -36,7 +36,7 @@ export default function SortFilter({ onChange }: SortFilterProps) {
     >
       <ButtonGroup
         variant='outline'
-        gap={0}
+        gap='2px'
         w='fit-content'
         p='2px'
         bg='grey.300'
@@ -46,14 +46,12 @@ export default function SortFilter({ onChange }: SortFilterProps) {
           <Button
             variant='grey'
             key={uuidv4()}
-            fontSize={isMobile ? '14px' : '12px'}
             color={option === selectedSortFilter ? 'grey.50' : 'grey.800'}
             bg={option === selectedSortFilter ? 'grey.800' : 'unset'}
             onClick={() => handleFilterItemClicked(option)}
-            rounded={0}
-            flex={1}
-            _hover={{ bg: option === selectedSortFilter ? 'grey.800' : 'grey.200' }}
-            borderRadius='2px'
+            _hover={{ bg: option === selectedSortFilter ? 'grey.800' : 'grey.400' }}
+            px='12px'
+            marginInlineStart='0px !important'
           >
             {option}
           </Button>

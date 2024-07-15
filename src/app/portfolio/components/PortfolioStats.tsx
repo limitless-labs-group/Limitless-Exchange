@@ -12,21 +12,24 @@ const StatBox = ({
   value,
   border,
   isLast,
+  isFirst,
+  w,
 }: {
   title: string
   icon: JSX.Element
   value: string
   border: boolean
   isLast?: boolean
+  isFirst?: boolean
+  w?: string
 }) => (
   <Box
     pt='7px'
     pb='11px'
-    flex={1}
+    flex={isMobile ? 1 : 'unset'}
     borderRight={border && !isLast ? '1px solid' : 'unset'}
-    borderColor='grey.800'
-    borderTop='1px solid'
-    pl={'8px'}
+    pl={!isFirst ? '8px' : 0}
+    w={w && !isMobile ? w : 'unset'}
   >
     <Text fontWeight={500}>{value}</Text>
     <HStack gap='4px' color='grey.500'>
@@ -43,14 +46,16 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
     {
       title: 'Portfolio',
       icon: <PortfolioIcon width={16} height={16} />,
-      value: `${NumberUtil.formatThousands(balanceInvested, 2)} USD`,
+      value: `~${NumberUtil.formatThousands(balanceInvested, 2)} USD`,
       border: true,
+      w: '213px',
     },
     {
       title: 'To win',
       icon: <CalendarIcon width={16} height={16} />,
       value: `${NumberUtil.formatThousands(balanceToWin, 2)} USD`,
       border: !isMobile,
+      w: '166px',
     },
     {
       title: 'Available Balance',
@@ -66,7 +71,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
         <Flex mt={'24px'}>
           <VStack w={'full'} gap={0}>
             <HStack gap={0} w={'full'}>
-              <StatBox {...stats[0]} />
+              <StatBox {...stats[0]} isFirst />
               <StatBox {...stats[1]} isLast />
             </HStack>
             <HStack gap={0} w={'full'} h={'full'}>
@@ -85,9 +90,14 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
           </VStack>
         </Flex>
       ) : (
-        <Flex {...props}>
+        <Flex {...props} w='full' borderColor='grey.800' borderTop='1px solid'>
           {stats.map((stat, index) => (
-            <StatBox key={stat.title} {...stat} isLast={index === stats.length - 1} />
+            <StatBox
+              key={stat.title}
+              {...stat}
+              isLast={index === stats.length - 1}
+              isFirst={!index}
+            />
           ))}
         </Flex>
       )}

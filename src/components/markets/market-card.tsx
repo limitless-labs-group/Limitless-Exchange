@@ -26,6 +26,11 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
    */
   const marketURI = `${window.location.origin}/markets/${market.address[defaultChain.id]}`
 
+  const unhoveredColors = {
+    main: 'grey.800',
+    secondary: 'grey.500',
+  }
+
   return (
     <Paper
       w={'full'}

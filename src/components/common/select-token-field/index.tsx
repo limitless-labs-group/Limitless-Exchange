@@ -15,16 +15,8 @@ export default function SelectTokenField({ token, setToken }: SelectTokenFieldPr
   const { supportedTokens } = useLimitlessApi()
 
   return (
-    <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
-      <MenuButton
-        w='full'
-        py='4px'
-        px='8px'
-        borderRadius='2px'
-        border='1px solid'
-        borderColor='grey.300'
-        onClick={() => setIsMenuOpen(true)}
-      >
+    <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} variant='outlined'>
+      <MenuButton w='full' onClick={() => setIsMenuOpen(true)}>
         <HStack justifyContent='space-between'>
           <HStack gap='4px'>
             <Image src={token.logoUrl} alt={token.symbol} width={16} height={16} />
@@ -35,7 +27,7 @@ export default function SelectTokenField({ token, setToken }: SelectTokenFieldPr
           </Box>
         </HStack>
       </MenuButton>
-      <MenuList borderRadius='2px' w='full'>
+      <MenuList borderRadius='2px' w='416px'>
         {supportedTokens?.map((supportedToken) => (
           <MenuItem onClick={() => setToken(supportedToken)} key={supportedToken.symbol}>
             <HStack gap='4px'>

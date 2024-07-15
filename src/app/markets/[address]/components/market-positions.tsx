@@ -4,7 +4,6 @@ import { Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { Market } from '@/types'
 import ChartIcon from '@/resources/icons/chart-icon.svg'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { PositionCard } from '@/app/markets/[address]/components'
 
 interface MarketPositionsProps {

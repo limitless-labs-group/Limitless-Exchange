@@ -72,6 +72,7 @@ export default function Sidebar() {
         minW={'188px'}
         minH={'100vh'}
         zIndex={100}
+        bg={isOpenWalletPage ? 'grey.100' : 'grey.50'}
       >
         <Button variant='transparent' onClick={() => router.push('/')}>
           <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />

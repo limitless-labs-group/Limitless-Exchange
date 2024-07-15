@@ -46,6 +46,7 @@ import {
   MobileTradeButton,
 } from './components'
 import { useAccount } from 'wagmi'
+import { paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -118,7 +119,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   }, [market, previousMarket])
 
   return (
-    <MainLayout isLoading={!market || isCollateralLoading || (isConnected && !positions)}>
+    <MainLayout>
       <HStack gap='40px' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
         <Box w={isMobile ? 'full' : '664px'}>
           <Divider bg='grey.800' orientation='horizontal' h='3px' />
@@ -185,9 +186,9 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
           <MarketPositions market={market} />
           <HStack gap='4px' marginTop='24px' mb='8px'>
             <DescriptionIcon width='16px' height='16px' />
-            <Text fontWeight={700}>Description</Text>
+            <Text {...paragraphBold}>Description</Text>
           </HStack>
-          <Text>{market?.description}</Text>
+          <Text {...paragraphRegular}>{market?.description}</Text>
         </Box>
         {!isMobile && marketActionForm}
       </HStack>

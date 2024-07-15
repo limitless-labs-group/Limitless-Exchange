@@ -32,6 +32,32 @@ const outlined = definePartsStyle({
   },
 })
 
+const grey = definePartsStyle({
+  field: {
+    border: '1px solid',
+    borderRadius: '2px',
+    borderColor: 'grey.300',
+    px: isMobile ? '12px' : '8px',
+    py: isMobile ? '8px' : '4px',
+    h: isMobile ? '32px' : '24px',
+    bg: 'unset',
+    ...paragraphMedium,
+    color: 'grey.800',
+    _hover: {
+      borderColor: 'grey.800',
+    },
+    _focus: {
+      borderColor: 'grey.800',
+    },
+    _placeholder: {
+      color: 'grey.500',
+    },
+  },
+  element: {
+    h: '24px',
+  },
+})
+
 export const inputTheme = defineMultiStyleConfig({
-  variants: { outlined },
+  variants: { outlined, grey },
 })

@@ -334,12 +334,11 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       token: Token
       amount: string
     }) => {
+      const amountBI = parseUnits(amount, token.decimals)
       if (unwrap) {
         toast({
           render: () => <Toast title={'Unwrapping ETH...'} />,
         })
-
-        const amountBI = parseUnits(amount, token.decimals)
 
         const unwrapReceipt = await unwrapEth(amountBI)
         if (!unwrapReceipt) {
