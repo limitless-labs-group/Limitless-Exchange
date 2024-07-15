@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { HStack, ButtonGroup, Button, Flex } from '@chakra-ui/react'
+import { HStack, ButtonGroup, Button } from '@chakra-ui/react'
 import { v4 as uuidv4 } from 'uuid'
 
 import { Sort } from '@/types'
@@ -36,15 +36,13 @@ export default function SortFilter({ onChange }: SortFilterProps) {
       overflowX='auto'
       h={isMobile ? '32px' : '24px'}
     >
-      <ButtonGroup variant='outline' gap={0} p='2px' bg='grey.300' borderRadius='2px'>
+      <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.300' borderRadius='2px'>
         {sortOptions.map((option) => (
           <Button
             variant='grey'
             key={uuidv4()}
             bg={option === selectedSortFilter ? 'grey.800' : 'unset'}
             onClick={() => handleFilterItemClicked(option)}
-            rounded={0}
-            flex={1}
             _hover={{ bg: option === selectedSortFilter ? 'grey.800' : 'grey.400' }}
             borderRadius='2px'
             h={isMobile ? '28px' : '20px'}
@@ -53,6 +51,7 @@ export default function SortFilter({ onChange }: SortFilterProps) {
             fontSize={isMobile ? '14px' : '12px'}
             color={option === selectedSortFilter ? 'grey.50' : 'grey.800'}
             p={'2px 12px 2px 12px'}
+            marginInlineStart='0px !important'
           >
             {option}
           </Button>
