@@ -1,4 +1,4 @@
-import { HStack, Text, TextProps } from '@chakra-ui/react'
+import { Heading, Text, TextProps } from '@chakra-ui/react'
 
 type TextWithPixelsProps = TextProps & {
   text: string
@@ -8,22 +8,28 @@ export default function TextWithPixels({ text, highlightWord = 2, ...props }: Te
   const parts = text.split(' ')
   if (parts.length === 2) {
     return (
-      <HStack gap={'2px'}>
-        <Text {...props}>{parts[0]}</Text>
-        <Text {...props} fontFamily='Neue Pixel Sans'>
-          {parts[1]}
+      <>
+        <Text as='span' {...props}>
+          {parts[0]}{' '}
         </Text>
-      </HStack>
+        <Heading as='span' {...props}>
+          {parts[1]}{' '}
+        </Heading>
+      </>
     )
   }
 
   return (
-    <HStack gap={'2px'}>
-      <Text {...props}>{parts.slice(0, highlightWord - 1).join(' ')}</Text>
-      <Text {...props} fontFamily='Neue Pixel Sans'>
-        {parts[highlightWord - 1]}
+    <>
+      <Text as='span' {...props}>
+        {parts.slice(0, highlightWord - 1).join(' ')}{' '}
       </Text>
-      <Text {...props}>{parts.slice(highlightWord).join(' ')}</Text>
-    </HStack>
+      <Heading as='span' {...props}>
+        {parts[highlightWord - 1]}{' '}
+      </Heading>
+      <Text as='span' {...props}>
+        {parts.slice(highlightWord).join(' ')}
+      </Text>
+    </>
   )
 }

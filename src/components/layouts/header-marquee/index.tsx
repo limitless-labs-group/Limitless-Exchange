@@ -5,7 +5,15 @@ import Marquee from 'react-fast-marquee'
 export default function HeaderMarquee() {
   const theme = useTheme()
   return (
-    <Marquee style={{ height: '20px', background: theme.colors.black, color: theme.colors.white }}>
+    <Marquee
+      style={{
+        height: '20px',
+        background: theme.colors.grey['800'],
+        color: theme.colors.grey['50'],
+        position: 'fixed',
+        zIndex: 200,
+      }}
+    >
       <Box marginX='6px'>
         <TextWithPixels
           text='Transparent Voting'
@@ -14,7 +22,7 @@ export default function HeaderMarquee() {
           textTransform='uppercase'
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Markets BY COMMUNITY'
@@ -24,7 +32,7 @@ export default function HeaderMarquee() {
           highlightWord={3}
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Different tokens'
@@ -33,7 +41,7 @@ export default function HeaderMarquee() {
           textTransform='uppercase'
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Transparent Voting'
@@ -42,7 +50,7 @@ export default function HeaderMarquee() {
           textTransform='uppercase'
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Markets BY COMMUNITY'
@@ -52,7 +60,7 @@ export default function HeaderMarquee() {
           highlightWord={3}
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Different tokens'
@@ -61,7 +69,7 @@ export default function HeaderMarquee() {
           textTransform='uppercase'
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Transparent Voting'
@@ -70,7 +78,7 @@ export default function HeaderMarquee() {
           textTransform='uppercase'
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Markets BY COMMUNITY'
@@ -80,7 +88,7 @@ export default function HeaderMarquee() {
           highlightWord={3}
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Different tokens'
@@ -89,7 +97,7 @@ export default function HeaderMarquee() {
           textTransform='uppercase'
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Transparent Voting'
@@ -98,7 +106,7 @@ export default function HeaderMarquee() {
           textTransform='uppercase'
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color='grey.50' height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Markets BY COMMUNITY'
@@ -108,7 +116,7 @@ export default function HeaderMarquee() {
           highlightWord={3}
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color='grey.50' height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Different tokens'
@@ -117,7 +125,7 @@ export default function HeaderMarquee() {
           textTransform='uppercase'
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color='grey.50' height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Transparent Voting'
@@ -126,7 +134,7 @@ export default function HeaderMarquee() {
           textTransform='uppercase'
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color='grey.50' height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Markets BY COMMUNITY'
@@ -136,7 +144,7 @@ export default function HeaderMarquee() {
           highlightWord={3}
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color='grey.50' height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Different tokens'
@@ -145,7 +153,7 @@ export default function HeaderMarquee() {
           textTransform='uppercase'
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color='grey.50' height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Transparent Voting'
@@ -154,7 +162,7 @@ export default function HeaderMarquee() {
           textTransform='uppercase'
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color='grey.50' height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Markets BY COMMUNITY'
@@ -164,7 +172,7 @@ export default function HeaderMarquee() {
           highlightWord={3}
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color='grey.50' height='16px' />
       <Box marginX='6px'>
         <TextWithPixels
           text='Different tokens'
@@ -173,7 +181,7 @@ export default function HeaderMarquee() {
           textTransform='uppercase'
         />
       </Box>
-      <Divider orientation='vertical' color={theme.colors.white} height='16px' />
+      <Divider orientation='vertical' color='grey.50' height='16px' />
     </Marquee>
   )
 }
