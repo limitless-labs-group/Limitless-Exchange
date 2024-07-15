@@ -35,7 +35,7 @@ const MainPage = () => {
   const [selectedSort, setSelectedSort] = useState<Sort>(Sort.BASE)
   const handleSelectSort = (options: Sort) => setSelectedSort(options)
 
-  const { selectedFilterTokens } = useTokenFilter()
+  const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
   const { convertTokenAmountToUsd } = usePriceOracle()
   const { data, fetchNextPage, hasNextPage } = useMarkets()
@@ -57,7 +57,7 @@ const MainPage = () => {
   }
 
   const filteredMarkets = useMemo(() => {
-    return markets?.filter((market) =>
+    const tokenFilteredMarkets = markets?.filter((market) =>
       selectedFilterTokens.length > 0
         ? selectedFilterTokens.some(
             (filterToken) =>
@@ -66,7 +66,13 @@ const MainPage = () => {
           )
         : true
     )
-  }, [markets, selectedFilterTokens])
+
+    if (selectedCategory) {
+      return tokenFilteredMarkets.filter((market) => market.category === selectedCategory?.name)
+    }
+
+    return tokenFilteredMarkets
+  }, [markets, selectedFilterTokens, selectedCategory])
 
   const sortedMarkets = useMemo(() => {
     if (!filteredMarkets) return []

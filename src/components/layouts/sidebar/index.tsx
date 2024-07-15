@@ -40,6 +40,8 @@ import WalletPage from '@/components/layouts/wallet-page'
 import TokenFilter from '@/components/common/token-filter'
 import { useWeb3Service } from '@/services/Web3Service'
 import { LogInButton } from '@/components/common/login-button'
+import CategoryFilter from '@/components/common/categories'
+import { isMobile } from 'react-device-detect'
 
 export default function Sidebar() {
   const theme = useTheme()
@@ -172,6 +174,8 @@ export default function Sidebar() {
         )}
         <Divider />
         <TokenFilter />
+
+        {!isMobile && <CategoryFilter />}
       </VStack>
       {isOpenWalletPage && (
         <Box

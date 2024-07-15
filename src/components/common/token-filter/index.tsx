@@ -31,7 +31,7 @@ export default function TokenFilter() {
         textTransform='uppercase'
         marginBottom='4px'
       >
-        Crypto
+        Tokens
       </Text>
       <Box
         padding='2px 4px'
@@ -48,7 +48,7 @@ export default function TokenFilter() {
         </Text>
       </Box>
       {supportedTokens
-        ?.filter((token) => !['ONCHAIN', 'MFER', 'BETS'].includes(token.symbol))
+        ?.filter((token) => !['MFER', 'BETS'].includes(token.symbol))
         .map((token) => (
           <Box
             bg={

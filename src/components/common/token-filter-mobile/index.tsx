@@ -41,7 +41,7 @@ export default function TokenFilterMobile() {
               </Button>
             ))
           : supportedTokens
-              ?.filter((token) => !['ONCHAIN', 'MFER', 'BETS'].includes(token.symbol))
+              ?.filter((token) => !['MFER', 'BETS'].includes(token.symbol))
               .map((token) => (
                 <Button
                   bg={

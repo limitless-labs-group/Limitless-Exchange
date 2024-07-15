@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { Sort } from '@/types'
 import { useIsMobile } from '@/hooks'
+import { controlsMedium } from '@/styles/fonts/fonts.styles'
 
 type SortFilterProps = {
   onChange: (option: Sort) => void
@@ -33,25 +34,25 @@ export default function SortFilter({ onChange }: SortFilterProps) {
       alignItems={'start'}
       w={'full'}
       overflowX='auto'
+      h={isMobile ? '32px' : '24px'}
     >
-      <ButtonGroup
-        variant='outline'
-        gap='2px'
-        w='fit-content'
-        p='2px'
-        bg='grey.300'
-        borderRadius='2px'
-      >
+      <ButtonGroup variant='outline' gap={0} p='2px' bg='grey.300' borderRadius='2px'>
         {sortOptions.map((option) => (
           <Button
             variant='grey'
             key={uuidv4()}
-            color={option === selectedSortFilter ? 'grey.50' : 'grey.800'}
             bg={option === selectedSortFilter ? 'grey.800' : 'unset'}
             onClick={() => handleFilterItemClicked(option)}
+            rounded={0}
+            flex={1}
             _hover={{ bg: option === selectedSortFilter ? 'grey.800' : 'grey.400' }}
-            px='12px'
-            marginInlineStart='0px !important'
+            borderRadius='2px'
+            h={isMobile ? '28px' : '20px'}
+            whiteSpace='nowrap'
+            {...controlsMedium}
+            fontSize={isMobile ? '14px' : '12px'}
+            color={option === selectedSortFilter ? 'grey.50' : 'grey.800'}
+            p={'2px 12px 2px 12px'}
           >
             {option}
           </Button>
