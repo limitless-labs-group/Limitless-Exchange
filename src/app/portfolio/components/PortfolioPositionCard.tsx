@@ -24,6 +24,7 @@ import ClosedIcon from '@/resources/icons/close-rounded-icon.svg'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import WinIcon from '@/resources/icons/win-icon.svg'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {
   position: HistoryPosition
@@ -85,25 +86,20 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   const StatusIcon = ({ market }) =>
     market?.expired ? (
       <>
-        <Icon as={ClosedIcon} width={'16px'} height={'16px'} color={getColor()} />
-        <Text
-          color={getColor()}
-          lineHeight={'20px'}
-          fontWeight={500}
-          fontSize={isMobile ? '16px' : '14px'}
-        >
+        <Icon
+          as={ClosedIcon}
+          width={'16px'}
+          height={'16px'}
+          color={!isMobile ? 'transparent.700' : 'grey.50'}
+        />
+        <Text {...paragraphMedium} color={!isMobile ? 'transparent.700' : 'grey.50'}>
           Closed
         </Text>
       </>
     ) : (
       <>
         <ActiveIcon width={16} height={16} />
-        <Text
-          color={'grey.500'}
-          lineHeight={'20px'}
-          fontWeight={500}
-          fontSize={isMobile ? '16px' : '14px'}
-        >
+        <Text {...paragraphMedium} color={getColor('grey.500')}>
           Active
         </Text>
       </>
@@ -119,20 +115,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
     >
       <Stack spacing={'8px'}>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
-          <Text
-            color={getColor()}
-            fontSize={'16px'}
-            fontWeight={500}
-            lineHeight={'20px'}
-            textDecor='underline'
-          >
+          <Text {...paragraphMedium} color={getColor()}>
             {market?.title ?? 'Noname market'}
           </Text>
           <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={getColor()} />
         </HStack>
         <HStack>
           {market?.expired ? (
-            <Text color={getColor()} fontSize={'16px'} fontWeight={500} lineHeight={'20px'}>
+            <Text {...paragraphMedium} color={getColor()}>
               {`Won ${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
                 market?.tokenTicker[defaultChain.id]
               }`}
@@ -153,16 +143,11 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             </HStack>
           )}
         </HStack>
-        <HStack>
+        <HStack color={getColor('grey.500')}>
           <HStack gap={1}>{<StatusIcon market={market} />}</HStack>
-          <HStack gap={1}>
-            <Icon as={CalendarIcon} width={'16px'} height={'16px'} color={getColor()} />
-            <Text
-              color={getColor('grey.500')}
-              lineHeight={'20px'}
-              fontSize={'16px'}
-              fontWeight={500}
-            >
+          <HStack gap={1} color={getColor('grey.500')}>
+            <CalendarIcon width={'16px'} height={'16px'} />
+            <Text {...paragraphMedium} color={getColor('grey.500')}>
               {market?.expirationDate}
             </Text>
           </HStack>
@@ -174,7 +159,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
 
       <Stack w={'full'}>
         <HStack alignItems={'start'} gap={0} justifyContent={'space-between'}>
-          <Text color={getColor('grey.500')} lineHeight={'20px'} fontWeight={500} fontSize={'16px'}>
+          <Text {...paragraphMedium} color={getColor('grey.500')}>
             Position
           </Text>
           <Text color={getColor()} fontWeight={400} lineHeight={'20px'} fontSize={'16px'}>
@@ -184,7 +169,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       </Stack>
       <Stack w={'full'} mt={'8px'}>
         <HStack alignItems={'start'} gap={0} justifyContent={'space-between'}>
-          <Text color={getColor('grey.500')} lineHeight={'20px'} fontWeight={500} fontSize={'16px'}>
+          <Text {...paragraphMedium} color={getColor('grey.500')}>
             Invested
           </Text>
           <Text color={getColor()} lineHeight={'20px'} fontWeight={400} fontSize={'16px'}>
@@ -200,18 +185,13 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       onClick={() => router.push(marketURI)}
       w={'full'}
       bg={market?.expired ? 'green.500' : 'grey.200'}
+      cursor='pointer'
       {...props}
     >
       <Stack direction='row'>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
           <Box>
-            <Text
-              fontSize={'14px'}
-              color={getColor()}
-              fontWeight={500}
-              lineHeight={'20px'}
-              textDecor='underline'
-            >
+            <Text {...paragraphMedium} color={getColor()}>
               {market?.title ?? 'Noname market'}
             </Text>
           </Box>
@@ -221,18 +201,18 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
               <ClaimButton />
             ) : (
               <>
-                <Text fontSize={'14px'} lineHeight={'20px'}>
+                <Text {...paragraphMedium}>
                   {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} 
                     ${market?.tokenTicker[defaultChain.id]}`}
                 </Text>
 
                 <Box gap={0}>
                   {(position?.outcomeIndex === 0 ? (
-                    <Text color={'green.500'} fontWeight={500}>
+                    <Text {...paragraphMedium} color={'green.500'}>
                       ↑{chancePercent}%
                     </Text>
                   ) : (
-                    <Text color={'red.500'} fontWeight={500}>
+                    <Text {...paragraphMedium} color={'red.500'}>
                       ↓{chancePercent}%
                     </Text>
                   )) ?? ''}
@@ -248,17 +228,19 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       <Stack direction='row' w={'full'} justifyContent={'space-between'} mt={'12px'}>
         <HStack w={'full'}>
           <VStack alignItems={'start'} gap={1}>
-            <Text color={getColor('grey.500')} lineHeight={'20px'} fontWeight={500}>
+            <Text {...paragraphMedium} color={market?.expired ? 'transparent.700' : 'grey.500'}>
               Position
             </Text>
-            <Text color={getColor()}>{getOutcomeNotation()}</Text>
+            <Text {...paragraphRegular} color={getColor()}>
+              {getOutcomeNotation()}
+            </Text>
           </VStack>
 
           <VStack alignItems={'start'} gap={1} ml={'24px'}>
-            <Text color={getColor('grey.500')} lineHeight={'20px'} fontWeight={500}>
+            <Text {...paragraphMedium} color={market?.expired ? 'transparent.700' : 'grey.500'}>
               Invested
             </Text>
-            <Text color={getColor()}>
+            <Text {...paragraphRegular} color={getColor()}>
               {`${NumberUtil.formatThousands(position.collateralAmount, 4)} ${
                 market?.tokenTicker[defaultChain.id]
               }`}
@@ -267,10 +249,12 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
         </HStack>
 
         <HStack w={'full'} justifyContent={'flex-end'} alignItems={'flex-end'}>
-          <HStack gap={1}>{<StatusIcon market={market} />}</HStack>
-          <HStack gap={1}>
-            <Icon as={CalendarIcon} width={'16px'} height={'16px'} color={getColor()} />
-            <Text color={getColor('grey.500')} lineHeight={'20px'} fontWeight={500}>
+          <HStack gap={1} color={getColor('grey.500')}>
+            {<StatusIcon market={market} />}
+          </HStack>
+          <HStack gap={1} color={market?.expired ? 'transparent.700' : 'grey.500'}>
+            <CalendarIcon width={'16px'} height={'16px'} />
+            <Text {...paragraphMedium} color={market?.expired ? 'transparent.700' : 'grey.500'}>
               {market?.expirationDate}
             </Text>
           </HStack>

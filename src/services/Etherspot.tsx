@@ -237,7 +237,7 @@ class Etherspot {
 
   async transferErc20(token: Address, to: Address, value: bigint) {
     const data = encodeFunctionData({
-      abi: wethABI,
+      abi: erc20Abi,
       functionName: 'transfer',
       args: [to, value],
     })

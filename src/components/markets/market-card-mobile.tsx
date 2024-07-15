@@ -9,7 +9,7 @@ import ArrowIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 interface IMarketCard extends StackProps {
   market: Market
@@ -25,16 +25,12 @@ export const MarketCardMobile = ({ market, children, ...props }: IMarketCard) =>
       justifyContent={'space-between'}
       onClick={() => router.push(marketURI)}
       w={'full'}
-      _hover={{ bg: 'grey.300', boxShadow: 'md' }}
       {...props}
     >
       <Stack w={'full'} spacing={3}>
         <HStack w={'full'} spacing={3} onClick={() => router.push(marketURI)}>
-          <Stack alignItems={'start'} w='full'>
-            <HStack w='full' justifyContent='space-between'>
-              <Text {...paragraphMedium}>{market?.title ?? 'Noname market'}</Text>
-              <ArrowIcon width={'16px'} height={'16px'} />
-            </HStack>
+          <Stack alignItems={'start'}>
+            <Text {...paragraphMedium}>{market?.title ?? 'Noname market'}</Text>
             <HStack gap={1}>
               <ThumbsUpIcon width={'16px'} height={'16px'} />
               {!children && <Text {...paragraphMedium}>{market?.buyYesNo[0]}% YES</Text>}
@@ -57,9 +53,10 @@ export const MarketCardMobile = ({ market, children, ...props }: IMarketCard) =>
               </Text>
             </HStack>
 
-            <Text fontSize={'16px'}>{`${NumberUtil.formatThousands(market.liquidityFormatted, 4)} ${
-              market?.tokenTicker[defaultChain.id]
-            }`}</Text>
+            <Text {...paragraphRegular}>{`${NumberUtil.formatThousands(
+              market.liquidityFormatted,
+              4
+            )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
           </HStack>
           <HStack w={'full'} justifyContent={'space-between'}>
             <HStack gap={1}>
@@ -68,9 +65,10 @@ export const MarketCardMobile = ({ market, children, ...props }: IMarketCard) =>
                 Volume
               </Text>
             </HStack>
-            <Text fontSize={'16px'}>{`${NumberUtil.formatThousands(market.volumeFormatted, 4)} ${
-              market?.tokenTicker[defaultChain.id]
-            }`}</Text>
+            <Text {...paragraphRegular}>{`${NumberUtil.formatThousands(
+              market.volumeFormatted,
+              4
+            )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
           </HStack>
         </Stack>
 
