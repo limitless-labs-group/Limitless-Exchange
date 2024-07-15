@@ -1,6 +1,6 @@
 'use client'
 
-import { Input, MainLayout, Toast } from '@/components'
+import { MainLayout } from '@/components'
 import {
   Box,
   Button,
@@ -9,7 +9,6 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  Heading,
   HStack,
   Image,
   NumberInput,
@@ -33,6 +32,8 @@ import axios from 'axios'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks'
 import { useLimitlessApi } from '@/services'
+import { Toast } from '@/components/common/toast'
+import { Input } from '@/components/common/input'
 
 interface FormFieldProps {
   label: string
@@ -103,6 +104,11 @@ interface Creator {
   name: string
 }
 
+interface Category {
+  id: string
+  name: string
+}
+
 interface Token {
   id: string
   symbol: string
@@ -111,6 +117,7 @@ interface Token {
 const defaultTokenSymbol = 'WETH'
 const defaultProbability = 50
 const defaultCreatorId = '1'
+const defaultCategoryId = '1'
 
 const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
   <Box mt={4}>
@@ -132,6 +139,7 @@ const CreateOwnMarketPage = () => {
   const [probability, setProbability] = useState<number>(defaultProbability)
   const [tag, setTag] = useState<TagOption[]>([])
   const [creatorId, setCreatorId] = useState<string>(defaultCreatorId)
+  const [categoryId, setCategoryId] = useState<string>(defaultCategoryId)
   const [marketLogo, setMarketLogo] = useState<File | undefined>()
   const [ogLogo, setOgLogo] = useState<File | undefined>()
 
@@ -183,6 +191,14 @@ const CreateOwnMarketPage = () => {
     },
   })
 
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/categories`)
+      return response.data as Category[]
+    },
+  })
+
   const handleTagCreation = async (tagToCreate: string) => {
     const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`, {
       name: tagToCreate,
@@ -218,6 +234,7 @@ const CreateOwnMarketPage = () => {
     formData?.set('initialYesProbability', (probability / 100).toString())
     formData?.set('deadline', deadline.toISOString())
     formData?.set('creatorId', creatorId)
+    formData?.set('categoryId', categoryId)
     formData?.set('imageFile', marketLogo)
     formData?.set('ogFile', ogLogo)
     formData?.set('tagIds', tag.map((tag) => tag.id).join(','))
@@ -267,7 +284,7 @@ const CreateOwnMarketPage = () => {
     <MainLayout>
       <Flex justifyContent={'center'}>
         <VStack w='468px' spacing={4}>
-          <Heading>Create Market</Heading>
+          <Text>Create Market</Text>
           <FormControl>
             <FormField label='Title'>
               <Input
@@ -278,25 +295,26 @@ const CreateOwnMarketPage = () => {
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {title?.length}/70 characters
               </FormHelperText>
-              <FormHelperText
-                h='fit-content'
-                p={4}
-                bg='bgLight'
-                border={`1px solid ${colors.border}`}
-                borderRadius={borderRadius}
-                textAlign='start'
-                color='#747675'
-                display='flex'
-              >
-                <Box display='inline-flex' flexShrink={0}>
-                  <CgInfo />
-                </Box>
-                <Box flex={1} ml={2}>
-                  Imagine people only have a second to understand your market. It&apos;s important
-                  to create a clear and concise title so that everyone in the community can
-                  understand it, or at least become interested.
-                </Box>
-              </FormHelperText>
+              {/*<FormHelperText*/}
+              {/*  h='fit-content'*/}
+              {/*  p={4}*/}
+              {/*  bg='bgLight'*/}
+              {/*  border={`1px solid ${colors.border}`}*/}
+              {/*  borderRadius={borderRadius}*/}
+              {/*  textAlign='start'*/}
+              {/*  color='#747675'*/}
+              {/*  display='flex'*/}
+              {/*>*/}
+              {/*  <Box display='inline-flex' flexShrink={0}>*/}
+              {/*    <CgInfo />*/}
+              {/*  </Box>*/}
+              {/*  */}
+              {/*  <Box flex={1} ml={2}>*/}
+              {/*    Imagine people only have a second to understand your market. It&apos;s important*/}
+              {/*    to create a clear and concise title so that everyone in the community can*/}
+              {/*    understand it, or at least become interested.*/}
+              {/*  </Box>*/}
+              {/*</FormHelperText>*/}
             </FormField>
 
             <FormField label='Description'>
@@ -375,6 +393,18 @@ const CreateOwnMarketPage = () => {
                   {creators?.map((creator: Creator) => (
                     <option key={creator.id} value={creator.id}>
                       {creator.name}
+                    </option>
+                  ))}
+                </Select>
+              </HStack>
+            </FormField>
+
+            <FormField label='Category'>
+              <HStack>
+                <Select onChange={(e) => setCategoryId(e?.target?.value)}>
+                  {categories?.map((category: Category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
                     </option>
                   ))}
                 </Select>
