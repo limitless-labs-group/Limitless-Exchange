@@ -6,6 +6,7 @@ import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import { isMobile } from 'react-device-detect'
 import { useMemo } from 'react'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const StatBox = ({
   title,
@@ -48,10 +49,12 @@ const StatBox = ({
       w={w && !isMobile ? w : 'unset'}
       borderTop={isMobile ? '1px solid' : 'unset'}
     >
-      <Text fontWeight={500}>{value}</Text>
+      <Text {...paragraphMedium}>{value}</Text>
       <HStack gap='4px' color='grey.500'>
         {icon}
-        <Text fontWeight={500}>{title}</Text>
+        <Text {...paragraphMedium} color='grey.500'>
+          {title}
+        </Text>
       </HStack>
     </Box>
   )
