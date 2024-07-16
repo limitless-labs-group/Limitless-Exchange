@@ -19,6 +19,7 @@ import {
 import Image from 'next/image'
 import React from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
+import '../../../../src/app/style.css'
 
 import {
   ClickEvent,
@@ -188,7 +189,7 @@ export default function Sidebar() {
           bg='rgba(0, 0, 0, 0.3)'
           mt='20px'
           ml='188px'
-          transition='background-color 0.5s'
+          animation='fadeIn 0.5s'
         ></Box>
       )}
       <Slide

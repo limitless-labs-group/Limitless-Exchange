@@ -8,6 +8,7 @@ import WinIcon from '@/resources/icons/win-icon.svg'
 import { NumberUtil } from '@/utils'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import '@/app/style.css'
 
 interface MobileTradeButtonProps {
   market: Market | null
@@ -110,6 +111,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
           zIndex={100}
           bg='rgba(0, 0, 0, 0.3)'
           mt='20px'
+          animation='fadeIn 0.5s'
         ></Box>
       )}
       <Slide
@@ -117,11 +119,11 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
         in={isClaimMenuOpen}
         style={{
           zIndex: 100,
-          // background: 'rgba(0, 0, 0, 0.3)',
           marginTop: '20px',
           height: '100%',
           display: 'flex',
           alignItems: 'flex-end',
+          transition: '0.1s',
         }}
         onClick={toggleClaimMenu}
       >
