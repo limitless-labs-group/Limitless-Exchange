@@ -55,7 +55,6 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
       return [outcomeTokenPriceYes, outcomeTokenPriceNo]
     },
     enabled: !!collateralToken,
-    // enabled: false,
   })
 
   const { data: outcomeTokensSellPrice } = useQuery({

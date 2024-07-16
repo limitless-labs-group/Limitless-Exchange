@@ -1,4 +1,3 @@
-import { Toast, ToastWithdraw } from '@/components'
 import { defaultChain } from '@/constants'
 import { wethABI } from '@/contracts'
 import { useToast } from '@/hooks'
@@ -10,6 +9,7 @@ import {
   QueryObserverResult,
   UseMutateAsyncFunction,
   useMutation,
+  UseMutationOptions,
   useQuery,
 } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
@@ -36,6 +36,10 @@ import { getBalance } from 'viem/actions'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useWeb3Service } from '@/services/Web3Service'
 import { publicClient } from '@/providers'
+import { Toast } from '@/components/common/toast'
+import { ToastWithdraw } from '@/components/common/toast-withdraw'
+import { Multicall } from 'ethereum-multicall'
+import { ethers } from 'ethers'
 
 interface IBalanceService {
   balanceOfSmartWallet: GetBalanceResult[] | undefined
@@ -47,13 +51,16 @@ interface IBalanceService {
   mint: (params: { address: Address; newToken?: boolean }) => void
   isLoadingMint: boolean
 
-  addressToWithdraw: string
-  setAddressToWithdraw: (amount: string) => void
   amount: string
   setAmount: (amount: string) => void
   unwrap: boolean
   setUnwrap: (unwrap: boolean) => void
-  withdraw: UseMutateAsyncFunction<void, Error, void, unknown>
+  withdraw: UseMutateAsyncFunction<
+    void,
+    Error,
+    { receiver: string; token: Token; amount: string },
+    unknown
+  >
 
   status: BalanceServiceStatus
   setToken: Dispatch<SetStateAction<Token | null>>
@@ -103,57 +110,66 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      const balances = await Promise.allSettled(
-        supportedTokens
-          ? supportedTokens.map(async (supportedToken) => {
-              const contract = getContract({
-                address: supportedToken.address,
-                abi: supportedToken.priceOracleId === MarketTokensIds.WETH ? wethABI : erc20Abi,
-                client: publicClient,
-              })
-              try {
-                let newBalanceBI = (await contract.read.balanceOf([walletAddress])) as bigint
-                // small balance to zero
-                if (newBalanceBI < parseUnits('0.000001', supportedToken.decimals)) {
-                  newBalanceBI = 0n
-                }
-
-                return {
-                  symbol: supportedToken.symbol,
-                  id: supportedToken.priceOracleId,
-                  name: supportedToken.name,
-                  decimals: supportedToken.decimals,
-                  value: newBalanceBI,
-                  formatted: formatUnits(newBalanceBI, supportedToken.decimals),
-                  image: supportedToken.logoUrl,
-                  contractAddress: supportedToken.address,
-                  price: marketTokensPrices
-                    ? marketTokensPrices[supportedToken.priceOracleId].usd
-                    : 0,
-                } as GetBalanceResult
-              } catch (e) {
-                return {
-                  symbol: supportedToken.symbol,
-                  id: supportedToken.priceOracleId,
-                  name: supportedToken.name,
-                  decimals: supportedToken.decimals,
-                  value: 0n,
-                  formatted: formatUnits(0n, supportedToken.decimals),
-                  image: supportedToken.logoUrl,
-                  contractAddress: supportedToken.address,
-                  price: marketTokensPrices
-                    ? marketTokensPrices[supportedToken.priceOracleId].usd
-                    : 0,
-                } as GetBalanceResult
-              }
-            })
-          : []
-      )
-
-      const balanceResult: GetBalanceResult[] = balances.map((balance) => {
-        // @ts-ignore
-        return balance.value
+      const multicall = new Multicall({
+        ethersProvider: new ethers.providers.JsonRpcProvider(
+          defaultChain.rpcUrls.default.http.toString()
+        ),
+        tryAggregate: true,
       })
+
+      //@ts-ignore
+      const contractCallContext: ContractCallContext[] = supportedTokens?.map((token) => ({
+        reference: token.address,
+        contractAddress: token.address,
+        abi: token.priceOracleId === MarketTokensIds.WETH ? wethABI : erc20Abi,
+        calls: [
+          { reference: 'balance', methodName: 'balanceOf', methodParameters: [walletAddress] },
+        ],
+      }))
+      let balanceResult: GetBalanceResult[]
+
+      try {
+        const results = await multicall.call(contractCallContext)
+
+        //@ts-ignore
+        balanceResult = supportedTokens?.map((token) => {
+          const result = results.results[token.address]
+          const balance = BigInt(result.callsReturnContext[0].returnValues[0].hex)
+          let formatted = formatUnits(balance, token.decimals)
+
+          if (Number(formatted) < 0.00001) {
+            //Filter small balances
+            formatted = '0'
+          }
+
+          return {
+            symbol: token.symbol,
+            id: token.priceOracleId,
+            name: token.name,
+            decimals: token.decimals,
+            value: balance,
+            formatted: formatted,
+            image: token.logoUrl,
+            contractAddress: token.address,
+            price: marketTokensPrices ? marketTokensPrices[token.priceOracleId].usd : 0,
+          } as GetBalanceResult
+        })
+      } catch (err) {
+        //@ts-ignore
+        balanceResult = supportedTokens?.map((token) => {
+          return {
+            symbol: token.symbol,
+            id: token.priceOracleId,
+            name: token.name,
+            decimals: token.decimals,
+            value: 0n,
+            formatted: formatUnits(0n, token.decimals),
+            image: token.logoUrl,
+            contractAddress: token.address,
+            price: marketTokensPrices ? marketTokensPrices[token.priceOracleId].usd : 0,
+          } as GetBalanceResult
+        })
+      }
 
       log.success('ON_BALANCE_SUCC', walletAddress, balanceResult)
 
@@ -185,7 +201,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       return balanceResult
     },
     enabled: !!walletAddress && !!supportedTokens,
-    refetchInterval: 5000,
+    refetchInterval: 10000,
   })
 
   const { data: ethBalance } = useQuery({
@@ -252,7 +268,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       }
     },
     enabled: !!walletAddress && !unwrap,
-    refetchInterval: pathname.includes('wallet') && 5000, // polling on wallet page only
+    refetchInterval: pathname.includes('wallet') && 10000, // polling on wallet page only
   })
 
   const { mutateAsync: wrapETHManual, isPending: isWrapPending } = useMutation({
@@ -290,16 +306,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  /**
-   * WITHDRAW
-   */
-  // Address to withdraw funds to
-  const [addressToWithdraw, setAddressToWithdraw] = useState<string>('')
-  const isInvalidAddressToWithdraw = useMemo(
-    () => !addressToWithdraw || !isAddress(addressToWithdraw),
-    [addressToWithdraw]
-  )
-
   // Amount to be withdrawn
   const [amount, setAmount] = useState<string>('')
   const [token, setToken] = useState<Token | null>(supportedTokens ? supportedTokens[0] : null)
@@ -319,7 +325,16 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
 
   // Mutation
   const { mutateAsync: withdraw, isPending: isLoadingWithdraw } = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({
+      receiver,
+      token,
+      amount,
+    }: {
+      receiver: string
+      token: Token
+      amount: string
+    }) => {
+      const amountBI = parseUnits(amount, token.decimals)
       if (unwrap) {
         toast({
           render: () => <Toast title={'Unwrapping ETH...'} />,
@@ -338,7 +353,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
           render: () => <Toast title={'Sending ETH...'} />,
         })
 
-        const transferReceipt = await transferEthers(addressToWithdraw as Address, amountBI)
+        const transferReceipt = await transferEthers(receiver as Address, amountBI)
 
         if (!transferReceipt) {
           // TODO: show error toast
@@ -359,10 +374,9 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       toast({
         render: () => <Toast title={'Processing transaction...'} />,
       })
-
       const transferReceipt = await transferErc20(
-        token?.address as Address,
-        addressToWithdraw as Address,
+        token.address as Address,
+        receiver as Address,
         amountBI
       )
 
@@ -386,14 +400,11 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     if (isLoadingMint || isLoadingWithdraw) {
       return 'Loading'
     }
-    if (isInvalidAddressToWithdraw) {
-      return 'InvalidAddress'
-    }
     if (isInvalidAmount) {
       return 'InvalidAmount'
     }
     return 'ReadyToFund'
-  }, [isInvalidAddressToWithdraw, isInvalidAmount, isLoadingMint, isLoadingWithdraw])
+  }, [isInvalidAmount, isLoadingMint, isLoadingWithdraw])
 
   return (
     <BalanceService.Provider
@@ -403,8 +414,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         overallBalanceUsd,
         mint,
         isLoadingMint,
-        addressToWithdraw,
-        setAddressToWithdraw,
         amount,
         setAmount,
         unwrap,

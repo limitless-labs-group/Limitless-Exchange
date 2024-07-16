@@ -47,6 +47,11 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    * Initialize Etherspot with Prime SDK instance on top of W3A wallet, once user signed in
    */
   const initEtherspot = useCallback(async () => {
+    console.log(web3Auth)
+    console.log(web3AuthProvider)
+    console.log(isConnected)
+    console.log(supportedTokens)
+    console.log(web3Auth.connectedAdapterName)
     if (
       !web3AuthProvider ||
       !isConnected ||
@@ -171,24 +176,6 @@ class Etherspot {
     })
   }
 
-  // TODO: incapsulate
-  getCollateralTokenContract() {
-    return getContract({
-      address: this.collateralTokenAddress,
-      abi: wethABI,
-      client: publicClient,
-    })
-  }
-
-  // TODO: incapsulate
-  getConditionalTokensContract(conditionalTokensAddress: Address) {
-    return getContract({
-      address: conditionalTokensAddress,
-      abi: conditionalTokensABI,
-      client: publicClient,
-    })
-  }
-
   async getAddress() {
     return this.primeSdk.getCounterFactualAddress() as Promise<Address>
   }
@@ -208,7 +195,13 @@ class Etherspot {
       await this.primeSdk.addUserOpsToBatch({ to, data, value })
       const op = await this.estimate()
       const opHash = await this.primeSdk.send(op)
-      return opHash
+      let result = null
+      while (!result) {
+        await sleep(1)
+        const hash = await this.primeSdk.getUserOpReceipt(opHash)
+        result = hash ? hash.receipt.transactionHash : null
+      }
+      return result
     } catch (e: any) {
       console.log(e)
     }
@@ -250,7 +243,7 @@ class Etherspot {
 
   async transferErc20(token: Address, to: Address, value: bigint) {
     const data = encodeFunctionData({
-      abi: wethABI,
+      abi: erc20Abi,
       functionName: 'transfer',
       args: [to, value],
     })
