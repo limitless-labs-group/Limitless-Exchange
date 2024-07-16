@@ -7,14 +7,12 @@ import {
   HStack,
   Image as ChakraImage,
   Flex,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionIcon,
-  AccordionPanel,
   useDisclosure,
   Slide,
   Box,
+  Menu,
+  MenuButton,
+  MenuList,
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React from 'react'
@@ -36,13 +34,14 @@ import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { cutUsername } from '@/utils/string'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import WalletPage from '@/components/layouts/wallet-page'
 import TokenFilter from '@/components/common/token-filter'
 import { useWeb3Service } from '@/services/Web3Service'
 import { LogInButton } from '@/components/common/login-button'
 import CategoryFilter from '@/components/common/categories'
 import { isMobile } from 'react-device-detect'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 
 export default function Sidebar() {
   const theme = useTheme()
@@ -57,8 +56,10 @@ export default function Sidebar() {
   const router = useRouter()
   const { signOut } = useAuth()
   const { client } = useWeb3Service()
+  const pathname = usePathname()
 
   const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
+  const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
 
   const handleOpenWalletPage = () => {
     if (client !== 'eoa') {
@@ -69,7 +70,7 @@ export default function Sidebar() {
   return (
     <>
       <VStack
-        padding='16px'
+        padding='16px 8px'
         borderRight={`1px solid ${theme.colors.grey['200']}`}
         h='full'
         minW={'188px'}
@@ -83,7 +84,12 @@ export default function Sidebar() {
         {isConnected && (
           <VStack my='16px' w='full' gap='8px'>
             {client !== 'eoa' && (
-              <Button variant='transparent' onClick={handleOpenWalletPage} w='full'>
+              <Button
+                variant='transparent'
+                onClick={handleOpenWalletPage}
+                w='full'
+                bg={isOpenWalletPage ? 'grey.200' : 'unset'}
+              >
                 <HStack w='full'>
                   <WalletIcon width={16} height={16} />
                   <Text fontWeight={500} fontSize='14px'>
@@ -92,7 +98,12 @@ export default function Sidebar() {
                 </HStack>
               </Button>
             )}
-            <Button variant='transparent' onClick={() => router.push('/portfolio')} w='full'>
+            <Button
+              variant='transparent'
+              onClick={() => router.push('/portfolio')}
+              w='full'
+              bg={pathname === '/portfolio' ? 'grey.200' : 'unset'}
+            >
               <HStack w='full'>
                 <PortfolioIcon width={16} height={16} />
                 <Text fontWeight={500} fontSize='14px'>
@@ -100,57 +111,65 @@ export default function Sidebar() {
                 </Text>
               </HStack>
             </Button>
-            <Accordion allowToggle>
-              <AccordionItem>
-                <h2>
-                  <AccordionButton>
-                    <HStack gap='8px'>
-                      {userInfo?.profileImage?.includes('http') ? (
-                        <ChakraImage
-                          src={userInfo.profileImage}
-                          borderRadius={'2px'}
-                          h={'16px'}
-                          w={'16px'}
-                        />
-                      ) : (
-                        <Flex
-                          borderRadius={'2px'}
-                          h={'16px'}
-                          w={'16px'}
-                          bg='grey.300'
-                          alignItems='center'
-                          justifyContent='center'
-                        >
-                          <Text fontWeight={500}>{userInfo?.name?.[0].toUpperCase()}</Text>
-                        </Flex>
-                      )}
-                      <Text fontWeight={500}>
-                        {userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address)}
-                      </Text>
-                    </HStack>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel p={0}>
-                  <Button
-                    variant='grey'
-                    w='full'
-                    mt='8px'
-                    onClick={() => {
-                      trackClicked<ProfileBurgerMenuClickedMetadata>(
-                        ClickEvent.ProfileBurgerMenuClicked,
-                        {
-                          option: 'Sign Out',
-                        }
-                      )
-                      signOut()
-                    }}
-                  >
-                    Log Out
-                  </Button>
-                </AccordionPanel>
-              </AccordionItem>
-            </Accordion>
+            <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
+              <MenuButton
+                as={Button}
+                onClick={onToggleAuthMenu}
+                rightIcon={<ChevronDownIcon width='16px' height='16px' />}
+                bg={isOpenAuthMenu ? 'grey.200' : 'unset'}
+                h='24px'
+                px='8px'
+                w='full'
+                _active={{
+                  bg: 'grey.200',
+                }}
+                _hover={{
+                  bg: 'grey.200',
+                }}
+              >
+                <HStack gap='8px'>
+                  {userInfo?.profileImage?.includes('http') ? (
+                    <ChakraImage
+                      src={userInfo.profileImage}
+                      borderRadius={'2px'}
+                      h={'16px'}
+                      w={'16px'}
+                    />
+                  ) : (
+                    <Flex
+                      borderRadius={'2px'}
+                      h={'16px'}
+                      w={'16px'}
+                      bg='grey.300'
+                      alignItems='center'
+                      justifyContent='center'
+                    >
+                      <Text fontWeight={500}>{userInfo?.name?.[0].toUpperCase()}</Text>
+                    </Flex>
+                  )}
+                  <Text fontWeight={500}>
+                    {userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address)}
+                  </Text>
+                </HStack>
+              </MenuButton>
+              <MenuList borderRadius='2px' w='171px' zIndex={2}>
+                <Button
+                  variant='grey'
+                  w='full'
+                  onClick={() => {
+                    trackClicked<ProfileBurgerMenuClickedMetadata>(
+                      ClickEvent.ProfileBurgerMenuClicked,
+                      {
+                        option: 'Sign Out',
+                      }
+                    )
+                    signOut()
+                  }}
+                >
+                  Log Out
+                </Button>
+              </MenuList>
+            </Menu>
           </VStack>
         )}
         {isConnected ? (

@@ -177,10 +177,10 @@ export const chakraTheme = ChakraTheme({
         transparent: {
           background: 'unset',
           ...commonButtonProps,
-          px: 0,
+          px: '8px',
           gap: '8px',
-          _focus: {
-            bg: 'unset',
+          _hover: {
+            bg: 'grey.200',
           },
         },
       },

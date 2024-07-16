@@ -48,6 +48,12 @@ const variants = {
       },
     },
   },
+  transparent: {
+    button: {
+      w: 'full',
+      background: 'unset !important',
+    },
+  },
 }
 
 // export the base styles in the component theme
