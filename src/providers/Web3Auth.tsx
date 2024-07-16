@@ -1,4 +1,3 @@
-'use client'
 import { Web3AuthConnector } from '@web3auth/web3auth-wagmi-connector'
 import { Web3Auth } from '@web3auth/modal'
 import { LOGIN_MODAL_EVENTS } from '@web3auth/ui'

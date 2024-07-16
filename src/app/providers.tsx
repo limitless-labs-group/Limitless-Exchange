@@ -17,6 +17,8 @@ import {
   LimitlessApiProvider,
   TradingServiceProvider,
 } from '@/services'
+import { TokenFilterProvider } from '@/contexts/TokenFilterContext'
+import { UserValidationProvider } from '@/providers/UserValidation'
 
 export const Providers = ({ children }: React.PropsWithChildren) => {
   const [mounted, setMounted] = React.useState(false)
@@ -35,7 +37,11 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                       <PriceOracleProvider>
                         <BalanceServiceProvider>
                           <HistoryServiceProvider>
-                            <TradingServiceProvider>{children}</TradingServiceProvider>
+                            <UserValidationProvider>
+                              <TokenFilterProvider>
+                                <TradingServiceProvider>{children}</TradingServiceProvider>
+                              </TokenFilterProvider>
+                            </UserValidationProvider>
                           </HistoryServiceProvider>
                         </BalanceServiceProvider>
                       </PriceOracleProvider>

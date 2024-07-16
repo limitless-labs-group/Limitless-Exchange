@@ -47,6 +47,11 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    * Initialize Etherspot with Prime SDK instance on top of W3A wallet, once user signed in
    */
   const initEtherspot = useCallback(async () => {
+    console.log(web3Auth)
+    console.log(web3AuthProvider)
+    console.log(isConnected)
+    console.log(supportedTokens)
+    console.log(web3Auth.connectedAdapterName)
     if (
       !web3AuthProvider ||
       !isConnected ||
@@ -167,24 +172,6 @@ class Etherspot {
     return getContract({
       address,
       abi: fixedProductMarketMakerABI,
-      client: publicClient,
-    })
-  }
-
-  // TODO: incapsulate
-  getCollateralTokenContract() {
-    return getContract({
-      address: this.collateralTokenAddress,
-      abi: wethABI,
-      client: publicClient,
-    })
-  }
-
-  // TODO: incapsulate
-  getConditionalTokensContract(conditionalTokensAddress: Address) {
-    return getContract({
-      address: conditionalTokensAddress,
-      abi: conditionalTokensABI,
       client: publicClient,
     })
   }
