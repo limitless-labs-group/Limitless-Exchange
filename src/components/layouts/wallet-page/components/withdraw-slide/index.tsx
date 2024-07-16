@@ -13,6 +13,7 @@ export default function WithdrawSlide({ isOpen, onClose }: WithdrawSlideProps) {
         zIndex: 150,
         paddingTop: isOpen ? '60px' : 0,
         height: '100%',
+        transition: '0.1s',
       }}
       onClick={() => {
         onClose()

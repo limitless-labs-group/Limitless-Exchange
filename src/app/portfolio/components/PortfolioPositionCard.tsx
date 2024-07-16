@@ -39,7 +39,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   /**
    * MARKET DATA
    */
-  const market = useMarket(position.market.id)
+  const { data: market } = useMarket(position.market.id)
   const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
   const { outcomeTokensPercent } = useMarketData({
     marketAddress: position.market.id,

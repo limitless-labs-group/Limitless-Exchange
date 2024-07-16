@@ -23,7 +23,7 @@ export default function TokenFilter() {
   }
 
   return (
-    <Box marginTop='24px' w='full'>
+    <Box marginTop='24px' w='full' px='8px'>
       <Text
         fontSize='12px'
         color={theme.colors.grey['600']}

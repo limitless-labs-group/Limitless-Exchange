@@ -34,6 +34,7 @@ import { useWeb3Service } from '@/services/Web3Service'
 import TokenFilterMobile from '@/components/common/token-filter-mobile'
 import { LogInButton } from '@/components/common/login-button'
 import { isMobile } from 'react-device-detect'
+import '@/app/style.css'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -101,12 +102,13 @@ export default function MobileHeader() {
                     zIndex={100}
                     bg='rgba(0, 0, 0, 0.3)'
                     mt='20px'
+                    animation='fadeIn 0.5s'
                   ></Box>
                 )}
                 <Slide
                   direction='right'
                   in={isOpenUserMenu}
-                  style={{ zIndex: 100, marginTop: '20px' }}
+                  style={{ zIndex: 100, marginTop: '20px', transition: '0.1s' }}
                   onClick={onToggleUserMenu}
                 >
                   <VStack
@@ -267,15 +269,18 @@ export default function MobileHeader() {
               zIndex={100}
               bg='rgba(0, 0, 0, 0.3)'
               mt='20px'
+              animation='fadeIn 0.5s'
             ></Box>
           )}
           <Slide
-            direction='top'
+            direction='bottom'
             in={isWalletModalOpen}
             style={{
               zIndex: 150,
               paddingTop: isWalletModalOpen ? '60px' : 0,
               height: '100%',
+              transition: '0.1s',
+              animation: 'fadeIn 0.5s',
             }}
             onClick={() => {
               onToggleWalletModal()
