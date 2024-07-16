@@ -195,7 +195,13 @@ class Etherspot {
       await this.primeSdk.addUserOpsToBatch({ to, data, value })
       const op = await this.estimate()
       const opHash = await this.primeSdk.send(op)
-      return opHash
+      let result = null
+      while (!result) {
+        await sleep(1)
+        const hash = await this.primeSdk.getUserOpReceipt(opHash)
+        result = hash ? hash.receipt.transactionHash : null
+      }
+      return result
     } catch (e: any) {
       console.log(e)
     }

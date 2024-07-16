@@ -14,7 +14,7 @@ export const WithdrawModal = ({ onClose, isOpen, ...props }: WithdrawModalProps)
       onClose={onClose}
       h={isMobile ? 'full' : 'unset'}
       marginTop={isMobile ? '36px' : 'auto'}
-      showCloseButton={false}
+      showCloseButton={!isMobile}
       {...props}
     >
       <Withdraw onClose={onClose} isOpen={isOpen} />
