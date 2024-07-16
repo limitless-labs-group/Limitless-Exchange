@@ -163,7 +163,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
         <SliderTrack bg='rgba(255, 255, 255, 0.2)'>
           <SliderFilledTrack bg='grey.50' />
         </SliderTrack>
-        <SliderThumb bg='grey.50' />
+        <SliderThumb bg='grey.50' w='8px' h='8px' />
       </Slider>
       {/*<ChakraSlider*/}
       {/*  defaultValue={0}*/}

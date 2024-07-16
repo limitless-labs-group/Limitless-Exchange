@@ -5,6 +5,7 @@ import { useLimitlessApi } from '@/services'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import MenuIcon from '@/resources/icons/menu-icon.svg'
 import Image from 'next/image'
+import '@/app/style.css'
 
 export default function TokenFilterMobile() {
   const [category, setCategory] = useState('')
@@ -81,12 +82,13 @@ export default function TokenFilterMobile() {
           zIndex={100}
           bg='rgba(0, 0, 0, 0.3)'
           mt='20px'
+          animation='fadeIn 0.5s'
         ></Box>
       )}
       <Slide
         direction='left'
         in={isOpenTagsMenu}
-        style={{ zIndex: 100, marginTop: '20px' }}
+        style={{ zIndex: 100, marginTop: '20px', transition: '0.1s' }}
         onClick={onToggleTagsMenu}
       >
         <Box p='16px' w='80%' bg='grey.50' h='full' onClick={(e) => e.stopPropagation()}>

@@ -27,7 +27,7 @@ export default function CategoryFilter() {
   }
 
   return (
-    <Box marginTop='24px' w='full'>
+    <Box marginTop='24px' w='full' px='8px'>
       <Text
         fontSize='12px'
         color={theme.colors.grey['600']}
@@ -39,7 +39,7 @@ export default function CategoryFilter() {
       </Text>
       {categories?.map((category) => (
         <Box
-          bg={selectedCategory?.id === category.id ? 'black' : theme.colors.grey['300']}
+          bg={selectedCategory?.id === category.id ? 'grey.800' : theme.colors.grey['300']}
           padding='2px 4px'
           key={category.id}
           borderRadius='2px'
@@ -47,6 +47,9 @@ export default function CategoryFilter() {
           marginBottom='4px'
           cursor='pointer'
           onClick={() => handleFilterItemClicked(category)}
+          _hover={{
+            bg: selectedCategory?.id === category.id ? 'grey.800' : 'grey.400',
+          }}
         >
           <Text color={selectedCategory?.id === category.id ? 'white' : 'black'} fontWeight={500}>
             /{category.name}

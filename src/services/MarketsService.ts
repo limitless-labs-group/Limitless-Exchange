@@ -335,7 +335,7 @@ const mockMarket = {
 }
 
 export function useMarket(address?: string) {
-  const { data: market } = useQuery({
+  return useQuery({
     queryKey: ['market', address],
     queryFn: async () => {
       const response = await axios.get(
@@ -345,6 +345,4 @@ export function useMarket(address?: string) {
     },
     enabled: !!address && address !== '0x',
   })
-
-  return useMemo(() => market ?? null, [market])
 }

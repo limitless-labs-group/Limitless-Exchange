@@ -34,5 +34,27 @@ const baseStyle = definePartsStyle({
     },
   },
 })
+
+// define custom variants
+const variants = {
+  outlined: {
+    button: {
+      borderLeftRadius: '2px',
+      border: '1px solid',
+      borderColor: 'grey.300',
+      bg: 'unset',
+      _hover: {
+        bg: 'unset',
+      },
+    },
+  },
+  transparent: {
+    button: {
+      w: 'full',
+      background: 'unset !important',
+    },
+  },
+}
+
 // export the base styles in the component theme
-export const menuTheme = defineMultiStyleConfig({ baseStyle })
+export const menuTheme = defineMultiStyleConfig({ baseStyle, variants })

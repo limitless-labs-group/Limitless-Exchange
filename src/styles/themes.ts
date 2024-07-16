@@ -125,6 +125,7 @@ export const chakraTheme = ChakraTheme({
         gap: '4px',
         borderRadius: '2px',
         _disabled: {
+          opacity: 1,
           pointerEvents: 'none',
         },
       },
@@ -144,6 +145,7 @@ export const chakraTheme = ChakraTheme({
           },
           _disabled: {
             bg: 'grey.300',
+            color: 'grey.500',
             pointerEvents: 'none',
           },
         },
@@ -156,6 +158,7 @@ export const chakraTheme = ChakraTheme({
           },
           _disabled: {
             bg: 'grey.300',
+            color: 'grey.500',
             pointerEvents: 'none',
           },
         },
@@ -167,16 +170,17 @@ export const chakraTheme = ChakraTheme({
           },
           _disabled: {
             bg: 'grey.300',
+            color: 'grey.500',
             pointerEvents: 'none',
           },
         },
         transparent: {
           background: 'unset',
           ...commonButtonProps,
-          px: 0,
+          px: '8px',
           gap: '8px',
-          _focus: {
-            bg: 'unset',
+          _hover: {
+            bg: 'grey.200',
           },
         },
       },
