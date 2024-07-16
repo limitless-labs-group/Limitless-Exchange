@@ -13,14 +13,13 @@ import {
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
 import React from 'react'
-import { useAccount as useWagmiAccount } from 'wagmi'
+import { useAccount as useWagmiAccount, useDisconnect } from 'wagmi'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
   useAccount,
   useAmplitude,
-  useAuth,
   useBalanceService,
   useHistory,
 } from '@/services'
@@ -32,9 +31,9 @@ import { usePathname, useRouter } from 'next/navigation'
 import WalletPage from '@/components/layouts/wallet-page'
 import { useWeb3Service } from '@/services/Web3Service'
 import TokenFilterMobile from '@/components/common/token-filter-mobile'
-import { LogInButton } from '@/components/common/login-button'
 import { isMobile } from 'react-device-detect'
 import '@/app/style.css'
+import { LoginButton } from '@/components/common/login-button'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -43,7 +42,7 @@ export default function MobileHeader() {
   const address = useWalletAddress()
   const { balanceInvested } = useHistory()
   const router = useRouter()
-  const { signOut } = useAuth()
+  const { disconnect } = useDisconnect()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
   const pathname = usePathname()
@@ -59,7 +58,7 @@ export default function MobileHeader() {
   return (
     <>
       <Box p='16px' pb={0}>
-        <HStack justifyContent='space-between'>
+        <HStack justifyContent='space-between' alignItems='center'>
           <Button variant='transparent' onClick={() => router.push('/')}>
             <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
           </Button>
@@ -247,7 +246,7 @@ export default function MobileHeader() {
                             option: 'Sign Out',
                           }
                         )
-                        signOut()
+                        disconnect()
                       }}
                     >
                       Log Out
@@ -256,7 +255,7 @@ export default function MobileHeader() {
                 </Slide>
               </>
             ) : (
-              <LogInButton />
+              <LoginButton />
             )}
           </HStack>
           {isWalletModalOpen && (

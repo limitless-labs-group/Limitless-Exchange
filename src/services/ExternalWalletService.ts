@@ -1,14 +1,14 @@
 import { publicClient } from '@/providers'
-import { useAccount } from '@/services/AccountService'
 import { Address, encodeFunctionData, erc20Abi, getContract, maxUint256 } from 'viem'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
 import { defaultChain } from '@/constants'
 import { useSendTransaction, useWriteContract } from 'wagmi'
 import { contractABI } from '@/contracts/utils'
 import { useLimitlessApi } from '@/services/LimitlessApi'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 export const useExternalWalletService = () => {
-  const { account } = useAccount()
+  const account = useWalletAddress()
   const { writeContractAsync } = useWriteContract()
   const { sendTransactionAsync } = useSendTransaction()
   const { supportedTokens } = useLimitlessApi()

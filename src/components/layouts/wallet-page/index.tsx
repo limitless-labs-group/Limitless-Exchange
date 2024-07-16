@@ -46,8 +46,6 @@ export default function WalletPage({ onClose }: WalletPageProps) {
     onOpenWithdraw()
   }
 
-  console.log(isWithdrawOpen)
-
   return (
     <Box
       bg='grey.100'

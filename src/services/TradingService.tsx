@@ -3,7 +3,7 @@ import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'
 import { publicClient } from '@/providers'
-import { useAccount, useBalanceService, useHistory } from '@/services'
+import { useBalanceService, useHistory } from '@/services'
 import { Market } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
@@ -24,6 +24,7 @@ import { Address, Hash, formatUnits, getAddress, getContract, parseUnits, zeroHa
 import { useWeb3Service } from '@/services/Web3Service'
 import { useToken } from '@/hooks/use-token'
 import { useConditionalTokensAddr } from '@/hooks/use-conditional-tokens-addr'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 interface ITradingServiceContext {
   market: Market | null
@@ -61,11 +62,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const queryClient = useQueryClient()
   const { getTrades, getRedeems } = useHistory()
-
-  /**
-   * ACCOUNT
-   */
-  const { account } = useAccount()
+  const account = useWalletAddress()
 
   /**
    * OPTIONS
