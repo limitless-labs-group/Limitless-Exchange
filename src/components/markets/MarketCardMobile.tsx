@@ -17,7 +17,7 @@ interface IMarketCard extends StackProps {
 
 export const MarketCardMobile = ({ marketAddress, children, ...props }: IMarketCard) => {
   const router = useRouter()
-  const market = useMarket(marketAddress as string)
+  const { data: market } = useMarket(marketAddress as string)
   const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
   const { outcomeTokensPercent, liquidity, volume } = useMarketData({
     marketAddress,

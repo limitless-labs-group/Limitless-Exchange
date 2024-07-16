@@ -20,7 +20,7 @@ export const MarketCard = ({ marketAddress, ...props }: IMarketCard) => {
    * NAVIGATION
    */
   const router = useRouter()
-  const market = useMarket(marketAddress as string)
+  const { data: market } = useMarket(marketAddress as string)
   const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
   const { outcomeTokensPercent, liquidity, volume } = useMarketData({
     marketAddress,
