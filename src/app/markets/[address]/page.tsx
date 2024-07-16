@@ -7,7 +7,7 @@ import {
   MarketPositions,
   MarketTradingForm,
 } from '@/app/markets/[address]/components'
-import { Flex, Spacer, Spinner } from '@chakra-ui/react'
+import { Flex, Spacer, Spinner, Text } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
 import { MarketPriceChart } from '@/app/markets/[address]/components/MarketPriceChart'
@@ -32,7 +32,11 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
    * SET MARKET
    */
-  const market = useMarket(params.address)
+  const {
+    data: market,
+    isLoading: fetchMarketLoading,
+    isError: fetchMarketError,
+  } = useMarket(params.address)
 
   const { isLoading: isCollateralLoading } = useToken(market?.collateralToken[defaultChain.id])
 
@@ -45,8 +49,8 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   } = useTradingService()
 
   useEffect(() => {
-    if (market != previousMarket) {
-      setMarket(market)
+    if (market != previousMarket && !fetchMarketError) {
+      setMarket(market!)
     }
   }, [market, previousMarket])
 
@@ -56,9 +60,13 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
 
   return (
     <MainLayout maxContentWidth={'1200px'}>
-      {!market || isCollateralLoading ? (
+      {isCollateralLoading || fetchMarketLoading ? (
         <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
           <Spinner />
+        </Flex>
+      ) : !market ? (
+        <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
+          <Text>Market not found</Text>
         </Flex>
       ) : (
         <>
