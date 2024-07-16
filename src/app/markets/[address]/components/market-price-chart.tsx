@@ -214,12 +214,12 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
     },
   })
 
-  const initialYesChance = useMemo(() => {
-    if (market?.prices) {
-      return market.prices[0].toFixed(2)
-    }
-    return '50.00'
-  }, [market?.prices])
+  // const initialYesChance = useMemo(() => {
+  //   if (market?.prices) {
+  //     return market.prices[0].toFixed(2)
+  //   }
+  //   return '50.00'
+  // }, [market?.prices])
 
   return (
     <Paper my='24px' p='8px'>
