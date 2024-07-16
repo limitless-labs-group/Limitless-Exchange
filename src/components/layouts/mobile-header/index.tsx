@@ -26,7 +26,7 @@ import {
 } from '@/services'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import { usePathname, useRouter } from 'next/navigation'
 import WalletPage from '@/components/layouts/wallet-page'
@@ -111,7 +111,7 @@ export default function MobileHeader() {
                 >
                   <VStack
                     ml='40px'
-                    bg='grey.50'
+                    bg='grey.100'
                     h='full'
                     p='16px'
                     justifyContent='space-between'
@@ -140,7 +140,7 @@ export default function MobileHeader() {
                             </Text>
                           </Flex>
                         )}
-                        <Text fontSize='16px' fontWeight={500}>
+                        <Text fontSize='24px' fontWeight={500}>
                           {userInfo?.name ? userInfo.name : truncateEthAddress(address)}
                         </Text>
                       </HStack>
@@ -158,12 +158,12 @@ export default function MobileHeader() {
                               </Text>
                             </HStack>
 
-                            <HStack gap='4px'>
+                            <HStack gap='8px'>
                               <Text fontWeight={500}>
                                 {NumberUtil.formatThousands(balanceInvested, 2)} USD
                               </Text>
-                              <Box transform='rotate(270deg)' color='grey.500'>
-                                <ChevronDownIcon width={16} height={16} />
+                              <Box color='grey.500'>
+                                <ArrowRightIcon width={16} height={16} />
                               </Box>
                             </HStack>
                           </HStack>
@@ -186,12 +186,12 @@ export default function MobileHeader() {
                                 </Text>
                               </HStack>
 
-                              <HStack gap='4px'>
+                              <HStack gap='8px'>
                                 <Text fontWeight={500}>
                                   {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                                 </Text>
-                                <Box transform='rotate(270deg)' color='grey.500'>
-                                  <ChevronDownIcon width={16} height={16} />
+                                <Box color='grey.500'>
+                                  <ArrowRightIcon width={16} height={16} />
                                 </Box>
                               </HStack>
                             </HStack>
