@@ -2,19 +2,12 @@ import React from 'react'
 import { Text, Box, useTheme } from '@chakra-ui/react'
 import { Category } from '@/types'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+import { useCategories } from '@/services'
 
 export default function CategoryFilter() {
   const { selectedCategory, handleCategory } = useTokenFilter()
 
-  const { data: categories } = useQuery({
-    queryKey: ['categories'],
-    queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/categories`)
-      return response.data as Category[]
-    },
-  })
+  const { data: categories } = useCategories()
 
   const theme = useTheme()
 
