@@ -39,7 +39,7 @@ export type ShareURI = {
  * console.log(castURI);   // Outputs: URL for Farcaster cast intent
  */
 export const createMarketShareUrls = (
-  market: Market | null,
+  market: Market | null | undefined,
   outcomeTokensPercent: number[] | undefined
 ): ShareURI => {
   const formatOutcomeTokenPercent = (index: number) =>
@@ -74,7 +74,10 @@ export const createMarketShareUrls = (
  *
  * @returns {ShareURI} An object containing URLs for sharing the market information
  */
-export const createPortfolioShareUrls = (market: Market | null, position: HistoryPosition) => {
+export const createPortfolioShareUrls = (
+  market: Market | null | undefined,
+  position: HistoryPosition
+) => {
   const baseMessage = `"${market?.title}" by ${market?.creator.name}\nMy bet: ${NumberUtil.toFixed(
     position.collateralAmount,
     6
