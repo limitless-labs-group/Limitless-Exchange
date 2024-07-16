@@ -41,6 +41,9 @@ export default function TokenFilter() {
         marginBottom='4px'
         cursor='pointer'
         bg={selectedFilterTokens.length === 0 ? 'grey.800' : theme.colors.grey['300']}
+        _hover={{
+          bg: selectedFilterTokens.length === 0 ? 'grey.800' : 'grey.400',
+        }}
         onClick={() => handleFilterItemClicked(null)}
       >
         <Text color={selectedFilterTokens.length === 0 ? 'grey.50' : 'grey.800'} fontWeight={500}>
@@ -63,6 +66,11 @@ export default function TokenFilter() {
             marginBottom='4px'
             cursor='pointer'
             onClick={() => handleFilterItemClicked(token)}
+            _hover={{
+              bg: selectedFilterTokens.findLast((_token) => _token.address === token.address)
+                ? 'grey.800'
+                : 'grey.400',
+            }}
           >
             <Text
               color={

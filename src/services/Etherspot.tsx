@@ -47,11 +47,6 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    * Initialize Etherspot with Prime SDK instance on top of W3A wallet, once user signed in
    */
   const initEtherspot = useCallback(async () => {
-    console.log(web3Auth)
-    console.log(web3AuthProvider)
-    console.log(isConnected)
-    console.log(supportedTokens)
-    console.log(web3Auth.connectedAdapterName)
     if (
       !web3AuthProvider ||
       !isConnected ||

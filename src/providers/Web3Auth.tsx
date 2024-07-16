@@ -17,6 +17,8 @@ import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { OpenEvent, useAmplitude } from '@/services'
 import { MetamaskAdapter } from '@web3auth/metamask-adapter'
 import { CoinbaseAdapter } from '@web3auth/coinbase-adapter'
+import { createConnector as createWagmiConnector } from 'wagmi'
+import { Wallet, WalletDetailsParams } from '@rainbow-me/rainbowkit'
 
 const chainConfig: CustomChainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
@@ -50,25 +52,42 @@ export const web3Auth = new Web3Auth({
   // enableLogging: true,
 })
 
-/**
- * METAMASK
- */
-const metamaskAdapter = new MetamaskAdapter({
-  clientId: process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID as string,
-  sessionTime: 3600 * 3,
-  web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
-})
-web3Auth.configureAdapter(metamaskAdapter)
+// /**
+//  * METAMASK
+//  */
+// const metamaskAdapter = new MetamaskAdapter({
+//   clientId: process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID as string,
+//   sessionTime: 3600 * 3,
+//   web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+// })
+// web3Auth.configureAdapter(metamaskAdapter)
+//
+// /**
+//  * COINBASE
+//  */
+// const coinbaseAdapter = new CoinbaseAdapter({
+//   clientId: process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID as string,
+//   sessionTime: 3600 * 3,
+//   web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+// })
+// web3Auth.configureAdapter(coinbaseAdapter)
 
-/**
- * COINBASE
- */
-const coinbaseAdapter = new CoinbaseAdapter({
-  clientId: process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID as string,
-  sessionTime: 3600 * 3,
-  web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+export const rainbowWeb3AuthConnector = (): Wallet => ({
+  id: 'web3auth',
+  name: 'web3auth',
+  rdns: 'web3auth',
+  iconUrl: 'https://web3auth.io/images/web3authlog.png',
+  iconBackground: '#fff',
+  installed: true,
+  downloadUrls: {},
+  createConnector: (walletDetails: WalletDetailsParams) =>
+    createWagmiConnector((config) => ({
+      ...Web3AuthConnector({
+        web3AuthInstance: web3Auth,
+      })(config),
+      ...walletDetails,
+    })),
 })
-web3Auth.configureAdapter(coinbaseAdapter)
 
 /**
  * WALLET CONNECT
@@ -160,6 +179,8 @@ export function Web3AuthProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     initWeb3Auth()
   }, [isConnectedWagmi])
+
+  console.log(web3Auth)
 
   /**
    * ANALYTICS

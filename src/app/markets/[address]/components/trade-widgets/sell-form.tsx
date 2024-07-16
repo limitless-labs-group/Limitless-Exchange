@@ -173,8 +173,6 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
     return false
   }, [collateralAmount, outcomeChoice, balanceOfCollateralToSellYes, balanceOfCollateralToSellNo])
 
-  console.log(isExceedsBalance)
-
   useEffect(() => {
     if (isZeroBalance) {
       setSliderValue(0)

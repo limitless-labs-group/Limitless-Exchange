@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React from 'react'
-import { useAccount as useWagmiAccount } from 'wagmi'
+import { useAccount as useWagmiAccount, useDisconnect } from 'wagmi'
 import '../../../../src/app/style.css'
 
 import {
@@ -27,7 +27,6 @@ import {
   useHistory,
   useAccount,
   ProfileBurgerMenuClickedMetadata,
-  useAuth,
 } from '@/services'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
@@ -38,10 +37,11 @@ import { usePathname, useRouter } from 'next/navigation'
 import WalletPage from '@/components/layouts/wallet-page'
 import TokenFilter from '@/components/common/token-filter'
 import { useWeb3Service } from '@/services/Web3Service'
-import { LogInButton } from '@/components/common/login-button'
+import { LoginButton } from '@/components/common/login-button'
 import CategoryFilter from '@/components/common/categories'
 import { isMobile } from 'react-device-detect'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import '@rainbow-me/rainbowkit/styles.css'
 
 export default function Sidebar() {
   const theme = useTheme()
@@ -54,7 +54,7 @@ export default function Sidebar() {
   const { userInfo } = useAccount()
   const address = useWalletAddress()
   const router = useRouter()
-  const { signOut } = useAuth()
+  const { disconnect } = useDisconnect()
   const { client } = useWeb3Service()
   const pathname = usePathname()
 
@@ -78,7 +78,7 @@ export default function Sidebar() {
         zIndex={200}
         bg={isOpenWalletPage ? 'grey.100' : 'grey.50'}
       >
-        <Button variant='transparent' onClick={() => router.push('/')}>
+        <Button variant='transparent' onClick={() => router.push('/')} _hover={{ bg: 'unset' }}>
           <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
         </Button>
         {isConnected && (
@@ -134,6 +134,7 @@ export default function Sidebar() {
                       borderRadius={'2px'}
                       h={'16px'}
                       w={'16px'}
+                      objectFit='cover'
                     />
                   ) : (
                     <Flex
@@ -144,7 +145,9 @@ export default function Sidebar() {
                       alignItems='center'
                       justifyContent='center'
                     >
-                      <Text fontWeight={500}>{userInfo?.name?.[0].toUpperCase()}</Text>
+                      <Text fontWeight={500}>
+                        {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
+                      </Text>
                     </Flex>
                   )}
                   <Text fontWeight={500}>
@@ -163,7 +166,8 @@ export default function Sidebar() {
                         option: 'Sign Out',
                       }
                     )
-                    signOut()
+                    disconnect()
+                    onToggleAuthMenu()
                   }}
                 >
                   Log Out
@@ -190,7 +194,9 @@ export default function Sidebar() {
             Create Market
           </Button>
         ) : (
-          <LogInButton />
+          <Box mt='16px' w='full'>
+            <LoginButton />
+          </Box>
         )}
         <Divider />
         <TokenFilter />
