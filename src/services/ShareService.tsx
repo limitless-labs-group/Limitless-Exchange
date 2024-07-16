@@ -43,7 +43,7 @@ export const createMarketShareUrls = (
   outcomeTokensPercent: number[] | undefined
 ): ShareURI => {
   const formatOutcomeTokenPercent = (index: number) =>
-    `${(outcomeTokensPercent?.[index] ?? 50).toFixed(2)}%`
+    `${Number(outcomeTokensPercent?.[index] ?? 50).toFixed(2)}%`
 
   const baseMessage = `"${market?.title}" by ${market?.creator.name}\n${
     market?.outcomeTokens[0]
