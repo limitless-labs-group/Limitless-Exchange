@@ -2,6 +2,7 @@ import React from 'react'
 import { Text, Box, useTheme, VStack } from '@chakra-ui/react'
 import { Category } from '@/types'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
+import Link from 'next/link'
 
 export interface ICategoryFilterMobile {
   categories: Category[]
@@ -45,12 +46,14 @@ export default function CategoryFilterMobile({ categories }: ICategoryFilterMobi
             cursor='pointer'
             onClick={() => handleFilterItemClicked(category)}
           >
-            <Text
-              color={selectedCategory?.id === category.id ? 'grey.50' : 'grey.800'}
-              fontWeight={500}
-            >
-              /{category.name}
-            </Text>
+            <Link href={`/topics/${category.name.toLowerCase()}`}>
+              <Text
+                color={selectedCategory?.id === category.id ? 'grey.50' : 'grey.800'}
+                fontWeight={500}
+              >
+                /{category.name}
+              </Text>
+            </Link>
           </Box>
         ))}
       </VStack>

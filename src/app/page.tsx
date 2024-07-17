@@ -8,7 +8,7 @@ import { Divider, VStack, Text, Box } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import SortFilter from '@/components/common/sort-filter'
-import { Market, Sort } from '@/types'
+import { Category, Market, Sort } from '@/types'
 import { formatUnits, getAddress } from 'viem'
 import { useMarkets } from '@/services/MarketsService'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -16,7 +16,7 @@ import { usePriceOracle } from '@/providers'
 import TextWithPixels from '@/components/common/text-with-pixels'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 
-const MainPage = () => {
+const MainPage = ({ params }: { params: Category | null }) => {
   /**
    * ANALYTICS
    */
@@ -38,7 +38,7 @@ const MainPage = () => {
   const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage } = useMarkets()
+  const { data, fetchNextPage, hasNextPage } = useMarkets(params)
 
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.length
@@ -46,7 +46,7 @@ const MainPage = () => {
 
   const markets: Market[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data) || []
-  }, [data?.pages])
+  }, [data?.pages, params])
 
   //it helps to get integer value form solidity representation
   const formatMarketNumber = (market: Market, amount: string | undefined) => {
