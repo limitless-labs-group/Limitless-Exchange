@@ -7,6 +7,7 @@ import MenuIcon from '@/resources/icons/menu-icon.svg'
 import Image from 'next/image'
 import '@/app/style.css'
 import CategoryFilterMobile from '@/components/common/categories-mobile'
+import Link from 'next/link'
 
 const sections = ['Crypto', 'Topics']
 
@@ -63,9 +64,11 @@ export default function TokenFilterMobile() {
           key={category.id}
           onClick={() => handleCategory(category)}
         >
-          <Text color={_selected ? 'grey.50' : 'grey.800'} fontWeight={500}>
-            /{category.name}
-          </Text>
+          <Link href={`/topics/${category.name.toLowerCase()}`}>
+            <Text color={_selected ? 'grey.50' : 'grey.800'} fontWeight={500}>
+              /{category.name}
+            </Text>
+          </Link>
         </Button>
       )
     })
