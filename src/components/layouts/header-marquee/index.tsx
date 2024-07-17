@@ -10,7 +10,7 @@ export default function HeaderMarquee() {
   return (
     <Box onClick={() => setPauseMarquee(!pauseMarquee)}>
       <Marquee
-        speed={pauseMarquee ? 0 : 50}
+        play={!pauseMarquee}
         style={{
           height: '20px',
           background: theme.colors.grey['800'],
