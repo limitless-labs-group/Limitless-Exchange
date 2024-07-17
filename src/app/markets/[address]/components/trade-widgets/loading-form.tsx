@@ -15,11 +15,11 @@ export function LoadingForm({ market, outcomeIndex }: LoadingFormProps) {
 
   return (
     <VStack my='40px' w='full'>
-      <Spinner color='white' size='lg' emptyColor='rgba(255, 255, 255, 0.2)' />
-      <Text fontWeight={500} color='white'>
+      <Spinner color='grey.50' size='lg' emptyColor='rgba(255, 255, 255, 0.2)' />
+      <Text fontWeight={500} color='grey.50'>
         You&lsquo;re {strategy === 'Buy' ? 'buying' : 'selling'}
       </Text>
-      <HStack gap='4px' color='white'>
+      <HStack gap='4px' color='grey.50'>
         {outcomeIndex ? (
           <ThumbsDownIcon width={16} height={16} />
         ) : (
@@ -27,7 +27,7 @@ export function LoadingForm({ market, outcomeIndex }: LoadingFormProps) {
         )}
         <Text fontWeight={500}>{outcomeIndex ? 'No' : 'Yes'} Contracts</Text>
       </HStack>
-      <Text fontWeight={500} color='white'>
+      <Text fontWeight={500} color='grey.50'>
         For {collateralAmount} {market.tokenTicker[defaultChain.id]}
       </Text>
     </VStack>

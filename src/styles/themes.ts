@@ -4,17 +4,11 @@ import { lightThemeColors } from '@/styles/light-theme-colors'
 import { modalTheme } from '@/styles/modals'
 import { accordionTheme } from '@/styles/accordion'
 import { inputTheme } from '@/styles/input'
+import { menuTheme } from '@/styles/menu'
+import { commonButtonProps } from '@/styles/button'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
-const commonButtonProps = {
-  fontSize: '14px',
-  py: '4px',
-  px: '8px',
-  fontWeight: 500,
-  borderRadius: '2px',
-  h: '24px',
-}
 export const colors = {
   brand: '#2492ff',
   bg: 'white',
@@ -131,6 +125,7 @@ export const chakraTheme = ChakraTheme({
         gap: '4px',
         borderRadius: '2px',
         _disabled: {
+          opacity: 1,
           pointerEvents: 'none',
         },
       },
@@ -144,32 +139,48 @@ export const chakraTheme = ChakraTheme({
         contained: {
           ...commonButtonProps,
           bg: 'blue.500',
-          color: 'white',
-          px: '8px',
-          h: '24px',
-          gap: '8px',
+          color: 'grey.50',
+          _hover: {
+            bg: 'blue.600',
+          },
           _disabled: {
-            _hover: {
-              bg: 'blue.500 !important',
-            },
+            bg: 'grey.300',
+            color: 'grey.500',
+            pointerEvents: 'none',
           },
         },
         white: {
           ...commonButtonProps,
-          bg: 'white',
-          color: 'black',
+          bg: 'grey.50',
+          color: 'grey.800',
+          _hover: {
+            bg: 'grey.50',
+          },
+          _disabled: {
+            bg: 'grey.300',
+            color: 'grey.500',
+            pointerEvents: 'none',
+          },
         },
         grey: {
-          background: 'grey.300',
           ...commonButtonProps,
+          bg: 'grey.300',
+          _hover: {
+            bg: 'grey.400',
+          },
+          _disabled: {
+            bg: 'grey.300',
+            color: 'grey.500',
+            pointerEvents: 'none',
+          },
         },
         transparent: {
           background: 'unset',
           ...commonButtonProps,
-          px: 0,
+          px: '8px',
           gap: '8px',
-          _focus: {
-            bg: 'unset',
+          _hover: {
+            bg: 'grey.200',
           },
         },
       },
@@ -191,6 +202,7 @@ export const chakraTheme = ChakraTheme({
     Modal: modalTheme,
     Accordion: accordionTheme,
     Input: inputTheme,
+    Menu: menuTheme,
     // Divider
     // Button link
   },

@@ -9,6 +9,7 @@ import HistoryIcon from '@/resources/icons/history-icon.svg'
 import { isMobile } from 'react-device-detect'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import TextWithPixels from '@/components/common/text-with-pixels'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const PortfolioPage = () => {
   const [tab, setTab] = useState<'Investments' | 'History'>('Investments')
@@ -23,27 +24,28 @@ const PortfolioPage = () => {
   return (
     <MainLayout>
       <Box w={isMobile ? 'auto' : '1016px'}>
-        <Divider bg='black' orientation='horizontal' h='3px' />
+        <Divider bg='grey.800' orientation='horizontal' h='3px' />
         <TextWithPixels text={'Portfolio Overview'} fontSize={'32px'} gap={2} />
         <PortfolioStats mt={'20px'} />
 
         <Stack w={'full'} spacing={5} mt={1}>
-          <HStack
-            spacing={5}
-            fontWeight={'bold'}
-            fontSize={'15px'}
-            borderBottom={'1px solid'}
-            borderColor={'grey.400'}
-          >
-            <Stack cursor={'pointer'} onClick={() => setTab('Investments')}>
-              <HStack>
+          <HStack gap={0} borderBottom={'1px solid'} borderColor={'grey.400'} alignItems='flex-end'>
+            <Stack cursor={'pointer'} onClick={() => setTab('Investments')} mb='-1px' gap={0}>
+              <HStack
+                color={tab === 'Investments' ? 'grey.800' : 'grey.500'}
+                px='8px'
+                gap='4px'
+                mb='4px'
+              >
                 <Icon as={PortfolioIcon} w={'16px'} h={'16px'} />
-                <Text fontWeight={tab == 'Investments' ? 'bold' : 'normal'}>Investments</Text>
+                <Text {...paragraphMedium} color={tab === 'Investments' ? 'grey.800' : 'grey.500'}>
+                  Investments
+                </Text>
               </HStack>
               <Box
                 w={'full'}
                 h={'3px'}
-                bg={'black'}
+                bg={'grey.800'}
                 visibility={tab == 'Investments' ? 'visible' : 'hidden'}
               />
             </Stack>
@@ -55,15 +57,24 @@ const PortfolioPage = () => {
                 })
                 setTab('History')
               }}
+              mb='-1px'
+              gap={0}
             >
-              <HStack>
+              <HStack
+                color={tab === 'History' ? 'grey.800' : 'grey.500'}
+                px='8px'
+                gap='4px'
+                mb='4px'
+              >
                 <Icon as={HistoryIcon} w={'16px'} h={'16px'} />
-                <Text fontWeight={tab == 'History' ? 'bold' : 'normal'}>History</Text>
+                <Text {...paragraphMedium} color={tab === 'History' ? 'grey.800' : 'grey.500'}>
+                  History
+                </Text>
               </HStack>
               <Box
                 w={'full'}
                 h={'3px'}
-                bg={'black'}
+                bg={'grey.800'}
                 visibility={tab == 'History' ? 'visible' : 'hidden'}
               />
             </Stack>

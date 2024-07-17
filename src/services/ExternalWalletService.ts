@@ -1,14 +1,14 @@
 import { publicClient } from '@/providers'
-import { useAccount } from '@/services/AccountService'
 import { Address, encodeFunctionData, erc20Abi, getContract, maxUint256 } from 'viem'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
 import { defaultChain } from '@/constants'
 import { useSendTransaction, useWriteContract } from 'wagmi'
 import { contractABI } from '@/contracts/utils'
 import { useLimitlessApi } from '@/services/LimitlessApi'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 export const useExternalWalletService = () => {
-  const { account } = useAccount()
+  const account = useWalletAddress()
   const { writeContractAsync } = useWriteContract()
   const { sendTransactionAsync } = useSendTransaction()
   const { supportedTokens } = useLimitlessApi()
@@ -74,13 +74,14 @@ export const useExternalWalletService = () => {
 
   const approveContractEOA = async (
     spender: Address,
-    contractAddress: Address
+    contractAddress: Address,
+    value: bigint
   ): Promise<string> => {
     let txHash = ''
     await writeContractAsync(
       {
         abi: spender === collateralTokenAddress ? wethABI : erc20Abi,
-        args: [spender, maxUint256],
+        args: [spender, value],
         address: contractAddress,
         functionName: 'approve',
       },

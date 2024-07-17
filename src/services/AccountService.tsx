@@ -82,35 +82,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>
 }
 
-export const useAuth = () => {
-  /**
-   * SIGN IN
-   */
-  const { connectAsync, connectors } = useConnect()
-  const signIn = useCallback(
-    () =>
-      connectAsync({
-        chainId: defaultChain.id,
-        connector: connectors.find((c) => c.id === 'web3auth')!,
-      }),
-    []
-  )
-
-  /**
-   * SIGN OUT
-   */
-  const { disconnectAsync } = useDisconnect()
-  const signOut = useCallback(async () => {
-    connectors.forEach(async (connector) => await connector.disconnect())
-    await disconnectAsync()
-  }, [])
-
-  return {
-    signIn,
-    signOut,
-  }
-}
-
 type FarcasterUserData = {
   fid: number
   username: string

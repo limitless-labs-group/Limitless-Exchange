@@ -8,6 +8,7 @@ import { isMobile } from 'react-device-detect'
 import { useState } from 'react'
 import Paper from '@/components/common/paper'
 import { BuyForm, SellForm, LoadingForm } from '@/app/markets/[address]/components/trade-widgets'
+import { controlsMedium } from '@/styles/fonts/fonts.styles'
 
 interface MarketTradingFormProps {
   market: Market
@@ -37,17 +38,19 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
         mx='auto'
         bg='rgba(255, 255, 255, 0.20)'
         borderRadius='2px'
-        p='2px'
+        py='2px'
+        px={isMobile ? '4px' : '2px'}
         mb='24px'
       >
         <Button
-          h={isMobile ? '28px' : 'unset'}
+          h={isMobile ? '28px' : '20px'}
           flex='1'
+          py='2px'
           borderRadius='2px'
-          bg={strategy === 'Buy' ? 'white' : 'unset'}
-          color={strategy === 'Buy' ? 'black' : 'white'}
+          bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
+          color={strategy === 'Buy' ? 'grey.800' : 'grey.50'}
           _hover={{
-            backgroundColor: strategy === 'Buy' ? 'white' : 'grey.400',
+            backgroundColor: strategy === 'Buy' ? 'grey.50' : 'rgba(255, 255, 255, 0.30)',
           }}
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
@@ -57,18 +60,19 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
             setStrategy('Buy')
           }}
         >
-          <Text fontWeight={'bold'} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
+          <Text {...controlsMedium} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
             Buy
           </Text>
         </Button>
         <Button
-          h={isMobile ? '28px' : 'unset'}
+          h={isMobile ? '28px' : '20px'}
           flex='1'
           borderRadius='2px'
-          bg={strategy === 'Sell' ? 'white' : 'unset'}
-          color={strategy === 'Sell' ? 'black' : 'white'}
+          py='2px'
+          bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
+          color={strategy === 'Sell' ? 'grey.800' : 'grey.50'}
           _hover={{
-            backgroundColor: strategy === 'Sell' ? 'white' : 'grey.400',
+            backgroundColor: strategy === 'Sell' ? 'grey.50' : 'rgba(255, 255, 255, 0.30)',
           }}
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
@@ -78,7 +82,7 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
             setStrategy('Sell')
           }}
         >
-          <Text fontWeight={'bold'} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
+          <Text {...controlsMedium} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
             Sell
           </Text>
         </Button>

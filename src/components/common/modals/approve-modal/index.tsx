@@ -50,7 +50,7 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
         <ModalCloseButton />
         <ModalBody>
           <VStack>
-            <Text color={isMobile ? 'white' : 'black'}>
+            <Text color={isMobile ? 'grey.50' : 'grey.800'}>
               In order to proceed with transaction you should approve token for smart-contract
               spend.
             </Text>
