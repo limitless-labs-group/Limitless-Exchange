@@ -205,6 +205,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
             _hover={{
               backgroundColor: outcomeChoice === 'yes' ? 'grey.50' : 'transparent.300',
             }}
+            gap={isMobile ? '16px' : '8px'}
           >
             <HStack
               color={outcomeChoice === 'yes' ? 'grey.800' : 'grey.50'}
@@ -221,7 +222,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 {NumberUtil.toFixed(positionsYes.outcomeTokenAmount, 6)} Contracts
               </Text>
             </HStack>
-            <VStack ml='24px' mt='8px' w='calc(100% - 24px)'>
+            <VStack ml='24px' w='calc(100% - 24px)' gap={isMobile ? '8px' : '4px'}>
               <HStack justifyContent='space-between' w='full'>
                 <HStack gap='4px'>
                   <Text
@@ -320,6 +321,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
             _hover={{
               backgroundColor: outcomeChoice === 'no' ? 'grey.50' : 'transparent.300',
             }}
+            gap={isMobile ? '16px' : '8px'}
           >
             <HStack
               color={outcomeChoice === 'no' ? 'grey.800' : 'grey.50'}
@@ -336,7 +338,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 {NumberUtil.toFixed(positionsNo.outcomeTokenAmount, 6)} Contracts
               </Text>
             </HStack>
-            <VStack ml='24px' mt='8px' w='calc(100% - 24px)'>
+            <VStack ml='24px' w='calc(100% - 24px)' gap={isMobile ? '8px' : '4px'}>
               <HStack justifyContent='space-between' w='full'>
                 <HStack gap='4px'>
                   <Text
@@ -439,13 +441,15 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
             onChangeEnd={() => setCollateralAmount(displayAmount)}
             isDisabled={isZeroBalance}
             focusThumbOnChange={false}
+            h={isMobile ? '40px' : '8px'}
+            py={isMobile ? '0px !important' : '4px'}
           >
             <SliderTrack bg='rgba(255, 255, 255, 0.2)'>
               <SliderFilledTrack bg='grey.50' />
             </SliderTrack>
             <SliderThumb bg='grey.50' />
           </Slider>
-          <Stack w={'full'} mt='8px' gap='4px'>
+          <Stack w={'full'} mt={isMobile ? 0 : '8px'} gap='4px'>
             <HStack justifyContent='space-between'>
               <Text {...paragraphMedium} color='grey.50'>
                 Enter amount
@@ -481,7 +485,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
               </InputRightElement>
             </InputGroup>
           </Stack>
-          <VStack my='24px' gap='4px' w='full'>
+          <VStack my='24px' gap={isMobile ? '8px' : '4px'} w='full'>
             <HStack justifyContent='space-between' w='full'>
               <HStack gap='4px'>
                 <Text {...paragraphRegular} color='grey.50'>
