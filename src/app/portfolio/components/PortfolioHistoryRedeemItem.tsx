@@ -1,8 +1,7 @@
 import { defaultChain } from '@/constants'
 import { HistoryRedeem } from '@/services'
-import { borderRadius } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { HStack, Heading, Image, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { Box, HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { useMarketByConditionId } from '@/services/MarketsService'
@@ -31,40 +30,33 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           _hover={{ textDecor: 'underline' }}
           onClick={() => router.push(`/markets/${market?.address[defaultChain.id]}`)}
         >
-          <Image
-            src={market?.imageURI}
-            w={'40px'}
-            h={'40px'}
-            fit={'cover'}
-            bg={'brand'}
-            borderRadius={borderRadius}
-            alt='token'
-          />
-          <Heading size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
+          <Text size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
             {market?.title ?? 'Noname market'}
-          </Heading>
+          </Text>
         </HStack>
       </Td>
 
       <Td px={2}>
-        <Text color={redeem.outcomeIndex == 0 ? 'green' : 'red'} fontWeight={'bold'}>
+        <Text color={redeem.outcomeIndex == 0 ? 'green' : 'red'}>
           {market?.outcomeTokens[redeem.outcomeIndex ?? 0]}
         </Text>
       </Td>
 
       <Td px={2}>Claim</Td>
 
-      {/* Amount */}
-      <Td px={2} isNumeric>
-        <Text fontWeight={'bold'}>
-          {`${NumberUtil.toFixed(Number(redeem.collateralAmount ?? 0), 6)} 
+      <Td px={2} isNumeric colSpan={2}>
+        <Box textAlign='center' verticalAlign='middle'>
+          <Text>
+            {/* that's temporal solution since the bug is on indexer side. it returns not formatted values that's why we need to * on 10e12 */}
+            {`${NumberUtil.formatThousands(
+              (market?.tokenTicker[defaultChain.id] === 'USDC'
+                ? Math.pow(10, 12) * Number(redeem.collateralAmount)
+                : Number(redeem.collateralAmount)) ?? 0,
+              4
+            )} 
           ${market?.tokenTicker[defaultChain.id]}`}
-        </Text>
-      </Td>
-
-      {/* Contracts */}
-      <Td px={2} isNumeric>
-        {NumberUtil.toFixed(redeem.collateralAmount, 6)}
+          </Text>
+        </Box>
       </Td>
 
       {/* Tx */}

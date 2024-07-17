@@ -1,8 +1,7 @@
 import { defaultChain } from '@/constants'
 import { HistoryTrade } from '@/services'
-import { borderRadius } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { HStack, Heading, Image, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { useMarket } from '@/services/MarketsService'
@@ -20,7 +19,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
   /**
    * MARKET DATA
    */
-  const market = useMarket(trade.market.id)
+  const { data: market } = useMarket(trade.market.id)
 
   return (
     <Tr pos={'relative'} {...props}>
@@ -31,23 +30,14 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
           _hover={{ textDecor: 'underline' }}
           onClick={() => router.push(`/markets/${trade.market.id}`)}
         >
-          <Image
-            src={market?.imageURI}
-            w={'40px'}
-            h={'40px'}
-            fit={'cover'}
-            bg={'brand'}
-            borderRadius={borderRadius}
-            alt='token'
-          />
-          <Heading size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
+          <Text size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
             {market?.title ?? 'Noname market'}
-          </Heading>
+          </Text>
         </HStack>
       </Td>
 
       <Td px={2}>
-        <Text color={trade.outcomeIndex == 0 ? 'green' : 'red'} fontWeight={'bold'}>
+        <Text color={trade.outcomeIndex == 0 ? 'green' : 'red'}>
           {market?.outcomeTokens[trade.outcomeIndex ?? 0]}{' '}
           {NumberUtil.formatThousands(trade.outcomeTokenPrice, 3)}{' '}
           {market?.tokenTicker[defaultChain.id]}
@@ -58,7 +48,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
 
       {/* Amount */}
       <Td px={2} isNumeric>
-        <Text fontWeight={'bold'}>
+        <Text>
           {`${NumberUtil.formatThousands(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
             6

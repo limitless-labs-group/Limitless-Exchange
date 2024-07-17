@@ -17,6 +17,9 @@ import {
   LimitlessApiProvider,
   TradingServiceProvider,
 } from '@/services'
+import { TokenFilterProvider } from '@/contexts/TokenFilterContext'
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import { UserValidationProvider } from '@/providers/UserValidation'
 
 export const Providers = ({ children }: React.PropsWithChildren) => {
   const [mounted, setMounted] = React.useState(false)
@@ -26,25 +29,31 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
     mounted && (
       <AmplitudeProvider>
         <ChakraProvider>
-          <WagmiProvider>
-            <Web3AuthProvider>
-              <QueryProvider>
-                <LimitlessApiProvider>
-                  <EtherspotProvider>
-                    <AccountProvider>
-                      <PriceOracleProvider>
-                        <BalanceServiceProvider>
-                          <HistoryServiceProvider>
-                            <TradingServiceProvider>{children}</TradingServiceProvider>
-                          </HistoryServiceProvider>
-                        </BalanceServiceProvider>
-                      </PriceOracleProvider>
-                    </AccountProvider>
-                  </EtherspotProvider>
-                </LimitlessApiProvider>
-              </QueryProvider>
-            </Web3AuthProvider>
-          </WagmiProvider>
+          <QueryProvider>
+            <WagmiProvider>
+              <RainbowKitProvider>
+                <Web3AuthProvider>
+                  <LimitlessApiProvider>
+                    <EtherspotProvider>
+                      <AccountProvider>
+                        <PriceOracleProvider>
+                          <UserValidationProvider>
+                            <BalanceServiceProvider>
+                              <HistoryServiceProvider>
+                                <TokenFilterProvider>
+                                  <TradingServiceProvider>{children}</TradingServiceProvider>
+                                </TokenFilterProvider>
+                              </HistoryServiceProvider>
+                            </BalanceServiceProvider>
+                          </UserValidationProvider>
+                        </PriceOracleProvider>
+                      </AccountProvider>
+                    </EtherspotProvider>
+                  </LimitlessApiProvider>
+                </Web3AuthProvider>
+              </RainbowKitProvider>
+            </WagmiProvider>
+          </QueryProvider>
         </ChakraProvider>
       </AmplitudeProvider>
     )

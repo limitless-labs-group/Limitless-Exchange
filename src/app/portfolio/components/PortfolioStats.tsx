@@ -1,83 +1,127 @@
-import { Button } from '@/components'
 import { useBalanceService, useHistory } from '@/services'
-import { borderRadius, colors } from '@/styles'
-import { Flex, HStack, Heading, Spacer, Stack, StackProps, Text } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import { FaFileInvoiceDollar, FaTrophy, FaWallet } from 'react-icons/fa6'
+import { Flex, HStack, StackProps, Text, Box, VStack, Stack } from '@chakra-ui/react'
 import { NumberUtil } from '@/utils'
-import { useWeb3Service } from '@/services/Web3Service'
+import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
+import WalletIcon from '@/resources/icons/wallet-icon.svg'
+import CalendarIcon from '@/resources/icons/calendar-icon.svg'
+import { isMobile } from 'react-device-detect'
+import { useMemo } from 'react'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
-export const PortfolioStats = ({ ...props }: StackProps) => {
-  const router = useRouter()
-  const { overallBalanceUsd } = useBalanceService()
-  const { balanceInvested, balanceToWin } = useHistory()
-  const { client } = useWeb3Service()
+const StatBox = ({
+  title,
+  icon,
+  value,
+  border,
+  isLast,
+  isFirst,
+  w,
+}: {
+  title: string
+  icon: JSX.Element
+  value: string
+  border: boolean
+  isLast?: boolean
+  isFirst?: boolean
+  w?: string
+}) => {
+  const paddingLeft = useMemo(() => {
+    if (isMobile) {
+      return !isFirst && !isLast
+    }
+    return !isFirst
+  }, [isLast, isFirst])
+
+  const borderRight = useMemo(() => {
+    if (isMobile) {
+      return isFirst || isLast
+    }
+    return border && !isLast
+  }, [isLast, isFirst, border])
 
   return (
-    <Flex
-      flexDir={{ sm: 'column', md: 'row' }}
-      w={'full'}
-      alignItems={'start'}
-      gap={{ sm: 4, md: 6 }}
-      {...props}
+    <Box
+      pt='7px'
+      pb='11px'
+      flex={isMobile ? 1 : 'unset'}
+      borderRight={borderRight ? '1px solid' : 'unset'}
+      pl={paddingLeft ? '8px' : 0}
+      w={w && !isMobile ? w : 'unset'}
+      borderTop={isMobile ? '1px solid' : 'unset'}
     >
-      <Stack
-        w={'full'}
-        minH={{ base: '100px', md: '200px' }}
-        p={5}
-        borderRadius={borderRadius}
-        bg={'bgLight'}
-        spacing={4}
-      >
-        <HStack w={'full'}>
-          <FaFileInvoiceDollar size={'24px'} fill={colors.fontLight} />
-          <Text color={'fontLight'}>Invested</Text>
-        </HStack>
-        <Heading fontSize={'26px'}>{NumberUtil.formatThousands(balanceInvested, 2)} USD</Heading>
-      </Stack>
+      <Text {...paragraphMedium}>{value}</Text>
+      <HStack gap='4px' color='grey.500'>
+        {icon}
+        <Text {...paragraphMedium} color='grey.500'>
+          {title}
+        </Text>
+      </HStack>
+    </Box>
+  )
+}
 
-      <Stack
-        w={'full'}
-        minH={{ base: '100px', md: '200px' }}
-        p={5}
-        borderRadius={borderRadius}
-        bg={'bgLight'}
-        spacing={4}
-      >
-        <HStack w={'full'}>
-          <FaTrophy size={'24px'} fill={colors.fontLight} />
-          <Text color={'fontLight'}>To win</Text>
-        </HStack>
-        <Heading fontSize={'26px'}>{NumberUtil.formatThousands(balanceToWin, 2)} USD</Heading>
-      </Stack>
+export const PortfolioStats = ({ ...props }: StackProps) => {
+  const { overallBalanceUsd } = useBalanceService()
+  const { balanceInvested, balanceToWin } = useHistory()
+  const stats = [
+    {
+      title: 'Portfolio',
+      icon: <PortfolioIcon width={16} height={16} />,
+      value: `~${NumberUtil.formatThousands(balanceInvested, 2)} USD`,
+      border: true,
+      w: '213px',
+    },
+    {
+      title: 'To win',
+      icon: <CalendarIcon width={16} height={16} />,
+      value: `${NumberUtil.formatThousands(balanceToWin, 2)} USD`,
+      border: !isMobile,
+      w: '166px',
+    },
+    {
+      title: 'Available Balance',
+      icon: <WalletIcon width={16} height={16} />,
+      value: `${NumberUtil.formatThousands(overallBalanceUsd, 2)} USD`,
+      border: true,
+    },
+  ]
 
-      <Stack
-        w={'full'}
-        minH={{ base: '100px', md: '200px' }}
-        p={5}
-        borderRadius={borderRadius}
-        bg={'bgLight'}
-        spacing={4}
-      >
-        <HStack w={'full'}>
-          <FaWallet size={'24px'} fill={colors.fontLight} />
-          <Text color={'fontLight'}>Balance</Text>
-        </HStack>
-        <Heading fontSize={'26px'}>{NumberUtil.formatThousands(overallBalanceUsd, 2)} USD</Heading>
-        <Spacer />
-        {client === 'etherspot' && (
-          <Button
-            bg={'brand'}
-            color={'white'}
-            w={'full'}
-            h={'32px'}
-            py={1}
-            onClick={() => router.push('/wallet')}
-          >
-            Top up
-          </Button>
-        )}
-      </Stack>
-    </Flex>
+  return (
+    <Stack w={'full'} mb={isMobile ? '56px' : 0}>
+      {isMobile ? (
+        <Flex mt={'24px'}>
+          <VStack w={'full'} gap={0}>
+            <HStack gap={0} w={'full'}>
+              <StatBox {...stats[0]} isFirst />
+              <StatBox {...stats[1]} />
+            </HStack>
+            <HStack gap={0} w={'full'} h={'full'}>
+              <StatBox {...stats[2]} isLast />
+              <Box
+                pt='7px'
+                pb='11px'
+                flex={1}
+                borderColor='grey.800'
+                borderTop='1px solid'
+                pl={'8px'}
+                w={'full'}
+                h={'full'}
+              />
+            </HStack>
+          </VStack>
+        </Flex>
+      ) : (
+        <Flex {...props} w='full' borderColor='grey.800' borderTop='1px solid'>
+          {stats.map((stat, index) => (
+            <StatBox
+              key={stat.title}
+              {...stat}
+              isLast={index === stats.length - 1}
+              isFirst={!index}
+            />
+          ))}
+        </Flex>
+      )}
+    </Stack>
   )
 }

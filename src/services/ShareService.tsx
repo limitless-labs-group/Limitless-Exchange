@@ -39,11 +39,11 @@ export type ShareURI = {
  * console.log(castURI);   // Outputs: URL for Farcaster cast intent
  */
 export const createMarketShareUrls = (
-  market: Market | null,
+  market: Market | null | undefined,
   outcomeTokensPercent: number[] | undefined
 ): ShareURI => {
   const formatOutcomeTokenPercent = (index: number) =>
-    `${(outcomeTokensPercent?.[index] ?? 50).toFixed(2)}%`
+    `${Number(outcomeTokensPercent?.[index] ?? 50).toFixed(2)}%`
 
   const baseMessage = `"${market?.title}" by ${market?.creator.name}\n${
     market?.outcomeTokens[0]
@@ -53,7 +53,7 @@ export const createMarketShareUrls = (
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${
+  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/api/frog/start/${
     market?.address[defaultChain.id]
   }`
 
@@ -74,7 +74,10 @@ export const createMarketShareUrls = (
  *
  * @returns {ShareURI} An object containing URLs for sharing the market information
  */
-export const createPortfolioShareUrls = (market: Market | null, position: HistoryPosition) => {
+export const createPortfolioShareUrls = (
+  market: Market | null | undefined,
+  position: HistoryPosition
+) => {
   const baseMessage = `"${market?.title}" by ${market?.creator.name}\nMy bet: ${NumberUtil.toFixed(
     position.collateralAmount,
     6
@@ -84,7 +87,7 @@ export const createPortfolioShareUrls = (market: Market | null, position: Histor
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${
+  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/api/frog/start/${
     market?.address[defaultChain.id]
   }`
 
