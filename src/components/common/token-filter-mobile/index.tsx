@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
 import { Text, Box, Button, HStack, useDisclosure, VStack, Slide } from '@chakra-ui/react'
 import { Token } from '@/types'
-import { useCategories, useLimitlessApi } from '@/services'
+import { useLimitlessApi } from '@/services'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import MenuIcon from '@/resources/icons/menu-icon.svg'
 import Image from 'next/image'
 import '@/app/style.css'
+import CategoryFilterMobile from '@/components/common/categories-mobile'
+
+const categories = ['Crypto']
 
 export default function TokenFilterMobile() {
   const [category, setCategory] = useState('')
@@ -25,10 +28,6 @@ export default function TokenFilterMobile() {
       handleTokenChange([...selectedFilterTokens, token])
     }
   }
-
-  // TODO: @carlomigueldy you're here
-  useCategories()
-  const categories = ['Crypto']
 
   return (
     <Box w='full' overflowX='auto' mt='16px' pl='16px'>
@@ -95,6 +94,9 @@ export default function TokenFilterMobile() {
       >
         <Box p='16px' w='80%' bg='grey.100' h='full' onClick={(e) => e.stopPropagation()}>
           <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
+
+          <CategoryFilterMobile />
+
           <Box mt='28px'>
             <Text fontWeight={500} color='grey.600'>
               {categories[0]}
