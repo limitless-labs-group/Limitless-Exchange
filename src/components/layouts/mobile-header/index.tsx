@@ -13,7 +13,7 @@ import {
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
 import React from 'react'
-import { useAccount as useWagmiAccount, useDisconnect } from 'wagmi'
+import { useAccount as useWagmiAccount } from 'wagmi'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
@@ -34,6 +34,7 @@ import TokenFilterMobile from '@/components/common/token-filter-mobile'
 import { isMobile } from 'react-device-detect'
 import '@/app/style.css'
 import { LoginButton } from '@/components/common/login-button'
+import useDisconnectAccount from '@/hooks/use-disconnect'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -42,7 +43,7 @@ export default function MobileHeader() {
   const address = useWalletAddress()
   const { balanceInvested } = useHistory()
   const router = useRouter()
-  const { disconnect } = useDisconnect()
+  const { disconnectFromPlatform } = useDisconnectAccount()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
   const pathname = usePathname()
@@ -246,7 +247,7 @@ export default function MobileHeader() {
                             option: 'Sign Out',
                           }
                         )
-                        disconnect()
+                        disconnectFromPlatform()
                       }}
                     >
                       Log Out

@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React from 'react'
-import { useAccount as useWagmiAccount, useDisconnect } from 'wagmi'
+import { useAccount as useWagmiAccount } from 'wagmi'
 import '../../../../src/app/style.css'
 
 import {
@@ -42,6 +42,7 @@ import CategoryFilter from '@/components/common/categories'
 import { isMobile } from 'react-device-detect'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import '@rainbow-me/rainbowkit/styles.css'
+import useDisconnectAccount from '@/hooks/use-disconnect'
 
 export default function Sidebar() {
   const theme = useTheme()
@@ -54,9 +55,11 @@ export default function Sidebar() {
   const { userInfo } = useAccount()
   const address = useWalletAddress()
   const router = useRouter()
-  const { disconnect } = useDisconnect()
+  const { disconnectFromPlatform } = useDisconnectAccount()
   const { client } = useWeb3Service()
   const pathname = usePathname()
+
+  console.log(isConnected)
 
   const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
   const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
@@ -166,7 +169,7 @@ export default function Sidebar() {
                         option: 'Sign Out',
                       }
                     )
-                    disconnect()
+                    disconnectFromPlatform()
                     onToggleAuthMenu()
                   }}
                 >
