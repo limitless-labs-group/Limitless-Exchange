@@ -2,12 +2,14 @@ import React from 'react'
 import { Text, Box, useTheme, VStack } from '@chakra-ui/react'
 import { Category } from '@/types'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import { useCategories } from '@/services'
 
-export default function CategoryFilterMobile() {
+export interface ICategoryFilterMobile {
+  categories: Category[]
+}
+
+export default function CategoryFilterMobile({ categories }: ICategoryFilterMobile) {
   const theme = useTheme()
   const { selectedCategory, handleCategory } = useTokenFilter()
-  const { data: categories } = useCategories()
 
   const handleFilterItemClicked = (category: Category) => {
     if (category.id === selectedCategory?.id) {
@@ -29,13 +31,14 @@ export default function CategoryFilterMobile() {
         Topics
       </Text>
 
-      <VStack gap='4px' mt='4px' alignItems='flex-start'>
+      <VStack gap='1px' mt='4px' alignItems='flex-start'>
         {categories?.map((category) => (
           <Box
             key={category.id}
             bg={selectedCategory === category ? 'black' : 'grey.300'}
             color={selectedCategory === category ? 'grey.50' : 'grey.800'}
-            p='10px'
+            p='8px'
+            px='10px'
             borderRadius='2px'
             w='fit-content'
             marginBottom='4px'
