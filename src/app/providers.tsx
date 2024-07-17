@@ -19,6 +19,7 @@ import {
 } from '@/services'
 import { TokenFilterProvider } from '@/contexts/TokenFilterContext'
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import { UserValidationProvider } from '@/providers/UserValidation'
 
 export const Providers = ({ children }: React.PropsWithChildren) => {
   const [mounted, setMounted] = React.useState(false)
@@ -36,13 +37,15 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                     <EtherspotProvider>
                       <AccountProvider>
                         <PriceOracleProvider>
-                          <BalanceServiceProvider>
-                            <HistoryServiceProvider>
-                              <TokenFilterProvider>
-                                <TradingServiceProvider>{children}</TradingServiceProvider>
-                              </TokenFilterProvider>
-                            </HistoryServiceProvider>
-                          </BalanceServiceProvider>
+                          <UserValidationProvider>
+                            <BalanceServiceProvider>
+                              <HistoryServiceProvider>
+                                <TokenFilterProvider>
+                                  <TradingServiceProvider>{children}</TradingServiceProvider>
+                                </TokenFilterProvider>
+                              </HistoryServiceProvider>
+                            </BalanceServiceProvider>
+                          </UserValidationProvider>
                         </PriceOracleProvider>
                       </AccountProvider>
                     </EtherspotProvider>
