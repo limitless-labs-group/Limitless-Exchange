@@ -51,17 +51,17 @@ interface TokenLimits {
 
 const tokenLimits: TokenLimits = {
   HIGHER: {
-    min: 39000,
+    min: 25000,
     max: 390000,
     step: 1000,
   },
   MFER: {
-    min: 39000,
+    min: 12500,
     max: 390000,
     step: 1000,
   },
   DEGEN: {
-    min: 390,
+    min: 39000,
     max: 390000,
     step: 1000,
   },
