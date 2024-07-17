@@ -30,7 +30,11 @@ type Web3Service = {
   client: 'etherspot' | 'eoa'
   checkAllowance: (contractAddress: Address, spender: Address) => Promise<bigint>
   checkAllowanceForAll: (contractAddress: Address, spender: Address) => Promise<boolean>
-  approveContract: (contractAddress: Address, spender: Address) => Promise<string | undefined>
+  approveContract: (
+    contractAddress: Address,
+    spender: Address,
+    value: bigint
+  ) => Promise<string | undefined>
   approveAllowanceForAll: (
     contractAddress: Address,
     spender: Address
@@ -171,8 +175,8 @@ export function useWeb3Service(): Web3Service {
   const checkAllowanceForAll = async (contractAddress: Address, spender: Address) =>
     externalWalletService.checkAllowanceForAllEOA(contractAddress, spender)
 
-  const approveContract = async (contractAddress: Address, spender: Address) =>
-    externalWalletService.approveContractEOA(contractAddress, spender)
+  const approveContract = async (contractAddress: Address, spender: Address, value: bigint) =>
+    externalWalletService.approveContractEOA(contractAddress, spender, value)
 
   const approveAllowanceForAll = async (contractAddress: Address, spender: Address) =>
     externalWalletService.approveContractForAllEOA(contractAddress, spender)
