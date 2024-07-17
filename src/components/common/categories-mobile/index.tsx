@@ -2,12 +2,14 @@ import React from 'react'
 import { Text, Box, useTheme, VStack } from '@chakra-ui/react'
 import { Category } from '@/types'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import { useCategories } from '@/services'
 
-export default function CategoryFilterMobile() {
+export interface ICategoryFilterMobile {
+  categories: Category[]
+}
+
+export default function CategoryFilterMobile({ categories }: ICategoryFilterMobile) {
   const theme = useTheme()
   const { selectedCategory, handleCategory } = useTokenFilter()
-  const { data: categories } = useCategories()
 
   const handleFilterItemClicked = (category: Category) => {
     if (category.id === selectedCategory?.id) {

@@ -1,20 +1,22 @@
 import React, { useState } from 'react'
 import { Text, Box, Button, HStack, useDisclosure, VStack, Slide } from '@chakra-ui/react'
 import { Token } from '@/types'
-import { useLimitlessApi } from '@/services'
+import { useCategories, useLimitlessApi } from '@/services'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import MenuIcon from '@/resources/icons/menu-icon.svg'
 import Image from 'next/image'
 import '@/app/style.css'
 import CategoryFilterMobile from '@/components/common/categories-mobile'
 
-const categories = ['Crypto']
+const sections = ['Crypto', 'Topics']
 
 export default function TokenFilterMobile() {
-  const [category, setCategory] = useState('')
-  const { selectedFilterTokens, handleTokenChange } = useTokenFilter()
+  const [section, setSection] = useState('')
+  const { selectedFilterTokens, selectedCategory, handleTokenChange, handleCategory } =
+    useTokenFilter()
 
   const { supportedTokens } = useLimitlessApi()
+  const { data: categories } = useCategories()
   const { isOpen: isOpenTagsMenu, onToggle: onToggleTagsMenu } = useDisclosure()
 
   const handleFilterItemClicked = (token: Token | null) => {
@@ -29,49 +31,64 @@ export default function TokenFilterMobile() {
     }
   }
 
+  const CryptoSectionCategories = () =>
+    supportedTokens
+      ?.filter((token) => !['MFER', 'BETS'].includes(token.symbol))
+      .map((token) => {
+        const _selected = selectedFilterTokens.findLast(
+          (_token) => _token.address === token.address
+        )
+        return (
+          <Button
+            bg={_selected ? 'grey.800' : 'grey.300'}
+            color={_selected ? 'grey.50' : 'grey.800'}
+            variant='grey'
+            key={token.symbol}
+            onClick={() => handleFilterItemClicked(token)}
+          >
+            <Text color={_selected ? 'grey.50' : 'grey.800'} fontWeight={500}>
+              /{token.symbol}
+            </Text>
+          </Button>
+        )
+      })
+  const TopicSectionCategories = () =>
+    (categories ?? []).map((category) => {
+      const _selected = selectedCategory?.id === category.id
+      return (
+        <Button
+          bg={_selected ? 'grey.800' : 'grey.300'}
+          color={_selected ? 'grey.50' : 'grey.800'}
+          variant='grey'
+          key={category.id}
+          onClick={() => handleCategory(category)}
+        >
+          <Text color={_selected ? 'grey.50' : 'grey.800'} fontWeight={500}>
+            /{category.name}
+          </Text>
+        </Button>
+      )
+    })
+
+  const sectionCategory: Record<string, React.JSX.Element | undefined> = {
+    Crypto: <CryptoSectionCategories />,
+    Topics: <TopicSectionCategories />,
+  }
+
   return (
     <Box w='full' overflowX='auto' mt='16px' pl='16px'>
       <HStack gap='8px' w='fit-content'>
         <Button variant='grey' onClick={onToggleTagsMenu} mr='8px'>
           <MenuIcon width={16} height={16} />
-          <Text fontWeight={500}>{!category ? 'All Markets' : `All in ${category}`}</Text>
+          <Text fontWeight={500}>{!section ? 'All Markets' : `All in ${section}`}</Text>
         </Button>
-        {!category
-          ? categories.map((category) => (
-              <Button variant='grey' key={category} onClick={() => setCategory(category)}>
-                <Text fontWeight={500}>/{category}</Text>
+        {!section
+          ? sections.map((section) => (
+              <Button variant='grey' key={section} onClick={() => setSection(section)}>
+                <Text fontWeight={500}>/{section}</Text>
               </Button>
             ))
-          : supportedTokens
-              ?.filter((token) => !['MFER', 'BETS'].includes(token.symbol))
-              .map((token) => (
-                <Button
-                  bg={
-                    selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                      ? 'grey.800'
-                      : 'grey.300'
-                  }
-                  color={
-                    selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                      ? 'grey.50'
-                      : 'grey.800'
-                  }
-                  variant='grey'
-                  key={token.symbol}
-                  onClick={() => handleFilterItemClicked(token)}
-                >
-                  <Text
-                    color={
-                      selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                        ? 'grey.50'
-                        : 'grey.800'
-                    }
-                    fontWeight={500}
-                  >
-                    /{token.symbol}
-                  </Text>
-                </Button>
-              ))}
+          : sectionCategory[section]}
       </HStack>
       {isOpenTagsMenu && (
         <Box
@@ -102,18 +119,18 @@ export default function TokenFilterMobile() {
         >
           <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
 
-          <CategoryFilterMobile />
+          <CategoryFilterMobile categories={categories ?? []} />
 
           <Box mt='28px'>
             <Text fontWeight={500} color='grey.600'>
-              {categories[0]}
+              {sections[0]}
             </Text>
           </Box>
           <VStack gap='1px' mt='4px' alignItems='flex-start'>
             <Box
-              bg={category === categories[0] && !selectedFilterTokens.length ? 'black' : 'grey.300'}
+              bg={section === sections[0] && !selectedFilterTokens.length ? 'black' : 'grey.300'}
               color={
-                category === categories[0] && !selectedFilterTokens.length ? 'grey.50' : 'grey.800'
+                section === sections[0] && !selectedFilterTokens.length ? 'grey.50' : 'grey.800'
               }
               p='8px'
               px='10px'
@@ -126,14 +143,12 @@ export default function TokenFilterMobile() {
                   handleFilterItemClicked(null)
                   return
                 }
-                setCategory(categories[0])
+                setSection(sections[0])
               }}
             >
               <Text
                 color={
-                  category === categories[0] && !selectedFilterTokens.length
-                    ? 'grey.50'
-                    : 'grey.800'
+                  section === sections[0] && !selectedFilterTokens.length ? 'grey.50' : 'grey.800'
                 }
                 fontWeight={500}
               >
