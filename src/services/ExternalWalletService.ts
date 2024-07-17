@@ -74,13 +74,14 @@ export const useExternalWalletService = () => {
 
   const approveContractEOA = async (
     spender: Address,
-    contractAddress: Address
+    contractAddress: Address,
+    value: bigint
   ): Promise<string> => {
     let txHash = ''
     await writeContractAsync(
       {
         abi: spender === collateralTokenAddress ? wethABI : erc20Abi,
-        args: [spender, maxUint256],
+        args: [spender, value],
         address: contractAddress,
         functionName: 'approve',
       },

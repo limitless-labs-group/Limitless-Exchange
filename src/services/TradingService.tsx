@@ -533,7 +533,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       try {
         await approveContract(
           market.address[defaultChain.id],
-          market.collateralToken[defaultChain.id]
+          market.collateralToken[defaultChain.id],
+          collateralAmountBI
         )
         toast({
           render: () => <Toast title={`Successfully approved. Proceed with buy now.`} />,
