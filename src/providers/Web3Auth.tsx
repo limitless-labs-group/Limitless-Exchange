@@ -180,8 +180,6 @@ export function Web3AuthProvider({ children }: PropsWithChildren) {
     initWeb3Auth()
   }, [isConnectedWagmi])
 
-  console.log(web3Auth)
-
   /**
    * ANALYTICS
    */

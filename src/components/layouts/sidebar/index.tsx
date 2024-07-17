@@ -59,8 +59,6 @@ export default function Sidebar() {
   const { client } = useWeb3Service()
   const pathname = usePathname()
 
-  console.log(isConnected)
-
   const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
   const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
 

@@ -47,7 +47,7 @@ export default function Withdraw({ isOpen, onClose }: WithdrawProps) {
 
   const isSubmitDisabled = useMemo(() => {
     if (balanceItem) {
-      return new BigNumber(balanceItem.formatted).isLessThanOrEqualTo(amount)
+      return new BigNumber(balanceItem.formatted).isLessThan(new BigNumber(amount))
     }
   }, [balanceItem, amount])
 
