@@ -89,10 +89,17 @@ export default function TokenFilterMobile() {
       <Slide
         direction='left'
         in={isOpenTagsMenu}
-        style={{ zIndex: 100, marginTop: '20px', transition: '0.1s' }}
+        style={{ zIndex: 100, marginTop: '20px', transition: '0.1s', overflowY: 'auto' }}
         onClick={onToggleTagsMenu}
       >
-        <Box p='16px' w='80%' bg='grey.100' h='full' onClick={(e) => e.stopPropagation()}>
+        <Box
+          overflowY='auto'
+          p='16px'
+          w='80%'
+          bg='grey.100'
+          h='full'
+          onClick={(e) => e.stopPropagation()}
+        >
           <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
 
           <CategoryFilterMobile />
@@ -102,15 +109,18 @@ export default function TokenFilterMobile() {
               {categories[0]}
             </Text>
           </Box>
-          <VStack gap='4px' mt='4px' alignItems='flex-start'>
-            <Button
-              bg={
-                category === categories[0] && !selectedFilterTokens.length ? 'grey.800' : 'grey.300'
-              }
-              variant='grey'
+          <VStack gap='1px' mt='4px' alignItems='flex-start'>
+            <Box
+              bg={category === categories[0] && !selectedFilterTokens.length ? 'black' : 'grey.300'}
               color={
                 category === categories[0] && !selectedFilterTokens.length ? 'grey.50' : 'grey.800'
               }
+              p='8px'
+              px='10px'
+              borderRadius='2px'
+              w='fit-content'
+              marginBottom='4px'
+              cursor='pointer'
               onClick={() => {
                 if (selectedFilterTokens.length) {
                   handleFilterItemClicked(null)
@@ -119,36 +129,42 @@ export default function TokenFilterMobile() {
                 setCategory(categories[0])
               }}
             >
-              /All
-            </Button>
-            {supportedTokens?.map((token) => (
-              <Button
-                bg={
-                  selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                    ? 'grey.800'
-                    : 'grey.300'
-                }
+              <Text
                 color={
-                  selectedFilterTokens.findLast((_token) => _token.address === token.address)
+                  category === categories[0] && !selectedFilterTokens.length
                     ? 'grey.50'
                     : 'grey.800'
                 }
-                variant='grey'
-                key={token.symbol}
-                onClick={() => handleFilterItemClicked(token)}
+                fontWeight={500}
               >
-                <Text
-                  color={
-                    selectedFilterTokens.findLast((_token) => _token.address === token.address)
-                      ? 'grey.50'
-                      : 'grey.800'
-                  }
-                  fontWeight={500}
+                /All
+              </Text>
+            </Box>
+
+            {supportedTokens?.map((token) => {
+              const _selected = selectedFilterTokens.findLast(
+                (_token) => _token.address === token.address
+              )
+
+              return (
+                <Box
+                  key={token.symbol}
+                  bg={_selected ? 'black' : 'grey.300'}
+                  color={_selected ? 'grey.50' : 'grey.800'}
+                  p='8px'
+                  px='10px'
+                  borderRadius='2px'
+                  w='fit-content'
+                  marginBottom='4px'
+                  cursor='pointer'
+                  onClick={() => handleFilterItemClicked(token)}
                 >
-                  /{token.symbol}
-                </Text>
-              </Button>
-            ))}
+                  <Text color={_selected ? 'grey.50' : 'grey.800'} fontWeight={500}>
+                    /{token.symbol}
+                  </Text>
+                </Box>
+              )
+            })}
           </VStack>
         </Box>
       </Slide>

@@ -29,13 +29,14 @@ export default function CategoryFilterMobile() {
         Topics
       </Text>
 
-      <VStack gap='4px' mt='4px' alignItems='flex-start'>
+      <VStack gap='1px' mt='4px' alignItems='flex-start'>
         {categories?.map((category) => (
           <Box
             key={category.id}
             bg={selectedCategory === category ? 'black' : 'grey.300'}
             color={selectedCategory === category ? 'grey.50' : 'grey.800'}
-            p='10px'
+            p='8px'
+            px='10px'
             borderRadius='2px'
             w='fit-content'
             marginBottom='4px'
