@@ -2,19 +2,23 @@
 
 import MainPage from '@/app/page'
 import { useCategories } from '@/services'
+import { useEffect, useState } from 'react'
+import { Category } from '@/types'
 
 const TopicPage = ({ params }: { params: { topic: string } }) => {
-  const categories = useCategories()
+  const { data: categories } = useCategories()
+  const [category, setCategory] = useState<Category | null>(null)
 
-  return (
-    <MainPage
-      params={
-        categories.data?.findLast(
-          (category) => category?.name.toLowerCase() === params?.topic.toLowerCase()
-        ) ?? null
-      }
-    />
-  )
+  useEffect(() => {
+    if (categories) {
+      const targetCategory = categories.findLast(
+        (category) => category?.name.toLowerCase() === params?.topic.toLowerCase()
+      )
+      setCategory(targetCategory ?? null)
+    }
+  }, [categories, params?.topic])
+
+  return category && <MainPage params={category} />
 }
 
 export default TopicPage
