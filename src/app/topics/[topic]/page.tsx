@@ -10,7 +10,7 @@ const TopicPage = ({ params }: { params: { topic: string } }) => {
   const [category, setCategory] = useState<Category | null>(null)
 
   useEffect(() => {
-    if (categories) {
+    if (categories && !category) {
       const targetCategory = categories.findLast(
         (category) => category?.name.toLowerCase() === params?.topic.toLowerCase()
       )
