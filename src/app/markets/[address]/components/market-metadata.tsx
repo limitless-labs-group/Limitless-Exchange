@@ -10,12 +10,15 @@ import { isMobile } from 'react-device-detect'
 import { useMarketData } from '@/hooks'
 import { useLimitlessApi } from '@/services'
 import { NumberUtil } from '@/utils'
+import { useMemo } from 'react'
 
-interface MarketMetadataProps {
+export interface IMarketMetadata {
   market: Market | null
+  winningIndex: number | undefined | null
+  resolved: boolean
 }
 
-export const MarketMetadata = ({ market }: MarketMetadataProps) => {
+export const MarketMetadata = ({ market, resolved, winningIndex }: IMarketMetadata) => {
   const { supportedTokens } = useLimitlessApi()
   const { outcomeTokensPercent } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
@@ -49,18 +52,34 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
     },
   ]
 
+  const [yesProbability, noProbability] = useMemo(
+    () => [
+      !resolved
+        ? NumberUtil.toFixed(outcomeTokensPercent?.[0], 1)
+        : winningIndex === 0
+        ? '100'
+        : '0',
+      !resolved
+        ? NumberUtil.toFixed(outcomeTokensPercent?.[1], 1)
+        : winningIndex === 1
+        ? '100'
+        : '0',
+    ],
+    [outcomeTokensPercent, resolved, winningIndex]
+  )
+
   return (
     <Box>
       <Flex w='full' pb='10px' borderBottom='1px solid' borderColor='grey.800'>
         <HStack gap='24px'>
           <HStack gap={'4px'} color='green.500'>
             <ThumbsUpIcon width={16} height={16} />
-            <Text fontWeight={500}>{NumberUtil.toFixed(outcomeTokensPercent?.[0], 1)}%</Text>
+            <Text fontWeight={500}>{yesProbability}%</Text>
             <Text fontWeight={500}>Yes</Text>
           </HStack>
           <HStack gap={'4px'} color='red.500'>
             <ThumbsDownIcon width={16} height={16} />
-            <Text fontWeight={500}>{NumberUtil.toFixed(outcomeTokensPercent?.[1], 1)}%</Text>
+            <Text fontWeight={500}>{noProbability}%</Text>
             <Text fontWeight={500}>No</Text>
           </HStack>
         </HStack>
