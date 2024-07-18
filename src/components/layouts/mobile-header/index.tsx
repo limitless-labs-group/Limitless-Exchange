@@ -35,6 +35,7 @@ import { isMobile } from 'react-device-detect'
 import '@/app/style.css'
 import { LoginButton } from '@/components/common/login-button'
 import useDisconnectAccount from '@/hooks/use-disconnect'
+import { cutUsername } from '@/utils/string'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -143,7 +144,9 @@ export default function MobileHeader() {
                           </Flex>
                         )}
                         <Text fontSize='24px' fontWeight={500}>
-                          {userInfo?.name ? userInfo.name : truncateEthAddress(address)}
+                          {userInfo?.name
+                            ? cutUsername(userInfo.name, 20)
+                            : truncateEthAddress(address)}
                         </Text>
                       </HStack>
                       <VStack my='24px'>
@@ -278,6 +281,7 @@ export default function MobileHeader() {
             style={{
               zIndex: 150,
               paddingTop: isWalletModalOpen ? '60px' : 0,
+              top: isWalletModalOpen ? 0 : '60px',
               height: '100%',
               transition: '0.1s',
               animation: 'fadeIn 0.5s',

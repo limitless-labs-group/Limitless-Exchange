@@ -46,7 +46,7 @@ import {
   MobileTradeButton,
 } from './components'
 import { useAccount } from 'wagmi'
-import { paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { h1Regular, paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -162,7 +162,11 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
                 </Menu>
               </HStack>
               <Box>
-                <TextWithPixels text={market?.title || ''} fontSize={'32px'} />
+                <TextWithPixels
+                  text={market?.title || ''}
+                  {...(isMobile ? { ...h1Regular } : {})}
+                  fontSize='32px'
+                />
               </Box>
               <HStack
                 gap={isMobile ? '4px' : '16px'}

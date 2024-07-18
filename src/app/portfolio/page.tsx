@@ -9,7 +9,7 @@ import HistoryIcon from '@/resources/icons/history-icon.svg'
 import { isMobile } from 'react-device-detect'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import TextWithPixels from '@/components/common/text-with-pixels'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const PortfolioPage = () => {
   const [tab, setTab] = useState<'Investments' | 'History'>('Investments')
@@ -25,7 +25,12 @@ const PortfolioPage = () => {
     <MainLayout>
       <Box w={isMobile ? 'auto' : '1016px'}>
         <Divider bg='grey.800' orientation='horizontal' h='3px' />
-        <TextWithPixels text={'Portfolio Overview'} fontSize={'32px'} gap={2} />
+        <TextWithPixels
+          text={'Portfolio Overview'}
+          {...(isMobile ? { ...h1Regular } : {})}
+          fontSize='32px'
+          gap={2}
+        />
         <PortfolioStats mt={'20px'} />
 
         <Stack w={'full'} spacing={5} mt={1}>

@@ -227,7 +227,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
         <ThumbsUpIcon width={16} height={16} />
         <Text fontWeight={500}>{market?.prices[0]}%</Text>
         <Text fontWeight={500}>Yes</Text>
-        <ChevronDownIcon width={16} height={16} />
+        {/*<ChevronDownIcon width={16} height={16} />*/}
       </HStack>
       <HStack>
         <VStack gap={-1} alignItems={'flex-start'}>
