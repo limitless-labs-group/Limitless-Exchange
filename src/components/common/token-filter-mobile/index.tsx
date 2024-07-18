@@ -7,6 +7,7 @@ import MenuIcon from '@/resources/icons/menu-icon.svg'
 import Image from 'next/image'
 import '@/app/style.css'
 import CategoryFilterMobile from '@/components/common/categories-mobile'
+import { Chip } from '@/components/common/categories-mobile/chip'
 
 const sections = ['Crypto', 'Topics']
 
@@ -75,6 +76,8 @@ export default function TokenFilterMobile() {
     Topics: <TopicSectionCategories />,
   }
 
+  const chipPadding = { p: '8px', px: '10px' }
+
   return (
     <Box w='full' overflowX='auto' mt='16px' pl='16px'>
       <HStack gap='8px' w='fit-content'>
@@ -127,17 +130,8 @@ export default function TokenFilterMobile() {
             </Text>
           </Box>
           <VStack gap='1px' mt='4px' alignItems='flex-start'>
-            <Box
-              bg={section === sections[0] && !selectedFilterTokens.length ? 'black' : 'grey.300'}
-              color={
-                section === sections[0] && !selectedFilterTokens.length ? 'grey.50' : 'grey.800'
-              }
-              p='8px'
-              px='10px'
-              borderRadius='2px'
-              w='fit-content'
-              marginBottom='4px'
-              cursor='pointer'
+            <Chip
+              selected={section === sections[0] && !selectedFilterTokens.length}
               onClick={() => {
                 if (selectedFilterTokens.length) {
                   handleFilterItemClicked(null)
@@ -146,15 +140,8 @@ export default function TokenFilterMobile() {
                 setSection(sections[0])
               }}
             >
-              <Text
-                color={
-                  section === sections[0] && !selectedFilterTokens.length ? 'grey.50' : 'grey.800'
-                }
-                fontWeight={500}
-              >
-                /All
-              </Text>
-            </Box>
+              All
+            </Chip>
 
             {supportedTokens?.map((token) => {
               const _selected = selectedFilterTokens.findLast(
@@ -162,22 +149,13 @@ export default function TokenFilterMobile() {
               )
 
               return (
-                <Box
+                <Chip
                   key={token.symbol}
-                  bg={_selected ? 'black' : 'grey.300'}
-                  color={_selected ? 'grey.50' : 'grey.800'}
-                  p='8px'
-                  px='10px'
-                  borderRadius='2px'
-                  w='fit-content'
-                  marginBottom='4px'
-                  cursor='pointer'
+                  selected={!!_selected}
                   onClick={() => handleFilterItemClicked(token)}
                 >
-                  <Text color={_selected ? 'grey.50' : 'grey.800'} fontWeight={500}>
-                    /{token.symbol}
-                  </Text>
-                </Box>
+                  {token.symbol}
+                </Chip>
               )
             })}
           </VStack>
