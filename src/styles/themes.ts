@@ -6,6 +6,7 @@ import { accordionTheme } from '@/styles/accordion'
 import { inputTheme } from '@/styles/input'
 import { menuTheme } from '@/styles/menu'
 import { commonButtonProps } from '@/styles/button'
+import { checkboxTheme } from '@/styles/checkbox'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
@@ -203,8 +204,7 @@ export const chakraTheme = ChakraTheme({
     Accordion: accordionTheme,
     Input: inputTheme,
     Menu: menuTheme,
-    // Divider
-    // Button link
+    Checkbox: checkboxTheme,
   },
   breakpoints: {
     sm: '320px',
