@@ -39,6 +39,8 @@ const StatBox = ({
     return border && !isLast
   }, [isLast, isFirst, border])
 
+  console.log(paragraphMedium)
+
   return (
     <Box
       pt='7px'

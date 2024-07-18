@@ -10,6 +10,7 @@ import { isMobile } from 'react-device-detect'
 import { useMarketData } from '@/hooks'
 import { useLimitlessApi } from '@/services'
 import { NumberUtil } from '@/utils'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 interface MarketMetadataProps {
   market: Market | null
@@ -77,10 +78,10 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
               borderColor='grey.800'
               pl={index ? '8px' : 0}
             >
-              <Text fontWeight={500}>{stat.value}</Text>
+              <Text {...paragraphMedium}>{stat.value}</Text>
               <HStack gap='4px' color='grey.500'>
                 {stat.icon}
-                <Text fontWeight={500}>{stat.title}</Text>
+                <Text {...paragraphMedium}>{stat.title}</Text>
               </HStack>
             </Box>
           ))}
@@ -95,10 +96,12 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
               borderColor='grey.800'
               pl={index ? '8px' : 0}
             >
-              <Text fontWeight={500}>{stats[index].value}</Text>
+              <Text {...paragraphMedium}>{stats[index].value}</Text>
               <HStack gap='4px' color='grey.500'>
                 {stats[index].icon}
-                <Text fontWeight={500}>{stats[index].title}</Text>
+                <Text {...paragraphMedium} color='grey.500'>
+                  {stats[index].title}
+                </Text>
               </HStack>
             </Box>
           ))}
@@ -113,10 +116,12 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
           borderColor='grey.800'
           pl={0}
         >
-          <Text fontWeight={500}>{stats[2].value}</Text>
+          <Text {...paragraphMedium}>{stats[2].value}</Text>
           <HStack gap='4px' color='grey.500'>
             {stats[2].icon}
-            <Text fontWeight={500}>{stats[2].title}</Text>
+            <Text {...paragraphMedium} color='grey.500'>
+              {stats[2].title}
+            </Text>
           </HStack>
         </Box>
       )}
