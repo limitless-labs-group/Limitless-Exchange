@@ -24,7 +24,7 @@ import {
   useHistory,
   useTradingService,
 } from '@/services'
-import { useMarket } from '@/services/MarketsService'
+import { useMarket, useWinningIndex } from '@/services/MarketsService'
 import ApproveModal from '@/components/common/modals/approve-modal'
 import { useToken } from '@/hooks/use-token'
 import { defaultChain } from '@/constants'
@@ -56,6 +56,8 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   const { trackOpened } = useAmplitude()
   const { positions } = useHistory()
   const { isConnected } = useAccount()
+  const { data: winningIndex } = useWinningIndex(params.address)
+  const resolved = winningIndex === 0 || winningIndex === 1
   const router = useRouter()
   const {
     data: market,
@@ -123,9 +125,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   }, [market, previousMarket])
 
   return (
-    <MainLayout
-      isLoading={isCollateralLoading || fetchMarketLoading || (isConnected && !positions)}
-    >
+    <MainLayout isLoading={isCollateralLoading || fetchMarketLoading}>
       {!market ? (
         <>Market not found</>
       ) : (
@@ -191,8 +191,8 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
                   ))}
                 </HStack>
               </HStack>
-              <MarketMetadata market={market} />
-              <MarketPriceChart market={market} />
+              <MarketMetadata market={market} winningIndex={winningIndex} resolved={resolved} />
+              <MarketPriceChart market={market} winningIndex={winningIndex} resolved={resolved} />
               <MarketPositions market={market} />
               <HStack gap='4px' marginTop='24px' mb='8px'>
                 <DescriptionIcon width='16px' height='16px' />
