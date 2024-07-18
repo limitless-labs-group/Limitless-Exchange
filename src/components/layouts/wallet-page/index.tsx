@@ -6,26 +6,24 @@ import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
-import { Toast } from '@/components/common/toast'
-import React from 'react'
-import { useToast } from '@/hooks'
+import React, { useEffect, useState } from 'react'
 import BaseIcon from '@/resources/crypto/base.svg'
 import Image from 'next/image'
 import { usePriceOracle } from '@/providers'
 import { WithdrawModal } from '@/components/layouts/wallet-page/components/withdraw-modal'
 import { isMobile } from 'react-device-detect'
 import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import WithdrawSlide from '@/components/layouts/wallet-page/components/withdraw-slide'
+import { setTimeout } from '@wry/context'
 
 interface WalletPageProps {
   onClose: () => void
 }
 
 export default function WalletPage({ onClose }: WalletPageProps) {
+  const [copied, setCopied] = useState(false)
   const { overallBalanceUsd, balanceOfSmartWallet } = useBalanceService()
   const { supportedTokens } = useLimitlessApi()
   const address = useWalletAddress()
-  const toast = useToast()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
 
   const {
@@ -35,16 +33,21 @@ export default function WalletPage({ onClose }: WalletPageProps) {
   } = useDisclosure()
 
   const onClickCopy = () => {
-    toast({
-      render: () => <Toast title={'Copied!'} />,
-      duration: 2000,
-    })
+    setCopied(true)
   }
 
   const handleOpenWithdrawModal = () => {
     onClose()
     onOpenWithdraw()
   }
+
+  useEffect(() => {
+    const hideCopiedMessage = setTimeout(() => {
+      setCopied(false)
+    }, 2000)
+
+    return () => clearTimeout(hideCopiedMessage)
+  }, [copied])
 
   return (
     <Box
@@ -74,16 +77,19 @@ export default function WalletPage({ onClose }: WalletPageProps) {
         <Text {...paragraphMedium} color='grey.50'>
           Address
         </Text>
-        <HStack gap='4px' color='grey.50'>
-          <Text {...paragraphRegular} color='grey.50'>
-            {truncateEthAddress(address)}
-          </Text>
-          <Box cursor='pointer'>
-            <CopyToClipboard text={address as string} onCopy={onClickCopy}>
-              <CopyIcon width='16px' height='16px' />
-            </CopyToClipboard>
-          </Box>
-        </HStack>
+        <CopyToClipboard text={address as string} onCopy={onClickCopy}>
+          <HStack gap='4px' color='grey.50' cursor='pointer'>
+            <Text {...paragraphRegular} color='grey.50'>
+              {truncateEthAddress(address)}
+            </Text>
+            <CopyIcon width='16px' height='16px' />
+            {copied && (
+              <Text {...paragraphRegular} ml='4px' color='grey.50'>
+                Copied!
+              </Text>
+            )}
+          </HStack>
+        </CopyToClipboard>
       </Paper>
       {!isMobile && (
         <>
