@@ -1,22 +1,9 @@
-import {
-  Box,
-  Button,
-  HStack,
-  IconButton,
-  Input,
-  InputGroup,
-  Stack,
-  Switch,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Box, Button, Checkbox, HStack, Input, InputGroup, Stack, Text } from '@chakra-ui/react'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import SelectTokenField from '@/components/common/select-token-field'
 import BaseIcon from '@/resources/crypto/base.svg'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { zeroAddress } from 'viem'
-import { Tooltip } from '@/components/common/tooltip'
-import InfoIcon from '@/resources/icons/tooltip-icon.svg'
 import { isMobile } from 'react-device-detect'
 import React, { useEffect, useMemo, useState } from 'react'
 import { IModal } from '@/components/common/modals/modal'
@@ -30,8 +17,6 @@ export default function Withdraw({ isOpen, onClose }: WithdrawProps) {
   const [amount, setAmount] = useState('')
   const [address, setAddress] = useState('')
   const { balanceOfSmartWallet, unwrap, setUnwrap, withdraw, status } = useBalanceService()
-
-  const disclosure = useDisclosure()
 
   const { supportedTokens } = useLimitlessApi()
 
@@ -69,6 +54,16 @@ export default function Withdraw({ isOpen, onClose }: WithdrawProps) {
           Select coin
         </Text>
         <SelectTokenField token={selectedToken} setToken={setSelectedToken} />
+        {selectedToken.address ===
+          supportedTokens?.find((token) => token.symbol === 'WETH')?.address && (
+          <Checkbox
+            isChecked={unwrap}
+            onChange={(e) => setUnwrap(e.target.checked)}
+            mt={isMobile ? '16px' : '8px'}
+          >
+            Unwrap WETH and receive ETH
+          </Checkbox>
+        )}
       </Box>
       <HStack gap='4px' mt='24px' mb='4px'>
         <Text {...paragraphMedium}>Address</Text>
@@ -105,49 +100,6 @@ export default function Withdraw({ isOpen, onClose }: WithdrawProps) {
         />
       </InputGroup>
       <Stack w={'full'} spacing={4}>
-        <Stack w={'full'}>
-          <InputGroup>
-            {/* <InputLeftElement h={'full'} pointerEvents='none'>
-              <FaDollarSign fill={colors.fontLight} />
-            </InputLeftElement> */}
-            {/*<Input*/}
-            {/*  type={'number'}*/}
-            {/*  fontWeight={'bold'}*/}
-            {/*  placeholder={'0'}*/}
-            {/*  value={amount}*/}
-            {/*  onChange={(e) => setAmount(e.target.value)}*/}
-            {/*/>*/}
-          </InputGroup>
-        </Stack>
-        {selectedToken.address ===
-          supportedTokens?.find((token) => token.symbol === 'WETH')?.address && (
-          <HStack fontWeight={'bold'}>
-            <Text color={unwrap ? 'fontLight' : 'font'}>WETH</Text>
-            <Switch
-              isChecked={unwrap}
-              onChange={(e) => setUnwrap(e.target.checked)}
-              isDisabled={status == 'Loading'}
-            />
-            <Text color={unwrap ? 'font' : 'fontLight'}>ETH</Text>
-            <Tooltip
-              isOpen={disclosure.isOpen}
-              label={`Select WETH if you want to transfer wrapped ether (ERC20) tokens to your external wallet.\nSelect ETH if you want to unwrap it and transfer ether to your external wallet or exchange.`}
-            >
-              <IconButton
-                variant='unstyled'
-                minW='none'
-                minHeight='auto'
-                height='auto'
-                aria-label='info'
-                onMouseEnter={disclosure.onOpen}
-                onMouseLeave={disclosure.onClose}
-                onClick={disclosure.onToggle}
-                icon={<InfoIcon />}
-              />
-            </Tooltip>
-          </HStack>
-        )}
-
         <Button
           variant='contained'
           isLoading={status == 'Loading'}
@@ -157,6 +109,7 @@ export default function Withdraw({ isOpen, onClose }: WithdrawProps) {
             onClose()
           }}
           w={isMobile ? 'full' : 'fit-content'}
+          mt={isMobile ? '32px' : '24px'}
         >
           Withdraw
         </Button>
