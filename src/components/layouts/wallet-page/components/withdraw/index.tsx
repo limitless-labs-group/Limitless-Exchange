@@ -11,6 +11,7 @@ import { useBalanceService, useLimitlessApi } from '@/services'
 import { Token } from '@/types'
 import BigNumber from 'bignumber.js'
 import Loader from '@/components/common/loader'
+import CheckedIcon from '@/resources/icons/checked-icon.svg'
 
 type WithdrawProps = Omit<IModal, 'children'>
 
@@ -61,6 +62,7 @@ export default function Withdraw({ isOpen, onClose }: WithdrawProps) {
             isChecked={unwrap}
             onChange={(e) => setUnwrap(e.target.checked)}
             mt={isMobile ? '16px' : '8px'}
+            icon={<CheckedIcon color='grey.50' width={12} height={12} />}
           >
             Unwrap WETH and receive ETH
           </Checkbox>
