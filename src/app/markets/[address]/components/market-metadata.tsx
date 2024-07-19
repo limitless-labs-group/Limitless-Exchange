@@ -81,7 +81,9 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
               <Text {...paragraphMedium}>{stat.value}</Text>
               <HStack gap='4px' color='grey.500'>
                 {stat.icon}
-                <Text {...paragraphMedium}>{stat.title}</Text>
+                <Text {...paragraphMedium} color='grey.500'>
+                  {stat.title}
+                </Text>
               </HStack>
             </Box>
           ))}
