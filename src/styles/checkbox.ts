@@ -19,6 +19,7 @@ const baseStyle = definePartsStyle({
     },
     _checked: {
       bg: 'grey.800 !important',
+      borderColor: 'grey.800',
     },
   },
   container: {
