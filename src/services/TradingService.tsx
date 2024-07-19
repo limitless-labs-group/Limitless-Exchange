@@ -56,6 +56,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * UI HELPERS
    */
   const toast = useToast()
+  const DISCORD_LINK = 'https://discord.gg/UQtv7h5ZFE'
 
   /**
    * SERVICES
@@ -489,7 +490,13 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       if (!receipt) {
         toast({
-          render: () => <Toast title={`Unsuccessful transaction. Please, contact our support.`} />,
+          render: () => (
+            <Toast
+              title={`Unsuccessful transaction.`}
+              text={'Please contact our support.'}
+              link={DISCORD_LINK}
+            />
+          ),
         })
         return
       }
@@ -615,7 +622,13 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       if (!receipt) {
         toast({
-          render: () => <Toast title={`Unsuccessful transaction. Please, contact our support.`} />,
+          render: () => (
+            <Toast
+              title={`Unsuccessful transaction`}
+              text={'Please contact our support.'}
+              link={DISCORD_LINK}
+            />
+          ),
         })
         return
       }
@@ -666,7 +679,13 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       if (!receipt) {
         toast({
-          render: () => <Toast title={`Unsuccessful transaction. Please, contact our support.`} />,
+          render: () => (
+            <Toast
+              title={`Unsuccessful transaction`}
+              text={'Please contact our support.'}
+              link={DISCORD_LINK}
+            />
+          ),
         })
         return
       }
