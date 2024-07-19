@@ -77,6 +77,9 @@ export default function Sidebar() {
         minH={'100vh'}
         zIndex={200}
         bg={isOpenWalletPage ? 'grey.100' : 'grey.50'}
+        position='fixed'
+        overflowY='auto'
+        pb='100px'
       >
         <Button variant='transparent' onClick={() => router.push('/')} _hover={{ bg: 'unset' }}>
           <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
@@ -200,7 +203,6 @@ export default function Sidebar() {
         )}
         <Divider />
         <TokenFilter />
-
         {!isMobile && <CategoryFilter />}
       </VStack>
       {isOpenWalletPage && (
