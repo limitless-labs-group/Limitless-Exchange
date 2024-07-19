@@ -275,6 +275,21 @@ const CreateOwnMarketPage = () => {
         <VStack w='468px' spacing={4}>
           <Text>Create Market</Text>
           <FormControl>
+            <FormField label='OG Preview'>
+              <HStack>
+                <OgImageGenerator
+                  title={title}
+                  category={
+                    categories?.find((category) => category.id === +categoryId)?.name ?? 'Unknown'
+                  }
+                  onBlobGenerated={(blob) => {
+                    console.log('Blob generated', blob)
+                  }}
+                  generateBlob={false}
+                />
+              </HStack>
+            </FormField>
+
             <FormField label='Title'>
               <Input
                 placeholder='Bitcoin ATH in May 2024?'
@@ -476,12 +491,6 @@ const CreateOwnMarketPage = () => {
                   Choose file
                 </Button>
                 <Text>{marketLogo?.name ?? 'No file chosen.'}</Text>
-              </HStack>
-            </FormField>
-
-            <FormField label='Generated OG'>
-              <HStack>
-                <OgImageGenerator title={title} category='Sport' />
               </HStack>
             </FormField>
 
