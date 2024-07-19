@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Text, Box, useTheme } from '@chakra-ui/react'
 import { useCategories } from '@/services'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 
 export default function CategoryFilter() {
   const { data: categories } = useCategories()
+  const searchParams = useParams()
 
   const theme = useTheme()
 
@@ -21,7 +23,11 @@ export default function CategoryFilter() {
       </Text>
       {categories?.map((category) => (
         <Box
-          bg={theme.colors.grey['300']}
+          bg={
+            category.name.toLowerCase() === searchParams?.topic
+              ? theme.colors.grey['800']
+              : theme.colors.grey['300']
+          }
           padding='2px 4px'
           key={category.id}
           borderRadius='2px'
@@ -30,7 +36,10 @@ export default function CategoryFilter() {
           cursor='pointer'
         >
           <Link href={`/topics/${category.name.toLowerCase()}`}>
-            <Text color={'black'} fontWeight={500}>
+            <Text
+              color={category.name.toLowerCase() === searchParams?.topic ? 'white' : 'black'}
+              fontWeight={500}
+            >
               /{category.name}
             </Text>
           </Link>
