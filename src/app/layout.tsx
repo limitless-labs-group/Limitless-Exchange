@@ -19,6 +19,9 @@ export const metadata: Metadata = {
 const RootLayout = ({ children }: PropsWithChildren) => {
   return (
     <html lang='en'>
+      <head>
+        <meta name='google' content='notranslate' />
+      </head>
       <body>
         <Providers>
           {children}
