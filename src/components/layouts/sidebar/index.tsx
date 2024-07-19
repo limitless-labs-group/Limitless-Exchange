@@ -43,6 +43,7 @@ import { isMobile } from 'react-device-detect'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import '@rainbow-me/rainbowkit/styles.css'
 import useDisconnectAccount from '@/hooks/use-disconnect'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 export default function Sidebar() {
   const theme = useTheme()
@@ -146,12 +147,12 @@ export default function Sidebar() {
                       alignItems='center'
                       justifyContent='center'
                     >
-                      <Text fontWeight={500}>
+                      <Text {...paragraphMedium}>
                         {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
                       </Text>
                     </Flex>
                   )}
-                  <Text fontWeight={500}>
+                  <Text {...paragraphMedium}>
                     {userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address)}
                   </Text>
                 </HStack>
