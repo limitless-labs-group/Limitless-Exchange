@@ -87,7 +87,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
   ]
 
   return (
-    <Stack w={'full'} mb={isMobile ? '56px' : 0}>
+    <Stack w={'full'} mb={isMobile ? '48px' : '24px'}>
       {isMobile ? (
         <Flex mt={'24px'}>
           <VStack w={'full'} gap={0}>

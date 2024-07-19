@@ -12,7 +12,7 @@ import {
   Divider,
   Button,
 } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMarketData } from '@/hooks'
 import { useMarket } from '@/services/MarketsService'
@@ -30,7 +30,18 @@ export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {
   position: HistoryPosition
 }
 
+const unhoveredColors = {
+  main: 'grey.800',
+  secondary: 'grey.500',
+}
+
+const hoverColors = {
+  main: 'grey.50',
+  secondary: 'transparent.700',
+}
+
 export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPositionCard) => {
+  const [colors, setColors] = useState(unhoveredColors)
   /**
    * NAVIGATION
    */
@@ -58,11 +69,6 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
    */
   const marketURI = `${window.location.origin}/markets/${position.market.id}`
 
-  /**
-   * UTILS
-   */
-  const getColor = (defaultColor = 'grey.800') => (market?.expired ? 'grey.50' : defaultColor)
-
   const getOutcomeNotation = () => {
     const outcomeTokenId = position.outcomeIndex ?? 0
     const defaultOutcomes = ['Yes', 'No']
@@ -82,24 +88,32 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
     )
   }
 
+  const cardColors = useMemo(() => {
+    if (market?.expired) {
+      return {
+        main: 'white',
+        secondary: isMobile ? 'white' : 'transparent.700',
+      }
+    }
+    return {
+      main: colors.main,
+      secondary: colors.secondary,
+    }
+  }, [market, colors])
+
   //@ts-ignore
   const StatusIcon = ({ market }) =>
     market?.expired ? (
       <>
-        <Icon
-          as={ClosedIcon}
-          width={'16px'}
-          height={'16px'}
-          color={!isMobile ? 'transparent.700' : 'grey.50'}
-        />
-        <Text {...paragraphMedium} color={!isMobile ? 'transparent.700' : 'grey.50'}>
+        <Icon as={ClosedIcon} width={'16px'} height={'16px'} color={cardColors.secondary} />
+        <Text {...paragraphMedium} color={cardColors.secondary}>
           Closed
         </Text>
       </>
     ) : (
       <>
         <ActiveIcon width={16} height={16} />
-        <Text {...paragraphMedium} color={getColor('grey.500')}>
+        <Text {...paragraphMedium} color={cardColors.secondary}>
           Active
         </Text>
       </>
@@ -115,14 +129,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
     >
       <Stack spacing={'8px'}>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
-          <Text {...paragraphMedium} color={getColor()}>
+          <Text {...paragraphMedium} color={cardColors.main}>
             {market?.title ?? 'Noname market'}
           </Text>
-          <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={getColor()} />
+          <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
         </HStack>
         <HStack>
           {market?.expired ? (
-            <Text {...paragraphMedium} color={getColor()}>
+            <Text {...paragraphMedium} color={cardColors.main}>
               {`Won ${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
                 market?.tokenTicker[defaultChain.id]
               }`}
@@ -143,11 +157,11 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             </HStack>
           )}
         </HStack>
-        <HStack color={getColor('grey.500')}>
+        <HStack color={cardColors.secondary}>
           <HStack gap={1}>{<StatusIcon market={market} />}</HStack>
-          <HStack gap={1} color={getColor('grey.500')}>
+          <HStack gap={1} color={cardColors.secondary}>
             <CalendarIcon width={'16px'} height={'16px'} />
-            <Text {...paragraphMedium} color={getColor('grey.500')}>
+            <Text {...paragraphMedium} color={cardColors.secondary}>
               {market?.expirationDate}
             </Text>
           </HStack>
@@ -159,20 +173,20 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
 
       <Stack w={'full'}>
         <HStack alignItems={'start'} gap={0} justifyContent={'space-between'}>
-          <Text {...paragraphMedium} color={getColor('grey.500')}>
+          <Text {...paragraphMedium} color={cardColors.secondary}>
             Position
           </Text>
-          <Text color={getColor()} fontWeight={400} lineHeight={'20px'} fontSize={'16px'}>
+          <Text color={cardColors.main} fontWeight={400} lineHeight={'20px'} fontSize={'16px'}>
             {getOutcomeNotation()}
           </Text>
         </HStack>
       </Stack>
       <Stack w={'full'} mt={'8px'}>
         <HStack alignItems={'start'} gap={0} justifyContent={'space-between'}>
-          <Text {...paragraphMedium} color={getColor('grey.500')}>
+          <Text {...paragraphMedium} color={cardColors.secondary}>
             Invested
           </Text>
-          <Text color={getColor()} lineHeight={'20px'} fontWeight={400} fontSize={'16px'}>
+          <Text color={cardColors.main} lineHeight={'20px'} fontWeight={400} fontSize={'16px'}>
             {`${NumberUtil.formatThousands(position.collateralAmount, 4)} ${
               market?.tokenTicker[defaultChain.id]
             }`}
@@ -185,13 +199,18 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       onClick={() => router.push(marketURI)}
       w={'full'}
       bg={market?.expired ? 'green.500' : 'grey.200'}
+      _hover={{
+        bg: market?.expired ? 'green.600' : 'blue.500',
+      }}
       cursor='pointer'
+      onMouseEnter={() => setColors(hoverColors)}
+      onMouseLeave={() => setColors(unhoveredColors)}
       {...props}
     >
       <Stack direction='row'>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
           <Box>
-            <Text {...paragraphMedium} color={getColor()}>
+            <Text {...paragraphMedium} color={cardColors.main}>
               {market?.title ?? 'Noname market'}
             </Text>
           </Box>
@@ -201,18 +220,24 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
               <ClaimButton />
             ) : (
               <>
-                <Text {...paragraphMedium}>
+                <Text {...paragraphMedium} color={cardColors.main}>
                   {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} 
                     ${market?.tokenTicker[defaultChain.id]}`}
                 </Text>
 
                 <Box gap={0}>
                   {(position?.outcomeIndex === 0 ? (
-                    <Text {...paragraphMedium} color={'green.500'}>
+                    <Text
+                      {...paragraphMedium}
+                      color={cardColors.main === 'grey.800' ? 'green.500' : cardColors.main}
+                    >
                       ↑{chancePercent}%
                     </Text>
                   ) : (
-                    <Text {...paragraphMedium} color={'red.500'}>
+                    <Text
+                      {...paragraphMedium}
+                      color={cardColors.main === 'grey.800' ? 'red.500' : cardColors.main}
+                    >
                       ↓{chancePercent}%
                     </Text>
                   )) ?? ''}
@@ -220,7 +245,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
               </>
             )}
 
-            <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={getColor()} />
+            <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
           </HStack>
         </HStack>
       </Stack>
@@ -228,19 +253,19 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       <Stack direction='row' w={'full'} justifyContent={'space-between'} mt={'12px'}>
         <HStack w={'full'}>
           <VStack alignItems={'start'} gap={1}>
-            <Text {...paragraphMedium} color={market?.expired ? 'transparent.700' : 'grey.500'}>
+            <Text {...paragraphMedium} color={cardColors.secondary}>
               Position
             </Text>
-            <Text {...paragraphRegular} color={getColor()}>
+            <Text {...paragraphRegular} color={cardColors.main}>
               {getOutcomeNotation()}
             </Text>
           </VStack>
 
           <VStack alignItems={'start'} gap={1} ml={'24px'}>
-            <Text {...paragraphMedium} color={market?.expired ? 'transparent.700' : 'grey.500'}>
+            <Text {...paragraphMedium} color={cardColors.secondary}>
               Invested
             </Text>
-            <Text {...paragraphRegular} color={getColor()}>
+            <Text {...paragraphRegular} color={cardColors.main}>
               {`${NumberUtil.formatThousands(position.collateralAmount, 4)} ${
                 market?.tokenTicker[defaultChain.id]
               }`}
@@ -249,12 +274,12 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
         </HStack>
 
         <HStack w={'full'} justifyContent={'flex-end'} alignItems={'flex-end'}>
-          <HStack gap={1} color={getColor('grey.500')}>
+          <HStack gap={1} color={cardColors.secondary}>
             {<StatusIcon market={market} />}
           </HStack>
-          <HStack gap={1} color={market?.expired ? 'transparent.700' : 'grey.500'}>
+          <HStack gap={1} color={cardColors.secondary}>
             <CalendarIcon width={'16px'} height={'16px'} />
-            <Text {...paragraphMedium} color={market?.expired ? 'transparent.700' : 'grey.500'}>
+            <Text {...paragraphMedium} color={cardColors.secondary}>
               {market?.expirationDate}
             </Text>
           </HStack>

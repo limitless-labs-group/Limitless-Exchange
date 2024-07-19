@@ -10,13 +10,9 @@ import { isMobile } from 'react-device-detect'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import TextWithPixels from '@/components/common/text-with-pixels'
 import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { ToastWithdraw } from '@/components/common/toast-withdraw'
-import { useToast } from '@/hooks'
 
 const PortfolioPage = () => {
   const [tab, setTab] = useState<'Investments' | 'History'>('Investments')
-
-  const toast = useToast()
 
   const { trackOpened } = useAmplitude()
   useEffect(() => {
@@ -24,13 +20,6 @@ const PortfolioPage = () => {
       page: 'Portfolio Page',
     })
   }, [])
-
-  // useEffect(() => {
-  //   const id = toast({
-  //     render: () => <ToastWithdraw transactionHash={'asd'} id={id} />,
-  //   })
-  //   console.log(id)
-  // }, [])
 
   return (
     <MainLayout>
@@ -44,7 +33,7 @@ const PortfolioPage = () => {
         />
         <PortfolioStats mt={'20px'} />
 
-        <Stack w={'full'} spacing={5} mt={1}>
+        <Stack w={'full'} spacing={5}>
           <HStack gap={0} borderBottom={'1px solid'} borderColor={'grey.400'} alignItems='flex-end'>
             <Stack cursor={'pointer'} onClick={() => setTab('Investments')} mb='-1px' gap={0}>
               <HStack
