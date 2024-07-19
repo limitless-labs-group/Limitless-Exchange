@@ -43,10 +43,10 @@ export const chakraTheme = ChakraTheme({
         },
       },
       p: {
-        translate: 'no',
+        translate: 'none',
       },
       span: {
-        translate: 'no',
+        translate: 'none',
       },
       button: {
         fontSize: '14px',
