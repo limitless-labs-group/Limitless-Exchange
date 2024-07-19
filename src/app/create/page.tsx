@@ -33,6 +33,7 @@ import { useCategories, useLimitlessApi } from '@/services'
 import { Toast } from '@/components/common/toast'
 import { Input } from '@/components/common/input'
 import { Category } from '@/types'
+import { OgImageGenerator } from '@/app/create/components'
 
 interface FormFieldProps {
   label: string
@@ -475,6 +476,12 @@ const CreateOwnMarketPage = () => {
                   Choose file
                 </Button>
                 <Text>{marketLogo?.name ?? 'No file chosen.'}</Text>
+              </HStack>
+            </FormField>
+
+            <FormField label='Generated OG'>
+              <HStack>
+                <OgImageGenerator title={title} category='Sport' />
               </HStack>
             </FormField>
 
