@@ -10,6 +10,7 @@ import { IModal } from '@/components/common/modals/modal'
 import { useBalanceService, useLimitlessApi } from '@/services'
 import { Token } from '@/types'
 import BigNumber from 'bignumber.js'
+import Loader from '@/components/common/loader'
 
 type WithdrawProps = Omit<IModal, 'children'>
 
@@ -103,6 +104,7 @@ export default function Withdraw({ isOpen, onClose }: WithdrawProps) {
         <Button
           variant='contained'
           isLoading={status == 'Loading'}
+          spinner={<Loader />}
           isDisabled={isSubmitDisabled || status === 'Loading' || !amount}
           onClick={async () => {
             await withdraw({ receiver: address, token: selectedToken, amount })
