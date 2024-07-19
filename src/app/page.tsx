@@ -4,7 +4,7 @@ import { MainLayout, MarketCard, MarketCardMobile } from '@/components'
 import { defaultChain } from '@/constants'
 import { useIsMobile } from '@/hooks'
 import { OpenEvent, useAmplitude } from '@/services'
-import { Divider, VStack, Text, Box } from '@chakra-ui/react'
+import { Divider, VStack, Text, Box, Spinner, HStack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import SortFilter from '@/components/common/sort-filter'
@@ -38,7 +38,7 @@ const MainPage = ({ params }: { params: Category | null }) => {
   const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage } = useMarkets(params)
+  const { data, fetchNextPage, hasNextPage, isFetching } = useMarkets(params)
 
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.length
@@ -115,27 +115,33 @@ const MainPage = ({ params }: { params: Category | null }) => {
         </Text>
 
         <SortFilter onChange={handleSelectSort} />
-        <InfiniteScroll
-          dataLength={dataLength ?? 0}
-          next={fetchNextPage}
-          hasMore={hasNextPage}
-          loader={<h4></h4>}
-          scrollThreshold={0.8}
-          refreshFunction={fetchNextPage}
-          pullDownToRefresh
-        >
-          <VStack w={'full'} spacing={5}>
-            <VStack gap={2} w='full'>
-              {sortedMarkets?.map((market) =>
-                isMobile ? (
-                  <MarketCardMobile key={uuidv4()} market={market} />
-                ) : (
-                  <MarketCard key={uuidv4()} market={market} />
-                )
-              )}
+        {isFetching ? (
+          <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>
+            <Spinner />
+          </HStack>
+        ) : (
+          <InfiniteScroll
+            dataLength={dataLength ?? 0}
+            next={fetchNextPage}
+            hasMore={hasNextPage}
+            loader={<h4></h4>}
+            scrollThreshold={0.8}
+            refreshFunction={fetchNextPage}
+            pullDownToRefresh
+          >
+            <VStack w={'full'} spacing={5}>
+              <VStack gap={2} w='full'>
+                {sortedMarkets?.map((market) =>
+                  isMobile ? (
+                    <MarketCardMobile key={uuidv4()} market={market} />
+                  ) : (
+                    <MarketCard key={uuidv4()} market={market} />
+                  )
+                )}
+              </VStack>
             </VStack>
-          </VStack>
-        </InfiniteScroll>
+          </InfiniteScroll>
+        )}
       </Box>
     </MainLayout>
   )

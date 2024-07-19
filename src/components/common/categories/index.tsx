@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Text, Box, useTheme } from '@chakra-ui/react'
+import { Text, Box, useTheme, Spinner } from '@chakra-ui/react'
 import { useCategories } from '@/services'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
