@@ -30,7 +30,7 @@ export const MarketCardMobile = ({ market, children, ...props }: IMarketCard) =>
       <Stack w={'full'} spacing={3}>
         <HStack w={'full'} spacing={3} onClick={() => router.push(marketURI)}>
           <Stack alignItems={'start'}>
-            <Text {...paragraphMedium} textDecoration='unset'>
+            <Text {...paragraphMedium} textDecoration='unset' userSelect='none'>
               {market?.title ?? 'Noname market'}
             </Text>
             <HStack gap={1}>
