@@ -214,29 +214,27 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
     },
   })
 
-  const initialYesChance = useMemo(() => {
-    if (market?.prices) {
-      return market.prices[0].toFixed(2)
-    }
-    return '50.00'
-  }, [market?.prices])
-
+  {
+    /*TODO remove hot fix*/
+  }
   return (
-    <Paper my='24px' p='8px'>
-      <HStack gap={'4px'} color='green.500'>
-        <ThumbsUpIcon width={16} height={16} />
-        <Text fontWeight={500}>{market?.prices[0]}%</Text>
-        <Text fontWeight={500}>Yes</Text>
-        <ChevronDownIcon width={16} height={16} />
-      </HStack>
-      <HStack>
-        <VStack gap={-1} alignItems={'flex-start'}>
-          <Text fontSize='sm' color={'fontLight'}>
-            {yesDate}
-          </Text>
-        </VStack>
-      </HStack>
-      <HighchartsReact highcharts={Highcharts} options={getChartOptions(prices)} />
-    </Paper>
+    market?.address[defaultChain.id] !== '0xc4e607Bdc91dD2b57CD6989c9fBDB84824a76CC6' && (
+      <Paper my='24px' p='8px'>
+        <HStack gap={'4px'} color='green.500'>
+          <ThumbsUpIcon width={16} height={16} />
+          <Text fontWeight={500}>{market?.prices[0]}%</Text>
+          <Text fontWeight={500}>Yes</Text>
+          <ChevronDownIcon width={16} height={16} />
+        </HStack>
+        <HStack>
+          <VStack gap={-1} alignItems={'flex-start'}>
+            <Text fontSize='sm' color={'fontLight'}>
+              {yesDate}
+            </Text>
+          </VStack>
+        </HStack>
+        <HighchartsReact highcharts={Highcharts} options={getChartOptions(prices)} />
+      </Paper>
+    )
   )
 }
