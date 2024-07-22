@@ -3,7 +3,7 @@ import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'
 import { publicClient } from '@/providers'
-import { useAccount, useBalanceService, useHistory } from '@/services'
+import { useBalanceService, useHistory } from '@/services'
 import { Market } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
@@ -24,6 +24,7 @@ import { Address, Hash, formatUnits, getAddress, getContract, parseUnits, zeroHa
 import { useWeb3Service } from '@/services/Web3Service'
 import { useToken } from '@/hooks/use-token'
 import { useConditionalTokensAddr } from '@/hooks/use-conditional-tokens-addr'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 interface ITradingServiceContext {
   market: Market | null
@@ -55,17 +56,14 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * UI HELPERS
    */
   const toast = useToast()
+  const DISCORD_LINK = 'https://discord.gg/UQtv7h5ZFE'
 
   /**
    * SERVICES
    */
   const queryClient = useQueryClient()
   const { getTrades, getRedeems } = useHistory()
-
-  /**
-   * ACCOUNT
-   */
-  const { account } = useAccount()
+  const account = useWalletAddress()
 
   /**
    * OPTIONS
@@ -473,8 +471,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         }
       }
 
-      toast({
-        render: () => <Toast title={'Processing transaction...'} />,
+      const id = toast({
+        render: () => <Toast title={'Processing transaction...'} id={id} />,
       })
 
       const receipt = await buyOutcomeTokens(
@@ -491,8 +489,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       )
 
       if (!receipt) {
-        toast({
-          render: () => <Toast title={`Unsuccessful transaction. Please, contact our support.`} />,
+        const id = toast({
+          render: () => (
+            <Toast
+              title={`Unsuccessful transaction.`}
+              text={'Please contact our support.'}
+              link={DISCORD_LINK}
+              linkText='Open Discord'
+              id={id}
+            />
+          ),
         })
         return
       }
@@ -502,20 +508,21 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       await refetchChain()
 
       // TODO: incapsulate
-      toast({
+      const toastId = toast({
         render: () => (
           <Toast
             title={`Successfully invested ${NumberUtil.toFixed(collateralAmount, 6)} ${
               collateralToken?.symbol
             }`}
+            id={toastId}
           />
         ),
       })
 
       await sleep(1)
 
-      toast({
-        render: () => <Toast title={`Updating portfolio...`} />,
+      const updateToastId = toast({
+        render: () => <Toast title={`Updating portfolio...`} id={updateToastId} />,
       })
 
       // TODO: redesign subgraph refetch logic
@@ -530,22 +537,23 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       if (!market) {
         return
       }
-      toast({
-        render: () => <Toast title={'Processing approve transaction...'} />,
+      const id = toast({
+        render: () => <Toast title={'Processing approve transaction...'} id={id} />,
       })
       try {
         await approveContract(
           market.address[defaultChain.id],
-          market.collateralToken[defaultChain.id]
+          market.collateralToken[defaultChain.id],
+          collateralAmountBI
         )
-        toast({
-          render: () => <Toast title={`Successfully approved. Proceed with buy now.`} />,
+        const id = toast({
+          render: () => <Toast title={`Successfully approved. Proceed with buy now.`} id={id} />,
         })
         await sleep(3)
       } catch (e) {
-        toast({
+        const id = toast({
           render: () => (
-            <Toast title={`Something went wrong during approve transaction broadcast.`} />
+            <Toast title={`Something went wrong during approve transaction broadcast.`} id={id} />
           ),
         })
       }
@@ -557,19 +565,19 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       if (!market) {
         return
       }
-      toast({
-        render: () => <Toast title={'Processing approve transaction...'} />,
+      const id = toast({
+        render: () => <Toast title={'Processing approve transaction...'} id={id} />,
       })
       try {
         await approveAllowanceForAll(market.address[defaultChain.id], conditionalTokensAddress!)
-        toast({
-          render: () => <Toast title={`Successfully approved. Proceed with sell now.`} />,
+        const id = toast({
+          render: () => <Toast title={`Successfully approved. Proceed with sell now.`} id={id} />,
         })
         await sleep(3)
       } catch (e) {
-        toast({
+        const id = toast({
           render: () => (
-            <Toast title={`Something went wrong during approve transaction broadcast.`} />
+            <Toast title={`Something went wrong during approve transaction broadcast.`} id={id} />
           ),
         })
       }
@@ -586,8 +594,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       }
 
       // TODO: incapsulate
-      toast({
-        render: () => <Toast title={'Processing transaction...'} />,
+      const id = toast({
+        render: () => <Toast title={'Processing transaction...'} id={id} />,
       })
 
       if (client === 'eoa') {
@@ -616,8 +624,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       )
 
       if (!receipt) {
-        toast({
-          render: () => <Toast title={`Unsuccessful transaction. Please, contact our support.`} />,
+        const id = toast({
+          render: () => (
+            <Toast
+              title={`Unsuccessful transaction`}
+              text={'Please contact our support.'}
+              link={DISCORD_LINK}
+              linkText='Open Discord'
+              id={id}
+            />
+          ),
         })
         return
       }
@@ -626,20 +642,21 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       await refetchChain()
 
-      toast({
+      const successId = toast({
         render: () => (
           <Toast
             title={`Successfully redeemed ${NumberUtil.toFixed(collateralAmount, 6)} ${
               collateralToken?.symbol
             }`}
+            id={successId}
           />
         ),
       })
 
       await sleep(1)
 
-      toast({
-        render: () => <Toast title={`Updating portfolio...`} />,
+      const updateID = toast({
+        render: () => <Toast title={`Updating portfolio...`} id={updateID} />,
       })
 
       // TODO: redesign subgraph refetch logic
@@ -667,22 +684,30 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       )
 
       if (!receipt) {
-        toast({
-          render: () => <Toast title={`Unsuccessful transaction. Please, contact our support.`} />,
+        const id = toast({
+          render: () => (
+            <Toast
+              title={`Unsuccessful transaction`}
+              text={'Please contact our support.'}
+              link={DISCORD_LINK}
+              linkText='Open Discord'
+              id={id}
+            />
+          ),
         })
         return
       }
 
       await refetchChain()
 
-      toast({
-        render: () => <Toast title={`Successfully redeemed`} />,
+      const id = toast({
+        render: () => <Toast title={`Successfully redeemed`} id={id} />,
       })
 
       await sleep(1)
 
-      toast({
-        render: () => <Toast title={`Updating portfolio...`} />,
+      const updateId = toast({
+        render: () => <Toast title={`Updating portfolio...`} id={updateId} />,
       })
 
       // TODO: redesign subgraph refetch logic

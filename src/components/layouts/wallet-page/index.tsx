@@ -6,24 +6,24 @@ import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
-import { Toast } from '@/components/common/toast'
-import React from 'react'
-import { useToast } from '@/hooks'
+import React, { useEffect, useState } from 'react'
 import BaseIcon from '@/resources/crypto/base.svg'
 import Image from 'next/image'
 import { usePriceOracle } from '@/providers'
 import { WithdrawModal } from '@/components/layouts/wallet-page/components/withdraw-modal'
 import { isMobile } from 'react-device-detect'
+import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { setTimeout } from '@wry/context'
 
 interface WalletPageProps {
   onClose: () => void
 }
 
 export default function WalletPage({ onClose }: WalletPageProps) {
+  const [copied, setCopied] = useState(false)
   const { overallBalanceUsd, balanceOfSmartWallet } = useBalanceService()
   const { supportedTokens } = useLimitlessApi()
   const address = useWalletAddress()
-  const toast = useToast()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
 
   const {
@@ -33,10 +33,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
   } = useDisclosure()
 
   const onClickCopy = () => {
-    toast({
-      render: () => <Toast title={'Copied!'} />,
-      duration: 2000,
-    })
+    setCopied(true)
   }
 
   const handleOpenWithdrawModal = () => {
@@ -44,9 +41,17 @@ export default function WalletPage({ onClose }: WalletPageProps) {
     onOpenWithdraw()
   }
 
+  useEffect(() => {
+    const hideCopiedMessage = setTimeout(() => {
+      setCopied(false)
+    }, 2000)
+
+    return () => clearTimeout(hideCopiedMessage)
+  }, [copied])
+
   return (
     <Box
-      bg='white'
+      bg='grey.100'
       w={isMobile ? 'full' : '328px'}
       p='8px'
       h='full'
@@ -56,51 +61,55 @@ export default function WalletPage({ onClose }: WalletPageProps) {
       <Text fontSize='32px'>Wallet</Text>
       <Paper bg='blue.500' mt='24px'>
         <HStack w='full' justifyContent='space-between'>
-          <HStack gap='4px' color='white'>
+          <HStack gap='4px' color='grey.50'>
             <WalletIcon width='16px' height='16px' />
-            <Text fontWeight={500}>Available balance</Text>
+            <Text {...paragraphMedium} color='grey.50'>
+              Available balance
+            </Text>
           </HStack>
-          <Button
-            variant='contained'
-            bg='white'
-            color='black'
-            py='4px'
-            h='unset'
-            onClick={handleOpenWithdrawModal}
-          >
+          <Button variant='white' onClick={handleOpenWithdrawModal}>
             Withdraw
           </Button>
         </HStack>
-        <Text color='white' fontSize='24px' fontWeight={500} mb='16px'>
+        <Text color='grey.50' fontSize='24px' fontWeight={500} mb='16px'>
           ~{NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
         </Text>
-        <Text color='white' fontWeight={500}>
+        <Text {...paragraphMedium} color='grey.50'>
           Address
         </Text>
-        <HStack gap='4px' color='white'>
-          <Text fontWeight={500}>{truncateEthAddress(address)}</Text>
-          <Box cursor='pointer'>
-            <CopyToClipboard text={address as string} onCopy={onClickCopy}>
-              <CopyIcon width='16px' height='16px' />
-            </CopyToClipboard>
-          </Box>
-        </HStack>
-      </Paper>
-      <HStack gap='4px' mt='16px'>
-        <Text as='span'>We use</Text>
-        <BaseIcon />
-        <Text as='span'>Base network.</Text>
-      </HStack>
-      <Text>Send any of these coins using the same address:</Text>
-      <HStack mt='8px' rowGap='4px' columnGap='8px' flexWrap='wrap'>
-        {supportedTokens?.map((token) => (
-          <HStack gap='4px' key={token.symbol}>
-            <Image src={token.logoUrl} alt={token.symbol} width={16} height={16} />
-            <Text>{token.symbol}</Text>
+        <CopyToClipboard text={address as string} onCopy={onClickCopy}>
+          <HStack gap='4px' color='grey.50' cursor='pointer'>
+            <Text {...paragraphRegular} color='grey.50'>
+              {truncateEthAddress(address)}
+            </Text>
+            <CopyIcon width='16px' height='16px' />
+            {copied && (
+              <Text {...paragraphRegular} ml='4px' color='grey.50'>
+                Copied!
+              </Text>
+            )}
           </HStack>
-        ))}
-      </HStack>
-      <Text fontWeight={500} fontSize='16px' mt='24px' mb='8px'>
+        </CopyToClipboard>
+      </Paper>
+      {!isMobile && (
+        <>
+          <HStack gap='4px' mt='16px'>
+            <Text as='span'>We use</Text>
+            <BaseIcon />
+            <Text as='span'>Base network.</Text>
+          </HStack>
+          <Text>Send any of these coins using the same address:</Text>
+          <HStack mt='8px' rowGap='4px' columnGap='8px' flexWrap='wrap'>
+            {supportedTokens?.map((token) => (
+              <HStack gap='4px' key={token.symbol}>
+                <Image src={token.logoUrl} alt={token.symbol} width={16} height={16} />
+                <Text>{token.symbol}</Text>
+              </HStack>
+            ))}
+          </HStack>
+        </>
+      )}
+      <Text {...headline} fontSize='16px' mt='24px' mb='8px'>
         All tokens
       </Text>
       <VStack w='full' mb='24px'>
@@ -109,17 +118,19 @@ export default function WalletPage({ onClose }: WalletPageProps) {
             <HStack justifyContent='space-between'>
               <HStack gap='4px'>
                 <Image src={balanceItem.image} alt='token' width={16} height={16} />
-                <Text fontWeight={500}>{balanceItem.symbol}</Text>
+                <Text {...paragraphMedium}>{balanceItem.symbol}</Text>
               </HStack>
 
-              <Text fontWeight={500}>{NumberUtil.formatThousands(balanceItem.formatted, 4)}</Text>
+              <Text {...paragraphMedium}>
+                {NumberUtil.formatThousands(balanceItem.formatted, 4)}
+              </Text>
             </HStack>
             <Divider my='12px' bg='grey.400' orientation='horizontal' h='1px' />
             <HStack justifyContent='space-between' mb='8px'>
-              <Text fontWeight={500} color='grey.500'>
+              <Text {...paragraphMedium} color='grey.500'>
                 Current price
               </Text>
-              <Text>
+              <Text {...paragraphRegular}>
                 {NumberUtil.formatThousands(
                   marketTokensPrices?.[balanceItem.id].usd,
                   // @ts-ignore
@@ -129,10 +140,10 @@ export default function WalletPage({ onClose }: WalletPageProps) {
               </Text>
             </HStack>
             <HStack justifyContent='space-between'>
-              <Text fontWeight={500} color='grey.500'>
+              <Text {...paragraphMedium} color='grey.500'>
                 Value
               </Text>
-              <Text>
+              <Text {...paragraphRegular}>
                 {NumberUtil.formatThousands(
                   convertAssetAmountToUsd(balanceItem.id, balanceItem.formatted),
                   2

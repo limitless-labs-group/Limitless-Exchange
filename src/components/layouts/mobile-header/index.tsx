@@ -20,20 +20,23 @@ import {
   ProfileBurgerMenuClickedMetadata,
   useAccount,
   useAmplitude,
-  useAuth,
   useBalanceService,
   useHistory,
 } from '@/services'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import { usePathname, useRouter } from 'next/navigation'
 import WalletPage from '@/components/layouts/wallet-page'
 import { useWeb3Service } from '@/services/Web3Service'
 import TokenFilterMobile from '@/components/common/token-filter-mobile'
-import { LogInButton } from '@/components/common/login-button'
 import { isMobile } from 'react-device-detect'
+import '@/app/style.css'
+import { LoginButton } from '@/components/common/login-button'
+import useDisconnectAccount from '@/hooks/use-disconnect'
+import { cutUsername } from '@/utils/string'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -42,7 +45,7 @@ export default function MobileHeader() {
   const address = useWalletAddress()
   const { balanceInvested } = useHistory()
   const router = useRouter()
-  const { signOut } = useAuth()
+  const { disconnectFromPlatform } = useDisconnectAccount()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
   const pathname = usePathname()
@@ -58,7 +61,7 @@ export default function MobileHeader() {
   return (
     <>
       <Box p='16px' pb={0}>
-        <HStack justifyContent='space-between'>
+        <HStack justifyContent='space-between' alignItems='center'>
           <Button variant='transparent' onClick={() => router.push('/')}>
             <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
           </Button>
@@ -85,9 +88,7 @@ export default function MobileHeader() {
                       alignItems='center'
                       justifyContent='center'
                     >
-                      <Text fontWeight={500} fontSize='24px'>
-                        {userInfo?.name?.[0].toUpperCase()}
-                      </Text>
+                      <Text {...paragraphMedium}>{userInfo?.name?.[0].toUpperCase()}</Text>
                     </Flex>
                   )}
                 </Button>
@@ -101,17 +102,18 @@ export default function MobileHeader() {
                     zIndex={100}
                     bg='rgba(0, 0, 0, 0.3)'
                     mt='20px'
+                    animation='fadeIn 0.5s'
                   ></Box>
                 )}
                 <Slide
                   direction='right'
                   in={isOpenUserMenu}
-                  style={{ zIndex: 100, marginTop: '20px' }}
+                  style={{ zIndex: 100, marginTop: '20px', transition: '0.1s' }}
                   onClick={onToggleUserMenu}
                 >
                   <VStack
                     ml='40px'
-                    bg='white'
+                    bg='grey.100'
                     h='full'
                     p='16px'
                     justifyContent='space-between'
@@ -135,18 +137,21 @@ export default function MobileHeader() {
                             alignItems='center'
                             justifyContent='center'
                           >
-                            <Text fontWeight={500} fontSize='18px'>
+                            <Text fontWeight={500} fontSize='24px'>
                               {userInfo?.name?.[0].toUpperCase()}
                             </Text>
                           </Flex>
                         )}
-                        <Text fontSize='16px' fontWeight={500}>
-                          {userInfo?.name ? userInfo.name : truncateEthAddress(address)}
+                        <Text {...paragraphMedium}>
+                          {userInfo?.name
+                            ? cutUsername(userInfo.name, 60)
+                            : truncateEthAddress(address)}
                         </Text>
                       </HStack>
-                      <VStack my='24px'>
+                      <VStack my='24px' gap='8px'>
                         <Button
                           variant='transparent'
+                          px={0}
                           w='full'
                           onClick={handleNavigateToPortfolioPage}
                         >
@@ -158,21 +163,21 @@ export default function MobileHeader() {
                               </Text>
                             </HStack>
 
-                            <HStack gap='4px'>
+                            <HStack gap='8px'>
                               <Text fontWeight={500}>
                                 {NumberUtil.formatThousands(balanceInvested, 2)} USD
                               </Text>
-                              <Box transform='rotate(270deg)' color='grey.500'>
-                                <ChevronDownIcon width={16} height={16} />
+                              <Box color='black'>
+                                <ArrowRightIcon width={16} height={16} />
                               </Box>
                             </HStack>
                           </HStack>
                         </Button>
                         {client !== 'eoa' && (
-                          <Button
-                            variant='transparent'
+                          <Box
                             w='full'
                             mt='8px'
+                            px={0}
                             onClick={() => {
                               onToggleWalletModal()
                               onToggleUserMenu()
@@ -186,18 +191,19 @@ export default function MobileHeader() {
                                 </Text>
                               </HStack>
 
-                              <HStack gap='4px'>
+                              <HStack gap='8px'>
                                 <Text fontWeight={500}>
                                   {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                                 </Text>
-                                <Box transform='rotate(270deg)' color='grey.500'>
-                                  <ChevronDownIcon width={16} height={16} />
+                                <Box color='black'>
+                                  <ArrowRightIcon width={16} height={16} />
                                 </Box>
                               </HStack>
                             </HStack>
-                          </Button>
+                          </Box>
                         )}
                       </VStack>
+
                       {client !== 'eoa' && (
                         <Button
                           variant='contained'
@@ -245,7 +251,7 @@ export default function MobileHeader() {
                             option: 'Sign Out',
                           }
                         )
-                        signOut()
+                        disconnectFromPlatform()
                       }}
                     >
                       Log Out
@@ -254,7 +260,7 @@ export default function MobileHeader() {
                 </Slide>
               </>
             ) : (
-              <LogInButton />
+              <LoginButton />
             )}
           </HStack>
           {isWalletModalOpen && (
@@ -267,15 +273,19 @@ export default function MobileHeader() {
               zIndex={100}
               bg='rgba(0, 0, 0, 0.3)'
               mt='20px'
+              animation='fadeIn 0.5s'
             ></Box>
           )}
           <Slide
-            direction='top'
+            direction='bottom'
             in={isWalletModalOpen}
             style={{
               zIndex: 150,
               paddingTop: isWalletModalOpen ? '60px' : 0,
+              top: isWalletModalOpen ? 0 : '60px',
               height: '100%',
+              transition: '0.1s',
+              animation: 'fadeIn 0.5s',
             }}
             onClick={() => {
               onToggleWalletModal()
@@ -285,7 +295,7 @@ export default function MobileHeader() {
           </Slide>
         </HStack>
       </Box>
-      {isMobile && pathname === '/' && <TokenFilterMobile />}
+      {isMobile && (pathname === '/' || pathname.includes('topics')) && <TokenFilterMobile />}
     </>
   )
 }

@@ -47,11 +47,6 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    * Initialize Etherspot with Prime SDK instance on top of W3A wallet, once user signed in
    */
   const initEtherspot = useCallback(async () => {
-    console.log(web3Auth)
-    console.log(web3AuthProvider)
-    console.log(isConnected)
-    console.log(supportedTokens)
-    console.log(web3Auth.connectedAdapterName)
     if (
       !web3AuthProvider ||
       !isConnected ||
@@ -189,12 +184,26 @@ class Etherspot {
     return response === 'Already added'
   }
 
-  async batchAndSendUserOp(to: string, data: string, value: bigint | undefined = undefined) {
+  async batchAndSendUserOp(
+    to: string,
+    data: string,
+    value: bigint | undefined = undefined,
+    type?: string
+  ) {
     try {
       await this.primeSdk.clearUserOpsFromBatch()
       await this.primeSdk.addUserOpsToBatch({ to, data, value })
       const op = await this.estimate()
       const opHash = await this.primeSdk.send(op)
+      if (type === 'withdraw') {
+        let result = null
+        while (!result) {
+          await sleep(1)
+          const hash = await this.primeSdk.getUserOpReceipt(opHash)
+          result = hash ? hash.receipt.transactionHash : null
+        }
+        return result
+      }
       return opHash
     } catch (e: any) {
       console.log(e)
@@ -237,11 +246,11 @@ class Etherspot {
 
   async transferErc20(token: Address, to: Address, value: bigint) {
     const data = encodeFunctionData({
-      abi: wethABI,
+      abi: erc20Abi,
       functionName: 'transfer',
       args: [to, value],
     })
-    return this.batchAndSendUserOp(token, data)
+    return this.batchAndSendUserOp(token, data, undefined, 'withdraw')
   }
 
   async mintErc20(token: Address, value: bigint, smartWalletAddress: Address, newToken?: boolean) {

@@ -5,9 +5,11 @@ import { HStack, Stack, StackProps, Text, Divider, Icon } from '@chakra-ui/react
 import { useRouter } from 'next/navigation'
 import Paper from '@/components/common/paper'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import ArrowIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 interface IMarketCard extends StackProps {
   market: Market
@@ -23,28 +25,21 @@ export const MarketCardMobile = ({ market, children, ...props }: IMarketCard) =>
       justifyContent={'space-between'}
       onClick={() => router.push(marketURI)}
       w={'full'}
-      _hover={{ bg: 'grey.300', boxShadow: 'md' }}
       {...props}
     >
       <Stack w={'full'} spacing={3}>
         <HStack w={'full'} spacing={3} onClick={() => router.push(marketURI)}>
           <Stack alignItems={'start'}>
-            <Text
-              fontWeight={'bold'}
-              fontSize={'16px'}
-              noOfLines={3}
-              lineHeight={'18px'}
-              textDecor={'underline'}
-            >
+            <Text {...paragraphMedium} textDecoration='unset' userSelect='none'>
               {market?.title ?? 'Noname market'}
             </Text>
             <HStack gap={1}>
               <ThumbsUpIcon width={'16px'} height={'16px'} />
-              {!children && <Text>{market?.buyYesNo[0]}% YES</Text>}
+              {!children && <Text {...paragraphMedium}>{market?.buyYesNo[0]}% YES</Text>}
             </HStack>
             <HStack gap={1}>
               <Icon as={CalendarIcon} width={'16px'} height={'16px'} color={'grey.500'} />
-              <Text color={'grey.500'} fontSize={'14px'}>
+              <Text {...paragraphMedium} color={'grey.500'}>
                 {market?.expirationDate}
               </Text>
             </HStack>
@@ -55,25 +50,27 @@ export const MarketCardMobile = ({ market, children, ...props }: IMarketCard) =>
           <HStack w={'full'} justifyContent={'space-between'}>
             <HStack gap={1}>
               <Icon as={LiquidityIcon} color={'grey.500'} width={'16px'} height={'16px'} />
-              <Text color={'grey.500'} fontSize={'14px'}>
+              <Text {...paragraphMedium} color={'grey.500'}>
                 Liquidity
               </Text>
             </HStack>
 
-            <Text>{`${NumberUtil.formatThousands(market.liquidityFormatted, 4)} ${
-              market?.tokenTicker[defaultChain.id]
-            }`}</Text>
+            <Text {...paragraphRegular}>{`${NumberUtil.formatThousands(
+              market.liquidityFormatted,
+              4
+            )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
           </HStack>
           <HStack w={'full'} justifyContent={'space-between'}>
             <HStack gap={1}>
               <Icon as={VolumeIcon} color={'grey.500'} width={'16px'} height={'16px'} />
-              <Text color={'grey.500'} fontSize={'14px'}>
+              <Text {...paragraphMedium} color={'grey.500'}>
                 Volume
               </Text>
             </HStack>
-            <Text>{`${NumberUtil.formatThousands(market.volumeFormatted, 4)} ${
-              market?.tokenTicker[defaultChain.id]
-            }`}</Text>
+            <Text {...paragraphRegular}>{`${NumberUtil.formatThousands(
+              market.volumeFormatted,
+              4
+            )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
           </HStack>
         </Stack>
 

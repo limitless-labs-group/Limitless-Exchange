@@ -8,6 +8,7 @@ import { Market } from '@/types'
 import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { defaultChain } from '@/constants'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 interface PositionCardProps {
   position: HistoryPosition
@@ -44,14 +45,14 @@ export function PositionCard({ position, market }: PositionCardProps) {
     }
     if (contractPrice < 1) {
       return (
-        <Text color='red.500'>
+        <Text {...paragraphMedium} color='red.500'>
           &#x2193;
           {price}%
         </Text>
       )
     }
     return (
-      <Text color='green.500'>
+      <Text {...paragraphMedium} color='green.500'>
         &#x2191;
         {price}%
       </Text>
@@ -63,16 +64,16 @@ export function PositionCard({ position, market }: PositionCardProps) {
       <Flex justifyContent='space-between' mb='12px'>
         <HStack gap='4px'>
           {outcomeIcon}
-          <Text fontWeight={500}>{getOutcomeNotation()}</Text>
+          <Text {...paragraphMedium}>{getOutcomeNotation()}</Text>
         </HStack>
         <HStack gap='12px'>
           {!isMobile && (
-            <Text fontWeight={500}>
+            <Text {...paragraphMedium}>
               {`${NumberUtil.toFixed(position.outcomeTokenAmount, 6)} Contracts`}
             </Text>
           )}
           <HStack gap='4px'>
-            <Text fontWeight={500}>{`${NumberUtil.toFixed(currentContractsPrice, 6)} ${
+            <Text {...paragraphMedium}>{`${NumberUtil.toFixed(currentContractsPrice, 6)} ${
               market?.tokenTicker[defaultChain.id]
             }`}</Text>
             {contractPriceChanged}
@@ -85,15 +86,11 @@ export function PositionCard({ position, market }: PositionCardProps) {
         alignItems={isMobile ? 'flex-start' : 'center'}
       >
         {isMobile && (
-          <Flex
-            flexDir={isMobile ? 'row' : 'column'}
-            justifyContent={isMobile ? 'space-between' : 'unset'}
-            w={isMobile ? 'full' : 'unset'}
-          >
-            <Text fontWeight={500} color='grey.500'>
+          <Flex flexDir={'row'} justifyContent={isMobile ? 'space-between' : 'unset'} w={'full'}>
+            <Text {...paragraphMedium} color='grey.500'>
               Contracts
             </Text>
-            <Text>{NumberUtil.toFixed(position.outcomeTokenAmount, 6)}</Text>
+            <Text {...paragraphRegular}>{NumberUtil.toFixed(position.outcomeTokenAmount, 6)}</Text>
           </Flex>
         )}
         <Flex
@@ -101,10 +98,10 @@ export function PositionCard({ position, market }: PositionCardProps) {
           justifyContent={isMobile ? 'space-between' : 'unset'}
           w={isMobile ? 'full' : 'unset'}
         >
-          <Text fontWeight={500} color='grey.500'>
+          <Text {...paragraphMedium} color='grey.500'>
             Invested
           </Text>
-          <Text>{`${NumberUtil.toFixed(position.collateralAmount, 3)} ${
+          <Text {...paragraphRegular}>{`${NumberUtil.toFixed(position.collateralAmount, 3)} ${
             market?.tokenTicker[defaultChain.id]
           }`}</Text>
         </Flex>
@@ -113,34 +110,36 @@ export function PositionCard({ position, market }: PositionCardProps) {
           justifyContent={isMobile ? 'space-between' : 'unset'}
           w={isMobile ? 'full' : 'unset'}
         >
-          <Text fontWeight={500} color='grey.500'>
+          <Text {...paragraphMedium} color='grey.500'>
             Initial Price
           </Text>
-          <Text>{`${NumberUtil.toFixed(position.latestTrade?.outcomeTokenPrice, 3)} ${
-            market?.tokenTicker[defaultChain.id]
-          }`}</Text>
+          <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
+            position.latestTrade?.outcomeTokenPrice,
+            3
+          )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
         </Flex>
         <Flex
           flexDir={isMobile ? 'row' : 'column'}
           justifyContent={isMobile ? 'space-between' : 'unset'}
           w={isMobile ? 'full' : 'unset'}
         >
-          <Text fontWeight={500} color='grey.500'>
+          <Text {...paragraphMedium} color='grey.500'>
             Current Price
           </Text>
-          <Text>{`${NumberUtil.toFixed((market?.prices[position.outcomeIndex] || 1) / 100, 3)} ${
-            market?.tokenTicker[defaultChain.id]
-          }`}</Text>
+          <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
+            (market?.prices[position.outcomeIndex] || 1) / 100,
+            3
+          )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
         </Flex>
         <Flex
           flexDir={isMobile ? 'row' : 'column'}
           justifyContent={isMobile ? 'space-between' : 'unset'}
           w={isMobile ? 'full' : 'unset'}
         >
-          <Text fontWeight={500} color='grey.500'>
+          <Text {...paragraphMedium} color='grey.500'>
             To Win
           </Text>
-          <Text>
+          <Text {...paragraphRegular}>
             {`${NumberUtil.toFixed(position.outcomeTokenAmount, 6)} ${
               market?.tokenTicker[defaultChain.id]
             }`}

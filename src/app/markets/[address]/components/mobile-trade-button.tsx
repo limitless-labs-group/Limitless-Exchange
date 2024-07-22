@@ -8,6 +8,7 @@ import WinIcon from '@/resources/icons/win-icon.svg'
 import { NumberUtil } from '@/utils'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import '@/app/style.css'
 
 interface MobileTradeButtonProps {
   market: Market | null
@@ -55,7 +56,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
     }
     if (hasPositions) {
       return (
-        <Text color='white'>
+        <Text color='grey.50'>
           Lost {`${NumberUtil.formatThousands(hasPositions[0].outcomeTokenAmount, 4)}`}{' '}
           {market?.tokenTicker[defaultChain.id]}
         </Text>
@@ -68,7 +69,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
 
   const buttonColor = useMemo(() => {
     if (!positionToClaim) {
-      return 'black'
+      return 'grey.800'
     }
     if (hasPositions) {
       return 'green.500'
@@ -110,6 +111,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
           zIndex={100}
           bg='rgba(0, 0, 0, 0.3)'
           mt='20px'
+          animation='fadeIn 0.5s'
         ></Box>
       )}
       <Slide
@@ -117,11 +119,11 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
         in={isClaimMenuOpen}
         style={{
           zIndex: 100,
-          // background: 'rgba(0, 0, 0, 0.3)',
           marginTop: '20px',
           height: '100%',
           display: 'flex',
           alignItems: 'flex-end',
+          transition: '0.1s',
         }}
         onClick={toggleClaimMenu}
       >
@@ -131,7 +133,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
           p='16px'
           pt='24px'
           w='full'
-          color='white'
+          color='grey.50'
         >
           <Text fontWeight={500} mt='16px'>
             Market is closed
@@ -147,18 +149,14 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
             <Text fontWeight={500}>did come true</Text>
           </HStack>
           <Button
-            variant='contained'
-            bg='white'
-            color='black'
-            w='full'
-            mt='40px'
+            variant='white'
             onClick={async () => {
               toggleClaimMenu()
               if (positionToClaim) {
                 await claim(positionToClaim?.outcomeIndex)
               }
             }}
-            disabled={status === 'Loading'}
+            isDisabled={status === 'Loading'}
           >
             <Icon as={WinIcon} />
             <Text fontWeight={500}>

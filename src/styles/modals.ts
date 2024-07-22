@@ -17,12 +17,12 @@ const blueModal = definePartsStyle({
     mt: '16px',
   },
   header: {
-    color: 'white',
+    color: 'grey.50',
     p: 0,
     mt: '32px',
   },
   closeButton: {
-    color: 'white',
+    color: 'grey.50',
     top: 1,
     right: 1,
   },
@@ -31,7 +31,7 @@ const blueModal = definePartsStyle({
 const commonModal = definePartsStyle({
   dialog: {
     borderRadius: '2px',
-    bg: 'white',
+    bg: 'grey.100',
     p: '16px',
   },
 })

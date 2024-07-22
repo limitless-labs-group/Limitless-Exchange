@@ -23,17 +23,16 @@ import {
   Textarea,
   VStack,
 } from '@chakra-ui/react'
-import { borderRadius, colors } from '@/styles'
-import { CgInfo } from 'react-icons/cg'
 import { SingleDatepicker } from 'chakra-dayzed-datepicker'
 import React, { MutableRefObject, useRef, useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 import axios from 'axios'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks'
-import { useLimitlessApi } from '@/services'
+import { useCategories, useLimitlessApi } from '@/services'
 import { Toast } from '@/components/common/toast'
 import { Input } from '@/components/common/input'
+import { Category } from '@/types'
 
 interface FormFieldProps {
   label: string
@@ -100,11 +99,6 @@ interface TagOption {
 }
 
 interface Creator {
-  id: string
-  name: string
-}
-
-interface Category {
   id: string
   name: string
 }
@@ -191,13 +185,7 @@ const CreateOwnMarketPage = () => {
     },
   })
 
-  const { data: categories } = useQuery({
-    queryKey: ['categories'],
-    queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/categories`)
-      return response.data as Category[]
-    },
-  })
+  const { data: categories } = useCategories()
 
   const handleTagCreation = async (tagToCreate: string) => {
     const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`, {
@@ -216,11 +204,11 @@ const CreateOwnMarketPage = () => {
 
   const createMarket = async () => {
     if (!title || !description || !creatorId || !marketLogo || !ogLogo || !tag) {
-      toast({
+      const id = toast({
         render: () => (
           <Toast
-            bg={'warn'}
             title={'Title, Description, Creator, Market Logo, Og Logo, Tags are required!'}
+            id={id}
           />
         ),
       })
@@ -239,9 +227,9 @@ const CreateOwnMarketPage = () => {
     formData?.set('ogFile', ogLogo)
     formData?.set('tagIds', tag.map((tag) => tag.id).join(','))
 
-    toast({
+    const id = toast({
       render: () => (
-        <Toast title={'Request for market creation has been registered successfully.'} />
+        <Toast title={'Request for market creation has been registered successfully.'} id={id} />
       ),
     })
 
@@ -266,12 +254,12 @@ const CreateOwnMarketPage = () => {
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
-          toast({
-            render: () => <Toast bg={'red'} title={`Error: Payload Too Large, max 1MB per file`} />,
+          const id = toast({
+            render: () => <Toast title={`Error: Payload Too Large, max 1MB per file`} id={id} />,
           })
         } else {
-          toast({
-            render: () => <Toast bg={'red'} title={`Error: ${res.message}`} />,
+          const id = toast({
+            render: () => <Toast title={`Error: ${res.message}`} id={id} />,
           })
         }
       })

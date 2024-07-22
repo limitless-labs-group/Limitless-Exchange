@@ -3,6 +3,7 @@ import { ModalBody, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/r
 import { Market } from '@/types'
 import { useTradingService } from '@/services'
 import { MarketTradingForm } from './market-trading-form'
+import { headline } from '@/styles/fonts/fonts.styles'
 
 interface MarketTradingModalProps {
   open: boolean
@@ -23,7 +24,9 @@ export function MarketTradingModal({ open, onClose, title, market }: MarketTradi
     <Modal isOpen={open} onClose={handleCloseModal} size='full' variant='blueModal'>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>{title}</ModalHeader>
+        <ModalHeader {...headline} color='grey.50' mb='16px'>
+          {title}
+        </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <MarketTradingForm market={market} />

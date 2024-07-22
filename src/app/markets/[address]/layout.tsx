@@ -8,23 +8,29 @@ type Props = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const response = await axios.get<Market>(
-    `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${params.address}`
-  )
-  const frameMetadata = await getFrameMetadata(
-    `${process.env.NEXT_PUBLIC_FRAME_URL}/api/frog/start/${params.address}`
-  )
-  const market = response.data
+  try {
+    const response = await axios.get<Market>(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${params.address}`
+    )
+    const frameMetadata = await getFrameMetadata(
+      `${process.env.NEXT_PUBLIC_FRAME_URL}/api/frog/start/${params.address}`
+    )
+    const market = response.data
 
-  return {
-    title: market?.title,
-    openGraph: {
+    return {
       title: market?.title,
-      description: market?.description,
-      images: [`${market?.ogImageURI}`],
-    },
-    //@ts-ignore
-    other: frameMetadata,
+      openGraph: {
+        title: market?.title,
+        description: market?.description,
+        images: [`${market?.ogImageURI}`],
+      },
+      //@ts-ignore
+      other: frameMetadata,
+    }
+  } catch (error) {
+    console.error(`Error fetching market`, error)
+
+    return {}
   }
 }
 

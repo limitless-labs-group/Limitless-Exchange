@@ -1,16 +1,52 @@
-import { Box, BoxProps, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, HStack, Link, Text, ToastId, VStack } from '@chakra-ui/react'
+import { isMobile } from 'react-device-detect'
+import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { useToast } from '@/hooks'
+import { PropsWithChildren } from 'react'
+import CloseIcon from '@/resources/icons/close-icon.svg'
 
-interface IToast extends BoxProps {
-  title?: string
+interface IToast {
+  title: string
+  id: ToastId
   text?: string
+  link?: string
+  linkText?: string
 }
 
-export const Toast = ({ title, text, children, ...props }: IToast) => (
-  <Box bg='blue.500' color={'white'} p='4px' borderRadius='2px' {...props}>
-    <VStack w={'full'} alignItems={'start'} spacing={1}>
-      {title && <Text fontWeight={'bold'}>{title}</Text>}
-      {text && <Text>{text}</Text>}
-      {children}
-    </VStack>
-  </Box>
-)
+export const Toast = ({ title, text, id, link, linkText, children }: PropsWithChildren<IToast>) => {
+  const toast = useToast()
+  function close() {
+    toast.close(id)
+  }
+  return (
+    <Box
+      bg='grey.200'
+      color={'grey.800'}
+      p='12px'
+      borderRadius='2px'
+      minW={isMobile ? 'calc(100vw - 16px)' : '296px'}
+      mt={isMobile ? '4px' : '24px'}
+      mr={isMobile ? 0 : '8px'}
+    >
+      <HStack justifyContent='space-between'>
+        <Text {...headline}>{title}</Text>
+        <Button variant='transparent' onClick={close} p={0} minW='unset' h='unset'>
+          <CloseIcon width={16} height={16} />
+        </Button>
+      </HStack>
+      <VStack w={'full'} alignItems={'start'} spacing={1}>
+        {text && (
+          <Text {...paragraphRegular} mt={isMobile ? '16px' : '8px'}>
+            {text}
+          </Text>
+        )}
+        {link && (
+          <Link href={link} isExternal textDecoration='underline' mt={isMobile ? '24px' : '16px'}>
+            <Text {...paragraphMedium}>{linkText}</Text>
+          </Link>
+        )}
+        {children}
+      </VStack>
+    </Box>
+  )
+}

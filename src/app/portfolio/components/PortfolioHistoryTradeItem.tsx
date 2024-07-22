@@ -19,7 +19,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
   /**
    * MARKET DATA
    */
-  const market = useMarket(trade.market.id)
+  const { data: market } = useMarket(trade.market.id)
 
   return (
     <Tr pos={'relative'} {...props}>

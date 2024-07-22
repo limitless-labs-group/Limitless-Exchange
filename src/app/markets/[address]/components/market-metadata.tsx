@@ -10,12 +10,16 @@ import { isMobile } from 'react-device-detect'
 import { useMarketData } from '@/hooks'
 import { useLimitlessApi } from '@/services'
 import { NumberUtil } from '@/utils'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { useMemo } from 'react'
 
-interface MarketMetadataProps {
+export interface IMarketMetadata {
   market: Market | null
+  winningIndex: number | undefined | null
+  resolved: boolean
 }
 
-export const MarketMetadata = ({ market }: MarketMetadataProps) => {
+export const MarketMetadata = ({ market, resolved, winningIndex }: IMarketMetadata) => {
   const { supportedTokens } = useLimitlessApi()
   const { outcomeTokensPercent } = useMarketData({
     marketAddress: market?.address[defaultChain.id],
@@ -49,23 +53,39 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
     },
   ]
 
+  const [yesProbability, noProbability] = useMemo(
+    () => [
+      !resolved
+        ? NumberUtil.toFixed(outcomeTokensPercent?.[0], 1)
+        : winningIndex === 0
+        ? '100'
+        : '0',
+      !resolved
+        ? NumberUtil.toFixed(outcomeTokensPercent?.[1], 1)
+        : winningIndex === 1
+        ? '100'
+        : '0',
+    ],
+    [outcomeTokensPercent, resolved, winningIndex]
+  )
+
   return (
     <Box>
-      <Flex w='full' pb='10px' borderBottom='1px solid' borderColor='black'>
+      <Flex w='full' pb='10px' borderBottom='1px solid' borderColor='grey.800'>
         <HStack gap='24px'>
           <HStack gap={'4px'} color='green.500'>
             <ThumbsUpIcon width={16} height={16} />
-            <Text fontWeight={500}>{NumberUtil.toFixed(outcomeTokensPercent?.[0], 1)}%</Text>
+            <Text fontWeight={500}>{yesProbability}%</Text>
             <Text fontWeight={500}>Yes</Text>
           </HStack>
           <HStack gap={'4px'} color='red.500'>
             <ThumbsDownIcon width={16} height={16} />
-            <Text fontWeight={500}>{NumberUtil.toFixed(outcomeTokensPercent?.[1], 1)}%</Text>
+            <Text fontWeight={500}>{noProbability}%</Text>
             <Text fontWeight={500}>No</Text>
           </HStack>
         </HStack>
       </Flex>
-      <Flex borderBottom={isMobile ? '1px solid' : 'unset'} borderColor='black'>
+      <Flex borderBottom={isMobile ? '1px solid' : 'unset'} borderColor='grey.800'>
         {!isMobile &&
           stats.map((stat, index) => (
             <Box
@@ -74,13 +94,15 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
               key={stat.title}
               flex={1}
               borderRight={stat.border ? '1px solid' : 'unset'}
-              borderColor='black'
+              borderColor='grey.800'
               pl={index ? '8px' : 0}
             >
-              <Text fontWeight={500}>{stat.value}</Text>
+              <Text {...paragraphMedium}>{stat.value}</Text>
               <HStack gap='4px' color='grey.500'>
                 {stat.icon}
-                <Text fontWeight={500}>{stat.title}</Text>
+                <Text {...paragraphMedium} color='grey.500'>
+                  {stat.title}
+                </Text>
               </HStack>
             </Box>
           ))}
@@ -92,13 +114,15 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
               key={stats[index].title}
               flex={1}
               borderRight={stats[index].border ? '1px solid' : 'unset'}
-              borderColor='black'
+              borderColor='grey.800'
               pl={index ? '8px' : 0}
             >
-              <Text fontWeight={500}>{stats[index].value}</Text>
+              <Text {...paragraphMedium}>{stats[index].value}</Text>
               <HStack gap='4px' color='grey.500'>
                 {stats[index].icon}
-                <Text fontWeight={500}>{stats[index].title}</Text>
+                <Text {...paragraphMedium} color='grey.500'>
+                  {stats[index].title}
+                </Text>
               </HStack>
             </Box>
           ))}
@@ -110,13 +134,15 @@ export const MarketMetadata = ({ market }: MarketMetadataProps) => {
           key={stats[2].title}
           flex={1}
           borderRight={stats[2].border ? '1px solid' : 'unset'}
-          borderColor='black'
+          borderColor='grey.800'
           pl={0}
         >
-          <Text fontWeight={500}>{stats[2].value}</Text>
+          <Text {...paragraphMedium}>{stats[2].value}</Text>
           <HStack gap='4px' color='grey.500'>
             {stats[2].icon}
-            <Text fontWeight={500}>{stats[2].title}</Text>
+            <Text {...paragraphMedium} color='grey.500'>
+              {stats[2].title}
+            </Text>
           </HStack>
         </Box>
       )}
