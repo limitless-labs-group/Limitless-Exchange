@@ -125,7 +125,7 @@ const MainPage = ({ params }: { params: Category | null }) => {
             next={fetchNextPage}
             hasMore={hasNextPage}
             loader={<h4></h4>}
-            scrollThreshold={0.8}
+            scrollThreshold={0.1}
             refreshFunction={fetchNextPage}
             pullDownToRefresh
           >
