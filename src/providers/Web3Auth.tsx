@@ -19,6 +19,7 @@ import { MetamaskAdapter } from '@web3auth/metamask-adapter'
 import { CoinbaseAdapter } from '@web3auth/coinbase-adapter'
 import { createConnector as createWagmiConnector } from 'wagmi'
 import { Wallet, WalletDetailsParams } from '@rainbow-me/rainbowkit'
+import { isMobile } from 'react-device-detect'
 
 const chainConfig: CustomChainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
@@ -74,9 +75,9 @@ export const web3Auth = new Web3Auth({
 
 export const rainbowWeb3AuthConnector = (): Wallet => ({
   id: 'web3auth',
-  name: 'web3auth',
+  name: isMobile ? 'Google / X / etc' : 'Google/X/Farcaster/etc',
   rdns: 'web3auth',
-  iconUrl: 'https://web3auth.io/images/web3authlog.png',
+  iconUrl: 'https://storage.googleapis.com/limitless-exchange-assets/assets/socials.svg',
   iconBackground: '#fff',
   installed: true,
   downloadUrls: {},
@@ -179,8 +180,6 @@ export function Web3AuthProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     initWeb3Auth()
   }, [isConnectedWagmi])
-
-  console.log(web3Auth)
 
   /**
    * ANALYTICS

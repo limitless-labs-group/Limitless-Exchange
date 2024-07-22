@@ -204,11 +204,11 @@ const CreateOwnMarketPage = () => {
 
   const createMarket = async () => {
     if (!title || !description || !creatorId || !marketLogo || !ogLogo || !tag) {
-      toast({
+      const id = toast({
         render: () => (
           <Toast
-            bg={'warn'}
             title={'Title, Description, Creator, Market Logo, Og Logo, Tags are required!'}
+            id={id}
           />
         ),
       })
@@ -227,9 +227,9 @@ const CreateOwnMarketPage = () => {
     formData?.set('ogFile', ogLogo)
     formData?.set('tagIds', tag.map((tag) => tag.id).join(','))
 
-    toast({
+    const id = toast({
       render: () => (
-        <Toast title={'Request for market creation has been registered successfully.'} />
+        <Toast title={'Request for market creation has been registered successfully.'} id={id} />
       ),
     })
 
@@ -254,12 +254,12 @@ const CreateOwnMarketPage = () => {
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
-          toast({
-            render: () => <Toast bg={'red'} title={`Error: Payload Too Large, max 1MB per file`} />,
+          const id = toast({
+            render: () => <Toast title={`Error: Payload Too Large, max 1MB per file`} id={id} />,
           })
         } else {
-          toast({
-            render: () => <Toast bg={'red'} title={`Error: ${res.message}`} />,
+          const id = toast({
+            render: () => <Toast title={`Error: ${res.message}`} id={id} />,
           })
         }
       })

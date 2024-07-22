@@ -1,12 +1,10 @@
-import { PropsWithChildren, createContext, useCallback, useContext } from 'react'
+import { PropsWithChildren, createContext, useContext } from 'react'
 import { useWeb3Auth } from '@/providers'
 import { useEffect, useState } from 'react'
-import { useConnect, useDisconnect } from 'wagmi'
 import { Address } from '@/types'
-import { defaultChain } from '@/constants'
 import { useAmplitude } from '@/services'
 import { UserInfo } from '@web3auth/base'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 
@@ -15,6 +13,7 @@ export interface IAccountContext {
   account: Address | undefined
   userInfo: Partial<UserInfo> | undefined
   farcasterInfo: FarcasterUserData | undefined
+  disconnectAccount: () => void
 }
 
 const AccountContext = createContext({} as IAccountContext)
@@ -22,6 +21,7 @@ const AccountContext = createContext({} as IAccountContext)
 export const useAccount = () => useContext(AccountContext)
 
 export const AccountProvider = ({ children }: PropsWithChildren) => {
+  const queryClient = useQueryClient()
   /**
    * WEB3AUTH
    */
@@ -67,6 +67,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     enabled: userInfo?.typeOfLogin === 'farcaster',
   })
 
+  const disconnectAccount = () => {
+    queryClient.removeQueries({
+      queryKey: ['farcaster'],
+    })
+    setUserInfo(undefined)
+  }
+
   /**
    * ANALYTICS
    */
@@ -77,6 +84,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     account: walletAddress,
     userInfo,
     farcasterInfo,
+    disconnectAccount,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>

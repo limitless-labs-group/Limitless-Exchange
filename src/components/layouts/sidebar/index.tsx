@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React from 'react'
-import { useAccount as useWagmiAccount, useDisconnect } from 'wagmi'
+import { useAccount as useWagmiAccount } from 'wagmi'
 import '../../../../src/app/style.css'
 
 import {
@@ -41,6 +41,8 @@ import CategoryFilter from '@/components/common/categories'
 import { isMobile } from 'react-device-detect'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import '@rainbow-me/rainbowkit/styles.css'
+import useDisconnectAccount from '@/hooks/use-disconnect'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 export default function Sidebar() {
   const theme = useTheme()
@@ -53,7 +55,7 @@ export default function Sidebar() {
   const { userInfo } = useAccount()
   const address = useWalletAddress()
   const router = useRouter()
-  const { disconnect } = useDisconnect()
+  const { disconnectFromPlatform } = useDisconnectAccount()
   const { client } = useWeb3Service()
   const pathname = usePathname()
 
@@ -75,7 +77,7 @@ export default function Sidebar() {
         minW={'188px'}
         minH={'100vh'}
         zIndex={200}
-        bg={isOpenWalletPage ? 'grey.100' : 'grey.50'}
+        bg='grey.100'
       >
         <Button variant='transparent' onClick={() => router.push('/')} _hover={{ bg: 'unset' }}>
           <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
@@ -144,12 +146,12 @@ export default function Sidebar() {
                       alignItems='center'
                       justifyContent='center'
                     >
-                      <Text fontWeight={500}>
+                      <Text {...paragraphMedium}>
                         {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
                       </Text>
                     </Flex>
                   )}
-                  <Text fontWeight={500}>
+                  <Text {...paragraphMedium}>
                     {userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address)}
                   </Text>
                 </HStack>
@@ -165,7 +167,7 @@ export default function Sidebar() {
                         option: 'Sign Out',
                       }
                     )
-                    disconnect()
+                    disconnectFromPlatform()
                     onToggleAuthMenu()
                   }}
                 >
