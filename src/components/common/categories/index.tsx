@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Text, Box, useTheme, Spinner } from '@chakra-ui/react'
+import React from 'react'
+import { Text, Box, useTheme } from '@chakra-ui/react'
 import { useCategories } from '@/services'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -35,7 +35,7 @@ export default function CategoryFilter() {
           marginBottom='4px'
           cursor='pointer'
         >
-          <Link href={`/topics/${category.name.toLowerCase()}`}>
+          <Link href={{ pathname: '/', query: { category: category.name } }}>
             <Text
               color={category.name.toLowerCase() === searchParams?.topic ? 'white' : 'black'}
               fontWeight={500}
