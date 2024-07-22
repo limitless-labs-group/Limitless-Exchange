@@ -21,6 +21,7 @@ type Web3Service = {
     collateralContract: Address
   ) => Promise<string | undefined>
   sellOutcomeTokens: (
+    conditionalTokensAddress: Address,
     fixedProductMarketMakerAddress: Address,
     collateralAmount: bigint,
     outcomeIndex: number,
@@ -29,12 +30,17 @@ type Web3Service = {
   client: 'etherspot' | 'eoa'
   checkAllowance: (contractAddress: Address, spender: Address) => Promise<bigint>
   checkAllowanceForAll: (contractAddress: Address, spender: Address) => Promise<boolean>
-  approveContract: (contractAddress: Address, spender: Address) => Promise<string | undefined>
+  approveContract: (
+    contractAddress: Address,
+    spender: Address,
+    value: bigint
+  ) => Promise<string | undefined>
   approveAllowanceForAll: (
     contractAddress: Address,
     spender: Address
   ) => Promise<string | undefined>
   redeemPositions: (
+    conditionalTokensAddress: Address,
     collateralAddress: Address,
     parentCollectionId: Address,
     marketConditionId: Address,
@@ -115,6 +121,7 @@ export function useWeb3Service(): Web3Service {
   }
 
   const sellOutcomeTokens = async (
+    conditionalTokensAddress: Address,
     fixedProductMarketMakerAddress: Address,
     collateralAmount: bigint,
     outcomeIndex: number,
@@ -122,6 +129,7 @@ export function useWeb3Service(): Web3Service {
   ) => {
     if (client === 'etherspot') {
       return etherspot?.sellOutcomeTokens(
+        conditionalTokensAddress,
         fixedProductMarketMakerAddress,
         collateralAmount,
         outcomeIndex,
@@ -137,6 +145,7 @@ export function useWeb3Service(): Web3Service {
   }
 
   const redeemPositions = async (
+    conditionalTokensAddress: Address,
     collateralAddress: Address,
     parentCollectionId: Address,
     marketConditionId: Address,
@@ -144,6 +153,7 @@ export function useWeb3Service(): Web3Service {
   ) => {
     if (client === 'etherspot') {
       return etherspot?.redeemPositions(
+        conditionalTokensAddress,
         collateralAddress,
         parentCollectionId,
         marketConditionId,
@@ -151,6 +161,7 @@ export function useWeb3Service(): Web3Service {
       )
     }
     return externalWalletService.redeemPositions(
+      conditionalTokensAddress,
       collateralAddress,
       parentCollectionId,
       marketConditionId,
@@ -164,8 +175,8 @@ export function useWeb3Service(): Web3Service {
   const checkAllowanceForAll = async (contractAddress: Address, spender: Address) =>
     externalWalletService.checkAllowanceForAllEOA(contractAddress, spender)
 
-  const approveContract = async (contractAddress: Address, spender: Address) =>
-    externalWalletService.approveContractEOA(contractAddress, spender)
+  const approveContract = async (contractAddress: Address, spender: Address, value: bigint) =>
+    externalWalletService.approveContractEOA(contractAddress, spender, value)
 
   const approveAllowanceForAll = async (contractAddress: Address, spender: Address) =>
     externalWalletService.approveContractForAllEOA(contractAddress, spender)

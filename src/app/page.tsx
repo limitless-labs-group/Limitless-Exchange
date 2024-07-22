@@ -1,18 +1,22 @@
 'use client'
 
-import { CreateMarketCard, MainLayout, MarketCard, MarketCardMobile } from '@/components'
+import { MainLayout, MarketCard, MarketCardMobile } from '@/components'
 import { defaultChain } from '@/constants'
 import { useIsMobile } from '@/hooks'
 import { OpenEvent, useAmplitude } from '@/services'
-import { Grid, Stack } from '@chakra-ui/react'
+import { Divider, VStack, Text, Box, Spinner, HStack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import Filter from '@/components/common/TokenFilter'
-import { Token } from '@/types'
-import { getAddress } from 'viem'
+import SortFilter from '@/components/common/sort-filter'
+import { Category, Market, Sort } from '@/types'
+import { formatUnits, getAddress } from 'viem'
 import { useMarkets } from '@/services/MarketsService'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import { usePriceOracle } from '@/providers'
+import TextWithPixels from '@/components/common/text-with-pixels'
+import { useTokenFilter } from '@/contexts/TokenFilterContext'
 
-const MainPage = () => {
+const MainPage = ({ params }: { params: Category | null }) => {
   /**
    * ANALYTICS
    */
@@ -28,41 +32,117 @@ const MainPage = () => {
    */
   const isMobile = useIsMobile()
 
-  const [selectedFilterTokens, setSelectedFilterTokens] = useState<Token[]>([])
-  const handleSelectFilterTokens = (tokens: Token[]) => setSelectedFilterTokens(tokens)
+  const [selectedSort, setSelectedSort] = useState<Sort>(Sort.BASE)
+  const handleSelectSort = (options: Sort) => setSelectedSort(options)
 
-  const markets = useMarkets()
+  const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
-  const marketsToShow = useMemo(() => {
-    return markets?.filter((market) =>
+  const { convertTokenAmountToUsd } = usePriceOracle()
+  const { data, fetchNextPage, hasNextPage, isFetching } = useMarkets(params)
+
+  const dataLength = data?.pages.reduce((counter, page) => {
+    return counter + page.data.length
+  }, 0)
+
+  const markets: Market[] = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data) || []
+  }, [data?.pages, params])
+
+  //it helps to get integer value form solidity representation
+  const formatMarketNumber = (market: Market, amount: string | undefined) => {
+    return convertTokenAmountToUsd(
+      market.tokenTicker[defaultChain.id],
+      formatUnits(BigInt(amount ?? 0), market.tokenTicker[defaultChain.id] === 'USDC' ? 6 : 18)
+    )
+  }
+
+  const filteredMarkets = useMemo(() => {
+    const tokenFilteredMarkets = markets?.filter((market) =>
       selectedFilterTokens.length > 0
-        ? selectedFilterTokens.find(
+        ? selectedFilterTokens.some(
             (filterToken) =>
-              getAddress(filterToken.address[defaultChain.id]) ===
+              getAddress(filterToken.address) ===
               getAddress(market.collateralToken[defaultChain.id])
           )
         : true
     )
-  }, [markets, selectedFilterTokens])
+
+    if (selectedCategory) {
+      return tokenFilteredMarkets.filter((market) => market.category === selectedCategory?.name)
+    }
+
+    return tokenFilteredMarkets
+  }, [markets, selectedFilterTokens, selectedCategory])
+
+  const sortedMarkets = useMemo(() => {
+    if (!filteredMarkets) return []
+    switch (selectedSort) {
+      case Sort.NEWEST:
+        return [...filteredMarkets].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+      case Sort.HIGHEST_VOLUME:
+        return [...filteredMarkets].sort(
+          (a, b) => formatMarketNumber(b, b.volume) - formatMarketNumber(a, a.volume)
+        )
+      case Sort.HIGHEST_LIQUIDITY:
+        return [...filteredMarkets].sort(
+          (a, b) => formatMarketNumber(b, b.liquidity) - formatMarketNumber(a, a.liquidity)
+        )
+      case Sort.COMING_DEADLINE:
+        return [...filteredMarkets].sort(
+          (a, b) =>
+            new Date(a.expirationTimestamp).getTime() - new Date(b.expirationTimestamp).getTime()
+        )
+      default:
+        return filteredMarkets
+    }
+  }, [markets, filteredMarkets, selectedSort])
 
   return (
-    <MainLayout maxContentWidth={'unset'}>
-      <Stack w={'full'} spacing={5} px={{ md: 14 }}>
-        <Filter onChange={handleSelectFilterTokens} />
-        <Grid
-          templateColumns={{ sm: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)', xl: 'repeat(4, 1fr)' }}
-          gap={6}
-        >
-          <CreateMarketCard />
-          {marketsToShow?.map((market) =>
-            isMobile ? (
-              <MarketCardMobile key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
-            ) : (
-              <MarketCard key={uuidv4()} marketAddress={market.address[defaultChain.id]} />
-            )
-          )}
-        </Grid>
-      </Stack>
+    <MainLayout>
+      <Box w={isMobile ? 'auto' : '664px'} ml={isMobile ? 'auto' : '200px'}>
+        <Divider bg='grey.800' orientation='horizontal' h='3px' mb='16px' />
+        <TextWithPixels
+          text={`Explore ${params?.name ?? 'Limitless'} Prediction Markets`}
+          fontSize={'32px'}
+          gap={2}
+        />
+        <Text color='grey.800' fontSize={'14px'}>
+          Predict outcomes in crypto, tech, sports, and more. Use different tokens, participate in
+          transparent voting for upcoming markets, and engage in markets created by the community.
+          It’s all decentralized and secure.
+        </Text>
+
+        <SortFilter onChange={handleSelectSort} />
+        {isFetching ? (
+          <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>
+            <Spinner />
+          </HStack>
+        ) : (
+          <InfiniteScroll
+            dataLength={dataLength ?? 0}
+            next={fetchNextPage}
+            hasMore={hasNextPage}
+            loader={<h4></h4>}
+            scrollThreshold={0.8}
+            refreshFunction={fetchNextPage}
+            pullDownToRefresh
+          >
+            <VStack w={'full'} spacing={5}>
+              <VStack gap={2} w='full'>
+                {sortedMarkets?.map((market) =>
+                  isMobile ? (
+                    <MarketCardMobile key={uuidv4()} market={market} />
+                  ) : (
+                    <MarketCard key={uuidv4()} market={market} />
+                  )
+                )}
+              </VStack>
+            </VStack>
+          </InfiniteScroll>
+        )}
+      </Box>
     </MainLayout>
   )
 }

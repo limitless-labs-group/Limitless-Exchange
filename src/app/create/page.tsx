@@ -1,6 +1,6 @@
 'use client'
 
-import { Input, MainLayout, Toast } from '@/components'
+import { MainLayout } from '@/components'
 import {
   Box,
   Button,
@@ -9,7 +9,6 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  Heading,
   HStack,
   Image,
   NumberInput,
@@ -24,14 +23,16 @@ import {
   Textarea,
   VStack,
 } from '@chakra-ui/react'
-import { borderRadius, colors } from '@/styles'
-import { CgInfo } from 'react-icons/cg'
 import { SingleDatepicker } from 'chakra-dayzed-datepicker'
 import React, { MutableRefObject, useRef, useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 import axios from 'axios'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks'
+import { useCategories, useLimitlessApi } from '@/services'
+import { Toast } from '@/components/common/toast'
+import { Input } from '@/components/common/input'
+import { Category } from '@/types'
 
 interface FormFieldProps {
   label: string
@@ -50,17 +51,17 @@ interface TokenLimits {
 
 const tokenLimits: TokenLimits = {
   HIGHER: {
-    min: 39000,
+    min: 25000,
     max: 390000,
     step: 1000,
   },
   MFER: {
-    min: 39000,
+    min: 12500,
     max: 390000,
     step: 1000,
   },
   DEGEN: {
-    min: 390,
+    min: 39000,
     max: 390000,
     step: 1000,
   },
@@ -75,9 +76,19 @@ const tokenLimits: TokenLimits = {
     step: 0.1,
   },
   USDC: {
-    min: 350,
+    min: 250,
     max: 5000,
     step: 25,
+  },
+  VITA: {
+    min: 150,
+    max: 3000,
+    step: 25,
+  },
+  BETS: {
+    min: 835000,
+    max: 8350000,
+    step: 5000,
   },
 }
 
@@ -100,6 +111,7 @@ interface Token {
 const defaultTokenSymbol = 'WETH'
 const defaultProbability = 50
 const defaultCreatorId = '1'
+const defaultCategoryId = '1'
 
 const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
   <Box mt={4}>
@@ -121,12 +133,15 @@ const CreateOwnMarketPage = () => {
   const [probability, setProbability] = useState<number>(defaultProbability)
   const [tag, setTag] = useState<TagOption[]>([])
   const [creatorId, setCreatorId] = useState<string>(defaultCreatorId)
+  const [categoryId, setCategoryId] = useState<string>(defaultCategoryId)
   const [marketLogo, setMarketLogo] = useState<File | undefined>()
   const [ogLogo, setOgLogo] = useState<File | undefined>()
 
   const [isCreating, setIsCreating] = useState<boolean>(false)
 
   const queryClient = useQueryClient()
+
+  const { supportedTokens } = useLimitlessApi()
 
   const handleLiquidityChange = (value: number) => setLiquidity(value)
 
@@ -138,21 +153,6 @@ const CreateOwnMarketPage = () => {
       option.target.selectedOptions[0].getAttribute('data-name') ?? defaultTokenSymbol
     setToken({ symbol: selectedTokenSymbol, id: selectedTokenId })
     setLiquidity(tokenLimits[selectedTokenSymbol].min)
-  }
-
-  const cleanMarketState = () => {
-    setFormData(new FormData())
-    setDeadline(new Date())
-    setTitle('')
-    setToken({ symbol: defaultTokenSymbol, id: '1' })
-    setDescription('')
-    setLiquidity(tokenLimits[defaultTokenSymbol].min)
-    setProbability(defaultProbability)
-    setTag([])
-    setCreatorId(defaultCreatorId)
-    setIsCreating(false)
-    setMarketLogo(undefined)
-    setOgLogo(undefined)
   }
 
   const toast = useToast()
@@ -185,13 +185,7 @@ const CreateOwnMarketPage = () => {
     },
   })
 
-  const { data: tokens } = useQuery({
-    queryKey: ['tokens'],
-    queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tokens`)
-      return response.data as Token[]
-    },
-  })
+  const { data: categories } = useCategories()
 
   const handleTagCreation = async (tagToCreate: string) => {
     const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`, {
@@ -205,7 +199,6 @@ const CreateOwnMarketPage = () => {
   }
 
   const handleActiveTags = (selectedOptions: TagOption[]) => {
-    console.log(selectedOptions)
     setTag(selectedOptions)
   }
 
@@ -229,6 +222,7 @@ const CreateOwnMarketPage = () => {
     formData?.set('initialYesProbability', (probability / 100).toString())
     formData?.set('deadline', deadline.toISOString())
     formData?.set('creatorId', creatorId)
+    formData?.set('categoryId', categoryId)
     formData?.set('imageFile', marketLogo)
     formData?.set('ogFile', ogLogo)
     formData?.set('tagIds', tag.map((tag) => tag.id).join(','))
@@ -256,19 +250,21 @@ const CreateOwnMarketPage = () => {
             // Fallback if the browser blocks the popup
             window.location.href = res.data.multisigTxLink
           }
-        } else {
-          toast({
-            render: () => <Toast bg={'red'} title={`Error: ${res.statusText}`} />,
-          })
         }
       })
       .catch((res) => {
-        toast({
-          render: () => <Toast bg={'red'} title={`Error: ${res.message}`} />,
-        })
+        if (res?.response?.status === 413) {
+          toast({
+            render: () => <Toast bg={'red'} title={`Error: Payload Too Large, max 1MB per file`} />,
+          })
+        } else {
+          toast({
+            render: () => <Toast bg={'red'} title={`Error: ${res.message}`} />,
+          })
+        }
       })
       .finally(() => {
-        cleanMarketState()
+        setIsCreating(false)
       })
   }
 
@@ -276,7 +272,7 @@ const CreateOwnMarketPage = () => {
     <MainLayout>
       <Flex justifyContent={'center'}>
         <VStack w='468px' spacing={4}>
-          <Heading>Create Market</Heading>
+          <Text>Create Market</Text>
           <FormControl>
             <FormField label='Title'>
               <Input
@@ -287,25 +283,26 @@ const CreateOwnMarketPage = () => {
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {title?.length}/70 characters
               </FormHelperText>
-              <FormHelperText
-                h='fit-content'
-                p={4}
-                bg='bgLight'
-                border={`1px solid ${colors.border}`}
-                borderRadius={borderRadius}
-                textAlign='start'
-                color='#747675'
-                display='flex'
-              >
-                <Box display='inline-flex' flexShrink={0}>
-                  <CgInfo />
-                </Box>
-                <Box flex={1} ml={2}>
-                  Imagine people only have a second to understand your market. It&apos;s important
-                  to create a clear and concise title so that everyone in the community can
-                  understand it, or at least become interested.
-                </Box>
-              </FormHelperText>
+              {/*<FormHelperText*/}
+              {/*  h='fit-content'*/}
+              {/*  p={4}*/}
+              {/*  bg='bgLight'*/}
+              {/*  border={`1px solid ${colors.border}`}*/}
+              {/*  borderRadius={borderRadius}*/}
+              {/*  textAlign='start'*/}
+              {/*  color='#747675'*/}
+              {/*  display='flex'*/}
+              {/*>*/}
+              {/*  <Box display='inline-flex' flexShrink={0}>*/}
+              {/*    <CgInfo />*/}
+              {/*  </Box>*/}
+              {/*  */}
+              {/*  <Box flex={1} ml={2}>*/}
+              {/*    Imagine people only have a second to understand your market. It&apos;s important*/}
+              {/*    to create a clear and concise title so that everyone in the community can*/}
+              {/*    understand it, or at least become interested.*/}
+              {/*  </Box>*/}
+              {/*</FormHelperText>*/}
             </FormField>
 
             <FormField label='Description'>
@@ -325,7 +322,7 @@ const CreateOwnMarketPage = () => {
             <FormField label='Token'>
               <HStack>
                 <Select onChange={handleTokenSelect}>
-                  {tokens?.map((token: Token) => (
+                  {supportedTokens?.map((token: Token) => (
                     <option key={token.id} value={token.id} data-name={token.symbol}>
                       {token.symbol}
                     </option>
@@ -384,6 +381,18 @@ const CreateOwnMarketPage = () => {
                   {creators?.map((creator: Creator) => (
                     <option key={creator.id} value={creator.id}>
                       {creator.name}
+                    </option>
+                  ))}
+                </Select>
+              </HStack>
+            </FormField>
+
+            <FormField label='Category'>
+              <HStack>
+                <Select onChange={(e) => setCategoryId(e?.target?.value)}>
+                  {categories?.map((category: Category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
                     </option>
                   ))}
                 </Select>

@@ -1,7 +1,7 @@
-import { collateralToken, conditionalTokensAddress, defaultChain, weth } from '@/constants'
+import { defaultChain } from '@/constants'
 import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useWeb3Auth } from '@/providers'
-import { Address } from '@/types'
+import { Address, Token } from '@/types'
 import { ArkaPaymaster, EtherspotBundler, PrimeSdk, Web3WalletProvider } from '@etherspot/prime-sdk'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common/utils'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -16,6 +16,7 @@ import {
 import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, erc20Abi } from 'viem'
 import { contractABI } from '@/contracts/utils'
 import { publicClient } from '@/providers'
+import { useLimitlessApi } from '@/services/LimitlessApi'
 
 interface IEtherspotContext {
   etherspot: Etherspot | null
@@ -35,6 +36,8 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    */
   const { provider: web3AuthProvider, isConnected, web3Auth } = useWeb3Auth()
 
+  const { supportedTokens } = useLimitlessApi()
+
   /**
    * ETHERSPOT INSTANCE
    */
@@ -44,8 +47,12 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    * Initialize Etherspot with Prime SDK instance on top of W3A wallet, once user signed in
    */
   const initEtherspot = useCallback(async () => {
-    console.log('initEtherspot', web3AuthProvider, isConnected)
-    if (!web3AuthProvider || !isConnected || web3Auth.connectedAdapterName !== 'openlogin') {
+    if (
+      !web3AuthProvider ||
+      !isConnected ||
+      web3Auth.connectedAdapterName !== 'openlogin' ||
+      !supportedTokens
+    ) {
       setEtherspot(null)
       return
     }
@@ -60,11 +67,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
       ),
     })
 
-    const etherspot = new Etherspot(
-      primeSdk,
-      conditionalTokensAddress[defaultChain.id],
-      collateralToken.address[defaultChain.id]
-    )
+    const etherspot = new Etherspot(primeSdk, supportedTokens[0].address, supportedTokens)
     setEtherspot(etherspot)
   }, [web3AuthProvider, isConnected, web3Auth.connectedAdapterName])
 
@@ -79,7 +82,6 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
     queryKey: ['smartWalletAddress', !!etherspot],
     queryFn: async () => {
       const address = await etherspot?.getAddress()
-      console.log(`Smart wallet address: ${smartWalletAddress}`)
       return address
     },
     enabled: !!etherspot,
@@ -146,22 +148,18 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
 
 class Etherspot {
   primeSdk: PrimeSdk
-  conditionalTokensAddress: Address
   collateralTokenAddress: Address
+  supportedTokens: Token[]
 
   paymasterApiKey = process.env.NEXT_PUBLIC_ETHERSPOT_API_KEY ?? ''
   paymasterUrl = `https://arka.etherspot.io`
   paymaster = new ArkaPaymaster(defaultChain.id, this.paymasterApiKey, this.paymasterUrl)
   isEnabledPaymaster = !defaultChain.testnet
 
-  constructor(
-    _primeSdk: PrimeSdk,
-    _conditionalTokensAddress: Address,
-    _collateralTokenAddress: Address
-  ) {
+  constructor(_primeSdk: PrimeSdk, _collateralTokenAddress: Address, _supportedTokens: Token[]) {
     this.primeSdk = _primeSdk
-    this.conditionalTokensAddress = _conditionalTokensAddress
     this.collateralTokenAddress = _collateralTokenAddress
+    this.supportedTokens = _supportedTokens
   }
 
   // TODO: incapsulate
@@ -173,45 +171,39 @@ class Etherspot {
     })
   }
 
-  // TODO: incapsulate
-  getCollateralTokenContract() {
-    return getContract({
-      address: this.collateralTokenAddress,
-      abi: wethABI,
-      client: publicClient,
-    })
-  }
-
-  // TODO: incapsulate
-  getConditionalTokensContract() {
-    return getContract({
-      address: this.conditionalTokensAddress,
-      abi: conditionalTokensABI,
-      client: publicClient,
-    })
-  }
-
   async getAddress() {
     return this.primeSdk.getCounterFactualAddress() as Promise<Address>
   }
 
   async whitelist(address: Address) {
-    const response = await this.paymaster.addWhitelist([address])
-    console.log('PAYMASTER_ADD_WHITELIST_RESPONSE:', address, response)
+    return this.paymaster.addWhitelist([address])
   }
 
   async isWhitelisted(address: Address) {
     const response = await this.paymaster.checkWhitelist(address)
-    console.log('PAYMASTER_IS_WHITELISTED_RESPONSE:', address, response)
     return response === 'Already added'
   }
 
-  async batchAndSendUserOp(to: string, data: string, value: bigint | undefined = undefined) {
+  async batchAndSendUserOp(
+    to: string,
+    data: string,
+    value: bigint | undefined = undefined,
+    type?: string
+  ) {
     try {
       await this.primeSdk.clearUserOpsFromBatch()
       await this.primeSdk.addUserOpsToBatch({ to, data, value })
       const op = await this.estimate()
       const opHash = await this.primeSdk.send(op)
+      if (type === 'withdraw') {
+        let result = null
+        while (!result) {
+          await sleep(1)
+          const hash = await this.primeSdk.getUserOpReceipt(opHash)
+          result = hash ? hash.receipt.transactionHash : null
+        }
+        return result
+      }
       return opHash
     } catch (e: any) {
       console.log(e)
@@ -240,7 +232,6 @@ class Etherspot {
       await sleep(2)
       opReceipt = await this.primeSdk.getUserOpReceipt(opHash)
     }
-    console.log('\x1b[33m%s\x1b[0m', `Transaction Receipt: `, opReceipt)
     return opReceipt.receipt as TransactionReceipt
   }
 
@@ -255,11 +246,11 @@ class Etherspot {
 
   async transferErc20(token: Address, to: Address, value: bigint) {
     const data = encodeFunctionData({
-      abi: wethABI,
+      abi: erc20Abi,
       functionName: 'transfer',
       args: [to, value],
     })
-    return this.batchAndSendUserOp(token, data)
+    return this.batchAndSendUserOp(token, data, undefined, 'withdraw')
   }
 
   async mintErc20(token: Address, value: bigint, smartWalletAddress: Address, newToken?: boolean) {
@@ -287,7 +278,7 @@ class Etherspot {
     const allowance = (await contract.read.allowance([owner, spender])) as bigint
     if (allowance < amount) {
       const data = encodeFunctionData({
-        abi: spender === weth.address[defaultChain.id] ? wethABI : erc20Abi,
+        abi: spender === this.supportedTokens[0].address ? wethABI : erc20Abi,
         functionName: 'approve',
         args: [spender, maxUint256],
       })
@@ -298,10 +289,10 @@ class Etherspot {
   }
 
   // TODO: incapsulate
-  async approveConditionalIfNeeded(spender: Address) {
+  async approveConditionalIfNeeded(spender: Address, conditionalTokensAddress: Address) {
     const owner = await this.getAddress()
     const contract = getContract({
-      address: conditionalTokensAddress[defaultChain.id],
+      address: conditionalTokensAddress,
       abi: conditionalTokensABI,
       client: publicClient,
     })
@@ -312,7 +303,7 @@ class Etherspot {
         functionName: 'setApprovalForAll',
         args: [spender, true],
       })
-      const opHash = await this.batchAndSendUserOp(conditionalTokensAddress[defaultChain.id], data)
+      const opHash = await this.batchAndSendUserOp(conditionalTokensAddress, data)
       const transactionReceipt = await this.waitForTransaction(opHash)
       return transactionReceipt
     }
@@ -369,12 +360,13 @@ class Etherspot {
 
   // TODO: incapsulate
   async sellOutcomeTokens(
+    conditionalTokensAddress: Address,
     fixedProductMarketMakerAddress: Address,
     collateralAmount: bigint,
     outcomeIndex: number,
     maxOutcomeTokensToSell: bigint
   ) {
-    await this.approveConditionalIfNeeded(fixedProductMarketMakerAddress)
+    await this.approveConditionalIfNeeded(fixedProductMarketMakerAddress, conditionalTokensAddress)
 
     const data = encodeFunctionData({
       abi: fixedProductMarketMakerABI,
@@ -389,6 +381,7 @@ class Etherspot {
 
   // TODO: incapsulate
   async redeemPositions(
+    conditionalTokensAddress: Address,
     collateralAddress: Address,
     parentCollectionId: Address,
     marketConditionId: Address,
@@ -399,7 +392,7 @@ class Etherspot {
       functionName: 'redeemPositions',
       args: [collateralAddress, parentCollectionId, marketConditionId, indexSets],
     })
-    const opHash = await this.batchAndSendUserOp(this.conditionalTokensAddress, data)
+    const opHash = await this.batchAndSendUserOp(conditionalTokensAddress, data)
     const transactionReceipt = await this.waitForTransaction(opHash)
     return transactionReceipt?.transactionHash
   }

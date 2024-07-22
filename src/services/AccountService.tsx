@@ -43,7 +43,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       web3Auth.getUserInfo().then((userInfo) => {
         setUserInfo(userInfo)
         trackSignUp()
-        console.log('w3a userInfo:', userInfo)
       })
     }
   }, [isLoggedIn])
@@ -63,7 +62,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         }
       )
       const [farcasterUserData] = data.users
-      console.log('farcasterUserData', farcasterUserData)
       return farcasterUserData
     },
     enabled: userInfo?.typeOfLogin === 'farcaster',
@@ -82,35 +80,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>
-}
-
-export const useAuth = () => {
-  /**
-   * SIGN IN
-   */
-  const { connectAsync, connectors } = useConnect()
-  const signIn = useCallback(
-    () =>
-      connectAsync({
-        chainId: defaultChain.id,
-        connector: connectors.find((c) => c.id === 'web3auth')!,
-      }),
-    []
-  )
-
-  /**
-   * SIGN OUT
-   */
-  const { disconnectAsync } = useDisconnect()
-  const signOut = useCallback(async () => {
-    connectors.forEach(async (connector) => await connector.disconnect())
-    await disconnectAsync()
-  }, [])
-
-  return {
-    signIn,
-    signOut,
-  }
 }
 
 type FarcasterUserData = {

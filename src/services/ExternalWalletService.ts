@@ -1,17 +1,19 @@
 import { publicClient } from '@/providers'
-import { useAccount } from '@/services/AccountService'
 import { Address, encodeFunctionData, erc20Abi, getContract, maxUint256 } from 'viem'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
-import { collateralToken, conditionalTokensAddress, defaultChain, weth } from '@/constants'
+import { defaultChain } from '@/constants'
 import { useSendTransaction, useWriteContract } from 'wagmi'
 import { contractABI } from '@/contracts/utils'
+import { useLimitlessApi } from '@/services/LimitlessApi'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 export const useExternalWalletService = () => {
-  const { account } = useAccount()
+  const account = useWalletAddress()
   const { writeContractAsync } = useWriteContract()
   const { sendTransactionAsync } = useSendTransaction()
+  const { supportedTokens } = useLimitlessApi()
 
-  const collateralTokenAddress = collateralToken.address[defaultChain.id]
+  const collateralTokenAddress = supportedTokens ? supportedTokens[0].address : '0x'
 
   const wrapEth = async (value: bigint) => {
     let txHash = ''
@@ -24,7 +26,6 @@ export const useExternalWalletService = () => {
       },
       {
         onSuccess: (data) => {
-          console.log(data)
           txHash = data
         },
         onError: (data) => console.log(data),
@@ -44,7 +45,6 @@ export const useExternalWalletService = () => {
       },
       {
         onSuccess: (data) => {
-          console.log(data)
           txHash = data
         },
         onError: (data) => console.log(data),
@@ -74,13 +74,14 @@ export const useExternalWalletService = () => {
 
   const approveContractEOA = async (
     spender: Address,
-    contractAddress: Address
+    contractAddress: Address,
+    value: bigint
   ): Promise<string> => {
     let txHash = ''
     await writeContractAsync(
       {
-        abi: spender === weth.address[defaultChain.id] ? wethABI : erc20Abi,
-        args: [spender, maxUint256],
+        abi: spender === collateralTokenAddress ? wethABI : erc20Abi,
+        args: [spender, value],
         address: contractAddress,
         functionName: 'approve',
       },
@@ -228,6 +229,7 @@ export const useExternalWalletService = () => {
   }
 
   const redeemPositions = async (
+    conditionalTokensAddress: Address,
     collateralAddress: Address,
     parentCollectionId: Address,
     marketConditionId: Address,
@@ -238,7 +240,7 @@ export const useExternalWalletService = () => {
       {
         abi: conditionalTokensABI,
         functionName: 'redeemPositions',
-        address: conditionalTokensAddress[defaultChain.id],
+        address: conditionalTokensAddress,
         args: [collateralAddress, parentCollectionId, marketConditionId, indexSets],
       },
       {

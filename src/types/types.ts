@@ -3,17 +3,26 @@ import { Hash, Address } from 'viem'
 export type { Hash, Address }
 
 export type Token = {
-  address: {
-    [chainId: number]: Address
-  }
+  address: Address
   symbol: string
   decimals: number
   name: string
-  imageURI: string
+  logoUrl: string
+  priceOracleId: MarketTokensIds
   id: MarketTokensIds
 }
 
-export type Market = {
+export type Category = {
+  id: number
+  name: string
+}
+
+export type MarketData = {
+  data: Market[]
+  next: number
+}
+
+export type MarketResponse = {
   address: {
     [chainId: number]: Address
   }
@@ -40,6 +49,7 @@ export type Market = {
   ogImageURI?: string
   expirationDate: string
   expirationTimestamp: number
+  createdAt: number
   expired?: boolean
   tokenTicker: {
     [chainId: number]: string
@@ -54,6 +64,17 @@ export type Market = {
   }
   tags?: string[]
   winningOutcomeIndex?: number
+  volume?: string
+  volumeFormatted?: string
+  liquidity?: string
+  liquidityFormatted?: string
+  prices: number[]
+  category: string
+}
+
+export type Market = MarketResponse & {
+  buyYesNo: number[]
+  sellYesNo?: number[]
 }
 
 export type GetBalanceResult = {
@@ -70,6 +91,9 @@ export type GetBalanceResult = {
 
 type CoingeckoPriceEntity = { usd: number }
 
+/**
+ * coingecko ids
+ */
 export enum MarketTokensIds {
   DEGEN = 'degen-base',
   ETH = 'ethereum',
@@ -78,7 +102,22 @@ export enum MarketTokensIds {
   MFER = 'mfercoin',
   ONCHAIN = 'onchain',
   REGEN = 'regen',
-  USDC = 'usdc',
+  USDC = 'usd-coin',
+  VITA = 'vitadao',
+  BETS = 'all-street-bets',
+}
+
+export enum Sort {
+  BASE = '',
+  NEWEST = 'Newest',
+  COMING_DEADLINE = 'Coming Soon',
+  HIGHEST_LIQUIDITY = 'High Liquidity',
+  HIGHEST_VOLUME = 'High Volume',
 }
 
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>
+
+export type OddsData = {
+  buyYesNo: number[]
+  sellYesNo?: number[]
+}
