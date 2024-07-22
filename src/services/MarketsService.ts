@@ -124,8 +124,9 @@ export function useMarkets(topic: Category | null) {
     },
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {
-      return lastPage.next
+      return lastPage.data.length < LIMIT_PER_PAGE ? null : lastPage.next
     },
+
     refetchOnWindowFocus: false,
   })
 }
