@@ -45,6 +45,10 @@ const variants = {
       bg: 'unset',
       _hover: {
         bg: 'unset',
+        borderColor: 'grey.800',
+      },
+      _active: {
+        borderColor: 'grey.800',
       },
     },
   },

@@ -1,6 +1,6 @@
-export const cutUsername = (username: string) => {
-  if (username.length < 10) {
+export const cutUsername = (username: string, value = 10) => {
+  if (username.length < value) {
     return username
   }
-  return `${username.slice(0, 10)}...`
+  return `${username.slice(0, value)}...`
 }

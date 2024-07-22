@@ -173,6 +173,8 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
         onChangeEnd={() => setCollateralAmount(displayAmount)}
         isDisabled={isZeroBalance}
         focusThumbOnChange={false}
+        h={isMobile ? '40px' : '8px'}
+        py={isMobile ? '0px !important' : '4px'}
       >
         <SliderTrack bg='rgba(255, 255, 255, 0.2)'>
           <SliderFilledTrack bg='grey.50' />
@@ -261,7 +263,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
       {/*  </SliderTrack>*/}
       {/*</ChakraSlider>*/}
 
-      <Stack w={'full'} mt='8px' gap='4px'>
+      <Stack w={'full'} mt={isMobile ? 0 : '8px'} gap='4px'>
         <HStack justifyContent='space-between'>
           <Text {...paragraphMedium} color='grey.50'>
             Enter amount
@@ -313,6 +315,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           h='unset'
           alignItems='flex-start'
           flexDir='column'
+          gap={isMobile ? '16px' : '8px'}
           _hover={{
             backgroundColor: 'transparent.300',
           }}
@@ -381,7 +384,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
                   </Text>
                 </HStack>
               </HStack>
-              <VStack ml='24px' mt='4px' w='calc(100% - 24px)'>
+              <VStack ml='24px' w='calc(100% - 24px)' gap={isMobile ? '8px' : '4px'}>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
                     <Text {...paragraphRegular} color='grey.50'>
@@ -469,6 +472,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           _hover={{
             backgroundColor: 'transparent.300',
           }}
+          gap={isMobile ? '16px' : '8px'}
           onClick={async () => {
             trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
               strategy: 'Buy',
@@ -533,7 +537,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
                   </Text>
                 </HStack>
               </HStack>
-              <VStack ml='24px' mt='4px' w='calc(100% - 24px)'>
+              <VStack ml='24px' w='calc(100% - 24px)' gap={isMobile ? '8px' : '4px'}>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
                     <Text {...paragraphRegular} color='grey.50'>

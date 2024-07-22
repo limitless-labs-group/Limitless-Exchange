@@ -18,6 +18,8 @@ import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { Address } from 'viem'
 import { Modal, ModalCloseButton } from '@chakra-ui/modal'
 import { isMobile } from 'react-device-detect'
+import Loader from '@/components/common/loader'
+import React from 'react'
 
 type ApproveModalProps = {
   onApprove: () => Promise<void>
@@ -60,6 +62,7 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
               w='full'
               isDisabled={status !== 'Ready'}
               isLoading={status === 'Loading'}
+              spinner={<Loader />}
               onClick={handleApproveClicked}
             >
               Approve

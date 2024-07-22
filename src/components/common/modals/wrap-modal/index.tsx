@@ -4,9 +4,10 @@ import { borderRadius } from '@/styles'
 import { FaEthereum } from 'react-icons/fa6'
 import { NumberUtil } from '@/utils'
 import { FaArrowAltCircleRight } from 'react-icons/fa'
-import { ChangeEvent, useMemo, useState } from 'react'
+import React, { ChangeEvent, useMemo, useState } from 'react'
 import { Modal } from '@/components/common/modals/modal'
 import { Input } from '@/components/common/input'
+import Loader from '@/components/common/loader'
 
 export default function WrapModal() {
   const [displayAmount, setDisplayAmount] = useState('')
@@ -94,6 +95,7 @@ export default function WrapModal() {
           variant='contained'
           isDisabled={isExceedsBalance || !+displayAmount || isWrapPending}
           isLoading={isWrapPending}
+          spinner={<Loader />}
           w='full'
           onClick={handleWrap}
         >

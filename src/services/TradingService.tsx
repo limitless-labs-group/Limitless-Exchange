@@ -471,8 +471,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         }
       }
 
-      toast({
-        render: () => <Toast title={'Processing transaction...'} />,
+      const id = toast({
+        render: () => <Toast title={'Processing transaction...'} id={id} />,
       })
 
       const receipt = await buyOutcomeTokens(
@@ -489,12 +489,14 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       )
 
       if (!receipt) {
-        toast({
+        const id = toast({
           render: () => (
             <Toast
               title={`Unsuccessful transaction.`}
               text={'Please contact our support.'}
               link={DISCORD_LINK}
+              linkText='Open Discord'
+              id={id}
             />
           ),
         })
@@ -506,20 +508,21 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       await refetchChain()
 
       // TODO: incapsulate
-      toast({
+      const toastId = toast({
         render: () => (
           <Toast
             title={`Successfully invested ${NumberUtil.toFixed(collateralAmount, 6)} ${
               collateralToken?.symbol
             }`}
+            id={toastId}
           />
         ),
       })
 
       await sleep(1)
 
-      toast({
-        render: () => <Toast title={`Updating portfolio...`} />,
+      const updateToastId = toast({
+        render: () => <Toast title={`Updating portfolio...`} id={updateToastId} />,
       })
 
       // TODO: redesign subgraph refetch logic
@@ -534,8 +537,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       if (!market) {
         return
       }
-      toast({
-        render: () => <Toast title={'Processing approve transaction...'} />,
+      const id = toast({
+        render: () => <Toast title={'Processing approve transaction...'} id={id} />,
       })
       try {
         await approveContract(
@@ -543,14 +546,14 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
           market.collateralToken[defaultChain.id],
           collateralAmountBI
         )
-        toast({
-          render: () => <Toast title={`Successfully approved. Proceed with buy now.`} />,
+        const id = toast({
+          render: () => <Toast title={`Successfully approved. Proceed with buy now.`} id={id} />,
         })
         await sleep(3)
       } catch (e) {
-        toast({
+        const id = toast({
           render: () => (
-            <Toast title={`Something went wrong during approve transaction broadcast.`} />
+            <Toast title={`Something went wrong during approve transaction broadcast.`} id={id} />
           ),
         })
       }
@@ -562,19 +565,19 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       if (!market) {
         return
       }
-      toast({
-        render: () => <Toast title={'Processing approve transaction...'} />,
+      const id = toast({
+        render: () => <Toast title={'Processing approve transaction...'} id={id} />,
       })
       try {
         await approveAllowanceForAll(market.address[defaultChain.id], conditionalTokensAddress!)
-        toast({
-          render: () => <Toast title={`Successfully approved. Proceed with sell now.`} />,
+        const id = toast({
+          render: () => <Toast title={`Successfully approved. Proceed with sell now.`} id={id} />,
         })
         await sleep(3)
       } catch (e) {
-        toast({
+        const id = toast({
           render: () => (
-            <Toast title={`Something went wrong during approve transaction broadcast.`} />
+            <Toast title={`Something went wrong during approve transaction broadcast.`} id={id} />
           ),
         })
       }
@@ -591,8 +594,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       }
 
       // TODO: incapsulate
-      toast({
-        render: () => <Toast title={'Processing transaction...'} />,
+      const id = toast({
+        render: () => <Toast title={'Processing transaction...'} id={id} />,
       })
 
       if (client === 'eoa') {
@@ -621,12 +624,14 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       )
 
       if (!receipt) {
-        toast({
+        const id = toast({
           render: () => (
             <Toast
               title={`Unsuccessful transaction`}
               text={'Please contact our support.'}
               link={DISCORD_LINK}
+              linkText='Open Discord'
+              id={id}
             />
           ),
         })
@@ -637,20 +642,21 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       await refetchChain()
 
-      toast({
+      const successId = toast({
         render: () => (
           <Toast
             title={`Successfully redeemed ${NumberUtil.toFixed(collateralAmount, 6)} ${
               collateralToken?.symbol
             }`}
+            id={successId}
           />
         ),
       })
 
       await sleep(1)
 
-      toast({
-        render: () => <Toast title={`Updating portfolio...`} />,
+      const updateID = toast({
+        render: () => <Toast title={`Updating portfolio...`} id={updateID} />,
       })
 
       // TODO: redesign subgraph refetch logic
@@ -678,12 +684,14 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       )
 
       if (!receipt) {
-        toast({
+        const id = toast({
           render: () => (
             <Toast
               title={`Unsuccessful transaction`}
               text={'Please contact our support.'}
               link={DISCORD_LINK}
+              linkText='Open Discord'
+              id={id}
             />
           ),
         })
@@ -692,14 +700,14 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       await refetchChain()
 
-      toast({
-        render: () => <Toast title={`Successfully redeemed`} />,
+      const id = toast({
+        render: () => <Toast title={`Successfully redeemed`} id={id} />,
       })
 
       await sleep(1)
 
-      toast({
-        render: () => <Toast title={`Updating portfolio...`} />,
+      const updateId = toast({
+        render: () => <Toast title={`Updating portfolio...`} id={updateId} />,
       })
 
       // TODO: redesign subgraph refetch logic

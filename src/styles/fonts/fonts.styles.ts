@@ -4,7 +4,7 @@ export const h1Regular = {
   fontSize: '32px',
   fontStyle: 'normal',
   fontWeight: 400,
-  lineHeight: '40px',
+  lineHeight: '36px',
   color: 'grey.800',
 }
 

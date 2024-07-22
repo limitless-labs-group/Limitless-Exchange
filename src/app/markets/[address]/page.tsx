@@ -46,7 +46,7 @@ import {
   MobileTradeButton,
 } from './components'
 import { useAccount } from 'wagmi'
-import { paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { h1Regular, paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -162,16 +162,14 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
                 </Menu>
               </HStack>
               <Box>
-                <TextWithPixels text={market?.title || ''} fontSize={'32px'} />
+                <TextWithPixels
+                  text={market?.title || ''}
+                  {...(isMobile ? { ...h1Regular } : {})}
+                  fontSize='32px'
+                />
               </Box>
-              <HStack
-                gap={isMobile ? '4px' : '16px'}
-                mt='16px'
-                mb='24px'
-                flexDir={isMobile ? 'column' : 'row'}
-                alignItems={isMobile ? 'flex-start' : 'center'}
-              >
-                <HStack gap='8px'>
+              <HStack gap={isMobile ? '4px' : '16px'} mt='16px' mb='24px'>
+                <HStack gap='8px' flexWrap='wrap'>
                   <ChakraImage
                     width={6}
                     height={6}
@@ -182,8 +180,6 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
                   <Link href={market?.creator.link}>
                     <Text color='grey.500'>{market?.creator.name}</Text>
                   </Link>
-                </HStack>
-                <HStack gap='8px' overflowX={'scroll'} wrap={'wrap'}>
                   {market?.tags?.map((tag) => (
                     <Text color='grey.500' key={tag}>
                       #{tag}

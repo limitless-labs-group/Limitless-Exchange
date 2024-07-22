@@ -2,11 +2,11 @@
 
 import { PropsWithChildren, useEffect } from 'react'
 import packageInfo from '../../package.json'
-import { useDisconnect } from 'wagmi'
 import { LOCAL_STORAGE_VERSION_NAME } from '@/constants/application'
+import useDisconnectAccount from '@/hooks/use-disconnect'
 
 export default function Template({ children }: PropsWithChildren) {
-  const { disconnect } = useDisconnect()
+  const { disconnectFromPlatform } = useDisconnectAccount()
 
   const currentAppVersion = packageInfo.version
 
@@ -16,13 +16,13 @@ export default function Template({ children }: PropsWithChildren) {
     if (!currentUsersVersion) {
       localStorage.clear()
       localStorage.setItem(LOCAL_STORAGE_VERSION_NAME, currentAppVersion)
-      disconnect()
+      disconnectFromPlatform()
       return
     }
     if (currentAppVersion !== currentUsersVersion) {
       localStorage.clear()
       localStorage.setItem(LOCAL_STORAGE_VERSION_NAME, currentAppVersion)
-      disconnect()
+      disconnectFromPlatform()
       return
     }
   }, [currentAppVersion])

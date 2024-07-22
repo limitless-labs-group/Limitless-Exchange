@@ -40,7 +40,7 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
         borderRadius='2px'
         py='2px'
         px={isMobile ? '4px' : '2px'}
-        mb='24px'
+        mb={isMobile ? '32px' : '24px'}
       >
         <Button
           h={isMobile ? '28px' : '20px'}
