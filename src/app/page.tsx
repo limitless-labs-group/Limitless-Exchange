@@ -4,11 +4,11 @@ import { MainLayout, MarketCard, MarketCardMobile } from '@/components'
 import { defaultChain } from '@/constants'
 import { useIsMobile } from '@/hooks'
 import { OpenEvent, useAmplitude } from '@/services'
-import { Divider, VStack, Text, Box } from '@chakra-ui/react'
+import { Divider, VStack, Text, Box, Spinner, HStack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import SortFilter from '@/components/common/sort-filter'
-import { Market, Sort } from '@/types'
+import { Category, Market, Sort } from '@/types'
 import { formatUnits, getAddress } from 'viem'
 import { useMarkets } from '@/services/MarketsService'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -16,7 +16,7 @@ import { usePriceOracle } from '@/providers'
 import TextWithPixels from '@/components/common/text-with-pixels'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 
-const MainPage = () => {
+const MainPage = ({ params }: { params: Category | null }) => {
   /**
    * ANALYTICS
    */
@@ -38,7 +38,7 @@ const MainPage = () => {
   const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage } = useMarkets()
+  const { data, fetchNextPage, hasNextPage, isFetching } = useMarkets(params)
 
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.length
@@ -46,7 +46,7 @@ const MainPage = () => {
 
   const markets: Market[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data) || []
-  }, [data?.pages])
+  }, [data?.pages, params])
 
   //it helps to get integer value form solidity representation
   const formatMarketNumber = (market: Market, amount: string | undefined) => {
@@ -103,7 +103,11 @@ const MainPage = () => {
     <MainLayout>
       <Box w={isMobile ? 'auto' : '664px'} ml={isMobile ? 'auto' : '200px'}>
         <Divider bg='grey.800' orientation='horizontal' h='3px' mb='16px' />
-        <TextWithPixels text={'Explore Limitless Prediction Markets'} fontSize={'32px'} gap={2} />
+        <TextWithPixels
+          text={`Explore ${params?.name ?? 'Limitless'} Prediction Markets`}
+          fontSize={'32px'}
+          gap={2}
+        />
         <Text color='grey.800' fontSize={'14px'}>
           Predict outcomes in crypto, tech, sports, and more. Use different tokens, participate in
           transparent voting for upcoming markets, and engage in markets created by the community.
@@ -111,27 +115,33 @@ const MainPage = () => {
         </Text>
 
         <SortFilter onChange={handleSelectSort} />
-        <InfiniteScroll
-          dataLength={dataLength ?? 0}
-          next={fetchNextPage}
-          hasMore={hasNextPage}
-          loader={<h4></h4>}
-          scrollThreshold={0.1}
-          refreshFunction={fetchNextPage}
-          pullDownToRefresh
-        >
-          <VStack w={'full'} spacing={5}>
-            <VStack gap={2} w='full'>
-              {sortedMarkets?.map((market) =>
-                isMobile ? (
-                  <MarketCardMobile key={uuidv4()} market={market} />
-                ) : (
-                  <MarketCard key={uuidv4()} market={market} />
-                )
-              )}
+        {isFetching ? (
+          <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>
+            <Spinner />
+          </HStack>
+        ) : (
+          <InfiniteScroll
+            dataLength={dataLength ?? 0}
+            next={fetchNextPage}
+            hasMore={hasNextPage}
+            loader={<h4></h4>}
+            scrollThreshold={0.8}
+            refreshFunction={fetchNextPage}
+            pullDownToRefresh
+          >
+            <VStack w={'full'} spacing={5}>
+              <VStack gap={2} w='full'>
+                {sortedMarkets?.map((market) =>
+                  isMobile ? (
+                    <MarketCardMobile key={uuidv4()} market={market} />
+                  ) : (
+                    <MarketCard key={uuidv4()} market={market} />
+                  )
+                )}
+              </VStack>
             </VStack>
-          </VStack>
-        </InfiniteScroll>
+          </InfiniteScroll>
+        )}
       </Box>
     </MainLayout>
   )

@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
-import { Market, MarketData, MarketResponse, OddsData } from '@/types'
+import { Category, Market, MarketData, MarketResponse, OddsData } from '@/types'
 import { useMemo } from 'react'
 import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
@@ -16,19 +16,19 @@ const LIMIT_PER_PAGE = 20
  *
  * @returns {MarketData[]} which represents pages of markets
  */
-export function useMarkets() {
+export function useMarkets(topic: Category | null) {
   return useInfiniteQuery<MarketData, Error>({
     queryKey: ['markets'],
     queryFn: async ({ pageParam = 1 }) => {
-      const response: AxiosResponse<MarketResponse[]> = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`,
-        {
-          params: {
-            page: pageParam,
-            limit: LIMIT_PER_PAGE,
-          },
-        }
-      )
+      const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`
+      const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
+
+      const response: AxiosResponse<MarketResponse[]> = await axios.get(marketBaseUrl, {
+        params: {
+          page: pageParam,
+          limit: LIMIT_PER_PAGE,
+        },
+      })
       const markets = response.data
 
       const contractCallContext = markets.map((market: MarketResponse) => {
@@ -136,125 +136,6 @@ export function useMarkets() {
 //     const markets =
 //   },
 // })
-
-/**
- * Fetches and manages paginated active market data using the `useInfiniteQuery` hook.
- * Active market is FUNDED market and not hidden only
- *
- * @returns {MarketData[]} which represents pages of markets
- */
-export function useEthCCMarkets() {
-  return useInfiniteQuery<MarketData, Error>({
-    queryKey: ['ethccMarkets'],
-    queryFn: async ({ pageParam = 1 }) => {
-      const response: AxiosResponse<MarketResponse[]> = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/ethcc`,
-        {
-          params: {
-            page: pageParam,
-            limit: LIMIT_PER_PAGE,
-          },
-        }
-      )
-      const markets = response.data
-
-      const contractCallContext = markets.map((market: MarketResponse) => {
-        const collateralDecimals = market.tokenTicker[defaultChain.id] === 'USDC' ? 6 : 18
-        const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
-        const collateralAmountBI = parseUnits(collateralAmount, collateralDecimals)
-
-        return {
-          reference: market.address[defaultChain.id],
-          contractAddress: market.address[defaultChain.id],
-          abi: fixedProductMarketMakerABI,
-          calls: [
-            {
-              reference: 'calcBuyAmountYes',
-              methodName: 'calcBuyAmount',
-              methodParameters: [collateralAmountBI.toString(), 0],
-            },
-            {
-              reference: 'calcBuyAmountNo',
-              methodName: 'calcBuyAmount',
-              methodParameters: [collateralAmountBI.toString(), 1],
-            },
-            // {
-            //   reference: 'calcSellAmountYes',
-            //   methodName: 'calcSellAmount',
-            //   methodParameters: [collateralAmountBI.toString(), 0],
-            // },
-            // {
-            //   reference: 'calcSellAmountNo',
-            //   methodName: 'calcSellAmount',
-            //   methodParameters: [collateralAmountBI.toString(), 1],
-            // },
-          ],
-        }
-      })
-
-      const multicall = new Multicall({
-        ethersProvider: new ethers.providers.JsonRpcProvider(
-          defaultChain.rpcUrls.default.http.toString()
-        ),
-        tryAggregate: true,
-      })
-
-      const results = await multicall.call(contractCallContext)
-
-      const _markets: Map<Address, OddsData> = markets.reduce((acc, market: MarketResponse) => {
-        const marketAddress = market.address[defaultChain.id]
-        const result = results.results[marketAddress].callsReturnContext
-        const collateralDecimals = market.tokenTicker[defaultChain.id] === 'USDC' ? 6 : 18
-        const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
-
-        const outcomeTokenBuyAmountYesBI = BigInt(result[0].returnValues[0].hex)
-        const outcomeTokenBuyAmountNoBI = BigInt(result[1].returnValues[0].hex)
-        // const outcomeTokenSellAmountYesBI = BigInt(result[2].returnValues[0].hex)
-        // const outcomeTokenSellAmountNoBI = BigInt(result[3].returnValues[0].hex)
-
-        const outcomeTokenBuyAmountYes = formatUnits(outcomeTokenBuyAmountYesBI, collateralDecimals)
-        const outcomeTokenBuyAmountNo = formatUnits(outcomeTokenBuyAmountNoBI, collateralDecimals)
-        // const outcomeTokenSellAmountYes = formatUnits(
-        //   outcomeTokenSellAmountYesBI,
-        //   collateralDecimals
-        // )
-        // const outcomeTokenSellAmountNo = formatUnits(outcomeTokenSellAmountNoBI, collateralDecimals)
-
-        const outcomeTokenBuyPriceYes = Number(collateralAmount) / Number(outcomeTokenBuyAmountYes)
-        const outcomeTokenBuyPriceNo = Number(collateralAmount) / Number(outcomeTokenBuyAmountNo)
-        // const outcomeTokenSellPriceYes =
-        //   Number(collateralAmount) / Number(outcomeTokenSellAmountYes)
-        // const outcomeTokenSellPriceNo = Number(collateralAmount) / Number(outcomeTokenSellAmountNo)
-
-        const buySum = outcomeTokenBuyPriceYes + outcomeTokenBuyPriceNo
-        const outcomeTokensBuyPercentYes = +((outcomeTokenBuyPriceYes / buySum) * 100).toFixed(1)
-        const outcomeTokensBuyPercentNo = +((outcomeTokenBuyPriceNo / buySum) * 100).toFixed(1)
-
-        // const sellSum = outcomeTokenSellPriceYes + outcomeTokenSellPriceNo
-        // const outcomeTokensSellPercentYes = +((outcomeTokenSellPriceYes / sellSum) * 100).toFixed(1)
-        // const outcomeTokensSellPercentNo = +((outcomeTokenSellPriceNo / sellSum) * 100).toFixed(1)
-
-        acc.set(marketAddress, {
-          buyYesNo: [outcomeTokensBuyPercentYes, outcomeTokensBuyPercentNo],
-          // sellYesNo: [outcomeTokensSellPercentYes, outcomeTokensSellPercentNo],
-        })
-
-        return acc
-      }, new Map<Address, OddsData>())
-
-      const result = markets.map((market) => ({
-        ...market,
-        ...(_markets.get(market.address[defaultChain.id]) as OddsData),
-      }))
-
-      return { data: result, next: (pageParam as number) + 1 }
-    },
-    initialPageParam: 1, //default page number
-    getNextPageParam: (lastPage) => {
-      return lastPage.next
-    },
-  })
-}
 
 export function useAllMarkets() {
   const { data: markets } = useQuery({

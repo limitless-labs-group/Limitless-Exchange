@@ -295,7 +295,7 @@ export default function MobileHeader() {
           </Slide>
         </HStack>
       </Box>
-      {isMobile && pathname === '/' && <TokenFilterMobile />}
+      {isMobile && (pathname === '/' || pathname.includes('topics')) && <TokenFilterMobile />}
     </>
   )
 }

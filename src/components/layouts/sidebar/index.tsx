@@ -35,7 +35,6 @@ import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { cutUsername } from '@/utils/string'
 import { usePathname, useRouter } from 'next/navigation'
 import WalletPage from '@/components/layouts/wallet-page'
-import TokenFilter from '@/components/common/token-filter'
 import { useWeb3Service } from '@/services/Web3Service'
 import { LoginButton } from '@/components/common/login-button'
 import CategoryFilter from '@/components/common/categories'
@@ -201,7 +200,6 @@ export default function Sidebar() {
           </Box>
         )}
         <Divider />
-        <TokenFilter />
 
         {!isMobile && <CategoryFilter />}
       </VStack>

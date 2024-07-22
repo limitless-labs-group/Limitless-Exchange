@@ -1,6 +1,6 @@
-import { Box, Button, HStack, Text, ToastId, VStack } from '@chakra-ui/react'
+import { Box, Button, HStack, Link, Text, ToastId, VStack } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
-import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { useToast } from '@/hooks'
 import { PropsWithChildren } from 'react'
 import CloseIcon from '@/resources/icons/close-icon.svg'
@@ -9,9 +9,11 @@ interface IToast {
   title: string
   id: ToastId
   text?: string
+  link?: string
+  linkText?: string
 }
 
-export const Toast = ({ title, text, id, children }: PropsWithChildren<IToast>) => {
+export const Toast = ({ title, text, id, link, linkText, children }: PropsWithChildren<IToast>) => {
   const toast = useToast()
   function close() {
     toast.close(id)
@@ -37,6 +39,11 @@ export const Toast = ({ title, text, id, children }: PropsWithChildren<IToast>) 
           <Text {...paragraphRegular} mt={isMobile ? '16px' : '8px'}>
             {text}
           </Text>
+        )}
+        {link && (
+          <Link href={link} isExternal textDecoration='underline' mt={isMobile ? '24px' : '16px'}>
+            <Text {...paragraphMedium}>{linkText}</Text>
+          </Link>
         )}
         {children}
       </VStack>
