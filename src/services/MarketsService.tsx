@@ -4,7 +4,7 @@ import { Category, Market, MarketData, MarketResponse, OddsData } from '@/types'
 import { useMemo } from 'react'
 import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
-import { defaultChain } from '@/constants'
+import { defaultChain, newSubgraphURI } from '@/constants'
 import { Address, formatUnits, parseUnits } from 'viem'
 import { fixedProductMarketMakerABI } from '@/contracts'
 
@@ -228,3 +228,43 @@ export function useMarket(address?: string) {
     enabled: !!address && address !== '0x',
   })
 }
+
+export const useWinningIndex = (marketAddr: string) =>
+  useQuery({
+    queryKey: ['winning-index', marketAddr],
+    queryFn: async () => {
+      const query = `
+      query getMarketWinningIndex {
+        AutomatedMarketMaker(
+          where: { 
+            id: { 
+              _ilike: "${marketAddr}" 
+            } 
+          }
+        ) {
+          condition {
+            payoutNumerators
+          }
+        }
+      }
+      `
+
+      const response = await axios.post(newSubgraphURI[defaultChain.id], { query })
+      console.log(useWinningIndex.name, response)
+
+      const data: {
+        condition?: {
+          payoutNumerators?: number[] | null
+        }
+      }[] = response.data.data?.AutomatedMarketMaker
+      const [market] = data
+
+      const payoutNumerators = market?.condition?.payoutNumerators
+      if (!payoutNumerators) return null
+
+      const result = payoutNumerators.findIndex((num) => num === 1)
+      console.log(useWinningIndex.name, { result, market, data })
+
+      return result
+    },
+  })

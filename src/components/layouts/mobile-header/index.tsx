@@ -137,7 +137,7 @@ export default function MobileHeader() {
                             alignItems='center'
                             justifyContent='center'
                           >
-                            <Text fontWeight={500} fontSize='18px'>
+                            <Text fontWeight={500} fontSize='24px'>
                               {userInfo?.name?.[0].toUpperCase()}
                             </Text>
                           </Flex>
@@ -167,15 +167,14 @@ export default function MobileHeader() {
                               <Text fontWeight={500}>
                                 {NumberUtil.formatThousands(balanceInvested, 2)} USD
                               </Text>
-                              <Box color='grey.500'>
+                              <Box color='black'>
                                 <ArrowRightIcon width={16} height={16} />
                               </Box>
                             </HStack>
                           </HStack>
                         </Button>
                         {client !== 'eoa' && (
-                          <Button
-                            variant='transparent'
+                          <Box
                             w='full'
                             mt='8px'
                             px={0}
@@ -196,14 +195,15 @@ export default function MobileHeader() {
                                 <Text fontWeight={500}>
                                   {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                                 </Text>
-                                <Box color='grey.500'>
+                                <Box color='black'>
                                   <ArrowRightIcon width={16} height={16} />
                                 </Box>
                               </HStack>
                             </HStack>
-                          </Button>
+                          </Box>
                         )}
                       </VStack>
+
                       {client !== 'eoa' && (
                         <Button
                           variant='contained'
