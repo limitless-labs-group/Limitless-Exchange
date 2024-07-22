@@ -33,7 +33,11 @@ const MainPage = () => {
   const category = searchParams.get('category')
 
   const categoryEntity = useMemo(() => {
-    return categories?.find((categoryEntity) => categoryEntity.id === Number(category)) || null
+    return (
+      categories?.find(
+        (categoryEntity) => categoryEntity.name.toLowerCase() === category?.toLowerCase()
+      ) || null
+    )
   }, [categories, category])
 
   /**
@@ -47,7 +51,7 @@ const MainPage = () => {
   const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage, isFetching, refetch } = useMarkets(categoryEntity)
+  const { data, fetchNextPage, hasNextPage, isFetching } = useMarkets(categoryEntity)
 
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.length

@@ -35,7 +35,7 @@ export default function CategoryFilter() {
           marginBottom='4px'
           cursor='pointer'
         >
-          <Link href={{ pathname: '/', query: { category: category.id } }}>
+          <Link href={{ pathname: '/', query: { category: category.name } }}>
             <Text
               color={category.name.toLowerCase() === searchParams?.topic ? 'white' : 'black'}
               fontWeight={500}
