@@ -67,9 +67,10 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
    */
   const { balanceOfSmartWallet, setToken, token } = useBalanceService()
 
-  const user = useUserValidation()
-  const { isOpen: isYesOpen, onOpen: onYesOpen, onClose: onYesClose } = useDisclosure()
-  const { isOpen: isNoOpen, onOpen: onNoOpen, onClose: onNoClose } = useDisclosure()
+  //User Block feature
+  //const user = useUserValidation()
+  //const { isOpen: isYesOpen, onOpen: onYesOpen, onClose: onYesClose } = useDisclosure()
+  //const { isOpen: isNoOpen, onOpen: onNoOpen, onClose: onNoClose } = useDisclosure()
 
   const balance = useMemo(() => {
     if (strategy === 'Buy') {
@@ -326,139 +327,95 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
               marketAddress: market.address[defaultChain.id],
             })
 
-            if (!user.userValidity?.valid) {
-              onYesOpen()
-              return
-            }
-
             setOutcomeIndex(0)
             await trade(0)
           }}
           borderRadius='2px'
         >
-          {isYesOpen ? (
-            <VStack w={'full'}>
-              <HStack w={'full'} justifyContent={'space-between'}>
-                <Icon as={BlockIcon} width={'16px'} height={'16px'} color={'white'} />
-                <Icon
-                  as={CloseIcon}
-                  width={'16px'}
-                  height={'16px'}
-                  color={'white'}
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    onYesClose()
-                  }}
-                />
-              </HStack>
-              <HStack w={'full'}>
-                <Text {...paragraphMedium} color='grey.50' textAlign={'left'} whiteSpace='normal'>
-                  {INFO_MSG}
-                  <Text>
-                    See our{' '}
-                    <Link
-                      textDecoration='underline'
-                      href={
-                        'https://drive.google.com/file/d/1RmObjk7_HBa-Tg6yiA45JSRxKcOSSdrW/view'
-                      }
-                      isExternal
-                    >
-                      Terms of Use
-                    </Link>{' '}
-                    for details.
-                  </Text>
+          <HStack gap='8px' color='grey.50'>
+            <ThumbsUpIcon width='16px' height='16px' />
+            <HStack gap='4px'>
+              <Text {...paragraphMedium} color='grey.50'>
+                {market.prices[0]}%
+              </Text>
+              <Text {...paragraphMedium} color='grey.50'>
+                Yes
+              </Text>
+            </HStack>
+          </HStack>
+          <VStack ml='24px' w='calc(100% - 24px)' gap={isMobile ? '8px' : '4px'}>
+            <HStack justifyContent='space-between' w='full'>
+              <HStack gap='4px'>
+                <Text {...paragraphRegular} color='grey.50'>
+                  Avg price
                 </Text>
-                <Box w={'45px'}></Box>
+                {/*<Tooltip*/}
+                {/*// label={*/}
+                {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
+                {/*// }*/}
+                {/*>*/}
+                {/*  <InfoIcon width='16px' height='16px' />*/}
+                {/*</Tooltip>*/}
               </HStack>
-            </VStack>
-          ) : (
-            <>
-              <HStack gap='8px' color='grey.50'>
-                <ThumbsUpIcon width='16px' height='16px' />
-                <HStack gap='4px'>
-                  <Text {...paragraphMedium} color='grey.50'>
-                    {market.prices[0]}%
-                  </Text>
-                  <Text {...paragraphMedium} color='grey.50'>
-                    Yes
-                  </Text>
-                </HStack>
+              <Text {...paragraphRegular} color='grey.50'>{`${NumberUtil.formatThousands(
+                quotesYes?.outcomeTokenPrice,
+                6
+              )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
+            </HStack>
+            <HStack justifyContent='space-between' w='full'>
+              <HStack gap='4px'>
+                <Text {...paragraphRegular} color='grey.50'>
+                  Price impact
+                </Text>
+                {/*<Tooltip*/}
+                {/*// label={*/}
+                {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
+                {/*// }*/}
+                {/*>*/}
+                {/*  <InfoIcon width='16px' height='16px' />*/}
+                {/*</Tooltip>*/}
               </HStack>
-              <VStack ml='24px' w='calc(100% - 24px)' gap={isMobile ? '8px' : '4px'}>
-                <HStack justifyContent='space-between' w='full'>
-                  <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
-                      Avg price
-                    </Text>
-                    {/*<Tooltip*/}
-                    {/*// label={*/}
-                    {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                    {/*// }*/}
-                    {/*>*/}
-                    {/*  <InfoIcon width='16px' height='16px' />*/}
-                    {/*</Tooltip>*/}
-                  </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>{`${NumberUtil.formatThousands(
-                    quotesYes?.outcomeTokenPrice,
-                    6
-                  )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
-                </HStack>
-                <HStack justifyContent='space-between' w='full'>
-                  <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
-                      Price impact
-                    </Text>
-                    {/*<Tooltip*/}
-                    {/*// label={*/}
-                    {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                    {/*// }*/}
-                    {/*>*/}
-                    {/*  <InfoIcon width='16px' height='16px' />*/}
-                    {/*</Tooltip>*/}
-                  </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>{`${NumberUtil.toFixed(
-                    quotesYes?.priceImpact,
-                    2
-                  )}%`}</Text>
-                </HStack>
-                <HStack justifyContent='space-between' w='full'>
-                  <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
-                      Est. ROI
-                    </Text>
-                    {/*<Tooltip*/}
-                    {/*// label={*/}
-                    {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                    {/*// }*/}
-                    {/*>*/}
-                    {/*  <InfoIcon width='16px' height='16px' />*/}
-                    {/*</Tooltip>*/}
-                  </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>
-                    {NumberUtil.toFixed(quotesYes?.roi, 2)}%
-                  </Text>
-                </HStack>
-                <HStack justifyContent='space-between' w='full'>
-                  <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
-                      Return
-                    </Text>
-                    {/*<Tooltip*/}
-                    {/*// label={*/}
-                    {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                    {/*// }*/}
-                    {/*>*/}
-                    {/*  <InfoIcon width='16px' height='16px' />*/}
-                    {/*</Tooltip>*/}
-                  </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>
-                    {NumberUtil.formatThousands(quotesYes?.outcomeTokenAmount, 6)}{' '}
-                    {market.tokenTicker[defaultChain.id]}
-                  </Text>
-                </HStack>
-              </VStack>
-            </>
-          )}
+              <Text {...paragraphRegular} color='grey.50'>{`${NumberUtil.toFixed(
+                quotesYes?.priceImpact,
+                2
+              )}%`}</Text>
+            </HStack>
+            <HStack justifyContent='space-between' w='full'>
+              <HStack gap='4px'>
+                <Text {...paragraphRegular} color='grey.50'>
+                  Est. ROI
+                </Text>
+                {/*<Tooltip*/}
+                {/*// label={*/}
+                {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
+                {/*// }*/}
+                {/*>*/}
+                {/*  <InfoIcon width='16px' height='16px' />*/}
+                {/*</Tooltip>*/}
+              </HStack>
+              <Text {...paragraphRegular} color='grey.50'>
+                {NumberUtil.toFixed(quotesYes?.roi, 2)}%
+              </Text>
+            </HStack>
+            <HStack justifyContent='space-between' w='full'>
+              <HStack gap='4px'>
+                <Text {...paragraphRegular} color='grey.50'>
+                  Return
+                </Text>
+                {/*<Tooltip*/}
+                {/*// label={*/}
+                {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
+                {/*// }*/}
+                {/*>*/}
+                {/*  <InfoIcon width='16px' height='16px' />*/}
+                {/*</Tooltip>*/}
+              </HStack>
+              <Text {...paragraphRegular} color='grey.50'>
+                {NumberUtil.formatThousands(quotesYes?.outcomeTokenAmount, 6)}{' '}
+                {market.tokenTicker[defaultChain.id]}
+              </Text>
+            </HStack>
+          </VStack>
         </Button>
         <Button
           bg='rgba(255, 255, 255, 0.2)'
@@ -479,139 +436,95 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
               marketAddress: market.address[defaultChain.id],
             })
 
-            if (!user.userValidity?.valid) {
-              onNoOpen()
-              return
-            }
-
             setOutcomeIndex(1)
             await trade(1)
           }}
           borderRadius='2px'
         >
-          {isNoOpen ? (
-            <VStack w={'full'}>
-              <HStack w={'full'} justifyContent={'space-between'}>
-                <Icon as={BlockIcon} width={'16px'} height={'16px'} color={'white'} />
-                <Icon
-                  as={CloseIcon}
-                  width={'16px'}
-                  height={'16px'}
-                  color={'white'}
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    onNoClose()
-                  }}
-                />
-              </HStack>
-              <HStack w={'full'}>
-                <Text {...paragraphMedium} color='grey.50' textAlign={'left'} whiteSpace='normal'>
-                  {INFO_MSG}
-                  <Text>
-                    See our{' '}
-                    <Link
-                      textDecoration='underline'
-                      href={
-                        'https://drive.google.com/file/d/1RmObjk7_HBa-Tg6yiA45JSRxKcOSSdrW/view'
-                      }
-                      isExternal
-                    >
-                      Terms of Use
-                    </Link>{' '}
-                    for details.
-                  </Text>
+          <HStack gap='8px' color='grey.50'>
+            <ThumbsDownIcon width='16px' height='16px' />
+            <HStack gap='4px'>
+              <Text {...paragraphMedium} color='grey.50'>
+                {market.prices[1]}%
+              </Text>
+              <Text {...paragraphMedium} color='grey.50'>
+                No
+              </Text>
+            </HStack>
+          </HStack>
+          <VStack ml='24px' w='calc(100% - 24px)' gap={isMobile ? '8px' : '4px'}>
+            <HStack justifyContent='space-between' w='full'>
+              <HStack gap='4px'>
+                <Text {...paragraphRegular} color='grey.50'>
+                  Avg price
                 </Text>
-                <Box w={'45px'}></Box>
+                {/*<Tooltip*/}
+                {/*// label={*/}
+                {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
+                {/*// }*/}
+                {/*>*/}
+                {/*  <InfoIcon width='16px' height='16px' />*/}
+                {/*</Tooltip>*/}
               </HStack>
-            </VStack>
-          ) : (
-            <>
-              <HStack gap='8px' color='grey.50'>
-                <ThumbsDownIcon width='16px' height='16px' />
-                <HStack gap='4px'>
-                  <Text {...paragraphMedium} color='grey.50'>
-                    {market.prices[1]}%
-                  </Text>
-                  <Text {...paragraphMedium} color='grey.50'>
-                    No
-                  </Text>
-                </HStack>
+              <Text {...paragraphRegular} color='grey.50'>{`${NumberUtil.formatThousands(
+                quotesNo?.outcomeTokenPrice,
+                6
+              )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
+            </HStack>
+            <HStack justifyContent='space-between' w='full'>
+              <HStack gap='4px'>
+                <Text {...paragraphRegular} color='grey.50'>
+                  Price impact
+                </Text>
+                {/*<Tooltip*/}
+                {/*// label={*/}
+                {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
+                {/*// }*/}
+                {/*>*/}
+                {/*  <InfoIcon width='16px' height='16px' />*/}
+                {/*</Tooltip>*/}
               </HStack>
-              <VStack ml='24px' w='calc(100% - 24px)' gap={isMobile ? '8px' : '4px'}>
-                <HStack justifyContent='space-between' w='full'>
-                  <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
-                      Avg price
-                    </Text>
-                    {/*<Tooltip*/}
-                    {/*// label={*/}
-                    {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                    {/*// }*/}
-                    {/*>*/}
-                    {/*  <InfoIcon width='16px' height='16px' />*/}
-                    {/*</Tooltip>*/}
-                  </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>{`${NumberUtil.formatThousands(
-                    quotesNo?.outcomeTokenPrice,
-                    6
-                  )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
-                </HStack>
-                <HStack justifyContent='space-between' w='full'>
-                  <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
-                      Price impact
-                    </Text>
-                    {/*<Tooltip*/}
-                    {/*// label={*/}
-                    {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                    {/*// }*/}
-                    {/*>*/}
-                    {/*  <InfoIcon width='16px' height='16px' />*/}
-                    {/*</Tooltip>*/}
-                  </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>{`${NumberUtil.toFixed(
-                    quotesNo?.priceImpact,
-                    2
-                  )}%`}</Text>
-                </HStack>
-                <HStack justifyContent='space-between' w='full'>
-                  <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
-                      Est. ROI
-                    </Text>
-                    {/*<Tooltip*/}
-                    {/*// label={*/}
-                    {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                    {/*// }*/}
-                    {/*>*/}
-                    {/*  <InfoIcon width='16px' height='16px' />*/}
-                    {/*</Tooltip>*/}
-                  </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>
-                    {NumberUtil.toFixed(quotesNo?.roi, 2)}%
-                  </Text>
-                </HStack>
-                <HStack justifyContent='space-between' w='full'>
-                  <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
-                      Return
-                    </Text>
-                    {/*<Tooltip*/}
-                    {/*// label={*/}
-                    {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                    {/*// }*/}
-                    {/*>*/}
-                    {/*  <InfoIcon width='16px' height='16px' />*/}
-                    {/*</Tooltip>*/}
-                  </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>
-                    {NumberUtil.formatThousands(quotesNo?.outcomeTokenAmount, 6)}{' '}
-                    {market.tokenTicker[defaultChain.id]}
-                  </Text>
-                </HStack>
-              </VStack>
-            </>
-          )}
+              <Text {...paragraphRegular} color='grey.50'>{`${NumberUtil.toFixed(
+                quotesNo?.priceImpact,
+                2
+              )}%`}</Text>
+            </HStack>
+            <HStack justifyContent='space-between' w='full'>
+              <HStack gap='4px'>
+                <Text {...paragraphRegular} color='grey.50'>
+                  Est. ROI
+                </Text>
+                {/*<Tooltip*/}
+                {/*// label={*/}
+                {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
+                {/*// }*/}
+                {/*>*/}
+                {/*  <InfoIcon width='16px' height='16px' />*/}
+                {/*</Tooltip>*/}
+              </HStack>
+              <Text {...paragraphRegular} color='grey.50'>
+                {NumberUtil.toFixed(quotesNo?.roi, 2)}%
+              </Text>
+            </HStack>
+            <HStack justifyContent='space-between' w='full'>
+              <HStack gap='4px'>
+                <Text {...paragraphRegular} color='grey.50'>
+                  Return
+                </Text>
+                {/*<Tooltip*/}
+                {/*// label={*/}
+                {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
+                {/*// }*/}
+                {/*>*/}
+                {/*  <InfoIcon width='16px' height='16px' />*/}
+                {/*</Tooltip>*/}
+              </HStack>
+              <Text {...paragraphRegular} color='grey.50'>
+                {NumberUtil.formatThousands(quotesNo?.outcomeTokenAmount, 6)}{' '}
+                {market.tokenTicker[defaultChain.id]}
+              </Text>
+            </HStack>
+          </VStack>
         </Button>
       </VStack>
     </>
