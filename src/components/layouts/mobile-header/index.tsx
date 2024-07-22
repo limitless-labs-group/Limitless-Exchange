@@ -35,6 +35,8 @@ import { isMobile } from 'react-device-detect'
 import '@/app/style.css'
 import { LoginButton } from '@/components/common/login-button'
 import useDisconnectAccount from '@/hooks/use-disconnect'
+import { cutUsername } from '@/utils/string'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -86,9 +88,7 @@ export default function MobileHeader() {
                       alignItems='center'
                       justifyContent='center'
                     >
-                      <Text fontWeight={500} fontSize='24px'>
-                        {userInfo?.name?.[0].toUpperCase()}
-                      </Text>
+                      <Text {...paragraphMedium}>{userInfo?.name?.[0].toUpperCase()}</Text>
                     </Flex>
                   )}
                 </Button>
@@ -142,13 +142,16 @@ export default function MobileHeader() {
                             </Text>
                           </Flex>
                         )}
-                        <Text fontSize='24px' fontWeight={500}>
-                          {userInfo?.name ? userInfo.name : truncateEthAddress(address)}
+                        <Text {...paragraphMedium}>
+                          {userInfo?.name
+                            ? cutUsername(userInfo.name, 60)
+                            : truncateEthAddress(address)}
                         </Text>
                       </HStack>
-                      <VStack my='24px'>
+                      <VStack my='24px' gap='8px'>
                         <Button
                           variant='transparent'
+                          px={0}
                           w='full'
                           onClick={handleNavigateToPortfolioPage}
                         >
@@ -175,6 +178,7 @@ export default function MobileHeader() {
                             variant='transparent'
                             w='full'
                             mt='8px'
+                            px={0}
                             onClick={() => {
                               onToggleWalletModal()
                               onToggleUserMenu()
@@ -278,6 +282,7 @@ export default function MobileHeader() {
             style={{
               zIndex: 150,
               paddingTop: isWalletModalOpen ? '60px' : 0,
+              top: isWalletModalOpen ? 0 : '60px',
               height: '100%',
               transition: '0.1s',
               animation: 'fadeIn 0.5s',

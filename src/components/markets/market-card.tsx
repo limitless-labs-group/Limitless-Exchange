@@ -51,7 +51,7 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
       {...props}
     >
       <HStack justifyContent='space-between' mb='12px'>
-        <Text color={colors.main} fontSize={'14px'} lineHeight={'20px'}>
+        <Text color={colors.main} fontSize={'14px'} lineHeight={'20px'} userSelect='none'>
           {market?.title ?? 'Noname market'}
         </Text>
         <HStack gap={1} color={colors.main}>

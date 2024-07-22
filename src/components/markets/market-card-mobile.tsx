@@ -30,7 +30,9 @@ export const MarketCardMobile = ({ market, children, ...props }: IMarketCard) =>
       <Stack w={'full'} spacing={3}>
         <HStack w={'full'} spacing={3} onClick={() => router.push(marketURI)}>
           <Stack alignItems={'start'}>
-            <Text {...paragraphMedium}>{market?.title ?? 'Noname market'}</Text>
+            <Text {...paragraphMedium} textDecoration='unset' userSelect='none'>
+              {market?.title ?? 'Noname market'}
+            </Text>
             <HStack gap={1}>
               <ThumbsUpIcon width={'16px'} height={'16px'} />
               {!children && <Text {...paragraphMedium}>{market?.buyYesNo[0]}% YES</Text>}
