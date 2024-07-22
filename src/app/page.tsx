@@ -3,20 +3,23 @@
 import { MainLayout, MarketCard, MarketCardMobile } from '@/components'
 import { defaultChain } from '@/constants'
 import { useIsMobile } from '@/hooks'
-import { OpenEvent, useAmplitude } from '@/services'
+import { OpenEvent, useAmplitude, useCategories } from '@/services'
 import { Divider, VStack, Text, Box, Spinner, HStack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import SortFilter from '@/components/common/sort-filter'
-import { Category, Market, Sort } from '@/types'
+import { Market, Sort } from '@/types'
 import { formatUnits, getAddress } from 'viem'
 import { useMarkets } from '@/services/MarketsService'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { usePriceOracle } from '@/providers'
 import TextWithPixels from '@/components/common/text-with-pixels'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
+import { useSearchParams } from 'next/navigation'
 
-const MainPage = ({ params }: { params: Category | null }) => {
+const MainPage = () => {
+  const searchParams = useSearchParams()
+  const { data: categories } = useCategories()
   /**
    * ANALYTICS
    */
@@ -26,6 +29,12 @@ const MainPage = ({ params }: { params: Category | null }) => {
       page: 'Explore Markets',
     })
   }, [])
+
+  const category = searchParams.get('category')
+
+  const categoryEntity = useMemo(() => {
+    return categories?.find((categoryEntity) => categoryEntity.id === Number(category)) || null
+  }, [categories, category])
 
   /**
    * UI
@@ -38,7 +47,7 @@ const MainPage = ({ params }: { params: Category | null }) => {
   const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage, isFetching } = useMarkets(params)
+  const { data, fetchNextPage, hasNextPage, isFetching, refetch } = useMarkets(categoryEntity)
 
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.length
@@ -46,7 +55,7 @@ const MainPage = ({ params }: { params: Category | null }) => {
 
   const markets: Market[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data) || []
-  }, [data?.pages, params])
+  }, [data?.pages, category])
 
   //it helps to get integer value form solidity representation
   const formatMarketNumber = (market: Market, amount: string | undefined) => {
@@ -104,7 +113,7 @@ const MainPage = ({ params }: { params: Category | null }) => {
       <Box w={isMobile ? 'auto' : '664px'} ml={isMobile ? 'auto' : '200px'}>
         <Divider bg='grey.800' orientation='horizontal' h='3px' mb='16px' />
         <TextWithPixels
-          text={`Explore ${params?.name ?? 'Limitless'} Prediction Markets`}
+          text={`Explore ${categoryEntity?.name ?? 'Limitless'} Prediction Markets`}
           fontSize={'32px'}
           gap={2}
         />

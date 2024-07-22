@@ -24,7 +24,6 @@ import {
   CreateMarketClickedMetadata,
   useAmplitude,
   useBalanceService,
-  useHistory,
   useAccount,
   ProfileBurgerMenuClickedMetadata,
 } from '@/services'
@@ -51,7 +50,6 @@ export default function Sidebar() {
   const { trackClicked } = useAmplitude()
 
   const { overallBalanceUsd } = useBalanceService()
-  const { balanceInvested } = useHistory()
   const { userInfo } = useAccount()
   const address = useWalletAddress()
   const router = useRouter()
