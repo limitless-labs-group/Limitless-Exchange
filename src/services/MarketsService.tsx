@@ -18,7 +18,7 @@ const LIMIT_PER_PAGE = 20
  */
 export function useMarkets(topic: Category | null) {
   return useInfiniteQuery<MarketData, Error>({
-    queryKey: ['markets'],
+    queryKey: ['markets', topic],
     queryFn: async ({ pageParam = 1 }) => {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`
       const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
