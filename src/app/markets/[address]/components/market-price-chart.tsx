@@ -13,17 +13,21 @@ import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { isMobile } from 'react-device-detect'
 
+const ONE_HOUR = 3_600_000 // milliseconds in an hour
+
 // Define the interface for the chart data
 interface YesBuyChartData {
   yesBuyChartData: [number, number]
 }
 
 // Define the MarketPriceChart component
-interface MarketPriceChartProps {
+export interface IMarketPriceChart {
   market?: Market | null
+  winningIndex: number | undefined | null
+  resolved: boolean
 }
 
-export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
+export const MarketPriceChart = ({ market, resolved, winningIndex }: IMarketPriceChart) => {
   const pathname = usePathname()
   const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
@@ -162,7 +166,6 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
     }
 
     const flattenData: number[][] = []
-    const oneHour = 3600000 // milliseconds in an hour
 
     // Append current timestamp with the last price
     const lastTrade = [...filterBrokenPrice(data[data.length - 1].yesBuyChartData)]
@@ -176,8 +179,8 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
       flattenData.push(currentTrade)
 
       let currentTime = currentTrade[0]
-      while (currentTime + oneHour < nextTrade[0]) {
-        currentTime += oneHour
+      while (currentTime + ONE_HOUR < nextTrade[0]) {
+        currentTime += ONE_HOUR
         flattenData.push([currentTime, currentTrade[1]])
       }
     }
@@ -221,11 +224,25 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
   //   return '50.00'
   // }, [market?.prices])
 
+  const chartData = useMemo(() => {
+    const _prices: number[][] = prices ?? []
+    return resolved
+      ? [
+          ...(_prices ?? []),
+          !!_prices[_prices.length - 1]
+            ? [_prices[_prices.length - 1][0] + ONE_HOUR, 100]
+            : [Date.now(), 100],
+        ]
+      : _prices
+  }, [prices])
+
   return (
     <Paper my='24px' p='8px'>
       <HStack gap={'4px'} color='green.500'>
         <ThumbsUpIcon width={16} height={16} />
-        <Text fontWeight={500}>{market?.prices[0]}%</Text>
+        <Text fontWeight={500}>
+          {!resolved ? market?.prices[0] : winningIndex === 0 ? 100 : 0}%
+        </Text>
         <Text fontWeight={500}>Yes</Text>
         {/*<ChevronDownIcon width={16} height={16} />*/}
       </HStack>
@@ -236,7 +253,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
           </Text>
         </VStack>
       </HStack>
-      <HighchartsReact highcharts={Highcharts} options={getChartOptions(prices)} />
+      <HighchartsReact highcharts={Highcharts} options={getChartOptions(chartData)} />
     </Paper>
   )
 }
