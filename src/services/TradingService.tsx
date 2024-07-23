@@ -471,10 +471,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         }
       }
 
-      const id = toast({
-        render: () => <Toast title={'Processing transaction...'} id={id} />,
-      })
-
       const receipt = await buyOutcomeTokens(
         market.address[defaultChain.id],
         collateralAmountBI,
@@ -506,20 +502,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       setCollateralAmount('')
 
       await refetchChain()
-
-      // TODO: incapsulate
-      const toastId = toast({
-        render: () => (
-          <Toast
-            title={`Successfully invested ${NumberUtil.toFixed(collateralAmount, 6)} ${
-              collateralToken?.symbol
-            }`}
-            id={toastId}
-          />
-        ),
-      })
-
-      await sleep(1)
 
       const updateToastId = toast({
         render: () => <Toast title={`Updating portfolio...`} id={updateToastId} />,
