@@ -202,7 +202,7 @@ export default function ActionButton({
           _hover={{
             backgroundColor: 'transparent.300',
           }}
-          isDisabled={disabled}
+          isDisabled={disabled || status !== 'initial'}
           onClick={handleActionIntention}
           borderRadius='2px'
         >
