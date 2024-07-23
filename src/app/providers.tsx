@@ -37,15 +37,13 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                     <EtherspotProvider>
                       <AccountProvider>
                         <PriceOracleProvider>
-                          <UserValidationProvider>
-                            <BalanceServiceProvider>
-                              <HistoryServiceProvider>
-                                <TokenFilterProvider>
-                                  <TradingServiceProvider>{children}</TradingServiceProvider>
-                                </TokenFilterProvider>
-                              </HistoryServiceProvider>
-                            </BalanceServiceProvider>
-                          </UserValidationProvider>
+                          <BalanceServiceProvider>
+                            <HistoryServiceProvider>
+                              <TokenFilterProvider>
+                                <TradingServiceProvider>{children}</TradingServiceProvider>
+                              </TokenFilterProvider>
+                            </HistoryServiceProvider>
+                          </BalanceServiceProvider>
                         </PriceOracleProvider>
                       </AccountProvider>
                     </EtherspotProvider>

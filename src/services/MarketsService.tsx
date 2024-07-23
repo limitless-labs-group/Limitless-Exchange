@@ -4,7 +4,7 @@ import { Category, Market, MarketData, MarketResponse, OddsData } from '@/types'
 import { useMemo } from 'react'
 import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
-import { defaultChain } from '@/constants'
+import { defaultChain, newSubgraphURI } from '@/constants'
 import { Address, formatUnits, parseUnits } from 'viem'
 import { fixedProductMarketMakerABI } from '@/contracts'
 
@@ -18,7 +18,7 @@ const LIMIT_PER_PAGE = 20
  */
 export function useMarkets(topic: Category | null) {
   return useInfiniteQuery<MarketData, Error>({
-    queryKey: ['markets'],
+    queryKey: ['markets', topic],
     queryFn: async ({ pageParam = 1 }) => {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`
       const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
@@ -124,8 +124,9 @@ export function useMarkets(topic: Category | null) {
     },
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {
-      return lastPage.next
+      return lastPage.data.length < LIMIT_PER_PAGE ? null : lastPage.next
     },
+
     refetchOnWindowFocus: false,
   })
 }
@@ -222,8 +223,64 @@ export function useMarket(address?: string) {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${address}`
       )
-      return response.data as Market
+      const marketRes = response.data as Market
+
+      //TODO remove this hot-fix
+      if (
+        Number.isNaN(Number(marketRes?.prices[0])) ||
+        Number.isNaN(Number(marketRes?.prices[1]))
+      ) {
+        if (marketRes?.winningOutcomeIndex === 0) {
+          marketRes.prices = [100, 0]
+        } else if (marketRes?.winningOutcomeIndex === 1) {
+          marketRes.prices = [0, 100]
+        } else {
+          marketRes.prices = [50, 50]
+        }
+      }
+
+      return marketRes
     },
     enabled: !!address && address !== '0x',
   })
 }
+
+export const useWinningIndex = (marketAddr: string) =>
+  useQuery({
+    queryKey: ['winning-index', marketAddr],
+    queryFn: async () => {
+      const query = `
+      query getMarketWinningIndex {
+        AutomatedMarketMaker(
+          where: { 
+            id: { 
+              _ilike: "${marketAddr}" 
+            } 
+          }
+        ) {
+          condition {
+            payoutNumerators
+          }
+        }
+      }
+      `
+
+      const response = await axios.post(newSubgraphURI[defaultChain.id], { query })
+      console.log(useWinningIndex.name, response)
+
+      const data: {
+        condition?: {
+          payoutNumerators?: number[] | null
+        }
+      }[] = response.data.data?.AutomatedMarketMaker
+      const [market] = data
+
+      const payoutNumerators = market?.condition?.payoutNumerators
+      if (!payoutNumerators) return null
+
+      const result = payoutNumerators.findIndex((num) => num === 1)
+      console.log(useWinningIndex.name, { result, market, data })
+
+      return result
+    },
+  })

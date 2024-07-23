@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import { Text, Box, useTheme, Spinner } from '@chakra-ui/react'
+import React, { useEffect } from 'react'
+import { Text, Box, useTheme } from '@chakra-ui/react'
 import { useCategories } from '@/services'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 
 export default function CategoryFilter() {
   const { data: categories } = useCategories()
-  const searchParams = useParams()
+  const searchParams = useSearchParams()
 
   const theme = useTheme()
 
@@ -24,7 +24,7 @@ export default function CategoryFilter() {
       {categories?.map((category) => (
         <Box
           bg={
-            category.name.toLowerCase() === searchParams?.topic
+            category.name === searchParams?.get('category')
               ? theme.colors.grey['800']
               : theme.colors.grey['300']
           }
@@ -35,9 +35,9 @@ export default function CategoryFilter() {
           marginBottom='4px'
           cursor='pointer'
         >
-          <Link href={`/topics/${category.name.toLowerCase()}`}>
+          <Link href={{ pathname: '/', query: { category: category.name } }}>
             <Text
-              color={category.name.toLowerCase() === searchParams?.topic ? 'white' : 'black'}
+              color={category.name === searchParams?.get('category') ? 'white' : 'black'}
               fontWeight={500}
             >
               /{category.name}

@@ -24,7 +24,6 @@ import {
   CreateMarketClickedMetadata,
   useAmplitude,
   useBalanceService,
-  useHistory,
   useAccount,
   ProfileBurgerMenuClickedMetadata,
 } from '@/services'
@@ -51,7 +50,6 @@ export default function Sidebar() {
   const { trackClicked } = useAmplitude()
 
   const { overallBalanceUsd } = useBalanceService()
-  const { balanceInvested } = useHistory()
   const { userInfo } = useAccount()
   const address = useWalletAddress()
   const router = useRouter()
@@ -108,7 +106,7 @@ export default function Sidebar() {
               <HStack w='full'>
                 <PortfolioIcon width={16} height={16} />
                 <Text fontWeight={500} fontSize='14px'>
-                  {NumberUtil.formatThousands(balanceInvested, 2)} USD
+                  Portfolio
                 </Text>
               </HStack>
             </Button>
