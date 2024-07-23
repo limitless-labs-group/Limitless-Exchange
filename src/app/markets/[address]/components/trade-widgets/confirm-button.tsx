@@ -36,7 +36,7 @@ export default function ConfirmButton({
   }
 
   const content = useMemo(() => {
-    if (status === 'confirm') {
+    if (status === 'confirm' || status === 'transaction-broadcasted') {
       return (
         <AnimatePresence>
           <MotionBox
