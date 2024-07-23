@@ -223,7 +223,23 @@ export function useMarket(address?: string) {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${address}`
       )
-      return response.data as Market
+      const marketRes = response.data as Market
+
+      //TODO remove this hot-fix
+      if (
+        Number.isNaN(Number(marketRes?.prices[0])) ||
+        Number.isNaN(Number(marketRes?.prices[1]))
+      ) {
+        if (marketRes?.winningOutcomeIndex === 0) {
+          marketRes.prices = [100, 0]
+        } else if (marketRes?.winningOutcomeIndex === 1) {
+          marketRes.prices = [0, 100]
+        } else {
+          marketRes.prices = [50, 50]
+        }
+      }
+
+      return marketRes
     },
     enabled: !!address && address !== '0x',
   })

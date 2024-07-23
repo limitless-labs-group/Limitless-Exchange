@@ -11,8 +11,6 @@ import {
   Input,
   InputRightElement,
   InputGroup,
-  useDisclosure,
-  Box,
 } from '@chakra-ui/react'
 import { NumberUtil } from '@/utils'
 import { defaultChain } from '@/constants'
@@ -31,7 +29,6 @@ import BigNumber from 'bignumber.js'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { css } from '@emotion/react'
 import { isMobile } from 'react-device-detect'
-import { useUserValidation } from '@/providers/UserValidation'
 import ActionButton from '@/app/markets/[address]/components/trade-widgets/action-button'
 
 interface BuyFormProps {
@@ -59,9 +56,10 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
    */
   const { balanceOfSmartWallet, setToken, token } = useBalanceService()
 
-  const user = useUserValidation()
-  const { isOpen: isYesOpen, onOpen: onYesOpen, onClose: onYesClose } = useDisclosure()
-  const { isOpen: isNoOpen, onOpen: onNoOpen, onClose: onNoClose } = useDisclosure()
+  //User Block feature
+  //const user = useUserValidation()
+  //const { isOpen: isYesOpen, onOpen: onYesOpen, onClose: onYesClose } = useDisclosure()
+  //const { isOpen: isNoOpen, onOpen: onNoOpen, onClose: onNoClose } = useDisclosure()
 
   const balance = useMemo(() => {
     if (strategy === 'Buy') {
@@ -306,17 +304,12 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
               marketAddress: market.address[defaultChain.id],
             })
 
-            if (!user.userValidity?.valid) {
-              onYesOpen()
-              return
-            }
-
             setOutcomeIndex(0)
             await trade(0)
           }}
           disabled={isExceedsBalance || !collateralAmount}
-          showBlock={isYesOpen}
-          onCloseBlock={onYesClose}
+          showBlock={false}
+          onCloseBlock={() => console.log('ok')}
           market={market}
           quote={quotesYes}
           amount={collateralAmount}
@@ -331,17 +324,11 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
               strategy: 'Buy',
               marketAddress: market.address[defaultChain.id],
             })
-
-            if (!user.userValidity?.valid) {
-              onNoOpen()
-              return
-            }
-
             setOutcomeIndex(1)
             await trade(1)
           }}
-          showBlock={isNoOpen}
-          onCloseBlock={onNoClose}
+          showBlock={false}
+          onCloseBlock={() => console.log('ok')}
           market={market}
           quote={quotesNo}
           amount={collateralAmount}
