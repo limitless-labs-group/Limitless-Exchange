@@ -33,7 +33,7 @@ interface ActionButtonProps {
 
 const MotionBox = motion(Box)
 
-type buttonStatus =
+export type ButtonStatus =
   | 'initial'
   | 'confirm'
   | 'transaction-broadcasted'
@@ -56,7 +56,7 @@ export default function ActionButton({
 }: ActionButtonProps) {
   const { client, checkAllowance, approveContract } = useWeb3Service()
 
-  const [status, setStatus] = useState<string>('initial')
+  const [status, setStatus] = useState<ButtonStatus>('initial')
   const INFO_MSG = 'Trading is not available to U.S. residents or restricted territories.'
 
   const headerStatus = useMemo(() => {
@@ -123,11 +123,13 @@ export default function ActionButton({
     )
   }, [option, price, status])
 
+  const transformValue = isMobile ? -172 : -144
+
   const handleActionIntention = async () => {
     if (client === 'eoa') {
       const allowance = await checkAllowance(
-        market.collateralToken[defaultChain.id],
-        market.address[defaultChain.id]
+        market.address[defaultChain.id],
+        market.collateralToken[defaultChain.id]
       )
       const amountBI = parseUnits(amount, decimals || 18)
       if (amountBI > allowance) {
@@ -146,8 +148,8 @@ export default function ActionButton({
       setStatus('unlocking')
       const amountBI = parseUnits(amount, decimals || 18)
       await approveContract(
-        market.collateralToken[defaultChain.id],
         market.address[defaultChain.id],
+        market.collateralToken[defaultChain.id],
         amountBI
       )
       await sleep(2)
@@ -163,7 +165,6 @@ export default function ActionButton({
     try {
       setStatus('transaction-broadcasted')
       await onClick()
-      await sleep(2)
       setStatus('success')
       return
     } catch (e) {
@@ -185,7 +186,7 @@ export default function ActionButton({
   return (
     <HStack w='full' gap={isMobile ? '16px' : '8px'}>
       <MotionBox
-        animate={{ x: ['unlock', 'unlocking', 'confirm'].includes(status) ? -120 : 0 }}
+        animate={{ x: ['unlock', 'unlocking', 'confirm'].includes(status) ? transformValue : 0 }}
         transition={{ duration: 0.5 }}
         w='full'
       >
@@ -193,7 +194,7 @@ export default function ActionButton({
           bg='rgba(255, 255, 255, 0.2)'
           px='12px'
           py='8px'
-          w='296px'
+          w={isMobile ? `calc(100vw - 32px)` : '296px'}
           h='unset'
           alignItems='flex-start'
           flexDir='column'
@@ -202,7 +203,6 @@ export default function ActionButton({
             backgroundColor: 'transparent.300',
           }}
           isDisabled={disabled}
-          // onClick={onClick}
           onClick={handleActionIntention}
           borderRadius='2px'
         >
@@ -322,13 +322,12 @@ export default function ActionButton({
         </Button>
       </MotionBox>
       <MotionBox
-        animate={{ x: ['unlock', 'unlocking', 'confirm'].includes(status) ? -120 : 0 }}
+        animate={{ x: ['unlock', 'unlocking', 'confirm'].includes(status) ? transformValue : 0 }}
         transition={{ duration: 0.5 }}
       >
         <ConfirmButton
           tokenTicker={market.tokenTicker[defaultChain.id]}
           status={status}
-          setStatus={setStatus}
           handleConfirmClicked={handleConfirmClicked}
           onApprove={handleApprove}
         />

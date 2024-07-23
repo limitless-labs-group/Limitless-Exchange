@@ -32,7 +32,7 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
 
   return (
-    <Paper bg='blue.500' w={isMobile ? 'full' : '312px'} p={isMobile ? 0 : '8px'} overflow='hidden'>
+    <Paper bg='blue.500' w={isMobile ? 'full' : '312px'} p={isMobile ? 0 : '8px'}>
       <HStack
         w={'240px'}
         mx='auto'
@@ -87,17 +87,14 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
           </Text>
         </Button>
       </HStack>
-      {status !== 'Loading' ? (
-        <>
-          {strategy === 'Buy' ? (
-            <BuyForm market={market} setOutcomeIndex={setOutcomeIndex} />
-          ) : (
-            <SellForm market={market} setOutcomeIndex={setOutcomeIndex} />
-          )}
-        </>
-      ) : (
-        <LoadingForm market={market} outcomeIndex={outcomeIndex} />
-      )}
+      {strategy === 'Buy' && <BuyForm market={market} setOutcomeIndex={setOutcomeIndex} />}
+      {strategy === 'Sell' ? (
+        status === 'Loading' ? (
+          <LoadingForm market={market} outcomeIndex={outcomeIndex} />
+        ) : (
+          <SellForm market={market} setOutcomeIndex={setOutcomeIndex} />
+        )
+      ) : null}
     </Paper>
   )
 }

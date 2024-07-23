@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button, VStack, Text, Box } from '@chakra-ui/react'
 import UnlockIcon from '@/resources/icons/unlocked.svg'
 import LockIcon from '@/resources/icons/locked.svg'
@@ -6,13 +6,14 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import Loader from '@/components/common/loader'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import { AnimatePresence, motion } from 'framer-motion'
+import { isMobile } from 'react-device-detect'
+import { ButtonStatus } from '@/app/markets/[address]/components/trade-widgets/action-button'
 
 const MotionBox = motion(Box)
 
 interface ConfirmButtonProps {
   tokenTicker: string
-  status: string
-  setStatus: Dispatch<SetStateAction<string>>
+  status: ButtonStatus
   handleConfirmClicked: () => Promise<void>
   onApprove: () => Promise<void>
 }
@@ -21,7 +22,6 @@ export default function ConfirmButton({
   tokenTicker,
   status,
   handleConfirmClicked,
-  setStatus,
   onApprove,
 }: ConfirmButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
@@ -88,8 +88,8 @@ export default function ConfirmButton({
   return (
     <Button
       bg='rgba(255, 255, 255, 0.2)'
-      w='112px'
-      h='136px'
+      w={isMobile ? '156px' : '136px'}
+      h={isMobile ? '156px' : '136px'}
       _hover={{
         backgroundColor: 'transparent.300',
       }}

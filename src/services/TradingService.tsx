@@ -457,20 +457,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      // TODO: incapsulate
-
-      if (client === 'eoa') {
-        const allowance = await checkAllowance(
-          market.address[defaultChain.id],
-          market.collateralToken[defaultChain.id]
-        )
-
-        if (allowance < collateralAmountBI) {
-          setApproveModalOpened(true)
-          return
-        }
-      }
-
       const receipt = await buyOutcomeTokens(
         market.address[defaultChain.id],
         collateralAmountBI,
@@ -505,6 +491,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       const updateToastId = toast({
         render: () => <Toast title={`Updating portfolio...`} id={updateToastId} />,
+        duration: 5000,
       })
 
       // TODO: redesign subgraph refetch logic

@@ -296,7 +296,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           </InputGroup>
         </Stack>
       </Stack>
-      <VStack mt='24px'>
+      <VStack mt='24px' overflow='hidden'>
         <ActionButton
           onClick={async () => {
             trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
