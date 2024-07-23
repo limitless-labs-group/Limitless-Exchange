@@ -1,7 +1,7 @@
 import { isMobile } from 'react-device-detect'
 import { TradeQuotes } from '@/services'
 import { defaultChain } from '@/constants'
-import { Box, Button, HStack, Icon, Link, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, HStack, Icon, Text, VStack } from '@chakra-ui/react'
 import BlockIcon from '@/resources/icons/block.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -9,7 +9,7 @@ import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import { NumberUtil } from '@/utils'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -57,7 +57,7 @@ export default function ActionButton({
   const { client, checkAllowance, approveContract } = useWeb3Service()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
-  const INFO_MSG = 'Trading is not available to U.S. residents or restricted territories.'
+  const INFO_MSG = 'Market is locked. Please await for final resolution. Trading stopped.'
 
   const headerStatus = useMemo(() => {
     let content
@@ -126,6 +126,10 @@ export default function ActionButton({
   const transformValue = isMobile ? -172 : -144
 
   const handleActionIntention = async () => {
+    if (market?.status === MarketStatus.LOCKED) {
+      await onClick()
+      return
+    }
     if (client === 'eoa') {
       const allowance = await checkAllowance(
         market.address[defaultChain.id],
@@ -207,7 +211,7 @@ export default function ActionButton({
           borderRadius='2px'
         >
           {showBlock ? (
-            <VStack w={'full'}>
+            <VStack w={'full'} h={'120px'}>
               <HStack w={'full'} justifyContent={'space-between'}>
                 <Icon as={BlockIcon} width={'16px'} height={'16px'} color={'white'} />
                 <Icon
@@ -224,19 +228,6 @@ export default function ActionButton({
               <HStack w={'full'}>
                 <Text {...paragraphMedium} color='grey.50' textAlign={'left'} whiteSpace='normal'>
                   {INFO_MSG}
-                  <Text>
-                    See our{' '}
-                    <Link
-                      textDecoration='underline'
-                      href={
-                        'https://drive.google.com/file/d/1RmObjk7_HBa-Tg6yiA45JSRxKcOSSdrW/view'
-                      }
-                      isExternal
-                    >
-                      Terms of Use
-                    </Link>{' '}
-                    for details.
-                  </Text>
                 </Text>
                 <Box w={'45px'}></Box>
               </HStack>
