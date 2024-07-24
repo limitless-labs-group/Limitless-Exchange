@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Text, Box, useTheme } from '@chakra-ui/react'
 import { useCategories } from '@/services'
 import Link from 'next/link'
