@@ -32,7 +32,12 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
 
   return (
-    <Paper bg='blue.500' w={isMobile ? 'full' : '312px'} p={isMobile ? 0 : '8px'}>
+    <Paper
+      bg='blue.500'
+      w={isMobile ? 'full' : '312px'}
+      p={isMobile ? 0 : '8px'}
+      overflow={isMobile ? 'unset' : 'hidden'}
+    >
       <HStack
         w={'240px'}
         mx='auto'
