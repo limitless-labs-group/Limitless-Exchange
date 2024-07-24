@@ -1,7 +1,7 @@
 import { isMobile } from 'react-device-detect'
 import { TradeQuotes } from '@/services'
 import { defaultChain } from '@/constants'
-import { Box, Button, HStack, Icon, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, HStack, Icon, Text, useOutsideClick, VStack } from '@chakra-ui/react'
 import BlockIcon from '@/resources/icons/block.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -11,7 +11,7 @@ import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import { NumberUtil } from '@/utils'
 import { Market, MarketStatus } from '@/types'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useMemo, useState } from 'react'
+import { LegacyRef, MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { useWeb3Service } from '@/services/Web3Service'
 import ConfirmButton from '@/app/markets/[address]/components/trade-widgets/confirm-button'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
@@ -54,10 +54,16 @@ export default function ActionButton({
   amount,
   decimals,
 }: ActionButtonProps) {
+  const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
   const INFO_MSG = 'Market is locked. Please await for final resolution. Trading stopped.'
+
+  useOutsideClick({
+    ref: ref as MutableRefObject<HTMLElement>,
+    handler: () => setStatus('initial'),
+  })
 
   const headerStatus = useMemo(() => {
     let content
@@ -123,9 +129,13 @@ export default function ActionButton({
     )
   }, [option, price, status])
 
-  const transformValue = isMobile ? -172 : -144
+  const transformValue = isMobile ? -304 : -264
 
   const handleActionIntention = async () => {
+    if (status !== 'initial') {
+      setStatus('initial')
+      return
+    }
     if (market?.status === MarketStatus.LOCKED) {
       await onClick()
       return
@@ -188,11 +198,17 @@ export default function ActionButton({
   }, [status])
 
   return (
-    <HStack w='full' gap={isMobile ? '16px' : '8px'}>
+    <HStack
+      w='full'
+      gap={'8px'}
+      overflow={isMobile && status === 'initial' ? 'hidden' : 'unset'}
+      ref={ref as LegacyRef<HTMLDivElement>}
+    >
       <MotionBox
         animate={{ x: ['unlock', 'unlocking', 'confirm'].includes(status) ? transformValue : 0 }}
         transition={{ duration: 0.5 }}
         w='full'
+        // ref={isMobile ? (ref as MutableRefObject<HTMLElement>) : undefined}
       >
         <Button
           bg='rgba(255, 255, 255, 0.2)'
@@ -206,7 +222,7 @@ export default function ActionButton({
           _hover={{
             backgroundColor: 'transparent.300',
           }}
-          isDisabled={disabled || status !== 'initial'}
+          isDisabled={disabled || ['transaction-broadcasted', 'success'].includes(status)}
           onClick={handleActionIntention}
           borderRadius='2px'
         >
@@ -321,6 +337,7 @@ export default function ActionButton({
           status={status}
           handleConfirmClicked={handleConfirmClicked}
           onApprove={handleApprove}
+          setStatus={setStatus}
         />
       </MotionBox>
     </HStack>
