@@ -222,7 +222,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
             gap={isMobile ? '16px' : '8px'}
           >
             {isYesOpen ? (
-              <VStack w={'full'} h={'120px'}>
+              <VStack w={'full'} h={'72px'}>
                 <HStack w={'full'} justifyContent={'space-between'}>
                   <Icon as={BlockIcon} width={'16px'} height={'16px'} color={'white'} />
                   <Icon
@@ -327,7 +327,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
             gap={isMobile ? '16px' : '8px'}
           >
             {isNoOpen ? (
-              <VStack w={'full'} h={'120px'}>
+              <VStack w={'full'} h={'72px'}>
                 <HStack w={'full'} justifyContent={'space-between'}>
                   <Icon as={BlockIcon} width={'16px'} height={'16px'} color={'white'} />
                   <Icon
