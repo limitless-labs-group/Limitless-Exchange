@@ -118,8 +118,14 @@ export const OgImageGenerator = ({
         height: componentHeight * scale,
         backgroundColor: backgroundColor,
         // allowTaint: true,
-        scrollX: 0,
-        scrollY: 0,
+        // scrollX: 0,
+        // scrollY: 0,
+        scrollX: -window.scrollX,
+        scrollY: -window.scrollY,
+        // windowWidth: document.documentElement.offsetWidth,
+        // windowHeight: document.documentElement.offsetHeight,
+        // x: window.scrollX,
+        // y: window.scrollY,
       })
       // handleMofidifyStyles(previewOptions)
 
@@ -149,6 +155,33 @@ export const OgImageGenerator = ({
   const handleClick = async () => {
     await handleGenerateBlob()
     // handleDownloadPreviewImage()
+
+    // // Create a new canvas element
+    // const canvas = document.createElement('canvas')
+    // canvas.width = 2110
+    // canvas.height = 1100
+
+    // // Get the 2D drawing context
+    // const ctx = canvas.getContext('2d')
+
+    // // Draw something on the canvas
+    // ctx!.fillStyle = backgroundColor
+    // ctx!.fillRect(50, 50, 2110, 1100)
+
+    // ctx?.fillText(title, 50, 50)
+
+    // // Convert the canvas to a PNG image
+    // const pngImage = canvas.toDataURL('image/png')
+
+    // // Do something with the PNG image (e.g., display it in an image element)
+    // const imageElement = document.createElement('img')
+    // imageElement.src = pngImage
+    // document.body.appendChild(imageElement)
+
+    // const link = document.createElement('a')
+    // link.href = pngImage
+    // link.download = 'image.png'
+    // link.click()
   }
 
   const { firstWord, secondWord, words } = useMemo(() => {
@@ -212,31 +245,31 @@ export const OgImageGenerator = ({
                   />
                 </StackItem>
                 <StackItem
-                  scrollMarginY={0}
-                  scrollPaddingY={0}
-                  scrollMarginX={0}
-                  scrollPaddingX={0}
-                  transform='none'
+                // scrollMarginY={0}
+                // scrollPaddingY={0}
+                // scrollMarginX={0}
+                // scrollPaddingX={0}
+                // transform='none'
                 >
                   <Box
                     px='8px'
                     py='1px'
                     bg='white'
                     borderRadius='sm'
-                    scrollMarginY={0}
-                    scrollPaddingY={0}
-                    scrollMarginX={0}
-                    scrollPaddingX={0}
-                    transform='none'
+                    // scrollMarginY={0}
+                    // scrollPaddingY={0}
+                    // scrollMarginX={0}
+                    // scrollPaddingX={0}
+                    // transform='none'
                   >
                     <Text
                       // ref={categoryTextRef}
                       fontSize={previewOptions.fontSize / 1.5}
                       color={backgroundColor}
-                      scrollMarginY={0}
-                      scrollPaddingY={0}
-                      scrollMarginX={0}
-                      scrollPaddingX={0}
+                      // scrollMarginY={0}
+                      // scrollPaddingY={0}
+                      // scrollMarginX={0}
+                      // scrollPaddingX={0}
                     >
                       /{category}
                     </Text>
@@ -248,11 +281,7 @@ export const OgImageGenerator = ({
         </VStack>
       </Tooltip>
 
-      <Box
-        display='block'
-        w='full'
-        // position='absolute' top='-9999px'
-      >
+      <Box display='block' w='full' position='absolute' top='-9999px'>
         <Box
           ref={canvasRef}
           bg={backgroundColor}
@@ -289,11 +318,24 @@ export const OgImageGenerator = ({
                 borderRadius='md'
                 px={5}
                 // pb={5}
+                height={exportOptions.logo.height}
+                // minWidth={200}
+                // maxWidth={300}
+                // w='auto'
                 bg='white'
+                boxSizing='border-box'
+                fontSize={48}
               >
-                <Text fontSize={48} color={backgroundColor}>
+                <h1 style={{ top: '100px' }} color={backgroundColor}>
                   /{category}
-                </Text>
+                </h1>
+                {/* <Text
+                  // pos='absolute'
+                  fontSize={48}
+                  color={backgroundColor}
+                >
+                  /{category}
+                </Text> */}
               </Box>
             </Box>
           </VStack>
