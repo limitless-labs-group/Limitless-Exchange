@@ -117,7 +117,9 @@ export const OgImageGenerator = ({
         width: componentWidth * scale,
         height: componentHeight * scale,
         backgroundColor: backgroundColor,
-        allowTaint: true,
+        // allowTaint: true,
+        scrollX: 0,
+        scrollY: 0,
       })
       // handleMofidifyStyles(previewOptions)
 
@@ -209,12 +211,32 @@ export const OgImageGenerator = ({
                     height={previewOptions.logo.height}
                   />
                 </StackItem>
-                <StackItem>
-                  <Box px='8px' py='1px' bg='white' borderRadius='sm'>
+                <StackItem
+                  scrollMarginY={0}
+                  scrollPaddingY={0}
+                  scrollMarginX={0}
+                  scrollPaddingX={0}
+                  transform='none'
+                >
+                  <Box
+                    px='8px'
+                    py='1px'
+                    bg='white'
+                    borderRadius='sm'
+                    scrollMarginY={0}
+                    scrollPaddingY={0}
+                    scrollMarginX={0}
+                    scrollPaddingX={0}
+                    transform='none'
+                  >
                     <Text
                       // ref={categoryTextRef}
                       fontSize={previewOptions.fontSize / 1.5}
                       color={backgroundColor}
+                      scrollMarginY={0}
+                      scrollPaddingY={0}
+                      scrollMarginX={0}
+                      scrollPaddingX={0}
                     >
                       /{category}
                     </Text>
