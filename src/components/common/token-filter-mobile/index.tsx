@@ -8,27 +8,23 @@ import { useSearchParams } from 'next/navigation'
 
 export default function TokenFilterMobile() {
   const [section, setSection] = useState('Topics')
-  const { selectedCategory, handleCategory } = useTokenFilter()
+  const { handleCategory } = useTokenFilter()
 
   const { data: categories } = useCategories()
   const searchParams = useSearchParams()
 
   const TopicSectionCategories = () =>
     (categories ?? []).map((category) => {
-      const _selected = selectedCategory?.id === category.id
+      const _selected = category.name === searchParams?.get('category')
       return (
         <Button
           bg={_selected ? 'grey.800' : 'grey.300'}
-          color={_selected ? 'grey.50' : 'grey.800'}
           variant='grey'
           key={category.id}
           onClick={() => handleCategory(category)}
         >
           <Link href={{ pathname: '/', query: { category: category.name } }}>
-            <Text
-              color={category.name === searchParams?.get('category') ? 'white' : 'black'}
-              fontWeight={500}
-            >
+            <Text color={_selected ? 'white' : 'black'} fontWeight={500}>
               /{category.name}
             </Text>
           </Link>
