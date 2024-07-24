@@ -58,7 +58,7 @@ export default function ActionButton({
   const { client, checkAllowance, approveContract } = useWeb3Service()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
-  const INFO_MSG = 'Market is locked. Please await for final resolution. Trading stopped.'
+  const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
