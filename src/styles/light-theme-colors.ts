@@ -1,4 +1,6 @@
-export const lightThemeColors = {
+import { ColorScheme } from '@/types'
+
+export const lightThemeColors: ColorScheme = {
   white: '#FFFFFF',
   black: '#000000',
   grey: {
@@ -31,6 +33,8 @@ export const lightThemeColors = {
     400: '#3F8C3A',
     500: '#238020',
     600: '#20761E',
+    700: '#20761E',
+    800: '#20761E',
   },
   red: {
     50: '#FFF5F0',

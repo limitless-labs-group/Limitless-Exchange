@@ -1,13 +1,11 @@
 import { extendTheme as ChakraTheme, ThemeConfig } from '@chakra-ui/react'
 import { radioTheme } from '@/styles/radio'
-import { lightThemeColors } from '@/styles/light-theme-colors'
 import { modalTheme } from '@/styles/modals'
 import { accordionTheme } from '@/styles/accordion'
 import { inputTheme } from '@/styles/input'
 import { menuTheme } from '@/styles/menu'
 import { commonButtonProps } from '@/styles/button'
 import { checkboxTheme } from '@/styles/checkbox'
-import { darkThemeColors } from '@/styles/dark-theme-colors'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
@@ -25,10 +23,7 @@ export const chakraTheme = ChakraTheme({
     heading: pixels,
     body: fonts,
   },
-  colors: {
-    light: lightThemeColors,
-    dark: darkThemeColors,
-  },
+  // colors: mode(lightThemeColors, darkThemeColors)((props) => props),
   styles: {
     global: {
       body: {

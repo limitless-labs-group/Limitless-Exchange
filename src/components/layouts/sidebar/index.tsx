@@ -1,6 +1,5 @@
 import {
   Divider,
-  useTheme,
   VStack,
   Text,
   Button,
@@ -45,10 +44,11 @@ import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import '@rainbow-me/rainbowkit/styles.css'
 import useDisconnectAccount from '@/hooks/use-disconnect'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { useThemeProvider } from '@/providers'
 
 export default function Sidebar() {
-  const theme = useTheme()
-  const { colorMode, toggleColorMode } = useColorMode()
+  const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
+  const { toggleColorMode } = useColorMode()
 
   const { isConnected } = useWagmiAccount()
   const { trackClicked } = useAmplitude()
@@ -74,7 +74,8 @@ export default function Sidebar() {
     <>
       <VStack
         padding='16px 8px'
-        borderRight={`1px solid ${theme.colors.grey['200']}`}
+        borderRight='1px solid'
+        borderColor='grey.200'
         h='full'
         minW={'188px'}
         minH={'100vh'}
@@ -161,16 +162,22 @@ export default function Sidebar() {
               <MenuList borderRadius='2px' w='171px' zIndex={2}>
                 <HStack gap='4px' mb='4px'>
                   <Button
-                    variant={colorMode === 'light' ? 'black' : 'grey'}
+                    variant={mode === 'light' ? 'black' : 'grey'}
                     w='full'
-                    onClick={toggleColorMode}
+                    onClick={() => {
+                      toggleColorMode()
+                      setLightTheme()
+                    }}
                   >
                     <SunIcon width={16} height={16} />
                   </Button>
                   <Button
-                    variant={colorMode === 'dark' ? 'black' : 'grey'}
+                    variant={mode === 'dark' ? 'black' : 'grey'}
                     w='full'
-                    onClick={toggleColorMode}
+                    onClick={() => {
+                      toggleColorMode()
+                      setDarkTheme()
+                    }}
                   >
                     <MoonIcon width={16} height={16} />
                   </Button>

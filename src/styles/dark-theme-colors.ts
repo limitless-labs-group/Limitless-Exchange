@@ -1,4 +1,6 @@
-export const darkThemeColors = {
+import { ColorScheme } from '@/types'
+
+export const darkThemeColors: ColorScheme = {
   white: '#FFFFFF',
   black: '#000000',
   grey: {
