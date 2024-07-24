@@ -8,6 +8,8 @@ import {
 } from '@chakra-ui/react'
 import { PropsWithChildren } from 'react'
 import { BaseNextRequest } from 'next/dist/server/base-http'
+import { lightThemeColors } from '@/styles/light-theme-colors'
+import { darkThemeColors } from '@/styles/dark-theme-colors'
 
 export const ChakraProvider = ({
   cookies,
@@ -15,6 +17,7 @@ export const ChakraProvider = ({
 }: PropsWithChildren<Record<string, unknown>>) => {
   const colorModeManager =
     typeof cookies === 'string' ? cookieStorageManagerSSR(cookies) : localStorageManager
+
   return (
     <ChakraDefaultProvider theme={chakraTheme} colorModeManager={colorModeManager}>
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />

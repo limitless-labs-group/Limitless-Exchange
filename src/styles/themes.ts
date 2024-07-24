@@ -7,6 +7,7 @@ import { inputTheme } from '@/styles/input'
 import { menuTheme } from '@/styles/menu'
 import { commonButtonProps } from '@/styles/button'
 import { checkboxTheme } from '@/styles/checkbox'
+import { darkThemeColors } from '@/styles/dark-theme-colors'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
@@ -24,7 +25,10 @@ export const chakraTheme = ChakraTheme({
     heading: pixels,
     body: fonts,
   },
-  colors: lightThemeColors,
+  colors: {
+    light: lightThemeColors,
+    dark: darkThemeColors,
+  },
   styles: {
     global: {
       body: {
@@ -167,6 +171,14 @@ export const chakraTheme = ChakraTheme({
             bg: 'grey.300',
             color: 'grey.500',
             pointerEvents: 'none',
+          },
+        },
+        black: {
+          ...commonButtonProps,
+          bg: 'grey.800',
+          color: 'grey.50',
+          _hover: {
+            bg: 'grey.800',
           },
         },
         transparent: {

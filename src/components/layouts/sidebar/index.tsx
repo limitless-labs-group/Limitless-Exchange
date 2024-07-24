@@ -13,11 +13,14 @@ import {
   Menu,
   MenuButton,
   MenuList,
+  useColorMode,
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import '../../../../src/app/style.css'
+import SunIcon from '@/resources/icons/sun-icon.svg'
+import MoonIcon from '@/resources/icons/moon-icon.svg'
 
 import {
   ClickEvent,
@@ -45,6 +48,7 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 export default function Sidebar() {
   const theme = useTheme()
+  const { colorMode, toggleColorMode } = useColorMode()
 
   const { isConnected } = useWagmiAccount()
   const { trackClicked } = useAmplitude()
@@ -155,6 +159,22 @@ export default function Sidebar() {
                 </HStack>
               </MenuButton>
               <MenuList borderRadius='2px' w='171px' zIndex={2}>
+                <HStack gap='4px' mb='4px'>
+                  <Button
+                    variant={colorMode === 'light' ? 'black' : 'grey'}
+                    w='full'
+                    onClick={toggleColorMode}
+                  >
+                    <SunIcon width={16} height={16} />
+                  </Button>
+                  <Button
+                    variant={colorMode === 'dark' ? 'black' : 'grey'}
+                    w='full'
+                    onClick={toggleColorMode}
+                  >
+                    <MoonIcon width={16} height={16} />
+                  </Button>
+                </HStack>
                 <Button
                   variant='grey'
                   w='full'
@@ -168,6 +188,7 @@ export default function Sidebar() {
                     disconnectFromPlatform()
                     onToggleAuthMenu()
                   }}
+                  justifyContent='flex-start'
                 >
                   Log Out
                 </Button>
