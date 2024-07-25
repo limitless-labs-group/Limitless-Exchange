@@ -266,7 +266,6 @@ export const useWinningIndex = (marketAddr: string) =>
       `
 
       const response = await axios.post(newSubgraphURI[defaultChain.id], { query })
-      console.log(useWinningIndex.name, response)
 
       const data: {
         condition?: {
@@ -279,7 +278,6 @@ export const useWinningIndex = (marketAddr: string) =>
       if (!payoutNumerators) return null
 
       const result = payoutNumerators.findIndex((num) => num === 1)
-      console.log(useWinningIndex.name, { result, market, data })
 
       return result
     },

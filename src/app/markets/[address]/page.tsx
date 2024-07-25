@@ -21,7 +21,6 @@ import {
   OpenEvent,
   PageOpenedMetadata,
   useAmplitude,
-  useHistory,
   useTradingService,
 } from '@/services'
 import { useMarket, useWinningIndex } from '@/services/MarketsService'
@@ -45,7 +44,6 @@ import {
   MarketTradingModal,
   MobileTradeButton,
 } from './components'
-import { useAccount } from 'wagmi'
 import { h1Regular, paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
@@ -54,8 +52,6 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
    * ANALYTICS
    */
   const { trackOpened } = useAmplitude()
-  const { positions } = useHistory()
-  const { isConnected } = useAccount()
   const { data: winningIndex } = useWinningIndex(params.address)
   const resolved = winningIndex === 0 || winningIndex === 1
   const router = useRouter()
