@@ -1,16 +1,17 @@
 import {
   Flex,
   HStack,
+  Input,
+  InputGroup,
+  InputRightElement,
   Slider,
   SliderFilledTrack,
   SliderThumb,
   SliderTrack,
   Stack,
   Text,
+  useDisclosure,
   VStack,
-  Input,
-  InputRightElement,
-  InputGroup,
 } from '@chakra-ui/react'
 import { NumberUtil } from '@/utils'
 import { defaultChain } from '@/constants'
@@ -23,7 +24,7 @@ import {
   useBalanceService,
   useTradingService,
 } from '@/services'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
 import { useToken } from '@/hooks/use-token'
 import BigNumber from 'bignumber.js'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
@@ -94,6 +95,9 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
    */
 
   const [showTooltip, setShowTooltip] = useState(false)
+
+  const { isOpen: isYesOpen, onOpen: onYesOpen, onClose: onYesClose } = useDisclosure()
+  const { isOpen: isNoOpen, onOpen: onNoOpen, onClose: onNoClose } = useDisclosure()
 
   const handleInputValueChange = (value: string) => {
     if (token?.symbol === 'USDC') {
@@ -296,7 +300,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           </InputGroup>
         </Stack>
       </Stack>
-      <VStack mt='24px' overflow='hidden'>
+      <VStack mt='24px'>
         <ActionButton
           onClick={async () => {
             trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
@@ -304,12 +308,17 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
               marketAddress: market.address[defaultChain.id],
             })
 
+            if (market?.status === MarketStatus.LOCKED) {
+              onYesOpen()
+              return
+            }
+
             setOutcomeIndex(0)
             await trade(0)
           }}
           disabled={isExceedsBalance || !collateralAmount}
-          showBlock={false}
-          onCloseBlock={() => console.log('ok')}
+          showBlock={isYesOpen}
+          onCloseBlock={onYesClose}
           market={market}
           quote={quotesYes}
           amount={collateralAmount}
@@ -324,11 +333,17 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
               strategy: 'Buy',
               marketAddress: market.address[defaultChain.id],
             })
+
+            if (market?.status === MarketStatus.LOCKED) {
+              onNoOpen()
+              return
+            }
+
             setOutcomeIndex(1)
             await trade(1)
           }}
-          showBlock={false}
-          onCloseBlock={() => console.log('ok')}
+          showBlock={isNoOpen}
+          onCloseBlock={onNoClose}
           market={market}
           quote={quotesNo}
           amount={collateralAmount}

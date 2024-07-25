@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
-import { Button, VStack, Text, Box } from '@chakra-ui/react'
+import { Dispatch, SetStateAction, useMemo, useState } from 'react'
+import { Button, VStack, Text, Box, HStack } from '@chakra-ui/react'
 import UnlockIcon from '@/resources/icons/unlocked.svg'
 import LockIcon from '@/resources/icons/locked.svg'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import Loader from '@/components/common/loader'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
+import CloseIcon from '@/resources/icons/close-icon.svg'
 import { AnimatePresence, motion } from 'framer-motion'
 import { isMobile } from 'react-device-detect'
 import { ButtonStatus } from '@/app/markets/[address]/components/trade-widgets/action-button'
@@ -14,6 +15,7 @@ const MotionBox = motion(Box)
 interface ConfirmButtonProps {
   tokenTicker: string
   status: ButtonStatus
+  setStatus: Dispatch<SetStateAction<ButtonStatus>>
   handleConfirmClicked: () => Promise<void>
   onApprove: () => Promise<void>
 }
@@ -23,6 +25,7 @@ export default function ConfirmButton({
   status,
   handleConfirmClicked,
   onApprove,
+  setStatus,
 }: ConfirmButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
 
@@ -36,7 +39,7 @@ export default function ConfirmButton({
   }
 
   const content = useMemo(() => {
-    if (status === 'confirm' || status === 'transaction-broadcasted') {
+    if (status === 'confirm' || status === 'transaction-broadcasted' || status === 'initial') {
       return (
         <AnimatePresence>
           <MotionBox
@@ -86,21 +89,45 @@ export default function ConfirmButton({
   }, [status, isHovered, tokenTicker])
 
   return (
-    <Button
-      bg='rgba(255, 255, 255, 0.2)'
-      w={isMobile ? '156px' : '136px'}
-      h={isMobile ? '156px' : '136px'}
-      _hover={{
-        backgroundColor: 'transparent.300',
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={handleClick}
-      isDisabled={status === 'unlocking'}
-    >
-      <VStack w='full' h='full' color='grey.50' gap='8px' justifyContent='center'>
-        {content}
-      </VStack>
-    </Button>
+    <HStack>
+      <Button
+        bg='rgba(255, 255, 255, 0.2)'
+        w={isMobile ? '144px' : '124px'}
+        h={isMobile ? '156px' : '136px'}
+        _hover={{
+          backgroundColor: 'transparent.300',
+        }}
+        _active={{
+          background: 'unset',
+        }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={() => setStatus('initial')}
+        isDisabled={status === 'unlocking'}
+      >
+        <VStack w='full' h='full' color='grey.50' gap='8px' justifyContent='center'>
+          <CloseIcon width={16} height={16} />
+          <Text {...paragraphMedium} color='grey.50'>
+            Nevermind
+          </Text>
+        </VStack>
+      </Button>
+      <Button
+        bg='rgba(255, 255, 255, 0.2)'
+        w={isMobile ? '144px' : '124px'}
+        h={isMobile ? '156px' : '136px'}
+        _hover={{
+          backgroundColor: 'transparent.300',
+        }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={handleClick}
+        isDisabled={status === 'unlocking'}
+      >
+        <VStack w='full' h='full' color='grey.50' gap='8px' justifyContent='center'>
+          {content}
+        </VStack>
+      </Button>
+    </HStack>
   )
 }

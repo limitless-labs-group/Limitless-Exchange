@@ -70,6 +70,7 @@ export type MarketResponse = {
   liquidityFormatted?: string
   prices: number[]
   category: string
+  status: MarketStatus
 }
 
 export type Market = MarketResponse & {
@@ -113,6 +114,12 @@ export enum Sort {
   COMING_DEADLINE = 'Coming Soon',
   HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VOLUME = 'High Volume',
+}
+
+export enum MarketStatus {
+  RESOLVED = 'RESOLVED',
+  FUNDED = 'FUNDED',
+  LOCKED = 'LOCKED',
 }
 
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>

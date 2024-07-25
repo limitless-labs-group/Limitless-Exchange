@@ -1,33 +1,39 @@
 import React, { useState } from 'react'
-import { Text, Box, Button, HStack } from '@chakra-ui/react'
+import { Text, Box, HStack } from '@chakra-ui/react'
 import { useCategories } from '@/services'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import '@/app/style.css'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 export default function TokenFilterMobile() {
   const [section, setSection] = useState('Topics')
-  const { selectedCategory, handleCategory } = useTokenFilter()
+  const { handleCategory } = useTokenFilter()
 
   const { data: categories } = useCategories()
+  const searchParams = useSearchParams()
 
   const TopicSectionCategories = () =>
     (categories ?? []).map((category) => {
-      const _selected = selectedCategory?.id === category.id
+      const _selected = category.name === searchParams?.get('category')
       return (
-        <Button
+        <Box
           bg={_selected ? 'grey.800' : 'grey.300'}
-          color={_selected ? 'grey.50' : 'grey.800'}
-          variant='grey'
-          key={category.id}
           onClick={() => handleCategory(category)}
+          padding='4px 8px'
+          key={category.id}
+          borderRadius='2px'
+          w='fit-content'
+          marginBottom='4px'
+          cursor='pointer'
         >
-          <Link href={`/topics/${category.name.toLowerCase()}`}>
-            <Text color={_selected ? 'grey.50' : 'grey.800'} fontWeight={500}>
+          <Link href={{ pathname: '/', query: { category: category.name } }}>
+            <Text {...paragraphMedium} color={_selected ? 'white' : 'black'} fontWeight={500}>
               /{category.name}
             </Text>
           </Link>
-        </Button>
+        </Box>
       )
     })
 
