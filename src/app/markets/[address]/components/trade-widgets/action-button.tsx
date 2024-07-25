@@ -62,7 +62,11 @@ export default function ActionButton({
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
-    handler: () => setStatus('initial'),
+    handler: () => {
+      if (!['transaction-broadcasted, success'].includes(status)) {
+        setStatus('initial')
+      }
+    },
   })
 
   const headerStatus = useMemo(() => {
@@ -131,6 +135,8 @@ export default function ActionButton({
 
   const transformValue = isMobile ? -304 : -264
 
+  const buttonsTransform = isMobile ? 16 : 0
+
   const handleActionIntention = async () => {
     if (status !== 'initial') {
       setStatus('initial')
@@ -198,12 +204,7 @@ export default function ActionButton({
   }, [status])
 
   return (
-    <HStack
-      w='full'
-      gap={'8px'}
-      overflow={isMobile && status === 'initial' ? 'hidden' : 'unset'}
-      ref={ref as LegacyRef<HTMLDivElement>}
-    >
+    <HStack w='full' gap={'8px'} ref={ref as LegacyRef<HTMLDivElement>}>
       <MotionBox
         animate={{ x: ['unlock', 'unlocking', 'confirm'].includes(status) ? transformValue : 0 }}
         transition={{ duration: 0.5 }}
@@ -329,7 +330,11 @@ export default function ActionButton({
         </Button>
       </MotionBox>
       <MotionBox
-        animate={{ x: ['unlock', 'unlocking', 'confirm'].includes(status) ? transformValue : 0 }}
+        animate={{
+          x: ['unlock', 'unlocking', 'confirm'].includes(status)
+            ? transformValue
+            : buttonsTransform,
+        }}
         transition={{ duration: 0.5 }}
       >
         <ConfirmButton

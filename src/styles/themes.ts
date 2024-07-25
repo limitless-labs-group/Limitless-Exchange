@@ -113,6 +113,7 @@ export const chakraTheme = ChakraTheme({
         fontWeight: 500,
         gap: '4px',
         borderRadius: '2px',
+        outline: 'none !important',
         _disabled: {
           opacity: 1,
           pointerEvents: 'none',
