@@ -99,7 +99,9 @@ export default function MobileHeader() {
                       alignItems='center'
                       justifyContent='center'
                     >
-                      <Text {...paragraphMedium}>{userInfo?.name?.[0].toUpperCase()}</Text>
+                      <Text {...paragraphMedium}>
+                        {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
+                      </Text>
                     </Flex>
                   )}
                 </Button>
@@ -149,7 +151,7 @@ export default function MobileHeader() {
                             justifyContent='center'
                           >
                             <Text fontWeight={500} fontSize='24px'>
-                              {userInfo?.name?.[0].toUpperCase()}
+                              {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
                             </Text>
                           </Flex>
                         )}
