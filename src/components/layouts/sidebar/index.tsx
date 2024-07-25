@@ -42,6 +42,7 @@ import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import '@rainbow-me/rainbowkit/styles.css'
 import useDisconnectAccount from '@/hooks/use-disconnect'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import TokenFilter from '@/components/common/token-filter'
 
 export default function Sidebar() {
   const theme = useTheme()
@@ -76,6 +77,9 @@ export default function Sidebar() {
         minH={'100vh'}
         zIndex={200}
         bg='grey.100'
+        position='fixed'
+        overflowY='auto'
+        pb='100px'
       >
         <Button variant='transparent' onClick={() => router.push('/')} _hover={{ bg: 'unset' }}>
           <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
@@ -198,7 +202,7 @@ export default function Sidebar() {
           </Box>
         )}
         <Divider />
-
+        <TokenFilter />
         {!isMobile && <CategoryFilter />}
       </VStack>
       {isOpenWalletPage && (
