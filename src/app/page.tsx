@@ -115,7 +115,7 @@ const MainPage = () => {
 
   return (
     <MainLayout>
-      <Box w={isMobile ? 'auto' : '664px'} ml={isMobile ? 'auto' : '200px'}>
+      <Box w={isMobile ? 'full' : '664px'} ml={isMobile ? 'auto' : '200px'}>
         <Divider bg='grey.800' orientation='horizontal' h='3px' mb='16px' />
         <TextWithPixels
           text={`Explore ${categoryEntity?.name ?? 'Limitless'} Prediction Markets`}
