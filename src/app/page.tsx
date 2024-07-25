@@ -51,7 +51,8 @@ const MainPage = () => {
   const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage, isFetching } = useMarkets(categoryEntity)
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
+    useMarkets(categoryEntity)
 
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.length
@@ -128,7 +129,7 @@ const MainPage = () => {
         </Text>
 
         <SortFilter onChange={handleSelectSort} />
-        {isFetching ? (
+        {isFetching && !isFetchingNextPage ? (
           <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>
             <Spinner />
           </HStack>

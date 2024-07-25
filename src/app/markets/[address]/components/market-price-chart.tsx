@@ -10,8 +10,8 @@ import { useMemo, useState } from 'react'
 import { Market } from '@/types'
 import Paper from '@/components/common/paper'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { isMobile } from 'react-device-detect'
+import { useThemeProvider } from '@/providers'
 
 const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
@@ -29,6 +29,7 @@ export interface IMarketPriceChart {
 
 export const MarketPriceChart = ({ market, resolved, winningIndex }: IMarketPriceChart) => {
   const pathname = usePathname()
+  const { colors } = useThemeProvider()
   const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%B %e, %Y %I:%M %p', Date.now()) ?? ''
@@ -41,7 +42,7 @@ export const MarketPriceChart = ({ market, resolved, winningIndex }: IMarketPric
         type: 'x',
       },
       height: 230,
-      backgroundColor: '#E7E7E7',
+      backgroundColor: colors.grey['200'],
       marginLeft: 0,
       marginRight: 0,
     },
@@ -54,6 +55,8 @@ export const MarketPriceChart = ({ market, resolved, winningIndex }: IMarketPric
       ordinal: false,
       tickInterval: 24 * 3600 * 1000 * 10,
       tickPosition: 'outside',
+      lineColor: colors.grey['800'],
+      tickColor: colors.grey['800'],
       labels: {
         x: isMobile ? 20 : 10,
         step: isMobile ? 3 : 0,
@@ -62,6 +65,7 @@ export const MarketPriceChart = ({ market, resolved, winningIndex }: IMarketPric
         style: {
           fontFamily: 'Helvetica Neue',
           fontSize: isMobile ? '14px' : '12px',
+          color: colors.grey['800'],
         },
         formatter: function () {
           return Highcharts.dateFormat('%b %e', Number(this.value))
@@ -76,7 +80,7 @@ export const MarketPriceChart = ({ market, resolved, winningIndex }: IMarketPric
       max: 100,
       opposite: true,
       tickInterval: 20,
-      gridLineColor: '#B7B7B7',
+      gridLineColor: colors.grey['400'],
     },
     legend: {
       enabled: false,
@@ -117,9 +121,9 @@ export const MarketPriceChart = ({ market, resolved, winningIndex }: IMarketPric
           },
           stops: [
             //@ts-ignore
-            [0, Highcharts.color('#238020').setOpacity(0.5).get('rgba')],
+            [0, Highcharts.color(colors.green['500']).setOpacity(0.5).get('rgba')],
             //@ts-ignore
-            [1, Highcharts.color('#238020').setOpacity(0).get('rgba')],
+            [1, Highcharts.color(colors.green['500']).setOpacity(0).get('rgba')],
           ],
           brighten: 0.2,
         },
@@ -142,7 +146,7 @@ export const MarketPriceChart = ({ market, resolved, winningIndex }: IMarketPric
         data: data,
         turboThreshold: 2000,
         boostThreshold: 2000,
-        color: '#238020',
+        color: colors.green['500'],
         lineWidth: 2,
       },
     ],

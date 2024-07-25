@@ -26,7 +26,7 @@ export const MarketPositions = ({ market }: MarketPositionsProps) => {
   return Number(positions?.length) > 0 ? (
     <>
       <Flex mt='24px' justifyContent='space-between' mb='8px'>
-        <HStack color='black' gap='4px'>
+        <HStack color='grey.800' gap='4px'>
           <ChartIcon width='16px' height='16px' />
           <Text {...paragraphMedium}>Portfolio</Text>
         </HStack>

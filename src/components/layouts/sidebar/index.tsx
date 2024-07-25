@@ -1,6 +1,5 @@
 import {
   Divider,
-  useTheme,
   VStack,
   Text,
   Button,
@@ -13,11 +12,14 @@ import {
   Menu,
   MenuButton,
   MenuList,
+  useColorMode,
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import '../../../../src/app/style.css'
+import SunIcon from '@/resources/icons/sun-icon.svg'
+import MoonIcon from '@/resources/icons/moon-icon.svg'
 
 import {
   ClickEvent,
@@ -43,9 +45,11 @@ import '@rainbow-me/rainbowkit/styles.css'
 import useDisconnectAccount from '@/hooks/use-disconnect'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import TokenFilter from '@/components/common/token-filter'
+import { useThemeProvider } from '@/providers'
 
 export default function Sidebar() {
-  const theme = useTheme()
+  const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
+  const { toggleColorMode } = useColorMode()
 
   const { isConnected } = useWagmiAccount()
   const { trackClicked } = useAmplitude()
@@ -71,7 +75,8 @@ export default function Sidebar() {
     <>
       <VStack
         padding='16px 8px'
-        borderRight={`1px solid ${theme.colors.grey['200']}`}
+        borderRight='1px solid'
+        borderColor='grey.200'
         h='full'
         minW={'188px'}
         minH={'100vh'}
@@ -82,7 +87,12 @@ export default function Sidebar() {
         pb='100px'
       >
         <Button variant='transparent' onClick={() => router.push('/')} _hover={{ bg: 'unset' }}>
-          <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
+          <Image
+            src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+            height={32}
+            width={156}
+            alt='calendar'
+          />
         </Button>
         {isConnected && (
           <VStack my='16px' w='full' gap='8px'>
@@ -159,6 +169,28 @@ export default function Sidebar() {
                 </HStack>
               </MenuButton>
               <MenuList borderRadius='2px' w='171px' zIndex={2}>
+                <HStack gap='4px' mb='4px'>
+                  <Button
+                    variant={mode === 'dark' ? 'grey' : 'black'}
+                    w='full'
+                    onClick={() => {
+                      toggleColorMode()
+                      setLightTheme()
+                    }}
+                  >
+                    <SunIcon width={16} height={16} />
+                  </Button>
+                  <Button
+                    variant={mode === 'dark' ? 'black' : 'grey'}
+                    w='full'
+                    onClick={() => {
+                      toggleColorMode()
+                      setDarkTheme()
+                    }}
+                  >
+                    <MoonIcon width={16} height={16} />
+                  </Button>
+                </HStack>
                 <Button
                   variant='grey'
                   w='full'
@@ -172,6 +204,7 @@ export default function Sidebar() {
                     disconnectFromPlatform()
                     onToggleAuthMenu()
                   }}
+                  justifyContent='flex-start'
                 >
                   Log Out
                 </Button>

@@ -76,7 +76,7 @@ export default function ActionButton({
         content = (
           <>
             <Loader />
-            <Text {...paragraphMedium} color='grey.50'>
+            <Text {...paragraphMedium} color='white'>
               Buying...
             </Text>
           </>
@@ -98,7 +98,7 @@ export default function ActionButton({
                 gap='8px'
               >
                 <CheckedIcon width={16} height={16} />
-                <Text {...paragraphMedium} color='grey.50'>
+                <Text {...paragraphMedium} color='white'>
                   Bought
                 </Text>
               </MotionBox>
@@ -115,10 +115,10 @@ export default function ActionButton({
               <ThumbsDownIcon width={16} height={16} />
             )}
             <HStack gap='4px'>
-              <Text {...paragraphMedium} color='grey.50'>
+              <Text {...paragraphMedium} color='white'>
                 {price}%
               </Text>
-              <Text {...paragraphMedium} color='grey.50'>
+              <Text {...paragraphMedium} color='white'>
                 {option}
               </Text>
             </HStack>
@@ -127,7 +127,7 @@ export default function ActionButton({
         break
     }
     return (
-      <HStack gap='8px' color='grey.50' minH='20px' w='full'>
+      <HStack gap='8px' color='white' minH='20px' w='full'>
         {content}
       </HStack>
     )
@@ -243,7 +243,7 @@ export default function ActionButton({
                 />
               </HStack>
               <HStack w={'full'}>
-                <Text {...paragraphMedium} color='grey.50' textAlign={'left'} whiteSpace='normal'>
+                <Text {...paragraphMedium} color='white' textAlign={'left'} whiteSpace='normal'>
                   {INFO_MSG}
                 </Text>
                 <Box w={'45px'}></Box>
@@ -255,7 +255,7 @@ export default function ActionButton({
               <VStack ml='24px' w='calc(100% - 24px)' gap={isMobile ? '8px' : '4px'}>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
+                    <Text {...paragraphRegular} color='white'>
                       Avg price
                     </Text>
                     {/*<Tooltip*/}
@@ -266,14 +266,14 @@ export default function ActionButton({
                     {/*  <InfoIcon width='16px' height='16px' />*/}
                     {/*</Tooltip>*/}
                   </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>{`${NumberUtil.formatThousands(
+                  <Text {...paragraphRegular} color='white'>{`${NumberUtil.formatThousands(
                     quote?.outcomeTokenPrice,
                     6
                   )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
                 </HStack>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
+                    <Text {...paragraphRegular} color='white'>
                       Price impact
                     </Text>
                     {/*<Tooltip*/}
@@ -284,14 +284,14 @@ export default function ActionButton({
                     {/*  <InfoIcon width='16px' height='16px' />*/}
                     {/*</Tooltip>*/}
                   </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>{`${NumberUtil.toFixed(
+                  <Text {...paragraphRegular} color='white'>{`${NumberUtil.toFixed(
                     quote?.priceImpact,
                     2
                   )}%`}</Text>
                 </HStack>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
+                    <Text {...paragraphRegular} color='white'>
                       Est. ROI
                     </Text>
                     {/*<Tooltip*/}
@@ -302,13 +302,13 @@ export default function ActionButton({
                     {/*  <InfoIcon width='16px' height='16px' />*/}
                     {/*</Tooltip>*/}
                   </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>
+                  <Text {...paragraphRegular} color='white'>
                     {NumberUtil.toFixed(quote?.roi, 2)}%
                   </Text>
                 </HStack>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
+                    <Text {...paragraphRegular} color='white'>
                       Return
                     </Text>
                     {/*<Tooltip*/}
@@ -319,7 +319,7 @@ export default function ActionButton({
                     {/*  <InfoIcon width='16px' height='16px' />*/}
                     {/*</Tooltip>*/}
                   </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>
+                  <Text {...paragraphRegular} color='white'>
                     {NumberUtil.formatThousands(quote?.outcomeTokenAmount, 6)}{' '}
                     {market.tokenTicker[defaultChain.id]}
                   </Text>

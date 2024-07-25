@@ -27,9 +27,12 @@ export default function TokenFilterMobile() {
           w='fit-content'
           marginBottom='4px'
           cursor='pointer'
+          _hover={{
+            bg: category.name === searchParams?.get('category') ? 'grey.800' : 'grey.400',
+          }}
         >
           <Link href={{ pathname: '/', query: { category: category.name } }}>
-            <Text {...paragraphMedium} color={_selected ? 'white' : 'black'} fontWeight={500}>
+            <Text {...paragraphMedium} color={_selected ? 'grey.50' : 'grey.800'} fontWeight={500}>
               /{category.name}
             </Text>
           </Link>

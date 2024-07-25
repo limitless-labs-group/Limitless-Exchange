@@ -9,6 +9,7 @@ import {
   Slide,
   Box,
   VStack,
+  ButtonGroup,
 } from '@chakra-ui/react'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
@@ -37,6 +38,10 @@ import { LoginButton } from '@/components/common/login-button'
 import useDisconnectAccount from '@/hooks/use-disconnect'
 import { cutUsername } from '@/utils/string'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { v4 as uuidv4 } from 'uuid'
+import { useThemeProvider } from '@/providers'
+import SunIcon from '@/resources/icons/sun-icon.svg'
+import MoonIcon from '@/resources/icons/moon-icon.svg'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -49,6 +54,7 @@ export default function MobileHeader() {
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
   const pathname = usePathname()
+  const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
   const { isOpen: isWalletModalOpen, onToggle: onToggleWalletModal } = useDisclosure()
@@ -63,7 +69,12 @@ export default function MobileHeader() {
       <Box p='16px' pb={0}>
         <HStack justifyContent='space-between' alignItems='center'>
           <Button variant='transparent' onClick={() => router.push('/')}>
-            <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
+            <Image
+              src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+              height={32}
+              width={156}
+              alt='calendar'
+            />
           </Button>
           <HStack gap='4px'>
             {isConnected ? (
@@ -88,7 +99,9 @@ export default function MobileHeader() {
                       alignItems='center'
                       justifyContent='center'
                     >
-                      <Text {...paragraphMedium}>{userInfo?.name?.[0].toUpperCase()}</Text>
+                      <Text {...paragraphMedium}>
+                        {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
+                      </Text>
                     </Flex>
                   )}
                 </Button>
@@ -138,7 +151,7 @@ export default function MobileHeader() {
                             justifyContent='center'
                           >
                             <Text fontWeight={500} fontSize='24px'>
-                              {userInfo?.name?.[0].toUpperCase()}
+                              {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
                             </Text>
                           </Flex>
                         )}
@@ -147,6 +160,40 @@ export default function MobileHeader() {
                             ? cutUsername(userInfo.name, 60)
                             : truncateEthAddress(address)}
                         </Text>
+                      </HStack>
+                      <HStack
+                        spacing={2}
+                        my={'24px'}
+                        wrap={'wrap'}
+                        alignItems={'start'}
+                        w={'full'}
+                        overflowX='auto'
+                      >
+                        <ButtonGroup
+                          variant='outline'
+                          gap='2px'
+                          p='2px'
+                          bg='grey.300'
+                          borderRadius='2px'
+                          w='full'
+                        >
+                          <Button
+                            key={uuidv4()}
+                            variant={mode === 'dark' ? 'grey' : 'black'}
+                            onClick={setLightTheme}
+                            w='full'
+                          >
+                            <SunIcon width={16} height={16} />
+                          </Button>
+                          <Button
+                            key={uuidv4()}
+                            variant={mode === 'dark' ? 'black' : 'grey'}
+                            onClick={setDarkTheme}
+                            w='full'
+                          >
+                            <MoonIcon width={16} height={16} />
+                          </Button>
+                        </ButtonGroup>
                       </HStack>
                       <VStack my='24px' gap='8px'>
                         <Button
@@ -167,7 +214,7 @@ export default function MobileHeader() {
                               <Text fontWeight={500}>
                                 {NumberUtil.formatThousands(balanceInvested, 2)} USD
                               </Text>
-                              <Box color='black'>
+                              <Box color='grey.800'>
                                 <ArrowRightIcon width={16} height={16} />
                               </Box>
                             </HStack>
@@ -195,7 +242,7 @@ export default function MobileHeader() {
                                 <Text fontWeight={500}>
                                   {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                                 </Text>
-                                <Box color='black'>
+                                <Box color='grey.800'>
                                   <ArrowRightIcon width={16} height={16} />
                                 </Box>
                               </HStack>

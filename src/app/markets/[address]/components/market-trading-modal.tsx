@@ -24,7 +24,7 @@ export function MarketTradingModal({ open, onClose, title, market }: MarketTradi
     <Modal isOpen={open} onClose={handleCloseModal} size='full' variant='blueModal'>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader {...headline} color='grey.50' mb='16px'>
+        <ModalHeader {...headline} color='white' mb='16px'>
           {title}
         </ModalHeader>
         <ModalCloseButton />
