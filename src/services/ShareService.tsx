@@ -45,7 +45,7 @@ export const createMarketShareUrls = (
   const formatOutcomeTokenPercent = (index: number) =>
     `${Number(outcomeTokensPercent?.[index] ?? 50).toFixed(2)}%`
 
-  const baseMessage = `"${market?.title}" by ${market?.creator.name}\n${
+  const baseMessage = `"${market?.proxyTitle ?? market?.title}" by ${market?.creator.name}\n${
     market?.outcomeTokens[0]
   } ${formatOutcomeTokenPercent(0)} | ${market?.outcomeTokens[1]} ${formatOutcomeTokenPercent(
     1
@@ -78,12 +78,11 @@ export const createPortfolioShareUrls = (
   market: Market | null | undefined,
   position: HistoryPosition
 ) => {
-  const baseMessage = `"${market?.title}" by ${market?.creator.name}\nMy bet: ${NumberUtil.toFixed(
-    position.collateralAmount,
-    6
-  )} ${position.market.collateral?.symbol} for ${
-    market?.outcomeTokens[position.outcomeIndex ?? 0]
-  }\nMake yours on`
+  const baseMessage = `"${market?.proxyTitle ?? market?.title}" by ${
+    market?.creator.name
+  }\nMy bet: ${NumberUtil.toFixed(position.collateralAmount, 6)} ${
+    position.market.collateral?.symbol
+  } for ${market?.outcomeTokens[position.outcomeIndex ?? 0]}\nMake yours on`
 
   const encodedBaseMessage = encodeURI(baseMessage)
 

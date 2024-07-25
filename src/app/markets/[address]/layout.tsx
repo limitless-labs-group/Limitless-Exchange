@@ -18,9 +18,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const market = response.data
 
     return {
-      title: market?.title,
+      title: market?.proxyTitle ?? market?.title ?? 'Noname market',
       openGraph: {
-        title: market?.title,
+        title: market?.proxyTitle ?? market?.title ?? 'Noname market',
         description: market?.description,
         images: [`${market?.ogImageURI}`],
       },
