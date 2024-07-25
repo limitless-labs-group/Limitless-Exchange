@@ -63,7 +63,7 @@ export default function ActionButton({
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
     handler: () => {
-      if (!['transaction-broadcasted, success'].includes(status)) {
+      if (!['transaction-broadcasted', 'success'].includes(status)) {
         setStatus('initial')
       }
     },
