@@ -151,10 +151,10 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
   return (
     <>
       <Flex justifyContent='space-between'>
-        <Text {...paragraphMedium} color='grey.50'>
+        <Text {...paragraphMedium} color='white'>
           Balance
         </Text>
-        <Text {...paragraphMedium} color='grey.50'>
+        <Text {...paragraphMedium} color='white'>
           {NumberUtil.formatThousands(balance, token?.symbol === 'USDC' ? 1 : 6)} {token?.symbol}
         </Text>
       </Flex>
@@ -171,9 +171,9 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
         py={isMobile ? '0px !important' : '4px'}
       >
         <SliderTrack bg='rgba(255, 255, 255, 0.2)'>
-          <SliderFilledTrack bg='grey.50' />
+          <SliderFilledTrack bg='white' />
         </SliderTrack>
-        <SliderThumb bg='grey.50' w='8px' h='8px' />
+        <SliderThumb bg='white' w='8px' h='8px' />
       </Slider>
       {/*<ChakraSlider*/}
       {/*  defaultValue={0}*/}
@@ -259,13 +259,13 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
 
       <Stack w={'full'} mt={isMobile ? 0 : '8px'} gap='4px'>
         <HStack justifyContent='space-between'>
-          <Text {...paragraphMedium} color='grey.50'>
+          <Text {...paragraphMedium} color='white'>
             Enter amount
           </Text>
           {isExceedsBalance && (
-            <HStack color='grey.50' gap='4px'>
+            <HStack color='white' gap='4px'>
               <InfoIcon width='16px' height='16px' />
-              <Text {...paragraphMedium} color='grey.50'>
+              <Text {...paragraphMedium} color='white'>
                 Not enough funds
               </Text>
             </HStack>
@@ -293,14 +293,14 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
               top={isMobile ? '8px' : '4px'}
               right={isMobile ? '8px' : '4px'}
             >
-              <Text {...paragraphMedium} color='grey.50'>
+              <Text {...paragraphMedium} color='white'>
                 {market?.tokenTicker[defaultChain.id]}
               </Text>
             </InputRightElement>
           </InputGroup>
         </Stack>
       </Stack>
-      <VStack mt='24px' overflow='hidden'>
+      <VStack mt='24px'>
         <ActionButton
           onClick={async () => {
             trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {

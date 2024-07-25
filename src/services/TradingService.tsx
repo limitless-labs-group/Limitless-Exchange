@@ -444,7 +444,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const {
     buyOutcomeTokens,
     client,
-    checkAllowance,
     approveContract,
     sellOutcomeTokens,
     checkAllowanceForAll,
@@ -456,6 +455,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       if (!account || !market || isInvalidCollateralAmount) {
         return
       }
+
+      setCollateralAmount('')
 
       const receipt = await buyOutcomeTokens(
         market.address[defaultChain.id],
@@ -485,14 +486,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      setCollateralAmount('')
-
       await refetchChain()
-
-      const updateToastId = toast({
-        render: () => <Toast title={`Updating portfolio...`} id={updateToastId} />,
-        duration: 5000,
-      })
 
       // TODO: redesign subgraph refetch logic
       sleep(10).then(() => refetchSubgraph())

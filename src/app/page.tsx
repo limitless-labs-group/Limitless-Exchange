@@ -51,7 +51,8 @@ const MainPage = () => {
   const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage, isFetching } = useMarkets(categoryEntity)
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
+    useMarkets(categoryEntity)
 
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.length
@@ -114,7 +115,7 @@ const MainPage = () => {
 
   return (
     <MainLayout>
-      <Box w={isMobile ? 'auto' : '664px'} ml={isMobile ? 'auto' : '200px'}>
+      <Box w={isMobile ? 'full' : '664px'} ml={isMobile ? 'auto' : '200px'}>
         <Divider bg='grey.800' orientation='horizontal' h='3px' mb='16px' />
         <TextWithPixels
           text={`Explore ${categoryEntity?.name ?? 'Limitless'} Prediction Markets`}
@@ -128,7 +129,7 @@ const MainPage = () => {
         </Text>
 
         <SortFilter onChange={handleSelectSort} />
-        {isFetching ? (
+        {isFetching && !isFetchingNextPage ? (
           <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>
             <Spinner />
           </HStack>

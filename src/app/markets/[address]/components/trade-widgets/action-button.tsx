@@ -1,7 +1,7 @@
 import { isMobile } from 'react-device-detect'
 import { TradeQuotes } from '@/services'
 import { defaultChain } from '@/constants'
-import { Box, Button, HStack, Icon, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, HStack, Icon, Text, useOutsideClick, VStack } from '@chakra-ui/react'
 import BlockIcon from '@/resources/icons/block.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -11,7 +11,7 @@ import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import { NumberUtil } from '@/utils'
 import { Market, MarketStatus } from '@/types'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useMemo, useState } from 'react'
+import { LegacyRef, MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { useWeb3Service } from '@/services/Web3Service'
 import ConfirmButton from '@/app/markets/[address]/components/trade-widgets/confirm-button'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
@@ -54,10 +54,20 @@ export default function ActionButton({
   amount,
   decimals,
 }: ActionButtonProps) {
+  const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
-  const INFO_MSG = 'Market is locked. Please await for final resolution. Trading stopped.'
+  const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
+
+  useOutsideClick({
+    ref: ref as MutableRefObject<HTMLElement>,
+    handler: () => {
+      if (!['transaction-broadcasted', 'success'].includes(status)) {
+        setStatus('initial')
+      }
+    },
+  })
 
   const headerStatus = useMemo(() => {
     let content
@@ -66,7 +76,7 @@ export default function ActionButton({
         content = (
           <>
             <Loader />
-            <Text {...paragraphMedium} color='grey.50'>
+            <Text {...paragraphMedium} color='white'>
               Buying...
             </Text>
           </>
@@ -88,7 +98,7 @@ export default function ActionButton({
                 gap='8px'
               >
                 <CheckedIcon width={16} height={16} />
-                <Text {...paragraphMedium} color='grey.50'>
+                <Text {...paragraphMedium} color='white'>
                   Bought
                 </Text>
               </MotionBox>
@@ -105,10 +115,10 @@ export default function ActionButton({
               <ThumbsDownIcon width={16} height={16} />
             )}
             <HStack gap='4px'>
-              <Text {...paragraphMedium} color='grey.50'>
+              <Text {...paragraphMedium} color='white'>
                 {price}%
               </Text>
-              <Text {...paragraphMedium} color='grey.50'>
+              <Text {...paragraphMedium} color='white'>
                 {option}
               </Text>
             </HStack>
@@ -117,15 +127,21 @@ export default function ActionButton({
         break
     }
     return (
-      <HStack gap='8px' color='grey.50' minH='20px' w='full'>
+      <HStack gap='8px' color='white' minH='20px' w='full'>
         {content}
       </HStack>
     )
   }, [option, price, status])
 
-  const transformValue = isMobile ? -172 : -144
+  const transformValue = isMobile ? -304 : -264
+
+  const buttonsTransform = isMobile ? 16 : 0
 
   const handleActionIntention = async () => {
+    if (status !== 'initial') {
+      setStatus('initial')
+      return
+    }
     if (market?.status === MarketStatus.LOCKED) {
       await onClick()
       return
@@ -188,11 +204,12 @@ export default function ActionButton({
   }, [status])
 
   return (
-    <HStack w='full' gap={isMobile ? '16px' : '8px'}>
+    <HStack w='full' gap={'8px'} ref={ref as LegacyRef<HTMLDivElement>}>
       <MotionBox
         animate={{ x: ['unlock', 'unlocking', 'confirm'].includes(status) ? transformValue : 0 }}
         transition={{ duration: 0.5 }}
         w='full'
+        // ref={isMobile ? (ref as MutableRefObject<HTMLElement>) : undefined}
       >
         <Button
           bg='rgba(255, 255, 255, 0.2)'
@@ -206,7 +223,7 @@ export default function ActionButton({
           _hover={{
             backgroundColor: 'transparent.300',
           }}
-          isDisabled={disabled || status !== 'initial'}
+          isDisabled={disabled || ['transaction-broadcasted', 'success'].includes(status)}
           onClick={handleActionIntention}
           borderRadius='2px'
         >
@@ -226,7 +243,7 @@ export default function ActionButton({
                 />
               </HStack>
               <HStack w={'full'}>
-                <Text {...paragraphMedium} color='grey.50' textAlign={'left'} whiteSpace='normal'>
+                <Text {...paragraphMedium} color='white' textAlign={'left'} whiteSpace='normal'>
                   {INFO_MSG}
                 </Text>
                 <Box w={'45px'}></Box>
@@ -238,7 +255,7 @@ export default function ActionButton({
               <VStack ml='24px' w='calc(100% - 24px)' gap={isMobile ? '8px' : '4px'}>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
+                    <Text {...paragraphRegular} color='white'>
                       Avg price
                     </Text>
                     {/*<Tooltip*/}
@@ -249,14 +266,14 @@ export default function ActionButton({
                     {/*  <InfoIcon width='16px' height='16px' />*/}
                     {/*</Tooltip>*/}
                   </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>{`${NumberUtil.formatThousands(
+                  <Text {...paragraphRegular} color='white'>{`${NumberUtil.formatThousands(
                     quote?.outcomeTokenPrice,
                     6
                   )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
                 </HStack>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
+                    <Text {...paragraphRegular} color='white'>
                       Price impact
                     </Text>
                     {/*<Tooltip*/}
@@ -267,14 +284,14 @@ export default function ActionButton({
                     {/*  <InfoIcon width='16px' height='16px' />*/}
                     {/*</Tooltip>*/}
                   </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>{`${NumberUtil.toFixed(
+                  <Text {...paragraphRegular} color='white'>{`${NumberUtil.toFixed(
                     quote?.priceImpact,
                     2
                   )}%`}</Text>
                 </HStack>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
+                    <Text {...paragraphRegular} color='white'>
                       Est. ROI
                     </Text>
                     {/*<Tooltip*/}
@@ -285,13 +302,13 @@ export default function ActionButton({
                     {/*  <InfoIcon width='16px' height='16px' />*/}
                     {/*</Tooltip>*/}
                   </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>
+                  <Text {...paragraphRegular} color='white'>
                     {NumberUtil.toFixed(quote?.roi, 2)}%
                   </Text>
                 </HStack>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='grey.50'>
+                    <Text {...paragraphRegular} color='white'>
                       Return
                     </Text>
                     {/*<Tooltip*/}
@@ -302,7 +319,7 @@ export default function ActionButton({
                     {/*  <InfoIcon width='16px' height='16px' />*/}
                     {/*</Tooltip>*/}
                   </HStack>
-                  <Text {...paragraphRegular} color='grey.50'>
+                  <Text {...paragraphRegular} color='white'>
                     {NumberUtil.formatThousands(quote?.outcomeTokenAmount, 6)}{' '}
                     {market.tokenTicker[defaultChain.id]}
                   </Text>
@@ -313,7 +330,11 @@ export default function ActionButton({
         </Button>
       </MotionBox>
       <MotionBox
-        animate={{ x: ['unlock', 'unlocking', 'confirm'].includes(status) ? transformValue : 0 }}
+        animate={{
+          x: ['unlock', 'unlocking', 'confirm'].includes(status)
+            ? transformValue
+            : buttonsTransform,
+        }}
         transition={{ duration: 0.5 }}
       >
         <ConfirmButton
@@ -321,6 +342,7 @@ export default function ActionButton({
           status={status}
           handleConfirmClicked={handleConfirmClicked}
           onApprove={handleApprove}
+          setStatus={setStatus}
         />
       </MotionBox>
     </HStack>

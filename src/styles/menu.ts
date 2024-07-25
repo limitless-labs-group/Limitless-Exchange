@@ -1,5 +1,5 @@
 import { menuAnatomy } from '@chakra-ui/anatomy'
-import { createMultiStyleConfigHelpers, defineStyle } from '@chakra-ui/react'
+import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
 import { commonButtonProps } from '@/styles/button'
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(menuAnatomy.keys)
@@ -24,6 +24,9 @@ const baseStyle = definePartsStyle({
     bg: 'grey.300',
     border: 'unset',
     minW: 'unset',
+    _dark: {
+      boxShadow: 'unset',
+    },
   },
   item: {
     bg: 'unset',

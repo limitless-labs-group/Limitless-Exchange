@@ -2,11 +2,12 @@
 
 import * as React from 'react'
 import {
-  ChakraProvider,
+  // ChakraProvider,
   QueryProvider,
   WagmiProvider,
   Web3AuthProvider,
   PriceOracleProvider,
+  ThemeProvider,
 } from '@/providers'
 import {
   AccountProvider,
@@ -18,8 +19,7 @@ import {
   TradingServiceProvider,
 } from '@/services'
 import { TokenFilterProvider } from '@/contexts/TokenFilterContext'
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
-import { UserValidationProvider } from '@/providers/UserValidation'
+import RainbowProvider from '@/providers/Rainbow'
 
 export const Providers = ({ children }: React.PropsWithChildren) => {
   const [mounted, setMounted] = React.useState(false)
@@ -28,10 +28,10 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
   return (
     mounted && (
       <AmplitudeProvider>
-        <ChakraProvider>
+        <ThemeProvider>
           <QueryProvider>
             <WagmiProvider>
-              <RainbowKitProvider>
+              <RainbowProvider>
                 <Web3AuthProvider>
                   <LimitlessApiProvider>
                     <EtherspotProvider>
@@ -49,10 +49,10 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                     </EtherspotProvider>
                   </LimitlessApiProvider>
                 </Web3AuthProvider>
-              </RainbowKitProvider>
+              </RainbowProvider>
             </WagmiProvider>
           </QueryProvider>
-        </ChakraProvider>
+        </ThemeProvider>
       </AmplitudeProvider>
     )
   )
