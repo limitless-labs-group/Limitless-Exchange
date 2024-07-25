@@ -10,7 +10,7 @@ import {
   useTheme,
   VStack,
 } from '@chakra-ui/react'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import html2canvas from 'html2canvas'
 
 interface IOgImageGeneratorOptions {
@@ -94,13 +94,15 @@ export const OgImageGenerator = ({
         scrollY: -window.scrollY,
       })
 
-      const imageDataUrl = canvas.toDataURL('image/png')
+      const imageDataUrl = canvas.toDataURL('image/png', 1.0)
       setImage(imageDataUrl)
 
-      canvas.toBlob((blob) => {
-        if (!blob) return
-        onBlobGenerated(blob)
-        handleDownloadPreviewImage()
+      canvas.toBlob(async (blob) => {
+        if (blob) {
+          onBlobGenerated(blob)
+          // await new Promise((resolve) => setTimeout(resolve, 1_000))
+          // handleDownloadPreviewImage()
+        }
       })
     } catch (error) {
       console.error(error)
@@ -122,6 +124,12 @@ export const OgImageGenerator = ({
       words,
     }
   }, [title])
+
+  useEffect(() => {
+    if (generateBlob) {
+      handleGenerateBlob()
+    }
+  }, [generateBlob])
 
   const SmallPreview = () => (
     <Tooltip hasArrow label='Click to download OG Image for preview in full size.'>

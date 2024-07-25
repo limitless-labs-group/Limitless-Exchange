@@ -27,7 +27,7 @@ import { SingleDatepicker } from 'chakra-dayzed-datepicker'
 import React, { MutableRefObject, useRef, useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 import axios from 'axios'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks'
 import { useCategories, useLimitlessApi } from '@/services'
 import { Toast } from '@/components/common/toast'
@@ -187,6 +187,10 @@ const CreateOwnMarketPage = () => {
   })
 
   const { data: categories } = useCategories()
+  const { mutateAsync: generateOgImage, isPending: isGeneratingOgImage } = useMutation({
+    mutationKey: ['generate-og-image'],
+    mutationFn: async () => new Promise((resolve) => setTimeout(resolve, 1_000)),
+  })
 
   const handleTagCreation = async (tagToCreate: string) => {
     const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`, {
@@ -284,8 +288,15 @@ const CreateOwnMarketPage = () => {
                   }
                   onBlobGenerated={(blob) => {
                     console.log('Blob generated', blob)
+                    const _ogLogo = new File([blob], 'og.png', {
+                      type: blob.type,
+                      lastModified: Date.now(),
+                    })
+                    console.log('Blob transformed to File', _ogLogo)
+
+                    setOgLogo(_ogLogo)
                   }}
-                  generateBlob={false}
+                  generateBlob={isGeneratingOgImage}
                 />
               </HStack>
             </FormField>
@@ -295,6 +306,7 @@ const CreateOwnMarketPage = () => {
                 placeholder='Bitcoin ATH in May 2024?'
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={70}
+                onBlur={() => generateOgImage()}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {title?.length}/70 characters
@@ -329,6 +341,7 @@ const CreateOwnMarketPage = () => {
                 overflow='hidden'
                 maxLength={320}
                 onChange={(e) => setDescription(e.target.value)}
+                onBlur={() => generateOgImage()}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {description?.length}/320 characters
@@ -494,7 +507,7 @@ const CreateOwnMarketPage = () => {
               </HStack>
             </FormField>
 
-            <FormField label='OG'>
+            {/* <FormField label='OG'>
               <HStack>
                 <input
                   type='file'
@@ -510,7 +523,7 @@ const CreateOwnMarketPage = () => {
                 </Button>
                 <Text>{ogLogo?.name ?? 'No file chosen.'}</Text>
               </HStack>
-            </FormField>
+            </FormField> */}
 
             <ButtonGroup spacing='6' mt={5}>
               <Button variant='outline' width='222px' disabled>
