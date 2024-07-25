@@ -52,7 +52,7 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
     >
       <HStack justifyContent='space-between' mb='12px'>
         <Text {...paragraphMedium} color={colors.main} fontSize={'14px'} lineHeight={'20px'}>
-          {market?.title ?? 'Noname market'}
+          {market?.proxyTitle ?? market?.title ?? 'Noname market'}
         </Text>
         <HStack gap={1} color={colors.main}>
           <ThumbsUpIcon width={'16px'} height={'16px'} />

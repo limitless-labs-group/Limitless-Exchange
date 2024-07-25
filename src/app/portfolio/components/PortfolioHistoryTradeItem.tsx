@@ -31,7 +31,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
           onClick={() => router.push(`/markets/${trade.market.id}`)}
         >
           <Text size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
-            {market?.title ?? 'Noname market'}
+            {market?.proxyTitle ?? market?.title ?? 'Noname market'}
           </Text>
         </HStack>
       </Td>

@@ -163,7 +163,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
               </HStack>
               <Box>
                 <TextWithPixels
-                  text={market?.title || ''}
+                  text={(market?.proxyTitle ?? market?.title) || ''}
                   {...(isMobile ? { ...h1Regular } : {})}
                   fontSize='32px'
                 />
@@ -207,7 +207,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
             <MarketTradingModal
               open={tradeModalOpened}
               onClose={closeTradeModal}
-              title={market?.title || ''}
+              title={(market?.proxyTitle ?? market?.title) || ''}
               market={market}
             />
           )}
