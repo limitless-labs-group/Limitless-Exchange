@@ -97,6 +97,9 @@ export default function ConfirmButton({
         _hover={{
           backgroundColor: 'transparent.300',
         }}
+        _active={{
+          background: 'unset',
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={() => setStatus('initial')}
