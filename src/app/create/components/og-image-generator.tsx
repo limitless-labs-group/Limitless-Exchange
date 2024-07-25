@@ -178,7 +178,7 @@ export const OgImageGenerator = ({
           width={exportOptions.width}
           height={exportOptions.height}
           p={exportOptions.p}
-          pt={70}
+          pt={35}
           pb={112}
           px={exportOptions.px}
           borderRadius={exportOptions.borderRadius}
@@ -186,16 +186,27 @@ export const OgImageGenerator = ({
             lineHeight: '0.5 !important',
           }}
         >
-          <VStack w='full' h='full' display='flex' gap={0}>
-            <Divider color='white' borderWidth={exportOptions.divider.borderWidth} p={0} m={0} />
+          <Divider
+            color='white'
+            borderWidth={exportOptions.divider.borderWidth}
+            pos='absolute'
+            top='75px'
+            w={1800}
+            // p={0} m={0}
+          />
 
+          <VStack w='full' h='full' display='flex' gap={0}>
             <Text
-              bg='red'
+              // bg='red'
               fontWeight={400}
               height='146px'
               fontSize={exportOptions.fontSize}
               color='white'
               w='full'
+              pb={50}
+              style={{
+                lineHeight: '0.5 !important',
+              }}
             >
               <span style={{ fontFamily: theme.fonts.body }}>{firstWord}</span>{' '}
               <span style={{ fontFamily: theme.fonts.heading }}> {secondWord} </span>
