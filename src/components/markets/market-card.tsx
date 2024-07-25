@@ -22,7 +22,7 @@ const unhoveredColors = {
 }
 
 const hoverColors = {
-  main: 'grey.50',
+  main: 'white',
   secondary: 'transparent.700',
 }
 

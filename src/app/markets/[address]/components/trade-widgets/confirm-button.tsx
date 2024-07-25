@@ -53,9 +53,9 @@ export default function ConfirmButton({
             justifyContent='center'
             alignItems='center'
           >
-            <VStack w='full' h='full' color='grey.50' gap='8px' justifyContent='center'>
+            <VStack w='full' h='full' color='white' gap='8px' justifyContent='center'>
               <CheckedIcon width={16} height={16} />
-              <Text {...paragraphMedium} color='grey.50'>
+              <Text {...paragraphMedium} color='white'>
                 Confirm?
               </Text>
             </VStack>
@@ -67,7 +67,7 @@ export default function ConfirmButton({
       return (
         <>
           <Loader />
-          <Text {...paragraphMedium} color='grey.50'>
+          <Text {...paragraphMedium} color='white'>
             Unlocking...
           </Text>
         </>
@@ -77,10 +77,10 @@ export default function ConfirmButton({
       <>
         {!isHovered ? <LockIcon width={16} height={16} /> : <UnlockIcon width={16} height={16} />}
         <Box>
-          <Text {...paragraphMedium} color='grey.50'>
+          <Text {...paragraphMedium} color='white'>
             Unlock
           </Text>
-          <Text {...paragraphMedium} color='grey.50'>
+          <Text {...paragraphMedium} color='white'>
             {tokenTicker}
           </Text>
         </Box>
@@ -105,9 +105,9 @@ export default function ConfirmButton({
         onClick={() => setStatus('initial')}
         isDisabled={status === 'unlocking'}
       >
-        <VStack w='full' h='full' color='grey.50' gap='8px' justifyContent='center'>
+        <VStack w='full' h='full' color='white' gap='8px' justifyContent='center'>
           <CloseIcon width={16} height={16} />
-          <Text {...paragraphMedium} color='grey.50'>
+          <Text {...paragraphMedium} color='white'>
             Nevermind
           </Text>
         </VStack>
@@ -124,7 +124,7 @@ export default function ConfirmButton({
         onClick={handleClick}
         isDisabled={status === 'unlocking'}
       >
-        <VStack w='full' h='full' color='grey.50' gap='8px' justifyContent='center'>
+        <VStack w='full' h='full' color='white' gap='8px' justifyContent='center'>
           {content}
         </VStack>
       </Button>

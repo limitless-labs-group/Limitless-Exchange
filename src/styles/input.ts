@@ -16,12 +16,12 @@ const outlined = definePartsStyle({
     h: isMobile ? '32px' : '24px',
     bg: 'unset',
     ...paragraphMedium,
-    color: 'grey.50',
+    color: 'white',
     _hover: {
       borderColor: 'transparent.700',
     },
     _focus: {
-      borderColor: 'grey.50',
+      borderColor: 'white',
     },
     _placeholder: {
       color: 'transparent.700',

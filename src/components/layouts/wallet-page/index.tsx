@@ -61,9 +61,9 @@ export default function WalletPage({ onClose }: WalletPageProps) {
       <Text fontSize='32px'>Wallet</Text>
       <Paper bg='blue.500' mt='24px'>
         <HStack w='full' justifyContent='space-between'>
-          <HStack gap='4px' color='grey.50'>
+          <HStack gap='4px' color='white'>
             <WalletIcon width='16px' height='16px' />
-            <Text {...paragraphMedium} color='grey.50'>
+            <Text {...paragraphMedium} color='white'>
               Available balance
             </Text>
           </HStack>
@@ -71,20 +71,20 @@ export default function WalletPage({ onClose }: WalletPageProps) {
             Withdraw
           </Button>
         </HStack>
-        <Text color='grey.50' fontSize='24px' fontWeight={500} mb='16px'>
+        <Text color='white' fontSize='24px' fontWeight={500} mb='16px'>
           ~{NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
         </Text>
-        <Text {...paragraphMedium} color='grey.50'>
+        <Text {...paragraphMedium} color='white'>
           Address
         </Text>
         <CopyToClipboard text={address as string} onCopy={onClickCopy}>
-          <HStack gap='4px' color='grey.50' cursor='pointer'>
-            <Text {...paragraphRegular} color='grey.50'>
+          <HStack gap='4px' color='white' cursor='pointer'>
+            <Text {...paragraphRegular} color='white'>
               {truncateEthAddress(address)}
             </Text>
             <CopyIcon width='16px' height='16px' />
             {copied && (
-              <Text {...paragraphRegular} ml='4px' color='grey.50'>
+              <Text {...paragraphRegular} ml='4px' color='white'>
                 Copied!
               </Text>
             )}

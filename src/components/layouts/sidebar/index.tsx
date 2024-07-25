@@ -83,7 +83,12 @@ export default function Sidebar() {
         bg='grey.100'
       >
         <Button variant='transparent' onClick={() => router.push('/')} _hover={{ bg: 'unset' }}>
-          <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
+          <Image
+            src={mode === 'light' ? '/logo-black.svg' : '/logo-white.svg'}
+            height={32}
+            width={156}
+            alt='calendar'
+          />
         </Button>
         {isConnected && (
           <VStack my='16px' w='full' gap='8px'>

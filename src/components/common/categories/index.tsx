@@ -28,10 +28,13 @@ export default function CategoryFilter() {
           w='fit-content'
           marginBottom='4px'
           cursor='pointer'
+          _hover={{
+            bg: category.name === searchParams?.get('category') ? 'grey.800' : 'grey.400',
+          }}
         >
           <Link href={{ pathname: '/', query: { category: category.name } }}>
             <Text
-              color={category.name === searchParams?.get('category') ? 'white' : 'black'}
+              color={category.name === searchParams?.get('category') ? 'grey.50' : 'grey.800'}
               fontWeight={500}
             >
               /{category.name}

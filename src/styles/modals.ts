@@ -17,12 +17,12 @@ const blueModal = definePartsStyle({
     mt: '16px',
   },
   header: {
-    color: 'grey.50',
+    color: 'white',
     p: 0,
     mt: '32px',
   },
   closeButton: {
-    color: 'grey.50',
+    color: 'white',
     top: 1,
     right: 1,
   },

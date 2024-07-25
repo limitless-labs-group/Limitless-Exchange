@@ -19,7 +19,7 @@ import {
   TradingServiceProvider,
 } from '@/services'
 import { TokenFilterProvider } from '@/contexts/TokenFilterContext'
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import RainbowProvider from '@/providers/Rainbow'
 
 export const Providers = ({ children }: React.PropsWithChildren) => {
   const [mounted, setMounted] = React.useState(false)
@@ -31,7 +31,7 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
         <ThemeProvider>
           <QueryProvider>
             <WagmiProvider>
-              <RainbowKitProvider>
+              <RainbowProvider>
                 <Web3AuthProvider>
                   <LimitlessApiProvider>
                     <EtherspotProvider>
@@ -49,7 +49,7 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                     </EtherspotProvider>
                   </LimitlessApiProvider>
                 </Web3AuthProvider>
-              </RainbowKitProvider>
+              </RainbowProvider>
             </WagmiProvider>
           </QueryProvider>
         </ThemeProvider>

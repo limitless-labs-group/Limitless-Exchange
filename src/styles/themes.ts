@@ -68,6 +68,9 @@ export const chakraTheme = ChakraTheme({
       '.w3a-header': {
         paddingTop: '10px !important',
       },
+      '.w3a-header__subtitle': {
+        color: 'grey.500 !important',
+      },
       '.w3a-header__logo': {
         display: 'none !important',
       },
@@ -86,20 +89,46 @@ export const chakraTheme = ChakraTheme({
         color: `grey.800 !important`,
       },
       '.w3a-button-expand': {
-        color: `#2492ff !important`,
+        color: 'blue.500 !important',
       },
       '#w3a-modal button, #w3a-modal input, #w3a-modal canvas': {
-        borderRadius: `${borderRadius} !important`,
+        borderRadius: `2px !important`,
         // border: 'none !important',
       },
       '.w3ajs-external-toggle__button': {
-        background: `#2492ff !important`,
+        background: `blue.500 !important`,
         color: 'white !important',
         fontWeight: 'bold !important',
       },
       '#w3a-modal .w3a-header__logo img, #w3a-modal .w3a-modal__loader-app-logo img': {
         filter: 'invert()',
         borderRadius: '50% !important',
+      },
+      '.w3a-parent-container #w3a-modal .t-btn.t-btn-secondary': {
+        background: 'grey.300',
+        color: 'grey.800',
+        border: 'unset',
+        _hover: {
+          background: 'grey.400',
+        },
+      },
+      '.w3a-social__policy': {
+        color: 'grey.800 !important',
+      },
+      '.w3ajs-button-expand-text': {
+        color: 'blue.100 !important',
+      },
+      '.w3a-text-field': {
+        backgroundColor: 'unset !important',
+        color: 'grey.800 !important',
+        borderColor: 'transparent.200 !important',
+        borderRadius: '2px solid',
+        _hover: {
+          borderColor: 'transparent.700 !important',
+        },
+        _focus: {
+          borderColor: 'grey.800 !important',
+        },
       },
     },
   },
@@ -134,7 +163,7 @@ export const chakraTheme = ChakraTheme({
         contained: {
           ...commonButtonProps,
           bg: 'blue.500',
-          color: 'grey.50',
+          color: 'white',
           _hover: {
             bg: 'blue.600',
           },
@@ -146,10 +175,10 @@ export const chakraTheme = ChakraTheme({
         },
         white: {
           ...commonButtonProps,
-          bg: 'grey.50',
-          color: 'grey.800',
+          bg: 'white',
+          color: 'black',
           _hover: {
-            bg: 'grey.50',
+            bg: 'white',
           },
           _disabled: {
             bg: 'grey.300',

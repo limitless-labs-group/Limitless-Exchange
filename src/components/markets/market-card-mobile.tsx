@@ -5,7 +5,6 @@ import { HStack, Stack, StackProps, Text, Divider, Icon } from '@chakra-ui/react
 import { useRouter } from 'next/navigation'
 import Paper from '@/components/common/paper'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import ArrowIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
