@@ -6,7 +6,7 @@ export default function RainbowProvider({ children }: PropsWithChildren) {
   const { mode } = useThemeProvider()
 
   return (
-    <RainbowKitProvider theme={mode === 'light' ? lightTheme() : darkTheme()}>
+    <RainbowKitProvider theme={mode === 'dark' ? darkTheme() : lightTheme()}>
       {children}
     </RainbowKitProvider>
   )

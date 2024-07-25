@@ -70,7 +70,7 @@ export default function MobileHeader() {
         <HStack justifyContent='space-between' alignItems='center'>
           <Button variant='transparent' onClick={() => router.push('/')}>
             <Image
-              src={mode === 'light' ? '/logo-black.svg' : '/logo-white.svg'}
+              src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
               height={32}
               width={156}
               alt='calendar'
@@ -177,7 +177,7 @@ export default function MobileHeader() {
                         >
                           <Button
                             key={uuidv4()}
-                            variant={mode === 'light' ? 'black' : 'grey'}
+                            variant={mode === 'dark' ? 'grey' : 'black'}
                             onClick={setLightTheme}
                             w='full'
                           >

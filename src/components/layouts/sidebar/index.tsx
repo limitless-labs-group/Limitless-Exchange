@@ -84,7 +84,7 @@ export default function Sidebar() {
       >
         <Button variant='transparent' onClick={() => router.push('/')} _hover={{ bg: 'unset' }}>
           <Image
-            src={mode === 'light' ? '/logo-black.svg' : '/logo-white.svg'}
+            src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
             height={32}
             width={156}
             alt='calendar'
@@ -167,7 +167,7 @@ export default function Sidebar() {
               <MenuList borderRadius='2px' w='171px' zIndex={2}>
                 <HStack gap='4px' mb='4px'>
                   <Button
-                    variant={mode === 'light' ? 'black' : 'grey'}
+                    variant={mode === 'dark' ? 'grey' : 'black'}
                     w='full'
                     onClick={() => {
                       toggleColorMode()
