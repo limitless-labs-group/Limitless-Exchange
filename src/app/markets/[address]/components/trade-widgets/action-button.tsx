@@ -226,6 +226,9 @@ export default function ActionButton({
           isDisabled={disabled || ['transaction-broadcasted', 'success'].includes(status)}
           onClick={handleActionIntention}
           borderRadius='2px'
+          sx={{
+            WebkitTapHighlightColor: 'transparent !important',
+          }}
         >
           {showBlock ? (
             <VStack w={'full'} h={'120px'}>
