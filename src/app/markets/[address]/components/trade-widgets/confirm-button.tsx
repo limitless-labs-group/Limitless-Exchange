@@ -111,6 +111,10 @@ export default function ConfirmButton({
         }}
         transitionProperty='none'
         transitionDuration='unset'
+        style={{
+          // @ts-ignore
+          'webkit-tap-highlight-color': 'transparent',
+        }}
       >
         <VStack w='full' h='full' color='white' gap='8px' justifyContent='center'>
           <CloseIcon width={16} height={16} />
