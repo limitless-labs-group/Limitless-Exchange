@@ -3,13 +3,22 @@ import TextWithPixels from '@/components/common/text-with-pixels'
 import Marquee from 'react-fast-marquee'
 import { useState } from 'react'
 import { useThemeProvider } from '@/providers'
+import { ClickEvent, useAmplitude } from '@/services'
 
 export default function HeaderMarquee() {
   const [pauseMarquee, setPauseMarquee] = useState<boolean>(false)
   const { colors } = useThemeProvider()
+  const { trackClicked } = useAmplitude()
 
   return (
-    <Box onClick={() => setPauseMarquee(!pauseMarquee)}>
+    <Box
+      onClick={() => {
+        trackClicked(ClickEvent.StrokeClicked, {
+          changeTo: pauseMarquee ? 'pause' : 'run',
+        })
+        setPauseMarquee(!pauseMarquee)
+      }}
+    >
       <Marquee
         play={!pauseMarquee}
         style={{

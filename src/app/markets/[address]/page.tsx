@@ -103,7 +103,13 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
         h='48px'
         mt='32px'
         color='white'
-        onClick={openTradeModal}
+        onClick={() => {
+          trackClicked(ClickEvent.TradeClicked, {
+            platform: 'mobile',
+            address: market?.address[defaultChain.id],
+          })
+          openTradeModal()
+        }}
       >
         Trade
       </Button>

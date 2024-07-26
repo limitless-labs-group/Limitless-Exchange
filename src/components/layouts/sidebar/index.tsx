@@ -1,18 +1,18 @@
 import {
-  Divider,
-  VStack,
-  Text,
+  Box,
   Button,
+  Divider,
+  Flex,
   HStack,
   Image as ChakraImage,
-  Flex,
-  useDisclosure,
-  Slide,
-  Box,
   Menu,
   MenuButton,
   MenuList,
+  Slide,
+  Text,
   useColorMode,
+  useDisclosure,
+  VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React from 'react'
@@ -24,11 +24,11 @@ import MoonIcon from '@/resources/icons/moon-icon.svg'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
+  LogoClickedMetadata,
+  ProfileBurgerMenuClickedMetadata,
+  useAccount,
   useAmplitude,
   useBalanceService,
-  useAccount,
-  ProfileBurgerMenuClickedMetadata,
-  LogoClickedMetadata,
 } from '@/services'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
@@ -36,7 +36,6 @@ import { NumberUtil, truncateEthAddress } from '@/utils'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { cutUsername } from '@/utils/string'
 import { usePathname, useRouter } from 'next/navigation'
-import WalletPage from '@/components/layouts/wallet-page'
 import { useWeb3Service } from '@/services/Web3Service'
 import { LoginButton } from '@/components/common/login-button'
 import CategoryFilter from '@/components/common/categories'
@@ -48,6 +47,7 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import TokenFilter from '@/components/common/token-filter'
 import { useThemeProvider } from '@/providers'
 import usePageName from '@/hooks/use-page-name'
+import WalletPage from '@/components/layouts/wallet-page'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
@@ -109,7 +109,15 @@ export default function Sidebar() {
             {client !== 'eoa' && (
               <Button
                 variant='transparent'
-                onClick={handleOpenWalletPage}
+                onClick={() => {
+                  trackClicked<ProfileBurgerMenuClickedMetadata>(
+                    ClickEvent.ProfileBurgerMenuClicked,
+                    {
+                      option: 'Wallet',
+                    }
+                  )
+                  handleOpenWalletPage()
+                }}
                 w='full'
                 bg={isOpenWalletPage ? 'grey.200' : 'unset'}
               >
@@ -123,7 +131,15 @@ export default function Sidebar() {
             )}
             <Button
               variant='transparent'
-              onClick={() => router.push('/portfolio')}
+              onClick={() => {
+                trackClicked<ProfileBurgerMenuClickedMetadata>(
+                  ClickEvent.ProfileBurgerMenuClicked,
+                  {
+                    option: 'Portfolio',
+                  }
+                )
+                router.push('/portfolio')
+              }}
               w='full'
               bg={pathname === '/portfolio' ? 'grey.200' : 'unset'}
             >
@@ -271,7 +287,12 @@ export default function Sidebar() {
           marginLeft: '188px',
           transition: '0.1s',
         }}
-        onClick={onToggleWalletPage}
+        onClick={() => {
+          trackClicked(ClickEvent.WalletClicked, {
+            page: pageName,
+          })
+          onToggleWalletPage()
+        }}
       >
         <WalletPage onClose={onToggleWalletPage} />
       </Slide>

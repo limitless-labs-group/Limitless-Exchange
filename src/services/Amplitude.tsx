@@ -114,19 +114,22 @@ export enum ChangeEvent {
 
 export enum ClickEvent {
   CreateMarketClicked = 'Create Market Clicked',
-  DepositClicked = 'Deposit Clicked',
-  ExploreMarketsClicked = 'Explore Markets Clicked',
-  SupportChatClicked = 'Support Chat Clicked',
-  PricePresetClicked = 'Price Preset Clicked',
+  TopUpClicked = 'Top Up Clicked',
   ShareClicked = 'Share Clicked',
-  OpenMarketClicked = 'Open Market Clicked',
-  HeaderOptionClicked = 'Header Option Clicked',
-  OpenCreatorProfileClicked = 'Open Creator Profile Clicked',
   ProfileBurgerMenuClicked = 'Profile Burger Menu Clicked',
   TradeClicked = 'Trade Clicked',
   ApproveClicked = 'Approve Clicked',
+  ConfirmTradeClicked = 'Confirm Trade Clicked',
+  ConfirmCapClicked = 'Confirm Cap Clicked',
   LogoClicked = 'Logo Clicked',
   BackClicked = 'Back Clicked',
+  CategoryClicked = 'Category Clicked',
+  WalletClicked = 'Wallet Clicked',
+  CopyAddressClicked = 'Wallet Address Copied',
+  WithdrawClicked = 'Withdraw Clicked',
+  WithdrawConfirmedClicked = 'Withdraw Confirmed Clicked',
+  SortClicked = 'SortClicked',
+  StrokeClicked = 'Stroke Clicked',
 }
 
 export enum SignInEvent {
@@ -174,6 +177,10 @@ export interface TradeClickedMetadata {
 
 export interface ClickedApproveMetadata {
   address: Address
+}
+
+export interface ClickedWithdrawMetadata {
+  coin: string
 }
 
 export type LogoClickedPage = 'Explore Markets' | 'Portfolio' | 'Market Page' | 'Unknown Page'
@@ -268,6 +275,19 @@ export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
 
+export interface SortMetadata {
+  oldValue: string
+  newValue: string
+}
+
+export interface StrokeMetadata {
+  changeTo: 'run' | 'pause'
+}
+
+export interface TopUpMetadata {
+  platform: string
+}
+
 export type ChangedEventMetadata = StrategyChangedMetadata | OutcomeChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
@@ -281,6 +301,10 @@ export type ClickedEventMetadata =
   | DepositClickedMetadata
   | ClickedApproveMetadata
   | LogoClickedMetadata
+  | ClickedWithdrawMetadata
+  | SortMetadata
+  | StrokeMetadata
+  | TopUpMetadata
 
 export type OpenedEventMetadata = PageOpenedMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata

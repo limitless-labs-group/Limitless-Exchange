@@ -52,7 +52,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
     if (!positionToClaim) {
       return (
         <Button variant='white' onClick={() => router.push('/')}>
-          Explore Opened Markets
+          Explore Open Markets
         </Button>
       )
     }
