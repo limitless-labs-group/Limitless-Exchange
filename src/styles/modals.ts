@@ -37,6 +37,13 @@ const commonModal = definePartsStyle({
   },
 })
 
+const baseStyle = definePartsStyle({
+  overlay: {
+    bg: 'rgba(0, 0, 0, 0.5)', //change the background
+  },
+})
+
 export const modalTheme = defineMultiStyleConfig({
   variants: { blueModal, commonModal },
+  baseStyle,
 })
