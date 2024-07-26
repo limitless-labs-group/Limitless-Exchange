@@ -10,6 +10,7 @@ import { BaseNextRequest } from 'next/dist/server/base-http'
 import { lightThemeColors } from '@/styles/light-theme-colors'
 import { darkThemeColors } from '@/styles/dark-theme-colors'
 import { ColorScheme } from '@/types'
+import { isMobile } from 'react-device-detect'
 
 type ThemeProviderContext = {
   setLightTheme: () => void
@@ -47,12 +48,18 @@ export const ThemeProvider = ({
   const setLightTheme = () => {
     setColors(lightThemeColors)
     setMode('light')
+    if (isMobile) {
+      localStorage.setItem('chakra-ui-color-mode', 'light')
+    }
     return
   }
 
   const setDarkTheme = () => {
     setColors(darkThemeColors)
     setMode('dark')
+    if (isMobile) {
+      localStorage.setItem('chakra-ui-color-mode', 'dark')
+    }
     return
   }
 
