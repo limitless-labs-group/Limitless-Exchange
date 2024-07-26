@@ -38,6 +38,7 @@ import { css } from '@emotion/react'
 import { isMobile } from 'react-device-detect'
 import BlockIcon from '@/resources/icons/block.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
+import { useWeb3Service } from '@/services/Web3Service'
 
 interface BuyFormProps {
   market: Market
@@ -48,6 +49,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
   const [sliderValue, setSliderValue] = useState(0)
   const [outcomeChoice, setOutcomeChoice] = useState<string | null>(null)
 
+  const { client } = useWeb3Service()
   const { positions: allMarketsPositions } = useHistory()
   const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
 
@@ -161,9 +163,10 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
   }, [quotesNo, market?.tokenTicker, market?.prices, token?.symbol])
 
   const handleTradeClicked = async () => {
-    trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
-      strategy: 'Sell',
-      marketAddress: market.address[defaultChain.id],
+    trackClicked(ClickEvent.TradeClicked, {
+      outcome: outcomeChoice,
+      address: market.address[defaultChain.id],
+      walletType: client,
     })
     const index = outcomeChoice === 'yes' ? 0 : 1
     setOutcomeIndex(index)
@@ -365,53 +368,11 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                       >
                         Per Share
                       </Text>
-                      {/*<Tooltip*/}
-                      {/*// label={*/}
-                      {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                      {/*// }*/}
-                      {/*>*/}
-                      {/*  <InfoIcon width='16px' height='16px' />*/}
-                      {/*</Tooltip>*/}
                     </HStack>
                     <Text {...paragraphRegular} color={outcomeChoice === 'no' ? 'black' : 'white'}>
                       {perShareNo}
                     </Text>
                   </HStack>
-                  {/*<HStack justifyContent='space-between' w='full'>*/}
-                  {/*  <HStack gap='4px'>*/}
-                  {/*    <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>*/}
-                  {/*      Price impact*/}
-                  {/*    </Text>*/}
-                  {/*    <Tooltip*/}
-                  {/*    // label={*/}
-                  {/*    //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                  {/*    // }*/}
-                  {/*    >*/}
-                  {/*      <InfoIcon width='16px' height='16px' />*/}
-                  {/*    </Tooltip>*/}
-                  {/*  </HStack>*/}
-                  {/*  <Text*/}
-                  {/*    fontWeight={500}*/}
-                  {/*    color={outcomeIndex === 'no' ? 'black' : 'white'}*/}
-                  {/*  >{`${NumberUtil.toFixed(quotesNo?.priceImpact, 2)}%`}</Text>*/}
-                  {/*</HStack>*/}
-                  {/*<HStack justifyContent='space-between' w='full'>*/}
-                  {/*  <HStack gap='4px'>*/}
-                  {/*    <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>*/}
-                  {/*      ROI*/}
-                  {/*    </Text>*/}
-                  {/*    <Tooltip*/}
-                  {/*    // label={*/}
-                  {/*    //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                  {/*    // }*/}
-                  {/*    >*/}
-                  {/*      <InfoIcon width='16px' height='16px' />*/}
-                  {/*    </Tooltip>*/}
-                  {/*  </HStack>*/}
-                  {/*  <Text fontWeight={500} color={outcomeIndex === 'no' ? 'black' : 'white'}>*/}
-                  {/*    {NumberUtil.toFixed(quotesNo?.roi, 2)}%*/}
-                  {/*  </Text>*/}
-                  {/*</HStack>*/}
                   <HStack justifyContent='space-between' w='full'>
                     <HStack gap='4px'>
                       <Text
@@ -420,13 +381,6 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                       >
                         Total
                       </Text>
-                      {/*<Tooltip*/}
-                      {/*// label={*/}
-                      {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                      {/*// }*/}
-                      {/*>*/}
-                      {/*  <InfoIcon width='16px' height='16px' />*/}
-                      {/*</Tooltip>*/}
                     </HStack>
                     <Text
                       {...paragraphRegular}
@@ -511,13 +465,6 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 <Text {...paragraphRegular} color='white'>
                   Price impact
                 </Text>
-                {/*<Tooltip*/}
-                {/*// label={*/}
-                {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                {/*// }*/}
-                {/*>*/}
-                {/*  <InfoIcon width='16px' height='16px' />*/}
-                {/*</Tooltip>*/}
               </HStack>
               <Text {...paragraphRegular} color='white'>{`${NumberUtil.toFixed(
                 quotesYes?.priceImpact,
@@ -529,13 +476,6 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 <Text {...paragraphRegular} color='white'>
                   ROI
                 </Text>
-                {/*<Tooltip*/}
-                {/*// label={*/}
-                {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                {/*// }*/}
-                {/*>*/}
-                {/*  <InfoIcon width='16px' height='16px' />*/}
-                {/*</Tooltip>*/}
               </HStack>
               <Text {...paragraphRegular} color='white'>
                 {NumberUtil.toFixed(quotesYes?.roi, 2)}%
@@ -546,13 +486,6 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 <Text {...paragraphRegular} color='white'>
                   Total
                 </Text>
-                {/*<Tooltip*/}
-                {/*// label={*/}
-                {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                {/*// }*/}
-                {/*>*/}
-                {/*  <InfoIcon width='16px' height='16px' />*/}
-                {/*</Tooltip>*/}
               </HStack>
               <Text {...paragraphRegular} color='white'>
                 {displayAmount} {token?.symbol}

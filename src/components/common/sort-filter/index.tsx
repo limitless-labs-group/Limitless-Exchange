@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { HStack, ButtonGroup, Button } from '@chakra-ui/react'
+import { Button, ButtonGroup, HStack } from '@chakra-ui/react'
 import { v4 as uuidv4 } from 'uuid'
 
 import { Sort } from '@/types'
 import { useIsMobile } from '@/hooks'
 import { controlsMedium } from '@/styles/fonts/fonts.styles'
+import { ClickEvent, useAmplitude } from '@/services'
 
 type SortFilterProps = {
   onChange: (option: Sort) => void
@@ -14,6 +15,7 @@ const sortOptions = [Sort.HIGHEST_VOLUME, Sort.HIGHEST_LIQUIDITY, Sort.COMING_DE
 
 export default function SortFilter({ onChange }: SortFilterProps) {
   const [selectedSortFilter, setSelectedSortFilter] = useState<Sort>(Sort.HIGHEST_VOLUME)
+  const { trackClicked } = useAmplitude()
 
   const handleFilterItemClicked = (option: Sort) => {
     setSelectedSortFilter(option)
@@ -42,7 +44,13 @@ export default function SortFilter({ onChange }: SortFilterProps) {
             variant='grey'
             key={uuidv4()}
             bg={option === selectedSortFilter ? 'grey.800' : 'unset'}
-            onClick={() => handleFilterItemClicked(option)}
+            onClick={() => {
+              trackClicked(ClickEvent.SortClicked, {
+                oldValue: selectedSortFilter,
+                newValue: option,
+              })
+              handleFilterItemClicked(option)
+            }}
             _hover={{ bg: option === selectedSortFilter ? 'grey.800' : 'grey.400' }}
             borderRadius='2px'
             h={isMobile ? '28px' : '20px'}

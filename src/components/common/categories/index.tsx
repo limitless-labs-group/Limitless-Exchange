@@ -1,10 +1,17 @@
 import React from 'react'
 import { Text, Box } from '@chakra-ui/react'
-import { useCategories } from '@/services'
+import { ClickEvent, useAmplitude, useCategories } from '@/services'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import usePageName from '@/hooks/use-page-name'
 
 export default function CategoryFilter() {
+  /**
+   * ANALITYCS
+   */
+  const { trackClicked } = useAmplitude()
+  const pageName = usePageName()
+
   const { data: categories } = useCategories()
   const searchParams = useSearchParams()
 
@@ -32,7 +39,15 @@ export default function CategoryFilter() {
             bg: category.name === searchParams?.get('category') ? 'grey.800' : 'grey.400',
           }}
         >
-          <Link href={{ pathname: '/', query: { category: category.name } }}>
+          <Link
+            href={{ pathname: '/', query: { category: category.name } }}
+            onClick={() => {
+              trackClicked(ClickEvent.CategoryClicked, {
+                name: category.name,
+                page: pageName,
+              })
+            }}
+          >
             <Text
               color={category.name === searchParams?.get('category') ? 'grey.50' : 'grey.800'}
               fontWeight={500}

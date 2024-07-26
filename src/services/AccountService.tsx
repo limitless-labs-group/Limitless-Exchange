@@ -42,7 +42,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     if (isLoggedIn) {
       web3Auth.getUserInfo().then((userInfo) => {
         setUserInfo(userInfo)
-        trackSignUp()
       })
     }
   }, [isLoggedIn])

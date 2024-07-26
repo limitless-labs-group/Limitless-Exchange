@@ -24,15 +24,15 @@ const MainPage = () => {
    * ANALYTICS
    */
   const { trackOpened } = useAmplitude()
-  useEffect(() => {
-    trackOpened(OpenEvent.PageOpened, {
-      page: 'Explore Markets',
-    })
-  }, [])
-
   const category = searchParams.get('category')
 
   const categoryEntity = useMemo(() => {
+    if (category) {
+      trackOpened(OpenEvent.PageOpened, {
+        page: 'Explore Markets',
+        category: category,
+      })
+    }
     return (
       categories?.find(
         (categoryEntity) => categoryEntity.name.toLowerCase() === category?.toLowerCase()

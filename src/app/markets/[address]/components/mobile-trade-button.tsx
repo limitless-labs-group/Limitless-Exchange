@@ -44,7 +44,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
 
   const buttonText = useMemo(() => {
     if (!positionToClaim) {
-      return <Text fontWeight={500}>Explore Opened Markets</Text>
+      return <Text fontWeight={500}>Explore Open Markets</Text>
     }
     if (positionToClaim) {
       return (
