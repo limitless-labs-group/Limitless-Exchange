@@ -28,6 +28,7 @@ import {
   useBalanceService,
   useAccount,
   ProfileBurgerMenuClickedMetadata,
+  LogoClickedMetadata,
 } from '@/services'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
@@ -46,6 +47,7 @@ import useDisconnectAccount from '@/hooks/use-disconnect'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import TokenFilter from '@/components/common/token-filter'
 import { useThemeProvider } from '@/providers'
+import usePageName from '@/hooks/use-page-name'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
@@ -61,6 +63,7 @@ export default function Sidebar() {
   const { disconnectFromPlatform } = useDisconnectAccount()
   const { client } = useWeb3Service()
   const pathname = usePathname()
+  const pageName = usePageName()
 
   const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
   const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
@@ -86,12 +89,19 @@ export default function Sidebar() {
         overflowY='auto'
         pb='100px'
       >
-        <Button variant='transparent' onClick={() => router.push('/')} _hover={{ bg: 'unset' }}>
+        <Button
+          variant='transparent'
+          onClick={() => {
+            trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
+            router.push('/')
+          }}
+          _hover={{ bg: 'unset' }}
+        >
           <Image
             src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
             height={32}
             width={156}
-            alt='calendar'
+            alt='logo'
           />
         </Button>
         {isConnected && (

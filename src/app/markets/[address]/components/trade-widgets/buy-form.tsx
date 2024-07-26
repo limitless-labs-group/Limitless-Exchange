@@ -31,6 +31,7 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { css } from '@emotion/react'
 import { isMobile } from 'react-device-detect'
 import ActionButton from '@/app/markets/[address]/components/trade-widgets/action-button'
+import { useWeb3Service } from '@/services/Web3Service'
 
 interface BuyFormProps {
   market: Market
@@ -56,6 +57,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
    * BALANCE
    */
   const { balanceOfSmartWallet, setToken, token } = useBalanceService()
+  const { client } = useWeb3Service()
 
   //User Block feature
   //const user = useUserValidation()
@@ -304,8 +306,9 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
         <ActionButton
           onClick={async () => {
             trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
-              strategy: 'Buy',
+              outcome: 'Yes',
               marketAddress: market.address[defaultChain.id],
+              walletType: client,
             })
 
             if (market?.status === MarketStatus.LOCKED) {
@@ -330,8 +333,9 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           disabled={isExceedsBalance || !collateralAmount}
           onClick={async () => {
             trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
-              strategy: 'Buy',
+              outcome: 'No',
               marketAddress: market.address[defaultChain.id],
+              walletType: client,
             })
 
             if (market?.status === MarketStatus.LOCKED) {
