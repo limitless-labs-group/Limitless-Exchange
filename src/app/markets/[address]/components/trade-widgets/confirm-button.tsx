@@ -111,9 +111,8 @@ export default function ConfirmButton({
         }}
         transitionProperty='none'
         transitionDuration='unset'
-        style={{
-          // @ts-ignore
-          'webkit-tap-highlight-color': 'transparent',
+        sx={{
+          WebkitTapHighlightColor: 'transparent !important',
         }}
       >
         <VStack w='full' h='full' color='white' gap='8px' justifyContent='center'>
