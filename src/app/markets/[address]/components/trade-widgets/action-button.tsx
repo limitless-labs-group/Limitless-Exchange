@@ -138,12 +138,12 @@ export default function ActionButton({
   const buttonsTransform = isMobile ? 16 : 0
 
   const handleActionIntention = async () => {
-    if (status !== 'initial') {
-      setStatus('initial')
-      return
-    }
     if (market?.status === MarketStatus.LOCKED) {
       await onClick()
+      return
+    }
+    if (status !== 'initial') {
+      setStatus('initial')
       return
     }
     if (client === 'eoa') {
