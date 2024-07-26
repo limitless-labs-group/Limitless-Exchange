@@ -103,6 +103,14 @@ export default function ConfirmButton({
         onMouseLeave={() => setIsHovered(false)}
         onClick={() => setStatus('initial')}
         isDisabled={status === 'unlocking'}
+        _focus={{
+          boxShadow: 'none !important',
+        }}
+        _focusVisible={{
+          boxShadow: 'none !important',
+        }}
+        transitionProperty='none'
+        transitionDuration='unset'
       >
         <VStack w='full' h='full' color='white' gap='8px' justifyContent='center'>
           <CloseIcon width={16} height={16} />
