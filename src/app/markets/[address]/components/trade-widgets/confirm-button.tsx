@@ -9,6 +9,7 @@ import CloseIcon from '@/resources/icons/close-icon.svg'
 import { AnimatePresence, motion } from 'framer-motion'
 import { isMobile } from 'react-device-detect'
 import { ButtonStatus } from '@/app/markets/[address]/components/trade-widgets/action-button'
+import { commonButtonProps } from '@/styles/button'
 
 const MotionBox = motion(Box)
 
@@ -91,14 +92,12 @@ export default function ConfirmButton({
   return (
     <HStack>
       <Button
+        {...commonButtonProps}
         bg='rgba(255, 255, 255, 0.2)'
         w={isMobile ? '144px' : '124px'}
         h={isMobile ? '156px' : '136px'}
         _hover={{
           backgroundColor: 'transparent.300',
-        }}
-        _active={{
-          background: 'unset',
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -113,6 +112,7 @@ export default function ConfirmButton({
         </VStack>
       </Button>
       <Button
+        {...commonButtonProps}
         bg='rgba(255, 255, 255, 0.2)'
         w={isMobile ? '144px' : '124px'}
         h={isMobile ? '156px' : '136px'}
