@@ -97,7 +97,14 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
     return market?.expired ? (
       <MobileTradeButton market={market} />
     ) : (
-      <Button variant='contained' w='full' h='48px' mt='32px' onClick={openTradeModal}>
+      <Button
+        variant='contained'
+        w='full'
+        h='48px'
+        mt='32px'
+        color='white'
+        onClick={openTradeModal}
+      >
         Trade
       </Button>
     )
