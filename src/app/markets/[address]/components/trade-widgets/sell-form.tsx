@@ -24,7 +24,6 @@ import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ClickEvent,
-  TradeClickedMetadata,
   useAmplitude,
   useBalanceService,
   useHistory,
@@ -467,7 +466,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 </Text>
               </HStack>
               <Text {...paragraphRegular} color='white'>{`${NumberUtil.toFixed(
-                quotesYes?.priceImpact,
+                outcomeChoice == 'yes' ? quotesYes?.priceImpact : quotesNo?.priceImpact,
                 2
               )}%`}</Text>
             </HStack>
@@ -478,7 +477,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 </Text>
               </HStack>
               <Text {...paragraphRegular} color='white'>
-                {NumberUtil.toFixed(quotesYes?.roi, 2)}%
+                {NumberUtil.toFixed(outcomeChoice == 'yes' ? quotesYes?.roi : quotesNo?.roi, 2)}%
               </Text>
             </HStack>
             <HStack justifyContent='space-between' w='full'>
