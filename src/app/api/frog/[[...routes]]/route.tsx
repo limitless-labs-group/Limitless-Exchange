@@ -158,7 +158,7 @@ app.frame('/approve', async (c) => {
         <span
           style={{ fontSize: '40px', fontWeight: 'bold', marginTop: '60px', textAlign: 'center' }}
         >
-          {market.title}
+          {market?.proxyTitle ?? market?.title}
         </span>
         <div style={{ display: 'flex', gap: '100px', marginTop: '40px' }}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -263,7 +263,7 @@ app.frame('/buy', (c) => {
             textAlign: 'center',
           }}
         >
-          {market.title}
+          {market?.proxyTitle ?? market?.title}
         </span>
         <div style={{ display: 'flex', gap: '100px', marginTop: '40px' }}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>

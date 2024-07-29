@@ -79,7 +79,16 @@ export default function MobileHeader() {
           <HStack gap='4px'>
             {isConnected ? (
               <>
-                <Button variant='transparent' onClick={onToggleUserMenu}>
+                <Button
+                  variant='transparent'
+                  onClick={() => {
+                    trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+                      platform: 'mobile',
+                    })
+
+                    onToggleUserMenu()
+                  }}
+                >
                   <Text fontWeight={500} fontSize='16px'>
                     {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                   </Text>
@@ -226,6 +235,11 @@ export default function MobileHeader() {
                             mt='8px'
                             px={0}
                             onClick={() => {
+                              trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+                                option: 'Wallet',
+                                platform: 'mobile',
+                              })
+
                               onToggleWalletModal()
                               onToggleUserMenu()
                             }}
@@ -257,6 +271,10 @@ export default function MobileHeader() {
                           w='full'
                           h='32px'
                           onClick={() => {
+                            trackClicked(ClickEvent.TopUpClicked, {
+                              platform: 'mobile',
+                            })
+
                             onToggleWalletModal()
                             onToggleUserMenu()
                           }}
@@ -292,12 +310,10 @@ export default function MobileHeader() {
                       mt='24px'
                       h='32px'
                       onClick={() => {
-                        trackClicked<ProfileBurgerMenuClickedMetadata>(
-                          ClickEvent.ProfileBurgerMenuClicked,
-                          {
-                            option: 'Sign Out',
-                          }
-                        )
+                        trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+                          option: 'Sign Out',
+                          platform: 'mobile',
+                        })
                         disconnectFromPlatform()
                       }}
                     >

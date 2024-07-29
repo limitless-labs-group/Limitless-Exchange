@@ -8,7 +8,7 @@ import { defaultChain, newSubgraphURI } from '@/constants'
 import { Address, formatUnits, parseUnits } from 'viem'
 import { fixedProductMarketMakerABI } from '@/contracts'
 
-const LIMIT_PER_PAGE = 20
+const LIMIT_PER_PAGE = 30
 
 /**
  * Fetches and manages paginated active market data using the `useInfiniteQuery` hook.

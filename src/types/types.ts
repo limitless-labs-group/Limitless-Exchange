@@ -43,6 +43,7 @@ export type MarketResponse = {
   }
   outcomeTokens: string[]
   title: string
+  proxyTitle: string | null
   description: string
   placeholderURI: string
   imageURI: string

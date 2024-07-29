@@ -15,8 +15,6 @@ import {
 import { useAccount as useWagmi } from 'wagmi'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { OpenEvent, useAmplitude } from '@/services'
-import { MetamaskAdapter } from '@web3auth/metamask-adapter'
-import { CoinbaseAdapter } from '@web3auth/coinbase-adapter'
 import { createConnector as createWagmiConnector } from 'wagmi'
 import { Wallet, WalletDetailsParams } from '@rainbow-me/rainbowkit'
 import { isMobile } from 'react-device-detect'

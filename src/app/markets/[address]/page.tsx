@@ -17,9 +17,12 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import {
+  ClickEvent,
   createMarketShareUrls,
   OpenEvent,
   PageOpenedMetadata,
+  ShareClickedMetadata,
+  ShareClickedType,
   useAmplitude,
   useTradingService,
 } from '@/services'
@@ -51,7 +54,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
    * ANALYTICS
    */
-  const { trackOpened } = useAmplitude()
+  const { trackOpened, trackClicked } = useAmplitude()
   const { data: winningIndex } = useWinningIndex(params.address)
   const resolved = winningIndex === 0 || winningIndex === 1
   const router = useRouter()
@@ -94,7 +97,20 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
     return market?.expired ? (
       <MobileTradeButton market={market} />
     ) : (
-      <Button variant='contained' w='full' h='48px' mt='32px' onClick={openTradeModal}>
+      <Button
+        variant='contained'
+        w='full'
+        h='48px'
+        mt='32px'
+        color='white'
+        onClick={() => {
+          trackClicked(ClickEvent.TradeClicked, {
+            platform: 'mobile',
+            address: market?.address[defaultChain.id],
+          })
+          openTradeModal()
+        }}
+      >
         Trade
       </Button>
     )
@@ -130,7 +146,15 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
             <Box w={isMobile ? 'full' : '664px'}>
               <Divider bg='grey.800' orientation='horizontal' h='3px' />
               <HStack justifyContent='space-between' mt='10px' mb='24px'>
-                <Button variant='grey' onClick={handleBackClicked}>
+                <Button
+                  variant='grey'
+                  onClick={() => {
+                    trackClicked(ClickEvent.BackClicked, {
+                      address: market?.address[defaultChain.id],
+                    })
+                    handleBackClicked()
+                  }}
+                >
                   <ArrowLeftIcon width={16} height={16} />
                   Back
                 </Button>
@@ -142,13 +166,29 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
                     </HStack>
                   </MenuButton>
                   <MenuList borderRadius='2px' w='122px' zIndex={2}>
-                    <MenuItem onClick={() => window.open(castURI, '_blank', 'noopener')}>
+                    <MenuItem
+                      onClick={() => {
+                        trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
+                          type: 'Farcaster',
+                          address: market?.address[defaultChain.id],
+                        })
+                        window.open(castURI, '_blank', 'noopener')
+                      }}
+                    >
                       <HStack gap='4px'>
                         <WarpcastIcon />
                         <Text fontWeight={500}>On Warpcast</Text>
                       </HStack>
                     </MenuItem>
-                    <MenuItem onClick={() => window.open(tweetURI, '_blank', 'noopener')}>
+                    <MenuItem
+                      onClick={() => {
+                        trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
+                          type: 'X/Twitter',
+                          address: market?.address[defaultChain.id],
+                        })
+                        window.open(tweetURI, '_blank', 'noopener')
+                      }}
+                    >
                       <HStack gap='4px'>
                         <TwitterIcon />
                         <Text fontWeight={500}>On X</Text>
@@ -159,7 +199,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
               </HStack>
               <Box>
                 <TextWithPixels
-                  text={market?.title || ''}
+                  text={(market?.proxyTitle ?? market?.title) || ''}
                   {...(isMobile ? { ...h1Regular } : {})}
                   fontSize='32px'
                 />
@@ -203,7 +243,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
             <MarketTradingModal
               open={tradeModalOpened}
               onClose={closeTradeModal}
-              title={market?.title || ''}
+              title={(market?.proxyTitle ?? market?.title) || ''}
               market={market}
             />
           )}

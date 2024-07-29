@@ -31,7 +31,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           onClick={() => router.push(`/markets/${market?.address[defaultChain.id]}`)}
         >
           <Text size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
-            {market?.title ?? 'Noname market'}
+            {market?.proxyTitle ?? market?.title ?? 'Noname market'}
           </Text>
         </HStack>
       </Td>

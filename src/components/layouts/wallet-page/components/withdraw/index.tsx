@@ -7,7 +7,7 @@ import { zeroAddress } from 'viem'
 import { isMobile } from 'react-device-detect'
 import React, { useEffect, useMemo, useState } from 'react'
 import { IModal } from '@/components/common/modals/modal'
-import { useBalanceService, useLimitlessApi } from '@/services'
+import { ClickEvent, useAmplitude, useBalanceService, useLimitlessApi } from '@/services'
 import { Token } from '@/types'
 import BigNumber from 'bignumber.js'
 import Loader from '@/components/common/loader'
@@ -37,6 +37,8 @@ export default function Withdraw({ isOpen, onClose }: WithdrawProps) {
       return new BigNumber(balanceItem.formatted).isLessThan(new BigNumber(amount))
     }
   }, [balanceItem, amount])
+
+  const { trackClicked } = useAmplitude()
 
   useEffect(() => {
     setAmount('')
@@ -109,6 +111,10 @@ export default function Withdraw({ isOpen, onClose }: WithdrawProps) {
           spinner={<Loader />}
           isDisabled={isSubmitDisabled || status === 'Loading' || !amount}
           onClick={async () => {
+            trackClicked(ClickEvent.WithdrawConfirmedClicked, {
+              coin: selectedToken.symbol,
+              amount: amount,
+            })
             await withdraw({ receiver: address, token: selectedToken, amount })
             onClose()
           }}

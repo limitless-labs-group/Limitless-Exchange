@@ -146,12 +146,6 @@ export const chakraTheme = ChakraTheme({
           opacity: 1,
           pointerEvents: 'none',
         },
-        _focus: {
-          boxShadow: 'unset',
-        },
-        '&:focus-visible': {
-          boxShadow: 'unset',
-        },
       },
       variants: {
         outline: {

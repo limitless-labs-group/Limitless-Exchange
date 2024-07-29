@@ -1,5 +1,5 @@
 import { isMobile } from 'react-device-detect'
-import { TradeQuotes } from '@/services'
+import { ClickEvent, TradeQuotes, useAmplitude } from '@/services'
 import { defaultChain } from '@/constants'
 import { Box, Button, HStack, Icon, Text, useOutsideClick, VStack } from '@chakra-ui/react'
 import BlockIcon from '@/resources/icons/block.svg'
@@ -54,6 +54,11 @@ export default function ActionButton({
   amount,
   decimals,
 }: ActionButtonProps) {
+  /**
+   * ANALITYCS
+   */
+  const { trackClicked } = useAmplitude()
+
   const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
 
@@ -138,12 +143,12 @@ export default function ActionButton({
   const buttonsTransform = isMobile ? 16 : 0
 
   const handleActionIntention = async () => {
-    if (status !== 'initial') {
-      setStatus('initial')
-      return
-    }
     if (market?.status === MarketStatus.LOCKED) {
       await onClick()
+      return
+    }
+    if (status !== 'initial') {
+      setStatus('initial')
       return
     }
     if (client === 'eoa') {
@@ -172,6 +177,12 @@ export default function ActionButton({
         market.collateralToken[defaultChain.id],
         amountBI
       )
+      trackClicked(ClickEvent.ConfirmCapClicked, {
+        address: market?.address[defaultChain.id],
+        strategy: 'Buy',
+        outcome: option,
+        walletType: 'eoa',
+      })
       await sleep(2)
       setStatus('confirm')
       return
@@ -226,6 +237,9 @@ export default function ActionButton({
           isDisabled={disabled || ['transaction-broadcasted', 'success'].includes(status)}
           onClick={handleActionIntention}
           borderRadius='2px'
+          sx={{
+            WebkitTapHighlightColor: 'transparent !important',
+          }}
         >
           {showBlock ? (
             <VStack w={'full'} h={'120px'}>
@@ -340,7 +354,16 @@ export default function ActionButton({
         <ConfirmButton
           tokenTicker={market.tokenTicker[defaultChain.id]}
           status={status}
-          handleConfirmClicked={handleConfirmClicked}
+          handleConfirmClicked={() => {
+            trackClicked(ClickEvent.ConfirmTradeClicked, {
+              address: market?.address[defaultChain.id],
+              outcome: option,
+              strategy: 'Buy',
+              walletType: client,
+            })
+
+            return handleConfirmClicked()
+          }}
           onApprove={handleApprove}
           setStatus={setStatus}
         />

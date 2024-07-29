@@ -1,7 +1,10 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { Button } from '@chakra-ui/react'
+import { SignInEvent, useAmplitude } from '@/services'
 
 export const LoginButton = () => {
+  const { trackSignIn } = useAmplitude()
+
   return (
     <ConnectButton.Custom>
       {({
@@ -39,7 +42,14 @@ export const LoginButton = () => {
             {(() => {
               if (!connected) {
                 return (
-                  <Button onClick={openConnectModal} variant='contained' w='full'>
+                  <Button
+                    onClick={() => {
+                      openConnectModal()
+                      trackSignIn(SignInEvent.SignIn)
+                    }}
+                    variant='contained'
+                    w='full'
+                  >
                     Sign in
                   </Button>
                 )

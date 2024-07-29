@@ -130,7 +130,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       <Stack spacing={'8px'}>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
           <Text {...paragraphMedium} color={cardColors.main}>
-            {market?.title ?? 'Noname market'}
+            {market?.proxyTitle ?? market?.title ?? 'Noname market'}
           </Text>
           <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
         </HStack>
@@ -211,7 +211,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
           <Box>
             <Text {...paragraphMedium} color={cardColors.main}>
-              {market?.title ?? 'Noname market'}
+              {market?.proxyTitle ?? market?.title ?? 'Noname market'}
             </Text>
           </Box>
 
