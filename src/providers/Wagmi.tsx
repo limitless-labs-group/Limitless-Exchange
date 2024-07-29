@@ -26,7 +26,7 @@ import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 //   ]
 // )
 
-const config = getDefaultConfig({
+export const config = getDefaultConfig({
   appName: 'Limitless Exchange',
   projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string,
   chains: [defaultChain],
