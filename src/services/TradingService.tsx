@@ -444,7 +444,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const {
     buyOutcomeTokens,
     client,
-    checkAllowance,
     approveContract,
     sellOutcomeTokens,
     checkAllowanceForAll,
@@ -457,23 +456,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      // TODO: incapsulate
-
-      if (client === 'eoa') {
-        const allowance = await checkAllowance(
-          market.address[defaultChain.id],
-          market.collateralToken[defaultChain.id]
-        )
-
-        if (allowance < collateralAmountBI) {
-          setApproveModalOpened(true)
-          return
-        }
-      }
-
-      const id = toast({
-        render: () => <Toast title={'Processing transaction...'} id={id} />,
-      })
+      setCollateralAmount('')
 
       const receipt = await buyOutcomeTokens(
         market.address[defaultChain.id],
@@ -503,27 +486,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      setCollateralAmount('')
-
       await refetchChain()
-
-      // TODO: incapsulate
-      const toastId = toast({
-        render: () => (
-          <Toast
-            title={`Successfully invested ${NumberUtil.toFixed(collateralAmount, 6)} ${
-              collateralToken?.symbol
-            }`}
-            id={toastId}
-          />
-        ),
-      })
-
-      await sleep(1)
-
-      const updateToastId = toast({
-        render: () => <Toast title={`Updating portfolio...`} id={updateToastId} />,
-      })
 
       // TODO: redesign subgraph refetch logic
       sleep(10).then(() => refetchSubgraph())

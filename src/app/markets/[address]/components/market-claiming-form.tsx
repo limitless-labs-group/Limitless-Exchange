@@ -40,7 +40,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
 
   const formColor = useMemo(() => {
     if (!positionToClaim) {
-      return 'grey.800'
+      return 'black'
     }
     if (hasPositions) {
       return 'green.500'
@@ -52,7 +52,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
     if (!positionToClaim) {
       return (
         <Button variant='white' onClick={() => router.push('/')}>
-          Explore Opened Markets
+          Explore Open Markets
         </Button>
       )
     }
@@ -87,11 +87,11 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
 
   return (
     <Paper bg={formColor} w='312px'>
-      <Text fontWeight={500} color='grey.50'>
+      <Text fontWeight={500} color='white'>
         Market is closed
       </Text>
       {!!hasPositions?.length && (
-        <HStack gap='4px' color='grey.50'>
+        <HStack gap='4px' color='white'>
           <Text fontWeight={500}>Your prediction of</Text>
           {hasPositions[0].outcomeIndex ? (
             <ThumbsDownIcon width={16} height={16} />

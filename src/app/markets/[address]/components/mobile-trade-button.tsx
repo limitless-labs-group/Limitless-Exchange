@@ -44,7 +44,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
 
   const buttonText = useMemo(() => {
     if (!positionToClaim) {
-      return <Text fontWeight={500}>Explore Opened Markets</Text>
+      return <Text fontWeight={500}>Explore Open Markets</Text>
     }
     if (positionToClaim) {
       return (
@@ -56,7 +56,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
     }
     if (hasPositions) {
       return (
-        <Text color='grey.50'>
+        <Text color='white'>
           Lost {`${NumberUtil.formatThousands(hasPositions[0].outcomeTokenAmount, 4)}`}{' '}
           {market?.tokenTicker[defaultChain.id]}
         </Text>
@@ -69,7 +69,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
 
   const buttonColor = useMemo(() => {
     if (!positionToClaim) {
-      return 'grey.800'
+      return 'black'
     }
     if (hasPositions) {
       return 'green.500'
@@ -97,6 +97,9 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
         bg={buttonColor}
         justifyContent='space-between'
         onClick={action}
+        _hover={{
+          bg: buttonColor,
+        }}
       >
         Market is closed
         {buttonText}
@@ -133,7 +136,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
           p='16px'
           pt='24px'
           w='full'
-          color='grey.50'
+          color='white'
         >
           <Text fontWeight={500} mt='16px'>
             Market is closed
@@ -150,6 +153,8 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
           </HStack>
           <Button
             variant='white'
+            w='full'
+            mt='40px'
             onClick={async () => {
               toggleClaimMenu()
               if (positionToClaim) {

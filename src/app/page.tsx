@@ -5,7 +5,7 @@ import { defaultChain } from '@/constants'
 import { useIsMobile } from '@/hooks'
 import { OpenEvent, useAmplitude, useCategories } from '@/services'
 import { Divider, VStack, Text, Box, Spinner, HStack } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import SortFilter from '@/components/common/sort-filter'
 import { Market, Sort } from '@/types'
@@ -24,15 +24,15 @@ const MainPage = () => {
    * ANALYTICS
    */
   const { trackOpened } = useAmplitude()
-  useEffect(() => {
-    trackOpened(OpenEvent.PageOpened, {
-      page: 'Explore Markets',
-    })
-  }, [])
-
   const category = searchParams.get('category')
 
   const categoryEntity = useMemo(() => {
+    if (category) {
+      trackOpened(OpenEvent.PageOpened, {
+        page: 'Explore Markets',
+        category: category,
+      })
+    }
     return (
       categories?.find(
         (categoryEntity) => categoryEntity.name.toLowerCase() === category?.toLowerCase()
@@ -51,7 +51,8 @@ const MainPage = () => {
   const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage, isFetching } = useMarkets(categoryEntity)
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
+    useMarkets(categoryEntity)
 
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.length
@@ -114,7 +115,7 @@ const MainPage = () => {
 
   return (
     <MainLayout>
-      <Box w={isMobile ? 'auto' : '664px'} ml={isMobile ? 'auto' : '200px'}>
+      <Box w={isMobile ? 'full' : '664px'} ml={isMobile ? 'auto' : '200px'}>
         <Divider bg='grey.800' orientation='horizontal' h='3px' mb='16px' />
         <TextWithPixels
           text={`Explore ${categoryEntity?.name ?? 'Limitless'} Prediction Markets`}
@@ -128,7 +129,7 @@ const MainPage = () => {
         </Text>
 
         <SortFilter onChange={handleSelectSort} />
-        {isFetching ? (
+        {isFetching && !isFetchingNextPage ? (
           <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>
             <Spinner />
           </HStack>

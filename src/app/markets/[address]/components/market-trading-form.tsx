@@ -32,7 +32,12 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
 
   return (
-    <Paper bg='blue.500' w={isMobile ? 'full' : '312px'} p={isMobile ? 0 : '8px'}>
+    <Paper
+      bg='blue.500'
+      w={isMobile ? 'full' : '312px'}
+      p={isMobile ? 0 : '8px'}
+      overflow={isMobile ? 'unset' : 'hidden'}
+    >
       <HStack
         w={'240px'}
         mx='auto'
@@ -47,10 +52,10 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
           flex='1'
           py='2px'
           borderRadius='2px'
-          bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
-          color={strategy === 'Buy' ? 'grey.800' : 'grey.50'}
+          bg={strategy === 'Buy' ? 'white' : 'unset'}
+          color={strategy === 'Buy' ? 'black' : 'white'}
           _hover={{
-            backgroundColor: strategy === 'Buy' ? 'grey.50' : 'rgba(255, 255, 255, 0.30)',
+            backgroundColor: strategy === 'Buy' ? 'white' : 'rgba(255, 255, 255, 0.30)',
           }}
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
@@ -69,10 +74,10 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
           flex='1'
           borderRadius='2px'
           py='2px'
-          bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
-          color={strategy === 'Sell' ? 'grey.800' : 'grey.50'}
+          bg={strategy === 'Sell' ? 'white' : 'unset'}
+          color={strategy === 'Sell' ? 'black' : 'white'}
           _hover={{
-            backgroundColor: strategy === 'Sell' ? 'grey.50' : 'rgba(255, 255, 255, 0.30)',
+            backgroundColor: strategy === 'Sell' ? 'white' : 'rgba(255, 255, 255, 0.30)',
           }}
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
@@ -87,17 +92,14 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
           </Text>
         </Button>
       </HStack>
-      {status !== 'Loading' ? (
-        <>
-          {strategy === 'Buy' ? (
-            <BuyForm market={market} setOutcomeIndex={setOutcomeIndex} />
-          ) : (
-            <SellForm market={market} setOutcomeIndex={setOutcomeIndex} />
-          )}
-        </>
-      ) : (
-        <LoadingForm market={market} outcomeIndex={outcomeIndex} />
-      )}
+      {strategy === 'Buy' && <BuyForm market={market} setOutcomeIndex={setOutcomeIndex} />}
+      {strategy === 'Sell' ? (
+        status === 'Loading' ? (
+          <LoadingForm market={market} outcomeIndex={outcomeIndex} />
+        ) : (
+          <SellForm market={market} setOutcomeIndex={setOutcomeIndex} />
+        )
+      ) : null}
     </Paper>
   )
 }

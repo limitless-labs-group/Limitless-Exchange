@@ -1,22 +1,32 @@
-import { Box, Divider, useTheme } from '@chakra-ui/react'
+import { Box, Divider } from '@chakra-ui/react'
 import TextWithPixels from '@/components/common/text-with-pixels'
 import Marquee from 'react-fast-marquee'
 import { useState } from 'react'
+import { useThemeProvider } from '@/providers'
+import { ClickEvent, useAmplitude } from '@/services'
 
 export default function HeaderMarquee() {
-  const theme = useTheme()
   const [pauseMarquee, setPauseMarquee] = useState<boolean>(false)
+  const { colors } = useThemeProvider()
+  const { trackClicked } = useAmplitude()
 
   return (
-    <Box onClick={() => setPauseMarquee(!pauseMarquee)}>
+    <Box
+      onClick={() => {
+        trackClicked(ClickEvent.StrokeClicked, {
+          changeTo: pauseMarquee ? 'pause' : 'run',
+        })
+        setPauseMarquee(!pauseMarquee)
+      }}
+    >
       <Marquee
         play={!pauseMarquee}
         style={{
           height: '20px',
-          background: theme.colors.grey['800'],
-          color: theme.colors.grey['50'],
+          background: colors.grey['800'],
           position: 'fixed',
           zIndex: 300,
+          cursor: 'pointer',
         }}
       >
         <Box marginX='6px'>
@@ -25,90 +35,7 @@ export default function HeaderMarquee() {
             fontWeight={400}
             fontSize='12px'
             textTransform='uppercase'
-          />
-        </Box>
-        <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
-        <Box marginX='6px'>
-          <TextWithPixels
-            text='Markets BY COMMUNITY'
-            fontWeight={400}
-            fontSize='12px'
-            textTransform='uppercase'
-            highlightWord={3}
-          />
-        </Box>
-        <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
-        <Box marginX='6px'>
-          <TextWithPixels
-            text='Different tokens'
-            fontWeight={400}
-            fontSize='12px'
-            textTransform='uppercase'
-          />
-        </Box>
-        <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
-        <Box marginX='6px'>
-          <TextWithPixels
-            text='Transparent Voting'
-            fontWeight={400}
-            fontSize='12px'
-            textTransform='uppercase'
-          />
-        </Box>
-        <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
-        <Box marginX='6px'>
-          <TextWithPixels
-            text='Markets BY COMMUNITY'
-            fontWeight={400}
-            fontSize='12px'
-            textTransform='uppercase'
-            highlightWord={3}
-          />
-        </Box>
-        <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
-        <Box marginX='6px'>
-          <TextWithPixels
-            text='Different tokens'
-            fontWeight={400}
-            fontSize='12px'
-            textTransform='uppercase'
-          />
-        </Box>
-        <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
-        <Box marginX='6px'>
-          <TextWithPixels
-            text='Transparent Voting'
-            fontWeight={400}
-            fontSize='12px'
-            textTransform='uppercase'
-          />
-        </Box>
-        <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
-        <Box marginX='6px'>
-          <TextWithPixels
-            text='Markets BY COMMUNITY'
-            fontWeight={400}
-            fontSize='12px'
-            textTransform='uppercase'
-            highlightWord={3}
-          />
-        </Box>
-        <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
-        <Box marginX='6px'>
-          <TextWithPixels
-            text='Different tokens'
-            fontWeight={400}
-            fontSize='12px'
-            textTransform='uppercase'
-          />
-        </Box>
-        <Divider orientation='vertical' color={theme.colors.grey['50']} height='16px' />
-        <Box marginX='6px'>
-          <TextWithPixels
-            text='Transparent Voting'
-            fontWeight={400}
-            fontSize='12px'
-            textTransform='uppercase'
+            color='grey.50'
           />
         </Box>
         <Divider orientation='vertical' color='grey.50' height='16px' />
@@ -119,6 +46,7 @@ export default function HeaderMarquee() {
             fontSize='12px'
             textTransform='uppercase'
             highlightWord={3}
+            color='grey.50'
           />
         </Box>
         <Divider orientation='vertical' color='grey.50' height='16px' />
@@ -128,6 +56,7 @@ export default function HeaderMarquee() {
             fontWeight={400}
             fontSize='12px'
             textTransform='uppercase'
+            color='grey.50'
           />
         </Box>
         <Divider orientation='vertical' color='grey.50' height='16px' />
@@ -137,6 +66,7 @@ export default function HeaderMarquee() {
             fontWeight={400}
             fontSize='12px'
             textTransform='uppercase'
+            color='grey.50'
           />
         </Box>
         <Divider orientation='vertical' color='grey.50' height='16px' />
@@ -147,6 +77,7 @@ export default function HeaderMarquee() {
             fontSize='12px'
             textTransform='uppercase'
             highlightWord={3}
+            color='grey.50'
           />
         </Box>
         <Divider orientation='vertical' color='grey.50' height='16px' />
@@ -156,6 +87,7 @@ export default function HeaderMarquee() {
             fontWeight={400}
             fontSize='12px'
             textTransform='uppercase'
+            color='grey.50'
           />
         </Box>
         <Divider orientation='vertical' color='grey.50' height='16px' />
@@ -165,6 +97,7 @@ export default function HeaderMarquee() {
             fontWeight={400}
             fontSize='12px'
             textTransform='uppercase'
+            color='grey.50'
           />
         </Box>
         <Divider orientation='vertical' color='grey.50' height='16px' />
@@ -175,6 +108,7 @@ export default function HeaderMarquee() {
             fontSize='12px'
             textTransform='uppercase'
             highlightWord={3}
+            color='grey.50'
           />
         </Box>
         <Divider orientation='vertical' color='grey.50' height='16px' />
@@ -184,6 +118,100 @@ export default function HeaderMarquee() {
             fontWeight={400}
             fontSize='12px'
             textTransform='uppercase'
+            color='grey.50'
+          />
+        </Box>
+        <Divider orientation='vertical' color='grey.50' height='16px' />
+        <Box marginX='6px'>
+          <TextWithPixels
+            text='Transparent Voting'
+            fontWeight={400}
+            fontSize='12px'
+            textTransform='uppercase'
+            color='grey.50'
+          />
+        </Box>
+        <Divider orientation='vertical' color='grey.50' height='16px' />
+        <Box marginX='6px'>
+          <TextWithPixels
+            text='Markets BY COMMUNITY'
+            fontWeight={400}
+            fontSize='12px'
+            textTransform='uppercase'
+            highlightWord={3}
+            color='grey.50'
+          />
+        </Box>
+        <Divider orientation='vertical' color='grey.50' height='16px' />
+        <Box marginX='6px'>
+          <TextWithPixels
+            text='Different tokens'
+            fontWeight={400}
+            fontSize='12px'
+            textTransform='uppercase'
+            color='grey.50'
+          />
+        </Box>
+        <Divider orientation='vertical' color='grey.50' height='16px' />
+        <Box marginX='6px'>
+          <TextWithPixels
+            text='Transparent Voting'
+            fontWeight={400}
+            fontSize='12px'
+            textTransform='uppercase'
+            color='grey.50'
+          />
+        </Box>
+        <Divider orientation='vertical' color='grey.50' height='16px' />
+        <Box marginX='6px'>
+          <TextWithPixels
+            text='Markets BY COMMUNITY'
+            fontWeight={400}
+            fontSize='12px'
+            textTransform='uppercase'
+            highlightWord={3}
+            color='grey.50'
+          />
+        </Box>
+        <Divider orientation='vertical' color='grey.50' height='16px' />
+        <Box marginX='6px'>
+          <TextWithPixels
+            text='Different tokens'
+            fontWeight={400}
+            fontSize='12px'
+            textTransform='uppercase'
+            color='grey.50'
+          />
+        </Box>
+        <Divider orientation='vertical' color='grey.50' height='16px' />
+        <Box marginX='6px'>
+          <TextWithPixels
+            text='Transparent Voting'
+            fontWeight={400}
+            fontSize='12px'
+            textTransform='uppercase'
+            color='grey.50'
+          />
+        </Box>
+        <Divider orientation='vertical' color='grey.50' height='16px' />
+        <Box marginX='6px'>
+          <TextWithPixels
+            text='Markets BY COMMUNITY'
+            fontWeight={400}
+            fontSize='12px'
+            textTransform='uppercase'
+            highlightWord={3}
+            color='grey.50'
+          />
+        </Box>
+        <Divider orientation='vertical' color='grey.50' height='16px' />
+        <Box marginX='6px'>
+          <TextWithPixels
+            text='Different tokens'
+            fontWeight={400}
+            fontSize='12px'
+            textTransform='uppercase'
+            color='grey.50'
           />
         </Box>
         <Divider orientation='vertical' color='grey.50' height='16px' />

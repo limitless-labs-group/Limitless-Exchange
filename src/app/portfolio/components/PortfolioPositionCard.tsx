@@ -36,7 +36,7 @@ const unhoveredColors = {
 }
 
 const hoverColors = {
-  main: 'grey.50',
+  main: 'white',
   secondary: 'transparent.700',
 }
 
@@ -79,7 +79,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   const ClaimButton = () => {
     return (
       <Button variant='white' onClick={() => router.push(marketURI)}>
-        <Icon as={WinIcon} color={'grey.800'} />
+        <Icon as={WinIcon} color={'black'} />
         Claim{' '}
         {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
           market?.tokenTicker[defaultChain.id]

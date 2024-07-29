@@ -13,7 +13,7 @@ interface IAmplitudeContext {
   trackChanged: <T extends ChangedEventMetadata>(event: ChangeEvent, customData?: T) => void
   trackClicked: <T extends ClickedEventMetadata>(event: ClickEvent, customData?: T) => void
   trackOpened: <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => void
-  trackLogin: <T extends LoginEventMetadata>(event: LoginEvent, customData?: T) => void
+  trackSignIn: <T extends SignInEventMetadata>(event: SignInEvent, customData?: T) => void
   trackCopied: <T extends CopiedEventMetadata>(event: CopyEvent, customData?: T) => void
 }
 
@@ -77,7 +77,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     return trackEvent(event, customData)
   }
 
-  const trackLogin = async <T extends LoginEventMetadata>(event: LoginEvent, customData?: T) => {
+  const trackSignIn = async <T extends SignInEventMetadata>(event: SignInEvent, customData?: T) => {
     return trackEvent(event, customData)
   }
 
@@ -90,7 +90,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     trackChanged,
     trackClicked,
     trackOpened,
-    trackLogin,
+    trackSignIn: trackSignIn,
     trackCopied,
   }
 
@@ -102,7 +102,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
 export type EventType =
   | ChangeEvent
   | ClickEvent
-  | LoginEvent
+  | SignInEvent
   | OpenEvent
   | CopyEvent
   | AuthenticationEvent
@@ -114,21 +114,27 @@ export enum ChangeEvent {
 
 export enum ClickEvent {
   CreateMarketClicked = 'Create Market Clicked',
-  DepositClicked = 'Deposit Clicked',
-  ExploreMarketsClicked = 'Explore Markets Clicked',
-  SupportChatClicked = 'Support Chat Clicked',
-  PricePresetClicked = 'Price Preset Clicked',
+  TopUpClicked = 'Top Up Clicked',
   ShareClicked = 'Share Clicked',
-  OpenMarketClicked = 'Open Market Clicked',
-  HeaderOptionClicked = 'Header Option Clicked',
-  OpenCreatorProfileClicked = 'Open Creator Profile Clicked',
   ProfileBurgerMenuClicked = 'Profile Burger Menu Clicked',
   TradeClicked = 'Trade Clicked',
   ApproveClicked = 'Approve Clicked',
+  ConfirmTradeClicked = 'Confirm Trade Clicked',
+  ConfirmCapClicked = 'Confirm Cap Clicked',
+  LogoClicked = 'Logo Clicked',
+  BackClicked = 'Back Clicked',
+  CategoryClicked = 'Category Clicked',
+  WalletClicked = 'Wallet Clicked',
+  CopyAddressClicked = 'Wallet Address Copied',
+  WithdrawClicked = 'Withdraw Clicked',
+  WithdrawConfirmedClicked = 'Withdraw Confirmed Clicked',
+  SortClicked = 'SortClicked',
+  StrokeClicked = 'Stroke Clicked',
 }
 
-export enum LoginEvent {
-  LoginWithFarcaster = 'Login with Farcaster',
+export enum SignInEvent {
+  SignIn = 'Sign In',
+  SignInWithFarcaster = 'Login with Farcaster',
 }
 
 export enum OpenEvent {
@@ -156,20 +162,30 @@ export interface StrategyChangedMetadata {
   marketAddress: Address
 }
 
-export type OutcomeChangedChoice = 'Yes' | 'No'
 export interface OutcomeChangedMetadata {
   choice: OutcomeChangedChoice
   marketAddress: Address
 }
 
-export type TradeClickedStrategy = 'Buy' | 'Sell'
+export type OutcomeChangedChoice = 'Yes' | 'No'
+export type WalletType = 'eoa' | 'etherspot'
 export interface TradeClickedMetadata {
-  strategy: TradeClickedStrategy
+  outcome: OutcomeChangedChoice
+  walletType: WalletType
   marketAddress: Address
 }
 
 export interface ClickedApproveMetadata {
   address: Address
+}
+
+export interface ClickedWithdrawMetadata {
+  coin: string
+}
+
+export type LogoClickedPage = 'Explore Markets' | 'Portfolio' | 'Market Page' | 'Unknown Page'
+export interface LogoClickedMetadata {
+  page: LogoClickedPage
 }
 
 export type CreateMarketClickedPage = 'Explore Markets'
@@ -201,7 +217,7 @@ export type ShareClickedPage = 'Investor Page' | 'Creator Page' | 'Explore Marke
 export type ShareClickedType = 'Copy Link' | 'X/Twitter' | 'Farcaster'
 export interface ShareClickedMetadata {
   type: ShareClickedType
-  page: ShareClickedPage
+  address?: Address
 }
 
 export type PageOpenedPage =
@@ -234,14 +250,15 @@ export interface HeaderOptionClickedMetadata {
   option: HeaderOptionClickedOption
 }
 
-export type LoginWithFarcasterType =
+export type SignInWithFarcasterType =
   | 'Farcaster'
   | 'Google'
   | 'X/Twitter'
   | 'Discord'
   | 'Email/Phone'
-export interface LoginWithFarcasterMetadata {
-  type: LoginWithFarcasterType
+
+export interface SignInWithFarcasterMetadata {
+  type: SignInWithFarcasterType
 }
 
 export type WalletAddressCopiedPage = 'Deposit'
@@ -258,6 +275,19 @@ export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
 
+export interface SortMetadata {
+  oldValue: string
+  newValue: string
+}
+
+export interface StrokeMetadata {
+  changeTo: 'run' | 'pause'
+}
+
+export interface TopUpMetadata {
+  platform: string
+}
+
 export type ChangedEventMetadata = StrategyChangedMetadata | OutcomeChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
@@ -270,13 +300,19 @@ export type ClickedEventMetadata =
   | TradeClickedMetadata
   | DepositClickedMetadata
   | ClickedApproveMetadata
+  | LogoClickedMetadata
+  | ClickedWithdrawMetadata
+  | SortMetadata
+  | StrokeMetadata
+  | TopUpMetadata
+
 export type OpenedEventMetadata = PageOpenedMetadata
-export type LoginEventMetadata = LoginWithFarcasterMetadata
+export type SignInEventMetadata = SignInWithFarcasterMetadata
 export type CopiedEventMetadata = WalletAddressCopiedMetadata
 
 export type EventMetadata =
   | ChangedEventMetadata
   | ClickedEventMetadata
   | OpenedEventMetadata
-  | LoginEventMetadata
+  | SignInEventMetadata
   | CopiedEventMetadata

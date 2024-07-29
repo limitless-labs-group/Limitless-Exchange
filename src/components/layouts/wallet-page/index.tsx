@@ -1,7 +1,7 @@
 import { Box, Button, Divider, HStack, Text, useDisclosure, VStack } from '@chakra-ui/react'
 import Paper from '@/components/common/paper'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
-import { useBalanceService, useLimitlessApi } from '@/services'
+import { ClickEvent, useAmplitude, useBalanceService, useLimitlessApi } from '@/services'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
@@ -14,6 +14,7 @@ import { WithdrawModal } from '@/components/layouts/wallet-page/components/withd
 import { isMobile } from 'react-device-detect'
 import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { setTimeout } from '@wry/context'
+import usePageName from '@/hooks/use-page-name'
 
 interface WalletPageProps {
   onClose: () => void
@@ -25,14 +26,19 @@ export default function WalletPage({ onClose }: WalletPageProps) {
   const { supportedTokens } = useLimitlessApi()
   const address = useWalletAddress()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
-
+  const pageName = usePageName()
   const {
     isOpen: isWithdrawOpen,
     onOpen: onOpenWithdraw,
     onClose: onCloseWithdraw,
   } = useDisclosure()
 
+  const { trackClicked } = useAmplitude()
+
   const onClickCopy = () => {
+    trackClicked(ClickEvent.CopyAddressClicked, {
+      page: pageName,
+    })
     setCopied(true)
   }
 
@@ -61,30 +67,36 @@ export default function WalletPage({ onClose }: WalletPageProps) {
       <Text fontSize='32px'>Wallet</Text>
       <Paper bg='blue.500' mt='24px'>
         <HStack w='full' justifyContent='space-between'>
-          <HStack gap='4px' color='grey.50'>
+          <HStack gap='4px' color='white'>
             <WalletIcon width='16px' height='16px' />
-            <Text {...paragraphMedium} color='grey.50'>
+            <Text {...paragraphMedium} color='white'>
               Available balance
             </Text>
           </HStack>
-          <Button variant='white' onClick={handleOpenWithdrawModal}>
+          <Button
+            variant='white'
+            onClick={() => {
+              trackClicked(ClickEvent.WithdrawClicked)
+              handleOpenWithdrawModal()
+            }}
+          >
             Withdraw
           </Button>
         </HStack>
-        <Text color='grey.50' fontSize='24px' fontWeight={500} mb='16px'>
+        <Text color='white' fontSize='24px' fontWeight={500} mb='16px'>
           ~{NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
         </Text>
-        <Text {...paragraphMedium} color='grey.50'>
+        <Text {...paragraphMedium} color='white'>
           Address
         </Text>
         <CopyToClipboard text={address as string} onCopy={onClickCopy}>
-          <HStack gap='4px' color='grey.50' cursor='pointer'>
-            <Text {...paragraphRegular} color='grey.50'>
+          <HStack gap='4px' color='white' cursor='pointer'>
+            <Text {...paragraphRegular} color='white'>
               {truncateEthAddress(address)}
             </Text>
             <CopyIcon width='16px' height='16px' />
             {copied && (
-              <Text {...paragraphRegular} ml='4px' color='grey.50'>
+              <Text {...paragraphRegular} ml='4px' color='white'>
                 Copied!
               </Text>
             )}

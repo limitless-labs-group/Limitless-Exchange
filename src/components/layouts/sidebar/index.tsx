@@ -1,31 +1,34 @@
 import {
-  Divider,
-  useTheme,
-  VStack,
-  Text,
+  Box,
   Button,
+  Divider,
+  Flex,
   HStack,
   Image as ChakraImage,
-  Flex,
-  useDisclosure,
-  Slide,
-  Box,
   Menu,
   MenuButton,
   MenuList,
+  Slide,
+  Text,
+  useColorMode,
+  useDisclosure,
+  VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import '../../../../src/app/style.css'
+import SunIcon from '@/resources/icons/sun-icon.svg'
+import MoonIcon from '@/resources/icons/moon-icon.svg'
 
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
+  LogoClickedMetadata,
+  ProfileBurgerMenuClickedMetadata,
+  useAccount,
   useAmplitude,
   useBalanceService,
-  useAccount,
-  ProfileBurgerMenuClickedMetadata,
 } from '@/services'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
@@ -33,7 +36,6 @@ import { NumberUtil, truncateEthAddress } from '@/utils'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { cutUsername } from '@/utils/string'
 import { usePathname, useRouter } from 'next/navigation'
-import WalletPage from '@/components/layouts/wallet-page'
 import { useWeb3Service } from '@/services/Web3Service'
 import { LoginButton } from '@/components/common/login-button'
 import CategoryFilter from '@/components/common/categories'
@@ -42,9 +44,14 @@ import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import '@rainbow-me/rainbowkit/styles.css'
 import useDisconnectAccount from '@/hooks/use-disconnect'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import TokenFilter from '@/components/common/token-filter'
+import { useThemeProvider } from '@/providers'
+import usePageName from '@/hooks/use-page-name'
+import WalletPage from '@/components/layouts/wallet-page'
 
 export default function Sidebar() {
-  const theme = useTheme()
+  const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
+  const { toggleColorMode } = useColorMode()
 
   const { isConnected } = useWagmiAccount()
   const { trackClicked } = useAmplitude()
@@ -56,6 +63,7 @@ export default function Sidebar() {
   const { disconnectFromPlatform } = useDisconnectAccount()
   const { client } = useWeb3Service()
   const pathname = usePathname()
+  const pageName = usePageName()
 
   const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
   const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
@@ -70,22 +78,43 @@ export default function Sidebar() {
     <>
       <VStack
         padding='16px 8px'
-        borderRight={`1px solid ${theme.colors.grey['200']}`}
+        borderRight='1px solid'
+        borderColor='grey.200'
         h='full'
         minW={'188px'}
         minH={'100vh'}
         zIndex={200}
         bg='grey.100'
       >
-        <Button variant='transparent' onClick={() => router.push('/')} _hover={{ bg: 'unset' }}>
-          <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
+        <Button
+          variant='transparent'
+          onClick={() => {
+            trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
+            router.push('/')
+          }}
+          _hover={{ bg: 'unset' }}
+        >
+          <Image
+            src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+            height={32}
+            width={156}
+            alt='logo'
+          />
         </Button>
         {isConnected && (
           <VStack my='16px' w='full' gap='8px'>
             {client !== 'eoa' && (
               <Button
                 variant='transparent'
-                onClick={handleOpenWalletPage}
+                onClick={() => {
+                  trackClicked<ProfileBurgerMenuClickedMetadata>(
+                    ClickEvent.ProfileBurgerMenuClicked,
+                    {
+                      option: 'Wallet',
+                    }
+                  )
+                  handleOpenWalletPage()
+                }}
                 w='full'
                 bg={isOpenWalletPage ? 'grey.200' : 'unset'}
               >
@@ -99,7 +128,15 @@ export default function Sidebar() {
             )}
             <Button
               variant='transparent'
-              onClick={() => router.push('/portfolio')}
+              onClick={() => {
+                trackClicked<ProfileBurgerMenuClickedMetadata>(
+                  ClickEvent.ProfileBurgerMenuClicked,
+                  {
+                    option: 'Portfolio',
+                  }
+                )
+                router.push('/portfolio')
+              }}
               w='full'
               bg={pathname === '/portfolio' ? 'grey.200' : 'unset'}
             >
@@ -155,6 +192,28 @@ export default function Sidebar() {
                 </HStack>
               </MenuButton>
               <MenuList borderRadius='2px' w='171px' zIndex={2}>
+                <HStack gap='4px' mb='4px'>
+                  <Button
+                    variant={mode === 'dark' ? 'grey' : 'black'}
+                    w='full'
+                    onClick={() => {
+                      toggleColorMode()
+                      setLightTheme()
+                    }}
+                  >
+                    <SunIcon width={16} height={16} />
+                  </Button>
+                  <Button
+                    variant={mode === 'dark' ? 'black' : 'grey'}
+                    w='full'
+                    onClick={() => {
+                      toggleColorMode()
+                      setDarkTheme()
+                    }}
+                  >
+                    <MoonIcon width={16} height={16} />
+                  </Button>
+                </HStack>
                 <Button
                   variant='grey'
                   w='full'
@@ -168,6 +227,7 @@ export default function Sidebar() {
                     disconnectFromPlatform()
                     onToggleAuthMenu()
                   }}
+                  justifyContent='flex-start'
                 >
                   Log Out
                 </Button>
@@ -198,7 +258,6 @@ export default function Sidebar() {
           </Box>
         )}
         <Divider />
-
         {!isMobile && <CategoryFilter />}
       </VStack>
       {isOpenWalletPage && (
@@ -224,7 +283,12 @@ export default function Sidebar() {
           marginLeft: '188px',
           transition: '0.1s',
         }}
-        onClick={onToggleWalletPage}
+        onClick={() => {
+          trackClicked(ClickEvent.WalletClicked, {
+            page: pageName,
+          })
+          onToggleWalletPage()
+        }}
       >
         <WalletPage onClose={onToggleWalletPage} />
       </Slide>

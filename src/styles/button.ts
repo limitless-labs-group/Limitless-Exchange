@@ -5,5 +5,16 @@ export const commonButtonProps = {
   height: isMobile ? '32px' : '24px',
   px: isMobile ? '12px' : '8px',
   gap: isMobile ? '8px' : '4px',
+  border: 'unset',
+  outline: 'none !important',
+  _focus: {
+    boxShadow: 'none !important',
+  },
+  _focusVisible: {
+    boxShadow: 'none !important',
+  },
+  transitionProperty: 'none',
+  transitionDuration: 'unset',
+  WebkitTapHighlightColor: 'transparent',
   ...paragraphMedium,
 }

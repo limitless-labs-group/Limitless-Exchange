@@ -37,7 +37,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
       </Td>
 
       <Td px={2}>
-        <Text color={trade.outcomeIndex == 0 ? 'green' : 'red'}>
+        <Text color={trade.outcomeIndex == 0 ? 'green.500' : 'red.500'}>
           {market?.outcomeTokens[trade.outcomeIndex ?? 0]}{' '}
           {NumberUtil.formatThousands(trade.outcomeTokenPrice, 3)}{' '}
           {market?.tokenTicker[defaultChain.id]}
