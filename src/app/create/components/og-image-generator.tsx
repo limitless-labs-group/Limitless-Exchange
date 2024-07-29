@@ -132,7 +132,8 @@ export const OgImageGenerator = ({
   }, [generateBlob])
 
   const SmallPreview = () => (
-    <Tooltip hasArrow label='Click to download OG Image for preview in full size.'>
+    <>
+      {/* <Tooltip hasArrow label='Click to download OG Image for preview in full size.'>...</Tooltip> */}
       <VStack gap='5px' w='full' onClick={handleGenerateBlob} cursor='pointer'>
         <Box
           bg={backgroundColor}
@@ -172,7 +173,7 @@ export const OgImageGenerator = ({
           </VStack>
         </Box>
       </VStack>
-    </Tooltip>
+    </>
   )
 
   return (
