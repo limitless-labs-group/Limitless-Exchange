@@ -234,7 +234,7 @@ export const MarketPriceChart = ({ market, resolved, winningIndex }: IMarketPric
       ? [
           ...(_prices ?? []),
           !!_prices[_prices.length - 1]
-            ? [_prices[_prices.length - 1][0] + ONE_HOUR, 100]
+            ? [_prices[_prices.length - 1][0] + ONE_HOUR, winningIndex === 0 ? 100 : 0]
             : [Date.now(), 100],
         ]
       : _prices

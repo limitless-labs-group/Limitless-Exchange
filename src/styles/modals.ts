@@ -7,7 +7,7 @@ const blueModal = definePartsStyle({
   dialogContainer: {
     bg: 'blue.500',
     p: '16px',
-    overflow: 'hidden',
+    overflowX: 'hidden',
   },
   dialog: {
     bg: 'blue.500',
