@@ -44,7 +44,6 @@ import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import '@rainbow-me/rainbowkit/styles.css'
 import useDisconnectAccount from '@/hooks/use-disconnect'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import TokenFilter from '@/components/common/token-filter'
 import { useThemeProvider } from '@/providers'
 import usePageName from '@/hooks/use-page-name'
 import WalletPage from '@/components/layouts/wallet-page'
@@ -199,6 +198,9 @@ export default function Sidebar() {
                     onClick={() => {
                       toggleColorMode()
                       setLightTheme()
+                      trackClicked(ClickEvent.UIModeClicked, {
+                        mode: 'Light On',
+                      })
                     }}
                   >
                     <SunIcon width={16} height={16} />
@@ -209,6 +211,9 @@ export default function Sidebar() {
                     onClick={() => {
                       toggleColorMode()
                       setDarkTheme()
+                      trackClicked(ClickEvent.UIModeClicked, {
+                        mode: 'Dark On',
+                      })
                     }}
                   >
                     <MoonIcon width={16} height={16} />
@@ -218,12 +223,9 @@ export default function Sidebar() {
                   variant='grey'
                   w='full'
                   onClick={() => {
-                    trackClicked<ProfileBurgerMenuClickedMetadata>(
-                      ClickEvent.ProfileBurgerMenuClicked,
-                      {
-                        option: 'Sign Out',
-                      }
-                    )
+                    trackClicked(ClickEvent.SignOutClicked, {
+                      option: 'Sign Out',
+                    })
                     disconnectFromPlatform()
                     onToggleAuthMenu()
                   }}
