@@ -26,7 +26,7 @@ interface ActionButtonProps {
   market: Market
   amount: string
   option: 'Yes' | 'No'
-  price: number
+  price?: number
   quote?: TradeQuotes | null
   decimals?: number
 }

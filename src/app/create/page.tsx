@@ -86,6 +86,11 @@ const tokenLimits: TokenLimits = {
     max: 3000,
     step: 25,
   },
+  GHST: {
+    min: 150,
+    max: 3000,
+    step: 10,
+  },
   BETS: {
     min: 835000,
     max: 8350000,

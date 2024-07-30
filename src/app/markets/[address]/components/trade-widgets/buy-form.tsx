@@ -37,9 +37,10 @@ interface BuyFormProps {
   market: Market
   setOutcomeIndex: Dispatch<SetStateAction<number>>
   CloseIcon?: unknown
+  outcomeTokensPercent?: number[]
 }
 
-export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
+export function BuyForm({ market, setOutcomeIndex, outcomeTokensPercent }: BuyFormProps) {
   const [sliderValue, setSliderValue] = useState(0)
 
   /**
@@ -326,7 +327,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           quote={quotesYes}
           amount={collateralAmount}
           option='Yes'
-          price={market.prices[0]}
+          price={outcomeTokensPercent?.[0]}
           decimals={collateralToken?.decimals}
         />
         <ActionButton
@@ -352,7 +353,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           quote={quotesNo}
           amount={collateralAmount}
           option='No'
-          price={market.prices[1]}
+          price={outcomeTokensPercent?.[1]}
           decimals={collateralToken?.decimals}
         />
       </VStack>
