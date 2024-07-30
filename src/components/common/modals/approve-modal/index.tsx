@@ -32,7 +32,7 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
   const address = useWalletAddress()
 
   const handleApproveClicked = async () => {
-    trackClicked<ClickedApproveMetadata>(ClickEvent.ApproveClicked, {
+    trackClicked(ClickEvent.SellApproveClicked, {
       address: address as Address,
     })
     await onApprove()

@@ -1,5 +1,5 @@
 import { defaultChain } from '@/constants'
-import { HistoryPosition } from '@/services'
+import { ClickEvent, HistoryPosition, useAmplitude } from '@/services'
 import { NumberUtil } from '@/utils'
 import {
   HStack,
@@ -42,6 +42,9 @@ const hoverColors = {
 
 export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPositionCard) => {
   const [colors, setColors] = useState(unhoveredColors)
+
+  const { trackClicked } = useAmplitude()
+
   /**
    * NAVIGATION
    */
@@ -78,7 +81,15 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
 
   const ClaimButton = () => {
     return (
-      <Button variant='white' onClick={() => router.push(marketURI)}>
+      <Button
+        variant='white'
+        onClick={() => {
+          trackClicked(ClickEvent.ClaimRewardOnPortfolioClicked, {
+            platform: isMobile ? 'mobile' : 'desktop',
+          })
+          router.push(marketURI)
+        }}
+      >
         <Icon as={WinIcon} color={'black'} />
         Claim{' '}
         {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${

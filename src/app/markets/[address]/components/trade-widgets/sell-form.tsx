@@ -24,6 +24,7 @@ import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ClickEvent,
+  TradeClickedMetadata,
   useAmplitude,
   useBalanceService,
   useHistory,
@@ -162,10 +163,8 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
   }, [quotesNo, market?.tokenTicker, market?.prices, token?.symbol])
 
   const handleTradeClicked = async () => {
-    trackClicked(ClickEvent.TradeClicked, {
-      outcome: outcomeChoice,
+    trackClicked(ClickEvent.SellTradeClicked, {
       address: market.address[defaultChain.id],
-      walletType: client,
     })
     const index = outcomeChoice === 'yes' ? 0 : 1
     setOutcomeIndex(index)
@@ -215,6 +214,11 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 onYesOpen()
                 return
               }
+              trackClicked<TradeClickedMetadata>(ClickEvent.SellClicked, {
+                outcome: 'Yes',
+                marketAddress: market.address[defaultChain.id],
+                walletType: client,
+              })
               setOutcomeChoice('yes')
             }}
             borderRadius='2px'
@@ -311,6 +315,11 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 onNoOpen()
                 return
               }
+              trackClicked<TradeClickedMetadata>(ClickEvent.SellClicked, {
+                outcome: 'No',
+                marketAddress: market.address[defaultChain.id],
+                walletType: client,
+              })
               setOutcomeChoice('no')
             }}
             borderRadius='2px'

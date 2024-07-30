@@ -14,7 +14,6 @@ interface IAmplitudeContext {
   trackClicked: <T extends ClickedEventMetadata>(event: ClickEvent, customData?: T) => void
   trackOpened: <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => void
   trackSignIn: <T extends SignInEventMetadata>(event: SignInEvent, customData?: T) => void
-  trackCopied: <T extends CopiedEventMetadata>(event: CopyEvent, customData?: T) => void
 }
 
 const AmplitudeContext = createContext<IAmplitudeContext>({} as IAmplitudeContext)
@@ -81,17 +80,12 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     return trackEvent(event, customData)
   }
 
-  const trackCopied = async <T extends CopiedEventMetadata>(event: CopyEvent, customData?: T) => {
-    return trackEvent(event, customData)
-  }
-
   const contextProviderValue: IAmplitudeContext = {
     trackSignUp,
     trackChanged,
     trackClicked,
     trackOpened,
     trackSignIn: trackSignIn,
-    trackCopied,
   }
 
   return (
@@ -99,13 +93,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
   )
 }
 
-export type EventType =
-  | ChangeEvent
-  | ClickEvent
-  | SignInEvent
-  | OpenEvent
-  | CopyEvent
-  | AuthenticationEvent
+export type EventType = ChangeEvent | ClickEvent | SignInEvent | OpenEvent | AuthenticationEvent
 
 export enum ChangeEvent {
   StrategyChanged = 'Strategy Changed',
@@ -113,23 +101,31 @@ export enum ChangeEvent {
 }
 
 export enum ClickEvent {
+  BuyClicked = 'Buy Clicked',
+  SellClicked = 'Sell Clicked',
+  SellTradeClicked = 'Sell Trade Clicked',
+  SellApproveClicked = 'Sell Approve Clicked',
   CreateMarketClicked = 'Create Market Clicked',
   TopUpClicked = 'Top Up Clicked',
-  ShareClicked = 'Share Clicked',
+  ShareMenuClicked = 'Share Menu Clicked',
+  ShareItemClicked = 'Share Item Clicked',
   ProfileBurgerMenuClicked = 'Profile Burger Menu Clicked',
-  TradeClicked = 'Trade Clicked',
-  ApproveClicked = 'Approve Clicked',
-  ConfirmTradeClicked = 'Confirm Trade Clicked',
+  SignOutClicked = 'Sign Out',
+  TradeButtonClicked = 'Trade Button Clicked',
+  ConfirmTransactionClicked = 'Confirm Transaction Clicked',
   ConfirmCapClicked = 'Confirm Cap Clicked',
   LogoClicked = 'Logo Clicked',
   BackClicked = 'Back Clicked',
+  UIModeClicked = 'UI Mode Changed',
   CategoryClicked = 'Category Clicked',
   WalletClicked = 'Wallet Clicked',
   CopyAddressClicked = 'Wallet Address Copied',
   WithdrawClicked = 'Withdraw Clicked',
-  WithdrawConfirmedClicked = 'Withdraw Confirmed Clicked',
-  SortClicked = 'SortClicked',
+  WithdrawConfirmedClicked = 'Withdraw Confirmed',
+  SortClicked = 'Sort Clicked',
   StrokeClicked = 'Stroke Clicked',
+  ClaimRewardOnPortfolioClicked = 'Claim Reward On Portfolio Clicked',
+  ClaimRewardOnMarketPageClicked = 'Claim Reward On Market Page Clicked',
 }
 
 export enum SignInEvent {
@@ -140,10 +136,6 @@ export enum SignInEvent {
 export enum OpenEvent {
   PageOpened = 'Page Opened',
   LoginWindowOpened = 'Login Window Opened',
-}
-
-export enum CopyEvent {
-  WalletAddressCopied = 'Wallet Address Copied',
 }
 
 export enum AuthenticationEvent {
@@ -213,7 +205,6 @@ export interface PricePresetClickedMetadata {
   type: PricePresetClickedType
 }
 
-export type ShareClickedPage = 'Investor Page' | 'Creator Page' | 'Explore Markets' | 'Market Page'
 export type ShareClickedType = 'Copy Link' | 'X/Twitter' | 'Farcaster'
 export interface ShareClickedMetadata {
   type: ShareClickedType
@@ -230,6 +221,7 @@ export type PageOpenedPage =
 export interface PageOpenedMetadata {
   page: PageOpenedPage
   marketAddress?: Address
+  category?: string
   [key: string]: any
 }
 
@@ -288,6 +280,10 @@ export interface TopUpMetadata {
   platform: string
 }
 
+export interface UIModeMetadata {
+  mode: string
+}
+
 export type ChangedEventMetadata = StrategyChangedMetadata | OutcomeChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
@@ -305,6 +301,7 @@ export type ClickedEventMetadata =
   | SortMetadata
   | StrokeMetadata
   | TopUpMetadata
+  | UIModeMetadata
 
 export type OpenedEventMetadata = PageOpenedMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata
