@@ -33,12 +33,7 @@ export const MarketTradingForm = ({ market, outcomeTokensPercent }: MarketTradin
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
 
   return (
-    <Paper
-      bg='blue.500'
-      w={isMobile ? 'full' : '312px'}
-      p={isMobile ? 0 : '8px'}
-      overflow={isMobile ? 'unset' : 'hidden'}
-    >
+    <Paper bg='blue.500' w={isMobile ? 'full' : '312px'} p={isMobile ? 0 : '8px'}>
       <HStack
         w={'240px'}
         mx='auto'
