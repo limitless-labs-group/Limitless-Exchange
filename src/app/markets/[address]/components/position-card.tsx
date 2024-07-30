@@ -29,17 +29,15 @@ export function PositionCard({ position, market }: PositionCardProps) {
     <ThumbsDownIcon width={16} height={16} />
   )
 
-  const contractPrice =
-    (+(position.latestTrade?.outcomeTokenPrice || 0) /
-      (market?.prices[position.outcomeIndex] || 1)) *
-    100
+  const currentContractsPrice =
+    +(position.outcomeTokenAmount || 1) * ((market?.prices[position.outcomeIndex] || 1) / 100)
 
-  const currentContractsPrice = +(position.collateralAmount || 0) * contractPrice
+  const contractPrice = currentContractsPrice / +(position.collateralAmount || 1)
 
   const contractPriceChanged = useMemo(() => {
     let price
     if (contractPrice < 1) {
-      price = NumberUtil.toFixed((1 - contractPrice) * 100, 0)
+      price = NumberUtil.toFixed(contractPrice * 100, 0)
     } else {
       price = NumberUtil.toFixed((contractPrice - 1) * 100, 0)
     }
@@ -101,7 +99,7 @@ export function PositionCard({ position, market }: PositionCardProps) {
           <Text {...paragraphMedium} color='grey.500'>
             Invested
           </Text>
-          <Text {...paragraphRegular}>{`${NumberUtil.toFixed(position.collateralAmount, 3)} ${
+          <Text {...paragraphRegular}>{`${NumberUtil.toFixed(position.collateralAmount, 4)} ${
             market?.tokenTicker[defaultChain.id]
           }`}</Text>
         </Flex>
