@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@amplitude/analytics-browser": "^2.5.2",
+    "@amplitude/session-replay-browser": "^1.11.5",
     "@chakra-ui/react": "^2.6.1",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
