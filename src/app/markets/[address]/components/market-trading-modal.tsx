@@ -10,9 +10,16 @@ interface MarketTradingModalProps {
   onClose: () => void
   title: string
   market: Market
+  outcomeTokensPercent?: number[]
 }
 
-export function MarketTradingModal({ open, onClose, title, market }: MarketTradingModalProps) {
+export function MarketTradingModal({
+  open,
+  onClose,
+  title,
+  market,
+  outcomeTokensPercent,
+}: MarketTradingModalProps) {
   const { setCollateralAmount } = useTradingService()
 
   const handleCloseModal = () => {
@@ -29,7 +36,7 @@ export function MarketTradingModal({ open, onClose, title, market }: MarketTradi
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <MarketTradingForm market={market} />
+          <MarketTradingForm market={market} outcomeTokensPercent={outcomeTokensPercent} />
         </ModalBody>
       </ModalContent>
     </Modal>

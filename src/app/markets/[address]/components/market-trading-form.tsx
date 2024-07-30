@@ -12,9 +12,10 @@ import { controlsMedium } from '@/styles/fonts/fonts.styles'
 
 interface MarketTradingFormProps {
   market: Market
+  outcomeTokensPercent?: number[]
 }
 
-export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
+export const MarketTradingForm = ({ market, outcomeTokensPercent }: MarketTradingFormProps) => {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
   /**
    * ANALITYCS
@@ -92,7 +93,13 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
           </Text>
         </Button>
       </HStack>
-      {strategy === 'Buy' && <BuyForm market={market} setOutcomeIndex={setOutcomeIndex} />}
+      {strategy === 'Buy' && (
+        <BuyForm
+          market={market}
+          setOutcomeIndex={setOutcomeIndex}
+          outcomeTokensPercent={outcomeTokensPercent}
+        />
+      )}
       {strategy === 'Sell' ? (
         status === 'Loading' ? (
           <LoadingForm market={market} outcomeIndex={outcomeIndex} />
