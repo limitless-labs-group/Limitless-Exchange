@@ -9,7 +9,6 @@ import {
   QueryObserverResult,
   UseMutateAsyncFunction,
   useMutation,
-  UseMutationOptions,
   useQuery,
 } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
@@ -23,15 +22,7 @@ import {
   useMemo,
   useState,
 } from 'react'
-import {
-  erc20Abi,
-  formatEther,
-  formatUnits,
-  getContract,
-  isAddress,
-  parseEther,
-  parseUnits,
-} from 'viem'
+import { erc20Abi, formatEther, formatUnits, parseEther, parseUnits } from 'viem'
 import { getBalance } from 'viem/actions'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useWeb3Service } from '@/services/Web3Service'

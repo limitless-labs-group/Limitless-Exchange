@@ -107,6 +107,7 @@ export enum MarketTokensIds {
   USDC = 'usd-coin',
   VITA = 'vitadao',
   BETS = 'all-street-bets',
+  GHST = 'aavegotchi',
 }
 
 export enum Sort {
