@@ -1,5 +1,5 @@
 import { defaultChain } from '@/constants'
-import { useHistory, useTradingService } from '@/services'
+import { ClickEvent, useAmplitude, useHistory, useTradingService } from '@/services'
 import { NumberUtil } from '@/utils'
 import { Text, Button, HStack, Icon, Box } from '@chakra-ui/react'
 import { useMemo } from 'react'
@@ -17,6 +17,7 @@ interface MarketClaimingFormProps {
 
 export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }) => {
   const { redeem: claim, status } = useTradingService()
+  const { trackClicked } = useAmplitude()
   const { positions } = useHistory()
   const router = useRouter()
   const positionToClaim = useMemo(
@@ -60,7 +61,14 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
       return (
         <Button
           variant='white'
-          onClick={() => claim(positionToClaim.outcomeIndex)}
+          onClick={() => {
+            trackClicked(ClickEvent.ClaimRewardOnMarketPageClicked, {
+              platform: 'desktop',
+              marketAddress: market?.address[defaultChain.id],
+            })
+
+            return claim(positionToClaim.outcomeIndex)
+          }}
           isDisabled={status === 'Loading'}
         >
           {status === 'Loading' ? (

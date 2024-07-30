@@ -1,5 +1,5 @@
 import { isMobile } from 'react-device-detect'
-import { ClickEvent, TradeQuotes, useAmplitude } from '@/services'
+import { ClickEvent, TradeClickedMetadata, TradeQuotes, useAmplitude } from '@/services'
 import { defaultChain } from '@/constants'
 import { Box, Button, HStack, Icon, Text, useOutsideClick, VStack } from '@chakra-ui/react'
 import BlockIcon from '@/resources/icons/block.svg'
@@ -235,7 +235,15 @@ export default function ActionButton({
             backgroundColor: 'transparent.300',
           }}
           isDisabled={disabled || ['transaction-broadcasted', 'success'].includes(status)}
-          onClick={handleActionIntention}
+          onClick={() => {
+            trackClicked<TradeClickedMetadata>(ClickEvent.BuyClicked, {
+              outcome: option,
+              marketAddress: market.address[defaultChain.id],
+              walletType: client,
+            })
+
+            return handleActionIntention()
+          }}
           borderRadius='2px'
           sx={{
             WebkitTapHighlightColor: 'transparent !important',
@@ -355,7 +363,7 @@ export default function ActionButton({
           tokenTicker={market.tokenTicker[defaultChain.id]}
           status={status}
           handleConfirmClicked={() => {
-            trackClicked(ClickEvent.ConfirmTradeClicked, {
+            trackClicked(ClickEvent.ConfirmTransactionClicked, {
               address: market?.address[defaultChain.id],
               outcome: option,
               strategy: 'Buy',
