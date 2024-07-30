@@ -24,6 +24,7 @@ import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ClickEvent,
+  TradeQuotes,
   TradeClickedMetadata,
   TradeQuotes,
   useAmplitude,
