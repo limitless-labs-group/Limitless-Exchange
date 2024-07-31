@@ -33,7 +33,6 @@ const app = new Frog<{
     // Therefore, all the routes must have `/:address` path parameter.
     // See how `initialState` is used: https://www.youtube.com/watch?v=jFhe-WLm0C8&t=1s
 
-    console.log('we are here')
     const addressOfMarket = getAddress(c.req.param('address'))
 
     const marketData = await fetch(`${apiUrl}/markets/${addressOfMarket}`, {
@@ -139,7 +138,11 @@ app
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <img src='/logo-white.svg' alt='logo' style={{ width: '222px', height: '64px' }} />
+            <img
+              src='/logo-white-farcaster.svg'
+              alt='logo'
+              style={{ width: '222px', height: '64px' }}
+            />
             <div style={{ display: 'flex', gap: '40px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <img
@@ -286,7 +289,11 @@ app
               </div>
             </div>
           </div>
-          <img src='/logo-white.svg' alt='logo' style={{ width: '222px', height: '64px' }} />
+          <img
+            src='/logo-white-farcaster.svg'
+            alt='logo'
+            style={{ width: '222px', height: '64px' }}
+          />
         </div>
       ),
     })
@@ -395,7 +402,11 @@ app
               </div>
             </div>
           </div>
-          <img src='/logo-white.svg' alt='logo' style={{ width: '222px', height: '64px' }} />
+          <img
+            src='/logo-white-farcaster.svg'
+            alt='logo'
+            style={{ width: '222px', height: '64px' }}
+          />
         </div>
       ),
     })
