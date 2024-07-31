@@ -8302,10 +8302,10 @@ framesync@6.1.2:
   dependencies:
     tslib "2.4.0"
 
-frog@latest:
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/frog/-/frog-0.12.0.tgz#94ec45345b4bbf59e1d730d0b6478d049ae702ae"
-  integrity sha512-J6p26gXImywZCRv3CBYr+jQ1UwVIMgE3iq2+9L6vX4kIhMllsJG3ptFK6NBeYW5EfDRp5mqGEw9zUwRHiFN/dg==
+frog@^0.15.7:
+  version "0.15.7"
+  resolved "https://registry.yarnpkg.com/frog/-/frog-0.15.7.tgz#a9502a8184a6f2b7a66408644e87a567a99a700f"
+  integrity sha512-GAmqjJrd5eEGBxypcgzF0PFWliSlatHZJt26CnfReP36pGegLBaieSI9GHmRHC8EcnE9qFvXjbcYK2f474kiKg==
   dependencies:
     "@bufbuild/protobuf" "^1.7.2"
     "@hono/node-server" "^1.11.2"
