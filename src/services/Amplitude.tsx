@@ -4,6 +4,10 @@ import { useEffect, createContext, PropsWithChildren, useContext, useCallback } 
 import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
 import { useAccount } from '@/services'
 import { Address } from '@/types'
+import {
+  CUSTOM_LOGIN_PROVIDER_TYPE,
+  LOGIN_PROVIDER_TYPE,
+} from '@toruslabs/openlogin-utils/dist/types/interfaces'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 const NODE_ENV = process.env.NODE_ENV ?? 'development'
@@ -126,6 +130,7 @@ export enum ClickEvent {
   StrokeClicked = 'Stroke Clicked',
   ClaimRewardOnPortfolioClicked = 'Claim Reward On Portfolio Clicked',
   ClaimRewardOnMarketPageClicked = 'Claim Reward On Market Page Clicked',
+  SignW3AIn = 'Sign In W3A Option Chosen',
 }
 
 export enum SignInEvent {
@@ -284,6 +289,10 @@ export interface UIModeMetadata {
   mode: string
 }
 
+export interface SignInW3AClickedMetadata {
+  option: LOGIN_PROVIDER_TYPE | CUSTOM_LOGIN_PROVIDER_TYPE | undefined
+}
+
 export type ChangedEventMetadata = StrategyChangedMetadata | OutcomeChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
@@ -302,6 +311,7 @@ export type ClickedEventMetadata =
   | StrokeMetadata
   | TopUpMetadata
   | UIModeMetadata
+  | SignInW3AClickedMetadata
 
 export type OpenedEventMetadata = PageOpenedMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata
