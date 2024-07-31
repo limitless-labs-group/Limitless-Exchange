@@ -1,0 +1,438 @@
+/** @jsxImportSource frog/jsx */
+
+import { Button, Frog, TextInput } from 'frog'
+import { devtools } from 'frog/dev'
+import { handle } from 'frog/next'
+import { serveStatic } from 'frog/serve-static'
+import { Address, erc20Abi, getAddress, parseUnits } from 'viem'
+import { getQuote, getViemClient } from '@/app/markets/frames/[[...routes]]/queries'
+import { defaultChain } from '@/constants'
+import { Market, Token } from '@/types'
+import { fixedProductMarketMakerABI } from '@/contracts'
+import { TradeQuotes } from '@/services'
+import { readFile } from 'fs/promises'
+import path from 'path'
+
+const app = new Frog<{
+  State: {
+    market: Market
+    collateralToken: Token
+    addressOfMarket: Address
+
+    accountToInvestmentAmountRaw?: string | undefined
+    quote?: TradeQuotes | undefined | null
+    outcomeIndex?: number | undefined
+  }
+}>({
+  title: '',
+  assetsPath: '/',
+  basePath: '/markets/frames',
+  // @ts-ignore
+  initialState: async (c) => {
+    // We always expect that `c.req.param('address')` is not null.
+    // Therefore, all the routes must have `/:address` path parameter.
+    // See how `initialState` is used: https://www.youtube.com/watch?v=jFhe-WLm0C8&t=1s
+
+    console.log('we are here')
+    const addressOfMarket = getAddress(c.req.param('address'))
+
+    const marketData = await fetch(`${apiUrl}/markets/${addressOfMarket}`, {
+      method: 'GET',
+    })
+
+    // @NOTE: the type of the `market` here was defined as `Market | null` before. Please check.
+    const market: Market = await marketData.json()
+    const tokeData = await fetch(`${apiUrl}/tokens`, {
+      method: 'GET',
+    })
+    const tokensResponse: Token[] = await tokeData.json()
+    const token = tokensResponse.find(
+      (token) =>
+        token.address.toLowerCase() === market.collateralToken[defaultChain.id].toLowerCase()
+    ) as Token
+
+    return { market, collateralToken: token, addressOfMarket }
+  },
+  imageOptions: async () => {
+    const localFont = await readFile(
+      path.join(process.cwd(), '/src/resources/HelveticaNeueMedium.ttf')
+    )
+
+    return {
+      fonts: [
+        {
+          name: 'Helvetica',
+          data: localFont,
+        },
+      ],
+    }
+  },
+})
+
+const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
+
+app
+  .frame('/initial/:address', async (c) => {
+    const { market, collateralToken, addressOfMarket } = c.previousState
+    return c.res({
+      browserLocation: `https://limitless.exchange/markets/${addressOfMarket}`,
+      action: `/approve/${c.req.param('address')}`,
+      image: `/initial/${c.req.param('address')}/img`,
+      intents: [
+        // eslint-disable-next-line react/jsx-key
+        <TextInput placeholder={`Enter amount ${collateralToken.symbol}`} />,
+        // eslint-disable-next-line react/jsx-key
+        <Button value='buyYes'>Yes {market.prices[0].toFixed(2)}%</Button>,
+        // eslint-disable-next-line react/jsx-key
+        <Button value='buyNo'>No {market.prices[1].toFixed(2)}%</Button>,
+        // eslint-disable-next-line react/jsx-key
+        <Button.Link href={`https://limitless.exchange/markets/${addressOfMarket}`}>
+          Open Limitless
+        </Button.Link>,
+      ],
+      title: market.title,
+    })
+  })
+  .image('/initial/:address/img', (c) => {
+    // @ts-ignore
+    const { market, collateralToken } = c.previousState
+    return c.res({
+      image: (
+        <div
+          style={{
+            color: 'white',
+            display: 'flex',
+            flexDirection: 'column',
+            fontSize: 60,
+            backgroundColor: '#0000EE',
+            height: '100%',
+            padding: '5% 4%',
+            justifyContent: 'space-between',
+            maxWidth: '100%',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '56px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                color: 'white',
+                fontWeight: 500,
+              }}
+            >
+              {market.title}
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+              }}
+            >
+              <img src='/arrow.svg' alt='logo' style={{ width: '396px', height: '81px' }} />
+              <span>Yes {market.prices[0]}%</span>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <img src='/logo-white.svg' alt='logo' style={{ width: '222px', height: '64px' }} />
+            <div style={{ display: 'flex', gap: '40px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <img
+                  src='/liquidity-icon.svg'
+                  alt='liquidity'
+                  style={{ width: '32px', height: '32px' }}
+                />
+                <span
+                  style={{
+                    color: 'white',
+                    fontSize: '32px',
+                  }}
+                >
+                  {market.liquidityFormatted} {collateralToken.symbol}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <img
+                  src='/calendar-icon.svg'
+                  alt='liquidity'
+                  style={{ width: '32px', height: '32px' }}
+                />
+                <span
+                  style={{
+                    color: 'white',
+                    fontSize: '32px',
+                  }}
+                >
+                  {market.expirationDate}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
+    })
+  })
+
+app
+  .frame('/approve/:address', async (c) => {
+    const {
+      buttonValue,
+      // @ts-ignore
+      frameData: { inputText },
+    } = c
+    const { market, addressOfMarket } = await c.deriveState(async (previousState) => {
+      const accountToInvestmentAmountRaw = inputText || '1'
+      previousState.accountToInvestmentAmountRaw = accountToInvestmentAmountRaw
+
+      const values = await getQuote(
+        previousState.market as Market,
+        accountToInvestmentAmountRaw,
+        previousState.collateralToken as Token,
+        buttonValue === 'buyYes' ? 0 : 1,
+        previousState.market?.prices as number[]
+      )
+      previousState.quote = values
+      previousState.outcomeIndex = buttonValue === 'buyYes' ? 0 : 1
+    })
+
+    return c.res({
+      action: `/buy/${c.req.param('address')}`,
+      image: `/approve/${c.req.param('address')}/img`,
+      intents: [
+        // eslint-disable-next-line react/jsx-key
+        <Button.Transaction target={`/approve-tx/${c.req.param('address')}`}>
+          Approve Transaction
+        </Button.Transaction>,
+        // eslint-disable-next-line react/jsx-key
+        <Button.Link href={`https://limitless.exchange/markets/${addressOfMarket}`}>
+          Open Limitless
+        </Button.Link>,
+      ],
+      title: market.title,
+    })
+  })
+  .image('/approve/:address/img', (c) => {
+    // @ts-ignore
+    const { quote, collateralToken } = c.previousState
+    return c.res({
+      image: (
+        <div
+          style={{
+            color: 'white',
+            display: 'flex',
+            flexDirection: 'column',
+            fontSize: 60,
+            backgroundColor: '#0000EE',
+            height: '100%',
+            padding: '5% 4%',
+            justifyContent: 'space-between',
+            maxWidth: '100%',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '56px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                fontFamily: 'Helvetica',
+                color: 'white',
+                fontWeight: 500,
+              }}
+            >
+              Approve transaction?
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '42px' }}>
+              <div style={{ display: 'flex', gap: '84px', width: '80%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>Avg. Price</span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                    {quote ? (+quote.outcomeTokenPrice).toFixed(6) : 0}{' '}
+                    {collateralToken?.symbol || ''}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>Est. ROI</span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                    {quote ? (+quote.roi).toFixed(2) : 0}%
+                  </span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '84px', width: '80%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                    Potential Return
+                  </span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                    {quote ? (+quote.outcomeTokenAmount).toFixed(6) : 0}{' '}
+                    {collateralToken?.symbol || ''}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>Price Impact</span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                    {quote ? (+quote.priceImpact).toFixed(2) : '0.00'}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <img src='/logo-white.svg' alt='logo' style={{ width: '222px', height: '64px' }} />
+        </div>
+      ),
+    })
+  })
+
+app.transaction('/approve-tx/:address', (c) => {
+  const { addressOfMarket, collateralToken, accountToInvestmentAmountRaw } = c.previousState
+  if (!accountToInvestmentAmountRaw) return c.error({ message: 'No text input!' })
+
+  const accountToInvestmentAmountBI = parseUnits(
+    accountToInvestmentAmountRaw,
+    collateralToken?.decimals || 18
+  )
+  return c.contract({
+    abi: erc20Abi,
+    functionName: 'approve',
+    args: [addressOfMarket as Address, accountToInvestmentAmountBI],
+    chainId: `eip155:${defaultChain.id}`,
+    to: collateralToken?.address as Address,
+  })
+})
+
+app
+  .frame('/buy/:address', (c) => {
+    const { addressOfMarket, market } = c.previousState
+    return c.res({
+      image: `/buy/${c.req.param('address')}/img`,
+      intents: [
+        // eslint-disable-next-line react/jsx-key
+        <Button.Transaction target={`/buy-tx/${c.req.param('address')}`}>Buy</Button.Transaction>,
+        // eslint-disable-next-line react/jsx-key
+        <Button.Link href={`https://limitless.exchange/markets/${addressOfMarket}`}>
+          Open Limitless
+        </Button.Link>,
+      ],
+      title: market?.title,
+    })
+  })
+  .image('/buy/:address/img', (c) => {
+    // @ts-ignore
+    const { quote, collateralToken } = c.previousState
+    return c.res({
+      image: (
+        <div
+          style={{
+            color: 'white',
+            display: 'flex',
+            flexDirection: 'column',
+            fontSize: 60,
+            backgroundColor: '#0000EE',
+            height: '100%',
+            padding: '5% 4%',
+            justifyContent: 'space-between',
+            maxWidth: '100%',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '56px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                fontFamily: 'Helvetica',
+                color: 'white',
+                fontWeight: 500,
+              }}
+            >
+              Sign transaction?
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '42px' }}>
+              <div style={{ display: 'flex', gap: '84px', width: '80%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>Avg. Price</span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                    {quote ? (+quote.outcomeTokenPrice).toFixed(6) : '0.00'}{' '}
+                    {collateralToken?.symbol || ''}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>Est. ROI</span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                    {quote ? (+quote.roi).toFixed(2) : '0.00'}%
+                  </span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '84px', width: '80%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                    Potential Return
+                  </span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                    {quote ? (+quote.outcomeTokenAmount).toFixed(6) : '0.00'}{' '}
+                    {collateralToken?.symbol || ''}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>Price Impact</span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                    {quote ? (+quote.priceImpact).toFixed(2) : '0.00'}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <img src='/logo-white.svg' alt='logo' style={{ width: '222px', height: '64px' }} />
+        </div>
+      ),
+    })
+  })
+
+app.transaction('/buy-tx/:address', async (c) => {
+  const { addressOfMarket, collateralToken, outcomeIndex, accountToInvestmentAmountRaw } =
+    c.previousState
+  if (outcomeIndex === undefined || accountToInvestmentAmountRaw === undefined)
+    return c.error({ message: 'Insufficient parameters' })
+  const client = getViemClient()
+
+  const accountToInvestmentAmountBI = parseUnits(
+    accountToInvestmentAmountRaw,
+    collateralToken?.decimals || 18
+  )
+
+  const minOutcomeTokensToBuy = await client.readContract({
+    address: addressOfMarket as Address,
+    abi: fixedProductMarketMakerABI,
+    functionName: 'calcBuyAmount',
+    args: [accountToInvestmentAmountBI, outcomeIndex],
+  })
+
+  return c.contract({
+    abi: fixedProductMarketMakerABI,
+    functionName: 'buy',
+    args: [accountToInvestmentAmountBI, outcomeIndex, minOutcomeTokensToBuy],
+    chainId: `eip155:${defaultChain.id}`,
+    to: addressOfMarket as Address,
+  })
+})
+
+devtools(app, {
+  basePath: '/debug', // devtools available at `http://localhost:5173/debug`
+  serveStatic,
+})
+
+export const GET = handle(app)
+export const POST = handle(app)
