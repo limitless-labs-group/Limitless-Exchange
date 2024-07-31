@@ -85,6 +85,9 @@ export default function Sidebar() {
         minH={'100vh'}
         zIndex={200}
         bg='grey.100'
+        position='fixed'
+        overflowY='auto'
+        pb='100px'
       >
         <Button
           variant='transparent'
@@ -258,6 +261,7 @@ export default function Sidebar() {
           </Box>
         )}
         <Divider />
+        <TokenFilter />
         {!isMobile && <CategoryFilter />}
       </VStack>
       {isOpenWalletPage && (
