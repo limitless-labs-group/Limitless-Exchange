@@ -15,6 +15,7 @@ import { isMobile } from 'react-device-detect'
 import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { setTimeout } from '@wry/context'
 import usePageName from '@/hooks/use-page-name'
+import BigNumber from 'bignumber.js'
 
 interface WalletPageProps {
   onClose: () => void
@@ -34,6 +35,13 @@ export default function WalletPage({ onClose }: WalletPageProps) {
   } = useDisclosure()
 
   const { trackClicked } = useAmplitude()
+
+  const sortedBalance = balanceOfSmartWallet?.sort((balanceItemA, balanceItemB) => {
+    return (
+      convertAssetAmountToUsd(balanceItemB.id, balanceItemB.formatted) -
+      convertAssetAmountToUsd(balanceItemA.id, balanceItemA.formatted)
+    )
+  })
 
   const onClickCopy = () => {
     trackClicked(ClickEvent.CopyAddressClicked, {
@@ -125,7 +133,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
         All tokens
       </Text>
       <VStack w='full' mb='24px'>
-        {balanceOfSmartWallet?.map((balanceItem) => (
+        {sortedBalance?.map((balanceItem) => (
           <Paper key={balanceItem.id} w='full'>
             <HStack justifyContent='space-between'>
               <HStack gap='4px'>
