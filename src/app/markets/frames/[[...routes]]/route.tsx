@@ -81,9 +81,9 @@ app
         // eslint-disable-next-line react/jsx-key
         <TextInput placeholder={`Enter amount ${collateralToken.symbol}`} />,
         // eslint-disable-next-line react/jsx-key
-        <Button value='buyYes'>Yes {market.prices[0].toFixed(2)}%</Button>,
+        <Button value='buyYes'>Yes</Button>,
         // eslint-disable-next-line react/jsx-key
-        <Button value='buyNo'>No {market.prices[1].toFixed(2)}%</Button>,
+        <Button value='buyNo'>No</Button>,
         // eslint-disable-next-line react/jsx-key
         <Button.Link href={`https://limitless.exchange/markets/${addressOfMarket}`}>
           Open Limitless
@@ -117,7 +117,7 @@ app
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '56px',
+              gap: '80px',
             }}
           >
             <div
@@ -144,19 +144,19 @@ app
             <img
               src='/logo-white-farcaster.svg'
               alt='logo'
-              style={{ width: '222px', height: '64px' }}
+              style={{ width: '333px', height: '96px' }}
             />
             <div style={{ display: 'flex', gap: '40px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <img
                   src='/liquidity-icon.svg'
                   alt='liquidity'
-                  style={{ width: '32px', height: '32px' }}
+                  style={{ width: '40px', height: '40px' }}
                 />
                 <span
                   style={{
                     color: 'white',
-                    fontSize: '32px',
+                    fontSize: '40px',
                   }}
                 >
                   {market.liquidityFormatted} {collateralToken.symbol}
@@ -166,12 +166,12 @@ app
                 <img
                   src='/calendar-icon.svg'
                   alt='liquidity'
-                  style={{ width: '32px', height: '32px' }}
+                  style={{ width: '40px', height: '40px' }}
                 />
                 <span
                   style={{
                     color: 'white',
-                    fontSize: '32px',
+                    fontSize: '40px',
                   }}
                 >
                   {market.expirationDate}
@@ -298,7 +298,7 @@ app
           <img
             src='/logo-white-farcaster.svg'
             alt='logo'
-            style={{ width: '222px', height: '64px' }}
+            style={{ width: '333px', height: '96px' }}
           />
         </div>
       ),
@@ -327,6 +327,7 @@ app
     const { addressOfMarket, market } = c.previousState
     return c.res({
       image: `/buy/${c.req.param('address')}/img`,
+      action: `/success/${c.req.param('address')}`,
       intents: [
         // eslint-disable-next-line react/jsx-key
         <Button.Transaction target={`/buy-tx/${c.req.param('address')}`}>Buy</Button.Transaction>,
@@ -414,7 +415,7 @@ app
           <img
             src='/logo-white-farcaster.svg'
             alt='logo'
-            style={{ width: '222px', height: '64px' }}
+            style={{ width: '333px', height: '96px' }}
           />
         </div>
       ),
@@ -448,6 +449,80 @@ app.transaction('/buy-tx/:address', async (c) => {
     to: addressOfMarket as Address,
   })
 })
+
+app
+  .frame('/success/:address', async (c) => {
+    const { addressOfMarket } = c.previousState
+    return c.res({
+      browserLocation: `https://limitless.exchange/markets/${addressOfMarket}`,
+      image: `/success/${c.req.param('address')}/img`,
+      intents: [
+        // eslint-disable-next-line react/jsx-key
+        <Button.Link href={`https://limitless.exchange/markets/${addressOfMarket}`}>
+          Open Limitless
+        </Button.Link>,
+      ],
+    })
+  })
+  .image('/success/:address/img', (c) => {
+    return c.res({
+      headers: {
+        'Cache-Control': 'max-age=0',
+      },
+      image: (
+        <div
+          style={{
+            color: 'white',
+            display: 'flex',
+            flexDirection: 'column',
+            fontSize: 60,
+            backgroundColor: '#0000EE',
+            height: '100%',
+            padding: '5% 4%',
+            maxWidth: '100%',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              marginTop: '140px',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '32px',
+                alignItems: 'center',
+              }}
+            >
+              <img
+                src='/success-round-white-icon.svg'
+                alt='logo'
+                style={{ width: '80px', height: '80px' }}
+              />
+              <div
+                style={{
+                  display: 'flex',
+                  color: 'white',
+                  fontWeight: 500,
+                }}
+              >
+                Prediction confirmed
+              </div>
+            </div>
+          </div>
+          <img
+            src='/logo-white-farcaster.svg'
+            alt='logo'
+            style={{ width: '333px', height: '96px', marginTop: '90px' }}
+          />
+        </div>
+      ),
+    })
+  })
 
 devtools(app, {
   basePath: '/debug', // devtools available at `http://localhost:5173/debug`
