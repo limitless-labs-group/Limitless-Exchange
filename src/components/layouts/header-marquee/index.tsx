@@ -14,7 +14,7 @@ export default function HeaderMarquee() {
     <Box
       onClick={() => {
         trackClicked(ClickEvent.StrokeClicked, {
-          changeTo: pauseMarquee ? 'pause' : 'run',
+          changeTo: !pauseMarquee ? 'pause' : 'run',
         })
         setPauseMarquee(!pauseMarquee)
       }}

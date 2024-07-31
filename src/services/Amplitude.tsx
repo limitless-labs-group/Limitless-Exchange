@@ -101,8 +101,8 @@ export enum ChangeEvent {
 }
 
 export enum ClickEvent {
-  BuyClicked = 'Buy Clicked',
-  SellClicked = 'Sell Clicked',
+  BuyClicked = 'Buy Position Chosen',
+  SellClicked = 'Sell Position Chosen',
   SellTradeClicked = 'Sell Trade Clicked',
   SellApproveClicked = 'Sell Approve Clicked',
   CreateMarketClicked = 'Create Market Clicked',
