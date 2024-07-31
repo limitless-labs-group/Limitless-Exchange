@@ -96,6 +96,9 @@ app
     // @ts-ignore
     const { market, collateralToken } = c.previousState
     return c.res({
+      headers: {
+        'Cache-Control': 'max-age=0',
+      },
       image: (
         <div
           style={{
@@ -223,6 +226,9 @@ app
     // @ts-ignore
     const { quote, collateralToken } = c.previousState
     return c.res({
+      headers: {
+        'Cache-Control': 'max-age=0',
+      },
       image: (
         <div
           style={{
@@ -336,6 +342,9 @@ app
     // @ts-ignore
     const { quote, collateralToken } = c.previousState
     return c.res({
+      headers: {
+        'Cache-Control': 'max-age=0',
+      },
       image: (
         <div
           style={{
