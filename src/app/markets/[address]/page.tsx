@@ -22,8 +22,8 @@ import {
   OpenEvent,
   PageOpenedMetadata,
   ShareClickedMetadata,
-  ShareClickedType,
   useAmplitude,
+  useLimitlessApi,
   useTradingService,
 } from '@/services'
 import { useMarket, useWinningIndex } from '@/services/MarketsService'
@@ -48,8 +48,11 @@ import {
   MobileTradeButton,
 } from './components'
 import { h1Regular, paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { useMarketData } from '@/hooks'
+import { Address } from 'viem'
 
-const MarketPage = ({ params }: { params: { address: string } }) => {
+const MarketPage = ({ params }: { params: { address: Address } }) => {
+  const { supportedTokens } = useLimitlessApi()
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
   /**
    * ANALYTICS
@@ -63,6 +66,12 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
     isError: fetchMarketError,
     isLoading: fetchMarketLoading,
   } = useMarket(params.address)
+  const { outcomeTokensPercent } = useMarketData({
+    marketAddress: params.address,
+    collateralToken: supportedTokens?.find(
+      (token) => token.address === market?.collateralToken[defaultChain.id]
+    ),
+  })
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices)
   const { isLoading: isCollateralLoading } = useToken(market?.collateralToken[defaultChain.id])
   const {
@@ -83,11 +92,11 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
       return market.expired ? (
         <MarketClaimingForm market={market} />
       ) : (
-        <MarketTradingForm market={market} />
+        <MarketTradingForm market={market} outcomeTokensPercent={outcomeTokensPercent} />
       )
     }
     return null
-  }, [market])
+  }, [market, outcomeTokensPercent])
 
   const handleApproveMarket = async () => {
     return strategy === 'Buy' ? approveBuy() : approveSell()
@@ -230,8 +239,17 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
                   ))}
                 </HStack>
               </HStack>
-              <MarketMetadata market={market} winningIndex={winningIndex} resolved={resolved} />
-              <MarketPriceChart market={market} winningIndex={winningIndex} resolved={resolved} />
+              <MarketMetadata
+                market={market}
+                winningIndex={winningIndex}
+                resolved={resolved}
+                outcomeTokensPercent={outcomeTokensPercent}
+              />
+              <MarketPriceChart
+                winningIndex={winningIndex}
+                resolved={resolved}
+                outcomeTokensPercent={outcomeTokensPercent}
+              />
               <MarketPositions market={market} />
               <HStack gap='4px' marginTop='24px' mb='8px'>
                 <DescriptionIcon width='16px' height='16px' />
@@ -252,6 +270,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
               onClose={closeTradeModal}
               title={(market?.proxyTitle ?? market?.title) || ''}
               market={market}
+              outcomeTokensPercent={outcomeTokensPercent}
             />
           )}
           <ApproveModal onApprove={handleApproveMarket} />

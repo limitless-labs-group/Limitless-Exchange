@@ -7,8 +7,6 @@ import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import { Market } from '@/types'
 import { isMobile } from 'react-device-detect'
-import { useMarketData } from '@/hooks'
-import { useLimitlessApi } from '@/services'
 import { NumberUtil } from '@/utils'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { useMemo } from 'react'
@@ -17,17 +15,15 @@ export interface IMarketMetadata {
   market: Market | null
   winningIndex: number | undefined | null
   resolved: boolean
+  outcomeTokensPercent?: number[]
 }
 
-export const MarketMetadata = ({ market, resolved, winningIndex }: IMarketMetadata) => {
-  const { supportedTokens } = useLimitlessApi()
-  const { outcomeTokensPercent } = useMarketData({
-    marketAddress: market?.address[defaultChain.id],
-    collateralToken: supportedTokens?.find(
-      (token) => token.address === market?.collateralToken[defaultChain.id]
-    ),
-  })
-
+export const MarketMetadata = ({
+  market,
+  resolved,
+  winningIndex,
+  outcomeTokensPercent,
+}: IMarketMetadata) => {
   const stats = [
     {
       title: 'Liquidity',

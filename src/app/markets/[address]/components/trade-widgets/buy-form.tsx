@@ -1,4 +1,5 @@
 import {
+  Box,
   Flex,
   HStack,
   Input,
@@ -37,9 +38,10 @@ interface BuyFormProps {
   market: Market
   setOutcomeIndex: Dispatch<SetStateAction<number>>
   CloseIcon?: unknown
+  outcomeTokensPercent?: number[]
 }
 
-export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
+export function BuyForm({ market, setOutcomeIndex, outcomeTokensPercent }: BuyFormProps) {
   const [sliderValue, setSliderValue] = useState(0)
 
   /**
@@ -152,7 +154,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
 
   return (
     <>
-      <Flex justifyContent='space-between'>
+      <Flex justifyContent='space-between' p={isMobile ? '0 16px' : 0}>
         <Text {...paragraphMedium} color='white'>
           Balance
         </Text>
@@ -160,23 +162,26 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           {NumberUtil.formatThousands(balance, token?.symbol === 'USDC' ? 1 : 6)} {token?.symbol}
         </Text>
       </Flex>
-      <Slider
-        aria-label='slider-ex-6'
-        value={sliderValue}
-        onChange={(val) => onSlide(val)}
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        onChangeEnd={() => setCollateralAmount(displayAmount)}
-        isDisabled={isZeroBalance}
-        focusThumbOnChange={false}
-        h={isMobile ? '40px' : '8px'}
-        py={isMobile ? '0px !important' : '4px'}
-      >
-        <SliderTrack bg='rgba(255, 255, 255, 0.2)'>
-          <SliderFilledTrack bg='white' />
-        </SliderTrack>
-        <SliderThumb bg='white' w='8px' h='8px' />
-      </Slider>
+      <Box px={isMobile ? '16px' : 0}>
+        <Slider
+          aria-label='slider-ex-6'
+          value={sliderValue}
+          onChange={(val) => onSlide(val)}
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          onChangeEnd={() => setCollateralAmount(displayAmount)}
+          isDisabled={isZeroBalance}
+          focusThumbOnChange={false}
+          h={isMobile ? '40px' : '8px'}
+          py={isMobile ? '0px !important' : '4px'}
+        >
+          <SliderTrack bg='rgba(255, 255, 255, 0.2)'>
+            <SliderFilledTrack bg='white' />
+          </SliderTrack>
+          <SliderThumb bg='white' w='8px' h='8px' />
+        </Slider>
+      </Box>
+
       {/*<ChakraSlider*/}
       {/*  defaultValue={0}*/}
       {/*  onChange={onSlide}*/}
@@ -259,7 +264,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
       {/*  </SliderTrack>*/}
       {/*</ChakraSlider>*/}
 
-      <Stack w={'full'} mt={isMobile ? 0 : '8px'} gap='4px'>
+      <Stack w={'full'} mt={isMobile ? 0 : '8px'} gap='4px' px={isMobile ? '16px' : 0}>
         <HStack justifyContent='space-between'>
           <Text {...paragraphMedium} color='white'>
             Enter amount
@@ -302,7 +307,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           </InputGroup>
         </Stack>
       </Stack>
-      <VStack mt='24px'>
+      <VStack mt='24px' overflowX='hidden' px={isMobile ? '16px' : 0}>
         <ActionButton
           onClick={async () => {
             if (market?.status === MarketStatus.LOCKED) {
@@ -320,7 +325,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           quote={quotesYes}
           amount={collateralAmount}
           option='Yes'
-          price={market.prices[0]}
+          price={outcomeTokensPercent?.[0]}
           decimals={collateralToken?.decimals}
         />
         <ActionButton
@@ -340,7 +345,7 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
           quote={quotesNo}
           amount={collateralAmount}
           option='No'
-          price={market.prices[1]}
+          price={outcomeTokensPercent?.[1]}
           decimals={collateralToken?.decimals}
         />
       </VStack>

@@ -25,6 +25,7 @@ import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } f
 import {
   ClickEvent,
   TradeClickedMetadata,
+  TradeQuotes,
   useAmplitude,
   useBalanceService,
   useHistory,
@@ -40,14 +41,16 @@ import BlockIcon from '@/resources/icons/block.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import { useWeb3Service } from '@/services/Web3Service'
 
-interface BuyFormProps {
+interface SellFormProps {
   market: Market
   setOutcomeIndex: Dispatch<SetStateAction<number>>
 }
 
-export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
+export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
   const [sliderValue, setSliderValue] = useState(0)
   const [outcomeChoice, setOutcomeChoice] = useState<string | null>(null)
+  const [quoteYes, setQuoteYes] = useState<TradeQuotes | undefined | null>()
+  const [quoteNo, setQuoteNo] = useState<TradeQuotes | undefined | null>()
 
   const { client } = useWeb3Service()
   const { positions: allMarketsPositions } = useHistory()
@@ -79,6 +82,22 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
     quotesNo,
     trade,
   } = useTradingService()
+
+  useEffect(() => {
+    if (!outcomeChoice) {
+      setQuoteYes(quotesYes)
+      setQuoteNo(quotesNo)
+      return
+    }
+    if (outcomeChoice === 'yes') {
+      setQuoteYes(quotesYes)
+      return
+    }
+    if (outcomeChoice === 'no') {
+      setQuoteNo(quotesNo)
+      return
+    }
+  }, [outcomeChoice, quotesYes, quotesNo])
 
   /**
    * BALANCE
@@ -147,20 +166,20 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
   const positionsNo = positions?.find((position) => position.outcomeIndex === 1)
 
   const perShareYes = useMemo(() => {
-    return quotesYes
-      ? `${NumberUtil.formatThousands(quotesYes.outcomeTokenPrice, 6)} ${
+    return quoteYes
+      ? `${NumberUtil.formatThousands(quoteYes.outcomeTokenPrice, 6)} ${
           market?.tokenTicker[defaultChain.id]
         }`
       : `${NumberUtil.toFixed((market?.prices[0] || 1) / 100, 3)} ${token?.symbol}`
-  }, [quotesYes, market?.tokenTicker, market?.prices, token?.symbol])
+  }, [quoteYes, market?.tokenTicker, market?.prices, token?.symbol])
 
   const perShareNo = useMemo(() => {
-    return quotesNo
-      ? `${NumberUtil.formatThousands(quotesNo.outcomeTokenPrice, 6)} ${
+    return quoteNo
+      ? `${NumberUtil.formatThousands(quoteNo.outcomeTokenPrice, 6)} ${
           market?.tokenTicker[defaultChain.id]
         }`
       : `${NumberUtil.toFixed((market?.prices[1] || 1) / 100, 3)} ${token?.symbol}`
-  }, [quotesNo, market?.tokenTicker, market?.prices, token?.symbol])
+  }, [quoteNo, market?.tokenTicker, market?.prices, token?.symbol])
 
   const handleTradeClicked = async () => {
     trackClicked(ClickEvent.SellTradeClicked, {
@@ -220,6 +239,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 walletType: client,
               })
               setOutcomeChoice('yes')
+              setCollateralAmount('')
             }}
             borderRadius='2px'
             _hover={{
@@ -321,6 +341,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 walletType: client,
               })
               setOutcomeChoice('no')
+              setCollateralAmount('')
             }}
             borderRadius='2px'
             _hover={{
@@ -475,7 +496,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 </Text>
               </HStack>
               <Text {...paragraphRegular} color='white'>{`${NumberUtil.toFixed(
-                outcomeChoice == 'yes' ? quotesYes?.priceImpact : quotesNo?.priceImpact,
+                outcomeChoice == 'yes' ? quoteYes?.priceImpact : quoteNo?.priceImpact,
                 2
               )}%`}</Text>
             </HStack>
@@ -486,7 +507,7 @@ export function SellForm({ market, setOutcomeIndex }: BuyFormProps) {
                 </Text>
               </HStack>
               <Text {...paragraphRegular} color='white'>
-                {NumberUtil.toFixed(outcomeChoice == 'yes' ? quotesYes?.roi : quotesNo?.roi, 2)}%
+                {NumberUtil.toFixed(outcomeChoice == 'yes' ? quoteYes?.roi : quoteNo?.roi, 2)}%
               </Text>
             </HStack>
             <HStack justifyContent='space-between' w='full'>

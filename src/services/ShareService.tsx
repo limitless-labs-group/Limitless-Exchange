@@ -53,7 +53,7 @@ export const createMarketShareUrls = (
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/api/frog/start/${
+  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${
     market?.address[defaultChain.id]
   }`
 
@@ -86,7 +86,7 @@ export const createPortfolioShareUrls = (
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/api/frog/start/${
+  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${
     market?.address[defaultChain.id]
   }`
 

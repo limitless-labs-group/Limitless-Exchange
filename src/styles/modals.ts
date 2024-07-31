@@ -6,8 +6,10 @@ const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpe
 const blueModal = definePartsStyle({
   dialogContainer: {
     bg: 'blue.500',
-    p: '16px',
-    overflow: 'hidden',
+    p: '0',
+    overflowX: 'hidden',
+    overflowY: 'scroll',
+    webkitOverflowScrolling: 'touch',
   },
   dialog: {
     bg: 'blue.500',
@@ -19,7 +21,7 @@ const blueModal = definePartsStyle({
   },
   header: {
     color: 'white',
-    p: 0,
+    p: '0px 16px',
     mt: '32px',
   },
   closeButton: {

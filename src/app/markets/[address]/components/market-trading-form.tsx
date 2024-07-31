@@ -12,9 +12,10 @@ import { controlsMedium } from '@/styles/fonts/fonts.styles'
 
 interface MarketTradingFormProps {
   market: Market
+  outcomeTokensPercent?: number[]
 }
 
-export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
+export const MarketTradingForm = ({ market, outcomeTokensPercent }: MarketTradingFormProps) => {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
   /**
    * ANALITYCS
@@ -32,12 +33,7 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
   const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
 
   return (
-    <Paper
-      bg='blue.500'
-      w={isMobile ? 'full' : '312px'}
-      p={isMobile ? 0 : '8px'}
-      overflow={isMobile ? 'unset' : 'hidden'}
-    >
+    <Paper bg='blue.500' w={isMobile ? 'full' : '312px'} p={isMobile ? 0 : '8px'}>
       <HStack
         w={'240px'}
         mx='auto'
@@ -92,7 +88,13 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
           </Text>
         </Button>
       </HStack>
-      {strategy === 'Buy' && <BuyForm market={market} setOutcomeIndex={setOutcomeIndex} />}
+      {strategy === 'Buy' && (
+        <BuyForm
+          market={market}
+          setOutcomeIndex={setOutcomeIndex}
+          outcomeTokensPercent={outcomeTokensPercent}
+        />
+      )}
       {strategy === 'Sell' ? (
         status === 'Loading' ? (
           <LoadingForm market={market} outcomeIndex={outcomeIndex} />

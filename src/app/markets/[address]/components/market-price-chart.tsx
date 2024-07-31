@@ -22,12 +22,16 @@ interface YesBuyChartData {
 
 // Define the MarketPriceChart component
 export interface IMarketPriceChart {
-  market?: Market | null
   winningIndex: number | undefined | null
   resolved: boolean
+  outcomeTokensPercent?: number[]
 }
 
-export const MarketPriceChart = ({ market, resolved, winningIndex }: IMarketPriceChart) => {
+export const MarketPriceChart = ({
+  resolved,
+  winningIndex,
+  outcomeTokensPercent,
+}: IMarketPriceChart) => {
   const pathname = usePathname()
   const { colors } = useThemeProvider()
   const [yesChance, setYesChance] = useState('')
@@ -234,7 +238,7 @@ export const MarketPriceChart = ({ market, resolved, winningIndex }: IMarketPric
       ? [
           ...(_prices ?? []),
           !!_prices[_prices.length - 1]
-            ? [_prices[_prices.length - 1][0] + ONE_HOUR, 100]
+            ? [_prices[_prices.length - 1][0] + ONE_HOUR, winningIndex === 0 ? 100 : 0]
             : [Date.now(), 100],
         ]
       : _prices
@@ -245,7 +249,7 @@ export const MarketPriceChart = ({ market, resolved, winningIndex }: IMarketPric
       <HStack gap={'4px'} color='green.500'>
         <ThumbsUpIcon width={16} height={16} />
         <Text fontWeight={500}>
-          {!resolved ? market?.prices[0] : winningIndex === 0 ? 100 : 0}%
+          {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%
         </Text>
         <Text fontWeight={500}>Yes</Text>
         {/*<ChevronDownIcon width={16} height={16} />*/}
