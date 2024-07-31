@@ -113,7 +113,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
         mt='32px'
         color='white'
         onClick={() => {
-          trackClicked(ClickEvent.TradeClicked, {
+          trackClicked(ClickEvent.TradeButtonClicked, {
             platform: 'mobile',
             address: market?.address[defaultChain.id],
           })
@@ -168,7 +168,14 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                   Back
                 </Button>
                 <Menu isOpen={isShareMenuOpen} onClose={() => setShareMenuOpen(false)}>
-                  <MenuButton onClick={() => setShareMenuOpen(true)}>
+                  <MenuButton
+                    onClick={() => {
+                      trackClicked(ClickEvent.ShareMenuClicked, {
+                        address: market?.address[defaultChain.id],
+                      })
+                      setShareMenuOpen(true)
+                    }}
+                  >
                     <HStack gap='4px'>
                       <ShareIcon width={16} height={16} />
                       <Text fontWeight={500}>Share</Text>
@@ -177,7 +184,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                   <MenuList borderRadius='2px' w='122px' zIndex={2}>
                     <MenuItem
                       onClick={() => {
-                        trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
+                        trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                           type: 'Farcaster',
                           address: market?.address[defaultChain.id],
                         })
@@ -191,7 +198,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                     </MenuItem>
                     <MenuItem
                       onClick={() => {
-                        trackClicked<ShareClickedMetadata>(ClickEvent.ShareClicked, {
+                        trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                           type: 'X/Twitter',
                           address: market?.address[defaultChain.id],
                         })
