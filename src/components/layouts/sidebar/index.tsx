@@ -263,7 +263,6 @@ export default function Sidebar() {
           </Box>
         )}
         <Divider />
-        <TokenFilter />
         {!isMobile && <CategoryFilter />}
       </VStack>
       {isOpenWalletPage && (
