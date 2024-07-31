@@ -1,4 +1,4 @@
-import { Token } from '@/types'
+import { Market, Token } from '@/types'
 import { Address, createPublicClient, formatUnits, getContract, parseUnits } from 'viem'
 import { defaultChain } from '@/constants'
 import { fixedProductMarketMakerABI } from '@/contracts'
@@ -15,14 +15,14 @@ export function getViemClient() {
 }
 
 export const getQuote = async (
-  marketAddress: string,
+  market: Market,
   collateralAmount: string,
   collateralToken: Token,
   outcomeTokenId: number,
   outcomeTokensBuyPercent: number[]
 ) => {
   const fixedProductMarketMakerContract = getContract({
-    address: marketAddress as Address,
+    address: market.address[defaultChain.id] as Address,
     abi: fixedProductMarketMakerABI,
     client: getViemClient(),
   })
