@@ -48,7 +48,6 @@ export const LoginButton = () => {
                     onClick={() => {
                       openConnectModal()
                       trackSignIn(SignInEvent.SignIn)
-                      web3Auth.removeAllListeners(ADAPTER_EVENTS.CONNECTED)
                       web3Auth.once(ADAPTER_EVENTS.CONNECTED, async () => {
                         const { typeOfLogin } = await web3Auth.getUserInfo()
                         trackClicked(ClickEvent.SignW3AIn, { option: typeOfLogin })
