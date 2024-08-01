@@ -37,11 +37,20 @@ const commonModal = definePartsStyle({
     bg: 'grey.100',
     p: '16px',
   },
+  closeButton: {
+    outline: 'none',
+    _focusVisible: {
+      boxShadow: 'none',
+    },
+  },
 })
 
 const baseStyle = definePartsStyle({
   overlay: {
     bg: 'rgba(0, 0, 0, 0.5)', //change the background
+  },
+  closeButton: {
+    outline: 'none',
   },
 })
 
