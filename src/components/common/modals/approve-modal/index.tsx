@@ -42,8 +42,8 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
   return (
     <Modal
       size={isMobile ? 'full' : 'md'}
-      variant={isMobile ? 'blueModal' : ''}
-      isOpen={approveModalOpened}
+      variant='commonModal'
+      isOpen={true}
       onClose={() => setApproveModalOpened(false)}
     >
       <ModalOverlay />
@@ -52,7 +52,7 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
         <ModalCloseButton />
         <ModalBody>
           <VStack>
-            <Text color={isMobile ? 'grey.50' : 'grey.800'}>
+            <Text>
               In order to proceed with transaction you should approve token for smart-contract
               spend.
             </Text>
