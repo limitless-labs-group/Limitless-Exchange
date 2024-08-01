@@ -153,11 +153,11 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
         return
       }
       if (value == 100) {
-        setDisplayAmount(NumberUtil.toFixed(balance, token?.symbol === 'USDC' ? 1 : 6))
+        setDisplayAmount(NumberUtil.toFixed(balance, 6))
         return
       }
       const amountByPercent = (Number(balance) * value) / 100
-      setDisplayAmount(NumberUtil.toFixed(amountByPercent, token?.symbol === 'USDC' ? 1 : 6))
+      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
     },
     [sliderValue, balance, isZeroBalance]
   )
@@ -431,8 +431,7 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
               Balance
             </Text>
             <Text {...paragraphMedium} color='white'>
-              {NumberUtil.formatThousands(balance, token?.symbol === 'USDC' ? 1 : 6)}{' '}
-              {token?.symbol}
+              {NumberUtil.formatThousands(balance, 6)} {token?.symbol}
             </Text>
           </Flex>
           <Slider
