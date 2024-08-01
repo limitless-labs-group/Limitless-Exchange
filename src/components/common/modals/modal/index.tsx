@@ -15,12 +15,10 @@ import { h1Regular, headline } from '@/styles/fonts/fonts.styles'
 export type IModal = ModalProps &
   ModalContentProps & {
     title?: string
-    showCloseButton?: boolean
   }
 
 export const Modal = ({
   title,
-  showCloseButton = true,
   onClose,
   isOpen,
   children,
@@ -34,7 +32,7 @@ export const Modal = ({
         <Text {...(isMobile ? { ...h1Regular } : { ...headline })} w={'full'} textAlign='left'>
           {title}
         </Text>
-        {showCloseButton && (
+        {!isMobile && (
           <Button
             w={'26px'}
             h={'26px'}

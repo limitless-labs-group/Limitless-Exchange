@@ -52,6 +52,9 @@ const grey = definePartsStyle({
     _placeholder: {
       color: 'grey.500',
     },
+    _invalid: {
+      borderColor: 'red.500',
+    },
   },
   element: {
     h: '24px',

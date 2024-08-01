@@ -163,7 +163,7 @@ export const chakraTheme = ChakraTheme({
             bg: 'blue.600',
           },
           _disabled: {
-            bg: 'grey.300',
+            bg: 'grey.300 !important',
             color: 'grey.500',
             pointerEvents: 'none',
           },

@@ -13,12 +13,16 @@ const baseStyle = definePartsStyle({
     border: '1px solid',
     borderColor: 'grey.300',
     borderRadius: '2px',
+    color: 'grey.100',
     _focus: {
       boxShadow: 'unset',
     },
     _checked: {
       bg: 'grey.800 !important',
-      borderColor: 'grey.800',
+      border: 'unset',
+      _hover: {
+        border: 'unset',
+      },
     },
   },
   container: {

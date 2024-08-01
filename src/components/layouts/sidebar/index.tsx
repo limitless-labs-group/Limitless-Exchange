@@ -47,6 +47,8 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { useThemeProvider } from '@/providers'
 import usePageName from '@/hooks/use-page-name'
 import WalletPage from '@/components/layouts/wallet-page'
+import SwapIcon from '@/resources/icons/swap-icon.svg'
+import WrapModal from '@/components/common/modals/wrap-modal'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
@@ -66,11 +68,20 @@ export default function Sidebar() {
 
   const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
   const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
+  const {
+    isOpen: isWrapModalOpen,
+    onOpen: onOpenWrapModal,
+    onClose: onCloseWrapModal,
+  } = useDisclosure()
 
   const handleOpenWalletPage = () => {
     if (client !== 'eoa') {
       onToggleWalletPage()
     }
+  }
+
+  const handleOpenWrapModal = () => {
+    onOpenWrapModal()
   }
 
   return (
@@ -105,7 +116,7 @@ export default function Sidebar() {
         </Button>
         {isConnected && (
           <VStack my='16px' w='full' gap='8px'>
-            {client !== 'eoa' && (
+            {client !== 'eoa' ? (
               <Button
                 variant='transparent'
                 onClick={() => {
@@ -124,6 +135,22 @@ export default function Sidebar() {
                   <WalletIcon width={16} height={16} />
                   <Text fontWeight={500} fontSize='14px'>
                     {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+                  </Text>
+                </HStack>
+              </Button>
+            ) : (
+              <Button
+                variant='transparent'
+                w='full'
+                onClick={() => {
+                  trackClicked(ClickEvent.WithdrawClicked)
+                  handleOpenWrapModal()
+                }}
+              >
+                <HStack w='full'>
+                  <SwapIcon width={16} height={16} />
+                  <Text fontWeight={500} fontSize='14px'>
+                    Wrap ETH
                   </Text>
                 </HStack>
               </Button>
@@ -297,6 +324,7 @@ export default function Sidebar() {
       >
         <WalletPage onClose={onToggleWalletPage} />
       </Slide>
+      {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}
     </>
   )
 }

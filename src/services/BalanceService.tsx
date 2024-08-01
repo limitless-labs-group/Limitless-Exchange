@@ -9,6 +9,7 @@ import {
   QueryObserverResult,
   UseMutateAsyncFunction,
   useMutation,
+  UseMutationResult,
   useQuery,
 } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
@@ -58,8 +59,7 @@ interface IBalanceService {
   token: Token | null
 
   ethBalance?: string
-  wrapETHManual: (amount: string) => Promise<void>
-  isWrapPending: boolean
+  wrapMutation: UseMutationResult<void, Error, string, unknown>
 }
 
 const BalanceService = createContext({} as IBalanceService)
@@ -259,15 +259,9 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     refetchInterval: pathname.includes('wallet') && 10000, // polling on wallet page only
   })
 
-  const { mutateAsync: wrapETHManual, isPending: isWrapPending } = useMutation({
+  const wrapMutation = useMutation({
     mutationFn: async (amount: string) => {
-      const id = toast({
-        render: () => <Toast title={'Processing transaction...'} id={id} />,
-      })
       await wrapEth(parseUnits(amount, 18))
-      const toastId = toast({
-        render: () => <Toast title={'ETH wrapped successfully.'} id={toastId} />,
-      })
     },
   })
 
@@ -410,8 +404,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         token,
         status,
         ethBalance,
-        wrapETHManual,
-        isWrapPending,
+        wrapMutation,
       }}
     >
       {children}
