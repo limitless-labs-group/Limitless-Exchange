@@ -43,7 +43,7 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
     <Modal
       size={isMobile ? 'full' : 'md'}
       variant='commonModal'
-      isOpen={true}
+      isOpen={approveModalOpened}
       onClose={() => setApproveModalOpened(false)}
     >
       <ModalOverlay />
