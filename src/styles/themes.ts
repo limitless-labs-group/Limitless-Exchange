@@ -6,6 +6,7 @@ import { inputTheme } from '@/styles/input'
 import { menuTheme } from '@/styles/menu'
 import { commonButtonProps } from '@/styles/button'
 import { checkboxTheme } from '@/styles/checkbox'
+import { isMobile } from 'react-device-detect'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
@@ -169,6 +170,7 @@ export const chakraTheme = ChakraTheme({
         },
         white: {
           ...commonButtonProps,
+          px: isMobile ? '12px' : '8px',
           bg: 'white',
           color: 'black',
           _hover: {

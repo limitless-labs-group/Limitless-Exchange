@@ -57,9 +57,6 @@ interface IBalanceService {
   setToken: Dispatch<SetStateAction<Token | null>>
   token: Token | null
 
-  eoaWrapModalOpened: boolean
-  setEOAWrapModalOpened: Dispatch<SetStateAction<boolean>>
-
   ethBalance?: string
   wrapETHManual: (amount: string) => Promise<void>
   isWrapPending: boolean
@@ -77,7 +74,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
-  const [eoaWrapModalOpened, setEOAWrapModalOpened] = useState(false)
 
   /**
    * Etherspot
@@ -269,7 +265,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         render: () => <Toast title={'Processing transaction...'} id={id} />,
       })
       await wrapEth(parseUnits(amount, 18))
-      setEOAWrapModalOpened(false)
       const toastId = toast({
         render: () => <Toast title={'ETH wrapped successfully.'} id={toastId} />,
       })
@@ -414,8 +409,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         setToken,
         token,
         status,
-        eoaWrapModalOpened,
-        setEOAWrapModalOpened,
         ethBalance,
         wrapETHManual,
         isWrapPending,

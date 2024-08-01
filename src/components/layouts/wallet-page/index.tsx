@@ -15,7 +15,9 @@ import { isMobile } from 'react-device-detect'
 import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { setTimeout } from '@wry/context'
 import usePageName from '@/hooks/use-page-name'
-import BigNumber from 'bignumber.js'
+import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
+import SwapIcon from '@/resources/icons/swap-icon.svg'
+import WrapModal from '@/components/common/modals/wrap-modal'
 
 interface WalletPageProps {
   onClose: () => void
@@ -32,6 +34,12 @@ export default function WalletPage({ onClose }: WalletPageProps) {
     isOpen: isWithdrawOpen,
     onOpen: onOpenWithdraw,
     onClose: onCloseWithdraw,
+  } = useDisclosure()
+
+  const {
+    isOpen: isWrapModalOpen,
+    onOpen: onOpenWrapModal,
+    onClose: onCloseWrapModal,
   } = useDisclosure()
 
   const { trackClicked } = useAmplitude()
@@ -53,6 +61,11 @@ export default function WalletPage({ onClose }: WalletPageProps) {
   const handleOpenWithdrawModal = () => {
     onClose()
     onOpenWithdraw()
+  }
+
+  const handleOpenWrapModal = () => {
+    onClose()
+    onOpenWrapModal()
   }
 
   useEffect(() => {
@@ -81,15 +94,6 @@ export default function WalletPage({ onClose }: WalletPageProps) {
               Available balance
             </Text>
           </HStack>
-          <Button
-            variant='white'
-            onClick={() => {
-              trackClicked(ClickEvent.WithdrawClicked)
-              handleOpenWithdrawModal()
-            }}
-          >
-            Withdraw
-          </Button>
         </HStack>
         <Text color='white' fontSize='24px' fontWeight={500} mb='16px'>
           ~{NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
@@ -110,6 +114,30 @@ export default function WalletPage({ onClose }: WalletPageProps) {
             )}
           </HStack>
         </CopyToClipboard>
+        <HStack gap={isMobile ? '16px' : '8px'} marginTop={isMobile ? '24px' : '16px'}>
+          <Button
+            variant='white'
+            onClick={() => {
+              trackClicked(ClickEvent.WithdrawClicked)
+              handleOpenWrapModal()
+            }}
+          >
+            <SwapIcon width={16} height={16} />
+            Wrap ETH
+          </Button>
+          <Button
+            variant='white'
+            onClick={() => {
+              trackClicked(ClickEvent.WithdrawClicked)
+              handleOpenWithdrawModal()
+            }}
+          >
+            <Box style={{ transform: 'rotate(90deg)' }}>
+              <ArrowLeftIcon width={16} height={16} />
+            </Box>
+            Withdraw
+          </Button>
+        </HStack>
       </Paper>
       {!isMobile && (
         <>
@@ -175,6 +203,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
         ))}
       </VStack>
       {isWithdrawOpen && <WithdrawModal isOpen={isWithdrawOpen} onClose={onCloseWithdraw} />}
+      {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}
     </Box>
   )
 }

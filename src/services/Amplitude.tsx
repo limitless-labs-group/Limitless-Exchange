@@ -125,6 +125,7 @@ export enum ClickEvent {
   WalletClicked = 'Wallet Clicked',
   CopyAddressClicked = 'Wallet Address Copied',
   WithdrawClicked = 'Withdraw Clicked',
+  WrapETHClicked = 'Wrap ETH Clicked',
   WithdrawConfirmedClicked = 'Withdraw Confirmed',
   SortClicked = 'Sort Clicked',
   StrokeClicked = 'Stroke Clicked',
