@@ -49,6 +49,10 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
 
   const trackEvent = useCallback(
     async (eventType: EventType, customData?: EventMetadata) => {
+      if (NODE_ENV === 'development') {
+        return
+      }
+
       return amplitudeTrack({
         event_type: String(eventType),
         event_properties: {
