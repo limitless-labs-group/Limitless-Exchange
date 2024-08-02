@@ -2,20 +2,15 @@ import { defaultChain } from '@/constants'
 import { HistoryTrade } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { useMarket } from '@/services/MarketsService'
+import NextLink from 'next/link'
 
 interface IPortfolioHistoryTradeItem extends TableRowProps {
   trade: HistoryTrade
 }
 
 export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistoryTradeItem) => {
-  /**
-   * NAVIGATION
-   */
-  const router = useRouter()
-
   /**
    * MARKET DATA
    */
@@ -24,16 +19,17 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
   return (
     <Tr pos={'relative'} {...props}>
       <Td pl={0} pr={2}>
-        <HStack
-          style={{ textWrap: 'wrap' }}
-          cursor={'pointer'}
-          _hover={{ textDecor: 'underline' }}
-          onClick={() => router.push(`/markets/${trade.market.id}`)}
-        >
-          <Text size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
-            {market?.proxyTitle ?? market?.title ?? 'Noname market'}
-          </Text>
-        </HStack>
+        <NextLink href={`/markets/${trade.market.id}`}>
+          <HStack
+            style={{ textWrap: 'wrap' }}
+            cursor={'pointer'}
+            _hover={{ textDecor: 'underline' }}
+          >
+            <Text size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
+              {market?.proxyTitle ?? market?.title ?? 'Noname market'}
+            </Text>
+          </HStack>
+        </NextLink>
       </Td>
 
       <Td px={2}>

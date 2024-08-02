@@ -25,6 +25,7 @@ import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import WinIcon from '@/resources/icons/win-icon.svg'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import NextLink from 'next/link'
 
 export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {
   position: HistoryPosition
@@ -206,96 +207,97 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       </Stack>
     </Paper>
   ) : (
-    <Paper
-      onClick={() => router.push(marketURI)}
-      w={'full'}
-      bg={market?.expired ? 'green.500' : 'grey.200'}
-      _hover={{
-        bg: market?.expired ? 'green.600' : 'blue.500',
-      }}
-      cursor='pointer'
-      onMouseEnter={() => setColors(hoverColors)}
-      onMouseLeave={() => setColors(unhoveredColors)}
-      {...props}
-    >
-      <Stack direction='row'>
-        <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
-          <Box>
-            <Text {...paragraphMedium} color={cardColors.main}>
-              {market?.proxyTitle ?? market?.title ?? 'Noname market'}
-            </Text>
-          </Box>
+    <NextLink href={`${marketURI}`} style={{ width: '100%' }}>
+      <Paper
+        w={'full'}
+        bg={market?.expired ? 'green.500' : 'grey.200'}
+        _hover={{
+          bg: market?.expired ? 'green.600' : 'blue.500',
+        }}
+        cursor='pointer'
+        onMouseEnter={() => setColors(hoverColors)}
+        onMouseLeave={() => setColors(unhoveredColors)}
+        {...props}
+      >
+        <Stack direction='row'>
+          <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
+            <Box>
+              <Text {...paragraphMedium} color={cardColors.main}>
+                {market?.proxyTitle ?? market?.title ?? 'Noname market'}
+              </Text>
+            </Box>
 
-          <HStack>
-            {market?.expired ? (
-              <ClaimButton />
-            ) : (
-              <>
-                <Text {...paragraphMedium} color={cardColors.main}>
-                  {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} 
+            <HStack>
+              {market?.expired ? (
+                <ClaimButton />
+              ) : (
+                <>
+                  <Text {...paragraphMedium} color={cardColors.main}>
+                    {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} 
                     ${market?.tokenTicker[defaultChain.id]}`}
-                </Text>
+                  </Text>
 
-                <Box gap={0}>
-                  {(position?.outcomeIndex === 0 ? (
-                    <Text
-                      {...paragraphMedium}
-                      color={cardColors.main === 'grey.800' ? 'green.500' : cardColors.main}
-                    >
-                      ↑{chancePercent}%
-                    </Text>
-                  ) : (
-                    <Text
-                      {...paragraphMedium}
-                      color={cardColors.main === 'grey.800' ? 'red.500' : cardColors.main}
-                    >
-                      ↓{chancePercent}%
-                    </Text>
-                  )) ?? ''}
-                </Box>
-              </>
-            )}
+                  <Box gap={0}>
+                    {(position?.outcomeIndex === 0 ? (
+                      <Text
+                        {...paragraphMedium}
+                        color={cardColors.main === 'grey.800' ? 'green.500' : cardColors.main}
+                      >
+                        ↑{chancePercent}%
+                      </Text>
+                    ) : (
+                      <Text
+                        {...paragraphMedium}
+                        color={cardColors.main === 'grey.800' ? 'red.500' : cardColors.main}
+                      >
+                        ↓{chancePercent}%
+                      </Text>
+                    )) ?? ''}
+                  </Box>
+                </>
+              )}
 
-            <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
+              <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
+            </HStack>
           </HStack>
-        </HStack>
-      </Stack>
+        </Stack>
 
-      <Stack direction='row' w={'full'} justifyContent={'space-between'} mt={'12px'}>
-        <HStack w={'full'}>
-          <VStack alignItems={'start'} gap={1}>
-            <Text {...paragraphMedium} color={cardColors.secondary}>
-              Position
-            </Text>
-            <Text {...paragraphRegular} color={cardColors.main}>
-              {getOutcomeNotation()}
-            </Text>
-          </VStack>
+        <Stack direction='row' w={'full'} justifyContent={'space-between'} mt={'12px'}>
+          <HStack w={'full'}>
+            <VStack alignItems={'start'} gap={1}>
+              <Text {...paragraphMedium} color={cardColors.secondary}>
+                Position
+              </Text>
+              <Text {...paragraphRegular} color={cardColors.main}>
+                {getOutcomeNotation()}
+              </Text>
+            </VStack>
 
-          <VStack alignItems={'start'} gap={1} ml={'24px'}>
-            <Text {...paragraphMedium} color={cardColors.secondary}>
-              Invested
-            </Text>
-            <Text {...paragraphRegular} color={cardColors.main}>
-              {`${NumberUtil.formatThousands(position.collateralAmount, 4)} ${
-                market?.tokenTicker[defaultChain.id]
-              }`}
-            </Text>
-          </VStack>
-        </HStack>
-
-        <HStack w={'full'} justifyContent={'flex-end'} alignItems={'flex-end'}>
-          <HStack gap={1} color={cardColors.secondary}>
-            {<StatusIcon market={market} />}
+            <VStack alignItems={'start'} gap={1} ml={'24px'}>
+              <Text {...paragraphMedium} color={cardColors.secondary}>
+                Invested
+              </Text>
+              <Text {...paragraphRegular} color={cardColors.main}>
+                {`${NumberUtil.formatThousands(position.collateralAmount, 4)} ${
+                  market?.tokenTicker[defaultChain.id]
+                }`}
+              </Text>
+            </VStack>
           </HStack>
-          <HStack gap={1} color={cardColors.secondary}>
-            <CalendarIcon width={'16px'} height={'16px'} />
-            <Text {...paragraphMedium} color={cardColors.secondary}>
-              {market?.expirationDate}
-            </Text>
+
+          <HStack w={'full'} justifyContent={'flex-end'} alignItems={'flex-end'}>
+            <HStack gap={1} color={cardColors.secondary}>
+              {<StatusIcon market={market} />}
+            </HStack>
+            <HStack gap={1} color={cardColors.secondary}>
+              <CalendarIcon width={'16px'} height={'16px'} />
+              <Text {...paragraphMedium} color={cardColors.secondary}>
+                {market?.expirationDate}
+              </Text>
+            </HStack>
           </HStack>
-        </HStack>
-      </Stack>
-    </Paper>
+        </Stack>
+      </Paper>
+    </NextLink>
   )
 }
