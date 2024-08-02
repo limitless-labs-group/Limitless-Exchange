@@ -14,9 +14,7 @@ import {
 } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useMarketData } from '@/hooks'
 import { useMarket } from '@/services/MarketsService'
-import { useToken } from '@/hooks/use-token'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
@@ -55,18 +53,41 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
    * MARKET DATA
    */
   const { data: market } = useMarket(position.market.id)
-  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
-  const { outcomeTokensPercent } = useMarketData({
-    marketAddress: position.market.id,
-    collateralToken,
-  })
 
-  const chancePercent = useMemo(() => {
-    if (market?.expired) {
-      return market?.winningOutcomeIndex === 0 ? '100' : '0'
+  const currentContractsPrice =
+    +(position.outcomeTokenAmount || 1) * ((market?.prices[position.outcomeIndex] || 1) / 100)
+
+  const contractPrice = currentContractsPrice / +(position?.collateralAmount || 1)
+
+  const contractPriceChanged = useMemo(() => {
+    let price
+    if (contractPrice < 1) {
+      price = NumberUtil.toFixed((1 - contractPrice) * 100, 0)
+    } else {
+      price = NumberUtil.toFixed((contractPrice - 1) * 100, 0)
     }
-    return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
-  }, [market, outcomeTokensPercent])
+    if (contractPrice < 1) {
+      return (
+        <Text {...paragraphMedium} color='red.500'>
+          &#x2193;
+          {price}%
+        </Text>
+      )
+    }
+    return (
+      <Text {...paragraphMedium} color='green.500'>
+        &#x2191;
+        {price}%
+      </Text>
+    )
+  }, [contractPrice])
+
+  // const chancePercent = useMemo(() => {
+  //   if (market?.expired) {
+  //     return market?.winningOutcomeIndex === 0 ? '100' : '0'
+  //   }
+  //   return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
+  // }, [market, outcomeTokensPercent])
 
   /**
    * SHARE
@@ -160,11 +181,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
                     ${market?.tokenTicker[defaultChain.id]}`}
               </Text>
               <Box gap={0} fontSize={'16px'} fontWeight={500}>
-                {(position?.outcomeIndex === 0 ? (
-                  <Text color={'green.500'}>↑{chancePercent}%</Text>
-                ) : (
-                  <Text color={'red.500'}>↓{chancePercent}%</Text>
-                )) ?? ''}
+                {contractPriceChanged}
               </Box>
             </HStack>
           )}
@@ -237,23 +254,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
                     ${market?.tokenTicker[defaultChain.id]}`}
                   </Text>
 
-                  <Box gap={0}>
-                    {(position?.outcomeIndex === 0 ? (
-                      <Text
-                        {...paragraphMedium}
-                        color={cardColors.main === 'grey.800' ? 'green.500' : cardColors.main}
-                      >
-                        ↑{chancePercent}%
-                      </Text>
-                    ) : (
-                      <Text
-                        {...paragraphMedium}
-                        color={cardColors.main === 'grey.800' ? 'red.500' : cardColors.main}
-                      >
-                        ↓{chancePercent}%
-                      </Text>
-                    )) ?? ''}
-                  </Box>
+                  <Box gap={0}>{contractPriceChanged}</Box>
                 </>
               )}
 
