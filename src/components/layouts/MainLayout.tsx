@@ -34,7 +34,7 @@ export const MainLayout = ({ children, isLoading, ...props }: IMainLayout) => {
               <Spinner />
             </Flex>
           ) : (
-            <Box ml={'195px'} p={'16px'} w='full'>
+            <Box ml={!isMobile ? '195px' : '0px'} p={'16px'} w='full'>
               {children}
             </Box>
           )}
