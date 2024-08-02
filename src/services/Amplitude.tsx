@@ -1,7 +1,13 @@
 'use client'
 
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
-import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
+import {
+  init,
+  track as amplitudeTrack,
+  getDeviceId,
+  getSessionId,
+} from '@amplitude/analytics-browser'
+import * as sessionReplay from '@amplitude/session-replay-browser'
 import { useAccount } from '@/services'
 import { Address } from '@/types'
 
@@ -32,19 +38,22 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         attribution: false,
         formInteractions: false,
       },
+    }).promise.then(() => {
+      return sessionReplay.init(AMPLITUDE_API_KEY, {
+        deviceId: getDeviceId(),
+        sessionId: getSessionId(),
+        sampleRate: 1,
+      }).promise
     })
   }, [])
 
   const trackEvent = useCallback(
     async (eventType: EventType, customData?: EventMetadata) => {
-      if (NODE_ENV === 'development') {
-        return
-      }
-
       return amplitudeTrack({
         event_type: String(eventType),
         event_properties: {
           ...customData,
+          ...sessionReplay.getSessionReplayProperties(),
         },
         user_properties: {
           account,
