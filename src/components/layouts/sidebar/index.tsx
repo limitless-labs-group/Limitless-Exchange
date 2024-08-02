@@ -35,7 +35,6 @@ import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { cutUsername } from '@/utils/string'
-import { usePathname, useRouter } from 'next/navigation'
 import { useWeb3Service } from '@/services/Web3Service'
 import { LoginButton } from '@/components/common/login-button'
 import CategoryFilter from '@/components/common/categories'
@@ -49,6 +48,8 @@ import usePageName from '@/hooks/use-page-name'
 import WalletPage from '@/components/layouts/wallet-page'
 import SwapIcon from '@/resources/icons/swap-icon.svg'
 import WrapModal from '@/components/common/modals/wrap-modal'
+import NextLink from 'next/link'
+import { Link } from '@chakra-ui/react'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
@@ -60,10 +61,8 @@ export default function Sidebar() {
   const { overallBalanceUsd } = useBalanceService()
   const { userInfo } = useAccount()
   const address = useWalletAddress()
-  const router = useRouter()
   const { disconnectFromPlatform } = useDisconnectAccount()
   const { client } = useWeb3Service()
-  const pathname = usePathname()
   const pageName = usePageName()
 
   const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
@@ -99,21 +98,21 @@ export default function Sidebar() {
         overflowY='auto'
         pb='100px'
       >
-        <Button
-          variant='transparent'
-          onClick={() => {
-            trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
-            router.push('/')
-          }}
-          _hover={{ bg: 'unset' }}
-        >
-          <Image
-            src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
-            height={32}
-            width={156}
-            alt='logo'
-          />
-        </Button>
+        <NextLink href='/' passHref>
+          <Link
+            onClick={() => {
+              trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
+            }}
+          >
+            <Image
+              src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+              height={32}
+              width={156}
+              alt='logo'
+            />
+          </Link>
+        </NextLink>
+
         {isConnected && (
           <VStack my='16px' w='full' gap='8px'>
             {client !== 'eoa' ? (
@@ -155,27 +154,27 @@ export default function Sidebar() {
                 </HStack>
               </Button>
             )}
-            <Button
-              variant='transparent'
-              onClick={() => {
-                trackClicked<ProfileBurgerMenuClickedMetadata>(
-                  ClickEvent.ProfileBurgerMenuClicked,
-                  {
-                    option: 'Portfolio',
-                  }
-                )
-                router.push('/portfolio')
-              }}
-              w='full'
-              bg={pathname === '/portfolio' ? 'grey.200' : 'unset'}
-            >
-              <HStack w='full'>
-                <PortfolioIcon width={16} height={16} />
-                <Text fontWeight={500} fontSize='14px'>
-                  Portfolio
-                </Text>
-              </HStack>
-            </Button>
+            <NextLink href='/portfolio' passHref style={{ width: '100%' }}>
+              <Link
+                onClick={() => {
+                  trackClicked<ProfileBurgerMenuClickedMetadata>(
+                    ClickEvent.ProfileBurgerMenuClicked,
+                    {
+                      option: 'Portfolio',
+                    }
+                  )
+                }}
+                variant='transparent'
+                w='full'
+              >
+                <HStack w='full'>
+                  <PortfolioIcon width={16} height={16} />
+                  <Text fontWeight={500} fontSize='14px'>
+                    Portfolio
+                  </Text>
+                </HStack>
+              </Link>
+            </NextLink>
             <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
               <MenuButton
                 as={Button}

@@ -124,8 +124,9 @@ const MainPage = () => {
           text={`Explore ${categoryEntity?.name ?? 'Limitless'} Prediction Markets`}
           fontSize={'32px'}
           gap={2}
+          userSelect='text'
         />
-        <Text color='grey.800' fontSize={'14px'}>
+        <Text color='grey.800' fontSize={'14px'} userSelect='text'>
           Predict outcomes in crypto, tech, sports, and more. Use different tokens, participate in
           transparent voting for upcoming markets, and engage in markets created by the community.
           It’s all decentralized and secure.
