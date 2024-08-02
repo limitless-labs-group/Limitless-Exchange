@@ -1,4 +1,4 @@
-import { Box, HStack, InputGroup, Text, Input, InputRightElement } from '@chakra-ui/react'
+import { Box, HStack, InputGroup, Text, Input, InputRightElement, Button } from '@chakra-ui/react'
 import { useBalanceService } from '@/services'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -8,6 +8,8 @@ import { NumberUtil } from '@/utils'
 import AmountSlider from '@/components/common/amount-slider'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import SwapIcon from '@/resources/icons/swap-icon.svg'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface WrapModalPros {
   isOpen: boolean
@@ -15,56 +17,80 @@ interface WrapModalPros {
 }
 
 export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
+  const queryClient = useQueryClient()
   const [displayAmount, setDisplayAmount] = useState('')
   const [sliderValue, setSliderValue] = useState(0)
-  const { ethBalance, wrapMutation } = useBalanceService()
+  const { ethBalance, wrapMutation, unwrapMutation, balanceOfSmartWallet } = useBalanceService()
+  const [tokenFrom, setTokenFrom] = useState<'ETH' | 'WETH'>('ETH')
+  const [tokenTo, setTokenTo] = useState<'ETH' | 'WETH'>('WETH')
+
+  const wethBalance =
+    balanceOfSmartWallet?.find((balanceItem) => balanceItem.symbol === 'WETH')?.formatted || '0.00'
+  const etherBalance = ethBalance || '0.00'
+
+  const balanceFrom = useMemo(() => {
+    return tokenFrom === 'ETH' ? etherBalance : wethBalance || '0.00'
+  }, [tokenFrom, etherBalance, wethBalance])
 
   const isExceedsBalance = useMemo(() => {
-    if (+displayAmount && ethBalance) {
-      return +displayAmount > +ethBalance
+    if (+displayAmount && balanceFrom) {
+      return +displayAmount > +balanceFrom
     }
     return false
-  }, [displayAmount, ethBalance])
+  }, [displayAmount, balanceFrom])
+
+  const mutationToCall = tokenFrom === 'ETH' ? wrapMutation : unwrapMutation
 
   const onSlide = useCallback(
     (value: number) => {
       setSliderValue(value)
-      if (value == 0 || !ethBalance) {
+      if (value == 0 || !balanceFrom) {
         setDisplayAmount('')
         return
       }
       if (value == 100) {
-        setDisplayAmount(NumberUtil.toFixed(ethBalance, 6))
+        setDisplayAmount(NumberUtil.toFixed(balanceFrom, 6))
         return
       }
-      const amountByPercent = (Number(ethBalance) * value) / 100
+      const amountByPercent = (Number(balanceFrom) * value) / 100
       setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
     },
-    [ethBalance, displayAmount]
+    [balanceFrom]
   )
 
   const handleAmountChange = (value: string) => {
     setDisplayAmount(value)
-    const amountByPercent = (+value / Number(ethBalance)) * 100
+    const amountByPercent = (+value / Number(balanceFrom)) * 100
     const sliderValue = amountByPercent > 100 ? 100 : amountByPercent.toFixed()
     setSliderValue(+sliderValue)
   }
 
   const handleWrap = async () => {
-    await wrapMutation.mutateAsync(displayAmount)
+    await mutationToCall.mutateAsync(displayAmount)
   }
 
   const resetMutation = async () => {
     await sleep(2)
     setDisplayAmount('')
-    wrapMutation.reset()
+    setSliderValue(0)
+    await queryClient.refetchQueries({ queryKey: ['ethBalance'] })
+    mutationToCall.reset()
+  }
+
+  const handleSwapButtonClicked = () => {
+    const amountByPercent =
+      tokenTo === 'WETH' ? +displayAmount / +wethBalance : +displayAmount / +etherBalance
+    setSliderValue(+(amountByPercent * 100).toFixed())
+    setTokenFrom(tokenTo)
+    setTokenTo(tokenFrom)
+    return
   }
 
   useEffect(() => {
-    if (wrapMutation.status === 'success') {
+    if (mutationToCall.status === 'success') {
       resetMutation()
     }
-  }, [wrapMutation.status])
+  }, [mutationToCall.status])
 
   return (
     <Modal
@@ -76,13 +102,15 @@ export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
     >
       <HStack justifyContent='space-between' mt={isMobile ? '32px' : '24px'}>
         <Text {...paragraphMedium}>Balance</Text>
-        <Text {...paragraphMedium}>{NumberUtil.formatThousands(ethBalance, 6)} ETH</Text>
+        <Text {...paragraphMedium}>
+          {NumberUtil.formatThousands(balanceFrom, 6)} {tokenFrom}
+        </Text>
       </HStack>
       <Box my='12px'>
         <AmountSlider
           variant='base'
           value={sliderValue}
-          disabled={isExceedsBalance}
+          disabled={!+balanceFrom}
           onSlide={onSlide}
         />
       </Box>
@@ -110,10 +138,22 @@ export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
           right={isMobile ? '12px' : '8px'}
           justifyContent='flex-end'
         >
-          <Text {...paragraphMedium}>ETH</Text>
+          <Text {...paragraphMedium}>{tokenFrom}</Text>
         </InputRightElement>
       </InputGroup>
-      <InputGroup display='block' mt={isMobile ? '32px' : '24px'}>
+      <HStack justifyContent='center' mt={isMobile ? '28px' : '20px'}>
+        <Button
+          variant='grey'
+          sx={{ transform: 'rotate(90deg)' }}
+          p='8px 4px'
+          minW='24px'
+          minH='32px'
+          onClick={handleSwapButtonClicked}
+        >
+          <SwapIcon width={16} height={16} />
+        </Button>
+      </HStack>
+      <InputGroup display='block'>
         <Text {...paragraphMedium} mb='4px'>
           Buy
         </Text>
@@ -130,7 +170,7 @@ export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
           right={isMobile ? '12px' : '8px'}
           justifyContent='flex-end'
         >
-          <Text {...paragraphMedium}>WETH</Text>
+          <Text {...paragraphMedium}>{tokenTo}</Text>
         </InputRightElement>
       </InputGroup>
       <HStack
@@ -141,18 +181,18 @@ export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
         <ButtonWithStates
           variant='contained'
           w={isMobile ? 'full' : '94px'}
-          isDisabled={!displayAmount || isExceedsBalance}
+          isDisabled={!+displayAmount || isExceedsBalance}
           onClick={handleWrap}
-          status={wrapMutation.status}
+          status={mutationToCall.status}
         >
-          Wrap
+          {tokenFrom === 'ETH' ? 'Wrap' : 'Unwrap'}
         </ButtonWithStates>
-        {!displayAmount && wrapMutation.status === 'idle' && (
+        {!+displayAmount && mutationToCall.status === 'idle' && (
           <Text {...paragraphRegular} color='grey.500'>
             Enter amount
           </Text>
         )}
-        {wrapMutation.isPending && (
+        {mutationToCall.isPending && (
           <Text {...paragraphRegular} color='grey.500'>
             Processing transaction...
           </Text>
