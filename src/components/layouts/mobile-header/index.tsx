@@ -79,14 +79,14 @@ export default function MobileHeader() {
     <>
       <Box p='16px' pb={0}>
         <HStack justifyContent='space-between' alignItems='center'>
-          <Button variant='transparent' onClick={() => router.push('/')}>
+          <Box onClick={() => router.push('/')}>
             <Image
               src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
               height={32}
               width={156}
               alt='calendar'
             />
-          </Button>
+          </Box>
           <HStack gap='4px'>
             {isConnected ? (
               <>
