@@ -35,6 +35,13 @@ export default function WalletPage({ onClose }: WalletPageProps) {
 
   const { trackClicked } = useAmplitude()
 
+  const sortedBalance = balanceOfSmartWallet?.sort((balanceItemA, balanceItemB) => {
+    return (
+      convertAssetAmountToUsd(balanceItemB.id, balanceItemB.formatted) -
+      convertAssetAmountToUsd(balanceItemA.id, balanceItemA.formatted)
+    )
+  })
+
   const onClickCopy = () => {
     trackClicked(ClickEvent.CopyAddressClicked, {
       page: pageName,
@@ -125,7 +132,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
         All tokens
       </Text>
       <VStack w='full' mb='24px'>
-        {balanceOfSmartWallet?.map((balanceItem) => (
+        {sortedBalance?.map((balanceItem) => (
           <Paper key={balanceItem.id} w='full'>
             <HStack justifyContent='space-between'>
               <HStack gap='4px'>

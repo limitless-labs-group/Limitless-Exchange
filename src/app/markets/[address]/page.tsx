@@ -47,7 +47,12 @@ import {
   MarketTradingModal,
   MobileTradeButton,
 } from './components'
-import { h1Regular, paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import {
+  h1Regular,
+  paragraphBold,
+  paragraphMedium,
+  paragraphRegular,
+} from '@/styles/fonts/fonts.styles'
 import { useMarketData } from '@/hooks'
 import { Address } from 'viem'
 
@@ -178,10 +183,10 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                   >
                     <HStack gap='4px'>
                       <ShareIcon width={16} height={16} />
-                      <Text fontWeight={500}>Share</Text>
+                      <Text {...paragraphMedium}>Share</Text>
                     </HStack>
                   </MenuButton>
-                  <MenuList borderRadius='2px' w='122px' zIndex={2}>
+                  <MenuList borderRadius='2px' w={isMobile ? '160px' : '122px'} zIndex={2}>
                     <MenuItem
                       onClick={() => {
                         trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
@@ -193,7 +198,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                     >
                       <HStack gap='4px'>
                         <WarpcastIcon />
-                        <Text fontWeight={500}>On Warpcast</Text>
+                        <Text {...paragraphMedium}>On Warpcast</Text>
                       </HStack>
                     </MenuItem>
                     <MenuItem
@@ -207,7 +212,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                     >
                       <HStack gap='4px'>
                         <TwitterIcon />
-                        <Text fontWeight={500}>On X</Text>
+                        <Text {...paragraphMedium}>On X</Text>
                       </HStack>
                     </MenuItem>
                   </MenuList>
@@ -218,6 +223,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                   text={(market?.proxyTitle ?? market?.title) || ''}
                   {...(isMobile ? { ...h1Regular } : {})}
                   fontSize='32px'
+                  userSelect='text'
                 />
               </Box>
               <HStack gap={isMobile ? '4px' : '16px'} mt='16px' mb='24px'>
@@ -255,7 +261,9 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                 <DescriptionIcon width='16px' height='16px' />
                 <Text {...paragraphBold}>Description</Text>
               </HStack>
-              <Text {...paragraphRegular}>{market?.description}</Text>
+              <Text {...paragraphRegular} userSelect='text'>
+                {market?.description}
+              </Text>
             </Box>
             {!isMobile && marketActionForm}
           </HStack>

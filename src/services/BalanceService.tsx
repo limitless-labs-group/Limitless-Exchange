@@ -9,6 +9,7 @@ import {
   QueryObserverResult,
   UseMutateAsyncFunction,
   useMutation,
+  UseMutationResult,
   useQuery,
 } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
@@ -57,12 +58,9 @@ interface IBalanceService {
   setToken: Dispatch<SetStateAction<Token | null>>
   token: Token | null
 
-  eoaWrapModalOpened: boolean
-  setEOAWrapModalOpened: Dispatch<SetStateAction<boolean>>
-
   ethBalance?: string
-  wrapETHManual: (amount: string) => Promise<void>
-  isWrapPending: boolean
+  wrapMutation: UseMutationResult<void, Error, string, unknown>
+  unwrapMutation: UseMutationResult<void, Error, string, unknown>
 }
 
 const BalanceService = createContext({} as IBalanceService)
@@ -77,7 +75,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
-  const [eoaWrapModalOpened, setEOAWrapModalOpened] = useState(false)
 
   /**
    * Etherspot
@@ -263,16 +260,15 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     refetchInterval: pathname.includes('wallet') && 10000, // polling on wallet page only
   })
 
-  const { mutateAsync: wrapETHManual, isPending: isWrapPending } = useMutation({
+  const wrapMutation = useMutation({
     mutationFn: async (amount: string) => {
-      const id = toast({
-        render: () => <Toast title={'Processing transaction...'} id={id} />,
-      })
       await wrapEth(parseUnits(amount, 18))
-      setEOAWrapModalOpened(false)
-      const toastId = toast({
-        render: () => <Toast title={'ETH wrapped successfully.'} id={toastId} />,
-      })
+    },
+  })
+
+  const unwrapMutation = useMutation({
+    mutationFn: async (amount: string) => {
+      await unwrapEth(parseUnits(amount, 18))
     },
   })
 
@@ -414,11 +410,9 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         setToken,
         token,
         status,
-        eoaWrapModalOpened,
-        setEOAWrapModalOpened,
         ethBalance,
-        wrapETHManual,
-        isWrapPending,
+        wrapMutation,
+        unwrapMutation,
       }}
     >
       {children}
