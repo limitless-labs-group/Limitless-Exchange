@@ -234,15 +234,19 @@ export const MarketPriceChart = ({
 
   const chartData = useMemo(() => {
     const _prices: number[][] = prices ?? []
+    console.log('_prices', _prices)
     return resolved
       ? [
           ...(_prices ?? []),
           !!_prices[_prices.length - 1]
             ? [_prices[_prices.length - 1][0] + ONE_HOUR, winningIndex === 0 ? 100 : 0]
             : [Date.now(), 100],
-        ]
+        ].filter((priceData) => {
+          const [, value] = priceData
+          return !!value
+        })
       : _prices
-  }, [prices])
+  }, [prices, winningIndex, resolved])
 
   return (
     <Paper my='24px' p='8px'>

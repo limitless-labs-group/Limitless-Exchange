@@ -1,5 +1,7 @@
 import { modalAnatomy as parts } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
+import { h1Regular } from '@/styles/fonts/fonts.styles'
+import { isMobile } from 'react-device-detect'
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(parts.keys)
 
@@ -36,6 +38,11 @@ const commonModal = definePartsStyle({
     borderRadius: '2px',
     bg: 'grey.100',
     p: '16px',
+  },
+  header: {
+    alignItems: 'center',
+    ...h1Regular,
+    fontSize: isMobile ? '32px' : '16px',
   },
   closeButton: {
     outline: 'none',

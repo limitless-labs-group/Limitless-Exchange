@@ -15,7 +15,6 @@ import { isMobile } from 'react-device-detect'
 import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { setTimeout } from '@wry/context'
 import usePageName from '@/hooks/use-page-name'
-import BigNumber from 'bignumber.js'
 
 interface WalletPageProps {
   onClose: () => void
