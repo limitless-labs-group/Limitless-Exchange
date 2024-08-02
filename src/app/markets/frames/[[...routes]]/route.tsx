@@ -4,7 +4,7 @@ import { Button, Frog, TextInput } from 'frog'
 import { devtools } from 'frog/dev'
 import { handle } from 'frog/next'
 import { serveStatic } from 'frog/serve-static'
-import { Address, erc20Abi, formatUnits, getAddress, parseUnits } from 'viem'
+import { Address, erc20Abi, getAddress, parseUnits } from 'viem'
 import { getQuote, getViemClient } from '@/app/markets/frames/[[...routes]]/queries'
 import { defaultChain } from '@/constants'
 import { Market, Token } from '@/types'
@@ -12,7 +12,7 @@ import { fixedProductMarketMakerABI } from '@/contracts'
 import { TradeQuotes } from '@/services'
 import { readFile } from 'fs/promises'
 import path from 'path'
-import { NumberUtil } from '@/utils'
+import { formatFixedEther } from '@/app/markets/frames/utils'
 
 const app = new Frog<{
   State: {
@@ -160,8 +160,9 @@ app
                     fontSize: '40px',
                   }}
                 >
-                  {NumberUtil.formatThousands(
-                    formatUnits(BigInt(market.liquidity || '1'), collateralToken.decimals),
+                  {formatFixedEther(
+                    BigInt(market.liquidity || '1'),
+                    collateralToken.decimals || 18,
                     6
                   )}{' '}
                   {collateralToken.symbol}
