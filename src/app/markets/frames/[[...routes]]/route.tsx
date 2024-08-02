@@ -12,6 +12,7 @@ import { fixedProductMarketMakerABI } from '@/contracts'
 import { TradeQuotes } from '@/services'
 import { readFile } from 'fs/promises'
 import path from 'path'
+import { formatFixedEther } from '@/app/markets/frames/utils'
 
 const app = new Frog<{
   State: {
@@ -159,7 +160,12 @@ app
                     fontSize: '40px',
                   }}
                 >
-                  {market.liquidityFormatted} {collateralToken.symbol}
+                  {formatFixedEther(
+                    BigInt(market.liquidity || '1'),
+                    collateralToken.decimals || 18,
+                    6
+                  )}{' '}
+                  {collateralToken.symbol}
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
