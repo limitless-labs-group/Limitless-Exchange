@@ -60,6 +60,7 @@ interface IBalanceService {
 
   ethBalance?: string
   wrapMutation: UseMutationResult<void, Error, string, unknown>
+  unwrapMutation: UseMutationResult<void, Error, string, unknown>
 }
 
 const BalanceService = createContext({} as IBalanceService)
@@ -265,6 +266,12 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
+  const unwrapMutation = useMutation({
+    mutationFn: async (amount: string) => {
+      await unwrapEth(parseUnits(amount, 18))
+    },
+  })
+
   /**
    * Mint mocked erc20
    */
@@ -405,6 +412,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         status,
         ethBalance,
         wrapMutation,
+        unwrapMutation,
       }}
     >
       {children}
