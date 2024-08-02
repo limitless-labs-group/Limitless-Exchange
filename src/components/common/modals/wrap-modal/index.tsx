@@ -104,10 +104,13 @@ export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
           placeholder='0'
           type='number'
         />
-        <InputRightElement h='16px' top={isMobile ? '8px' : '4px'} right={isMobile ? '8px' : '4px'}>
-          <Text {...paragraphMedium} color='grey.100'>
-            ETH
-          </Text>
+        <InputRightElement
+          h='16px'
+          top={isMobile ? '32px' : '28px'}
+          right={isMobile ? '12px' : '8px'}
+          justifyContent='flex-end'
+        >
+          <Text {...paragraphMedium}>ETH</Text>
         </InputRightElement>
       </InputGroup>
       <InputGroup display='block' mt={isMobile ? '32px' : '24px'}>
@@ -121,10 +124,13 @@ export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
           placeholder='0'
           type='number'
         />
-        <InputRightElement h='16px' top={isMobile ? '8px' : '4px'} right={isMobile ? '8px' : '4px'}>
-          <Text {...paragraphMedium} color='grey.100'>
-            WETH
-          </Text>
+        <InputRightElement
+          h='16px'
+          top={isMobile ? '32px' : '28px'}
+          right={isMobile ? '12px' : '8px'}
+          justifyContent='flex-end'
+        >
+          <Text {...paragraphMedium}>WETH</Text>
         </InputRightElement>
       </InputGroup>
       <HStack
