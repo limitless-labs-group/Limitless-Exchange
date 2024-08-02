@@ -7,6 +7,7 @@ import { menuTheme } from '@/styles/menu'
 import { commonButtonProps } from '@/styles/button'
 import { checkboxTheme } from '@/styles/checkbox'
 import { isMobile } from 'react-device-detect'
+import { linkTheme } from '@/styles/link'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
@@ -232,6 +233,7 @@ export const chakraTheme = ChakraTheme({
     Input: inputTheme,
     Menu: menuTheme,
     Checkbox: checkboxTheme,
+    Link: linkTheme,
   },
   breakpoints: {
     sm: '320px',

@@ -223,6 +223,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                   text={(market?.proxyTitle ?? market?.title) || ''}
                   {...(isMobile ? { ...h1Regular } : {})}
                   fontSize='32px'
+                  userSelect='text'
                 />
               </Box>
               <HStack gap={isMobile ? '4px' : '16px'} mt='16px' mb='24px'>
@@ -260,7 +261,9 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                 <DescriptionIcon width='16px' height='16px' />
                 <Text {...paragraphBold}>Description</Text>
               </HStack>
-              <Text {...paragraphRegular}>{market?.description}</Text>
+              <Text {...paragraphRegular} userSelect='text'>
+                {market?.description}
+              </Text>
             </Box>
             {!isMobile && marketActionForm}
           </HStack>
