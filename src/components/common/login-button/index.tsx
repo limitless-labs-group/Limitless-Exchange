@@ -1,9 +1,11 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { Button } from '@chakra-ui/react'
-import { SignInEvent, useAmplitude } from '@/services'
+import { ClickEvent, SignInEvent, useAmplitude } from '@/services'
+import { web3Auth } from '@/providers'
+import { ADAPTER_EVENTS } from '@web3auth/base'
 
 export const LoginButton = () => {
-  const { trackSignIn } = useAmplitude()
+  const { trackSignIn, trackClicked } = useAmplitude()
 
   return (
     <ConnectButton.Custom>
@@ -46,6 +48,10 @@ export const LoginButton = () => {
                     onClick={() => {
                       openConnectModal()
                       trackSignIn(SignInEvent.SignIn)
+                      web3Auth.once(ADAPTER_EVENTS.CONNECTED, async () => {
+                        const { typeOfLogin } = await web3Auth.getUserInfo()
+                        trackClicked(ClickEvent.SignW3AIn, { option: typeOfLogin })
+                      })
                     }}
                     variant='contained'
                     w='full'

@@ -1,6 +1,7 @@
 import { menuAnatomy } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
 import { commonButtonProps } from '@/styles/button'
+import { isMobile } from 'react-device-detect'
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(menuAnatomy.keys)
 
@@ -31,7 +32,8 @@ const baseStyle = definePartsStyle({
   item: {
     bg: 'unset',
     borderRadius: '2px',
-    p: '4px',
+    px: '4px',
+    py: isMobile ? '6px' : '2px',
     _hover: {
       bg: 'grey.400 !important',
     },

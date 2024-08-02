@@ -18,7 +18,6 @@ import { useAccount as useWagmiAccount } from 'wagmi'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
-  ProfileBurgerMenuClickedMetadata,
   useAccount,
   useAmplitude,
   useBalanceService,
@@ -42,6 +41,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { useThemeProvider } from '@/providers'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
+import SwapIcon from '@/resources/icons/swap-icon.svg'
+import WrapModal from '@/components/common/modals/wrap-modal'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -58,24 +59,34 @@ export default function MobileHeader() {
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
   const { isOpen: isWalletModalOpen, onToggle: onToggleWalletModal } = useDisclosure()
+  const {
+    isOpen: isWrapModalOpen,
+    onOpen: onOpenWrapModal,
+    onClose: onCloseWrapModal,
+  } = useDisclosure()
 
   const handleNavigateToPortfolioPage = () => {
     onToggleUserMenu()
     router.push('/portfolio')
   }
 
+  const handleOpenWrapModal = () => {
+    onToggleUserMenu()
+    onOpenWrapModal()
+  }
+
   return (
     <>
       <Box p='16px' pb={0}>
         <HStack justifyContent='space-between' alignItems='center'>
-          <Button variant='transparent' onClick={() => router.push('/')}>
+          <Box onClick={() => router.push('/')}>
             <Image
               src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
               height={32}
               width={156}
               alt='calendar'
             />
-          </Button>
+          </Box>
           <HStack gap='4px'>
             {isConnected ? (
               <>
@@ -229,7 +240,7 @@ export default function MobileHeader() {
                             </HStack>
                           </HStack>
                         </Button>
-                        {client !== 'eoa' && (
+                        {client !== 'eoa' ? (
                           <Box
                             w='full'
                             mt='8px'
@@ -262,6 +273,26 @@ export default function MobileHeader() {
                               </HStack>
                             </HStack>
                           </Box>
+                        ) : (
+                          <Button
+                            variant='transparent'
+                            px={0}
+                            w='full'
+                            onClick={handleOpenWrapModal}
+                          >
+                            <HStack justifyContent='space-between' w='full'>
+                              <HStack color='grey.500' gap='4px'>
+                                <SwapIcon width={16} height={16} />
+                                <Text fontWeight={500} fontSize='16px'>
+                                  Wrap ETH
+                                </Text>
+                              </HStack>
+
+                              <Box color='grey.800'>
+                                <ArrowRightIcon width={16} height={16} />
+                              </Box>
+                            </HStack>
+                          </Button>
                         )}
                       </VStack>
 
@@ -359,6 +390,7 @@ export default function MobileHeader() {
         </HStack>
       </Box>
       {isMobile && (pathname === '/' || pathname.includes('topics')) && <TokenFilterMobile />}
+      <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />
     </>
   )
 }

@@ -44,10 +44,11 @@ import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import '@rainbow-me/rainbowkit/styles.css'
 import useDisconnectAccount from '@/hooks/use-disconnect'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import TokenFilter from '@/components/common/token-filter'
 import { useThemeProvider } from '@/providers'
 import usePageName from '@/hooks/use-page-name'
 import WalletPage from '@/components/layouts/wallet-page'
+import SwapIcon from '@/resources/icons/swap-icon.svg'
+import WrapModal from '@/components/common/modals/wrap-modal'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
@@ -67,11 +68,20 @@ export default function Sidebar() {
 
   const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
   const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
+  const {
+    isOpen: isWrapModalOpen,
+    onOpen: onOpenWrapModal,
+    onClose: onCloseWrapModal,
+  } = useDisclosure()
 
   const handleOpenWalletPage = () => {
     if (client !== 'eoa') {
       onToggleWalletPage()
     }
+  }
+
+  const handleOpenWrapModal = () => {
+    onOpenWrapModal()
   }
 
   return (
@@ -106,7 +116,7 @@ export default function Sidebar() {
         </Button>
         {isConnected && (
           <VStack my='16px' w='full' gap='8px'>
-            {client !== 'eoa' && (
+            {client !== 'eoa' ? (
               <Button
                 variant='transparent'
                 onClick={() => {
@@ -125,6 +135,22 @@ export default function Sidebar() {
                   <WalletIcon width={16} height={16} />
                   <Text fontWeight={500} fontSize='14px'>
                     {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+                  </Text>
+                </HStack>
+              </Button>
+            ) : (
+              <Button
+                variant='transparent'
+                w='full'
+                onClick={() => {
+                  trackClicked(ClickEvent.WithdrawClicked)
+                  handleOpenWrapModal()
+                }}
+              >
+                <HStack w='full'>
+                  <SwapIcon width={16} height={16} />
+                  <Text fontWeight={500} fontSize='14px'>
+                    Wrap ETH
                   </Text>
                 </HStack>
               </Button>
@@ -202,6 +228,9 @@ export default function Sidebar() {
                     onClick={() => {
                       toggleColorMode()
                       setLightTheme()
+                      trackClicked(ClickEvent.UIModeClicked, {
+                        mode: 'Light On',
+                      })
                     }}
                   >
                     <SunIcon width={16} height={16} />
@@ -212,6 +241,9 @@ export default function Sidebar() {
                     onClick={() => {
                       toggleColorMode()
                       setDarkTheme()
+                      trackClicked(ClickEvent.UIModeClicked, {
+                        mode: 'Dark On',
+                      })
                     }}
                   >
                     <MoonIcon width={16} height={16} />
@@ -221,12 +253,9 @@ export default function Sidebar() {
                   variant='grey'
                   w='full'
                   onClick={() => {
-                    trackClicked<ProfileBurgerMenuClickedMetadata>(
-                      ClickEvent.ProfileBurgerMenuClicked,
-                      {
-                        option: 'Sign Out',
-                      }
-                    )
+                    trackClicked(ClickEvent.SignOutClicked, {
+                      option: 'Sign Out',
+                    })
                     disconnectFromPlatform()
                     onToggleAuthMenu()
                   }}
@@ -261,7 +290,6 @@ export default function Sidebar() {
           </Box>
         )}
         <Divider />
-        <TokenFilter />
         {!isMobile && <CategoryFilter />}
       </VStack>
       {isOpenWalletPage && (
@@ -296,6 +324,7 @@ export default function Sidebar() {
       >
         <WalletPage onClose={onToggleWalletPage} />
       </Slide>
+      {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}
     </>
   )
 }

@@ -24,6 +24,7 @@ import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ClickEvent,
+  TradeClickedMetadata,
   TradeQuotes,
   useAmplitude,
   useBalanceService,
@@ -152,11 +153,11 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
         return
       }
       if (value == 100) {
-        setDisplayAmount(NumberUtil.toFixed(balance, token?.symbol === 'USDC' ? 1 : 6))
+        setDisplayAmount(NumberUtil.toFixed(balance, 6))
         return
       }
       const amountByPercent = (Number(balance) * value) / 100
-      setDisplayAmount(NumberUtil.toFixed(amountByPercent, token?.symbol === 'USDC' ? 1 : 6))
+      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
     },
     [sliderValue, balance, isZeroBalance]
   )
@@ -181,10 +182,8 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
   }, [quoteNo, market?.tokenTicker, market?.prices, token?.symbol])
 
   const handleTradeClicked = async () => {
-    trackClicked(ClickEvent.TradeClicked, {
-      outcome: outcomeChoice,
+    trackClicked(ClickEvent.SellTradeClicked, {
       address: market.address[defaultChain.id],
-      walletType: client,
     })
     const index = outcomeChoice === 'yes' ? 0 : 1
     setOutcomeIndex(index)
@@ -234,6 +233,11 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
                 onYesOpen()
                 return
               }
+              trackClicked<TradeClickedMetadata>(ClickEvent.SellClicked, {
+                outcome: 'Yes',
+                marketAddress: market.address[defaultChain.id],
+                walletType: client,
+              })
               setOutcomeChoice('yes')
               setCollateralAmount('')
             }}
@@ -331,6 +335,11 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
                 onNoOpen()
                 return
               }
+              trackClicked<TradeClickedMetadata>(ClickEvent.SellClicked, {
+                outcome: 'No',
+                marketAddress: market.address[defaultChain.id],
+                walletType: client,
+              })
               setOutcomeChoice('no')
               setCollateralAmount('')
             }}
@@ -422,8 +431,7 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
               Balance
             </Text>
             <Text {...paragraphMedium} color='white'>
-              {NumberUtil.formatThousands(balance, token?.symbol === 'USDC' ? 1 : 6)}{' '}
-              {token?.symbol}
+              {NumberUtil.formatThousands(balance, 6)} {token?.symbol}
             </Text>
           </Flex>
           <Slider

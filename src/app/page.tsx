@@ -3,9 +3,9 @@
 import { MainLayout, MarketCard, MarketCardMobile } from '@/components'
 import { defaultChain } from '@/constants'
 import { useIsMobile } from '@/hooks'
-import { OpenEvent, useAmplitude, useCategories } from '@/services'
+import { OpenEvent, PageOpenedMetadata, useAmplitude, useCategories } from '@/services'
 import { Divider, VStack, Text, Box, Spinner, HStack } from '@chakra-ui/react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import SortFilter from '@/components/common/sort-filter'
 import { Market, Sort } from '@/types'
@@ -26,13 +26,16 @@ const MainPage = () => {
   const { trackOpened } = useAmplitude()
   const category = searchParams.get('category')
 
-  const categoryEntity = useMemo(() => {
-    if (category) {
-      trackOpened(OpenEvent.PageOpened, {
-        page: 'Explore Markets',
-        category: category,
-      })
+  useEffect(() => {
+    const analyticData: PageOpenedMetadata = {
+      page: 'Explore Markets',
+      ...(category && { category }),
     }
+
+    trackOpened(OpenEvent.PageOpened, analyticData)
+  }, [])
+
+  const categoryEntity = useMemo(() => {
     return (
       categories?.find(
         (categoryEntity) => categoryEntity.name.toLowerCase() === category?.toLowerCase()

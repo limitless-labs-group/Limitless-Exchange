@@ -1,5 +1,5 @@
 import { Box, Button, HStack, Icon, Slide, Text, useDisclosure } from '@chakra-ui/react'
-import { useHistory, useTradingService } from '@/services'
+import { ClickEvent, useAmplitude, useHistory, useTradingService } from '@/services'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
 import { defaultChain } from '@/constants'
@@ -9,6 +9,7 @@ import { NumberUtil } from '@/utils'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import '@/app/style.css'
+import { isMobile } from 'react-device-detect'
 
 interface MobileTradeButtonProps {
   market: Market | null
@@ -16,6 +17,7 @@ interface MobileTradeButtonProps {
 
 export function MobileTradeButton({ market }: MobileTradeButtonProps) {
   const { redeem: claim, status } = useTradingService()
+  const { trackClicked } = useAmplitude()
   const { positions } = useHistory()
   const router = useRouter()
   const positionToClaim = useMemo(
@@ -156,6 +158,10 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
             w='full'
             mt='40px'
             onClick={async () => {
+              trackClicked(ClickEvent.ClaimRewardOnMarketPageClicked, {
+                platform: 'mobile',
+                marketAddress: market?.address[defaultChain.id],
+              })
               toggleClaimMenu()
               if (positionToClaim) {
                 await claim(positionToClaim?.outcomeIndex)
