@@ -1,21 +1,25 @@
 import { Box, Button, HStack, Icon, Slide, Text, useDisclosure } from '@chakra-ui/react'
 import { ClickEvent, useAmplitude, useHistory, useTradingService } from '@/services'
 import { useRouter } from 'next/navigation'
-import React, { useMemo } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { defaultChain } from '@/constants'
 import { Market } from '@/types'
 import WinIcon from '@/resources/icons/win-icon.svg'
 import { NumberUtil } from '@/utils'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import GrabberIcon from '@/resources/icons/grabber-icon.svg'
 import '@/app/style.css'
-import { isMobile } from 'react-device-detect'
 
 interface MobileTradeButtonProps {
   market: Market | null
 }
 
 export function MobileTradeButton({ market }: MobileTradeButtonProps) {
+  const [startY, setStartY] = useState(null)
+  const [currentY, setCurrentY] = useState(null)
+  const [translateY, setTranslateY] = useState(0)
+  const modalContentRef = useRef(null)
   const { redeem: claim, status } = useTradingService()
   const { trackClicked } = useAmplitude()
   const { positions } = useHistory()
@@ -89,6 +93,30 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
     return undefined
   }
 
+  // @ts-ignore
+  const handleTouchStart = (e) => {
+    setStartY(e.touches[0].clientY)
+  }
+
+  // @ts-ignore
+  const handleTouchMove = (e) => {
+    const moveY = e.touches[0].clientY
+    setCurrentY(moveY)
+    if (startY !== null) {
+      const diffY = moveY - startY
+      setTranslateY(diffY > 0 ? diffY : 0)
+    }
+  }
+
+  const handleTouchEnd = () => {
+    if (startY !== null && currentY !== null && currentY - startY > 50) {
+      toggleClaimMenu()
+    }
+    setStartY(null)
+    setCurrentY(null)
+    setTranslateY(0)
+  }
+
   return (
     <>
       <Button
@@ -130,17 +158,32 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
           alignItems: 'flex-end',
           transition: '0.1s',
         }}
-        onClick={toggleClaimMenu}
+        onClick={!translateY ? toggleClaimMenu : undefined}
       >
         <Box
           onClick={(e) => e.stopPropagation()}
           bg='green.500'
           p='16px'
-          pt='24px'
+          pt={0}
           w='full'
           color='white'
+          style={{
+            transition: '0.1s',
+            transform: `translateY(${translateY}px)`,
+          }}
+          ref={modalContentRef}
         >
-          <Text fontWeight={500} mt='16px'>
+          <Box
+            py='8px'
+            display='flex'
+            justifyContent='center'
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            <GrabberIcon />
+          </Box>
+          <Text fontWeight={500} mt='8px'>
             Market is closed
           </Text>
           <HStack mt='12px' gap='4px'>

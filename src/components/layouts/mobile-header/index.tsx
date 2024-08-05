@@ -43,6 +43,8 @@ import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 import SwapIcon from '@/resources/icons/swap-icon.svg'
 import WrapModal from '@/components/common/modals/wrap-modal'
+import { Modal } from '@/components/common/modals/modal'
+import { WithdrawModal } from '@/components/layouts/wallet-page/components/withdraw-modal'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -63,6 +65,11 @@ export default function MobileHeader() {
     isOpen: isWrapModalOpen,
     onOpen: onOpenWrapModal,
     onClose: onCloseWrapModal,
+  } = useDisclosure()
+  const {
+    isOpen: isWithdrawOpen,
+    onOpen: onOpenWithdraw,
+    onClose: onCloseWithdraw,
   } = useDisclosure()
 
   const handleNavigateToPortfolioPage = () => {
@@ -359,40 +366,14 @@ export default function MobileHeader() {
               <LoginButton />
             )}
           </HStack>
-          {isWalletModalOpen && (
-            <Box
-              position='fixed'
-              top={0}
-              left={0}
-              bottom={0}
-              w='full'
-              zIndex={100}
-              bg='rgba(0, 0, 0, 0.3)'
-              mt='20px'
-              animation='fadeIn 0.5s'
-            ></Box>
-          )}
-          <Slide
-            direction='bottom'
-            in={isWalletModalOpen}
-            style={{
-              zIndex: 150,
-              paddingTop: isWalletModalOpen ? '60px' : 0,
-              top: isWalletModalOpen ? 0 : '60px',
-              height: '100%',
-              transition: '0.1s',
-              animation: 'fadeIn 0.5s',
-            }}
-            onClick={() => {
-              onToggleWalletModal()
-            }}
-          >
-            <WalletPage onClose={onToggleWalletModal} />
-          </Slide>
         </HStack>
       </Box>
       {isMobile && (pathname === '/' || pathname.includes('topics')) && <TokenFilterMobile />}
       <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />
+      <Modal isOpen={isWalletModalOpen} onClose={onToggleWalletModal}>
+        <WalletPage onClose={onToggleWalletModal} onOpenWithdraw={onOpenWithdraw} />
+      </Modal>
+      {isWithdrawOpen && <WithdrawModal isOpen={isWithdrawOpen} onClose={onCloseWithdraw} />}
     </>
   )
 }
