@@ -7,24 +7,26 @@ const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpe
 
 const blueModal = definePartsStyle({
   dialogContainer: {
-    bg: 'blue.500',
     p: '0',
     overflowX: 'hidden',
     overflowY: 'scroll',
     webkitOverflowScrolling: 'touch',
+    alignItems: 'baseline',
   },
   dialog: {
     bg: 'blue.500',
     boxShadow: 'none',
+    borderRadius: isMobile ? 0 : '2px',
+    willChange: 'unset !important',
   },
   body: {
     p: 0,
-    mt: '16px',
+    mt: '32px',
   },
   header: {
-    color: 'white',
-    p: '0px 16px',
-    mt: '32px',
+    mt: '28px',
+    px: '16px',
+    py: 0,
   },
   closeButton: {
     color: 'white',
@@ -35,12 +37,18 @@ const blueModal = definePartsStyle({
 
 const commonModal = definePartsStyle({
   dialog: {
-    borderRadius: '2px',
+    borderRadius: isMobile ? 0 : '2px',
     bg: 'grey.100',
-    p: '16px',
+    p: ' 0 16px 16px',
+    willChange: 'unset !important',
+  },
+  body: {
+    willChange: 'unset',
   },
   header: {
+    mt: '28px',
     alignItems: 'center',
+    p: 0,
     ...h1Regular,
     fontSize: isMobile ? '32px' : '16px',
   },

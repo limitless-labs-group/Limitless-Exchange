@@ -1,4 +1,4 @@
-import { Box, Button, Divider, HStack, Text, useDisclosure, VStack } from '@chakra-ui/react'
+import { Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import Paper from '@/components/common/paper'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import { ClickEvent, useAmplitude, useBalanceService, useLimitlessApi } from '@/services'
@@ -10,28 +10,23 @@ import React, { useEffect, useState } from 'react'
 import BaseIcon from '@/resources/crypto/base.svg'
 import Image from 'next/image'
 import { usePriceOracle } from '@/providers'
-import { WithdrawModal } from '@/components/layouts/wallet-page/components/withdraw-modal'
 import { isMobile } from 'react-device-detect'
-import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { h1Regular, headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { setTimeout } from '@wry/context'
 import usePageName from '@/hooks/use-page-name'
 
 interface WalletPageProps {
   onClose: () => void
+  onOpenWithdraw: () => void
 }
 
-export default function WalletPage({ onClose }: WalletPageProps) {
+export default function WalletPage({ onClose, onOpenWithdraw }: WalletPageProps) {
   const [copied, setCopied] = useState(false)
   const { overallBalanceUsd, balanceOfSmartWallet } = useBalanceService()
   const { supportedTokens } = useLimitlessApi()
   const address = useWalletAddress()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
   const pageName = usePageName()
-  const {
-    isOpen: isWithdrawOpen,
-    onOpen: onOpenWithdraw,
-    onClose: onCloseWithdraw,
-  } = useDisclosure()
 
   const { trackClicked } = useAmplitude()
 
@@ -66,12 +61,12 @@ export default function WalletPage({ onClose }: WalletPageProps) {
     <Box
       bg='grey.100'
       w={isMobile ? 'full' : '328px'}
-      p='8px'
+      p={isMobile ? 0 : '8px'}
       h='full'
       onClick={(e) => e.stopPropagation()}
       overflow='auto'
     >
-      <Text fontSize='32px'>Wallet</Text>
+      <Text {...h1Regular}>Wallet</Text>
       <Paper bg='blue.500' mt='24px'>
         <HStack w='full' justifyContent='space-between'>
           <HStack gap='4px' color='white'>
@@ -173,7 +168,6 @@ export default function WalletPage({ onClose }: WalletPageProps) {
           </Paper>
         ))}
       </VStack>
-      {isWithdrawOpen && <WithdrawModal isOpen={isWithdrawOpen} onClose={onCloseWithdraw} />}
     </Box>
   )
 }

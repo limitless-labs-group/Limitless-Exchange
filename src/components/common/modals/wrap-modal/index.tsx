@@ -93,13 +93,7 @@ export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
   }, [mutationToCall.status])
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title='Wrap ETH'
-      h={isMobile ? 'full' : 'unset'}
-      mt={isMobile ? '40px' : 'auto'}
-    >
+    <Modal isOpen={isOpen} onClose={onClose} title='Wrap ETH'>
       <HStack justifyContent='space-between' mt={isMobile ? '32px' : '24px'}>
         <Text {...paragraphMedium}>Balance</Text>
         <Text {...paragraphMedium}>
