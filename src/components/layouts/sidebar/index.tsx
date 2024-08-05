@@ -208,12 +208,12 @@ export default function Sidebar() {
                       alignItems='center'
                       justifyContent='center'
                     >
-                      <Text {...paragraphMedium}>
+                      <Text {...paragraphMedium} className={'amp-mask'}>
                         {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
                       </Text>
                     </Flex>
                   )}
-                  <Text {...paragraphMedium}>
+                  <Text {...paragraphMedium} className={'amp-mask'}>
                     {userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address)}
                   </Text>
                 </HStack>
