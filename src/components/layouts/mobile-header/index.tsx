@@ -98,6 +98,7 @@ export default function MobileHeader() {
                       borderRadius={'2px'}
                       h={'32px'}
                       w={'32px'}
+                      className='amp-block'
                     />
                   ) : (
                     <Flex
@@ -149,6 +150,7 @@ export default function MobileHeader() {
                             borderRadius={'2px'}
                             h={'24px'}
                             w={'24px'}
+                            className='amp-block'
                           />
                         ) : (
                           <Flex

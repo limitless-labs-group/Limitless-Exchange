@@ -171,6 +171,7 @@ export default function Sidebar() {
                       h={'16px'}
                       w={'16px'}
                       objectFit='cover'
+                      className='amp-block'
                     />
                   ) : (
                     <Flex
