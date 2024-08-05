@@ -1,7 +1,7 @@
 import { defaultChain, newSubgraphURI } from '@/constants'
-import { useEtherspot } from '@/services/Etherspot'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 export type AccountMarketResponse = {
   account_id: string
@@ -19,11 +19,11 @@ export type AccountMarketResponse = {
 }
 
 export function useUsersMarkets() {
-  const { smartWalletAddress } = useEtherspot()
+  const address = useWalletAddress()
   return useQuery<AccountMarketResponse[]>({
-    queryKey: ['createdMarkets', smartWalletAddress],
+    queryKey: ['createdMarkets', address],
     queryFn: async () => {
-      if (!smartWalletAddress) {
+      if (!address) {
         return []
       }
       const queryName = 'GetAccountDetails'
@@ -35,7 +35,7 @@ export function useUsersMarkets() {
             AccountMarket(
               where: {
                 account_id: { 
-                  _ilike: "${smartWalletAddress}" 
+                  _ilike: "${address}" 
                 }
               }
               order_by: { collateralsLocked: desc }
@@ -62,6 +62,6 @@ export function useUsersMarkets() {
       })
       return response.data.data['AccountMarket']
     },
-    enabled: !!smartWalletAddress,
+    enabled: !!address,
   })
 }

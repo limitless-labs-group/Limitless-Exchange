@@ -21,6 +21,7 @@ export const MainLayout = ({ children, isLoading, ...props }: IMainLayout) => {
       alignItems={'center'}
       justifyContent={'space-between'}
       gap={{ sm: 6, md: 10 }}
+      bg='grey.100'
       {...props}
     >
       <HeaderMarquee />
@@ -33,7 +34,7 @@ export const MainLayout = ({ children, isLoading, ...props }: IMainLayout) => {
               <Spinner />
             </Flex>
           ) : (
-            <Box p={'16px'} w='full'>
+            <Box ml={isMobile ? 0 : '200px'} p={'16px'} w='full'>
               {children}
             </Box>
           )}

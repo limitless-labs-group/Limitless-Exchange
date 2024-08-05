@@ -23,17 +23,17 @@ import {
   Textarea,
   VStack,
 } from '@chakra-ui/react'
-import { borderRadius, colors } from '@/styles'
-import { CgInfo } from 'react-icons/cg'
 import { SingleDatepicker } from 'chakra-dayzed-datepicker'
 import React, { MutableRefObject, useRef, useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 import axios from 'axios'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks'
-import { useLimitlessApi } from '@/services'
+import { useCategories, useLimitlessApi } from '@/services'
 import { Toast } from '@/components/common/toast'
 import { Input } from '@/components/common/input'
+import { Category } from '@/types'
+import { OgImageGenerator } from '@/app/create/components'
 
 interface FormFieldProps {
   label: string
@@ -86,6 +86,11 @@ const tokenLimits: TokenLimits = {
     max: 3000,
     step: 25,
   },
+  GHST: {
+    min: 150,
+    max: 3000,
+    step: 10,
+  },
   BETS: {
     min: 835000,
     max: 8350000,
@@ -100,11 +105,6 @@ interface TagOption {
 }
 
 interface Creator {
-  id: string
-  name: string
-}
-
-interface Category {
   id: string
   name: string
 }
@@ -191,12 +191,10 @@ const CreateOwnMarketPage = () => {
     },
   })
 
-  const { data: categories } = useQuery({
-    queryKey: ['categories'],
-    queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/categories`)
-      return response.data as Category[]
-    },
+  const { data: categories } = useCategories()
+  const { mutateAsync: generateOgImage, isPending: isGeneratingOgImage } = useMutation({
+    mutationKey: ['generate-og-image'],
+    mutationFn: async () => new Promise((resolve) => setTimeout(resolve, 1_000)),
   })
 
   const handleTagCreation = async (tagToCreate: string) => {
@@ -216,11 +214,11 @@ const CreateOwnMarketPage = () => {
 
   const createMarket = async () => {
     if (!title || !description || !creatorId || !marketLogo || !ogLogo || !tag) {
-      toast({
+      const id = toast({
         render: () => (
           <Toast
-            bg={'warn'}
             title={'Title, Description, Creator, Market Logo, Og Logo, Tags are required!'}
+            id={id}
           />
         ),
       })
@@ -239,9 +237,9 @@ const CreateOwnMarketPage = () => {
     formData?.set('ogFile', ogLogo)
     formData?.set('tagIds', tag.map((tag) => tag.id).join(','))
 
-    toast({
+    const id = toast({
       render: () => (
-        <Toast title={'Request for market creation has been registered successfully.'} />
+        <Toast title={'Request for market creation has been registered successfully.'} id={id} />
       ),
     })
 
@@ -266,12 +264,12 @@ const CreateOwnMarketPage = () => {
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
-          toast({
-            render: () => <Toast bg={'red'} title={`Error: Payload Too Large, max 1MB per file`} />,
+          const id = toast({
+            render: () => <Toast title={`Error: Payload Too Large, max 1MB per file`} id={id} />,
           })
         } else {
-          toast({
-            render: () => <Toast bg={'red'} title={`Error: ${res.message}`} />,
+          const id = toast({
+            render: () => <Toast title={`Error: ${res.message}`} id={id} />,
           })
         }
       })
@@ -286,11 +284,34 @@ const CreateOwnMarketPage = () => {
         <VStack w='468px' spacing={4}>
           <Text>Create Market</Text>
           <FormControl>
+            <FormField label='OG Preview'>
+              <HStack>
+                <OgImageGenerator
+                  title={title}
+                  category={
+                    categories?.find((category) => category.id === +categoryId)?.name ?? 'Unknown'
+                  }
+                  onBlobGenerated={(blob) => {
+                    console.log('Blob generated', blob)
+                    const _ogLogo = new File([blob], 'og.png', {
+                      type: blob.type,
+                      lastModified: Date.now(),
+                    })
+                    console.log('Blob transformed to File', _ogLogo)
+
+                    setOgLogo(_ogLogo)
+                  }}
+                  generateBlob={isGeneratingOgImage}
+                />
+              </HStack>
+            </FormField>
+
             <FormField label='Title'>
               <Input
                 placeholder='Bitcoin ATH in May 2024?'
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={70}
+                onBlur={() => generateOgImage()}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {title?.length}/70 characters
@@ -325,6 +346,7 @@ const CreateOwnMarketPage = () => {
                 overflow='hidden'
                 maxLength={320}
                 onChange={(e) => setDescription(e.target.value)}
+                onBlur={() => generateOgImage()}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {description?.length}/320 characters
@@ -490,7 +512,7 @@ const CreateOwnMarketPage = () => {
               </HStack>
             </FormField>
 
-            <FormField label='OG'>
+            {/* <FormField label='OG'>
               <HStack>
                 <input
                   type='file'
@@ -506,7 +528,7 @@ const CreateOwnMarketPage = () => {
                 </Button>
                 <Text>{ogLogo?.name ?? 'No file chosen.'}</Text>
               </HStack>
-            </FormField>
+            </FormField> */}
 
             <ButtonGroup spacing='6' mt={5}>
               <Button variant='outline' width='222px' disabled>

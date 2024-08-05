@@ -1,11 +1,13 @@
-export const lightThemeColors = {
+import { ColorScheme } from '@/types'
+
+export const lightThemeColors: ColorScheme = {
   white: '#FFFFFF',
   black: '#000000',
   grey: {
     50: '#FFFFFF',
     100: '#F3F3F3',
     200: '#E7E7E7',
-    300: '#DCDCDC',
+    300: '#D4D4D4',
     400: '#B7B7B7',
     500: '#848484',
     600: '#696969',
@@ -30,7 +32,9 @@ export const lightThemeColors = {
     300: '#5E9957',
     400: '#3F8C3A',
     500: '#238020',
-    600: '#238020',
+    600: '#20761E',
+    700: '#20761E',
+    800: '#20761E',
   },
   red: {
     50: '#FFF5F0',
@@ -75,5 +79,10 @@ export const lightThemeColors = {
     600: '#440CC7',
     700: '#2C02A1',
     800: '#1D007A',
+  },
+  transparent: {
+    200: 'rgba(255, 255, 255, 0.2)',
+    300: 'rgba(255, 255, 255, 0.3)',
+    700: 'rgba(255, 255, 255, 0.7)',
   },
 }

@@ -108,7 +108,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 
       return _trades
     },
-    enabled: !!walletAddress,
+    enabled: !!walletAddress && !!supportedTokens?.length,
   })
 
   const { data: redeems, refetch: getRedeems } = useQuery({

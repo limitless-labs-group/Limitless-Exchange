@@ -9,7 +9,7 @@ import {
   QueryObserverResult,
   UseMutateAsyncFunction,
   useMutation,
-  UseMutationOptions,
+  UseMutationResult,
   useQuery,
 } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
@@ -23,15 +23,7 @@ import {
   useMemo,
   useState,
 } from 'react'
-import {
-  erc20Abi,
-  formatEther,
-  formatUnits,
-  getContract,
-  isAddress,
-  parseEther,
-  parseUnits,
-} from 'viem'
+import { erc20Abi, formatEther, formatUnits, parseEther, parseUnits } from 'viem'
 import { getBalance } from 'viem/actions'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -66,12 +58,9 @@ interface IBalanceService {
   setToken: Dispatch<SetStateAction<Token | null>>
   token: Token | null
 
-  eoaWrapModalOpened: boolean
-  setEOAWrapModalOpened: Dispatch<SetStateAction<boolean>>
-
   ethBalance?: string
-  wrapETHManual: (amount: string) => Promise<void>
-  isWrapPending: boolean
+  wrapMutation: UseMutationResult<void, Error, string, unknown>
+  unwrapMutation: UseMutationResult<void, Error, string, unknown>
 }
 
 const BalanceService = createContext({} as IBalanceService)
@@ -86,7 +75,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
-  const [eoaWrapModalOpened, setEOAWrapModalOpened] = useState(false)
 
   /**
    * Etherspot
@@ -185,12 +173,13 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
               currentBalance.decimals
             )
 
-            toast({
+            const id = toast({
               render: () => (
                 <Toast
                   title={`Balance top up: ${NumberUtil.toFixed(depositAmount, 6)} ${
                     balance.symbol
                   }`}
+                  id={id}
                 />
               ),
             })
@@ -251,8 +240,8 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
           await whitelist() // TODO: refactor the logic of whitelisting
         }
 
-        toast({
-          render: () => <Toast title={'Wrapping ETH...'} />,
+        const id = toast({
+          render: () => <Toast title={'Wrapping ETH...'} id={id} />,
         })
 
         const txHash = await etherspot.wrapEth(eth - parseEther(gasFee.toString()))
@@ -271,16 +260,15 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     refetchInterval: pathname.includes('wallet') && 10000, // polling on wallet page only
   })
 
-  const { mutateAsync: wrapETHManual, isPending: isWrapPending } = useMutation({
+  const wrapMutation = useMutation({
     mutationFn: async (amount: string) => {
-      toast({
-        render: () => <Toast title={'Processing transaction...'} />,
-      })
       await wrapEth(parseUnits(amount, 18))
-      setEOAWrapModalOpened(false)
-      toast({
-        render: () => <Toast title={'ETH wrapped successfully.'} />,
-      })
+    },
+  })
+
+  const unwrapMutation = useMutation({
+    mutationFn: async (amount: string) => {
+      await unwrapEth(parseUnits(amount, 18))
     },
   })
 
@@ -289,8 +277,8 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const { mutate: mint, isPending: isLoadingMint } = useMutation({
     mutationFn: async (params: { address: Address; newToken?: boolean }) => {
-      toast({
-        render: () => <Toast title={'Processing transaction...'} />,
+      const id = toast({
+        render: () => <Toast title={'Processing transaction...'} id={id} />,
       })
       const token = supportedTokens?.find((token) => token.address === params.address)
       await mintErc20(
@@ -299,8 +287,8 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         walletAddress || '0x',
         params.newToken
       )
-      toast({
-        render: () => <Toast title={'Confirmed. Updating balance...'} />,
+      const toastId = toast({
+        render: () => <Toast title={'Confirmed. Updating balance...'} id={toastId} />,
       })
       await refetchbalanceOfSmartWallet()
     },
@@ -336,8 +324,8 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     }) => {
       const amountBI = parseUnits(amount, token.decimals)
       if (unwrap) {
-        toast({
-          render: () => <Toast title={'Unwrapping ETH...'} />,
+        const id = toast({
+          render: () => <Toast title={'Unwrapping ETH...'} id={id} />,
         })
 
         const unwrapReceipt = await unwrapEth(amountBI)
@@ -349,8 +337,8 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
 
         await refetchbalanceOfSmartWallet()
 
-        toast({
-          render: () => <Toast title={'Sending ETH...'} />,
+        const toastId = toast({
+          render: () => <Toast title={'Sending ETH...'} id={toastId} />,
         })
 
         const transferReceipt = await transferEthers(receiver as Address, amountBI)
@@ -364,15 +352,15 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         setAmount('')
         setUnwrap(false)
 
-        toast({
-          render: () => <ToastWithdraw transactionHash={transferReceipt} />,
+        const toastWithdrawId = toast({
+          render: () => <ToastWithdraw transactionHash={transferReceipt} id={toastWithdrawId} />,
         })
 
         return
       }
 
-      toast({
-        render: () => <Toast title={'Processing transaction...'} />,
+      const id = toast({
+        render: () => <Toast title={'Processing transaction...'} id={id} />,
       })
       const transferReceipt = await transferErc20(
         token.address as Address,
@@ -387,8 +375,8 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       }
       setAmount('')
 
-      toast({
-        render: () => <ToastWithdraw transactionHash={transferReceipt} />,
+      const toastId = toast({
+        render: () => <ToastWithdraw transactionHash={transferReceipt} id={toastId} />,
       })
     },
   })
@@ -422,11 +410,9 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         setToken,
         token,
         status,
-        eoaWrapModalOpened,
-        setEOAWrapModalOpened,
         ethBalance,
-        wrapETHManual,
-        isWrapPending,
+        wrapMutation,
+        unwrapMutation,
       }}
     >
       {children}

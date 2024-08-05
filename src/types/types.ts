@@ -43,6 +43,7 @@ export type MarketResponse = {
   }
   outcomeTokens: string[]
   title: string
+  proxyTitle: string | null
   description: string
   placeholderURI: string
   imageURI: string
@@ -70,6 +71,7 @@ export type MarketResponse = {
   liquidityFormatted?: string
   prices: number[]
   category: string
+  status: MarketStatus
 }
 
 export type Market = MarketResponse & {
@@ -105,6 +107,7 @@ export enum MarketTokensIds {
   USDC = 'usd-coin',
   VITA = 'vitadao',
   BETS = 'all-street-bets',
+  GHST = 'aavegotchi',
 }
 
 export enum Sort {
@@ -115,9 +118,102 @@ export enum Sort {
   HIGHEST_VOLUME = 'High Volume',
 }
 
+export enum MarketStatus {
+  RESOLVED = 'RESOLVED',
+  FUNDED = 'FUNDED',
+  LOCKED = 'LOCKED',
+}
+
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>
 
 export type OddsData = {
   buyYesNo: number[]
   sellYesNo?: number[]
+}
+
+export interface ColorScheme {
+  white: string
+  black: string
+  grey: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  blue: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  green: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  red: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  lime: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  cyan: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  purple: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  transparent: {
+    200: string
+    300: string
+    700: string
+  }
 }

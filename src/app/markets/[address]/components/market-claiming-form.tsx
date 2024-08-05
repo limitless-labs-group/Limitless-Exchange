@@ -1,5 +1,5 @@
 import { defaultChain } from '@/constants'
-import { useHistory, useTradingService } from '@/services'
+import { ClickEvent, useAmplitude, useHistory, useTradingService } from '@/services'
 import { NumberUtil } from '@/utils'
 import { Text, Button, HStack, Icon, Box } from '@chakra-ui/react'
 import { useMemo } from 'react'
@@ -17,6 +17,7 @@ interface MarketClaimingFormProps {
 
 export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }) => {
   const { redeem: claim, status } = useTradingService()
+  const { trackClicked } = useAmplitude()
   const { positions } = useHistory()
   const router = useRouter()
   const positionToClaim = useMemo(
@@ -51,19 +52,24 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
   const actionText = useMemo(() => {
     if (!positionToClaim) {
       return (
-        <Button variant='contained' bg='white' color='black' onClick={() => router.push('/')}>
-          Explore Opened Markets
+        <Button variant='white' onClick={() => router.push('/')}>
+          Explore Open Markets
         </Button>
       )
     }
     if (positionToClaim) {
       return (
         <Button
-          variant='contained'
-          color='blacl'
-          bg='white'
-          onClick={() => claim(positionToClaim.outcomeIndex)}
-          disabled={status === 'Loading'}
+          variant='white'
+          onClick={() => {
+            trackClicked(ClickEvent.ClaimRewardOnMarketPageClicked, {
+              platform: 'desktop',
+              marketAddress: market?.address[defaultChain.id],
+            })
+
+            return claim(positionToClaim.outcomeIndex)
+          }}
+          isDisabled={status === 'Loading'}
         >
           {status === 'Loading' ? (
             'Processing'
@@ -79,7 +85,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
     }
     if (hasPositions) {
       return (
-        <Text color='white'>
+        <Text color='grey.50'>
           You lost {`${NumberUtil.formatThousands(hasPositions[0].outcomeTokenAmount, 4)}`}{' '}
           {market?.tokenTicker[defaultChain.id]}
         </Text>

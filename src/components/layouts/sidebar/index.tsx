@@ -1,63 +1,77 @@
 import {
-  Divider,
-  useTheme,
-  VStack,
-  Text,
+  Box,
   Button,
+  Divider,
+  Flex,
   HStack,
   Image as ChakraImage,
-  Flex,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionIcon,
-  AccordionPanel,
-  useDisclosure,
+  Menu,
+  MenuButton,
+  MenuList,
   Slide,
-  Box,
+  Text,
+  useColorMode,
+  useDisclosure,
+  VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
+import '../../../../src/app/style.css'
+import SunIcon from '@/resources/icons/sun-icon.svg'
+import MoonIcon from '@/resources/icons/moon-icon.svg'
 
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
+  LogoClickedMetadata,
+  ProfileBurgerMenuClickedMetadata,
+  useAccount,
   useAmplitude,
   useBalanceService,
-  useHistory,
-  useAccount,
-  ProfileBurgerMenuClickedMetadata,
-  useAuth,
 } from '@/services'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { cutUsername } from '@/utils/string'
-import { useRouter } from 'next/navigation'
-import WalletPage from '@/components/layouts/wallet-page'
-import TokenFilter from '@/components/common/token-filter'
 import { useWeb3Service } from '@/services/Web3Service'
-import { LogInButton } from '@/components/common/login-button'
+import { LoginButton } from '@/components/common/login-button'
 import CategoryFilter from '@/components/common/categories'
 import { isMobile } from 'react-device-detect'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import '@rainbow-me/rainbowkit/styles.css'
+import useDisconnectAccount from '@/hooks/use-disconnect'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { useThemeProvider } from '@/providers'
+import usePageName from '@/hooks/use-page-name'
+import WalletPage from '@/components/layouts/wallet-page'
+import SwapIcon from '@/resources/icons/swap-icon.svg'
+import WrapModal from '@/components/common/modals/wrap-modal'
+import NextLink from 'next/link'
+import { Link } from '@chakra-ui/react'
 
 export default function Sidebar() {
-  const theme = useTheme()
+  const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
+  const { toggleColorMode } = useColorMode()
 
   const { isConnected } = useWagmiAccount()
   const { trackClicked } = useAmplitude()
 
   const { overallBalanceUsd } = useBalanceService()
-  const { balanceInvested } = useHistory()
   const { userInfo } = useAccount()
   const address = useWalletAddress()
-  const router = useRouter()
-  const { signOut } = useAuth()
+  const { disconnectFromPlatform } = useDisconnectAccount()
   const { client } = useWeb3Service()
+  const pageName = usePageName()
 
   const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
+  const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
+  const {
+    isOpen: isWrapModalOpen,
+    onOpen: onOpenWrapModal,
+    onClose: onCloseWrapModal,
+  } = useDisclosure()
 
   const handleOpenWalletPage = () => {
     if (client !== 'eoa') {
@@ -65,23 +79,56 @@ export default function Sidebar() {
     }
   }
 
+  const handleOpenWrapModal = () => {
+    onOpenWrapModal()
+  }
+
   return (
     <>
       <VStack
-        padding='16px'
-        borderRight={`1px solid ${theme.colors.grey['200']}`}
+        padding='16px 8px'
+        borderRight='1px solid'
+        borderColor='grey.200'
         h='full'
         minW={'188px'}
         minH={'100vh'}
-        zIndex={100}
+        zIndex={200}
+        bg='grey.100'
+        pos='fixed'
+        overflowY='auto'
       >
-        <Button variant='transparent' onClick={() => router.push('/')}>
-          <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
-        </Button>
+        <NextLink href='/' passHref>
+          <Link
+            onClick={() => {
+              trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
+            }}
+          >
+            <Image
+              src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+              height={32}
+              width={156}
+              alt='logo'
+            />
+          </Link>
+        </NextLink>
+
         {isConnected && (
           <VStack my='16px' w='full' gap='8px'>
-            {client !== 'eoa' && (
-              <Button variant='transparent' onClick={handleOpenWalletPage} w='full'>
+            {client !== 'eoa' ? (
+              <Button
+                variant='transparent'
+                onClick={() => {
+                  trackClicked<ProfileBurgerMenuClickedMetadata>(
+                    ClickEvent.ProfileBurgerMenuClicked,
+                    {
+                      option: 'Wallet',
+                    }
+                  )
+                  handleOpenWalletPage()
+                }}
+                w='full'
+                bg={isOpenWalletPage ? 'grey.200' : 'unset'}
+              >
                 <HStack w='full'>
                   <WalletIcon width={16} height={16} />
                   <Text fontWeight={500} fontSize='14px'>
@@ -89,76 +136,140 @@ export default function Sidebar() {
                   </Text>
                 </HStack>
               </Button>
+            ) : (
+              <Button
+                variant='transparent'
+                w='full'
+                onClick={() => {
+                  trackClicked(ClickEvent.WithdrawClicked)
+                  handleOpenWrapModal()
+                }}
+              >
+                <HStack w='full'>
+                  <SwapIcon width={16} height={16} />
+                  <Text fontWeight={500} fontSize='14px'>
+                    Wrap ETH
+                  </Text>
+                </HStack>
+              </Button>
             )}
-            <Button variant='transparent' onClick={() => router.push('/portfolio')} w='full'>
-              <HStack w='full'>
-                <PortfolioIcon width={16} height={16} />
-                <Text fontWeight={500} fontSize='14px'>
-                  {NumberUtil.formatThousands(balanceInvested, 2)} USD
-                </Text>
-              </HStack>
-            </Button>
-            <Accordion allowToggle>
-              <AccordionItem>
-                <h2>
-                  <AccordionButton>
-                    <HStack gap='8px'>
-                      {userInfo?.profileImage?.includes('http') ? (
-                        <ChakraImage
-                          src={userInfo.profileImage}
-                          borderRadius={'2px'}
-                          h={'16px'}
-                          w={'16px'}
-                        />
-                      ) : (
-                        <Flex
-                          borderRadius={'2px'}
-                          h={'16px'}
-                          w={'16px'}
-                          bg='grey.300'
-                          alignItems='center'
-                          justifyContent='center'
-                        >
-                          <Text fontWeight={500}>{userInfo?.name?.[0].toUpperCase()}</Text>
-                        </Flex>
-                      )}
-                      <Text fontWeight={500}>
-                        {userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address)}
+            <NextLink href='/portfolio' passHref style={{ width: '100%' }}>
+              <Link
+                onClick={() => {
+                  trackClicked<ProfileBurgerMenuClickedMetadata>(
+                    ClickEvent.ProfileBurgerMenuClicked,
+                    {
+                      option: 'Portfolio',
+                    }
+                  )
+                }}
+                variant='transparent'
+                w='full'
+              >
+                <HStack w='full'>
+                  <PortfolioIcon width={16} height={16} />
+                  <Text fontWeight={500} fontSize='14px'>
+                    Portfolio
+                  </Text>
+                </HStack>
+              </Link>
+            </NextLink>
+            <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
+              <MenuButton
+                as={Button}
+                onClick={onToggleAuthMenu}
+                rightIcon={<ChevronDownIcon width='16px' height='16px' />}
+                bg={isOpenAuthMenu ? 'grey.200' : 'unset'}
+                h='24px'
+                px='8px'
+                w='full'
+                _active={{
+                  bg: 'grey.200',
+                }}
+                _hover={{
+                  bg: 'grey.200',
+                }}
+              >
+                <HStack gap='8px'>
+                  {userInfo?.profileImage?.includes('http') ? (
+                    <ChakraImage
+                      src={userInfo.profileImage}
+                      borderRadius={'2px'}
+                      h={'16px'}
+                      w={'16px'}
+                      objectFit='cover'
+                      className='amp-block'
+                    />
+                  ) : (
+                    <Flex
+                      borderRadius={'2px'}
+                      h={'16px'}
+                      w={'16px'}
+                      bg='grey.300'
+                      alignItems='center'
+                      justifyContent='center'
+                    >
+                      <Text {...paragraphMedium} className={'amp-mask'}>
+                        {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
                       </Text>
-                    </HStack>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel p={0}>
+                    </Flex>
+                  )}
+                  <Text {...paragraphMedium} className={'amp-mask'}>
+                    {userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address)}
+                  </Text>
+                </HStack>
+              </MenuButton>
+              <MenuList borderRadius='2px' w='171px' zIndex={2}>
+                <HStack gap='4px' mb='4px'>
                   <Button
-                    variant='grey'
+                    variant={mode === 'dark' ? 'grey' : 'black'}
                     w='full'
-                    mt='8px'
                     onClick={() => {
-                      trackClicked<ProfileBurgerMenuClickedMetadata>(
-                        ClickEvent.ProfileBurgerMenuClicked,
-                        {
-                          option: 'Sign Out',
-                        }
-                      )
-                      signOut()
+                      toggleColorMode()
+                      setLightTheme()
+                      trackClicked(ClickEvent.UIModeClicked, {
+                        mode: 'Light On',
+                      })
                     }}
                   >
-                    Log Out
+                    <SunIcon width={16} height={16} />
                   </Button>
-                </AccordionPanel>
-              </AccordionItem>
-            </Accordion>
+                  <Button
+                    variant={mode === 'dark' ? 'black' : 'grey'}
+                    w='full'
+                    onClick={() => {
+                      toggleColorMode()
+                      setDarkTheme()
+                      trackClicked(ClickEvent.UIModeClicked, {
+                        mode: 'Dark On',
+                      })
+                    }}
+                  >
+                    <MoonIcon width={16} height={16} />
+                  </Button>
+                </HStack>
+                <Button
+                  variant='grey'
+                  w='full'
+                  onClick={() => {
+                    trackClicked(ClickEvent.SignOutClicked, {
+                      option: 'Sign Out',
+                    })
+                    disconnectFromPlatform()
+                    onToggleAuthMenu()
+                  }}
+                  justifyContent='flex-start'
+                >
+                  Log Out
+                </Button>
+              </MenuList>
+            </Menu>
           </VStack>
         )}
         {isConnected ? (
           <Button
-            variant='contained'
-            bg='grey.300'
-            color='black'
+            variant='grey'
             w='full'
-            h='unset'
-            py='4px'
             onClick={() => {
               trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
                 page: 'Explore Markets',
@@ -173,11 +284,11 @@ export default function Sidebar() {
             Create Market
           </Button>
         ) : (
-          <LogInButton />
+          <Box mt='16px' w='full'>
+            <LoginButton />
+          </Box>
         )}
         <Divider />
-        <TokenFilter />
-
         {!isMobile && <CategoryFilter />}
       </VStack>
       {isOpenWalletPage && (
@@ -191,6 +302,7 @@ export default function Sidebar() {
           bg='rgba(0, 0, 0, 0.3)'
           mt='20px'
           ml='188px'
+          animation='fadeIn 0.5s'
         ></Box>
       )}
       <Slide
@@ -199,12 +311,19 @@ export default function Sidebar() {
         style={{
           zIndex: 100,
           marginTop: '20px',
-          marginLeft: isOpenWalletPage ? '188px' : 0,
+          marginLeft: '188px',
+          transition: '0.1s',
         }}
-        onClick={onToggleWalletPage}
+        onClick={() => {
+          trackClicked(ClickEvent.WalletClicked, {
+            page: pageName,
+          })
+          onToggleWalletPage()
+        }}
       >
         <WalletPage onClose={onToggleWalletPage} />
       </Slide>
+      {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}
     </>
   )
 }

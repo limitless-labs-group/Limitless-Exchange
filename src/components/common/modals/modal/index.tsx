@@ -9,16 +9,16 @@ import {
   ModalProps,
   Text,
 } from '@chakra-ui/react'
+import { isMobile } from 'react-device-detect'
+import { h1Regular, headline } from '@/styles/fonts/fonts.styles'
 
 export type IModal = ModalProps &
   ModalContentProps & {
     title?: string
-    showCloseButton?: boolean
   }
 
 export const Modal = ({
   title,
-  showCloseButton = true,
   onClose,
   isOpen,
   children,
@@ -29,10 +29,10 @@ export const Modal = ({
     <ModalOverlay />
     <ModalContent {...props}>
       <ModalHeader display='flex' justifyContent='space-between' p={0}>
-        <Text fontSize='16px' w={'full'} textAlign='left'>
+        <Text {...(isMobile ? { ...h1Regular } : { ...headline })} w={'full'} textAlign='left'>
           {title}
         </Text>
-        {showCloseButton && (
+        {!isMobile && (
           <Button
             w={'26px'}
             h={'26px'}

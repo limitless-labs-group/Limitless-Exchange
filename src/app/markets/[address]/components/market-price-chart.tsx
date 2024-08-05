@@ -10,8 +10,10 @@ import { useMemo, useState } from 'react'
 import { Market } from '@/types'
 import Paper from '@/components/common/paper'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { isMobile } from 'react-device-detect'
+import { useThemeProvider } from '@/providers'
+
+const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
 // Define the interface for the chart data
 interface YesBuyChartData {
@@ -19,12 +21,19 @@ interface YesBuyChartData {
 }
 
 // Define the MarketPriceChart component
-interface MarketPriceChartProps {
-  market?: Market | null
+export interface IMarketPriceChart {
+  winningIndex: number | undefined | null
+  resolved: boolean
+  outcomeTokensPercent?: number[]
 }
 
-export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
+export const MarketPriceChart = ({
+  resolved,
+  winningIndex,
+  outcomeTokensPercent,
+}: IMarketPriceChart) => {
   const pathname = usePathname()
+  const { colors } = useThemeProvider()
   const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%B %e, %Y %I:%M %p', Date.now()) ?? ''
@@ -37,7 +46,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
         type: 'x',
       },
       height: 230,
-      backgroundColor: '#E7E7E7',
+      backgroundColor: colors.grey['200'],
       marginLeft: 0,
       marginRight: 0,
     },
@@ -50,6 +59,8 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
       ordinal: false,
       tickInterval: 24 * 3600 * 1000 * 10,
       tickPosition: 'outside',
+      lineColor: colors.grey['800'],
+      tickColor: colors.grey['800'],
       labels: {
         x: isMobile ? 20 : 10,
         step: isMobile ? 3 : 0,
@@ -58,6 +69,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
         style: {
           fontFamily: 'Helvetica Neue',
           fontSize: isMobile ? '14px' : '12px',
+          color: colors.grey['800'],
         },
         formatter: function () {
           return Highcharts.dateFormat('%b %e', Number(this.value))
@@ -72,7 +84,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
       max: 100,
       opposite: true,
       tickInterval: 20,
-      gridLineColor: '#B7B7B7',
+      gridLineColor: colors.grey['400'],
     },
     legend: {
       enabled: false,
@@ -113,9 +125,9 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
           },
           stops: [
             //@ts-ignore
-            [0, Highcharts.color('#238020').setOpacity(0.5).get('rgba')],
+            [0, Highcharts.color(colors.green['500']).setOpacity(0.5).get('rgba')],
             //@ts-ignore
-            [1, Highcharts.color('#238020').setOpacity(0).get('rgba')],
+            [1, Highcharts.color(colors.green['500']).setOpacity(0).get('rgba')],
           ],
           brighten: 0.2,
         },
@@ -138,7 +150,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
         data: data,
         turboThreshold: 2000,
         boostThreshold: 2000,
-        color: '#238020',
+        color: colors.green['500'],
         lineWidth: 2,
       },
     ],
@@ -162,7 +174,6 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
     }
 
     const flattenData: number[][] = []
-    const oneHour = 3600000 // milliseconds in an hour
 
     // Append current timestamp with the last price
     const lastTrade = [...filterBrokenPrice(data[data.length - 1].yesBuyChartData)]
@@ -176,8 +187,8 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
       flattenData.push(currentTrade)
 
       let currentTime = currentTrade[0]
-      while (currentTime + oneHour < nextTrade[0]) {
-        currentTime += oneHour
+      while (currentTime + ONE_HOUR < nextTrade[0]) {
+        currentTime += ONE_HOUR
         flattenData.push([currentTime, currentTrade[1]])
       }
     }
@@ -214,20 +225,38 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
     },
   })
 
-  const initialYesChance = useMemo(() => {
-    if (market?.prices) {
-      return market.prices[0].toFixed(2)
-    }
-    return '50.00'
-  }, [market?.prices])
+  // const initialYesChance = useMemo(() => {
+  //   if (market?.prices) {
+  //     return market.prices[0].toFixed(2)
+  //   }
+  //   return '50.00'
+  // }, [market?.prices])
+
+  const chartData = useMemo(() => {
+    const _prices: number[][] = prices ?? []
+    console.log('_prices', _prices)
+    return resolved
+      ? [
+          ...(_prices ?? []),
+          !!_prices[_prices.length - 1]
+            ? [_prices[_prices.length - 1][0] + ONE_HOUR, winningIndex === 0 ? 100 : 0]
+            : [Date.now(), 100],
+        ].filter((priceData) => {
+          const [, value] = priceData
+          return !!value
+        })
+      : _prices
+  }, [prices, winningIndex, resolved])
 
   return (
     <Paper my='24px' p='8px'>
       <HStack gap={'4px'} color='green.500'>
         <ThumbsUpIcon width={16} height={16} />
-        <Text fontWeight={500}>{market?.prices[0]}%</Text>
+        <Text fontWeight={500}>
+          {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%
+        </Text>
         <Text fontWeight={500}>Yes</Text>
-        <ChevronDownIcon width={16} height={16} />
+        {/*<ChevronDownIcon width={16} height={16} />*/}
       </HStack>
       <HStack>
         <VStack gap={-1} alignItems={'flex-start'}>
@@ -236,7 +265,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
           </Text>
         </VStack>
       </HStack>
-      <HighchartsReact highcharts={Highcharts} options={getChartOptions(prices)} />
+      <HighchartsReact highcharts={Highcharts} options={getChartOptions(chartData)} />
     </Paper>
   )
 }

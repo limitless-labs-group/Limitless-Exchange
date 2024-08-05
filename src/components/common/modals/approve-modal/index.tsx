@@ -18,6 +18,8 @@ import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { Address } from 'viem'
 import { Modal, ModalCloseButton } from '@chakra-ui/modal'
 import { isMobile } from 'react-device-detect'
+import Loader from '@/components/common/loader'
+import React from 'react'
 
 type ApproveModalProps = {
   onApprove: () => Promise<void>
@@ -30,7 +32,7 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
   const address = useWalletAddress()
 
   const handleApproveClicked = async () => {
-    trackClicked<ClickedApproveMetadata>(ClickEvent.ApproveClicked, {
+    trackClicked(ClickEvent.SellApproveClicked, {
       address: address as Address,
     })
     await onApprove()
@@ -40,7 +42,7 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
   return (
     <Modal
       size={isMobile ? 'full' : 'md'}
-      variant={isMobile ? 'blueModal' : ''}
+      variant='commonModal'
       isOpen={approveModalOpened}
       onClose={() => setApproveModalOpened(false)}
     >
@@ -50,7 +52,7 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
         <ModalCloseButton />
         <ModalBody>
           <VStack>
-            <Text color={isMobile ? 'white' : 'black'}>
+            <Text>
               In order to proceed with transaction you should approve token for smart-contract
               spend.
             </Text>
@@ -60,6 +62,7 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
               w='full'
               isDisabled={status !== 'Ready'}
               isLoading={status === 'Loading'}
+              spinner={<Loader />}
               onClick={handleApproveClicked}
             >
               Approve

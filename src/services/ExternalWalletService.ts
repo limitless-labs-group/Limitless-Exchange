@@ -1,21 +1,24 @@
-import { publicClient } from '@/providers'
-import { useAccount } from '@/services/AccountService'
-import { Address, encodeFunctionData, erc20Abi, getContract, maxUint256 } from 'viem'
+import { config as wagmiConfig, publicClient } from '@/providers'
+import { Address, encodeFunctionData, erc20Abi, getContract } from 'viem'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
 import { defaultChain } from '@/constants'
-import { useSendTransaction, useWriteContract } from 'wagmi'
+import { useAccount, useSendTransaction, useWriteContract } from 'wagmi'
 import { contractABI } from '@/contracts/utils'
 import { useLimitlessApi } from '@/services/LimitlessApi'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { switchChain } from '@wagmi/core'
 
 export const useExternalWalletService = () => {
-  const { account } = useAccount()
+  const account = useWalletAddress()
   const { writeContractAsync } = useWriteContract()
   const { sendTransactionAsync } = useSendTransaction()
   const { supportedTokens } = useLimitlessApi()
+  const { chainId } = useAccount()
 
   const collateralTokenAddress = supportedTokens ? supportedTokens[0].address : '0x'
 
   const wrapEth = async (value: bigint) => {
+    await checkAndSwitchChainIfNeeded()
     let txHash = ''
     await writeContractAsync(
       {
@@ -35,6 +38,7 @@ export const useExternalWalletService = () => {
   }
 
   const unwrapEth = async (value: bigint) => {
+    await checkAndSwitchChainIfNeeded()
     let txHash = ''
     await writeContractAsync(
       {
@@ -74,13 +78,15 @@ export const useExternalWalletService = () => {
 
   const approveContractEOA = async (
     spender: Address,
-    contractAddress: Address
+    contractAddress: Address,
+    value: bigint
   ): Promise<string> => {
+    await checkAndSwitchChainIfNeeded()
     let txHash = ''
     await writeContractAsync(
       {
         abi: spender === collateralTokenAddress ? wethABI : erc20Abi,
-        args: [spender, maxUint256],
+        args: [spender, value],
         address: contractAddress,
         functionName: 'approve',
       },
@@ -95,6 +101,7 @@ export const useExternalWalletService = () => {
   }
 
   const approveContractForAllEOA = async (spender: Address, contractAddress: Address) => {
+    await checkAndSwitchChainIfNeeded()
     let txHash = ''
     await writeContractAsync(
       {
@@ -119,6 +126,7 @@ export const useExternalWalletService = () => {
     smartWalletAddress: Address,
     newToken?: boolean
   ) => {
+    await checkAndSwitchChainIfNeeded()
     const args = newToken ? [smartWalletAddress, value] : [value]
     let txHash = ''
     await writeContractAsync(
@@ -139,6 +147,7 @@ export const useExternalWalletService = () => {
   }
 
   const transferEthers = async (to: Address, value: bigint) => {
+    await checkAndSwitchChainIfNeeded()
     let txHash = ''
     const data = encodeFunctionData({
       abi: wethABI,
@@ -161,6 +170,7 @@ export const useExternalWalletService = () => {
   }
 
   const transferErc20 = async (token: Address, to: Address, value: bigint) => {
+    await checkAndSwitchChainIfNeeded()
     let txHash = ''
     await writeContractAsync(
       {
@@ -185,6 +195,7 @@ export const useExternalWalletService = () => {
     outcomeIndex: number,
     minOutcomeTokensToBuy: bigint
   ) => {
+    await checkAndSwitchChainIfNeeded()
     let txHash = ''
     await writeContractAsync(
       {
@@ -209,6 +220,7 @@ export const useExternalWalletService = () => {
     outcomeIndex: number,
     maxOutcomeTokensToSell: bigint
   ) => {
+    await checkAndSwitchChainIfNeeded()
     let txHash = ''
     await writeContractAsync(
       {
@@ -234,6 +246,7 @@ export const useExternalWalletService = () => {
     marketConditionId: Address,
     indexSets: number[]
   ) => {
+    await checkAndSwitchChainIfNeeded()
     let txHash = ''
     await writeContractAsync(
       {
@@ -250,6 +263,12 @@ export const useExternalWalletService = () => {
       }
     )
     return txHash
+  }
+
+  const checkAndSwitchChainIfNeeded = async () => {
+    if (chainId !== defaultChain.id) {
+      await switchChain(wagmiConfig, { chainId: defaultChain.id })
+    }
   }
 
   return {

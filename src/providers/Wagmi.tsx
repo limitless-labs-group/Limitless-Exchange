@@ -2,9 +2,16 @@
 // import { publicProvider } from 'wagmi/providers/public'
 // import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 import { defaultChain } from '@/constants'
-import { web3AuthConnector } from '@/providers'
-import { createPublicClient, Transport } from 'viem'
-import { WagmiProvider as WagmiDefaultProvider, http, createConfig } from 'wagmi'
+import { rainbowWeb3AuthConnector } from '@/providers'
+import { createPublicClient } from 'viem'
+import { WagmiProvider as WagmiDefaultProvider, http } from 'wagmi'
+import {
+  metaMaskWallet,
+  rainbowWallet,
+  coinbaseWallet,
+  walletConnectWallet,
+} from '@rainbow-me/rainbowkit/wallets'
+import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 
 // const { publicClient, webSocketPublicClient } = configureChains(
 //   [defaultChain],
@@ -19,12 +26,25 @@ import { WagmiProvider as WagmiDefaultProvider, http, createConfig } from 'wagmi
 //   ]
 // )
 
-const config = createConfig({
+export const config = getDefaultConfig({
+  appName: 'Limitless Exchange',
+  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string,
   chains: [defaultChain],
   transports: {
     [defaultChain.id]: http(),
-  } as Record<8453 | 84532, Transport>,
-  connectors: [web3AuthConnector],
+  },
+  wallets: [
+    {
+      groupName: 'Recommended',
+      wallets: [
+        rainbowWallet,
+        rainbowWeb3AuthConnector,
+        metaMaskWallet,
+        coinbaseWallet,
+        walletConnectWallet,
+      ],
+    },
+  ],
 })
 
 export const publicClient = createPublicClient({

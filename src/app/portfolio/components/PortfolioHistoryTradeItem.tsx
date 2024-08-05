@@ -2,9 +2,9 @@ import { defaultChain } from '@/constants'
 import { HistoryTrade } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { useMarket } from '@/services/MarketsService'
+import NextLink from 'next/link'
 
 interface IPortfolioHistoryTradeItem extends TableRowProps {
   trade: HistoryTrade
@@ -12,32 +12,28 @@ interface IPortfolioHistoryTradeItem extends TableRowProps {
 
 export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistoryTradeItem) => {
   /**
-   * NAVIGATION
-   */
-  const router = useRouter()
-
-  /**
    * MARKET DATA
    */
-  const market = useMarket(trade.market.id)
+  const { data: market } = useMarket(trade.market.id)
 
   return (
     <Tr pos={'relative'} {...props}>
       <Td pl={0} pr={2}>
-        <HStack
-          style={{ textWrap: 'wrap' }}
-          cursor={'pointer'}
-          _hover={{ textDecor: 'underline' }}
-          onClick={() => router.push(`/markets/${trade.market.id}`)}
-        >
-          <Text size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
-            {market?.title ?? 'Noname market'}
-          </Text>
-        </HStack>
+        <NextLink href={`/markets/${trade.market.id}`}>
+          <HStack
+            style={{ textWrap: 'wrap' }}
+            cursor={'pointer'}
+            _hover={{ textDecor: 'underline' }}
+          >
+            <Text size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
+              {market?.proxyTitle ?? market?.title ?? 'Noname market'}
+            </Text>
+          </HStack>
+        </NextLink>
       </Td>
 
       <Td px={2}>
-        <Text color={trade.outcomeIndex == 0 ? 'green' : 'red'}>
+        <Text color={trade.outcomeIndex == 0 ? 'green.500' : 'red.500'}>
           {market?.outcomeTokens[trade.outcomeIndex ?? 0]}{' '}
           {NumberUtil.formatThousands(trade.outcomeTokenPrice, 3)}{' '}
           {market?.tokenTicker[defaultChain.id]}

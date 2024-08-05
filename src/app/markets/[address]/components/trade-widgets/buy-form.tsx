@@ -1,20 +1,22 @@
 import {
-  Button,
+  Box,
   Flex,
   HStack,
+  Input,
+  InputGroup,
+  InputRightElement,
   Slider,
   SliderFilledTrack,
   SliderThumb,
   SliderTrack,
   Stack,
   Text,
+  useDisclosure,
   VStack,
 } from '@chakra-ui/react'
 import { NumberUtil } from '@/utils'
 import { defaultChain } from '@/constants'
-import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
-import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ClickEvent,
@@ -23,19 +25,23 @@ import {
   useBalanceService,
   useTradingService,
 } from '@/services'
-import { Market } from '@/types'
-import { getAddress, zeroAddress } from 'viem'
+import { Market, MarketStatus } from '@/types'
 import { useToken } from '@/hooks/use-token'
 import BigNumber from 'bignumber.js'
-import { Input } from '@/components/common/input'
-import { Tooltip } from '@/components/common/tooltip'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { css } from '@emotion/react'
+import { isMobile } from 'react-device-detect'
+import ActionButton from '@/app/markets/[address]/components/trade-widgets/action-button'
+import { useWeb3Service } from '@/services/Web3Service'
 
 interface BuyFormProps {
   market: Market
   setOutcomeIndex: Dispatch<SetStateAction<number>>
+  CloseIcon?: unknown
+  outcomeTokensPercent?: number[]
 }
 
-export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
+export function BuyForm({ market, setOutcomeIndex, outcomeTokensPercent }: BuyFormProps) {
   const [sliderValue, setSliderValue] = useState(0)
 
   /**
@@ -53,6 +59,12 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
    * BALANCE
    */
   const { balanceOfSmartWallet, setToken, token } = useBalanceService()
+  const { client } = useWeb3Service()
+
+  //User Block feature
+  //const user = useUserValidation()
+  //const { isOpen: isYesOpen, onOpen: onYesOpen, onClose: onYesClose } = useDisclosure()
+  //const { isOpen: isNoOpen, onOpen: onNoOpen, onClose: onNoClose } = useDisclosure()
 
   const balance = useMemo(() => {
     if (strategy === 'Buy') {
@@ -87,6 +99,9 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
    */
 
   const [showTooltip, setShowTooltip] = useState(false)
+
+  const { isOpen: isYesOpen, onOpen: onYesOpen, onClose: onYesClose } = useDisclosure()
+  const { isOpen: isNoOpen, onOpen: onNoOpen, onClose: onNoClose } = useDisclosure()
 
   const handleInputValueChange = (value: string) => {
     if (token?.symbol === 'USDC') {
@@ -139,29 +154,34 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
 
   return (
     <>
-      <Flex justifyContent='space-between'>
-        <Text color='white' fontWeight={500}>
+      <Flex justifyContent='space-between' p={isMobile ? '0 16px' : 0}>
+        <Text {...paragraphMedium} color='white'>
           Balance
         </Text>
-        <Text color='white' fontWeight={500}>
+        <Text {...paragraphMedium} color='white'>
           {NumberUtil.formatThousands(balance, token?.symbol === 'USDC' ? 1 : 6)} {token?.symbol}
         </Text>
       </Flex>
-      <Slider
-        aria-label='slider-ex-6'
-        value={sliderValue}
-        onChange={(val) => onSlide(val)}
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        onChangeEnd={() => setCollateralAmount(displayAmount)}
-        isDisabled={isZeroBalance}
-        focusThumbOnChange={false}
-      >
-        <SliderTrack bg='rgba(255, 255, 255, 0.2)'>
-          <SliderFilledTrack bg='white' />
-        </SliderTrack>
-        <SliderThumb bg='white' />
-      </Slider>
+      <Box px={isMobile ? '16px' : 0}>
+        <Slider
+          aria-label='slider-ex-6'
+          value={sliderValue}
+          onChange={(val) => onSlide(val)}
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          onChangeEnd={() => setCollateralAmount(displayAmount)}
+          isDisabled={isZeroBalance}
+          focusThumbOnChange={false}
+          h={isMobile ? '40px' : '8px'}
+          py={isMobile ? '0px !important' : '4px'}
+        >
+          <SliderTrack bg='rgba(255, 255, 255, 0.2)'>
+            <SliderFilledTrack bg='white' />
+          </SliderTrack>
+          <SliderThumb bg='white' w='8px' h='8px' />
+        </Slider>
+      </Box>
+
       {/*<ChakraSlider*/}
       {/*  defaultValue={0}*/}
       {/*  onChange={onSlide}*/}
@@ -244,248 +264,90 @@ export function BuyForm({ market, setOutcomeIndex }: BuyFormProps) {
       {/*  </SliderTrack>*/}
       {/*</ChakraSlider>*/}
 
-      <Stack w={'full'} mt='8px'>
-        <Text color='white' fontWeight={500}>
-          {strategy == 'Buy' ? 'You pay' : 'You sell'}
-        </Text>
+      <Stack w={'full'} mt={isMobile ? 0 : '8px'} gap='4px' px={isMobile ? '16px' : 0}>
+        <HStack justifyContent='space-between'>
+          <Text {...paragraphMedium} color='white'>
+            Enter amount
+          </Text>
+          {isExceedsBalance && (
+            <HStack color='white' gap='4px'>
+              <InfoIcon width='16px' height='16px' />
+              <Text {...paragraphMedium} color='white'>
+                Not enough funds
+              </Text>
+            </HStack>
+          )}
+        </HStack>
         <Stack
           w={'full'}
-          spacing={1}
-          px={2}
-          py={1}
           borderRadius='2px'
-          border={'1px solid white'}
+          border={'1px solid grey.50'}
           borderColor={isExceedsBalance ? 'red' : 'border'}
         >
-          <HStack h={'20px'} w='full' spacing={0}>
+          <InputGroup>
             <Input
-              type={'number'}
-              fontWeight={'bold'}
-              placeholder={'0'}
-              border={'none'}
-              px={0}
-              h='20px'
-              _focus={{
-                boxShadow: 'none',
-              }}
+              variant='outlined'
               value={displayAmount}
-              color='white'
               onChange={(e) => handleInputValueChange(e.target.value)}
+              placeholder='0'
+              css={css`
+                caret-color: white;
+              `}
+              type='number'
             />
-
-            <Text color='white' fontWeight={500}>
-              {market?.tokenTicker[defaultChain.id]}
-            </Text>
-          </HStack>
+            <InputRightElement
+              h='16px'
+              top={isMobile ? '8px' : '4px'}
+              right={isMobile ? '8px' : '4px'}
+            >
+              <Text {...paragraphMedium} color='white'>
+                {market?.tokenTicker[defaultChain.id]}
+              </Text>
+            </InputRightElement>
+          </InputGroup>
         </Stack>
       </Stack>
-      <VStack mt='24px'>
-        <Button
-          bg='rgba(255, 255, 255, 0.2)'
-          px='12px'
-          py='8px'
-          w='full'
-          h='unset'
-          alignItems='flex-start'
-          flexDir='column'
-          _hover={{
-            backgroundColor: 'grey.400',
-          }}
-          isDisabled={isExceedsBalance || !collateralAmount}
+      <VStack mt='24px' overflowX='hidden' px={isMobile ? '16px' : 0}>
+        <ActionButton
           onClick={async () => {
-            trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
-              strategy: 'Buy',
-              marketAddress: market.address[defaultChain.id],
-            })
+            if (market?.status === MarketStatus.LOCKED) {
+              onYesOpen()
+              return
+            }
+
             setOutcomeIndex(0)
             await trade(0)
           }}
-          borderRadius='2px'
-        >
-          <HStack gap='8px' color='white'>
-            <ThumbsUpIcon width='16px' height='16px' />
-            <HStack gap='4px'>
-              <Text fontWeight={500}>{market.prices[0]}%</Text>
-              <Text fontWeight={500}>Yes</Text>
-            </HStack>
-          </HStack>
-          <VStack ml='24px' mt='8px' w='calc(100% - 24px)'>
-            <HStack justifyContent='space-between' w='full'>
-              <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
-                  Avg price
-                </Text>
-                <Tooltip
-                // label={
-                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                // }
-                >
-                  <InfoIcon width='16px' height='16px' />
-                </Tooltip>
-              </HStack>
-              <Text fontWeight={500} color='white'>{`${NumberUtil.formatThousands(
-                quotesYes?.outcomeTokenPrice,
-                6
-              )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
-            </HStack>
-            <HStack justifyContent='space-between' w='full'>
-              <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
-                  Price impact
-                </Text>
-                <Tooltip
-                // label={
-                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                // }
-                >
-                  <InfoIcon width='16px' height='16px' />
-                </Tooltip>
-              </HStack>
-              <Text fontWeight={500} color='white'>{`${NumberUtil.toFixed(
-                quotesYes?.priceImpact,
-                2
-              )}%`}</Text>
-            </HStack>
-            <HStack justifyContent='space-between' w='full'>
-              <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
-                  Est. ROI
-                </Text>
-                <Tooltip
-                // label={
-                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                // }
-                >
-                  <InfoIcon width='16px' height='16px' />
-                </Tooltip>
-              </HStack>
-              <Text fontWeight={500} color='white'>
-                {NumberUtil.toFixed(quotesYes?.roi, 2)}%
-              </Text>
-            </HStack>
-            <HStack justifyContent='space-between' w='full'>
-              <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
-                  Return
-                </Text>
-                <Tooltip
-                // label={
-                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                // }
-                >
-                  <InfoIcon width='16px' height='16px' />
-                </Tooltip>
-              </HStack>
-              <Text fontWeight={500} color='white'>
-                {NumberUtil.formatThousands(quotesYes?.outcomeTokenAmount, 6)}{' '}
-                {market.tokenTicker[defaultChain.id]}
-              </Text>
-            </HStack>
-          </VStack>
-        </Button>
-        <Button
-          bg='rgba(255, 255, 255, 0.2)'
-          px='12px'
-          py='8px'
-          w='full'
-          h='unset'
-          alignItems='flex-start'
-          flexDir='column'
-          isDisabled={isExceedsBalance || !collateralAmount}
-          _hover={{
-            backgroundColor: 'grey.400',
-          }}
+          disabled={isExceedsBalance || !collateralAmount}
+          showBlock={isYesOpen}
+          onCloseBlock={onYesClose}
+          market={market}
+          quote={quotesYes}
+          amount={collateralAmount}
+          option='Yes'
+          price={outcomeTokensPercent?.[0]}
+          decimals={collateralToken?.decimals}
+        />
+        <ActionButton
+          disabled={isExceedsBalance || !collateralAmount}
           onClick={async () => {
-            trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
-              strategy: 'Buy',
-              marketAddress: market.address[defaultChain.id],
-            })
+            if (market?.status === MarketStatus.LOCKED) {
+              onNoOpen()
+              return
+            }
+
             setOutcomeIndex(1)
             await trade(1)
           }}
-          borderRadius='2px'
-        >
-          <HStack gap='8px' color='white'>
-            <ThumbsDownIcon width='16px' height='16px' />
-            <HStack gap='4px'>
-              <Text fontWeight={500}>{market.prices[1]}%</Text>
-              <Text fontWeight={500}>No</Text>
-            </HStack>
-          </HStack>
-          <VStack ml='24px' mt='8px' w='calc(100% - 24px)'>
-            <HStack justifyContent='space-between' w='full'>
-              <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
-                  Avg price
-                </Text>
-                <Tooltip
-                // label={
-                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                // }
-                >
-                  <InfoIcon width='16px' height='16px' />
-                </Tooltip>
-              </HStack>
-              <Text fontWeight={500} color='white'>{`${NumberUtil.formatThousands(
-                quotesNo?.outcomeTokenPrice,
-                6
-              )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
-            </HStack>
-            <HStack justifyContent='space-between' w='full'>
-              <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
-                  Price impact
-                </Text>
-                <Tooltip
-                // label={
-                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                // }
-                >
-                  <InfoIcon width='16px' height='16px' />
-                </Tooltip>
-              </HStack>
-              <Text fontWeight={500} color='white'>{`${NumberUtil.toFixed(
-                quotesNo?.priceImpact,
-                2
-              )}%`}</Text>
-            </HStack>
-            <HStack justifyContent='space-between' w='full'>
-              <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
-                  Est. ROI
-                </Text>
-                <Tooltip
-                // label={
-                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                // }
-                >
-                  <InfoIcon width='16px' height='16px' />
-                </Tooltip>
-              </HStack>
-              <Text fontWeight={500} color='white'>
-                {NumberUtil.toFixed(quotesNo?.roi, 2)}%
-              </Text>
-            </HStack>
-            <HStack justifyContent='space-between' w='full'>
-              <HStack gap='4px'>
-                <Text fontWeight={500} color='white'>
-                  Return
-                </Text>
-                <Tooltip
-                // label={
-                //   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'
-                // }
-                >
-                  <InfoIcon width='16px' height='16px' />
-                </Tooltip>
-              </HStack>
-              <Text fontWeight={500} color='white'>
-                {NumberUtil.formatThousands(quotesNo?.outcomeTokenAmount, 6)}{' '}
-                {market.tokenTicker[defaultChain.id]}
-              </Text>
-            </HStack>
-          </VStack>
-        </Button>
+          showBlock={isNoOpen}
+          onCloseBlock={onNoClose}
+          market={market}
+          quote={quotesNo}
+          amount={collateralAmount}
+          option='No'
+          price={outcomeTokensPercent?.[1]}
+          decimals={collateralToken?.decimals}
+        />
       </VStack>
     </>
   )

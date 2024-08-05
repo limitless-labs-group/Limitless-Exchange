@@ -1,5 +1,5 @@
 import { Box, Button, HStack, Icon, Slide, Text, useDisclosure } from '@chakra-ui/react'
-import { useHistory, useTradingService } from '@/services'
+import { ClickEvent, useAmplitude, useHistory, useTradingService } from '@/services'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
 import { defaultChain } from '@/constants'
@@ -8,6 +8,8 @@ import WinIcon from '@/resources/icons/win-icon.svg'
 import { NumberUtil } from '@/utils'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import '@/app/style.css'
+import { isMobile } from 'react-device-detect'
 
 interface MobileTradeButtonProps {
   market: Market | null
@@ -15,6 +17,7 @@ interface MobileTradeButtonProps {
 
 export function MobileTradeButton({ market }: MobileTradeButtonProps) {
   const { redeem: claim, status } = useTradingService()
+  const { trackClicked } = useAmplitude()
   const { positions } = useHistory()
   const router = useRouter()
   const positionToClaim = useMemo(
@@ -43,7 +46,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
 
   const buttonText = useMemo(() => {
     if (!positionToClaim) {
-      return <Text fontWeight={500}>Explore Opened Markets</Text>
+      return <Text fontWeight={500}>Explore Open Markets</Text>
     }
     if (positionToClaim) {
       return (
@@ -96,6 +99,9 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
         bg={buttonColor}
         justifyContent='space-between'
         onClick={action}
+        _hover={{
+          bg: buttonColor,
+        }}
       >
         Market is closed
         {buttonText}
@@ -110,6 +116,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
           zIndex={100}
           bg='rgba(0, 0, 0, 0.3)'
           mt='20px'
+          animation='fadeIn 0.5s'
         ></Box>
       )}
       <Slide
@@ -117,11 +124,11 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
         in={isClaimMenuOpen}
         style={{
           zIndex: 100,
-          // background: 'rgba(0, 0, 0, 0.3)',
           marginTop: '20px',
           height: '100%',
           display: 'flex',
           alignItems: 'flex-end',
+          transition: '0.1s',
         }}
         onClick={toggleClaimMenu}
       >
@@ -147,18 +154,20 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
             <Text fontWeight={500}>did come true</Text>
           </HStack>
           <Button
-            variant='contained'
-            bg='white'
-            color='black'
+            variant='white'
             w='full'
             mt='40px'
             onClick={async () => {
+              trackClicked(ClickEvent.ClaimRewardOnMarketPageClicked, {
+                platform: 'mobile',
+                marketAddress: market?.address[defaultChain.id],
+              })
               toggleClaimMenu()
               if (positionToClaim) {
                 await claim(positionToClaim?.outcomeIndex)
               }
             }}
-            disabled={status === 'Loading'}
+            isDisabled={status === 'Loading'}
           >
             <Icon as={WinIcon} />
             <Text fontWeight={500}>

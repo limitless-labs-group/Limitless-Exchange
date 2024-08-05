@@ -9,6 +9,7 @@ import {
   Slide,
   Box,
   VStack,
+  ButtonGroup,
 } from '@chakra-ui/react'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
@@ -17,23 +18,31 @@ import { useAccount as useWagmiAccount } from 'wagmi'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
-  ProfileBurgerMenuClickedMetadata,
   useAccount,
   useAmplitude,
-  useAuth,
   useBalanceService,
   useHistory,
 } from '@/services'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import { usePathname, useRouter } from 'next/navigation'
 import WalletPage from '@/components/layouts/wallet-page'
 import { useWeb3Service } from '@/services/Web3Service'
 import TokenFilterMobile from '@/components/common/token-filter-mobile'
-import { LogInButton } from '@/components/common/login-button'
 import { isMobile } from 'react-device-detect'
+import '@/app/style.css'
+import { LoginButton } from '@/components/common/login-button'
+import useDisconnectAccount from '@/hooks/use-disconnect'
+import { cutUsername } from '@/utils/string'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { v4 as uuidv4 } from 'uuid'
+import { useThemeProvider } from '@/providers'
+import SunIcon from '@/resources/icons/sun-icon.svg'
+import MoonIcon from '@/resources/icons/moon-icon.svg'
+import SwapIcon from '@/resources/icons/swap-icon.svg'
+import WrapModal from '@/components/common/modals/wrap-modal'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -42,30 +51,55 @@ export default function MobileHeader() {
   const address = useWalletAddress()
   const { balanceInvested } = useHistory()
   const router = useRouter()
-  const { signOut } = useAuth()
+  const { disconnectFromPlatform } = useDisconnectAccount()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
   const pathname = usePathname()
+  const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
   const { isOpen: isWalletModalOpen, onToggle: onToggleWalletModal } = useDisclosure()
+  const {
+    isOpen: isWrapModalOpen,
+    onOpen: onOpenWrapModal,
+    onClose: onCloseWrapModal,
+  } = useDisclosure()
 
   const handleNavigateToPortfolioPage = () => {
     onToggleUserMenu()
     router.push('/portfolio')
   }
 
+  const handleOpenWrapModal = () => {
+    onToggleUserMenu()
+    onOpenWrapModal()
+  }
+
   return (
     <>
       <Box p='16px' pb={0}>
-        <HStack justifyContent='space-between'>
-          <Button variant='transparent' onClick={() => router.push('/')}>
-            <Image src={'/logo-black.svg'} height={32} width={156} alt='calendar' />
-          </Button>
+        <HStack justifyContent='space-between' alignItems='center'>
+          <Box onClick={() => router.push('/')}>
+            <Image
+              src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+              height={32}
+              width={156}
+              alt='calendar'
+            />
+          </Box>
           <HStack gap='4px'>
             {isConnected ? (
               <>
-                <Button variant='transparent' onClick={onToggleUserMenu}>
+                <Button
+                  variant='transparent'
+                  onClick={() => {
+                    trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+                      platform: 'mobile',
+                    })
+
+                    onToggleUserMenu()
+                  }}
+                >
                   <Text fontWeight={500} fontSize='16px'>
                     {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                   </Text>
@@ -75,6 +109,7 @@ export default function MobileHeader() {
                       borderRadius={'2px'}
                       h={'32px'}
                       w={'32px'}
+                      className='amp-block'
                     />
                   ) : (
                     <Flex
@@ -85,8 +120,8 @@ export default function MobileHeader() {
                       alignItems='center'
                       justifyContent='center'
                     >
-                      <Text fontWeight={500} fontSize='24px'>
-                        {userInfo?.name?.[0].toUpperCase()}
+                      <Text {...paragraphMedium} className={'amp-mask'}>
+                        {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
                       </Text>
                     </Flex>
                   )}
@@ -101,17 +136,18 @@ export default function MobileHeader() {
                     zIndex={100}
                     bg='rgba(0, 0, 0, 0.3)'
                     mt='20px'
+                    animation='fadeIn 0.5s'
                   ></Box>
                 )}
                 <Slide
                   direction='right'
                   in={isOpenUserMenu}
-                  style={{ zIndex: 100, marginTop: '20px' }}
+                  style={{ zIndex: 100, marginTop: '20px', transition: '0.1s' }}
                   onClick={onToggleUserMenu}
                 >
                   <VStack
                     ml='40px'
-                    bg='white'
+                    bg='grey.100'
                     h='full'
                     p='16px'
                     justifyContent='space-between'
@@ -125,6 +161,7 @@ export default function MobileHeader() {
                             borderRadius={'2px'}
                             h={'24px'}
                             w={'24px'}
+                            className='amp-block'
                           />
                         ) : (
                           <Flex
@@ -135,18 +172,55 @@ export default function MobileHeader() {
                             alignItems='center'
                             justifyContent='center'
                           >
-                            <Text fontWeight={500} fontSize='18px'>
-                              {userInfo?.name?.[0].toUpperCase()}
+                            <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
+                              {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
                             </Text>
                           </Flex>
                         )}
-                        <Text fontSize='16px' fontWeight={500}>
-                          {userInfo?.name ? userInfo.name : truncateEthAddress(address)}
+                        <Text {...paragraphMedium} className={'amp-mask'}>
+                          {userInfo?.name
+                            ? cutUsername(userInfo.name, 60)
+                            : truncateEthAddress(address)}
                         </Text>
                       </HStack>
-                      <VStack my='24px'>
+                      <HStack
+                        spacing={2}
+                        my={'24px'}
+                        wrap={'wrap'}
+                        alignItems={'start'}
+                        w={'full'}
+                        overflowX='auto'
+                      >
+                        <ButtonGroup
+                          variant='outline'
+                          gap='2px'
+                          p='2px'
+                          bg='grey.300'
+                          borderRadius='2px'
+                          w='full'
+                        >
+                          <Button
+                            key={uuidv4()}
+                            variant={mode === 'dark' ? 'grey' : 'black'}
+                            onClick={setLightTheme}
+                            w='full'
+                          >
+                            <SunIcon width={16} height={16} />
+                          </Button>
+                          <Button
+                            key={uuidv4()}
+                            variant={mode === 'dark' ? 'black' : 'grey'}
+                            onClick={setDarkTheme}
+                            w='full'
+                          >
+                            <MoonIcon width={16} height={16} />
+                          </Button>
+                        </ButtonGroup>
+                      </HStack>
+                      <VStack my='24px' gap='8px'>
                         <Button
                           variant='transparent'
+                          px={0}
                           w='full'
                           onClick={handleNavigateToPortfolioPage}
                         >
@@ -158,22 +232,27 @@ export default function MobileHeader() {
                               </Text>
                             </HStack>
 
-                            <HStack gap='4px'>
+                            <HStack gap='8px'>
                               <Text fontWeight={500}>
                                 {NumberUtil.formatThousands(balanceInvested, 2)} USD
                               </Text>
-                              <Box transform='rotate(270deg)' color='grey.500'>
-                                <ChevronDownIcon width={16} height={16} />
+                              <Box color='grey.800'>
+                                <ArrowRightIcon width={16} height={16} />
                               </Box>
                             </HStack>
                           </HStack>
                         </Button>
-                        {client !== 'eoa' && (
-                          <Button
-                            variant='transparent'
+                        {client !== 'eoa' ? (
+                          <Box
                             w='full'
                             mt='8px'
+                            px={0}
                             onClick={() => {
+                              trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+                                option: 'Wallet',
+                                platform: 'mobile',
+                              })
+
                               onToggleWalletModal()
                               onToggleUserMenu()
                             }}
@@ -186,24 +265,49 @@ export default function MobileHeader() {
                                 </Text>
                               </HStack>
 
-                              <HStack gap='4px'>
+                              <HStack gap='8px'>
                                 <Text fontWeight={500}>
                                   {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                                 </Text>
-                                <Box transform='rotate(270deg)' color='grey.500'>
-                                  <ChevronDownIcon width={16} height={16} />
+                                <Box color='grey.800'>
+                                  <ArrowRightIcon width={16} height={16} />
                                 </Box>
                               </HStack>
+                            </HStack>
+                          </Box>
+                        ) : (
+                          <Button
+                            variant='transparent'
+                            px={0}
+                            w='full'
+                            onClick={handleOpenWrapModal}
+                          >
+                            <HStack justifyContent='space-between' w='full'>
+                              <HStack color='grey.500' gap='4px'>
+                                <SwapIcon width={16} height={16} />
+                                <Text fontWeight={500} fontSize='16px'>
+                                  Wrap ETH
+                                </Text>
+                              </HStack>
+
+                              <Box color='grey.800'>
+                                <ArrowRightIcon width={16} height={16} />
+                              </Box>
                             </HStack>
                           </Button>
                         )}
                       </VStack>
+
                       {client !== 'eoa' && (
                         <Button
                           variant='contained'
                           w='full'
                           h='32px'
                           onClick={() => {
+                            trackClicked(ClickEvent.TopUpClicked, {
+                              platform: 'mobile',
+                            })
+
                             onToggleWalletModal()
                             onToggleUserMenu()
                           }}
@@ -239,13 +343,11 @@ export default function MobileHeader() {
                       mt='24px'
                       h='32px'
                       onClick={() => {
-                        trackClicked<ProfileBurgerMenuClickedMetadata>(
-                          ClickEvent.ProfileBurgerMenuClicked,
-                          {
-                            option: 'Sign Out',
-                          }
-                        )
-                        signOut()
+                        trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+                          option: 'Sign Out',
+                          platform: 'mobile',
+                        })
+                        disconnectFromPlatform()
                       }}
                     >
                       Log Out
@@ -254,7 +356,7 @@ export default function MobileHeader() {
                 </Slide>
               </>
             ) : (
-              <LogInButton />
+              <LoginButton />
             )}
           </HStack>
           {isWalletModalOpen && (
@@ -267,15 +369,19 @@ export default function MobileHeader() {
               zIndex={100}
               bg='rgba(0, 0, 0, 0.3)'
               mt='20px'
+              animation='fadeIn 0.5s'
             ></Box>
           )}
           <Slide
-            direction='top'
+            direction='bottom'
             in={isWalletModalOpen}
             style={{
               zIndex: 150,
               paddingTop: isWalletModalOpen ? '60px' : 0,
+              top: isWalletModalOpen ? 0 : '60px',
               height: '100%',
+              transition: '0.1s',
+              animation: 'fadeIn 0.5s',
             }}
             onClick={() => {
               onToggleWalletModal()
@@ -285,7 +391,8 @@ export default function MobileHeader() {
           </Slide>
         </HStack>
       </Box>
-      {isMobile && pathname === '/' && <TokenFilterMobile />}
+      {isMobile && (pathname === '/' || pathname.includes('topics')) && <TokenFilterMobile />}
+      <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />
     </>
   )
 }
