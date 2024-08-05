@@ -94,6 +94,8 @@ export default function Sidebar() {
         minH={'100vh'}
         zIndex={200}
         bg='grey.100'
+        pos='fixed'
+        overflowY='auto'
       >
         <NextLink href='/' passHref>
           <Link
