@@ -160,12 +160,7 @@ app
                     fontSize: '40px',
                   }}
                 >
-                  {formatFixedEther(
-                    BigInt(market.liquidity || '1'),
-                    collateralToken.decimals || 18,
-                    6
-                  )}{' '}
-                  {collateralToken.symbol}
+                  {market.liquidityFormatted} {collateralToken.symbol}
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

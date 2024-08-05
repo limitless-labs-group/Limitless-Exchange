@@ -109,6 +109,7 @@ export default function MobileHeader() {
                       borderRadius={'2px'}
                       h={'32px'}
                       w={'32px'}
+                      className='amp-block'
                     />
                   ) : (
                     <Flex
@@ -119,7 +120,7 @@ export default function MobileHeader() {
                       alignItems='center'
                       justifyContent='center'
                     >
-                      <Text {...paragraphMedium}>
+                      <Text {...paragraphMedium} className={'amp-mask'}>
                         {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
                       </Text>
                     </Flex>
@@ -160,6 +161,7 @@ export default function MobileHeader() {
                             borderRadius={'2px'}
                             h={'24px'}
                             w={'24px'}
+                            className='amp-block'
                           />
                         ) : (
                           <Flex
@@ -170,12 +172,12 @@ export default function MobileHeader() {
                             alignItems='center'
                             justifyContent='center'
                           >
-                            <Text fontWeight={500} fontSize='24px'>
+                            <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
                               {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
                             </Text>
                           </Flex>
                         )}
-                        <Text {...paragraphMedium}>
+                        <Text {...paragraphMedium} className={'amp-mask'}>
                           {userInfo?.name
                             ? cutUsername(userInfo.name, 60)
                             : truncateEthAddress(address)}

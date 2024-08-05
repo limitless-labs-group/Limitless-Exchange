@@ -94,6 +94,8 @@ export default function Sidebar() {
         minH={'100vh'}
         zIndex={200}
         bg='grey.100'
+        pos='fixed'
+        overflowY='auto'
       >
         <NextLink href='/' passHref>
           <Link
@@ -196,6 +198,7 @@ export default function Sidebar() {
                       h={'16px'}
                       w={'16px'}
                       objectFit='cover'
+                      className='amp-block'
                     />
                   ) : (
                     <Flex
@@ -206,12 +209,12 @@ export default function Sidebar() {
                       alignItems='center'
                       justifyContent='center'
                     >
-                      <Text {...paragraphMedium}>
+                      <Text {...paragraphMedium} className={'amp-mask'}>
                         {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
                       </Text>
                     </Flex>
                   )}
-                  <Text {...paragraphMedium}>
+                  <Text {...paragraphMedium} className={'amp-mask'}>
                     {userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address)}
                   </Text>
                 </HStack>
