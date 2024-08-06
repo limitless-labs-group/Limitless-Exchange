@@ -1,17 +1,7 @@
+import { Avatar, Box, Button, Slide, StackItem, Text, VStack } from '@chakra-ui/react'
 import { useCreateProfile, useUpdateProfile, useProfile } from '@/hooks/profiles'
+import { ProfileInputField, ProfileTextareaField } from '@/components/layouts/sidebar/components'
 import { useEffect, useState } from 'react'
-import {
-  Avatar,
-  Box,
-  Button,
-  Input,
-  Slide,
-  Spinner,
-  StackItem,
-  Text,
-  Textarea,
-  VStack,
-} from '@chakra-ui/react'
 
 export interface IProfileSideDrawer {
   opened?: boolean
@@ -43,6 +33,8 @@ export const DesktopProfileSideDrawer = ({ opened }: IProfileSideDrawer) => {
       direction='left'
       in={opened}
       style={{
+        borderRight: '1px solid',
+        borderColor: '#E7E7E7', // theme.colors['grey.200'],
         zIndex: -1,
         left: '188px',
         width: '328px',
@@ -62,10 +54,9 @@ export const DesktopProfileSideDrawer = ({ opened }: IProfileSideDrawer) => {
           w='full'
           bg='grey.100'
         >
-          <VStack h='full' w='full' pt='30px' px='10px'>
+          <VStack h='full' w='full' pt='30px' px='10px' gap='25px'>
             <StackItem w='full' display='flex' justifyContent='right'>
               <Button
-                variant='grey'
                 onClick={() =>
                   profileRegistered
                     ? updateProfileAsync({ displayName, username, bio })
@@ -73,28 +64,54 @@ export const DesktopProfileSideDrawer = ({ opened }: IProfileSideDrawer) => {
                 }
                 isLoading={updateButtonLoading}
                 disabled={updateButtonDisabled}
+                bg='blue.500'
+                h='24px'
+                w='75px'
+                py='4px'
+                px='10px'
+                borderRadius='2px'
+                color='white'
               >
-                {updateButtonLoading ? <Spinner /> : 'Update'}
+                <Text fontSize='16px' color='white' fontWeight={500}>
+                  Update
+                </Text>
               </Button>
             </StackItem>
 
             <StackItem w='full' display='flex' justifyContent='center'>
-              <Avatar my='20px' h='64px' w='64px' bg='red' />
+              <Avatar
+                // my='20px'
+                h='64px'
+                w='64px'
+                bg='red'
+              />
             </StackItem>
 
             <StackItem w='full'>
-              <Text>Display Name</Text>
-              <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+              <ProfileInputField
+                label='Display name'
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+              />
             </StackItem>
 
             <StackItem w='full'>
-              <Text>Username</Text>
-              <Input value={username} onChange={(e) => setUsername(e.target.value)} />
+              <ProfileInputField
+                label='Username'
+                value={username}
+                placeholder='Enter your username'
+                onChange={(e) => setUsername(e.target.value)}
+                hint='So others can mention you in comments'
+              />
             </StackItem>
 
             <StackItem w='full'>
-              <Text>Bio</Text>
-              <Textarea value={bio} onChange={(e) => setBio(e.target.value)} />
+              <ProfileTextareaField
+                label='BIO'
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder='Add bio if you want'
+              />
             </StackItem>
           </VStack>
         </Box>
