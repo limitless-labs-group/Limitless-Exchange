@@ -1,5 +1,5 @@
-import { useCreateProfile, useProfile } from '@/hooks/profiles'
-import { useUpdateProfile } from '@/hooks/profiles/use-update-profile'
+import { useCreateProfile, useUpdateProfile, useProfile } from '@/hooks/profiles'
+import { useEffect, useState } from 'react'
 import {
   Avatar,
   Box,
@@ -12,7 +12,6 @@ import {
   Textarea,
   VStack,
 } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
 
 export interface IProfileSideDrawer {
   opened?: boolean
