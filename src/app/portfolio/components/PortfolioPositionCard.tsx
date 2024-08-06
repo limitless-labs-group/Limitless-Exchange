@@ -68,19 +68,19 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
     }
     if (contractPrice < 1) {
       return (
-        <Text {...paragraphMedium} color='red.500'>
+        <Text {...paragraphMedium} color={colors.main === 'white' ? 'white' : 'red.500'}>
           &#x2193;
           {price}%
         </Text>
       )
     }
     return (
-      <Text {...paragraphMedium} color='green.500'>
+      <Text {...paragraphMedium} color={colors.main === 'white' ? 'white' : 'green.500'}>
         &#x2191;
         {price}%
       </Text>
     )
-  }, [contractPrice])
+  }, [contractPrice, colors.main])
 
   // const chancePercent = useMemo(() => {
   //   if (market?.expired) {
