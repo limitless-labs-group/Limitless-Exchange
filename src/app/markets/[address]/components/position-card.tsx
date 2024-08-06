@@ -99,7 +99,7 @@ export function PositionCard({ position, market }: PositionCardProps) {
           <Text {...paragraphMedium} color='grey.500'>
             Invested
           </Text>
-          <Text {...paragraphRegular}>{`${NumberUtil.toFixed(position.collateralAmount, 4)} ${
+          <Text {...paragraphRegular}>{`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
             market?.tokenTicker[defaultChain.id]
           }`}</Text>
         </Flex>
