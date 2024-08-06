@@ -15,7 +15,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
-import React from 'react'
+import React, { useRef } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import '../../../../src/app/style.css'
 import SunIcon from '@/resources/icons/sun-icon.svg'
@@ -66,7 +66,12 @@ export default function Sidebar() {
   const { client } = useWeb3Service()
   const pageName = usePageName()
 
-  const { isOpen: isOpenProfileMenu, onToggle: onToggleProfileMenu } = useDisclosure()
+  const profileBtnRef = useRef()
+  const {
+    isOpen: isOpenProfileDrawer,
+    onOpen: onOpenProfileDrawer,
+    onClose: onCloseProfileDrawer,
+  } = useDisclosure()
   const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
   const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
   const {
@@ -252,11 +257,10 @@ export default function Sidebar() {
                     </Button>
                   </HStack>
                   <Button
+                    ref={profileBtnRef as any}
                     variant='grey'
                     w='full'
-                    onClick={() => {
-                      onToggleProfileMenu()
-                    }}
+                    onClick={!isOpenProfileDrawer ? onOpenProfileDrawer : onCloseProfileDrawer}
                     justifyContent='flex-start'
                   >
                     Profile
@@ -278,7 +282,11 @@ export default function Sidebar() {
                 </MenuList>
               </Menu>
             </VStack>
-            <DesktopProfileSideDrawer opened={isOpenProfileMenu} />
+            <DesktopProfileSideDrawer
+              ref={profileBtnRef}
+              isOpen={isOpenProfileDrawer}
+              onClose={onCloseProfileDrawer}
+            />
           </>
         )}
         {isConnected ? (
