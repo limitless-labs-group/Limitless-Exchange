@@ -216,7 +216,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             Invested
           </Text>
           <Text color={cardColors.main} lineHeight={'20px'} fontWeight={400} fontSize={'16px'}>
-            {`${NumberUtil.formatThousands(position.collateralAmount, 4)} ${
+            {`${NumberUtil.formatThousands(position.collateralAmount, 6)} ${
               market?.tokenTicker[defaultChain.id]
             }`}
           </Text>
@@ -279,7 +279,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
                 Invested
               </Text>
               <Text {...paragraphRegular} color={cardColors.main}>
-                {`${NumberUtil.formatThousands(position.collateralAmount, 4)} ${
+                {`${NumberUtil.formatThousands(position.collateralAmount, 6)} ${
                   market?.tokenTicker[defaultChain.id]
                 }`}
               </Text>
