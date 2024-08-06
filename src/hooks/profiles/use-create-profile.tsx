@@ -1,8 +1,11 @@
 import { useProfileAuthSigningMessage } from '@/hooks/profiles'
+import { useAccount, useSignMessage } from 'wagmi'
+import { getAddress, toHex } from 'viem'
 import { limitlessApi } from '@/services'
 import { useMutation } from '@tanstack/react-query'
-import { getAddress } from 'viem'
-import { useAccount, useSignMessage } from 'wagmi'
+import { Profile } from '@/types/profiles'
+import { useToast } from '@/hooks'
+import { Toast } from '@/components/common/toast'
 
 export interface IUseCreateProfile {
   displayName: string
@@ -11,6 +14,8 @@ export interface IUseCreateProfile {
 }
 
 export const useCreateProfile = () => {
+  const toast = useToast()
+
   const { address: account } = useAccount()
   const { signMessageAsync } = useSignMessage()
   const { refetch: getRegisterProfileSigningMessage } = useProfileAuthSigningMessage({
@@ -23,22 +28,30 @@ export const useCreateProfile = () => {
       displayName: _displayName,
       username: _username,
       bio: _bio,
-    }: IUseCreateProfile) => {
+    }: IUseCreateProfile): Promise<Profile> => {
       const { data: registerProfileSigningMessage } = await getRegisterProfileSigningMessage()
       if (!registerProfileSigningMessage) throw new Error('Failed to get signing message')
-      const signature = await signMessageAsync({ message: registerProfileSigningMessage })
+      const signature = await signMessageAsync({ message: registerProfileSigningMessage, account })
+      const headers = {
+        'x-account': getAddress(account!),
+        'x-signature': signature,
+        'x-signing-message': toHex(String(registerProfileSigningMessage)),
+      }
 
-      await limitlessApi.post(
+      const res = await limitlessApi.post(
         '/profiles',
         { displayName: _displayName, username: _username, bio: _bio },
         {
-          headers: {
-            'x-account': getAddress(account!),
-            'x-signature': signature,
-            'x-signing-message': String(registerProfileSigningMessage),
-          },
+          headers,
         }
       )
+      return res.data as Profile
+    },
+    onSuccess: () => {
+      const id = toast({ render: () => <Toast id={id} title='Profile registered successfully' /> })
+    },
+    onError: () => {
+      const id = toast({ render: () => <Toast id={id} title='Failed to register profile' /> })
     },
   })
 }
