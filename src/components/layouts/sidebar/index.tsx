@@ -282,11 +282,6 @@ export default function Sidebar() {
                 </MenuList>
               </Menu>
             </VStack>
-            <DesktopProfileSideDrawer
-              ref={profileBtnRef}
-              isOpen={isOpenProfileDrawer}
-              onClose={onCloseProfileDrawer}
-            />
           </>
         )}
         {isConnected ? (
@@ -347,6 +342,12 @@ export default function Sidebar() {
         <WalletPage onClose={onToggleWalletPage} />
       </Slide>
       {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}
+
+      <DesktopProfileSideDrawer
+        ref={profileBtnRef}
+        isOpen={isOpenProfileDrawer}
+        onClose={onCloseProfileDrawer}
+      />
     </>
   )
 }
