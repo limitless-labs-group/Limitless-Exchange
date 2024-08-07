@@ -1,5 +1,15 @@
-import { Box, Button, StackItem, Text, VStack, Slide, Circle, Input } from '@chakra-ui/react'
-import { useCreateProfile, useUpdateProfile, useProfile } from '@/hooks/profiles'
+import { useCreateProfile, useUpdateProfile, useProfile, useUpdatePfp } from '@/hooks/profiles'
+import {
+  Box,
+  Button,
+  StackItem,
+  Text,
+  VStack,
+  Slide,
+  Circle,
+  Input,
+  Spinner,
+} from '@chakra-ui/react'
 import { ProfileInputField, ProfileTextareaField } from '@/components/layouts/sidebar/components'
 import { useEffect, useRef, useState } from 'react'
 import { useAccount } from '@/services'
@@ -9,12 +19,11 @@ import UsernameIcon from 'public/username-icon.svg'
 import BioIcon from 'public/bio-icon.svg'
 
 export interface IProfileSideDrawer {
-  ref: any
   isOpen: boolean
   onClose: () => void
 }
 
-export const DesktopProfileSideDrawer = ({ ref, isOpen, onClose }: IProfileSideDrawer) => {
+export const DesktopProfileSideDrawer = ({ isOpen, onClose }: IProfileSideDrawer) => {
   const { farcasterInfo, userInfo } = useAccount()
 
   const pfpFileRef = useRef<any>()
@@ -26,6 +35,7 @@ export const DesktopProfileSideDrawer = ({ ref, isOpen, onClose }: IProfileSideD
 
   const { mutateAsync: createProfileAsync, isPending: createProfileLoading } = useCreateProfile()
   const { mutateAsync: updateProfileAsync, isPending: updateProfileLoading } = useUpdateProfile()
+  const { mutateAsync: updatePfpAsync, isPending: updatePfpLoading } = useUpdatePfp()
   const { data: profileData, isPending: getProfileDataLoading } = useProfile()
 
   const profileRegistered = !!profileData
@@ -44,10 +54,14 @@ export const DesktopProfileSideDrawer = ({ ref, isOpen, onClose }: IProfileSideD
       const previewUrl = URL.createObjectURL(pfpFile)
       setPfpPreview(previewUrl)
 
+      if (profileData) {
+        updatePfpAsync(pfpFile)
+      }
+
       // Clean up the preview URL when the component unmounts or the file changes
       return () => URL.revokeObjectURL(previewUrl)
     }
-  }, [pfpFile])
+  }, [pfpFile, profileData])
 
   return (
     <>
@@ -119,11 +133,15 @@ export const DesktopProfileSideDrawer = ({ ref, isOpen, onClose }: IProfileSideD
                     onClick={() => pfpFileRef.current.click()}
                     cursor='pointer'
                   />
-                  <EditPenIcon
-                    onClick={() => pfpFileRef.current.click()}
-                    cursor='pointer'
-                    style={{ position: 'absolute', height: '16px', width: '16px' }}
-                  />
+                  {updatePfpLoading ? (
+                    <Spinner />
+                  ) : (
+                    <EditPenIcon
+                      onClick={() => pfpFileRef.current.click()}
+                      cursor='pointer'
+                      style={{ position: 'absolute', height: '16px', width: '16px' }}
+                    />
+                  )}
                 </Circle>
 
                 <Input

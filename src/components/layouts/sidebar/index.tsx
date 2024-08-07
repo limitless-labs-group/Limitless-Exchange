@@ -66,7 +66,6 @@ export default function Sidebar() {
   const { client } = useWeb3Service()
   const pageName = usePageName()
 
-  const profileBtnRef = useRef()
   const {
     isOpen: isOpenProfileDrawer,
     onOpen: onOpenProfileDrawer,
@@ -257,7 +256,6 @@ export default function Sidebar() {
                     </Button>
                   </HStack>
                   <Button
-                    ref={profileBtnRef as any}
                     variant='grey'
                     w='full'
                     onClick={!isOpenProfileDrawer ? onOpenProfileDrawer : onCloseProfileDrawer}
@@ -343,11 +341,7 @@ export default function Sidebar() {
       </Slide>
       {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}
 
-      <DesktopProfileSideDrawer
-        ref={profileBtnRef}
-        isOpen={isOpenProfileDrawer}
-        onClose={onCloseProfileDrawer}
-      />
+      <DesktopProfileSideDrawer isOpen={isOpenProfileDrawer} onClose={onCloseProfileDrawer} />
     </>
   )
 }
