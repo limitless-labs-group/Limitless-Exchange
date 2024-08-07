@@ -1,21 +1,12 @@
-import {
-  Avatar,
-  Box,
-  Button,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
-  StackItem,
-  Text,
-  VStack,
-  Slide,
-} from '@chakra-ui/react'
+import { Box, Button, StackItem, Text, VStack, Slide, Circle, Input } from '@chakra-ui/react'
 import { useCreateProfile, useUpdateProfile, useProfile } from '@/hooks/profiles'
 import { ProfileInputField, ProfileTextareaField } from '@/components/layouts/sidebar/components'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useAccount } from '@/services'
+import EditPenIcon from 'public/edit-pen-icon.svg'
+import DisplayNameIcon from 'public/display-name-icon.svg'
+import UsernameIcon from 'public/username-icon.svg'
+import BioIcon from 'public/bio-icon.svg'
 
 export interface IProfileSideDrawer {
   ref: any
@@ -24,8 +15,13 @@ export interface IProfileSideDrawer {
 }
 
 export const DesktopProfileSideDrawer = ({ ref, isOpen, onClose }: IProfileSideDrawer) => {
-  const [displayName, setDisplayName] = useState('')
-  const [username, setUsername] = useState('')
+  const { farcasterInfo, userInfo } = useAccount()
+
+  const pfpFileRef = useRef<any>()
+  const [pfpFile, setPfpFile] = useState<File | undefined>(undefined)
+  const [pfpPreview, setPfpPreview] = useState<string | undefined>(undefined)
+  const [displayName, setDisplayName] = useState(userInfo?.name ?? '')
+  const [username, setUsername] = useState(farcasterInfo?.username ?? '')
   const [bio, setBio] = useState('')
 
   const { mutateAsync: createProfileAsync, isPending: createProfileLoading } = useCreateProfile()
@@ -37,75 +33,21 @@ export const DesktopProfileSideDrawer = ({ ref, isOpen, onClose }: IProfileSideD
   const updateButtonLoading = createProfileLoading || updateProfileLoading
 
   useEffect(() => {
-    console.log('profileData', profileData)
     if (!profileData) return
     setDisplayName(profileData.displayName)
     setUsername(profileData.username)
     setBio(profileData.bio ?? '')
   }, [profileData])
 
-  const MainContent = () => (
-    <VStack h='full' w='full' pt='30px' px='10px' gap='25px'>
-      <StackItem w='full' display='flex' justifyContent='right'>
-        <Button
-          onClick={() =>
-            profileRegistered
-              ? updateProfileAsync({ displayName, username, bio })
-              : createProfileAsync({ displayName, username, bio })
-          }
-          isLoading={updateButtonLoading}
-          disabled={updateButtonDisabled}
-          bg='blue.500'
-          h='24px'
-          w='75px'
-          py='4px'
-          px='10px'
-          borderRadius='2px'
-          color='white'
-        >
-          <Text fontSize='16px' color='white' fontWeight={500}>
-            Update
-          </Text>
-        </Button>
-      </StackItem>
+  useEffect(() => {
+    if (pfpFile) {
+      const previewUrl = URL.createObjectURL(pfpFile)
+      setPfpPreview(previewUrl)
 
-      <StackItem w='full' display='flex' justifyContent='center'>
-        <Avatar
-          // my='20px'
-          h='64px'
-          w='64px'
-          bg='red'
-        />
-      </StackItem>
-
-      <StackItem w='full'>
-        <ProfileInputField
-          label='Display name'
-          value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
-        />
-      </StackItem>
-
-      <StackItem w='full'>
-        <ProfileInputField
-          label='Username'
-          value={username}
-          placeholder='Enter your username'
-          onChange={(e) => setUsername(e.target.value)}
-          hint='So others can mention you in comments'
-        />
-      </StackItem>
-
-      <StackItem w='full'>
-        <ProfileTextareaField
-          label='BIO'
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          placeholder='Add bio if you want'
-        />
-      </StackItem>
-    </VStack>
-  )
+      // Clean up the preview URL when the component unmounts or the file changes
+      return () => URL.revokeObjectURL(previewUrl)
+    }
+  }, [pfpFile])
 
   return (
     <>
@@ -115,7 +57,7 @@ export const DesktopProfileSideDrawer = ({ ref, isOpen, onClose }: IProfileSideD
         style={{
           borderRight: '1px solid',
           borderColor: '#E7E7E7', // theme.colors['grey.200'],
-          zIndex: -1,
+          zIndex: 100,
           left: '188px',
           width: '328px',
           height: '100%',
@@ -134,18 +76,113 @@ export const DesktopProfileSideDrawer = ({ ref, isOpen, onClose }: IProfileSideD
             w='full'
             bg='grey.100'
           >
-            <MainContent />
+            <VStack h='full' w='full' pt='30px' px='10px' gap='25px'>
+              <StackItem w='full' display='flex' justifyContent='right'>
+                <Button
+                  onClick={() =>
+                    profileRegistered
+                      ? updateProfileAsync({ displayName, username, bio })
+                      : createProfileAsync({ displayName, username, bio })
+                  }
+                  isLoading={updateButtonLoading}
+                  disabled={updateButtonDisabled}
+                  bg='blue.500'
+                  h='24px'
+                  w='75px'
+                  py='4px'
+                  px='10px'
+                  borderRadius='2px'
+                  color='white'
+                >
+                  <Text fontSize='16px' color='white' fontWeight={500}>
+                    Update
+                  </Text>
+                </Button>
+              </StackItem>
+
+              <StackItem w='full' display='flex' justifyContent='center'>
+                <Circle
+                  size='75px'
+                  bg='grey.200'
+                  bgImage={pfpPreview ? `url(${pfpPreview})` : undefined}
+                  bgSize='cover'
+                  bgPosition='center'
+                  bgRepeat='no-repeat'
+                >
+                  <Box
+                    pos='absolute'
+                    bg='grey.500'
+                    w='32px'
+                    h='24px'
+                    borderRadius='2px'
+                    opacity={0.7}
+                    onClick={() => pfpFileRef.current.click()}
+                    cursor='pointer'
+                  />
+                  <EditPenIcon
+                    onClick={() => pfpFileRef.current.click()}
+                    cursor='pointer'
+                    style={{ position: 'absolute', height: '16px', width: '16px' }}
+                  />
+                </Circle>
+
+                <Input
+                  display='hidden'
+                  type='file'
+                  id='marketLogoUpload'
+                  name='marketLogoUpload'
+                  style={{ display: 'none' }}
+                  ref={pfpFileRef}
+                  accept={'image/png, image/jpeg'}
+                  onChange={(e) => setPfpFile(e?.target?.files?.[0])}
+                />
+              </StackItem>
+
+              <StackItem w='full'>
+                <ProfileInputField
+                  renderIcon={() => <DisplayNameIcon />}
+                  label='Display name'
+                  initialValue={displayName}
+                  onChange={(v) => setDisplayName(v)}
+                />
+              </StackItem>
+
+              <StackItem w='full'>
+                <ProfileInputField
+                  renderIcon={() => <UsernameIcon />}
+                  label='Username'
+                  initialValue={username}
+                  placeholder='Enter your username'
+                  onChange={(v) => setUsername(v)}
+                  hint='So others can mention you in comments'
+                />
+              </StackItem>
+
+              <StackItem w='full'>
+                <ProfileTextareaField
+                  renderIcon={() => <BioIcon />}
+                  label='BIO'
+                  initialValue={bio}
+                  onChange={(v) => setBio(v ?? '')}
+                  placeholder='Add bio if you want'
+                />
+              </StackItem>
+            </VStack>
           </Box>
         )}
       </Slide>
-      {/* <Drawer isOpen={isOpen} placement='left' onClose={onClose} finalFocusRef={ref}>
-        <DrawerOverlay />
-        <DrawerContent style={{ zIndex: -1 }} bg='grey.100' p={0}>
-          <DrawerBody p={0}>
-            <MainContent />
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer> */}
+
+      {isOpen && (
+        <Box
+          top='0px'
+          pos='absolute'
+          h='100vh'
+          w='full'
+          bg='black'
+          opacity={0.5}
+          onClick={onClose}
+        />
+      )}
     </>
   )
 }
