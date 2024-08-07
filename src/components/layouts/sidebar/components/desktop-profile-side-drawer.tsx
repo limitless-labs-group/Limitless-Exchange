@@ -29,6 +29,7 @@ export const DesktopProfileSideDrawer = ({ isOpen, onClose }: IProfileSideDrawer
   const pfpFileRef = useRef<any>()
   const [pfpFile, setPfpFile] = useState<File | undefined>(undefined)
   const [pfpPreview, setPfpPreview] = useState<string | undefined>(undefined)
+  const [pfpUrl, setPfpUrl] = useState<string | undefined>(undefined)
   const [displayName, setDisplayName] = useState(userInfo?.name ?? '')
   const [username, setUsername] = useState(farcasterInfo?.username ?? '')
   const [bio, setBio] = useState('')
@@ -44,6 +45,7 @@ export const DesktopProfileSideDrawer = ({ isOpen, onClose }: IProfileSideDrawer
 
   useEffect(() => {
     if (!profileData) return
+    setPfpUrl(profileData.pfpUrl)
     setDisplayName(profileData.displayName)
     setUsername(profileData.username)
     setBio(profileData.bio ?? '')
@@ -118,7 +120,9 @@ export const DesktopProfileSideDrawer = ({ isOpen, onClose }: IProfileSideDrawer
                 <Circle
                   size='75px'
                   bg='grey.200'
-                  bgImage={pfpPreview ? `url(${pfpPreview})` : undefined}
+                  bgImage={
+                    pfpPreview ? `url(${pfpPreview})` : !!pfpUrl ? `url(${pfpUrl})` : undefined
+                  }
                   bgSize='cover'
                   bgPosition='center'
                   bgRepeat='no-repeat'
