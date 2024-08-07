@@ -310,12 +310,6 @@ export function BuyForm({ market, setOutcomeIndex, outcomeTokensPercent }: BuyFo
       <VStack mt='24px' overflowX='hidden' px={isMobile ? '16px' : 0}>
         <ActionButton
           onClick={async () => {
-            trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
-              outcome: 'Yes',
-              marketAddress: market.address[defaultChain.id],
-              walletType: client,
-            })
-
             if (market?.status === MarketStatus.LOCKED) {
               onYesOpen()
               return
@@ -337,12 +331,6 @@ export function BuyForm({ market, setOutcomeIndex, outcomeTokensPercent }: BuyFo
         <ActionButton
           disabled={isExceedsBalance || !collateralAmount}
           onClick={async () => {
-            trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
-              outcome: 'No',
-              marketAddress: market.address[defaultChain.id],
-              walletType: client,
-            })
-
             if (market?.status === MarketStatus.LOCKED) {
               onNoOpen()
               return

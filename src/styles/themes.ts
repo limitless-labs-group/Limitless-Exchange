@@ -6,6 +6,8 @@ import { inputTheme } from '@/styles/input'
 import { menuTheme } from '@/styles/menu'
 import { commonButtonProps } from '@/styles/button'
 import { checkboxTheme } from '@/styles/checkbox'
+import { isMobile } from 'react-device-detect'
+import { linkTheme } from '@/styles/link'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
@@ -162,13 +164,14 @@ export const chakraTheme = ChakraTheme({
             bg: 'blue.600',
           },
           _disabled: {
-            bg: 'grey.300',
+            bg: 'grey.300 !important',
             color: 'grey.500',
             pointerEvents: 'none',
           },
         },
         white: {
           ...commonButtonProps,
+          px: isMobile ? '12px' : '8px',
           bg: 'white',
           color: 'black',
           _hover: {
@@ -230,6 +233,7 @@ export const chakraTheme = ChakraTheme({
     Input: inputTheme,
     Menu: menuTheme,
     Checkbox: checkboxTheme,
+    Link: linkTheme,
   },
   breakpoints: {
     sm: '320px',

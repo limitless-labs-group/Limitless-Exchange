@@ -35,7 +35,6 @@ import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { cutUsername } from '@/utils/string'
-import { usePathname, useRouter } from 'next/navigation'
 import { useWeb3Service } from '@/services/Web3Service'
 import { LoginButton } from '@/components/common/login-button'
 import CategoryFilter from '@/components/common/categories'
@@ -44,10 +43,13 @@ import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import '@rainbow-me/rainbowkit/styles.css'
 import useDisconnectAccount from '@/hooks/use-disconnect'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import TokenFilter from '@/components/common/token-filter'
 import { useThemeProvider } from '@/providers'
 import usePageName from '@/hooks/use-page-name'
 import WalletPage from '@/components/layouts/wallet-page'
+import SwapIcon from '@/resources/icons/swap-icon.svg'
+import WrapModal from '@/components/common/modals/wrap-modal'
+import NextLink from 'next/link'
+import { Link } from '@chakra-ui/react'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
@@ -59,19 +61,26 @@ export default function Sidebar() {
   const { overallBalanceUsd } = useBalanceService()
   const { userInfo } = useAccount()
   const address = useWalletAddress()
-  const router = useRouter()
   const { disconnectFromPlatform } = useDisconnectAccount()
   const { client } = useWeb3Service()
-  const pathname = usePathname()
   const pageName = usePageName()
 
   const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
   const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
+  const {
+    isOpen: isWrapModalOpen,
+    onOpen: onOpenWrapModal,
+    onClose: onCloseWrapModal,
+  } = useDisclosure()
 
   const handleOpenWalletPage = () => {
     if (client !== 'eoa') {
       onToggleWalletPage()
     }
+  }
+
+  const handleOpenWrapModal = () => {
+    onOpenWrapModal()
   }
 
   return (
@@ -85,28 +94,27 @@ export default function Sidebar() {
         minH={'100vh'}
         zIndex={200}
         bg='grey.100'
-        position='fixed'
+        pos='fixed'
         overflowY='auto'
-        pb='100px'
       >
-        <Button
-          variant='transparent'
-          onClick={() => {
-            trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
-            router.push('/')
-          }}
-          _hover={{ bg: 'unset' }}
-        >
-          <Image
-            src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
-            height={32}
-            width={156}
-            alt='logo'
-          />
-        </Button>
+        <NextLink href='/' passHref>
+          <Link
+            onClick={() => {
+              trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
+            }}
+          >
+            <Image
+              src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+              height={32}
+              width={156}
+              alt='logo'
+            />
+          </Link>
+        </NextLink>
+
         {isConnected && (
           <VStack my='16px' w='full' gap='8px'>
-            {client !== 'eoa' && (
+            {client !== 'eoa' ? (
               <Button
                 variant='transparent'
                 onClick={() => {
@@ -128,28 +136,44 @@ export default function Sidebar() {
                   </Text>
                 </HStack>
               </Button>
+            ) : (
+              <Button
+                variant='transparent'
+                w='full'
+                onClick={() => {
+                  trackClicked(ClickEvent.WithdrawClicked)
+                  handleOpenWrapModal()
+                }}
+              >
+                <HStack w='full'>
+                  <SwapIcon width={16} height={16} />
+                  <Text fontWeight={500} fontSize='14px'>
+                    Wrap ETH
+                  </Text>
+                </HStack>
+              </Button>
             )}
-            <Button
-              variant='transparent'
-              onClick={() => {
-                trackClicked<ProfileBurgerMenuClickedMetadata>(
-                  ClickEvent.ProfileBurgerMenuClicked,
-                  {
-                    option: 'Portfolio',
-                  }
-                )
-                router.push('/portfolio')
-              }}
-              w='full'
-              bg={pathname === '/portfolio' ? 'grey.200' : 'unset'}
-            >
-              <HStack w='full'>
-                <PortfolioIcon width={16} height={16} />
-                <Text fontWeight={500} fontSize='14px'>
-                  Portfolio
-                </Text>
-              </HStack>
-            </Button>
+            <NextLink href='/portfolio' passHref style={{ width: '100%' }}>
+              <Link
+                onClick={() => {
+                  trackClicked<ProfileBurgerMenuClickedMetadata>(
+                    ClickEvent.ProfileBurgerMenuClicked,
+                    {
+                      option: 'Portfolio',
+                    }
+                  )
+                }}
+                variant='transparent'
+                w='full'
+              >
+                <HStack w='full'>
+                  <PortfolioIcon width={16} height={16} />
+                  <Text fontWeight={500} fontSize='14px'>
+                    Portfolio
+                  </Text>
+                </HStack>
+              </Link>
+            </NextLink>
             <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
               <MenuButton
                 as={Button}
@@ -174,6 +198,7 @@ export default function Sidebar() {
                       h={'16px'}
                       w={'16px'}
                       objectFit='cover'
+                      className='amp-block'
                     />
                   ) : (
                     <Flex
@@ -184,12 +209,12 @@ export default function Sidebar() {
                       alignItems='center'
                       justifyContent='center'
                     >
-                      <Text {...paragraphMedium}>
+                      <Text {...paragraphMedium} className={'amp-mask'}>
                         {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
                       </Text>
                     </Flex>
                   )}
-                  <Text {...paragraphMedium}>
+                  <Text {...paragraphMedium} className={'amp-mask'}>
                     {userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address)}
                   </Text>
                 </HStack>
@@ -202,6 +227,9 @@ export default function Sidebar() {
                     onClick={() => {
                       toggleColorMode()
                       setLightTheme()
+                      trackClicked(ClickEvent.UIModeClicked, {
+                        mode: 'Light On',
+                      })
                     }}
                   >
                     <SunIcon width={16} height={16} />
@@ -212,6 +240,9 @@ export default function Sidebar() {
                     onClick={() => {
                       toggleColorMode()
                       setDarkTheme()
+                      trackClicked(ClickEvent.UIModeClicked, {
+                        mode: 'Dark On',
+                      })
                     }}
                   >
                     <MoonIcon width={16} height={16} />
@@ -221,12 +252,9 @@ export default function Sidebar() {
                   variant='grey'
                   w='full'
                   onClick={() => {
-                    trackClicked<ProfileBurgerMenuClickedMetadata>(
-                      ClickEvent.ProfileBurgerMenuClicked,
-                      {
-                        option: 'Sign Out',
-                      }
-                    )
+                    trackClicked(ClickEvent.SignOutClicked, {
+                      option: 'Sign Out',
+                    })
                     disconnectFromPlatform()
                     onToggleAuthMenu()
                   }}
@@ -261,7 +289,6 @@ export default function Sidebar() {
           </Box>
         )}
         <Divider />
-        <TokenFilter />
         {!isMobile && <CategoryFilter />}
       </VStack>
       {isOpenWalletPage && (
@@ -296,6 +323,7 @@ export default function Sidebar() {
       >
         <WalletPage onClose={onToggleWalletPage} />
       </Slide>
+      {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}
     </>
   )
 }

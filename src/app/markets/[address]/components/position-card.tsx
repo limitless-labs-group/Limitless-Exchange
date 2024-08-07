@@ -32,12 +32,12 @@ export function PositionCard({ position, market }: PositionCardProps) {
   const currentContractsPrice =
     +(position.outcomeTokenAmount || 1) * ((market?.prices[position.outcomeIndex] || 1) / 100)
 
-  const contractPrice = currentContractsPrice / +(position.collateralAmount || 1)
+  const contractPrice = currentContractsPrice / +(position?.collateralAmount || 1)
 
   const contractPriceChanged = useMemo(() => {
     let price
     if (contractPrice < 1) {
-      price = NumberUtil.toFixed(contractPrice * 100, 0)
+      price = NumberUtil.toFixed((1 - contractPrice) * 100, 0)
     } else {
       price = NumberUtil.toFixed((contractPrice - 1) * 100, 0)
     }
