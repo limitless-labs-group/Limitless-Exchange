@@ -1,33 +1,47 @@
-import { ChangeEventHandler } from 'react'
 import { Text, Textarea } from '@chakra-ui/react'
+import { useEffect, useState } from 'react'
 
 export interface IProfileTextareaField {
+  renderIcon: () => JSX.Element
   label: string
-  value: string
-  onChange?: ChangeEventHandler<HTMLTextAreaElement> | undefined
+  initialValue: string
+  onChange?: (value: string | undefined) => void
   placeholder?: string
 }
 
 export const ProfileTextareaField = ({
   label,
-  value,
+  initialValue,
   onChange,
   placeholder,
 }: IProfileTextareaField) => {
+  const [_value, _setValue] = useState<string | undefined>(undefined)
+  useEffect(() => {
+    if (_value) {
+      onChange?.(_value)
+    }
+  }, [_value])
+
   return (
     <>
       <Text fontWeight={500} fontSize='16px'>
         {label}
       </Text>
       <Textarea
-        value={value}
-        onChange={onChange}
+        value={_value ?? initialValue}
+        onChange={(e) => _setValue(e.target.value)}
+        placeholder={placeholder}
         height='56px'
         borderColor='grey.300'
         borderRadius='2px'
-        padding='4px 8px 4px 8px'
-        placeholder={placeholder}
-        _placeholder={{ color: 'grey.500', fontWeight: 500 }}
+        py='4px'
+        px='8px'
+        _placeholder={{
+          color: 'grey.500',
+          fontWeight: 500,
+          alignItems: 'start',
+          textAlign: 'start',
+        }}
       />
     </>
   )
