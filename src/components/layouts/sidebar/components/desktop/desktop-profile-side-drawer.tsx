@@ -10,7 +10,10 @@ import {
   Input,
   Spinner,
 } from '@chakra-ui/react'
-import { ProfileInputField, ProfileTextareaField } from '@/components/layouts/sidebar/components'
+import {
+  ProfileInputField,
+  ProfileTextareaField,
+} from '@/components/layouts/sidebar/components/desktop'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAccount } from '@/services'
 import EditPenIcon from 'public/edit-pen-icon.svg'

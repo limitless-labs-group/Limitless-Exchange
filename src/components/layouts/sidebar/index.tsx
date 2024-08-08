@@ -50,7 +50,7 @@ import SwapIcon from '@/resources/icons/swap-icon.svg'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import NextLink from 'next/link'
 import { Link } from '@chakra-ui/react'
-import { DesktopProfileSideDrawer } from '@/components/layouts/sidebar/components'
+import { DesktopProfileSideDrawer } from '@/components/layouts/sidebar/components/desktop'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
