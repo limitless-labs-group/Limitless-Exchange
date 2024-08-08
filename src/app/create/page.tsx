@@ -512,24 +512,6 @@ const CreateOwnMarketPage = () => {
               </HStack>
             </FormField>
 
-            {/* <FormField label='OG'>
-              <HStack>
-                <input
-                  type='file'
-                  id='ogLogoUpload'
-                  name='ogLogoUpload'
-                  style={{ display: 'none' }}
-                  ref={marketLogoRef}
-                  accept={'image/png, image/jpeg'}
-                  onChange={(e) => setOgLogo(e?.target?.files?.[0])}
-                />
-                <Button colorScheme='gray' onClick={() => marketLogoRef.current.click()}>
-                  Choose file
-                </Button>
-                <Text>{ogLogo?.name ?? 'No file chosen.'}</Text>
-              </HStack>
-            </FormField> */}
-
             <ButtonGroup spacing='6' mt={5}>
               <Button variant='outline' width='222px' disabled>
                 Cancel
