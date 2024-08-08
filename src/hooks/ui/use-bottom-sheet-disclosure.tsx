@@ -8,7 +8,6 @@ export const useBottomSheetDisclosure = () => {
   const swipePower = (offset: number, velocity: number) => Math.abs(offset) * velocity
 
   const onDrag = async (e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    console.log('info', info)
     const { offset, velocity } = info
     const swipe = swipePower(offset.y, velocity.y)
     if (offset.y > 0 && swipe > swipeConfidenceThreshold) chakraDisclosure.onClose()
