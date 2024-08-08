@@ -123,7 +123,12 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
   const [displayAmount, setDisplayAmount] = useState('')
 
   useEffect(() => {
-    setDisplayAmount(collateralAmount)
+    // setDisplayAmount(collateralAmount)
+    if (!collateralAmount) {
+      setDisplayAmount('0')
+      return
+    }
+    setDisplayAmount(Number(collateralAmount).toFixed(5))
   }, [collateralAmount])
 
   /**
@@ -138,10 +143,10 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
       if (decimals && decimals.length > 1) {
         return
       }
-      setCollateralAmount(value)
+      setCollateralAmount(Number(value).toFixed(5))
       return
     }
-    setCollateralAmount(value)
+    setCollateralAmount(Number(value).toFixed(6))
     return
   }
 
@@ -153,11 +158,11 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
         return
       }
       if (value == 100) {
-        setDisplayAmount(NumberUtil.toFixed(balance, 6))
+        setDisplayAmount(NumberUtil.toFixed(balance, 5))
         return
       }
       const amountByPercent = (Number(balance) * value) / 100
-      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
+      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 5))
     },
     [sliderValue, balance, isZeroBalance]
   )
@@ -431,7 +436,7 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
               Balance
             </Text>
             <Text {...paragraphMedium} color='white'>
-              {NumberUtil.formatThousands(balance, 6)} {token?.symbol}
+              {NumberUtil.formatThousands(balance, 5)} {token?.symbol}
             </Text>
           </Flex>
           <Slider
