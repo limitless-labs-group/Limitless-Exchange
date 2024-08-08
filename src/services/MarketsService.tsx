@@ -70,8 +70,9 @@ export function useMarkets(topic: Category | null) {
           defaultChain.rpcUrls.default.http.toString()
         ),
         tryAggregate: true,
+        multicallCustomContractAddress: defaultChain.contracts.multicall3.address,
       })
-
+      console.log('filteredMarkets', defaultChain.rpcUrls.default.http.toString())
       const results = await multicall.call(contractCallContext)
 
       const _markets: Map<Address, OddsData> = markets.reduce((acc, market: MarketResponse) => {
