@@ -54,7 +54,7 @@ import {
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
 import { useMarketData } from '@/hooks'
-import { Address } from 'viem'
+import { Address, zeroAddress } from 'viem'
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
   const { supportedTokens } = useLimitlessApi()
@@ -252,6 +252,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                 outcomeTokensPercent={outcomeTokensPercent}
               />
               <MarketPriceChart
+                marketAddr={market.address[defaultChain.id] ?? zeroAddress}
                 winningIndex={winningIndex}
                 resolved={resolved}
                 outcomeTokensPercent={outcomeTokensPercent}
