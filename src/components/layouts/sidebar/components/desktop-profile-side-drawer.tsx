@@ -11,12 +11,13 @@ import {
   Spinner,
 } from '@chakra-ui/react'
 import { ProfileInputField, ProfileTextareaField } from '@/components/layouts/sidebar/components'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAccount } from '@/services'
 import EditPenIcon from 'public/edit-pen-icon.svg'
 import DisplayNameIcon from 'public/display-name-icon.svg'
 import UsernameIcon from 'public/username-icon.svg'
 import BioIcon from 'public/bio-icon.svg'
+import CheckIcon from 'public/check-icon.svg'
 
 export interface IProfileSideDrawer {
   isOpen: boolean
@@ -33,6 +34,8 @@ export const DesktopProfileSideDrawer = ({ isOpen, onClose }: IProfileSideDrawer
   const [displayName, setDisplayName] = useState(userInfo?.name ?? '')
   const [username, setUsername] = useState(farcasterInfo?.username ?? '')
   const [bio, setBio] = useState('')
+  const [profileUpdated, setProfileUpdated] = useState<boolean>(false)
+  const [disableUpdateButton, setDisableUpdateButton] = useState<boolean>(false)
 
   const { mutateAsync: createProfileAsync, isPending: createProfileLoading } = useCreateProfile()
   const { mutateAsync: updateProfileAsync, isPending: updateProfileLoading } = useUpdateProfile()
@@ -40,7 +43,12 @@ export const DesktopProfileSideDrawer = ({ isOpen, onClose }: IProfileSideDrawer
   const { data: profileData, isPending: getProfileDataLoading } = useProfile()
 
   const profileRegistered = !!profileData
-  const updateButtonDisabled = getProfileDataLoading || createProfileLoading || updateProfileLoading
+  const updateButtonDisabled =
+    getProfileDataLoading ||
+    createProfileLoading ||
+    updateProfileLoading ||
+    profileUpdated ||
+    disableUpdateButton
   const updateButtonLoading = createProfileLoading || updateProfileLoading
 
   useEffect(() => {
@@ -64,6 +72,22 @@ export const DesktopProfileSideDrawer = ({ isOpen, onClose }: IProfileSideDrawer
       return () => URL.revokeObjectURL(previewUrl)
     }
   }, [pfpFile, profileData])
+
+  const handleUpdateProfile = useCallback(async () => {
+    try {
+      profileRegistered
+        ? await updateProfileAsync({ displayName, username, bio })
+        : await createProfileAsync({ displayName, username, bio })
+      setProfileUpdated(true)
+      setTimeout(() => {
+        setDisableUpdateButton(true)
+      }, 3_000)
+    } catch (error) {
+      console.error(error)
+      setProfileUpdated(false)
+      setDisableUpdateButton(false)
+    }
+  }, [profileRegistered, displayName, username, bio])
 
   return (
     <>
@@ -95,24 +119,38 @@ export const DesktopProfileSideDrawer = ({ isOpen, onClose }: IProfileSideDrawer
             <VStack h='full' w='full' pt='30px' px='10px' gap='25px'>
               <StackItem w='full' display='flex' justifyContent='right'>
                 <Button
-                  onClick={() =>
-                    profileRegistered
-                      ? updateProfileAsync({ displayName, username, bio })
-                      : createProfileAsync({ displayName, username, bio })
-                  }
+                  onClick={handleUpdateProfile}
                   isLoading={updateButtonLoading}
                   disabled={updateButtonDisabled}
-                  bg='blue.500'
+                  bg={!disableUpdateButton ? 'blue.500' : 'grey.300'}
+                  color={!disableUpdateButton ? 'white' : 'grey.500'}
                   h='24px'
                   w='75px'
                   py='4px'
                   px='10px'
                   borderRadius='2px'
-                  color='white'
                 >
-                  <Text fontSize='16px' color='white' fontWeight={500}>
-                    Update
-                  </Text>
+                  {profileUpdated ? (
+                    disableUpdateButton ? (
+                      <Text
+                        fontSize='16px'
+                        color={!disableUpdateButton ? 'white' : 'grey.500'}
+                        fontWeight={500}
+                      >
+                        Update
+                      </Text>
+                    ) : (
+                      <CheckIcon height='16px' width='16px' />
+                    )
+                  ) : (
+                    <Text
+                      fontSize='16px'
+                      color={!disableUpdateButton ? 'white' : 'grey.500'}
+                      fontWeight={500}
+                    >
+                      Update
+                    </Text>
+                  )}
                 </Button>
               </StackItem>
 
@@ -138,7 +176,7 @@ export const DesktopProfileSideDrawer = ({ isOpen, onClose }: IProfileSideDrawer
                     cursor='pointer'
                   />
                   {updatePfpLoading ? (
-                    <Spinner />
+                    <Spinner color='white' size='sm' />
                   ) : (
                     <EditPenIcon
                       onClick={() => pfpFileRef.current.click()}
