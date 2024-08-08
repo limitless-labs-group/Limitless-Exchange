@@ -435,6 +435,7 @@ export default function MobileHeader() {
               dragPropagation
               onDragEnd={onDragProfileBottomSheet}
               style={{ height: '100%' }}
+              dragConstraints={{ top: 0, bottom: 0 }}
             >
               <ProfileContentMobile />
             </motion.div>
