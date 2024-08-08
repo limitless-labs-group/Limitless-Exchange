@@ -50,7 +50,8 @@ import SwapIcon from '@/resources/icons/swap-icon.svg'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import NextLink from 'next/link'
 import { Link } from '@chakra-ui/react'
-import { DesktopProfileSideDrawer } from '@/components/layouts/sidebar/components/desktop'
+import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
+import { Overlay } from '@/components/common/overlay'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
@@ -339,9 +340,26 @@ export default function Sidebar() {
       >
         <WalletPage onClose={onToggleWalletPage} />
       </Slide>
+      <Slide
+        direction='left'
+        in={isOpenProfileDrawer}
+        style={{
+          borderRight: '1px solid',
+          borderColor: '#E7E7E7', // theme.colors['grey.200'],
+          zIndex: 100,
+          left: '188px',
+          width: '328px',
+          height: '100%',
+          transition: '0.1s',
+          animation: 'fadeIn 0.5s',
+        }}
+      >
+        <ProfileContentDesktop />
+      </Slide>
+
       {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}
 
-      <DesktopProfileSideDrawer isOpen={isOpenProfileDrawer} onClose={onCloseProfileDrawer} />
+      <Overlay show={isOpenProfileDrawer} onClose={onCloseProfileDrawer} />
     </>
   )
 }
