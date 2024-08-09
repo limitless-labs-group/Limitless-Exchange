@@ -123,12 +123,7 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
   const [displayAmount, setDisplayAmount] = useState('')
 
   useEffect(() => {
-    // setDisplayAmount(collateralAmount)
-    if (!collateralAmount) {
-      setDisplayAmount('0')
-      return
-    }
-    setDisplayAmount(Number(collateralAmount).toFixed(5))
+    setDisplayAmount(collateralAmount)
   }, [collateralAmount])
 
   /**
@@ -138,16 +133,25 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
   const [showTooltip, setShowTooltip] = useState(false)
 
   const handleInputValueChange = (value: string) => {
-    if (token?.symbol === 'USDC') {
-      const decimals = value.split('.')[1]
-      if (decimals && decimals.length > 1) {
-        return
-      }
-      setCollateralAmount(Number(value).toFixed(5))
-      return
-    }
-    setCollateralAmount(Number(value).toFixed(6))
+    const [, fractionalDigits] = collateralAmount.split('.')
+
+    setCollateralAmount(
+      !fractionalDigits.length
+        ? value
+        : Number(collateralAmount).toFixed(fractionalDigits.length - 2)
+    )
     return
+
+    // if (token?.symbol === 'USDC') {
+    //   const decimals = value.split('.')[1]
+    //   if (decimals && decimals.length > 1) {
+    //     return
+    //   }
+    //   setCollateralAmount(value)
+    //   return
+    // }
+    // setCollateralAmount(value)
+    // return
   }
 
   const onSlide = useCallback(
@@ -158,11 +162,11 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
         return
       }
       if (value == 100) {
-        setDisplayAmount(NumberUtil.toFixed(balance, 5))
+        setDisplayAmount(NumberUtil.toFixed(balance, 6))
         return
       }
       const amountByPercent = (Number(balance) * value) / 100
-      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 5))
+      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
     },
     [sliderValue, balance, isZeroBalance]
   )
@@ -436,7 +440,7 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
               Balance
             </Text>
             <Text {...paragraphMedium} color='white'>
-              {NumberUtil.formatThousands(balance, 5)} {token?.symbol}
+              {NumberUtil.formatThousands(balance, 6)} {token?.symbol}
             </Text>
           </Flex>
           <Slider
