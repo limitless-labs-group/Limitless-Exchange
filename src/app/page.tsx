@@ -106,7 +106,7 @@ const MainPage = () => {
         return [...filteredMarkets].sort(
           (a, b) => formatMarketNumber(b, b.liquidity) - formatMarketNumber(a, a.liquidity)
         )
-      case Sort.COMING_DEADLINE:
+      case Sort.ENDING_SOON:
         return [...filteredMarkets].sort(
           (a, b) =>
             new Date(a.expirationTimestamp).getTime() - new Date(b.expirationTimestamp).getTime()

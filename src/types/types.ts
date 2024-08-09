@@ -113,7 +113,7 @@ export enum MarketTokensIds {
 export enum Sort {
   BASE = '',
   NEWEST = 'Newest',
-  COMING_DEADLINE = 'Coming Soon',
+  ENDING_SOON = 'Ending Soon',
   HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VOLUME = 'High Volume',
 }

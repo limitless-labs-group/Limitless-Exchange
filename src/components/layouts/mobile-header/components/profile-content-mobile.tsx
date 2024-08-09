@@ -1,11 +1,11 @@
-import { Box, Button, StackItem, Text, VStack, Circle, Input, Spinner } from '@chakra-ui/react'
+import { Box, Button, StackItem, Text, VStack } from '@chakra-ui/react'
 import { useProfileService } from '@/services'
 import {
   BioIcon,
   CheckIcon,
   DisplayNameIcon,
-  EditPenIcon,
   ProfileInputField,
+  ProfilePfp,
   ProfileTextareaField,
   UsernameIcon,
 } from '@/components/common/profiles'
@@ -16,12 +16,7 @@ export const ProfileContentMobile = () => {
     updateButtonLoading,
     updateButtonDisabled,
     disableUpdateButton,
-    pfpPreview,
     profileUpdated,
-    pfpUrl,
-    pfpFileRef,
-    updatePfpLoading,
-    setPfpFile,
     displayName,
     setDisplayName,
     username,
@@ -42,47 +37,13 @@ export const ProfileContentMobile = () => {
         w='full'
         bg='grey.100'
       >
-        <VStack h='full' w='full' pt='30px' px='10px' gap='25px'>
-          <StackItem w='full' display='flex' justifyContent='center'>
-            <Circle
-              size='75px'
-              bg='grey.200'
-              bgImage={pfpPreview ? `url(${pfpPreview})` : !!pfpUrl ? `url(${pfpUrl})` : undefined}
-              bgSize='cover'
-              bgPosition='center'
-              bgRepeat='no-repeat'
-            >
-              <Box
-                pos='absolute'
-                bg='grey.500'
-                w='32px'
-                h='24px'
-                borderRadius='2px'
-                opacity={0.7}
-                onClick={() => pfpFileRef.current.click()}
-                cursor='pointer'
-              />
-              {updatePfpLoading ? (
-                <Spinner color='white' size='sm' />
-              ) : (
-                <EditPenIcon
-                  onClick={() => pfpFileRef.current.click()}
-                  cursor='pointer'
-                  style={{ position: 'absolute', height: '16px', width: '16px' }}
-                />
-              )}
-            </Circle>
+        <VStack h='full' w='full' px='10px' gap='25px'>
+          <StackItem w='full' pt='10px' display='flex' justifyContent='center' alignItems='center'>
+            <Box height='4px' width='36px' borderRadius='2px' bg='grey.300' />
+          </StackItem>
 
-            <Input
-              display='hidden'
-              type='file'
-              id='marketLogoUpload'
-              name='marketLogoUpload'
-              style={{ display: 'none' }}
-              ref={pfpFileRef}
-              accept={'image/png, image/jpeg'}
-              onChange={(e) => setPfpFile(e?.target?.files?.[0])}
-            />
+          <StackItem w='full' pt='10px' display='flex' justifyContent='center'>
+            <ProfilePfp />
           </StackItem>
 
           <StackItem w='full'>

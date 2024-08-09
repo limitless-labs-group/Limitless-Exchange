@@ -3,14 +3,14 @@ import { useAccount } from '@/services'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export const useProfileService = () => {
-  const { farcasterInfo, userInfo } = useAccount()
+  const { farcasterInfo, userInfo, account } = useAccount()
 
   const pfpFileRef = useRef<any>()
   const [pfpFile, setPfpFile] = useState<File | undefined>(undefined)
   const [pfpPreview, setPfpPreview] = useState<string | undefined>(undefined)
   const [pfpUrl, setPfpUrl] = useState<string | undefined>(undefined)
-  const [displayName, setDisplayName] = useState(userInfo?.name ?? '')
-  const [username, setUsername] = useState(farcasterInfo?.username ?? '')
+  const [displayName, setDisplayName] = useState(userInfo?.name ?? account ?? '')
+  const [username, setUsername] = useState(farcasterInfo?.username ?? account ?? '')
   const [bio, setBio] = useState('')
   const [profileUpdated, setProfileUpdated] = useState<boolean>(false)
   const [disableUpdateButton, setDisableUpdateButton] = useState<boolean>(false)
@@ -38,18 +38,20 @@ export const useProfileService = () => {
   }, [profileData])
 
   useEffect(() => {
+    setDisplayName(userInfo?.name ?? account ?? '')
+    setUsername(farcasterInfo?.username ?? account ?? '')
+  }, [farcasterInfo, userInfo, account])
+
+  useEffect(() => {
     if (pfpFile) {
       const previewUrl = URL.createObjectURL(pfpFile)
       setPfpPreview(previewUrl)
-
-      if (profileData) {
-        updatePfpAsync(pfpFile)
-      }
+      updatePfpAsync(pfpFile)
 
       // Clean up the preview URL when the component unmounts or the file changes
       return () => URL.revokeObjectURL(previewUrl)
     }
-  }, [pfpFile, profileData])
+  }, [pfpFile])
 
   const handleUpdateProfile = useCallback(async () => {
     try {
@@ -68,6 +70,7 @@ export const useProfileService = () => {
   }, [profileRegistered, displayName, username, bio])
 
   return {
+    profileData,
     handleUpdateProfile,
     updateButtonLoading,
     updateButtonDisabled,
