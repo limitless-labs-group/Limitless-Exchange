@@ -10,6 +10,7 @@ export const Overlay = ({ show, onClose }: IOverlay) => {
     <>
       {show && (
         <Box
+          zIndex={99}
           top='0px'
           pos='absolute'
           h='100%'

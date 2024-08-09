@@ -1,4 +1,4 @@
-import { Input, InputGroup, InputLeftAddon, Text } from '@chakra-ui/react'
+import { Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
@@ -33,19 +33,19 @@ export const ProfileInputField = ({
       </Text>
 
       <InputGroup>
-        <InputLeftAddon
+        <InputLeftElement
+          // pointerEvents='none'
           height='24px'
+          width='36px'
           borderColor='grey.300'
           borderRadius='2px'
-          borderRight='none'
           py={isMobile ? '15px' : '4px'}
-          pr={isMobile ? '8px' : '4px'}
-          // py='4px'
-          // pr='4px'
-          pl='8px'
+          // bg='red.100'
+          // pr={isMobile ? '8px' : '4px'}
+          // pl='8px'
         >
           {renderIcon()}
-        </InputLeftAddon>
+        </InputLeftElement>
         <Input
           value={_value ?? initialValue}
           onChange={(e) => _setValue(e.target.value)}
@@ -53,10 +53,9 @@ export const ProfileInputField = ({
           height='24px'
           borderColor='grey.300'
           borderRadius='2px'
-          borderLeft='none'
           py={isMobile ? '15px' : '4px'}
           pr={isMobile ? '12px' : '8px'}
-          pl='0px'
+          pl={'28px'}
           _placeholder={{ color: 'grey.500', fontWeight: 500 }}
         />
       </InputGroup>
