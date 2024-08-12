@@ -61,7 +61,11 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
   const { mutateAsync: createProfileAsync, isPending: createProfileLoading } = useCreateProfile()
   const { mutateAsync: updateProfileAsync, isPending: updateProfileLoading } = useUpdateProfile()
   const { mutateAsync: updatePfpAsync, isPending: updatePfpLoading } = useUpdatePfp()
-  const { data: profileData, isLoading: getProfileDataLoading } = useProfile()
+  const {
+    data: profileData,
+    isLoading: getProfileDataLoading,
+    refetch: refetchProfile,
+  } = useProfile()
   const {
     data: checkUsernameExistsData,
     isLoading: checkUsernameExistsLoading,
@@ -114,6 +118,8 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
       console.error(error)
       setProfileUpdated(false)
       setDisableUpdateButton(false)
+    } finally {
+      refetchProfile()
     }
   }, [profileRegistered, displayName, username, bio])
 
