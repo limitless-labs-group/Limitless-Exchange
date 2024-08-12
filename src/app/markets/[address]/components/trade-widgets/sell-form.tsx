@@ -44,11 +44,13 @@ import { useWeb3Service } from '@/services/Web3Service'
 const _transformSellValue = (value: string) => {
   const [wholeNumber, fractionalNumber] = value.split('.')
 
-  const fractionalNumberLength = fractionalNumber?.length || 0
-  const percentage = fractionalNumberLength <= 6 ? 0.98 : fractionalNumberLength === 0 ? 1 : 0.91
+  // const fractionalNumberLength = fractionalNumber?.length || 0
+  // const percentage = fractionalNumberLength <= 6 ? 0.99 : fractionalNumberLength === 0 ? 1 : 0.91
+  const percentage = 1
 
   let zeroWholeFraction: string = ['0', fractionalNumber].join('.')
   zeroWholeFraction = String(+zeroWholeFraction * percentage)
+  zeroWholeFraction = Number(zeroWholeFraction).toFixed(6)
   const [, _fractionalNumber] = zeroWholeFraction.split('.')
   return [wholeNumber, _fractionalNumber].join('.')
 }

@@ -234,7 +234,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       balanceOfCollateralToSellBIYes,
       collateralToken?.decimals || 18
     )
-    console.log('_balanceOfCollateralToSellYes', _balanceOfCollateralToSellYes)
+    // console.log('_balanceOfCollateralToSellYes', _balanceOfCollateralToSellYes)
 
     setBalanceOfCollateralToSellYes(_balanceOfCollateralToSellYes)
 
@@ -263,7 +263,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       balanceOfCollateralToSellBINo,
       collateralToken?.decimals || 18
     )
-    console.log('_balanceOfCollateralToSellNo', _balanceOfCollateralToSellNo)
+    // console.log('_balanceOfCollateralToSellNo', _balanceOfCollateralToSellNo)
 
     setBalanceOfCollateralToSellNo(_balanceOfCollateralToSellNo)
   }, [account, market, strategy])
