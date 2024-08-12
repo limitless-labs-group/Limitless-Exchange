@@ -1,23 +1,60 @@
-import {
-  useCreateProfile,
-  useProfile,
-  useUpdatePfp,
-  useUpdateProfile,
-  useUsernameExists,
-} from '@/hooks/profiles'
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query'
 import { useAccount } from '@/services'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Profile } from '@/types/profiles'
+import {
+  useUsernameExists,
+  useUpdateProfile,
+  useCreateProfile,
+  useUpdatePfp,
+  useProfile,
+} from '@/hooks/profiles'
+import {
+  PropsWithChildren,
+  SetStateAction,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  Dispatch,
+  useState,
+  useRef,
+} from 'react'
 
-export const useProfileService = () => {
+export interface IProfileServiceContext {
+  profileData: Profile | undefined
+  handleUpdateProfile: () => Promise<void>
+  updateButtonLoading: boolean
+  updateButtonDisabled: boolean
+  disableUpdateButton: boolean
+  pfpPreview: string | undefined
+  profileUpdated: boolean
+  pfpUrl: string | undefined
+  pfpFileRef: any
+  updatePfpLoading: boolean
+  setPfpFile: Dispatch<SetStateAction<File | undefined>>
+  displayName: string
+  setDisplayName: Dispatch<SetStateAction<string>>
+  username: string
+  setUsername: Dispatch<SetStateAction<string>>
+  bio: string
+  setBio: Dispatch<SetStateAction<string>>
+  checkUsernameExistsData: boolean | undefined
+  checkUsernameExistsLoading: boolean
+  checkUsernameExists: (options?: RefetchOptions) => Promise<QueryObserverResult<boolean, Error>>
+}
+
+const ProfileServiceContext = createContext({} as IProfileServiceContext)
+
+export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
   const { farcasterInfo, userInfo, account } = useAccount()
 
   const pfpFileRef = useRef<any>()
   const [pfpFile, setPfpFile] = useState<File | undefined>(undefined)
   const [pfpPreview, setPfpPreview] = useState<string | undefined>(undefined)
   const [pfpUrl, setPfpUrl] = useState<string | undefined>(undefined)
-  const [displayName, setDisplayName] = useState(userInfo?.name ?? account ?? '')
-  const [username, setUsername] = useState(farcasterInfo?.username ?? account ?? '')
-  const [bio, setBio] = useState('')
+  const [displayName, setDisplayName] = useState<string>(userInfo?.name ?? account ?? '')
+  const [username, setUsername] = useState<string>(farcasterInfo?.username ?? account ?? '')
+  const [bio, setBio] = useState<string>('')
   const [profileUpdated, setProfileUpdated] = useState<boolean>(false)
   const [disableUpdateButton, setDisableUpdateButton] = useState<boolean>(false)
 
@@ -80,7 +117,7 @@ export const useProfileService = () => {
     }
   }, [profileRegistered, displayName, username, bio])
 
-  return {
+  const contextProviderValue: IProfileServiceContext = {
     profileData,
     handleUpdateProfile,
     updateButtonLoading,
@@ -102,4 +139,12 @@ export const useProfileService = () => {
     checkUsernameExistsLoading,
     checkUsernameExists,
   }
+
+  return (
+    <ProfileServiceContext.Provider value={contextProviderValue}>
+      {children}
+    </ProfileServiceContext.Provider>
+  )
 }
+
+export const useProfileService = () => useContext(ProfileServiceContext)
