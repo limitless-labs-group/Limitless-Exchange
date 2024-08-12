@@ -23,6 +23,8 @@ export const ProfileContentDesktop = () => {
     setUsername,
     bio,
     setBio,
+    checkUsernameExists,
+    checkUsernameExistsData,
   } = useProfileService()
 
   return (
@@ -91,10 +93,22 @@ export const ProfileContentDesktop = () => {
           <StackItem w='full'>
             <ProfileInputField
               renderIcon={() => <UsernameIcon />}
+              pattern={/^[a-zA-Z0-9_]+$/.source}
               label='Username'
               initialValue={username}
               placeholder='Enter your username'
               onChange={(v) => setUsername(v)}
+              onBlur={() => {
+                if (username) checkUsernameExists()
+              }}
+              onKeyDown={(e) => {
+                const isSpecialCharacter = !/^[a-zA-Z0-9_]+$/.test(e.key)
+
+                if (isSpecialCharacter) e.preventDefault()
+                if (e.key === ' ') e.preventDefault()
+              }}
+              isInvalid={checkUsernameExistsData}
+              invalidText='Username already exists'
               hint='So others can mention you in comments'
             />
           </StackItem>

@@ -1,4 +1,10 @@
-import { useCreateProfile, useProfile, useUpdatePfp, useUpdateProfile } from '@/hooks/profiles'
+import {
+  useCreateProfile,
+  useProfile,
+  useUpdatePfp,
+  useUpdateProfile,
+  useUsernameExists,
+} from '@/hooks/profiles'
 import { useAccount } from '@/services'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -18,7 +24,12 @@ export const useProfileService = () => {
   const { mutateAsync: createProfileAsync, isPending: createProfileLoading } = useCreateProfile()
   const { mutateAsync: updateProfileAsync, isPending: updateProfileLoading } = useUpdateProfile()
   const { mutateAsync: updatePfpAsync, isPending: updatePfpLoading } = useUpdatePfp()
-  const { data: profileData, isPending: getProfileDataLoading } = useProfile()
+  const { data: profileData, isLoading: getProfileDataLoading } = useProfile()
+  const {
+    data: checkUsernameExistsData,
+    isLoading: checkUsernameExistsLoading,
+    refetch: checkUsernameExists,
+  } = useUsernameExists({ username })
 
   const profileRegistered = !!profileData
   const updateButtonDisabled =
@@ -87,5 +98,8 @@ export const useProfileService = () => {
     setUsername,
     bio,
     setBio,
+    checkUsernameExistsData,
+    checkUsernameExistsLoading,
+    checkUsernameExists,
   }
 }

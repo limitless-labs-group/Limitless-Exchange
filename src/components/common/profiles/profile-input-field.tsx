@@ -1,22 +1,32 @@
 import { Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { KeyboardEventHandler, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
 export interface IProfileInputField {
+  pattern?: string | undefined
   renderIcon: () => JSX.Element
   label: string
   initialValue: string
+  isInvalid?: boolean
   onChange?: (value: string) => void
+  onBlur?: () => void
+  onKeyDown?: KeyboardEventHandler<HTMLInputElement> | undefined
   hint?: string
+  invalidText?: string
   placeholder?: string
 }
 
 export const ProfileInputField = ({
+  pattern,
   renderIcon,
   label,
   initialValue,
+  isInvalid,
   onChange,
+  onBlur,
+  onKeyDown,
   hint,
+  invalidText,
   placeholder,
 }: IProfileInputField) => {
   const [_value, _setValue] = useState<string | undefined>(undefined)
@@ -47,8 +57,12 @@ export const ProfileInputField = ({
           {renderIcon()}
         </InputLeftElement>
         <Input
+          pattern={pattern}
           value={_value ?? initialValue}
           onChange={(e) => _setValue(e.target.value)}
+          onBlur={onBlur}
+          onKeyDown={onKeyDown}
+          isInvalid={isInvalid}
           placeholder={placeholder}
           height='24px'
           borderColor='grey.300'
@@ -60,9 +74,15 @@ export const ProfileInputField = ({
         />
       </InputGroup>
 
-      <Text fontWeight={500} fontSize='16px' color='grey.500'>
-        {hint}
-      </Text>
+      {!isInvalid ? (
+        <Text fontWeight={500} fontSize='16px' color='grey.500'>
+          {hint}
+        </Text>
+      ) : (
+        <Text fontWeight={500} fontSize='16px' color='red'>
+          {invalidText}
+        </Text>
+      )}
     </>
   )
 }
