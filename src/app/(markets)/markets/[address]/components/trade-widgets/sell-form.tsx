@@ -43,6 +43,20 @@ import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import { Address } from 'viem'
 
+const _transformSellValue = (value: string) => {
+  const [wholeNumber, fractionalNumber] = value.split('.')
+
+  // const fractionalNumberLength = fractionalNumber?.length || 0
+  // const percentage = fractionalNumberLength <= 6 ? 0.99 : fractionalNumberLength === 0 ? 1 : 0.91
+  const percentage = 1
+
+  let zeroWholeFraction: string = ['0', fractionalNumber].join('.')
+  zeroWholeFraction = String(+zeroWholeFraction * percentage)
+  zeroWholeFraction = Number(zeroWholeFraction).toFixed(6)
+  const [, _fractionalNumber] = zeroWholeFraction.split('.')
+  return [wholeNumber, _fractionalNumber].join('.')
+}
+
 interface SellFormProps {
   market: Market
   setOutcomeIndex: Dispatch<SetStateAction<number>>
@@ -135,7 +149,10 @@ export function SellForm({
 
   const balance = useMemo(() => {
     if (outcomeChoice) {
-      return outcomeChoice === 'yes' ? balanceOfCollateralToSellYes : balanceOfCollateralToSellNo
+      let _balance =
+        outcomeChoice === 'yes' ? balanceOfCollateralToSellYes : balanceOfCollateralToSellNo
+      _balance = _transformSellValue(_balance)
+      return _balance
     }
   }, [outcomeChoice, balanceOfCollateralToSellYes, balanceOfCollateralToSellNo])
 
@@ -162,15 +179,8 @@ export function SellForm({
   const [showTooltip, setShowTooltip] = useState(false)
 
   const handleInputValueChange = (value: string) => {
-    if (token?.symbol === 'USDC') {
-      const decimals = value.split('.')[1]
-      if (decimals && decimals.length > 1) {
-        return
-      }
-      setCollateralAmount(value)
-      return
-    }
-    setCollateralAmount(value)
+    const _collateralAmount = _transformSellValue(value)
+    setCollateralAmount(_collateralAmount)
     return
   }
 
@@ -182,13 +192,21 @@ export function SellForm({
         return
       }
       if (value == 100) {
-        setDisplayAmount(NumberUtil.toFixed(balance, 6))
+        // _displayAmount = NumberUtil.toFixed(balance, 6)
+        // _displayAmount = _transformCollateralAmount(balance ?? '0')
+        // console.log('onSlide _displayAmount', _displayAmount)
+        setDisplayAmount(balance ?? '0')
         return
       }
       const amountByPercent = (Number(balance) * value) / 100
-      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
+
+      // _displayAmount = amountByPercent.toString()
+      // _displayAmount = _transformCollateralAmount(_displayAmount)
+      // console.log('onSlide amountByPercent _displayAmount', _displayAmount)
+      const _collateralAmount = _transformSellValue(amountByPercent.toString())
+      setDisplayAmount(_collateralAmount)
     },
-    [sliderValue, balance, isZeroBalance]
+    [balance, isZeroBalance]
   )
 
   const positionsYes = positions?.find((position) => position.outcomeIndex === 0)
@@ -221,6 +239,9 @@ export function SellForm({
 
   const isExceedsBalance = useMemo(() => {
     if (outcomeChoice) {
+      console.log(collateralAmount)
+      console.log(balanceOfCollateralToSellYes)
+      console.log(balanceOfCollateralToSellNo)
       return new BigNumber(collateralAmount).isGreaterThan(
         new BigNumber(
           outcomeChoice === 'yes' ? balanceOfCollateralToSellYes : balanceOfCollateralToSellNo
