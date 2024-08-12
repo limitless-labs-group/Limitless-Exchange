@@ -15,7 +15,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
-import React, { useRef } from 'react'
+import React, { useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import '../../../../src/app/style.css'
 import SunIcon from '@/resources/icons/sun-icon.svg'
@@ -29,6 +29,7 @@ import {
   useAccount,
   useAmplitude,
   useBalanceService,
+  useProfileService,
 } from '@/services'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
@@ -50,29 +51,48 @@ import SwapIcon from '@/resources/icons/swap-icon.svg'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import NextLink from 'next/link'
 import { Link } from '@chakra-ui/react'
-import { DesktopProfileSideDrawer } from '@/components/layouts/sidebar/components'
+import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
+import { Overlay } from '@/components/common/overlay'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
-  const { toggleColorMode } = useColorMode()
-
-  const { isConnected } = useWagmiAccount()
-  const { trackClicked } = useAmplitude()
-
-  const { overallBalanceUsd } = useBalanceService()
-  const { userInfo } = useAccount()
-  const address = useWalletAddress()
   const { disconnectFromPlatform } = useDisconnectAccount()
+  const { overallBalanceUsd } = useBalanceService()
+  const { toggleColorMode } = useColorMode()
+  const { trackClicked } = useAmplitude()
+  const { isConnected } = useWagmiAccount()
+  const { profileData } = useProfileService()
+  const { userInfo } = useAccount()
   const { client } = useWeb3Service()
+
+  const address = useWalletAddress()
   const pageName = usePageName()
 
+  const user = useMemo(() => {
+    if (!profileData) {
+      return {
+        displayName: userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address),
+        pfpUrl: userInfo?.profileImage,
+      }
+    }
+
+    return {
+      displayName: profileData?.displayName
+        ? cutUsername(profileData?.displayName)
+        : profileData?.username
+        ? cutUsername(profileData?.username)
+        : truncateEthAddress(address),
+      pfpUrl: profileData?.pfpUrl,
+    }
+  }, [userInfo, profileData, address])
+
+  const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
+  const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
   const {
     isOpen: isOpenProfileDrawer,
     onOpen: onOpenProfileDrawer,
     onClose: onCloseProfileDrawer,
   } = useDisclosure()
-  const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
-  const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
   const {
     isOpen: isWrapModalOpen,
     onOpen: onOpenWrapModal,
@@ -85,9 +105,7 @@ export default function Sidebar() {
     }
   }
 
-  const handleOpenWrapModal = () => {
-    onOpenWrapModal()
-  }
+  const handleOpenWrapModal = () => onOpenWrapModal()
 
   return (
     <>
@@ -198,9 +216,9 @@ export default function Sidebar() {
                   }}
                 >
                   <HStack gap='8px'>
-                    {userInfo?.profileImage?.includes('http') ? (
+                    {user?.pfpUrl?.includes('http') ? (
                       <ChakraImage
-                        src={userInfo.profileImage}
+                        src={user.pfpUrl}
                         borderRadius={'2px'}
                         h={'16px'}
                         w={'16px'}
@@ -217,12 +235,12 @@ export default function Sidebar() {
                         justifyContent='center'
                       >
                         <Text {...paragraphMedium} className={'amp-mask'}>
-                          {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
+                          {user.displayName ? user.displayName[0].toUpperCase() : 'O'}
                         </Text>
                       </Flex>
                     )}
                     <Text {...paragraphMedium} className={'amp-mask'}>
-                      {userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address)}
+                      {user.displayName}
                     </Text>
                   </HStack>
                 </MenuButton>
@@ -339,9 +357,26 @@ export default function Sidebar() {
       >
         <WalletPage onClose={onToggleWalletPage} />
       </Slide>
+      <Slide
+        direction='left'
+        in={isOpenProfileDrawer}
+        style={{
+          borderRight: '1px solid',
+          borderColor: '#E7E7E7', // theme.colors['grey.200'],
+          zIndex: 100,
+          left: '188px',
+          width: '328px',
+          height: '100%',
+          transition: '0.1s',
+          animation: 'fadeIn 0.5s',
+        }}
+      >
+        <ProfileContentDesktop />
+      </Slide>
+
       {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}
 
-      <DesktopProfileSideDrawer isOpen={isOpenProfileDrawer} onClose={onCloseProfileDrawer} />
+      <Overlay show={isOpenProfileDrawer} onClose={onCloseProfileDrawer} />
     </>
   )
 }
