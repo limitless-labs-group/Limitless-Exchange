@@ -89,7 +89,7 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
     data: profileData,
     isLoading: getProfileDataLoading,
     refetch: refetchProfile,
-  } = useProfile({ account })
+  } = useProfile()
   const {
     data: checkUsernameExistsData,
     isLoading: checkUsernameExistsLoading,
