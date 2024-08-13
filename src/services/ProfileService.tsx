@@ -1,4 +1,9 @@
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query'
+import { truncateEthAddress } from '@/utils'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { useWeb3Service } from '@/services/Web3Service'
+import { useDisclosure } from '@chakra-ui/react'
+import { cutUsername } from '@/utils/string'
 import { useAccount } from '@/services'
 import { Profile } from '@/types/profiles'
 import {
@@ -20,9 +25,6 @@ import {
   useRef,
   useMemo,
 } from 'react'
-import { useDisclosure } from '@chakra-ui/react'
-import { cutUsername } from '@/utils/string'
-import { truncateEthAddress } from '@/utils'
 
 export interface IProfileServiceContext {
   profileData: Profile | undefined
@@ -57,25 +59,37 @@ export interface IProfileServiceContext {
 const ProfileServiceContext = createContext({} as IProfileServiceContext)
 
 export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
+  const { client } = useWeb3Service()
   const pfpFileRef = useRef<any>()
-  const { farcasterInfo, userInfo, account } = useAccount()
+  const account = useWalletAddress()
+
+  const { farcasterInfo, userInfo } = useAccount()
   const [pfpFile, setPfpFile] = useState<File | undefined>(undefined)
   const [pfpPreview, setPfpPreview] = useState<string | undefined>(undefined)
   const [pfpUrl, setPfpUrl] = useState<string | undefined>(undefined)
-  const [displayName, setDisplayName] = useState<string>(userInfo?.name ?? account ?? '')
-  const [username, setUsername] = useState<string>(farcasterInfo?.username ?? account ?? '')
+  const [displayName, setDisplayName] = useState<string>('')
+  const [username, setUsername] = useState<string>('')
   const [bio, setBio] = useState<string>('')
   const [profileUpdated, setProfileUpdated] = useState<boolean>(false)
   const [disableUpdateButton, setDisableUpdateButton] = useState<boolean>(false)
 
-  const { mutateAsync: createProfileAsync, isPending: createProfileLoading } = useCreateProfile()
-  const { mutateAsync: updateProfileAsync, isPending: updateProfileLoading } = useUpdateProfile()
-  const { mutateAsync: updatePfpAsync, isPending: updatePfpLoading } = useUpdatePfp()
+  const { mutateAsync: createProfileAsync, isPending: createProfileLoading } = useCreateProfile({
+    account,
+    client,
+  })
+  const { mutateAsync: updateProfileAsync, isPending: updateProfileLoading } = useUpdateProfile({
+    account,
+    client,
+  })
+  const { mutateAsync: updatePfpAsync, isPending: updatePfpLoading } = useUpdatePfp({
+    account,
+    client,
+  })
   const {
     data: profileData,
     isLoading: getProfileDataLoading,
     refetch: refetchProfile,
-  } = useProfile()
+  } = useProfile({ account })
   const {
     data: checkUsernameExistsData,
     isLoading: checkUsernameExistsLoading,
@@ -102,7 +116,7 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
         : truncateEthAddress(account),
       pfpUrl: profileData?.pfpUrl,
     }
-  }, [userInfo, profileData, account])
+  }, [userInfo, profileData, getProfileDataLoading, account])
 
   const profileRegistered = !!profileData
   const updateButtonDisabled =
@@ -114,19 +128,18 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
   const updateButtonLoading = createProfileLoading || updateProfileLoading
 
   useEffect(() => {
-    if (!profileData) return
-    setPfpUrl(profileData.pfpUrl)
-    setDisplayName(profileData.displayName)
-    setUsername(profileData.username)
-    setBio(profileData.bio ?? '')
-  }, [profileData])
-
-  useEffect(() => {
-    if (profileData) return
-    setDisplayName(userInfo?.name ?? account ?? '')
-    setUsername(farcasterInfo?.username ?? account ?? '')
-    refetchProfile()
-  }, [farcasterInfo, userInfo, account])
+    if (!profileData) {
+      setDisplayName(userInfo?.name ?? account ?? '')
+      setUsername(farcasterInfo?.username ?? account ?? '')
+      refetchProfile()
+      return
+    } else {
+      setPfpUrl(profileData.pfpUrl)
+      setDisplayName(profileData.displayName)
+      setUsername(profileData.username)
+      setBio(profileData.bio ?? '')
+    }
+  }, [profileData, farcasterInfo, userInfo, account])
 
   useEffect(() => {
     if (pfpFile) {

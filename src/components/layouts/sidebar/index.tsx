@@ -15,7 +15,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
-import React, { useMemo } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import '../../../../src/app/style.css'
 import SunIcon from '@/resources/icons/sun-icon.svg'
@@ -33,9 +33,7 @@ import {
 } from '@/services'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import { NumberUtil, truncateEthAddress } from '@/utils'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import { cutUsername } from '@/utils/string'
+import { NumberUtil } from '@/utils'
 import { useWeb3Service } from '@/services/Web3Service'
 import { LoginButton } from '@/components/common/login-button'
 import CategoryFilter from '@/components/common/categories'
@@ -55,7 +53,7 @@ import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
 import { Overlay } from '@/components/common/overlay'
 
 export default function Sidebar() {
-  const { user, isOpenProfileDrawer, onOpenProfileDrawer, onCloseProfileDrawer } =
+  const { user, profileData, isOpenProfileDrawer, onOpenProfileDrawer, onCloseProfileDrawer } =
     useProfileService()
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
   const { disconnectFromPlatform } = useDisconnectAccount()
@@ -68,8 +66,21 @@ export default function Sidebar() {
   // const address = useWalletAddress()
   const pageName = usePageName()
 
-  const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
-  const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
+  useEffect(() => {
+    console.log('user', user)
+    console.log('profileData'), profileData
+  }, [user, profileData])
+
+  const {
+    isOpen: isOpenWalletPage,
+    onToggle: onToggleWalletPage,
+    onClose: onCloseWalletPage,
+  } = useDisclosure()
+  const {
+    isOpen: isOpenAuthMenu,
+    onToggle: onToggleAuthMenu,
+    onClose: onCloseAuthMenu,
+  } = useDisclosure()
 
   const {
     isOpen: isWrapModalOpen,
@@ -77,13 +88,25 @@ export default function Sidebar() {
     onClose: onCloseWrapModal,
   } = useDisclosure()
 
-  const handleOpenWalletPage = () => {
-    if (client !== 'eoa') {
-      onToggleWalletPage()
-    }
-  }
+  const handleOpenWalletPage = useCallback(() => {
+    if (client === 'eoa') return
+    onCloseProfileDrawer()
+    onToggleWalletPage()
+  }, [client])
+  const handleOpenWrapModal = useCallback(() => onOpenWrapModal(), [])
+  const handleOpenProfileDrawer = useCallback(() => {
+    onCloseWalletPage()
+    onCloseWrapModal()
+    onCloseAuthMenu()
 
-  const handleOpenWrapModal = () => onOpenWrapModal()
+    if (!isOpenProfileDrawer) {
+      onOpenProfileDrawer()
+      return
+    }
+
+    onCloseProfileDrawer()
+    return
+  }, [isOpenWalletPage, isOpenProfileDrawer])
 
   return (
     <>
@@ -254,7 +277,7 @@ export default function Sidebar() {
                   <Button
                     variant='grey'
                     w='full'
-                    onClick={!isOpenProfileDrawer ? onOpenProfileDrawer : onCloseProfileDrawer}
+                    onClick={handleOpenProfileDrawer}
                     justifyContent='flex-start'
                   >
                     Profile

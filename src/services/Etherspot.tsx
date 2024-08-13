@@ -13,7 +13,15 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, erc20Abi } from 'viem'
+import {
+  TransactionReceipt,
+  encodeFunctionData,
+  getContract,
+  maxUint256,
+  erc20Abi,
+  getAddress,
+  zeroAddress,
+} from 'viem'
 import { contractABI } from '@/contracts/utils'
 import { publicClient } from '@/providers'
 import { useLimitlessApi } from '@/services/LimitlessApi'
@@ -22,6 +30,7 @@ import { getRandomNumber } from '@lifi/sdk'
 interface IEtherspotContext {
   etherspot: Etherspot | null
   smartWalletAddress?: Address
+  smartWalletExternallyOwnedAccountAddress?: Address
   signMessage: (message: string) => Promise<string | undefined>
   whitelist: () => Promise<void>
   transferErc20: (data: ITransferErc20) => Promise<TransactionReceipt | undefined>
@@ -137,6 +146,9 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
   const contextProviderValue: IEtherspotContext = {
     etherspot,
     smartWalletAddress,
+    smartWalletExternallyOwnedAccountAddress: etherspot?.primeSdk.state.EOAAddress
+      ? getAddress(etherspot?.primeSdk.state.EOAAddress)
+      : undefined,
     signMessage,
     transferErc20,
     whitelist,
