@@ -1,35 +1,52 @@
 import { useProfileAuthSigningMessage } from '@/hooks/profiles'
-import { useAccount, useSignMessage } from 'wagmi'
-import { getAddress, toHex } from 'viem'
-import { limitlessApi } from '@/services'
+import { Address, getAddress, toHex } from 'viem'
+import { limitlessApi, useEtherspot } from '@/services'
+import { useSignMessage } from 'wagmi'
 import { useMutation } from '@tanstack/react-query'
 import { useToast } from '@/hooks'
 import { Profile } from '@/types/profiles'
 import { Toast } from '@/components/common/toast'
 
-export const useUpdatePfp = () => {
+export interface IUseUpdatePfp {
+  account: Address | undefined
+  client: 'etherspot' | 'eoa'
+}
+
+export const useUpdatePfp = ({ account, client }: IUseUpdatePfp) => {
   const toast = useToast()
 
-  const { address: account } = useAccount()
+  const { signMessage, smartWalletExternallyOwnedAccountAddress } = useEtherspot()
   const { signMessageAsync } = useSignMessage()
   const { refetch: getUpdatePfpSigningMessage } = useProfileAuthSigningMessage({
     purpose: 'UPDATE_PFP',
   })
 
   return useMutation({
-    mutationKey: ['update-pfp', { account }],
+    mutationKey: ['update-pfp', { account, client }],
     mutationFn: async (pfpFile: File): Promise<Profile> => {
       const formData = new FormData()
       const { data: updatePfpSigningMessage } = await getUpdatePfpSigningMessage()
       if (!updatePfpSigningMessage) throw new Error('Failed to get signing message')
-      const signature = await signMessageAsync({ message: updatePfpSigningMessage, account })
+      const signature =
+        client === 'eoa'
+          ? await signMessageAsync({ message: updatePfpSigningMessage, account })
+          : await signMessage(updatePfpSigningMessage)
       const headers = {
         'content-type': 'multipart/form-data',
-        'x-account': getAddress(account!),
+        'x-account':
+          client === 'eoa'
+            ? getAddress(account!)
+            : getAddress(smartWalletExternallyOwnedAccountAddress!),
         'x-signature': signature,
         'x-signing-message': toHex(String(updatePfpSigningMessage)),
       }
       formData.set('pfpFile', pfpFile)
+      formData.set(
+        'eoaWallet',
+        String(client === 'eoa' ? account : smartWalletExternallyOwnedAccountAddress)
+      )
+      formData.set('smartWallet', String(client === 'eoa' ? null : account))
+      formData.set('client', client)
 
       const res = await limitlessApi.put('/profiles/pfp', formData, {
         headers,
