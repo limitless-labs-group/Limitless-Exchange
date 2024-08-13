@@ -152,7 +152,7 @@ const CreateOwnMarketPage = () => {
 
       const totalBalanceForNewMarkets =
         Number(parsedTemplate.marketsGroupLiquidity * parsedTemplate.markets.length) *
-        Math.pow(10, 18)
+        Math.pow(10, token?.tokenInfo.decimals || 18)
       const safeBalance = Number(token?.balance)
 
       setIsBalanceValid(
