@@ -55,44 +55,22 @@ import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
 import { Overlay } from '@/components/common/overlay'
 
 export default function Sidebar() {
+  const { user, isOpenProfileDrawer, onOpenProfileDrawer, onCloseProfileDrawer } =
+    useProfileService()
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
   const { disconnectFromPlatform } = useDisconnectAccount()
   const { overallBalanceUsd } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { trackClicked } = useAmplitude()
   const { isConnected } = useWagmiAccount()
-  const { profileData } = useProfileService()
-  const { userInfo } = useAccount()
   const { client } = useWeb3Service()
 
-  const address = useWalletAddress()
+  // const address = useWalletAddress()
   const pageName = usePageName()
-
-  const user = useMemo(() => {
-    if (!profileData) {
-      return {
-        displayName: userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(address),
-        pfpUrl: userInfo?.profileImage,
-      }
-    }
-
-    return {
-      displayName: profileData?.displayName
-        ? cutUsername(profileData?.displayName)
-        : profileData?.username
-        ? cutUsername(profileData?.username)
-        : truncateEthAddress(address),
-      pfpUrl: profileData?.pfpUrl,
-    }
-  }, [userInfo, profileData, address])
 
   const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
   const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
-  const {
-    isOpen: isOpenProfileDrawer,
-    onOpen: onOpenProfileDrawer,
-    onClose: onCloseProfileDrawer,
-  } = useDisclosure()
+
   const {
     isOpen: isWrapModalOpen,
     onOpen: onOpenWrapModal,
@@ -290,6 +268,7 @@ export default function Sidebar() {
                       })
                       disconnectFromPlatform()
                       onToggleAuthMenu()
+                      onCloseProfileDrawer()
                     }}
                     justifyContent='flex-start'
                   >

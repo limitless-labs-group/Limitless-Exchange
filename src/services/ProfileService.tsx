@@ -18,7 +18,11 @@ import {
   Dispatch,
   useState,
   useRef,
+  useMemo,
 } from 'react'
+import { useDisclosure } from '@chakra-ui/react'
+import { cutUsername } from '@/utils/string'
+import { truncateEthAddress } from '@/utils'
 
 export interface IProfileServiceContext {
   profileData: Profile | undefined
@@ -41,14 +45,20 @@ export interface IProfileServiceContext {
   checkUsernameExistsData: boolean | undefined
   checkUsernameExistsLoading: boolean
   checkUsernameExists: (options?: RefetchOptions) => Promise<QueryObserverResult<boolean, Error>>
+  isOpenProfileDrawer: boolean
+  onOpenProfileDrawer: () => void
+  onCloseProfileDrawer: () => void
+  user: {
+    displayName: string | undefined
+    pfpUrl: string | undefined
+  }
 }
 
 const ProfileServiceContext = createContext({} as IProfileServiceContext)
 
 export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
-  const { farcasterInfo, userInfo, account } = useAccount()
-
   const pfpFileRef = useRef<any>()
+  const { farcasterInfo, userInfo, account } = useAccount()
   const [pfpFile, setPfpFile] = useState<File | undefined>(undefined)
   const [pfpPreview, setPfpPreview] = useState<string | undefined>(undefined)
   const [pfpUrl, setPfpUrl] = useState<string | undefined>(undefined)
@@ -71,6 +81,28 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
     isLoading: checkUsernameExistsLoading,
     refetch: checkUsernameExists,
   } = useUsernameExists({ username })
+  const {
+    isOpen: isOpenProfileDrawer,
+    onOpen: onOpenProfileDrawer,
+    onClose: onCloseProfileDrawer,
+  } = useDisclosure()
+  const user = useMemo(() => {
+    if (!profileData) {
+      return {
+        displayName: userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(account),
+        pfpUrl: userInfo?.profileImage,
+      }
+    }
+
+    return {
+      displayName: profileData?.displayName
+        ? cutUsername(profileData?.displayName)
+        : profileData?.username
+        ? cutUsername(profileData?.username)
+        : truncateEthAddress(account),
+      pfpUrl: profileData?.pfpUrl,
+    }
+  }, [userInfo, profileData, account])
 
   const profileRegistered = !!profileData
   const updateButtonDisabled =
@@ -90,15 +122,17 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
   }, [profileData])
 
   useEffect(() => {
+    if (profileData) return
     setDisplayName(userInfo?.name ?? account ?? '')
     setUsername(farcasterInfo?.username ?? account ?? '')
+    refetchProfile()
   }, [farcasterInfo, userInfo, account])
 
   useEffect(() => {
     if (pfpFile) {
       const previewUrl = URL.createObjectURL(pfpFile)
       setPfpPreview(previewUrl)
-      updatePfpAsync(pfpFile)
+      updatePfpAsync(pfpFile).finally(() => refetchProfile())
 
       // Clean up the preview URL when the component unmounts or the file changes
       return () => URL.revokeObjectURL(previewUrl)
@@ -144,6 +178,10 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
     checkUsernameExistsData,
     checkUsernameExistsLoading,
     checkUsernameExists,
+    isOpenProfileDrawer,
+    onOpenProfileDrawer,
+    onCloseProfileDrawer,
+    user,
   }
 
   return (
