@@ -277,7 +277,7 @@ const CreateOwnMarketPage = () => {
     formData?.set('ogFile', ogLogo!)
 
     axios
-      .post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets-group/admin`, formData, {
+      .post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets-groups/admin`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
