@@ -160,6 +160,10 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
       setProfileUpdated(true)
       setTimeout(() => {
         setDisableUpdateButton(true)
+        setTimeout(() => {
+          setProfileUpdated(false)
+          setDisableUpdateButton(false)
+        }, 1_500)
       }, 3_000)
     } catch (error) {
       console.error(error)
