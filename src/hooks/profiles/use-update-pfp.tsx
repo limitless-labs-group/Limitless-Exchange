@@ -45,7 +45,7 @@ export const useUpdatePfp = ({ account, client }: IUseUpdatePfp) => {
         'eoaWallet',
         String(client === 'eoa' ? account : smartWalletExternallyOwnedAccountAddress)
       )
-      formData.set('smartWallet', String(client === 'eoa' ? null : account))
+      formData.set('smartWallet', String(client === 'eoa' ? '' : account))
       formData.set('client', client)
 
       const res = await limitlessApi.put('/profiles/pfp', formData, {

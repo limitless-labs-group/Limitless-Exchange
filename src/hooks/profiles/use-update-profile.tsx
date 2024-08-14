@@ -56,7 +56,7 @@ export const useUpdateProfile = ({ account, client }: IUseUpdateProfile) => {
           username: _username,
           bio: _bio,
           eoaWallet: client === 'eoa' ? account : smartWalletExternallyOwnedAccountAddress,
-          smartWallet: client === 'eoa' ? null : account,
+          smartWallet: client === 'eoa' ? '' : account,
           client,
         },
         {
