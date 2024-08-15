@@ -165,7 +165,11 @@ export default function MobileHeader() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Box w='full'>
-                      <HStack gap='8px' justifyContent='space-between'>
+                      <HStack
+                        gap='8px'
+                        justifyContent='space-between'
+                        onClick={onOpenProfileBottomSheet}
+                      >
                         <StackItem display='flex' justifyContent='center' alignItems='center'>
                           {userInfo?.profileImage?.includes('http') ? (
                             <ChakraImage
