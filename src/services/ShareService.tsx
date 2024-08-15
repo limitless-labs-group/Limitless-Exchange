@@ -1,7 +1,4 @@
-import { defaultChain } from '@/constants'
-import { HistoryPosition } from '@/services'
 import { Market } from '@/types'
-import { NumberUtil } from '@/utils'
 
 /*
  * tweetURI: A URL for sharing the market details on Twitter. This URL is pre-configured with an intent to tweet,
@@ -23,6 +20,7 @@ export type ShareURI = {
  * @param {number[] | undefined} outcomeTokensPercent - An array containing the percentages for each market outcome.
  *                                             - Each percentage represents the probability or share cost associated with a market outcome.
  *                                             - If undefined, the function will default to '50%' for each outcome in the message.
+ * @param {string | undefined} creatorName - Markets creator name
  *
  * @returns {ShareURI} An object containing URLs for sharing the market information
  *
@@ -40,22 +38,21 @@ export type ShareURI = {
  */
 export const createMarketShareUrls = (
   market: Market | null | undefined,
-  outcomeTokensPercent: number[] | undefined
+  outcomeTokensPercent: number[] | undefined,
+  creatorName?: string
 ): ShareURI => {
   const formatOutcomeTokenPercent = (index: number) =>
     `${Number(outcomeTokensPercent?.[index] ?? 50).toFixed(2)}%`
 
-  const baseMessage = `"${market?.proxyTitle ?? market?.title}" by ${market?.creator.name}\n${
-    market?.outcomeTokens[0]
-  } ${formatOutcomeTokenPercent(0)} | ${market?.outcomeTokens[1]} ${formatOutcomeTokenPercent(
+  const baseMessage = `"${
+    market?.proxyTitle ?? market?.title
+  }" by ${creatorName}\n${'Yes'} ${formatOutcomeTokenPercent(0)} | 'No' ${formatOutcomeTokenPercent(
     1
   )}\nMake your bet on`
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${
-    market?.address[defaultChain.id]
-  }`
+  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.address}`
 
   return {
     tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
@@ -64,35 +61,33 @@ export const createMarketShareUrls = (
   }
 }
 
-/**
- * Generates URLs for sharing portfolio information on social media platforms.
- * This function constructs a message containing details about a market, such as its title and creator, along with the amount user invested and selected outcome.
- * It then encodes this message for URL compatibility and constructs URLs for sharing on specified platforms.
- *
- * @param {Market | null} market - The market object containing details like title, creator, and outcomes.
- * @param {HistoryPosition} position - The object from HistoryService that represents user's trading statistics on particular market.
- *
- * @returns {ShareURI} An object containing URLs for sharing the market information
- */
-export const createPortfolioShareUrls = (
-  market: Market | null | undefined,
-  position: HistoryPosition
-) => {
-  const baseMessage = `"${market?.proxyTitle ?? market?.title}" by ${
-    market?.creator.name
-  }\nMy bet: ${NumberUtil.toFixed(position.collateralAmount, 6)} ${
-    position.market.collateral?.symbol
-  } for ${market?.outcomeTokens[position.outcomeIndex ?? 0]}\nMake yours on`
-
-  const encodedBaseMessage = encodeURI(baseMessage)
-
-  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${
-    market?.address[defaultChain.id]
-  }`
-
-  return {
-    tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
-    //embeds is a param which gives ability to make pre-screen from market as Image/Link
-    castURI: `https://warpcast.com/~/compose?text=${encodedBaseMessage}&embeds[]=${marketURI}`,
-  }
-}
+// /**
+//  * Generates URLs for sharing portfolio information on social media platforms.
+//  * This function constructs a message containing details about a market, such as its title and creator, along with the amount user invested and selected outcome.
+//  * It then encodes this message for URL compatibility and constructs URLs for sharing on specified platforms.
+//  *
+//  * @param {Market | null} market - The market object containing details like title, creator, and outcomes.
+//  * @param {HistoryPosition} position - The object from HistoryService that represents user's trading statistics on particular market.
+//  *
+//  * @returns {ShareURI} An object containing URLs for sharing the market information
+//  */
+// export const createPortfolioShareUrls = (
+//   market: Market | null | undefined,
+//   position: HistoryPosition
+// ) => {
+//   const baseMessage = `"${market?.proxyTitle ?? market?.title}" by ${
+//     market?.creator.name
+//   }\nMy bet: ${NumberUtil.toFixed(position.collateralAmount, 6)} ${
+//     position.market.collateral?.symbol
+//   } for ${position.outcomeIndex ? 'No' : 'Yes'}\nMake yours on`
+//
+//   const encodedBaseMessage = encodeURI(baseMessage)
+//
+//   const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.address}`
+//
+//   return {
+//     tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
+//     //embeds is a param which gives ability to make pre-screen from market as Image/Link
+//     castURI: `https://warpcast.com/~/compose?text=${encodedBaseMessage}&embeds[]=${marketURI}`,
+//   }
+// }

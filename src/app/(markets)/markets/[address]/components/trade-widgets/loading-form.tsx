@@ -28,7 +28,7 @@ export function LoadingForm({ market, outcomeIndex }: LoadingFormProps) {
         <Text fontWeight={500}>{outcomeIndex ? 'No' : 'Yes'} Contracts</Text>
       </HStack>
       <Text fontWeight={500} color='white'>
-        For {collateralAmount} {market.tokenTicker[defaultChain.id]}
+        For {collateralAmount} {market.collateralToken.symbol}
       </Text>
     </VStack>
   )

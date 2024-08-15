@@ -2,20 +2,31 @@ import { defaultChain } from '@/constants'
 import { StrategyChangedMetadata, ChangeEvent, useAmplitude, useTradingService } from '@/services'
 import { Button, HStack, Text } from '@chakra-ui/react'
 import { getAddress, zeroAddress } from 'viem'
-import { Market } from '@/types'
+import { Market, MarketGroup } from '@/types'
 
 import { isMobile } from 'react-device-detect'
 import { useState } from 'react'
 import Paper from '@/components/common/paper'
-import { BuyForm, SellForm, LoadingForm } from '@/app/markets/[address]/components/trade-widgets'
+import {
+  BuyForm,
+  SellForm,
+  LoadingForm,
+} from '@/app/(markets)/markets/[address]/components/trade-widgets'
 import { controlsMedium } from '@/styles/fonts/fonts.styles'
 
 interface MarketTradingFormProps {
   market: Market
   outcomeTokensPercent?: number[]
+  setSelectedMarket?: (market: Market) => void
+  marketGroup?: MarketGroup
 }
 
-export const MarketTradingForm = ({ market, outcomeTokensPercent }: MarketTradingFormProps) => {
+export const MarketTradingForm = ({
+  market,
+  outcomeTokensPercent,
+  marketGroup,
+  setSelectedMarket,
+}: MarketTradingFormProps) => {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
   /**
    * ANALITYCS
@@ -30,10 +41,18 @@ export const MarketTradingForm = ({ market, outcomeTokensPercent }: MarketTradin
   /**
    * MARKET DATA
    */
-  const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
+  const marketAddress = getAddress(market?.address ?? zeroAddress)
 
   return (
-    <Paper bg='blue.500' w={isMobile ? 'full' : '312px'} p={isMobile ? 0 : '8px'}>
+    <Paper
+      bg='blue.500'
+      w={isMobile ? 'full' : '312px'}
+      p={isMobile ? 0 : '8px'}
+      maxH={isMobile ? '100dvh' : '545px'}
+      overflowY='scroll'
+      position='fixed'
+      left='936px'
+    >
       <HStack
         w={'240px'}
         mx='auto'
@@ -93,13 +112,20 @@ export const MarketTradingForm = ({ market, outcomeTokensPercent }: MarketTradin
           market={market}
           setOutcomeIndex={setOutcomeIndex}
           outcomeTokensPercent={outcomeTokensPercent}
+          marketList={marketGroup?.markets}
+          setSelectedMarket={setSelectedMarket}
         />
       )}
       {strategy === 'Sell' ? (
         status === 'Loading' ? (
           <LoadingForm market={market} outcomeIndex={outcomeIndex} />
         ) : (
-          <SellForm market={market} setOutcomeIndex={setOutcomeIndex} />
+          <SellForm
+            market={market}
+            setOutcomeIndex={setOutcomeIndex}
+            setSelectedMarket={setSelectedMarket}
+            marketGroup={marketGroup}
+          />
         )
       ) : null}
     </Paper>

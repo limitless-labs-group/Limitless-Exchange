@@ -4,7 +4,7 @@ import { Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { Market } from '@/types'
 import ChartIcon from '@/resources/icons/chart-icon.svg'
-import { PositionCard } from '@/app/markets/[address]/components'
+import { PositionCard } from '@/app/(markets)/markets/[address]/components'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 interface MarketPositionsProps {
@@ -17,8 +17,7 @@ export const MarketPositions = ({ market }: MarketPositionsProps) => {
   const positions = useMemo(
     () =>
       allMarketsPositions?.filter(
-        (position) =>
-          position.market.id.toLowerCase() === market?.address[defaultChain.id].toLowerCase()
+        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
       ),
     [allMarketsPositions, market]
   )
@@ -33,7 +32,12 @@ export const MarketPositions = ({ market }: MarketPositionsProps) => {
       </Flex>
       <VStack gap='8px' flexDir='column' w='full'>
         {positions?.map((position, index) => (
-          <PositionCard position={position} key={index} market={market} />
+          <PositionCard
+            position={position}
+            key={index}
+            symbol={market?.collateralToken.symbol || ''}
+            marketPrices={market?.prices || [50, 50]}
+          />
         ))}
       </VStack>
     </>

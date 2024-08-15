@@ -8,7 +8,7 @@ import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import { AnimatePresence, motion } from 'framer-motion'
 import { isMobile } from 'react-device-detect'
-import { ButtonStatus } from '@/app/markets/[address]/components/trade-widgets/action-button'
+import { ButtonStatus } from '@/app/(markets)/markets/[address]/components/trade-widgets/action-button'
 import { commonButtonProps } from '@/styles/button'
 
 const MotionBox = motion(Box)

@@ -9,7 +9,6 @@ import { NumberUtil } from '@/utils'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import '@/app/style.css'
-import { isMobile } from 'react-device-detect'
 
 interface MobileTradeButtonProps {
   market: Market | null
@@ -24,7 +23,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
     () =>
       positions?.filter(
         (position) =>
-          position.market.id.toLowerCase() === market?.address[defaultChain.id].toLowerCase() &&
+          position.market.id.toLowerCase() === market?.address.toLowerCase() &&
           position.outcomeIndex === market.winningOutcomeIndex &&
           market.expired
       )?.[0],
@@ -36,8 +35,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
   const hasPositions = useMemo(() => {
     const position = positions?.filter(
       (position) =>
-        market?.expired &&
-        position.market.id.toLowerCase() === market?.address[defaultChain.id].toLowerCase()
+        market?.expired && position.market.id.toLowerCase() === market?.address.toLowerCase()
     )
     if (position?.length) {
       return position
@@ -60,14 +58,14 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
       return (
         <Text color='white'>
           Lost {`${NumberUtil.formatThousands(hasPositions[0].outcomeTokenAmount, 4)}`}{' '}
-          {market?.tokenTicker[defaultChain.id]}
+          {market?.collateralToken.symbol}
         </Text>
       )
     }
     if (status === 'Loading') {
       return <Text fontWeight={500}>Processing claim</Text>
     }
-  }, [hasPositions, market?.tokenTicker, positionToClaim, status])
+  }, [hasPositions, market?.collateralToken.symbol, positionToClaim, status])
 
   const buttonColor = useMemo(() => {
     if (!positionToClaim) {
@@ -160,12 +158,12 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
             onClick={async () => {
               trackClicked(ClickEvent.ClaimRewardOnMarketPageClicked, {
                 platform: 'mobile',
-                marketAddress: market?.address[defaultChain.id],
+                marketAddress: market?.address,
               })
-              toggleClaimMenu()
-              if (positionToClaim) {
-                await claim(positionToClaim?.outcomeIndex)
-              }
+              // toggleClaimMenu()
+              // if (positionToClaim) {
+              //   await claim(positionToClaim?.outcomeIndex)
+              // }
             }}
             isDisabled={status === 'Loading'}
           >
@@ -173,7 +171,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
             <Text fontWeight={500}>
               Claim{' '}
               {`${NumberUtil.formatThousands(positionToClaim?.outcomeTokenAmount, 4)} ${
-                market?.tokenTicker[defaultChain.id]
+                market?.collateralToken.symbol
               }`}
             </Text>
           </Button>

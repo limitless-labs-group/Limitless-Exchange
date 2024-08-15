@@ -14,17 +14,24 @@ export const useConditionalTokensAddr = ({ marketAddr }: IUseConditionalTokensAd
       if (!marketAddr) {
         return
       }
-      const queryName = 'AutomatedMarketMaker'
-      const res = await axios.request({
-        url: newSubgraphURI[defaultChain.id],
-        method: 'post',
-        data: {
-          query: `
+      return getConditionalTokenAddress(marketAddr)
+    },
+    enabled: !!marketAddr,
+  })
+}
+
+export const getConditionalTokenAddress = async (marketAddress: Address) => {
+  const queryName = 'AutomatedMarketMaker'
+  const res = await axios.request({
+    url: newSubgraphURI[defaultChain.id],
+    method: 'post',
+    data: {
+      query: `
             query ${queryName} {
               ${queryName} (
                 where: {
                   id: { 
-                    _ilike: "${marketAddr}" 
+                    _ilike: "${marketAddress}" 
                   } 
                 }
               ) {
@@ -32,11 +39,8 @@ export const useConditionalTokensAddr = ({ marketAddr }: IUseConditionalTokensAd
               }
             }
           `,
-        },
-      })
-      const [data] = res.data.data?.[queryName] as { conditionalTokens: string }[]
-      return getAddress(data.conditionalTokens)
     },
-    enabled: !!marketAddr,
   })
+  const [data] = res.data.data?.[queryName] as { conditionalTokens: string }[]
+  return getAddress(data.conditionalTokens)
 }

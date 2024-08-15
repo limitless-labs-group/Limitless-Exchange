@@ -1,5 +1,4 @@
-import { defaultChain } from '@/constants'
-import { ClickEvent, HistoryPosition, useAmplitude } from '@/services'
+import { ClickEvent, HistoryPosition, useAmplitude, useTradingService } from '@/services'
 import { NumberUtil } from '@/utils'
 import {
   HStack,
@@ -14,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useMarket } from '@/services/MarketsService'
+import { useAllMarkets, useMarket } from '@/services/MarketsService'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
@@ -23,7 +22,9 @@ import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import WinIcon from '@/resources/icons/win-icon.svg'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import NextLink from 'next/link'
+import { Address } from 'viem'
+import Loader from '@/components/common/loader'
+import PositionCardContainer from '@/app/portfolio/components/position-card-container'
 
 export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {
   position: HistoryPosition
@@ -43,6 +44,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   const [colors, setColors] = useState(unhoveredColors)
 
   const { trackClicked } = useAmplitude()
+  const { redeem, isLoadingRedeem } = useTradingService()
 
   /**
    * NAVIGATION
@@ -53,6 +55,10 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
    * MARKET DATA
    */
   const { data: market } = useMarket(position.market.id)
+
+  const allMarkets = useAllMarkets()
+
+  const targetMarket = allMarkets.find((market) => market.address === position.market.id)
 
   const currentContractsPrice =
     +(position.outcomeTokenAmount || 1) * ((market?.prices[position.outcomeIndex] || 1) / 100)
@@ -91,25 +97,37 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
     const outcomeTokenId = position.outcomeIndex ?? 0
     const defaultOutcomes = ['Yes', 'No']
 
-    return market?.outcomeTokens[outcomeTokenId] ?? defaultOutcomes[outcomeTokenId]
+    return defaultOutcomes[outcomeTokenId]
   }
 
   const ClaimButton = () => {
     return (
       <Button
         variant='white'
-        onClick={() => {
+        onClick={async () => {
           trackClicked(ClickEvent.ClaimRewardOnPortfolioClicked, {
             platform: isMobile ? 'mobile' : 'desktop',
           })
-          router.push(marketURI)
+          await redeem({
+            conditionId: market?.conditionId as Address,
+            collateralAddress: market?.collateralToken.address as Address,
+            marketAddress: market?.address as Address,
+            outcomeIndex: market?.winningOutcomeIndex as number,
+          })
         }}
+        minW='162px'
       >
-        <Icon as={WinIcon} color={'black'} />
-        Claim{' '}
-        {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
-          market?.tokenTicker[defaultChain.id]
-        }`}
+        {isLoadingRedeem ? (
+          <Loader />
+        ) : (
+          <>
+            <Icon as={WinIcon} color={'black'} />
+            Claim{' '}
+            {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
+              market?.collateralToken.symbol
+            }`}
+          </>
+        )}
       </Button>
     )
   }
@@ -156,7 +174,9 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       <Stack spacing={'8px'}>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
           <Text {...paragraphMedium} color={cardColors.main}>
-            {market?.proxyTitle ?? market?.title ?? 'Noname market'}
+            {targetMarket?.group
+              ? `${targetMarket.group.title}: ${targetMarket.title}`
+              : targetMarket?.title}
           </Text>
           <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
         </HStack>
@@ -164,14 +184,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           {market?.expired ? (
             <Text {...paragraphMedium} color={cardColors.main}>
               {`Won ${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
-                market?.tokenTicker[defaultChain.id]
+                market?.collateralToken.symbol
               }`}
             </Text>
           ) : (
             <HStack>
               <Text fontSize={'16px'} lineHeight={'20px'} fontWeight={500}>
                 {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} 
-                    ${market?.tokenTicker[defaultChain.id]}`}
+                    ${market?.collateralToken.symbol}`}
               </Text>
               <Box gap={0} fontSize={'16px'} fontWeight={500}>
                 {contractPriceChanged}
@@ -210,14 +230,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           </Text>
           <Text color={cardColors.main} lineHeight={'20px'} fontWeight={400} fontSize={'16px'}>
             {`${NumberUtil.formatThousands(position.collateralAmount, 6)} ${
-              market?.tokenTicker[defaultChain.id]
+              market?.collateralToken.symbol
             }`}
           </Text>
         </HStack>
       </Stack>
     </Paper>
   ) : (
-    <NextLink href={`${marketURI}`} style={{ width: '100%' }}>
+    <PositionCardContainer marketLink={marketURI} expired={market?.expired || false}>
       <Paper
         w={'full'}
         bg={market?.expired ? 'green.500' : 'grey.200'}
@@ -233,7 +253,9 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
             <Box>
               <Text {...paragraphMedium} color={cardColors.main}>
-                {market?.proxyTitle ?? market?.title ?? 'Noname market'}
+                {targetMarket?.group
+                  ? `${targetMarket.group.title}: ${targetMarket.title}`
+                  : targetMarket?.title}
               </Text>
             </Box>
 
@@ -244,7 +266,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
                 <>
                   <Text {...paragraphMedium} color={cardColors.main}>
                     {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} 
-                    ${market?.tokenTicker[defaultChain.id]}`}
+                    ${market?.collateralToken.symbol}`}
                   </Text>
 
                   <Box gap={0}>{contractPriceChanged}</Box>
@@ -273,7 +295,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
               </Text>
               <Text {...paragraphRegular} color={cardColors.main}>
                 {`${NumberUtil.formatThousands(position.collateralAmount, 6)} ${
-                  market?.tokenTicker[defaultChain.id]
+                  market?.collateralToken.symbol
                 }`}
               </Text>
             </VStack>
@@ -292,6 +314,6 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           </HStack>
         </Stack>
       </Paper>
-    </NextLink>
+    </PositionCardContainer>
   )
 }

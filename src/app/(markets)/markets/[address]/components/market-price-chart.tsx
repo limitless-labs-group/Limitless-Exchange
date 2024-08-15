@@ -4,14 +4,27 @@ import HighchartsReact from 'highcharts-react-official'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { defaultChain, newSubgraphURI } from '@/constants'
-import { usePathname } from 'next/navigation'
-import { Text, HStack, VStack } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
-import { Market } from '@/types'
+import {
+  Text,
+  HStack,
+  VStack,
+  Box,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Menu,
+  useDisclosure,
+  Button,
+} from '@chakra-ui/react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Market, MarketGroup } from '@/types'
 import Paper from '@/components/common/paper'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import { isMobile } from 'react-device-detect'
 import { useThemeProvider } from '@/providers'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { getAddress } from 'viem'
 
 const ONE_HOUR = 3_600_000 // milliseconds in an hour
@@ -27,6 +40,8 @@ export interface IMarketPriceChart {
   winningIndex: number | undefined | null
   resolved: boolean
   outcomeTokensPercent?: number[]
+  marketGroup?: MarketGroup
+  setSelectedMarket?: (market: Market) => void
 }
 
 export const MarketPriceChart = ({
@@ -34,13 +49,23 @@ export const MarketPriceChart = ({
   resolved,
   winningIndex,
   outcomeTokensPercent,
+  marketGroup,
+  setSelectedMarket,
 }: IMarketPriceChart) => {
-  const pathname = usePathname()
   const { colors } = useThemeProvider()
+  const { market } = useTradingService()
   const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%B %e, %Y %I:%M %p', Date.now()) ?? ''
   )
+
+  const { trackClicked } = useAmplitude()
+
+  const {
+    isOpen: isMarketListOpen,
+    onOpen: onOpenMarketList,
+    onClose: onCloseMarketList,
+  } = useDisclosure()
 
   // Function to generate chart options
   const getChartOptions = (data: number[][] | undefined): Highcharts.Options => ({
@@ -212,9 +237,9 @@ export const MarketPriceChart = ({
 
   // React Query to fetch the price data
   const { data: prices } = useQuery({
-    queryKey: ['prices'],
+    queryKey: ['prices', market?.address],
     queryFn: async () => {
-      const marketId = pathname.substring(pathname.lastIndexOf('/') + 1)
+      const marketId = market?.address
       const query = `query prices {
           AutomatedMarketMakerPricing(where: { market_id: { _ilike: "${marketId}" } }) {
             yesBuyChartData
@@ -226,6 +251,7 @@ export const MarketPriceChart = ({
 
       return flattenPriceData(pricingData)
     },
+    enabled: !!market,
   })
 
   // const initialYesChance = useMemo(() => {
@@ -278,14 +304,63 @@ export const MarketPriceChart = ({
 
   return (
     <Paper my='24px' p='8px'>
-      <HStack gap={'4px'} color='green.500'>
-        <ThumbsUpIcon width={16} height={16} />
-        <Text fontWeight={500}>
-          {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%
-        </Text>
-        <Text fontWeight={500}>Yes</Text>
-        {/*<ChevronDownIcon width={16} height={16} />*/}
-      </HStack>
+      {marketGroup ? (
+        <Menu isOpen={isMarketListOpen} onClose={onCloseMarketList} variant='transparent'>
+          <MenuButton
+            as={Button}
+            onClick={() => {
+              trackClicked(ClickEvent.ChangeMarketInGroupClicked, {
+                marketGroup,
+              })
+              onOpenMarketList()
+            }}
+            p={0}
+            h='unset'
+          >
+            <HStack gap={isMobile ? '16px' : '8px'} color='green.500'>
+              <Text {...paragraphMedium} color='green.500'>
+                {market?.title}
+              </Text>
+              <HStack gap={isMobile ? '8px' : '4px'}>
+                <ThumbsUpIcon width={16} height={16} />
+                <Text {...paragraphMedium} color='green.500'>
+                  {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}% YES
+                </Text>
+                <Box
+                  transform={`rotate(${isMarketListOpen ? '180deg' : 0})`}
+                  transition='0.5s'
+                  color='green.500'
+                >
+                  <ChevronDownIcon width='16px' height='16px' />
+                </Box>
+              </HStack>
+            </HStack>
+          </MenuButton>
+          <MenuList borderRadius='2px' zIndex={2} marginTop='-8px'>
+            {marketGroup.markets.map((market) => (
+              <MenuItem
+                onClick={() => {
+                  setSelectedMarket && setSelectedMarket(market)
+                }}
+                key={market.address}
+              >
+                {market.title}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
+      ) : (
+        <HStack gap={'4px'} color='green.500'>
+          <ThumbsUpIcon width={16} height={16} />
+          <Text {...paragraphMedium} color='green.500'>
+            {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%
+          </Text>
+          <Text {...paragraphMedium} color='green.500'>
+            Yes
+          </Text>
+          {/*<ChevronDownIcon width={16} height={16} />*/}
+        </HStack>
+      )}
       <HStack>
         <VStack gap={-1} alignItems={'flex-start'}>
           <Text fontSize='sm' color={'fontLight'}>
