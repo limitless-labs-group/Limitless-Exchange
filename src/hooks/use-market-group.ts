@@ -58,16 +58,8 @@ export default function useMarketGroup(slug: string) {
           const outcomeTokenBuyAmountYesBI = BigInt(result[0].returnValues[0].hex)
           const outcomeTokenBuyAmountNoBI = BigInt(result[1].returnValues[0].hex)
 
-          const outcomeTokenBuyAmountYes = formatUnits(
-            outcomeTokenBuyAmountYesBI,
-            // Todo change to market response decimals
-            decimals
-          )
-          const outcomeTokenBuyAmountNo = formatUnits(
-            outcomeTokenBuyAmountNoBI,
-            // Todo change to market response decimals
-            decimals
-          )
+          const outcomeTokenBuyAmountYes = formatUnits(outcomeTokenBuyAmountYesBI, decimals)
+          const outcomeTokenBuyAmountNo = formatUnits(outcomeTokenBuyAmountNoBI, decimals)
 
           const outcomeTokenBuyPriceYes =
             Number(collateralAmount) / Number(outcomeTokenBuyAmountYes)
