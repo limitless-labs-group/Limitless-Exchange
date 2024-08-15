@@ -15,8 +15,6 @@ import { Address, formatUnits, getContract, parseUnits } from 'viem'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
-import { useMarketData } from '@/hooks'
-import { useLimitlessApi } from '@/services/LimitlessApi'
 import { publicClient } from '@/providers'
 
 const LIMIT_PER_PAGE = 30
@@ -176,7 +174,6 @@ export function useAllMarkets() {
     queryKey: ['allMarkets'],
     queryFn: async () => {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets`)
-
       return response.data as Market[]
     },
   })

@@ -3,14 +3,14 @@ import { newtonRaphson } from '@fvictorio/newton-raphson-method'
 import Big from 'big.js'
 
 export const calcSellAmountInCollateral = (
-  sharesToSell: bigint,
+  sharesToSell: bigint, // amountShares.mul(99999999).div(100000000)
   holdings: bigint,
   otherHoldings: bigint[],
   fee: number
 ): bigint | null => {
   Big.DP = 90
 
-  const sharesToSellBig = new Big(sharesToSell.toString())
+  const sharesToSellBig = new Big(((sharesToSell * 99999999n) / 100000000n).toString())
   const holdingsBig = new Big(holdings.toString())
   const otherHoldingsBig = otherHoldings.map((x) => new Big(x.toString()))
 

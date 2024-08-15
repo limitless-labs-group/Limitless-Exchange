@@ -89,6 +89,7 @@ export type MarketSingleCardResponse = {
   address: string
   title: string
   proxyTitle: string | null
+  deadline: string
   createdAt: string
   volume: string
   volumeFormatted: string
@@ -107,6 +108,7 @@ export type MarketGroupCardResponse = {
   slug: string
   title: string
   createdAt: string
+  deadline: string
   collateralToken: {
     symbol: string
     address: string
@@ -204,7 +206,7 @@ export enum MarketTokensIds {
 export enum Sort {
   BASE = '',
   NEWEST = 'Newest',
-  COMING_DEADLINE = 'Coming Soon',
+  ENDING_SOON = 'Ending Soon',
   HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VOLUME = 'High Volume',
 }

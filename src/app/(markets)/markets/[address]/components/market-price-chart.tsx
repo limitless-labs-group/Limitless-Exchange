@@ -4,7 +4,6 @@ import HighchartsReact from 'highcharts-react-official'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { defaultChain, newSubgraphURI } from '@/constants'
-import { usePathname } from 'next/navigation'
 import {
   Text,
   HStack,
@@ -17,7 +16,7 @@ import {
   useDisclosure,
   Button,
 } from '@chakra-ui/react'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Market, MarketGroup } from '@/types'
 import Paper from '@/components/common/paper'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
@@ -26,6 +25,7 @@ import { useThemeProvider } from '@/providers'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import { getAddress } from 'viem'
 
 const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
@@ -36,6 +36,7 @@ interface YesBuyChartData {
 
 // Define the MarketPriceChart component
 export interface IMarketPriceChart {
+  marketAddr: string
   winningIndex: number | undefined | null
   resolved: boolean
   outcomeTokensPercent?: number[]
@@ -44,13 +45,13 @@ export interface IMarketPriceChart {
 }
 
 export const MarketPriceChart = ({
+  marketAddr,
   resolved,
   winningIndex,
   outcomeTokensPercent,
   marketGroup,
   setSelectedMarket,
 }: IMarketPriceChart) => {
-  const pathname = usePathname()
   const { colors } = useThemeProvider()
   const { market } = useTradingService()
   const [yesChance, setYesChance] = useState('')
@@ -262,7 +263,7 @@ export const MarketPriceChart = ({
 
   const chartData = useMemo(() => {
     const _prices: number[][] = prices ?? []
-    return resolved
+    const data = resolved
       ? [
           ...(_prices ?? []),
           !!_prices[_prices.length - 1]
@@ -273,7 +274,33 @@ export const MarketPriceChart = ({
           return !!value
         })
       : _prices
+
+    // special case hotfix
+    const special = {
+      [getAddress('0xD0BC7FCea7500d485329e0aaE36e0512815684BF')]: {
+        index: 0,
+        timestamp: 1722745928000, // aug 4 2024
+        exists: true,
+      },
+    }
+    if (special[getAddress(marketAddr)]?.exists) {
+      const _index = special[getAddress(marketAddr)].index
+
+      if (data[_index]) {
+        data[_index][0] = special[getAddress(marketAddr)].timestamp
+
+        for (let index = 0; index < Array.from({ length: 10 }).length; index++) {
+          data.splice(index + 1, 0, [data[index][0] + ONE_HOUR, data[index][1]])
+        }
+      }
+    }
+
+    return data
   }, [prices, winningIndex, resolved])
+
+  useEffect(() => {
+    if (chartData) console.log('chartData', chartData)
+  }, [chartData])
 
   return (
     <Paper my='24px' p='8px'>

@@ -1,12 +1,10 @@
 'use client'
 
-import { MainLayout, MarketCard, MarketCardMobile } from '@/components'
-import { defaultChain } from '@/constants'
+import { MainLayout } from '@/components'
 import { useIsMobile } from '@/hooks'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useCategories } from '@/services'
 import { Divider, VStack, Text, Box, Spinner, HStack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import SortFilter from '@/components/common/sort-filter'
 import { Market, MarketGroupCardResponse, MarketSingleCardResponse, Sort } from '@/types'
 import { formatUnits, getAddress } from 'viem'
@@ -91,13 +89,15 @@ const MainPage = () => {
     return tokenFilteredMarkets
   }, [markets, selectedFilterTokens, selectedCategory])
 
+  console.log(filteredMarkets)
+
   const sortedMarkets = useMemo(() => {
     if (!filteredMarkets) return []
     switch (selectedSort) {
       case Sort.NEWEST:
-        return [...filteredMarkets].sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
+        return [...filteredMarkets].sort((a, b) => {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        })
       case Sort.HIGHEST_VOLUME:
         return [...filteredMarkets].sort((a, b) => {
           // @ts-ignore
@@ -132,9 +132,9 @@ const MainPage = () => {
 
           return liquidityB - liquidityA
         })
-      case Sort.COMING_DEADLINE:
+      case Sort.ENDING_SOON:
         return [...filteredMarkets].sort(
-          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          (a, b) => new Date(b.deadline).getTime() - new Date(a.deadline).getTime()
         )
       default:
         return filteredMarkets

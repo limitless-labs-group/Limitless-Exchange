@@ -105,7 +105,7 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
           </Text>
           <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
             position.collateralAmount,
-            4
+            6
           )} ${symbol}`}</Text>
         </Flex>
         <Flex

@@ -58,6 +58,7 @@ import MarketPrediction from '@/app/(markets)/market-group/[slug]/components/mar
 import useMarketGroup from '@/hooks/use-market-group'
 import BigNumber from 'bignumber.js'
 import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components/market-group-positions'
+import { Address } from 'viem'
 
 export default function MarketGroupPage({ params }: { params: { slug: string } }) {
   const { data: marketGroup, isLoading: marketGroupLoading } = useMarketGroup(params.slug)
@@ -267,6 +268,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                 outcomeTokensPercent={market?.prices}
                 marketGroup={marketGroup}
                 setSelectedMarket={setMarket}
+                marketAddr={market?.address as Address}
               />
               <VStack gap='8px' alignItems='flex-start'>
                 <HStack gap='4px'>

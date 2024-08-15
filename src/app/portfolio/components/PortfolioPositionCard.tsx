@@ -74,26 +74,19 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
     }
     if (contractPrice < 1) {
       return (
-        <Text {...paragraphMedium} color='red.500'>
+        <Text {...paragraphMedium} color={colors.main === 'white' ? 'white' : 'red.500'}>
           &#x2193;
           {price}%
         </Text>
       )
     }
     return (
-      <Text {...paragraphMedium} color='green.500'>
+      <Text {...paragraphMedium} color={colors.main === 'white' ? 'white' : 'green.500'}>
         &#x2191;
         {price}%
       </Text>
     )
-  }, [contractPrice])
-
-  // const chancePercent = useMemo(() => {
-  //   if (market?.expired) {
-  //     return market?.winningOutcomeIndex === 0 ? '100' : '0'
-  //   }
-  //   return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
-  // }, [market, outcomeTokensPercent])
+  }, [contractPrice, colors.main])
 
   /**
    * SHARE
@@ -236,7 +229,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             Invested
           </Text>
           <Text color={cardColors.main} lineHeight={'20px'} fontWeight={400} fontSize={'16px'}>
-            {`${NumberUtil.formatThousands(position.collateralAmount, 4)} ${
+            {`${NumberUtil.formatThousands(position.collateralAmount, 6)} ${
               market?.collateralToken.symbol
             }`}
           </Text>
@@ -301,7 +294,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
                 Invested
               </Text>
               <Text {...paragraphRegular} color={cardColors.main}>
-                {`${NumberUtil.formatThousands(position.collateralAmount, 4)} ${
+                {`${NumberUtil.formatThousands(position.collateralAmount, 6)} ${
                   market?.collateralToken.symbol
                 }`}
               </Text>

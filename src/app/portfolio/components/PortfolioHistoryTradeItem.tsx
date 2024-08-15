@@ -2,9 +2,11 @@ import { defaultChain } from '@/constants'
 import { HistoryTrade } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import { FaExternalLinkAlt } from 'react-icons/fa'
 import { useMarket } from '@/services/MarketsService'
 import NextLink from 'next/link'
+import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 interface IPortfolioHistoryTradeItem extends TableRowProps {
   trade: HistoryTrade
@@ -18,30 +20,21 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
 
   return (
     <Tr pos={'relative'} {...props}>
-      <Td pl={0} pr={2}>
-        <NextLink href={`/markets/${trade.market.id}`}>
-          <HStack
-            style={{ textWrap: 'wrap' }}
-            cursor={'pointer'}
-            _hover={{ textDecor: 'underline' }}
-          >
-            <Text size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
-              {market?.proxyTitle ?? market?.title ?? 'Noname market'}
-            </Text>
-          </HStack>
-        </NextLink>
+      <Td w='92px'>{trade.strategy}</Td>
+      <Td>
+        <HStack gap='4px'>
+          {trade.outcomeIndex ? (
+            <ThumbsDownIcon width={16} height={16} />
+          ) : (
+            <ThumbsUpIcon width={16} height={16} />
+          )}{' '}
+          <Text {...paragraphRegular}>{trade.outcomeIndex ? 'No' : 'Yes'}</Text>
+          <Text {...paragraphRegular}>
+            {NumberUtil.toFixed(+(trade.outcomeTokenPrice || 1) * 100, 1)}%
+          </Text>
+        </HStack>
       </Td>
-
-      <Td px={2}>
-        <Text color={trade.outcomeIndex == 0 ? 'green.500' : 'red.500'}>
-          {trade.outcomeIndex ? 'No' : 'Yes'}{' '}
-          {NumberUtil.formatThousands(trade.outcomeTokenPrice, 3)} {market?.collateralToken.symbol}
-        </Text>
-      </Td>
-
-      <Td px={2}>{trade.strategy}</Td>
-
-      {/* Amount */}
+      <Td isNumeric>{NumberUtil.formatThousands(trade.outcomeTokenAmount, 4)}</Td>
       <Td px={2} isNumeric>
         <Text>
           {`${NumberUtil.formatThousands(
@@ -50,33 +43,26 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
           )} ${market?.collateralToken.symbol}`}
         </Text>
       </Td>
-
-      {/* Contracts */}
-      <Td px={2} isNumeric>
-        {NumberUtil.formatThousands(trade.outcomeTokenAmount, 4)}
+      <Td
+        textDecoration='underline'
+        w='420px'
+        maxW='420px'
+        whiteSpace='nowrap'
+        overflow='hidden'
+        textOverflow='ellipsis'
+      >
+        <NextLink href={`/markets/${trade.market.id}`}>
+          {market?.proxyTitle ?? market?.title ?? 'Noname market'}
+        </NextLink>
       </Td>
-
-      {/* Tx */}
-      <Td pl={2} pr={0}>
-        <HStack
-          p={'2px 6px'}
-          bg={'bgLight'}
-          borderRadius={'6px'}
-          fontSize={'13px'}
-          spacing={1}
-          cursor={'pointer'}
-          _hover={{ textDecor: 'underline' }}
-          onClick={() =>
-            window.open(
-              `${defaultChain.blockExplorers.default.url}/tx/${trade.transactionHash}`,
-              '_blank',
-              'noopener'
-            )
-          }
+      <Td textDecoration='underline'>
+        <NextLink
+          href={`${defaultChain.blockExplorers.default.url}/tx/${trade.transactionHash}`}
+          target='_blank'
+          rel='noopener'
         >
-          <Text>{truncateEthAddress(trade.transactionHash)}</Text>
-          <FaExternalLinkAlt size={'10px'} />
-        </HStack>
+          {truncateEthAddress(trade.transactionHash)}
+        </NextLink>
       </Td>
     </Tr>
   )

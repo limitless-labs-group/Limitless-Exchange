@@ -53,7 +53,8 @@ import {
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
-import { Address } from 'viem'
+import { useMarketData } from '@/hooks'
+import { Address, zeroAddress } from 'viem'
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -246,6 +247,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                 volume={market.volumeFormatted}
               />
               <MarketPriceChart
+                marketAddr={market.address[defaultChain.id] ?? zeroAddress}
                 winningIndex={winningIndex}
                 resolved={resolved}
                 outcomeTokensPercent={market.prices}
