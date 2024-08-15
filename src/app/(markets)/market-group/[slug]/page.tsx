@@ -27,7 +27,6 @@ import {
   useAmplitude,
   useTradingService,
 } from '@/services'
-import { defaultChain } from '@/constants'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
 import {
@@ -63,12 +62,8 @@ import { Address } from 'viem'
 export default function MarketGroupPage({ params }: { params: { slug: string } }) {
   const { data: marketGroup, isLoading: marketGroupLoading } = useMarketGroup(params.slug)
 
-  // console.log(marketGroup)
-
-  // const [market, setSelectedMarket] = useState<Market | null>(null)
   const { trackClicked } = useAmplitude()
   const router = useRouter()
-  // const marketGroup = mockMarketGroupResponse
   const { approveBuy, strategy, approveSell, market, setMarket } = useTradingService()
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
 
@@ -160,8 +155,8 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
   }, [marketGroup])
 
   return (
-    <MainLayout isLoading={isCollateralLoading || marketGroupLoading}>
-      {!marketGroup && !market ? (
+    <MainLayout isLoading={isCollateralLoading || marketGroupLoading || !market}>
+      {!marketGroup ? (
         <>Market group not found</>
       ) : (
         <>
