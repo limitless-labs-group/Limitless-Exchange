@@ -97,6 +97,7 @@ export const ProfileContentDesktop = () => {
               label='Username'
               initialValue={username}
               placeholder='Enter your username'
+              hint='So others can mention you in comments'
               onChange={(v) => setUsername(v)}
               onBlur={() => {
                 if (username) checkUsernameExists()
@@ -109,7 +110,6 @@ export const ProfileContentDesktop = () => {
               }}
               isInvalid={checkUsernameExistsData}
               invalidText='Username already exists'
-              hint='So others can mention you in comments'
             />
           </StackItem>
 
