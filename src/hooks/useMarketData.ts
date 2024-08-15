@@ -21,7 +21,7 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
     () =>
       market
         ? getContract({
-            address: market.address[defaultChain.id],
+            address: market.address,
             abi: fixedProductMarketMakerABI,
             client: publicClient,
           })

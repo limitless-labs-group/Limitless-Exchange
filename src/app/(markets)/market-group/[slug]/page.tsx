@@ -1,111 +1,129 @@
 'use client'
-
 import { MainLayout } from '@/components'
 import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
   Box,
+  Button,
   Divider,
   HStack,
-  Text,
-  Button,
-  Image as ChakraImage,
-  useDisclosure,
-  MenuButton,
+  Link,
   Menu,
+  MenuButton,
   MenuItem,
   MenuList,
-  Link,
+  Text,
+  useDisclosure,
+  VStack,
 } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import {
   ClickEvent,
   createMarketShareUrls,
-  OpenEvent,
-  PageOpenedMetadata,
   ShareClickedMetadata,
   useAmplitude,
-  useLimitlessApi,
   useTradingService,
 } from '@/services'
-import { useMarket, useWinningIndex } from '@/services/MarketsService'
-import ApproveModal from '@/components/common/modals/approve-modal'
-import { useToken } from '@/hooks/use-token'
 import { defaultChain } from '@/constants'
-import { useRouter } from 'next/navigation'
-import TextWithPixels from '@/components/common/text-with-pixels'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
-import DescriptionIcon from '@/resources/icons/description-icon.svg'
-import { isMobile } from 'react-device-detect'
-import WarpcastIcon from '@/resources/icons/Farcaster.svg'
-import TwitterIcon from '@/resources/icons/X.svg'
-import {
-  MarketClaimingForm,
-  MarketMetadata,
-  MarketPositions,
-  MarketPriceChart,
-  MarketTradingForm,
-  MarketTradingModal,
-  MobileTradeButton,
-} from './components'
 import {
   h1Regular,
   paragraphBold,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
-import { useMarketData } from '@/hooks'
-import { Address } from 'viem'
+import WarpcastIcon from '@/resources/icons/Farcaster.svg'
+import TwitterIcon from '@/resources/icons/X.svg'
+import TextWithPixels from '@/components/common/text-with-pixels'
+import { Image as ChakraImage } from '@chakra-ui/react'
+import {
+  MarketClaimingForm,
+  MarketMetadata,
+  MarketPriceChart,
+  MarketTradingForm,
+  MarketTradingModal,
+  MobileTradeButton,
+} from '@/app/(markets)/markets/[address]/components'
+import DescriptionIcon from '@/resources/icons/description-icon.svg'
+import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
+import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useWinningIndex } from '@/services/MarketsService'
+import ApproveModal from '@/components/common/modals/approve-modal'
+import MarketPrediction from '@/app/(markets)/market-group/[slug]/components/market-prediction'
+import useMarketGroup from '@/hooks/use-market-group'
+import BigNumber from 'bignumber.js'
+import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components/market-group-positions'
 
-const MarketPage = ({ params }: { params: { address: Address } }) => {
-  const { supportedTokens } = useLimitlessApi()
-  const [isShareMenuOpen, setShareMenuOpen] = useState(false)
-  /**
-   * ANALYTICS
-   */
-  const { trackOpened, trackClicked } = useAmplitude()
-  const { data: winningIndex } = useWinningIndex(params.address)
-  const resolved = winningIndex === 0 || winningIndex === 1
+export default function MarketGroupPage({ params }: { params: { slug: string } }) {
+  const { data: marketGroup, isLoading: marketGroupLoading } = useMarketGroup(params.slug)
+
+  // console.log(marketGroup)
+
+  // const [market, setSelectedMarket] = useState<Market | null>(null)
+  const { trackClicked } = useAmplitude()
   const router = useRouter()
-  const {
-    data: market,
-    isError: fetchMarketError,
-    isLoading: fetchMarketLoading,
-  } = useMarket(params.address)
-  const { outcomeTokensPercent } = useMarketData({
-    marketAddress: params.address,
-    collateralToken: supportedTokens?.find(
-      (token) => token.address === market?.collateralToken[defaultChain.id]
-    ),
-  })
-  const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices)
-  const { isLoading: isCollateralLoading } = useToken(market?.collateralToken[defaultChain.id])
-  const {
-    setMarket,
-    market: previousMarket,
-    approveBuy,
-    strategy,
-    approveSell,
-  } = useTradingService()
+  // const marketGroup = mockMarketGroupResponse
+  const { approveBuy, strategy, approveSell, market, setMarket } = useTradingService()
+  const [isShareMenuOpen, setShareMenuOpen] = useState(false)
+
+  const { tweetURI, castURI } = createMarketShareUrls(
+    market,
+    market?.prices,
+    marketGroup?.creator.name
+  )
+  const { data: winningIndex } = useWinningIndex(market?.address as string)
+
   const {
     isOpen: tradeModalOpened,
     onOpen: openTradeModal,
     onClose: closeTradeModal,
   } = useDisclosure()
 
+  const resolved = winningIndex === 0 || winningIndex === 1
+
+  const isCollateralLoading = false
+
+  const handleBackClicked = () => {
+    if (window.history.length > 2) {
+      return router.back()
+    }
+    return router.push('/')
+  }
+
+  const volume =
+    marketGroup?.markets.reduce((a, b) => {
+      return new BigNumber(a).plus(new BigNumber(b.volumeFormatted)).toString()
+    }, '0') || '0'
+
+  const liquidity =
+    marketGroup?.markets.reduce((a, b) => {
+      return new BigNumber(a).plus(new BigNumber(b.liquidityFormatted)).toString()
+    }, '0') || '0'
+
   const marketActionForm = useMemo(() => {
     if (market) {
       return market.expired ? (
         <MarketClaimingForm market={market} />
       ) : (
-        <MarketTradingForm market={market} outcomeTokensPercent={outcomeTokensPercent} />
+        <MarketTradingForm
+          market={market}
+          setSelectedMarket={setMarket}
+          marketGroup={marketGroup}
+          outcomeTokensPercent={market.prices}
+        />
       )
     }
     return null
-  }, [market, outcomeTokensPercent])
+  }, [market, marketGroup])
 
-  const handleApproveMarket = async () => {
-    return strategy === 'Buy' ? approveBuy() : approveSell()
-  }
+  const marketsAboveOnePercent = marketGroup?.markets.filter((market) => market.prices[0] >= 1)
+
+  const marketsLowerOnePercent = marketGroup?.markets.filter((market) => market.prices[0] < 1)
 
   const mobileTradeButton = useMemo(() => {
     return market?.expired ? (
@@ -120,7 +138,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
         onClick={() => {
           trackClicked(ClickEvent.TradeButtonClicked, {
             platform: 'mobile',
-            address: market?.address[defaultChain.id],
+            address: market?.address,
           })
           openTradeModal()
         }}
@@ -130,30 +148,20 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     )
   }, [market])
 
-  const handleBackClicked = () => {
-    if (window.history.length > 2) {
-      return router.back()
-    }
-    return router.push('/')
+  const handleApproveMarket = async () => {
+    return strategy === 'Buy' ? approveBuy() : approveSell()
   }
 
   useEffect(() => {
-    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
-      page: 'Market Page',
-      market: params.address,
-    })
-  }, [])
-
-  useEffect(() => {
-    if (market != previousMarket && !fetchMarketError) {
-      setMarket(market!)
+    if (marketGroup) {
+      setMarket(marketGroup.markets[0])
     }
-  }, [market, previousMarket])
+  }, [marketGroup])
 
   return (
-    <MainLayout isLoading={isCollateralLoading || fetchMarketLoading}>
-      {!market ? (
-        <>Market not found</>
+    <MainLayout isLoading={isCollateralLoading || marketGroupLoading}>
+      {!marketGroup && !market ? (
+        <>Market group not found</>
       ) : (
         <>
           <HStack gap='40px' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
@@ -164,7 +172,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                   variant='grey'
                   onClick={() => {
                     trackClicked(ClickEvent.BackClicked, {
-                      address: market?.address[defaultChain.id],
+                      address: market?.address || '0x',
                     })
                     handleBackClicked()
                   }}
@@ -176,7 +184,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                   <MenuButton
                     onClick={() => {
                       trackClicked(ClickEvent.ShareMenuClicked, {
-                        address: market?.address[defaultChain.id],
+                        address: market?.address || '0x',
                       })
                       setShareMenuOpen(true)
                     }}
@@ -191,7 +199,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       onClick={() => {
                         trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                           type: 'Farcaster',
-                          address: market?.address[defaultChain.id],
+                          address: market?.address,
                         })
                         window.open(castURI, '_blank', 'noopener')
                       }}
@@ -205,7 +213,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       onClick={() => {
                         trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                           type: 'X/Twitter',
-                          address: market?.address[defaultChain.id],
+                          address: market?.address,
                         })
                         window.open(tweetURI, '_blank', 'noopener')
                       }}
@@ -220,7 +228,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
               </HStack>
               <Box>
                 <TextWithPixels
-                  text={(market?.proxyTitle ?? market?.title) || ''}
+                  text={marketGroup?.title || ''}
                   {...(isMobile ? { ...h1Regular } : {})}
                   fontSize='32px'
                   userSelect='text'
@@ -231,12 +239,12 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                   <ChakraImage
                     width={6}
                     height={6}
-                    src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+                    src={marketGroup?.creator.imageURI ?? '/assets/images/logo.svg'}
                     alt='creator'
                     borderRadius={'2px'}
                   />
-                  <Link href={market?.creator.link}>
-                    <Text color='grey.500'>{market?.creator.name}</Text>
+                  <Link href={marketGroup?.creator.link} _hover={{ borderColor: 'unset' }}>
+                    <Text color='grey.500'>{marketGroup?.creator.name}</Text>
                   </Link>
                   {market?.tags?.map((tag) => (
                     <Text color='grey.500' key={tag}>
@@ -249,14 +257,56 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                 market={market}
                 winningIndex={winningIndex}
                 resolved={resolved}
-                outcomeTokensPercent={outcomeTokensPercent}
+                outcomeTokensPercent={market?.prices}
+                volume={volume}
+                liquidity={liquidity}
               />
               <MarketPriceChart
                 winningIndex={winningIndex}
                 resolved={resolved}
-                outcomeTokensPercent={outcomeTokensPercent}
+                outcomeTokensPercent={market?.prices}
+                marketGroup={marketGroup}
+                setSelectedMarket={setMarket}
               />
-              <MarketPositions market={market} />
+              <VStack gap='8px' alignItems='flex-start'>
+                <HStack gap='4px'>
+                  <PredictionsIcon />
+                  <Text {...paragraphBold}>Predictions</Text>
+                </HStack>
+                {marketsAboveOnePercent?.map((market) => (
+                  <MarketPrediction
+                    key={market.address}
+                    market={market}
+                    setSelectedMarket={setMarket}
+                  />
+                ))}
+                {!!marketsLowerOnePercent?.length && (
+                  <Accordion allowToggle>
+                    <AccordionItem>
+                      <h2>
+                        <AccordionButton w='fit-content' gap='4px' color='grey.500'>
+                          <Text {...paragraphMedium} color='grey.500'>
+                            Predictions with less than a 1% chance
+                          </Text>
+                          <AccordionIcon />
+                        </AccordionButton>
+                      </h2>
+                      <AccordionPanel>
+                        <VStack gap='8px'>
+                          {marketsLowerOnePercent.map((market) => (
+                            <MarketPrediction
+                              key={market.address}
+                              market={market}
+                              setSelectedMarket={setMarket}
+                            />
+                          ))}
+                        </VStack>
+                      </AccordionPanel>
+                    </AccordionItem>
+                  </Accordion>
+                )}
+              </VStack>
+              {marketGroup && <MarketGroupPositions marketGroup={marketGroup} />}
               <HStack gap='4px' marginTop='24px' mb='8px'>
                 <DescriptionIcon width='16px' height='16px' />
                 <Text {...paragraphBold}>Description</Text>
@@ -278,7 +328,9 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
               onClose={closeTradeModal}
               title={(market?.proxyTitle ?? market?.title) || ''}
               market={market}
-              outcomeTokensPercent={outcomeTokensPercent}
+              outcomeTokensPercent={market.prices}
+              setSelectedMarket={setMarket}
+              marketGroup={marketGroup}
             />
           )}
           <ApproveModal onApprove={handleApproveMarket} />
@@ -287,5 +339,3 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     </MainLayout>
   )
 }
-
-export default MarketPage

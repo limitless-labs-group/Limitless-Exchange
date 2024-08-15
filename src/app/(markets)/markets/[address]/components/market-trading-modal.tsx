@@ -1,6 +1,6 @@
 import { Modal, ModalCloseButton } from '@chakra-ui/modal'
 import { ModalBody, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react'
-import { Market } from '@/types'
+import { Market, MarketGroup } from '@/types'
 import { useTradingService } from '@/services'
 import { MarketTradingForm } from './market-trading-form'
 import { headline } from '@/styles/fonts/fonts.styles'
@@ -11,6 +11,8 @@ interface MarketTradingModalProps {
   title: string
   market: Market
   outcomeTokensPercent?: number[]
+  setSelectedMarket?: (market: Market) => void
+  marketGroup?: MarketGroup
 }
 
 export function MarketTradingModal({
@@ -19,6 +21,8 @@ export function MarketTradingModal({
   title,
   market,
   outcomeTokensPercent,
+  setSelectedMarket,
+  marketGroup,
 }: MarketTradingModalProps) {
   const { setCollateralAmount } = useTradingService()
 
@@ -36,7 +40,12 @@ export function MarketTradingModal({
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <MarketTradingForm market={market} outcomeTokensPercent={outcomeTokensPercent} />
+          <MarketTradingForm
+            market={market}
+            outcomeTokensPercent={outcomeTokensPercent}
+            setSelectedMarket={setSelectedMarket}
+            marketGroup={marketGroup}
+          />
         </ModalBody>
       </ModalContent>
     </Modal>

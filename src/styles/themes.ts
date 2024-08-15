@@ -212,6 +212,15 @@ export const chakraTheme = ChakraTheme({
             bg: 'grey.200',
           },
         },
+        transparentLight: {
+          ...commonButtonProps,
+          bg: 'transparent.200',
+          p: isMobile ? '8px 12px' : '4px 8px',
+          height: 'unset',
+          _hover: {
+            bg: 'transparent.300',
+          },
+        },
       },
     },
     FormLabel: {

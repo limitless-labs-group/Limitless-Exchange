@@ -5,14 +5,13 @@ import { devtools } from 'frog/dev'
 import { handle } from 'frog/next'
 import { serveStatic } from 'frog/serve-static'
 import { Address, erc20Abi, getAddress, parseUnits } from 'viem'
-import { getQuote, getViemClient } from '@/app/markets/frames/[[...routes]]/queries'
-import { defaultChain } from '@/constants'
+import { getQuote, getViemClient } from '@/app/(markets)/markets/frames/[[...routes]]/queries'
 import { Market, Token } from '@/types'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { TradeQuotes } from '@/services'
 import { readFile } from 'fs/promises'
 import path from 'path'
-import { formatFixedEther } from '@/app/markets/frames/utils'
+import { defaultChain } from '@/constants'
 
 const app = new Frog<{
   State: {
@@ -47,8 +46,7 @@ const app = new Frog<{
     })
     const tokensResponse: Token[] = await tokeData.json()
     const token = tokensResponse.find(
-      (token) =>
-        token.address.toLowerCase() === market.collateralToken[defaultChain.id].toLowerCase()
+      (token) => token.address.toLowerCase() === market.collateralToken.address.toLowerCase()
     ) as Token
 
     return { market, collateralToken: token, addressOfMarket }

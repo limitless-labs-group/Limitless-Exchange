@@ -110,7 +110,7 @@ interface Creator {
 }
 
 interface Token {
-  id: string
+  id: number
   symbol: string
 }
 
@@ -133,7 +133,7 @@ const CreateOwnMarketPage = () => {
 
   const [deadline, setDeadline] = useState<Date>(new Date())
   const [title, setTitle] = useState<string>('')
-  const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: '1' })
+  const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: 1 })
   const [description, setDescription] = useState<string>('')
   const [liquidity, setLiquidity] = useState<number>(tokenLimits[defaultTokenSymbol].min)
   const [probability, setProbability] = useState<number>(defaultProbability)
@@ -154,7 +154,7 @@ const CreateOwnMarketPage = () => {
   const handleProbabilityChange = (value: number) => setProbability(value)
 
   const handleTokenSelect = (option: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedTokenId = option.target.value
+    const selectedTokenId = +option.target.value
     const selectedTokenSymbol =
       option.target.selectedOptions[0].getAttribute('data-name') ?? defaultTokenSymbol
     setToken({ symbol: selectedTokenSymbol, id: selectedTokenId })
@@ -227,7 +227,7 @@ const CreateOwnMarketPage = () => {
 
     formData?.set('title', title)
     formData?.set('description', description)
-    formData?.set('tokenId', token.id)
+    formData?.set('tokenId', token.id.toString())
     formData?.set('liquidity', liquidity.toString())
     formData?.set('initialYesProbability', (probability / 100).toString())
     formData?.set('deadline', deadline.toISOString())

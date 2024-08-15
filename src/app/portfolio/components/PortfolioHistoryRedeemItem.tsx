@@ -28,7 +28,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           style={{ textWrap: 'wrap' }}
           cursor={'pointer'}
           _hover={{ textDecor: 'underline' }}
-          onClick={() => router.push(`/markets/${market?.address[defaultChain.id]}`)}
+          onClick={() => router.push(`/markets/${market?.address}`)}
         >
           <Text size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
             {market?.proxyTitle ?? market?.title ?? 'Noname market'}
@@ -38,7 +38,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
 
       <Td px={2}>
         <Text color={redeem.outcomeIndex == 0 ? 'green.500' : 'red.500'}>
-          {market?.outcomeTokens[redeem.outcomeIndex ?? 0]}
+          {redeem.outcomeIndex ? 'No' : 'Yes'}
         </Text>
       </Td>
 
@@ -49,12 +49,12 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           <Text>
             {/* that's temporal solution since the bug is on indexer side. it returns not formatted values that's why we need to * on 10e12 */}
             {`${NumberUtil.formatThousands(
-              (market?.tokenTicker[defaultChain.id] === 'USDC'
+              (market?.collateralToken.symbol === 'USDC'
                 ? Math.pow(10, 12) * Number(redeem.collateralAmount)
                 : Number(redeem.collateralAmount)) ?? 0,
               4
             )} 
-          ${market?.tokenTicker[defaultChain.id]}`}
+          ${market?.collateralToken.symbol}`}
           </Text>
         </Box>
       </Td>

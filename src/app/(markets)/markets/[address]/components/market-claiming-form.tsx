@@ -24,7 +24,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
     () =>
       positions?.filter(
         (position) =>
-          position.market.id.toLowerCase() === market?.address[defaultChain.id].toLowerCase() &&
+          position.market.id.toLowerCase() === market?.address.toLowerCase() &&
           position.outcomeIndex === market.winningOutcomeIndex &&
           market.expired
       )?.[0],
@@ -34,8 +34,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
   const hasPositions = useMemo(() => {
     return positions?.filter(
       (position) =>
-        market?.expired &&
-        position.market.id.toLowerCase() === market?.address[defaultChain.id].toLowerCase()
+        market?.expired && position.market.id.toLowerCase() === market?.address.toLowerCase()
     )
   }, [market?.address, market?.expired, positions])
 
@@ -64,10 +63,10 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
           onClick={() => {
             trackClicked(ClickEvent.ClaimRewardOnMarketPageClicked, {
               platform: 'desktop',
-              marketAddress: market?.address[defaultChain.id],
+              marketAddress: market?.address,
             })
 
-            return claim(positionToClaim.outcomeIndex)
+            // return claim(positionToClaim.outcomeIndex)
           }}
           isDisabled={status === 'Loading'}
         >
@@ -77,7 +76,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
             <>
               <Icon as={WinIcon} />
               Claim {NumberUtil.formatThousands(positionToClaim.outcomeTokenAmount, 4)}
-              {market?.tokenTicker[defaultChain.id]}
+              {market?.collateralToken.symbol}
             </>
           )}
         </Button>
@@ -87,11 +86,11 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
       return (
         <Text color='grey.50'>
           You lost {`${NumberUtil.formatThousands(hasPositions[0].outcomeTokenAmount, 4)}`}{' '}
-          {market?.tokenTicker[defaultChain.id]}
+          {market?.collateralToken.symbol}
         </Text>
       )
     }
-  }, [hasPositions, market?.tokenTicker, positionToClaim, router, status])
+  }, [hasPositions, market?.collateralToken.symbol, positionToClaim, router, status])
 
   return (
     <Paper bg={formColor} w='312px'>
