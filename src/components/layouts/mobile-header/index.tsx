@@ -165,54 +165,57 @@ export default function MobileHeader() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Box w='full'>
-                      <HStack
-                        gap='8px'
-                        justifyContent='space-between'
-                        onClick={onOpenProfileBottomSheet}
-                      >
-                        <StackItem display='flex' justifyContent='center' alignItems='center'>
-                          {userInfo?.profileImage?.includes('http') ? (
-                            <ChakraImage
-                              src={userInfo.profileImage}
-                              borderRadius={'2px'}
-                              h={'24px'}
-                              w={'24px'}
-                              className='amp-block'
-                            />
-                          ) : (
-                            <Flex
-                              borderRadius={'2px'}
-                              h={'24px'}
-                              w={'24px'}
-                              bg='grey.300'
-                              alignItems='center'
-                              justifyContent='center'
-                            >
-                              <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
-                                {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
-                              </Text>
-                            </Flex>
-                          )}
-                          <Box mx='4px' />
-                          <Text {...paragraphMedium} className={'amp-mask'}>
-                            {userInfo?.name
-                              ? cutUsername(userInfo.name, 60)
-                              : truncateEthAddress(address)}
-                          </Text>
-                        </StackItem>
+                      <Button w='full' p={0} m={0} display='flex'>
+                        <HStack
+                          w='full'
+                          gap='8px'
+                          justifyContent='space-between'
+                          onClick={onOpenProfileBottomSheet}
+                        >
+                          <StackItem display='flex' justifyContent='center' alignItems='center'>
+                            {userInfo?.profileImage?.includes('http') ? (
+                              <ChakraImage
+                                src={userInfo.profileImage}
+                                borderRadius={'2px'}
+                                h={'24px'}
+                                w={'24px'}
+                                className='amp-block'
+                              />
+                            ) : (
+                              <Flex
+                                borderRadius={'2px'}
+                                h={'24px'}
+                                w={'24px'}
+                                bg='grey.300'
+                                alignItems='center'
+                                justifyContent='center'
+                              >
+                                <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
+                                  {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
+                                </Text>
+                              </Flex>
+                            )}
+                            <Box mx='4px' />
+                            <Text {...paragraphMedium} className={'amp-mask'}>
+                              {userInfo?.name
+                                ? cutUsername(userInfo.name, 60)
+                                : truncateEthAddress(address)}
+                            </Text>
+                          </StackItem>
 
-                        <StackItem>
-                          <Box
-                            color='grey.800'
-                            onClick={() => {
-                              onToggleUserMenu()
-                              onOpenProfileBottomSheet()
-                            }}
-                          >
-                            <ArrowRightIcon width={16} height={16} />
-                          </Box>
-                        </StackItem>
-                      </HStack>
+                          <StackItem>
+                            <Box
+                              color='grey.800'
+                              onClick={() => {
+                                onToggleUserMenu()
+                                onOpenProfileBottomSheet()
+                              }}
+                            >
+                              <ArrowRightIcon width={16} height={16} />
+                            </Box>
+                          </StackItem>
+                        </HStack>
+                      </Button>
 
                       <HStack
                         spacing={2}
