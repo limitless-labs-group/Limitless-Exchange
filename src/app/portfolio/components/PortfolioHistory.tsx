@@ -1,8 +1,9 @@
-import { PortfolioHistoryRedeemItem, PortfolioHistoryTradeItem } from '@/app/portfolio/components'
 import { HistoryRedeem, HistoryTrade, useHistory } from '@/services'
 import { Flex, Table, TableContainer, Tbody, Text, Th, Thead, Tr } from '@chakra-ui/react'
 import { useEffect, useMemo } from 'react'
+import { PortfolioHistoryTradeItem } from '@/app/portfolio/components/PortfolioHistoryTradeItem'
 import { v4 as uuidv4 } from 'uuid'
+import { PortfolioHistoryRedeemItem } from '@/app/portfolio/components/PortfolioHistoryRedeemItem'
 
 export const PortfolioHistory = () => {
   const { trades, getTrades, redeems, getRedeems } = useHistory()
@@ -25,23 +26,18 @@ export const PortfolioHistory = () => {
   ) : (
     <TableContainer overflow={'auto'}>
       <Table variant={'simple'}>
-        {/* <TableCaption>Trading history</TableCaption> */}
         <Thead>
           <Tr>
-            <Th pl={0} pr={2} minW={'250px'}>
-              Market
-            </Th>
-            <Th px={2}>Outcome</Th>
-            <Th px={2}>Strategy</Th>
-            <Th px={2} isNumeric>
-              Amount
-            </Th>
-            <Th px={2} isNumeric>
+            <Th minW='92px'>Action</Th>
+            <Th minW='124px'>Position</Th>
+            <Th isNumeric minW='124px'>
               Contracts
             </Th>
-            <Th pl={2} pr={0}>
-              Tx
+            <Th isNumeric minW='140px'>
+              Amount
             </Th>
+            <Th w='420px'>Market</Th>
+            <Th w='96px'>TX</Th>
           </Tr>
         </Thead>
         <Tbody>

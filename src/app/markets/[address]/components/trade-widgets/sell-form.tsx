@@ -41,6 +41,20 @@ import BlockIcon from '@/resources/icons/block.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import { useWeb3Service } from '@/services/Web3Service'
 
+const _transformSellValue = (value: string) => {
+  const [wholeNumber, fractionalNumber] = value.split('.')
+
+  // const fractionalNumberLength = fractionalNumber?.length || 0
+  // const percentage = fractionalNumberLength <= 6 ? 0.99 : fractionalNumberLength === 0 ? 1 : 0.91
+  const percentage = 1
+
+  let zeroWholeFraction: string = ['0', fractionalNumber].join('.')
+  zeroWholeFraction = String(+zeroWholeFraction * percentage)
+  zeroWholeFraction = Number(zeroWholeFraction).toFixed(6)
+  const [, _fractionalNumber] = zeroWholeFraction.split('.')
+  return [wholeNumber, _fractionalNumber].join('.')
+}
+
 interface SellFormProps {
   market: Market
   setOutcomeIndex: Dispatch<SetStateAction<number>>
@@ -106,7 +120,10 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
 
   const balance = useMemo(() => {
     if (outcomeChoice) {
-      return outcomeChoice === 'yes' ? balanceOfCollateralToSellYes : balanceOfCollateralToSellNo
+      let _balance =
+        outcomeChoice === 'yes' ? balanceOfCollateralToSellYes : balanceOfCollateralToSellNo
+      _balance = _transformSellValue(_balance)
+      return _balance
     }
   }, [outcomeChoice, balanceOfCollateralToSellYes, balanceOfCollateralToSellNo])
 
@@ -133,16 +150,21 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
   const [showTooltip, setShowTooltip] = useState(false)
 
   const handleInputValueChange = (value: string) => {
-    if (token?.symbol === 'USDC') {
-      const decimals = value.split('.')[1]
-      if (decimals && decimals.length > 1) {
-        return
-      }
-      setCollateralAmount(value)
-      return
-    }
-    setCollateralAmount(value)
+    // console.log('_collateralAmount', _collateralAmount)
+    const _collateralAmount = _transformSellValue(value)
+    setCollateralAmount(_collateralAmount)
     return
+
+    // if (token?.symbol === 'USDC') {
+    //   const decimals = value.split('.')[1]
+    //   if (decimals && decimals.length > 1) {
+    //     return
+    //   }
+    //   setCollateralAmount(value)
+    //   return
+    // }
+    // setCollateralAmount(value)
+    // return
   }
 
   const onSlide = useCallback(
@@ -153,11 +175,19 @@ export function SellForm({ market, setOutcomeIndex }: SellFormProps) {
         return
       }
       if (value == 100) {
-        setDisplayAmount(NumberUtil.toFixed(balance, 6))
+        // _displayAmount = NumberUtil.toFixed(balance, 6)
+        // _displayAmount = _transformCollateralAmount(balance ?? '0')
+        // console.log('onSlide _displayAmount', _displayAmount)
+        setDisplayAmount(balance ?? '0')
         return
       }
       const amountByPercent = (Number(balance) * value) / 100
-      setDisplayAmount(NumberUtil.toFixed(amountByPercent, 6))
+
+      // _displayAmount = amountByPercent.toString()
+      // _displayAmount = _transformCollateralAmount(_displayAmount)
+      // console.log('onSlide amountByPercent _displayAmount', _displayAmount)
+      const _collateralAmount = _transformSellValue(amountByPercent.toString())
+      setDisplayAmount(_collateralAmount)
     },
     [sliderValue, balance, isZeroBalance]
   )
