@@ -7,7 +7,6 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  position,
   Slider,
   SliderFilledTrack,
   SliderThumb,
@@ -18,7 +17,6 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { NumberUtil } from '@/utils'
-import { defaultChain } from '@/constants'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'

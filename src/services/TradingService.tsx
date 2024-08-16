@@ -499,8 +499,12 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       await refetchChain()
 
-      // TODO: redesign subgraph refetch logic
-      sleep(10).then(() => refetchSubgraph())
+      sleep(10).then(() => {
+        refetchSubgraph()
+        queryClient.refetchQueries({
+          queryKey: ['markets', market.address],
+        })
+      })
 
       return receipt
     },

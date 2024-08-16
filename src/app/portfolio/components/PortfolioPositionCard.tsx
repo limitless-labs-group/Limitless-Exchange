@@ -55,6 +55,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
    * MARKET DATA
    */
   const { data: market } = useMarket(position.market.id)
+  console.log(market)
 
   const allMarkets = useAllMarkets()
 
@@ -123,7 +124,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           <>
             <Icon as={WinIcon} color={'black'} />
             Claim{' '}
-            {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
+            {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 6)} ${
               market?.collateralToken.symbol
             }`}
           </>
@@ -165,7 +166,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
 
   return isMobile ? (
     <Paper
-      onClick={() => router.push(marketURI)}
+      onClick={() => !market?.expired && router.push(marketURI)}
       w={'full'}
       bg={market?.expired ? 'green.500' : 'grey.200'}
       p={'16px'}
