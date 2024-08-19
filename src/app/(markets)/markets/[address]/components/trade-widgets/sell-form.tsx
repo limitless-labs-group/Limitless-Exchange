@@ -300,9 +300,11 @@ export function SellForm({
               </Box>
             }
           >
-            <HStack gap='8px'>
+            <HStack gap='8px' color='white'>
               <PredictionsIcon />
-              <Text {...paragraphMedium}>{market.title}</Text>
+              <Text {...paragraphMedium} color='white'>
+                {market.title}
+              </Text>
             </HStack>
           </Button>
           {isOpenSelectMarketMenu && (
