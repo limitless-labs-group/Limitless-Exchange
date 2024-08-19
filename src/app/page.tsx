@@ -89,8 +89,6 @@ const MainPage = () => {
     return tokenFilteredMarkets
   }, [markets, selectedFilterTokens, selectedCategory])
 
-  console.log(filteredMarkets)
-
   const sortedMarkets = useMemo(() => {
     if (!filteredMarkets) return []
     switch (selectedSort) {
