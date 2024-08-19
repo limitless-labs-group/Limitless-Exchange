@@ -10,6 +10,8 @@ export const PortfolioPositions = ({ ...props }: GridProps) => {
   const { positions, getPositions } = useHistory()
   const { data: userMarkets } = useUsersMarkets()
 
+  console.log(positions)
+
   useEffect(() => {
     getPositions()
   }, [])
