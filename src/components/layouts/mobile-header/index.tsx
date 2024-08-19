@@ -68,7 +68,11 @@ export default function MobileHeader() {
     onOpen: onOpenProfileBottomSheet,
     onClose: onCloseProfileBottomSheet,
   } = useBottomSheetDisclosure()
-  const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
+  const {
+    isOpen: isOpenUserMenu,
+    onToggle: onToggleUserMenu,
+    onClose: onCloseUserMenu,
+  } = useDisclosure()
   const { isOpen: isWalletModalOpen, onToggle: onToggleWalletModal } = useDisclosure()
   const {
     isOpen: isWrapModalOpen,
@@ -170,7 +174,10 @@ export default function MobileHeader() {
                           w='full'
                           gap='8px'
                           justifyContent='space-between'
-                          onClick={onOpenProfileBottomSheet}
+                          onClick={() => {
+                            onCloseUserMenu()
+                            onOpenProfileBottomSheet()
+                          }}
                         >
                           <StackItem display='flex' justifyContent='center' alignItems='center'>
                             {userInfo?.profileImage?.includes('http') ? (
