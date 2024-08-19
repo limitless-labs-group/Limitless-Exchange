@@ -30,7 +30,7 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
   const [colors, setColors] = useState(unhoveredColors)
 
   return (
-    <NextLink href={`/markets/${market.address[defaultChain.id]}`} style={{ width: '100%' }}>
+    <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
       <Paper
         w={'full'}
         justifyContent={'space-between'}
@@ -47,7 +47,7 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
           <HStack gap={1} color={colors.main}>
             <ThumbsUpIcon width={'16px'} height={'16px'} />
             <Text {...paragraphMedium} color={colors.main} fontSize={'14px'} lineHeight={'20px'}>
-              {market?.buyYesNo[0]}% YES
+              {market?.prices[0]}% YES
             </Text>
             <ArrowRightIcon width={'16px'} height={'16px'} />
           </HStack>
@@ -63,7 +63,7 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
               </HStack>
               <Text mt={1} {...paragraphRegular} color={colors.main}>
                 {NumberUtil.formatThousands(market?.liquidityFormatted, 4)}{' '}
-                {market?.tokenTicker[defaultChain.id]}
+                {market?.collateralToken.symbol}
               </Text>
             </Box>
             <Box>
@@ -75,7 +75,7 @@ export const MarketCard = ({ market, ...props }: IMarketCard) => {
               </HStack>
               <Text mt={1} {...paragraphRegular} color={colors.main}>
                 {NumberUtil.formatThousands(market?.volumeFormatted, 4)}{' '}
-                {market?.tokenTicker[defaultChain.id]}
+                {market?.collateralToken.symbol}
               </Text>
             </Box>
           </HStack>

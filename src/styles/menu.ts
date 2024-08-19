@@ -63,6 +63,29 @@ const variants = {
       background: 'unset !important',
     },
   },
+  blue: {
+    button: {
+      w: 'full',
+      bg: 'blue.400',
+      _hover: {
+        bg: 'blue.400',
+      },
+    },
+    list: {
+      p: 0,
+      bg: 'blue.500',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: isMobile ? '16px' : '8px',
+    },
+    item: {
+      p: isMobile ? '16px' : '8px',
+      bg: 'transparent.200',
+      _hover: {
+        bg: 'transparent.300',
+      },
+    },
+  },
 }
 
 // export the base styles in the component theme

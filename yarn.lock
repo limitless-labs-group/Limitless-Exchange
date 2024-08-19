@@ -8049,10 +8049,10 @@ ethereum-cryptography@^2.0.0, ethereum-cryptography@^2.1.2, ethereum-cryptograph
     "@scure/bip32" "1.4.0"
     "@scure/bip39" "1.3.0"
 
-ethereum-multicall@^2.24.0:
-  version "2.24.0"
-  resolved "https://registry.yarnpkg.com/ethereum-multicall/-/ethereum-multicall-2.24.0.tgz#b6ff351a632cae7882ca24224bd3ea2426b6e213"
-  integrity sha512-+xWNmtWdpL4zOdAF2zeLYa1ZsrHLeU7KLmBAsc0el140qdQmF9ubyM9SwKHzy+xztTHi+eCnmCjknqhEU25gFA==
+ethereum-multicall@^2.25.0:
+  version "2.25.0"
+  resolved "https://registry.yarnpkg.com/ethereum-multicall/-/ethereum-multicall-2.25.0.tgz#6330e24ba351f3791e9a72ea437b586a583e1325"
+  integrity sha512-IkcsjLz/cjuLDsT5bn8OJT1GtFhoLTpWFx4TVvulRz8mWUvm9WRoeanlJ6g+VYLLR9c9eTz1mtu+h1MxMYXXuQ==
   dependencies:
     "@ethersproject/providers" "^5.0.10"
     ethers "^5.0.15"

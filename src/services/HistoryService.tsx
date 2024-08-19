@@ -171,10 +171,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       let _positions: HistoryPosition[] = []
 
       trades?.forEach((trade) => {
-        // TODO: replace hardcoded markets with dynamic
         const market = markets.find(
-          (market) =>
-            market.address[defaultChain.id].toLowerCase() === trade.market.id.toLowerCase()
+          (market) => market.address.toLowerCase() === trade.market.id.toLowerCase()
         )
 
         if (
@@ -229,6 +227,14 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 
       // filter markets with super small balance
       _positions = _positions.filter((position) => Number(position.outcomeTokenAmount) > 0.00001)
+      console.log(_positions)
+      console.log(
+        _positions?.filter(
+          (position) =>
+            position.latestTrade?.transactionHash ===
+            '0xfe017a88069f6a1c6d1b6678165209e64e164d1c76cac2478a86e21387865719'
+        )
+      )
 
       // Todo remove this mapping
       return _positions.map((position) => ({

@@ -13,7 +13,7 @@ import { Market, MarketStatus } from '@/types'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LegacyRef, MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { useWeb3Service } from '@/services/Web3Service'
-import ConfirmButton from '@/app/markets/[address]/components/trade-widgets/confirm-button'
+import ConfirmButton from '@/app/(markets)/markets/[address]/components/trade-widgets/confirm-button'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import Loader from '@/components/common/loader'
 import { parseUnits } from 'viem'
@@ -152,10 +152,7 @@ export default function ActionButton({
       return
     }
     if (client === 'eoa') {
-      const allowance = await checkAllowance(
-        market.address[defaultChain.id],
-        market.collateralToken[defaultChain.id]
-      )
+      const allowance = await checkAllowance(market.address, market.collateralToken.address)
       const amountBI = parseUnits(amount, decimals || 18)
       if (amountBI > allowance) {
         setStatus('unlock')
@@ -172,13 +169,9 @@ export default function ActionButton({
     try {
       setStatus('unlocking')
       const amountBI = parseUnits(amount, decimals || 18)
-      await approveContract(
-        market.address[defaultChain.id],
-        market.collateralToken[defaultChain.id],
-        amountBI
-      )
+      await approveContract(market.address, market.collateralToken.address, amountBI)
       trackClicked(ClickEvent.ConfirmCapClicked, {
-        address: market?.address[defaultChain.id],
+        address: market?.address,
         strategy: 'Buy',
         outcome: option,
         walletType: 'eoa',
@@ -238,7 +231,7 @@ export default function ActionButton({
           onClick={() => {
             trackClicked<TradeClickedMetadata>(ClickEvent.BuyClicked, {
               outcome: option,
-              marketAddress: market.address[defaultChain.id],
+              marketAddress: market.address,
               walletType: client,
             })
 
@@ -291,7 +284,7 @@ export default function ActionButton({
                   <Text {...paragraphRegular} color='white'>{`${NumberUtil.formatThousands(
                     quote?.outcomeTokenPrice,
                     6
-                  )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
+                  )} ${market?.collateralToken.symbol}`}</Text>
                 </HStack>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
@@ -343,7 +336,7 @@ export default function ActionButton({
                   </HStack>
                   <Text {...paragraphRegular} color='white'>
                     {NumberUtil.formatThousands(quote?.outcomeTokenAmount, 6)}{' '}
-                    {market.tokenTicker[defaultChain.id]}
+                    {market.collateralToken.symbol}
                   </Text>
                 </HStack>
               </VStack>
@@ -360,11 +353,11 @@ export default function ActionButton({
         transition={{ duration: 0.5 }}
       >
         <ConfirmButton
-          tokenTicker={market.tokenTicker[defaultChain.id]}
+          tokenTicker={market.collateralToken.symbol}
           status={status}
           handleConfirmClicked={() => {
             trackClicked(ClickEvent.ConfirmTransactionClicked, {
-              address: market?.address[defaultChain.id],
+              address: market?.address,
               outcome: option,
               strategy: 'Buy',
               walletType: client,

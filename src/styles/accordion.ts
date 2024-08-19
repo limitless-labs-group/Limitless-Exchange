@@ -21,6 +21,9 @@ const baseStyle = definePartsStyle({
       bg: 'unset',
     },
   },
+  panel: {
+    px: 0,
+  },
 })
 
 export const accordionTheme = defineMultiStyleConfig({ baseStyle })

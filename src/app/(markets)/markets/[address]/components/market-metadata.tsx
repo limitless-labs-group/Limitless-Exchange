@@ -16,6 +16,8 @@ export interface IMarketMetadata {
   winningIndex: number | undefined | null
   resolved: boolean
   outcomeTokensPercent?: number[]
+  liquidity: string
+  volume: string
 }
 
 export const MarketMetadata = ({
@@ -23,22 +25,20 @@ export const MarketMetadata = ({
   resolved,
   winningIndex,
   outcomeTokensPercent,
+  liquidity,
+  volume,
 }: IMarketMetadata) => {
   const stats = [
     {
       title: 'Liquidity',
       icon: <LiquidityIcon width={16} height={16} />,
-      value: `${NumberUtil.formatThousands(market?.liquidityFormatted, 6)} ${
-        market?.tokenTicker[defaultChain.id]
-      }`,
+      value: `${NumberUtil.formatThousands(liquidity, 6)} ${market?.collateralToken.symbol}`,
       border: true,
     },
     {
       title: 'Volume',
       icon: <VolumeIcon width={16} height={16} />,
-      value: `${NumberUtil.formatThousands(market?.volumeFormatted, 6)} ${
-        market?.tokenTicker[defaultChain.id]
-      }`,
+      value: `${NumberUtil.formatThousands(volume, 6)} ${market?.collateralToken.symbol}`,
       border: !isMobile,
     },
     {
@@ -62,7 +62,7 @@ export const MarketMetadata = ({
         ? '100'
         : '0',
     ],
-    [outcomeTokensPercent, resolved, winningIndex]
+    [outcomeTokensPercent, resolved, winningIndex, market]
   )
 
   return (

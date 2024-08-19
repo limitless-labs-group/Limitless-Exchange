@@ -4,18 +4,19 @@ import { HistoryPosition } from '@/services'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import { NumberUtil } from '@/utils'
-import { Market } from '@/types'
 import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { defaultChain } from '@/constants'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import BigNumber from 'bignumber.js'
 
 interface PositionCardProps {
   position: HistoryPosition
-  market: Market | null
+  marketPrices: number[]
+  symbol: string
+  title?: string
 }
 
-export function PositionCard({ position, market }: PositionCardProps) {
+export function PositionCard({ position, marketPrices, symbol, title }: PositionCardProps) {
   const getOutcomeNotation = () => {
     const outcomeTokenId = position.outcomeIndex ?? 0
     const defaultOutcomes = ['Yes', 'No']
@@ -29,8 +30,9 @@ export function PositionCard({ position, market }: PositionCardProps) {
     <ThumbsDownIcon width={16} height={16} />
   )
 
-  const currentContractsPrice =
-    +(position.outcomeTokenAmount || 1) * ((market?.prices[position.outcomeIndex] || 1) / 100)
+  const currentContractsPrice = new BigNumber(position?.collateralAmount || 1)
+    .multipliedBy(new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100))
+    .toNumber()
 
   const contractPrice = currentContractsPrice / +(position?.collateralAmount || 1)
 
@@ -61,6 +63,7 @@ export function PositionCard({ position, market }: PositionCardProps) {
     <Paper w='full'>
       <Flex justifyContent='space-between' mb='12px'>
         <HStack gap='4px'>
+          {title && <Text {...paragraphMedium}>{title}</Text>}
           {outcomeIcon}
           <Text {...paragraphMedium}>{getOutcomeNotation()}</Text>
         </HStack>
@@ -71,9 +74,10 @@ export function PositionCard({ position, market }: PositionCardProps) {
             </Text>
           )}
           <HStack gap='4px'>
-            <Text {...paragraphMedium}>{`${NumberUtil.toFixed(currentContractsPrice, 6)} ${
-              market?.tokenTicker[defaultChain.id]
-            }`}</Text>
+            <Text {...paragraphMedium}>{`${NumberUtil.toFixed(
+              currentContractsPrice,
+              6
+            )} ${symbol}`}</Text>
             {contractPriceChanged}
           </HStack>
         </HStack>
@@ -99,9 +103,10 @@ export function PositionCard({ position, market }: PositionCardProps) {
           <Text {...paragraphMedium} color='grey.500'>
             Invested
           </Text>
-          <Text {...paragraphRegular}>{`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
-            market?.tokenTicker[defaultChain.id]
-          }`}</Text>
+          <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
+            position.collateralAmount,
+            6
+          )} ${symbol}`}</Text>
         </Flex>
         <Flex
           flexDir={isMobile ? 'row' : 'column'}
@@ -114,7 +119,7 @@ export function PositionCard({ position, market }: PositionCardProps) {
           <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
             position.latestTrade?.outcomeTokenPrice,
             3
-          )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
+          )} ${symbol}`}</Text>
         </Flex>
         <Flex
           flexDir={isMobile ? 'row' : 'column'}
@@ -125,9 +130,9 @@ export function PositionCard({ position, market }: PositionCardProps) {
             Current Price
           </Text>
           <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
-            (market?.prices[position.outcomeIndex] || 1) / 100,
+            (marketPrices[position.outcomeIndex] || 1) / 100,
             3
-          )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
+          )} ${symbol}`}</Text>
         </Flex>
         <Flex
           flexDir={isMobile ? 'row' : 'column'}
@@ -138,9 +143,7 @@ export function PositionCard({ position, market }: PositionCardProps) {
             To Win
           </Text>
           <Text {...paragraphRegular}>
-            {`${NumberUtil.toFixed(position.outcomeTokenAmount, 6)} ${
-              market?.tokenTicker[defaultChain.id]
-            }`}
+            {`${NumberUtil.toFixed(position.outcomeTokenAmount, 6)} ${symbol}`}
           </Text>
         </Flex>
       </HStack>

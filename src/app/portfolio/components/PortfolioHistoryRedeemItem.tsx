@@ -23,12 +23,12 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
       <Td w='92px'>Won</Td>
       <Td>
         <HStack gap='4px'>
-          {market?.outcomeTokens[redeem.outcomeIndex] ? (
+          {redeem.outcomeIndex ? (
             <ThumbsDownIcon width={16} height={16} />
           ) : (
             <ThumbsUpIcon width={16} height={16} />
           )}{' '}
-          <Text {...paragraphRegular}>{market?.outcomeTokens[redeem.outcomeIndex ?? 0]}</Text>
+          <Text {...paragraphRegular}>{redeem.outcomeIndex ? 'No' : 'Yes'}</Text>
         </HStack>
       </Td>
       <Td></Td>
@@ -37,12 +37,12 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           <Text>
             {/* that's temporal solution since the bug is on indexer side. it returns not formatted values that's why we need to * on 10e12 */}
             {`${NumberUtil.formatThousands(
-              (market?.tokenTicker[defaultChain.id] === 'USDC'
+              (market?.collateralToken.symbol === 'USDC'
                 ? Math.pow(10, 12) * Number(redeem.collateralAmount)
                 : Number(redeem.collateralAmount)) ?? 0,
               4
             )} 
-          ${market?.tokenTicker[defaultChain.id]}`}
+          ${market?.collateralToken.symbol}`}
           </Text>
         </Box>
       </Td>

@@ -22,7 +22,7 @@ export const getQuote = async (
   outcomeTokensBuyPercent: number[]
 ) => {
   const fixedProductMarketMakerContract = getContract({
-    address: market.address[defaultChain.id] as Address,
+    address: market.address as Address,
     abi: fixedProductMarketMakerABI,
     client: getViemClient(),
   })

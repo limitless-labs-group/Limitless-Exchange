@@ -23,12 +23,12 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
       <Td w='92px'>{trade.strategy}</Td>
       <Td>
         <HStack gap='4px'>
-          {market?.outcomeTokens[trade.outcomeIndex] ? (
+          {trade.outcomeIndex ? (
             <ThumbsDownIcon width={16} height={16} />
           ) : (
             <ThumbsUpIcon width={16} height={16} />
           )}{' '}
-          <Text {...paragraphRegular}>{market?.outcomeTokens[trade.outcomeIndex ?? 0]}</Text>
+          <Text {...paragraphRegular}>{trade.outcomeIndex ? 'No' : 'Yes'}</Text>
           <Text {...paragraphRegular}>
             {NumberUtil.toFixed(+(trade.outcomeTokenPrice || 1) * 100, 1)}%
           </Text>
@@ -40,7 +40,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
           {`${NumberUtil.formatThousands(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
             6
-          )} ${market?.tokenTicker[defaultChain.id]}`}
+          )} ${market?.collateralToken.symbol}`}
         </Text>
       </Td>
       <Td

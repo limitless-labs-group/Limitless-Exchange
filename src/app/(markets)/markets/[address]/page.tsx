@@ -57,7 +57,6 @@ import { useMarketData } from '@/hooks'
 import { Address, zeroAddress } from 'viem'
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
-  const { supportedTokens } = useLimitlessApi()
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
   /**
    * ANALYTICS
@@ -71,14 +70,8 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     isError: fetchMarketError,
     isLoading: fetchMarketLoading,
   } = useMarket(params.address)
-  const { outcomeTokensPercent } = useMarketData({
-    marketAddress: params.address,
-    collateralToken: supportedTokens?.find(
-      (token) => token.address === market?.collateralToken[defaultChain.id]
-    ),
-  })
-  const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices)
-  const { isLoading: isCollateralLoading } = useToken(market?.collateralToken[defaultChain.id])
+  const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
+  const { isLoading: isCollateralLoading } = useToken(market?.collateralToken.address)
   const {
     setMarket,
     market: previousMarket,
@@ -97,11 +90,11 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       return market.expired ? (
         <MarketClaimingForm market={market} />
       ) : (
-        <MarketTradingForm market={market} outcomeTokensPercent={outcomeTokensPercent} />
+        <MarketTradingForm market={market} outcomeTokensPercent={market.prices} />
       )
     }
     return null
-  }, [market, outcomeTokensPercent])
+  }, [market, market?.prices])
 
   const handleApproveMarket = async () => {
     return strategy === 'Buy' ? approveBuy() : approveSell()
@@ -120,7 +113,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
         onClick={() => {
           trackClicked(ClickEvent.TradeButtonClicked, {
             platform: 'mobile',
-            address: market?.address[defaultChain.id],
+            address: market?.address,
           })
           openTradeModal()
         }}
@@ -164,7 +157,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                   variant='grey'
                   onClick={() => {
                     trackClicked(ClickEvent.BackClicked, {
-                      address: market?.address[defaultChain.id],
+                      address: market?.address,
                     })
                     handleBackClicked()
                   }}
@@ -176,7 +169,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                   <MenuButton
                     onClick={() => {
                       trackClicked(ClickEvent.ShareMenuClicked, {
-                        address: market?.address[defaultChain.id],
+                        address: market?.address,
                       })
                       setShareMenuOpen(true)
                     }}
@@ -191,7 +184,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       onClick={() => {
                         trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                           type: 'Farcaster',
-                          address: market?.address[defaultChain.id],
+                          address: market?.address,
                         })
                         window.open(castURI, '_blank', 'noopener')
                       }}
@@ -205,7 +198,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       onClick={() => {
                         trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                           type: 'X/Twitter',
-                          address: market?.address[defaultChain.id],
+                          address: market?.address,
                         })
                         window.open(tweetURI, '_blank', 'noopener')
                       }}
@@ -249,13 +242,15 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                 market={market}
                 winningIndex={winningIndex}
                 resolved={resolved}
-                outcomeTokensPercent={outcomeTokensPercent}
+                outcomeTokensPercent={market.prices}
+                liquidity={market.liquidityFormatted}
+                volume={market.volumeFormatted}
               />
               <MarketPriceChart
                 marketAddr={market.address[defaultChain.id] ?? zeroAddress}
                 winningIndex={winningIndex}
                 resolved={resolved}
-                outcomeTokensPercent={outcomeTokensPercent}
+                outcomeTokensPercent={market.prices}
               />
               <MarketPositions market={market} />
               <HStack gap='4px' marginTop='24px' mb='8px'>
@@ -279,7 +274,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
               onClose={closeTradeModal}
               title={(market?.proxyTitle ?? market?.title) || ''}
               market={market}
-              outcomeTokensPercent={outcomeTokensPercent}
+              outcomeTokensPercent={market.prices}
             />
           )}
           <ApproveModal onApprove={handleApproveMarket} />

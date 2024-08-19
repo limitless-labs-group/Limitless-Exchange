@@ -9,7 +9,7 @@ import {
 } from '@amplitude/analytics-browser'
 import * as sessionReplay from '@amplitude/session-replay-browser'
 import { useAccount } from '@/services'
-import { Address } from '@/types'
+import { Address, MarketGroup } from '@/types'
 import {
   CUSTOM_LOGIN_PROVIDER_TYPE,
   LOGIN_PROVIDER_TYPE,
@@ -126,6 +126,7 @@ export enum ClickEvent {
   TopUpClicked = 'Top Up Clicked',
   ShareMenuClicked = 'Share Menu Clicked',
   ShareItemClicked = 'Share Item Clicked',
+  ChangeMarketInGroupClicked = 'Change Market In Group Clicked',
   ProfileBurgerMenuClicked = 'Profile Burger Menu Clicked',
   SignOutClicked = 'Sign Out',
   TradeButtonClicked = 'Trade Button Clicked',
@@ -230,6 +231,10 @@ export interface ShareClickedMetadata {
   address?: Address
 }
 
+interface MarketChangeInGroupData {
+  marketGroup: MarketGroup
+}
+
 export type PageOpenedPage =
   | 'Market Page'
   | 'Creator Cabinet'
@@ -326,6 +331,7 @@ export type ClickedEventMetadata =
   | TopUpMetadata
   | UIModeMetadata
   | SignInW3AClickedMetadata
+  | MarketChangeInGroupData
 
 export type OpenedEventMetadata = PageOpenedMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata
