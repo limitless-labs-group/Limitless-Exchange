@@ -13,6 +13,7 @@ import { TradeQuotes } from '@/services'
 import { readFile } from 'fs/promises'
 import path from 'path'
 import { formatFixedEther } from '@/app/markets/frames/utils'
+import { NumberUtil } from '@/utils'
 
 const app = new Frog<{
   State: {
@@ -160,7 +161,7 @@ app
                     fontSize: '40px',
                   }}
                 >
-                  {market.liquidityFormatted} {collateralToken.symbol}
+                  {NumberUtil.toFixed(market.liquidityFormatted, 6)} {collateralToken.symbol}
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
