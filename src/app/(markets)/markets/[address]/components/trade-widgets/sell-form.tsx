@@ -123,7 +123,7 @@ export function SellForm({
     balanceOfCollateralToSellNo,
     quotesYes,
     quotesNo,
-    trade,
+    sell,
   } = useTradingService()
 
   useEffect(() => {
@@ -233,23 +233,23 @@ export function SellForm({
       address: market.address,
     })
     const index = outcomeChoice === 'yes' ? 0 : 1
-    // const balanceToSell = index
-    //   ? BigInt(
-    //       NumberUtil.toFixed(
-    //         parseUnits(balanceOfCollateralToSellNo, market.collateralToken.decimals).toString(),
-    //         6
-    //       )
-    //     )
-    //   : parseUnits(balanceOfCollateralToSellYes, market.collateralToken.decimals)
+    const balanceToSell = index
+      ? BigInt(
+          NumberUtil.toFixed(
+            parseUnits(balanceOfCollateralToSellNo, market.collateralToken.decimals).toString(),
+            6
+          )
+        )
+      : parseUnits(balanceOfCollateralToSellYes, market.collateralToken.decimals)
     setOutcomeIndex(index)
-    await trade(index)
-    // await sell({
-    //   outcomeTokenId: index,
-    //   amount:
-    //     sliderValue === 100
-    //       ? balanceToSell
-    //       : parseUnits(collateralAmount, market.collateralToken.decimals),
-    // })
+    // await trade(index)
+    await sell({
+      outcomeTokenId: index,
+      amount:
+        sliderValue === 100
+          ? balanceToSell
+          : parseUnits(collateralAmount, market.collateralToken.decimals),
+    })
   }
 
   const isExceedsBalance = useMemo(() => {
