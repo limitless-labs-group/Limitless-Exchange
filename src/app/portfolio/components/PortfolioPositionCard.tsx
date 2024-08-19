@@ -92,7 +92,9 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   /**
    * SHARE
    */
-  const marketURI = `${window.location.origin}/markets/${position.market.id}`
+  const marketURI = targetMarket?.group?.slug
+    ? `${window.location.origin}/market-group/${targetMarket?.group?.slug}`
+    : `${window.location.origin}/markets/${position.market.id}`
 
   const getOutcomeNotation = () => {
     const outcomeTokenId = position.outcomeIndex ?? 0

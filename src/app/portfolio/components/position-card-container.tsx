@@ -11,6 +11,7 @@ export default function PositionCardContainer({
   expired,
   children,
 }: PropsWithChildren<PositionCardContainerProps>) {
+  console.log(marketLink)
   return expired ? (
     <>{children}</>
   ) : (

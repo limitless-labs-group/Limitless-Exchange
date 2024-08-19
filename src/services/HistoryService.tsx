@@ -91,17 +91,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         )
         trade.strategy = Number(trade.outcomeTokenAmount) > 0 ? 'Buy' : 'Sell'
         trade.outcomeIndex = trade.outcomeTokenAmounts.findIndex((amount) => BigInt(amount) != 0n)
-        if (
-          trade.market.id === '0x9672C285e57708A6A82C97a5eb8f2D71f84D19df' &&
-          trade.transactionHash ===
-            '0x6eed4b30a3cf747ea8ec9f72129cc293e034943732d213ac8c221ac84933f728'
-        ) {
-          console.log(trade)
-          // console.log(
-          //   formatUnits(BigInt(trade.outcomeTokenNetCost), collateralToken?.decimals || 18)
-          // )
-          console.log(trade.collateralAmount)
-        }
         trade.collateralAmount = formatUnits(
           BigInt(trade.outcomeTokenNetCost),
           collateralToken?.decimals || 18
@@ -113,9 +102,9 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         // trade.outcomePercent = Number(trade.outcomeTokenPrice)
       })
 
-      _trades
-        .filter((trade) => trade.market.id === '0x9672C285e57708A6A82C97a5eb8f2D71f84D19df')
-        .sort((tradeA, tradeB) => Number(tradeB.blockTimestamp) - Number(tradeA.blockTimestamp))
+      _trades.sort(
+        (tradeA, tradeB) => Number(tradeB.blockTimestamp) - Number(tradeA.blockTimestamp)
+      )
 
       return _trades
     },
