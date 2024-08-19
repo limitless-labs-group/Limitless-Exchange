@@ -42,9 +42,10 @@ const hoverColors = {
 
 export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPositionCard) => {
   const [colors, setColors] = useState(unhoveredColors)
+  const [isLoadingRedeem, setIsLoadingRedeem] = useState(false)
 
   const { trackClicked } = useAmplitude()
-  const { redeem, isLoadingRedeem } = useTradingService()
+  const { redeem } = useTradingService()
 
   /**
    * NAVIGATION
@@ -105,6 +106,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       <Button
         variant='white'
         onClick={async () => {
+          setIsLoadingRedeem(true)
           trackClicked(ClickEvent.ClaimRewardOnPortfolioClicked, {
             platform: isMobile ? 'mobile' : 'desktop',
           })
@@ -114,6 +116,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             marketAddress: market?.address as Address,
             outcomeIndex: market?.winningOutcomeIndex as number,
           })
+          setIsLoadingRedeem(false)
         }}
         minW='162px'
       >
@@ -123,7 +126,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           <>
             <Icon as={WinIcon} color={'black'} />
             Claim{' '}
-            {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
+            {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 6)} ${
               market?.collateralToken.symbol
             }`}
           </>
@@ -165,7 +168,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
 
   return isMobile ? (
     <Paper
-      onClick={() => router.push(marketURI)}
+      onClick={() => !market?.expired && router.push(marketURI)}
       w={'full'}
       bg={market?.expired ? 'green.500' : 'grey.200'}
       p={'16px'}

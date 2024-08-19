@@ -50,9 +50,17 @@ export default function useMarketGroup(slug: string) {
       })
 
       const results = await multicall.call(contractCallContext)
+      console.log(marketGroup)
+      console.log(results)
 
       const marketsWithPrices = marketGroup.markets
         .map((market) => {
+          if (market.expired) {
+            return {
+              ...market,
+              prices: market.winningOutcomeIndex ? [0, 100] : [100, 0],
+            }
+          }
           const marketAddress = market.address
           const result = results.results[marketAddress].callsReturnContext
           const outcomeTokenBuyAmountYesBI = BigInt(result[0].returnValues[0].hex)
