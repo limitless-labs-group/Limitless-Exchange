@@ -250,6 +250,7 @@ export function BuyForm({
                     <HStack
                       w={isMobile ? '100%' : 'unset'}
                       justifyContent={isMobile ? 'space-between' : 'unset'}
+                      color='white'
                     >
                       <VolumeIcon width={16} height={16} />
                       <Text {...paragraphRegular} color='white'>
