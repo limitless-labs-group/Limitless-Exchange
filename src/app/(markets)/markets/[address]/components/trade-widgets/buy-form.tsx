@@ -181,9 +181,11 @@ export function BuyForm({
               </Box>
             }
           >
-            <HStack gap='8px'>
+            <HStack gap='8px' color='white'>
               <PredictionsIcon />
-              <Text {...paragraphMedium}>{market.title}</Text>
+              <Text {...paragraphMedium} color='white'>
+                {market.title}
+              </Text>
             </HStack>
           </Button>
           {isOpenSelectMarketMenu && (
@@ -237,6 +239,7 @@ export function BuyForm({
                     <HStack
                       w={isMobile ? '100%' : 'unset'}
                       justifyContent={isMobile ? 'space-between' : 'unset'}
+                      color='white'
                     >
                       <LiquidityIcon width={16} height={16} />
                       <Text {...paragraphRegular} color='white'>
