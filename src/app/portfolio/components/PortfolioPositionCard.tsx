@@ -42,9 +42,10 @@ const hoverColors = {
 
 export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPositionCard) => {
   const [colors, setColors] = useState(unhoveredColors)
+  const [isLoadingRedeem, setIsLoadingRedeem] = useState(false)
 
   const { trackClicked } = useAmplitude()
-  const { redeem, isLoadingRedeem } = useTradingService()
+  const { redeem } = useTradingService()
 
   /**
    * NAVIGATION
@@ -55,7 +56,6 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
    * MARKET DATA
    */
   const { data: market } = useMarket(position.market.id)
-  console.log(market)
 
   const allMarkets = useAllMarkets()
 
@@ -106,6 +106,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       <Button
         variant='white'
         onClick={async () => {
+          setIsLoadingRedeem(true)
           trackClicked(ClickEvent.ClaimRewardOnPortfolioClicked, {
             platform: isMobile ? 'mobile' : 'desktop',
           })
@@ -115,6 +116,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             marketAddress: market?.address as Address,
             outcomeIndex: market?.winningOutcomeIndex as number,
           })
+          setIsLoadingRedeem(false)
         }}
         minW='162px'
       >

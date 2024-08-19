@@ -41,6 +41,13 @@ interface ITradingServiceContext {
   quotesNo: TradeQuotes | null | undefined
   buy: (outcomeTokenId: number) => Promise<string | undefined>
   sell: (outcomeTokenId: number) => Promise<string | undefined>
+  // sell: ({
+  //   outcomeTokenId,
+  //   amount,
+  // }: {
+  //   outcomeTokenId: number
+  //   amount: bigint
+  // }) => Promise<string | undefined>
   trade: (outcomeTokenId: number) => Promise<string | undefined>
   redeem: (params: RedeemParams) => Promise<string | undefined>
   status: TradingServiceStatus
@@ -560,6 +567,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * SELL
    */
   const { mutateAsync: sell, isPending: isLoadingSell } = useMutation({
+    // mutationFn: async ({ outcomeTokenId, amount }: { outcomeTokenId: number; amount: bigint }) => {
     mutationFn: async (outcomeTokenId: number) => {
       debugger
       if (!account || !market || isInvalidCollateralAmount || !conditionalTokensAddress) {
@@ -579,6 +587,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         conditionalTokensAddress,
         market.address,
         collateralAmountBI,
+        // amount,
         outcomeTokenId,
         parseUnits(
           outcomeTokenId

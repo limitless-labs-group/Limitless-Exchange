@@ -41,7 +41,7 @@ import CloseIcon from '@/resources/icons/close-icon.svg'
 import { useWeb3Service } from '@/services/Web3Service'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
-import { Address } from 'viem'
+import { Address, parseUnits } from 'viem'
 
 const _transformSellValue = (value: string) => {
   const [wholeNumber, fractionalNumber] = value.split('.')
@@ -233,18 +233,32 @@ export function SellForm({
       address: market.address,
     })
     const index = outcomeChoice === 'yes' ? 0 : 1
+    // const balanceToSell = index
+    //   ? BigInt(
+    //       NumberUtil.toFixed(
+    //         parseUnits(balanceOfCollateralToSellNo, market.collateralToken.decimals).toString(),
+    //         6
+    //       )
+    //     )
+    //   : parseUnits(balanceOfCollateralToSellYes, market.collateralToken.decimals)
     setOutcomeIndex(index)
     await trade(index)
+    // await sell({
+    //   outcomeTokenId: index,
+    //   amount:
+    //     sliderValue === 100
+    //       ? balanceToSell
+    //       : parseUnits(collateralAmount, market.collateralToken.decimals),
+    // })
   }
 
   const isExceedsBalance = useMemo(() => {
     if (outcomeChoice) {
-      console.log(collateralAmount)
-      console.log(balanceOfCollateralToSellYes)
-      console.log(balanceOfCollateralToSellNo)
       return new BigNumber(collateralAmount).isGreaterThan(
         new BigNumber(
-          outcomeChoice === 'yes' ? balanceOfCollateralToSellYes : balanceOfCollateralToSellNo
+          outcomeChoice === 'yes'
+            ? (+balanceOfCollateralToSellYes).toFixed(6)
+            : (+balanceOfCollateralToSellNo).toFixed(6)
         )
       )
     }
