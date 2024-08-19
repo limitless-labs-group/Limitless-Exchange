@@ -165,7 +165,7 @@ export default function MobileHeader() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Box w='full'>
-                      <Button w='full' p={0} m={0} display='flex'>
+                      <Button variant='transparent' w='full' p={0} m={0} display='flex'>
                         <HStack
                           w='full'
                           gap='8px'
