@@ -144,6 +144,7 @@ export interface Market {
   group?: {
     id: number
     title: string
+    slug: string
   }
 }
 
