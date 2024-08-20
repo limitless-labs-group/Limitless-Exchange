@@ -34,7 +34,9 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
     .multipliedBy(new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100))
     .toNumber()
 
-  const contractPrice = currentContractsPrice / +(position?.collateralAmount || 1)
+  const contractPrice =
+    new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100).toNumber() /
+    (position.latestTrade?.outcomeTokenPrice ? +position.latestTrade.outcomeTokenPrice : 1)
 
   const contractPriceChanged = useMemo(() => {
     let price
