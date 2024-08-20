@@ -4,8 +4,17 @@ import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useWeb3Service } from '@/services/Web3Service'
 import { useDisclosure } from '@chakra-ui/react'
 import { cutUsername } from '@/utils/string'
-import { useAccount } from '@/services'
+import { useIsMobile } from '@/hooks'
 import { Profile } from '@/types/profiles'
+import {
+  ProfilePictureUploadedChangedMetadata,
+  ProfileSettingsChangedMetadata,
+  ProfileSettingsOpenedMetadata,
+  useAmplitude,
+  ChangeEvent,
+  useAccount,
+  OpenEvent,
+} from '@/services'
 import {
   useUsernameExists,
   useUpdateProfile,
@@ -69,7 +78,9 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
   const { client } = useWeb3Service()
   const pfpFileRef = useRef<any>()
   const account = useWalletAddress()
+  const isMobile = useIsMobile()
 
+  const { trackOpened, trackChanged } = useAmplitude()
   const { farcasterInfo, userInfo } = useAccount()
   const [pfpFile, setPfpFile] = useState<File | undefined>(undefined)
   const [pfpPreview, setPfpPreview] = useState<string | undefined>(undefined)
@@ -166,18 +177,43 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
     if (pfpFile) {
       const previewUrl = URL.createObjectURL(pfpFile)
       setPfpPreview(previewUrl)
-      updatePfpAsync(pfpFile).finally(() => refetchProfile())
+      updatePfpAsync(pfpFile)
+        .then(() =>
+          trackChanged<ProfilePictureUploadedChangedMetadata>(
+            ChangeEvent.ProfilePictureUploadedChanged,
+            {
+              platform: isMobile ? 'Mobile' : 'Desktop',
+            }
+          )
+        )
+        .finally(() => refetchProfile())
 
       // Clean up the preview URL when the component unmounts or the file changes
       return () => URL.revokeObjectURL(previewUrl)
     }
   }, [pfpFile])
 
+  useEffect(() => {
+    if (isOpenProfileDrawer)
+      trackOpened<ProfileSettingsOpenedMetadata>(OpenEvent.ProfileSettingsOpened, {
+        platform: isMobile ? 'Mobile' : 'Desktop',
+      })
+  }, [isOpenProfileDrawer, isMobile])
+
   const handleUpdateProfile = useCallback(async () => {
     try {
       profileRegistered
-        ? await updateProfileAsync({ displayName, username, bio })
-        : await createProfileAsync({ displayName, username, bio })
+        ? await updateProfileAsync({ displayName, username, bio }).then(() =>
+            trackChanged<ProfileSettingsChangedMetadata>(ChangeEvent.ProfileSettingsChanged, {
+              platform: isMobile ? 'Mobile' : 'Desktop',
+            })
+          )
+        : await createProfileAsync({ displayName, username, bio }).then(() =>
+            trackChanged<ProfileSettingsChangedMetadata>(ChangeEvent.ProfileSettingsChanged, {
+              platform: isMobile ? 'Mobile' : 'Desktop',
+            })
+          )
+
       setProfileUpdated(true)
       setTimeout(() => {
         setDisableUpdateButton(true)
