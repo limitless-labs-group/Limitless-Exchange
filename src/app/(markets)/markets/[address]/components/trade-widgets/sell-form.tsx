@@ -231,6 +231,7 @@ export function SellForm({
   const handleTradeClicked = async () => {
     trackClicked(ClickEvent.SellTradeClicked, {
       address: market.address,
+      marketType: marketGroup ? 'group' : 'single',
     })
     const index = outcomeChoice === 'yes' ? 0 : 1
     const balanceToSell = index

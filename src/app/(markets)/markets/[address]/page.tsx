@@ -134,6 +134,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
       page: 'Market Page',
       market: params.address,
+      marketType: 'single',
     })
   }, [])
 
@@ -170,6 +171,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                     onClick={() => {
                       trackClicked(ClickEvent.ShareMenuClicked, {
                         address: market?.address,
+                        marketType: 'single',
                       })
                       setShareMenuOpen(true)
                     }}
@@ -185,6 +187,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                         trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                           type: 'Farcaster',
                           address: market?.address,
+                          marketType: 'single',
                         })
                         window.open(castURI, '_blank', 'noopener')
                       }}
@@ -199,6 +202,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                         trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                           type: 'X/Twitter',
                           address: market?.address,
+                          marketType: 'single',
                         })
                         window.open(tweetURI, '_blank', 'noopener')
                       }}

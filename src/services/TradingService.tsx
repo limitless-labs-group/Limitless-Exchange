@@ -233,7 +233,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         parseUnits(balanceOfOutcomeTokenCroppedYes, collateralToken?.decimals || 18),
         holdingsYes,
         otherHoldingsYes,
-        fee
+        fee,
+        collateralToken?.decimals || 18
       ) ?? 0n
     // small balance to zero
     if (balanceOfCollateralToSellBIYes < parseUnits('0.000001', collateralToken?.decimals || 18)) {
@@ -261,7 +262,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         parseUnits(balanceOfOutcomeTokenCroppedNo, collateralToken?.decimals || 18),
         holdingsNo,
         otherHoldingsNo,
-        fee
+        fee,
+        collateralToken?.decimals || 18
       ) ?? 0n
     // small balance to zero
     if (balanceOfCollateralToSellBINo < parseUnits('0.000001', collateralToken?.decimals || 18)) {
@@ -569,7 +571,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const { mutateAsync: sell, isPending: isLoadingSell } = useMutation({
     mutationFn: async ({ outcomeTokenId, amount }: { outcomeTokenId: number; amount: bigint }) => {
       // mutationFn: async (outcomeTokenId: number) => {
-      debugger
       if (!account || !market || isInvalidCollateralAmount || !conditionalTokensAddress) {
         return
       }

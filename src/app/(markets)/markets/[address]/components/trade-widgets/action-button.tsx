@@ -1,6 +1,5 @@
 import { isMobile } from 'react-device-detect'
 import { ClickEvent, TradeClickedMetadata, TradeQuotes, useAmplitude } from '@/services'
-import { defaultChain } from '@/constants'
 import { Box, Button, HStack, Icon, Text, useOutsideClick, VStack } from '@chakra-ui/react'
 import BlockIcon from '@/resources/icons/block.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
@@ -29,6 +28,7 @@ interface ActionButtonProps {
   price?: number
   quote?: TradeQuotes | null
   decimals?: number
+  marketType: 'group' | 'single'
 }
 
 const MotionBox = motion(Box)
@@ -53,6 +53,7 @@ export default function ActionButton({
   option,
   amount,
   decimals,
+  marketType,
 }: ActionButtonProps) {
   /**
    * ANALITYCS
@@ -233,6 +234,7 @@ export default function ActionButton({
               outcome: option,
               marketAddress: market.address,
               walletType: client,
+              marketType,
             })
 
             return handleActionIntention()
