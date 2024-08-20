@@ -115,6 +115,8 @@ export type EventType = ChangeEvent | ClickEvent | SignInEvent | OpenEvent | Aut
 export enum ChangeEvent {
   StrategyChanged = 'Strategy Changed',
   OutcomeChanged = 'Outcome Changed',
+  ProfilePictureUploadedChanged = 'Profile Picture Uploaded',
+  ProfileSettingsChanged = 'Profile Settings Changed',
 }
 
 export enum ClickEvent {
@@ -146,6 +148,7 @@ export enum ClickEvent {
   ClaimRewardOnPortfolioClicked = 'Claim Reward On Portfolio Clicked',
   ClaimRewardOnMarketPageClicked = 'Claim Reward On Market Page Clicked',
   SignW3AIn = 'Sign In W3A Option Chosen',
+  ProfilePictureUploadClicked = 'Profile Picture Upload Clicked',
 }
 
 export enum SignInEvent {
@@ -156,6 +159,7 @@ export enum SignInEvent {
 export enum OpenEvent {
   PageOpened = 'Page Opened',
   LoginWindowOpened = 'Login Window Opened',
+  ProfileSettingsOpened = 'Profile Settings Opened',
 }
 
 export enum AuthenticationEvent {
@@ -235,6 +239,7 @@ interface MarketChangeInGroupData {
   marketGroup: MarketGroup
 }
 
+export type ModalOpenedModal = 'Profile Settings'
 export type PageOpenedPage =
   | 'Market Page'
   | 'Creator Cabinet'
@@ -248,6 +253,15 @@ export interface PageOpenedMetadata {
   category?: string
   [key: string]: any
 }
+
+export type Platform = 'Mobile' | 'Desktop'
+export interface ProfileSettingsMetadata {
+  platform: Platform
+}
+export type ProfileSettingsOpenedMetadata = ProfileSettingsMetadata
+export type ProfilePictureUploadClickedMetadata = ProfileSettingsMetadata
+export type ProfilePictureUploadedChangedMetadata = ProfileSettingsMetadata
+export type ProfileSettingsChangedMetadata = ProfileSettingsMetadata
 
 export type OpenMarketClickedPage = 'Creator Cabinet' | 'Portfolio Page' | 'Explore Markets'
 export interface OpenMarketClickedMetadata {
@@ -312,7 +326,11 @@ export interface SignInW3AClickedMetadata {
   option: LOGIN_PROVIDER_TYPE | CUSTOM_LOGIN_PROVIDER_TYPE | undefined
 }
 
-export type ChangedEventMetadata = StrategyChangedMetadata | OutcomeChangedMetadata
+export type ChangedEventMetadata =
+  | StrategyChangedMetadata
+  | OutcomeChangedMetadata
+  | ProfilePictureUploadedChangedMetadata
+  | ProfileSettingsChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
   | PricePresetClickedMetadata
@@ -333,7 +351,7 @@ export type ClickedEventMetadata =
   | SignInW3AClickedMetadata
   | MarketChangeInGroupData
 
-export type OpenedEventMetadata = PageOpenedMetadata
+export type OpenedEventMetadata = PageOpenedMetadata | ProfileSettingsMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata
 export type CopiedEventMetadata = WalletAddressCopiedMetadata
 
