@@ -1,12 +1,11 @@
 import { defaultChain } from '@/constants'
 import { HistoryRedeem } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { Box, HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { Box, HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
 import { useMarketByConditionId } from '@/services/MarketsService'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
-import NextLink from 'next/link'
 
 interface IPortfolioHistoryRedeemItem extends TableRowProps {
   redeem: HistoryRedeem
@@ -46,26 +45,20 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           </Text>
         </Box>
       </Td>
-      <Td
-        textDecoration='underline'
-        w='420px'
-        maxW='420px'
-        whiteSpace='nowrap'
-        overflow='hidden'
-        textOverflow='ellipsis'
-      >
-        <NextLink href={`/markets/${market?.address[defaultChain.id]}`}>
+      <Td w='420px' maxW='420px' whiteSpace='nowrap' overflow='hidden' textOverflow='ellipsis'>
+        <Link href={`/markets/${market?.address[defaultChain.id]}`} variant='textLink'>
           {market?.proxyTitle ?? market?.title ?? 'Noname market'}
-        </NextLink>
+        </Link>
       </Td>
-      <Td textDecoration='underline'>
-        <NextLink
+      <Td>
+        <Link
           href={`${defaultChain.blockExplorers.default.url}/tx/${redeem.transactionHash}`}
           target='_blank'
           rel='noopener'
+          variant='textLink'
         >
           {truncateEthAddress(redeem.transactionHash)}
-        </NextLink>
+        </Link>
       </Td>
     </Tr>
   )

@@ -85,4 +85,8 @@ export const darkThemeColors: ColorScheme = {
     300: 'rgba(255, 255, 255, 0.3)',
     700: 'rgba(255, 255, 255, 0.7)',
   },
+  blackTransparent: {
+    200: 'rgba(255, 255, 255, 0.2)',
+    600: 'rgba(255, 255, 255, 0.6)',
+  },
 }
