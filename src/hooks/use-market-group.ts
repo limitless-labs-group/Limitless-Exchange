@@ -50,8 +50,6 @@ export default function useMarketGroup(slug: string) {
       })
 
       const results = await multicall.call(contractCallContext)
-      console.log(marketGroup)
-      console.log(results)
 
       const marketsWithPrices = marketGroup.markets
         .map((market) => {

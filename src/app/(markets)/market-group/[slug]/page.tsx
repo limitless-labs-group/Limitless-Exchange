@@ -154,9 +154,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     }
   }, [marketGroup])
 
-  console.log(market)
-  console.log(marketGroup)
-
   return (
     <MainLayout isLoading={isCollateralLoading || marketGroupLoading || !market}>
       {!marketGroup ? (

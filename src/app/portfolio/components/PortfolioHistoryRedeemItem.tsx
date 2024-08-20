@@ -2,7 +2,7 @@ import { defaultChain } from '@/constants'
 import { HistoryRedeem } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { Box, HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import { useMarketByConditionId } from '@/services/MarketsService'
+import { useAllMarkets, useMarketByConditionId } from '@/services/MarketsService'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -17,6 +17,14 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
    * MARKET DATA
    */
   const market = useMarketByConditionId(redeem.conditionId)
+
+  const allMarkets = useAllMarkets()
+
+  const targetMarket = allMarkets.find((market) => market.conditionId === redeem.conditionId)
+
+  const link = targetMarket?.group?.slug
+    ? `/market-group/${targetMarket.group.slug}`
+    : `/markets/${targetMarket?.address}`
 
   return (
     <Tr pos={'relative'} {...props}>
@@ -54,8 +62,10 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
         overflow='hidden'
         textOverflow='ellipsis'
       >
-        <NextLink href={`/markets/${market?.address[defaultChain.id]}`}>
-          {market?.proxyTitle ?? market?.title ?? 'Noname market'}
+        <NextLink href={link}>
+          {targetMarket?.group?.id
+            ? `${targetMarket.group.title}: ${targetMarket.title}`
+            : targetMarket?.title}
         </NextLink>
       </Td>
       <Td textDecoration='underline'>
