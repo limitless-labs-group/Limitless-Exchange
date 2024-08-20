@@ -443,6 +443,7 @@ export function BuyForm({
               option='Yes'
               price={outcomeTokensPercent?.[0]}
               decimals={collateralToken?.decimals}
+              marketType={!!marketList?.length ? 'group' : 'single'}
             />
             <ActionButton
               disabled={isExceedsBalance || !collateralAmount}
@@ -463,6 +464,7 @@ export function BuyForm({
               option='No'
               price={outcomeTokensPercent?.[1]}
               decimals={collateralToken?.decimals}
+              marketType={!!marketList?.length ? 'group' : 'single'}
             />
           </VStack>
         </>

@@ -23,6 +23,8 @@ import { isMobile } from 'react-device-detect'
 import {
   ClickEvent,
   createMarketShareUrls,
+  OpenEvent,
+  PageOpenedMetadata,
   ShareClickedMetadata,
   useAmplitude,
   useTradingService,
@@ -62,7 +64,7 @@ import { Address } from 'viem'
 export default function MarketGroupPage({ params }: { params: { slug: string } }) {
   const { data: marketGroup, isLoading: marketGroupLoading } = useMarketGroup(params.slug)
 
-  const { trackClicked } = useAmplitude()
+  const { trackClicked, trackOpened } = useAmplitude()
   const router = useRouter()
   const { approveBuy, strategy, approveSell, market, setMarket } = useTradingService()
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -154,6 +156,14 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     }
   }, [marketGroup])
 
+  useEffect(() => {
+    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
+      page: 'Market Page',
+      market: params.slug,
+      marketType: 'group',
+    })
+  }, [])
+
   return (
     <MainLayout isLoading={isCollateralLoading || marketGroupLoading || !market}>
       {!marketGroup ? (
@@ -181,6 +191,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                     onClick={() => {
                       trackClicked(ClickEvent.ShareMenuClicked, {
                         address: market?.address || '0x',
+                        marketType: 'group',
                       })
                       setShareMenuOpen(true)
                     }}
@@ -196,6 +207,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                         trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                           type: 'Farcaster',
                           address: market?.address,
+                          marketType: 'group',
                         })
                         window.open(castURI, '_blank', 'noopener')
                       }}
@@ -210,6 +222,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                         trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                           type: 'X/Twitter',
                           address: market?.address,
+                          marketType: 'group',
                         })
                         window.open(tweetURI, '_blank', 'noopener')
                       }}
