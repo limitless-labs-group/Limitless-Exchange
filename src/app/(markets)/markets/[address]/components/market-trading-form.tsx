@@ -1,4 +1,3 @@
-import { defaultChain } from '@/constants'
 import { StrategyChangedMetadata, ChangeEvent, useAmplitude, useTradingService } from '@/services'
 import { Button, HStack, Text } from '@chakra-ui/react'
 import { getAddress, zeroAddress } from 'viem'
@@ -50,8 +49,8 @@ export const MarketTradingForm = ({
       p={isMobile ? 0 : '8px'}
       maxH={isMobile ? '100dvh' : '545px'}
       overflowY='scroll'
-      position='fixed'
-      left='936px'
+      position={isMobile ? 'relative' : 'fixed'}
+      left={isMobile ? 0 : '936px'}
     >
       <HStack
         w={'240px'}
