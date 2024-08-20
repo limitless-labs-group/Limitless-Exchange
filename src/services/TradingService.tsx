@@ -571,7 +571,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const { mutateAsync: sell, isPending: isLoadingSell } = useMutation({
     mutationFn: async ({ outcomeTokenId, amount }: { outcomeTokenId: number; amount: bigint }) => {
       // mutationFn: async (outcomeTokenId: number) => {
-      debugger
       if (!account || !market || isInvalidCollateralAmount || !conditionalTokensAddress) {
         return
       }
