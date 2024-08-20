@@ -290,7 +290,6 @@ export function SellForm({
               w='full'
               justifyContent='space-between'
               mb={isOpenSelectMarketMenu ? '8px' : isMobile ? '32px' : '8px'}
-              mx={isMobile ? '16px' : 0}
               onClick={onToggleSelectMarketMenu}
               rightIcon={
                 <Box
@@ -311,7 +310,11 @@ export function SellForm({
             </Button>
           </Box>
           {isOpenSelectMarketMenu && (
-            <VStack gap={isMobile ? '16px' : '8px'} mb={isMobile ? '16px' : '8px'}>
+            <VStack
+              gap={isMobile ? '16px' : '8px'}
+              mb={isMobile ? '16px' : '8px'}
+              mx={isMobile ? '16px' : 0}
+            >
               {marketGroup?.markets.map((market) => (
                 <Button
                   key={market.address}
