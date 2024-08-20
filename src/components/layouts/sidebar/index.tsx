@@ -53,7 +53,7 @@ import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
 import { Overlay } from '@/components/common/overlay'
 
 export default function Sidebar() {
-  const { user, profileData, isOpenProfileDrawer, onOpenProfileDrawer, onCloseProfileDrawer } =
+  const { user, isOpenProfileDrawer, onOpenProfileDrawer, onCloseProfileDrawer } =
     useProfileService()
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
   const { disconnectFromPlatform } = useDisconnectAccount()
@@ -65,11 +65,6 @@ export default function Sidebar() {
 
   // const address = useWalletAddress()
   const pageName = usePageName()
-
-  useEffect(() => {
-    console.log('user', user)
-    console.log('profileData'), profileData
-  }, [user, profileData])
 
   const {
     isOpen: isOpenWalletPage,
