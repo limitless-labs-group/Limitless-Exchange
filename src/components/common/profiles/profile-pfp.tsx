@@ -1,11 +1,21 @@
-import { EditPenIcon, AddImageIcon } from '@/components/common/profiles'
-import { Toast } from '@/components/common/toast'
-import { useToast } from '@/hooks'
-import { useProfileService } from '@/services'
+import { CSSProperties, useCallback, useMemo } from 'react'
+import {
+  ClickEvent,
+  ProfilePictureUploadClickedMetadata,
+  useAmplitude,
+  useProfileService,
+} from '@/services'
 import { Box, Circle, Input, Spinner } from '@chakra-ui/react'
-import { CSSProperties, useMemo } from 'react'
+import { EditPenIcon, AddImageIcon } from '@/components/common/profiles'
+import { useIsMobile } from '@/hooks'
 
-export const ProfilePfp = () => {
+export interface IProfilePfp {
+  onClick?: () => void
+}
+
+export const ProfilePfp = ({ onClick }: IProfilePfp) => {
+  const isMobile = useIsMobile()
+  const { trackClicked } = useAmplitude()
   const { pfpPreview, pfpUrl, pfpFileRef, updatePfpLoading, setPfpFile } = useProfileService()
 
   const bgImage = useMemo(() => {
@@ -29,6 +39,14 @@ export const ProfilePfp = () => {
       return <AddImageIcon color='grey.800' onClick={_onClick} cursor={_cursor} style={_style} />
   }
 
+  const handleOnClickIconButton = useCallback(() => {
+    pfpFileRef.current.click()
+    onClick?.()
+    trackClicked<ProfilePictureUploadClickedMetadata>(ClickEvent.ProfilePictureUploadClicked, {
+      platform: isMobile ? 'Mobile' : 'Desktop',
+    })
+  }, [isMobile, pfpFileRef])
+
   return (
     <>
       <Circle
@@ -46,7 +64,7 @@ export const ProfilePfp = () => {
           h='24px'
           borderRadius='2px'
           opacity={0.7}
-          onClick={() => pfpFileRef.current.click()}
+          onClick={handleOnClickIconButton}
           // cursor={'pointer'}
         />
         {updatePfpLoading ? (

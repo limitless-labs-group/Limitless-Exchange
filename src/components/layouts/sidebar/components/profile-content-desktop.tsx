@@ -1,30 +1,30 @@
 import { Box, Button, StackItem, Text, VStack } from '@chakra-ui/react'
 import { useProfileService } from '@/services'
 import {
-  BioIcon,
-  CheckIcon,
-  DisplayNameIcon,
-  ProfileInputField,
-  ProfilePfp,
   ProfileTextareaField,
+  ProfileInputField,
+  DisplayNameIcon,
   UsernameIcon,
+  ProfilePfp,
+  CheckIcon,
+  BioIcon,
 } from '@/components/common/profiles'
 
 export const ProfileContentDesktop = () => {
   const {
+    checkUsernameExistsData,
+    updateButtonDisabled,
+    checkUsernameExists,
     handleUpdateProfile,
     updateButtonLoading,
-    updateButtonDisabled,
     disableUpdateButton,
     profileUpdated,
-    displayName,
     setDisplayName,
-    username,
     setUsername,
-    bio,
+    displayName,
+    username,
     setBio,
-    checkUsernameExists,
-    checkUsernameExistsData,
+    bio,
   } = useProfileService()
 
   return (
