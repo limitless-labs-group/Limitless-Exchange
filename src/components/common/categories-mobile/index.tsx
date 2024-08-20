@@ -33,29 +33,31 @@ export default function CategoryFilterMobile({ categories }: ICategoryFilterMobi
       </Text>
 
       <VStack gap='1px' mt='4px' alignItems='flex-start'>
-        {categories?.map((category) => (
-          <Box
-            key={category.id}
-            bg={selectedCategory === category ? 'black' : 'grey.300'}
-            color={selectedCategory === category ? 'grey.50' : 'grey.800'}
-            p='8px'
-            px='10px'
-            borderRadius='2px'
-            w='fit-content'
-            marginBottom='4px'
-            cursor='pointer'
-            onClick={() => handleFilterItemClicked(category)}
-          >
-            <Link href={`/topics/${category.name.toLowerCase()}`}>
-              <Text
-                color={selectedCategory?.id === category.id ? 'grey.50' : 'grey.800'}
-                fontWeight={500}
-              >
-                /{category.name}
-              </Text>
-            </Link>
-          </Box>
-        ))}
+        {categories
+          .filter((category) => category.name !== 'Other')
+          ?.map((category) => (
+            <Box
+              key={category.id}
+              bg={selectedCategory === category ? 'black' : 'grey.300'}
+              color={selectedCategory === category ? 'grey.50' : 'grey.800'}
+              p='8px'
+              px='10px'
+              borderRadius='2px'
+              w='fit-content'
+              marginBottom='4px'
+              cursor='pointer'
+              onClick={() => handleFilterItemClicked(category)}
+            >
+              <Link href={`/topics/${category.name.toLowerCase()}`}>
+                <Text
+                  color={selectedCategory?.id === category.id ? 'grey.50' : 'grey.800'}
+                  fontWeight={500}
+                >
+                  /{category.name}
+                </Text>
+              </Link>
+            </Box>
+          ))}
       </VStack>
     </Box>
   )
