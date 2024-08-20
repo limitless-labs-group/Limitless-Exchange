@@ -298,10 +298,6 @@ export const MarketPriceChart = ({
     return data
   }, [prices, winningIndex, resolved])
 
-  useEffect(() => {
-    if (chartData) console.log('chartData', chartData)
-  }, [chartData])
-
   return (
     <Paper my='24px' p='8px'>
       {marketGroup ? (

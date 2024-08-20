@@ -89,8 +89,6 @@ const MainPage = () => {
     return tokenFilteredMarkets
   }, [markets, selectedFilterTokens, selectedCategory])
 
-  console.log(filteredMarkets)
-
   const sortedMarkets = useMemo(() => {
     if (!filteredMarkets) return []
     switch (selectedSort) {
@@ -103,34 +101,40 @@ const MainPage = () => {
           // @ts-ignore
           const volumeA = a?.slug
             ? // @ts-ignore
-              a.markets.reduce((a, b) => +a + b.volumeFormatted, 0)
+              a.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
             : // @ts-ignore
               +a.volumeFormatted
           // @ts-ignore
           const volumeB = b?.slug
             ? // @ts-ignore
-              b.markets.reduce((a, b) => +a + b.volumeFormatted, 0)
+              b.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
             : // @ts-ignore
               +b.volumeFormatted
 
-          return volumeB - volumeA
+          return (
+            convertTokenAmountToUsd(b.collateralToken.symbol, volumeB) -
+            convertTokenAmountToUsd(a.collateralToken.symbol, volumeA)
+          )
         })
       case Sort.HIGHEST_LIQUIDITY:
         return [...filteredMarkets].sort((a, b) => {
           // @ts-ignore
           const liquidityA = a?.slug
             ? // @ts-ignore
-              a.markets.reduce((a, b) => +a + b.liquidityFormatted, 0)
+              a.markets.reduce((a, b) => a + +b.liquidityFormatted, 0)
             : // @ts-ignore
               +a.liquidityFormatted
           // @ts-ignore
           const liquidityB = b?.slug
             ? // @ts-ignore
-              b.markets.reduce((a, b) => +a + b.liquidityFormatted, 0)
+              b.markets.reduce((a, b) => a + +b.liquidityFormatted, 0)
             : // @ts-ignore
               +b.liquidityFormatted
 
-          return liquidityB - liquidityA
+          return (
+            convertTokenAmountToUsd(b.collateralToken.symbol, liquidityB) -
+            convertTokenAmountToUsd(a.collateralToken.symbol, liquidityA)
+          )
         })
       case Sort.ENDING_SOON:
         return [...filteredMarkets].sort(

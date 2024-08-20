@@ -47,7 +47,7 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
         onMouseLeave={() => setColors(defaultColors)}
       >
         <HStack justifyContent='space-between' mb='12px'>
-          <Text {...paragraphMedium} color={colors.main} fontSize={'14px'} lineHeight={'20px'}>
+          <Text {...paragraphMedium} color={colors.main} lineHeight={'20px'}>
             {marketGroup.title ?? 'Noname market'}
           </Text>
         </HStack>

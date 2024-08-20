@@ -165,29 +165,31 @@ export function BuyForm({
     <>
       {marketList && (
         <>
-          <Button
-            variant='transparentLight'
-            w='full'
-            justifyContent='space-between'
-            mb={isOpenSelectMarketMenu ? '8px' : isMobile ? '24px' : '32px'}
-            onClick={onToggleSelectMarketMenu}
-            rightIcon={
-              <Box
-                transform={`rotate(${isOpenSelectMarketMenu ? '180deg' : 0})`}
-                transition='0.5s'
-                color='white'
-              >
-                <ChevronDownIcon width='16px' height='16px' />
-              </Box>
-            }
-          >
-            <HStack gap='8px' color='white'>
-              <PredictionsIcon />
-              <Text {...paragraphMedium} color='white'>
-                {market.title}
-              </Text>
-            </HStack>
-          </Button>
+          <Box mx={isMobile ? '16px' : 0}>
+            <Button
+              variant='transparentLight'
+              w='full'
+              justifyContent='space-between'
+              mb={isOpenSelectMarketMenu ? '8px' : isMobile ? '24px' : '32px'}
+              onClick={onToggleSelectMarketMenu}
+              rightIcon={
+                <Box
+                  transform={`rotate(${isOpenSelectMarketMenu ? '180deg' : 0})`}
+                  transition='0.5s'
+                  color='white'
+                >
+                  <ChevronDownIcon width='16px' height='16px' />
+                </Box>
+              }
+            >
+              <HStack gap='8px' color='white'>
+                <PredictionsIcon />
+                <Text {...paragraphMedium} color='white'>
+                  {market.title}
+                </Text>
+              </HStack>
+            </Button>
+          </Box>
           {isOpenSelectMarketMenu && (
             <VStack gap={isMobile ? '16px' : '8px'} mb={isMobile ? '16px' : '8px'}>
               {marketList.map((market) => (
@@ -441,6 +443,7 @@ export function BuyForm({
               option='Yes'
               price={outcomeTokensPercent?.[0]}
               decimals={collateralToken?.decimals}
+              marketType={!!marketList?.length ? 'group' : 'single'}
             />
             <ActionButton
               disabled={isExceedsBalance || !collateralAmount}
@@ -461,6 +464,7 @@ export function BuyForm({
               option='No'
               price={outcomeTokensPercent?.[1]}
               decimals={collateralToken?.decimals}
+              marketType={!!marketList?.length ? 'group' : 'single'}
             />
           </VStack>
         </>

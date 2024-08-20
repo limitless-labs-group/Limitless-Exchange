@@ -189,6 +189,7 @@ export interface TradeClickedMetadata {
   outcome: OutcomeChangedChoice
   walletType: WalletType
   marketAddress: Address
+  marketType?: 'group' | 'single'
 }
 
 export interface ClickedApproveMetadata {
@@ -233,6 +234,7 @@ export type ShareClickedType = 'Copy Link' | 'X/Twitter' | 'Farcaster'
 export interface ShareClickedMetadata {
   type: ShareClickedType
   address?: Address
+  marketType: 'group' | 'single'
 }
 
 interface MarketChangeInGroupData {
