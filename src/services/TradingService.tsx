@@ -40,14 +40,14 @@ interface ITradingServiceContext {
   quotesYes: TradeQuotes | null | undefined
   quotesNo: TradeQuotes | null | undefined
   buy: (outcomeTokenId: number) => Promise<string | undefined>
-  // sell: (outcomeTokenId: number) => Promise<string | undefined>
-  sell: ({
-    outcomeTokenId,
-    amount,
-  }: {
-    outcomeTokenId: number
-    amount: bigint
-  }) => Promise<string | undefined>
+  sell: (outcomeTokenId: number) => Promise<string | undefined>
+  // sell: ({
+  //   outcomeTokenId,
+  //   amount,
+  // }: {
+  //   outcomeTokenId: number
+  //   amount: bigint
+  // }) => Promise<string | undefined>
   trade: (outcomeTokenId: number) => Promise<string | undefined>
   redeem: (params: RedeemParams) => Promise<string | undefined>
   status: TradingServiceStatus
@@ -233,8 +233,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         parseUnits(balanceOfOutcomeTokenCroppedYes, collateralToken?.decimals || 18),
         holdingsYes,
         otherHoldingsYes,
-        fee,
-        collateralToken?.decimals || 18
+        fee
       ) ?? 0n
     // small balance to zero
     if (balanceOfCollateralToSellBIYes < parseUnits('0.000001', collateralToken?.decimals || 18)) {
@@ -262,8 +261,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         parseUnits(balanceOfOutcomeTokenCroppedNo, collateralToken?.decimals || 18),
         holdingsNo,
         otherHoldingsNo,
-        fee,
-        collateralToken?.decimals || 18
+        fee
       ) ?? 0n
     // small balance to zero
     if (balanceOfCollateralToSellBINo < parseUnits('0.000001', collateralToken?.decimals || 18)) {
@@ -569,8 +567,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * SELL
    */
   const { mutateAsync: sell, isPending: isLoadingSell } = useMutation({
-    mutationFn: async ({ outcomeTokenId, amount }: { outcomeTokenId: number; amount: bigint }) => {
-      // mutationFn: async (outcomeTokenId: number) => {
+    // mutationFn: async ({ outcomeTokenId, amount }: { outcomeTokenId: number; amount: bigint }) => {
+    mutationFn: async (outcomeTokenId: number) => {
       if (!account || !market || isInvalidCollateralAmount || !conditionalTokensAddress) {
         return
       }
@@ -587,8 +585,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       const receipt = await sellOutcomeTokens(
         conditionalTokensAddress,
         market.address,
-        // collateralAmountBI,
-        amount,
+        collateralAmountBI,
+        // amount,
         outcomeTokenId,
         parseUnits(
           outcomeTokenId
@@ -696,8 +694,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   })
 
   const trade = useCallback(
-    (outcomeTokenId: number) => buy(outcomeTokenId),
-    // (outcomeTokenId: number) => (strategy == 'Buy' ? buy(outcomeTokenId) : sell(outcomeTokenId)),
+    // (outcomeTokenId: number) => buy(outcomeTokenId),
+    (outcomeTokenId: number) => (strategy == 'Buy' ? buy(outcomeTokenId) : sell(outcomeTokenId)),
     [strategy]
   )
 

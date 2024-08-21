@@ -6,17 +6,11 @@ export const calcSellAmountInCollateral = (
   sharesToSell: bigint, // amountShares.mul(99999999).div(100000000)
   holdings: bigint,
   otherHoldings: bigint[],
-  fee: number,
-  decimals: number
+  fee: number
 ): bigint | null => {
   Big.DP = 90
 
-  const sharesPercent = decimals === 18 ? 99999n : 99999999n
-
-  const sharesMultiplier = decimals === 18 ? 100000n : 100000000n
-
-  // const sharesToSellBig = new Big(((sharesToSell * 99999999n) / 100000000n).toString())
-  const sharesToSellBig = new Big(((sharesToSell * sharesPercent) / sharesMultiplier).toString())
+  const sharesToSellBig = new Big(((sharesToSell * 99999999n) / 100000000n).toString())
   const holdingsBig = new Big(holdings.toString())
   const otherHoldingsBig = otherHoldings.map((x) => new Big(x.toString()))
 
@@ -42,6 +36,7 @@ export const calcSellAmountInCollateral = (
       const amountToSell = BigInt(r.toFixed(0))
       return amountToSell
     }
+
     return null
   } catch (e) {
     return null
