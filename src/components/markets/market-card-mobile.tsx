@@ -17,7 +17,7 @@ interface IMarketCard extends StackProps {
 export const MarketCardMobile = ({ market, children, ...props }: IMarketCard) => {
   const router = useRouter()
 
-  const marketURI = `${window.location.origin}/markets/${market.address[defaultChain.id]}`
+  const marketURI = `${window.location.origin}/markets/${market.address}`
 
   return (
     <Paper
@@ -34,7 +34,7 @@ export const MarketCardMobile = ({ market, children, ...props }: IMarketCard) =>
             </Text>
             <HStack gap={1}>
               <ThumbsUpIcon width={'16px'} height={'16px'} />
-              {!children && <Text {...paragraphMedium}>{market?.buyYesNo[0]}% YES</Text>}
+              {!children && <Text {...paragraphMedium}>{market?.prices[0]}% YES</Text>}
             </HStack>
             <HStack gap={1}>
               <Icon as={CalendarIcon} width={'16px'} height={'16px'} color={'grey.500'} />
@@ -57,7 +57,7 @@ export const MarketCardMobile = ({ market, children, ...props }: IMarketCard) =>
             <Text {...paragraphRegular}>{`${NumberUtil.formatThousands(
               market.liquidityFormatted,
               4
-            )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
+            )} ${market?.collateralToken.symbol}`}</Text>
           </HStack>
           <HStack w={'full'} justifyContent={'space-between'}>
             <HStack gap={1}>
@@ -69,7 +69,7 @@ export const MarketCardMobile = ({ market, children, ...props }: IMarketCard) =>
             <Text {...paragraphRegular}>{`${NumberUtil.formatThousands(
               market.volumeFormatted,
               4
-            )} ${market?.tokenTicker[defaultChain.id]}`}</Text>
+            )} ${market?.collateralToken.symbol}`}</Text>
           </HStack>
         </Stack>
 

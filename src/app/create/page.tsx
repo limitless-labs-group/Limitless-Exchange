@@ -110,7 +110,7 @@ interface Creator {
 }
 
 interface Token {
-  id: string
+  id: number
   symbol: string
 }
 
@@ -133,7 +133,7 @@ const CreateOwnMarketPage = () => {
 
   const [deadline, setDeadline] = useState<Date>(new Date())
   const [title, setTitle] = useState<string>('')
-  const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: '1' })
+  const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: 1 })
   const [description, setDescription] = useState<string>('')
   const [liquidity, setLiquidity] = useState<number>(tokenLimits[defaultTokenSymbol].min)
   const [probability, setProbability] = useState<number>(defaultProbability)
@@ -154,7 +154,7 @@ const CreateOwnMarketPage = () => {
   const handleProbabilityChange = (value: number) => setProbability(value)
 
   const handleTokenSelect = (option: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedTokenId = option.target.value
+    const selectedTokenId = +option.target.value
     const selectedTokenSymbol =
       option.target.selectedOptions[0].getAttribute('data-name') ?? defaultTokenSymbol
     setToken({ symbol: selectedTokenSymbol, id: selectedTokenId })
@@ -227,7 +227,7 @@ const CreateOwnMarketPage = () => {
 
     formData?.set('title', title)
     formData?.set('description', description)
-    formData?.set('tokenId', token.id)
+    formData?.set('tokenId', token.id.toString())
     formData?.set('liquidity', liquidity.toString())
     formData?.set('initialYesProbability', (probability / 100).toString())
     formData?.set('deadline', deadline.toISOString())
@@ -511,24 +511,6 @@ const CreateOwnMarketPage = () => {
                 <Text>{marketLogo?.name ?? 'No file chosen.'}</Text>
               </HStack>
             </FormField>
-
-            {/* <FormField label='OG'>
-              <HStack>
-                <input
-                  type='file'
-                  id='ogLogoUpload'
-                  name='ogLogoUpload'
-                  style={{ display: 'none' }}
-                  ref={marketLogoRef}
-                  accept={'image/png, image/jpeg'}
-                  onChange={(e) => setOgLogo(e?.target?.files?.[0])}
-                />
-                <Button colorScheme='gray' onClick={() => marketLogoRef.current.click()}>
-                  Choose file
-                </Button>
-                <Text>{ogLogo?.name ?? 'No file chosen.'}</Text>
-              </HStack>
-            </FormField> */}
 
             <ButtonGroup spacing='6' mt={5}>
               <Button variant='outline' width='222px' disabled>

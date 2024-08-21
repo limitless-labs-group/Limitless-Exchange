@@ -9,7 +9,7 @@ export type Token = {
   name: string
   logoUrl: string
   priceOracleId: MarketTokensIds
-  id: MarketTokensIds
+  id: number
 }
 
 export type Category = {
@@ -18,8 +18,23 @@ export type Category = {
 }
 
 export type MarketData = {
-  data: Market[]
+  data: (MarketGroupCardResponse | MarketSingleCardResponse)[]
   next: number
+}
+
+interface Creator {
+  name: string
+  imageURI?: string
+  link?: string
+  address?: string
+}
+
+interface Oracle {
+  createdAt: string
+  id: number
+  name: string
+  address: string
+  imageUrl: string
 }
 
 export type MarketResponse = {
@@ -50,7 +65,7 @@ export type MarketResponse = {
   ogImageURI?: string
   expirationDate: string
   expirationTimestamp: number
-  createdAt: number
+  createdAt: string
   expired?: boolean
   tokenTicker: {
     [chainId: number]: string
@@ -58,11 +73,7 @@ export type MarketResponse = {
   tokenURI: {
     [chainId: number]: string
   }
-  creator: {
-    name: string
-    imageURI?: string
-    link?: string
-  }
+  creator: Creator
   tags?: string[]
   winningOutcomeIndex?: number
   volume?: string
@@ -74,9 +85,92 @@ export type MarketResponse = {
   status: MarketStatus
 }
 
-export type Market = MarketResponse & {
-  buyYesNo: number[]
-  sellYesNo?: number[]
+export type MarketSingleCardResponse = {
+  address: string
+  title: string
+  proxyTitle: string | null
+  deadline: string
+  createdAt: string
+  volume: string
+  volumeFormatted: string
+  liquidity: string
+  liquidityFormatted: string
+  collateralToken: {
+    symbol: string
+    address: string
+    decimals: number
+  }
+  category: string
+  prices: number[]
+}
+
+export type MarketGroupCardResponse = {
+  slug: string
+  title: string
+  createdAt: string
+  deadline: string
+  collateralToken: {
+    symbol: string
+    address: string
+    decimals: number
+  }
+  markets: MarketSingleCardResponse[]
+  category: string
+}
+
+export interface Market {
+  address: Address
+  conditionId: Address
+  description: string
+  collateralToken: {
+    address: Address
+    decimals: number
+    symbol: string
+  }
+  title: string
+  proxyTitle: string | null
+  ogImageURI: string | null
+  expirationDate: string
+  expirationTimestamp: number
+  winningOutcomeIndex: number | null
+  expired: boolean
+  tags: string[]
+  volume: string
+  volumeFormatted: string
+  liquidity: string
+  liquidityFormatted: string
+  prices: number[]
+  status: MarketStatus
+  group?: {
+    id: number
+    title: string
+    slug: string
+  }
+}
+
+export interface SingleMarket extends Market {
+  creator: Creator
+}
+
+export interface MarketGroup {
+  category: Category
+  collateralToken: {
+    address: string
+    decimals: number
+    symbol: string
+  }
+  createdAt: string
+  creator: Creator
+  expirationDate: string
+  expired: boolean
+  hidden: boolean
+  markets: Market[]
+  ogImageURI: string
+  outcomeTokens: string[]
+  slug: string
+  status: MarketStatus
+  tags: string
+  title: string
 }
 
 export type GetBalanceResult = {
@@ -127,8 +221,7 @@ export enum MarketStatus {
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>
 
 export type OddsData = {
-  buyYesNo: number[]
-  sellYesNo?: number[]
+  prices: number[]
 }
 
 export interface ColorScheme {
@@ -220,4 +313,11 @@ export interface ColorScheme {
     200: string
     600: string
   }
+}
+
+export interface RedeemParams {
+  outcomeIndex: number
+  marketAddress: Address
+  collateralAddress: Address
+  conditionId: Address
 }
