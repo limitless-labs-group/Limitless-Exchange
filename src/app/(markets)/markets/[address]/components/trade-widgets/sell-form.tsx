@@ -334,7 +334,7 @@ export function SellForm({
         </>
       )}
       {!isOpenSelectMarketMenu && (
-        <>
+        <Box mx={isMobile ? '16px' : 0}>
           <VStack mt={marketGroup ? 0 : '24px'}>
             {positionsYes && (
               <Button
@@ -674,7 +674,7 @@ export function SellForm({
               )}
             </Box>
           )}
-        </>
+        </Box>
       )}
       {/*<ChakraSlider*/}
       {/*  defaultValue={0}*/}

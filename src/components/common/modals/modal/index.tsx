@@ -70,6 +70,9 @@ export const Modal = ({
           transform: `translateY(${translateY}px)`,
           transition: 'transform 0.1s ease-out',
         }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         as={'div'}
       >
         {isMobile && (
@@ -78,21 +81,12 @@ export const Modal = ({
             justifyContent='center'
             py='8px'
             color={!translateY ? 'grey.300' : 'grey.800'}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
           >
             <GrabberIcon />
           </Box>
         )}
         <ModalHeader display='flex' justifyContent='space-between'>
-          <Text
-            {...(isMobile
-              ? { ...h1Regular, fontSize: '20px', lineHeight: '24px' }
-              : { ...headline })}
-            w={'full'}
-            textAlign='left'
-          >
+          <Text {...(isMobile ? { ...h1Regular } : { ...headline })} w={'full'} textAlign='left'>
             {title}
           </Text>
           {!isMobile && (
@@ -114,7 +108,9 @@ export const Modal = ({
             </Button>
           )}
         </ModalHeader>
-        <ModalBody p={0}>{children}</ModalBody>
+        <ModalBody p={0} maxH='calc(100% - 72px)' overflowY='scroll'>
+          {children}
+        </ModalBody>
       </ModalContent>
     </ChakraModal>
   )

@@ -16,10 +16,11 @@ import {
 } from '@chakra-ui/react'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { Address } from 'viem'
-import { Modal, ModalCloseButton } from '@chakra-ui/modal'
+import { ModalCloseButton } from '@chakra-ui/modal'
 import { isMobile } from 'react-device-detect'
 import Loader from '@/components/common/loader'
 import React from 'react'
+import { Modal } from '@/components/common/modals/modal'
 
 type ApproveModalProps = {
   onApprove: () => Promise<void>
@@ -41,35 +42,27 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
 
   return (
     <Modal
-      size={isMobile ? 'full' : 'md'}
       variant='commonModal'
       isOpen={approveModalOpened}
       onClose={() => setApproveModalOpened(false)}
+      title={`Approve ${token?.symbol} (Base) spend`}
     >
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>{`Approve ${token?.symbol} (Base) spend`}</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <VStack>
-            <Text>
-              In order to proceed with transaction you should approve token for smart-contract
-              spend.
-            </Text>
-            <Button
-              mt='24px'
-              variant={isMobile ? 'white' : 'contained'}
-              w='full'
-              isDisabled={status !== 'Ready'}
-              isLoading={status === 'Loading'}
-              spinner={<Loader />}
-              onClick={handleApproveClicked}
-            >
-              Approve
-            </Button>
-          </VStack>
-        </ModalBody>
-      </ModalContent>
+      <VStack mt='24px'>
+        <Text>
+          In order to proceed with transaction you should approve token for smart-contract spend.
+        </Text>
+        <Button
+          mt='24px'
+          variant={'contained'}
+          w='full'
+          isDisabled={status !== 'Ready'}
+          isLoading={status === 'Loading'}
+          spinner={<Loader />}
+          onClick={handleApproveClicked}
+        >
+          Approve
+        </Button>
+      </VStack>
     </Modal>
   )
 }

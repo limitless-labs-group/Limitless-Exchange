@@ -27,6 +27,10 @@ const blueModal = definePartsStyle({
     mt: '28px',
     px: '16px',
     py: 0,
+    color: 'white',
+    '& > p': {
+      color: 'white',
+    },
   },
   closeButton: {
     color: 'white',

@@ -49,6 +49,7 @@ import { ProfileContentMobile } from '@/components/layouts/mobile-header/compone
 import { Overlay } from '@/components/common/overlay'
 import { motion } from 'framer-motion'
 import { useBottomSheetDisclosure } from '@/hooks'
+import { Modal } from '@/components/common/modals/modal'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -314,7 +315,7 @@ export default function MobileHeader() {
                               </HStack>
 
                               <HStack gap='8px'>
-                                <Text fontWeight={500}>
+                                <Text {...paragraphMedium}>
                                   {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                                 </Text>
                                 <Box color='grey.800'>
@@ -407,36 +408,9 @@ export default function MobileHeader() {
               <LoginButton />
             )}
           </HStack>
-          {isWalletModalOpen && (
-            <Box
-              position='fixed'
-              top={0}
-              left={0}
-              bottom={0}
-              w='full'
-              zIndex={100}
-              bg='rgba(0, 0, 0, 0.3)'
-              mt='20px'
-              animation='fadeIn 0.5s'
-            ></Box>
-          )}
-          <Slide
-            direction='bottom'
-            in={isWalletModalOpen}
-            style={{
-              zIndex: 150,
-              paddingTop: isWalletModalOpen ? '60px' : 0,
-              top: isWalletModalOpen ? 0 : '60px',
-              height: '100%',
-              transition: '0.1s',
-              animation: 'fadeIn 0.5s',
-            }}
-            onClick={() => {
-              onToggleWalletModal()
-            }}
-          >
+          <Modal isOpen={isWalletModalOpen} onClose={onToggleWalletModal}>
             <WalletPage onClose={onToggleWalletModal} onOpenWithdraw={onOpenWithdraw} />
-          </Slide>
+          </Modal>
           <Slide
             direction='bottom'
             in={isOpenProfileBottomSheet}

@@ -100,7 +100,7 @@ export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
           {NumberUtil.formatThousands(balanceFrom, 6)} {tokenFrom}
         </Text>
       </HStack>
-      <Box my='12px'>
+      <Box my='12px' ml={isMobile ? '4px' : 0}>
         <AmountSlider
           variant='base'
           value={sliderValue}
