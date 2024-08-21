@@ -9,7 +9,7 @@ import {
 } from '@amplitude/analytics-browser'
 import * as sessionReplay from '@amplitude/session-replay-browser'
 import { useAccount } from '@/services'
-import { Address } from '@/types'
+import { Address, MarketGroup } from '@/types'
 import {
   CUSTOM_LOGIN_PROVIDER_TYPE,
   LOGIN_PROVIDER_TYPE,
@@ -115,6 +115,8 @@ export type EventType = ChangeEvent | ClickEvent | SignInEvent | OpenEvent | Aut
 export enum ChangeEvent {
   StrategyChanged = 'Strategy Changed',
   OutcomeChanged = 'Outcome Changed',
+  ProfilePictureUploadedChanged = 'Profile Picture Uploaded',
+  ProfileSettingsChanged = 'Profile Settings Changed',
 }
 
 export enum ClickEvent {
@@ -126,6 +128,7 @@ export enum ClickEvent {
   TopUpClicked = 'Top Up Clicked',
   ShareMenuClicked = 'Share Menu Clicked',
   ShareItemClicked = 'Share Item Clicked',
+  ChangeMarketInGroupClicked = 'Change Market In Group Clicked',
   ProfileBurgerMenuClicked = 'Profile Burger Menu Clicked',
   SignOutClicked = 'Sign Out',
   TradeButtonClicked = 'Trade Button Clicked',
@@ -145,6 +148,7 @@ export enum ClickEvent {
   ClaimRewardOnPortfolioClicked = 'Claim Reward On Portfolio Clicked',
   ClaimRewardOnMarketPageClicked = 'Claim Reward On Market Page Clicked',
   SignW3AIn = 'Sign In W3A Option Chosen',
+  ProfilePictureUploadClicked = 'Profile Picture Upload Clicked',
 }
 
 export enum SignInEvent {
@@ -155,6 +159,7 @@ export enum SignInEvent {
 export enum OpenEvent {
   PageOpened = 'Page Opened',
   LoginWindowOpened = 'Login Window Opened',
+  ProfileSettingsOpened = 'Profile Settings Opened',
 }
 
 export enum AuthenticationEvent {
@@ -184,6 +189,7 @@ export interface TradeClickedMetadata {
   outcome: OutcomeChangedChoice
   walletType: WalletType
   marketAddress: Address
+  marketType?: 'group' | 'single'
 }
 
 export interface ClickedApproveMetadata {
@@ -228,8 +234,14 @@ export type ShareClickedType = 'Copy Link' | 'X/Twitter' | 'Farcaster'
 export interface ShareClickedMetadata {
   type: ShareClickedType
   address?: Address
+  marketType: 'group' | 'single'
 }
 
+interface MarketChangeInGroupData {
+  marketGroup: MarketGroup
+}
+
+export type ModalOpenedModal = 'Profile Settings'
 export type PageOpenedPage =
   | 'Market Page'
   | 'Creator Cabinet'
@@ -243,6 +255,15 @@ export interface PageOpenedMetadata {
   category?: string
   [key: string]: any
 }
+
+export type Platform = 'Mobile' | 'Desktop'
+export interface ProfileSettingsMetadata {
+  platform: Platform
+}
+export type ProfileSettingsOpenedMetadata = ProfileSettingsMetadata
+export type ProfilePictureUploadClickedMetadata = ProfileSettingsMetadata
+export type ProfilePictureUploadedChangedMetadata = ProfileSettingsMetadata
+export type ProfileSettingsChangedMetadata = ProfileSettingsMetadata
 
 export type OpenMarketClickedPage = 'Creator Cabinet' | 'Portfolio Page' | 'Explore Markets'
 export interface OpenMarketClickedMetadata {
@@ -307,7 +328,11 @@ export interface SignInW3AClickedMetadata {
   option: LOGIN_PROVIDER_TYPE | CUSTOM_LOGIN_PROVIDER_TYPE | undefined
 }
 
-export type ChangedEventMetadata = StrategyChangedMetadata | OutcomeChangedMetadata
+export type ChangedEventMetadata =
+  | StrategyChangedMetadata
+  | OutcomeChangedMetadata
+  | ProfilePictureUploadedChangedMetadata
+  | ProfileSettingsChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
   | PricePresetClickedMetadata
@@ -326,8 +351,9 @@ export type ClickedEventMetadata =
   | TopUpMetadata
   | UIModeMetadata
   | SignInW3AClickedMetadata
+  | MarketChangeInGroupData
 
-export type OpenedEventMetadata = PageOpenedMetadata
+export type OpenedEventMetadata = PageOpenedMetadata | ProfileSettingsMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata
 export type CopiedEventMetadata = WalletAddressCopiedMetadata
 

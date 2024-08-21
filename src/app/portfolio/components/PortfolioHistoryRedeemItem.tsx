@@ -1,8 +1,8 @@
 import { defaultChain } from '@/constants'
 import { HistoryRedeem } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { Box, HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import { useMarketByConditionId } from '@/services/MarketsService'
+import { Box, HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { useAllMarkets, useMarketByConditionId } from '@/services/MarketsService'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -18,17 +18,25 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
    */
   const market = useMarketByConditionId(redeem.conditionId)
 
+  const allMarkets = useAllMarkets()
+
+  const targetMarket = allMarkets.find((market) => market.conditionId === redeem.conditionId)
+
+  const link = targetMarket?.group?.slug
+    ? `/market-group/${targetMarket.group.slug}`
+    : `/markets/${targetMarket?.address}`
+
   return (
     <Tr pos={'relative'} {...props}>
       <Td w='92px'>Won</Td>
       <Td>
         <HStack gap='4px'>
-          {market?.outcomeTokens[redeem.outcomeIndex] ? (
+          {redeem.outcomeIndex ? (
             <ThumbsDownIcon width={16} height={16} />
           ) : (
             <ThumbsUpIcon width={16} height={16} />
           )}{' '}
-          <Text {...paragraphRegular}>{market?.outcomeTokens[redeem.outcomeIndex ?? 0]}</Text>
+          <Text {...paragraphRegular}>{redeem.outcomeIndex ? 'No' : 'Yes'}</Text>
         </HStack>
       </Td>
       <Td></Td>
@@ -37,12 +45,12 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           <Text>
             {/* that's temporal solution since the bug is on indexer side. it returns not formatted values that's why we need to * on 10e12 */}
             {`${NumberUtil.formatThousands(
-              (market?.tokenTicker[defaultChain.id] === 'USDC'
+              (market?.collateralToken.symbol === 'USDC'
                 ? Math.pow(10, 12) * Number(redeem.collateralAmount)
                 : Number(redeem.collateralAmount)) ?? 0,
               4
             )} 
-          ${market?.tokenTicker[defaultChain.id]}`}
+          ${market?.collateralToken.symbol}`}
           </Text>
         </Box>
       </Td>
@@ -54,18 +62,21 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
         overflow='hidden'
         textOverflow='ellipsis'
       >
-        <NextLink href={`/markets/${market?.address[defaultChain.id]}`}>
-          {market?.proxyTitle ?? market?.title ?? 'Noname market'}
+        <NextLink href={link}>
+          {targetMarket?.group?.id
+            ? `${targetMarket.group.title}: ${targetMarket.title}`
+            : targetMarket?.title}
         </NextLink>
       </Td>
-      <Td textDecoration='underline'>
-        <NextLink
+      <Td>
+        <Link
           href={`${defaultChain.blockExplorers.default.url}/tx/${redeem.transactionHash}`}
           target='_blank'
           rel='noopener'
+          variant='textLink'
         >
           {truncateEthAddress(redeem.transactionHash)}
-        </NextLink>
+        </Link>
       </Td>
     </Tr>
   )
