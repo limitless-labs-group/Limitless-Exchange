@@ -41,7 +41,7 @@ import CloseIcon from '@/resources/icons/close-icon.svg'
 import { useWeb3Service } from '@/services/Web3Service'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
-import { Address, parseUnits } from 'viem'
+import { Address } from 'viem'
 
 const _transformSellValue = (value: string) => {
   const [wholeNumber, fractionalNumber] = value.split('.')
@@ -52,7 +52,7 @@ const _transformSellValue = (value: string) => {
 
   let zeroWholeFraction: string = ['0', fractionalNumber].join('.')
   zeroWholeFraction = String(+zeroWholeFraction * percentage)
-  zeroWholeFraction = Number(zeroWholeFraction).toFixed(6)
+  // zeroWholeFraction = Number(zeroWholeFraction)
   const [, _fractionalNumber] = zeroWholeFraction.split('.')
   return [wholeNumber, _fractionalNumber].join('.')
 }
@@ -123,7 +123,7 @@ export function SellForm({
     balanceOfCollateralToSellNo,
     quotesYes,
     quotesNo,
-    sell,
+    trade,
   } = useTradingService()
 
   useEffect(() => {
@@ -180,6 +180,7 @@ export function SellForm({
 
   const handleInputValueChange = (value: string) => {
     const _collateralAmount = _transformSellValue(value)
+    console.log('_collateralAmount', _collateralAmount)
     setCollateralAmount(_collateralAmount)
     return
   }
@@ -206,7 +207,7 @@ export function SellForm({
       const _collateralAmount = _transformSellValue(amountByPercent.toString())
       setDisplayAmount(_collateralAmount)
     },
-    [balance, isZeroBalance]
+    [sliderValue, balance, isZeroBalance]
   )
 
   const positionsYes = positions?.find((position) => position.outcomeIndex === 0)
@@ -234,32 +235,19 @@ export function SellForm({
       marketType: marketGroup ? 'group' : 'single',
     })
     const index = outcomeChoice === 'yes' ? 0 : 1
-    const balanceToSell = index
-      ? BigInt(
-          NumberUtil.toFixed(
-            parseUnits(balanceOfCollateralToSellNo, market.collateralToken.decimals).toString(),
-            6
-          )
-        )
-      : parseUnits(balanceOfCollateralToSellYes, market.collateralToken.decimals)
     setOutcomeIndex(index)
-    // await trade(index)
-    await sell({
-      outcomeTokenId: index,
-      amount:
-        sliderValue === 100
-          ? balanceToSell
-          : parseUnits(collateralAmount, market.collateralToken.decimals),
-    })
+    await trade(index)
   }
 
   const isExceedsBalance = useMemo(() => {
     if (outcomeChoice) {
+      console.log(collateralAmount)
+      console.log(balanceOfCollateralToSellNo)
       return new BigNumber(collateralAmount).isGreaterThan(
         new BigNumber(
           outcomeChoice === 'yes'
-            ? (+balanceOfCollateralToSellYes).toFixed(6)
-            : (+balanceOfCollateralToSellNo).toFixed(6)
+            ? _transformSellValue(balanceOfCollateralToSellYes)
+            : _transformSellValue(balanceOfCollateralToSellNo)
         )
       )
     }
@@ -622,7 +610,7 @@ export function SellForm({
                 <InputGroup>
                   <Input
                     variant='outlined'
-                    value={displayAmount}
+                    value={NumberUtil.toFixed(displayAmount, 6)}
                     onChange={(e) => handleInputValueChange(e.target.value)}
                     placeholder='0'
                     css={css`
@@ -670,7 +658,7 @@ export function SellForm({
                     </Text>
                   </HStack>
                   <Text {...paragraphRegular} color='white'>
-                    {displayAmount} {token?.symbol}
+                    {NumberUtil.toFixed(displayAmount, 6)} {token?.symbol}
                   </Text>
                 </HStack>
               </VStack>
