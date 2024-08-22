@@ -269,15 +269,15 @@ export default function Sidebar() {
                       <MoonIcon width={16} height={16} />
                     </Button>
                   </HStack>
-                  {/* hidding it for prod release
-                 <Button
+                  {/* hidding it for prod release */}
+                  <Button
                     variant='grey'
                     w='full'
                     onClick={handleOpenProfileDrawer}
                     justifyContent='flex-start'
                   >
                     Profile
-                  </Button>*/}
+                  </Button>
                   <Button
                     variant='grey'
                     w='full'

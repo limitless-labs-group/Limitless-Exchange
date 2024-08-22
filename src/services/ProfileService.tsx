@@ -159,16 +159,18 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
   const updateButtonLoading = createProfileLoading || updateProfileLoading
 
   useEffect(() => {
+    const _defaultDisplayName = userInfo?.name ?? account ?? ''
+    const _defaultUsername = farcasterInfo?.username ?? account ?? ''
     if (!profileData) {
-      setDisplayName(userInfo?.name ?? account ?? '')
-      setUsername(farcasterInfo?.username ?? account ?? '')
+      setDisplayName(_defaultDisplayName)
+      setUsername(_defaultUsername)
       refetchProfile()
       return
     } else {
       setProfile(profileData)
-      setPfpUrl(profileData.pfpUrl)
-      setDisplayName(profileData.displayName)
-      setUsername(profileData.username)
+      setPfpUrl(profileData?.pfpUrl)
+      setDisplayName(profileData?.displayName ?? _defaultDisplayName)
+      setUsername(profileData?.username ?? _defaultUsername)
       setBio(profileData.bio ?? '')
     }
   }, [profileData, farcasterInfo, userInfo, account])
