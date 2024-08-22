@@ -42,9 +42,9 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
         w={'full'}
         justifyContent={'space-between'}
         cursor='pointer'
-        _hover={{ bg: 'blue.500' }}
-        onMouseEnter={() => setColors(hoverColors)}
-        onMouseLeave={() => setColors(defaultColors)}
+        _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
+        onMouseEnter={() => !isMobile && setColors(hoverColors)}
+        onMouseLeave={() => !isMobile && setColors(defaultColors)}
       >
         <HStack justifyContent='space-between' mb='12px'>
           <Text {...paragraphMedium} color={colors.main} lineHeight={'20px'}>
