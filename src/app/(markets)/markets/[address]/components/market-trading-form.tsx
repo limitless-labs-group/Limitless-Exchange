@@ -63,7 +63,7 @@ export const MarketTradingForm = ({
       bg='blue.500'
       w={isMobile ? 'full' : '312px'}
       p={isMobile ? 0 : '8px'}
-      maxH={isMobile ? '100dvh' : '545px'}
+      h={isMobile ? '100dvh' : '525px'}
       overflowY='scroll'
       position={isMobile ? 'relative' : 'fixed'}
       left={isMobile ? 0 : '936px'}
@@ -111,6 +111,7 @@ export const MarketTradingForm = ({
           }}
           _disabled={{
             opacity: '50%',
+            pointerEvents: 'none',
           }}
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
