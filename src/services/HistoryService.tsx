@@ -171,10 +171,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       let _positions: HistoryPosition[] = []
 
       trades?.forEach((trade) => {
-        // TODO: replace hardcoded markets with dynamic
         const market = markets.find(
-          (market) =>
-            market.address[defaultChain.id].toLowerCase() === trade.market.id.toLowerCase()
+          (market) => market.address.toLowerCase() === trade.market.id.toLowerCase()
         )
 
         if (

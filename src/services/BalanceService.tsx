@@ -103,6 +103,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
           defaultChain.rpcUrls.default.http.toString()
         ),
         tryAggregate: true,
+        multicallCustomContractAddress: defaultChain.contracts.multicall3.address,
       })
 
       //@ts-ignore

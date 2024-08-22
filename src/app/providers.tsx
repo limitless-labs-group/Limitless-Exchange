@@ -17,6 +17,7 @@ import {
   HistoryServiceProvider,
   LimitlessApiProvider,
   TradingServiceProvider,
+  ProfileServiceProvider,
 } from '@/services'
 import { TokenFilterProvider } from '@/contexts/TokenFilterContext'
 import RainbowProvider from '@/providers/Rainbow'
@@ -40,7 +41,9 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                           <BalanceServiceProvider>
                             <HistoryServiceProvider>
                               <TokenFilterProvider>
-                                <TradingServiceProvider>{children}</TradingServiceProvider>
+                                <TradingServiceProvider>
+                                  <ProfileServiceProvider>{children}</ProfileServiceProvider>
+                                </TradingServiceProvider>
                               </TokenFilterProvider>
                             </HistoryServiceProvider>
                           </BalanceServiceProvider>
