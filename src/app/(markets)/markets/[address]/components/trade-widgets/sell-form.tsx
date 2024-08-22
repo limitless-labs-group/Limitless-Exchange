@@ -335,7 +335,7 @@ export function SellForm({
       )}
       {!isOpenSelectMarketMenu && (
         <>
-          <VStack mt={marketGroup ? 0 : '24px'}>
+          <VStack mt={marketGroup ? 0 : '24px'} mx={isMobile ? '16px' : 0}>
             {positionsYes && (
               <Button
                 bg={outcomeChoice === 'yes' ? 'white' : 'rgba(255, 255, 255, 0.2)'}
