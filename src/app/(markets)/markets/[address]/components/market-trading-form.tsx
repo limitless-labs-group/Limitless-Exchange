@@ -1,10 +1,16 @@
-import { StrategyChangedMetadata, ChangeEvent, useAmplitude, useTradingService } from '@/services'
+import {
+  StrategyChangedMetadata,
+  ChangeEvent,
+  useAmplitude,
+  useTradingService,
+  useHistory,
+} from '@/services'
 import { Button, HStack, Text } from '@chakra-ui/react'
 import { getAddress, zeroAddress } from 'viem'
 import { Market, MarketGroup } from '@/types'
 
 import { isMobile } from 'react-device-detect'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Paper from '@/components/common/paper'
 import {
   BuyForm,
@@ -32,6 +38,8 @@ export const MarketTradingForm = ({
    */
   const { trackChanged } = useAmplitude()
 
+  const { positions: allMarketsPositions } = useHistory()
+
   /**
    * TRADING SERVICE
    */
@@ -41,6 +49,14 @@ export const MarketTradingForm = ({
    * MARKET DATA
    */
   const marketAddress = getAddress(market?.address ?? zeroAddress)
+
+  const positions = useMemo(
+    () =>
+      allMarketsPositions?.filter(
+        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
+      ),
+    [allMarketsPositions, market]
+  )
 
   return (
     <Paper
@@ -93,6 +109,9 @@ export const MarketTradingForm = ({
           _hover={{
             backgroundColor: strategy === 'Sell' ? 'white' : 'rgba(255, 255, 255, 0.30)',
           }}
+          _disabled={{
+            opacity: '50%',
+          }}
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Sell selected',
@@ -100,6 +119,7 @@ export const MarketTradingForm = ({
             })
             setStrategy('Sell')
           }}
+          isDisabled={!positions?.length}
         >
           <Text {...controlsMedium} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
             Sell

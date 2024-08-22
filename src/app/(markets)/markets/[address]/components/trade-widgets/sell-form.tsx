@@ -241,8 +241,6 @@ export function SellForm({
 
   const isExceedsBalance = useMemo(() => {
     if (outcomeChoice) {
-      console.log(collateralAmount)
-      console.log(balanceOfCollateralToSellNo)
       return new BigNumber(collateralAmount).isGreaterThan(
         new BigNumber(
           outcomeChoice === 'yes'
