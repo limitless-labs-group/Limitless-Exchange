@@ -8840,9 +8840,9 @@ hono-og@0.0.27:
     workers-og "~0.0.23"
 
 hono@^4:
-  version "4.4.8"
-  resolved "https://registry.yarnpkg.com/hono/-/hono-4.4.8.tgz#7a59671adf4ec0210558ae5e1ec0e568306cef99"
-  integrity sha512-eewnSgTzdWgFVn97kPV24h+9UVNUQ+9mj6IRxr7dBseTaTBSHtFo/T/vRNcqJkQFysVoXyecflr3Xe/fdvzEpQ==
+  version "4.5.8"
+  resolved "https://registry.yarnpkg.com/hono/-/hono-4.5.8.tgz#212ee54b214cd90ecc44904b6f00ee58a9af32b8"
+  integrity sha512-pqpSlcdqGkpTTRpLYU1PnCz52gVr0zVR9H5GzMyJWuKQLLEBQxh96q45QizJ2PPX8NATtz2mu31/PKW/Jt+90Q==
 
 html-encoding-sniffer@^3.0.0:
   version "3.0.0"

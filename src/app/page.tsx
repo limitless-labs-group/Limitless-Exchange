@@ -138,7 +138,7 @@ const MainPage = () => {
         })
       case Sort.ENDING_SOON:
         return [...filteredMarkets].sort(
-          (a, b) => new Date(b.deadline).getTime() - new Date(a.deadline).getTime()
+          (a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
         )
       default:
         return filteredMarkets
