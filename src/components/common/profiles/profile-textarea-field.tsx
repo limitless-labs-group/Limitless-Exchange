@@ -57,7 +57,7 @@ export const ProfileTextareaField = ({
           py={isMobile ? '8px' : '4px'}
           px={isMobile ? '12px' : '8px'}
           _placeholder={{
-            color: 'grey.500',
+            color: 'grey.400',
             fontWeight: 500,
             alignItems: 'start',
             textAlign: 'start',
@@ -66,7 +66,7 @@ export const ProfileTextareaField = ({
           resize='none'
           color='grey.800'
           outline='none'
-          _hover={{ color: 'grey.500', borderColor: 'grey.500' }}
+          _hover={{ borderColor: 'grey.500' }}
           _focus={{ color: 'grey.800', borderColor: 'grey.800', bg: 'grey.100' }}
           _focusVisible={{ color: 'grey.800', borderColor: 'grey.800', bg: 'grey.100' }}
         />
