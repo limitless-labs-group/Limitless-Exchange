@@ -3,6 +3,7 @@ import { BoxProps, HStack, Icon, Link, Text } from '@chakra-ui/react'
 import BookIcon from '@/resources/icons/book-icon.svg'
 import SupportIcon from '@/resources/icons/support-icon.svg'
 import DiscordIcon from '@/resources/icons/discord-icon.svg'
+import FarcasterIcon from '@/resources/icons/Farcaster.svg'
 import XIcon from '@/resources/icons/X.svg'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { isMobile } from 'react-device-detect'
@@ -11,6 +12,7 @@ import { ClickEvent, useAmplitude } from '@/services'
 const LINKS = {
   X: 'https://x.com/trylimitless',
   DISCORD: 'https://discord.gg/UQtv7h5ZFE',
+  FARCASTER: 'https://warpcast.com/~/channel/limitless',
   DOCS: 'https://www.notion.so/limitlesslabs/Limitless-Exchange-Docs-0e59399dd44b492f8d494050969a1567?pvs=4',
 }
 
@@ -76,6 +78,19 @@ export default function SocialsFooter({ ...props }: PropsWithChildren<BoxProps>)
           }}
         >
           <Icon as={DiscordIcon} {...ICON_PROPS} />
+        </Link>
+        <Link
+          href={LINKS.FARCASTER}
+          target='_blank'
+          rel='noopener noreferrer'
+          onClick={() => {
+            trackClicked(ClickEvent.LimitlessLinksClicked, {
+              platform: isMobile ? 'mobile' : 'desktop',
+              option: 'farcaster',
+            })
+          }}
+        >
+          <Icon as={FarcasterIcon} {...ICON_PROPS} />
         </Link>
         <Link
           href={LINKS.X}
