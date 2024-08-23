@@ -1,4 +1,5 @@
-import { Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react'
+import { ErrorIcon } from '@/components/common/profiles'
+import { HStack, Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react'
 import { KeyboardEventHandler, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
@@ -38,9 +39,20 @@ export const ProfileInputField = ({
 
   return (
     <>
-      <Text fontWeight={500} fontSize='16px'>
-        {label}
-      </Text>
+      <HStack justify='space-between'>
+        <Text fontWeight={500} fontSize='16px'>
+          {label}
+        </Text>
+
+        {isInvalid && (
+          <HStack gap={1} justify='center' alignItems='center'>
+            <ErrorIcon height='16px' width='16px' />
+            <Text fontWeight={500} fontSize='16px' color='red'>
+              {invalidText}
+            </Text>
+          </HStack>
+        )}
+      </HStack>
 
       <InputGroup>
         <InputLeftElement
@@ -70,19 +82,18 @@ export const ProfileInputField = ({
           py={isMobile ? '15px' : '4px'}
           pr={isMobile ? '12px' : '8px'}
           pl={'28px'}
-          _placeholder={{ color: 'grey.500', fontWeight: 500 }}
+          color='grey.800'
+          outline='none'
+          _placeholder={{ color: 'grey.400', fontWeight: 500 }}
+          _hover={{ borderColor: 'grey.500' }}
+          _focus={{ color: 'grey.800', borderColor: 'grey.800', bg: 'grey.100' }}
+          _focusVisible={{ color: 'grey.800', borderColor: 'grey.800', bg: 'grey.100' }}
         />
       </InputGroup>
 
-      {!isInvalid ? (
-        <Text fontWeight={500} fontSize='16px' color='grey.500'>
-          {hint}
-        </Text>
-      ) : (
-        <Text fontWeight={500} fontSize='16px' color='red'>
-          {invalidText}
-        </Text>
-      )}
+      <Text fontWeight={500} fontSize='16px' color='grey.500'>
+        {hint}
+      </Text>
     </>
   )
 }

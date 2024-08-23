@@ -67,7 +67,7 @@ export const useCreateProfile = ({ account, client }: IUseCreateProfile) => {
       return res.data as Profile
     },
     onSuccess: () => {
-      const id = toast({ render: () => <Toast id={id} title='Profile registered successfully' /> })
+      // const id = toast({ render: () => <Toast id={id} title='Profile registered successfully' /> })
     },
     onError: () => {
       const id = toast({ render: () => <Toast id={id} title='Failed to register profile' /> })

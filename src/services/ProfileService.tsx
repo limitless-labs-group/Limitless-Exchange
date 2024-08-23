@@ -70,6 +70,8 @@ export interface IProfileServiceContext {
     displayName: string | undefined
     pfpUrl: string | undefined
   }
+  formDirty: boolean
+  setFormDirty: Dispatch<SetStateAction<boolean>>
 }
 
 const ProfileServiceContext = createContext({} as IProfileServiceContext)
@@ -91,6 +93,7 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
   const [bio, setBio] = useState<string>('')
   const [profileUpdated, setProfileUpdated] = useState<boolean>(false)
   const [disableUpdateButton, setDisableUpdateButton] = useState<boolean>(false)
+  const [formDirty, setFormDirty] = useState<boolean>(false)
 
   const {
     mutateAsync: createProfileAsync,
@@ -151,6 +154,7 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
 
   const profileRegistered = !!profileData
   const updateButtonDisabled =
+    !formDirty ||
     getProfileDataLoading ||
     createProfileLoading ||
     updateProfileLoading ||
@@ -196,10 +200,13 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
   }, [pfpFile])
 
   useEffect(() => {
-    if (isOpenProfileDrawer)
+    if (isOpenProfileDrawer) {
       trackOpened<ProfileSettingsOpenedMetadata>(OpenEvent.ProfileSettingsOpened, {
         platform: isMobile ? 'Mobile' : 'Desktop',
       })
+    } else {
+      resetState()
+    }
   }, [isOpenProfileDrawer, isMobile])
 
   const handleUpdateProfile = useCallback(async () => {
@@ -244,6 +251,7 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
     resetCreateProfile()
     resetUpdateProfile()
     resetUpdatePfp()
+    setFormDirty(false)
   }, [])
 
   const contextProviderValue: IProfileServiceContext = {
@@ -278,6 +286,8 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
     onOpenProfileDrawer,
     onCloseProfileDrawer,
     user,
+    formDirty,
+    setFormDirty,
   }
 
   return (
