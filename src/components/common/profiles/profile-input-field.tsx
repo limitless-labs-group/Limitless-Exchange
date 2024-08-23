@@ -70,7 +70,12 @@ export const ProfileInputField = ({
           py={isMobile ? '15px' : '4px'}
           pr={isMobile ? '12px' : '8px'}
           pl={'28px'}
-          _placeholder={{ color: 'grey.500', fontWeight: 500 }}
+          color='grey.800'
+          outline='none'
+          _placeholder={{ color: 'grey.400', fontWeight: 500 }}
+          _hover={{ color: 'grey.500', borderColor: 'grey.500' }}
+          _focus={{ color: 'grey.800', borderColor: 'grey.800', bg: 'grey.100' }}
+          _focusVisible={{ color: 'grey.800', borderColor: 'grey.800', bg: 'grey.100' }}
         />
       </InputGroup>
 

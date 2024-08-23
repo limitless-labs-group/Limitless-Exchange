@@ -1,5 +1,5 @@
 import { InputGroup, InputLeftElement, Text, Textarea } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { FocusEventHandler, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
 export interface IProfileTextareaField {
@@ -7,15 +7,17 @@ export interface IProfileTextareaField {
   label: string
   initialValue: string
   onChange?: (value: string | undefined) => void
+  onBlur?: FocusEventHandler<HTMLTextAreaElement> | undefined
   placeholder?: string
 }
 
 export const ProfileTextareaField = ({
-  renderIcon,
-  label,
   initialValue,
-  onChange,
   placeholder,
+  renderIcon,
+  onChange,
+  onBlur,
+  label,
 }: IProfileTextareaField) => {
   const [_value, _setValue] = useState<string | undefined>(undefined)
   useEffect(() => {
@@ -47,6 +49,7 @@ export const ProfileTextareaField = ({
         <Textarea
           value={_value ?? initialValue}
           onChange={(e) => _setValue(e.target.value)}
+          onBlur={onBlur}
           placeholder={placeholder}
           height='56px'
           borderColor='grey.300'
@@ -61,6 +64,11 @@ export const ProfileTextareaField = ({
           }}
           pl={'30px'}
           resize='none'
+          color='grey.800'
+          outline='none'
+          _hover={{ color: 'grey.500', borderColor: 'grey.500' }}
+          _focus={{ color: 'grey.800', borderColor: 'grey.800', bg: 'grey.100' }}
+          _focusVisible={{ color: 'grey.800', borderColor: 'grey.800', bg: 'grey.100' }}
         />
       </InputGroup>
     </>
