@@ -17,12 +17,14 @@ const defaultColors = {
   main: 'var(--chakra-colors-grey-800)',
   secondary: 'var(--chakra-colors-grey-500)',
   chartBg: 'var(--chakra-colors-grey-300)',
+  divider: 'var(--chakra-colors-grey-400)',
 }
 
 const hoverColors = {
   main: 'var(--chakra-colors-white)',
   secondary: 'var(--chakra-colors-transparent-700)',
   chartBg: 'var(--chakra-colors-transparent-300)',
+  divider: 'var(--chakra-colors-white)',
 }
 
 export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
@@ -42,9 +44,9 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
         w={'full'}
         justifyContent={'space-between'}
         cursor='pointer'
-        _hover={{ bg: 'blue.500' }}
-        onMouseEnter={() => setColors(hoverColors)}
-        onMouseLeave={() => setColors(defaultColors)}
+        _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
+        onMouseEnter={() => !isMobile && setColors(hoverColors)}
+        onMouseLeave={() => !isMobile && setColors(defaultColors)}
       >
         <HStack justifyContent='space-between' mb='12px'>
           <Text {...paragraphMedium} color={colors.main} lineHeight={'20px'}>
@@ -86,7 +88,7 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
           </HStack>
         </HStack>
         <Box my='8px'>
-          <Divider color='grey.400' />
+          <Divider color={colors.divider} />
         </Box>
         <VStack gap={isMobile ? '8px' : '4px'} alignItems='start'>
           {marketGroup.markets.slice(0, 3).map((market) => (
