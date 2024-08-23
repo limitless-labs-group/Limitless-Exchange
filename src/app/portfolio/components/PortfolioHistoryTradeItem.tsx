@@ -1,11 +1,12 @@
 import { defaultChain } from '@/constants'
 import { HistoryTrade } from '@/services'
-import { borderRadius } from '@/styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { HStack, Heading, Image, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
-import { FaExternalLinkAlt } from 'react-icons/fa'
-import { useMarket } from '@/services/MarketsService'
+import { HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { useAllMarkets } from '@/services/MarketsService'
+import NextLink from 'next/link'
+import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 interface IPortfolioHistoryTradeItem extends TableRowProps {
   trade: HistoryTrade
@@ -13,85 +14,63 @@ interface IPortfolioHistoryTradeItem extends TableRowProps {
 
 export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistoryTradeItem) => {
   /**
-   * NAVIGATION
-   */
-  const router = useRouter()
-
-  /**
    * MARKET DATA
    */
-  const market = useMarket(trade.market.id)
+  const allMarkets = useAllMarkets()
+
+  const targetMarket = allMarkets.find((market) => market.address === trade.market.id)
+
+  const link = targetMarket?.group?.slug
+    ? `/market-group/${targetMarket.group.slug}`
+    : `/markets/${targetMarket?.address}`
 
   return (
     <Tr pos={'relative'} {...props}>
-      <Td pl={0} pr={2}>
-        <HStack
-          style={{ textWrap: 'wrap' }}
-          cursor={'pointer'}
-          _hover={{ textDecor: 'underline' }}
-          onClick={() => router.push(`/markets/${trade.market.id}`)}
-        >
-          <Image
-            src={market?.imageURI}
-            w={'40px'}
-            h={'40px'}
-            fit={'cover'}
-            bg={'brand'}
-            borderRadius={borderRadius}
-            alt='token'
-          />
-          <Heading size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
-            {market?.title ?? 'Noname market'}
-          </Heading>
+      <Td w='92px'>{trade.strategy}</Td>
+      <Td>
+        <HStack gap='4px'>
+          {trade.outcomeIndex ? (
+            <ThumbsDownIcon width={16} height={16} />
+          ) : (
+            <ThumbsUpIcon width={16} height={16} />
+          )}{' '}
+          <Text {...paragraphRegular}>{trade.outcomeIndex ? 'No' : 'Yes'}</Text>
+          <Text {...paragraphRegular}>
+            {NumberUtil.toFixed(+(trade.outcomeTokenPrice || 1) * 100, 1)}%
+          </Text>
         </HStack>
       </Td>
-
-      <Td px={2}>
-        <Text color={trade.outcomeIndex == 0 ? 'green' : 'red'} fontWeight={'bold'}>
-          {market?.outcomeTokens[trade.outcomeIndex ?? 0]}{' '}
-          {NumberUtil.formatThousands(trade.outcomeTokenPrice, 3)}{' '}
-          {market?.tokenTicker[defaultChain.id]}
-        </Text>
-      </Td>
-
-      <Td px={2}>{trade.strategy}</Td>
-
-      {/* Amount */}
+      <Td isNumeric>{NumberUtil.formatThousands(trade.outcomeTokenAmount, 4)}</Td>
       <Td px={2} isNumeric>
-        <Text fontWeight={'bold'}>
+        <Text>
           {`${NumberUtil.formatThousands(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
             6
-          )} ${market?.tokenTicker[defaultChain.id]}`}
+          )} ${targetMarket?.collateralToken.symbol}`}
         </Text>
       </Td>
-
-      {/* Contracts */}
-      <Td px={2} isNumeric>
-        {NumberUtil.formatThousands(trade.outcomeTokenAmount, 4)}
+      <Td
+        textDecoration='underline'
+        w='420px'
+        maxW='420px'
+        whiteSpace='nowrap'
+        overflow='hidden'
+        textOverflow='ellipsis'
+      >
+        <NextLink href={link}>
+          {targetMarket?.group?.id
+            ? `${targetMarket.group.title}: ${targetMarket.title}`
+            : targetMarket?.title}
+        </NextLink>
       </Td>
-
-      {/* Tx */}
-      <Td pl={2} pr={0}>
-        <HStack
-          p={'2px 6px'}
-          bg={'bgLight'}
-          borderRadius={'6px'}
-          fontSize={'13px'}
-          spacing={1}
-          cursor={'pointer'}
-          _hover={{ textDecor: 'underline' }}
-          onClick={() =>
-            window.open(
-              `${defaultChain.blockExplorers.default.url}/tx/${trade.transactionHash}`,
-              '_blank',
-              'noopener'
-            )
-          }
+      <Td textDecoration='underline'>
+        <NextLink
+          href={`${defaultChain.blockExplorers.default.url}/tx/${trade.transactionHash}`}
+          target='_blank'
+          rel='noopener'
         >
-          <Text>{truncateEthAddress(trade.transactionHash)}</Text>
-          <FaExternalLinkAlt size={'10px'} />
-        </HStack>
+          {truncateEthAddress(trade.transactionHash)}
+        </NextLink>
       </Td>
     </Tr>
   )

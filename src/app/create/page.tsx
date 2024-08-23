@@ -1,6 +1,6 @@
 'use client'
 
-import { Input, MainLayout, Toast } from '@/components'
+import { MainLayout } from '@/components'
 import {
   Box,
   Button,
@@ -9,7 +9,6 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  Heading,
   HStack,
   Image,
   NumberInput,
@@ -24,15 +23,17 @@ import {
   Textarea,
   VStack,
 } from '@chakra-ui/react'
-import { borderRadius, colors } from '@/styles'
-import { CgInfo } from 'react-icons/cg'
 import { SingleDatepicker } from 'chakra-dayzed-datepicker'
 import React, { MutableRefObject, useRef, useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 import axios from 'axios'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks'
-import { useLimitlessApi } from '@/services'
+import { useCategories, useLimitlessApi } from '@/services'
+import { Toast } from '@/components/common/toast'
+import { Input } from '@/components/common/input'
+import { Category } from '@/types'
+import { OgImageGenerator } from '@/app/create/components'
 
 interface FormFieldProps {
   label: string
@@ -51,17 +52,17 @@ interface TokenLimits {
 
 const tokenLimits: TokenLimits = {
   HIGHER: {
-    min: 39000,
+    min: 25000,
     max: 390000,
     step: 1000,
   },
   MFER: {
-    min: 39000,
+    min: 12500,
     max: 390000,
     step: 1000,
   },
   DEGEN: {
-    min: 390,
+    min: 39000,
     max: 390000,
     step: 1000,
   },
@@ -85,6 +86,11 @@ const tokenLimits: TokenLimits = {
     max: 3000,
     step: 25,
   },
+  GHST: {
+    min: 150,
+    max: 3000,
+    step: 10,
+  },
   BETS: {
     min: 835000,
     max: 8350000,
@@ -104,13 +110,14 @@ interface Creator {
 }
 
 interface Token {
-  id: string
+  id: number
   symbol: string
 }
 
 const defaultTokenSymbol = 'WETH'
 const defaultProbability = 50
 const defaultCreatorId = '1'
+const defaultCategoryId = '1'
 
 const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
   <Box mt={4}>
@@ -126,12 +133,13 @@ const CreateOwnMarketPage = () => {
 
   const [deadline, setDeadline] = useState<Date>(new Date())
   const [title, setTitle] = useState<string>('')
-  const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: '1' })
+  const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: 1 })
   const [description, setDescription] = useState<string>('')
   const [liquidity, setLiquidity] = useState<number>(tokenLimits[defaultTokenSymbol].min)
   const [probability, setProbability] = useState<number>(defaultProbability)
   const [tag, setTag] = useState<TagOption[]>([])
   const [creatorId, setCreatorId] = useState<string>(defaultCreatorId)
+  const [categoryId, setCategoryId] = useState<string>(defaultCategoryId)
   const [marketLogo, setMarketLogo] = useState<File | undefined>()
   const [ogLogo, setOgLogo] = useState<File | undefined>()
 
@@ -146,7 +154,7 @@ const CreateOwnMarketPage = () => {
   const handleProbabilityChange = (value: number) => setProbability(value)
 
   const handleTokenSelect = (option: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedTokenId = option.target.value
+    const selectedTokenId = +option.target.value
     const selectedTokenSymbol =
       option.target.selectedOptions[0].getAttribute('data-name') ?? defaultTokenSymbol
     setToken({ symbol: selectedTokenSymbol, id: selectedTokenId })
@@ -183,6 +191,12 @@ const CreateOwnMarketPage = () => {
     },
   })
 
+  const { data: categories } = useCategories()
+  const { mutateAsync: generateOgImage, isPending: isGeneratingOgImage } = useMutation({
+    mutationKey: ['generate-og-image'],
+    mutationFn: async () => new Promise((resolve) => setTimeout(resolve, 1_000)),
+  })
+
   const handleTagCreation = async (tagToCreate: string) => {
     const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`, {
       name: tagToCreate,
@@ -200,11 +214,11 @@ const CreateOwnMarketPage = () => {
 
   const createMarket = async () => {
     if (!title || !description || !creatorId || !marketLogo || !ogLogo || !tag) {
-      toast({
+      const id = toast({
         render: () => (
           <Toast
-            bg={'warn'}
             title={'Title, Description, Creator, Market Logo, Og Logo, Tags are required!'}
+            id={id}
           />
         ),
       })
@@ -213,18 +227,19 @@ const CreateOwnMarketPage = () => {
 
     formData?.set('title', title)
     formData?.set('description', description)
-    formData?.set('tokenId', token.id)
+    formData?.set('tokenId', token.id.toString())
     formData?.set('liquidity', liquidity.toString())
     formData?.set('initialYesProbability', (probability / 100).toString())
     formData?.set('deadline', deadline.toISOString())
     formData?.set('creatorId', creatorId)
+    formData?.set('categoryId', categoryId)
     formData?.set('imageFile', marketLogo)
     formData?.set('ogFile', ogLogo)
     formData?.set('tagIds', tag.map((tag) => tag.id).join(','))
 
-    toast({
+    const id = toast({
       render: () => (
-        <Toast title={'Request for market creation has been registered successfully.'} />
+        <Toast title={'Request for market creation has been registered successfully.'} id={id} />
       ),
     })
 
@@ -249,12 +264,12 @@ const CreateOwnMarketPage = () => {
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
-          toast({
-            render: () => <Toast bg={'red'} title={`Error: Payload Too Large, max 1MB per file`} />,
+          const id = toast({
+            render: () => <Toast title={`Error: Payload Too Large, max 1MB per file`} id={id} />,
           })
         } else {
-          toast({
-            render: () => <Toast bg={'red'} title={`Error: ${res.message}`} />,
+          const id = toast({
+            render: () => <Toast title={`Error: ${res.message}`} id={id} />,
           })
         }
       })
@@ -267,36 +282,60 @@ const CreateOwnMarketPage = () => {
     <MainLayout>
       <Flex justifyContent={'center'}>
         <VStack w='468px' spacing={4}>
-          <Heading>Create Market</Heading>
+          <Text>Create Market</Text>
           <FormControl>
+            <FormField label='OG Preview'>
+              <HStack>
+                <OgImageGenerator
+                  title={title}
+                  category={
+                    categories?.find((category) => category.id === +categoryId)?.name ?? 'Unknown'
+                  }
+                  onBlobGenerated={(blob) => {
+                    console.log('Blob generated', blob)
+                    const _ogLogo = new File([blob], 'og.png', {
+                      type: blob.type,
+                      lastModified: Date.now(),
+                    })
+                    console.log('Blob transformed to File', _ogLogo)
+
+                    setOgLogo(_ogLogo)
+                  }}
+                  generateBlob={isGeneratingOgImage}
+                />
+              </HStack>
+            </FormField>
+
             <FormField label='Title'>
               <Input
                 placeholder='Bitcoin ATH in May 2024?'
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={70}
+                onBlur={() => generateOgImage()}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {title?.length}/70 characters
               </FormHelperText>
-              <FormHelperText
-                h='fit-content'
-                p={4}
-                bg='bgLight'
-                border={`1px solid ${colors.border}`}
-                borderRadius={borderRadius}
-                textAlign='start'
-                color='#747675'
-                display='flex'
-              >
-                <Box display='inline-flex' flexShrink={0}>
-                  <CgInfo />
-                </Box>
-                <Box flex={1} ml={2}>
-                  Imagine people only have a second to understand your market. It&apos;s important
-                  to create a clear and concise title so that everyone in the community can
-                  understand it, or at least become interested.
-                </Box>
-              </FormHelperText>
+              {/*<FormHelperText*/}
+              {/*  h='fit-content'*/}
+              {/*  p={4}*/}
+              {/*  bg='bgLight'*/}
+              {/*  border={`1px solid ${colors.border}`}*/}
+              {/*  borderRadius={borderRadius}*/}
+              {/*  textAlign='start'*/}
+              {/*  color='#747675'*/}
+              {/*  display='flex'*/}
+              {/*>*/}
+              {/*  <Box display='inline-flex' flexShrink={0}>*/}
+              {/*    <CgInfo />*/}
+              {/*  </Box>*/}
+              {/*  */}
+              {/*  <Box flex={1} ml={2}>*/}
+              {/*    Imagine people only have a second to understand your market. It&apos;s important*/}
+              {/*    to create a clear and concise title so that everyone in the community can*/}
+              {/*    understand it, or at least become interested.*/}
+              {/*  </Box>*/}
+              {/*</FormHelperText>*/}
             </FormField>
 
             <FormField label='Description'>
@@ -307,6 +346,7 @@ const CreateOwnMarketPage = () => {
                 overflow='hidden'
                 maxLength={320}
                 onChange={(e) => setDescription(e.target.value)}
+                onBlur={() => generateOgImage()}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {description?.length}/320 characters
@@ -375,6 +415,18 @@ const CreateOwnMarketPage = () => {
                   {creators?.map((creator: Creator) => (
                     <option key={creator.id} value={creator.id}>
                       {creator.name}
+                    </option>
+                  ))}
+                </Select>
+              </HStack>
+            </FormField>
+
+            <FormField label='Category'>
+              <HStack>
+                <Select onChange={(e) => setCategoryId(e?.target?.value)}>
+                  {categories?.map((category: Category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
                     </option>
                   ))}
                 </Select>
@@ -457,24 +509,6 @@ const CreateOwnMarketPage = () => {
                   Choose file
                 </Button>
                 <Text>{marketLogo?.name ?? 'No file chosen.'}</Text>
-              </HStack>
-            </FormField>
-
-            <FormField label='OG'>
-              <HStack>
-                <input
-                  type='file'
-                  id='ogLogoUpload'
-                  name='ogLogoUpload'
-                  style={{ display: 'none' }}
-                  ref={marketLogoRef}
-                  accept={'image/png, image/jpeg'}
-                  onChange={(e) => setOgLogo(e?.target?.files?.[0])}
-                />
-                <Button colorScheme='gray' onClick={() => marketLogoRef.current.click()}>
-                  Choose file
-                </Button>
-                <Text>{ogLogo?.name ?? 'No file chosen.'}</Text>
               </HStack>
             </FormField>
 

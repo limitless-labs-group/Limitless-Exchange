@@ -1,9 +1,19 @@
 'use client'
 
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
-import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
+import {
+  init,
+  track as amplitudeTrack,
+  getDeviceId,
+  getSessionId,
+} from '@amplitude/analytics-browser'
+import * as sessionReplay from '@amplitude/session-replay-browser'
 import { useAccount } from '@/services'
-import { Address } from '@/types'
+import { Address, MarketGroup } from '@/types'
+import {
+  CUSTOM_LOGIN_PROVIDER_TYPE,
+  LOGIN_PROVIDER_TYPE,
+} from '@toruslabs/openlogin-utils/dist/types/interfaces'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 const NODE_ENV = process.env.NODE_ENV ?? 'development'
@@ -13,8 +23,7 @@ interface IAmplitudeContext {
   trackChanged: <T extends ChangedEventMetadata>(event: ChangeEvent, customData?: T) => void
   trackClicked: <T extends ClickedEventMetadata>(event: ClickEvent, customData?: T) => void
   trackOpened: <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => void
-  trackLogin: <T extends LoginEventMetadata>(event: LoginEvent, customData?: T) => void
-  trackCopied: <T extends CopiedEventMetadata>(event: CopyEvent, customData?: T) => void
+  trackSignIn: <T extends SignInEventMetadata>(event: SignInEvent, customData?: T) => void
 }
 
 const AmplitudeContext = createContext<IAmplitudeContext>({} as IAmplitudeContext)
@@ -32,6 +41,12 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         attribution: false,
         formInteractions: false,
       },
+    }).promise.then(() => {
+      return sessionReplay.init(AMPLITUDE_API_KEY, {
+        deviceId: getDeviceId(),
+        sessionId: getSessionId(),
+        sampleRate: 1,
+      }).promise
     })
   }, [])
 
@@ -45,6 +60,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         event_type: String(eventType),
         event_properties: {
           ...customData,
+          ...sessionReplay.getSessionReplayProperties(),
         },
         user_properties: {
           account,
@@ -77,11 +93,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     return trackEvent(event, customData)
   }
 
-  const trackLogin = async <T extends LoginEventMetadata>(event: LoginEvent, customData?: T) => {
-    return trackEvent(event, customData)
-  }
-
-  const trackCopied = async <T extends CopiedEventMetadata>(event: CopyEvent, customData?: T) => {
+  const trackSignIn = async <T extends SignInEventMetadata>(event: SignInEvent, customData?: T) => {
     return trackEvent(event, customData)
   }
 
@@ -90,8 +102,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     trackChanged,
     trackClicked,
     trackOpened,
-    trackLogin,
-    trackCopied,
+    trackSignIn: trackSignIn,
   }
 
   return (
@@ -99,13 +110,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
   )
 }
 
-export type EventType =
-  | ChangeEvent
-  | ClickEvent
-  | LoginEvent
-  | OpenEvent
-  | CopyEvent
-  | AuthenticationEvent
+export type EventType = ChangeEvent | ClickEvent | SignInEvent | OpenEvent | AuthenticationEvent
 
 export enum ChangeEvent {
   StrategyChanged = 'Strategy Changed',
@@ -113,31 +118,44 @@ export enum ChangeEvent {
 }
 
 export enum ClickEvent {
+  BuyClicked = 'Buy Position Chosen',
+  SellClicked = 'Sell Position Chosen',
+  SellTradeClicked = 'Sell Trade Clicked',
+  SellApproveClicked = 'Sell Approve Clicked',
   CreateMarketClicked = 'Create Market Clicked',
-  DepositClicked = 'Deposit Clicked',
-  ExploreMarketsClicked = 'Explore Markets Clicked',
-  SupportChatClicked = 'Support Chat Clicked',
-  PricePresetClicked = 'Price Preset Clicked',
-  ShareClicked = 'Share Clicked',
-  OpenMarketClicked = 'Open Market Clicked',
-  HeaderOptionClicked = 'Header Option Clicked',
-  OpenCreatorProfileClicked = 'Open Creator Profile Clicked',
+  TopUpClicked = 'Top Up Clicked',
+  ShareMenuClicked = 'Share Menu Clicked',
+  ShareItemClicked = 'Share Item Clicked',
+  ChangeMarketInGroupClicked = 'Change Market In Group Clicked',
   ProfileBurgerMenuClicked = 'Profile Burger Menu Clicked',
-  TradeClicked = 'Trade Clicked',
-  ApproveClicked = 'Approve Clicked',
+  SignOutClicked = 'Sign Out',
+  TradeButtonClicked = 'Trade Button Clicked',
+  ConfirmTransactionClicked = 'Confirm Transaction Clicked',
+  ConfirmCapClicked = 'Confirm Cap Clicked',
+  LogoClicked = 'Logo Clicked',
+  BackClicked = 'Back Clicked',
+  UIModeClicked = 'UI Mode Changed',
+  CategoryClicked = 'Category Clicked',
+  WalletClicked = 'Wallet Clicked',
+  CopyAddressClicked = 'Wallet Address Copied',
+  WithdrawClicked = 'Withdraw Clicked',
+  WrapETHClicked = 'Wrap ETH Clicked',
+  WithdrawConfirmedClicked = 'Withdraw Confirmed',
+  SortClicked = 'Sort Clicked',
+  StrokeClicked = 'Stroke Clicked',
+  ClaimRewardOnPortfolioClicked = 'Claim Reward On Portfolio Clicked',
+  ClaimRewardOnMarketPageClicked = 'Claim Reward On Market Page Clicked',
+  SignW3AIn = 'Sign In W3A Option Chosen',
 }
 
-export enum LoginEvent {
-  LoginWithFarcaster = 'Login with Farcaster',
+export enum SignInEvent {
+  SignIn = 'Sign In',
+  SignInWithFarcaster = 'Login with Farcaster',
 }
 
 export enum OpenEvent {
   PageOpened = 'Page Opened',
   LoginWindowOpened = 'Login Window Opened',
-}
-
-export enum CopyEvent {
-  WalletAddressCopied = 'Wallet Address Copied',
 }
 
 export enum AuthenticationEvent {
@@ -156,20 +174,31 @@ export interface StrategyChangedMetadata {
   marketAddress: Address
 }
 
-export type OutcomeChangedChoice = 'Yes' | 'No'
 export interface OutcomeChangedMetadata {
   choice: OutcomeChangedChoice
   marketAddress: Address
 }
 
-export type TradeClickedStrategy = 'Buy' | 'Sell'
+export type OutcomeChangedChoice = 'Yes' | 'No'
+export type WalletType = 'eoa' | 'etherspot'
 export interface TradeClickedMetadata {
-  strategy: TradeClickedStrategy
+  outcome: OutcomeChangedChoice
+  walletType: WalletType
   marketAddress: Address
+  marketType?: 'group' | 'single'
 }
 
 export interface ClickedApproveMetadata {
   address: Address
+}
+
+export interface ClickedWithdrawMetadata {
+  coin: string
+}
+
+export type LogoClickedPage = 'Explore Markets' | 'Portfolio' | 'Market Page' | 'Unknown Page'
+export interface LogoClickedMetadata {
+  page: LogoClickedPage
 }
 
 export type CreateMarketClickedPage = 'Explore Markets'
@@ -197,11 +226,15 @@ export interface PricePresetClickedMetadata {
   type: PricePresetClickedType
 }
 
-export type ShareClickedPage = 'Investor Page' | 'Creator Page' | 'Explore Markets' | 'Market Page'
 export type ShareClickedType = 'Copy Link' | 'X/Twitter' | 'Farcaster'
 export interface ShareClickedMetadata {
   type: ShareClickedType
-  page: ShareClickedPage
+  address?: Address
+  marketType: 'group' | 'single'
+}
+
+interface MarketChangeInGroupData {
+  marketGroup: MarketGroup
 }
 
 export type PageOpenedPage =
@@ -214,6 +247,7 @@ export type PageOpenedPage =
 export interface PageOpenedMetadata {
   page: PageOpenedPage
   marketAddress?: Address
+  category?: string
   [key: string]: any
 }
 
@@ -234,14 +268,15 @@ export interface HeaderOptionClickedMetadata {
   option: HeaderOptionClickedOption
 }
 
-export type LoginWithFarcasterType =
+export type SignInWithFarcasterType =
   | 'Farcaster'
   | 'Google'
   | 'X/Twitter'
   | 'Discord'
   | 'Email/Phone'
-export interface LoginWithFarcasterMetadata {
-  type: LoginWithFarcasterType
+
+export interface SignInWithFarcasterMetadata {
+  type: SignInWithFarcasterType
 }
 
 export type WalletAddressCopiedPage = 'Deposit'
@@ -258,6 +293,27 @@ export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
 
+export interface SortMetadata {
+  oldValue: string
+  newValue: string
+}
+
+export interface StrokeMetadata {
+  changeTo: 'run' | 'pause'
+}
+
+export interface TopUpMetadata {
+  platform: string
+}
+
+export interface UIModeMetadata {
+  mode: string
+}
+
+export interface SignInW3AClickedMetadata {
+  option: LOGIN_PROVIDER_TYPE | CUSTOM_LOGIN_PROVIDER_TYPE | undefined
+}
+
 export type ChangedEventMetadata = StrategyChangedMetadata | OutcomeChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
@@ -270,13 +326,22 @@ export type ClickedEventMetadata =
   | TradeClickedMetadata
   | DepositClickedMetadata
   | ClickedApproveMetadata
+  | LogoClickedMetadata
+  | ClickedWithdrawMetadata
+  | SortMetadata
+  | StrokeMetadata
+  | TopUpMetadata
+  | UIModeMetadata
+  | SignInW3AClickedMetadata
+  | MarketChangeInGroupData
+
 export type OpenedEventMetadata = PageOpenedMetadata
-export type LoginEventMetadata = LoginWithFarcasterMetadata
+export type SignInEventMetadata = SignInWithFarcasterMetadata
 export type CopiedEventMetadata = WalletAddressCopiedMetadata
 
 export type EventMetadata =
   | ChangedEventMetadata
   | ClickedEventMetadata
   | OpenedEventMetadata
-  | LoginEventMetadata
+  | SignInEventMetadata
   | CopiedEventMetadata

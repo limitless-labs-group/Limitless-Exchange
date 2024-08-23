@@ -108,7 +108,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 
       return _trades
     },
-    enabled: !!walletAddress,
+    enabled: !!walletAddress && !!supportedTokens?.length,
   })
 
   const { data: redeems, refetch: getRedeems } = useQuery({
@@ -171,10 +171,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       let _positions: HistoryPosition[] = []
 
       trades?.forEach((trade) => {
-        // TODO: replace hardcoded markets with dynamic
         const market = markets.find(
-          (market) =>
-            market.address[defaultChain.id].toLowerCase() === trade.market.id.toLowerCase()
+          (market) => market.address.toLowerCase() === trade.market.id.toLowerCase()
         )
 
         if (
@@ -243,7 +241,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         },
       }))
     },
-    enabled: !!walletAddress && !!markets.length,
+    enabled: !!walletAddress && !!markets.length && !!trades,
   })
 
   /**

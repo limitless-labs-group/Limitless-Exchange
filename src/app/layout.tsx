@@ -4,6 +4,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Metadata } from 'next'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { PropsWithChildren } from 'react'
+import '../../public/fonts.css'
 
 export const metadata: Metadata = {
   title: 'Limitless',
@@ -18,6 +19,9 @@ export const metadata: Metadata = {
 const RootLayout = ({ children }: PropsWithChildren) => {
   return (
     <html lang='en'>
+      <head>
+        <meta name='google' content='notranslate' />
+      </head>
       <body>
         <Providers>
           {children}

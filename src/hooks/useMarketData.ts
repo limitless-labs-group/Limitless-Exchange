@@ -15,13 +15,13 @@ interface IUseMarketData {
 
 // TODO: incapsulate with context provider to reduce requests
 export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData) => {
-  const market = useMarket(marketAddress as string)
+  const { data: market } = useMarket(marketAddress as string)
 
   const fixedProductMarketMakerContract = useMemo(
     () =>
       market
         ? getContract({
-            address: market.address[defaultChain.id],
+            address: market.address,
             abi: fixedProductMarketMakerABI,
             client: publicClient,
           })
@@ -55,7 +55,6 @@ export const useMarketData = ({ marketAddress, collateralToken }: IUseMarketData
       return [outcomeTokenPriceYes, outcomeTokenPriceNo]
     },
     enabled: !!collateralToken,
-    // enabled: false,
   })
 
   const { data: outcomeTokensSellPrice } = useQuery({

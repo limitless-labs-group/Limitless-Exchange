@@ -2,11 +2,12 @@
 
 import * as React from 'react'
 import {
-  ChakraProvider,
+  // ChakraProvider,
   QueryProvider,
   WagmiProvider,
   Web3AuthProvider,
   PriceOracleProvider,
+  ThemeProvider,
 } from '@/providers'
 import {
   AccountProvider,
@@ -16,7 +17,10 @@ import {
   HistoryServiceProvider,
   LimitlessApiProvider,
   TradingServiceProvider,
+  ProfileServiceProvider,
 } from '@/services'
+import { TokenFilterProvider } from '@/contexts/TokenFilterContext'
+import RainbowProvider from '@/providers/Rainbow'
 
 export const Providers = ({ children }: React.PropsWithChildren) => {
   const [mounted, setMounted] = React.useState(false)
@@ -25,27 +29,33 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
   return (
     mounted && (
       <AmplitudeProvider>
-        <ChakraProvider>
-          <WagmiProvider>
-            <Web3AuthProvider>
-              <QueryProvider>
-                <LimitlessApiProvider>
-                  <EtherspotProvider>
-                    <AccountProvider>
-                      <PriceOracleProvider>
-                        <BalanceServiceProvider>
-                          <HistoryServiceProvider>
-                            <TradingServiceProvider>{children}</TradingServiceProvider>
-                          </HistoryServiceProvider>
-                        </BalanceServiceProvider>
-                      </PriceOracleProvider>
-                    </AccountProvider>
-                  </EtherspotProvider>
-                </LimitlessApiProvider>
-              </QueryProvider>
-            </Web3AuthProvider>
-          </WagmiProvider>
-        </ChakraProvider>
+        <ThemeProvider>
+          <QueryProvider>
+            <WagmiProvider>
+              <RainbowProvider>
+                <Web3AuthProvider>
+                  <LimitlessApiProvider>
+                    <EtherspotProvider>
+                      <AccountProvider>
+                        <PriceOracleProvider>
+                          <BalanceServiceProvider>
+                            <HistoryServiceProvider>
+                              <TokenFilterProvider>
+                                <TradingServiceProvider>
+                                  <ProfileServiceProvider>{children}</ProfileServiceProvider>
+                                </TradingServiceProvider>
+                              </TokenFilterProvider>
+                            </HistoryServiceProvider>
+                          </BalanceServiceProvider>
+                        </PriceOracleProvider>
+                      </AccountProvider>
+                    </EtherspotProvider>
+                  </LimitlessApiProvider>
+                </Web3AuthProvider>
+              </RainbowProvider>
+            </WagmiProvider>
+          </QueryProvider>
+        </ThemeProvider>
       </AmplitudeProvider>
     )
   )
