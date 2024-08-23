@@ -19,6 +19,8 @@ export const ProfileTextareaField = ({
   onBlur,
   label,
 }: IProfileTextareaField) => {
+  const _fontSize = isMobile ? '16px' : '14px'
+  const _lineHeight = isMobile ? '16px' : '16px'
   const [_value, _setValue] = useState<string | undefined>(undefined)
   useEffect(() => {
     if (_value) {
@@ -28,7 +30,7 @@ export const ProfileTextareaField = ({
 
   return (
     <>
-      <Text fontWeight={500} fontSize='16px'>
+      <Text mb={'4px'} fontWeight={500} fontSize={_fontSize} lineHeight={_lineHeight}>
         {label}
       </Text>
       <InputGroup>
@@ -69,6 +71,8 @@ export const ProfileTextareaField = ({
           _hover={{ borderColor: 'grey.500' }}
           _focus={{ color: 'grey.800', borderColor: 'grey.800', bg: 'grey.100' }}
           _focusVisible={{ color: 'grey.800', borderColor: 'grey.800', bg: 'grey.100' }}
+          fontSize={_fontSize}
+          lineHeight={_lineHeight}
         />
       </InputGroup>
     </>

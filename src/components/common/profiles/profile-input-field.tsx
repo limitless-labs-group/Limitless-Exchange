@@ -1,5 +1,5 @@
 import { ErrorIcon } from '@/components/common/profiles'
-import { HStack, Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react'
+import { Box, HStack, Input, InputGroup, InputLeftElement, Text } from '@chakra-ui/react'
 import { KeyboardEventHandler, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
@@ -30,6 +30,8 @@ export const ProfileInputField = ({
   invalidText,
   placeholder,
 }: IProfileInputField) => {
+  const _fontSize = isMobile ? '16px' : '14px'
+  const _lineHeight = isMobile ? '16px' : '16px'
   const [_value, _setValue] = useState<string | undefined>(undefined)
   useEffect(() => {
     if (_value) {
@@ -39,15 +41,15 @@ export const ProfileInputField = ({
 
   return (
     <>
-      <HStack justify='space-between'>
-        <Text fontWeight={500} fontSize='16px'>
+      <HStack justify='space-between' mb={'4px'}>
+        <Text fontWeight={500} fontSize={_fontSize} lineHeight={_lineHeight}>
           {label}
         </Text>
 
         {isInvalid && (
           <HStack gap={1} justify='center' alignItems='center'>
             <ErrorIcon height='16px' width='16px' />
-            <Text fontWeight={500} fontSize='16px' color='red'>
+            <Text fontWeight={500} fontSize={_fontSize} lineHeight={_lineHeight} color='red'>
               {invalidText}
             </Text>
           </HStack>
@@ -88,12 +90,20 @@ export const ProfileInputField = ({
           _hover={{ borderColor: 'grey.500' }}
           _focus={{ color: 'grey.800', borderColor: 'grey.800', bg: 'grey.100' }}
           _focusVisible={{ color: 'grey.800', borderColor: 'grey.800', bg: 'grey.100' }}
+          fontSize={_fontSize}
+          lineHeight={_lineHeight}
         />
       </InputGroup>
 
-      <Text fontWeight={500} fontSize='16px' color='grey.500'>
-        {hint}
-      </Text>
+      {hint && (
+        <>
+          <Box h='10px' />
+
+          <Text fontWeight={500} fontSize={_fontSize} lineHeight={_lineHeight} color='grey.500'>
+            {hint}
+          </Text>
+        </>
+      )}
     </>
   )
 }

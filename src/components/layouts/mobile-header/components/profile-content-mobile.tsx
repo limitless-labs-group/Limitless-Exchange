@@ -1,5 +1,6 @@
 import { Box, Button, StackItem, Text, VStack } from '@chakra-ui/react'
 import { useProfileService } from '@/services'
+import { useIsMobile } from '@/hooks'
 import {
   ProfileTextareaField,
   ProfileInputField,
@@ -12,6 +13,9 @@ import {
 import Loader from '@/components/common/loader'
 
 export const ProfileContentMobile = () => {
+  const isMobile = useIsMobile()
+  const _fontSize = isMobile ? '16px' : '14px'
+  const _lineHeight = isMobile ? '16px' : '16px'
   const {
     checkUsernameExistsData,
     updateButtonDisabled,
@@ -99,8 +103,8 @@ export const ProfileContentMobile = () => {
             <Button
               onClick={handleUpdateProfile}
               disabled={updateButtonDisabled}
-              bg={!updateButtonDisabled ? 'blue.500' : 'grey.300'}
-              color={!updateButtonDisabled ? 'white' : 'grey.500'}
+              bg={!updateButtonDisabled || updateButtonLoading ? 'blue.500' : 'grey.300'}
+              color={!updateButtonDisabled || updateButtonLoading ? 'white' : 'grey.500'}
               h='32px'
               w='full'
               py='4px'
@@ -112,11 +116,21 @@ export const ProfileContentMobile = () => {
               ) : profileUpdated ? (
                 <CheckIcon height='16px' width='16px' />
               ) : updateButtonDisabled ? (
-                <Text fontSize='16px' color={'grey.500'} fontWeight={500}>
+                <Text
+                  fontSize={_fontSize}
+                  lineHeight={_lineHeight}
+                  color={'grey.500'}
+                  fontWeight={500}
+                >
                   Update
                 </Text>
               ) : (
-                <Text fontSize='16px' color={'white'} fontWeight={500}>
+                <Text
+                  fontSize={_fontSize}
+                  lineHeight={_lineHeight}
+                  color={'white'}
+                  fontWeight={500}
+                >
                   Update
                 </Text>
               )}
