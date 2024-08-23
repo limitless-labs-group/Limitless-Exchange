@@ -149,6 +149,7 @@ export enum ClickEvent {
   ClaimRewardOnMarketPageClicked = 'Claim Reward On Market Page Clicked',
   SignW3AIn = 'Sign In W3A Option Chosen',
   ProfilePictureUploadClicked = 'Profile Picture Upload Clicked',
+  LimitlessLinksClicked = 'Limitless Links Clicked',
 }
 
 export enum SignInEvent {
