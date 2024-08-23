@@ -103,8 +103,8 @@ export const ProfileContentMobile = () => {
             <Button
               onClick={handleUpdateProfile}
               disabled={updateButtonDisabled}
-              bg={!updateButtonDisabled || updateButtonLoading ? 'blue.500' : 'grey.300'}
-              color={!updateButtonDisabled || updateButtonLoading ? 'white' : 'grey.500'}
+              bg={updateButtonLoading ? 'blue.500' : updateButtonDisabled ? 'grey.300' : 'blue.500'}
+              color={updateButtonLoading ? 'white' : updateButtonDisabled ? 'grey.500' : 'white'}
               h='32px'
               w='full'
               py='4px'
