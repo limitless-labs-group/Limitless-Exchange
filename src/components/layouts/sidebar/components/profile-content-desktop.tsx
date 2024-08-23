@@ -50,8 +50,20 @@ export const ProfileContentDesktop = () => {
             <Button
               onClick={handleUpdateProfile}
               disabled={updateButtonDisabled}
-              bg={updateButtonLoading ? 'blue.500' : updateButtonDisabled ? 'grey.300' : 'blue.500'}
-              color={updateButtonLoading ? 'white' : updateButtonDisabled ? 'grey.500' : 'white'}
+              bg={
+                updateButtonLoading
+                  ? 'blue.500'
+                  : updateButtonDisabled && !profileUpdated
+                  ? 'grey.300'
+                  : 'blue.500'
+              }
+              color={
+                updateButtonLoading
+                  ? 'white'
+                  : updateButtonDisabled && !profileUpdated
+                  ? 'grey.500'
+                  : 'white'
+              }
               h='24px'
               w='75px'
               py='4px'
@@ -62,20 +74,11 @@ export const ProfileContentDesktop = () => {
                 <Loader />
               ) : profileUpdated ? (
                 <CheckIcon height='16px' width='16px' />
-              ) : updateButtonDisabled ? (
-                <Text
-                  fontSize={_fontSize}
-                  lineHeight={_lineHeight}
-                  color={'grey.500'}
-                  fontWeight={500}
-                >
-                  Update
-                </Text>
               ) : (
                 <Text
                   fontSize={_fontSize}
                   lineHeight={_lineHeight}
-                  color={'white'}
+                  color={updateButtonDisabled ? 'grey.500' : 'white'}
                   fontWeight={500}
                 >
                   Update
