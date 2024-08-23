@@ -155,8 +155,8 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
   const profileRegistered = !!profileData
   const updateButtonDisabled =
     !formDirty ||
-    createProfileLoading ||
-    updateProfileLoading ||
+    // createProfileLoading ||
+    // updateProfileLoading ||
     profileUpdated ||
     disableUpdateButton
   const updateButtonLoading = createProfileLoading || updateProfileLoading
