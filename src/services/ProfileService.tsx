@@ -205,7 +205,7 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
         platform: isMobile ? 'Mobile' : 'Desktop',
       })
     } else {
-      resetState()
+      // resetState()
     }
   }, [isOpenProfileDrawer, isMobile])
 
