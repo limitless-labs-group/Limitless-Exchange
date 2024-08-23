@@ -28,7 +28,15 @@ export default function SocialsFooter({ ...props }: PropsWithChildren<BoxProps>)
   const { trackClicked } = useAmplitude()
 
   return (
-    <HStack justifyContent='space-between' w='full' maxH='49px' p='17px 8px' mt='-8px' {...props}>
+    <HStack
+      justifyContent='space-between'
+      spacing={4}
+      w='full'
+      maxH='49px'
+      p='17px 2px'
+      mt='-8px'
+      {...props}
+    >
       <HStack spacing={isMobile ? '24px' : '8px'}>
         <Link
           href={LINKS.DOCS}
