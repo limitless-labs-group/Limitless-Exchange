@@ -54,7 +54,7 @@ import SocialsFooter from '@/components/common/socials-footer'
 import Loader from '@/components/common/loader'
 
 export default function MobileHeader() {
-  const { isConnected } = useWagmiAccount()
+  const { isConnected, isConnecting } = useWagmiAccount()
   const { overallBalanceUsd } = useBalanceService()
   const address = useWalletAddress()
   const { balanceInvested } = useHistory()
@@ -173,7 +173,7 @@ export default function MobileHeader() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Box w='full'>
-                      {disconnectLoading ? (
+                      {disconnectLoading || isConnecting ? (
                         <Button
                           h='24px'
                           px='8px'
