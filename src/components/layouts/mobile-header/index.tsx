@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import {
   ClickEvent,
@@ -54,7 +54,8 @@ import SocialsFooter from '@/components/common/socials-footer'
 import Loader from '@/components/common/loader'
 
 export default function MobileHeader() {
-  const { isConnected, isConnecting, status } = useWagmiAccount()
+  const { getProfileDataLoading, user } = useProfileService()
+  const { isConnected, isConnecting, isReconnecting } = useWagmiAccount()
   const { overallBalanceUsd } = useBalanceService()
   const address = useWalletAddress()
   const { balanceInvested } = useHistory()
@@ -64,7 +65,15 @@ export default function MobileHeader() {
   const { client } = useWeb3Service()
   const pathname = usePathname()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
-  const userMenuLoading = disconnectLoading || isConnecting || status === 'reconnecting'
+  const userMenuLoading = useMemo(() => {
+    const userWithProfileLoading = isConnected && getProfileDataLoading
+    const userWithoutProfileLoading = isConnected && !user?.displayName
+    const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
+    const loading =
+      userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
+
+    return loading
+  }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
 
   const {
     onDrag: onDragProfileBottomSheet,
@@ -83,7 +92,6 @@ export default function MobileHeader() {
     onOpen: onOpenWrapModal,
     onClose: onCloseWrapModal,
   } = useDisclosure()
-  const { user } = useProfileService()
 
   const handleNavigateToPortfolioPage = () => {
     onToggleUserMenu()

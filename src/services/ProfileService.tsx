@@ -72,6 +72,7 @@ export interface IProfileServiceContext {
   }
   formDirty: boolean
   setFormDirty: Dispatch<SetStateAction<boolean>>
+  getProfileDataLoading: boolean
 }
 
 const ProfileServiceContext = createContext({} as IProfileServiceContext)
@@ -287,6 +288,7 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
     user,
     formDirty,
     setFormDirty,
+    getProfileDataLoading,
   }
 
   return (

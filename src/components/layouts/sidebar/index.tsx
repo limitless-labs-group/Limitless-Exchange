@@ -16,7 +16,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
@@ -54,18 +54,31 @@ import SocialsFooter from '@/components/common/socials-footer'
 import Loader from '@/components/common/loader'
 
 export default function Sidebar() {
-  const { user, isOpenProfileDrawer, onOpenProfileDrawer, onCloseProfileDrawer } =
-    useProfileService()
+  const {
+    user,
+    getProfileDataLoading,
+    isOpenProfileDrawer,
+    onOpenProfileDrawer,
+    onCloseProfileDrawer,
+  } = useProfileService()
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
   const { disconnectFromPlatform, disconnectLoading } = useDisconnectAccount()
   const { overallBalanceUsd } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { trackClicked } = useAmplitude()
-  const { isConnected, isConnecting, status } = useWagmiAccount()
+  const { isConnected, isConnecting, isReconnecting } = useWagmiAccount()
   const { client } = useWeb3Service()
 
   const pageName = usePageName()
-  const userMenuLoading = disconnectLoading || isConnecting || status === 'reconnecting'
+  const userMenuLoading = useMemo(() => {
+    const userWithProfileLoading = isConnected && getProfileDataLoading
+    const userWithoutProfileLoading = isConnected && !user?.displayName
+    const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
+    const loading =
+      userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
+
+    return loading
+  }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
 
   const {
     isOpen: isOpenWalletPage,
