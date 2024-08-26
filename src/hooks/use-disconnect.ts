@@ -13,10 +13,10 @@ export default function useDisconnectAccount() {
   }, [])
 
   useEffect(() => {
-    if (disconnectSuccess) {
+    if (!disconnectLoading && disconnectSuccess) {
       resetProfileServiceState()
     }
-  }, [disconnectSuccess])
+  }, [disconnectLoading, disconnectSuccess])
 
   return { disconnectFromPlatform, disconnectSuccess, disconnectLoading }
 }
