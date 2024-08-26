@@ -51,6 +51,7 @@ import { Overlay } from '@/components/common/overlay'
 import { motion } from 'framer-motion'
 import { useBottomSheetDisclosure } from '@/hooks'
 import SocialsFooter from '@/components/common/socials-footer'
+import Loader from '@/components/common/loader'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -58,7 +59,7 @@ export default function MobileHeader() {
   const address = useWalletAddress()
   const { balanceInvested } = useHistory()
   const router = useRouter()
-  const { disconnectFromPlatform } = useDisconnectAccount()
+  const { disconnectFromPlatform, disconnectLoading } = useDisconnectAccount()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
   const pathname = usePathname()
@@ -172,60 +173,76 @@ export default function MobileHeader() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Box w='full'>
-                      <Button variant='transparent' w='full' p={0} m={0} display='flex'>
-                        <HStack
+                      {disconnectLoading ? (
+                        <Button
+                          h='24px'
+                          px='8px'
                           w='full'
-                          gap='8px'
-                          justifyContent='space-between'
-                          onClick={() => {
-                            onCloseUserMenu()
-                            onOpenProfileBottomSheet()
+                          _active={{
+                            bg: 'grey.200',
+                          }}
+                          _hover={{
+                            bg: 'grey.200',
                           }}
                         >
-                          <StackItem display='flex' justifyContent='center' alignItems='center'>
-                            {user?.pfpUrl?.includes('http') ? (
-                              <ChakraImage
-                                src={user?.pfpUrl}
-                                borderRadius={'2px'}
-                                h={'24px'}
-                                w={'24px'}
-                                className='amp-block'
-                              />
-                            ) : (
-                              <Flex
-                                borderRadius={'2px'}
-                                h={'24px'}
-                                w={'24px'}
-                                bg='grey.300'
-                                alignItems='center'
-                                justifyContent='center'
-                              >
-                                <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
-                                  {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
-                                </Text>
-                              </Flex>
-                            )}
-                            <Box mx='4px' />
-                            <Text {...paragraphMedium} className={'amp-mask'}>
-                              {user?.displayName
-                                ? cutUsername(user?.displayName, 60)
-                                : truncateEthAddress(address)}
-                            </Text>
-                          </StackItem>
+                          <Loader />
+                        </Button>
+                      ) : (
+                        <Button variant='transparent' w='full' p={0} m={0} display='flex'>
+                          <HStack
+                            w='full'
+                            gap='8px'
+                            justifyContent='space-between'
+                            onClick={() => {
+                              onCloseUserMenu()
+                              onOpenProfileBottomSheet()
+                            }}
+                          >
+                            <StackItem display='flex' justifyContent='center' alignItems='center'>
+                              {user?.pfpUrl?.includes('http') ? (
+                                <ChakraImage
+                                  src={user?.pfpUrl}
+                                  borderRadius={'2px'}
+                                  h={'24px'}
+                                  w={'24px'}
+                                  className='amp-block'
+                                />
+                              ) : (
+                                <Flex
+                                  borderRadius={'2px'}
+                                  h={'24px'}
+                                  w={'24px'}
+                                  bg='grey.300'
+                                  alignItems='center'
+                                  justifyContent='center'
+                                >
+                                  <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
+                                    {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
+                                  </Text>
+                                </Flex>
+                              )}
+                              <Box mx='4px' />
+                              <Text {...paragraphMedium} className={'amp-mask'}>
+                                {user?.displayName
+                                  ? cutUsername(user?.displayName, 60)
+                                  : truncateEthAddress(address)}
+                              </Text>
+                            </StackItem>
 
-                          <StackItem>
-                            <Box
-                              color='grey.800'
-                              onClick={() => {
-                                onToggleUserMenu()
-                                onOpenProfileBottomSheet()
-                              }}
-                            >
-                              <ArrowRightIcon width={16} height={16} />
-                            </Box>
-                          </StackItem>
-                        </HStack>
-                      </Button>
+                            <StackItem>
+                              <Box
+                                color='grey.800'
+                                onClick={() => {
+                                  onToggleUserMenu()
+                                  onOpenProfileBottomSheet()
+                                }}
+                              >
+                                <ArrowRightIcon width={16} height={16} />
+                              </Box>
+                            </StackItem>
+                          </HStack>
+                        </Button>
+                      )}
 
                       <HStack
                         spacing={2}
