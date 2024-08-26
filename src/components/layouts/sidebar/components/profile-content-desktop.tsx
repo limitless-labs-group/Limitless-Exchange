@@ -7,10 +7,9 @@ import {
   DisplayNameIcon,
   UsernameIcon,
   ProfilePfp,
-  CheckIcon,
   BioIcon,
 } from '@/components/common/profiles'
-import Loader from '@/components/common/loader'
+import ButtonWithStates from '@/components/common/button-with-states'
 
 export const ProfileContentDesktop = () => {
   const isMobile = useIsMobile()
@@ -47,7 +46,17 @@ export const ProfileContentDesktop = () => {
       >
         <VStack h='full' w='full' pt='30px' px='10px' gap='25px'>
           <StackItem w='full' display='flex' justifyContent='right'>
-            <Button
+            <ButtonWithStates
+              variant='contained'
+              w={isMobile ? 'full' : '75px'}
+              isDisabled={updateButtonDisabled}
+              onClick={handleUpdateProfile}
+              status={updateButtonLoading ? 'pending' : profileUpdated ? 'success' : 'idle'}
+            >
+              Update
+            </ButtonWithStates>
+
+            {/* <Button
               onClick={handleUpdateProfile}
               disabled={updateButtonDisabled}
               bg={
@@ -84,7 +93,7 @@ export const ProfileContentDesktop = () => {
                   Update
                 </Text>
               )}
-            </Button>
+            </Button> */}
           </StackItem>
 
           <StackItem w='full' display='flex' justifyContent='center'>
@@ -96,8 +105,15 @@ export const ProfileContentDesktop = () => {
               renderIcon={() => <DisplayNameIcon />}
               label='Display name'
               initialValue={displayName}
-              onChange={(v) => setDisplayName(v)}
-              onBlur={() => setFormDirty(true)}
+              onChange={(v) => {
+                setDisplayName(v)
+                setFormDirty(true)
+              }}
+              onBlur={() => {
+                if (displayName !== profileData?.displayName) {
+                  setFormDirty(true)
+                }
+              }}
             />
           </StackItem>
 
@@ -109,10 +125,15 @@ export const ProfileContentDesktop = () => {
               initialValue={username}
               placeholder='Enter your username'
               hint='So others can mention you in comments'
-              onChange={(v) => setUsername(v)}
-              onBlur={() => {
+              onChange={(v) => {
+                setUsername(v)
                 setFormDirty(true)
-                if (username !== profileData?.username) checkUsernameExists()
+              }}
+              onBlur={() => {
+                if (username !== profileData?.username) {
+                  setFormDirty(true)
+                  checkUsernameExists()
+                }
               }}
               onKeyDown={(e) => {
                 const isSpecialCharacter = !/^[a-zA-Z0-9_]+$/.test(e.key)
@@ -130,9 +151,16 @@ export const ProfileContentDesktop = () => {
               renderIcon={() => <BioIcon />}
               label='BIO'
               initialValue={bio}
-              onChange={(v) => setBio(v ?? '')}
+              onChange={(v) => {
+                setBio(v ?? '')
+                setFormDirty(true)
+              }}
               placeholder='Add bio if you want'
-              onBlur={() => setFormDirty(true)}
+              onBlur={() => {
+                if (bio !== profileData?.bio) {
+                  setFormDirty(true)
+                }
+              }}
             />
           </StackItem>
         </VStack>
