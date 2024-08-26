@@ -1,17 +1,22 @@
 import { useDisconnect } from 'wagmi'
 import { useAccount, useProfileService } from '@/services'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 export default function useDisconnectAccount() {
-  const { resetState } = useProfileService()
+  const { disconnect, isSuccess: disconnectSuccess, isPending: disconnectLoading } = useDisconnect()
   const { disconnectAccount } = useAccount()
-  const { disconnect } = useDisconnect()
+  const { resetState: resetProfileServiceState } = useProfileService()
 
   const disconnectFromPlatform = useCallback(() => {
     disconnect()
     disconnectAccount()
-    resetState()
   }, [])
 
-  return { disconnectFromPlatform }
+  useEffect(() => {
+    if (!disconnectLoading && disconnectSuccess) {
+      resetProfileServiceState()
+    }
+  }, [disconnectLoading, disconnectSuccess])
+
+  return { disconnectFromPlatform, disconnectSuccess, disconnectLoading }
 }
