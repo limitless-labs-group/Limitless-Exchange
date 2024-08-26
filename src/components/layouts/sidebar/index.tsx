@@ -14,6 +14,7 @@ import {
   useColorMode,
   useDisclosure,
   VStack,
+  Skeleton,
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React, { useCallback } from 'react'
@@ -52,12 +53,13 @@ import { Link } from '@chakra-ui/react'
 import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
 import { Overlay } from '@/components/common/overlay'
 import SocialsFooter from '@/components/common/socials-footer'
+import Loader from '@/components/common/loader'
 
 export default function Sidebar() {
   const { user, isOpenProfileDrawer, onOpenProfileDrawer, onCloseProfileDrawer } =
     useProfileService()
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
-  const { disconnectFromPlatform } = useDisconnectAccount()
+  const { disconnectFromPlatform, disconnectLoading } = useDisconnectAccount()
   const { overallBalanceUsd } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { trackClicked } = useAmplitude()
@@ -197,50 +199,67 @@ export default function Sidebar() {
                 </Link>
               </NextLink>
               <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
-                <MenuButton
-                  as={Button}
-                  onClick={onToggleAuthMenu}
-                  rightIcon={<ChevronDownIcon width='16px' height='16px' />}
-                  bg={isOpenAuthMenu ? 'grey.200' : 'unset'}
-                  h='24px'
-                  px='8px'
-                  w='full'
-                  _active={{
-                    bg: 'grey.200',
-                  }}
-                  _hover={{
-                    bg: 'grey.200',
-                  }}
-                >
-                  <HStack gap='8px'>
-                    {user?.pfpUrl?.includes('http') ? (
-                      <ChakraImage
-                        src={user.pfpUrl}
-                        borderRadius={'2px'}
-                        h={'16px'}
-                        w={'16px'}
-                        objectFit='cover'
-                        className='amp-block'
-                      />
-                    ) : (
-                      <Flex
-                        borderRadius={'2px'}
-                        h={'16px'}
-                        w={'16px'}
-                        bg='grey.300'
-                        alignItems='center'
-                        justifyContent='center'
-                      >
-                        <Text {...paragraphMedium} className={'amp-mask'}>
-                          {user.displayName ? user.displayName[0].toUpperCase() : 'O'}
-                        </Text>
-                      </Flex>
-                    )}
-                    <Text {...paragraphMedium} className={'amp-mask'}>
-                      {user.displayName}
-                    </Text>
-                  </HStack>
-                </MenuButton>
+                {disconnectLoading ? (
+                  <Button
+                    h='24px'
+                    px='8px'
+                    w='full'
+                    _active={{
+                      bg: 'grey.200',
+                    }}
+                    _hover={{
+                      bg: 'grey.200',
+                    }}
+                  >
+                    <Loader />
+                  </Button>
+                ) : (
+                  <MenuButton
+                    as={Button}
+                    onClick={onToggleAuthMenu}
+                    rightIcon={<ChevronDownIcon width='16px' height='16px' />}
+                    bg={isOpenAuthMenu ? 'grey.200' : 'unset'}
+                    h='24px'
+                    px='8px'
+                    w='full'
+                    _active={{
+                      bg: 'grey.200',
+                    }}
+                    _hover={{
+                      bg: 'grey.200',
+                    }}
+                  >
+                    <HStack gap='8px'>
+                      {user?.pfpUrl?.includes('http') ? (
+                        <ChakraImage
+                          src={user.pfpUrl}
+                          borderRadius={'2px'}
+                          h={'16px'}
+                          w={'16px'}
+                          objectFit='cover'
+                          className='amp-block'
+                        />
+                      ) : (
+                        <Flex
+                          borderRadius={'2px'}
+                          h={'16px'}
+                          w={'16px'}
+                          bg='grey.300'
+                          alignItems='center'
+                          justifyContent='center'
+                        >
+                          <Text {...paragraphMedium} className={'amp-mask'}>
+                            {user?.displayName ? user?.displayName![0].toUpperCase() : 'O'}
+                          </Text>
+                        </Flex>
+                      )}
+                      <Text {...paragraphMedium} className={'amp-mask'}>
+                        {user.displayName}
+                      </Text>
+                    </HStack>
+                  </MenuButton>
+                )}
+
                 <MenuList borderRadius='2px' w='171px' zIndex={2}>
                   <HStack gap='4px' mb='4px'>
                     <Button
@@ -270,15 +289,15 @@ export default function Sidebar() {
                       <MoonIcon width={16} height={16} />
                     </Button>
                   </HStack>
-                  {/* hidding it for prod release
-                 <Button
+                  {/* hidding it for prod release */}
+                  <Button
                     variant='grey'
                     w='full'
                     onClick={handleOpenProfileDrawer}
                     justifyContent='flex-start'
                   >
                     Profile
-                  </Button>*/}
+                  </Button>
                   <Button
                     variant='grey'
                     w='full'

@@ -54,9 +54,9 @@ export const useUpdatePfp = ({ account, client }: IUseUpdatePfp) => {
       return res.data as Profile
     },
     onSuccess: () => {
-      const id = toast({
-        render: () => <Toast id={id} title='Profile picture updated successfully' />,
-      })
+      // const id = toast({
+      //   render: () => <Toast id={id} title='Profile picture updated successfully' />,
+      // })
     },
     onError: () => {
       const id = toast({ render: () => <Toast id={id} title='Failed to update profile picture' /> })

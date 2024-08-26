@@ -66,7 +66,7 @@ export const useUpdateProfile = ({ account, client }: IUseUpdateProfile) => {
       return res.data as Profile
     },
     onSuccess: () => {
-      const id = toast({ render: () => <Toast id={id} title='Profile updated successfully' /> })
+      // const id = toast({ render: () => <Toast id={id} title='Profile updated successfully' /> })
     },
     onError: () => {
       const id = toast({ render: () => <Toast id={id} title='Failed to update profile' /> })
