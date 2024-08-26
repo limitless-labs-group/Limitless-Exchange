@@ -14,15 +14,13 @@ import {
   useColorMode,
   useDisclosure,
   VStack,
-  Skeleton,
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React, { useCallback } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
-import '@/app/style.css'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
-
+import '@/app/style.css'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
@@ -63,11 +61,11 @@ export default function Sidebar() {
   const { overallBalanceUsd } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { trackClicked } = useAmplitude()
-  const { isConnected, isConnecting } = useWagmiAccount()
+  const { isConnected, isConnecting, status } = useWagmiAccount()
   const { client } = useWeb3Service()
 
-  // const address = useWalletAddress()
   const pageName = usePageName()
+  const userMenuLoading = disconnectLoading || isConnecting || status === 'reconnecting'
 
   const {
     isOpen: isOpenWalletPage,
@@ -198,8 +196,9 @@ export default function Sidebar() {
                   </HStack>
                 </Link>
               </NextLink>
+
               <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
-                {disconnectLoading || isConnecting ? (
+                {userMenuLoading ? (
                   <Button
                     h='24px'
                     px='8px'
