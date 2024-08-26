@@ -63,7 +63,7 @@ export default function Sidebar() {
   const { overallBalanceUsd } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { trackClicked } = useAmplitude()
-  const { isConnected } = useWagmiAccount()
+  const { isConnected, isConnecting } = useWagmiAccount()
   const { client } = useWeb3Service()
 
   // const address = useWalletAddress()
@@ -199,7 +199,7 @@ export default function Sidebar() {
                 </Link>
               </NextLink>
               <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
-                {disconnectLoading ? (
+                {disconnectLoading || isConnecting ? (
                   <Button
                     h='24px'
                     px='8px'
