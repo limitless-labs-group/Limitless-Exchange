@@ -54,7 +54,7 @@ import SocialsFooter from '@/components/common/socials-footer'
 import Loader from '@/components/common/loader'
 
 export default function MobileHeader() {
-  const { isConnected, isConnecting } = useWagmiAccount()
+  const { isConnected, isConnecting, status } = useWagmiAccount()
   const { overallBalanceUsd } = useBalanceService()
   const address = useWalletAddress()
   const { balanceInvested } = useHistory()
@@ -64,6 +64,7 @@ export default function MobileHeader() {
   const { client } = useWeb3Service()
   const pathname = usePathname()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
+  const userMenuLoading = disconnectLoading || isConnecting || status === 'reconnecting'
 
   const {
     onDrag: onDragProfileBottomSheet,
@@ -173,7 +174,7 @@ export default function MobileHeader() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Box w='full'>
-                      {disconnectLoading || isConnecting ? (
+                      {userMenuLoading ? (
                         <Button
                           h='24px'
                           px='8px'
