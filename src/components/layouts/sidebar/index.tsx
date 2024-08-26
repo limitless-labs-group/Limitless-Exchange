@@ -135,6 +135,7 @@ export default function Sidebar() {
           <Link
             onClick={() => {
               trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
+              window.localStorage.removeItem('SORT')
             }}
           >
             <Image
