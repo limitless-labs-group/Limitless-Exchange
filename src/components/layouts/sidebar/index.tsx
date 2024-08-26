@@ -9,15 +9,16 @@ import {
   MenuButton,
   MenuList,
   Slide,
+  Spacer,
   Text,
   useColorMode,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
-import '../../../../src/app/style.css'
+import '@/app/style.css'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 
@@ -26,7 +27,6 @@ import {
   CreateMarketClickedMetadata,
   LogoClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
-  useAccount,
   useAmplitude,
   useBalanceService,
   useProfileService,
@@ -51,6 +51,7 @@ import NextLink from 'next/link'
 import { Link } from '@chakra-ui/react'
 import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
 import { Overlay } from '@/components/common/overlay'
+import SocialsFooter from '@/components/common/socials-footer'
 
 export default function Sidebar() {
   const { user, isOpenProfileDrawer, onOpenProfileDrawer, onCloseProfileDrawer } =
@@ -121,6 +122,7 @@ export default function Sidebar() {
           <Link
             onClick={() => {
               trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
+              window.localStorage.removeItem('SORT')
             }}
           >
             <Image
@@ -322,6 +324,12 @@ export default function Sidebar() {
         )}
         <Divider />
         {!isMobile && <CategoryFilter />}
+
+        <Spacer />
+
+        <Divider />
+
+        <SocialsFooter />
       </VStack>
       {isOpenWalletPage && (
         <Box
