@@ -47,8 +47,13 @@ const MainPage = () => {
    */
   const isMobile = useIsMobile()
 
-  const [selectedSort, setSelectedSort] = useState<Sort>(Sort.BASE)
-  const handleSelectSort = (options: Sort) => setSelectedSort(options)
+  const [selectedSort, setSelectedSort] = useState<Sort>(
+    (window.localStorage.getItem('SORT') as Sort) ?? Sort.BASE
+  )
+  const handleSelectSort = (options: Sort) => {
+    window.localStorage.setItem('SORT', options)
+    setSelectedSort(options)
+  }
 
   const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
