@@ -178,6 +178,11 @@ export function SellForm({
   const [showTooltip, setShowTooltip] = useState(false)
 
   const handleInputValueChange = (value: string) => {
+    if (!+value) {
+      setDisplayAmount(value)
+      setCollateralAmount(value)
+      return
+    }
     const _collateralAmount = _transformSellValue(value)
     console.log('_collateralAmount', _collateralAmount)
     setDisplayAmount(_collateralAmount)
@@ -639,7 +644,7 @@ export function SellForm({
                 <InputGroup>
                   <Input
                     variant='outlined'
-                    value={NumberUtil.toFixed(displayAmount, 6)}
+                    value={+displayAmount ? NumberUtil.toFixed(displayAmount, 6) : displayAmount}
                     onChange={(e) => handleInputValueChange(e.target.value)}
                     placeholder='0'
                     css={css`
