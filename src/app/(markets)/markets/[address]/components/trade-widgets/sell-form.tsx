@@ -42,6 +42,8 @@ import { useWeb3Service } from '@/services/Web3Service'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import { Address } from 'viem'
+import debounce from 'lodash.debounce'
+import { useQueryClient } from '@tanstack/react-query'
 
 const _transformSellValue = (value: string) => {
   const [wholeNumber, fractionalNumber] = value.split('.')
@@ -70,6 +72,7 @@ export function SellForm({
   marketGroup,
   setSelectedMarket,
 }: SellFormProps) {
+  const queryClient = useQueryClient()
   const [sliderValue, setSliderValue] = useState(0)
   const [outcomeChoice, setOutcomeChoice] = useState<string | null>(null)
   const [quoteYes, setQuoteYes] = useState<TradeQuotes | undefined | null>()
@@ -168,10 +171,6 @@ export function SellForm({
    */
   const [displayAmount, setDisplayAmount] = useState('')
 
-  useEffect(() => {
-    setDisplayAmount(collateralAmount)
-  }, [collateralAmount])
-
   /**
    * SLIDER
    */
@@ -179,11 +178,35 @@ export function SellForm({
   const [showTooltip, setShowTooltip] = useState(false)
 
   const handleInputValueChange = (value: string) => {
+    if (!+value) {
+      setDisplayAmount(value)
+      setCollateralAmount(value)
+      return
+    }
     const _collateralAmount = _transformSellValue(value)
     console.log('_collateralAmount', _collateralAmount)
+    setDisplayAmount(_collateralAmount)
     setCollateralAmount(_collateralAmount)
     return
   }
+
+  const refetchQuotesYes = useCallback(
+    debounce(async function () {
+      await queryClient.refetchQueries({
+        queryKey: ['tradeQuotesYes'],
+      })
+    }, 500),
+    []
+  )
+
+  const refetchQuotesNo = useCallback(
+    debounce(async function () {
+      await queryClient.refetchQueries({
+        queryKey: ['tradeQuotesNo'],
+      })
+    }, 500),
+    []
+  )
 
   const onSlide = useCallback(
     (value: number) => {
@@ -241,8 +264,6 @@ export function SellForm({
 
   const isExceedsBalance = useMemo(() => {
     if (outcomeChoice) {
-      console.log(collateralAmount)
-      console.log(balanceOfCollateralToSellNo)
       return new BigNumber(collateralAmount).isGreaterThan(
         new BigNumber(
           outcomeChoice === 'yes'
@@ -262,6 +283,17 @@ export function SellForm({
     const percentByAmount = Number(((Number(collateralAmount) / Number(balance)) * 100).toFixed())
     setSliderValue(percentByAmount)
   }, [collateralAmount, balance, isZeroBalance])
+
+  useEffect(() => {
+    if (+displayAmount) {
+      if (outcomeChoice === 'yes') {
+        refetchQuotesYes()
+      }
+      if (outcomeChoice === 'no') {
+        refetchQuotesNo()
+      }
+    }
+  }, [displayAmount, market])
 
   useEffect(() => {
     if (market && collateralToken) {
@@ -355,6 +387,7 @@ export function SellForm({
                     marketAddress: market.address,
                     walletType: client,
                   })
+                  setDisplayAmount('')
                   setOutcomeChoice('yes')
                   setCollateralAmount('')
                 }}
@@ -471,6 +504,7 @@ export function SellForm({
                     marketAddress: market.address,
                     walletType: client,
                   })
+                  setDisplayAmount('')
                   setOutcomeChoice('no')
                   setCollateralAmount('')
                 }}
@@ -610,7 +644,7 @@ export function SellForm({
                 <InputGroup>
                   <Input
                     variant='outlined'
-                    value={NumberUtil.toFixed(displayAmount, 6)}
+                    value={+displayAmount ? NumberUtil.toFixed(displayAmount, 6) : displayAmount}
                     onChange={(e) => handleInputValueChange(e.target.value)}
                     placeholder='0'
                     css={css`
