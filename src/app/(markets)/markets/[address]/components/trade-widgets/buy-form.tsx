@@ -16,7 +16,6 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { NumberUtil } from '@/utils'
-import { defaultChain } from '@/constants'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { useAmplitude, useBalanceService, useTradingService } from '@/services'
@@ -28,11 +27,12 @@ import { css } from '@emotion/react'
 import { isMobile } from 'react-device-detect'
 import ActionButton from '@/app/(markets)/markets/[address]/components/trade-widgets/action-button'
 import { useWeb3Service } from '@/services/Web3Service'
-import ShareIcon from '@/resources/icons/share-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
+import debounce from 'lodash.debounce'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface BuyFormProps {
   market: Market
@@ -50,6 +50,7 @@ export function BuyForm({
   marketList,
   setSelectedMarket,
 }: BuyFormProps) {
+  const queryClient = useQueryClient()
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
   const [sliderValue, setSliderValue] = useState(0)
@@ -76,6 +77,18 @@ export function BuyForm({
   //const { isOpen: isYesOpen, onOpen: onYesOpen, onClose: onYesClose } = useDisclosure()
   //const { isOpen: isNoOpen, onOpen: onNoOpen, onClose: onNoClose } = useDisclosure()
 
+  const refetchQuotes = useCallback(
+    debounce(async function () {
+      await queryClient.refetchQueries({
+        queryKey: ['tradeQuotesYes'],
+      })
+      await queryClient.refetchQueries({
+        queryKey: ['tradeQuotesNo'],
+      })
+    }, 500),
+    []
+  )
+
   const balance = useMemo(() => {
     if (strategy === 'Buy') {
       if (balanceOfSmartWallet) {
@@ -99,10 +112,6 @@ export function BuyForm({
    */
   const [displayAmount, setDisplayAmount] = useState('')
 
-  useEffect(() => {
-    setDisplayAmount(collateralAmount)
-  }, [collateralAmount])
-
   /**
    * SLIDER
    */
@@ -118,9 +127,11 @@ export function BuyForm({
       if (decimals && decimals.length > 1) {
         return
       }
+      setDisplayAmount(value)
       setCollateralAmount(value)
       return
     }
+    setDisplayAmount(value)
     setCollateralAmount(value)
     return
   }
@@ -160,6 +171,12 @@ export function BuyForm({
       setToken(collateralToken)
     }
   }, [market, collateralToken])
+
+  useEffect(() => {
+    if (+displayAmount) {
+      refetchQuotes()
+    }
+  }, [market, displayAmount])
 
   return (
     <>
