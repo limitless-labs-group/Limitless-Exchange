@@ -11,6 +11,7 @@ import {
   BioIcon,
 } from '@/components/common/profiles'
 import Loader from '@/components/common/loader'
+import ButtonWithStates from '@/components/common/button-with-states'
 
 export const ProfileContentMobile = () => {
   const isMobile = useIsMobile()
@@ -59,8 +60,15 @@ export const ProfileContentMobile = () => {
               renderIcon={() => <DisplayNameIcon />}
               label='Display name'
               initialValue={displayName}
-              onChange={(v) => setDisplayName(v)}
-              onBlur={() => setFormDirty(true)}
+              onChange={(v) => {
+                setDisplayName(v)
+                setFormDirty(true)
+              }}
+              onBlur={() => {
+                if (displayName !== profileData?.displayName) {
+                  setFormDirty(true)
+                }
+              }}
             />
           </StackItem>
 
@@ -71,11 +79,16 @@ export const ProfileContentMobile = () => {
               label='Username'
               initialValue={username}
               placeholder='Enter your username'
-              onChange={(v) => setUsername(v)}
+              onChange={(v) => {
+                setUsername(v)
+                setFormDirty(true)
+              }}
               hint='So others can mention you in comments'
               onBlur={() => {
-                setFormDirty(true)
-                if (username !== profileData?.username) checkUsernameExists()
+                if (username !== profileData?.username) {
+                  setFormDirty(true)
+                  checkUsernameExists()
+                }
               }}
               onKeyDown={(e) => {
                 const isSpecialCharacter = !/^[a-zA-Z0-9_]+$/.test(e.key)
@@ -93,14 +106,31 @@ export const ProfileContentMobile = () => {
               renderIcon={() => <BioIcon />}
               label='BIO'
               initialValue={bio}
-              onChange={(v) => setBio(v ?? '')}
+              onChange={(v) => {
+                setBio(v ?? '')
+                setFormDirty(true)
+              }}
               placeholder='Add bio if you want'
-              onBlur={() => setFormDirty(true)}
+              onBlur={() => {
+                if (bio !== profileData?.bio) {
+                  setFormDirty(true)
+                }
+              }}
             />
           </StackItem>
 
           <StackItem w='full' display='flex' justifyContent='center' alignItems='center'>
-            <Button
+            <ButtonWithStates
+              variant='contained'
+              w={'full'}
+              isDisabled={updateButtonDisabled}
+              onClick={handleUpdateProfile}
+              status={updateButtonLoading ? 'pending' : profileUpdated ? 'success' : 'idle'}
+            >
+              Update
+            </ButtonWithStates>
+
+            {/* <Button
               onClick={handleUpdateProfile}
               disabled={updateButtonDisabled}
               bg={
@@ -136,9 +166,9 @@ export const ProfileContentMobile = () => {
                 >
                   Update
                 </Text>
-              )}
+              )} */}
 
-              {/* {profileUpdated ? (
+            {/* {profileUpdated ? (
                 updateButtonDisabled ? (
                   <Text
                     fontSize='16px'
@@ -159,7 +189,7 @@ export const ProfileContentMobile = () => {
                   Update
                 </Text>
               )} */}
-            </Button>
+            {/* </Button> */}
           </StackItem>
         </VStack>
       </Box>
