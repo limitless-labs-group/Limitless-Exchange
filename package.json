@@ -80,6 +80,7 @@
     "subscriptions-transport-ws": "^0.11.0",
     "supports-color": "^8.1.1",
     "uuid": "^9.0.1",
+    "vaul": "^0.9.1",
     "viem": "^2.7.12",
     "wagmi": "^2.5.7"
   },
