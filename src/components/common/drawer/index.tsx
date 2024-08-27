@@ -45,6 +45,7 @@ export default function MobileDrawer({
             left: 0,
             right: 0,
             zIndex: 500,
+            outline: 'none',
           }}
         >
           <div
