@@ -72,8 +72,11 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
               </Text>
             </HStack>
             <Text {...paragraphRegular} color={colors.main}>
-              {NumberUtil.formatThousands(market.liquidityFormatted, 6)}{' '}
-              {market.collateralToken.symbol}
+              {market?.address === '0x016AC6386362645A1850b95Cb149cD0cbA68b833'
+                ? '10,000 USDC'
+                : NumberUtil.formatThousands(market.liquidityFormatted, 6) +
+                  ' ' +
+                  market.collateralToken.symbol}
             </Text>
           </HStack>
           <HStack
