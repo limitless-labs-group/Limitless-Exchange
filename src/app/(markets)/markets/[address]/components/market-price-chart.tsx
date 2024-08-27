@@ -16,7 +16,7 @@ import {
   useDisclosure,
   Button,
 } from '@chakra-ui/react'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Market, MarketGroup } from '@/types'
 import Paper from '@/components/common/paper'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
@@ -207,12 +207,21 @@ export const MarketPriceChart = ({
     const lastTrade = [...filterBrokenPrice(data[data.length - 1].yesBuyChartData)]
     lastTrade[0] = Math.floor(Date.now())
     data.push({ yesBuyChartData: lastTrade as [number, number] })
+    //TODO: hotfix of envio duplication
+    const deduplicator = new Set<number>()
+
+    deduplicator.add(data[data.length - 1].yesBuyChartData[1])
 
     for (let i = 0; i < data.length - 1; i++) {
       const currentTrade = filterBrokenPrice(data[i].yesBuyChartData)
       const nextTrade = filterBrokenPrice(data[i + 1].yesBuyChartData)
 
+      if (deduplicator.has(currentTrade[1])) {
+        continue
+      }
+
       flattenData.push(currentTrade)
+      deduplicator.add(currentTrade[1])
 
       let currentTime = currentTrade[0]
       while (currentTime + ONE_HOUR < nextTrade[0]) {
@@ -249,7 +258,11 @@ export const MarketPriceChart = ({
       const response = await axios.post(newSubgraphURI[defaultChain.id], { query })
       const pricingData = response.data.data?.AutomatedMarketMakerPricing as YesBuyChartData[]
 
-      return flattenPriceData(pricingData)
+      return flattenPriceData(
+        pricingData.sort((a, b) => {
+          return a.yesBuyChartData[0] - b.yesBuyChartData[0]
+        })
+      )
     },
     enabled: !!market,
   })
