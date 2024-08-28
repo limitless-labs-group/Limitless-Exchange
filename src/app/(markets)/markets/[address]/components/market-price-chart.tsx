@@ -210,8 +210,6 @@ export const MarketPriceChart = ({
     //TODO: hotfix of envio duplication
     const deduplicator = new Set<number>()
 
-    deduplicator.add(data[data.length - 1].yesBuyChartData[1])
-
     for (let i = 0; i < data.length - 1; i++) {
       const currentTrade = filterBrokenPrice(data[i].yesBuyChartData)
       const nextTrade = filterBrokenPrice(data[i + 1].yesBuyChartData)
