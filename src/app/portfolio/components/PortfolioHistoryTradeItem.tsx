@@ -1,9 +1,11 @@
 import { defaultChain } from '@/constants'
 import { HistoryTrade } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import { FaExternalLinkAlt } from 'react-icons/fa'
-import { useMarket } from '@/services/MarketsService'
+import { HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { useAllMarkets } from '@/services/MarketsService'
+import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import NextLink from 'next/link'
 
 interface IPortfolioHistoryTradeItem extends TableRowProps {
@@ -14,70 +16,62 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
   /**
    * MARKET DATA
    */
-  const { data: market } = useMarket(trade.market.id)
+  const allMarkets = useAllMarkets()
+
+  const targetMarket = allMarkets.find((market) => market.address === trade.market.id)
+
+  const link = targetMarket?.group?.slug
+    ? `/market-group/${targetMarket.group.slug}`
+    : `/markets/${targetMarket?.address}`
 
   return (
     <Tr pos={'relative'} {...props}>
-      <Td pl={0} pr={2}>
-        <NextLink href={`/markets/${trade.market.id}`}>
-          <HStack
-            style={{ textWrap: 'wrap' }}
-            cursor={'pointer'}
-            _hover={{ textDecor: 'underline' }}
-          >
-            <Text size={'sm'} wordBreak={'break-word'} maxW={'400px'} minW={'200px'}>
-              {market?.proxyTitle ?? market?.title ?? 'Noname market'}
-            </Text>
-          </HStack>
-        </NextLink>
+      <Td w='92px'>{trade.strategy}</Td>
+      <Td>
+        <HStack gap='4px'>
+          {trade.outcomeIndex ? (
+            <ThumbsDownIcon width={16} height={16} />
+          ) : (
+            <ThumbsUpIcon width={16} height={16} />
+          )}{' '}
+          <Text {...paragraphRegular}>{trade.outcomeIndex ? 'No' : 'Yes'}</Text>
+          <Text {...paragraphRegular}>
+            {NumberUtil.toFixed(+(trade.outcomeTokenPrice || 1) * 100, 1)}%
+          </Text>
+        </HStack>
       </Td>
-
-      <Td px={2}>
-        <Text color={trade.outcomeIndex == 0 ? 'green.500' : 'red.500'}>
-          {market?.outcomeTokens[trade.outcomeIndex ?? 0]}{' '}
-          {NumberUtil.formatThousands(trade.outcomeTokenPrice, 3)}{' '}
-          {market?.tokenTicker[defaultChain.id]}
-        </Text>
-      </Td>
-
-      <Td px={2}>{trade.strategy}</Td>
-
-      {/* Amount */}
+      <Td isNumeric>{NumberUtil.formatThousands(trade.outcomeTokenAmount, 6)}</Td>
       <Td px={2} isNumeric>
         <Text>
           {`${NumberUtil.formatThousands(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
             6
-          )} ${market?.tokenTicker[defaultChain.id]}`}
+          )} ${targetMarket?.collateralToken.symbol}`}
         </Text>
       </Td>
-
-      {/* Contracts */}
-      <Td px={2} isNumeric>
-        {NumberUtil.formatThousands(trade.outcomeTokenAmount, 4)}
+      <Td
+        textDecoration='underline'
+        w='420px'
+        maxW='420px'
+        whiteSpace='nowrap'
+        overflow='hidden'
+        textOverflow='ellipsis'
+      >
+        <NextLink href={link}>
+          {targetMarket?.group?.id
+            ? `${targetMarket.group.title}: ${targetMarket.title}`
+            : targetMarket?.title}
+        </NextLink>
       </Td>
-
-      {/* Tx */}
-      <Td pl={2} pr={0}>
-        <HStack
-          p={'2px 6px'}
-          bg={'bgLight'}
-          borderRadius={'6px'}
-          fontSize={'13px'}
-          spacing={1}
-          cursor={'pointer'}
-          _hover={{ textDecor: 'underline' }}
-          onClick={() =>
-            window.open(
-              `${defaultChain.blockExplorers.default.url}/tx/${trade.transactionHash}`,
-              '_blank',
-              'noopener'
-            )
-          }
+      <Td>
+        <Link
+          href={`${defaultChain.blockExplorers.default.url}/tx/${trade.transactionHash}`}
+          target='_blank'
+          rel='noopener'
+          variant='textLink'
         >
-          <Text>{truncateEthAddress(trade.transactionHash)}</Text>
-          <FaExternalLinkAlt size={'10px'} />
-        </HStack>
+          {truncateEthAddress(trade.transactionHash)}
+        </Link>
       </Td>
     </Tr>
   )

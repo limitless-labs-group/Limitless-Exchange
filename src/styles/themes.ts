@@ -8,6 +8,7 @@ import { commonButtonProps } from '@/styles/button'
 import { checkboxTheme } from '@/styles/checkbox'
 import { isMobile } from 'react-device-detect'
 import { linkTheme } from '@/styles/link'
+import { tableTheme } from '@/styles/table'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
@@ -212,6 +213,15 @@ export const chakraTheme = ChakraTheme({
             bg: 'grey.200',
           },
         },
+        transparentLight: {
+          ...commonButtonProps,
+          bg: 'transparent.200',
+          p: isMobile ? '8px 12px' : '4px 8px',
+          height: 'unset',
+          _hover: {
+            bg: 'transparent.300',
+          },
+        },
       },
     },
     FormLabel: {
@@ -234,6 +244,7 @@ export const chakraTheme = ChakraTheme({
     Menu: menuTheme,
     Checkbox: checkboxTheme,
     Link: linkTheme,
+    Table: tableTheme,
   },
   breakpoints: {
     sm: '320px',

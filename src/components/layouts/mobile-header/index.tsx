@@ -10,18 +10,21 @@ import {
   Box,
   VStack,
   ButtonGroup,
+  StackItem,
+  Divider,
+  Spacer,
 } from '@chakra-ui/react'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
-  useAccount,
   useAmplitude,
   useBalanceService,
   useHistory,
+  useProfileService,
 } from '@/services'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
@@ -43,21 +46,46 @@ import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 import SwapIcon from '@/resources/icons/swap-icon.svg'
 import WrapModal from '@/components/common/modals/wrap-modal'
+import { ProfileContentMobile } from '@/components/layouts/mobile-header/components'
+import { Overlay } from '@/components/common/overlay'
+import { motion } from 'framer-motion'
+import { useBottomSheetDisclosure } from '@/hooks'
+import SocialsFooter from '@/components/common/socials-footer'
+import Loader from '@/components/common/loader'
 
 export default function MobileHeader() {
-  const { isConnected } = useWagmiAccount()
+  const { getProfileDataLoading, user } = useProfileService()
+  const { isConnected, isConnecting, isReconnecting } = useWagmiAccount()
   const { overallBalanceUsd } = useBalanceService()
-  const { userInfo } = useAccount()
   const address = useWalletAddress()
   const { balanceInvested } = useHistory()
   const router = useRouter()
-  const { disconnectFromPlatform } = useDisconnectAccount()
+  const { disconnectFromPlatform, disconnectLoading } = useDisconnectAccount()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
   const pathname = usePathname()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
+  const userMenuLoading = useMemo(() => {
+    const userWithProfileLoading = isConnected && getProfileDataLoading
+    const userWithoutProfileLoading = isConnected && !user?.displayName
+    const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
+    const loading =
+      userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
 
-  const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
+    return loading
+  }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
+
+  const {
+    onDrag: onDragProfileBottomSheet,
+    isOpen: isOpenProfileBottomSheet,
+    onOpen: onOpenProfileBottomSheet,
+    onClose: onCloseProfileBottomSheet,
+  } = useBottomSheetDisclosure()
+  const {
+    isOpen: isOpenUserMenu,
+    onToggle: onToggleUserMenu,
+    onClose: onCloseUserMenu,
+  } = useDisclosure()
   const { isOpen: isWalletModalOpen, onToggle: onToggleWalletModal } = useDisclosure()
   const {
     isOpen: isWrapModalOpen,
@@ -103,9 +131,9 @@ export default function MobileHeader() {
                   <Text fontWeight={500} fontSize='16px'>
                     {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                   </Text>
-                  {userInfo?.profileImage?.includes('http') ? (
+                  {user?.pfpUrl?.includes('http') ? (
                     <ChakraImage
-                      src={userInfo.profileImage}
+                      src={user?.pfpUrl}
                       borderRadius={'2px'}
                       h={'32px'}
                       w={'32px'}
@@ -121,7 +149,7 @@ export default function MobileHeader() {
                       justifyContent='center'
                     >
                       <Text {...paragraphMedium} className={'amp-mask'}>
-                        {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
+                        {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
                       </Text>
                     </Flex>
                   )}
@@ -154,35 +182,77 @@ export default function MobileHeader() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Box w='full'>
-                      <HStack gap='8px'>
-                        {userInfo?.profileImage?.includes('http') ? (
-                          <ChakraImage
-                            src={userInfo.profileImage}
-                            borderRadius={'2px'}
-                            h={'24px'}
-                            w={'24px'}
-                            className='amp-block'
-                          />
-                        ) : (
-                          <Flex
-                            borderRadius={'2px'}
-                            h={'24px'}
-                            w={'24px'}
-                            bg='grey.300'
-                            alignItems='center'
-                            justifyContent='center'
+                      {userMenuLoading ? (
+                        <Button
+                          h='24px'
+                          px='8px'
+                          w='full'
+                          _active={{
+                            bg: 'grey.200',
+                          }}
+                          _hover={{
+                            bg: 'grey.200',
+                          }}
+                        >
+                          <Loader />
+                        </Button>
+                      ) : (
+                        <Button variant='transparent' w='full' p={0} m={0} display='flex'>
+                          <HStack
+                            w='full'
+                            gap='8px'
+                            justifyContent='space-between'
+                            onClick={() => {
+                              onCloseUserMenu()
+                              onOpenProfileBottomSheet()
+                            }}
                           >
-                            <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
-                              {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
-                            </Text>
-                          </Flex>
-                        )}
-                        <Text {...paragraphMedium} className={'amp-mask'}>
-                          {userInfo?.name
-                            ? cutUsername(userInfo.name, 60)
-                            : truncateEthAddress(address)}
-                        </Text>
-                      </HStack>
+                            <StackItem display='flex' justifyContent='center' alignItems='center'>
+                              {user?.pfpUrl?.includes('http') ? (
+                                <ChakraImage
+                                  src={user?.pfpUrl}
+                                  borderRadius={'2px'}
+                                  h={'24px'}
+                                  w={'24px'}
+                                  className='amp-block'
+                                />
+                              ) : (
+                                <Flex
+                                  borderRadius={'2px'}
+                                  h={'24px'}
+                                  w={'24px'}
+                                  bg='grey.300'
+                                  alignItems='center'
+                                  justifyContent='center'
+                                >
+                                  <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
+                                    {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
+                                  </Text>
+                                </Flex>
+                              )}
+                              <Box mx='4px' />
+                              <Text {...paragraphMedium} className={'amp-mask'}>
+                                {user?.displayName
+                                  ? cutUsername(user?.displayName, 60)
+                                  : truncateEthAddress(address)}
+                              </Text>
+                            </StackItem>
+
+                            <StackItem>
+                              <Box
+                                color='grey.800'
+                                onClick={() => {
+                                  onToggleUserMenu()
+                                  onOpenProfileBottomSheet()
+                                }}
+                              >
+                                <ArrowRightIcon width={16} height={16} />
+                              </Box>
+                            </StackItem>
+                          </HStack>
+                        </Button>
+                      )}
+
                       <HStack
                         spacing={2}
                         my={'24px'}
@@ -242,6 +312,7 @@ export default function MobileHeader() {
                             </HStack>
                           </HStack>
                         </Button>
+
                         {client !== 'eoa' ? (
                           <Box
                             w='full'
@@ -337,6 +408,9 @@ export default function MobileHeader() {
                         Create Market
                       </Button>
                     </Box>
+
+                    <Spacer />
+
                     <Button
                       variant='grey'
                       w='full'
@@ -352,6 +426,8 @@ export default function MobileHeader() {
                     >
                       Log Out
                     </Button>
+                    <Divider mt={'12px'} borderColor={'grey.300'} />
+                    <SocialsFooter />
                   </VStack>
                 </Slide>
               </>
@@ -389,10 +465,34 @@ export default function MobileHeader() {
           >
             <WalletPage onClose={onToggleWalletModal} />
           </Slide>
+          <Slide
+            direction='bottom'
+            in={isOpenProfileBottomSheet}
+            style={{
+              zIndex: 150,
+              paddingTop: isOpenProfileBottomSheet ? '60px' : 0,
+              top: isOpenProfileBottomSheet ? 0 : '60px',
+              height: '100%',
+              transition: '0.1s',
+              animation: 'fadeIn 0.5s',
+            }}
+            onClick={onOpenProfileBottomSheet}
+          >
+            <motion.div
+              drag='y'
+              dragPropagation
+              onDragEnd={onDragProfileBottomSheet}
+              style={{ height: '100%' }}
+              dragConstraints={{ top: 0, bottom: 0 }}
+            >
+              <ProfileContentMobile />
+            </motion.div>
+          </Slide>
         </HStack>
       </Box>
       {isMobile && (pathname === '/' || pathname.includes('topics')) && <TokenFilterMobile />}
       <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />
+      <Overlay show={isOpenProfileBottomSheet} onClose={onCloseProfileBottomSheet} />
     </>
   )
 }
