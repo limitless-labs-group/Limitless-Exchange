@@ -130,6 +130,22 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     return router.push('/')
   }
 
+  const parseTextWithLinks = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g
+    const parts = text.split(urlRegex)
+
+    return parts.map((part, index) => {
+      if (urlRegex.test(part)) {
+        return (
+          <Link key={index} href={part} color='teal.500' isExternal>
+            {part}
+          </Link>
+        )
+      }
+      return part
+    })
+  }
+
   useEffect(() => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
       page: 'Market Page',
@@ -262,7 +278,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                 <Text {...paragraphBold}>Description</Text>
               </HStack>
               <Text {...paragraphRegular} userSelect='text'>
-                {market?.description}
+                {parseTextWithLinks(market?.description)}
               </Text>
             </Box>
             {!isMobile && marketActionForm}
