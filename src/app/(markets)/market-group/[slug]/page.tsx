@@ -16,7 +16,6 @@ import {
   MenuItem,
   MenuList,
   Text,
-  useDisclosure,
   VStack,
 } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
@@ -46,7 +45,6 @@ import {
   MarketMetadata,
   MarketPriceChart,
   MarketTradingForm,
-  MarketTradingModal,
   MobileTradeButton,
 } from '@/app/(markets)/markets/[address]/components'
 import DescriptionIcon from '@/resources/icons/description-icon.svg'
@@ -60,6 +58,8 @@ import useMarketGroup from '@/hooks/use-market-group'
 import BigNumber from 'bignumber.js'
 import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components/market-group-positions'
 import { Address } from 'viem'
+import { Market } from '@/types'
+import MobileDrawer from '@/components/common/drawer'
 
 export default function MarketGroupPage({ params }: { params: { slug: string } }) {
   const { data: marketGroup, isLoading: marketGroupLoading } = useMarketGroup(params.slug)
@@ -75,12 +75,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     marketGroup?.creator.name
   )
   const { data: winningIndex } = useWinningIndex(market?.address as string)
-
-  const {
-    isOpen: tradeModalOpened,
-    onOpen: openTradeModal,
-    onClose: closeTradeModal,
-  } = useDisclosure()
 
   const resolved = winningIndex === 0 || winningIndex === 1
 
@@ -127,22 +121,34 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     return market?.expired ? (
       <MobileTradeButton market={market} />
     ) : (
-      <Button
-        variant='contained'
-        w='full'
-        h='48px'
-        mt='32px'
-        color='white'
-        onClick={() => {
-          trackClicked(ClickEvent.TradeButtonClicked, {
-            platform: 'mobile',
-            address: market?.address,
-          })
-          openTradeModal()
-        }}
+      <MobileDrawer
+        trigger={
+          <Button
+            variant='contained'
+            w='full'
+            h='48px'
+            mt='32px'
+            color='white'
+            onClick={() => {
+              trackClicked(ClickEvent.TradeButtonClicked, {
+                platform: 'mobile',
+                address: market?.address,
+              })
+            }}
+          >
+            Trade
+          </Button>
+        }
+        title={`${marketGroup?.title}: ${market?.title}`}
+        variant='blue'
       >
-        Trade
-      </Button>
+        <MarketTradingForm
+          market={market as Market}
+          setSelectedMarket={setMarket}
+          marketGroup={marketGroup}
+          outcomeTokensPercent={market?.prices}
+        />
+      </MobileDrawer>
     )
   }, [market])
 
@@ -331,17 +337,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
             <Box position='fixed' bottom='12px' w='calc(100% - 32px)'>
               {mobileTradeButton}
             </Box>
-          )}
-          {isMobile && market && (
-            <MarketTradingModal
-              open={tradeModalOpened}
-              onClose={closeTradeModal}
-              title={(market?.proxyTitle ?? market?.title) || ''}
-              market={market}
-              outcomeTokensPercent={market.prices}
-              setSelectedMarket={setMarket}
-              marketGroup={marketGroup}
-            />
           )}
           <ApproveModal onApprove={handleApproveMarket} />
         </>

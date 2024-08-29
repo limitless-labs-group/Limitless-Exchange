@@ -39,12 +39,8 @@ export const ProfileContentMobile = () => {
         w='full'
         bg='grey.100'
       >
-        <VStack h='full' w='full' px='10px' gap='25px'>
-          <StackItem w='full' pt='10px' display='flex' justifyContent='center' alignItems='center'>
-            <Box height='4px' width='36px' borderRadius='2px' bg='grey.300' />
-          </StackItem>
-
-          <StackItem w='full' pt='10px' display='flex' justifyContent='center'>
+        <VStack h='full' w='full' px='10px' mt='28px' gap='25px'>
+          <StackItem w='full' display='flex' justifyContent='center'>
             <ProfilePfp />
           </StackItem>
 
