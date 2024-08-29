@@ -31,7 +31,7 @@ export default function TokenFilterMobile() {
             bg: category.name === searchParams?.get('category') ? 'grey.800' : 'grey.400',
           }}
         >
-          <Link href={{ pathname: '/', query: { category: category.name } }}>
+          <Link href={{ pathname: '/markets', query: { category: category.name } }}>
             <Text {...paragraphMedium} color={_selected ? 'grey.50' : 'grey.800'} fontWeight={500}>
               /{category.name}
             </Text>

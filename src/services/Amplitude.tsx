@@ -196,7 +196,12 @@ export interface ClickedWithdrawMetadata {
   coin: string
 }
 
-export type LogoClickedPage = 'Explore Markets' | 'Portfolio' | 'Market Page' | 'Unknown Page'
+export type LogoClickedPage =
+  | 'Explore Markets'
+  | 'Portfolio'
+  | 'Market Page'
+  | 'Unknown Page'
+  | 'Feed'
 export interface LogoClickedMetadata {
   page: LogoClickedPage
 }
@@ -212,11 +217,12 @@ export type DepositClickedPage =
   | 'Market Page'
   | 'Creator Cabinet'
   | 'Explore Markets'
+  | 'Feed'
 export interface DepositClickedMetadata {
   page: DepositClickedPage
 }
 
-export type SupportChatClickedPage = 'Deposit Page' | 'Header Dropdown Menu'
+export type SupportChatClickedPage = 'Deposit Page' | 'Header Dropdown Menu' | 'Feed'
 export interface SupportChatClickedMetadata {
   page: SupportChatClickedPage
 }
@@ -244,6 +250,7 @@ export type PageOpenedPage =
   | 'Portfolio Page'
   | 'Deposit Page'
   | 'Explore Markets'
+  | 'Feed'
 export interface PageOpenedMetadata {
   page: PageOpenedPage
   marketAddress?: Address
@@ -251,7 +258,11 @@ export interface PageOpenedMetadata {
   [key: string]: any
 }
 
-export type OpenMarketClickedPage = 'Creator Cabinet' | 'Portfolio Page' | 'Explore Markets'
+export type OpenMarketClickedPage =
+  | 'Creator Cabinet'
+  | 'Portfolio Page'
+  | 'Explore Markets'
+  | 'Feed'
 export interface OpenMarketClickedMetadata {
   page: OpenMarketClickedPage
 }
@@ -289,6 +300,8 @@ export type ProfileBurgerMenuClickedOption =
   | 'Wallet'
   | 'Portfolio'
   | 'Sign Out'
+  | 'Home'
+  | 'Markets'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }

@@ -15,11 +15,13 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import '../../../../src/app/style.css'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
+import HomeIcon from '@/resources/icons/home-icon.svg'
+import GridIcon from '@/resources/icons/grid-icon.svg'
 
 import {
   ClickEvent,
@@ -168,6 +170,7 @@ export default function Sidebar() {
                   }}
                   variant='transparent'
                   w='full'
+                  bg={pageName === 'Portfolio' ? 'grey.200' : 'unset'}
                 >
                   <HStack w='full'>
                     <PortfolioIcon width={16} height={16} />
@@ -301,7 +304,45 @@ export default function Sidebar() {
             <LoginButton />
           </Box>
         )}
-        <Divider />
+        <Divider my='12px' />
+        <NextLink href='/' passHref style={{ width: '100%' }}>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Home',
+              })
+            }}
+            variant='transparent'
+            w='full'
+            bg={pageName === 'Feed' ? 'grey.200' : 'unset'}
+          >
+            <HStack w='full'>
+              <HomeIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                Home
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
+        <NextLink href='/markets' passHref style={{ width: '100%' }}>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Markets',
+              })
+            }}
+            variant='transparent'
+            w='full'
+            bg={pageName === 'Explore Markets' ? 'grey.200' : 'unset'}
+          >
+            <HStack w='full'>
+              <GridIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                Markets
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
         {!isMobile && <CategoryFilter />}
       </VStack>
       {isOpenWalletPage && (

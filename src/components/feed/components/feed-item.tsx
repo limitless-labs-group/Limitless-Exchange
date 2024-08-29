@@ -1,6 +1,11 @@
-import { FeedEvent, FeedEventType, MarketStatusData, TradeContractsData } from '@/app/feed/types'
-import MarketFeedTradeCard from '@/app/feed/components/market-feed-trade-card'
-import MarketStatusUpdatedCard from '@/app/feed/components/market-status-updated-card'
+import {
+  FeedEvent,
+  FeedEventType,
+  MarketStatusData,
+  TradeContractsData,
+} from '@/components/feed/types'
+import MarketFeedTradeCard from '@/components/feed/components/market-feed-trade-card'
+import MarketStatusUpdatedCard from '@/components/feed/components/market-status-updated-card'
 import { Box } from '@chakra-ui/react'
 
 interface FeedItemProps {
@@ -26,5 +31,5 @@ export default function FeedItem({ data }: FeedItemProps) {
       return <MarketStatusUpdatedCard data={item} />
     })(),
   }
-  return <Box>{detailsFeedContent[data.eventType]}</Box>
+  return <Box w='full'>{detailsFeedContent[data.eventType]}</Box>
 }

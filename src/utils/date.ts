@@ -1,6 +1,6 @@
 export function timeSinceCreation(timestamp: number): string {
   const now = new Date().getTime()
-  const diffInSeconds = Math.floor((now - timestamp) / 1000)
+  const diffInSeconds = Math.floor((now - timestamp * 1000) / 1000)
 
   if (diffInSeconds < 60) {
     return `${diffInSeconds}seconds`
