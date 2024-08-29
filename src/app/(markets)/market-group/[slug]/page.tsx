@@ -156,6 +156,22 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     return strategy === 'Buy' ? approveBuy() : approveSell()
   }
 
+  const parseTextWithLinks = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g
+    const parts = text.split(urlRegex)
+
+    return parts.map((part, index) => {
+      if (urlRegex.test(part)) {
+        return (
+          <Link key={index} href={part} color='teal.500' isExternal>
+            {part}
+          </Link>
+        )
+      }
+      return part
+    })
+  }
+
   useEffect(() => {
     if (marketGroup) {
       setMarket(marketGroup.markets[0])
@@ -328,7 +344,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                 <Text {...paragraphBold}>Description</Text>
               </HStack>
               <Text {...paragraphRegular} userSelect='text'>
-                {market?.description}
+                {parseTextWithLinks(market?.description ?? '')}
               </Text>
             </Box>
             {!isMobile && marketActionForm}
