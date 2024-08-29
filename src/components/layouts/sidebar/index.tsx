@@ -9,15 +9,16 @@ import {
   MenuButton,
   MenuList,
   Slide,
+  Spacer,
   Text,
   useColorMode,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
-import React, { useMemo } from 'react'
+import React, { useCallback } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
-import '../../../../src/app/style.css'
+import '@/app/style.css'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 
@@ -26,16 +27,13 @@ import {
   CreateMarketClickedMetadata,
   LogoClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
-  useAccount,
   useAmplitude,
   useBalanceService,
   useProfileService,
 } from '@/services'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import { NumberUtil, truncateEthAddress } from '@/utils'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import { cutUsername } from '@/utils/string'
+import { NumberUtil } from '@/utils'
 import { useWeb3Service } from '@/services/Web3Service'
 import { LoginButton } from '@/components/common/login-button'
 import CategoryFilter from '@/components/common/categories'
@@ -53,6 +51,7 @@ import NextLink from 'next/link'
 import { Link } from '@chakra-ui/react'
 import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
 import { Overlay } from '@/components/common/overlay'
+import SocialsFooter from '@/components/common/socials-footer'
 
 export default function Sidebar() {
   const { user, isOpenProfileDrawer, onOpenProfileDrawer, onCloseProfileDrawer } =
@@ -68,8 +67,16 @@ export default function Sidebar() {
   // const address = useWalletAddress()
   const pageName = usePageName()
 
-  const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
-  const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
+  const {
+    isOpen: isOpenWalletPage,
+    onToggle: onToggleWalletPage,
+    onClose: onCloseWalletPage,
+  } = useDisclosure()
+  const {
+    isOpen: isOpenAuthMenu,
+    onToggle: onToggleAuthMenu,
+    onClose: onCloseAuthMenu,
+  } = useDisclosure()
 
   const {
     isOpen: isWrapModalOpen,
@@ -77,13 +84,25 @@ export default function Sidebar() {
     onClose: onCloseWrapModal,
   } = useDisclosure()
 
-  const handleOpenWalletPage = () => {
-    if (client !== 'eoa') {
-      onToggleWalletPage()
-    }
-  }
+  const handleOpenWalletPage = useCallback(() => {
+    if (client === 'eoa') return
+    onCloseProfileDrawer()
+    onToggleWalletPage()
+  }, [client])
+  const handleOpenWrapModal = useCallback(() => onOpenWrapModal(), [])
+  const handleOpenProfileDrawer = useCallback(() => {
+    onCloseWalletPage()
+    onCloseWrapModal()
+    onCloseAuthMenu()
 
-  const handleOpenWrapModal = () => onOpenWrapModal()
+    if (!isOpenProfileDrawer) {
+      onOpenProfileDrawer()
+      return
+    }
+
+    onCloseProfileDrawer()
+    return
+  }, [isOpenWalletPage, isOpenProfileDrawer])
 
   return (
     <>
@@ -251,14 +270,15 @@ export default function Sidebar() {
                       <MoonIcon width={16} height={16} />
                     </Button>
                   </HStack>
-                  <Button
+                  {/* hidding it for prod release
+                 <Button
                     variant='grey'
                     w='full'
-                    onClick={!isOpenProfileDrawer ? onOpenProfileDrawer : onCloseProfileDrawer}
+                    onClick={handleOpenProfileDrawer}
                     justifyContent='flex-start'
                   >
                     Profile
-                  </Button>
+                  </Button>*/}
                   <Button
                     variant='grey'
                     w='full'
@@ -303,6 +323,12 @@ export default function Sidebar() {
         )}
         <Divider />
         {!isMobile && <CategoryFilter />}
+
+        <Spacer />
+
+        <Divider />
+
+        <SocialsFooter />
       </VStack>
       {isOpenWalletPage && (
         <Box

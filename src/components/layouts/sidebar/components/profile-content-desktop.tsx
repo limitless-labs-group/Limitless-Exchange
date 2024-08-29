@@ -1,30 +1,30 @@
 import { Box, Button, StackItem, Text, VStack } from '@chakra-ui/react'
 import { useProfileService } from '@/services'
 import {
-  BioIcon,
-  CheckIcon,
-  DisplayNameIcon,
-  ProfileInputField,
-  ProfilePfp,
   ProfileTextareaField,
+  ProfileInputField,
+  DisplayNameIcon,
   UsernameIcon,
+  ProfilePfp,
+  CheckIcon,
+  BioIcon,
 } from '@/components/common/profiles'
 
 export const ProfileContentDesktop = () => {
   const {
+    checkUsernameExistsData,
+    updateButtonDisabled,
+    checkUsernameExists,
     handleUpdateProfile,
     updateButtonLoading,
-    updateButtonDisabled,
     disableUpdateButton,
     profileUpdated,
-    displayName,
     setDisplayName,
-    username,
     setUsername,
-    bio,
+    displayName,
+    username,
     setBio,
-    checkUsernameExists,
-    checkUsernameExistsData,
+    bio,
   } = useProfileService()
 
   return (
@@ -97,6 +97,7 @@ export const ProfileContentDesktop = () => {
               label='Username'
               initialValue={username}
               placeholder='Enter your username'
+              hint='So others can mention you in comments'
               onChange={(v) => setUsername(v)}
               onBlur={() => {
                 if (username) checkUsernameExists()
@@ -109,7 +110,6 @@ export const ProfileContentDesktop = () => {
               }}
               isInvalid={checkUsernameExistsData}
               invalidText='Username already exists'
-              hint='So others can mention you in comments'
             />
           </StackItem>
 

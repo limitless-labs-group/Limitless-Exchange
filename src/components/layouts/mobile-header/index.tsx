@@ -11,6 +11,8 @@ import {
   VStack,
   ButtonGroup,
   StackItem,
+  Divider,
+  Spacer,
 } from '@chakra-ui/react'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
@@ -46,6 +48,7 @@ import SwapIcon from '@/resources/icons/swap-icon.svg'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import { ProfileContentMobile } from '@/components/layouts/mobile-header/components'
 import MobileDrawer from '@/components/common/drawer'
+import SocialsFooter from '@/components/common/socials-footer'
 
 export default function MobileHeader() {
   const { isConnected } = useWagmiAccount()
@@ -368,6 +371,9 @@ export default function MobileHeader() {
                         Create Market
                       </Button>
                     </Box>
+
+                    <Spacer />
+
                     <Button
                       variant='grey'
                       w='full'
@@ -383,6 +389,8 @@ export default function MobileHeader() {
                     >
                       Log Out
                     </Button>
+                    <Divider mt={'12px'} borderColor={'grey.300'} />
+                    <SocialsFooter />
                   </VStack>
                 </Slide>
               </>

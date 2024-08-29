@@ -1,6 +1,20 @@
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query'
-import { useAccount } from '@/services'
+import { truncateEthAddress } from '@/utils'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { useWeb3Service } from '@/services/Web3Service'
+import { useDisclosure } from '@chakra-ui/react'
+import { cutUsername } from '@/utils/string'
+import { useIsMobile } from '@/hooks'
 import { Profile } from '@/types/profiles'
+import {
+  ProfilePictureUploadedChangedMetadata,
+  ProfileSettingsChangedMetadata,
+  ProfileSettingsOpenedMetadata,
+  useAmplitude,
+  ChangeEvent,
+  useAccount,
+  OpenEvent,
+} from '@/services'
 import {
   useUsernameExists,
   useUpdateProfile,
@@ -20,11 +34,15 @@ import {
   useRef,
   useMemo,
 } from 'react'
-import { useDisclosure } from '@chakra-ui/react'
-import { cutUsername } from '@/utils/string'
-import { truncateEthAddress } from '@/utils'
 
 export interface IProfileServiceContext {
+  profile: Profile | undefined
+  setProfile: Dispatch<SetStateAction<Profile | undefined>>
+  resetState: () => void
+  refetchProfile: (options?: RefetchOptions) => Promise<QueryObserverResult<Profile, Error>>
+  resetCreateProfile: () => void
+  resetUpdateProfile: () => void
+  resetUpdatePfp: () => void
   profileData: Profile | undefined
   handleUpdateProfile: () => Promise<void>
   updateButtonLoading: boolean
@@ -57,20 +75,47 @@ export interface IProfileServiceContext {
 const ProfileServiceContext = createContext({} as IProfileServiceContext)
 
 export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
+  const { client } = useWeb3Service()
   const pfpFileRef = useRef<any>()
-  const { farcasterInfo, userInfo, account } = useAccount()
+  const account = useWalletAddress()
+  const isMobile = useIsMobile()
+
+  const { trackOpened, trackChanged } = useAmplitude()
+  const { farcasterInfo, userInfo } = useAccount()
   const [pfpFile, setPfpFile] = useState<File | undefined>(undefined)
   const [pfpPreview, setPfpPreview] = useState<string | undefined>(undefined)
   const [pfpUrl, setPfpUrl] = useState<string | undefined>(undefined)
-  const [displayName, setDisplayName] = useState<string>(userInfo?.name ?? account ?? '')
-  const [username, setUsername] = useState<string>(farcasterInfo?.username ?? account ?? '')
+  const [profile, setProfile] = useState<Profile | undefined>(undefined)
+  const [displayName, setDisplayName] = useState<string>('')
+  const [username, setUsername] = useState<string>('')
   const [bio, setBio] = useState<string>('')
   const [profileUpdated, setProfileUpdated] = useState<boolean>(false)
   const [disableUpdateButton, setDisableUpdateButton] = useState<boolean>(false)
 
-  const { mutateAsync: createProfileAsync, isPending: createProfileLoading } = useCreateProfile()
-  const { mutateAsync: updateProfileAsync, isPending: updateProfileLoading } = useUpdateProfile()
-  const { mutateAsync: updatePfpAsync, isPending: updatePfpLoading } = useUpdatePfp()
+  const {
+    mutateAsync: createProfileAsync,
+    isPending: createProfileLoading,
+    reset: resetCreateProfile,
+  } = useCreateProfile({
+    account,
+    client,
+  })
+  const {
+    mutateAsync: updateProfileAsync,
+    isPending: updateProfileLoading,
+    reset: resetUpdateProfile,
+  } = useUpdateProfile({
+    account,
+    client,
+  })
+  const {
+    mutateAsync: updatePfpAsync,
+    isPending: updatePfpLoading,
+    reset: resetUpdatePfp,
+  } = useUpdatePfp({
+    account,
+    client,
+  })
   const {
     data: profileData,
     isLoading: getProfileDataLoading,
@@ -87,7 +132,7 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
     onClose: onCloseProfileDrawer,
   } = useDisclosure()
   const user = useMemo(() => {
-    if (!profileData) {
+    if (!profile) {
       return {
         displayName: userInfo?.name ? cutUsername(userInfo.name) : truncateEthAddress(account),
         pfpUrl: userInfo?.profileImage,
@@ -95,14 +140,14 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
     }
 
     return {
-      displayName: profileData?.displayName
-        ? cutUsername(profileData?.displayName)
-        : profileData?.username
-        ? cutUsername(profileData?.username)
+      displayName: profile?.displayName
+        ? cutUsername(profile?.displayName)
+        : profile?.username
+        ? cutUsername(profile?.username)
         : truncateEthAddress(account),
-      pfpUrl: profileData?.pfpUrl,
+      pfpUrl: profile?.pfpUrl,
     }
-  }, [userInfo, profileData, account])
+  }, [userInfo, profile, getProfileDataLoading, account])
 
   const profileRegistered = !!profileData
   const updateButtonDisabled =
@@ -114,39 +159,68 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
   const updateButtonLoading = createProfileLoading || updateProfileLoading
 
   useEffect(() => {
-    if (!profileData) return
-    setPfpUrl(profileData.pfpUrl)
-    setDisplayName(profileData.displayName)
-    setUsername(profileData.username)
-    setBio(profileData.bio ?? '')
-  }, [profileData])
-
-  useEffect(() => {
-    if (profileData) return
-    setDisplayName(userInfo?.name ?? account ?? '')
-    setUsername(farcasterInfo?.username ?? account ?? '')
-    refetchProfile()
-  }, [farcasterInfo, userInfo, account])
+    if (!profileData) {
+      setDisplayName(userInfo?.name ?? account ?? '')
+      setUsername(farcasterInfo?.username ?? account ?? '')
+      refetchProfile()
+      return
+    } else {
+      setProfile(profileData)
+      setPfpUrl(profileData.pfpUrl)
+      setDisplayName(profileData.displayName)
+      setUsername(profileData.username)
+      setBio(profileData.bio ?? '')
+    }
+  }, [profileData, farcasterInfo, userInfo, account])
 
   useEffect(() => {
     if (pfpFile) {
       const previewUrl = URL.createObjectURL(pfpFile)
       setPfpPreview(previewUrl)
-      updatePfpAsync(pfpFile).finally(() => refetchProfile())
+      updatePfpAsync(pfpFile)
+        .then(() =>
+          trackChanged<ProfilePictureUploadedChangedMetadata>(
+            ChangeEvent.ProfilePictureUploadedChanged,
+            {
+              platform: isMobile ? 'Mobile' : 'Desktop',
+            }
+          )
+        )
+        .finally(() => refetchProfile())
 
       // Clean up the preview URL when the component unmounts or the file changes
       return () => URL.revokeObjectURL(previewUrl)
     }
   }, [pfpFile])
 
+  useEffect(() => {
+    if (isOpenProfileDrawer)
+      trackOpened<ProfileSettingsOpenedMetadata>(OpenEvent.ProfileSettingsOpened, {
+        platform: isMobile ? 'Mobile' : 'Desktop',
+      })
+  }, [isOpenProfileDrawer, isMobile])
+
   const handleUpdateProfile = useCallback(async () => {
     try {
       profileRegistered
-        ? await updateProfileAsync({ displayName, username, bio })
-        : await createProfileAsync({ displayName, username, bio })
+        ? await updateProfileAsync({ displayName, username, bio }).then(() =>
+            trackChanged<ProfileSettingsChangedMetadata>(ChangeEvent.ProfileSettingsChanged, {
+              platform: isMobile ? 'Mobile' : 'Desktop',
+            })
+          )
+        : await createProfileAsync({ displayName, username, bio }).then(() =>
+            trackChanged<ProfileSettingsChangedMetadata>(ChangeEvent.ProfileSettingsChanged, {
+              platform: isMobile ? 'Mobile' : 'Desktop',
+            })
+          )
+
       setProfileUpdated(true)
       setTimeout(() => {
         setDisableUpdateButton(true)
+        setTimeout(() => {
+          setProfileUpdated(false)
+          setDisableUpdateButton(false)
+        }, 1_500)
       }, 3_000)
     } catch (error) {
       console.error(error)
@@ -157,7 +231,27 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
     }
   }, [profileRegistered, displayName, username, bio])
 
+  const resetState = useCallback(() => {
+    setProfile(undefined)
+    setDisplayName('')
+    setUsername('')
+    setBio('')
+    setPfpUrl('')
+    setPfpPreview('')
+    setPfpFile(undefined)
+    resetCreateProfile()
+    resetUpdateProfile()
+    resetUpdatePfp()
+  }, [])
+
   const contextProviderValue: IProfileServiceContext = {
+    profile,
+    setProfile,
+    resetState,
+    refetchProfile,
+    resetCreateProfile,
+    resetUpdateProfile,
+    resetUpdatePfp,
     profileData,
     handleUpdateProfile,
     updateButtonLoading,

@@ -1,28 +1,30 @@
 import { Box, Button, StackItem, Text, VStack } from '@chakra-ui/react'
 import { useProfileService } from '@/services'
 import {
-  BioIcon,
-  CheckIcon,
-  DisplayNameIcon,
-  ProfileInputField,
-  ProfilePfp,
   ProfileTextareaField,
+  ProfileInputField,
+  DisplayNameIcon,
   UsernameIcon,
+  ProfilePfp,
+  CheckIcon,
+  BioIcon,
 } from '@/components/common/profiles'
 
 export const ProfileContentMobile = () => {
   const {
+    checkUsernameExistsData,
+    updateButtonDisabled,
+    checkUsernameExists,
     handleUpdateProfile,
     updateButtonLoading,
-    updateButtonDisabled,
     disableUpdateButton,
     profileUpdated,
-    displayName,
     setDisplayName,
-    username,
     setUsername,
-    bio,
+    displayName,
+    username,
     setBio,
+    bio,
   } = useProfileService()
 
   return (
@@ -54,11 +56,23 @@ export const ProfileContentMobile = () => {
           <StackItem w='full'>
             <ProfileInputField
               renderIcon={() => <UsernameIcon />}
+              pattern={/^[a-zA-Z0-9_]+$/.source}
               label='Username'
               initialValue={username}
               placeholder='Enter your username'
               onChange={(v) => setUsername(v)}
               hint='So others can mention you in comments'
+              onBlur={() => {
+                if (username) checkUsernameExists()
+              }}
+              onKeyDown={(e) => {
+                const isSpecialCharacter = !/^[a-zA-Z0-9_]+$/.test(e.key)
+
+                if (isSpecialCharacter) e.preventDefault()
+                if (e.key === ' ') e.preventDefault()
+              }}
+              isInvalid={checkUsernameExistsData}
+              invalidText='Username already exists'
             />
           </StackItem>
 

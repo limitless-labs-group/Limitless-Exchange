@@ -1,7 +1,7 @@
 import { defaultChain } from '@/constants'
 import { HistoryRedeem } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { Box, HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { Box, HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
 import { useAllMarkets, useMarketByConditionId } from '@/services/MarketsService'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
@@ -68,14 +68,15 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
             : targetMarket?.title}
         </NextLink>
       </Td>
-      <Td textDecoration='underline'>
-        <NextLink
+      <Td>
+        <Link
           href={`${defaultChain.blockExplorers.default.url}/tx/${redeem.transactionHash}`}
           target='_blank'
           rel='noopener'
+          variant='textLink'
         >
           {truncateEthAddress(redeem.transactionHash)}
-        </NextLink>
+        </Link>
       </Td>
     </Tr>
   )

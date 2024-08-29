@@ -47,8 +47,13 @@ const MainPage = () => {
    */
   const isMobile = useIsMobile()
 
-  const [selectedSort, setSelectedSort] = useState<Sort>(Sort.BASE)
-  const handleSelectSort = (options: Sort) => setSelectedSort(options)
+  const [selectedSort, setSelectedSort] = useState<Sort>(
+    (window.sessionStorage.getItem('SORT') as Sort) ?? Sort.BASE
+  )
+  const handleSelectSort = (options: Sort) => {
+    window.sessionStorage.setItem('SORT', options)
+    setSelectedSort(options)
+  }
 
   const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
@@ -138,7 +143,7 @@ const MainPage = () => {
         })
       case Sort.ENDING_SOON:
         return [...filteredMarkets].sort(
-          (a, b) => new Date(b.deadline).getTime() - new Date(a.deadline).getTime()
+          (a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
         )
       default:
         return filteredMarkets
