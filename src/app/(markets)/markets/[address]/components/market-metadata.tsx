@@ -32,10 +32,7 @@ export const MarketMetadata = ({
     {
       title: 'Liquidity',
       icon: <LiquidityIcon width={16} height={16} />,
-      value:
-        market?.address === '0x016AC6386362645A1850b95Cb149cD0cbA68b833'
-          ? '10,000 USDC'
-          : `${NumberUtil.formatThousands(liquidity, 6)} ${market?.collateralToken.symbol}`,
+      value: `${NumberUtil.formatThousands(liquidity, 6)} ${market?.collateralToken.symbol}`,
       border: true,
     },
     {
