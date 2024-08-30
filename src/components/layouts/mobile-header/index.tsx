@@ -335,19 +335,26 @@ export default function MobileHeader() {
                       </VStack>
 
                       {client !== 'eoa' && (
-                        <Button
-                          variant='contained'
-                          w='full'
-                          h='32px'
-                          onClick={() => {
-                            trackClicked(ClickEvent.TopUpClicked, {
-                              platform: 'mobile',
-                            })
-                            onToggleUserMenu()
-                          }}
+                        <MobileDrawer
+                          trigger={
+                            <Button
+                              variant='contained'
+                              w='full'
+                              h='32px'
+                              onClick={() => {
+                                trackClicked(ClickEvent.TopUpClicked, {
+                                  platform: 'mobile',
+                                })
+                                onToggleUserMenu()
+                              }}
+                            >
+                              Top Up
+                            </Button>
+                          }
+                          variant='common'
                         >
-                          Top Up
-                        </Button>
+                          <WalletPage onClose={() => console.log('ok')} />
+                        </MobileDrawer>
                       )}
                       <Button
                         variant='grey'
