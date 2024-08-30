@@ -1,35 +1,33 @@
-import {
-  FeedEvent,
-  FeedEventType,
-  MarketStatusData,
-  TradeContractsData,
-} from '@/components/feed/types'
-import MarketFeedTradeCard from '@/components/feed/components/market-feed-trade-card'
 import MarketStatusUpdatedCard from '@/components/feed/components/market-status-updated-card'
 import { Box } from '@chakra-ui/react'
+import { FeedEventType, MarketStatusFeedData, FeedEntity } from '@/types'
 
 interface FeedItemProps {
-  data: FeedEvent<unknown>
+  data: FeedEntity<unknown>
 }
 
 export default function FeedItem({ data }: FeedItemProps) {
   const detailsFeedContent: Record<FeedEventType, JSX.Element> = {
-    [FeedEventType.BoughtContracts]: (() => {
-      const item = data as FeedEvent<TradeContractsData>
-      return <MarketFeedTradeCard data={item} />
-    })(),
-    [FeedEventType.SoldContracts]: (() => {
-      const item = data as FeedEvent<TradeContractsData>
-      return <MarketFeedTradeCard data={item} />
-    })(),
-    [FeedEventType.MarketCreated]: (() => {
-      const item = data as FeedEvent<MarketStatusData>
+    // [FeedEventType.BoughtContracts]: (() => {
+    //   const item = data as FeedItem<TradeContractsData>
+    //   return <MarketFeedTradeCard data={item} />
+    // })(),
+    // [FeedEventType.SoldContracts]: (() => {
+    //   const item = data as FeedItem<TradeContractsData>
+    //   return <MarketFeedTradeCard data={item} />
+    // })(),
+    [FeedEventType.Funded]: (() => {
+      const item = data as FeedEntity<MarketStatusFeedData>
       return <MarketStatusUpdatedCard data={item} />
     })(),
-    [FeedEventType.MarketClosed]: (() => {
-      const item = data as FeedEvent<MarketStatusData>
+    [FeedEventType.Resolved]: (() => {
+      const item = data as FeedEntity<MarketStatusFeedData>
       return <MarketStatusUpdatedCard data={item} />
     })(),
+    // [FeedEventType.MarketClosed]: (() => {
+    //   const item = data as FeedItem<MarketStatusData>
+    //   return <MarketStatusUpdatedCard data={item} />
+    // })(),
   }
   return <Box w='full'>{detailsFeedContent[data.eventType]}</Box>
 }

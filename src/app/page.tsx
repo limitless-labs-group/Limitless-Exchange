@@ -1,18 +1,23 @@
 'use client'
-import { feedMockData } from '@/components/feed/utils'
-import { Box, Button, Divider, HStack, VStack } from '@chakra-ui/react'
+import { Box, Button, Divider, HStack, VStack, Text } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import FeedItem from '@/components/feed/components/feed-item'
 import { v4 as uuidv4 } from 'uuid'
 import { MainLayout } from '@/components'
 import TextWithPixels from '@/components/common/text-with-pixels'
-import { useEffect, useRef, useState } from 'react'
-
-const data = feedMockData
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useFeed } from '@/hooks/use-feed'
+import { FeedEntity } from '@/types'
+import Loader from '@/components/common/loader'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import debounce from 'lodash.debounce'
 
 export default function MainPage() {
   const [isFixed, setIsFixed] = useState(false)
   const buttonRef = useRef(null)
+
+  const { data: feedEvents, isFetchingNextPage, fetchNextPage, hasNextPage, refetch } = useFeed()
 
   const scrollOffset = isMobile ? 202 : 122
 
@@ -37,9 +42,22 @@ export default function MainPage() {
     }
   }, [])
 
-  const handleLatestClicked = () => {
+  const handleLatestClicked = async () => {
     window.scrollTo(0, 0)
+    await refetch()
   }
+
+  const getNextPage = useCallback(
+    debounce(async () => fetchNextPage(), 1000),
+    []
+  )
+
+  const pagesData: FeedEntity<unknown>[] = useMemo(() => {
+    // @ts-ignore
+    return feedEvents?.pages.map((el) => el.data).flat()
+  }, [feedEvents])
+
+  console.log(pagesData)
 
   return (
     <MainLayout isLoading={false}>
@@ -64,11 +82,23 @@ export default function MainPage() {
             </Button>
           </Box>
         </HStack>
-        <VStack gap={isMobile ? 0 : '8px'} alignItems='baseline' mt={isMobile ? '44px' : '56px'}>
-          {data.map((item) => (
-            <FeedItem data={item as any} key={uuidv4()} />
-          ))}
-        </VStack>
+        <InfiniteScroll
+          dataLength={pagesData?.length ?? 0}
+          next={getNextPage}
+          hasMore={hasNextPage}
+          loader={
+            <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+              <Loader />
+              <Text {...paragraphRegular}>Loading more posts</Text>
+            </HStack>
+          }
+        >
+          <VStack gap={isMobile ? 0 : '8px'} alignItems='baseline' mt={isMobile ? '44px' : '56px'}>
+            {pagesData?.map((item) => (
+              <FeedItem data={item} key={uuidv4()} />
+            ))}
+          </VStack>
+        </InfiniteScroll>
       </Box>
     </MainLayout>
   )
