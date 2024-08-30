@@ -8,7 +8,6 @@ import {
   Text,
   Button,
   Image as ChakraImage,
-  useDisclosure,
   MenuButton,
   Menu,
   MenuItem,
@@ -23,7 +22,6 @@ import {
   PageOpenedMetadata,
   ShareClickedMetadata,
   useAmplitude,
-  useLimitlessApi,
   useTradingService,
 } from '@/services'
 import { useMarket, useWinningIndex } from '@/services/MarketsService'
@@ -44,7 +42,6 @@ import {
   MarketPositions,
   MarketPriceChart,
   MarketTradingForm,
-  MarketTradingModal,
   MobileTradeButton,
 } from './components'
 import {
@@ -53,8 +50,9 @@ import {
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
-import { useMarketData } from '@/hooks'
 import { Address, zeroAddress } from 'viem'
+import MobileDrawer from '@/components/common/drawer'
+import { Market } from '@/types'
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -79,11 +77,6 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     strategy,
     approveSell,
   } = useTradingService()
-  const {
-    isOpen: tradeModalOpened,
-    onOpen: openTradeModal,
-    onClose: closeTradeModal,
-  } = useDisclosure()
 
   const marketActionForm = useMemo(() => {
     if (market) {
@@ -94,7 +87,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       )
     }
     return null
-  }, [market, market?.prices])
+  }, [market])
 
   const handleApproveMarket = async () => {
     return strategy === 'Buy' ? approveBuy() : approveSell()
@@ -104,22 +97,29 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     return market?.expired ? (
       <MobileTradeButton market={market} />
     ) : (
-      <Button
-        variant='contained'
-        w='full'
-        h='48px'
-        mt='32px'
-        color='white'
-        onClick={() => {
-          trackClicked(ClickEvent.TradeButtonClicked, {
-            platform: 'mobile',
-            address: market?.address,
-          })
-          openTradeModal()
-        }}
+      <MobileDrawer
+        trigger={
+          <Button
+            variant='contained'
+            w='full'
+            h='48px'
+            mt='32px'
+            color='white'
+            onClick={() => {
+              trackClicked(ClickEvent.TradeButtonClicked, {
+                platform: 'mobile',
+                address: market?.address,
+              })
+            }}
+          >
+            Trade
+          </Button>
+        }
+        title={market?.title || ''}
+        variant='blue'
       >
-        Trade
-      </Button>
+        <MarketTradingForm market={market as Market} outcomeTokensPercent={market?.prices} />
+      </MobileDrawer>
     )
   }, [market])
 
@@ -128,6 +128,22 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       return router.back()
     }
     return router.push('/')
+  }
+
+  const parseTextWithLinks = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g
+    const parts = text.split(urlRegex)
+
+    return parts.map((part, index) => {
+      if (urlRegex.test(part)) {
+        return (
+          <Link key={index} href={part} color='teal.500' isExternal>
+            {part}
+          </Link>
+        )
+      }
+      return part
+    })
   }
 
   useEffect(() => {
@@ -262,7 +278,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                 <Text {...paragraphBold}>Description</Text>
               </HStack>
               <Text {...paragraphRegular} userSelect='text'>
-                {market?.description}
+                {parseTextWithLinks(market?.description)}
               </Text>
             </Box>
             {!isMobile && marketActionForm}
@@ -271,15 +287,6 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
             <Box position='fixed' bottom='12px' w='calc(100% - 32px)'>
               {mobileTradeButton}
             </Box>
-          )}
-          {isMobile && market && (
-            <MarketTradingModal
-              open={tradeModalOpened}
-              onClose={closeTradeModal}
-              title={(market?.proxyTitle ?? market?.title) || ''}
-              market={market}
-              outcomeTokensPercent={market.prices}
-            />
           )}
           <ApproveModal onApprove={handleApproveMarket} />
         </>

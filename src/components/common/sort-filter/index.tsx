@@ -15,7 +15,7 @@ const sortOptions = [Sort.HIGHEST_VOLUME, Sort.HIGHEST_LIQUIDITY, Sort.ENDING_SO
 
 export default function SortFilter({ onChange }: SortFilterProps) {
   const [selectedSortFilter, setSelectedSortFilter] = useState<Sort>(
-    (window.localStorage.getItem('SORT') as Sort) ?? Sort.HIGHEST_VOLUME
+    (window.sessionStorage.getItem('SORT') as Sort) ?? Sort.HIGHEST_VOLUME
   )
   const { trackClicked } = useAmplitude()
 

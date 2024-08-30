@@ -48,10 +48,10 @@ const MainPage = () => {
   const isMobile = useIsMobile()
 
   const [selectedSort, setSelectedSort] = useState<Sort>(
-    (window.localStorage.getItem('SORT') as Sort) ?? Sort.BASE
+    (window.sessionStorage.getItem('SORT') as Sort) ?? Sort.BASE
   )
   const handleSelectSort = (options: Sort) => {
-    window.localStorage.setItem('SORT', options)
+    window.sessionStorage.setItem('SORT', options)
     setSelectedSort(options)
   }
 

@@ -4,19 +4,19 @@ import { Button, Frog, TextInput } from 'frog'
 import { devtools } from 'frog/dev'
 import { handle } from 'frog/next'
 import { serveStatic } from 'frog/serve-static'
-import { Address, erc20Abi, getAddress, parseUnits } from 'viem'
+import { Address, erc20Abi, formatUnits, getAddress, getContract, parseUnits } from 'viem'
 import { getQuote, getViemClient } from '@/app/(markets)/markets/frames/[[...routes]]/queries'
-import { Market, Token } from '@/types'
+import { Market } from '@/types'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { TradeQuotes } from '@/services'
 import { readFile } from 'fs/promises'
 import path from 'path'
 import { defaultChain } from '@/constants'
+import { NumberUtil } from '@/utils'
 
 const app = new Frog<{
   State: {
     market: Market
-    collateralToken: Token
     addressOfMarket: Address
 
     accountToInvestmentAmountRaw?: string | undefined
@@ -41,15 +41,42 @@ const app = new Frog<{
 
     // @NOTE: the type of the `market` here was defined as `Market | null` before. Please check.
     const market: Market = await marketData.json()
-    const tokeData = await fetch(`${apiUrl}/tokens`, {
-      method: 'GET',
-    })
-    const tokensResponse: Token[] = await tokeData.json()
-    const token = tokensResponse.find(
-      (token) => token.address.toLowerCase() === market.collateralToken.address.toLowerCase()
-    ) as Token
 
-    return { market, collateralToken: token, addressOfMarket }
+    const contract = getContract({
+      address: addressOfMarket,
+      abi: fixedProductMarketMakerABI,
+      client: getViemClient(),
+    })
+
+    const collateralDecimals = market.collateralToken.decimals
+    const collateralAmount = collateralDecimals <= 6 ? `0.0001` : `0.0000001`
+    const collateralAmountBI = parseUnits(collateralAmount, collateralDecimals)
+    const outcomeTokenAmountYesBI = (await contract.read.calcBuyAmount([
+      collateralAmountBI,
+      0,
+    ])) as bigint
+    const outcomeTokenAmountNoBI = (await contract.read.calcBuyAmount([
+      collateralAmountBI,
+      1,
+    ])) as bigint
+    const outcomeTokenAmountYes = formatUnits(outcomeTokenAmountYesBI, collateralDecimals)
+    const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, collateralDecimals)
+    const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
+    const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
+    const prices = [outcomeTokenPriceYes, outcomeTokenPriceNo]
+
+    const sum = prices[0] + prices[1]
+    const outcomeTokensPercentYes = +((prices[0] / sum) * 100).toFixed(1)
+    const outcomeTokensPercentNo = +((prices[1] / sum) * 100).toFixed(1)
+
+    const pricesFinal = [outcomeTokensPercentYes, outcomeTokensPercentNo]
+
+    const marketFinal = {
+      ...market,
+      prices: pricesFinal,
+    }
+
+    return { market: marketFinal, addressOfMarket }
   },
   imageOptions: async () => {
     const localFont = await readFile(
@@ -71,14 +98,15 @@ const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
 
 app
   .frame('/initial/:address', async (c) => {
-    const { market, collateralToken, addressOfMarket } = c.previousState
+    const { market, addressOfMarket } = c.previousState
+    console.log(market)
     return c.res({
       browserLocation: `https://limitless.exchange/markets/${addressOfMarket}`,
       action: `/approve/${c.req.param('address')}`,
       image: `/initial/${c.req.param('address')}/img`,
       intents: [
         // eslint-disable-next-line react/jsx-key
-        <TextInput placeholder={`Enter amount ${collateralToken.symbol}`} />,
+        <TextInput placeholder={`Enter amount ${market.collateralToken.symbol}`} />,
         // eslint-disable-next-line react/jsx-key
         <Button value='buyYes'>Yes</Button>,
         // eslint-disable-next-line react/jsx-key
@@ -93,7 +121,7 @@ app
   })
   .image('/initial/:address/img', (c) => {
     // @ts-ignore
-    const { market, collateralToken } = c.previousState
+    const { market } = c.previousState
     return c.res({
       headers: {
         'Cache-Control': 'max-age=0',
@@ -158,7 +186,8 @@ app
                     fontSize: '40px',
                   }}
                 >
-                  {market.liquidityFormatted} {collateralToken.symbol}
+                  {NumberUtil.formatThousands(market.liquidityFormatted, 6)}{' '}
+                  {market.collateralToken.symbol}
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -197,7 +226,7 @@ app
       const values = await getQuote(
         previousState.market as Market,
         accountToInvestmentAmountRaw,
-        previousState.collateralToken as Token,
+        previousState.market.collateralToken.decimals,
         buttonValue === 'buyYes' ? 0 : 1,
         previousState.market?.prices as number[]
       )
@@ -223,7 +252,7 @@ app
   })
   .image('/approve/:address/img', (c) => {
     // @ts-ignore
-    const { quote, collateralToken } = c.previousState
+    const { quote, market } = c.previousState
     return c.res({
       headers: {
         'Cache-Control': 'max-age=0',
@@ -265,7 +294,7 @@ app
                   <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>Avg. Price</span>
                   <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
                     {quote ? (+quote.outcomeTokenPrice).toFixed(6) : 0}{' '}
-                    {collateralToken?.symbol || ''}
+                    {market.collateralToken.symbol || ''}
                   </span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
@@ -282,7 +311,7 @@ app
                   </span>
                   <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
                     {quote ? (+quote.outcomeTokenAmount).toFixed(6) : 0}{' '}
-                    {collateralToken?.symbol || ''}
+                    {market.collateralToken.symbol}
                   </span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
@@ -305,19 +334,19 @@ app
   })
 
 app.transaction('/approve-tx/:address', (c) => {
-  const { addressOfMarket, collateralToken, accountToInvestmentAmountRaw } = c.previousState
+  const { addressOfMarket, accountToInvestmentAmountRaw, market } = c.previousState
   if (!accountToInvestmentAmountRaw) return c.error({ message: 'No text input!' })
 
   const accountToInvestmentAmountBI = parseUnits(
     accountToInvestmentAmountRaw,
-    collateralToken?.decimals || 18
+    market.collateralToken.decimals
   )
   return c.contract({
     abi: erc20Abi,
     functionName: 'approve',
     args: [addressOfMarket as Address, accountToInvestmentAmountBI],
     chainId: `eip155:${defaultChain.id}`,
-    to: collateralToken?.address as Address,
+    to: market.collateralToken.address,
   })
 })
 
@@ -340,7 +369,7 @@ app
   })
   .image('/buy/:address/img', (c) => {
     // @ts-ignore
-    const { quote, collateralToken } = c.previousState
+    const { quote, market } = c.previousState
     return c.res({
       headers: {
         'Cache-Control': 'max-age=0',
@@ -382,7 +411,7 @@ app
                   <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>Avg. Price</span>
                   <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
                     {quote ? (+quote.outcomeTokenPrice).toFixed(6) : '0.00'}{' '}
-                    {collateralToken?.symbol || ''}
+                    {market.collateralToken.symbol}
                   </span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
@@ -399,7 +428,7 @@ app
                   </span>
                   <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
                     {quote ? (+quote.outcomeTokenAmount).toFixed(6) : '0.00'}{' '}
-                    {collateralToken?.symbol || ''}
+                    {market.collateralToken.symbol}
                   </span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
@@ -422,15 +451,14 @@ app
   })
 
 app.transaction('/buy-tx/:address', async (c) => {
-  const { addressOfMarket, collateralToken, outcomeIndex, accountToInvestmentAmountRaw } =
-    c.previousState
+  const { addressOfMarket, outcomeIndex, accountToInvestmentAmountRaw, market } = c.previousState
   if (outcomeIndex === undefined || accountToInvestmentAmountRaw === undefined)
     return c.error({ message: 'Insufficient parameters' })
   const client = getViemClient()
 
   const accountToInvestmentAmountBI = parseUnits(
     accountToInvestmentAmountRaw,
-    collateralToken?.decimals || 18
+    market.collateralToken.decimals
   )
 
   const minOutcomeTokensToBuy = await client.readContract({
