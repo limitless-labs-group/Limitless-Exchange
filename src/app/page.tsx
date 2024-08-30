@@ -14,7 +14,7 @@ export default function MainPage() {
   const [isFixed, setIsFixed] = useState(false)
   const buttonRef = useRef(null)
 
-  const scrollOffset = isMobile ? 78 : 122
+  const scrollOffset = isMobile ? 202 : 122
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,8 +57,7 @@ export default function MainPage() {
             ref={buttonRef}
             position={isFixed ? 'fixed' : 'absolute'}
             top={isFixed ? '28px' : scrollOffset}
-            transform='translateX(-50%)'
-            zIndex='1000'
+            zIndex='50'
           >
             <Button variant='contained' onClick={handleLatestClicked}>
               View Latest Posts

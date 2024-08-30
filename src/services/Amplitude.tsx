@@ -201,14 +201,13 @@ export type LogoClickedPage =
   | 'Portfolio'
   | 'Market Page'
   | 'Unknown Page'
-  | 'Feed'
+  | 'Home'
 export interface LogoClickedMetadata {
   page: LogoClickedPage
 }
 
-export type CreateMarketClickedPage = 'Explore Markets'
 export interface CreateMarketClickedMetadata {
-  page: CreateMarketClickedPage
+  page: LogoClickedPage
 }
 
 export type DepositClickedPage =
@@ -217,12 +216,12 @@ export type DepositClickedPage =
   | 'Market Page'
   | 'Creator Cabinet'
   | 'Explore Markets'
-  | 'Feed'
+  | 'Home'
 export interface DepositClickedMetadata {
   page: DepositClickedPage
 }
 
-export type SupportChatClickedPage = 'Deposit Page' | 'Header Dropdown Menu' | 'Feed'
+export type SupportChatClickedPage = 'Deposit Page' | 'Header Dropdown Menu' | 'Home'
 export interface SupportChatClickedMetadata {
   page: SupportChatClickedPage
 }
@@ -250,7 +249,7 @@ export type PageOpenedPage =
   | 'Portfolio Page'
   | 'Deposit Page'
   | 'Explore Markets'
-  | 'Feed'
+  | 'Home'
 export interface PageOpenedMetadata {
   page: PageOpenedPage
   marketAddress?: Address
@@ -262,7 +261,7 @@ export type OpenMarketClickedPage =
   | 'Creator Cabinet'
   | 'Portfolio Page'
   | 'Explore Markets'
-  | 'Feed'
+  | 'Home'
 export interface OpenMarketClickedMetadata {
   page: OpenMarketClickedPage
 }
