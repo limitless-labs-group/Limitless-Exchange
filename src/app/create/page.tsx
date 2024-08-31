@@ -77,8 +77,8 @@ const tokenLimits: TokenLimits = {
     step: 0.1,
   },
   USDC: {
-    min: 250,
-    max: 25000,
+    min: 300,
+    max: 30000,
     step: 100,
   },
   VITA: {
