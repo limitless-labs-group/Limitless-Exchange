@@ -34,12 +34,12 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
         w={'full'}
         justifyContent={'space-between'}
         cursor='pointer'
-        _hover={{ bg: 'blue.500' }}
-        onMouseEnter={() => setColors(hoverColors)}
-        onMouseLeave={() => setColors(defaultColors)}
+        _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
+        onMouseEnter={() => !isMobile && setColors(hoverColors)}
+        onMouseLeave={() => !isMobile && setColors(defaultColors)}
       >
-        <HStack justifyContent='space-between' mb='12px'>
-          <Text {...paragraphMedium} color={colors.main} fontSize={'14px'} lineHeight={'20px'}>
+        <HStack justifyContent='space-between' mb='12px' alignItems='flex-start'>
+          <Text {...paragraphMedium} color={colors.main}>
             {market.proxyTitle ?? market.title ?? 'Noname market'}
           </Text>
           <HStack gap={1} color={colors.main}>

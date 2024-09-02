@@ -9,21 +9,22 @@ import {
   MenuButton,
   MenuList,
   Slide,
+  Spacer,
   Text,
   useColorMode,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
-import React from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
-import '../../../../src/app/style.css'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 import HomeIcon from '@/resources/icons/home-icon.svg'
 import GridIcon from '@/resources/icons/grid-icon.svg'
 import PenIcon from '@/resources/icons/pen-icon.svg'
 
+import '@/app/style.css'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
@@ -53,23 +54,46 @@ import NextLink from 'next/link'
 import { Link } from '@chakra-ui/react'
 import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
 import { Overlay } from '@/components/common/overlay'
+import SocialsFooter from '@/components/common/socials-footer'
+import Loader from '@/components/common/loader'
 
 export default function Sidebar() {
-  const { user, isOpenProfileDrawer, onOpenProfileDrawer, onCloseProfileDrawer } =
-    useProfileService()
+  const {
+    user,
+    getProfileDataLoading,
+    isOpenProfileDrawer,
+    onOpenProfileDrawer,
+    onCloseProfileDrawer,
+  } = useProfileService()
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
-  const { disconnectFromPlatform } = useDisconnectAccount()
+  const { disconnectFromPlatform, disconnectLoading } = useDisconnectAccount()
   const { overallBalanceUsd } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { trackClicked } = useAmplitude()
-  const { isConnected } = useWagmiAccount()
+  const { isConnected, isConnecting, isReconnecting } = useWagmiAccount()
   const { client } = useWeb3Service()
 
-  // const address = useWalletAddress()
   const pageName = usePageName()
+  const userMenuLoading = useMemo(() => {
+    const userWithProfileLoading = isConnected && getProfileDataLoading
+    const userWithoutProfileLoading = isConnected && !user?.displayName
+    const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
+    const loading =
+      userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
 
-  const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
-  const { isOpen: isOpenAuthMenu, onToggle: onToggleAuthMenu } = useDisclosure()
+    return loading
+  }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
+
+  const {
+    isOpen: isOpenWalletPage,
+    onToggle: onToggleWalletPage,
+    onClose: onCloseWalletPage,
+  } = useDisclosure()
+  const {
+    isOpen: isOpenAuthMenu,
+    onToggle: onToggleAuthMenu,
+    onClose: onCloseAuthMenu,
+  } = useDisclosure()
 
   const {
     isOpen: isWrapModalOpen,
@@ -77,13 +101,25 @@ export default function Sidebar() {
     onClose: onCloseWrapModal,
   } = useDisclosure()
 
-  const handleOpenWalletPage = () => {
-    if (client !== 'eoa') {
-      onToggleWalletPage()
-    }
-  }
+  const handleOpenWalletPage = useCallback(() => {
+    if (client === 'eoa') return
+    onCloseProfileDrawer()
+    onToggleWalletPage()
+  }, [client])
+  const handleOpenWrapModal = useCallback(() => onOpenWrapModal(), [])
+  const handleOpenProfileDrawer = useCallback(() => {
+    onCloseWalletPage()
+    onCloseWrapModal()
+    onCloseAuthMenu()
 
-  const handleOpenWrapModal = () => onOpenWrapModal()
+    if (!isOpenProfileDrawer) {
+      onOpenProfileDrawer()
+      return
+    }
+
+    onCloseProfileDrawer()
+    return
+  }, [isOpenWalletPage, isOpenProfileDrawer])
 
   return (
     <>
@@ -103,6 +139,7 @@ export default function Sidebar() {
           <Link
             onClick={() => {
               trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
+              window.localStorage.removeItem('SORT')
             }}
           >
             <Image
@@ -178,51 +215,69 @@ export default function Sidebar() {
                   </HStack>
                 </Link>
               </NextLink>
+
               <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
-                <MenuButton
-                  as={Button}
-                  onClick={onToggleAuthMenu}
-                  rightIcon={<ChevronDownIcon width='16px' height='16px' />}
-                  bg={isOpenAuthMenu ? 'grey.200' : 'unset'}
-                  h='24px'
-                  px='8px'
-                  w='full'
-                  _active={{
-                    bg: 'grey.200',
-                  }}
-                  _hover={{
-                    bg: 'grey.200',
-                  }}
-                >
-                  <HStack gap='8px'>
-                    {user?.pfpUrl?.includes('http') ? (
-                      <ChakraImage
-                        src={user.pfpUrl}
-                        borderRadius={'2px'}
-                        h={'16px'}
-                        w={'16px'}
-                        objectFit='cover'
-                        className='amp-block'
-                      />
-                    ) : (
-                      <Flex
-                        borderRadius={'2px'}
-                        h={'16px'}
-                        w={'16px'}
-                        bg='grey.300'
-                        alignItems='center'
-                        justifyContent='center'
-                      >
-                        <Text {...paragraphMedium} className={'amp-mask'}>
-                          {user.displayName ? user.displayName[0].toUpperCase() : 'O'}
-                        </Text>
-                      </Flex>
-                    )}
-                    <Text {...paragraphMedium} className={'amp-mask'}>
-                      {user.displayName}
-                    </Text>
-                  </HStack>
-                </MenuButton>
+                {userMenuLoading ? (
+                  <Button
+                    h='24px'
+                    px='8px'
+                    w='full'
+                    _active={{
+                      bg: 'grey.200',
+                    }}
+                    _hover={{
+                      bg: 'grey.200',
+                    }}
+                  >
+                    <Loader />
+                  </Button>
+                ) : (
+                  <MenuButton
+                    as={Button}
+                    onClick={onToggleAuthMenu}
+                    rightIcon={<ChevronDownIcon width='16px' height='16px' />}
+                    bg={isOpenAuthMenu ? 'grey.200' : 'unset'}
+                    h='24px'
+                    px='8px'
+                    w='full'
+                    _active={{
+                      bg: 'grey.200',
+                    }}
+                    _hover={{
+                      bg: 'grey.200',
+                    }}
+                  >
+                    <HStack gap='8px'>
+                      {user?.pfpUrl?.includes('http') ? (
+                        <ChakraImage
+                          src={user.pfpUrl}
+                          borderRadius={'2px'}
+                          h={'16px'}
+                          w={'16px'}
+                          objectFit='cover'
+                          className='amp-block'
+                        />
+                      ) : (
+                        <Flex
+                          borderRadius={'2px'}
+                          h={'16px'}
+                          w={'16px'}
+                          bg='grey.300'
+                          alignItems='center'
+                          justifyContent='center'
+                        >
+                          <Text {...paragraphMedium} className={'amp-mask'}>
+                            {user?.displayName ? user?.displayName![0].toUpperCase() : 'O'}
+                          </Text>
+                        </Flex>
+                      )}
+                      <Text {...paragraphMedium} className={'amp-mask'}>
+                        {user.displayName}
+                      </Text>
+                    </HStack>
+                  </MenuButton>
+                )}
+
                 <MenuList borderRadius='2px' w='171px' zIndex={2}>
                   <HStack gap='4px' mb='4px'>
                     <Button
@@ -252,10 +307,11 @@ export default function Sidebar() {
                       <MoonIcon width={16} height={16} />
                     </Button>
                   </HStack>
+                  {/* hidding it for prod release */}
                   <Button
                     variant='grey'
                     w='full'
-                    onClick={!isOpenProfileDrawer ? onOpenProfileDrawer : onCloseProfileDrawer}
+                    onClick={handleOpenProfileDrawer}
                     justifyContent='flex-start'
                   >
                     Profile
@@ -349,6 +405,12 @@ export default function Sidebar() {
           </Link>
         </NextLink>
         {!isMobile && <CategoryFilter />}
+
+        <Spacer />
+
+        <Divider />
+
+        <SocialsFooter />
       </VStack>
       {isOpenWalletPage && (
         <Box

@@ -68,8 +68,6 @@ export default function MainPage() {
     return feedEvents?.pages.map((el) => el.data).flat()
   }, [feedEvents])
 
-  console.log(pagesData)
-
   return (
     <MainLayout isLoading={false}>
       <Box w={isMobile ? 'full' : '664px'} ml={isMobile ? 'auto' : '200px'}>

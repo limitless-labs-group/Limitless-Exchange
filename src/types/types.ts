@@ -309,6 +309,10 @@ export interface ColorScheme {
     300: string
     700: string
   }
+  blackTransparent: {
+    200: string
+    600: string
+  }
 }
 
 export interface RedeemParams {
