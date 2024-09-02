@@ -208,7 +208,11 @@ export function BuyForm({
             </Button>
           </Box>
           {isOpenSelectMarketMenu && (
-            <VStack gap={isMobile ? '16px' : '8px'} mb={isMobile ? '16px' : '8px'}>
+            <VStack
+              gap={isMobile ? '16px' : '8px'}
+              mb={isMobile ? '16px' : '8px'}
+              mx={isMobile ? '16px' : 0}
+            >
               {marketList.map((market) => (
                 <Button
                   key={market.address}

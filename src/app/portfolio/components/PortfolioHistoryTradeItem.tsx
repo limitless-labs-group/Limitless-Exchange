@@ -1,12 +1,12 @@
 import { defaultChain } from '@/constants'
 import { HistoryTrade } from '@/services'
 import { NumberUtil, truncateEthAddress } from '@/utils'
-import { HStack, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
 import { useAllMarkets } from '@/services/MarketsService'
-import NextLink from 'next/link'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import NextLink from 'next/link'
 
 interface IPortfolioHistoryTradeItem extends TableRowProps {
   trade: HistoryTrade
@@ -40,7 +40,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
           </Text>
         </HStack>
       </Td>
-      <Td isNumeric>{NumberUtil.formatThousands(trade.outcomeTokenAmount, 4)}</Td>
+      <Td isNumeric>{NumberUtil.formatThousands(trade.outcomeTokenAmount, 6)}</Td>
       <Td px={2} isNumeric>
         <Text>
           {`${NumberUtil.formatThousands(
@@ -63,14 +63,15 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
             : targetMarket?.title}
         </NextLink>
       </Td>
-      <Td textDecoration='underline'>
-        <NextLink
+      <Td>
+        <Link
           href={`${defaultChain.blockExplorers.default.url}/tx/${trade.transactionHash}`}
           target='_blank'
           rel='noopener'
+          variant='textLink'
         >
           {truncateEthAddress(trade.transactionHash)}
-        </NextLink>
+        </Link>
       </Td>
     </Tr>
   )

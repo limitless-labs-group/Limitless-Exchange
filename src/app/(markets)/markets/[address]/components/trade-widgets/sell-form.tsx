@@ -415,7 +415,7 @@ export function SellForm({
                     <HStack w={'full'}>
                       <Text
                         {...paragraphMedium}
-                        color='whtie'
+                        color='white'
                         textAlign={'left'}
                         whiteSpace='normal'
                       >
