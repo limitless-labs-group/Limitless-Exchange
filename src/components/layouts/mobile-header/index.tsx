@@ -161,17 +161,7 @@ export default function MobileHeader() {
                   >
                     <Box w='full'>
                       {userMenuLoading ? (
-                        <Button
-                          h='24px'
-                          px='8px'
-                          w='full'
-                          _active={{
-                            bg: 'grey.200',
-                          }}
-                          _hover={{
-                            bg: 'grey.200',
-                          }}
-                        >
+                        <Button h='24px' px='8px' w='full'>
                           <Loader />
                         </Button>
                       ) : (
