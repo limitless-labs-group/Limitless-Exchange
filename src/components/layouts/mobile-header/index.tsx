@@ -423,7 +423,9 @@ export default function MobileHeader() {
           </HStack>
         </HStack>
       </Box>
-      {isMobile && (pathname === '/' || pathname.includes('topics')) && <TokenFilterMobile />}
+      {isMobile && (pathname === '/markets' || pathname.includes('topics')) && (
+        <TokenFilterMobile />
+      )}
     </>
   )
 }
