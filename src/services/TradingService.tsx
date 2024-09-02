@@ -327,13 +327,13 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   useQuery({
     queryKey: [
       'tradeQuotesYes',
-      fixedProductMarketMakerContract?.address,
-      collateralAmount,
-      balanceOfOutcomeTokenYes,
-      0,
-      strategy,
-      outcomeTokensBuyPriceCurrent,
-      outcomeTokensSellPriceCurrent,
+      // fixedProductMarketMakerContract?.address,
+      // collateralAmount,
+      // balanceOfOutcomeTokenYes,
+      // 0,
+      // strategy,
+      // outcomeTokensBuyPriceCurrent,
+      // outcomeTokensSellPriceCurrent,
     ],
     queryFn: async () => {
       if (!fixedProductMarketMakerContract || !(Number(collateralAmount) > 0)) {
@@ -392,13 +392,13 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   useQuery({
     queryKey: [
       'tradeQuotesNo',
-      fixedProductMarketMakerContract?.address,
-      collateralAmount,
-      balanceOfOutcomeTokenNo,
-      1,
-      strategy,
-      outcomeTokensBuyPriceCurrent,
-      outcomeTokensSellPriceCurrent,
+      // fixedProductMarketMakerContract?.address,
+      // collateralAmount,
+      // balanceOfOutcomeTokenNo,
+      // 1,
+      // strategy,
+      // outcomeTokensBuyPriceCurrent,
+      // outcomeTokensSellPriceCurrent,
     ],
     queryFn: async () => {
       if (!fixedProductMarketMakerContract || !(Number(collateralAmount) > 0)) {

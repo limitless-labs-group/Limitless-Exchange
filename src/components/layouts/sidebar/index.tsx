@@ -5,6 +5,7 @@ import {
   Flex,
   HStack,
   Image as ChakraImage,
+  Link,
   Menu,
   MenuButton,
   MenuList,
@@ -16,10 +17,14 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
+import HomeIcon from '@/resources/icons/home-icon.svg'
+import GridIcon from '@/resources/icons/grid-icon.svg'
+import PenIcon from '@/resources/icons/pen-icon.svg'
+
 import '@/app/style.css'
 import {
   ClickEvent,
@@ -47,7 +52,6 @@ import WalletPage from '@/components/layouts/wallet-page'
 import SwapIcon from '@/resources/icons/swap-icon.svg'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import NextLink from 'next/link'
-import { Link } from '@chakra-ui/react'
 import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
 import { Overlay } from '@/components/common/overlay'
 import SocialsFooter from '@/components/common/socials-footer'
@@ -74,10 +78,7 @@ export default function Sidebar() {
     const userWithProfileLoading = isConnected && getProfileDataLoading
     const userWithoutProfileLoading = isConnected && !user?.displayName
     const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
-    const loading =
-      userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
-
-    return loading
+    return userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
   }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
 
   const {
@@ -147,9 +148,9 @@ export default function Sidebar() {
           </Link>
         </NextLink>
 
-        {isConnected && (
+        {isConnected ? (
           <>
-            <VStack my='16px' w='full' gap='8px'>
+            <VStack mt='16px' w='full' gap='8px'>
               {client !== 'eoa' ? (
                 <Button
                   variant='transparent'
@@ -201,6 +202,7 @@ export default function Sidebar() {
                   }}
                   variant='transparent'
                   w='full'
+                  bg={pageName === 'Portfolio' ? 'grey.200' : 'unset'}
                 >
                   <HStack w='full'>
                     <PortfolioIcon width={16} height={16} />
@@ -262,7 +264,7 @@ export default function Sidebar() {
                           justifyContent='center'
                         >
                           <Text {...paragraphMedium} className={'amp-mask'}>
-                            {user?.displayName ? user?.displayName![0].toUpperCase() : 'O'}
+                            {!!user?.displayName?.length ? user.displayName[0].toUpperCase() : 'O'}
                           </Text>
                         </Flex>
                       )}
@@ -330,30 +332,75 @@ export default function Sidebar() {
               </Menu>
             </VStack>
           </>
-        )}
-        {isConnected ? (
-          <Button
-            variant='grey'
-            w='full'
-            onClick={() => {
-              trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
-                page: 'Explore Markets',
-              })
-              window.open(
-                'https://limitlesslabs.notion.site/Limitless-Creators-101-fbbde33a51104fcb83c57f6ce9d69d2a?pvs=4',
-                '_blank',
-                'noopener'
-              )
-            }}
-          >
-            Create Market
-          </Button>
         ) : (
           <Box mt='16px' w='full'>
             <LoginButton />
           </Box>
         )}
-        <Divider />
+        <Divider my='12px' />
+        <NextLink href='/' passHref style={{ width: '100%' }}>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Home',
+              })
+            }}
+            variant='transparent'
+            w='full'
+            bg={pageName === 'Home' ? 'grey.200' : 'unset'}
+          >
+            <HStack w='full'>
+              <HomeIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                Home
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
+        <NextLink href='/markets' passHref style={{ width: '100%' }}>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Markets',
+              })
+            }}
+            variant='transparent'
+            w='full'
+            bg={pageName === 'Explore Markets' ? 'grey.200' : 'unset'}
+          >
+            <HStack w='full'>
+              <GridIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                Markets
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
+        <NextLink
+          href='https://limitlesslabs.notion.site/Limitless-Creators-101-fbbde33a51104fcb83c57f6ce9d69d2a?pvs=4'
+          target='_blank'
+          rel='noopener'
+          passHref
+          style={{ width: '100%' }}
+        >
+          <Link
+            isExternal
+            onClick={() => {
+              trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
+                page: pageName,
+              })
+            }}
+            variant='transparent'
+            w='full'
+          >
+            <HStack w='full'>
+              <PenIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                Suggest market
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
         {!isMobile && <CategoryFilter />}
 
         <Spacer />
@@ -382,7 +429,7 @@ export default function Sidebar() {
         style={{
           zIndex: 100,
           marginTop: '20px',
-          marginLeft: '188px',
+          marginLeft: '197px',
           transition: '0.1s',
         }}
         onClick={() => {
@@ -398,10 +445,8 @@ export default function Sidebar() {
         direction='left'
         in={isOpenProfileDrawer}
         style={{
-          borderRight: '1px solid',
-          borderColor: '#E7E7E7', // theme.colors['grey.200'],
           zIndex: 100,
-          left: '188px',
+          left: '197px',
           width: '328px',
           height: '100%',
           transition: '0.1s',

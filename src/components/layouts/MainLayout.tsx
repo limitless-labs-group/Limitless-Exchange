@@ -4,6 +4,7 @@ import { isMobile } from 'react-device-detect'
 import React from 'react'
 import MobileHeader from '@/components/layouts/mobile-header'
 import HeaderMarquee from '@/components/layouts/header-marquee'
+import MobileNavigation from '@/components/layouts/mobile-navigation'
 
 interface IMainLayout extends FlexProps {
   isLoading?: boolean
@@ -25,7 +26,7 @@ export const MainLayout = ({ children, isLoading, ...props }: IMainLayout) => {
       {...props}
     >
       <HeaderMarquee />
-      <Box mt='20px'>
+      <Box mt='20px' mb={isMobile ? '60px' : 0}>
         {isMobile && <MobileHeader />}
         <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
           {!isMobile && <Sidebar />}
@@ -40,6 +41,7 @@ export const MainLayout = ({ children, isLoading, ...props }: IMainLayout) => {
           )}
         </HStack>
       </Box>
+      {isMobile && <MobileNavigation />}
     </Box>
   )
 }
