@@ -5,6 +5,7 @@ import {
   Flex,
   HStack,
   Image as ChakraImage,
+  Link,
   Menu,
   MenuButton,
   MenuList,
@@ -16,7 +17,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
@@ -51,7 +52,6 @@ import WalletPage from '@/components/layouts/wallet-page'
 import SwapIcon from '@/resources/icons/swap-icon.svg'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import NextLink from 'next/link'
-import { Link } from '@chakra-ui/react'
 import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
 import { Overlay } from '@/components/common/overlay'
 import SocialsFooter from '@/components/common/socials-footer'
@@ -78,10 +78,7 @@ export default function Sidebar() {
     const userWithProfileLoading = isConnected && getProfileDataLoading
     const userWithoutProfileLoading = isConnected && !user?.displayName
     const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
-    const loading =
-      userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
-
-    return loading
+    return userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
   }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
 
   const {
@@ -267,7 +264,7 @@ export default function Sidebar() {
                           justifyContent='center'
                         >
                           <Text {...paragraphMedium} className={'amp-mask'}>
-                            {user?.displayName ? user?.displayName![0].toUpperCase() : 'O'}
+                            {!!user?.displayName?.length ? user.displayName[0].toUpperCase() : 'O'}
                           </Text>
                         </Flex>
                       )}
@@ -432,7 +429,7 @@ export default function Sidebar() {
         style={{
           zIndex: 100,
           marginTop: '20px',
-          marginLeft: '188px',
+          marginLeft: '197px',
           transition: '0.1s',
         }}
         onClick={() => {
@@ -449,7 +446,7 @@ export default function Sidebar() {
         in={isOpenProfileDrawer}
         style={{
           zIndex: 100,
-          left: '188px',
+          left: '197px',
           width: '328px',
           height: '100%',
           transition: '0.1s',

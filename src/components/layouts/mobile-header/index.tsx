@@ -160,94 +160,74 @@ export default function MobileHeader() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Box w='full'>
-                      <MobileDrawer
-                        trigger={
-                          <>
-                            {userMenuLoading ? (
-                              <Button
-                                h='24px'
-                                px='8px'
-                                w='full'
-                                _active={{
-                                  bg: 'grey.200',
-                                }}
-                                _hover={{
-                                  bg: 'grey.200',
-                                }}
-                              >
-                                <Loader />
-                              </Button>
-                            ) : (
-                              <Button variant='transparent' w='full' p={0} m={0} display='flex'>
-                                <HStack
-                                  w='full'
-                                  gap='8px'
-                                  justifyContent='space-between'
-                                  // onClick={() => {
-                                  //   onCloseUserMenu()
-                                  // }}
-                                >
-                                  <StackItem
-                                    display='flex'
-                                    justifyContent='center'
+                      {userMenuLoading ? (
+                        <Button
+                          h='24px'
+                          px='8px'
+                          w='full'
+                          _active={{
+                            bg: 'grey.200',
+                          }}
+                          _hover={{
+                            bg: 'grey.200',
+                          }}
+                        >
+                          <Loader />
+                        </Button>
+                      ) : (
+                        <MobileDrawer
+                          trigger={
+                            <HStack
+                              w='full'
+                              gap='8px'
+                              justifyContent='space-between'
+                              onClick={() => {
+                                onToggleUserMenu()
+                              }}
+                            >
+                              <StackItem display='flex' justifyContent='center' alignItems='center'>
+                                {user?.pfpUrl?.includes('http') ? (
+                                  <ChakraImage
+                                    src={user?.pfpUrl}
+                                    borderRadius={'2px'}
+                                    h={'24px'}
+                                    w={'24px'}
+                                    className='amp-block'
+                                  />
+                                ) : (
+                                  <Flex
+                                    borderRadius={'2px'}
+                                    h={'24px'}
+                                    w={'24px'}
+                                    bg='grey.300'
                                     alignItems='center'
+                                    justifyContent='center'
                                   >
-                                    {user?.pfpUrl?.includes('http') ? (
-                                      <ChakraImage
-                                        src={user?.pfpUrl}
-                                        borderRadius={'2px'}
-                                        h={'24px'}
-                                        w={'24px'}
-                                        className='amp-block'
-                                      />
-                                    ) : (
-                                      <Flex
-                                        borderRadius={'2px'}
-                                        h={'24px'}
-                                        w={'24px'}
-                                        bg='grey.300'
-                                        alignItems='center'
-                                        justifyContent='center'
-                                      >
-                                        <Text
-                                          fontWeight={500}
-                                          fontSize='24px'
-                                          className={'amp-mask'}
-                                        >
-                                          {user?.displayName
-                                            ? user?.displayName[0].toUpperCase()
-                                            : 'O'}
-                                        </Text>
-                                      </Flex>
-                                    )}
-                                    <Box mx='4px' />
-                                    <Text {...paragraphMedium} className={'amp-mask'}>
-                                      {user?.displayName
-                                        ? cutUsername(user?.displayName, 60)
-                                        : truncateEthAddress(address)}
+                                    <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
+                                      {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
                                     </Text>
-                                  </StackItem>
+                                  </Flex>
+                                )}
+                                <Box mx='4px' />
+                                <Text {...paragraphMedium} className={'amp-mask'}>
+                                  {user?.displayName
+                                    ? cutUsername(user?.displayName, 60)
+                                    : truncateEthAddress(address)}
+                                </Text>
+                              </StackItem>
 
-                                  <StackItem>
-                                    <Box
-                                      color='grey.800'
-                                      onClick={() => {
-                                        onToggleUserMenu()
-                                      }}
-                                    >
-                                      <ArrowRightIcon width={16} height={16} />
-                                    </Box>
-                                  </StackItem>
-                                </HStack>
-                              </Button>
-                            )}
-                          </>
-                        }
-                        variant='common'
-                      >
-                        <ProfileContentMobile />
-                      </MobileDrawer>
-
+                              <StackItem>
+                                <Box color='grey.800'>
+                                  <ArrowRightIcon width={16} height={16} />
+                                </Box>
+                              </StackItem>
+                            </HStack>
+                          }
+                          variant='common'
+                        >
+                          <ProfileContentMobile />
+                        </MobileDrawer>
+                      )}
                       <HStack
                         spacing={2}
                         my={'24px'}
@@ -332,7 +312,7 @@ export default function MobileHeader() {
                                   </HStack>
 
                                   <HStack gap='8px'>
-                                    <Text fontWeight={500}>
+                                    <Text fontWeight={500} fontSize='16px'>
                                       {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                                     </Text>
                                     <Box color='grey.800'>
