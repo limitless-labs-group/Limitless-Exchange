@@ -15,6 +15,8 @@ import { isMobile } from 'react-device-detect'
 import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { setTimeout } from '@wry/context'
 import usePageName from '@/hooks/use-page-name'
+import MobileDrawer from '@/components/common/drawer'
+import Withdraw from '@/components/layouts/wallet-page/components/withdraw'
 
 interface WalletPageProps {
   onClose: () => void
@@ -54,6 +56,37 @@ export default function WalletPage({ onClose }: WalletPageProps) {
     onOpenWithdraw()
   }
 
+  const withdrawButton = isMobile ? (
+    <MobileDrawer
+      trigger={
+        <Button
+          variant='white'
+          onClick={() => {
+            trackClicked(ClickEvent.WithdrawClicked)
+          }}
+        >
+          Withdraw
+        </Button>
+      }
+      variant='common'
+      title='Withdraw crypto'
+    >
+      <Box mx='16px'>
+        <Withdraw onClose={() => console.log('ok')} isOpen={true} />
+      </Box>
+    </MobileDrawer>
+  ) : (
+    <Button
+      variant='white'
+      onClick={() => {
+        trackClicked(ClickEvent.WithdrawClicked)
+        handleOpenWithdrawModal()
+      }}
+    >
+      Withdraw
+    </Button>
+  )
+
   useEffect(() => {
     const hideCopiedMessage = setTimeout(() => {
       setCopied(false)
@@ -80,15 +113,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
               Available balance
             </Text>
           </HStack>
-          <Button
-            variant='white'
-            onClick={() => {
-              trackClicked(ClickEvent.WithdrawClicked)
-              handleOpenWithdrawModal()
-            }}
-          >
-            Withdraw
-          </Button>
+          {withdrawButton}
         </HStack>
         <Text color='white' fontSize='24px' fontWeight={500} mb='16px'>
           ~{NumberUtil.formatThousands(overallBalanceUsd, 2)} USD

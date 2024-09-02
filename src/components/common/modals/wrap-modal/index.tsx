@@ -12,7 +12,7 @@ import SwapIcon from '@/resources/icons/swap-icon.svg'
 import { useQueryClient } from '@tanstack/react-query'
 
 interface WrapModalPros {
-  isOpen: boolean
+  isOpen?: boolean
   onClose: () => void
 }
 
@@ -86,20 +86,8 @@ export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
     return
   }
 
-  useEffect(() => {
-    if (mutationToCall.status === 'success') {
-      resetMutation()
-    }
-  }, [mutationToCall.status])
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title='Wrap ETH'
-      h={isMobile ? 'full' : 'unset'}
-      mt={isMobile ? '40px' : 'auto'}
-    >
+  const modalContent = (
+    <Box mx={isMobile ? '16px' : 0}>
       <HStack justifyContent='space-between' mt={isMobile ? '32px' : '24px'}>
         <Text {...paragraphMedium}>Balance</Text>
         <Text {...paragraphMedium}>
@@ -198,6 +186,20 @@ export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
           </Text>
         )}
       </HStack>
+    </Box>
+  )
+
+  useEffect(() => {
+    if (mutationToCall.status === 'success') {
+      resetMutation()
+    }
+  }, [mutationToCall.status])
+
+  return isMobile ? (
+    modalContent
+  ) : (
+    <Modal isOpen={isOpen || false} onClose={onClose} title='Wrap ETH' h={'unset'} mt={'auto'}>
+      {modalContent}
     </Modal>
   )
 }

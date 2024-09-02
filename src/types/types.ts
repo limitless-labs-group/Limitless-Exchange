@@ -22,7 +22,7 @@ export type MarketData = {
   next: number
 }
 
-interface Creator {
+export interface Creator {
   name: string
   imageURI?: string
   link?: string

@@ -201,14 +201,18 @@ export interface ClickedWithdrawMetadata {
   coin: string
 }
 
-export type LogoClickedPage = 'Explore Markets' | 'Portfolio' | 'Market Page' | 'Unknown Page'
+export type LogoClickedPage =
+  | 'Explore Markets'
+  | 'Portfolio'
+  | 'Market Page'
+  | 'Unknown Page'
+  | 'Home'
 export interface LogoClickedMetadata {
   page: LogoClickedPage
 }
 
-export type CreateMarketClickedPage = 'Explore Markets'
 export interface CreateMarketClickedMetadata {
-  page: CreateMarketClickedPage
+  page: LogoClickedPage
 }
 
 export type DepositClickedPage =
@@ -217,11 +221,12 @@ export type DepositClickedPage =
   | 'Market Page'
   | 'Creator Cabinet'
   | 'Explore Markets'
+  | 'Home'
 export interface DepositClickedMetadata {
   page: DepositClickedPage
 }
 
-export type SupportChatClickedPage = 'Deposit Page' | 'Header Dropdown Menu'
+export type SupportChatClickedPage = 'Deposit Page' | 'Header Dropdown Menu' | 'Home'
 export interface SupportChatClickedMetadata {
   page: SupportChatClickedPage
 }
@@ -250,6 +255,7 @@ export type PageOpenedPage =
   | 'Portfolio Page'
   | 'Deposit Page'
   | 'Explore Markets'
+  | 'Home'
 export interface PageOpenedMetadata {
   page: PageOpenedPage
   marketAddress?: Address
@@ -257,6 +263,11 @@ export interface PageOpenedMetadata {
   [key: string]: any
 }
 
+export type OpenMarketClickedPage =
+  | 'Creator Cabinet'
+  | 'Portfolio Page'
+  | 'Explore Markets'
+  | 'Home'
 export type Platform = 'Mobile' | 'Desktop'
 export interface ProfileSettingsMetadata {
   platform: Platform
@@ -266,7 +277,6 @@ export type ProfilePictureUploadClickedMetadata = ProfileSettingsMetadata
 export type ProfilePictureUploadedChangedMetadata = ProfileSettingsMetadata
 export type ProfileSettingsChangedMetadata = ProfileSettingsMetadata
 
-export type OpenMarketClickedPage = 'Creator Cabinet' | 'Portfolio Page' | 'Explore Markets'
 export interface OpenMarketClickedMetadata {
   page: OpenMarketClickedPage
 }
@@ -304,6 +314,8 @@ export type ProfileBurgerMenuClickedOption =
   | 'Wallet'
   | 'Portfolio'
   | 'Sign Out'
+  | 'Home'
+  | 'Markets'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }

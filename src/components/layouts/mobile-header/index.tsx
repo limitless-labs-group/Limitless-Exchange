@@ -1,18 +1,18 @@
 import Image from 'next/image'
 import {
+  Box,
   Button,
+  ButtonGroup,
+  Divider,
   Flex,
   HStack,
-  Text,
   Image as ChakraImage,
-  useDisclosure,
   Slide,
-  Box,
-  VStack,
-  ButtonGroup,
-  StackItem,
-  Divider,
   Spacer,
+  StackItem,
+  Text,
+  useDisclosure,
+  VStack,
 } from '@chakra-ui/react'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
@@ -47,9 +47,7 @@ import MoonIcon from '@/resources/icons/moon-icon.svg'
 import SwapIcon from '@/resources/icons/swap-icon.svg'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import { ProfileContentMobile } from '@/components/layouts/mobile-header/components'
-import { Overlay } from '@/components/common/overlay'
-import { motion } from 'framer-motion'
-import { useBottomSheetDisclosure } from '@/hooks'
+import MobileDrawer from '@/components/common/drawer'
 import SocialsFooter from '@/components/common/socials-footer'
 import Loader from '@/components/common/loader'
 
@@ -69,29 +67,10 @@ export default function MobileHeader() {
     const userWithProfileLoading = isConnected && getProfileDataLoading
     const userWithoutProfileLoading = isConnected && !user?.displayName
     const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
-    const loading =
-      userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
-
-    return loading
+    return userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
   }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
 
-  const {
-    onDrag: onDragProfileBottomSheet,
-    isOpen: isOpenProfileBottomSheet,
-    onOpen: onOpenProfileBottomSheet,
-    onClose: onCloseProfileBottomSheet,
-  } = useBottomSheetDisclosure()
-  const {
-    isOpen: isOpenUserMenu,
-    onToggle: onToggleUserMenu,
-    onClose: onCloseUserMenu,
-  } = useDisclosure()
-  const { isOpen: isWalletModalOpen, onToggle: onToggleWalletModal } = useDisclosure()
-  const {
-    isOpen: isWrapModalOpen,
-    onOpen: onOpenWrapModal,
-    onClose: onCloseWrapModal,
-  } = useDisclosure()
+  const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
 
   const handleNavigateToPortfolioPage = () => {
     onToggleUserMenu()
@@ -100,7 +79,6 @@ export default function MobileHeader() {
 
   const handleOpenWrapModal = () => {
     onToggleUserMenu()
-    onOpenWrapModal()
   }
 
   return (
@@ -197,62 +175,59 @@ export default function MobileHeader() {
                           <Loader />
                         </Button>
                       ) : (
-                        <Button variant='transparent' w='full' p={0} m={0} display='flex'>
-                          <HStack
-                            w='full'
-                            gap='8px'
-                            justifyContent='space-between'
-                            onClick={() => {
-                              onCloseUserMenu()
-                              onOpenProfileBottomSheet()
-                            }}
-                          >
-                            <StackItem display='flex' justifyContent='center' alignItems='center'>
-                              {user?.pfpUrl?.includes('http') ? (
-                                <ChakraImage
-                                  src={user?.pfpUrl}
-                                  borderRadius={'2px'}
-                                  h={'24px'}
-                                  w={'24px'}
-                                  className='amp-block'
-                                />
-                              ) : (
-                                <Flex
-                                  borderRadius={'2px'}
-                                  h={'24px'}
-                                  w={'24px'}
-                                  bg='grey.300'
-                                  alignItems='center'
-                                  justifyContent='center'
-                                >
-                                  <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
-                                    {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
-                                  </Text>
-                                </Flex>
-                              )}
-                              <Box mx='4px' />
-                              <Text {...paragraphMedium} className={'amp-mask'}>
-                                {user?.displayName
-                                  ? cutUsername(user?.displayName, 60)
-                                  : truncateEthAddress(address)}
-                              </Text>
-                            </StackItem>
+                        <MobileDrawer
+                          trigger={
+                            <HStack
+                              w='full'
+                              gap='8px'
+                              justifyContent='space-between'
+                              onClick={() => {
+                                onToggleUserMenu()
+                              }}
+                            >
+                              <StackItem display='flex' justifyContent='center' alignItems='center'>
+                                {user?.pfpUrl?.includes('http') ? (
+                                  <ChakraImage
+                                    src={user?.pfpUrl}
+                                    borderRadius={'2px'}
+                                    h={'24px'}
+                                    w={'24px'}
+                                    className='amp-block'
+                                  />
+                                ) : (
+                                  <Flex
+                                    borderRadius={'2px'}
+                                    h={'24px'}
+                                    w={'24px'}
+                                    bg='grey.300'
+                                    alignItems='center'
+                                    justifyContent='center'
+                                  >
+                                    <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
+                                      {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
+                                    </Text>
+                                  </Flex>
+                                )}
+                                <Box mx='4px' />
+                                <Text {...paragraphMedium} className={'amp-mask'}>
+                                  {user?.displayName
+                                    ? cutUsername(user?.displayName, 60)
+                                    : truncateEthAddress(address)}
+                                </Text>
+                              </StackItem>
 
-                            <StackItem>
-                              <Box
-                                color='grey.800'
-                                onClick={() => {
-                                  onToggleUserMenu()
-                                  onOpenProfileBottomSheet()
-                                }}
-                              >
-                                <ArrowRightIcon width={16} height={16} />
-                              </Box>
-                            </StackItem>
-                          </HStack>
-                        </Button>
+                              <StackItem>
+                                <Box color='grey.800'>
+                                  <ArrowRightIcon width={16} height={16} />
+                                </Box>
+                              </StackItem>
+                            </HStack>
+                          }
+                          variant='common'
+                        >
+                          <ProfileContentMobile />
+                        </MobileDrawer>
                       )}
-
                       <HStack
                         spacing={2}
                         my={'24px'}
@@ -314,58 +289,71 @@ export default function MobileHeader() {
                         </Button>
 
                         {client !== 'eoa' ? (
-                          <Box
-                            w='full'
-                            mt='8px'
-                            px={0}
-                            onClick={() => {
-                              trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
-                                option: 'Wallet',
-                                platform: 'mobile',
-                              })
+                          <MobileDrawer
+                            trigger={
+                              <Box
+                                w='full'
+                                mt='8px'
+                                px={0}
+                                onClick={() => {
+                                  trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+                                    option: 'Wallet',
+                                    platform: 'mobile',
+                                  })
+                                  onToggleUserMenu()
+                                }}
+                              >
+                                <HStack justifyContent='space-between' w='full'>
+                                  <HStack color='grey.500' gap='4px'>
+                                    <WalletIcon width={16} height={16} />
+                                    <Text fontWeight={500} fontSize='16px'>
+                                      Wallet
+                                    </Text>
+                                  </HStack>
 
-                              onToggleWalletModal()
-                              onToggleUserMenu()
-                            }}
-                          >
-                            <HStack justifyContent='space-between' w='full'>
-                              <HStack color='grey.500' gap='4px'>
-                                <WalletIcon width={16} height={16} />
-                                <Text fontWeight={500} fontSize='16px'>
-                                  Wallet
-                                </Text>
-                              </HStack>
-
-                              <HStack gap='8px'>
-                                <Text fontWeight={500}>
-                                  {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-                                </Text>
-                                <Box color='grey.800'>
-                                  <ArrowRightIcon width={16} height={16} />
-                                </Box>
-                              </HStack>
-                            </HStack>
-                          </Box>
-                        ) : (
-                          <Button
-                            variant='transparent'
-                            px={0}
-                            w='full'
-                            onClick={handleOpenWrapModal}
-                          >
-                            <HStack justifyContent='space-between' w='full'>
-                              <HStack color='grey.500' gap='4px'>
-                                <SwapIcon width={16} height={16} />
-                                <Text fontWeight={500} fontSize='16px'>
-                                  Wrap ETH
-                                </Text>
-                              </HStack>
-
-                              <Box color='grey.800'>
-                                <ArrowRightIcon width={16} height={16} />
+                                  <HStack gap='8px'>
+                                    <Text fontWeight={500} fontSize='16px'>
+                                      {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+                                    </Text>
+                                    <Box color='grey.800'>
+                                      <ArrowRightIcon width={16} height={16} />
+                                    </Box>
+                                  </HStack>
+                                </HStack>
                               </Box>
-                            </HStack>
-                          </Button>
+                            }
+                            variant='common'
+                          >
+                            <WalletPage onClose={() => console.log('ok')} />
+                          </MobileDrawer>
+                        ) : (
+                          <MobileDrawer
+                            trigger={
+                              <Button
+                                variant='transparent'
+                                px={0}
+                                w='full'
+                                onClick={handleOpenWrapModal}
+                              >
+                                <HStack justifyContent='space-between' w='full'>
+                                  <HStack color='grey.500' gap='4px'>
+                                    <SwapIcon width={16} height={16} />
+                                    <Text fontWeight={500} fontSize='16px'>
+                                      Wrap ETH
+                                    </Text>
+                                  </HStack>
+
+                                  <Box color='grey.800'>
+                                    <ArrowRightIcon width={16} height={16} />
+                                  </Box>
+                                </HStack>
+                              </Button>
+                            }
+                            title='Wrap ETH'
+                            variant='common'
+                          >
+                            <WrapModal onClose={() => console.log('ok')} />
+                          </MobileDrawer>
                         )}
                       </VStack>
 
@@ -378,8 +366,6 @@ export default function MobileHeader() {
                             trackClicked(ClickEvent.TopUpClicked, {
                               platform: 'mobile',
                             })
-
-                            onToggleWalletModal()
                             onToggleUserMenu()
                           }}
                         >
@@ -435,64 +421,9 @@ export default function MobileHeader() {
               <LoginButton />
             )}
           </HStack>
-          {isWalletModalOpen && (
-            <Box
-              position='fixed'
-              top={0}
-              left={0}
-              bottom={0}
-              w='full'
-              zIndex={100}
-              bg='rgba(0, 0, 0, 0.3)'
-              mt='20px'
-              animation='fadeIn 0.5s'
-            ></Box>
-          )}
-          <Slide
-            direction='bottom'
-            in={isWalletModalOpen}
-            style={{
-              zIndex: 150,
-              paddingTop: isWalletModalOpen ? '60px' : 0,
-              top: isWalletModalOpen ? 0 : '60px',
-              height: '100%',
-              transition: '0.1s',
-              animation: 'fadeIn 0.5s',
-            }}
-            onClick={() => {
-              onToggleWalletModal()
-            }}
-          >
-            <WalletPage onClose={onToggleWalletModal} />
-          </Slide>
-          <Slide
-            direction='bottom'
-            in={isOpenProfileBottomSheet}
-            style={{
-              zIndex: 150,
-              paddingTop: isOpenProfileBottomSheet ? '60px' : 0,
-              top: isOpenProfileBottomSheet ? 0 : '60px',
-              height: '100%',
-              transition: '0.1s',
-              animation: 'fadeIn 0.5s',
-            }}
-            onClick={onOpenProfileBottomSheet}
-          >
-            <motion.div
-              drag='y'
-              dragPropagation
-              onDragEnd={onDragProfileBottomSheet}
-              style={{ height: '100%' }}
-              dragConstraints={{ top: 0, bottom: 0 }}
-            >
-              <ProfileContentMobile />
-            </motion.div>
-          </Slide>
         </HStack>
       </Box>
       {isMobile && (pathname === '/' || pathname.includes('topics')) && <TokenFilterMobile />}
-      <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />
-      <Overlay show={isOpenProfileBottomSheet} onClose={onCloseProfileBottomSheet} />
     </>
   )
 }

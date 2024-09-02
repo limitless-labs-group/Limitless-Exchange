@@ -24,7 +24,7 @@ const hoverColors = {
   main: 'var(--chakra-colors-white)',
   secondary: 'var(--chakra-colors-transparent-700)',
   chartBg: 'var(--chakra-colors-transparent-300)',
-  divider: 'var(--chakra-colors-white)',
+  divider: 'var(--chakra-colors-transparent-300)',
 }
 
 export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
