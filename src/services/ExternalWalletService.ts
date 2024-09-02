@@ -1,5 +1,5 @@
 import { config as wagmiConfig, publicClient } from '@/providers'
-import { Address, encodeFunctionData, erc20Abi, getContract } from 'viem'
+import { Address, encodeFunctionData, erc20Abi, getContract, parseUnits } from 'viem'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
 import { defaultChain } from '@/constants'
 import { useAccount, useSendTransaction, useWriteContract } from 'wagmi'
@@ -222,6 +222,7 @@ export const useExternalWalletService = () => {
   ) => {
     await checkAndSwitchChainIfNeeded()
     let txHash = ''
+    console.log('sellOutcomeTokens', outcomeIndex, maxOutcomeTokensToSell)
     await writeContractAsync(
       {
         abi: fixedProductMarketMakerABI,

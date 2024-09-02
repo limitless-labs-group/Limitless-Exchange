@@ -17,7 +17,7 @@ export function getViemClient() {
 export const getQuote = async (
   market: Market,
   collateralAmount: string,
-  collateralToken: Token,
+  decimals: number,
   outcomeTokenId: number,
   outcomeTokensBuyPercent: number[]
 ) => {
@@ -30,7 +30,7 @@ export const getQuote = async (
     return null
   }
 
-  const collateralAmountBI = parseUnits(collateralAmount ?? '0', collateralToken?.decimals || 18)
+  const collateralAmountBI = parseUnits(collateralAmount ?? '0', decimals)
 
   let outcomeTokenAmountBI
   outcomeTokenAmountBI = (await fixedProductMarketMakerContract.read.calcBuyAmount([
@@ -42,7 +42,7 @@ export const getQuote = async (
     return null
   }
 
-  const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, collateralToken.decimals || 18)
+  const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, decimals)
   const outcomeTokenPrice = (Number(collateralAmount) / Number(outcomeTokenAmount)).toString()
 
   const roi = ((Number(outcomeTokenAmount) / Number(collateralAmount) - 1) * 100).toString()
