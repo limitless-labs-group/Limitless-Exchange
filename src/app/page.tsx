@@ -23,6 +23,7 @@ const MainPage = () => {
    * ANALYTICS
    */
   const { trackOpened } = useAmplitude()
+  const isMobile = useIsMobile()
   const category = searchParams.get('category')
 
   useEffect(() => {
@@ -41,11 +42,6 @@ const MainPage = () => {
       ) || null
     )
   }, [categories, category])
-
-  /**
-   * UI
-   */
-  const isMobile = useIsMobile()
 
   const [selectedSort, setSelectedSort] = useState<Sort>(
     (window.sessionStorage.getItem('SORT') as Sort) ?? Sort.BASE
