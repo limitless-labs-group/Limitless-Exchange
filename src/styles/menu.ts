@@ -12,9 +12,13 @@ const baseStyle = definePartsStyle({
     ...commonButtonProps,
     bg: 'grey.300',
     borderRadius: '2px',
-    _hover: {
-      bg: 'grey.400',
-    },
+    ...(isMobile
+      ? {}
+      : {
+          _hover: {
+            bg: 'grey.400',
+          },
+        }),
     _disabled: {
       bg: 'grey.300',
       pointerEvents: 'none',
@@ -34,9 +38,13 @@ const baseStyle = definePartsStyle({
     borderRadius: '2px',
     px: '4px',
     py: isMobile ? '6px' : '2px',
-    _hover: {
-      bg: 'grey.400 !important',
-    },
+    ...(isMobile
+      ? {}
+      : {
+          _hover: {
+            bg: 'grey.400 !important',
+          },
+        }),
   },
 })
 
@@ -48,10 +56,14 @@ const variants = {
       border: '1px solid',
       borderColor: 'grey.300',
       bg: 'unset',
-      _hover: {
-        bg: 'unset',
-        borderColor: 'grey.800',
-      },
+      ...(isMobile
+        ? {}
+        : {
+            _hover: {
+              bg: 'unset',
+              borderColor: 'grey.800',
+            },
+          }),
       _active: {
         borderColor: 'grey.800',
       },
@@ -67,9 +79,13 @@ const variants = {
     button: {
       w: 'full',
       bg: 'blue.400',
-      _hover: {
-        bg: 'blue.400',
-      },
+      ...(isMobile
+        ? {}
+        : {
+            _hover: {
+              bg: 'blue.400',
+            },
+          }),
     },
     list: {
       p: 0,

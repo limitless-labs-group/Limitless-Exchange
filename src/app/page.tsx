@@ -21,7 +21,7 @@ export default function MainPage() {
 
   const { data: feedEvents, fetchNextPage, hasNextPage, refetch } = useFeed()
 
-  const scrollOffset = isMobile ? 202 : 122
+  const scrollOffset = isMobile ? 156 : 122
 
   useEffect(() => {
     const handleScroll = () => {
