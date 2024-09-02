@@ -12,12 +12,14 @@ import Loader from '@/components/common/loader'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import debounce from 'lodash.debounce'
+import { useQueryClient } from '@tanstack/react-query'
 
 export default function MainPage() {
+  const queryClient = useQueryClient()
   const [isFixed, setIsFixed] = useState(false)
   const buttonRef = useRef(null)
 
-  const { data: feedEvents, isFetchingNextPage, fetchNextPage, hasNextPage, refetch } = useFeed()
+  const { data: feedEvents, fetchNextPage, hasNextPage, refetch } = useFeed()
 
   const scrollOffset = isMobile ? 202 : 122
 
@@ -42,9 +44,18 @@ export default function MainPage() {
     }
   }, [])
 
+  const refetchFirstPage = async () => {
+    queryClient.setQueryData(['feed'], (oldData: any) => ({
+      ...oldData,
+      pages: oldData?.pages.slice(0, 1),
+    }))
+    // @ts-ignore
+    await refetch({ refetchPage: (_page, index) => index === 0 })
+  }
+
   const handleLatestClicked = async () => {
     window.scrollTo(0, 0)
-    await refetch()
+    await refetchFirstPage()
   }
 
   const getNextPage = useCallback(
