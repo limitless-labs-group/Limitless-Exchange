@@ -161,9 +161,13 @@ export const chakraTheme = ChakraTheme({
           ...commonButtonProps,
           bg: 'blue.500',
           color: 'white',
-          _hover: {
-            bg: 'blue.600',
-          },
+          ...(isMobile
+            ? {}
+            : {
+                _hover: {
+                  bg: 'blue.600',
+                },
+              }),
           _disabled: {
             bg: 'grey.300 !important',
             color: 'grey.500',
@@ -187,9 +191,13 @@ export const chakraTheme = ChakraTheme({
         grey: {
           ...commonButtonProps,
           bg: 'grey.300',
-          _hover: {
-            bg: 'grey.400',
-          },
+          ...(isMobile
+            ? {}
+            : {
+                _hover: {
+                  bg: 'grey.400',
+                },
+              }),
           _disabled: {
             bg: 'grey.300',
             color: 'grey.500',
@@ -200,27 +208,39 @@ export const chakraTheme = ChakraTheme({
           ...commonButtonProps,
           bg: 'grey.800',
           color: 'grey.50',
-          _hover: {
-            bg: 'grey.800',
-          },
+          ...(isMobile
+            ? {}
+            : {
+                _hover: {
+                  bg: 'grey.800',
+                },
+              }),
         },
         transparent: {
           background: 'unset',
           ...commonButtonProps,
           px: '8px',
           gap: '8px',
-          _hover: {
-            bg: 'grey.200',
-          },
+          ...(isMobile
+            ? {}
+            : {
+                _hover: {
+                  bg: 'grey.200',
+                },
+              }),
         },
         transparentLight: {
           ...commonButtonProps,
           bg: 'transparent.200',
           p: isMobile ? '8px 12px' : '4px 8px',
           height: 'unset',
-          _hover: {
-            bg: 'transparent.300',
-          },
+          ...(isMobile
+            ? {}
+            : {
+                _hover: {
+                  bg: 'transparent.300',
+                },
+              }),
         },
       },
     },

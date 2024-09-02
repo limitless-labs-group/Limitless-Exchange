@@ -1,5 +1,6 @@
 import { defineStyle, defineStyleConfig } from '@chakra-ui/react'
 import { commonButtonProps } from '@/styles/button'
+import { isMobile } from 'react-device-detect'
 
 const transparent = defineStyle({
   ...commonButtonProps,
@@ -9,10 +10,14 @@ const transparent = defineStyle({
   background: 'unset',
   px: '8px',
   gap: '8px',
-  _hover: {
-    bg: 'grey.200',
-    textDecoration: 'none',
-  },
+  ...(isMobile
+    ? {}
+    : {
+        _hover: {
+          bg: 'grey.200',
+          textDecoration: 'none',
+        },
+      }),
 })
 
 export const linkTheme = defineStyleConfig({
