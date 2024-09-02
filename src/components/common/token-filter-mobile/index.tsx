@@ -1,18 +1,20 @@
 import React, { useState } from 'react'
 import { Text, Box, HStack } from '@chakra-ui/react'
-import { useCategories } from '@/services'
-import { useTokenFilter } from '@/contexts/TokenFilterContext'
+import { ClickEvent, useAmplitude, useCategories } from '@/services'
 import '@/app/style.css'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import usePageName from '@/hooks/use-page-name'
 
 export default function TokenFilterMobile() {
   const [section, setSection] = useState('Topics')
-  const { handleCategory } = useTokenFilter()
 
   const { data: categories } = useCategories()
   const searchParams = useSearchParams()
+
+  const { trackClicked } = useAmplitude()
+  const pageName = usePageName()
 
   const TopicSectionCategories = () =>
     (categories ?? []).map((category) => {
@@ -20,7 +22,6 @@ export default function TokenFilterMobile() {
       return (
         <Box
           bg={_selected ? 'grey.800' : 'grey.300'}
-          onClick={() => handleCategory(category)}
           padding='4px 8px'
           key={category.id}
           borderRadius='2px'
@@ -31,7 +32,15 @@ export default function TokenFilterMobile() {
             bg: category.name === searchParams?.get('category') ? 'grey.800' : 'grey.400',
           }}
         >
-          <Link href={{ pathname: '/', query: { category: category.name } }}>
+          <Link
+            href={{ pathname: '/markets', query: { category: category.name } }}
+            onClick={() => {
+              trackClicked(ClickEvent.CategoryClicked, {
+                name: category.name,
+                page: pageName,
+              })
+            }}
+          >
             <Text {...paragraphMedium} color={_selected ? 'grey.50' : 'grey.800'} fontWeight={500}>
               /{category.name}
             </Text>

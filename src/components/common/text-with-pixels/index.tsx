@@ -6,7 +6,7 @@ type TextWithPixelsProps = TextProps & {
 }
 export default function TextWithPixels({ text, highlightWord = 2, ...props }: TextWithPixelsProps) {
   const parts = text.split(' ')
-  if (parts.length === 2) {
+  if (parts.length === 2 && !highlightWord) {
     return (
       <>
         <Text as='span' {...props}>

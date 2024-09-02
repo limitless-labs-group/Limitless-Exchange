@@ -94,7 +94,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
         bg='black'
         justifyContent='space-between'
         // onClick={action}
-        onClick={() => router.push('/')}
+        onClick={() => router.push('/markets')}
         // _hover={{
         //   bg: buttonColor,
         // }}

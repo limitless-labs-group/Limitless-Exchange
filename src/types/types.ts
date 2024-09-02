@@ -22,7 +22,7 @@ export type MarketData = {
   next: number
 }
 
-interface Creator {
+export interface Creator {
   name: string
   imageURI?: string
   link?: string
@@ -308,6 +308,10 @@ export interface ColorScheme {
     200: string
     300: string
     700: string
+  }
+  blackTransparent: {
+    200: string
+    600: string
   }
 }
 
