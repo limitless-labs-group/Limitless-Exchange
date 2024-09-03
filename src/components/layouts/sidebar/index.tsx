@@ -15,6 +15,7 @@ import {
   useColorMode,
   useDisclosure,
   VStack,
+  Skeleton,
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React, { useCallback, useMemo } from 'react'
@@ -335,6 +336,17 @@ export default function Sidebar() {
         ) : (
           <Box mt='16px' w='full'>
             <LoginButton />
+            {/* @oleksandr, this is the skeleton that does not render */}
+            <Skeleton
+              flex={1}
+              pos='relative'
+              h='100px'
+              w='100px'
+              bg='red'
+              borderColor='red'
+              borderWidth={1}
+              zIndex={15000}
+            />
           </Box>
         )}
         <Divider my='12px' />
