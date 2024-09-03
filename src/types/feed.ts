@@ -25,8 +25,8 @@ export interface MarketStatusFeedData {
 }
 
 export interface FeedNewPostData {
-  content: 'test'
-  media: ''
+  content: string
+  media: string
 }
 
 export interface FeedResponse {
