@@ -23,6 +23,11 @@ export interface MarketStatusFeedData {
   liquidityFormatted: string
 }
 
+export interface FeedResponse {
+  data: FeedEntity<unknown>[]
+  totalPages: number
+}
+
 export interface FeedEntity<T> {
   eventType: FeedEventType
   timestamp: string

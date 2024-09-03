@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { FeedEntity } from '@/types'
+import { FeedEntity, FeedResponse } from '@/types'
 import axios, { AxiosResponse } from 'axios'
 
 export function useFeed() {
@@ -8,7 +8,7 @@ export function useFeed() {
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/feed`
-      const response: AxiosResponse<FeedEntity<unknown>[]> = await axios.get(baseUrl, {
+      const response: AxiosResponse<FeedResponse> = await axios.get(baseUrl, {
         params: {
           page: pageParam,
           limit: 10,
@@ -18,9 +18,8 @@ export function useFeed() {
     },
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {
-      console.log(lastPage)
       // @ts-ignore
-      return lastPage?.data.length < 10 ? null : lastPage.next
+      return lastPage?.data.totalPages < lastPage.next ? null : lastPage.next
     },
     refetchOnWindowFocus: false,
     keepPreviousData: true,
