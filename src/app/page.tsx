@@ -65,7 +65,7 @@ export default function MainPage() {
 
   const pagesData: FeedEntity<unknown>[] = useMemo(() => {
     // @ts-ignore
-    return feedEvents?.pages.map((el) => el.data).flat()
+    return feedEvents?.pages?.map((el) => el.data.data).flat()
   }, [feedEvents])
 
   return (
