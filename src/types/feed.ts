@@ -3,6 +3,7 @@ import { Address } from 'viem'
 export enum FeedEventType {
   Funded = 'FUNDED_MARKET',
   Resolved = 'RESOLVED_MARKET',
+  NewPost = 'NEW_POST',
 }
 
 export interface FeedEventUser {
@@ -21,6 +22,11 @@ export interface MarketStatusFeedData {
   }
   volumeFormatted: string
   liquidityFormatted: string
+}
+
+export interface FeedNewPostData {
+  content: 'test'
+  media: ''
 }
 
 export interface FeedResponse {
