@@ -40,7 +40,11 @@ export default function MarketStatusUpdatedCard({ data }: MarketStatusUpdatedCar
           w={'full'}
           justifyContent={'space-between'}
           cursor='pointer'
-          _hover={{ bg: 'blue.500' }}
+          {...(isMobile
+            ? {}
+            : {
+                _hover: { bg: 'blue.500' },
+              })}
           onMouseEnter={() => setColors(hoverColors)}
           onMouseLeave={() => setColors(defaultColors)}
         >
