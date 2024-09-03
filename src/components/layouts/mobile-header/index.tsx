@@ -55,7 +55,7 @@ export default function MobileHeader() {
   const { getProfileDataLoading, user } = useProfileService()
   const { isConnected, isConnecting, isReconnecting } = useWagmiAccount()
   const { overallBalanceUsd } = useBalanceService()
-  const address = useWalletAddress()
+  const account = useWalletAddress()
   const { balanceInvested } = useHistory()
   const router = useRouter()
   const { disconnectFromPlatform, disconnectLoading } = useDisconnectAccount()
@@ -200,7 +200,9 @@ export default function MobileHeader() {
                                 )}
                                 <Box mx='4px' />
                                 <Text {...paragraphMedium} className={'amp-mask'}>
-                                  {user?.displayName}
+                                  {user.displayName
+                                    ? cutUsername(user.displayName, 13)
+                                    : truncateEthAddress(account)}
                                 </Text>
                               </StackItem>
 
