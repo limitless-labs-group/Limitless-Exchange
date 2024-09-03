@@ -338,14 +338,14 @@ export default function Sidebar() {
             <LoginButton />
             {/* @oleksandr, this is the skeleton that does not render */}
             <Skeleton
-              flex={1}
-              pos='relative'
-              h='100px'
-              w='100px'
-              bg='red'
-              borderColor='red'
-              borderWidth={1}
-              zIndex={15000}
+              // pos='relative'
+              height='100px'
+              variant='common'
+              // w='100px'
+              // bg='red'
+              // borderColor='red'
+              // borderWidth={1}
+              // zIndex={15000}
             />
           </Box>
         )}
