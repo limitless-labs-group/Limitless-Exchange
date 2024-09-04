@@ -144,11 +144,7 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
     }
 
     return {
-      displayName: profile?.displayName
-        ? cutUsername(profile?.displayName)
-        : profile?.username
-        ? cutUsername(profile?.username)
-        : truncateEthAddress(account),
+      displayName: profile?.displayName ?? profile?.username,
       pfpUrl: profile?.pfpUrl,
     }
   }, [userInfo, profile, getProfileDataLoading, account])

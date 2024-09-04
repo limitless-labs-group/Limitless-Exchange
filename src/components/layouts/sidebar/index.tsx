@@ -38,7 +38,7 @@ import {
 } from '@/services'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import { NumberUtil } from '@/utils'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 import { useWeb3Service } from '@/services/Web3Service'
 import { LoginButton } from '@/components/common/login-button'
 import CategoryFilter from '@/components/common/categories'
@@ -57,6 +57,8 @@ import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
 import { Overlay } from '@/components/common/overlay'
 import SocialsFooter from '@/components/common/socials-footer'
 import Loader from '@/components/common/loader'
+import { cutUsername } from '@/utils/string'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 export default function Sidebar() {
   const {
@@ -71,6 +73,7 @@ export default function Sidebar() {
   const { overallBalanceUsd } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { trackClicked } = useAmplitude()
+  const account = useWalletAddress()
   const { isConnected, isConnecting, isReconnecting } = useWagmiAccount()
   const { client } = useWeb3Service()
 
@@ -270,7 +273,9 @@ export default function Sidebar() {
                         </Flex>
                       )}
                       <Text {...paragraphMedium} className={'amp-mask'}>
-                        {user.displayName}
+                        {user.displayName
+                          ? cutUsername(user.displayName, 13)
+                          : truncateEthAddress(account)}
                       </Text>
                     </HStack>
                   </MenuButton>
