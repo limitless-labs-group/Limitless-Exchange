@@ -82,7 +82,7 @@ export default function Sidebar() {
     const userWithProfileLoading = isConnected && getProfileDataLoading
     const userWithoutProfileLoading = isConnected && !user?.displayName
     const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
-    return userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
+    return false //#fix for dev env
   }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
 
   const {
