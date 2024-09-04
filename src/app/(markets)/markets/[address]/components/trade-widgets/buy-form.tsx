@@ -436,6 +436,7 @@ export function BuyForm({
                   h='16px'
                   top={isMobile ? '8px' : '4px'}
                   right={isMobile ? '8px' : '4px'}
+                  w='fit'
                 >
                   <Text {...paragraphMedium} color='white'>
                     {market?.collateralToken.symbol}

@@ -25,6 +25,7 @@ import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Address } from 'viem'
 import Loader from '@/components/common/loader'
 import PositionCardContainer from '@/app/portfolio/components/position-card-container'
+import BigNumber from 'bignumber.js'
 
 export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {
   position: HistoryPosition
@@ -64,7 +65,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   const currentContractsPrice =
     +(position.outcomeTokenAmount || 1) * ((market?.prices[position.outcomeIndex] || 1) / 100)
 
-  const contractPrice = currentContractsPrice / +(position?.collateralAmount || 1)
+  const contractPrice = new BigNumber(market?.prices[position.outcomeIndex] || 1)
+    .dividedBy(100)
+    .dividedBy(
+      new BigNumber(
+        position.latestTrade?.outcomeTokenPrice ? +position.latestTrade.outcomeTokenPrice : 1
+      )
+    )
+    .toNumber()
 
   const contractPriceChanged = useMemo(() => {
     let price
@@ -234,9 +242,12 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             Invested
           </Text>
           <Text color={cardColors.main} lineHeight={'20px'} fontWeight={400} fontSize={'16px'}>
-            {`${NumberUtil.formatThousands(position.collateralAmount, 6)} ${
-              market?.collateralToken.symbol
-            }`}
+            {`${NumberUtil.toFixed(
+              new BigNumber(position.outcomeTokenAmount || '1')
+                .multipliedBy(position.latestTrade?.outcomeTokenPrice || '1')
+                .toFixed(6),
+              6
+            )} ${market?.collateralToken.symbol}`}
           </Text>
         </HStack>
       </Stack>
@@ -299,9 +310,12 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
                 Invested
               </Text>
               <Text {...paragraphRegular} color={cardColors.main}>
-                {`${NumberUtil.formatThousands(position.collateralAmount, 6)} ${
-                  market?.collateralToken.symbol
-                }`}
+                {`${NumberUtil.toFixed(
+                  new BigNumber(position.outcomeTokenAmount || '1')
+                    .multipliedBy(position.latestTrade?.outcomeTokenPrice || '1')
+                    .toFixed(6),
+                  6
+                )} ${market?.collateralToken.symbol}`}
               </Text>
             </VStack>
           </HStack>

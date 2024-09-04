@@ -15,6 +15,7 @@ import {
   useColorMode,
   useDisclosure,
   VStack,
+  Skeleton,
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import React, { useCallback, useMemo } from 'react'
@@ -155,82 +156,87 @@ export default function Sidebar() {
           <>
             <VStack mt='16px' w='full' gap='8px'>
               {client !== 'eoa' ? (
-                <Button
-                  variant='transparent'
-                  onClick={() => {
-                    trackClicked<ProfileBurgerMenuClickedMetadata>(
-                      ClickEvent.ProfileBurgerMenuClicked,
-                      {
-                        option: 'Wallet',
-                      }
-                    )
-                    handleOpenWalletPage()
-                  }}
-                  w='full'
-                  bg={isOpenWalletPage ? 'grey.200' : 'unset'}
-                >
-                  <HStack w='full'>
-                    <WalletIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
-                      {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-                    </Text>
-                  </HStack>
-                </Button>
+                <>
+                  {userMenuLoading ? (
+                    <Skeleton height='24px' w='full' variant='common' />
+                  ) : (
+                    <Button
+                      variant='transparent'
+                      onClick={() => {
+                        trackClicked<ProfileBurgerMenuClickedMetadata>(
+                          ClickEvent.ProfileBurgerMenuClicked,
+                          {
+                            option: 'Wallet',
+                          }
+                        )
+                        handleOpenWalletPage()
+                      }}
+                      w='full'
+                      bg={isOpenWalletPage ? 'grey.200' : 'unset'}
+                    >
+                      <HStack w='full'>
+                        <WalletIcon width={16} height={16} />
+                        <Text fontWeight={500} fontSize='14px'>
+                          {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+                        </Text>
+                      </HStack>
+                    </Button>
+                  )}
+                </>
               ) : (
-                <Button
-                  variant='transparent'
-                  w='full'
-                  onClick={() => {
-                    trackClicked(ClickEvent.WithdrawClicked)
-                    handleOpenWrapModal()
-                  }}
-                >
-                  <HStack w='full'>
-                    <SwapIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
-                      Wrap ETH
-                    </Text>
-                  </HStack>
-                </Button>
+                <>
+                  {userMenuLoading ? (
+                    <Skeleton height='24px' w='full' variant='common' />
+                  ) : (
+                    <Button
+                      variant='transparent'
+                      w='full'
+                      onClick={() => {
+                        trackClicked(ClickEvent.WithdrawClicked)
+                        handleOpenWrapModal()
+                      }}
+                    >
+                      <HStack w='full'>
+                        <SwapIcon width={16} height={16} />
+                        <Text fontWeight={500} fontSize='14px'>
+                          Wrap ETH
+                        </Text>
+                      </HStack>
+                    </Button>
+                  )}
+                </>
               )}
-              <NextLink href='/portfolio' passHref style={{ width: '100%' }}>
-                <Link
-                  onClick={() => {
-                    trackClicked<ProfileBurgerMenuClickedMetadata>(
-                      ClickEvent.ProfileBurgerMenuClicked,
-                      {
-                        option: 'Portfolio',
-                      }
-                    )
-                  }}
-                  variant='transparent'
-                  w='full'
-                  bg={pageName === 'Portfolio' ? 'grey.200' : 'unset'}
-                >
-                  <HStack w='full'>
-                    <PortfolioIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
-                      Portfolio
-                    </Text>
-                  </HStack>
-                </Link>
-              </NextLink>
+
+              {userMenuLoading ? (
+                <Skeleton height='24px' w='full' variant='common' />
+              ) : (
+                <NextLink href='/portfolio' passHref style={{ width: '100%' }}>
+                  <Link
+                    onClick={() => {
+                      trackClicked<ProfileBurgerMenuClickedMetadata>(
+                        ClickEvent.ProfileBurgerMenuClicked,
+                        {
+                          option: 'Portfolio',
+                        }
+                      )
+                    }}
+                    variant='transparent'
+                    w='full'
+                    bg={pageName === 'Portfolio' ? 'grey.200' : 'unset'}
+                  >
+                    <HStack w='full'>
+                      <PortfolioIcon width={16} height={16} />
+                      <Text fontWeight={500} fontSize='14px'>
+                        Portfolio
+                      </Text>
+                    </HStack>
+                  </Link>
+                </NextLink>
+              )}
 
               <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
                 {userMenuLoading ? (
-                  <Button
-                    h='24px'
-                    px='8px'
-                    w='full'
-                    _active={{
-                      bg: 'grey.200',
-                    }}
-                    _hover={{
-                      bg: 'grey.200',
-                    }}
-                  >
-                    <Loader />
-                  </Button>
+                  <Skeleton height='24px' w='full' variant='common' />
                 ) : (
                   <MenuButton
                     as={Button}
