@@ -1,6 +1,5 @@
-import { Box, Button, StackItem, Text, VStack } from '@chakra-ui/react'
+import { Box, StackItem, VStack } from '@chakra-ui/react'
 import { useProfileService } from '@/services'
-import { useIsMobile } from '@/hooks'
 import {
   ProfileTextareaField,
   ProfileInputField,
@@ -12,9 +11,6 @@ import {
 import ButtonWithStates from '@/components/common/button-with-states'
 
 export const ProfileContentDesktop = () => {
-  const isMobile = useIsMobile()
-  const _fontSize = isMobile ? '16px' : '14px'
-  const _lineHeight = isMobile ? '16px' : '16px'
   const {
     checkUsernameExistsData,
     updateButtonDisabled,
@@ -48,52 +44,13 @@ export const ProfileContentDesktop = () => {
           <StackItem w='full' display='flex' justifyContent='right'>
             <ButtonWithStates
               variant='contained'
-              w={isMobile ? 'full' : '75px'}
+              w={'75px'}
               isDisabled={updateButtonDisabled}
               onClick={handleUpdateProfile}
               status={updateButtonLoading ? 'pending' : profileUpdated ? 'success' : 'idle'}
             >
               Update
             </ButtonWithStates>
-
-            {/* <Button
-              onClick={handleUpdateProfile}
-              disabled={updateButtonDisabled}
-              bg={
-                updateButtonLoading
-                  ? 'blue.500'
-                  : updateButtonDisabled && !profileUpdated
-                  ? 'grey.300'
-                  : 'blue.500'
-              }
-              color={
-                updateButtonLoading
-                  ? 'white'
-                  : updateButtonDisabled && !profileUpdated
-                  ? 'grey.500'
-                  : 'white'
-              }
-              h='24px'
-              w='75px'
-              py='4px'
-              px='10px'
-              borderRadius='2px'
-            >
-              {updateButtonLoading ? (
-                <Loader />
-              ) : profileUpdated ? (
-                <CheckIcon height='16px' width='16px' />
-              ) : (
-                <Text
-                  fontSize={_fontSize}
-                  lineHeight={_lineHeight}
-                  color={updateButtonDisabled ? 'grey.500' : 'white'}
-                  fontWeight={500}
-                >
-                  Update
-                </Text>
-              )}
-            </Button> */}
           </StackItem>
 
           <StackItem w='full' display='flex' justifyContent='center'>

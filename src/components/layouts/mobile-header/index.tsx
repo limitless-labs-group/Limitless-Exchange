@@ -199,9 +199,16 @@ export default function MobileHeader() {
                                   </Flex>
                                 )}
                                 <Box mx='4px' />
-                                <Text {...paragraphMedium} className={'amp-mask'}>
+                                <Text
+                                  {...paragraphMedium}
+                                  className={'amp-mask'}
+                                  whiteSpace='nowrap'
+                                  overflow='hidden'
+                                  textOverflow='ellipsis'
+                                  maxW='calc(100% - 56px)'
+                                >
                                   {user.displayName
-                                    ? cutUsername(user.displayName, 13)
+                                    ? user.displayName
                                     : truncateEthAddress(account)}
                                 </Text>
                               </StackItem>

@@ -1,22 +1,16 @@
-import { Box, Button, StackItem, Text, VStack } from '@chakra-ui/react'
+import { Box, StackItem, VStack } from '@chakra-ui/react'
 import { useProfileService } from '@/services'
-import { useIsMobile } from '@/hooks'
 import {
   ProfileTextareaField,
   ProfileInputField,
   DisplayNameIcon,
   UsernameIcon,
   ProfilePfp,
-  CheckIcon,
   BioIcon,
 } from '@/components/common/profiles'
-import Loader from '@/components/common/loader'
 import ButtonWithStates from '@/components/common/button-with-states'
 
 export const ProfileContentMobile = () => {
-  const isMobile = useIsMobile()
-  const _fontSize = isMobile ? '16px' : '14px'
-  const _lineHeight = isMobile ? '16px' : '16px'
   const {
     checkUsernameExistsData,
     updateButtonDisabled,
