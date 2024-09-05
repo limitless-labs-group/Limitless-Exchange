@@ -34,9 +34,6 @@ export default function MarketPrediction({ market, setSelectedMarket }: MarketPr
       cursor='pointer'
       onMouseEnter={() => setColors(hoverColors)}
       onMouseLeave={() => setColors(defaultColors)}
-      _hover={{
-        bg: 'blue.500',
-      }}
       onClick={() => setSelectedMarket(market)}
     >
       <HStack justifyContent='space-between'>
