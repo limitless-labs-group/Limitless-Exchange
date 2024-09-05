@@ -54,6 +54,8 @@ export function BuyForm({
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
   const [sliderValue, setSliderValue] = useState(0)
+  const [showReturnPercent, setShowReturnPercent] = useState(false)
+  const [showFeeInValue, setShowFeeInValue] = useState(false)
 
   /**
    * ANALITYCS
@@ -461,6 +463,10 @@ export function BuyForm({
               price={outcomeTokensPercent?.[0]}
               decimals={collateralToken?.decimals}
               marketType={!!marketList?.length ? 'group' : 'single'}
+              showReturnPercent={showReturnPercent}
+              setShowReturnPercent={setShowReturnPercent}
+              showFeeInValue={showFeeInValue}
+              setShowFeeInValue={setShowFeeInValue}
             />
             <ActionButton
               disabled={isExceedsBalance || !collateralAmount}
@@ -482,6 +488,10 @@ export function BuyForm({
               price={outcomeTokensPercent?.[1]}
               decimals={collateralToken?.decimals}
               marketType={!!marketList?.length ? 'group' : 'single'}
+              showReturnPercent={showReturnPercent}
+              setShowReturnPercent={setShowReturnPercent}
+              showFeeInValue={showFeeInValue}
+              setShowFeeInValue={setShowFeeInValue}
             />
           </VStack>
         </>

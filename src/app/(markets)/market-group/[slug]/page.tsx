@@ -66,7 +66,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
 
   const { trackClicked, trackOpened } = useAmplitude()
   const router = useRouter()
-  const { approveBuy, strategy, approveSell, market, setMarket } = useTradingService()
+  const { approveBuy, strategy, approveSell, market, setMarket, resetQuotes } = useTradingService()
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
 
   const { tweetURI, castURI } = createMarketShareUrls(
@@ -184,6 +184,10 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
       market: params.slug,
       marketType: 'group',
     })
+  }, [])
+
+  useEffect(() => {
+    resetQuotes()
   }, [])
 
   return (
