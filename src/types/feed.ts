@@ -69,15 +69,13 @@ export interface MarketGroupStatusFeedData {
 }
 
 export interface MarketNewTradeFeedData {
-  title: string
-  address: string
-  strategy: 'Buy' | 'Sell'
-  outcome: 'YES' | 'NO'
+  address: Address
   contracts: string
+  outcome: 'NO' | 'YES'
+  strategy: 'Buy' | 'Sell'
+  symbol: string
+  title: string
+  tradeAmount: string
+  tradeAmountUSD: string
   txHash: string
-  collateralToken: {
-    symbol: string
-    address: Address
-    decimals: number
-  }
 }
