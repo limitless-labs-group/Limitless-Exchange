@@ -13,7 +13,9 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
   const eventTitle = useMemo(() => {
     const title = data.data.strategy === 'Buy' ? 'Bought' : 'Sold'
     const outcome = data.data.outcome ? 'NO' : 'YES'
-    return `${title} ${data.data.contracts} contracts ${outcome} for ${data.data.tradeAmount} ${data.data.symbol} in total.`
+    return `${title} ${data.data.contracts} contracts ${outcome} for ${Math.abs(
+      +data.data.tradeAmount
+    )} ${data.data.symbol} in total.`
   }, [data])
   return (
     <MarketFeedCardContainer
