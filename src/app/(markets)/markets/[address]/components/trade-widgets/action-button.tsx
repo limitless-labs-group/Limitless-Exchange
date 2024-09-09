@@ -223,11 +223,23 @@ export default function ActionButton({
   }
 
   const handleReturnToggleClicked = (e: SyntheticEvent) => {
+    trackClicked(ClickEvent.ReturnTradingDetailsClicked, {
+      from: showReturnPercent ? 'numbers' : 'percentage',
+      to: showReturnPercent ? 'percentage' : 'numbers',
+      platform: isMobile ? 'mobile' : 'desktop',
+      marketAddress: market.address,
+    })
     e.stopPropagation()
     setShowReturnPercent(!showReturnPercent)
   }
 
   const handleFeeToggleClicked = (e: SyntheticEvent) => {
+    trackClicked(ClickEvent.FeeTradingDetailsClicked, {
+      from: showFeeInValue ? 'numbers' : 'percentage',
+      to: showFeeInValue ? 'percentage' : 'numbers',
+      platform: isMobile ? 'mobile' : 'desktop',
+      marketAddress: market.address,
+    })
     e.stopPropagation()
     setShowFeeInValue(!showFeeInValue)
   }
