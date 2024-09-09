@@ -354,7 +354,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
             {!isMobile && marketActionForm}
           </HStack>
           {isMobile && (
-            <Box position='fixed' bottom='12px' w='calc(100% - 32px)'>
+            <Box position='fixed' bottom='76px' w='calc(100% - 32px)'>
               {mobileTradeButton}
             </Box>
           )}
