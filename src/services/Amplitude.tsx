@@ -150,6 +150,8 @@ export enum ClickEvent {
   SignW3AIn = 'Sign In W3A Option Chosen',
   ProfilePictureUploadClicked = 'Profile Picture Upload Clicked',
   LimitlessLinksClicked = 'Limitless Links Clicked',
+  FeeTradingDetailsClicked = 'Fee Trading Details Clicked',
+  ReturnTradingDetailsClicked = 'Return Trading Details Clicked',
 }
 
 export enum SignInEvent {
@@ -245,6 +247,13 @@ export interface ShareClickedMetadata {
 
 interface MarketChangeInGroupData {
   marketGroup: MarketGroup
+}
+
+interface FeeAndReturnTradingDetailsClicked {
+  from: 'percentage' | 'numbers'
+  to: 'percentage' | 'numbers'
+  platform: 'desktop' | 'mobile'
+  marketAddress: Address
 }
 
 export type ModalOpenedModal = 'Profile Settings'
@@ -365,6 +374,7 @@ export type ClickedEventMetadata =
   | UIModeMetadata
   | SignInW3AClickedMetadata
   | MarketChangeInGroupData
+  | FeeAndReturnTradingDetailsClicked
 
 export type OpenedEventMetadata = PageOpenedMetadata | ProfileSettingsMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata

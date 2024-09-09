@@ -165,58 +165,51 @@ export default function MobileHeader() {
                           <Loader />
                         </Button>
                       ) : (
-                        <MobileDrawer
-                          trigger={
-                            <HStack
-                              w='full'
-                              gap='8px'
-                              justifyContent='space-between'
-                              onClick={() => {
-                                onToggleUserMenu()
-                              }}
-                            >
-                              <StackItem display='flex' justifyContent='center' alignItems='center'>
-                                {user?.pfpUrl?.includes('http') ? (
-                                  <ChakraImage
-                                    src={user?.pfpUrl}
-                                    borderRadius={'2px'}
-                                    h={'24px'}
-                                    w={'24px'}
-                                    className='amp-block'
-                                  />
-                                ) : (
-                                  <Flex
-                                    borderRadius={'2px'}
-                                    h={'24px'}
-                                    w={'24px'}
-                                    bg='grey.300'
-                                    alignItems='center'
-                                    justifyContent='center'
-                                  >
-                                    <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
-                                      {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
-                                    </Text>
-                                  </Flex>
-                                )}
-                                <Box mx='4px' />
-                                <Text {...paragraphMedium} className={'amp-mask'}>
-                                  {user.displayName
-                                    ? cutUsername(user.displayName, 13)
-                                    : truncateEthAddress(account)}
-                                </Text>
-                              </StackItem>
-
-                              <StackItem>
-                                <Box color='grey.800'>
-                                  <ArrowRightIcon width={16} height={16} />
-                                </Box>
-                              </StackItem>
-                            </HStack>
-                          }
-                          variant='common'
+                        <HStack
+                          w='full'
+                          gap='8px'
+                          justifyContent='space-between'
+                          onClick={() => {
+                            onToggleUserMenu()
+                          }}
                         >
-                          <ProfileContentMobile />
-                        </MobileDrawer>
+                          <StackItem display='flex' justifyContent='center' alignItems='center'>
+                            {user?.pfpUrl?.includes('http') ? (
+                              <ChakraImage
+                                src={user?.pfpUrl}
+                                borderRadius={'2px'}
+                                h={'24px'}
+                                w={'24px'}
+                                className='amp-block'
+                              />
+                            ) : (
+                              <Flex
+                                borderRadius={'2px'}
+                                h={'24px'}
+                                w={'24px'}
+                                bg='grey.300'
+                                alignItems='center'
+                                justifyContent='center'
+                              >
+                                <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
+                                  {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
+                                </Text>
+                              </Flex>
+                            )}
+                            <Box mx='4px' />
+                            <Text {...paragraphMedium} className={'amp-mask'}>
+                              {user.displayName
+                                ? cutUsername(user.displayName, 13)
+                                : truncateEthAddress(account)}
+                            </Text>
+                          </StackItem>
+
+                          <StackItem>
+                            <Box color='grey.800'>
+                              <ArrowRightIcon width={16} height={16} />
+                            </Box>
+                          </StackItem>
+                        </HStack>
                       )}
                       <HStack
                         spacing={2}
@@ -348,19 +341,26 @@ export default function MobileHeader() {
                       </VStack>
 
                       {client !== 'eoa' && (
-                        <Button
-                          variant='contained'
-                          w='full'
-                          h='32px'
-                          onClick={() => {
-                            trackClicked(ClickEvent.TopUpClicked, {
-                              platform: 'mobile',
-                            })
-                            onToggleUserMenu()
-                          }}
+                        <MobileDrawer
+                          trigger={
+                            <Button
+                              variant='contained'
+                              w='full'
+                              h='32px'
+                              onClick={() => {
+                                trackClicked(ClickEvent.TopUpClicked, {
+                                  platform: 'mobile',
+                                })
+                                onToggleUserMenu()
+                              }}
+                            >
+                              Top Up
+                            </Button>
+                          }
+                          variant='common'
                         >
-                          Top Up
-                        </Button>
+                          <WalletPage onClose={() => console.log('ok')} />
+                        </MobileDrawer>
                       )}
                       <Button
                         variant='grey'

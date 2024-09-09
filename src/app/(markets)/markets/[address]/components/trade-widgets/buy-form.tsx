@@ -54,6 +54,8 @@ export function BuyForm({
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
   const [sliderValue, setSliderValue] = useState(0)
+  const [showReturnPercent, setShowReturnPercent] = useState(false)
+  const [showFeeInValue, setShowFeeInValue] = useState(false)
 
   /**
    * ANALITYCS
@@ -456,7 +458,8 @@ export function BuyForm({
                 setOutcomeIndex(0)
                 await trade(0)
               }}
-              disabled={isExceedsBalance || !collateralAmount}
+              isExceedsBalance={isExceedsBalance}
+              disabled={!collateralAmount}
               showBlock={isYesOpen}
               onCloseBlock={onYesClose}
               market={market}
@@ -466,9 +469,13 @@ export function BuyForm({
               price={outcomeTokensPercent?.[0]}
               decimals={collateralToken?.decimals}
               marketType={!!marketList?.length ? 'group' : 'single'}
+              showReturnPercent={showReturnPercent}
+              setShowReturnPercent={setShowReturnPercent}
+              showFeeInValue={showFeeInValue}
+              setShowFeeInValue={setShowFeeInValue}
             />
             <ActionButton
-              disabled={isExceedsBalance || !collateralAmount}
+              disabled={!collateralAmount}
               onClick={async () => {
                 if (market?.status === MarketStatus.LOCKED) {
                   onNoOpen()
@@ -478,6 +485,7 @@ export function BuyForm({
                 setOutcomeIndex(1)
                 await trade(1)
               }}
+              isExceedsBalance={isExceedsBalance}
               showBlock={isNoOpen}
               onCloseBlock={onNoClose}
               market={market}
@@ -487,6 +495,10 @@ export function BuyForm({
               price={outcomeTokensPercent?.[1]}
               decimals={collateralToken?.decimals}
               marketType={!!marketList?.length ? 'group' : 'single'}
+              showReturnPercent={showReturnPercent}
+              setShowReturnPercent={setShowReturnPercent}
+              showFeeInValue={showFeeInValue}
+              setShowFeeInValue={setShowFeeInValue}
             />
           </VStack>
         </>
