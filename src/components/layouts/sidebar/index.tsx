@@ -316,14 +316,14 @@ export default function Sidebar() {
                     </Button>
                   </HStack>
                   {/* hidding it for prod release */}
-                  <Button
+                  {/*<Button
                     variant='grey'
                     w='full'
                     onClick={handleOpenProfileDrawer}
                     justifyContent='flex-start'
                   >
                     Profile
-                  </Button>
+                  </Button>*/}
                   <Button
                     variant='grey'
                     w='full'
