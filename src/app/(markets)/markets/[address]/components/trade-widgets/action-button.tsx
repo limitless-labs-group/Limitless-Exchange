@@ -44,6 +44,7 @@ interface ActionButtonProps {
   setShowReturnPercent: Dispatch<SetStateAction<boolean>>
   showFeeInValue: boolean
   setShowFeeInValue: Dispatch<SetStateAction<boolean>>
+  isExceedsBalance: boolean
 }
 
 const MotionBox = motion(Box)
@@ -73,6 +74,7 @@ export default function ActionButton({
   setShowReturnPercent,
   setShowFeeInValue,
   showReturnPercent,
+  isExceedsBalance,
 }: ActionButtonProps) {
   /**
    * ANALITYCS
@@ -163,6 +165,9 @@ export default function ActionButton({
   const buttonsTransform = isMobile ? 16 : 0
 
   const handleActionIntention = async () => {
+    if (isExceedsBalance) {
+      return
+    }
     if (market?.status === MarketStatus.LOCKED) {
       await onClick()
       return
