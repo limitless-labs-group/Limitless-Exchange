@@ -288,11 +288,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
             </Box>
             {!isMobile && marketActionForm}
           </HStack>
-          {isMobile && (
-            <Box position='fixed' bottom='12px' w='calc(100% - 32px)'>
-              {mobileTradeButton}
-            </Box>
-          )}
+          {isMobile && <Box>{mobileTradeButton}</Box>}
           <ApproveModal onApprove={handleApproveMarket} />
         </>
       )}

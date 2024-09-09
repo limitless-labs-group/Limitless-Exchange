@@ -210,7 +210,11 @@ export function BuyForm({
             </Button>
           </Box>
           {isOpenSelectMarketMenu && (
-            <VStack gap={isMobile ? '16px' : '8px'} mb={isMobile ? '16px' : '8px'}>
+            <VStack
+              gap={isMobile ? '16px' : '8px'}
+              mb={isMobile ? '16px' : '8px'}
+              mx={isMobile ? '16px' : 0}
+            >
               {marketList.map((market) => (
                 <Button
                   key={market.address}
@@ -434,6 +438,7 @@ export function BuyForm({
                   h='16px'
                   top={isMobile ? '8px' : '4px'}
                   right={isMobile ? '8px' : '4px'}
+                  w='fit'
                 >
                   <Text {...paragraphMedium} color='white'>
                     {market?.collateralToken.symbol}
@@ -453,7 +458,8 @@ export function BuyForm({
                 setOutcomeIndex(0)
                 await trade(0)
               }}
-              disabled={isExceedsBalance || !collateralAmount}
+              isExceedsBalance={isExceedsBalance}
+              disabled={!collateralAmount}
               showBlock={isYesOpen}
               onCloseBlock={onYesClose}
               market={market}
@@ -469,7 +475,7 @@ export function BuyForm({
               setShowFeeInValue={setShowFeeInValue}
             />
             <ActionButton
-              disabled={isExceedsBalance || !collateralAmount}
+              disabled={!collateralAmount}
               onClick={async () => {
                 if (market?.status === MarketStatus.LOCKED) {
                   onNoOpen()
@@ -479,6 +485,7 @@ export function BuyForm({
                 setOutcomeIndex(1)
                 await trade(1)
               }}
+              isExceedsBalance={isExceedsBalance}
               showBlock={isNoOpen}
               onCloseBlock={onNoClose}
               market={market}

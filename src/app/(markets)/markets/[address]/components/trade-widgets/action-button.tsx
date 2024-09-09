@@ -44,6 +44,7 @@ interface ActionButtonProps {
   setShowReturnPercent: Dispatch<SetStateAction<boolean>>
   showFeeInValue: boolean
   setShowFeeInValue: Dispatch<SetStateAction<boolean>>
+  isExceedsBalance: boolean
 }
 
 const MotionBox = motion(Box)
@@ -73,6 +74,7 @@ export default function ActionButton({
   setShowReturnPercent,
   setShowFeeInValue,
   showReturnPercent,
+  isExceedsBalance,
 }: ActionButtonProps) {
   /**
    * ANALITYCS
@@ -163,6 +165,9 @@ export default function ActionButton({
   const buttonsTransform = isMobile ? 16 : 0
 
   const handleActionIntention = async () => {
+    if (isExceedsBalance) {
+      return
+    }
     if (market?.status === MarketStatus.LOCKED) {
       await onClick()
       return
@@ -218,11 +223,23 @@ export default function ActionButton({
   }
 
   const handleReturnToggleClicked = (e: SyntheticEvent) => {
+    trackClicked(ClickEvent.ReturnTradingDetailsClicked, {
+      from: showReturnPercent ? 'numbers' : 'percentage',
+      to: showReturnPercent ? 'percentage' : 'numbers',
+      platform: isMobile ? 'mobile' : 'desktop',
+      marketAddress: market.address,
+    })
     e.stopPropagation()
     setShowReturnPercent(!showReturnPercent)
   }
 
   const handleFeeToggleClicked = (e: SyntheticEvent) => {
+    trackClicked(ClickEvent.FeeTradingDetailsClicked, {
+      from: showFeeInValue ? 'numbers' : 'percentage',
+      to: showFeeInValue ? 'percentage' : 'numbers',
+      platform: isMobile ? 'mobile' : 'desktop',
+      marketAddress: market.address,
+    })
     e.stopPropagation()
     setShowFeeInValue(!showFeeInValue)
   }
@@ -259,13 +276,6 @@ export default function ActionButton({
           }}
           isDisabled={disabled || ['transaction-broadcasted', 'success'].includes(status)}
           onClick={() => {
-            trackClicked<TradeClickedMetadata>(ClickEvent.BuyClicked, {
-              outcome: option,
-              marketAddress: market.address,
-              walletType: client,
-              marketType,
-            })
-
             return handleActionIntention()
           }}
           borderRadius='2px'
@@ -411,6 +421,7 @@ export default function ActionButton({
               outcome: option,
               strategy: 'Buy',
               walletType: client,
+              marketType,
             })
 
             return handleConfirmClicked()
