@@ -76,6 +76,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     approveBuy,
     strategy,
     approveSell,
+    resetQuotes,
   } = useTradingService()
 
   const marketActionForm = useMemo(() => {
@@ -159,6 +160,10 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       setMarket(market!)
     }
   }, [market, previousMarket])
+
+  useEffect(() => {
+    resetQuotes()
+  }, [])
 
   return (
     <MainLayout isLoading={isCollateralLoading || fetchMarketLoading}>

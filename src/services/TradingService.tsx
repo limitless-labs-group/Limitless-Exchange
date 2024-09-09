@@ -57,6 +57,7 @@ interface ITradingServiceContext {
   approveBuy: () => Promise<void>
   approveSell: () => Promise<void>
   isLoadingRedeem: boolean
+  resetQuotes: () => void
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -323,6 +324,12 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     marketAddress: market?.address,
     collateralToken,
   })
+
+  const resetQuotes = () => {
+    setQuotesYes(null)
+    setQuotesNo(null)
+    return
+  }
 
   useQuery({
     queryKey: [
@@ -758,6 +765,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     approveBuy,
     approveSell,
     isLoadingRedeem,
+    resetQuotes,
   }
 
   return (
