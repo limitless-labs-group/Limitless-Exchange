@@ -10,12 +10,23 @@ import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import { NumberUtil } from '@/utils'
 import { Market, MarketStatus } from '@/types'
 import { AnimatePresence, motion } from 'framer-motion'
-import { LegacyRef, MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  Dispatch,
+  LegacyRef,
+  MutableRefObject,
+  SetStateAction,
+  SyntheticEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useWeb3Service } from '@/services/Web3Service'
 import ConfirmButton from '@/app/(markets)/markets/[address]/components/trade-widgets/confirm-button'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import Loader from '@/components/common/loader'
 import { parseUnits } from 'viem'
+import BigNumber from 'bignumber.js'
 
 interface ActionButtonProps {
   disabled: boolean
@@ -29,6 +40,10 @@ interface ActionButtonProps {
   quote?: TradeQuotes | null
   decimals?: number
   marketType: 'group' | 'single'
+  showReturnPercent: boolean
+  setShowReturnPercent: Dispatch<SetStateAction<boolean>>
+  showFeeInValue: boolean
+  setShowFeeInValue: Dispatch<SetStateAction<boolean>>
 }
 
 const MotionBox = motion(Box)
@@ -54,6 +69,10 @@ export default function ActionButton({
   amount,
   decimals,
   marketType,
+  showFeeInValue,
+  setShowReturnPercent,
+  setShowFeeInValue,
+  showReturnPercent,
 }: ActionButtonProps) {
   /**
    * ANALITYCS
@@ -198,6 +217,16 @@ export default function ActionButton({
     }
   }
 
+  const handleReturnToggleClicked = (e: SyntheticEvent) => {
+    e.stopPropagation()
+    setShowReturnPercent(!showReturnPercent)
+  }
+
+  const handleFeeToggleClicked = (e: SyntheticEvent) => {
+    e.stopPropagation()
+    setShowFeeInValue(!showFeeInValue)
+  }
+
   useEffect(() => {
     const returnToInitial = async () => {
       await sleep(2)
@@ -273,6 +302,33 @@ export default function ActionButton({
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
                     <Text {...paragraphRegular} color='white'>
+                      Return
+                    </Text>
+                    {/*<Tooltip*/}
+                    {/*// label={*/}
+                    {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
+                    {/*// }*/}
+                    {/*>*/}
+                    {/*  <InfoIcon width='16px' height='16px' />*/}
+                    {/*</Tooltip>*/}
+                  </HStack>
+                  <Text
+                    {...paragraphRegular}
+                    color='white'
+                    borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
+                    cursor={quote?.outcomeTokenAmount ? 'pointer' : 'default'}
+                    onClick={handleReturnToggleClicked}
+                  >
+                    {showReturnPercent
+                      ? `${NumberUtil.toFixed(quote?.roi, 2)}%`
+                      : `${NumberUtil.formatThousands(quote?.outcomeTokenAmount, 6)} ${
+                          market.collateralToken.symbol
+                        }`}
+                  </Text>
+                </HStack>
+                <HStack justifyContent='space-between' w='full'>
+                  <HStack gap='4px'>
+                    <Text {...paragraphRegular} color='white'>
                       Avg price
                     </Text>
                     {/*<Tooltip*/}
@@ -309,7 +365,7 @@ export default function ActionButton({
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
                     <Text {...paragraphRegular} color='white'>
-                      Est. ROI
+                      Fee
                     </Text>
                     {/*<Tooltip*/}
                     {/*// label={*/}
@@ -319,26 +375,18 @@ export default function ActionButton({
                     {/*  <InfoIcon width='16px' height='16px' />*/}
                     {/*</Tooltip>*/}
                   </HStack>
-                  <Text {...paragraphRegular} color='white'>
-                    {NumberUtil.toFixed(quote?.roi, 2)}%
-                  </Text>
-                </HStack>
-                <HStack justifyContent='space-between' w='full'>
-                  <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='white'>
-                      Return
-                    </Text>
-                    {/*<Tooltip*/}
-                    {/*// label={*/}
-                    {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
-                    {/*// }*/}
-                    {/*>*/}
-                    {/*  <InfoIcon width='16px' height='16px' />*/}
-                    {/*</Tooltip>*/}
-                  </HStack>
-                  <Text {...paragraphRegular} color='white'>
-                    {NumberUtil.formatThousands(quote?.outcomeTokenAmount, 6)}{' '}
-                    {market.collateralToken.symbol}
+                  <Text
+                    {...paragraphRegular}
+                    color='white'
+                    borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
+                    onClick={handleFeeToggleClicked}
+                  >
+                    {showFeeInValue
+                      ? `${NumberUtil.toFixed(
+                          new BigNumber(amount).dividedBy(100).toNumber(),
+                          6
+                        )} ${market?.collateralToken.symbol}`
+                      : '1%'}
                   </Text>
                 </HStack>
               </VStack>
