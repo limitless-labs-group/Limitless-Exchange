@@ -8,6 +8,7 @@ import {
 import { Box, Circle, Input, Spinner } from '@chakra-ui/react'
 import { EditPenIcon, AddImageIcon } from '@/components/common/profiles'
 import { useIsMobile } from '@/hooks'
+import Loader from '@/components/common/loader'
 
 export interface IProfilePfp {
   onClick?: () => void
@@ -68,7 +69,8 @@ export const ProfilePfp = ({ onClick }: IProfilePfp) => {
           // cursor={'pointer'}
         />
         {updatePfpLoading ? (
-          <Spinner color={!pfpUrl ? 'grey.800' : 'white'} size='sm' />
+          // <Spinner color={!pfpUrl ? 'grey.800' : 'white'} size='sm' />
+          <Loader loadingIconColor={!pfpUrl ? 'grey.800' : 'white'} />
         ) : (
           renderIcon()
         )}

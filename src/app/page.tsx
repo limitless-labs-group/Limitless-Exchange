@@ -1,203 +1,114 @@
 'use client'
-
+import { Box, Button, Divider, HStack, VStack, Text } from '@chakra-ui/react'
+import { isMobile } from 'react-device-detect'
+import FeedItem from '@/components/feed/components/feed-item'
+import { v4 as uuidv4 } from 'uuid'
 import { MainLayout } from '@/components'
-import { useIsMobile } from '@/hooks'
-import { OpenEvent, PageOpenedMetadata, useAmplitude, useCategories } from '@/services'
-import { Divider, VStack, Text, Box, Spinner, HStack } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
-import SortFilter from '@/components/common/sort-filter'
-import { Market, MarketGroupCardResponse, MarketSingleCardResponse, Sort } from '@/types'
-import { formatUnits, getAddress } from 'viem'
-import { useMarkets } from '@/services/MarketsService'
-import InfiniteScroll from 'react-infinite-scroll-component'
-import { usePriceOracle } from '@/providers'
 import TextWithPixels from '@/components/common/text-with-pixels'
-import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import { useSearchParams } from 'next/navigation'
-import { MarketSingleCard, MarketGroupCard } from '@/components/common/market-cards'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useFeed } from '@/hooks/use-feed'
+import { FeedEntity } from '@/types'
+import Loader from '@/components/common/loader'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import debounce from 'lodash.debounce'
+import { useQueryClient } from '@tanstack/react-query'
 
-const MainPage = () => {
-  const searchParams = useSearchParams()
-  const { data: categories } = useCategories()
-  /**
-   * ANALYTICS
-   */
-  const { trackOpened } = useAmplitude()
-  const category = searchParams.get('category')
+export default function MainPage() {
+  const queryClient = useQueryClient()
+  const [isFixed, setIsFixed] = useState(false)
+  const buttonRef = useRef(null)
+
+  const { data: feedEvents, fetchNextPage, hasNextPage, refetch } = useFeed()
+
+  const scrollOffset = isMobile ? 156 : 122
 
   useEffect(() => {
-    const analyticData: PageOpenedMetadata = {
-      page: 'Explore Markets',
-      ...(category && { category }),
+    const handleScroll = () => {
+      if (buttonRef.current) {
+        const value = window.scrollY + 28 <= scrollOffset ? scrollOffset : 28
+
+        if (window.scrollY >= value) {
+          setIsFixed(true)
+          return
+        } else {
+          setIsFixed(false)
+          return
+        }
+      }
     }
 
-    trackOpened(OpenEvent.PageOpened, analyticData)
+    window.addEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
   }, [])
 
-  const categoryEntity = useMemo(() => {
-    return (
-      categories?.find(
-        (categoryEntity) => categoryEntity.name.toLowerCase() === category?.toLowerCase()
-      ) || null
-    )
-  }, [categories, category])
+  const refetchFirstPage = async () => {
+    queryClient.setQueryData(['feed'], (oldData: any) => ({
+      ...oldData,
+      pages: oldData?.pages.slice(0, 1),
+    }))
+    // @ts-ignore
+    await refetch({ refetchPage: (_page, index) => index === 0 })
+  }
 
-  /**
-   * UI
-   */
-  const isMobile = useIsMobile()
+  const handleLatestClicked = async () => {
+    window.scrollTo(0, 0)
+    await refetchFirstPage()
+  }
 
-  const [selectedSort, setSelectedSort] = useState<Sort>(
-    (window.sessionStorage.getItem('SORT') as Sort) ?? Sort.BASE
+  const getNextPage = useCallback(
+    debounce(async () => fetchNextPage(), 1000),
+    []
   )
-  const handleSelectSort = (options: Sort) => {
-    window.sessionStorage.setItem('SORT', options)
-    setSelectedSort(options)
-  }
 
-  const { selectedFilterTokens, selectedCategory } = useTokenFilter()
-
-  const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
-    useMarkets(categoryEntity)
-
-  const dataLength = data?.pages.reduce((counter, page) => {
-    return counter + page.data.length
-  }, 0)
-
-  const markets: (MarketGroupCardResponse | MarketSingleCardResponse)[] = useMemo(() => {
-    return data?.pages.flatMap((page) => page.data) || []
-  }, [data?.pages, category])
-
-  //it helps to get integer value form solidity representation
-  const formatMarketNumber = (market: Market, amount: string | undefined) => {
-    return convertTokenAmountToUsd(
-      market.collateralToken.symbol,
-      formatUnits(BigInt(amount ?? 0), market.collateralToken.decimals)
-    )
-  }
-
-  const filteredMarkets = useMemo(() => {
-    const tokenFilteredMarkets = markets?.filter((market) =>
-      selectedFilterTokens.length > 0
-        ? selectedFilterTokens.some(
-            (filterToken) =>
-              getAddress(filterToken.address) === getAddress(market.collateralToken.address)
-          )
-        : true
-    )
-
-    if (selectedCategory) {
-      return tokenFilteredMarkets.filter((market) => market.category === selectedCategory?.name)
-    }
-
-    return tokenFilteredMarkets
-  }, [markets, selectedFilterTokens, selectedCategory])
-
-  const sortedMarkets = useMemo(() => {
-    if (!filteredMarkets) return []
-    switch (selectedSort) {
-      case Sort.NEWEST:
-        return [...filteredMarkets].sort((a, b) => {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        })
-      case Sort.HIGHEST_VOLUME:
-        return [...filteredMarkets].sort((a, b) => {
-          // @ts-ignore
-          const volumeA = a?.slug
-            ? // @ts-ignore
-              a.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
-            : // @ts-ignore
-              +a.volumeFormatted
-          // @ts-ignore
-          const volumeB = b?.slug
-            ? // @ts-ignore
-              b.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
-            : // @ts-ignore
-              +b.volumeFormatted
-
-          return (
-            convertTokenAmountToUsd(b.collateralToken.symbol, volumeB) -
-            convertTokenAmountToUsd(a.collateralToken.symbol, volumeA)
-          )
-        })
-      case Sort.HIGHEST_LIQUIDITY:
-        return [...filteredMarkets].sort((a, b) => {
-          // @ts-ignore
-          const liquidityA = a?.slug
-            ? // @ts-ignore
-              a.markets.reduce((a, b) => a + +b.liquidityFormatted, 0)
-            : // @ts-ignore
-              +a.liquidityFormatted
-          // @ts-ignore
-          const liquidityB = b?.slug
-            ? // @ts-ignore
-              b.markets.reduce((a, b) => a + +b.liquidityFormatted, 0)
-            : // @ts-ignore
-              +b.liquidityFormatted
-
-          return (
-            convertTokenAmountToUsd(b.collateralToken.symbol, liquidityB) -
-            convertTokenAmountToUsd(a.collateralToken.symbol, liquidityA)
-          )
-        })
-      case Sort.ENDING_SOON:
-        return [...filteredMarkets].sort(
-          (a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
-        )
-      default:
-        return filteredMarkets
-    }
-  }, [markets, filteredMarkets, selectedSort])
+  const pagesData: FeedEntity<unknown>[] = useMemo(() => {
+    // @ts-ignore
+    return feedEvents?.pages?.map((el) => el.data.data).flat()
+  }, [feedEvents])
 
   return (
-    <MainLayout>
+    <MainLayout isLoading={false}>
       <Box w={isMobile ? 'full' : '664px'} ml={isMobile ? 'auto' : '200px'}>
         <Divider bg='grey.800' orientation='horizontal' h='3px' mb='16px' />
         <TextWithPixels
-          text={`Explore ${categoryEntity?.name ?? 'Limitless'} Prediction Markets`}
+          text={`Limitless Feed`}
           fontSize={'32px'}
           gap={2}
           userSelect='text'
+          highlightWord={1}
         />
-        <Text color='grey.800' fontSize={'14px'} userSelect='text'>
-          Predict outcomes in crypto, tech, sports, and more. Use different tokens, participate in
-          transparent voting for upcoming markets, and engage in markets created by the community.
-          It’s all decentralized and secure.
-        </Text>
-
-        <SortFilter onChange={handleSelectSort} />
-        {isFetching && !isFetchingNextPage ? (
-          <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>
-            <Spinner />
-          </HStack>
-        ) : (
-          <InfiniteScroll
-            dataLength={dataLength ?? 0}
-            next={fetchNextPage}
-            hasMore={hasNextPage}
-            loader={<h4></h4>}
-            scrollThreshold={0.1}
-            refreshFunction={fetchNextPage}
-            pullDownToRefresh
+        <HStack justifyContent='center' w='full'>
+          <Box
+            ref={buttonRef}
+            position={isFixed ? 'fixed' : 'absolute'}
+            top={isFixed ? '28px' : scrollOffset}
+            zIndex='50'
           >
-            <VStack w={'full'} spacing={5}>
-              <VStack gap={2} w='full'>
-                {sortedMarkets?.map((market) => {
-                  // @ts-ignore
-                  return market.slug ? (
-                    <MarketGroupCard marketGroup={market as MarketGroupCardResponse} />
-                  ) : (
-                    <MarketSingleCard market={market as MarketSingleCardResponse} />
-                  )
-                })}
-              </VStack>
-            </VStack>
-          </InfiniteScroll>
-        )}
+            <Button variant='contained' onClick={handleLatestClicked}>
+              View Latest Posts
+            </Button>
+          </Box>
+        </HStack>
+        <InfiniteScroll
+          dataLength={pagesData?.length ?? 0}
+          next={getNextPage}
+          hasMore={hasNextPage}
+          loader={
+            <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+              <Loader />
+              <Text {...paragraphRegular}>Loading more posts</Text>
+            </HStack>
+          }
+        >
+          <VStack gap={isMobile ? 0 : '8px'} alignItems='baseline' mt={isMobile ? '44px' : '56px'}>
+            {pagesData?.map((item) => (
+              <FeedItem data={item} key={uuidv4()} />
+            ))}
+          </VStack>
+        </InfiniteScroll>
       </Box>
     </MainLayout>
   )
 }
-
-export default MainPage

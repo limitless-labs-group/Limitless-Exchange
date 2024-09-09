@@ -1,25 +1,30 @@
 import { Box, Button, StackItem, Text, VStack } from '@chakra-ui/react'
 import { useProfileService } from '@/services'
+import { useIsMobile } from '@/hooks'
 import {
   ProfileTextareaField,
   ProfileInputField,
   DisplayNameIcon,
   UsernameIcon,
   ProfilePfp,
-  CheckIcon,
   BioIcon,
 } from '@/components/common/profiles'
+import ButtonWithStates from '@/components/common/button-with-states'
 
 export const ProfileContentDesktop = () => {
+  const isMobile = useIsMobile()
+  const _fontSize = isMobile ? '16px' : '14px'
+  const _lineHeight = isMobile ? '16px' : '16px'
   const {
     checkUsernameExistsData,
     updateButtonDisabled,
     checkUsernameExists,
     handleUpdateProfile,
     updateButtonLoading,
-    disableUpdateButton,
     profileUpdated,
     setDisplayName,
+    setFormDirty,
+    profileData,
     setUsername,
     displayName,
     username,
@@ -41,40 +46,54 @@ export const ProfileContentDesktop = () => {
       >
         <VStack h='full' w='full' pt='30px' px='10px' gap='25px'>
           <StackItem w='full' display='flex' justifyContent='right'>
-            <Button
+            <ButtonWithStates
+              variant='contained'
+              w={isMobile ? 'full' : '75px'}
+              isDisabled={updateButtonDisabled}
               onClick={handleUpdateProfile}
-              isLoading={updateButtonLoading}
+              status={updateButtonLoading ? 'pending' : profileUpdated ? 'success' : 'idle'}
+            >
+              Update
+            </ButtonWithStates>
+
+            {/* <Button
+              onClick={handleUpdateProfile}
               disabled={updateButtonDisabled}
-              bg={!disableUpdateButton ? 'blue.500' : 'grey.300'}
-              color={!disableUpdateButton ? 'white' : 'grey.500'}
+              bg={
+                updateButtonLoading
+                  ? 'blue.500'
+                  : updateButtonDisabled && !profileUpdated
+                  ? 'grey.300'
+                  : 'blue.500'
+              }
+              color={
+                updateButtonLoading
+                  ? 'white'
+                  : updateButtonDisabled && !profileUpdated
+                  ? 'grey.500'
+                  : 'white'
+              }
               h='24px'
               w='75px'
               py='4px'
               px='10px'
               borderRadius='2px'
             >
-              {profileUpdated ? (
-                disableUpdateButton ? (
-                  <Text
-                    fontSize='16px'
-                    color={!disableUpdateButton ? 'white' : 'grey.500'}
-                    fontWeight={500}
-                  >
-                    Update
-                  </Text>
-                ) : (
-                  <CheckIcon height='16px' width='16px' />
-                )
+              {updateButtonLoading ? (
+                <Loader />
+              ) : profileUpdated ? (
+                <CheckIcon height='16px' width='16px' />
               ) : (
                 <Text
-                  fontSize='16px'
-                  color={!disableUpdateButton ? 'white' : 'grey.500'}
+                  fontSize={_fontSize}
+                  lineHeight={_lineHeight}
+                  color={updateButtonDisabled ? 'grey.500' : 'white'}
                   fontWeight={500}
                 >
                   Update
                 </Text>
               )}
-            </Button>
+            </Button> */}
           </StackItem>
 
           <StackItem w='full' display='flex' justifyContent='center'>
@@ -86,7 +105,15 @@ export const ProfileContentDesktop = () => {
               renderIcon={() => <DisplayNameIcon />}
               label='Display name'
               initialValue={displayName}
-              onChange={(v) => setDisplayName(v)}
+              onChange={(v) => {
+                setDisplayName(v)
+                setFormDirty(true)
+              }}
+              onBlur={() => {
+                if (displayName !== profileData?.displayName) {
+                  setFormDirty(true)
+                }
+              }}
             />
           </StackItem>
 
@@ -98,9 +125,15 @@ export const ProfileContentDesktop = () => {
               initialValue={username}
               placeholder='Enter your username'
               hint='So others can mention you in comments'
-              onChange={(v) => setUsername(v)}
+              onChange={(v) => {
+                setUsername(v)
+                setFormDirty(true)
+              }}
               onBlur={() => {
-                if (username) checkUsernameExists()
+                if (username !== profileData?.username) {
+                  setFormDirty(true)
+                  checkUsernameExists()
+                }
               }}
               onKeyDown={(e) => {
                 const isSpecialCharacter = !/^[a-zA-Z0-9_]+$/.test(e.key)
@@ -118,8 +151,16 @@ export const ProfileContentDesktop = () => {
               renderIcon={() => <BioIcon />}
               label='BIO'
               initialValue={bio}
-              onChange={(v) => setBio(v ?? '')}
+              onChange={(v) => {
+                setBio(v ?? '')
+                setFormDirty(true)
+              }}
               placeholder='Add bio if you want'
+              onBlur={() => {
+                if (bio !== profileData?.bio) {
+                  setFormDirty(true)
+                }
+              }}
             />
           </StackItem>
         </VStack>

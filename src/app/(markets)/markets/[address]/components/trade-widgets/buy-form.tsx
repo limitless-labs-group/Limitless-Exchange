@@ -210,7 +210,11 @@ export function BuyForm({
             </Button>
           </Box>
           {isOpenSelectMarketMenu && (
-            <VStack gap={isMobile ? '16px' : '8px'} mb={isMobile ? '16px' : '8px'}>
+            <VStack
+              gap={isMobile ? '16px' : '8px'}
+              mb={isMobile ? '16px' : '8px'}
+              mx={isMobile ? '16px' : 0}
+            >
               {marketList.map((market) => (
                 <Button
                   key={market.address}
@@ -434,6 +438,7 @@ export function BuyForm({
                   h='16px'
                   top={isMobile ? '8px' : '4px'}
                   right={isMobile ? '8px' : '4px'}
+                  w='fit'
                 >
                   <Text {...paragraphMedium} color='white'>
                     {market?.collateralToken.symbol}

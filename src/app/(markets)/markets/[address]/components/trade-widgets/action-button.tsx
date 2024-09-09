@@ -259,13 +259,6 @@ export default function ActionButton({
           }}
           isDisabled={disabled || ['transaction-broadcasted', 'success'].includes(status)}
           onClick={() => {
-            trackClicked<TradeClickedMetadata>(ClickEvent.BuyClicked, {
-              outcome: option,
-              marketAddress: market.address,
-              walletType: client,
-              marketType,
-            })
-
             return handleActionIntention()
           }}
           borderRadius='2px'
@@ -411,6 +404,7 @@ export default function ActionButton({
               outcome: option,
               strategy: 'Buy',
               walletType: client,
+              marketType,
             })
 
             return handleConfirmClicked()

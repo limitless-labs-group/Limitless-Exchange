@@ -1,30 +1,30 @@
 import Image from 'next/image'
 import {
+  Box,
   Button,
+  ButtonGroup,
+  Divider,
   Flex,
   HStack,
-  Text,
   Image as ChakraImage,
-  useDisclosure,
   Slide,
-  Box,
-  VStack,
-  ButtonGroup,
-  StackItem,
-  Divider,
   Spacer,
+  StackItem,
+  Text,
+  useDisclosure,
+  VStack,
 } from '@chakra-ui/react'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
-  useAccount,
   useAmplitude,
   useBalanceService,
   useHistory,
+  useProfileService,
 } from '@/services'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
@@ -49,19 +49,26 @@ import WrapModal from '@/components/common/modals/wrap-modal'
 import { ProfileContentMobile } from '@/components/layouts/mobile-header/components'
 import MobileDrawer from '@/components/common/drawer'
 import SocialsFooter from '@/components/common/socials-footer'
+import Loader from '@/components/common/loader'
 
 export default function MobileHeader() {
-  const { isConnected } = useWagmiAccount()
+  const { getProfileDataLoading, user } = useProfileService()
+  const { isConnected, isConnecting, isReconnecting } = useWagmiAccount()
   const { overallBalanceUsd } = useBalanceService()
-  const { userInfo } = useAccount()
-  const address = useWalletAddress()
+  const account = useWalletAddress()
   const { balanceInvested } = useHistory()
   const router = useRouter()
-  const { disconnectFromPlatform } = useDisconnectAccount()
+  const { disconnectFromPlatform, disconnectLoading } = useDisconnectAccount()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
   const pathname = usePathname()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
+  const userMenuLoading = useMemo(() => {
+    const userWithProfileLoading = isConnected && getProfileDataLoading
+    const userWithoutProfileLoading = isConnected && !user?.displayName
+    const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
+    return userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
+  }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
 
@@ -102,9 +109,9 @@ export default function MobileHeader() {
                   <Text fontWeight={500} fontSize='16px'>
                     {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                   </Text>
-                  {userInfo?.profileImage?.includes('http') ? (
+                  {user?.pfpUrl?.includes('http') ? (
                     <ChakraImage
-                      src={userInfo.profileImage}
+                      src={user?.pfpUrl}
                       borderRadius={'2px'}
                       h={'32px'}
                       w={'32px'}
@@ -120,7 +127,7 @@ export default function MobileHeader() {
                       justifyContent='center'
                     >
                       <Text {...paragraphMedium} className={'amp-mask'}>
-                        {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
+                        {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
                       </Text>
                     </Flex>
                   )}
@@ -153,58 +160,64 @@ export default function MobileHeader() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Box w='full'>
-                      <MobileDrawer
-                        trigger={
-                          <HStack
-                            gap='8px'
-                            justifyContent='space-between'
-                            onClick={() => {
-                              onToggleUserMenu()
-                            }}
-                          >
-                            <StackItem display='flex' justifyContent='center' alignItems='center'>
-                              {userInfo?.profileImage?.includes('http') ? (
-                                <ChakraImage
-                                  src={userInfo.profileImage}
-                                  borderRadius={'2px'}
-                                  h={'24px'}
-                                  w={'24px'}
-                                  className='amp-block'
-                                />
-                              ) : (
-                                <Flex
-                                  borderRadius={'2px'}
-                                  h={'24px'}
-                                  w={'24px'}
-                                  bg='grey.300'
-                                  alignItems='center'
-                                  justifyContent='center'
-                                >
-                                  <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
-                                    {userInfo?.name ? userInfo?.name[0].toUpperCase() : 'O'}
-                                  </Text>
-                                </Flex>
-                              )}
-                              <Box mx='4px' />
-                              <Text {...paragraphMedium} className={'amp-mask'}>
-                                {userInfo?.name
-                                  ? cutUsername(userInfo.name, 60)
-                                  : truncateEthAddress(address)}
-                              </Text>
-                            </StackItem>
+                      {userMenuLoading ? (
+                        <Button h='24px' px='8px' w='full'>
+                          <Loader />
+                        </Button>
+                      ) : (
+                        <MobileDrawer
+                          trigger={
+                            <HStack
+                              w='full'
+                              gap='8px'
+                              justifyContent='space-between'
+                              onClick={() => {
+                                onToggleUserMenu()
+                              }}
+                            >
+                              <StackItem display='flex' justifyContent='center' alignItems='center'>
+                                {user?.pfpUrl?.includes('http') ? (
+                                  <ChakraImage
+                                    src={user?.pfpUrl}
+                                    borderRadius={'2px'}
+                                    h={'24px'}
+                                    w={'24px'}
+                                    className='amp-block'
+                                  />
+                                ) : (
+                                  <Flex
+                                    borderRadius={'2px'}
+                                    h={'24px'}
+                                    w={'24px'}
+                                    bg='grey.300'
+                                    alignItems='center'
+                                    justifyContent='center'
+                                  >
+                                    <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
+                                      {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
+                                    </Text>
+                                  </Flex>
+                                )}
+                                <Box mx='4px' />
+                                <Text {...paragraphMedium} className={'amp-mask'}>
+                                  {user.displayName
+                                    ? cutUsername(user.displayName, 13)
+                                    : truncateEthAddress(account)}
+                                </Text>
+                              </StackItem>
 
-                            <StackItem>
-                              <Box color='grey.800'>
-                                <ArrowRightIcon width={16} height={16} />
-                              </Box>
-                            </StackItem>
-                          </HStack>
-                        }
-                        variant='common'
-                      >
-                        <ProfileContentMobile />
-                      </MobileDrawer>
-
+                              <StackItem>
+                                <Box color='grey.800'>
+                                  <ArrowRightIcon width={16} height={16} />
+                                </Box>
+                              </StackItem>
+                            </HStack>
+                          }
+                          variant='common'
+                        >
+                          <ProfileContentMobile />
+                        </MobileDrawer>
+                      )}
                       <HStack
                         spacing={2}
                         my={'24px'}
@@ -289,7 +302,7 @@ export default function MobileHeader() {
                                   </HStack>
 
                                   <HStack gap='8px'>
-                                    <Text fontWeight={500}>
+                                    <Text fontWeight={500} fontSize='16px'>
                                       {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                                     </Text>
                                     <Box color='grey.800'>
@@ -407,7 +420,9 @@ export default function MobileHeader() {
           </HStack>
         </HStack>
       </Box>
-      {isMobile && (pathname === '/' || pathname.includes('topics')) && <TokenFilterMobile />}
+      {isMobile && (pathname === '/markets' || pathname.includes('topics')) && (
+        <TokenFilterMobile />
+      )}
     </>
   )
 }

@@ -70,6 +70,9 @@ export interface IProfileServiceContext {
     displayName: string | undefined
     pfpUrl: string | undefined
   }
+  formDirty: boolean
+  setFormDirty: Dispatch<SetStateAction<boolean>>
+  getProfileDataLoading: boolean
 }
 
 const ProfileServiceContext = createContext({} as IProfileServiceContext)
@@ -91,6 +94,7 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
   const [bio, setBio] = useState<string>('')
   const [profileUpdated, setProfileUpdated] = useState<boolean>(false)
   const [disableUpdateButton, setDisableUpdateButton] = useState<boolean>(false)
+  const [formDirty, setFormDirty] = useState<boolean>(false)
 
   const {
     mutateAsync: createProfileAsync,
@@ -140,35 +144,33 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
     }
 
     return {
-      displayName: profile?.displayName
-        ? cutUsername(profile?.displayName)
-        : profile?.username
-        ? cutUsername(profile?.username)
-        : truncateEthAddress(account),
+      displayName: profile?.displayName ?? profile?.username,
       pfpUrl: profile?.pfpUrl,
     }
   }, [userInfo, profile, getProfileDataLoading, account])
 
   const profileRegistered = !!profileData
   const updateButtonDisabled =
-    getProfileDataLoading ||
-    createProfileLoading ||
-    updateProfileLoading ||
+    !formDirty ||
+    // createProfileLoading ||
+    // updateProfileLoading ||
     profileUpdated ||
     disableUpdateButton
   const updateButtonLoading = createProfileLoading || updateProfileLoading
 
   useEffect(() => {
+    const _defaultDisplayName = userInfo?.name ?? account ?? ''
+    const _defaultUsername = farcasterInfo?.username ?? account ?? ''
     if (!profileData) {
-      setDisplayName(userInfo?.name ?? account ?? '')
-      setUsername(farcasterInfo?.username ?? account ?? '')
+      setDisplayName(_defaultDisplayName)
+      setUsername(_defaultUsername)
       refetchProfile()
       return
     } else {
       setProfile(profileData)
-      setPfpUrl(profileData.pfpUrl)
-      setDisplayName(profileData.displayName)
-      setUsername(profileData.username)
+      setPfpUrl(profileData?.pfpUrl)
+      setDisplayName(profileData?.displayName ?? _defaultDisplayName)
+      setUsername(profileData?.username ?? _defaultUsername)
       setBio(profileData.bio ?? '')
     }
   }, [profileData, farcasterInfo, userInfo, account])
@@ -194,10 +196,13 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
   }, [pfpFile])
 
   useEffect(() => {
-    if (isOpenProfileDrawer)
+    if (isOpenProfileDrawer) {
       trackOpened<ProfileSettingsOpenedMetadata>(OpenEvent.ProfileSettingsOpened, {
         platform: isMobile ? 'Mobile' : 'Desktop',
       })
+    } else {
+      // resetState()
+    }
   }, [isOpenProfileDrawer, isMobile])
 
   const handleUpdateProfile = useCallback(async () => {
@@ -242,6 +247,7 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
     resetCreateProfile()
     resetUpdateProfile()
     resetUpdatePfp()
+    setFormDirty(false)
   }, [])
 
   const contextProviderValue: IProfileServiceContext = {
@@ -276,6 +282,9 @@ export const ProfileServiceProvider = ({ children }: PropsWithChildren) => {
     onOpenProfileDrawer,
     onCloseProfileDrawer,
     user,
+    formDirty,
+    setFormDirty,
+    getProfileDataLoading,
   }
 
   return (

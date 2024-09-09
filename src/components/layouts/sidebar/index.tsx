@@ -5,6 +5,7 @@ import {
   Flex,
   HStack,
   Image as ChakraImage,
+  Link,
   Menu,
   MenuButton,
   MenuList,
@@ -14,14 +15,18 @@ import {
   useColorMode,
   useDisclosure,
   VStack,
+  Skeleton,
 } from '@chakra-ui/react'
 import Image from 'next/image'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
-import '@/app/style.css'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
+import HomeIcon from '@/resources/icons/home-icon.svg'
+import GridIcon from '@/resources/icons/grid-icon.svg'
+import PenIcon from '@/resources/icons/pen-icon.svg'
 
+import '@/app/style.css'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
@@ -33,7 +38,7 @@ import {
 } from '@/services'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import { NumberUtil } from '@/utils'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 import { useWeb3Service } from '@/services/Web3Service'
 import { LoginButton } from '@/components/common/login-button'
 import CategoryFilter from '@/components/common/categories'
@@ -48,24 +53,37 @@ import WalletPage from '@/components/layouts/wallet-page'
 import SwapIcon from '@/resources/icons/swap-icon.svg'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import NextLink from 'next/link'
-import { Link } from '@chakra-ui/react'
 import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
 import { Overlay } from '@/components/common/overlay'
 import SocialsFooter from '@/components/common/socials-footer'
+import Loader from '@/components/common/loader'
+import { cutUsername } from '@/utils/string'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 export default function Sidebar() {
-  const { user, isOpenProfileDrawer, onOpenProfileDrawer, onCloseProfileDrawer } =
-    useProfileService()
+  const {
+    user,
+    getProfileDataLoading,
+    isOpenProfileDrawer,
+    onOpenProfileDrawer,
+    onCloseProfileDrawer,
+  } = useProfileService()
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
-  const { disconnectFromPlatform } = useDisconnectAccount()
+  const { disconnectFromPlatform, disconnectLoading } = useDisconnectAccount()
   const { overallBalanceUsd } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { trackClicked } = useAmplitude()
-  const { isConnected } = useWagmiAccount()
+  const account = useWalletAddress()
+  const { isConnected, isConnecting, isReconnecting } = useWagmiAccount()
   const { client } = useWeb3Service()
 
-  // const address = useWalletAddress()
   const pageName = usePageName()
+  const userMenuLoading = useMemo(() => {
+    const userWithProfileLoading = isConnected && getProfileDataLoading
+    const userWithoutProfileLoading = isConnected && !user?.displayName
+    const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
+    return false
+  }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
 
   const {
     isOpen: isOpenWalletPage,
@@ -133,114 +151,140 @@ export default function Sidebar() {
           </Link>
         </NextLink>
 
-        {isConnected && (
+        {isConnected ? (
           <>
-            <VStack my='16px' w='full' gap='8px'>
+            <VStack mt='16px' w='full' gap='8px'>
               {client !== 'eoa' ? (
-                <Button
-                  variant='transparent'
-                  onClick={() => {
-                    trackClicked<ProfileBurgerMenuClickedMetadata>(
-                      ClickEvent.ProfileBurgerMenuClicked,
-                      {
-                        option: 'Wallet',
-                      }
-                    )
-                    handleOpenWalletPage()
-                  }}
-                  w='full'
-                  bg={isOpenWalletPage ? 'grey.200' : 'unset'}
-                >
-                  <HStack w='full'>
-                    <WalletIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
-                      {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-                    </Text>
-                  </HStack>
-                </Button>
-              ) : (
-                <Button
-                  variant='transparent'
-                  w='full'
-                  onClick={() => {
-                    trackClicked(ClickEvent.WithdrawClicked)
-                    handleOpenWrapModal()
-                  }}
-                >
-                  <HStack w='full'>
-                    <SwapIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
-                      Wrap ETH
-                    </Text>
-                  </HStack>
-                </Button>
-              )}
-              <NextLink href='/portfolio' passHref style={{ width: '100%' }}>
-                <Link
-                  onClick={() => {
-                    trackClicked<ProfileBurgerMenuClickedMetadata>(
-                      ClickEvent.ProfileBurgerMenuClicked,
-                      {
-                        option: 'Portfolio',
-                      }
-                    )
-                  }}
-                  variant='transparent'
-                  w='full'
-                >
-                  <HStack w='full'>
-                    <PortfolioIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
-                      Portfolio
-                    </Text>
-                  </HStack>
-                </Link>
-              </NextLink>
-              <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
-                <MenuButton
-                  as={Button}
-                  onClick={onToggleAuthMenu}
-                  rightIcon={<ChevronDownIcon width='16px' height='16px' />}
-                  bg={isOpenAuthMenu ? 'grey.200' : 'unset'}
-                  h='24px'
-                  px='8px'
-                  w='full'
-                  _active={{
-                    bg: 'grey.200',
-                  }}
-                  _hover={{
-                    bg: 'grey.200',
-                  }}
-                >
-                  <HStack gap='8px'>
-                    {user?.pfpUrl?.includes('http') ? (
-                      <ChakraImage
-                        src={user.pfpUrl}
-                        borderRadius={'2px'}
-                        h={'16px'}
-                        w={'16px'}
-                        objectFit='cover'
-                        className='amp-block'
-                      />
-                    ) : (
-                      <Flex
-                        borderRadius={'2px'}
-                        h={'16px'}
-                        w={'16px'}
-                        bg='grey.300'
-                        alignItems='center'
-                        justifyContent='center'
-                      >
-                        <Text {...paragraphMedium} className={'amp-mask'}>
-                          {user.displayName ? user.displayName[0].toUpperCase() : 'O'}
+                <>
+                  {userMenuLoading ? (
+                    <Skeleton height='24px' w='full' variant='common' />
+                  ) : (
+                    <Button
+                      variant='transparent'
+                      onClick={() => {
+                        trackClicked<ProfileBurgerMenuClickedMetadata>(
+                          ClickEvent.ProfileBurgerMenuClicked,
+                          {
+                            option: 'Wallet',
+                          }
+                        )
+                        handleOpenWalletPage()
+                      }}
+                      w='full'
+                      bg={isOpenWalletPage ? 'grey.200' : 'unset'}
+                    >
+                      <HStack w='full'>
+                        <WalletIcon width={16} height={16} />
+                        <Text fontWeight={500} fontSize='14px'>
+                          {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                         </Text>
-                      </Flex>
-                    )}
-                    <Text {...paragraphMedium} className={'amp-mask'}>
-                      {user.displayName}
-                    </Text>
-                  </HStack>
-                </MenuButton>
+                      </HStack>
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <>
+                  {userMenuLoading ? (
+                    <Skeleton height='24px' w='full' variant='common' />
+                  ) : (
+                    <Button
+                      variant='transparent'
+                      w='full'
+                      onClick={() => {
+                        trackClicked(ClickEvent.WithdrawClicked)
+                        handleOpenWrapModal()
+                      }}
+                    >
+                      <HStack w='full'>
+                        <SwapIcon width={16} height={16} />
+                        <Text fontWeight={500} fontSize='14px'>
+                          Wrap ETH
+                        </Text>
+                      </HStack>
+                    </Button>
+                  )}
+                </>
+              )}
+
+              {userMenuLoading ? (
+                <Skeleton height='24px' w='full' variant='common' />
+              ) : (
+                <NextLink href='/portfolio' passHref style={{ width: '100%' }}>
+                  <Link
+                    onClick={() => {
+                      trackClicked<ProfileBurgerMenuClickedMetadata>(
+                        ClickEvent.ProfileBurgerMenuClicked,
+                        {
+                          option: 'Portfolio',
+                        }
+                      )
+                    }}
+                    variant='transparent'
+                    w='full'
+                    bg={pageName === 'Portfolio' ? 'grey.200' : 'unset'}
+                  >
+                    <HStack w='full'>
+                      <PortfolioIcon width={16} height={16} />
+                      <Text fontWeight={500} fontSize='14px'>
+                        Portfolio
+                      </Text>
+                    </HStack>
+                  </Link>
+                </NextLink>
+              )}
+
+              <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
+                {userMenuLoading ? (
+                  <Skeleton height='24px' w='full' variant='common' />
+                ) : (
+                  <MenuButton
+                    as={Button}
+                    onClick={onToggleAuthMenu}
+                    rightIcon={<ChevronDownIcon width='16px' height='16px' />}
+                    bg={isOpenAuthMenu ? 'grey.200' : 'unset'}
+                    h='24px'
+                    px='8px'
+                    w='full'
+                    _active={{
+                      bg: 'grey.200',
+                    }}
+                    _hover={{
+                      bg: 'grey.200',
+                    }}
+                  >
+                    <HStack gap='8px'>
+                      {user?.pfpUrl?.includes('http') ? (
+                        <ChakraImage
+                          src={user.pfpUrl}
+                          borderRadius={'2px'}
+                          h={'16px'}
+                          w={'16px'}
+                          objectFit='cover'
+                          className='amp-block'
+                        />
+                      ) : (
+                        <Flex
+                          borderRadius={'2px'}
+                          h={'16px'}
+                          w={'16px'}
+                          bg='grey.300'
+                          alignItems='center'
+                          justifyContent='center'
+                        >
+                          <Text {...paragraphMedium} className={'amp-mask'}>
+                            {!!user?.displayName?.length ? user.displayName[0].toUpperCase() : 'O'}
+                          </Text>
+                        </Flex>
+                      )}
+                      <Text {...paragraphMedium} className={'amp-mask'}>
+                        {user.displayName
+                          ? cutUsername(user.displayName, 13)
+                          : truncateEthAddress(account)}
+                      </Text>
+                    </HStack>
+                  </MenuButton>
+                )}
+
                 <MenuList borderRadius='2px' w='171px' zIndex={2}>
                   <HStack gap='4px' mb='4px'>
                     <Button
@@ -270,8 +314,8 @@ export default function Sidebar() {
                       <MoonIcon width={16} height={16} />
                     </Button>
                   </HStack>
-                  {/* hidding it for prod release
-                 <Button
+                  {/* hidding it for prod release */}
+                  {/*<Button
                     variant='grey'
                     w='full'
                     onClick={handleOpenProfileDrawer}
@@ -298,30 +342,75 @@ export default function Sidebar() {
               </Menu>
             </VStack>
           </>
-        )}
-        {isConnected ? (
-          <Button
-            variant='grey'
-            w='full'
-            onClick={() => {
-              trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
-                page: 'Explore Markets',
-              })
-              window.open(
-                'https://limitlesslabs.notion.site/Limitless-Creators-101-fbbde33a51104fcb83c57f6ce9d69d2a?pvs=4',
-                '_blank',
-                'noopener'
-              )
-            }}
-          >
-            Create Market
-          </Button>
         ) : (
           <Box mt='16px' w='full'>
             <LoginButton />
           </Box>
         )}
-        <Divider />
+        <Divider my='12px' />
+        <NextLink href='/' passHref style={{ width: '100%' }}>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Home',
+              })
+            }}
+            variant='transparent'
+            w='full'
+            bg={pageName === 'Home' ? 'grey.200' : 'unset'}
+          >
+            <HStack w='full'>
+              <HomeIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                Home
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
+        <NextLink href='/markets' passHref style={{ width: '100%' }}>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Markets',
+              })
+            }}
+            variant='transparent'
+            w='full'
+            bg={pageName === 'Explore Markets' ? 'grey.200' : 'unset'}
+          >
+            <HStack w='full'>
+              <GridIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                Markets
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
+        <NextLink
+          href='https://limitlesslabs.notion.site/Limitless-Creators-101-fbbde33a51104fcb83c57f6ce9d69d2a?pvs=4'
+          target='_blank'
+          rel='noopener'
+          passHref
+          style={{ width: '100%' }}
+        >
+          <Link
+            isExternal
+            onClick={() => {
+              trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
+                page: pageName,
+              })
+            }}
+            variant='transparent'
+            w='full'
+          >
+            <HStack w='full'>
+              <PenIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                Suggest market
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
         {!isMobile && <CategoryFilter />}
 
         <Spacer />
@@ -350,7 +439,7 @@ export default function Sidebar() {
         style={{
           zIndex: 100,
           marginTop: '20px',
-          marginLeft: '188px',
+          marginLeft: '197px',
           transition: '0.1s',
         }}
         onClick={() => {
@@ -366,10 +455,8 @@ export default function Sidebar() {
         direction='left'
         in={isOpenProfileDrawer}
         style={{
-          borderRight: '1px solid',
-          borderColor: '#E7E7E7', // theme.colors['grey.200'],
           zIndex: 100,
-          left: '188px',
+          left: '197px',
           width: '328px',
           height: '100%',
           transition: '0.1s',
