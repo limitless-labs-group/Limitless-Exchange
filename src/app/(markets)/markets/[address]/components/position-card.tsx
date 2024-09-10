@@ -115,9 +115,7 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
             Invested
           </Text>
           <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
-            new BigNumber(position.outcomeTokenAmount || '1')
-              .multipliedBy(position.latestTrade?.outcomeTokenPrice || '1')
-              .toFixed(6),
+            position.collateralAmount,
             6
           )} ${symbol}`}</Text>
         </Flex>
