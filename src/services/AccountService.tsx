@@ -1,19 +1,30 @@
-import { PropsWithChildren, createContext, useContext } from 'react'
+import { PropsWithChildren, createContext, useContext, useCallback, useMemo } from 'react'
 import { useWeb3Auth } from '@/providers'
 import { useEffect, useState } from 'react'
 import { Address } from '@/types'
-import { useAmplitude } from '@/services'
+import { limitlessApi, useAmplitude, useEtherspot } from '@/services'
 import { UserInfo } from '@web3auth/base'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { Profile } from '@/types/profiles'
+import { getAddress } from 'viem'
+import { useWeb3Service } from '@/services/Web3Service'
+import { useDisconnect } from 'wagmi'
+import { useAccount as useWagmiAccount } from 'wagmi'
+import { useUpdatePfp } from '@/hooks/profiles'
 
 export interface IAccountContext {
   isLoggedIn: boolean
   account: Address | undefined
   userInfo: Partial<UserInfo> | undefined
-  farcasterInfo: FarcasterUserData | undefined
+  // farcasterInfo: FarcasterUserData | undefined
   disconnectAccount: () => void
+  disconnectFromPlatform: () => void
+  disconnectLoading: boolean
+  displayName?: string
+  displayUsername: string
+  bio: string
+  profileLoading: boolean
 }
 
 const AccountContext = createContext({} as IAccountContext)
@@ -22,16 +33,45 @@ export const useAccount = () => useContext(AccountContext)
 
 export const AccountProvider = ({ children }: PropsWithChildren) => {
   const queryClient = useQueryClient()
+  const { client } = useWeb3Service()
+  const { disconnect, isSuccess: disconnectSuccess, isPending: disconnectPending } = useDisconnect()
   /**
    * WEB3AUTH
    */
   const { provider, web3Auth, isConnected } = useWeb3Auth()
   const isLoggedIn = isConnected && !!provider
 
+  const { smartWalletExternallyOwnedAccountAddress, smartWalletAddress } = useEtherspot()
+  const { address } = useWagmiAccount()
+
+  console.log(smartWalletAddress)
+  console.log(web3Auth.connectedAdapterName)
+
   /**
    * ADDRESSES
    */
-  const walletAddress = useWalletAddress()
+  // Todo refactor
+  const walletAddress = useMemo(() => {
+    if (web3Auth.status === 'not_ready') {
+      return
+    }
+
+    if (smartWalletAddress) {
+      return smartWalletAddress
+    }
+
+    if (web3Auth.connectedAdapterName) {
+      if (web3Auth.connectedAdapterName === 'openlogin' && !smartWalletAddress) {
+        return
+      }
+    }
+    return address
+  }, [address, smartWalletAddress, web3Auth.connectedAdapterName, web3Auth.status])
+
+  const account =
+    web3Auth.connectedAdapterName === 'openLogin'
+      ? smartWalletExternallyOwnedAccountAddress
+      : walletAddress
 
   /**
    * USER INFO / METADATA
@@ -46,25 +86,62 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     }
   }, [isLoggedIn])
 
+  const { data: profileData, isLoading: profileLoading } = useQuery({
+    queryKey: ['profiles', { account }],
+    queryFn: async (): Promise<Profile | null> => {
+      const res = await limitlessApi.get(`/profiles/${getAddress(account!)}`)
+      return res.data
+    },
+    enabled: !!account,
+  })
+
   /**
    * FARCASTER
    */
-  const { data: farcasterInfo } = useQuery({
-    queryKey: ['farcaster', userInfo],
-    queryFn: async () => {
-      const { data } = await axios.get<FarcasterUsersRequestResponse>(
-        `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userInfo?.verifierId}`,
-        {
-          headers: {
-            api_key: process.env.NEXT_PUBLIC_NEYNAR_API_KEY,
-          },
-        }
-      )
-      const [farcasterUserData] = data.users
-      return farcasterUserData
-    },
-    enabled: userInfo?.typeOfLogin === 'farcaster',
-  })
+  // const { data: farcasterInfo } = useQuery({
+  //   queryKey: ['farcaster', userInfo],
+  //   queryFn: async () => {
+  //     const { data } = await axios.get<FarcasterUsersRequestResponse>(
+  //       `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userInfo?.verifierId}`,
+  //       {
+  //         headers: {
+  //           api_key: process.env.NEXT_PUBLIC_NEYNAR_API_KEY,
+  //         },
+  //       }
+  //     )
+  //     const [farcasterUserData] = data.users
+  //     return farcasterUserData
+  //   },
+  //   enabled: userInfo?.typeOfLogin === 'farcaster',
+  // })
+
+  console.log(userInfo)
+
+  const displayName = useMemo(() => {
+    if (profileData?.displayName) {
+      return profileData.displayName
+    }
+    if (userInfo?.name) {
+      return userInfo.name
+    }
+    return walletAddress
+  }, [profileData, userInfo, walletAddress])
+
+  const displayUsername = useMemo(() => {
+    if (profileData?.username) {
+      return profileData.username
+    }
+    // Todo add farcaster username
+    // if(userInfo.)
+    return ''
+  }, [profileData?.username])
+
+  const bio = useMemo(() => {
+    if (profileData?.bio) {
+      return profileData.bio
+    }
+    return ''
+  }, [profileData?.bio])
 
   const disconnectAccount = () => {
     queryClient.removeQueries({
@@ -73,6 +150,15 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     setUserInfo(undefined)
   }
 
+  const disconnectFromPlatform = useCallback(() => {
+    disconnect()
+    disconnectAccount()
+  }, [])
+
+  const disconnectLoading = useMemo<boolean>(() => {
+    return !!account && disconnectPending
+  }, [disconnectPending, account])
+
   /**
    * ANALYTICS
    */
@@ -80,10 +166,15 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const contextProviderValue: IAccountContext = {
     isLoggedIn,
-    account: walletAddress,
+    account,
     userInfo,
-    farcasterInfo,
+    displayName,
+    displayUsername,
+    bio,
+    disconnectFromPlatform,
+    disconnectLoading,
     disconnectAccount,
+    profileLoading,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>

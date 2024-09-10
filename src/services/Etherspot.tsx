@@ -57,11 +57,14 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    * Initialize Etherspot with Prime SDK instance on top of W3A wallet, once user signed in
    */
   const initEtherspot = useCallback(async () => {
+    console.log(web3AuthProvider)
+    console.log(isConnected)
+    console.log(web3Auth.connectedAdapterName)
     if (
       !web3AuthProvider ||
       !isConnected ||
       web3Auth.connectedAdapterName !== 'openlogin' ||
-      !supportedTokens
+      !supportedTokens?.length
     ) {
       setEtherspot(null)
       return
@@ -79,7 +82,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
 
     const etherspot = new Etherspot(primeSdk, supportedTokens[0].address, supportedTokens)
     setEtherspot(etherspot)
-  }, [web3AuthProvider, isConnected, web3Auth.connectedAdapterName])
+  }, [web3AuthProvider, isConnected, web3Auth.connectedAdapterName, supportedTokens])
 
   useEffect(() => {
     initEtherspot()
@@ -89,9 +92,11 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    * Query to fetch smart wallet address
    */
   const { data: smartWalletAddress } = useQuery({
-    queryKey: ['smartWalletAddress', !!etherspot],
+    queryKey: ['smartWalletAddress'],
     queryFn: async () => {
+      console.log(etherspot)
       const address = await etherspot?.getAddress()
+      console.log(`etherspot address ${address}`)
       return address
     },
     enabled: !!etherspot,

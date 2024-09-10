@@ -21,10 +21,10 @@ import { useAccount as useWagmiAccount } from 'wagmi'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
+  useAccount,
   useAmplitude,
   useBalanceService,
   useHistory,
-  useProfileService,
 } from '@/services'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
@@ -37,7 +37,6 @@ import TokenFilterMobile from '@/components/common/token-filter-mobile'
 import { isMobile } from 'react-device-detect'
 import '@/app/style.css'
 import { LoginButton } from '@/components/common/login-button'
-import useDisconnectAccount from '@/hooks/use-disconnect'
 import { cutUsername } from '@/utils/string'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { v4 as uuidv4 } from 'uuid'
@@ -46,29 +45,29 @@ import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 import SwapIcon from '@/resources/icons/swap-icon.svg'
 import WrapModal from '@/components/common/modals/wrap-modal'
-import { ProfileContentMobile } from '@/components/layouts/mobile-header/components'
 import MobileDrawer from '@/components/common/drawer'
 import SocialsFooter from '@/components/common/socials-footer'
 import Loader from '@/components/common/loader'
+import Profile from '@/components/layouts/profile'
 
 export default function MobileHeader() {
-  const { getProfileDataLoading, user } = useProfileService()
   const { isConnected, isConnecting, isReconnecting } = useWagmiAccount()
   const { overallBalanceUsd } = useBalanceService()
   const account = useWalletAddress()
   const { balanceInvested } = useHistory()
   const router = useRouter()
-  const { disconnectFromPlatform, disconnectLoading } = useDisconnectAccount()
+  const { disconnectFromPlatform, disconnectLoading } = useAccount()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
   const pathname = usePathname()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
-  const userMenuLoading = useMemo(() => {
-    const userWithProfileLoading = isConnected && getProfileDataLoading
-    const userWithoutProfileLoading = isConnected && !user?.displayName
-    const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
-    return userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
-  }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
+  const userMenuLoading = false
+  // const userMenuLoading = useMemo(() => {
+  //   const userWithProfileLoading = isConnected && getProfileDataLoading
+  //   const userWithoutProfileLoading = isConnected && !user?.displayName
+  //   const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
+  //   return userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
+  // }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
 
@@ -109,28 +108,34 @@ export default function MobileHeader() {
                   <Text fontWeight={500} fontSize='16px'>
                     {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                   </Text>
-                  {user?.pfpUrl?.includes('http') ? (
-                    <ChakraImage
-                      src={user?.pfpUrl}
-                      borderRadius={'2px'}
-                      h={'32px'}
-                      w={'32px'}
-                      className='amp-block'
-                    />
-                  ) : (
-                    <Flex
-                      borderRadius={'2px'}
-                      h={'32px'}
-                      w={'32px'}
-                      bg='grey.300'
-                      alignItems='center'
-                      justifyContent='center'
-                    >
-                      <Text {...paragraphMedium} className={'amp-mask'}>
-                        {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
-                      </Text>
-                    </Flex>
-                  )}
+                  <Text {...paragraphMedium} className={'amp-mask'}>
+                    {truncateEthAddress(account)}
+                    {/*{user.displayName*/}
+                    {/*  ? cutUsername(user.displayName, 13)*/}
+                    {/*  : truncateEthAddress(account)}*/}
+                  </Text>
+                  {/*{user?.pfpUrl?.includes('http') ? (*/}
+                  {/*  <ChakraImage*/}
+                  {/*    src={user?.pfpUrl}*/}
+                  {/*    borderRadius={'2px'}*/}
+                  {/*    h={'32px'}*/}
+                  {/*    w={'32px'}*/}
+                  {/*    className='amp-block'*/}
+                  {/*  />*/}
+                  {/*) : (*/}
+                  {/*  <Flex*/}
+                  {/*    borderRadius={'2px'}*/}
+                  {/*    h={'32px'}*/}
+                  {/*    w={'32px'}*/}
+                  {/*    bg='grey.300'*/}
+                  {/*    alignItems='center'*/}
+                  {/*    justifyContent='center'*/}
+                  {/*  >*/}
+                  {/*    <Text {...paragraphMedium} className={'amp-mask'}>*/}
+                  {/*      {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}*/}
+                  {/*    </Text>*/}
+                  {/*  </Flex>*/}
+                  {/*)}*/}
                 </Button>
                 {isOpenUserMenu && (
                   <Box
@@ -176,33 +181,36 @@ export default function MobileHeader() {
                               }}
                             >
                               <StackItem display='flex' justifyContent='center' alignItems='center'>
-                                {user?.pfpUrl?.includes('http') ? (
-                                  <ChakraImage
-                                    src={user?.pfpUrl}
-                                    borderRadius={'2px'}
-                                    h={'24px'}
-                                    w={'24px'}
-                                    className='amp-block'
-                                  />
-                                ) : (
-                                  <Flex
-                                    borderRadius={'2px'}
-                                    h={'24px'}
-                                    w={'24px'}
-                                    bg='grey.300'
-                                    alignItems='center'
-                                    justifyContent='center'
-                                  >
-                                    <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
-                                      {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
-                                    </Text>
-                                  </Flex>
-                                )}
+                                {/*{user?.pfpUrl?.includes('http') ? (*/}
+                                {/*  <ChakraImage*/}
+                                {/*    src={user?.pfpUrl}*/}
+                                {/*    borderRadius={'2px'}*/}
+                                {/*    h={'24px'}*/}
+                                {/*    w={'24px'}*/}
+                                {/*    className='amp-block'*/}
+                                {/*  />*/}
+                                {/*) : (*/}
+                                {/*  <Flex*/}
+                                {/*    borderRadius={'2px'}*/}
+                                {/*    h={'24px'}*/}
+                                {/*    w={'24px'}*/}
+                                {/*    bg='grey.300'*/}
+                                {/*    alignItems='center'*/}
+                                {/*    justifyContent='center'*/}
+                                {/*  >*/}
+                                {/*    <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>*/}
+                                {/*      {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}*/}
+                                {/*    </Text>*/}
+                                {/*  </Flex>*/}
+                                {/*)}*/}
                                 <Box mx='4px' />
+                                {/*<Text {...paragraphMedium} className={'amp-mask'}>*/}
+                                {/*  {user.displayName*/}
+                                {/*    ? cutUsername(user.displayName, 13)*/}
+                                {/*    : truncateEthAddress(account)}*/}
+                                {/*</Text>*/}
                                 <Text {...paragraphMedium} className={'amp-mask'}>
-                                  {user.displayName
-                                    ? cutUsername(user.displayName, 13)
-                                    : truncateEthAddress(account)}
+                                  {truncateEthAddress(account)}
                                 </Text>
                               </StackItem>
 
@@ -215,7 +223,7 @@ export default function MobileHeader() {
                           }
                           variant='common'
                         >
-                          <ProfileContentMobile />
+                          <Profile />
                         </MobileDrawer>
                       )}
                       <HStack

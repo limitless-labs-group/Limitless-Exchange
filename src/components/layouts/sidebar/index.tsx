@@ -32,9 +32,9 @@ import {
   CreateMarketClickedMetadata,
   LogoClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
+  useAccount,
   useAmplitude,
   useBalanceService,
-  useProfileService,
 } from '@/services'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
@@ -45,7 +45,6 @@ import CategoryFilter from '@/components/common/categories'
 import { isMobile } from 'react-device-detect'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import '@rainbow-me/rainbowkit/styles.css'
-import useDisconnectAccount from '@/hooks/use-disconnect'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { useThemeProvider } from '@/providers'
 import usePageName from '@/hooks/use-page-name'
@@ -53,23 +52,15 @@ import WalletPage from '@/components/layouts/wallet-page'
 import SwapIcon from '@/resources/icons/swap-icon.svg'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import NextLink from 'next/link'
-import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
 import { Overlay } from '@/components/common/overlay'
 import SocialsFooter from '@/components/common/socials-footer'
-import Loader from '@/components/common/loader'
 import { cutUsername } from '@/utils/string'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
+import Profile from '@/components/layouts/profile'
 
 export default function Sidebar() {
-  const {
-    user,
-    getProfileDataLoading,
-    isOpenProfileDrawer,
-    onOpenProfileDrawer,
-    onCloseProfileDrawer,
-  } = useProfileService()
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
-  const { disconnectFromPlatform, disconnectLoading } = useDisconnectAccount()
+  const { disconnectFromPlatform, disconnectLoading, displayName } = useAccount()
   const { overallBalanceUsd } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { trackClicked } = useAmplitude()
@@ -77,13 +68,18 @@ export default function Sidebar() {
   const { isConnected, isConnecting, isReconnecting } = useWagmiAccount()
   const { client } = useWeb3Service()
 
+  const userMenuLoading = false
+
   const pageName = usePageName()
-  const userMenuLoading = useMemo(() => {
-    const userWithProfileLoading = isConnected && getProfileDataLoading
-    const userWithoutProfileLoading = isConnected && !user?.displayName
-    const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
-    return userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
-  }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
+  // const userMenuLoading = useMemo(() => {
+  //   const userWithProfileLoading = isConnected && getProfileDataLoading
+  //   // const userWithoutProfileLoading = isConnected && !user?.displayName
+  //   const userWithoutProfileLoading = false
+  //   const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
+  //   return userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
+  // }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
+  //
+  // console.log(isConnected && !user?.displayName)
 
   const {
     isOpen: isOpenWalletPage,
@@ -102,25 +98,31 @@ export default function Sidebar() {
     onClose: onCloseWrapModal,
   } = useDisclosure()
 
+  const { isOpen: isOpenProfile, onToggle: onToggleProfile } = useDisclosure()
+
   const handleOpenWalletPage = useCallback(() => {
     if (client === 'eoa') return
-    onCloseProfileDrawer()
     onToggleWalletPage()
   }, [client])
   const handleOpenWrapModal = useCallback(() => onOpenWrapModal(), [])
-  const handleOpenProfileDrawer = useCallback(() => {
+  const handleOpenProfile = () => {
     onCloseWalletPage()
-    onCloseWrapModal()
     onCloseAuthMenu()
-
-    if (!isOpenProfileDrawer) {
-      onOpenProfileDrawer()
-      return
-    }
-
-    onCloseProfileDrawer()
-    return
-  }, [isOpenWalletPage, isOpenProfileDrawer])
+    onToggleProfile()
+  }
+  // const handleOpenProfileDrawer = useCallback(() => {
+  //   onCloseWalletPage()
+  //   onCloseWrapModal()
+  //   onCloseAuthMenu()
+  //
+  //   if (!isOpenProfileDrawer) {
+  //     onOpenProfileDrawer()
+  //     return
+  //   }
+  //
+  //   onCloseProfileDrawer()
+  //   return
+  // }, [isOpenWalletPage, isOpenProfileDrawer])
 
   return (
     <>
@@ -254,33 +256,53 @@ export default function Sidebar() {
                     }}
                   >
                     <HStack gap='8px'>
-                      {user?.pfpUrl?.includes('http') ? (
-                        <ChakraImage
-                          src={user.pfpUrl}
-                          borderRadius={'2px'}
-                          h={'16px'}
-                          w={'16px'}
-                          objectFit='cover'
-                          className='amp-block'
-                        />
-                      ) : (
-                        <Flex
-                          borderRadius={'2px'}
-                          h={'16px'}
-                          w={'16px'}
-                          bg='grey.300'
-                          alignItems='center'
-                          justifyContent='center'
-                        >
-                          <Text {...paragraphMedium} className={'amp-mask'}>
-                            {!!user?.displayName?.length ? user.displayName[0].toUpperCase() : 'O'}
-                          </Text>
-                        </Flex>
-                      )}
-                      <Text {...paragraphMedium} className={'amp-mask'}>
-                        {user.displayName
-                          ? cutUsername(user.displayName, 13)
-                          : truncateEthAddress(account)}
+                      <Flex
+                        borderRadius={'2px'}
+                        h={'16px'}
+                        w={'16px'}
+                        bg='grey.300'
+                        alignItems='center'
+                        justifyContent='center'
+                      >
+                        <Text {...paragraphMedium} className={'amp-mask'}>
+                          {'O'}
+                        </Text>
+                      </Flex>
+                      {/*{user?.pfpUrl?.includes('http') ? (*/}
+                      {/*  <ChakraImage*/}
+                      {/*    src={user.pfpUrl}*/}
+                      {/*    borderRadius={'2px'}*/}
+                      {/*    h={'16px'}*/}
+                      {/*    w={'16px'}*/}
+                      {/*    objectFit='cover'*/}
+                      {/*    className='amp-block'*/}
+                      {/*  />*/}
+                      {/*) : (*/}
+                      {/*  <Flex*/}
+                      {/*    borderRadius={'2px'}*/}
+                      {/*    h={'16px'}*/}
+                      {/*    w={'16px'}*/}
+                      {/*    bg='grey.300'*/}
+                      {/*    alignItems='center'*/}
+                      {/*    justifyContent='center'*/}
+                      {/*  >*/}
+                      {/*    <Text {...paragraphMedium} className={'amp-mask'}>*/}
+                      {/*      {!!user?.displayName?.length ? user.displayName[0].toUpperCase() : 'O'}*/}
+                      {/*    </Text>*/}
+                      {/*  </Flex>*/}
+                      {/*)}*/}
+                      <Text
+                        {...paragraphMedium}
+                        className={'amp-mask'}
+                        whiteSpace='nowrap'
+                        overflow='hidden'
+                        textOverflow='ellipsis'
+                        maxW='112px'
+                      >
+                        {displayName}
+                        {/*{user.displayName*/}
+                        {/*  ? cutUsername(user.displayName, 13)*/}
+                        {/*  : truncateEthAddress(account)}*/}
                       </Text>
                     </HStack>
                   </MenuButton>
@@ -315,11 +337,10 @@ export default function Sidebar() {
                       <MoonIcon width={16} height={16} />
                     </Button>
                   </HStack>
-                  {/* hidding it for prod release */}
                   <Button
                     variant='grey'
                     w='full'
-                    onClick={handleOpenProfileDrawer}
+                    onClick={handleOpenProfile}
                     justifyContent='flex-start'
                   >
                     Profile
@@ -333,7 +354,7 @@ export default function Sidebar() {
                       })
                       disconnectFromPlatform()
                       onToggleAuthMenu()
-                      onCloseProfileDrawer()
+                      isOpenProfile && onToggleProfile()
                     }}
                     justifyContent='flex-start'
                   >
@@ -454,22 +475,26 @@ export default function Sidebar() {
       </Slide>
       <Slide
         direction='left'
-        in={isOpenProfileDrawer}
+        in={isOpenProfile}
         style={{
           zIndex: 100,
-          left: '197px',
-          width: '328px',
-          height: '100%',
+          marginTop: '20px',
+          marginLeft: '197px',
           transition: '0.1s',
-          animation: 'fadeIn 0.5s',
+        }}
+        onClick={() => {
+          trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+            page: pageName,
+          })
+          onToggleProfile()
         }}
       >
-        <ProfileContentDesktop />
+        {isOpenProfile && <Profile />}
       </Slide>
 
       {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}
 
-      <Overlay show={isOpenProfileDrawer} onClose={onCloseProfileDrawer} />
+      <Overlay show={isOpenProfile} onClose={onToggleProfile} />
     </>
   )
 }
