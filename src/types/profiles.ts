@@ -8,3 +8,8 @@ export interface Profile {
   bio: string | undefined
   pfpUrl: string | undefined
 }
+
+export enum ProfileActionType {
+  REGISTER_PROFILE = 'Register profile',
+  UPDATE_PROFILE = 'Update profile',
+}

@@ -6,12 +6,10 @@ import {
   Image,
   Circle,
   Text,
-  InputRightElement,
   InputGroup,
   InputLeftElement,
   Textarea,
   FormControl,
-  FormErrorMessage,
 } from '@chakra-ui/react'
 import ButtonWithStates from '@/components/common/button-with-states'
 import ImageIcon from '@/resources/icons/add-image-icon.svg'
@@ -21,21 +19,34 @@ import NotebookIcon from '@/resources/icons/notebook-icon.svg'
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Controller, useForm } from 'react-hook-form'
-import { useAccount } from '@/services'
+import { useAccount, useEtherspot } from '@/services'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ProfileFields, profileValidationSchema } from '@/components'
+import { ProfileFields } from '@/components'
 import { useQueryClient } from '@tanstack/react-query'
-import { useUpdatePfp } from '@/hooks/profiles'
+import {
+  getSigningMessage,
+  useCreateProfile,
+  useUpdatePfp,
+  useUpdateProfile,
+} from '@/hooks/profiles'
 import { useWeb3Service } from '@/services/Web3Service'
+import { useSignMessage } from 'wagmi'
+import { ProfileActionType } from '@/types/profiles'
+import PenIcon from '@/resources/icons/pen-icon.svg'
 
 export default function Profile() {
   const queryClient = useQueryClient()
   const [pfpFile, setPfpFile] = useState<File | undefined>(undefined)
   const pfpFileRef = useRef<any>()
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const { displayName, displayUsername, bio, account, profileLoading } = useAccount()
+  const [hoverImage, setHoverImage] = useState(false)
+  const { displayName, displayUsername, bio, account, profileLoading, profileData } = useAccount()
+  const { signMessage } = useEtherspot()
+  const { signMessageAsync } = useSignMessage()
   const { client } = useWeb3Service()
-  const { mutateAsync: updateProfile } = useUpdatePfp({ account, client })
+
+  const { mutateAsync: updatePfp } = useUpdatePfp()
+  const { mutateAsync: updateProfile } = useUpdateProfile()
 
   const {
     handleSubmit,
@@ -68,11 +79,49 @@ export default function Profile() {
     }
   }
 
-  const onProfileFieldsUpdate = (data: ProfileFields) => console.log(data)
+  const handleUpdateProfile = async (data: ProfileFields) => {
+    const { data: updateProfileMessage } = await getSigningMessage(ProfileActionType.UPDATE_PROFILE)
+    const signature =
+      client === 'eoa'
+        ? await signMessageAsync({ message: updateProfileMessage, account })
+        : await signMessage(updateProfileMessage)
+    if (pfpFile) {
+      await updatePfp({
+        account,
+        client,
+        pfpFile,
+        signature: signature as string,
+        updateProfileMessage,
+      })
+    }
+    await updateProfile({
+      ...data,
+      account,
+      client,
+      signature: signature as string,
+      updateProfileMessage,
+    })
+  }
+
+  const showChangeImageIcon = () => {
+    if (!isMobile && imagePreview) {
+      setHoverImage(true)
+    }
+    return
+  }
+
+  const hideImageIcon = () => {
+    if (!isMobile && imagePreview) {
+      setHoverImage(false)
+    }
+    return
+  }
 
   useEffect(() => {
     reset()
   }, [])
+
+  console.log(hoverImage)
 
   return (
     <Box
@@ -90,6 +139,7 @@ export default function Profile() {
             status='idle'
             variant='contained'
             isDisabled={!isDirty && isValid && !pfpFile}
+            type='submit'
           >
             Update
           </ButtonWithStates>
@@ -118,6 +168,9 @@ export default function Profile() {
             bgPosition='center'
             bgRepeat='no-repeat'
             cursor='pointer'
+            position='relative'
+            onMouseEnter={showChangeImageIcon}
+            onMouseLeave={hideImageIcon}
           >
             {imagePreview ? (
               <Image
@@ -126,14 +179,25 @@ export default function Profile() {
                 borderRadius='full'
                 boxSize='100%'
                 objectFit='cover'
+                cursor='pointer'
               />
             ) : (
               <ImageIcon width={16} height={16} />
             )}
+            {hoverImage && (
+              <Box
+                bg='transparent.200'
+                position='absolute'
+                p={isMobile ? '8px' : '4px 8px'}
+                color='white'
+              >
+                <PenIcon width={16} height={16} />
+              </Box>
+            )}
           </Circle>
         </label>
       </HStack>
-      <form onSubmit={handleSubmit(onProfileFieldsUpdate)}>
+      <form onSubmit={handleSubmit(handleUpdateProfile)}>
         <FormControl isInvalid={!!errors.displayName}>
           <Controller
             name='displayName'

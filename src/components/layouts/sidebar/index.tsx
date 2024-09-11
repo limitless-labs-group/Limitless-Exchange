@@ -24,7 +24,7 @@ import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 import HomeIcon from '@/resources/icons/home-icon.svg'
 import GridIcon from '@/resources/icons/grid-icon.svg'
-import PenIcon from '@/resources/icons/pen-icon.svg'
+import SquarePlusIcon from '@/resources/icons/square-plus-icon.svg'
 
 import '@/app/style.css'
 import {
@@ -57,6 +57,8 @@ import SocialsFooter from '@/components/common/socials-footer'
 import { cutUsername } from '@/utils/string'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import Profile from '@/components/layouts/profile'
+import UserIcon from '@/resources/icons/user-icon.svg'
+import LogoutIcon from '@/resources/icons/log-out-icon.svg'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
@@ -308,7 +310,7 @@ export default function Sidebar() {
                   </MenuButton>
                 )}
 
-                <MenuList borderRadius='2px' w='171px' zIndex={2}>
+                <MenuList borderRadius='2px' w='180px' zIndex={2}>
                   <HStack gap='4px' mb='4px'>
                     <Button
                       variant={mode === 'dark' ? 'grey' : 'black'}
@@ -343,6 +345,7 @@ export default function Sidebar() {
                     onClick={handleOpenProfile}
                     justifyContent='flex-start'
                   >
+                    <UserIcon width={16} height={16} />
                     Profile
                   </Button>
                   <Button
@@ -358,6 +361,7 @@ export default function Sidebar() {
                     }}
                     justifyContent='flex-start'
                   >
+                    <LogoutIcon width={16} height={16} />
                     Log Out
                   </Button>
                 </MenuList>
@@ -426,7 +430,7 @@ export default function Sidebar() {
             w='full'
           >
             <HStack w='full'>
-              <PenIcon width={16} height={16} />
+              <SquarePlusIcon width={16} height={16} />
               <Text fontWeight={500} fontSize='14px'>
                 Suggest market
               </Text>

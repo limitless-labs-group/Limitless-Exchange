@@ -1,39 +1,41 @@
-import { useProfileAuthSigningMessage } from '@/hooks/profiles'
 import { Address, getAddress, toHex } from 'viem'
 import { limitlessApi, useEtherspot } from '@/services'
 import { useSignMessage } from 'wagmi'
 import { useMutation } from '@tanstack/react-query'
-import { Profile } from '@/types/profiles'
+import { Profile, ProfileActionType } from '@/types/profiles'
 import { useToast } from '@/hooks'
 import { Toast } from '@/components/common/toast'
+import { getSigningMessage } from '@/hooks/profiles/queries'
 
-export interface IUseCreateProfileMutation {
+export interface IUseCreateProfile {
+  account: Address | undefined
+  client: 'etherspot' | 'eoa'
   displayName: string
   username: string
   bio: string
 }
-export interface IUseCreateProfile {
-  account: Address | undefined
-  client: 'etherspot' | 'eoa'
-}
 
-export const useCreateProfile = ({ account, client }: IUseCreateProfile) => {
+export const useCreateProfile = () => {
   const toast = useToast()
 
   const { signMessage, smartWalletExternallyOwnedAccountAddress } = useEtherspot()
   const { signMessageAsync } = useSignMessage()
-  const { refetch: getRegisterProfileSigningMessage } = useProfileAuthSigningMessage({
-    purpose: 'REGISTER_PROFILE',
-  })
 
   return useMutation({
-    mutationKey: ['create-profile', { account, client }],
+    mutationKey: ['create-profile'],
     mutationFn: async ({
       displayName: _displayName,
       username: _username,
       bio: _bio,
-    }: IUseCreateProfileMutation): Promise<Profile> => {
-      const { data: registerProfileSigningMessage } = await getRegisterProfileSigningMessage()
+      client,
+      account,
+    }: IUseCreateProfile): Promise<Profile> => {
+      debugger
+      console.log(decodeURI('Register%20profile'))
+      console.log(ProfileActionType.REGISTER_PROFILE)
+      const { data: registerProfileSigningMessage } = await getSigningMessage(
+        ProfileActionType.REGISTER_PROFILE
+      )
       if (!registerProfileSigningMessage) throw new Error('Failed to get signing message')
       const signature = (
         client === 'eoa'
@@ -64,6 +66,7 @@ export const useCreateProfile = ({ account, client }: IUseCreateProfile) => {
           headers,
         }
       )
+      console.log(res)
       return res.data as Profile
     },
     onSuccess: () => {

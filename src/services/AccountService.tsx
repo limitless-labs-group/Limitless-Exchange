@@ -1,6 +1,13 @@
-import { PropsWithChildren, createContext, useContext, useCallback, useMemo } from 'react'
+import {
+  PropsWithChildren,
+  createContext,
+  useContext,
+  useCallback,
+  useMemo,
+  useState,
+  useEffect,
+} from 'react'
 import { useWeb3Auth } from '@/providers'
-import { useEffect, useState } from 'react'
 import { Address } from '@/types'
 import { limitlessApi, useAmplitude, useEtherspot } from '@/services'
 import { UserInfo } from '@web3auth/base'
@@ -11,7 +18,7 @@ import { getAddress } from 'viem'
 import { useWeb3Service } from '@/services/Web3Service'
 import { useDisconnect } from 'wagmi'
 import { useAccount as useWagmiAccount } from 'wagmi'
-import { useUpdatePfp } from '@/hooks/profiles'
+import { useCreateProfile, useUpdatePfp } from '@/hooks/profiles'
 
 export interface IAccountContext {
   isLoggedIn: boolean
@@ -25,6 +32,7 @@ export interface IAccountContext {
   displayUsername: string
   bio: string
   profileLoading: boolean
+  profileData?: Profile | null
 }
 
 const AccountContext = createContext({} as IAccountContext)
@@ -33,8 +41,8 @@ export const useAccount = () => useContext(AccountContext)
 
 export const AccountProvider = ({ children }: PropsWithChildren) => {
   const queryClient = useQueryClient()
-  const { client } = useWeb3Service()
   const { disconnect, isSuccess: disconnectSuccess, isPending: disconnectPending } = useDisconnect()
+  const { client } = useWeb3Service()
   /**
    * WEB3AUTH
    */
@@ -77,6 +85,17 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
    * USER INFO / METADATA
    */
   const [userInfo, setUserInfo] = useState<Partial<UserInfo> | undefined>()
+
+  const { mutateAsync: createProfile } = useCreateProfile()
+
+  const onCreateProfile = async () =>
+    await createProfile({
+      displayName: displayName ? displayName : '',
+      username: '',
+      bio: '',
+      account,
+      client,
+    })
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -127,6 +146,12 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     return walletAddress
   }, [profileData, userInfo, walletAddress])
 
+  useEffect(() => {
+    if (!profileLoading && profileData === null) {
+      onCreateProfile()
+    }
+  }, [profileLoading, profileData])
+
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
       return profileData.username
@@ -175,6 +200,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     disconnectLoading,
     disconnectAccount,
     profileLoading,
+    profileData,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>
