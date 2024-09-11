@@ -17,18 +17,18 @@ export default function MobileNavigation() {
 
   const pagesMenu = [
     {
-      title: 'Home',
-      icon: <HomeIcon width={16} height={16} />,
-      link: '/',
-      isActive: pageName === 'Home',
-      amplitudeOption: 'Home' as ProfileBurgerMenuClickedOption,
-    },
-    {
       title: 'Markets',
       icon: <GridIcon width={16} height={16} />,
-      link: '/markets',
+      link: '/',
       isActive: pageName === 'Explore Markets',
       amplitudeOption: 'Markets' as ProfileBurgerMenuClickedOption,
+    },
+    {
+      title: 'Feed',
+      icon: <HomeIcon width={16} height={16} />,
+      link: '/feed',
+      isActive: pageName === 'Feed',
+      amplitudeOption: 'Feed' as ProfileBurgerMenuClickedOption,
     },
   ]
 
