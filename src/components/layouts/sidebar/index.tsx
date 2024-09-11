@@ -387,7 +387,7 @@ export default function Sidebar() {
           </Link>
         </NextLink>
         <NextLink
-          href='https://limitlesslabs.notion.site/Limitless-Creators-101-fbbde33a51104fcb83c57f6ce9d69d2a?pvs=4'
+          href='https://limitlesslabs.notion.site/Limitless-Creators-101-b529a4a72cd4406cacb55f27395c9b56'
           target='_blank'
           rel='noopener'
           passHref
