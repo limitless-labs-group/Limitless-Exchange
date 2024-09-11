@@ -20,6 +20,7 @@ export default function SortFilter({ onChange }: SortFilterProps) {
   const { trackClicked } = useAmplitude()
 
   const handleFilterItemClicked = (option: Sort) => {
+    window.sessionStorage.setItem('SORT', option)
     setSelectedSortFilter(option)
   }
 
