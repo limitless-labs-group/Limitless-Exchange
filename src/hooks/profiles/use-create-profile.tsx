@@ -30,9 +30,6 @@ export const useCreateProfile = () => {
       client,
       account,
     }: IUseCreateProfile): Promise<Profile> => {
-      debugger
-      console.log(decodeURI('Register%20profile'))
-      console.log(ProfileActionType.REGISTER_PROFILE)
       const { data: registerProfileSigningMessage } = await getSigningMessage(
         ProfileActionType.REGISTER_PROFILE
       )
@@ -58,8 +55,7 @@ export const useCreateProfile = () => {
           displayName: _displayName,
           username: _username,
           bio: _bio,
-          eoaWallet: client === 'eoa' ? account : smartWalletExternallyOwnedAccountAddress,
-          smartWallet: client === 'eoa' ? '' : account,
+          account,
           client,
         },
         {

@@ -20,8 +20,8 @@ import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Controller, useForm } from 'react-hook-form'
 import { useAccount, useEtherspot } from '@/services'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { ProfileFields } from '@/components'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { ProfileFields, profileValidationSchema } from '@/components'
 import { useQueryClient } from '@tanstack/react-query'
 import {
   getSigningMessage,
@@ -59,12 +59,13 @@ export default function Profile() {
       username: displayUsername ? displayUsername : '',
       bio: bio ? bio : '',
     },
-    // resolver: zodResolver(profileValidationSchema),
-    mode: 'onChange', // Trigger validation on form change
+    resolver: yupResolver(profileValidationSchema),
+    mode: 'onChange',
   })
 
   console.log(`isValid ${isValid}`)
   console.log(`isDirty ${isDirty}`)
+  console.log(errors)
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -96,6 +97,7 @@ export default function Profile() {
     }
     await updateProfile({
       ...data,
+      bio: data.bio as string,
       account,
       client,
       signature: signature as string,

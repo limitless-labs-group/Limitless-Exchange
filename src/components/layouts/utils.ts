@@ -1,13 +1,13 @@
-import * as z from 'zod'
+import * as yup from 'yup'
 
 export interface ProfileFields {
   displayName: string
   username: string
-  bio: string
+  bio?: string
 }
 
-export const profileValidationSchema = z.object({
-  displayName: z.string().min(1, { message: 'Required' }),
-  username: z.string().min(2, { message: 'Required' }),
-  bio: z.string().min(2, { message: 'Required' }),
+export const profileValidationSchema: yup.ObjectSchema<ProfileFields> = yup.object({
+  displayName: yup.string().required('Required'),
+  username: yup.string().required('Required'),
+  bio: yup.string(),
 })

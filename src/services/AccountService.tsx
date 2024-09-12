@@ -52,14 +52,11 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { smartWalletExternallyOwnedAccountAddress, smartWalletAddress } = useEtherspot()
   const { address } = useWagmiAccount()
 
-  console.log(smartWalletAddress)
-  console.log(web3Auth.connectedAdapterName)
-
   /**
    * ADDRESSES
    */
   // Todo refactor
-  const walletAddress = useMemo(() => {
+  const account = useMemo(() => {
     if (web3Auth.status === 'not_ready') {
       return
     }
@@ -76,26 +73,43 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     return address
   }, [address, smartWalletAddress, web3Auth.connectedAdapterName, web3Auth.status])
 
-  const account =
-    web3Auth.connectedAdapterName === 'openLogin'
-      ? smartWalletExternallyOwnedAccountAddress
-      : walletAddress
+  // const account =
+  //   web3Auth.connectedAdapterName === 'openLogin'
+  //     ? smartWalletExternallyOwnedAccountAddress
+  //     : walletAddress
+
+  console.log(account)
 
   /**
    * USER INFO / METADATA
    */
   const [userInfo, setUserInfo] = useState<Partial<UserInfo> | undefined>()
 
+  const {
+    data: profileData,
+    isLoading: profileLoading,
+    refetch: refetchProfile,
+  } = useQuery({
+    queryKey: ['profiles', { account }],
+    queryFn: async (): Promise<Profile | null> => {
+      const res = await limitlessApi.get(`/profiles/${getAddress(account!)}`)
+      return res.data
+    },
+    enabled: !!account,
+  })
+
   const { mutateAsync: createProfile } = useCreateProfile()
 
-  const onCreateProfile = async () =>
+  const onCreateProfile = async () => {
     await createProfile({
       displayName: displayName ? displayName : '',
-      username: '',
+      username: account ? account : '',
       bio: '',
       account,
       client,
     })
+    await refetchProfile()
+  }
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -104,15 +118,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       })
     }
   }, [isLoggedIn])
-
-  const { data: profileData, isLoading: profileLoading } = useQuery({
-    queryKey: ['profiles', { account }],
-    queryFn: async (): Promise<Profile | null> => {
-      const res = await limitlessApi.get(`/profiles/${getAddress(account!)}`)
-      return res.data
-    },
-    enabled: !!account,
-  })
 
   /**
    * FARCASTER
@@ -143,8 +148,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     if (userInfo?.name) {
       return userInfo.name
     }
-    return walletAddress
-  }, [profileData, userInfo, walletAddress])
+    return account
+  }, [profileData, userInfo, account])
 
   useEffect(() => {
     if (!profileLoading && profileData === null) {
@@ -178,6 +183,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const disconnectFromPlatform = useCallback(() => {
     disconnect()
     disconnectAccount()
+    web3Auth.clearCache()
   }, [])
 
   const disconnectLoading = useMemo<boolean>(() => {

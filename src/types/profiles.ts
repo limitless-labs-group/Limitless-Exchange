@@ -10,6 +10,6 @@ export interface Profile {
 }
 
 export enum ProfileActionType {
-  REGISTER_PROFILE = 'Register profile',
-  UPDATE_PROFILE = 'Update profile',
+  REGISTER_PROFILE = 'REGISTER_PROFILE',
+  UPDATE_PROFILE = 'UPDATE_PROFILE',
 }

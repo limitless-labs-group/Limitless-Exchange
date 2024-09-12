@@ -84,7 +84,8 @@
     "uuid": "^9.0.1",
     "vaul": "^0.9.1",
     "viem": "^2.7.12",
-    "wagmi": "^2.5.7"
+    "wagmi": "^2.5.7",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.31",
