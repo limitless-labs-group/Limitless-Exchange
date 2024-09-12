@@ -209,6 +209,7 @@ export type LogoClickedPage =
   | 'Market Page'
   | 'Unknown Page'
   | 'Home'
+  | 'Feed'
 export interface LogoClickedMetadata {
   page: LogoClickedPage
 }
