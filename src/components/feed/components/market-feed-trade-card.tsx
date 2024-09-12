@@ -1,9 +1,12 @@
 import { FeedEntity, MarketNewTradeFeedData } from '@/types'
 import { useMemo } from 'react'
 import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
-import { HStack, Text } from '@chakra-ui/react'
+import { HStack, Link, Text } from '@chakra-ui/react'
 import { captionRegular } from '@/styles/fonts/fonts.styles'
 import PieChartIcon from '@/resources/icons/pie-chart-icon.svg'
+import { defaultChain } from '@/constants'
+import { truncateEthAddress } from '@/utils'
+import NextLink from 'next/link'
 
 interface MarketFeedTradeCardProps {
   data: FeedEntity<MarketNewTradeFeedData>
@@ -25,16 +28,19 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
     >
       <HStack gap='4px' color='grey.500'>
         <PieChartIcon width={14} height={14} />
-        <Text
-          {...captionRegular}
-          color='grey.500'
-          textOverflow='ellipsis'
-          whiteSpace='nowrap'
-          overflow='hidden'
-          maxW='calc(100% - 22px)'
-        >
-          {data.data.title}
-        </Text>
+        <NextLink href={`https://${window.location.origin}/markets/${data.data.address}`}>
+          <Link
+            variant='textLink'
+            {...captionRegular}
+            color='grey.500'
+            textOverflow='ellipsis'
+            whiteSpace='nowrap'
+            overflow='hidden'
+            maxW='calc(100% - 22px)'
+          >
+            {data.data.title}
+          </Link>
+        </NextLink>
       </HStack>
     </MarketFeedCardContainer>
   )
