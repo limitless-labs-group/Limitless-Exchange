@@ -22,7 +22,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
-import HomeIcon from '@/resources/icons/home-icon.svg'
+import FeedIcon from '@/resources/icons/feed-icon.svg'
 import GridIcon from '@/resources/icons/grid-icon.svg'
 import PenIcon from '@/resources/icons/pen-icon.svg'
 
@@ -379,7 +379,7 @@ export default function Sidebar() {
             bg={pageName === 'Home' ? 'grey.200' : 'unset'}
           >
             <HStack w='full'>
-              <HomeIcon width={16} height={16} />
+              <FeedIcon width={16} height={16} />
               <Text fontWeight={500} fontSize='14px'>
                 Feed
               </Text>
