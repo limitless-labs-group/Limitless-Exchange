@@ -4,6 +4,7 @@ import { Box, HStack, Link, Text, Image as ChakraImage } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import { timeSinceCreation, truncateEthAddress } from '@/utils'
 import { captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import Avatar from '@/components/common/avatar'
 
 interface MarketFeedCardContainer {
   creator: FeedEventUser
@@ -27,13 +28,7 @@ export default function MarketFeedCardContainer({
       w='full'
     >
       <HStack gap='8px' flexWrap='wrap' mb={isMobile ? '16px' : '12px'}>
-        <ChakraImage
-          width={6}
-          height={6}
-          src={creator.imageURI ?? '/assets/images/logo.svg'}
-          alt='creator'
-          borderRadius={'2px'}
-        />
+        <Avatar account={creator.account || ''} />
         {creator.link ? (
           <Link href={creator.link}>
             <Text {...captionRegular}>{creator.name}</Text>
@@ -52,6 +47,7 @@ export default function MarketFeedCardContainer({
         fontSize='16px'
         marginTop={isMobile ? '16px' : '12px'}
         marginBottom={isMobile ? '12px' : '8px'}
+        userSelect='text'
       >
         {title}
       </Text>
