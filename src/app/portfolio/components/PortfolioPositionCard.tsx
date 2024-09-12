@@ -48,6 +48,8 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   const { trackClicked } = useAmplitude()
   const { redeem } = useTradingService()
 
+  console.log(position)
+
   /**
    * NAVIGATION
    */
@@ -61,9 +63,6 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   const allMarkets = useAllMarkets()
 
   const targetMarket = allMarkets.find((market) => market.address === position.market.id)
-
-  const currentContractsPrice =
-    +(position.outcomeTokenAmount || 1) * ((market?.prices[position.outcomeIndex] || 1) / 100)
 
   const contractPrice = new BigNumber(market?.prices[position.outcomeIndex] || 1)
     .dividedBy(100)
@@ -203,8 +202,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           ) : (
             <HStack>
               <Text fontSize={'16px'} lineHeight={'20px'} fontWeight={500}>
-                {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} 
-                    ${market?.collateralToken.symbol}`}
+                {`${NumberUtil.toFixed(
+                  new BigNumber(position.outcomeTokenAmount || '1')
+                    .multipliedBy(
+                      new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
+                    )
+                    .toString(),
+                  6
+                )} ${market?.collateralToken.symbol}`}
               </Text>
               <Box gap={0} fontSize={'16px'} fontWeight={500}>
                 {contractPriceChanged}
@@ -242,12 +247,9 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             Invested
           </Text>
           <Text color={cardColors.main} lineHeight={'20px'} fontWeight={400} fontSize={'16px'}>
-            {`${NumberUtil.toFixed(
-              new BigNumber(position.outcomeTokenAmount || '1')
-                .multipliedBy(position.latestTrade?.outcomeTokenPrice || '1')
-                .toFixed(6),
-              6
-            )} ${market?.collateralToken.symbol}`}
+            {`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
+              market?.collateralToken.symbol
+            }`}
           </Text>
         </HStack>
       </Stack>
@@ -281,8 +283,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
               ) : (
                 <>
                   <Text {...paragraphMedium} color={cardColors.main}>
-                    {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} 
-                    ${market?.collateralToken.symbol}`}
+                    {`${NumberUtil.toFixed(
+                      new BigNumber(position.outcomeTokenAmount || '1')
+                        .multipliedBy(
+                          new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
+                        )
+                        .toString(),
+                      6
+                    )} ${market?.collateralToken.symbol}`}
                   </Text>
 
                   <Box gap={0}>{contractPriceChanged}</Box>
@@ -310,12 +318,9 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
                 Invested
               </Text>
               <Text {...paragraphRegular} color={cardColors.main}>
-                {`${NumberUtil.toFixed(
-                  new BigNumber(position.outcomeTokenAmount || '1')
-                    .multipliedBy(position.latestTrade?.outcomeTokenPrice || '1')
-                    .toFixed(6),
-                  6
-                )} ${market?.collateralToken.symbol}`}
+                {`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
+                  market?.collateralToken.symbol
+                }`}
               </Text>
             </VStack>
           </HStack>

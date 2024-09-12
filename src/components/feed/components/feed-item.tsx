@@ -6,9 +6,11 @@ import {
   FeedEntity,
   FeedNewPostData,
   MarketGroupStatusFeedData,
+  MarketNewTradeFeedData,
 } from '@/types'
 import FeedNewPost from '@/components/feed/components/feed-new-post'
 import GroupStatusUpdatedCard from '@/components/feed/components/group-status-updated-card'
+import MarketFeedTradeCard from '@/components/feed/components/market-feed-trade-card'
 
 interface FeedItemProps {
   data: FeedEntity<unknown>
@@ -20,6 +22,10 @@ export default function FeedItem({ data }: FeedItemProps) {
     //   const item = data as FeedItem<TradeContractsData>
     //   return <MarketFeedTradeCard data={item} />
     // })(),
+    [FeedEventType.NewTrade]: (() => {
+      const item = data as FeedEntity<MarketNewTradeFeedData>
+      return <MarketFeedTradeCard data={item} />
+    })(),
     [FeedEventType.ResolvedGroup]: (() => {
       const item = data as FeedEntity<MarketGroupStatusFeedData>
       return <GroupStatusUpdatedCard data={item} />

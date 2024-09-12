@@ -378,25 +378,6 @@ export default function Sidebar() {
           <Link
             onClick={() => {
               trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
-                option: 'Home',
-              })
-            }}
-            variant='transparent'
-            w='full'
-            bg={pageName === 'Home' ? 'grey.200' : 'unset'}
-          >
-            <HStack w='full'>
-              <HomeIcon width={16} height={16} />
-              <Text fontWeight={500} fontSize='14px'>
-                Home
-              </Text>
-            </HStack>
-          </Link>
-        </NextLink>
-        <NextLink href='/markets' passHref style={{ width: '100%' }}>
-          <Link
-            onClick={() => {
-              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
                 option: 'Markets',
               })
             }}
@@ -412,8 +393,27 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
+        <NextLink href='/feed' passHref style={{ width: '100%' }}>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Home',
+              })
+            }}
+            variant='transparent'
+            w='full'
+            bg={pageName === 'Home' ? 'grey.200' : 'unset'}
+          >
+            <HStack w='full'>
+              <HomeIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                Feed
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
         <NextLink
-          href='https://limitlesslabs.notion.site/Limitless-Creators-101-fbbde33a51104fcb83c57f6ce9d69d2a?pvs=4'
+          href='https://limitlesslabs.notion.site/Limitless-Creators-101-b529a4a72cd4406cacb55f27395c9b56'
           target='_blank'
           rel='noopener'
           passHref
