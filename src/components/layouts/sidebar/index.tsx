@@ -24,7 +24,7 @@ import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 import FeedIcon from '@/resources/icons/feed-icon.svg'
 import GridIcon from '@/resources/icons/grid-icon.svg'
-import PenIcon from '@/resources/icons/pen-icon.svg'
+import SquarePlusIcon from '@/resources/icons/square-plus-icon.svg'
 
 import '@/app/style.css'
 import {
@@ -404,7 +404,7 @@ export default function Sidebar() {
             w='full'
           >
             <HStack w='full'>
-              <PenIcon width={16} height={16} />
+              <SquarePlusIcon width={16} height={16} />
               <Text fontWeight={500} fontSize='14px'>
                 Suggest market
               </Text>

@@ -1,4 +1,4 @@
-import { Box, HStack, Link, Text, VStack } from '@chakra-ui/react'
+import { Box, Link, Text, VStack } from '@chakra-ui/react'
 import usePageName from '@/hooks/use-page-name'
 import FeedIcon from '@/resources/icons/feed-icon.svg'
 import GridIcon from '@/resources/icons/grid-icon.svg'
