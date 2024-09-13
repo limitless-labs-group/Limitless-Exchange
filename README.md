@@ -1,6 +1,6 @@
 # Getting Started
 
-Run `npm run dev` in your terminal, and then open [localhost:3000](http://localhost:3000) in your browser.
+Run `yarn dev` in your terminal, and then open [localhost:3000](http://localhost:3000) in your browser.
 
 This command will also generate React Hooks from the Wagmi Mint Example Etherscan contract (e.g. `useWagmiMintExampleTotalSupply`, `useWagmiMintExampleBalanceOf`, etc) for you to use in your project.
 

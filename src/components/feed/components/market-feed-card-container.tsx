@@ -1,12 +1,12 @@
-import { Creator } from '@/types'
+import { FeedEventUser } from '@/types'
 import { PropsWithChildren } from 'react'
 import { Box, HStack, Link, Text, Image as ChakraImage } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
-import { timeSinceCreation } from '@/utils'
+import { timeSinceCreation, truncateEthAddress } from '@/utils'
 import { captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 interface MarketFeedCardContainer {
-  creator: Creator
+  creator: FeedEventUser
   timestamp: number
   title: string
 }
@@ -34,9 +34,15 @@ export default function MarketFeedCardContainer({
           alt='creator'
           borderRadius={'2px'}
         />
-        <Link href={creator.link}>
-          <Text {...captionRegular}>{creator.name}</Text>
-        </Link>
+        {creator.link ? (
+          <Link href={creator.link}>
+            <Text {...captionRegular}>{creator.name}</Text>
+          </Link>
+        ) : (
+          <Text {...captionRegular}>
+            {isMobile ? truncateEthAddress(creator.account) : creator.account}
+          </Text>
+        )}
         <Text {...captionRegular} color='grey.500'>
           {timePassed}
         </Text>

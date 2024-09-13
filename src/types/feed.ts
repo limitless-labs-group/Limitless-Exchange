@@ -8,12 +8,14 @@ export enum FeedEventType {
   ResolvedGroup = 'RESOLVED_GROUP',
   FundedGroup = 'FUNDED_GROUP',
   LockedGroup = 'LOCKED_GROUP',
+  NewTrade = 'NEW_TRADE',
 }
 
 export interface FeedEventUser {
   name: string
   imageURI: string
   link: string
+  account?: string
 }
 
 export interface MarketStatusFeedData {
@@ -64,4 +66,16 @@ export interface MarketGroupStatusFeedData {
     decimals: number
   }
   markets: MarketGroupFeedItem[]
+}
+
+export interface MarketNewTradeFeedData {
+  address: Address
+  contracts: string
+  outcome: 'NO' | 'YES'
+  strategy: 'Buy' | 'Sell'
+  symbol: string
+  title: string
+  tradeAmount: string
+  tradeAmountUSD: string
+  txHash: string
 }
