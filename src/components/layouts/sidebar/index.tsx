@@ -4,7 +4,6 @@ import {
   Divider,
   Flex,
   HStack,
-  Image as ChakraImage,
   Link,
   Menu,
   MenuButton,
@@ -18,7 +17,7 @@ import {
   Skeleton,
 } from '@chakra-ui/react'
 import Image from 'next/image'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
@@ -38,7 +37,7 @@ import {
 } from '@/services'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import { NumberUtil, truncateEthAddress } from '@/utils'
+import { NumberUtil } from '@/utils'
 import { useWeb3Service } from '@/services/Web3Service'
 import { LoginButton } from '@/components/common/login-button'
 import CategoryFilter from '@/components/common/categories'
@@ -54,9 +53,8 @@ import WrapModal from '@/components/common/modals/wrap-modal'
 import NextLink from 'next/link'
 import { Overlay } from '@/components/common/overlay'
 import SocialsFooter from '@/components/common/socials-footer'
-import { cutUsername } from '@/utils/string'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
-import Profile from '@/components/layouts/profile'
+import { Profile } from '@/components'
 import UserIcon from '@/resources/icons/user-icon.svg'
 import LogoutIcon from '@/resources/icons/log-out-icon.svg'
 
@@ -493,7 +491,7 @@ export default function Sidebar() {
           onToggleProfile()
         }}
       >
-        {isOpenProfile && <Profile />}
+        <Profile isOpen={isOpenProfile} />
       </Slide>
 
       {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}

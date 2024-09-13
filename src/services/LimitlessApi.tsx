@@ -1,10 +1,12 @@
-import { Address, Token } from '@/types'
-import axios from 'axios'
+import { Token } from '@/types'
+import axios, { AxiosResponse } from 'axios'
 import { PropsWithChildren, createContext, useContext } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { ProfileActionType } from '@/types/profiles'
 
 interface ILimitlessApi {
   supportedTokens?: Token[]
+  getSigningMessage: (purpose: ProfileActionType) => Promise<AxiosResponse<string>>
 }
 
 export const limitlessApi = axios.create({
@@ -24,29 +26,15 @@ export const LimitlessApiProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const contextProviderValue: ILimitlessApi = { supportedTokens }
+  const getSigningMessage = async (purpose: ProfileActionType) => {
+    return limitlessApi.get(`/profiles/signing-message/${purpose}`)
+  }
+
+  const contextProviderValue: ILimitlessApi = { supportedTokens, getSigningMessage }
 
   return (
     <LimitlessApiContext.Provider value={contextProviderValue}>
       {children}
     </LimitlessApiContext.Provider>
   )
-}
-
-export class LimitlessApi {
-  static predictionMarketBaseURI = 'https://pma-api.limitless.network'
-  static gatewayBaseURI = 'https://gateway-api.limitless.network'
-
-  static async getSigningMessage() {
-    const res = await axios.post(`${this.gatewayBaseURI}/auth/signing-message`)
-    const { SigningMessage: message } = res.data as { SigningMessage: string }
-    return message
-  }
-
-  static async getFixedProductMarketMakerAddress() {
-    const { data: fixedProductMarketMakerAddress } = await axios.get(
-      `${this.predictionMarketBaseURI}/market-maker-address`
-    )
-    return fixedProductMarketMakerAddress as Address
-  }
 }

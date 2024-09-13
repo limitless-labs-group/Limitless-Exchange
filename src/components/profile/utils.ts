@@ -1,10 +1,5 @@
 import * as yup from 'yup'
-
-export interface ProfileFields {
-  displayName: string
-  username: string
-  bio?: string
-}
+import { ProfileFields } from '@/components'
 
 export const profileValidationSchema: yup.ObjectSchema<ProfileFields> = yup.object({
   displayName: yup.string().required('Required'),

@@ -1,4 +1,5 @@
 import { Hash, Address } from 'viem'
+import { AxiosError } from 'axios'
 
 export type { Hash, Address }
 
@@ -313,6 +314,9 @@ export interface ColorScheme {
     200: string
     600: string
   }
+  blackStale: {
+    200: string
+  }
 }
 
 export interface RedeemParams {
@@ -321,3 +325,13 @@ export interface RedeemParams {
   collateralAddress: Address
   conditionId: Address
 }
+
+export interface UpdateProfileData {
+  isDirty: boolean
+  displayName: string
+  username: string
+  pfpFile?: File
+  bio?: string
+}
+
+export type APIError = AxiosError<{ message: string }>

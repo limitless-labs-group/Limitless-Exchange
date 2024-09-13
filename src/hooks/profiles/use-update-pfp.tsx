@@ -1,9 +1,8 @@
-import { getSigningMessage } from '@/hooks/profiles'
 import { Address, getAddress, toHex } from 'viem'
 import { limitlessApi, useEtherspot } from '@/services'
 import { useMutation } from '@tanstack/react-query'
 import { useToast } from '@/hooks'
-import { Profile, ProfileActionType } from '@/types/profiles'
+import { Profile } from '@/types/profiles'
 import { Toast } from '@/components/common/toast'
 
 export interface IUseUpdatePfp {
@@ -40,12 +39,7 @@ export const useUpdatePfp = () => {
         'x-signing-message': toHex(String(updateProfileMessage)),
       }
       formData.set('pfpFile', pfpFile)
-      formData.set(
-        'eoaWallet',
-        String(client === 'eoa' ? account : smartWalletExternallyOwnedAccountAddress)
-      )
-      formData.set('smartWallet', String(client === 'eoa' ? '' : account))
-      formData.set('client', client)
+      formData.set('account', String(account))
 
       const res = await limitlessApi.put('/profiles/pfp', formData, {
         headers,

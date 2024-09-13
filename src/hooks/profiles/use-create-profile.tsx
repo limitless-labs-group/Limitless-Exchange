@@ -1,11 +1,10 @@
 import { Address, getAddress, toHex } from 'viem'
-import { limitlessApi, useEtherspot } from '@/services'
+import { limitlessApi, useEtherspot, useLimitlessApi } from '@/services'
 import { useSignMessage } from 'wagmi'
 import { useMutation } from '@tanstack/react-query'
 import { Profile, ProfileActionType } from '@/types/profiles'
 import { useToast } from '@/hooks'
 import { Toast } from '@/components/common/toast'
-import { getSigningMessage } from '@/hooks/profiles/queries'
 
 export interface IUseCreateProfile {
   account: Address | undefined
@@ -20,6 +19,7 @@ export const useCreateProfile = () => {
 
   const { signMessage, smartWalletExternallyOwnedAccountAddress } = useEtherspot()
   const { signMessageAsync } = useSignMessage()
+  const { getSigningMessage } = useLimitlessApi()
 
   return useMutation({
     mutationKey: ['create-profile'],

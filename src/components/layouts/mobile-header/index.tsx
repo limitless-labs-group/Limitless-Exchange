@@ -48,7 +48,7 @@ import WrapModal from '@/components/common/modals/wrap-modal'
 import MobileDrawer from '@/components/common/drawer'
 import SocialsFooter from '@/components/common/socials-footer'
 import Loader from '@/components/common/loader'
-import Profile from '@/components/layouts/profile'
+import { Profile } from '@/components'
 
 export default function MobileHeader() {
   const { isConnected, isConnecting, isReconnecting } = useWagmiAccount()
@@ -181,34 +181,7 @@ export default function MobileHeader() {
                               }}
                             >
                               <StackItem display='flex' justifyContent='center' alignItems='center'>
-                                {/*{user?.pfpUrl?.includes('http') ? (*/}
-                                {/*  <ChakraImage*/}
-                                {/*    src={user?.pfpUrl}*/}
-                                {/*    borderRadius={'2px'}*/}
-                                {/*    h={'24px'}*/}
-                                {/*    w={'24px'}*/}
-                                {/*    className='amp-block'*/}
-                                {/*  />*/}
-                                {/*) : (*/}
-                                {/*  <Flex*/}
-                                {/*    borderRadius={'2px'}*/}
-                                {/*    h={'24px'}*/}
-                                {/*    w={'24px'}*/}
-                                {/*    bg='grey.300'*/}
-                                {/*    alignItems='center'*/}
-                                {/*    justifyContent='center'*/}
-                                {/*  >*/}
-                                {/*    <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>*/}
-                                {/*      {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}*/}
-                                {/*    </Text>*/}
-                                {/*  </Flex>*/}
-                                {/*)}*/}
                                 <Box mx='4px' />
-                                {/*<Text {...paragraphMedium} className={'amp-mask'}>*/}
-                                {/*  {user.displayName*/}
-                                {/*    ? cutUsername(user.displayName, 13)*/}
-                                {/*    : truncateEthAddress(account)}*/}
-                                {/*</Text>*/}
                                 <Text {...paragraphMedium} className={'amp-mask'}>
                                   {truncateEthAddress(account)}
                                 </Text>
@@ -223,7 +196,7 @@ export default function MobileHeader() {
                           }
                           variant='common'
                         >
-                          <Profile />
+                          <Profile isOpen={isOpenUserMenu} />
                         </MobileDrawer>
                       )}
                       <HStack
