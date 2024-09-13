@@ -1,11 +1,9 @@
 import { FeedEntity, MarketNewTradeFeedData } from '@/types'
 import { useMemo } from 'react'
 import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
-import { HStack, Link, Text } from '@chakra-ui/react'
+import { HStack, Link } from '@chakra-ui/react'
 import { captionRegular } from '@/styles/fonts/fonts.styles'
 import PieChartIcon from '@/resources/icons/pie-chart-icon.svg'
-import { defaultChain } from '@/constants'
-import { truncateEthAddress } from '@/utils'
 import NextLink from 'next/link'
 
 interface MarketFeedTradeCardProps {
