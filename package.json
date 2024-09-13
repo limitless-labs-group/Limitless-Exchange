@@ -28,6 +28,8 @@
     "@amplitude/analytics-browser": "^2.5.2",
     "@amplitude/session-replay-browser": "^1.11.5",
     "@chakra-ui/react": "^2.6.1",
+    "@dicebear/collection": "^9.2.1",
+    "@dicebear/core": "^9.2.1",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@etherspot/prime-sdk": "^1.8.0",
