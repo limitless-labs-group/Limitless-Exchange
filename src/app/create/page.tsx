@@ -96,6 +96,11 @@ const tokenLimits: TokenLimits = {
     max: 8350000,
     step: 5000,
   },
+  cbBTC: {
+    min: 0.1,
+    max: 5,
+    step: 0.01,
+  },
 }
 
 interface TagOption {
