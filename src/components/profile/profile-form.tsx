@@ -80,9 +80,8 @@ export function ProfileForm() {
       { ...data, isDirty, pfpFile },
       {
         onSuccess: (data: Profile | undefined) => {
-          debugger
-          console.log(data)
           if (data) {
+            setPfpFile(undefined)
             reset({
               displayName: data.displayName,
               username: data.username,
@@ -91,7 +90,6 @@ export function ProfileForm() {
           }
         },
         onError: (error: APIError) => {
-          debugger
           if (error.response?.data.message === 'Username is already exists.') {
             toast({
               render: () => <Toast title={`Username is already exists.`} id={1} />,
