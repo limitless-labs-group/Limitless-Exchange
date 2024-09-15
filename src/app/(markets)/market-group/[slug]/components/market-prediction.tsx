@@ -35,6 +35,13 @@ export default function MarketPrediction({ market, setSelectedMarket }: MarketPr
       onMouseEnter={() => setColors(hoverColors)}
       onMouseLeave={() => setColors(defaultColors)}
       onClick={() => setSelectedMarket(market)}
+      {...(!isMobile
+        ? {
+            _hover: {
+              bg: 'blue.500',
+            },
+          }
+        : {})}
     >
       <HStack justifyContent='space-between'>
         <Text {...paragraphMedium} color={colors.main}>
