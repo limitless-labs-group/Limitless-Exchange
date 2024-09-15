@@ -28,6 +28,7 @@ import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 
 export const config = getDefaultConfig({
   appName: 'Limitless Exchange',
+  appUrl: 'https://4d15-159-255-58-29.ngrok-free.app',
   projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string,
   chains: [defaultChain],
   transports: {
