@@ -202,6 +202,7 @@ export enum MarketTokensIds {
   VITA = 'vitadao',
   BETS = 'all-street-bets',
   GHST = 'aavegotchi',
+  cbBTC = 'coinbase-wrapped-btc',
 }
 
 export enum Sort {

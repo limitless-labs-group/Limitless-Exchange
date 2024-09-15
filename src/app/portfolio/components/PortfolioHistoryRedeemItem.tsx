@@ -26,6 +26,22 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
     ? `/market-group/${targetMarket.group.slug}`
     : `/markets/${targetMarket?.address}`
 
+  const multiplier = (symbol: string | undefined) => {
+    switch (symbol) {
+      case 'USDC':
+        return Math.pow(10, 12)
+      case 'cbBTC':
+        return Math.pow(10, 10)
+      default:
+        return 1
+    }
+  }
+
+  const formattedAmount = NumberUtil.formatThousands(
+    Number(redeem.collateralAmount) * multiplier(market?.collateralToken.symbol) ?? 0,
+    4
+  )
+
   return (
     <Tr pos={'relative'} {...props}>
       <Td w='92px'>Won</Td>
@@ -44,13 +60,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
         <Box verticalAlign='middle'>
           <Text>
             {/* that's temporal solution since the bug is on indexer side. it returns not formatted values that's why we need to * on 10e12 */}
-            {`${NumberUtil.formatThousands(
-              (market?.collateralToken.symbol === 'USDC'
-                ? Math.pow(10, 12) * Number(redeem.collateralAmount)
-                : Number(redeem.collateralAmount)) ?? 0,
-              4
-            )} 
-          ${market?.collateralToken.symbol}`}
+            {`${formattedAmount} ${market?.collateralToken.symbol}`}
           </Text>
         </Box>
       </Td>

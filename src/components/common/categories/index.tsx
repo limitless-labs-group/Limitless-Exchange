@@ -40,7 +40,7 @@ export default function CategoryFilter() {
           }}
         >
           <Link
-            href={{ pathname: '/markets', query: { category: category.name } }}
+            href={{ pathname: '/', query: { category: category.name } }}
             onClick={() => {
               trackClicked(ClickEvent.CategoryClicked, {
                 name: category.name,

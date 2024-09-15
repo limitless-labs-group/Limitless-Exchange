@@ -352,25 +352,6 @@ export default function Sidebar() {
           <Link
             onClick={() => {
               trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
-                option: 'Home',
-              })
-            }}
-            variant='transparent'
-            w='full'
-            bg={pageName === 'Home' ? 'grey.200' : 'unset'}
-          >
-            <HStack w='full'>
-              <HomeIcon width={16} height={16} />
-              <Text fontWeight={500} fontSize='14px'>
-                Home
-              </Text>
-            </HStack>
-          </Link>
-        </NextLink>
-        <NextLink href='/markets' passHref style={{ width: '100%' }}>
-          <Link
-            onClick={() => {
-              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
                 option: 'Markets',
               })
             }}
@@ -382,6 +363,25 @@ export default function Sidebar() {
               <GridIcon width={16} height={16} />
               <Text fontWeight={500} fontSize='14px'>
                 Markets
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
+        <NextLink href='/feed' passHref style={{ width: '100%' }}>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Home',
+              })
+            }}
+            variant='transparent'
+            w='full'
+            bg={pageName === 'Home' ? 'grey.200' : 'unset'}
+          >
+            <HStack w='full'>
+              <HomeIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                Feed
               </Text>
             </HStack>
           </Link>
