@@ -163,24 +163,33 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         }
       }
       if (isDirty) {
-        const response = await limitlessApi.put(
-          '/profiles',
-          {
-            ...(profileData?.displayName === displayName ? {} : { displayName }),
-            ...(profileData?.username === username ? {} : { username }),
-            ...(profileData?.bio === bio ? {} : { bio }),
-          },
-          {
-            headers: {
-              ...headers,
-              'content-type': 'application/json',
+        try {
+          const response = await limitlessApi.put(
+            '/profiles',
+            {
+              ...(profileData?.displayName === displayName ? {} : { displayName }),
+              ...(profileData?.username === username ? {} : { username }),
+              ...(profileData?.bio === bio ? {} : { bio }),
             },
-          }
-        )
-        await queryClient.refetchQueries({
-          queryKey: ['profiles', { account }],
-        })
-        return response.data
+            {
+              headers: {
+                ...headers,
+                'content-type': 'application/json',
+              },
+            }
+          )
+          await queryClient.refetchQueries({
+            queryKey: ['profiles', { account }],
+          })
+          return response.data
+        } catch (e) {
+          //@ts-ignore
+          const id = toast({
+            render: () => (
+              <Toast id={id} title={e?.response?.data?.message || 'Failed to update profile'} />
+            ),
+          })
+        }
       }
     },
   })
