@@ -3,10 +3,10 @@
 import { PropsWithChildren, useEffect } from 'react'
 import packageInfo from '../../package.json'
 import { LOCAL_STORAGE_VERSION_NAME } from '@/constants/application'
-import useDisconnectAccount from '@/hooks/use-disconnect'
+import { useAccount } from '@/services'
 
 export default function Template({ children }: PropsWithChildren) {
-  const { disconnectFromPlatform } = useDisconnectAccount()
+  const { disconnectFromPlatform } = useAccount()
 
   const currentAppVersion = packageInfo.version
 

@@ -1,7 +1,5 @@
-import { useProfileAuthSigningMessage } from '@/hooks/profiles'
 import { Address, getAddress, toHex } from 'viem'
 import { limitlessApi, useEtherspot } from '@/services'
-import { useSignMessage } from 'wagmi'
 import { useMutation } from '@tanstack/react-query'
 import { useToast } from '@/hooks'
 import { Profile } from '@/types/profiles'
@@ -11,42 +9,34 @@ export interface IUseUpdateProfileMutation {
   displayName: string
   username: string
   bio: string
-}
-export interface IUseUpdateProfile {
   account: Address | undefined
   client: 'etherspot' | 'eoa'
+  signature: string
+  updateProfileMessage: string
 }
 
-export const useUpdateProfile = ({ account, client }: IUseUpdateProfile) => {
+export const useUpdateProfile = () => {
   const toast = useToast()
-
-  const { signMessage, smartWalletExternallyOwnedAccountAddress } = useEtherspot()
-  const { signMessageAsync } = useSignMessage()
-  const { refetch: getUpdateProfileSigningMessage } = useProfileAuthSigningMessage({
-    purpose: 'UPDATE_PROFILE',
-  })
+  const { smartWalletExternallyOwnedAccountAddress } = useEtherspot()
 
   return useMutation({
-    mutationKey: ['update-profile', { account, client }],
+    mutationKey: ['update-profile'],
     mutationFn: async ({
       displayName: _displayName,
       username: _username,
       bio: _bio,
+      account,
+      client,
+      signature,
+      updateProfileMessage,
     }: IUseUpdateProfileMutation) => {
-      const { data: updateProfileSigningMessage } = await getUpdateProfileSigningMessage()
-      if (!updateProfileSigningMessage) throw new Error('Failed to get signing message')
-      const signature = (
-        client === 'eoa'
-          ? await signMessageAsync({ message: updateProfileSigningMessage })
-          : await signMessage(updateProfileSigningMessage)
-      ) as `0x${string}`
       const headers = {
         'x-account':
           client === 'eoa'
             ? getAddress(account!)
             : getAddress(smartWalletExternallyOwnedAccountAddress!),
         'x-signature': signature,
-        'x-signing-message': toHex(String(updateProfileSigningMessage)),
+        'x-signing-message': toHex(String(updateProfileMessage)),
       }
 
       const res = await limitlessApi.put(

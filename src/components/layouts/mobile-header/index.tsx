@@ -4,9 +4,8 @@ import {
   Button,
   ButtonGroup,
   Divider,
-  Flex,
   HStack,
-  Image as ChakraImage,
+  Skeleton,
   Slide,
   Spacer,
   StackItem,
@@ -14,17 +13,18 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { NumberUtil, truncateEthAddress } from '@/utils'
+import { NumberUtil } from '@/utils'
 
 import React, { useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
+  useAccount,
   useAmplitude,
   useBalanceService,
+  useEtherspot,
   useHistory,
-  useProfileService,
 } from '@/services'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
@@ -37,8 +37,6 @@ import TokenFilterMobile from '@/components/common/token-filter-mobile'
 import { isMobile } from 'react-device-detect'
 import '@/app/style.css'
 import { LoginButton } from '@/components/common/login-button'
-import useDisconnectAccount from '@/hooks/use-disconnect'
-import { cutUsername } from '@/utils/string'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { v4 as uuidv4 } from 'uuid'
 import { useThemeProvider } from '@/providers'
@@ -46,29 +44,34 @@ import SunIcon from '@/resources/icons/sun-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 import SwapIcon from '@/resources/icons/swap-icon.svg'
 import WrapModal from '@/components/common/modals/wrap-modal'
-import { ProfileContentMobile } from '@/components/layouts/mobile-header/components'
 import MobileDrawer from '@/components/common/drawer'
 import SocialsFooter from '@/components/common/socials-footer'
 import Loader from '@/components/common/loader'
+import { Profile } from '@/components'
+import Avatar from '@/components/common/avatar'
 
 export default function MobileHeader() {
-  const { getProfileDataLoading, user } = useProfileService()
-  const { isConnected, isConnecting, isReconnecting } = useWagmiAccount()
+  const { isConnected, isConnecting } = useWagmiAccount()
   const { overallBalanceUsd } = useBalanceService()
   const account = useWalletAddress()
   const { balanceInvested } = useHistory()
   const router = useRouter()
-  const { disconnectFromPlatform, disconnectLoading } = useDisconnectAccount()
+  const { disconnectFromPlatform, profileData, profileLoading, displayName } = useAccount()
+  const { isLoadingSmartWalletAddress } = useEtherspot()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
   const pathname = usePathname()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
+
   const userMenuLoading = useMemo(() => {
-    const userWithProfileLoading = isConnected && getProfileDataLoading
-    const userWithoutProfileLoading = isConnected && !user?.displayName
-    const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
-    return userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
-  }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
+    if (isConnecting) {
+      return true
+    }
+    if (isConnected) {
+      return !profileData || profileLoading || isLoadingSmartWalletAddress
+    }
+    return false
+  }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
 
@@ -109,27 +112,10 @@ export default function MobileHeader() {
                   <Text fontWeight={500} fontSize='16px'>
                     {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                   </Text>
-                  {user?.pfpUrl?.includes('http') ? (
-                    <ChakraImage
-                      src={user?.pfpUrl}
-                      borderRadius={'2px'}
-                      h={'32px'}
-                      w={'32px'}
-                      className='amp-block'
-                    />
+                  {userMenuLoading ? (
+                    <Skeleton variant='common' w='24px' h='24px' />
                   ) : (
-                    <Flex
-                      borderRadius={'2px'}
-                      h={'32px'}
-                      w={'32px'}
-                      bg='grey.300'
-                      alignItems='center'
-                      justifyContent='center'
-                    >
-                      <Text {...paragraphMedium} className={'amp-mask'}>
-                        {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
-                      </Text>
-                    </Flex>
+                    <Avatar account={account as string} avatarUrl={profileData?.pfpUrl} />
                   )}
                 </Button>
                 {isOpenUserMenu && (
@@ -165,51 +151,38 @@ export default function MobileHeader() {
                           <Loader />
                         </Button>
                       ) : (
-                        <HStack
-                          w='full'
-                          gap='8px'
-                          justifyContent='space-between'
-                          onClick={() => {
-                            onToggleUserMenu()
-                          }}
-                        >
-                          <StackItem display='flex' justifyContent='center' alignItems='center'>
-                            {user?.pfpUrl?.includes('http') ? (
-                              <ChakraImage
-                                src={user?.pfpUrl}
-                                borderRadius={'2px'}
-                                h={'24px'}
-                                w={'24px'}
-                                className='amp-block'
-                              />
-                            ) : (
-                              <Flex
-                                borderRadius={'2px'}
-                                h={'24px'}
-                                w={'24px'}
-                                bg='grey.300'
-                                alignItems='center'
-                                justifyContent='center'
-                              >
-                                <Text fontWeight={500} fontSize='24px' className={'amp-mask'}>
-                                  {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}
+                        <MobileDrawer
+                          trigger={
+                            <HStack
+                              w='full'
+                              gap='8px'
+                              justifyContent='space-between'
+                              onClick={() => {
+                                onToggleUserMenu()
+                              }}
+                            >
+                              <StackItem display='flex' justifyContent='center' alignItems='center'>
+                                <Avatar
+                                  account={account as string}
+                                  avatarUrl={profileData?.pfpUrl}
+                                />
+                                <Box mx='4px' />
+                                <Text {...paragraphMedium} className={'amp-mask'}>
+                                  {displayName}
                                 </Text>
-                              </Flex>
-                            )}
-                            <Box mx='4px' />
-                            <Text {...paragraphMedium} className={'amp-mask'}>
-                              {user.displayName
-                                ? cutUsername(user.displayName, 13)
-                                : truncateEthAddress(account)}
-                            </Text>
-                          </StackItem>
+                              </StackItem>
 
-                          <StackItem>
-                            <Box color='grey.800'>
-                              <ArrowRightIcon width={16} height={16} />
-                            </Box>
-                          </StackItem>
-                        </HStack>
+                              <StackItem>
+                                <Box color='grey.800'>
+                                  <ArrowRightIcon width={16} height={16} />
+                                </Box>
+                              </StackItem>
+                            </HStack>
+                          }
+                          variant='common'
+                        >
+                          <Profile isOpen={true} />
+                        </MobileDrawer>
                       )}
                       <HStack
                         spacing={2}
