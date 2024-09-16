@@ -334,4 +334,4 @@ export interface UpdateProfileData {
   bio?: string
 }
 
-export type APIError = AxiosError<{ message: string }>
+export type APIError = AxiosError<{ message: string; statusCode: number }>
