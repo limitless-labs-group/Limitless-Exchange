@@ -40,16 +40,12 @@ export function ProfileForm() {
   const {
     handleSubmit,
     control,
-    formState: { errors, isValid, isDirty },
+    formState: { errors, isValid, isDirty, dirtyFields },
     reset,
   } = useForm<ProfileFields>({
     resolver: yupResolver(profileValidationSchema),
     mode: 'onChange',
   })
-
-  console.log(`isValid ${isValid}`)
-  console.log(`isDirty ${isDirty}`)
-  console.log(errors)
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]

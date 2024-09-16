@@ -122,7 +122,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     mutationKey: ['update-profile'],
     mutationFn: async (data: UpdateProfileData) => {
       const { pfpFile, isDirty, bio, displayName, username } = data
-      console.log(isDirty)
       const { data: updateProfileMessage } = await getSigningMessage(
         ProfileActionType.UPDATE_PROFILE
       )
@@ -156,9 +155,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         const response = await limitlessApi.put(
           '/profiles',
           {
-            displayName,
-            username,
-            bio,
+            ...(profileData?.displayName === displayName ? {} : { displayName }),
+            ...(profileData?.username === username ? {} : { username }),
+            ...(profileData?.bio === bio ? {} : { bio }),
           },
           {
             headers: {
