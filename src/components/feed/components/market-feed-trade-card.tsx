@@ -26,7 +26,7 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
     >
       <HStack gap='4px' color='grey.500'>
         <PieChartIcon width={14} height={14} />
-        <NextLink href={`https://${window.location.origin}/markets/${data.data.address}`}>
+        <NextLink href={`https://${window.location.host}/markets/${data.data.address}`}>
           <Link
             variant='textLink'
             {...captionRegular}
