@@ -4,9 +4,8 @@ import {
   Button,
   ButtonGroup,
   Divider,
-  Flex,
   HStack,
-  Image as ChakraImage,
+  Skeleton,
   Slide,
   Spacer,
   StackItem,
@@ -14,7 +13,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { NumberUtil, truncateEthAddress } from '@/utils'
+import { NumberUtil } from '@/utils'
 
 import React, { useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
@@ -24,6 +23,7 @@ import {
   useAccount,
   useAmplitude,
   useBalanceService,
+  useEtherspot,
   useHistory,
 } from '@/services'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
@@ -37,7 +37,6 @@ import TokenFilterMobile from '@/components/common/token-filter-mobile'
 import { isMobile } from 'react-device-detect'
 import '@/app/style.css'
 import { LoginButton } from '@/components/common/login-button'
-import { cutUsername } from '@/utils/string'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { v4 as uuidv4 } from 'uuid'
 import { useThemeProvider } from '@/providers'
@@ -49,25 +48,30 @@ import MobileDrawer from '@/components/common/drawer'
 import SocialsFooter from '@/components/common/socials-footer'
 import Loader from '@/components/common/loader'
 import { Profile } from '@/components'
+import Avatar from '@/components/common/avatar'
 
 export default function MobileHeader() {
-  const { isConnected, isConnecting, isReconnecting } = useWagmiAccount()
+  const { isConnected, isConnecting } = useWagmiAccount()
   const { overallBalanceUsd } = useBalanceService()
   const account = useWalletAddress()
   const { balanceInvested } = useHistory()
   const router = useRouter()
-  const { disconnectFromPlatform, disconnectLoading } = useAccount()
+  const { disconnectFromPlatform, profileData, profileLoading, displayName } = useAccount()
+  const { isLoadingSmartWalletAddress } = useEtherspot()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
   const pathname = usePathname()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
-  const userMenuLoading = false
-  // const userMenuLoading = useMemo(() => {
-  //   const userWithProfileLoading = isConnected && getProfileDataLoading
-  //   const userWithoutProfileLoading = isConnected && !user?.displayName
-  //   const connectDisconnectReconnectLoading = disconnectLoading || isConnecting || isReconnecting
-  //   return userWithProfileLoading || userWithoutProfileLoading || connectDisconnectReconnectLoading
-  // }, [getProfileDataLoading, disconnectLoading, isConnecting, isReconnecting, isConnected, user])
+
+  const userMenuLoading = useMemo(() => {
+    if (isConnecting) {
+      return true
+    }
+    if (isConnected) {
+      return !profileData || profileLoading || isLoadingSmartWalletAddress
+    }
+    return false
+  }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
 
@@ -108,34 +112,11 @@ export default function MobileHeader() {
                   <Text fontWeight={500} fontSize='16px'>
                     {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
                   </Text>
-                  <Text {...paragraphMedium} className={'amp-mask'}>
-                    {truncateEthAddress(account)}
-                    {/*{user.displayName*/}
-                    {/*  ? cutUsername(user.displayName, 13)*/}
-                    {/*  : truncateEthAddress(account)}*/}
-                  </Text>
-                  {/*{user?.pfpUrl?.includes('http') ? (*/}
-                  {/*  <ChakraImage*/}
-                  {/*    src={user?.pfpUrl}*/}
-                  {/*    borderRadius={'2px'}*/}
-                  {/*    h={'32px'}*/}
-                  {/*    w={'32px'}*/}
-                  {/*    className='amp-block'*/}
-                  {/*  />*/}
-                  {/*) : (*/}
-                  {/*  <Flex*/}
-                  {/*    borderRadius={'2px'}*/}
-                  {/*    h={'32px'}*/}
-                  {/*    w={'32px'}*/}
-                  {/*    bg='grey.300'*/}
-                  {/*    alignItems='center'*/}
-                  {/*    justifyContent='center'*/}
-                  {/*  >*/}
-                  {/*    <Text {...paragraphMedium} className={'amp-mask'}>*/}
-                  {/*      {user?.displayName ? user?.displayName[0].toUpperCase() : 'O'}*/}
-                  {/*    </Text>*/}
-                  {/*  </Flex>*/}
-                  {/*)}*/}
+                  {userMenuLoading ? (
+                    <Skeleton variant='common' w='24px' h='24px' />
+                  ) : (
+                    <Avatar account={account as string} avatarUrl={profileData?.pfpUrl} />
+                  )}
                 </Button>
                 {isOpenUserMenu && (
                   <Box
@@ -181,9 +162,13 @@ export default function MobileHeader() {
                               }}
                             >
                               <StackItem display='flex' justifyContent='center' alignItems='center'>
+                                <Avatar
+                                  account={account as string}
+                                  avatarUrl={profileData?.pfpUrl}
+                                />
                                 <Box mx='4px' />
                                 <Text {...paragraphMedium} className={'amp-mask'}>
-                                  {truncateEthAddress(account)}
+                                  {displayName}
                                 </Text>
                               </StackItem>
 
@@ -196,7 +181,7 @@ export default function MobileHeader() {
                           }
                           variant='common'
                         >
-                          <Profile isOpen={isOpenUserMenu} />
+                          <Profile isOpen={true} />
                         </MobileDrawer>
                       )}
                       <HStack

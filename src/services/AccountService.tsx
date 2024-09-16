@@ -12,14 +12,12 @@ import { Address, APIError, UpdateProfileData } from '@/types'
 import { limitlessApi, useAmplitude, useEtherspot, useLimitlessApi } from '@/services'
 import { UserInfo } from '@web3auth/base'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
-import axios, { AxiosResponse } from 'axios'
 import { Profile, ProfileActionType } from '@/types/profiles'
 import { getAddress, toHex } from 'viem'
 import { useWeb3Service } from '@/services/Web3Service'
 import { useDisconnect, useSignMessage } from 'wagmi'
 import { useAccount as useWagmiAccount } from 'wagmi'
-import { useCreateProfile, useUpdatePfp } from '@/hooks/profiles'
-import { res } from 'pino-std-serializers'
+import { useCreateProfile } from '@/hooks/profiles'
 
 export interface IAccountContext {
   isLoggedIn: boolean
@@ -48,7 +46,7 @@ export const useAccount = () => useContext(AccountContext)
 
 export const AccountProvider = ({ children }: PropsWithChildren) => {
   const queryClient = useQueryClient()
-  const { disconnect, isSuccess: disconnectSuccess, isPending: disconnectPending } = useDisconnect()
+  const { disconnect, isPending: disconnectPending } = useDisconnect()
   const { client } = useWeb3Service()
   /**
    * WEB3AUTH
@@ -71,7 +69,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       return
     }
 
-    if (smartWalletAddress) {
+    if (smartWalletAddress && smartWalletExternallyOwnedAccountAddress) {
       return smartWalletAddress
     }
 
@@ -82,13 +80,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     }
     return address
   }, [address, smartWalletAddress, web3Auth.connectedAdapterName, web3Auth.status])
-
-  // const account =
-  //   web3Auth.connectedAdapterName === 'openLogin'
-  //     ? smartWalletExternallyOwnedAccountAddress
-  //     : walletAddress
-
-  console.log(account)
 
   /**
    * USER INFO / METADATA
@@ -102,7 +93,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   } = useQuery({
     queryKey: ['profiles', { account }],
     queryFn: async (): Promise<Profile | null> => {
-      const res = await limitlessApi.get(`/profiles/${getAddress(account!)}`)
+      const wallet = client === 'eoa' ? account : smartWalletExternallyOwnedAccountAddress
+      const res = await limitlessApi.get(`/profiles/${getAddress(wallet as string)}`)
       return res.data
     },
     enabled: !!account,
@@ -150,7 +142,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       if (pfpFile) {
         const formData = new FormData()
         formData.set('pfpFile', pfpFile)
-        formData.set('account', String(account))
         const response = await limitlessApi.put('/profiles/pfp', formData, {
           headers,
         })
@@ -167,9 +158,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           {
             displayName,
             username,
-            client,
             bio,
-            account,
           },
           {
             headers: {
@@ -213,8 +202,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   //   },
   //   enabled: userInfo?.typeOfLogin === 'farcaster',
   // })
-
-  console.log(userInfo)
 
   const displayName = useMemo(() => {
     if (profileData?.displayName) {
@@ -260,6 +247,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     await web3Auth.logout()
     queryClient.removeQueries({
       queryKey: ['profiles'],
+    })
+    queryClient.removeQueries({
+      queryKey: ['smartWalletAddress'],
     })
     disconnectAccount()
   }, [])

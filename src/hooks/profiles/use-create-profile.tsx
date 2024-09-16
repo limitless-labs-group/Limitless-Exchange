@@ -55,14 +55,13 @@ export const useCreateProfile = () => {
           displayName: _displayName,
           username: _username,
           bio: _bio,
-          account,
+          smartWallet: client === 'eoa' ? null : account,
           client,
         },
         {
           headers,
         }
       )
-      console.log(res)
       return res.data as Profile
     },
     onSuccess: () => {

@@ -20,7 +20,6 @@ import {
   maxUint256,
   erc20Abi,
   getAddress,
-  zeroAddress,
 } from 'viem'
 import { contractABI } from '@/contracts/utils'
 import { publicClient } from '@/providers'
@@ -34,6 +33,7 @@ interface IEtherspotContext {
   signMessage: (message: string) => Promise<string | undefined>
   whitelist: () => Promise<void>
   transferErc20: (data: ITransferErc20) => Promise<TransactionReceipt | undefined>
+  isLoadingSmartWalletAddress: boolean
 }
 
 const EtherspotContext = createContext<IEtherspotContext>({} as IEtherspotContext)
@@ -91,12 +91,10 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
   /**
    * Query to fetch smart wallet address
    */
-  const { data: smartWalletAddress } = useQuery({
+  const { data: smartWalletAddress, isLoading: isLoadingSmartWalletAddress } = useQuery({
     queryKey: ['smartWalletAddress'],
     queryFn: async () => {
-      console.log(etherspot)
       const address = await etherspot?.getAddress()
-      console.log(`etherspot address ${address}`)
       return address
     },
     enabled: !!etherspot,
@@ -125,7 +123,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
   /**
    * Mutation to sign auth message
    */
-  const { mutateAsync: signMessage, data: signature } = useMutation({
+  const { mutateAsync: signMessage } = useMutation({
     mutationFn: async (message: string) => etherspot?.primeSdk.signMessage({ message }),
   })
 
@@ -157,6 +155,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
     signMessage,
     transferErc20,
     whitelist,
+    isLoadingSmartWalletAddress,
   }
 
   return (

@@ -3,7 +3,6 @@ import {
   Box,
   Circle,
   FormControl,
-  FormErrorMessage,
   HStack,
   Image,
   Input,
@@ -20,38 +19,28 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import UserIcon from '@/resources/icons/user-icon.svg'
 import EmailIcon from '@/resources/icons/email-icon.svg'
 import NotebookIcon from '@/resources/icons/notebook-icon.svg'
-import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { useAccount } from '@/services'
 import { ProfileFields, profileValidationSchema } from '@/components'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { Profile } from '@/types/profiles'
 import { APIError } from '@/types'
-import { AxiosError } from 'axios'
 import { Toast } from '@/components/common/toast'
 import { useToast } from '@/hooks'
 import { DISCORD_LINK } from '@/utils/consts'
 
 export function ProfileForm() {
   const [pfpFile, setPfpFile] = useState<File | undefined>(undefined)
-  const pfpFileRef = useRef<any>()
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [hoverImage, setHoverImage] = useState(false)
-  const {
-    displayName,
-    displayUsername,
-    bio,
-    account,
-    profileLoading,
-    profileData,
-    updateProfileMutation,
-  } = useAccount()
+  const { displayName, displayUsername, bio, profileData, updateProfileMutation } = useAccount()
   const toast = useToast()
 
   const {
     handleSubmit,
     control,
-    formState: { errors, isValid, isSubmitting, isDirty },
+    formState: { errors, isValid, isDirty },
     reset,
   } = useForm<ProfileFields>({
     resolver: yupResolver(profileValidationSchema),
@@ -251,7 +240,7 @@ export function ProfileForm() {
                   {...field}
                   variant='grey'
                   errorBorderColor='red.500'
-                  pl='28px'
+                  pl={isMobile ? '32px' : '28px'}
                   id='displayName'
                   autoComplete='off'
                 />
@@ -284,7 +273,7 @@ export function ProfileForm() {
                 variant='grey'
                 errorBorderColor='red.500'
                 placeholder='Enter your username'
-                pl='28px'
+                pl={isMobile ? '32px' : '28px'}
                 id='username'
                 autoComplete='off'
               />
@@ -307,7 +296,7 @@ export function ProfileForm() {
               <InputLeftElement
                 h='16px'
                 w='unset'
-                top={isMobile ? '32px' : '30px'}
+                top={isMobile ? '35px' : '30px'}
                 left={isMobile ? '12px' : '8px'}
                 color='grey.500'
               >
@@ -319,13 +308,24 @@ export function ProfileForm() {
                 variant='grey'
                 errorBorderColor='red.500'
                 placeholder='Add bio if you want'
-                pl='28px'
+                pl={isMobile ? '32px' : '28px'}
                 autoComplete='off'
               />
             </InputGroup>
           )}
         />
-        {/*<FormErrorMessage>{errors.firstName?.message}</FormErrorMessage>*/}
+        {isMobile && (
+          <ButtonWithStates
+            status={updateProfileMutation.status}
+            variant='contained'
+            isDisabled={!isSubmitButtonEnabled}
+            type='submit'
+            w='full'
+            mt='24px'
+          >
+            Update
+          </ButtonWithStates>
+        )}
       </FormControl>
     </form>
   )
