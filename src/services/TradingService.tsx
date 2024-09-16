@@ -27,6 +27,7 @@ import {
   useConditionalTokensAddr,
 } from '@/hooks/use-conditional-tokens-addr'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { DISCORD_LINK } from '@/utils/consts'
 
 interface ITradingServiceContext {
   market: Market | null
@@ -57,6 +58,7 @@ interface ITradingServiceContext {
   approveBuy: () => Promise<void>
   approveSell: () => Promise<void>
   isLoadingRedeem: boolean
+  resetQuotes: () => void
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -66,7 +68,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * UI HELPERS
    */
   const toast = useToast()
-  const DISCORD_LINK = 'https://discord.gg/UQtv7h5ZFE'
 
   /**
    * SERVICES
@@ -324,6 +325,12 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     collateralToken,
   })
 
+  const resetQuotes = () => {
+    setQuotesYes(null)
+    setQuotesNo(null)
+    return
+  }
+
   useQuery({
     queryKey: [
       'tradeQuotesYes',
@@ -504,9 +511,9 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       await refetchChain()
 
-      sleep(10).then(() => {
-        refetchSubgraph()
-        queryClient.refetchQueries({
+      sleep(10).then(async () => {
+        await refetchSubgraph()
+        await queryClient.refetchQueries({
           queryKey: ['markets', market.address],
         })
       })
@@ -633,7 +640,12 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       })
 
       // TODO: redesign subgraph refetch logic
-      sleep(10).then(() => refetchSubgraph())
+      sleep(10).then(async () => {
+        await refetchSubgraph()
+        await queryClient.refetchQueries({
+          queryKey: ['markets', market.address],
+        })
+      })
 
       return receipt
     },
@@ -758,6 +770,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     approveBuy,
     approveSell,
     isLoadingRedeem,
+    resetQuotes,
   }
 
   return (

@@ -5,7 +5,7 @@ export interface IUseUsernameExists {
   username: string
 }
 
-export const useUsernameExists = ({ username }: IUseUsernameExists) =>
+export const useCheckUsername = ({ username }: IUseUsernameExists) =>
   useQuery({
     queryKey: ['username-exists', { username }],
     queryFn: async () => {

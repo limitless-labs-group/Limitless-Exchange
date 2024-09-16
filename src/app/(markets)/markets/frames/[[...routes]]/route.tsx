@@ -99,7 +99,6 @@ const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
 app
   .frame('/initial/:address', async (c) => {
     const { market, addressOfMarket } = c.previousState
-    console.log(market)
     return c.res({
       browserLocation: `https://limitless.exchange/markets/${addressOfMarket}`,
       action: `/approve/${c.req.param('address')}`,

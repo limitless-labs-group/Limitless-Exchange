@@ -73,13 +73,13 @@ const tokenLimits: TokenLimits = {
   },
   WETH: {
     min: 0.1,
-    max: 3,
+    max: 5,
     step: 0.1,
   },
   USDC: {
-    min: 250,
-    max: 5000,
-    step: 25,
+    min: 300,
+    max: 30000,
+    step: 100,
   },
   VITA: {
     min: 150,
@@ -95,6 +95,11 @@ const tokenLimits: TokenLimits = {
     min: 835000,
     max: 8350000,
     step: 5000,
+  },
+  cbBTC: {
+    min: 0.1,
+    max: 5,
+    step: 0.01,
   },
 }
 
