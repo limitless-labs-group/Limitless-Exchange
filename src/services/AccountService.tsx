@@ -1,4 +1,4 @@
-import {
+import React, {
   PropsWithChildren,
   createContext,
   useContext,
@@ -18,6 +18,8 @@ import { useWeb3Service } from '@/services/Web3Service'
 import { useDisconnect, useSignMessage } from 'wagmi'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import { useCreateProfile } from '@/hooks/profiles'
+import { useToast } from '@/hooks'
+import { Toast } from '@/components/common/toast'
 
 export interface IAccountContext {
   isLoggedIn: boolean
@@ -59,6 +61,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     useEtherspot()
   const { address } = useWagmiAccount()
   const { getSigningMessage } = useLimitlessApi()
+  const toast = useToast()
 
   /**
    * ADDRESSES
@@ -139,16 +142,22 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         'x-signing-message': toHex(String(updateProfileMessage)),
       }
       if (pfpFile) {
-        const formData = new FormData()
-        formData.set('pfpFile', pfpFile)
-        const response = await limitlessApi.put('/profiles/pfp', formData, {
-          headers,
-        })
-        await queryClient.refetchQueries({
-          queryKey: ['profiles', { account }],
-        })
-        if (!isDirty) {
-          return response.data
+        try {
+          const formData = new FormData()
+          formData.set('pfpFile', pfpFile)
+          const response = await limitlessApi.put('/profiles/pfp', formData, {
+            headers,
+          })
+          await queryClient.refetchQueries({
+            queryKey: ['profiles', { account }],
+          })
+          if (!isDirty) {
+            return response.data
+          }
+        } catch (e) {
+          toast({
+            render: () => <Toast title={`Image size should be less than 1Mb.`} id={1} />,
+          })
         }
       }
       if (isDirty) {
