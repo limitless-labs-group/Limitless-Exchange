@@ -1,6 +1,6 @@
-import { Box, HStack, Link, Text, VStack } from '@chakra-ui/react'
+import { Box, Link, Text, VStack } from '@chakra-ui/react'
 import usePageName from '@/hooks/use-page-name'
-import HomeIcon from '@/resources/icons/home-icon.svg'
+import FeedIcon from '@/resources/icons/feed-icon.svg'
 import GridIcon from '@/resources/icons/grid-icon.svg'
 import NextLink from 'next/link'
 import {
@@ -25,7 +25,7 @@ export default function MobileNavigation() {
     },
     {
       title: 'Feed',
-      icon: <HomeIcon width={16} height={16} />,
+      icon: <FeedIcon width={16} height={16} />,
       link: '/feed',
       isActive: pageName === 'Feed',
       amplitudeOption: 'Feed' as ProfileBurgerMenuClickedOption,
