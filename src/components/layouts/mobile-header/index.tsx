@@ -13,7 +13,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { NumberUtil } from '@/utils'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 
 import React, { useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
@@ -49,6 +49,7 @@ import SocialsFooter from '@/components/common/socials-footer'
 import Loader from '@/components/common/loader'
 import { Profile } from '@/components'
 import Avatar from '@/components/common/avatar'
+import { isAddress } from 'viem'
 
 export default function MobileHeader() {
   const { isConnected, isConnecting } = useWagmiAccount()
@@ -168,7 +169,9 @@ export default function MobileHeader() {
                                 />
                                 <Box mx='4px' />
                                 <Text {...paragraphMedium} className={'amp-mask'}>
-                                  {displayName}
+                                  {isAddress(displayName || '')
+                                    ? truncateEthAddress(displayName)
+                                    : displayName}
                                 </Text>
                               </StackItem>
 
