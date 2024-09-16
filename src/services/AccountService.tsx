@@ -181,9 +181,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           })
           return response.data
         } catch (e) {
-          //@ts-ignore
           const id = toast({
             render: () => (
+              //@ts-ignore
               <Toast id={id} title={e?.response?.data?.message || 'Failed to update profile'} />
             ),
           })
