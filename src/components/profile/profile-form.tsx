@@ -132,7 +132,7 @@ export function ProfileForm() {
       return isValid
     }
     return isValid && isDirty
-  }, [isValid, isDirty])
+  }, [isValid, isDirty, pfpFile])
 
   useEffect(() => {
     reset({
