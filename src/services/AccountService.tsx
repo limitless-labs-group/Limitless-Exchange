@@ -155,11 +155,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             return response.data
           }
         } catch (e) {
-          const error = e as { statusCode: number }
-          if (error.statusCode === 413)
-            toast({
-              render: () => <Toast title={`Image size should be less than 1Mb.`} id={1} />,
-            })
+          toast({
+            render: () => <Toast title={`Image size should be less than 1Mb.`} id={1} />,
+          })
         }
       }
       if (isDirty) {
