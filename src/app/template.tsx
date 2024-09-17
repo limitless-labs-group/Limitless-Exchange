@@ -4,9 +4,11 @@ import { PropsWithChildren, useEffect } from 'react'
 import packageInfo from '../../package.json'
 import { LOCAL_STORAGE_VERSION_NAME } from '@/constants/application'
 import useDisconnectAccount from '@/hooks/use-disconnect'
+import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 
 export default function Template({ children }: PropsWithChildren) {
   const { disconnectFromPlatform } = useDisconnectAccount()
+  useTotalTradingVolume()
 
   const currentAppVersion = packageInfo.version
 

@@ -46,7 +46,7 @@ import { isMobile } from 'react-device-detect'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import '@rainbow-me/rainbowkit/styles.css'
 import useDisconnectAccount from '@/hooks/use-disconnect'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { useThemeProvider } from '@/providers'
 import usePageName from '@/hooks/use-page-name'
 import WalletPage from '@/components/layouts/wallet-page'
@@ -56,9 +56,11 @@ import NextLink from 'next/link'
 import { ProfileContentDesktop } from '@/components/layouts/sidebar/components'
 import { Overlay } from '@/components/common/overlay'
 import SocialsFooter from '@/components/common/socials-footer'
-import Loader from '@/components/common/loader'
 import { cutUsername } from '@/utils/string'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
+import TextWithPixels from '@/components/common/text-with-pixels'
+import Paper from '@/components/common/paper'
+import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 
 export default function Sidebar() {
   const {
@@ -76,6 +78,7 @@ export default function Sidebar() {
   const account = useWalletAddress()
   const { isConnected, isConnecting, isReconnecting } = useWagmiAccount()
   const { client } = useWeb3Service()
+  const { data: totalVolume } = useTotalTradingVolume()
 
   const pageName = usePageName()
   const userMenuLoading = useMemo(() => {
@@ -108,19 +111,10 @@ export default function Sidebar() {
     onToggleWalletPage()
   }, [client])
   const handleOpenWrapModal = useCallback(() => onOpenWrapModal(), [])
-  const handleOpenProfileDrawer = useCallback(() => {
-    onCloseWalletPage()
-    onCloseWrapModal()
-    onCloseAuthMenu()
 
-    if (!isOpenProfileDrawer) {
-      onOpenProfileDrawer()
-      return
-    }
-
-    onCloseProfileDrawer()
-    return
-  }, [isOpenWalletPage, isOpenProfileDrawer])
+  const volumeArray = totalVolume
+    ? `$${NumberUtil.formatThousands(totalVolume.toFixed(0), 0)}`.split('')
+    : []
 
   return (
     <>
@@ -412,11 +406,32 @@ export default function Sidebar() {
           </Link>
         </NextLink>
         {!isMobile && <CategoryFilter />}
-
         <Spacer />
-
+        {totalVolume && (
+          <NextLink
+            href='https://dune.com/limitless_exchange/limitless'
+            target='_blank'
+            style={{ width: '100%' }}
+          >
+            <Paper
+              w='full'
+              justifyContent='space-between'
+              display='flex'
+              cursor='pointer'
+              _hover={{ bg: 'grey.300' }}
+            >
+              {volumeArray.map((volumeSymbol, index) => (
+                <TextWithPixels
+                  key={index}
+                  text={volumeSymbol}
+                  highlightWord={1}
+                  {...paragraphRegular}
+                />
+              ))}
+            </Paper>
+          </NextLink>
+        )}
         <Divider />
-
         <SocialsFooter />
       </VStack>
       {isOpenWalletPage && (
