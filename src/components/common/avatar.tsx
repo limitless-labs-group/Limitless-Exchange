@@ -10,7 +10,7 @@ interface AvatarProps {
 }
 
 export default function Avatar({ account, avatarUrl, size = 4 }: AvatarProps) {
-  const avatarSize = isMobile ? size * 1.5 : size
+  const avatarSize = isMobile ? `${size * 4}px` : size
   if (avatarUrl) {
     return (
       <ChakraImage
@@ -28,8 +28,6 @@ export default function Avatar({ account, avatarUrl, size = 4 }: AvatarProps) {
   })
 
   const svg = avatar.toDataUri()
-
-  console.log(svg)
 
   return (
     <ChakraImage
