@@ -28,9 +28,9 @@ const hoverColors = {
 
 export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
+  console.log(market)
 
-  const isDaily =
-    market.title.includes('Daily') && new Date(market.deadline).getTime() > new Date().getTime()
+  const isDaily = market.title.includes('Daily')
 
   return (
     <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
@@ -60,11 +60,16 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
             </Box>
           </HStack>
         </HStack>
-        <HStack justifyContent='space-between' alignItems='flex-end'>
+        <HStack
+          justifyContent='space-between'
+          alignItems='flex-end'
+          flexDirection={isMobile ? 'column' : 'row'}
+        >
           <HStack
             gap={isMobile ? '8px' : '16px'}
             mt={isMobile ? '16px' : '8px'}
             flexDirection={isMobile ? 'column' : 'row'}
+            w='full'
           >
             <HStack
               w={isMobile ? '100%' : 'unset'}
@@ -98,7 +103,7 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
               </Text>
             </HStack>
           </HStack>
-          {isDaily && <DailyMarketTimer deadline={'2024-09-17T21:00:00.467Z'} />}
+          {isDaily && <DailyMarketTimer deadline={market.deadline} color={colors.main} />}
         </HStack>
       </Paper>
     </NextLink>

@@ -1,10 +1,20 @@
 import { useEffect, useState } from 'react'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Text } from '@chakra-ui/react'
 
 interface DailyMarketTimerProps {
   deadline: string
+  color: string
 }
 
 const calculateTimeRemaining = (deadline: string) => {
+  if (!+deadline) {
+    return {
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+    }
+  }
   const now = new Date().getTime()
   const timeLeft = new Date(deadline).getTime() - now
 
@@ -29,16 +39,26 @@ const formatTime = ({
   ).padStart(2, '0')}s`
 }
 
-export default function DailyMarketTimer({ deadline }: DailyMarketTimerProps) {
-  const [timeRemaining, setTimeRemaining] = useState(calculateTimeRemaining(deadline))
+export default function DailyMarketTimer({ deadline, color }: DailyMarketTimerProps) {
+  const [timeRemaining, setTimeRemaining] = useState(
+    calculateTimeRemaining(new Date(deadline).getTime() > new Date().getTime() ? deadline : '0')
+  )
 
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeRemaining(calculateTimeRemaining(deadline))
     }, 1000)
 
+    if (new Date(deadline).getTime() < new Date().getTime()) {
+      clearInterval(interval)
+    }
+
     return () => clearInterval(interval)
   }, [deadline])
 
-  return <div>{formatTime(timeRemaining)}</div>
+  return (
+    <Text {...paragraphMedium} color={color}>
+      {formatTime(timeRemaining)}
+    </Text>
+  )
 }
