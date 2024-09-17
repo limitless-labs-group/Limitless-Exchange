@@ -112,7 +112,9 @@ export default function Sidebar() {
   }, [client])
   const handleOpenWrapModal = useCallback(() => onOpenWrapModal(), [])
 
-  const volumeArray = totalVolume ? `$${NumberUtil.formatThousands(totalVolume, 2)}`.split('') : []
+  const volumeArray = totalVolume
+    ? `$${NumberUtil.formatThousands(totalVolume.toFixed(0), 0)}`.split('')
+    : []
 
   return (
     <>

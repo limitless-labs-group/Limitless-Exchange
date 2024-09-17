@@ -14,7 +14,7 @@ export default function HeaderMarquee() {
   const { trackClicked } = useAmplitude()
   const { data: totalVolume } = useTotalTradingVolume()
 
-  const volume = totalVolume ? `$${NumberUtil.formatThousands(totalVolume, 2)}` : ''
+  const volume = totalVolume ? `$${NumberUtil.formatThousands(totalVolume.toFixed(0), 0)}` : ''
 
   return (
     <Box
