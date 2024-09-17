@@ -1,6 +1,6 @@
 import { FeedEventUser } from '@/types'
 import { PropsWithChildren } from 'react'
-import { Box, HStack, Link, Text, Image as ChakraImage } from '@chakra-ui/react'
+import { Box, HStack, Link, Text } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import { timeSinceCreation, truncateEthAddress } from '@/utils'
 import { captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -28,7 +28,7 @@ export default function MarketFeedCardContainer({
       w='full'
     >
       <HStack gap='8px' flexWrap='wrap' mb={isMobile ? '16px' : '12px'}>
-        <Avatar account={creator.account || ''} />
+        <Avatar account={creator.account || ''} avatarUrl={creator.imageURI} />
         {creator.link ? (
           <Link href={creator.link}>
             <Text {...captionRegular}>{creator.name}</Text>
