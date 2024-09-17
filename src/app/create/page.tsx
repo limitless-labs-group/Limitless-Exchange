@@ -347,14 +347,14 @@ const CreateOwnMarketPage = () => {
               <Textarea
                 placeholder='Bitcoin is the first decentralized cryptocurrency. Nodes in the peer-to-peer bitcoin network verify transactions through cryptography and record them in a public distributed ledger, called a blockchain, without central oversig.'
                 resize='none'
-                rows={5}
+                rows={7}
                 overflow='hidden'
-                maxLength={320}
+                maxLength={1500}
                 onChange={(e) => setDescription(e.target.value)}
                 onBlur={() => generateOgImage()}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                {description?.length}/320 characters
+                {description?.length}/1500 characters
               </FormHelperText>
             </FormField>
 
