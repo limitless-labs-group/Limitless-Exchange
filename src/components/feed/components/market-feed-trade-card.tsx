@@ -1,9 +1,10 @@
 import { FeedEntity, MarketNewTradeFeedData } from '@/types'
 import { useMemo } from 'react'
 import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
-import { HStack, Text } from '@chakra-ui/react'
+import { HStack, Link } from '@chakra-ui/react'
 import { captionRegular } from '@/styles/fonts/fonts.styles'
 import PieChartIcon from '@/resources/icons/pie-chart-icon.svg'
+import NextLink from 'next/link'
 
 interface MarketFeedTradeCardProps {
   data: FeedEntity<MarketNewTradeFeedData>
@@ -12,7 +13,7 @@ interface MarketFeedTradeCardProps {
 export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) {
   const eventTitle = useMemo(() => {
     const title = data.data.strategy === 'Buy' ? 'Bought' : 'Sold'
-    const outcome = data.data.outcome ? 'NO' : 'YES'
+    const outcome = data.data.outcome
     return `${title} ${data.data.contracts} contracts ${outcome} for ${Math.abs(
       +data.data.tradeAmount
     )} ${data.data.symbol} in total.`
@@ -25,16 +26,19 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
     >
       <HStack gap='4px' color='grey.500'>
         <PieChartIcon width={14} height={14} />
-        <Text
-          {...captionRegular}
-          color='grey.500'
-          textOverflow='ellipsis'
-          whiteSpace='nowrap'
-          overflow='hidden'
-          maxW='calc(100% - 22px)'
-        >
-          {data.data.title}
-        </Text>
+        <NextLink href={`https://${window.location.host}/markets/${data.data.address}`}>
+          <Link
+            variant='textLink'
+            {...captionRegular}
+            color='grey.500'
+            textOverflow='ellipsis'
+            whiteSpace='nowrap'
+            overflow='hidden'
+            maxW='calc(100% - 22px)'
+          >
+            {data.data.title}
+          </Link>
+        </NextLink>
       </HStack>
     </MarketFeedCardContainer>
   )

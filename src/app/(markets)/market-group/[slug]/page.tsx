@@ -66,7 +66,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
 
   const { trackClicked, trackOpened } = useAmplitude()
   const router = useRouter()
-  const { approveBuy, strategy, approveSell, market, setMarket } = useTradingService()
+  const { approveBuy, strategy, approveSell, market, setMarket, resetQuotes } = useTradingService()
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
 
   const { tweetURI, castURI } = createMarketShareUrls(
@@ -156,6 +156,22 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     return strategy === 'Buy' ? approveBuy() : approveSell()
   }
 
+  const parseTextWithLinks = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g
+    const parts = text.split(urlRegex)
+
+    return parts.map((part, index) => {
+      if (urlRegex.test(part)) {
+        return (
+          <Link key={index} href={part} color='teal.500' isExternal>
+            {part}
+          </Link>
+        )
+      }
+      return part
+    })
+  }
+
   useEffect(() => {
     if (marketGroup) {
       setMarket(marketGroup.markets[0])
@@ -168,6 +184,10 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
       market: params.slug,
       marketType: 'group',
     })
+  }, [])
+
+  useEffect(() => {
+    resetQuotes()
   }, [])
 
   return (
@@ -328,13 +348,13 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                 <Text {...paragraphBold}>Description</Text>
               </HStack>
               <Text {...paragraphRegular} userSelect='text'>
-                {market?.description}
+                {parseTextWithLinks(market?.description ?? '')}
               </Text>
             </Box>
             {!isMobile && marketActionForm}
           </HStack>
           {isMobile && (
-            <Box position='fixed' bottom='12px' w='calc(100% - 32px)'>
+            <Box position='fixed' bottom='76px' w='calc(100% - 32px)'>
               {mobileTradeButton}
             </Box>
           )}
