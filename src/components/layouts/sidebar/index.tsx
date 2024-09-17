@@ -116,10 +116,6 @@ export default function Sidebar() {
     ? `$${NumberUtil.formatThousands(totalVolume.toFixed(0), 0)}`.split('')
     : []
 
-  const navigateToDuneTotalVolume = () => {
-    window.open('https://dune.com/limitless_exchange/limitless', 'blank')
-  }
-
   return (
     <>
       <VStack
@@ -412,23 +408,28 @@ export default function Sidebar() {
         {!isMobile && <CategoryFilter />}
         <Spacer />
         {totalVolume && (
-          <Paper
-            w='full'
-            justifyContent='space-between'
-            display='flex'
-            cursor='pointer'
-            _hover={{ bg: 'grey.300' }}
-            onClick={navigateToDuneTotalVolume}
+          <NextLink
+            href='https://dune.com/limitless_exchange/limitless'
+            target='_blank'
+            style={{ width: '100%' }}
           >
-            {volumeArray.map((volumeSymbol, index) => (
-              <TextWithPixels
-                key={index}
-                text={volumeSymbol}
-                highlightWord={1}
-                {...paragraphRegular}
-              />
-            ))}
-          </Paper>
+            <Paper
+              w='full'
+              justifyContent='space-between'
+              display='flex'
+              cursor='pointer'
+              _hover={{ bg: 'grey.300' }}
+            >
+              {volumeArray.map((volumeSymbol, index) => (
+                <TextWithPixels
+                  key={index}
+                  text={volumeSymbol}
+                  highlightWord={1}
+                  {...paragraphRegular}
+                />
+              ))}
+            </Paper>
+          </NextLink>
         )}
         <Divider />
         <SocialsFooter />
