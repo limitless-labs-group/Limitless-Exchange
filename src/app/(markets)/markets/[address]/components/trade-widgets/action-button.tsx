@@ -27,6 +27,7 @@ import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import Loader from '@/components/common/loader'
 import { parseUnits } from 'viem'
 import BigNumber from 'bignumber.js'
+import Cookies from 'js-cookie'
 
 interface ActionButtonProps {
   disabled: boolean
@@ -83,9 +84,12 @@ export default function ActionButton({
 
   const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
+  const country = Cookies.get('limitless_geo')
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
   const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
+  const TRADING_BLOCKED_MSG =
+    'Trading is unavailable to individuals or companies based in the U.S. or restricted territories.'
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
