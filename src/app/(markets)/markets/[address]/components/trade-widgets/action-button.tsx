@@ -28,12 +28,11 @@ import Loader from '@/components/common/loader'
 import { parseUnits } from 'viem'
 import BigNumber from 'bignumber.js'
 import Cookies from 'js-cookie'
+import BlockedTradeTemplate from '@/app/(markets)/markets/[address]/components/trade-widgets/blocked-trade-template'
 
 interface ActionButtonProps {
   disabled: boolean
   onClick: () => Promise<void>
-  showBlock: boolean
-  onCloseBlock: () => void
   market: Market
   amount: string
   option: 'Yes' | 'No'
@@ -62,8 +61,6 @@ export type ButtonStatus =
 export default function ActionButton({
   disabled,
   onClick,
-  showBlock,
-  onCloseBlock,
   quote,
   market,
   price,
@@ -77,14 +74,16 @@ export default function ActionButton({
   showReturnPercent,
   isExceedsBalance,
 }: ActionButtonProps) {
+  const [marketLocked, setMarketLocked] = useState(false)
+  const [tradingBlocked, setTradingBlocked] = useState(false)
   /**
    * ANALITYCS
    */
   const { trackClicked } = useAmplitude()
+  const country = Cookies.get('limitless_geo')
 
   const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
-  const country = Cookies.get('limitless_geo')
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
   const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
@@ -173,7 +172,11 @@ export default function ActionButton({
       return
     }
     if (market?.status === MarketStatus.LOCKED) {
-      await onClick()
+      setMarketLocked(true)
+      return
+    }
+    if (country === 'VVM') {
+      setTradingBlocked(true)
       return
     }
     if (status !== 'initial') {
@@ -248,6 +251,20 @@ export default function ActionButton({
     setShowFeeInValue(!showFeeInValue)
   }
 
+  const blockedMessage = useMemo(() => {
+    if (tradingBlocked) {
+      return (
+        <BlockedTradeTemplate
+          onClose={() => setTradingBlocked(false)}
+          message={TRADING_BLOCKED_MSG}
+        />
+      )
+    }
+    if (marketLocked) {
+      return <BlockedTradeTemplate onClose={() => setMarketLocked(false)} message={INFO_MSG} />
+    }
+  }, [marketLocked, tradingBlocked])
+
   useEffect(() => {
     const returnToInitial = async () => {
       await sleep(2)
@@ -287,28 +304,8 @@ export default function ActionButton({
             WebkitTapHighlightColor: 'transparent !important',
           }}
         >
-          {showBlock ? (
-            <VStack w={'full'} h={'120px'}>
-              <HStack w={'full'} justifyContent={'space-between'}>
-                <Icon as={BlockIcon} width={'16px'} height={'16px'} color={'white'} />
-                <Icon
-                  as={CloseIcon}
-                  width={'16px'}
-                  height={'16px'}
-                  color={'white'}
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    onCloseBlock()
-                  }}
-                />
-              </HStack>
-              <HStack w={'full'}>
-                <Text {...paragraphMedium} color='white' textAlign={'left'} whiteSpace='normal'>
-                  {INFO_MSG}
-                </Text>
-                <Box w={'45px'}></Box>
-              </HStack>
-            </VStack>
+          {blockedMessage ? (
+            blockedMessage
           ) : (
             <>
               {headerStatus}
