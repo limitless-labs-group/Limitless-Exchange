@@ -10,7 +10,7 @@ interface BlockedTradeTemplateProps {
 
 export default function BlockedTradeTemplate({ onClose, message }: BlockedTradeTemplateProps) {
   return (
-    <VStack w={'full'} h={'120px'}>
+    <VStack w={'full'} h={'122px'}>
       <HStack w={'full'} justifyContent={'space-between'}>
         <Icon as={BlockIcon} width={'16px'} height={'16px'} color={'white'} />
         <Icon
