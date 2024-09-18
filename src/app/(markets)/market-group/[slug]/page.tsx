@@ -47,7 +47,6 @@ import {
   MarketTradingForm,
   MobileTradeButton,
 } from '@/app/(markets)/markets/[address]/components'
-import DescriptionIcon from '@/resources/icons/description-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -58,8 +57,10 @@ import useMarketGroup from '@/hooks/use-market-group'
 import BigNumber from 'bignumber.js'
 import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components/market-group-positions'
 import { Address } from 'viem'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
 import MobileDrawer from '@/components/common/drawer'
+import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
+import NextLink from 'next/link'
 
 export default function MarketGroupPage({ params }: { params: { slug: string } }) {
   const { data: marketGroup, isLoading: marketGroupLoading } = useMarketGroup(params.slug)
@@ -343,9 +344,36 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                 )}
               </VStack>
               {marketGroup && <MarketGroupPositions marketGroup={marketGroup} />}
-              <HStack gap='4px' marginTop='24px' mb='8px'>
-                <DescriptionIcon width='16px' height='16px' />
-                <Text {...paragraphBold}>Description</Text>
+              <HStack
+                w='full'
+                justifyContent='space-between'
+                alignItems={isMobile ? 'flex-start' : 'center'}
+                marginTop='24px'
+                mb='8px'
+                flexDirection={isMobile ? 'column' : 'row'}
+              >
+                <HStack gap='4px'>
+                  <ResolutionIcon width='16px' height='16px' />
+                  <Text {...paragraphBold}>
+                    Resolution {market?.status !== MarketStatus.RESOLVED ? 'rules' : 'results'}
+                  </Text>
+                </HStack>
+                <Box w={isMobile ? 'full' : 'fit-content'}>
+                  <NextLink
+                    href='https://www.notion.so/limitlesslabs/Limitless-Docs-0e59399dd44b492f8d494050969a1567?pvs=4#5dd6f962c66044eaa00e28d2c61b92bb'
+                    target='_blank'
+                    rel='noopener'
+                    passHref
+                  >
+                    <Link variant='textLink' {...paragraphRegular} color='grey.500' isExternal>
+                      Resolution is centralised
+                    </Link>
+                  </NextLink>
+                  <Text {...paragraphRegular} color='grey.500' as='span'>
+                    {' '}
+                    and made by the Limitless team
+                  </Text>
+                </Box>
               </HStack>
               <Text {...paragraphRegular} userSelect='text'>
                 {parseTextWithLinks(market?.description ?? '')}

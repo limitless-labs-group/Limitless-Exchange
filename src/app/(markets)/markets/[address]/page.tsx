@@ -3,16 +3,16 @@
 import { MainLayout } from '@/components'
 import {
   Box,
+  Button,
   Divider,
   HStack,
-  Text,
-  Button,
   Image as ChakraImage,
-  MenuButton,
+  Link,
   Menu,
+  MenuButton,
   MenuItem,
   MenuList,
-  Link,
+  Text,
 } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import {
@@ -32,7 +32,7 @@ import { useRouter } from 'next/navigation'
 import TextWithPixels from '@/components/common/text-with-pixels'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
-import DescriptionIcon from '@/resources/icons/description-icon.svg'
+import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import { isMobile } from 'react-device-detect'
 import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
@@ -52,7 +52,8 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { Address, zeroAddress } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
+import NextLink from 'next/link'
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -278,9 +279,36 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                 outcomeTokensPercent={market.prices}
               />
               <MarketPositions market={market} />
-              <HStack gap='4px' marginTop='24px' mb='8px'>
-                <DescriptionIcon width='16px' height='16px' />
-                <Text {...paragraphBold}>Description</Text>
+              <HStack
+                w='full'
+                justifyContent='space-between'
+                alignItems={isMobile ? 'flex-start' : 'center'}
+                marginTop='24px'
+                mb='8px'
+                flexDirection={isMobile ? 'column' : 'row'}
+              >
+                <HStack gap='4px'>
+                  <ResolutionIcon width='16px' height='16px' />
+                  <Text {...paragraphBold}>
+                    Resolution {market.status !== MarketStatus.RESOLVED ? 'rules' : 'results'}
+                  </Text>
+                </HStack>
+                <Box w={isMobile ? 'full' : 'fit-content'}>
+                  <NextLink
+                    href='https://www.notion.so/limitlesslabs/Limitless-Docs-0e59399dd44b492f8d494050969a1567?pvs=4#5dd6f962c66044eaa00e28d2c61b92bb'
+                    target='_blank'
+                    rel='noopener'
+                    passHref
+                  >
+                    <Link variant='textLink' {...paragraphRegular} color='grey.500' isExternal>
+                      Resolution is centralised
+                    </Link>
+                  </NextLink>
+                  <Text {...paragraphRegular} color='grey.500' as='span'>
+                    {' '}
+                    and made by the Limitless team
+                  </Text>
+                </Box>
               </HStack>
               <Text {...paragraphRegular} userSelect='text'>
                 {parseTextWithLinks(market?.description)}
