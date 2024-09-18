@@ -66,7 +66,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
 
   const { trackClicked, trackOpened } = useAmplitude()
   const router = useRouter()
-  const { approveBuy, strategy, approveSell, market, setMarket, resetQuotes } = useTradingService()
+  const { approveBuy, strategy, market, setMarket, resetQuotes } = useTradingService()
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
 
   const { tweetURI, castURI } = createMarketShareUrls(
@@ -152,9 +152,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     )
   }, [market])
 
-  const handleApproveMarket = async () => {
-    return strategy === 'Buy' ? approveBuy() : approveSell()
-  }
+  const handleApproveMarket = async () => approveBuy()
 
   const parseTextWithLinks = (text: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g
