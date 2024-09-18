@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import {
-  // ChakraProvider,
   QueryProvider,
   WagmiProvider,
   Web3AuthProvider,
@@ -17,7 +16,6 @@ import {
   HistoryServiceProvider,
   LimitlessApiProvider,
   TradingServiceProvider,
-  ProfileServiceProvider,
 } from '@/services'
 import { TokenFilterProvider } from '@/contexts/TokenFilterContext'
 import RainbowProvider from '@/providers/Rainbow'
@@ -41,9 +39,7 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                           <BalanceServiceProvider>
                             <HistoryServiceProvider>
                               <TokenFilterProvider>
-                                <TradingServiceProvider>
-                                  <ProfileServiceProvider>{children}</ProfileServiceProvider>
-                                </TradingServiceProvider>
+                                <TradingServiceProvider>{children}</TradingServiceProvider>
                               </TokenFilterProvider>
                             </HistoryServiceProvider>
                           </BalanceServiceProvider>

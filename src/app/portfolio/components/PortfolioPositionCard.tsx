@@ -64,9 +64,6 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
 
   const targetMarket = allMarkets.find((market) => market.address === position.market.id)
 
-  const currentContractsPrice =
-    +(position.outcomeTokenAmount || 1) * ((market?.prices[position.outcomeIndex] || 1) / 100)
-
   const contractPrice = new BigNumber(market?.prices[position.outcomeIndex] || 1)
     .dividedBy(100)
     .dividedBy(
@@ -205,8 +202,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           ) : (
             <HStack>
               <Text fontSize={'16px'} lineHeight={'20px'} fontWeight={500}>
-                {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} 
-                    ${market?.collateralToken.symbol}`}
+                {`${NumberUtil.toFixed(
+                  new BigNumber(position.outcomeTokenAmount || '1')
+                    .multipliedBy(
+                      new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
+                    )
+                    .toString(),
+                  6
+                )} ${market?.collateralToken.symbol}`}
               </Text>
               <Box gap={0} fontSize={'16px'} fontWeight={500}>
                 {contractPriceChanged}
@@ -280,8 +283,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
               ) : (
                 <>
                   <Text {...paragraphMedium} color={cardColors.main}>
-                    {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} 
-                    ${market?.collateralToken.symbol}`}
+                    {`${NumberUtil.toFixed(
+                      new BigNumber(position.outcomeTokenAmount || '1')
+                        .multipliedBy(
+                          new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
+                        )
+                        .toString(),
+                      6
+                    )} ${market?.collateralToken.symbol}`}
                   </Text>
 
                   <Box gap={0}>{contractPriceChanged}</Box>

@@ -8,29 +8,29 @@ export function timeSinceCreation(timestamp: number): string {
 
   const diffInMinutes = Math.floor(diffInSeconds / 60)
   if (diffInMinutes <= 60) {
-    return `${diffInMinutes}min`
+    return `${diffInMinutes} min`
   }
 
   const diffInHours = Math.floor(diffInMinutes / 60)
   if (diffInHours <= 24) {
-    return `${diffInHours}h`
+    return `${diffInHours} h`
   }
 
   const diffInDays = Math.floor(diffInHours / 24)
   if (diffInDays <= 7) {
-    return `${diffInDays}d`
+    return `${diffInDays} d`
   }
 
   const diffInWeeks = Math.floor(diffInDays / 7)
   if (diffInWeeks <= 4) {
-    return `${diffInWeeks}w`
+    return `${diffInWeeks} w`
   }
 
   const diffInMonths = Math.floor(diffInDays / 30)
   if (diffInMonths <= 12) {
-    return `${diffInMonths}m`
+    return `${diffInMonths} m`
   }
 
   const diffInYears = Math.floor(diffInDays / 365)
-  return `${diffInYears}y`
+  return `${diffInYears} y`
 }

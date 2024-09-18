@@ -110,7 +110,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
       {/*)}*/}
       {/*<Box mt='104px'>{actionText}</Box>*/}
       <Box mt='104px'>
-        <Button variant='white' onClick={() => router.push('/markets')}>
+        <Button variant='white' onClick={() => router.push('/')}>
           Explore Open Markets
         </Button>
       </Box>
