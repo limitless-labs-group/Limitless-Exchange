@@ -173,6 +173,8 @@ export default function ActionButton({
       setMarketLocked(true)
       return
     }
+    console.log(country)
+    console.log(encodeURI(country as string))
     if (encodeURI(country as string) === 'VVM') {
       setTradingBlocked(true)
       return
