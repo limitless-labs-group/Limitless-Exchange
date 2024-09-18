@@ -152,7 +152,9 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     )
   }, [market])
 
-  const handleApproveMarket = async () => approveBuy()
+  const handleApproveMarket = async () => {
+    await approveBuy()
+  }
 
   const parseTextWithLinks = (text: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g
