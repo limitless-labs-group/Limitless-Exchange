@@ -29,7 +29,8 @@ const hoverColors = {
 export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
 
-  const isDaily = market.title.includes('Daily')
+  // Todo change to tags
+  const isDaily = market.title.includes('space')
 
   return (
     <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>

@@ -8,15 +8,16 @@ interface DailyMarketTimerProps {
 }
 
 const calculateTimeRemaining = (deadline: string) => {
-  if (!+deadline) {
+  const now = new Date().getTime()
+  const timeLeft = new Date(deadline).getTime() - now
+
+  if (timeLeft < 0) {
     return {
       hours: 0,
       minutes: 0,
       seconds: 0,
     }
   }
-  const now = new Date().getTime()
-  const timeLeft = new Date(deadline).getTime() - now
 
   return {
     hours: Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
