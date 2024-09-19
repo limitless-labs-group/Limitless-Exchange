@@ -28,7 +28,6 @@ const hoverColors = {
 
 export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
-  console.log(market)
 
   const isDaily = market.title.includes('Daily')
 

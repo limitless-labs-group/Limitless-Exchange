@@ -34,6 +34,8 @@ import { Toast } from '@/components/common/toast'
 import { Input } from '@/components/common/input'
 import { Category } from '@/types'
 import { OgImageGenerator } from '@/app/create/components'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
 
 interface FormFieldProps {
   label: string
@@ -230,12 +232,15 @@ const CreateOwnMarketPage = () => {
       return
     }
 
+    debugger
+
     formData?.set('title', title)
     formData?.set('description', description)
     formData?.set('tokenId', token.id.toString())
     formData?.set('liquidity', liquidity.toString())
     formData?.set('initialYesProbability', (probability / 100).toString())
-    formData?.set('deadline', deadline.toISOString())
+    // @ts-ignore
+    formData?.set('deadline', new Date(deadline).getTime())
     formData?.set('creatorId', creatorId)
     formData?.set('categoryId', categoryId)
     formData?.set('imageFile', marketLogo)
@@ -454,49 +459,62 @@ const CreateOwnMarketPage = () => {
 
             <FormField label='Deadline'>
               {/*// Todo move to a separate component?*/}
-              <SingleDatepicker
+              <DatePicker
                 id='input'
-                triggerVariant='default'
-                propsConfigs={{
-                  inputProps: {
-                    size: 'md',
-                    width: 'full',
-                    isReadOnly: true,
-                  },
-                  triggerBtnProps: {
-                    width: '100%',
-                    background: 'transparent',
-                    border: '1px solid #E2E8F0',
-                    color: '#0F172A',
-                    justifyContent: 'space-between',
-                    rightIcon: (
-                      <Image
-                        src={'/assets/images/calendar.svg'}
-                        h={'24px'}
-                        w={'24px'}
-                        alt='calendar'
-                      />
-                    ),
-                  },
-                  popoverCompProps: {
-                    popoverContentProps: {
-                      width: '360px',
-                    },
-                  },
-                  dayOfMonthBtnProps: {
-                    todayBtnProps: {
-                      background: 'teal.200',
-                    },
-                  },
-                }}
-                name='date-input'
-                date={deadline}
-                usePortal={true}
-                onDateChange={(date) => {
-                  setDeadline(new Date(date.getTime() - date.getTimezoneOffset() * 60000)) // fixed the discrepancy between local date and ISO date
+                selected={deadline}
+                onChange={(date) => {
+                  if (date) {
+                    setDeadline(new Date(date.getTime() - date.getTimezoneOffset() * 60000)) // fixed the discrepancy between local date and ISO date
+                  }
                 }}
                 minDate={new Date()}
+                showTimeSelect
+                dateFormat='Pp'
               />
+              {/*<SingleDatepicker*/}
+              {/*  id='input'*/}
+              {/*  triggerVariant='default'*/}
+              {/*  propsConfigs={{*/}
+              {/*    inputProps: {*/}
+              {/*      size: 'md',*/}
+              {/*      width: 'full',*/}
+              {/*      isReadOnly: true,*/}
+              {/*    },*/}
+              {/*    triggerBtnProps: {*/}
+              {/*      width: '100%',*/}
+              {/*      background: 'transparent',*/}
+              {/*      border: '1px solid #E2E8F0',*/}
+              {/*      color: '#0F172A',*/}
+              {/*      justifyContent: 'space-between',*/}
+              {/*      rightIcon: (*/}
+              {/*        <Image*/}
+              {/*          src={'/assets/images/calendar.svg'}*/}
+              {/*          h={'24px'}*/}
+              {/*          w={'24px'}*/}
+              {/*          alt='calendar'*/}
+              {/*        />*/}
+              {/*      ),*/}
+              {/*    },*/}
+              {/*    popoverCompProps: {*/}
+              {/*      popoverContentProps: {*/}
+              {/*        width: '360px',*/}
+              {/*      },*/}
+              {/*    },*/}
+              {/*    dayOfMonthBtnProps: {*/}
+              {/*      todayBtnProps: {*/}
+              {/*        background: 'teal.200',*/}
+              {/*      },*/}
+              {/*    },*/}
+              {/*  }}*/}
+              {/*  name='date-input'*/}
+              {/*  date={deadline}*/}
+              {/*  usePortal={true}*/}
+              {/*  onDateChange={(date) => {*/}
+              {/*    console.log(date)*/}
+              {/*    setDeadline(new Date(date.getTime() - date.getTimezoneOffset() * 60000)) // fixed the discrepancy between local date and ISO date*/}
+              {/*  }}*/}
+              {/*  minDate={new Date()}*/}
+              {/*/>*/}
             </FormField>
 
             <FormField label='Picture'>
