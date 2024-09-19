@@ -464,7 +464,7 @@ const CreateOwnMarketPage = () => {
                 selected={deadline}
                 onChange={(date) => {
                   if (date) {
-                    setDeadline(new Date(date.getTime() - date.getTimezoneOffset() * 60000)) // fixed the discrepancy between local date and ISO date
+                    setDeadline(new Date(date.getTime())) // fixed the discrepancy between local date and ISO date
                   }
                 }}
                 minDate={new Date()}
