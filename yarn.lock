@@ -6807,13 +6807,6 @@ capital-case@^1.0.4:
     preact "^10.16.0"
     sha.js "^2.4.11"
 
-chakra-dayzed-datepicker@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/chakra-dayzed-datepicker/-/chakra-dayzed-datepicker-0.3.0.tgz#08aaf5df6a2e6d58509ee962a44cea0ad684d51d"
-  integrity sha512-nKcoheuWqMuqQ3hW2F30joREwXvleLlfREpRxx8LHW7RtJN8GYKbYSo2+9/RS5nO0q1HrpCgv1ZxNOfCnlYtjA==
-  dependencies:
-    react-focus-lock "^2.9.5"
-
 chalk@5.3.0, chalk@^5.0.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-5.3.0.tgz#67c20a7ebef70e7f3970a01f90fa210cb6860385"
@@ -11899,7 +11892,7 @@ react-fast-marquee@^1.6.4:
   resolved "https://registry.yarnpkg.com/react-fast-marquee/-/react-fast-marquee-1.6.4.tgz#ac0bed0faee63e4d97e9b8cd03f3bea9f242fab3"
   integrity sha512-LAgvhRmHdqaUQ8R5jCUwzEGFUIjnCCt3T3W8X7j7wF6DWe0SATlpP0JX1V0pp2qX3DYUezmn1Iz5AtRFdL2EWQ==
 
-react-focus-lock@^2.9.4, react-focus-lock@^2.9.5:
+react-focus-lock@^2.9.4:
   version "2.12.1"
   resolved "https://registry.yarnpkg.com/react-focus-lock/-/react-focus-lock-2.12.1.tgz#0eaefd5fc34de8998967043d902e426352393349"
   integrity sha512-lfp8Dve4yJagkHiFrC1bGtib3mF2ktqwPJw4/WGcgPW+pJ/AVQA5X2vI7xgp13FcxFEpYBBHpXai/N2DBNC0Jw==

@@ -10,7 +10,6 @@ import {
   FormHelperText,
   FormLabel,
   HStack,
-  Image,
   NumberInput,
   NumberInputField,
   Select,
@@ -23,7 +22,6 @@ import {
   Textarea,
   VStack,
 } from '@chakra-ui/react'
-import { SingleDatepicker } from 'chakra-dayzed-datepicker'
 import React, { MutableRefObject, useRef, useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 import axios from 'axios'
@@ -464,7 +462,7 @@ const CreateOwnMarketPage = () => {
                 selected={deadline}
                 onChange={(date) => {
                   if (date) {
-                    setDeadline(new Date(date.getTime())) // fixed the discrepancy between local date and ISO date
+                    setDeadline(new Date(date.getTime()))
                   }
                 }}
                 minDate={new Date()}

@@ -54,7 +54,6 @@
     "@web3auth/web3auth-wagmi-connector": "^6.0.0",
     "axios": "^1.7.4",
     "big.js": "^6.2.1",
-    "chakra-dayzed-datepicker": "^0.3.0",
     "date-fns": "^3.6.0",
     "dayzed": "^3.2.3",
     "ethereum-multicall": "^2.25.0",
