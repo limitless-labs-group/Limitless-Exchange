@@ -2,10 +2,8 @@
   max-width: 48rem;
   margin: auto;
   --slide-spacing: 8px;
-  --slide-size: 85%;
-}
-.embla__viewport {
-  overflow: hidden;
+  --slide-size: 83%;
+  padding: 0 16px;
 }
 .embla__container {
   display: flex;
@@ -13,7 +11,7 @@
   margin-left: calc(var(--slide-spacing) * -1);
 }
 .embla__slide {
-  transform: translate3d(16px, 0, 0);
+  transform: translate3d(0, 0, 0);
   flex: 0 0 var(--slide-size);
   min-width: 0;
   padding-left: var(--slide-spacing);
