@@ -90,7 +90,7 @@ const MainPage = () => {
 
   const dailyMarkets = filteredMarkets.filter(
     // @ts-ignore
-    (market) => market.title.includes('space') && !market.slug
+    (market) => market.title.includes('Will') && !market.slug
   ) as unknown as MarketSingleCardResponse[]
 
   const allMarkets = filteredMarkets.filter((market) => !market.title.includes('space'))
