@@ -33,8 +33,8 @@ export default function SortFilter({ onChange }: SortFilterProps) {
   return (
     <HStack
       spacing={2}
-      mt={'16px'}
-      mb={'24px'}
+      mt={isMobile ? '16px' : '8px'}
+      mb={isMobile ? '24px' : '8px'}
       wrap={'wrap'}
       alignItems={'start'}
       w={'full'}

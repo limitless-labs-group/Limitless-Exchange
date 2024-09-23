@@ -56,6 +56,7 @@
     "big.js": "^6.2.1",
     "date-fns": "^3.6.0",
     "dayzed": "^3.2.3",
+    "embla-carousel-react": "^8.3.0",
     "ethereum-multicall": "^2.25.0",
     "framer-motion": "^11.3.8",
     "frog": "^0.15.7",
