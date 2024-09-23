@@ -34,9 +34,14 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
     .multipliedBy(new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100))
     .toNumber()
 
-  const contractPrice =
-    new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100).toNumber() /
-    (position.latestTrade?.outcomeTokenPrice ? +position.latestTrade.outcomeTokenPrice : 1)
+  const contractPrice = new BigNumber(marketPrices[position.outcomeIndex] || 1)
+    .dividedBy(100)
+    .dividedBy(
+      new BigNumber(
+        position.latestTrade?.outcomeTokenPrice ? +position.latestTrade.outcomeTokenPrice : 1
+      )
+    )
+    .toNumber()
 
   const contractPriceChanged = useMemo(() => {
     let price
@@ -77,7 +82,11 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
           )}
           <HStack gap='4px'>
             <Text {...paragraphMedium}>{`${NumberUtil.toFixed(
-              currentContractsPrice,
+              new BigNumber(position.outcomeTokenAmount || '1')
+                .multipliedBy(
+                  new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100)
+                )
+                .toString(),
               6
             )} ${symbol}`}</Text>
             {contractPriceChanged}
@@ -119,7 +128,7 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
             Initial Price
           </Text>
           <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
-            position.latestTrade?.outcomeTokenPrice,
+            new BigNumber(position.latestTrade?.outcomeTokenPrice || 1).toFixed(3),
             3
           )} ${symbol}`}</Text>
         </Flex>
@@ -132,7 +141,7 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
             Current Price
           </Text>
           <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
-            (marketPrices[position.outcomeIndex] || 1) / 100,
+            new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100).toFixed(3),
             3
           )} ${symbol}`}</Text>
         </Flex>

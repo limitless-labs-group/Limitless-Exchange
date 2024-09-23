@@ -28,12 +28,21 @@ const hoverColors = {
 
 export default function MarketStatusUpdatedCard({ data }: MarketStatusUpdatedCardProps) {
   const [colors, setColors] = useState(defaultColors)
-  const text = data.eventType === FeedEventType.Funded ? 'Created' : 'Closed'
+  const getText = () => {
+    switch (data.eventType) {
+      case FeedEventType.Locked:
+        return 'Locked'
+      case FeedEventType.Resolved:
+        return 'Closed'
+      default:
+        return 'Created'
+    }
+  }
   return (
     <MarketFeedCardContainer
       creator={data.user}
       timestamp={new Date(data.timestamp).getTime() / 1000}
-      title={`${text} market`}
+      title={`${getText()} market`}
     >
       <NextLink href={`/markets/${data.data.address}`} style={{ width: '100%' }}>
         <Paper

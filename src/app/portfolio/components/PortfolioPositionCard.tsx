@@ -25,6 +25,7 @@ import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Address } from 'viem'
 import Loader from '@/components/common/loader'
 import PositionCardContainer from '@/app/portfolio/components/position-card-container'
+import BigNumber from 'bignumber.js'
 
 export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {
   position: HistoryPosition
@@ -47,6 +48,8 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   const { trackClicked } = useAmplitude()
   const { redeem } = useTradingService()
 
+  console.log(position)
+
   /**
    * NAVIGATION
    */
@@ -61,10 +64,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
 
   const targetMarket = allMarkets.find((market) => market.address === position.market.id)
 
-  const currentContractsPrice =
-    +(position.outcomeTokenAmount || 1) * ((market?.prices[position.outcomeIndex] || 1) / 100)
-
-  const contractPrice = currentContractsPrice / +(position?.collateralAmount || 1)
+  const contractPrice = new BigNumber(market?.prices[position.outcomeIndex] || 1)
+    .dividedBy(100)
+    .dividedBy(
+      new BigNumber(
+        position.latestTrade?.outcomeTokenPrice ? +position.latestTrade.outcomeTokenPrice : 1
+      )
+    )
+    .toNumber()
 
   const contractPriceChanged = useMemo(() => {
     let price
@@ -195,8 +202,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           ) : (
             <HStack>
               <Text fontSize={'16px'} lineHeight={'20px'} fontWeight={500}>
-                {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} 
-                    ${market?.collateralToken.symbol}`}
+                {`${NumberUtil.toFixed(
+                  new BigNumber(position.outcomeTokenAmount || '1')
+                    .multipliedBy(
+                      new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
+                    )
+                    .toString(),
+                  6
+                )} ${market?.collateralToken.symbol}`}
               </Text>
               <Box gap={0} fontSize={'16px'} fontWeight={500}>
                 {contractPriceChanged}
@@ -234,7 +247,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
             Invested
           </Text>
           <Text color={cardColors.main} lineHeight={'20px'} fontWeight={400} fontSize={'16px'}>
-            {`${NumberUtil.formatThousands(position.collateralAmount, 6)} ${
+            {`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
               market?.collateralToken.symbol
             }`}
           </Text>
@@ -270,8 +283,14 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
               ) : (
                 <>
                   <Text {...paragraphMedium} color={cardColors.main}>
-                    {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} 
-                    ${market?.collateralToken.symbol}`}
+                    {`${NumberUtil.toFixed(
+                      new BigNumber(position.outcomeTokenAmount || '1')
+                        .multipliedBy(
+                          new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
+                        )
+                        .toString(),
+                      6
+                    )} ${market?.collateralToken.symbol}`}
                   </Text>
 
                   <Box gap={0}>{contractPriceChanged}</Box>
@@ -299,7 +318,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
                 Invested
               </Text>
               <Text {...paragraphRegular} color={cardColors.main}>
-                {`${NumberUtil.formatThousands(position.collateralAmount, 6)} ${
+                {`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
                   market?.collateralToken.symbol
                 }`}
               </Text>

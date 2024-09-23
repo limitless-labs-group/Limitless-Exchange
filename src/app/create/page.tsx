@@ -10,7 +10,6 @@ import {
   FormHelperText,
   FormLabel,
   HStack,
-  Image,
   NumberInput,
   NumberInputField,
   Select,
@@ -23,7 +22,6 @@ import {
   Textarea,
   VStack,
 } from '@chakra-ui/react'
-import { SingleDatepicker } from 'chakra-dayzed-datepicker'
 import React, { MutableRefObject, useRef, useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 import axios from 'axios'
@@ -34,6 +32,8 @@ import { Toast } from '@/components/common/toast'
 import { Input } from '@/components/common/input'
 import { Category } from '@/types'
 import { OgImageGenerator } from '@/app/create/components'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
 
 interface FormFieldProps {
   label: string
@@ -73,13 +73,13 @@ const tokenLimits: TokenLimits = {
   },
   WETH: {
     min: 0.1,
-    max: 3,
+    max: 5,
     step: 0.1,
   },
   USDC: {
-    min: 250,
-    max: 5000,
-    step: 25,
+    min: 300,
+    max: 30000,
+    step: 100,
   },
   VITA: {
     min: 150,
@@ -95,6 +95,11 @@ const tokenLimits: TokenLimits = {
     min: 835000,
     max: 8350000,
     step: 5000,
+  },
+  cbBTC: {
+    min: 0.1,
+    max: 5,
+    step: 0.01,
   },
 }
 
@@ -225,12 +230,15 @@ const CreateOwnMarketPage = () => {
       return
     }
 
+    debugger
+
     formData?.set('title', title)
     formData?.set('description', description)
     formData?.set('tokenId', token.id.toString())
     formData?.set('liquidity', liquidity.toString())
     formData?.set('initialYesProbability', (probability / 100).toString())
-    formData?.set('deadline', deadline.toISOString())
+    // @ts-ignore
+    formData?.set('deadline', new Date(deadline).getTime())
     formData?.set('creatorId', creatorId)
     formData?.set('categoryId', categoryId)
     formData?.set('imageFile', marketLogo)
@@ -342,14 +350,14 @@ const CreateOwnMarketPage = () => {
               <Textarea
                 placeholder='Bitcoin is the first decentralized cryptocurrency. Nodes in the peer-to-peer bitcoin network verify transactions through cryptography and record them in a public distributed ledger, called a blockchain, without central oversig.'
                 resize='none'
-                rows={5}
+                rows={7}
                 overflow='hidden'
-                maxLength={320}
+                maxLength={1500}
                 onChange={(e) => setDescription(e.target.value)}
                 onBlur={() => generateOgImage()}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                {description?.length}/320 characters
+                {description?.length}/1500 characters
               </FormHelperText>
             </FormField>
 
@@ -449,49 +457,62 @@ const CreateOwnMarketPage = () => {
 
             <FormField label='Deadline'>
               {/*// Todo move to a separate component?*/}
-              <SingleDatepicker
+              <DatePicker
                 id='input'
-                triggerVariant='default'
-                propsConfigs={{
-                  inputProps: {
-                    size: 'md',
-                    width: 'full',
-                    isReadOnly: true,
-                  },
-                  triggerBtnProps: {
-                    width: '100%',
-                    background: 'transparent',
-                    border: '1px solid #E2E8F0',
-                    color: '#0F172A',
-                    justifyContent: 'space-between',
-                    rightIcon: (
-                      <Image
-                        src={'/assets/images/calendar.svg'}
-                        h={'24px'}
-                        w={'24px'}
-                        alt='calendar'
-                      />
-                    ),
-                  },
-                  popoverCompProps: {
-                    popoverContentProps: {
-                      width: '360px',
-                    },
-                  },
-                  dayOfMonthBtnProps: {
-                    todayBtnProps: {
-                      background: 'teal.200',
-                    },
-                  },
-                }}
-                name='date-input'
-                date={deadline}
-                usePortal={true}
-                onDateChange={(date) => {
-                  setDeadline(new Date(date.getTime() - date.getTimezoneOffset() * 60000)) // fixed the discrepancy between local date and ISO date
+                selected={deadline}
+                onChange={(date) => {
+                  if (date) {
+                    setDeadline(new Date(date.getTime()))
+                  }
                 }}
                 minDate={new Date()}
+                showTimeSelect
+                dateFormat='Pp'
               />
+              {/*<SingleDatepicker*/}
+              {/*  id='input'*/}
+              {/*  triggerVariant='default'*/}
+              {/*  propsConfigs={{*/}
+              {/*    inputProps: {*/}
+              {/*      size: 'md',*/}
+              {/*      width: 'full',*/}
+              {/*      isReadOnly: true,*/}
+              {/*    },*/}
+              {/*    triggerBtnProps: {*/}
+              {/*      width: '100%',*/}
+              {/*      background: 'transparent',*/}
+              {/*      border: '1px solid #E2E8F0',*/}
+              {/*      color: '#0F172A',*/}
+              {/*      justifyContent: 'space-between',*/}
+              {/*      rightIcon: (*/}
+              {/*        <Image*/}
+              {/*          src={'/assets/images/calendar.svg'}*/}
+              {/*          h={'24px'}*/}
+              {/*          w={'24px'}*/}
+              {/*          alt='calendar'*/}
+              {/*        />*/}
+              {/*      ),*/}
+              {/*    },*/}
+              {/*    popoverCompProps: {*/}
+              {/*      popoverContentProps: {*/}
+              {/*        width: '360px',*/}
+              {/*      },*/}
+              {/*    },*/}
+              {/*    dayOfMonthBtnProps: {*/}
+              {/*      todayBtnProps: {*/}
+              {/*        background: 'teal.200',*/}
+              {/*      },*/}
+              {/*    },*/}
+              {/*  }}*/}
+              {/*  name='date-input'*/}
+              {/*  date={deadline}*/}
+              {/*  usePortal={true}*/}
+              {/*  onDateChange={(date) => {*/}
+              {/*    console.log(date)*/}
+              {/*    setDeadline(new Date(date.getTime() - date.getTimezoneOffset() * 60000)) // fixed the discrepancy between local date and ISO date*/}
+              {/*  }}*/}
+              {/*  minDate={new Date()}*/}
+              {/*/>*/}
             </FormField>
 
             <FormField label='Picture'>

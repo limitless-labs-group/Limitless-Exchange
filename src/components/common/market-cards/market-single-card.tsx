@@ -8,6 +8,7 @@ import React, { useState } from 'react'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import NextLink from 'next/link'
 import { isMobile } from 'react-device-detect'
+import DailyMarketTimer from '@/components/common/market-cards/daily-market-timer'
 
 interface MarketSingleCardProps {
   market: MarketSingleCardResponse
@@ -27,6 +28,9 @@ const hoverColors = {
 
 export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
+
+  // Todo change to tags
+  const isDaily = market.title.includes('space')
 
   return (
     <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
@@ -57,40 +61,49 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
           </HStack>
         </HStack>
         <HStack
-          gap={isMobile ? '8px' : '16px'}
-          mt={isMobile ? '16px' : '8px'}
+          justifyContent='space-between'
+          alignItems='flex-end'
           flexDirection={isMobile ? 'column' : 'row'}
         >
           <HStack
-            w={isMobile ? '100%' : 'unset'}
-            justifyContent={isMobile ? 'space-between' : 'unset'}
+            gap={isMobile ? '8px' : '16px'}
+            mt={isMobile ? '16px' : '8px'}
+            flexDirection={isMobile ? 'column' : 'row'}
+            w='full'
           >
-            <HStack color={colors.secondary} gap='4px'>
-              <LiquidityIcon width={16} height={16} />
-              <Text {...paragraphMedium} color={colors.secondary}>
-                Liquidity
+            <HStack
+              w={isMobile ? '100%' : 'unset'}
+              justifyContent={isMobile ? 'space-between' : 'unset'}
+            >
+              <HStack color={colors.secondary} gap='4px'>
+                <LiquidityIcon width={16} height={16} />
+                <Text {...paragraphMedium} color={colors.secondary}>
+                  Liquidity
+                </Text>
+              </HStack>
+              <Text {...paragraphRegular} color={colors.main}>
+                {NumberUtil.formatThousands(market.liquidityFormatted, 6) +
+                  ' ' +
+                  market.collateralToken.symbol}
               </Text>
             </HStack>
-            <Text {...paragraphRegular} color={colors.main}>
-              {NumberUtil.formatThousands(market.liquidityFormatted, 6)}{' '}
-              {market.collateralToken.symbol}
-            </Text>
-          </HStack>
-          <HStack
-            w={isMobile ? '100%' : 'unset'}
-            justifyContent={isMobile ? 'space-between' : 'unset'}
-          >
-            <HStack color={colors.secondary} gap='4px'>
-              <VolumeIcon width={16} height={16} />
-              <Text {...paragraphMedium} color={colors.secondary}>
-                Volume
+            <HStack
+              w={isMobile ? '100%' : 'unset'}
+              justifyContent={isMobile ? 'space-between' : 'unset'}
+            >
+              <HStack color={colors.secondary} gap='4px'>
+                <VolumeIcon width={16} height={16} />
+                <Text {...paragraphMedium} color={colors.secondary}>
+                  Volume
+                </Text>
+              </HStack>
+              <Text {...paragraphRegular} color={colors.main}>
+                {NumberUtil.formatThousands(market.volumeFormatted, 6)}{' '}
+                {market.collateralToken.symbol}
               </Text>
             </HStack>
-            <Text {...paragraphRegular} color={colors.main}>
-              {NumberUtil.formatThousands(market.volumeFormatted, 6)}{' '}
-              {market.collateralToken.symbol}
-            </Text>
           </HStack>
+          {isDaily && <DailyMarketTimer deadline={market.deadline} color={colors.main} />}
         </HStack>
       </Paper>
     </NextLink>

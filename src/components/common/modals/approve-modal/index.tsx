@@ -58,9 +58,8 @@ export default function ApproveModal({ onApprove }: ApproveModalProps) {
             </Text>
             <Button
               mt='24px'
-              variant={isMobile ? 'white' : 'contained'}
+              variant={'contained'}
               w='full'
-              isDisabled={status !== 'Ready'}
               isLoading={status === 'Loading'}
               spinner={<Loader />}
               onClick={handleApproveClicked}

@@ -9,6 +9,8 @@ import { checkboxTheme } from '@/styles/checkbox'
 import { isMobile } from 'react-device-detect'
 import { linkTheme } from '@/styles/link'
 import { tableTheme } from '@/styles/table'
+import { skeletonTheme } from '@/styles/skeleton'
+import { textAreaTheme } from '@/styles/text-area'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
@@ -249,11 +251,7 @@ export const chakraTheme = ChakraTheme({
         fontSize: '14px',
       },
     },
-    Textarea: {
-      baseStyle: {
-        fontSize: '16px',
-      },
-    },
+    Textarea: textAreaTheme,
     HStack: {
       spacing: '8px',
     },
@@ -265,6 +263,7 @@ export const chakraTheme = ChakraTheme({
     Checkbox: checkboxTheme,
     Link: linkTheme,
     Table: tableTheme,
+    Skeleton: skeletonTheme,
   },
   breakpoints: {
     sm: '320px',

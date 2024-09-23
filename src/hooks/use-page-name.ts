@@ -6,9 +6,9 @@ function usePageName() {
   const getPageName = (path: string): PageName => {
     switch (path) {
       case '/':
-        return 'Home'
-      case '/markets':
         return 'Explore Markets'
+      case '/feed':
+        return 'Feed'
       case '/portfolio':
         return 'Portfolio'
       default:
@@ -22,6 +22,12 @@ function usePageName() {
   return getPageName(pathname)
 }
 
-export type PageName = 'Explore Markets' | 'Portfolio' | 'Market Page' | 'Unknown Page' | 'Home'
+export type PageName =
+  | 'Explore Markets'
+  | 'Portfolio'
+  | 'Market Page'
+  | 'Unknown Page'
+  | 'Home'
+  | 'Feed'
 
 export default usePageName

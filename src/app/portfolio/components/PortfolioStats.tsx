@@ -67,7 +67,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
     {
       title: 'Portfolio',
       icon: <PortfolioIcon width={16} height={16} />,
-      value: `~${NumberUtil.formatThousands(balanceInvested, 2)} USD`,
+      value: `${NumberUtil.formatThousands(balanceInvested, 2)} USD`,
       border: true,
       w: '213px',
     },

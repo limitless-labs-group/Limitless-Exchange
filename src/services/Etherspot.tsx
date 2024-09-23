@@ -20,7 +20,6 @@ import {
   maxUint256,
   erc20Abi,
   getAddress,
-  zeroAddress,
 } from 'viem'
 import { contractABI } from '@/contracts/utils'
 import { publicClient } from '@/providers'
@@ -34,6 +33,7 @@ interface IEtherspotContext {
   signMessage: (message: string) => Promise<string | undefined>
   whitelist: () => Promise<void>
   transferErc20: (data: ITransferErc20) => Promise<TransactionReceipt | undefined>
+  isLoadingSmartWalletAddress: boolean
 }
 
 const EtherspotContext = createContext<IEtherspotContext>({} as IEtherspotContext)
@@ -57,11 +57,14 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
    * Initialize Etherspot with Prime SDK instance on top of W3A wallet, once user signed in
    */
   const initEtherspot = useCallback(async () => {
+    console.log(web3AuthProvider)
+    console.log(isConnected)
+    console.log(web3Auth.connectedAdapterName)
     if (
       !web3AuthProvider ||
       !isConnected ||
       web3Auth.connectedAdapterName !== 'openlogin' ||
-      !supportedTokens
+      !supportedTokens?.length
     ) {
       setEtherspot(null)
       return
@@ -79,7 +82,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
 
     const etherspot = new Etherspot(primeSdk, supportedTokens[0].address, supportedTokens)
     setEtherspot(etherspot)
-  }, [web3AuthProvider, isConnected, web3Auth.connectedAdapterName])
+  }, [web3AuthProvider, isConnected, web3Auth.connectedAdapterName, supportedTokens])
 
   useEffect(() => {
     initEtherspot()
@@ -88,8 +91,8 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
   /**
    * Query to fetch smart wallet address
    */
-  const { data: smartWalletAddress } = useQuery({
-    queryKey: ['smartWalletAddress', !!etherspot],
+  const { data: smartWalletAddress, isLoading: isLoadingSmartWalletAddress } = useQuery({
+    queryKey: ['smartWalletAddress'],
     queryFn: async () => {
       const address = await etherspot?.getAddress()
       return address
@@ -120,7 +123,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
   /**
    * Mutation to sign auth message
    */
-  const { mutateAsync: signMessage, data: signature } = useMutation({
+  const { mutateAsync: signMessage } = useMutation({
     mutationFn: async (message: string) => etherspot?.primeSdk.signMessage({ message }),
   })
 
@@ -152,6 +155,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
     signMessage,
     transferErc20,
     whitelist,
+    isLoadingSmartWalletAddress,
   }
 
   return (

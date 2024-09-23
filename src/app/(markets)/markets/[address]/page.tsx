@@ -76,6 +76,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     approveBuy,
     strategy,
     approveSell,
+    resetQuotes,
   } = useTradingService()
 
   const marketActionForm = useMemo(() => {
@@ -130,6 +131,22 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     return router.push('/')
   }
 
+  const parseTextWithLinks = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g
+    const parts = text.split(urlRegex)
+
+    return parts.map((part, index) => {
+      if (urlRegex.test(part)) {
+        return (
+          <Link key={index} href={part} color='teal.500' isExternal>
+            {part}
+          </Link>
+        )
+      }
+      return part
+    })
+  }
+
   useEffect(() => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
       page: 'Market Page',
@@ -143,6 +160,10 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       setMarket(market!)
     }
   }, [market, previousMarket])
+
+  useEffect(() => {
+    resetQuotes()
+  }, [])
 
   return (
     <MainLayout isLoading={isCollateralLoading || fetchMarketLoading}>
@@ -262,13 +283,13 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                 <Text {...paragraphBold}>Description</Text>
               </HStack>
               <Text {...paragraphRegular} userSelect='text'>
-                {market?.description}
+                {parseTextWithLinks(market?.description)}
               </Text>
             </Box>
             {!isMobile && marketActionForm}
           </HStack>
           {isMobile && (
-            <Box position='fixed' bottom='12px' w='calc(100% - 32px)'>
+            <Box position='fixed' bottom='76px' w='calc(100% - 32px)'>
               {mobileTradeButton}
             </Box>
           )}

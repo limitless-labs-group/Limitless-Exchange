@@ -3,6 +3,7 @@ import { useEtherspot } from '@/services'
 import { useAccount } from 'wagmi'
 import { Address } from 'viem'
 
+// Todo pick address from useAccount() and remove this
 export function useWalletAddress(): Address | undefined {
   const { web3Auth } = useWeb3Auth()
   const { address } = useAccount()
