@@ -40,6 +40,7 @@ export default function SortFilter({ onChange }: SortFilterProps) {
       w={'full'}
       overflowX='auto'
       h={isMobile ? '32px' : '24px'}
+      px={isMobile ? '16px' : 0}
     >
       <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.300' borderRadius='2px'>
         {sortOptions.map((option) => (

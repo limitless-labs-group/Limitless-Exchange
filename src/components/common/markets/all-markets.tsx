@@ -1,6 +1,6 @@
 import SortFilter from '@/components/common/sort-filter'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { Divider, Text, VStack } from '@chakra-ui/react'
+import { Box, Divider, Text, VStack } from '@chakra-ui/react'
 import { MarketGroupCard, MarketSingleCard } from '@/components/common/markets/market-cards'
 import { MarketGroupCardResponse, MarketSingleCardResponse, Sort } from '@/types'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
@@ -23,10 +23,12 @@ export default function AllMarkets({
 }: AllMarketsProps) {
   return (
     <>
-      <Text {...headlineRegular} mb={isMobile ? '8px' : '4px'} mt={isMobile ? '36px' : '40px'}>
-        / All markets ({markets?.length})
-      </Text>
-      <Divider orientation='horizontal' />
+      <Box px={isMobile ? '16px' : 0}>
+        <Text {...headlineRegular} mb={isMobile ? '8px' : '4px'} mt={isMobile ? '12px' : '40px'}>
+          / All markets ({markets?.length})
+        </Text>
+        <Divider orientation='horizontal' />
+      </Box>
       <SortFilter onChange={handleSelectSort} />
       <InfiniteScroll
         dataLength={dataLength}
@@ -37,7 +39,7 @@ export default function AllMarkets({
         refreshFunction={fetchNextPage}
         pullDownToRefresh
       >
-        <VStack w={'full'} spacing={5}>
+        <VStack w={'full'} spacing={5} px={isMobile ? '16px' : 0}>
           <VStack gap={2} w='full'>
             {markets?.map((market) => {
               // @ts-ignore
