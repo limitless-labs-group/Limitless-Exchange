@@ -4,11 +4,12 @@ import { Box, Flex, HStack, Text } from '@chakra-ui/react'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import React, { useState } from 'react'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Market, MarketSingleCardResponse } from '@/types'
+import { MarketSingleCardResponse } from '@/types'
 import { NumberUtil } from '@/utils'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import NextLink from 'next/link'
+import { ClickEvent, useAmplitude } from '@/services'
 
 const defaultColors = {
   main: 'var(--chakra-colors-grey-800)',
@@ -28,6 +29,9 @@ interface DailyMarketCardProps {
 
 export default function DailyMarketCard({ market }: DailyMarketCardProps) {
   const [colors, setColors] = useState(defaultColors)
+
+  const { trackClicked } = useAmplitude()
+
   return (
     <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
       <Paper
@@ -37,6 +41,13 @@ export default function DailyMarketCard({ market }: DailyMarketCardProps) {
         _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
         onMouseEnter={() => !isMobile && setColors(hoverColors)}
         onMouseLeave={() => !isMobile && setColors(defaultColors)}
+        onClick={() => {
+          trackClicked(ClickEvent.RedirectToMarketPageClicked, {
+            platform: isMobile ? 'mobile' : 'desktop',
+            address: market?.address,
+            source: 'Medium banner',
+          })
+        }}
       >
         <Flex h='full' flexDirection='column' justifyContent='space-between'>
           <HStack justifyContent='space-between'>
