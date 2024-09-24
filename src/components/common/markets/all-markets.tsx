@@ -12,6 +12,7 @@ interface AllMarketsProps {
   fetchNextPage: () => void
   hasNextPage: boolean
   markets?: (MarketGroupCardResponse | MarketSingleCardResponse)[]
+  totalAmount?: number
 }
 
 export default function AllMarkets({
@@ -20,12 +21,13 @@ export default function AllMarkets({
   fetchNextPage,
   hasNextPage,
   markets,
+  totalAmount = 1,
 }: AllMarketsProps) {
   return (
     <>
       <Box px={isMobile ? '16px' : 0}>
         <Text {...headlineRegular} mb={isMobile ? '8px' : '4px'} mt={isMobile ? '12px' : '40px'}>
-          / All markets ({markets?.length})
+          / All markets ({totalAmount})
         </Text>
         <Divider orientation='horizontal' />
       </Box>

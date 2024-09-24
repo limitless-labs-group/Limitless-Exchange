@@ -12064,6 +12064,14 @@ react-style-singleton@^2.2.1:
     invariant "^2.2.4"
     tslib "^2.0.0"
 
+react-timezone-select@^3.2.8:
+  version "3.2.8"
+  resolved "https://registry.yarnpkg.com/react-timezone-select/-/react-timezone-select-3.2.8.tgz#6d247f18cfd401df1af8d240b2d3b277331240be"
+  integrity sha512-efEIVmYAHtm+oS+YlE/9DbieMka1Lop0v1LsW1TdLq0yCBnnAzROKDUY09CICY8TCijZlo0fk+wHZZkV5NpVNw==
+  dependencies:
+    spacetime "^7.6.0"
+    timezone-soft "^1.5.2"
+
 react-transition-group@^4.3.0:
   version "4.4.5"
   resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-4.4.5.tgz#e53d4e3f3344da8521489fbef8f2581d42becdd1"
@@ -12655,6 +12663,11 @@ source-map@^0.7.4:
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.7.4.tgz#a9bbe705c9d8846f4e08ff6765acf0f1b0898656"
   integrity sha512-l3BikUxvPOcn5E74dZiq5BGsTb5yEwhaTSzccU6t4sDOH8NWJCstKO5QT2CvtFoK6F0saL7p9xHAqHOlCPJygA==
 
+spacetime@^7.6.0:
+  version "7.6.1"
+  resolved "https://registry.yarnpkg.com/spacetime/-/spacetime-7.6.1.tgz#60610e4b41e47225216614e62a7073c680b47adf"
+  integrity sha512-LeqAU4HKi0DyJzhp6qHAGklipM81WvGDXVGlwXEZ1hHJCZUT4JhduBwovdnRvtqUPjDaI4DT2C/ZlsIXodSF8w==
+
 split-on-first@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/split-on-first/-/split-on-first-1.1.0.tgz#f610afeee3b12bce1d0c30425e76398b78249a5f"
@@ -13047,6 +13060,11 @@ time-span@4.0.0:
   integrity sha512-MyqZCTGLDZ77u4k+jqg4UlrzPTPZ49NDlaekU6uuFaJLzPIN1woaRXCbGeqOfxwc3Y37ZROGAJ614Rdv7Olt+g==
   dependencies:
     convert-hrtime "^3.0.0"
+
+timezone-soft@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/timezone-soft/-/timezone-soft-1.5.2.tgz#1d7f20b2ffb43e80edd2a7bf45572ccae144c7e7"
+  integrity sha512-BUr+CfBfeWXJwFAuEzPO9uF+v6sy3pL5SKLkDg4vdEhsyXgbBnpFoBCW8oEKSNTqNq9YHbVOjNb31xE7WyGmrA==
 
 tiny-inflate@^1.0.0:
   version "1.0.3"

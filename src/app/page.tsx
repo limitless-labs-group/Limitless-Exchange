@@ -3,18 +3,14 @@
 import { MainLayout } from '@/components'
 import { useIsMobile } from '@/hooks'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useCategories } from '@/services'
-import { Divider, VStack, Text, Box, Spinner, HStack } from '@chakra-ui/react'
+import { Box, Spinner, HStack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
-import SortFilter from '@/components/common/sort-filter'
-import { Market, MarketGroupCardResponse, MarketSingleCardResponse, Sort } from '@/types'
+import { MarketGroupCardResponse, MarketSingleCardResponse, Sort } from '@/types'
 import { getAddress } from 'viem'
-import { useMarkets } from '@/services/MarketsService'
-import InfiniteScroll from 'react-infinite-scroll-component'
+import { useDailyMarkets, useMarkets } from '@/services/MarketsService'
 import { usePriceOracle } from '@/providers'
-import TextWithPixels from '@/components/common/text-with-pixels'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useSearchParams } from 'next/navigation'
-import { MarketSingleCard, MarketGroupCard } from 'src/components/common/markets/market-cards'
 import DailyMarketsSection from '@/components/common/markets/daily-markets'
 import AllMarkets from '@/components/common/markets/all-markets'
 
@@ -63,15 +59,17 @@ const MainPage = () => {
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     useMarkets(categoryEntity)
 
+  const { data: dailyMarkets, isFetching: isFetchingDailyMarkets } = useDailyMarkets(categoryEntity)
+
   const dataLength = data?.pages.reduce((counter, page) => {
-    return counter + page.data.length
+    return counter + page.data.markets.length
   }, 0)
 
   const markets: (MarketGroupCardResponse | MarketSingleCardResponse)[] = useMemo(() => {
-    return data?.pages.flatMap((page) => page.data) || []
+    return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages, category])
 
-  const filteredMarkets = useMemo(() => {
+  const filteredAllMarkets = useMemo(() => {
     const tokenFilteredMarkets = markets?.filter((market) =>
       selectedFilterTokens.length > 0
         ? selectedFilterTokens.some(
@@ -88,22 +86,15 @@ const MainPage = () => {
     return tokenFilteredMarkets
   }, [markets, selectedFilterTokens, selectedCategory])
 
-  const dailyMarkets = filteredMarkets.filter(
-    // @ts-ignore
-    (market) => market.title.includes('Will') && !market.slug
-  ) as unknown as MarketSingleCardResponse[]
-
-  const allMarkets = filteredMarkets.filter((market) => !market.title.includes('space'))
-
   const sortedMarkets = useMemo(() => {
-    if (!allMarkets) return []
+    if (!filteredAllMarkets) return []
     switch (selectedSort) {
       case Sort.NEWEST:
-        return [...allMarkets].sort((a, b) => {
+        return [...filteredAllMarkets].sort((a, b) => {
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         })
       case Sort.HIGHEST_VOLUME:
-        return [...allMarkets].sort((a, b) => {
+        return [...filteredAllMarkets].sort((a, b) => {
           // @ts-ignore
           const volumeA = a?.slug
             ? // @ts-ignore
@@ -123,7 +114,7 @@ const MainPage = () => {
           )
         })
       case Sort.HIGHEST_LIQUIDITY:
-        return [...allMarkets].sort((a, b) => {
+        return [...filteredAllMarkets].sort((a, b) => {
           // @ts-ignore
           const liquidityA = a?.slug
             ? // @ts-ignore
@@ -143,30 +134,36 @@ const MainPage = () => {
           )
         })
       case Sort.ENDING_SOON:
-        return [...allMarkets].sort(
+        return [...filteredAllMarkets].sort(
           (a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
         )
       default:
-        return allMarkets
+        return filteredAllMarkets
     }
-  }, [markets, allMarkets, selectedSort])
+  }, [markets, filteredAllMarkets, selectedSort])
 
   return (
     <MainLayout layoutPadding={isMobile ? '0' : '16px'}>
       <Box w={isMobile ? 'full' : '664px'}>
-        {isFetching && !isFetchingNextPage ? (
+        {isFetching && !isFetchingNextPage && isFetchingDailyMarkets ? (
           <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>
             <Spinner />
           </HStack>
         ) : (
           <>
-            <DailyMarketsSection markets={dailyMarkets} />
+            {dailyMarkets && (
+              <DailyMarketsSection
+                markets={dailyMarkets.data.markets}
+                totalAmount={dailyMarkets.data.totalAmount}
+              />
+            )}
             <AllMarkets
               dataLength={dataLength ?? 0}
               fetchNextPage={fetchNextPage}
               hasNextPage={hasNextPage}
               markets={sortedMarkets}
               handleSelectSort={handleSelectSort}
+              totalAmount={data?.pages?.[0].data.totalAmount}
             />
           </>
         )}
