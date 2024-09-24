@@ -152,6 +152,7 @@ export enum ClickEvent {
   LimitlessLinksClicked = 'Limitless Links Clicked',
   FeeTradingDetailsClicked = 'Fee Trading Details Clicked',
   ReturnTradingDetailsClicked = 'Return Trading Details Clicked',
+  RedirectToMarketPageClicked = 'Redirect To Market Page Clicked',
 }
 
 export enum SignInEvent {

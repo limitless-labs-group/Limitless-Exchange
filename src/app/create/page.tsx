@@ -34,6 +34,11 @@ import { Category } from '@/types'
 import { OgImageGenerator } from '@/app/create/components'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import TimezoneSelect, {
+  allTimezones,
+  ITimezoneOption,
+  useTimezoneSelect,
+} from 'react-timezone-select'
 
 interface FormFieldProps {
   label: string
@@ -134,9 +139,14 @@ const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
 )
 
 const CreateOwnMarketPage = () => {
+  const { parseTimezone } = useTimezoneSelect({
+    labelStyle: 'original',
+    timezones: allTimezones,
+  })
   const [formData, setFormData] = useState<FormData>(new FormData())
 
   const [deadline, setDeadline] = useState<Date>(new Date())
+  const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone)
   const [title, setTitle] = useState<string>('')
   const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: 1 })
   const [description, setDescription] = useState<string>('')
@@ -230,7 +240,11 @@ const CreateOwnMarketPage = () => {
       return
     }
 
-    debugger
+    const differenceInOffset =
+      (parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset || 1) -
+      (parseTimezone(timezone)?.offset || 1)
+
+    const zonedTime = new Date(deadline).getTime() + differenceInOffset * 60 * 60 * 1000
 
     formData?.set('title', title)
     formData?.set('description', description)
@@ -238,7 +252,7 @@ const CreateOwnMarketPage = () => {
     formData?.set('liquidity', liquidity.toString())
     formData?.set('initialYesProbability', (probability / 100).toString())
     // @ts-ignore
-    formData?.set('deadline', new Date(deadline).getTime())
+    formData?.set('deadline', zonedTime)
     formData?.set('creatorId', creatorId)
     formData?.set('categoryId', categoryId)
     formData?.set('imageFile', marketLogo)
@@ -468,6 +482,12 @@ const CreateOwnMarketPage = () => {
                 minDate={new Date()}
                 showTimeSelect
                 dateFormat='Pp'
+              />
+              <TimezoneSelect
+                value={timezone}
+                onChange={(timezone: ITimezoneOption) => {
+                  setTimezone(timezone.value)
+                }}
               />
               {/*<SingleDatepicker*/}
               {/*  id='input'*/}
