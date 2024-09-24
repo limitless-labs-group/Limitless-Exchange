@@ -84,7 +84,7 @@ export default function Sidebar() {
     if (isConnected) {
       return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
     }
-    return false
+    return false //#fix for dev env
   }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
 
   const {
