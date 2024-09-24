@@ -59,7 +59,12 @@ const MainPage = () => {
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     useMarkets(categoryEntity)
 
-  const { data: dailyMarkets, isFetching: isFetchingDailyMarkets } = useDailyMarkets(categoryEntity)
+  const {
+    data: dailyMarkets,
+    isLoading: isFetchingDailyMarkets,
+    fetchNextPage: fetchDailyNextPage,
+    fetchPreviousPage: fetchDailyPrevPage,
+  } = useDailyMarkets(categoryEntity)
 
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.markets.length
@@ -153,8 +158,18 @@ const MainPage = () => {
           <>
             {dailyMarkets && (
               <DailyMarketsSection
-                markets={dailyMarkets.data.markets}
-                totalAmount={dailyMarkets.data.totalAmount}
+                markets={
+                  dailyMarkets.pages[
+                    (dailyMarkets.pageParams[dailyMarkets.pageParams.length - 1] as number) - 1
+                  ].data.markets
+                }
+                totalAmount={
+                  dailyMarkets.pages[
+                    (dailyMarkets.pageParams[dailyMarkets.pageParams.length - 1] as number) - 1
+                  ].data.totalAmount
+                }
+                onClickNextPage={() => fetchDailyNextPage()}
+                onClickPrevPage={() => fetchDailyPrevPage()}
               />
             )}
             <AllMarkets
