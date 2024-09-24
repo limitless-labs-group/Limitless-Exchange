@@ -4,13 +4,14 @@ import { MarketGroupCardResponse, MarketSingleCardResponse } from '@/types'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import DailyMarketCard from '@/components/common/markets/market-cards/daily-market-card'
 import Carousel from '@/components/common/carousel/carousel'
-import React, { useState } from 'react'
+import React from 'react'
 
 interface DailyMarketsSectionProps {
   markets: (MarketSingleCardResponse | MarketGroupCardResponse)[]
   totalAmount?: number
   onClickNextPage: () => void
   onClickPrevPage: () => void
+  page: number
 }
 
 export default function DailyMarketsSection({
@@ -18,15 +19,17 @@ export default function DailyMarketsSection({
   totalAmount = 1,
   onClickNextPage,
   onClickPrevPage,
+  page,
 }: DailyMarketsSectionProps) {
   const marketsArray = markets
     // @ts-ignore
     // Todo adjust market groups if needed
     .filter((market) => !market.slug)
-    .map((market) => (
+    .map((market, index) => (
       <DailyMarketCard
         key={(market as MarketSingleCardResponse).address}
         market={market as MarketSingleCardResponse}
+        analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: page }}
       />
     ))
 
@@ -48,7 +51,7 @@ export default function DailyMarketsSection({
           <Grid
             mt={isMobile ? '16px' : '8px'}
             templateColumns='repeat(2, 1fr)'
-            templateRows='repeat(2, 1fr)'
+            templateRows={marketsArray.length > 2 ? 'repeat(2, 1fr)' : 'repeat(1, 1fr)'}
             gap='8px'
           >
             {marketsArray}

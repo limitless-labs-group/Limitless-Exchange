@@ -172,6 +172,7 @@ const MainPage = () => {
                   setPage(page - 1)
                   return
                 }}
+                page={page}
               />
             )}
             <AllMarkets
