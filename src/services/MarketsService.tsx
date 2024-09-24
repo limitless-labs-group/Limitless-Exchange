@@ -170,19 +170,14 @@ export function useMarkets(topic: Category | null) {
   })
 }
 
-export function useDailyMarkets(topic: Category | null) {
-  return useInfiniteQuery({
+export function useDailyMarkets(topic: Category | null, page: number) {
+  return useQuery({
     queryKey: ['daily-markets'],
-    queryFn: async ({ pageParam = 1 }) => {
+    queryFn: async () => {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/daily`
       const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
 
-      const { data: response }: AxiosResponse<MarketsResponse> = await axios.get(marketBaseUrl, {
-        params: {
-          page: pageParam,
-          limit: DAILY_PER_PAGE,
-        },
-      })
+      const { data: response }: AxiosResponse<MarketsResponse> = await axios.get(marketBaseUrl)
 
       const marketDataForMultiCall = response.data.flatMap((market) => {
         // @ts-ignore
@@ -301,14 +296,18 @@ export function useDailyMarkets(topic: Category | null) {
           markets: result,
           totalAmount: response.totalMarketsCount,
         },
-        next: (pageParam as number) + 1,
       }
     },
-    initialPageParam: 1, //default page number
-    getNextPageParam: (lastPage) => {
-      // @ts-ignore
-      return lastPage.data.length < DAILY_PER_PAGE ? null : lastPage.next
-    },
+    // initialPageParam: 1, //default page number
+    // getNextPageParam: (lastPage) => {
+    //   // @ts-ignore
+    //   console.log(lastPage)
+    //   return lastPage.data.markets.length < DAILY_PER_PAGE ? null : lastPage.next
+    // },
+    // getPreviousPageParam: (lastPage) => {
+    //   console.log(lastPage)
+    //   return lastPage.next - 1 >= 1 ? lastPage.next - 1 : null
+    // },
     refetchOnWindowFocus: false,
   })
 }
