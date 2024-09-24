@@ -170,9 +170,9 @@ export function useMarkets(topic: Category | null) {
   })
 }
 
-export function useDailyMarkets(topic: Category | null, page: number) {
+export function useDailyMarkets(topic: Category | null) {
   return useQuery({
-    queryKey: ['daily-markets'],
+    queryKey: ['daily-markets', topic],
     queryFn: async () => {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/daily`
       const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
