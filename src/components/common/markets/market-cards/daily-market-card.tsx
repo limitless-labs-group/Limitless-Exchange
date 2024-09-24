@@ -10,6 +10,7 @@ import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import NextLink from 'next/link'
 import { ClickEvent, useAmplitude } from '@/services'
+import { useSearchParams } from 'next/navigation'
 
 const defaultColors = {
   main: 'var(--chakra-colors-grey-800)',
@@ -25,10 +26,13 @@ const hoverColors = {
 
 interface DailyMarketCardProps {
   market: MarketSingleCardResponse
+  analyticParams: { bannerPosition: number; bannerPaginationPage: number }
 }
 
-export default function DailyMarketCard({ market }: DailyMarketCardProps) {
+export default function DailyMarketCard({ market, analyticParams }: DailyMarketCardProps) {
+  const searchParams = useSearchParams()
   const [colors, setColors] = useState(defaultColors)
+  const category = searchParams.get('category')
 
   const { trackClicked } = useAmplitude()
 
@@ -42,10 +46,17 @@ export default function DailyMarketCard({ market }: DailyMarketCardProps) {
         onMouseEnter={() => !isMobile && setColors(hoverColors)}
         onMouseLeave={() => !isMobile && setColors(defaultColors)}
         onClick={() => {
-          trackClicked(ClickEvent.RedirectToMarketPageClicked, {
+          trackClicked(ClickEvent.MarketPageOpened, {
+            ...analyticParams,
             platform: isMobile ? 'mobile' : 'desktop',
-            address: market?.address,
-            source: 'Medium banner',
+            bannerType: 'Medium banner',
+            source: 'Explore Market',
+            marketCategory: category,
+            marketAddress: market.address,
+            marketType: 'single',
+          })
+          trackClicked(ClickEvent.MediumMarketBannerClicked, {
+            ...analyticParams,
           })
         }}
       >
