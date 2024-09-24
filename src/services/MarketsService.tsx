@@ -15,8 +15,11 @@ import { fixedProductMarketMakerABI } from '@/contracts'
 import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
 import { publicClient } from '@/providers'
+import { isMobile } from 'react-device-detect'
 
 const LIMIT_PER_PAGE = 10
+
+const DAILY_PER_PAGE = isMobile ? 40 : 6
 
 /**
  * Fetches and manages paginated active market data using the `useInfiniteQuery` hook.
@@ -168,13 +171,18 @@ export function useMarkets(topic: Category | null) {
 }
 
 export function useDailyMarkets(topic: Category | null) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['daily-markets'],
-    queryFn: async () => {
+    queryFn: async ({ pageParam = 1 }) => {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/daily`
       const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
 
-      const { data: response }: AxiosResponse<MarketsResponse> = await axios.get(marketBaseUrl)
+      const { data: response }: AxiosResponse<MarketsResponse> = await axios.get(marketBaseUrl, {
+        params: {
+          page: pageParam,
+          limit: DAILY_PER_PAGE,
+        },
+      })
 
       const marketDataForMultiCall = response.data.flatMap((market) => {
         // @ts-ignore
@@ -293,8 +301,15 @@ export function useDailyMarkets(topic: Category | null) {
           markets: result,
           totalAmount: response.totalMarketsCount,
         },
+        next: (pageParam as number) + 1,
       }
     },
+    initialPageParam: 1, //default page number
+    getNextPageParam: (lastPage) => {
+      // @ts-ignore
+      return lastPage.data.length < DAILY_PER_PAGE ? null : lastPage.next
+    },
+    refetchOnWindowFocus: false,
   })
 }
 
