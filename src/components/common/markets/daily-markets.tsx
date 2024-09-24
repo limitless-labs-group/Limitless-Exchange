@@ -4,7 +4,7 @@ import { MarketGroupCardResponse, MarketSingleCardResponse } from '@/types'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import DailyMarketCard from '@/components/common/markets/market-cards/daily-market-card'
 import Carousel from '@/components/common/carousel/carousel'
-import React from 'react'
+import React, { useState } from 'react'
 
 interface DailyMarketsSectionProps {
   markets: (MarketSingleCardResponse | MarketGroupCardResponse)[]

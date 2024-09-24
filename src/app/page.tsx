@@ -16,6 +16,7 @@ import AllMarkets from '@/components/common/markets/all-markets'
 
 const MainPage = () => {
   const searchParams = useSearchParams()
+  const [page, setPage] = useState(1)
   const { data: categories } = useCategories()
   /**
    * ANALYTICS
@@ -59,12 +60,7 @@ const MainPage = () => {
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     useMarkets(categoryEntity)
 
-  const {
-    data: dailyMarkets,
-    isLoading: isFetchingDailyMarkets,
-    fetchNextPage: fetchDailyNextPage,
-    fetchPreviousPage: fetchDailyPrevPage,
-  } = useDailyMarkets(categoryEntity)
+  const { data: dailyMarkets } = useDailyMarkets(categoryEntity, page)
 
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.markets.length
@@ -150,7 +146,7 @@ const MainPage = () => {
   return (
     <MainLayout layoutPadding={isMobile ? '0' : '16px'}>
       <Box w={isMobile ? 'full' : '664px'} ml={isMobile ? 'auto' : '200px'}>
-        {(isFetching || isFetchingDailyMarkets) && !isFetchingNextPage ? (
+        {isFetching && !isFetchingNextPage ? (
           <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>
             <Spinner />
           </HStack>
@@ -158,18 +154,24 @@ const MainPage = () => {
           <>
             {dailyMarkets && (
               <DailyMarketsSection
-                markets={
-                  dailyMarkets.pages[
-                    (dailyMarkets.pageParams[dailyMarkets.pageParams.length - 1] as number) - 1
-                  ].data.markets
-                }
-                totalAmount={
-                  dailyMarkets.pages[
-                    (dailyMarkets.pageParams[dailyMarkets.pageParams.length - 1] as number) - 1
-                  ].data.totalAmount
-                }
-                onClickNextPage={() => fetchDailyNextPage()}
-                onClickPrevPage={() => fetchDailyPrevPage()}
+                markets={dailyMarkets.data.markets.slice((page - 1) * 6, page * 6)}
+                totalAmount={dailyMarkets.data.totalAmount}
+                onClickNextPage={() => {
+                  if (dailyMarkets?.data.markets.length < 6) {
+                    return
+                  }
+                  if (6 * page >= dailyMarkets?.data.totalAmount) {
+                    return
+                  }
+                  setPage(page + 1)
+                }}
+                onClickPrevPage={() => {
+                  if (page === 1) {
+                    return
+                  }
+                  setPage(page - 1)
+                  return
+                }}
               />
             )}
             <AllMarkets
