@@ -60,7 +60,7 @@ const MainPage = () => {
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     useMarkets(categoryEntity)
 
-  const { data: dailyMarkets } = useDailyMarkets(categoryEntity, page)
+  const { data: dailyMarkets } = useDailyMarkets(categoryEntity)
 
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.markets.length
