@@ -44,7 +44,7 @@ import CategoryFilter from '@/components/common/categories'
 import { isMobile } from 'react-device-detect'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import '@rainbow-me/rainbowkit/styles.css'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { useThemeProvider } from '@/providers'
 import usePageName from '@/hooks/use-page-name'
 import WalletPage from '@/components/layouts/wallet-page'
@@ -53,7 +53,11 @@ import WrapModal from '@/components/common/modals/wrap-modal'
 import NextLink from 'next/link'
 import { Overlay } from '@/components/common/overlay'
 import SocialsFooter from '@/components/common/socials-footer'
+import { cutUsername } from '@/utils/string'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
+import TextWithPixels from '@/components/common/text-with-pixels'
+import Paper from '@/components/common/paper'
+import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { Profile } from '@/components'
 import UserIcon from '@/resources/icons/user-icon.svg'
 import LogoutIcon from '@/resources/icons/log-out-icon.svg'
@@ -70,6 +74,7 @@ export default function Sidebar() {
   const { isConnected, isConnecting } = useWagmiAccount()
   const { client } = useWeb3Service()
   const { isLoadingSmartWalletAddress } = useEtherspot()
+  const { data: totalVolume } = useTotalTradingVolume()
 
   const pageName = usePageName()
   const userMenuLoading = useMemo(() => {
@@ -77,7 +82,7 @@ export default function Sidebar() {
       return true
     }
     if (isConnected) {
-      return !profileData || profileLoading || isLoadingSmartWalletAddress
+      return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
     }
     return false
   }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
@@ -111,6 +116,10 @@ export default function Sidebar() {
     onCloseAuthMenu()
     onToggleProfile()
   }
+
+  const volumeArray = totalVolume
+    ? `$${NumberUtil.formatThousands(totalVolume.toFixed(0), 0)}`.split('')
+    : []
 
   return (
     <>
@@ -371,11 +380,32 @@ export default function Sidebar() {
           </Link>
         </NextLink>
         {!isMobile && <CategoryFilter />}
-
         <Spacer />
-
+        {totalVolume && (
+          <NextLink
+            href='https://dune.com/limitless_exchange/limitless'
+            target='_blank'
+            style={{ width: '100%' }}
+          >
+            <Paper
+              w='full'
+              justifyContent='space-between'
+              display='flex'
+              cursor='pointer'
+              _hover={{ bg: 'grey.300' }}
+            >
+              {volumeArray.map((volumeSymbol, index) => (
+                <TextWithPixels
+                  key={index}
+                  text={volumeSymbol}
+                  highlightWord={1}
+                  {...paragraphRegular}
+                />
+              ))}
+            </Paper>
+          </NextLink>
+        )}
         <Divider />
-
         <SocialsFooter />
       </VStack>
       {isOpenWalletPage && (
