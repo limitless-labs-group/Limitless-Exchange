@@ -14,16 +14,40 @@ export default function DailyMarketsSection({
   markets,
   totalAmount = 1,
 }: DailyMarketsSectionProps) {
-  const marketsArray = markets
-    // @ts-ignore
-    // Todo adjust market groups if needed
-    .filter((market) => !market.slug)
-    .map((market) => (
-      <DailyMarketCard
-        key={(market as MarketSingleCardResponse).address}
-        market={market as MarketSingleCardResponse}
-      />
-    ))
+  // const marketsArray = markets
+  //   // @ts-ignore
+  //   // Todo adjust market groups if needed
+  //   .filter((market) => !market.slug)
+  //   .map((market) => (
+  //     <DailyMarketCard
+  //       key={(market as MarketSingleCardResponse).address}
+  //       market={market as MarketSingleCardResponse}
+  //     />
+  //   ))
+
+  const marketsArray = [
+    ...markets
+      // @ts-ignore
+      // Todo adjust market groups if needed
+      .filter((market) => !market.slug)
+      .map((market) => (
+        <DailyMarketCard
+          key={(market as MarketSingleCardResponse).address}
+          market={market as MarketSingleCardResponse}
+        />
+      )),
+    ...markets
+      .slice(0, 5)
+      // @ts-ignore
+      // Todo adjust market groups if needed
+      .filter((market) => !market.slug)
+      .map((market) => (
+        <DailyMarketCard
+          key={(market as MarketSingleCardResponse).address}
+          market={market as MarketSingleCardResponse}
+        />
+      )),
+  ]
 
   return (
     <Box mt={isMobile ? '40px' : 0}>
