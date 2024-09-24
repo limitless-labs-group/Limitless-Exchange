@@ -27,6 +27,7 @@ import {
   useConditionalTokensAddr,
 } from '@/hooks/use-conditional-tokens-addr'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { DISCORD_LINK } from '@/utils/consts'
 
 interface ITradingServiceContext {
   market: Market | null
@@ -67,7 +68,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * UI HELPERS
    */
   const toast = useToast()
-  const DISCORD_LINK = 'https://discord.gg/UQtv7h5ZFE'
 
   /**
    * SERVICES

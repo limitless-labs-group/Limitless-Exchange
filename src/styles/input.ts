@@ -44,7 +44,7 @@ const grey = definePartsStyle({
     ...paragraphMedium,
     color: 'grey.800',
     _hover: {
-      borderColor: 'grey.800',
+      borderColor: 'grey.400',
     },
     _focus: {
       borderColor: 'grey.800',

@@ -89,4 +89,7 @@ export const lightThemeColors: ColorScheme = {
     200: 'rgba(0, 0, 0, 0.2)',
     600: 'rgba(0, 0, 0, 0.6)',
   },
+  blackStale: {
+    200: 'rgba(0, 0, 0, 0.2)',
+  },
 }
