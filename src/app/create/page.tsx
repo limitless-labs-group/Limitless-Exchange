@@ -330,7 +330,6 @@ const CreateOwnMarketPage = () => {
 
             <FormField label='Title'>
               <Input
-                placeholder='Bitcoin ATH in May 2024?'
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={70}
                 onBlur={() => generateOgImage()}
