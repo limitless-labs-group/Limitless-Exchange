@@ -10,7 +10,6 @@ import {
   FormHelperText,
   FormLabel,
   HStack,
-  Image,
   NumberInput,
   NumberInputField,
   Select,
@@ -23,7 +22,6 @@ import {
   Textarea,
   VStack,
 } from '@chakra-ui/react'
-import { SingleDatepicker } from 'chakra-dayzed-datepicker'
 import React, { MutableRefObject, useRef, useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 import axios from 'axios'
@@ -34,6 +32,13 @@ import { Toast } from '@/components/common/toast'
 import { Input } from '@/components/common/input'
 import { Category } from '@/types'
 import { OgImageGenerator } from '@/app/create/components'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import TimezoneSelect, {
+  allTimezones,
+  ITimezoneOption,
+  useTimezoneSelect,
+} from 'react-timezone-select'
 
 interface FormFieldProps {
   label: string
@@ -134,9 +139,14 @@ const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
 )
 
 const CreateOwnMarketPage = () => {
+  const { parseTimezone } = useTimezoneSelect({
+    labelStyle: 'original',
+    timezones: allTimezones,
+  })
   const [formData, setFormData] = useState<FormData>(new FormData())
 
   const [deadline, setDeadline] = useState<Date>(new Date())
+  const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone)
   const [title, setTitle] = useState<string>('')
   const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: 1 })
   const [description, setDescription] = useState<string>('')
@@ -230,12 +240,19 @@ const CreateOwnMarketPage = () => {
       return
     }
 
+    const differenceInOffset =
+      (parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset || 1) -
+      (parseTimezone(timezone)?.offset || 1)
+
+    const zonedTime = new Date(deadline).getTime() + differenceInOffset * 60 * 60 * 1000
+
     formData?.set('title', title)
     formData?.set('description', description)
     formData?.set('tokenId', token.id.toString())
     formData?.set('liquidity', liquidity.toString())
     formData?.set('initialYesProbability', (probability / 100).toString())
-    formData?.set('deadline', deadline.toISOString())
+    // @ts-ignore
+    formData?.set('deadline', zonedTime)
     formData?.set('creatorId', creatorId)
     formData?.set('categoryId', categoryId)
     formData?.set('imageFile', marketLogo)
@@ -454,49 +471,68 @@ const CreateOwnMarketPage = () => {
 
             <FormField label='Deadline'>
               {/*// Todo move to a separate component?*/}
-              <SingleDatepicker
+              <DatePicker
                 id='input'
-                triggerVariant='default'
-                propsConfigs={{
-                  inputProps: {
-                    size: 'md',
-                    width: 'full',
-                    isReadOnly: true,
-                  },
-                  triggerBtnProps: {
-                    width: '100%',
-                    background: 'transparent',
-                    border: '1px solid #E2E8F0',
-                    color: '#0F172A',
-                    justifyContent: 'space-between',
-                    rightIcon: (
-                      <Image
-                        src={'/assets/images/calendar.svg'}
-                        h={'24px'}
-                        w={'24px'}
-                        alt='calendar'
-                      />
-                    ),
-                  },
-                  popoverCompProps: {
-                    popoverContentProps: {
-                      width: '360px',
-                    },
-                  },
-                  dayOfMonthBtnProps: {
-                    todayBtnProps: {
-                      background: 'teal.200',
-                    },
-                  },
-                }}
-                name='date-input'
-                date={deadline}
-                usePortal={true}
-                onDateChange={(date) => {
-                  setDeadline(new Date(date.getTime() - date.getTimezoneOffset() * 60000)) // fixed the discrepancy between local date and ISO date
+                selected={deadline}
+                onChange={(date) => {
+                  if (date) {
+                    setDeadline(new Date(date.getTime()))
+                  }
                 }}
                 minDate={new Date()}
+                showTimeSelect
+                dateFormat='Pp'
               />
+              <TimezoneSelect
+                value={timezone}
+                onChange={(timezone: ITimezoneOption) => {
+                  setTimezone(timezone.value)
+                }}
+              />
+              {/*<SingleDatepicker*/}
+              {/*  id='input'*/}
+              {/*  triggerVariant='default'*/}
+              {/*  propsConfigs={{*/}
+              {/*    inputProps: {*/}
+              {/*      size: 'md',*/}
+              {/*      width: 'full',*/}
+              {/*      isReadOnly: true,*/}
+              {/*    },*/}
+              {/*    triggerBtnProps: {*/}
+              {/*      width: '100%',*/}
+              {/*      background: 'transparent',*/}
+              {/*      border: '1px solid #E2E8F0',*/}
+              {/*      color: '#0F172A',*/}
+              {/*      justifyContent: 'space-between',*/}
+              {/*      rightIcon: (*/}
+              {/*        <Image*/}
+              {/*          src={'/assets/images/calendar.svg'}*/}
+              {/*          h={'24px'}*/}
+              {/*          w={'24px'}*/}
+              {/*          alt='calendar'*/}
+              {/*        />*/}
+              {/*      ),*/}
+              {/*    },*/}
+              {/*    popoverCompProps: {*/}
+              {/*      popoverContentProps: {*/}
+              {/*        width: '360px',*/}
+              {/*      },*/}
+              {/*    },*/}
+              {/*    dayOfMonthBtnProps: {*/}
+              {/*      todayBtnProps: {*/}
+              {/*        background: 'teal.200',*/}
+              {/*      },*/}
+              {/*    },*/}
+              {/*  }}*/}
+              {/*  name='date-input'*/}
+              {/*  date={deadline}*/}
+              {/*  usePortal={true}*/}
+              {/*  onDateChange={(date) => {*/}
+              {/*    console.log(date)*/}
+              {/*    setDeadline(new Date(date.getTime() - date.getTimezoneOffset() * 60000)) // fixed the discrepancy between local date and ISO date*/}
+              {/*  }}*/}
+              {/*  minDate={new Date()}*/}
+              {/*/>*/}
             </FormField>
 
             <FormField label='Picture'>
