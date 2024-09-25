@@ -126,8 +126,8 @@ interface Token {
 
 const defaultTokenSymbol = 'WETH'
 const defaultProbability = 50
-const defaultCreatorId = '1'
-const defaultCategoryId = '1'
+const defaultCreatorId = '1' // Limitless
+const defaultCategoryId = '2' // Crypto
 
 const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
   <Box mt={4}>
@@ -146,7 +146,7 @@ const CreateOwnMarketPage = () => {
   const [formData, setFormData] = useState<FormData>(new FormData())
 
   const [deadline, setDeadline] = useState<Date>(new Date())
-  const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone)
+  const [timezone, setTimezone] = useState('America/New_York')
   const [title, setTitle] = useState<string>('')
   const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: 1 })
   const [description, setDescription] = useState<string>('')
