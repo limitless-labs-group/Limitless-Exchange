@@ -154,7 +154,11 @@ const MainPage = () => {
           <>
             {dailyMarkets && (
               <DailyMarketsSection
-                markets={dailyMarkets.data.markets.slice((page - 1) * 6, page * 6)}
+                markets={
+                  isMobile
+                    ? dailyMarkets.data.markets
+                    : dailyMarkets.data.markets.slice((page - 1) * 6, page * 6)
+                }
                 totalAmount={dailyMarkets.data.totalAmount}
                 onClickNextPage={() => {
                   if (dailyMarkets?.data.markets.length < 6) {
