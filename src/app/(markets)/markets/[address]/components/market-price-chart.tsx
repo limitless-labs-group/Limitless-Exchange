@@ -204,15 +204,20 @@ export const MarketPriceChart = ({
     const flattenData: number[][] = []
 
     // Append current timestamp with the last price
-    const lastTrade = [...filterBrokenPrice(data[data.length - 1].yesBuyChartData)]
+    const lastTrade = [...data[data.length - 1].yesBuyChartData]
     lastTrade[0] = Math.floor(Date.now())
     data.push({ yesBuyChartData: lastTrade as [number, number] })
     //TODO: hotfix of envio duplication
     const deduplicator = new Set<number>()
 
     for (let i = 0; i < data.length - 1; i++) {
-      const currentTrade = filterBrokenPrice(data[i].yesBuyChartData)
-      const nextTrade = filterBrokenPrice(data[i + 1].yesBuyChartData)
+      const currentTrade = data[i].yesBuyChartData
+
+      if (isNaN(currentTrade[1])) {
+        continue
+      }
+
+      const nextTrade = data[i + 1].yesBuyChartData
 
       if (deduplicator.has(currentTrade[1])) {
         continue
@@ -229,17 +234,6 @@ export const MarketPriceChart = ({
     }
 
     return flattenData
-  }
-
-  /**
-   * Sometimes indexer returns the first price as NaN
-   *
-   * @param nums
-   */
-  const filterBrokenPrice = (nums: [number, number]) => {
-    nums[0] = isNaN(nums[0]) ? 0 : nums[0]
-    nums[1] = isNaN(nums[1]) ? Number(yesChance) : nums[1]
-    return nums
   }
 
   // React Query to fetch the price data
