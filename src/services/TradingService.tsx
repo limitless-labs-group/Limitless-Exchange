@@ -6,7 +6,7 @@ import { useBalanceService, useHistory } from '@/services'
 import { Market, RedeemParams } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
 import {
   PropsWithChildren,
@@ -56,9 +56,10 @@ interface ITradingServiceContext {
   approveModalOpened: boolean
   setApproveModalOpened: Dispatch<SetStateAction<boolean>>
   approveBuy: () => Promise<void>
-  approveSell: () => Promise<void>
   isLoadingRedeem: boolean
   resetQuotes: () => void
+  approveSellMutation: UseMutationResult<void, Error, void, unknown>
+  checkApprovedForSell: () => Promise<boolean>
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -546,7 +547,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const { mutateAsync: approveContractSell, isPending: isLoadingApproveSell } = useMutation({
+  const approveSellMutation = useMutation({
     mutationFn: async () => {
       if (!market) {
         return
@@ -561,32 +562,23 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
           render: () => <Toast title={`Successfully approved. Proceed with sell now.`} id={id} />,
         })
       } catch (e) {
-        const id = toast({
-          render: () => (
-            <Toast title={`Something went wrong during approve transaction broadcast.`} id={id} />
-          ),
-        })
+        // @ts-ignore
+        throw new Error(e)
       }
     },
   })
+
+  const checkApprovedForSell = async () => {
+    return checkAllowanceForAll(market?.address as Address, conditionalTokensAddress as Address)
+  }
 
   /**
    * SELL
    */
   const { mutateAsync: sell, isPending: isLoadingSell } = useMutation({
-    // mutationFn: async ({ outcomeTokenId, amount }: { outcomeTokenId: number; amount: bigint }) => {
     mutationFn: async (outcomeTokenId: number) => {
       if (!account || !market || isInvalidCollateralAmount || !conditionalTokensAddress) {
         return
-      }
-
-      if (client === 'eoa') {
-        const approvedForAll = await checkAllowanceForAll(market.address, conditionalTokensAddress!)
-
-        if (!approvedForAll) {
-          setApproveModalOpened(true)
-          return
-        }
       }
 
       const receipt = await sellOutcomeTokens(
@@ -713,33 +705,18 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const approveBuy = useCallback(() => approveContractBuy(), [])
 
-  const approveSell = useCallback(() => approveContractSell(), [])
-
   /**
    * STATUS
    */
   const status = useMemo<TradingServiceStatus>(() => {
-    if (
-      isLoadingBuy ||
-      isLoadingSell ||
-      isLoadingRedeem ||
-      isLoadingApproveBuy ||
-      isLoadingApproveSell
-    ) {
+    if (isLoadingBuy || isLoadingSell || isLoadingRedeem || isLoadingApproveBuy) {
       return 'Loading'
     }
     if (isInvalidCollateralAmount) {
       return 'InvalidAmount'
     }
     return 'Ready'
-  }, [
-    isInvalidCollateralAmount,
-    isLoadingBuy,
-    isLoadingSell,
-    isLoadingRedeem,
-    isLoadingApproveBuy,
-    isLoadingApproveSell,
-  ])
+  }, [isInvalidCollateralAmount, isLoadingBuy, isLoadingSell, isLoadingRedeem, isLoadingApproveBuy])
 
   const tradeStatus = useMemo<TradingServiceStatus>(() => {
     if (isLoadingBuy || isLoadingSell) {
@@ -750,6 +727,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const contextProviderValue: ITradingServiceContext = {
     market,
+    checkApprovedForSell,
     setMarket,
     strategy,
     setStrategy,
@@ -768,7 +746,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     approveModalOpened,
     setApproveModalOpened,
     approveBuy,
-    approveSell,
+    approveSellMutation,
     isLoadingRedeem,
     resetQuotes,
   }

@@ -69,7 +69,7 @@ export default function MobileHeader() {
       return true
     }
     if (isConnected) {
-      return !profileData || profileLoading || isLoadingSmartWalletAddress
+      return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
     }
     return false
   }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])

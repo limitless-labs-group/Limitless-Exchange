@@ -75,7 +75,6 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     market: previousMarket,
     approveBuy,
     strategy,
-    approveSell,
     resetQuotes,
   } = useTradingService()
 
@@ -91,7 +90,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   }, [market])
 
   const handleApproveMarket = async () => {
-    return strategy === 'Buy' ? approveBuy() : approveSell()
+    await approveBuy()
   }
 
   const mobileTradeButton = useMemo(() => {

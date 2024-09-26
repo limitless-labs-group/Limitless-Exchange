@@ -11,11 +11,11 @@ type SortFilterProps = {
   onChange: (option: Sort) => void
 }
 
-const sortOptions = [Sort.HIGHEST_VOLUME, Sort.HIGHEST_LIQUIDITY, Sort.ENDING_SOON, Sort.NEWEST]
+const sortOptions = [Sort.ENDING_SOON, Sort.HIGHEST_VOLUME, Sort.HIGHEST_LIQUIDITY, Sort.NEWEST]
 
 export default function SortFilter({ onChange }: SortFilterProps) {
   const [selectedSortFilter, setSelectedSortFilter] = useState<Sort>(
-    (window.sessionStorage.getItem('SORT') as Sort) ?? Sort.HIGHEST_VOLUME
+    (window.sessionStorage.getItem('SORT') as Sort) ?? Sort.ENDING_SOON
   )
   const { trackClicked } = useAmplitude()
 
@@ -33,13 +33,14 @@ export default function SortFilter({ onChange }: SortFilterProps) {
   return (
     <HStack
       spacing={2}
-      mt={'16px'}
-      mb={'24px'}
+      mt={isMobile ? '16px' : '8px'}
+      mb={isMobile ? '24px' : '8px'}
       wrap={'wrap'}
       alignItems={'start'}
       w={'full'}
       overflowX='auto'
       h={isMobile ? '32px' : '24px'}
+      px={isMobile ? '16px' : 0}
     >
       <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.300' borderRadius='2px'>
         {sortOptions.map((option) => (
