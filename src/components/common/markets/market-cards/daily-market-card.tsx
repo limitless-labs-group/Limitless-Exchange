@@ -65,14 +65,14 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             <HStack gap='4px' color={colors.main}>
               <LiquidityIcon width={16} height={16} />
               <Text {...paragraphMedium} color={colors.main}>
-                {NumberUtil.formatThousands(market.liquidityFormatted, 6)}{' '}
+                {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
                 {market.collateralToken.symbol}
               </Text>
             </HStack>
             <HStack gap='4px' color={colors.main}>
               <VolumeIcon width={16} height={16} />
               <Text {...paragraphMedium} color={colors.main}>
-                {NumberUtil.formatThousands(market.volumeFormatted, 6)}{' '}
+                {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
                 {market.collateralToken.symbol}
               </Text>
             </HStack>
