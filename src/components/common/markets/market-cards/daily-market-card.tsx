@@ -1,6 +1,6 @@
 import Paper from '@/components/common/paper'
 import { isMobile } from 'react-device-detect'
-import { Box, Flex, HStack, Text } from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Text } from '@chakra-ui/react'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import React, { useState } from 'react'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
@@ -32,9 +32,16 @@ interface DailyMarketCardProps {
 export default function DailyMarketCard({ market, analyticParams }: DailyMarketCardProps) {
   const searchParams = useSearchParams()
   const [colors, setColors] = useState(defaultColors)
+  // const [showQuickBetButton, setShowQuickBetButton] = useState(false)
+  // const [tradeWidgetOpened, setTradeWidgetOpened] = useState(false)
   const category = searchParams.get('category')
 
   const { trackClicked } = useAmplitude()
+
+  // const onClickQuickBuy = (e) => {
+  //   e.stopPropagation()
+  //   setTradeWidgetOpened(true)
+  // }
 
   return (
     <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
@@ -43,8 +50,18 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
         h={isMobile ? '240px' : '160px'}
         w={isMobile ? '100%' : '100%'}
         _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
-        onMouseEnter={() => !isMobile && setColors(hoverColors)}
-        onMouseLeave={() => !isMobile && setColors(defaultColors)}
+        onMouseEnter={() => {
+          if (!isMobile) {
+            // setShowQuickBetButton(true)
+            setColors(hoverColors)
+          }
+        }}
+        onMouseLeave={() => {
+          if (!isMobile) {
+            setColors(defaultColors)
+            // setShowQuickBetButton(false)
+          }
+        }}
         onClick={() => {
           trackClicked(ClickEvent.MarketPageOpened, {
             ...analyticParams,
@@ -59,6 +76,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             ...analyticParams,
           })
         }}
+        position='relative'
       >
         <Flex h='full' flexDirection='column' justifyContent='space-between'>
           <HStack justifyContent='space-between'>
@@ -99,6 +117,20 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             </HStack>
           </HStack>
         </Flex>
+        {/*{showQuickBetButton && (*/}
+        {/*  <Flex*/}
+        {/*    h={isMobile ? '240px' : '160px'}*/}
+        {/*    w={isMobile ? '100%' : '100%'}*/}
+        {/*    alignItems='center'*/}
+        {/*    justifyContent='center'*/}
+        {/*    top='0'*/}
+        {/*    position='absolute'*/}
+        {/*  >*/}
+        {/*    <Button variant='black' transform='rotate(-15deg)' onClick={onClickQuickBuy}>*/}
+        {/*      Quick buy*/}
+        {/*    </Button>*/}
+        {/*  </Flex>*/}
+        {/*)}*/}
       </Paper>
     </NextLink>
   )

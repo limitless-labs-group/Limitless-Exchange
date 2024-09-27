@@ -1,10 +1,10 @@
-import { Box, Button, Divider, Grid, HStack, Text } from '@chakra-ui/react'
+import { Box, Button, Divider, Grid, HStack, Text, VStack } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import { MarketGroupCardResponse, MarketSingleCardResponse } from '@/types'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import DailyMarketCard from '@/components/common/markets/market-cards/daily-market-card'
-import Carousel from '@/components/common/carousel/carousel'
 import React from 'react'
+import { MarketGroupCard, MarketSingleCard } from '@/components/common/markets/market-cards'
 
 interface DailyMarketsSectionProps {
   markets: (MarketSingleCardResponse | MarketGroupCardResponse)[]
@@ -43,9 +43,16 @@ export default function DailyMarketsSection({
       </Box>
 
       {isMobile ? (
-        <Box mt='16px'>
-          <Carousel slides={marketsArray}></Carousel>
-        </Box>
+        <VStack gap={2} w='full' px='16px' mt='16px'>
+          {markets?.map((market) => {
+            // @ts-ignore
+            return market.slug ? (
+              <MarketGroupCard marketGroup={market as MarketGroupCardResponse} />
+            ) : (
+              <MarketSingleCard market={market as MarketSingleCardResponse} />
+            )
+          })}
+        </VStack>
       ) : (
         <>
           <Grid
