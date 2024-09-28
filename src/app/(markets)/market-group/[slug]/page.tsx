@@ -179,14 +179,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
   }, [marketGroup])
 
   useEffect(() => {
-    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
-      page: 'Market Page',
-      market: params.slug,
-      marketType: 'group',
-    })
-  }, [])
-
-  useEffect(() => {
     resetQuotes()
   }, [])
 

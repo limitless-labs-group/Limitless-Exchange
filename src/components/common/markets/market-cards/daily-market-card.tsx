@@ -1,6 +1,6 @@
 import Paper from '@/components/common/paper'
 import { isMobile } from 'react-device-detect'
-import { Box, Button, Flex, HStack, Text } from '@chakra-ui/react'
+import { Box, Flex, HStack, Text } from '@chakra-ui/react'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import React, { useState } from 'react'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
@@ -11,6 +11,7 @@ import DailyMarketTimer from '@/components/common/markets/market-cards/daily-mar
 import NextLink from 'next/link'
 import { ClickEvent, useAmplitude } from '@/services'
 import { useSearchParams } from 'next/navigation'
+import { Address } from 'viem'
 
 const defaultColors = {
   main: 'var(--chakra-colors-grey-800)',
@@ -36,7 +37,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
   // const [tradeWidgetOpened, setTradeWidgetOpened] = useState(false)
   const category = searchParams.get('category')
 
-  const { trackClicked } = useAmplitude()
+  const { trackOpened, trackClicked } = useAmplitude()
 
   // const onClickQuickBuy = (e) => {
   //   e.stopPropagation()
@@ -69,8 +70,9 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             bannerType: 'Medium banner',
             source: 'Explore Market',
             marketCategory: category,
-            marketAddress: market.address,
+            marketAddress: market.address as Address,
             marketType: 'single',
+            page: 'Market Page',
           })
           trackClicked(ClickEvent.MediumMarketBannerClicked, {
             ...analyticParams,

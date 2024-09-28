@@ -44,12 +44,20 @@ export default function DailyMarketsSection({
 
       {isMobile ? (
         <VStack gap={2} w='full' px='16px' mt='16px'>
-          {markets?.map((market) => {
+          {markets?.map((market, index) => {
             // @ts-ignore
             return market.slug ? (
-              <MarketGroupCard marketGroup={market as MarketGroupCardResponse} />
+              <MarketGroupCard
+                marketGroup={market as MarketGroupCardResponse}
+                key={index}
+                dailyIndex={index}
+              />
             ) : (
-              <MarketSingleCard market={market as MarketSingleCardResponse} />
+              <MarketSingleCard
+                market={market as MarketSingleCardResponse}
+                key={index}
+                dailyIndex={index}
+              />
             )
           })}
         </VStack>
