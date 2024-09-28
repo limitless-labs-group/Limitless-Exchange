@@ -8,7 +8,7 @@ import React, { useState } from 'react'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import NextLink from 'next/link'
 import { isMobile } from 'react-device-detect'
-import DailyMarketTimer from '@/components/common/market-cards/daily-market-timer'
+import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 
 interface MarketSingleCardProps {
   market: MarketSingleCardResponse

@@ -19,7 +19,7 @@ import { NumberUtil } from '@/utils'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { useAmplitude, useBalanceService, useTradingService } from '@/services'
-import { Market, MarketStatus } from '@/types'
+import { Market } from '@/types'
 import { useToken } from '@/hooks/use-token'
 import BigNumber from 'bignumber.js'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -74,11 +74,6 @@ export function BuyForm({
   const { balanceOfSmartWallet, setToken, token } = useBalanceService()
   const { client } = useWeb3Service()
 
-  //User Block feature
-  //const user = useUserValidation()
-  //const { isOpen: isYesOpen, onOpen: onYesOpen, onClose: onYesClose } = useDisclosure()
-  //const { isOpen: isNoOpen, onOpen: onNoOpen, onClose: onNoClose } = useDisclosure()
-
   const refetchQuotes = useCallback(
     debounce(async function () {
       await queryClient.refetchQueries({
@@ -119,9 +114,6 @@ export function BuyForm({
    */
 
   const [showTooltip, setShowTooltip] = useState(false)
-
-  const { isOpen: isYesOpen, onOpen: onYesOpen, onClose: onYesClose } = useDisclosure()
-  const { isOpen: isNoOpen, onOpen: onNoOpen, onClose: onNoClose } = useDisclosure()
 
   const handleInputValueChange = (value: string) => {
     if (token?.symbol === 'USDC') {
@@ -450,18 +442,11 @@ export function BuyForm({
           <VStack mt='24px' overflowX='hidden' px={isMobile ? '16px' : 0}>
             <ActionButton
               onClick={async () => {
-                if (market?.status === MarketStatus.LOCKED) {
-                  onYesOpen()
-                  return
-                }
-
                 setOutcomeIndex(0)
                 await trade(0)
               }}
               isExceedsBalance={isExceedsBalance}
               disabled={!collateralAmount}
-              showBlock={isYesOpen}
-              onCloseBlock={onYesClose}
               market={market}
               quote={quotesYes}
               amount={collateralAmount}
@@ -477,17 +462,10 @@ export function BuyForm({
             <ActionButton
               disabled={!collateralAmount}
               onClick={async () => {
-                if (market?.status === MarketStatus.LOCKED) {
-                  onNoOpen()
-                  return
-                }
-
                 setOutcomeIndex(1)
                 await trade(1)
               }}
               isExceedsBalance={isExceedsBalance}
-              showBlock={isNoOpen}
-              onCloseBlock={onNoClose}
               market={market}
               quote={quotesNo}
               amount={collateralAmount}

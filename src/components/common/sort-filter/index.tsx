@@ -33,13 +33,14 @@ export default function SortFilter({ onChange }: SortFilterProps) {
   return (
     <HStack
       spacing={2}
-      mt={'16px'}
-      mb={'24px'}
+      mt={isMobile ? '16px' : '8px'}
+      mb={isMobile ? '24px' : '8px'}
       wrap={'wrap'}
       alignItems={'start'}
       w={'full'}
       overflowX='auto'
       h={isMobile ? '32px' : '24px'}
+      px={isMobile ? '16px' : 0}
     >
       <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.300' borderRadius='2px'>
         {sortOptions.map((option) => (
