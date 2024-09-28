@@ -147,14 +147,6 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   }
 
   useEffect(() => {
-    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
-      page: 'Market Page',
-      market: params.address,
-      marketType: 'single',
-    })
-  }, [])
-
-  useEffect(() => {
     if (market != previousMarket && !fetchMarketError) {
       setMarket(market!)
     }
