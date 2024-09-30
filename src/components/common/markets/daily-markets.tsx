@@ -50,13 +50,13 @@ export default function DailyMarketsSection({
               <MarketGroupCard
                 marketGroup={market as MarketGroupCardResponse}
                 key={index}
-                dailyIndex={index}
+                dailyIndex={index + 1}
               />
             ) : (
               <MarketSingleCard
                 market={market as MarketSingleCardResponse}
                 key={index}
-                dailyIndex={index}
+                dailyIndex={index + 1}
               />
             )
           })}

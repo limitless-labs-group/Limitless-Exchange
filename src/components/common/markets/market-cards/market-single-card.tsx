@@ -38,7 +38,7 @@ export const MarketSingleCard = ({ market, dailyIndex }: MarketSingleCardProps) 
   const category = searchParams.get('category')
 
   // Todo change to tags
-  const isDaily = market.title.includes('space')
+  const isDaily = !!dailyIndex
 
   const trackMarketClicked = () => {
     if (dailyIndex) {

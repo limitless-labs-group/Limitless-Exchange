@@ -13,6 +13,7 @@ const calculateTimeRemaining = (deadline: string) => {
 
   if (timeLeft < 0) {
     return {
+      days: 0,
       hours: 0,
       minutes: 0,
       seconds: 0,
@@ -20,6 +21,7 @@ const calculateTimeRemaining = (deadline: string) => {
   }
 
   return {
+    days: Math.floor((timeLeft % (1000 * 60 * 60 * 24 * 7)) / (1000 * 60 * 60 * 24)),
     hours: Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
     minutes: Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60)),
     seconds: Math.floor((timeLeft % (1000 * 60)) / 1000),
@@ -27,17 +29,19 @@ const calculateTimeRemaining = (deadline: string) => {
 }
 
 const formatTime = ({
+  days,
   hours,
   minutes,
   seconds,
 }: {
+  days: number
   hours: number
   minutes: number
   seconds: number
 }) => {
-  return `${String(hours).padStart(2, '0')}h:${String(minutes).padStart(2, '0')}m:${String(
-    seconds
-  ).padStart(2, '0')}s`
+  return `${String(days).padStart(2, '0')}d:${String(hours).padStart(2, '0')}h:${String(
+    minutes
+  ).padStart(2, '0')}m:${String(seconds).padStart(2, '0')}s`
 }
 
 export default function DailyMarketTimer({ deadline, color }: DailyMarketTimerProps) {
@@ -47,6 +51,7 @@ export default function DailyMarketTimer({ deadline, color }: DailyMarketTimerPr
 
   useEffect(() => {
     const interval = setInterval(() => {
+      console.log(calculateTimeRemaining(deadline))
       setTimeRemaining(calculateTimeRemaining(deadline))
     }, 1000)
 
