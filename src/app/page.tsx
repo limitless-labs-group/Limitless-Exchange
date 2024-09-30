@@ -62,6 +62,30 @@ const MainPage = () => {
 
   const { data: dailyMarkets } = useDailyMarkets(categoryEntity)
 
+  const topMarkets = dailyMarkets
+    ? dailyMarkets.data.markets
+        .sort((a, b) => {
+          // @ts-ignore
+          const volumeA = a?.slug
+            ? // @ts-ignore
+              a.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
+            : // @ts-ignore
+              +a.volumeFormatted
+          // @ts-ignore
+          const volumeB = b?.slug
+            ? // @ts-ignore
+              b.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
+            : // @ts-ignore
+              +b.volumeFormatted
+
+          return (
+            convertTokenAmountToUsd(b.collateralToken.symbol, volumeB) -
+            convertTokenAmountToUsd(a.collateralToken.symbol, volumeA)
+          )
+        })
+        .slice(0, 3)
+    : []
+
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.markets.length
   }, 0)
