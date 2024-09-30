@@ -51,7 +51,6 @@ export default function DailyMarketTimer({ deadline, color }: DailyMarketTimerPr
 
   useEffect(() => {
     const interval = setInterval(() => {
-      console.log(calculateTimeRemaining(deadline))
       setTimeRemaining(calculateTimeRemaining(deadline))
     }, 1000)
 
