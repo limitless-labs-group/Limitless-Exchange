@@ -381,7 +381,7 @@ export function SellForm({
       setDisplayAmount('')
       setSliderValue(0)
     }
-  }, [])
+  }, [status])
 
   return (
     <>
