@@ -11,6 +11,7 @@ import DailyMarketTimer from '@/components/common/markets/market-cards/daily-mar
 import NextLink from 'next/link'
 import { ClickEvent, useAmplitude } from '@/services'
 import { useSearchParams } from 'next/navigation'
+import { Address } from 'viem'
 
 const defaultColors = {
   main: 'var(--chakra-colors-grey-800)',
@@ -32,9 +33,16 @@ interface DailyMarketCardProps {
 export default function DailyMarketCard({ market, analyticParams }: DailyMarketCardProps) {
   const searchParams = useSearchParams()
   const [colors, setColors] = useState(defaultColors)
+  // const [showQuickBetButton, setShowQuickBetButton] = useState(false)
+  // const [tradeWidgetOpened, setTradeWidgetOpened] = useState(false)
   const category = searchParams.get('category')
 
-  const { trackClicked } = useAmplitude()
+  const { trackOpened, trackClicked } = useAmplitude()
+
+  // const onClickQuickBuy = (e) => {
+  //   e.stopPropagation()
+  //   setTradeWidgetOpened(true)
+  // }
 
   return (
     <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
@@ -43,8 +51,18 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
         h={isMobile ? '240px' : '160px'}
         w={isMobile ? '100%' : '100%'}
         _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
-        onMouseEnter={() => !isMobile && setColors(hoverColors)}
-        onMouseLeave={() => !isMobile && setColors(defaultColors)}
+        onMouseEnter={() => {
+          if (!isMobile) {
+            // setShowQuickBetButton(true)
+            setColors(hoverColors)
+          }
+        }}
+        onMouseLeave={() => {
+          if (!isMobile) {
+            setColors(defaultColors)
+            // setShowQuickBetButton(false)
+          }
+        }}
         onClick={() => {
           trackClicked(ClickEvent.MarketPageOpened, {
             ...analyticParams,
@@ -52,27 +70,29 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             bannerType: 'Medium banner',
             source: 'Explore Market',
             marketCategory: category,
-            marketAddress: market.address,
+            marketAddress: market.address as Address,
             marketType: 'single',
+            page: 'Market Page',
           })
           trackClicked(ClickEvent.MediumMarketBannerClicked, {
             ...analyticParams,
           })
         }}
+        position='relative'
       >
         <Flex h='full' flexDirection='column' justifyContent='space-between'>
           <HStack justifyContent='space-between'>
             <HStack gap='4px' color={colors.main}>
               <LiquidityIcon width={16} height={16} />
               <Text {...paragraphMedium} color={colors.main}>
-                {NumberUtil.formatThousands(market.liquidityFormatted, 6)}{' '}
+                {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
                 {market.collateralToken.symbol}
               </Text>
             </HStack>
             <HStack gap='4px' color={colors.main}>
               <VolumeIcon width={16} height={16} />
               <Text {...paragraphMedium} color={colors.main}>
-                {NumberUtil.formatThousands(market.volumeFormatted, 6)}{' '}
+                {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
                 {market.collateralToken.symbol}
               </Text>
             </HStack>
@@ -99,6 +119,20 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             </HStack>
           </HStack>
         </Flex>
+        {/*{showQuickBetButton && (*/}
+        {/*  <Flex*/}
+        {/*    h={isMobile ? '240px' : '160px'}*/}
+        {/*    w={isMobile ? '100%' : '100%'}*/}
+        {/*    alignItems='center'*/}
+        {/*    justifyContent='center'*/}
+        {/*    top='0'*/}
+        {/*    position='absolute'*/}
+        {/*  >*/}
+        {/*    <Button variant='black' transform='rotate(-15deg)' onClick={onClickQuickBuy}>*/}
+        {/*      Quick buy*/}
+        {/*    </Button>*/}
+        {/*  </Flex>*/}
+        {/*)}*/}
       </Paper>
     </NextLink>
   )

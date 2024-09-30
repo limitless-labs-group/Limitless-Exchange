@@ -9,9 +9,13 @@ import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import NextLink from 'next/link'
 import { isMobile } from 'react-device-detect'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import { ClickEvent, OpenEvent, PageOpenedMetadata, useAmplitude } from '@/services'
+import { Address } from 'viem'
+import { useSearchParams } from 'next/navigation'
 
 interface MarketSingleCardProps {
   market: MarketSingleCardResponse
+  dailyIndex?: number
 }
 
 const defaultColors = {
@@ -26,11 +30,36 @@ const hoverColors = {
   chartBg: 'var(--chakra-colors-transparent-300)',
 }
 
-export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
+export const MarketSingleCard = ({ market, dailyIndex }: MarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
 
+  const searchParams = useSearchParams()
+  const { trackOpened, trackClicked } = useAmplitude()
+  const category = searchParams.get('category')
+
   // Todo change to tags
-  const isDaily = market.title.includes('space')
+  const isDaily = !!dailyIndex
+
+  const trackMarketClicked = () => {
+    if (dailyIndex) {
+      trackClicked(ClickEvent.MarketPageOpened, {
+        bannerPosition: dailyIndex,
+        bannerPaginationPage: 1,
+        platform: isMobile ? 'mobile' : 'desktop',
+        bannerType: 'Medium banner',
+        source: 'Explore Market',
+        marketCategory: category,
+        marketAddress: market.address as Address,
+        marketType: 'single',
+        page: 'Market Page',
+      })
+    }
+    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
+      page: 'Market Page',
+      market: market.address,
+      marketType: 'single',
+    })
+  }
 
   return (
     <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
@@ -41,6 +70,7 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
         _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
         onMouseEnter={() => !isMobile && setColors(hoverColors)}
         onMouseLeave={() => !isMobile && setColors(defaultColors)}
+        onClick={trackMarketClicked}
       >
         <HStack justifyContent='space-between' mb='12px' alignItems='flex-start'>
           <Text {...paragraphMedium} color={colors.main}>

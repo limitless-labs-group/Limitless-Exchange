@@ -330,7 +330,6 @@ const CreateOwnMarketPage = () => {
 
             <FormField label='Title'>
               <Input
-                placeholder='Bitcoin ATH in May 2024?'
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={70}
                 onBlur={() => generateOgImage()}
@@ -362,7 +361,6 @@ const CreateOwnMarketPage = () => {
 
             <FormField label='Description'>
               <Textarea
-                placeholder='Bitcoin is the first decentralized cryptocurrency. Nodes in the peer-to-peer bitcoin network verify transactions through cryptography and record them in a public distributed ledger, called a blockchain, without central oversig.'
                 resize='none'
                 rows={7}
                 overflow='hidden'
