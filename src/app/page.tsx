@@ -145,7 +145,7 @@ const MainPage = () => {
 
   return (
     <MainLayout layoutPadding={isMobile ? '0' : '16px'}>
-      <Box w={isMobile ? 'full' : '664px'} ml={isMobile ? 'auto' : '200px'}>
+      <Box w={isMobile ? 'full' : '664px'}>
         {isFetching && !isFetchingNextPage ? (
           <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>
             <Spinner />
