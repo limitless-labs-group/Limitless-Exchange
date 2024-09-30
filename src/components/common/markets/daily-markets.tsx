@@ -30,6 +30,7 @@ export default function DailyMarketsSection({
         key={(market as MarketSingleCardResponse).address}
         market={market as MarketSingleCardResponse}
         analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: page }}
+        indexAtTable={index + 1}
       />
     ))
 

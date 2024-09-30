@@ -53,8 +53,6 @@ interface ITradingServiceContext {
   redeem: (params: RedeemParams) => Promise<string | undefined>
   status: TradingServiceStatus
   tradeStatus: TradingServiceStatus
-  approveModalOpened: boolean
-  setApproveModalOpened: Dispatch<SetStateAction<boolean>>
   approveBuy: () => Promise<void>
   isLoadingRedeem: boolean
   resetQuotes: () => void
@@ -82,7 +80,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const [market, setMarket] = useState<Market | null>(null)
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
-  const [approveModalOpened, setApproveModalOpened] = useState(false)
 
   /**
    * REFRESH / REFETCH
@@ -743,8 +740,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     redeem,
     status,
     tradeStatus,
-    approveModalOpened,
-    setApproveModalOpened,
     approveBuy,
     approveSellMutation,
     isLoadingRedeem,
