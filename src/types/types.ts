@@ -99,6 +99,7 @@ export type MarketSingleCardResponse = {
   createdAt: string
   volume: string
   volumeFormatted: string
+  conditionId: Address
   liquidity: string
   liquidityFormatted: string
   collateralToken: {
