@@ -72,7 +72,6 @@ export function BuyForm({
    * BALANCE
    */
   const { balanceOfSmartWallet, setToken, token } = useBalanceService()
-  const { client } = useWeb3Service()
 
   const refetchQuotes = useCallback(
     debounce(async function () {

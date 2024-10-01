@@ -1,5 +1,5 @@
 import { isMobile } from 'react-device-detect'
-import { ClickEvent, TradeQuotes, useAmplitude } from '@/services'
+import { ClickEvent, TradeQuotes, useAmplitude, useTradingService } from '@/services'
 import { Box, Button, HStack, Text, useOutsideClick, VStack } from '@chakra-ui/react'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
@@ -82,6 +82,7 @@ export default function ActionButton({
 
   const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
+  const { marketFee } = useTradingService()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
   const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
@@ -392,10 +393,10 @@ export default function ActionButton({
                   >
                     {showFeeInValue
                       ? `${NumberUtil.toFixed(
-                          new BigNumber(amount).dividedBy(100).toNumber(),
+                          new BigNumber(amount).multipliedBy(marketFee).toNumber(),
                           6
                         )} ${market?.collateralToken.symbol}`
-                      : '1%'}
+                      : `${marketFee * 100}%`}
                   </Text>
                 </HStack>
               </VStack>
