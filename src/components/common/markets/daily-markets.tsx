@@ -4,7 +4,7 @@ import { MarketGroupCardResponse, MarketSingleCardResponse } from '@/types'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import DailyMarketCard from '@/components/common/markets/market-cards/daily-market-card'
 import React from 'react'
-import { MarketGroupCard, MarketSingleCard } from '@/components/common/markets/market-cards'
+import DailyMarketCardMobile from '@/components/common/markets/market-cards/daily-market-card-mobile'
 
 interface DailyMarketsSectionProps {
   markets: (MarketSingleCardResponse | MarketGroupCardResponse)[]
@@ -46,18 +46,11 @@ export default function DailyMarketsSection({
       {isMobile ? (
         <VStack gap={2} w='full' px='16px' mt='16px'>
           {markets?.map((market, index) => {
-            // @ts-ignore
-            return market.slug ? (
-              <MarketGroupCard
-                marketGroup={market as MarketGroupCardResponse}
+            return (
+              <DailyMarketCardMobile
                 key={index}
                 dailyIndex={index + 1}
-              />
-            ) : (
-              <MarketSingleCard
                 market={market as MarketSingleCardResponse}
-                key={index}
-                dailyIndex={index + 1}
               />
             )
           })}
