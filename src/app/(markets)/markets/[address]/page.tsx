@@ -25,7 +25,6 @@ import {
   useTradingService,
 } from '@/services'
 import { useMarket, useWinningIndex } from '@/services/MarketsService'
-import ApproveModal from '@/components/common/modals/approve-modal'
 import { useToken } from '@/hooks/use-token'
 import { defaultChain } from '@/constants'
 import { useRouter } from 'next/navigation'
@@ -284,7 +283,6 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
               {mobileTradeButton}
             </Box>
           )}
-          <ApproveModal onApprove={handleApproveMarket} />
         </>
       )}
     </MainLayout>

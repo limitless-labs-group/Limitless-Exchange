@@ -16,8 +16,6 @@ import {
   useEffect,
   useMemo,
   useState,
-  Dispatch,
-  SetStateAction,
 } from 'react'
 import { Address, Hash, formatUnits, getAddress, getContract, parseUnits, zeroHash } from 'viem'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -53,13 +51,12 @@ interface ITradingServiceContext {
   redeem: (params: RedeemParams) => Promise<string | undefined>
   status: TradingServiceStatus
   tradeStatus: TradingServiceStatus
-  approveModalOpened: boolean
-  setApproveModalOpened: Dispatch<SetStateAction<boolean>>
   approveBuy: () => Promise<void>
   isLoadingRedeem: boolean
   resetQuotes: () => void
   approveSellMutation: UseMutationResult<void, Error, void, unknown>
   checkApprovedForSell: () => Promise<boolean>
+  marketFee: number
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -82,7 +79,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const [market, setMarket] = useState<Market | null>(null)
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
-  const [approveModalOpened, setApproveModalOpened] = useState(false)
+  const [marketFee, setMarketFee] = useState(0)
 
   /**
    * REFRESH / REFETCH
@@ -228,14 +225,12 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         otherHoldingsYes.push(balance)
       }
     }
-    const feeBI = (await fixedProductMarketMakerContract.read.fee()) as bigint
-    const fee = Number(formatUnits(feeBI, 18))
     let balanceOfCollateralToSellBIYes =
       calcSellAmountInCollateral(
         parseUnits(balanceOfOutcomeTokenCroppedYes, collateralToken?.decimals || 18),
         holdingsYes,
         otherHoldingsYes,
-        fee
+        Number(marketFee)
       ) ?? 0n
     // small balance to zero
     if (balanceOfCollateralToSellBIYes < parseUnits('0.000001', collateralToken?.decimals || 18)) {
@@ -263,7 +258,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         parseUnits(balanceOfOutcomeTokenCroppedNo, collateralToken?.decimals || 18),
         holdingsNo,
         otherHoldingsNo,
-        fee
+        Number(marketFee)
       ) ?? 0n
     // small balance to zero
     if (balanceOfCollateralToSellBINo < parseUnits('0.000001', collateralToken?.decimals || 18)) {
@@ -284,9 +279,21 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     conditionalTokensContract?.address,
   ])
 
+  const getMarketFee = async () => {
+    const feeBI = (await fixedProductMarketMakerContract?.read.fee()) as bigint
+    const fee = Number(formatUnits(feeBI, 18))
+    setMarketFee(fee)
+  }
+
   useEffect(() => {
     updateSellBalance()
   }, [market, strategy, fixedProductMarketMakerContract, conditionalTokensContract?.address])
+
+  useEffect(() => {
+    if (fixedProductMarketMakerContract) {
+      getMarketFee()
+    }
+  }, [fixedProductMarketMakerContract])
 
   /**
    * AMOUNT
@@ -743,12 +750,11 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     redeem,
     status,
     tradeStatus,
-    approveModalOpened,
-    setApproveModalOpened,
     approveBuy,
     approveSellMutation,
     isLoadingRedeem,
     resetQuotes,
+    marketFee,
   }
 
   return (
