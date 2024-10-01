@@ -21,16 +21,16 @@ import { controlsMedium } from '@/styles/fonts/fonts.styles'
 
 interface MarketTradingFormProps {
   market: Market
-  outcomeTokensPercent?: number[]
   setSelectedMarket?: (market: Market) => void
   marketGroup?: MarketGroup
+  analyticParams?: { quickBetSource: string; source: string }
 }
 
 export const MarketTradingForm = ({
   market,
-  outcomeTokensPercent,
   marketGroup,
   setSelectedMarket,
+  analyticParams,
 }: MarketTradingFormProps) => {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
   /**
@@ -91,6 +91,7 @@ export const MarketTradingForm = ({
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Buy selected',
               marketAddress,
+              ...(analyticParams ? analyticParams : {}),
             })
             setStrategy('Buy')
           }}
@@ -117,6 +118,7 @@ export const MarketTradingForm = ({
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Sell selected',
               marketAddress,
+              ...(analyticParams ? analyticParams : {}),
             })
             setStrategy('Sell')
           }}
@@ -131,9 +133,10 @@ export const MarketTradingForm = ({
         <BuyForm
           market={market}
           setOutcomeIndex={setOutcomeIndex}
-          outcomeTokensPercent={outcomeTokensPercent}
+          outcomeTokensPercent={market.prices}
           marketList={marketGroup?.markets}
           setSelectedMarket={setSelectedMarket}
+          analyticParams={analyticParams}
         />
       )}
       {strategy === 'Sell' ? (
@@ -145,6 +148,7 @@ export const MarketTradingForm = ({
             setOutcomeIndex={setOutcomeIndex}
             setSelectedMarket={setSelectedMarket}
             marketGroup={marketGroup}
+            analyticParams={analyticParams}
           />
         )
       ) : null}

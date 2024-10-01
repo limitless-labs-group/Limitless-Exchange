@@ -154,6 +154,8 @@ export enum ClickEvent {
   ReturnTradingDetailsClicked = 'Return Trading Details Clicked',
   MarketPageOpened = 'Market Page Opened',
   MediumMarketBannerClicked = 'Medium Market Banner Clicked',
+  QuickBetClicked = 'Quick Bet Clicked',
+  NevermindButtonClicked = 'Nevermind Button Clicked',
 }
 
 export enum SignInEvent {

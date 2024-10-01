@@ -218,6 +218,14 @@ export const chakraTheme = ChakraTheme({
                 },
               }),
         },
+        dashed: {
+          ...commonButtonProps,
+          bg: 'unset',
+          color: 'grey.800',
+          gap: '8px',
+          border: '1px dashed',
+          borderColor: 'blackTransparent.200',
+        },
         transparent: {
           background: 'unset',
           ...commonButtonProps,

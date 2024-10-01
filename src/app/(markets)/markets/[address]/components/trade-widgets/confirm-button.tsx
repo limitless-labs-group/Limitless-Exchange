@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useMemo, useState } from 'react'
-import { Button, VStack, Text, Box, HStack } from '@chakra-ui/react'
+import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
 import UnlockIcon from '@/resources/icons/unlocked.svg'
 import LockIcon from '@/resources/icons/locked.svg'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
@@ -10,6 +10,9 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { isMobile } from 'react-device-detect'
 import { ButtonStatus } from '@/app/(markets)/markets/[address]/components/trade-widgets/action-button'
 import { commonButtonProps } from '@/styles/button'
+import { ClickEvent, useAmplitude } from '@/services'
+import { Address } from 'viem'
+import { useWeb3Service } from '@/services/Web3Service'
 
 const MotionBox = motion(Box)
 
@@ -19,6 +22,10 @@ interface ConfirmButtonProps {
   setStatus: Dispatch<SetStateAction<ButtonStatus>>
   handleConfirmClicked: () => Promise<void>
   onApprove: () => Promise<void>
+  analyticParams?: { quickBetSource: string; source: string }
+  marketAddress: Address
+  outcome: 'Yes' | 'No'
+  marketType: 'single' | 'group'
 }
 
 export default function ConfirmButton({
@@ -27,8 +34,15 @@ export default function ConfirmButton({
   handleConfirmClicked,
   onApprove,
   setStatus,
+  analyticParams,
+  marketAddress,
+  outcome,
+  marketType,
 }: ConfirmButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
+
+  const { trackClicked } = useAmplitude()
+  const { client } = useWeb3Service()
 
   const handleClick = async () => {
     if (status === 'unlock') {
@@ -37,6 +51,18 @@ export default function ConfirmButton({
     if (status === 'confirm') {
       await handleConfirmClicked()
     }
+  }
+
+  const handleNevermindClicked = () => {
+    trackClicked(ClickEvent.NevermindButtonClicked, {
+      ...(analyticParams ? analyticParams : {}),
+      address: marketAddress,
+      outcome,
+      strategy: 'Buy',
+      walletType: client,
+      marketType,
+    })
+    setStatus('initial')
   }
 
   const content = useMemo(() => {
@@ -101,7 +127,7 @@ export default function ConfirmButton({
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        onClick={() => setStatus('initial')}
+        onClick={handleNevermindClicked}
         isDisabled={status === 'unlocking'}
         sx={{
           WebkitTapHighlightColor: 'transparent !important',
