@@ -208,13 +208,13 @@ export const chakraTheme = ChakraTheme({
         },
         black: {
           ...commonButtonProps,
-          bg: 'grey.800',
-          color: 'grey.50',
+          bg: 'black',
+          color: 'white',
           ...(isMobile
             ? {}
             : {
                 _hover: {
-                  bg: 'grey.800',
+                  bg: 'black',
                 },
               }),
         },

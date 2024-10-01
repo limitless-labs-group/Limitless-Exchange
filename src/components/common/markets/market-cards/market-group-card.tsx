@@ -8,9 +8,12 @@ import { NumberUtil } from '@/utils'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import NextLink from 'next/link'
 import React, { useState } from 'react'
+import { ClickEvent, OpenEvent, PageOpenedMetadata, useAmplitude } from '@/services'
+import { useSearchParams } from 'next/navigation'
 
 interface MarketGroupCardProps {
   marketGroup: MarketGroupCardResponse
+  dailyIndex?: number
 }
 
 const defaultColors = {
@@ -27,8 +30,12 @@ const hoverColors = {
   divider: 'var(--chakra-colors-transparent-300)',
 }
 
-export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
+export const MarketGroupCard = ({ marketGroup, dailyIndex }: MarketGroupCardProps) => {
   const [colors, setColors] = useState(defaultColors)
+
+  const searchParams = useSearchParams()
+  const { trackClicked, trackOpened } = useAmplitude()
+  const category = searchParams.get('category')
 
   const totalLiquidity = marketGroup.markets.reduce((a, b) => {
     return +a + +b.liquidityFormatted
@@ -37,6 +44,27 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
   const totalVolume = marketGroup.markets.reduce((a, b) => {
     return +a + +b.volumeFormatted
   }, 0)
+
+  const trackMarketClicked = () => {
+    if (dailyIndex) {
+      trackClicked(ClickEvent.MarketPageOpened, {
+        bannerPosition: dailyIndex,
+        bannerPaginationPage: 1,
+        platform: isMobile ? 'mobile' : 'desktop',
+        bannerType: 'Medium banner',
+        source: 'Explore Market',
+        marketCategory: category,
+        marketAddress: marketGroup.slug,
+        marketType: 'group',
+        page: 'Market Page',
+      })
+    }
+    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
+      page: 'Market Page',
+      market: marketGroup.slug,
+      marketType: 'group',
+    })
+  }
 
   return (
     <NextLink href={`/market-group/${marketGroup.slug}`} style={{ width: '100%' }}>
@@ -47,6 +75,7 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
         _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
         onMouseEnter={() => !isMobile && setColors(hoverColors)}
         onMouseLeave={() => !isMobile && setColors(defaultColors)}
+        onClick={trackMarketClicked}
       >
         <HStack justifyContent='space-between' mb='12px'>
           <Text {...paragraphMedium} color={colors.main} lineHeight={'20px'}>
