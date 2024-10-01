@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   ButtonGroup,
+  Checkbox,
   Flex,
   FormControl,
   FormHelperText,
@@ -126,6 +127,7 @@ interface Token {
 
 const defaultTokenSymbol = 'WETH'
 const defaultProbability = 50
+const defaultMarketFee = 1
 const defaultCreatorId = '1' // Limitless
 const defaultCategoryId = '2' // Crypto
 
@@ -152,6 +154,7 @@ const CreateOwnMarketPage = () => {
   const [description, setDescription] = useState<string>('')
   const [liquidity, setLiquidity] = useState<number>(tokenLimits[defaultTokenSymbol].min)
   const [probability, setProbability] = useState<number>(defaultProbability)
+  const [marketFee, setMarketFee] = useState<number>(defaultMarketFee)
   const [tag, setTag] = useState<TagOption[]>([])
   const [creatorId, setCreatorId] = useState<string>(defaultCreatorId)
   const [categoryId, setCategoryId] = useState<string>(defaultCategoryId)
@@ -179,7 +182,6 @@ const CreateOwnMarketPage = () => {
   const toast = useToast()
 
   const ogLogoRef: MutableRefObject<any> = useRef()
-  const marketLogoRef: MutableRefObject<any> = useRef()
 
   const createOption = (id: string, name: string): TagOption => ({
     id,
@@ -251,6 +253,7 @@ const CreateOwnMarketPage = () => {
     formData?.set('tokenId', token.id.toString())
     formData?.set('liquidity', liquidity.toString())
     formData?.set('initialYesProbability', (probability / 100).toString())
+    formData?.set('marketFee', marketFee.toString())
     // @ts-ignore
     formData?.set('deadline', zonedTime)
     formData?.set('creatorId', creatorId)
@@ -426,6 +429,12 @@ const CreateOwnMarketPage = () => {
                   </SliderTrack>
                   <SliderThumb fontSize='sm' boxSize='32px' />
                 </Slider>
+              </HStack>
+            </FormField>
+
+            <FormField label='Market Fee'>
+              <HStack>
+                <Checkbox onChange={(e) => setMarketFee(e.target.checked ? 0 : 1)}>0% Fee</Checkbox>
               </HStack>
             </FormField>
 
