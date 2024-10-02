@@ -4,7 +4,7 @@ import { MarketGroupCardResponse, MarketSingleCardResponse } from '@/types'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import DailyMarketCard from '@/components/common/markets/market-cards/daily-market-card'
 import React from 'react'
-import { MarketGroupCard, MarketSingleCard } from '@/components/common/markets/market-cards'
+import DailyMarketCardMobile from '@/components/common/markets/market-cards/daily-market-card-mobile'
 
 interface DailyMarketsSectionProps {
   markets: (MarketSingleCardResponse | MarketGroupCardResponse)[]
@@ -30,11 +30,12 @@ export default function DailyMarketsSection({
         key={(market as MarketSingleCardResponse).address}
         market={market as MarketSingleCardResponse}
         analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: page }}
+        indexAtTable={index + 1}
       />
     ))
 
   return (
-    <Box mt={isMobile ? '40px' : 0} mb={isMobile ? '36px' : 0}>
+    <Box mt={isMobile ? '48px' : '24px'} mb={isMobile ? '36px' : 0}>
       <Box px={isMobile ? '16px' : 0}>
         <Text {...headlineRegular} mb={isMobile ? '8px' : '4px'}>
           / Daily markets ({totalAmount})
@@ -45,18 +46,11 @@ export default function DailyMarketsSection({
       {isMobile ? (
         <VStack gap={2} w='full' px='16px' mt='16px'>
           {markets?.map((market, index) => {
-            // @ts-ignore
-            return market.slug ? (
-              <MarketGroupCard
-                marketGroup={market as MarketGroupCardResponse}
+            return (
+              <DailyMarketCardMobile
                 key={index}
                 dailyIndex={index + 1}
-              />
-            ) : (
-              <MarketSingleCard
                 market={market as MarketSingleCardResponse}
-                key={index}
-                dailyIndex={index + 1}
               />
             )
           })}
@@ -71,14 +65,16 @@ export default function DailyMarketsSection({
           >
             {marketsArray}
           </Grid>
-          <HStack w='full' mt='12px' justifyContent='flex-end' gap='4px'>
-            <Button variant='transparent' onClick={onClickPrevPage}>
-              Previous
-            </Button>
-            <Button variant='transparent' onClick={onClickNextPage}>
-              Next
-            </Button>
-          </HStack>
+          {totalAmount > 6 && (
+            <HStack w='full' mt='12px' justifyContent='flex-end' gap='4px'>
+              <Button variant='transparent' onClick={onClickPrevPage}>
+                Previous
+              </Button>
+              <Button variant='transparent' onClick={onClickNextPage}>
+                Next
+              </Button>
+            </HStack>
+          )}
         </>
       )}
     </Box>

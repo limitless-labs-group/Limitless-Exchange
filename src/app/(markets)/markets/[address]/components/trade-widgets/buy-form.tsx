@@ -18,7 +18,7 @@ import {
 import { NumberUtil } from '@/utils'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
-import { useAmplitude, useBalanceService, useTradingService } from '@/services'
+import { useBalanceService, useTradingService } from '@/services'
 import { Market } from '@/types'
 import { useToken } from '@/hooks/use-token'
 import BigNumber from 'bignumber.js'
@@ -41,6 +41,7 @@ interface BuyFormProps {
   outcomeTokensPercent?: number[]
   setSelectedMarket?: (market: Market) => void
   marketList?: Market[]
+  analyticParams?: { quickBetSource: string; source: string }
 }
 
 export function BuyForm({
@@ -49,6 +50,7 @@ export function BuyForm({
   outcomeTokensPercent,
   marketList,
   setSelectedMarket,
+  analyticParams,
 }: BuyFormProps) {
   const queryClient = useQueryClient()
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
@@ -58,15 +60,17 @@ export function BuyForm({
   const [showFeeInValue, setShowFeeInValue] = useState(false)
 
   /**
-   * ANALITYCS
-   */
-  const { trackChanged, trackClicked } = useAmplitude()
-
-  /**
    * TRADING SERVICE
    */
-  const { strategy, collateralAmount, setCollateralAmount, quotesYes, quotesNo, trade } =
-    useTradingService()
+  const {
+    strategy,
+    collateralAmount,
+    setCollateralAmount,
+    quotesYes,
+    quotesNo,
+    trade,
+    resetQuotes,
+  } = useTradingService()
 
   /**
    * BALANCE
@@ -129,6 +133,13 @@ export function BuyForm({
     return
   }
 
+  const resetForm = () => {
+    setDisplayAmount('')
+    setCollateralAmount('')
+    setSliderValue(0)
+    resetQuotes()
+  }
+
   const onSlide = useCallback(
     (value: number) => {
       setSliderValue(value)
@@ -170,6 +181,10 @@ export function BuyForm({
       refetchQuotes()
     }
   }, [market, displayAmount])
+
+  useEffect(() => {
+    resetForm()
+  }, [strategy, market])
 
   return (
     <>
@@ -457,6 +472,8 @@ export function BuyForm({
               setShowReturnPercent={setShowReturnPercent}
               showFeeInValue={showFeeInValue}
               setShowFeeInValue={setShowFeeInValue}
+              resetForm={resetForm}
+              analyticParams={analyticParams}
             />
             <ActionButton
               disabled={!collateralAmount}
@@ -476,6 +493,8 @@ export function BuyForm({
               setShowReturnPercent={setShowReturnPercent}
               showFeeInValue={showFeeInValue}
               setShowFeeInValue={setShowFeeInValue}
+              resetForm={resetForm}
+              analyticParams={analyticParams}
             />
           </VStack>
         </>

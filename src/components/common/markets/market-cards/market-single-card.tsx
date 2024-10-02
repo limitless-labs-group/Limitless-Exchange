@@ -8,14 +8,10 @@ import React, { useState } from 'react'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import NextLink from 'next/link'
 import { isMobile } from 'react-device-detect'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
-import { ClickEvent, OpenEvent, PageOpenedMetadata, useAmplitude } from '@/services'
-import { Address } from 'viem'
-import { useSearchParams } from 'next/navigation'
+import { OpenEvent, PageOpenedMetadata, useAmplitude } from '@/services'
 
 interface MarketSingleCardProps {
   market: MarketSingleCardResponse
-  dailyIndex?: number
 }
 
 const defaultColors = {
@@ -30,30 +26,11 @@ const hoverColors = {
   chartBg: 'var(--chakra-colors-transparent-300)',
 }
 
-export const MarketSingleCard = ({ market, dailyIndex }: MarketSingleCardProps) => {
+export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
-
-  const searchParams = useSearchParams()
-  const { trackOpened, trackClicked } = useAmplitude()
-  const category = searchParams.get('category')
-
-  // Todo change to tags
-  const isDaily = !!dailyIndex
+  const { trackOpened } = useAmplitude()
 
   const trackMarketClicked = () => {
-    if (dailyIndex) {
-      trackClicked(ClickEvent.MarketPageOpened, {
-        bannerPosition: dailyIndex,
-        bannerPaginationPage: 1,
-        platform: isMobile ? 'mobile' : 'desktop',
-        bannerType: 'Medium banner',
-        source: 'Explore Market',
-        marketCategory: category,
-        marketAddress: market.address as Address,
-        marketType: 'single',
-        page: 'Market Page',
-      })
-    }
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
       page: 'Market Page',
       market: market.address,
@@ -133,7 +110,6 @@ export const MarketSingleCard = ({ market, dailyIndex }: MarketSingleCardProps) 
               </Text>
             </HStack>
           </HStack>
-          {isDaily && <DailyMarketTimer deadline={market.deadline} color={colors.main} />}
         </HStack>
       </Paper>
     </NextLink>

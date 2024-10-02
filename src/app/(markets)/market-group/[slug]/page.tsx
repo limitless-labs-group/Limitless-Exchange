@@ -22,8 +22,6 @@ import { isMobile } from 'react-device-detect'
 import {
   ClickEvent,
   createMarketShareUrls,
-  OpenEvent,
-  PageOpenedMetadata,
   ShareClickedMetadata,
   useAmplitude,
   useTradingService,
@@ -63,9 +61,9 @@ import MobileDrawer from '@/components/common/drawer'
 export default function MarketGroupPage({ params }: { params: { slug: string } }) {
   const { data: marketGroup, isLoading: marketGroupLoading } = useMarketGroup(params.slug)
 
-  const { trackClicked, trackOpened } = useAmplitude()
+  const { trackClicked } = useAmplitude()
   const router = useRouter()
-  const { approveBuy, strategy, market, setMarket, resetQuotes } = useTradingService()
+  const { market, setMarket, resetQuotes } = useTradingService()
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
 
   const { tweetURI, castURI } = createMarketShareUrls(
@@ -105,7 +103,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
           market={market}
           setSelectedMarket={setMarket}
           marketGroup={marketGroup}
-          outcomeTokensPercent={market.prices}
         />
       )
     }
@@ -145,15 +142,10 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
           market={market as Market}
           setSelectedMarket={setMarket}
           marketGroup={marketGroup}
-          outcomeTokensPercent={market?.prices}
         />
       </MobileDrawer>
     )
   }, [market])
-
-  const handleApproveMarket = async () => {
-    await approveBuy()
-  }
 
   const parseTextWithLinks = (text: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g

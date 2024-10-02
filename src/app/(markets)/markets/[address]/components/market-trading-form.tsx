@@ -17,20 +17,22 @@ import {
   SellForm,
   LoadingForm,
 } from '@/app/(markets)/markets/[address]/components/trade-widgets'
-import { controlsMedium } from '@/styles/fonts/fonts.styles'
+import { controlsMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 interface MarketTradingFormProps {
   market: Market
-  outcomeTokensPercent?: number[]
   setSelectedMarket?: (market: Market) => void
   marketGroup?: MarketGroup
+  analyticParams?: { quickBetSource: string; source: string }
+  showTitle?: boolean
 }
 
 export const MarketTradingForm = ({
   market,
-  outcomeTokensPercent,
   marketGroup,
   setSelectedMarket,
+  analyticParams,
+  showTitle = false,
 }: MarketTradingFormProps) => {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
   /**
@@ -63,11 +65,16 @@ export const MarketTradingForm = ({
       bg='blue.500'
       w={isMobile ? 'full' : '312px'}
       p={isMobile ? 0 : '8px'}
-      h={isMobile ? '100dvh' : '525px'}
+      h={isMobile ? '100dvh' : 'unset'}
       overflowY='scroll'
       position={isMobile ? 'relative' : 'fixed'}
       left={isMobile ? 0 : '936px'}
     >
+      {showTitle && (
+        <Text {...paragraphMedium} mb='24px' textAlign='center' color='white'>
+          {market.title}
+        </Text>
+      )}
       <HStack
         w={'240px'}
         mx='auto'
@@ -91,6 +98,7 @@ export const MarketTradingForm = ({
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Buy selected',
               marketAddress,
+              ...(analyticParams ? analyticParams : {}),
             })
             setStrategy('Buy')
           }}
@@ -117,6 +125,7 @@ export const MarketTradingForm = ({
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Sell selected',
               marketAddress,
+              ...(analyticParams ? analyticParams : {}),
             })
             setStrategy('Sell')
           }}
@@ -131,9 +140,10 @@ export const MarketTradingForm = ({
         <BuyForm
           market={market}
           setOutcomeIndex={setOutcomeIndex}
-          outcomeTokensPercent={outcomeTokensPercent}
+          outcomeTokensPercent={market.prices}
           marketList={marketGroup?.markets}
           setSelectedMarket={setSelectedMarket}
+          analyticParams={analyticParams}
         />
       )}
       {strategy === 'Sell' ? (
@@ -145,6 +155,7 @@ export const MarketTradingForm = ({
             setOutcomeIndex={setOutcomeIndex}
             setSelectedMarket={setSelectedMarket}
             marketGroup={marketGroup}
+            analyticParams={analyticParams}
           />
         )
       ) : null}
