@@ -44,6 +44,9 @@ import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import { Address } from 'viem'
 import debounce from 'lodash.debounce'
 import { useQueryClient } from '@tanstack/react-query'
+import ButtonWithStates from '@/components/common/button-with-states'
+import { Toast } from '@/components/common/toast'
+import { useToast } from '@/hooks'
 
 const _transformSellValue = (value: string) => {
   const [wholeNumber, fractionalNumber] = value.split('.')
@@ -77,6 +80,8 @@ export function SellForm({
   const [outcomeChoice, setOutcomeChoice] = useState<string | null>(null)
   const [quoteYes, setQuoteYes] = useState<TradeQuotes | undefined | null>()
   const [quoteNo, setQuoteNo] = useState<TradeQuotes | undefined | null>()
+  const [isApproved, setIsApproved] = useState(true)
+  const toast = useToast()
 
   const { client } = useWeb3Service()
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
@@ -127,7 +132,17 @@ export function SellForm({
     quotesYes,
     quotesNo,
     trade,
+    approveSellMutation,
+    checkApprovedForSell,
   } = useTradingService()
+
+  const getApprovedForSellState = async () => {
+    if (client === 'eoa') {
+      const result = await checkApprovedForSell()
+      setIsApproved(result)
+      return
+    }
+  }
 
   useEffect(() => {
     if (!outcomeChoice) {
@@ -262,6 +277,21 @@ export function SellForm({
     await trade(index)
   }
 
+  const approveSell = async () =>
+    approveSellMutation.mutateAsync(undefined, {
+      onError: () => {
+        setIsApproved(false)
+        const id = toast({
+          render: () => (
+            <Toast title={`Something went wrong during approve transaction broadcast.`} id={id} />
+          ),
+        })
+      },
+      onSuccess: () => setIsApproved(true),
+    })
+
+  const handleApproveClicked = async () => approveSell()
+
   const isExceedsBalance = useMemo(() => {
     if (outcomeChoice) {
       return new BigNumber(collateralAmount).isGreaterThan(
@@ -274,6 +304,29 @@ export function SellForm({
     }
     return false
   }, [collateralAmount, outcomeChoice, balanceOfCollateralToSellYes, balanceOfCollateralToSellNo])
+
+  const tradeButton = useMemo(() => {
+    if (displayAmount) {
+      if (!isApproved) {
+        return (
+          <ButtonWithStates
+            status={approveSellMutation.status}
+            variant='white'
+            w='full'
+            onClick={handleApproveClicked}
+          >
+            Approve Sell
+          </ButtonWithStates>
+        )
+      }
+      return (
+        <Button variant='white' w='full' onClick={handleTradeClicked} isDisabled={isExceedsBalance}>
+          Trade
+        </Button>
+      )
+    }
+    return null
+  }, [displayAmount, isApproved, isMobile, isExceedsBalance, approveSellMutation.status])
 
   useEffect(() => {
     if (isZeroBalance) {
@@ -300,6 +353,12 @@ export function SellForm({
       setToken(collateralToken)
     }
   }, [market, collateralToken])
+
+  useEffect(() => {
+    if (outcomeChoice) {
+      getApprovedForSellState()
+    }
+  }, [outcomeChoice])
 
   return (
     <>
@@ -697,16 +756,7 @@ export function SellForm({
                   </Text>
                 </HStack>
               </VStack>
-              {displayAmount && (
-                <Button
-                  variant='white'
-                  w='full'
-                  onClick={handleTradeClicked}
-                  isDisabled={isExceedsBalance}
-                >
-                  Trade
-                </Button>
-              )}
+              {tradeButton}
             </Box>
           )}
         </>

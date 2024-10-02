@@ -3,21 +3,20 @@
 import { MainLayout } from '@/components'
 import { useIsMobile } from '@/hooks'
 import { OpenEvent, PageOpenedMetadata, useAmplitude, useCategories } from '@/services'
-import { Divider, VStack, Text, Box, Spinner, HStack } from '@chakra-ui/react'
+import { Box, Spinner, HStack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
-import SortFilter from '@/components/common/sort-filter'
 import { MarketGroupCardResponse, MarketSingleCardResponse, Sort } from '@/types'
 import { getAddress } from 'viem'
-import { useMarkets } from '@/services/MarketsService'
-import InfiniteScroll from 'react-infinite-scroll-component'
+import { useDailyMarkets, useMarkets } from '@/services/MarketsService'
 import { usePriceOracle } from '@/providers'
-import TextWithPixels from '@/components/common/text-with-pixels'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useSearchParams } from 'next/navigation'
-import { MarketSingleCard, MarketGroupCard } from '@/components/common/market-cards'
+import DailyMarketsSection from '@/components/common/markets/daily-markets'
+import AllMarkets from '@/components/common/markets/all-markets'
 
 const MainPage = () => {
   const searchParams = useSearchParams()
+  const [page, setPage] = useState(1)
   const { data: categories } = useCategories()
   /**
    * ANALYTICS
@@ -61,15 +60,17 @@ const MainPage = () => {
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     useMarkets(categoryEntity)
 
+  const { data: dailyMarkets } = useDailyMarkets(categoryEntity)
+
   const dataLength = data?.pages.reduce((counter, page) => {
-    return counter + page.data.length
+    return counter + page.data.markets.length
   }, 0)
 
   const markets: (MarketGroupCardResponse | MarketSingleCardResponse)[] = useMemo(() => {
-    return data?.pages.flatMap((page) => page.data) || []
+    return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages, category])
 
-  const filteredMarkets = useMemo(() => {
+  const filteredAllMarkets = useMemo(() => {
     const tokenFilteredMarkets = markets?.filter((market) =>
       selectedFilterTokens.length > 0
         ? selectedFilterTokens.some(
@@ -87,14 +88,14 @@ const MainPage = () => {
   }, [markets, selectedFilterTokens, selectedCategory])
 
   const sortedMarkets = useMemo(() => {
-    if (!filteredMarkets) return []
+    if (!filteredAllMarkets) return []
     switch (selectedSort) {
       case Sort.NEWEST:
-        return [...filteredMarkets].sort((a, b) => {
+        return [...filteredAllMarkets].sort((a, b) => {
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         })
       case Sort.HIGHEST_VOLUME:
-        return [...filteredMarkets].sort((a, b) => {
+        return [...filteredAllMarkets].sort((a, b) => {
           // @ts-ignore
           const volumeA = a?.slug
             ? // @ts-ignore
@@ -114,7 +115,7 @@ const MainPage = () => {
           )
         })
       case Sort.HIGHEST_LIQUIDITY:
-        return [...filteredMarkets].sort((a, b) => {
+        return [...filteredAllMarkets].sort((a, b) => {
           // @ts-ignore
           const liquidityA = a?.slug
             ? // @ts-ignore
@@ -134,58 +135,59 @@ const MainPage = () => {
           )
         })
       case Sort.ENDING_SOON:
-        return [...filteredMarkets].sort(
+        return [...filteredAllMarkets].sort(
           (a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
         )
       default:
-        return filteredMarkets
+        return filteredAllMarkets
     }
-  }, [markets, filteredMarkets, selectedSort])
+  }, [markets, filteredAllMarkets, selectedSort])
 
   return (
-    <MainLayout>
+    <MainLayout layoutPadding={isMobile ? '0' : '16px'}>
       <Box w={isMobile ? 'full' : '664px'} ml={isMobile ? 'auto' : '200px'}>
-        <Divider bg='grey.800' orientation='horizontal' h='3px' mb='16px' />
-        <TextWithPixels
-          text={`Explore ${categoryEntity?.name ?? 'Limitless'} Prediction Markets`}
-          fontSize={'32px'}
-          gap={2}
-          userSelect='text'
-        />
-        <Text color='grey.800' fontSize={'14px'} userSelect='text'>
-          Predict outcomes in crypto, tech, sports, and more. Use different tokens, participate in
-          transparent voting for upcoming markets, and engage in markets created by the community.
-          It’s all decentralized and secure.
-        </Text>
-
-        <SortFilter onChange={handleSelectSort} />
         {isFetching && !isFetchingNextPage ? (
           <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>
             <Spinner />
           </HStack>
         ) : (
-          <InfiniteScroll
-            dataLength={dataLength ?? 0}
-            next={fetchNextPage}
-            hasMore={hasNextPage}
-            loader={<h4></h4>}
-            scrollThreshold={0.1}
-            refreshFunction={fetchNextPage}
-            pullDownToRefresh
-          >
-            <VStack w={'full'} spacing={5}>
-              <VStack gap={2} w='full'>
-                {sortedMarkets?.map((market) => {
-                  // @ts-ignore
-                  return market.slug ? (
-                    <MarketGroupCard marketGroup={market as MarketGroupCardResponse} />
-                  ) : (
-                    <MarketSingleCard market={market as MarketSingleCardResponse} />
-                  )
-                })}
-              </VStack>
-            </VStack>
-          </InfiniteScroll>
+          <>
+            {dailyMarkets && (
+              <DailyMarketsSection
+                markets={
+                  isMobile
+                    ? dailyMarkets.data.markets
+                    : dailyMarkets.data.markets.slice((page - 1) * 6, page * 6)
+                }
+                totalAmount={dailyMarkets.data.totalAmount}
+                onClickNextPage={() => {
+                  if (dailyMarkets?.data.markets.length < 6) {
+                    return
+                  }
+                  if (6 * page >= dailyMarkets?.data.totalAmount) {
+                    return
+                  }
+                  setPage(page + 1)
+                }}
+                onClickPrevPage={() => {
+                  if (page === 1) {
+                    return
+                  }
+                  setPage(page - 1)
+                  return
+                }}
+                page={page}
+              />
+            )}
+            <AllMarkets
+              dataLength={dataLength ?? 0}
+              fetchNextPage={fetchNextPage}
+              hasNextPage={hasNextPage}
+              markets={sortedMarkets}
+              handleSelectSort={handleSelectSort}
+              totalAmount={data?.pages?.[0].data.totalAmount}
+            />
+          </>
         )}
       </Box>
     </MainLayout>

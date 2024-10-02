@@ -25,7 +25,6 @@ import {
   useTradingService,
 } from '@/services'
 import { useMarket, useWinningIndex } from '@/services/MarketsService'
-import ApproveModal from '@/components/common/modals/approve-modal'
 import { useToken } from '@/hooks/use-token'
 import { defaultChain } from '@/constants'
 import { useRouter } from 'next/navigation'
@@ -75,7 +74,6 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     market: previousMarket,
     approveBuy,
     strategy,
-    approveSell,
     resetQuotes,
   } = useTradingService()
 
@@ -91,7 +89,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   }, [market])
 
   const handleApproveMarket = async () => {
-    return strategy === 'Buy' ? approveBuy() : approveSell()
+    await approveBuy()
   }
 
   const mobileTradeButton = useMemo(() => {
@@ -146,14 +144,6 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       return part
     })
   }
-
-  useEffect(() => {
-    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
-      page: 'Market Page',
-      market: params.address,
-      marketType: 'single',
-    })
-  }, [])
 
   useEffect(() => {
     if (market != previousMarket && !fetchMarketError) {
@@ -293,7 +283,6 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
               {mobileTradeButton}
             </Box>
           )}
-          <ApproveModal onApprove={handleApproveMarket} />
         </>
       )}
     </MainLayout>
