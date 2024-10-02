@@ -16,8 +16,6 @@ import {
   useEffect,
   useMemo,
   useState,
-  Dispatch,
-  SetStateAction,
 } from 'react'
 import { Address, Hash, formatUnits, getAddress, getContract, parseUnits, zeroHash } from 'viem'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -58,6 +56,7 @@ interface ITradingServiceContext {
   resetQuotes: () => void
   approveSellMutation: UseMutationResult<void, Error, void, unknown>
   checkApprovedForSell: () => Promise<boolean>
+  marketFee: number
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -80,6 +79,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const [market, setMarket] = useState<Market | null>(null)
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
+  const [marketFee, setMarketFee] = useState(0)
 
   /**
    * REFRESH / REFETCH
@@ -225,14 +225,12 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         otherHoldingsYes.push(balance)
       }
     }
-    const feeBI = (await fixedProductMarketMakerContract.read.fee()) as bigint
-    const fee = Number(formatUnits(feeBI, 18))
     let balanceOfCollateralToSellBIYes =
       calcSellAmountInCollateral(
         parseUnits(balanceOfOutcomeTokenCroppedYes, collateralToken?.decimals || 18),
         holdingsYes,
         otherHoldingsYes,
-        fee
+        Number(marketFee)
       ) ?? 0n
     // small balance to zero
     if (balanceOfCollateralToSellBIYes < parseUnits('0.000001', collateralToken?.decimals || 18)) {
@@ -260,7 +258,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         parseUnits(balanceOfOutcomeTokenCroppedNo, collateralToken?.decimals || 18),
         holdingsNo,
         otherHoldingsNo,
-        fee
+        Number(marketFee)
       ) ?? 0n
     // small balance to zero
     if (balanceOfCollateralToSellBINo < parseUnits('0.000001', collateralToken?.decimals || 18)) {
@@ -281,9 +279,21 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     conditionalTokensContract?.address,
   ])
 
+  const getMarketFee = async () => {
+    const feeBI = (await fixedProductMarketMakerContract?.read.fee()) as bigint
+    const fee = Number(formatUnits(feeBI, 18))
+    setMarketFee(fee)
+  }
+
   useEffect(() => {
     updateSellBalance()
   }, [market, strategy, fixedProductMarketMakerContract, conditionalTokensContract?.address])
+
+  useEffect(() => {
+    if (fixedProductMarketMakerContract) {
+      getMarketFee()
+    }
+  }, [fixedProductMarketMakerContract])
 
   /**
    * AMOUNT
@@ -507,13 +517,18 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      await refetchChain()
-
-      sleep(10).then(async () => {
-        await refetchSubgraph()
+      sleep(1).then(async () => {
+        await refetchChain()
         await queryClient.refetchQueries({
-          queryKey: ['markets', market.address],
+          queryKey: ['daily-markets'],
         })
+        await queryClient.refetchQueries({
+          queryKey: ['market', market.address],
+        })
+      })
+
+      sleep(5).then(async () => {
+        await refetchSubgraph()
       })
 
       return receipt
@@ -624,16 +639,20 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       await sleep(1)
 
+      await queryClient.refetchQueries({
+        queryKey: ['daily-markets'],
+      })
+      await queryClient.refetchQueries({
+        queryKey: ['market', market.address],
+      })
+
       const updateID = toast({
         render: () => <Toast title={`Updating portfolio...`} id={updateID} />,
       })
 
       // TODO: redesign subgraph refetch logic
-      sleep(10).then(async () => {
+      sleep(5).then(async () => {
         await refetchSubgraph()
-        await queryClient.refetchQueries({
-          queryKey: ['markets', market.address],
-        })
       })
 
       return receipt
@@ -744,6 +763,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     approveSellMutation,
     isLoadingRedeem,
     resetQuotes,
+    marketFee,
   }
 
   return (
