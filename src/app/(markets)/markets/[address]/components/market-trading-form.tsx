@@ -71,7 +71,7 @@ export const MarketTradingForm = ({
       left={isMobile ? 0 : '936px'}
     >
       {showTitle && (
-        <Text {...paragraphMedium} mb='24px' textAlign='center'>
+        <Text {...paragraphMedium} mb='24px' textAlign='center' color='white'>
           {market.title}
         </Text>
       )}
