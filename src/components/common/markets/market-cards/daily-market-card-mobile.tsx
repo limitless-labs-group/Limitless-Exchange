@@ -5,7 +5,7 @@ import { NumberUtil } from '@/utils'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
-import React, { SyntheticEvent, useState } from 'react'
+import React, { SyntheticEvent, useEffect, useState } from 'react'
 import { MarketSingleCardResponse } from '@/types'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { Address } from 'viem'
@@ -54,6 +54,10 @@ export default function DailyMarketCardMobile({ market, dailyIndex }: DailyMarke
     setMarket(dailyMarketToMarket(market))
     trackMarketClicked()
   }
+
+  useEffect(() => {
+    setMarket(dailyMarketToMarket(market))
+  }, [market])
 
   return (
     <Box border='1px' borderColor='grey.800' cursor='pointer' py='10px' px='8px'>

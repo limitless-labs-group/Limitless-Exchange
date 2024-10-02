@@ -64,6 +64,7 @@ export default function DailyMarketCard({
 
   const onClickQuickBuy = (e: SyntheticEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     setTradingWidgetOpened(true)
     setColors(hoverColors)
     setMarket(dailyMarketToMarket(market))
@@ -85,6 +86,10 @@ export default function DailyMarketCard({
       setMarket(null)
     }
   }, [tradingWidgetOpened])
+
+  useEffect(() => {
+    setMarket(dailyMarketToMarket(market))
+  }, [market])
 
   return (
     <Box position='relative'>
@@ -189,6 +194,7 @@ export default function DailyMarketCard({
           <MarketTradingForm
             market={selectedMarket}
             analyticParams={{ quickBetSource: 'Medium banner', source: 'Quick Bet' }}
+            showTitle={true}
           />
         </Box>
       )}

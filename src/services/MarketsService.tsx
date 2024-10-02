@@ -177,7 +177,11 @@ export function useDailyMarkets(topic: Category | null) {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/daily`
       const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
 
-      const { data: response }: AxiosResponse<MarketsResponse> = await axios.get(marketBaseUrl)
+      const { data: response }: AxiosResponse<MarketsResponse> = await axios.get(marketBaseUrl, {
+        params: {
+          limit: 30,
+        },
+      })
 
       const marketDataForMultiCall = response.data.flatMap((market) => {
         // @ts-ignore

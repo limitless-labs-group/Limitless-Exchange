@@ -517,13 +517,18 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      await refetchChain()
-
-      sleep(10).then(async () => {
-        await refetchSubgraph()
+      sleep(1).then(async () => {
+        await refetchChain()
         await queryClient.refetchQueries({
-          queryKey: ['markets', market.address],
+          queryKey: ['daily-markets'],
         })
+        await queryClient.refetchQueries({
+          queryKey: ['market', market.address],
+        })
+      })
+
+      sleep(5).then(async () => {
+        await refetchSubgraph()
       })
 
       return receipt
@@ -634,16 +639,20 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       await sleep(1)
 
+      await queryClient.refetchQueries({
+        queryKey: ['daily-markets'],
+      })
+      await queryClient.refetchQueries({
+        queryKey: ['market', market.address],
+      })
+
       const updateID = toast({
         render: () => <Toast title={`Updating portfolio...`} id={updateID} />,
       })
 
       // TODO: redesign subgraph refetch logic
-      sleep(10).then(async () => {
+      sleep(5).then(async () => {
         await refetchSubgraph()
-        await queryClient.refetchQueries({
-          queryKey: ['markets', market.address],
-        })
       })
 
       return receipt
