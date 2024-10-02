@@ -35,7 +35,7 @@ export default function DailyMarketsSection({
     ))
 
   return (
-    <Box mt={isMobile ? '40px' : 0} mb={isMobile ? '36px' : 0}>
+    <Box mt={isMobile ? '48px' : '24px'} mb={isMobile ? '36px' : 0}>
       <Box px={isMobile ? '16px' : 0}>
         <Text {...headlineRegular} mb={isMobile ? '8px' : '4px'}>
           / Daily markets ({totalAmount})

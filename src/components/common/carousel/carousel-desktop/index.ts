@@ -1,2 +1,2 @@
-export * from './carousel-mobile'
+export * from './dot-button'
 export * from './carousel-desktop'
