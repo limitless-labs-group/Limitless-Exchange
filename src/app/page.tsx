@@ -13,6 +13,7 @@ import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useSearchParams } from 'next/navigation'
 import DailyMarketsSection from '@/components/common/markets/daily-markets'
 import AllMarkets from '@/components/common/markets/all-markets'
+import TopMarkets from '@/components/common/markets/top-markets'
 
 const MainPage = () => {
   const searchParams = useSearchParams()
@@ -61,6 +62,31 @@ const MainPage = () => {
     useMarkets(categoryEntity)
 
   const { data: dailyMarkets } = useDailyMarkets(categoryEntity)
+
+  const topMarkets =
+    dailyMarkets?.data.markets
+      // @ts-ignore
+      .filter((market) => !market.slug)
+      .sort((a, b) => {
+        // @ts-ignore
+        const volumeA = a?.slug
+          ? // @ts-ignore
+            a.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
+          : // @ts-ignore
+            +a.volumeFormatted
+        // @ts-ignore
+        const volumeB = b?.slug
+          ? // @ts-ignore
+            b.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
+          : // @ts-ignore
+            +b.volumeFormatted
+
+        return (
+          convertTokenAmountToUsd(b.collateralToken.symbol, volumeB) -
+          convertTokenAmountToUsd(a.collateralToken.symbol, volumeA)
+        )
+      })
+      .slice(0, 3) || []
 
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.markets.length
@@ -153,31 +179,34 @@ const MainPage = () => {
         ) : (
           <>
             {dailyMarkets && (
-              <DailyMarketsSection
-                markets={
-                  isMobile
-                    ? dailyMarkets.data.markets
-                    : dailyMarkets.data.markets.slice((page - 1) * 6, page * 6)
-                }
-                totalAmount={dailyMarkets.data.totalAmount}
-                onClickNextPage={() => {
-                  if (dailyMarkets?.data.markets.length < 6) {
-                    return
+              <>
+                <TopMarkets markets={topMarkets as MarketSingleCardResponse[]} />
+                <DailyMarketsSection
+                  markets={
+                    isMobile
+                      ? dailyMarkets.data.markets
+                      : dailyMarkets.data.markets.slice((page - 1) * 6, page * 6)
                   }
-                  if (6 * page >= dailyMarkets?.data.totalAmount) {
+                  totalAmount={dailyMarkets.data.totalAmount}
+                  onClickNextPage={() => {
+                    if (dailyMarkets?.data.markets.length < 6) {
+                      return
+                    }
+                    if (6 * page >= dailyMarkets?.data.totalAmount) {
+                      return
+                    }
+                    setPage(page + 1)
+                  }}
+                  onClickPrevPage={() => {
+                    if (page === 1) {
+                      return
+                    }
+                    setPage(page - 1)
                     return
-                  }
-                  setPage(page + 1)
-                }}
-                onClickPrevPage={() => {
-                  if (page === 1) {
-                    return
-                  }
-                  setPage(page - 1)
-                  return
-                }}
-                page={page}
-              />
+                  }}
+                  page={page}
+                />
+              </>
             )}
             <AllMarkets
               dataLength={dataLength ?? 0}
