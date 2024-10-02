@@ -65,14 +65,16 @@ export default function DailyMarketsSection({
           >
             {marketsArray}
           </Grid>
-          <HStack w='full' mt='12px' justifyContent='flex-end' gap='4px'>
-            <Button variant='transparent' onClick={onClickPrevPage}>
-              Previous
-            </Button>
-            <Button variant='transparent' onClick={onClickNextPage}>
-              Next
-            </Button>
-          </HStack>
+          {totalAmount > 6 && (
+            <HStack w='full' mt='12px' justifyContent='flex-end' gap='4px'>
+              <Button variant='transparent' onClick={onClickPrevPage}>
+                Previous
+              </Button>
+              <Button variant='transparent' onClick={onClickNextPage}>
+                Next
+              </Button>
+            </HStack>
+          )}
         </>
       )}
     </Box>
