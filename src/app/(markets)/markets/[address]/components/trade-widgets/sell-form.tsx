@@ -468,6 +468,7 @@ export function SellForm({
                     outcome: 'Yes',
                     marketAddress: market.address,
                     walletType: client,
+                    ...(analyticParams ? analyticParams : {}),
                   })
                   setDisplayAmount('')
                   setOutcomeChoice('yes')
@@ -585,6 +586,7 @@ export function SellForm({
                     outcome: 'No',
                     marketAddress: market.address,
                     walletType: client,
+                    ...(analyticParams ? analyticParams : {}),
                   })
                   setDisplayAmount('')
                   setOutcomeChoice('no')

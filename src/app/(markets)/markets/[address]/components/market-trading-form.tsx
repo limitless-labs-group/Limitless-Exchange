@@ -17,13 +17,14 @@ import {
   SellForm,
   LoadingForm,
 } from '@/app/(markets)/markets/[address]/components/trade-widgets'
-import { controlsMedium } from '@/styles/fonts/fonts.styles'
+import { controlsMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 interface MarketTradingFormProps {
   market: Market
   setSelectedMarket?: (market: Market) => void
   marketGroup?: MarketGroup
   analyticParams?: { quickBetSource: string; source: string }
+  showTitle?: boolean
 }
 
 export const MarketTradingForm = ({
@@ -31,6 +32,7 @@ export const MarketTradingForm = ({
   marketGroup,
   setSelectedMarket,
   analyticParams,
+  showTitle = false,
 }: MarketTradingFormProps) => {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
   /**
@@ -63,11 +65,16 @@ export const MarketTradingForm = ({
       bg='blue.500'
       w={isMobile ? 'full' : '312px'}
       p={isMobile ? 0 : '8px'}
-      h={isMobile ? '100dvh' : '525px'}
+      h={isMobile ? '100dvh' : 'unset'}
       overflowY='scroll'
       position={isMobile ? 'relative' : 'fixed'}
       left={isMobile ? 0 : '936px'}
     >
+      {showTitle && (
+        <Text {...paragraphMedium} mb='24px' textAlign='center'>
+          {market.title}
+        </Text>
+      )}
       <HStack
         w={'240px'}
         mx='auto'
