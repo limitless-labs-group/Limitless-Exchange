@@ -188,7 +188,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           <Text {...paragraphMedium} color={cardColors.main}>
             {targetMarket?.group?.id
               ? `${targetMarket.group.title}: ${targetMarket.title}`
-              : targetMarket?.title}
+              : targetMarket?.proxyTitle ?? targetMarket?.title}
           </Text>
           <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
         </HStack>
@@ -273,7 +273,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
               <Text {...paragraphMedium} color={cardColors.main}>
                 {targetMarket?.group?.id
                   ? `${targetMarket.group.title}: ${targetMarket.title}`
-                  : targetMarket?.title}
+                  : targetMarket?.proxyTitle ?? targetMarket?.title}
               </Text>
             </Box>
 
