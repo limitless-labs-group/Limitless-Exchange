@@ -67,7 +67,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   } = useMarket(params.address)
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
   const { isLoading: isCollateralLoading } = useToken(market?.collateralToken.address)
-  const { setMarket, market: previousMarket, resetQuotes } = useTradingService()
+  const { setMarket, resetQuotes } = useTradingService()
 
   const marketActionForm = useMemo(() => {
     if (market) {
@@ -134,10 +134,10 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   }
 
   useEffect(() => {
-    if (market != previousMarket && !fetchMarketError) {
-      setMarket(market!)
+    if (market) {
+      setMarket(market)
     }
-  }, [market, previousMarket])
+  }, [market])
 
   useEffect(() => {
     resetQuotes()
