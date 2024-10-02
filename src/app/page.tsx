@@ -13,6 +13,7 @@ import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useSearchParams } from 'next/navigation'
 import DailyMarketsSection from '@/components/common/markets/daily-markets'
 import AllMarkets from '@/components/common/markets/all-markets'
+import TopMarkets from '@/components/common/markets/top-markets'
 
 const MainPage = () => {
   const searchParams = useSearchParams()
@@ -85,6 +86,8 @@ const MainPage = () => {
         })
         .slice(0, 3)
     : []
+
+  console.log(topMarkets)
 
   const dataLength = data?.pages.reduce((counter, page) => {
     return counter + page.data.markets.length
@@ -177,31 +180,34 @@ const MainPage = () => {
         ) : (
           <>
             {dailyMarkets && (
-              <DailyMarketsSection
-                markets={
-                  isMobile
-                    ? dailyMarkets.data.markets
-                    : dailyMarkets.data.markets.slice((page - 1) * 6, page * 6)
-                }
-                totalAmount={dailyMarkets.data.totalAmount}
-                onClickNextPage={() => {
-                  if (dailyMarkets?.data.markets.length < 6) {
-                    return
+              <>
+                <TopMarkets markets={topMarkets as MarketSingleCardResponse[]} />
+                <DailyMarketsSection
+                  markets={
+                    isMobile
+                      ? dailyMarkets.data.markets
+                      : dailyMarkets.data.markets.slice((page - 1) * 6, page * 6)
                   }
-                  if (6 * page >= dailyMarkets?.data.totalAmount) {
+                  totalAmount={dailyMarkets.data.totalAmount}
+                  onClickNextPage={() => {
+                    if (dailyMarkets?.data.markets.length < 6) {
+                      return
+                    }
+                    if (6 * page >= dailyMarkets?.data.totalAmount) {
+                      return
+                    }
+                    setPage(page + 1)
+                  }}
+                  onClickPrevPage={() => {
+                    if (page === 1) {
+                      return
+                    }
+                    setPage(page - 1)
                     return
-                  }
-                  setPage(page + 1)
-                }}
-                onClickPrevPage={() => {
-                  if (page === 1) {
-                    return
-                  }
-                  setPage(page - 1)
-                  return
-                }}
-                page={page}
-              />
+                  }}
+                  page={page}
+                />
+              </>
             )}
             <AllMarkets
               dataLength={dataLength ?? 0}
