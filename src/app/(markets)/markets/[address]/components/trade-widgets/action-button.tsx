@@ -185,6 +185,12 @@ export default function ActionButton({
       setStatus('initial')
       return
     }
+    trackClicked(ClickEvent.BuyClicked, {
+      outcome: option,
+      marketAddress: market.address,
+      walletType: client,
+      ...(analyticParams ? analyticParams : {}),
+    })
     if (client === 'eoa') {
       const allowance = await checkAllowance(market.address, market.collateralToken.address)
       const amountBI = parseUnits(amount, decimals || 18)

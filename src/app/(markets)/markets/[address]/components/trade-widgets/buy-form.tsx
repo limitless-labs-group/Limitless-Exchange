@@ -18,7 +18,7 @@ import {
 import { NumberUtil } from '@/utils'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
-import { useAmplitude, useBalanceService, useTradingService } from '@/services'
+import { useBalanceService, useTradingService } from '@/services'
 import { Market } from '@/types'
 import { useToken } from '@/hooks/use-token'
 import BigNumber from 'bignumber.js'
