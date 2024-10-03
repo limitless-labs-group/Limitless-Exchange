@@ -108,9 +108,7 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
       borderRadius='2px'
       h={'324px'}
     >
-      <Text {...headLineLarge} wordBreak='break-all'>
-        {market.proxyTitle ?? market.title ?? 'Noname market'}
-      </Text>
+      <Text {...headLineLarge}>{market.proxyTitle ?? market.title ?? 'Noname market'}</Text>
       <Box w='full' h='38px'></Box>
       <Box w='full'>
         {isMobile ? (
