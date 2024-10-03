@@ -374,15 +374,6 @@ export function SellForm({
     }
   }, [outcomeChoice])
 
-  useEffect(() => {
-    if (status === 'Ready') {
-      resetQuotes()
-      setCollateralAmount('')
-      setDisplayAmount('')
-      setSliderValue(0)
-    }
-  }, [status])
-
   return (
     <>
       {marketGroup && (
