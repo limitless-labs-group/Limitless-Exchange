@@ -2,6 +2,7 @@ import React from 'react'
 import { EmblaOptionsType } from 'embla-carousel'
 import { DotButton, useDotButton } from './dot-button'
 import useEmblaCarousel from 'embla-carousel-react'
+import Autoplay from 'embla-carousel-autoplay'
 import './carousel-desktop.css'
 import { useToken } from '@chakra-ui/react'
 
@@ -11,7 +12,9 @@ type PropType = {
 }
 
 export default function CarouselDesktop({ slides, options }: PropType) {
-  const [emblaRef, emblaApi] = useEmblaCarousel(options)
+  const [emblaRef, emblaApi] = useEmblaCarousel(options, [
+    Autoplay({ playOnInit: true, delay: 10000 }),
+  ])
 
   const { selectedIndex, scrollSnaps, onDotButtonClick } = useDotButton(emblaApi)
 

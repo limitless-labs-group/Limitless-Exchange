@@ -26,7 +26,6 @@ import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { css } from '@emotion/react'
 import { isMobile } from 'react-device-detect'
 import ActionButton from '@/app/(markets)/markets/[address]/components/trade-widgets/action-button'
-import { useWeb3Service } from '@/services/Web3Service'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
@@ -184,7 +183,11 @@ export function BuyForm({
 
   useEffect(() => {
     resetForm()
-  }, [strategy, market])
+  }, [strategy])
+
+  useEffect(() => {
+    resetForm()
+  }, [])
 
   return (
     <>
