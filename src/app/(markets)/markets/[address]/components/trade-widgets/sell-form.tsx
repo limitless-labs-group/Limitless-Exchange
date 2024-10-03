@@ -67,6 +67,7 @@ interface SellFormProps {
   setOutcomeIndex: Dispatch<SetStateAction<number>>
   marketGroup?: MarketGroup
   setSelectedMarket?: (market: Market) => void
+  analyticParams?: { quickBetSource: string; source: string }
 }
 
 export function SellForm({
@@ -74,6 +75,7 @@ export function SellForm({
   setOutcomeIndex,
   marketGroup,
   setSelectedMarket,
+  analyticParams,
 }: SellFormProps) {
   const queryClient = useQueryClient()
   const [sliderValue, setSliderValue] = useState(0)
@@ -134,6 +136,8 @@ export function SellForm({
     trade,
     approveSellMutation,
     checkApprovedForSell,
+    resetQuotes,
+    status,
   } = useTradingService()
 
   const getApprovedForSellState = async () => {
@@ -271,6 +275,7 @@ export function SellForm({
     trackClicked(ClickEvent.SellTradeClicked, {
       address: market.address,
       marketType: marketGroup ? 'group' : 'single',
+      ...(analyticParams ? analyticParams : {}),
     })
     const index = outcomeChoice === 'yes' ? 0 : 1
     setOutcomeIndex(index)
@@ -290,7 +295,16 @@ export function SellForm({
       onSuccess: () => setIsApproved(true),
     })
 
-  const handleApproveClicked = async () => approveSell()
+  const handleApproveClicked = async () => {
+    trackClicked(ClickEvent.SellApproveClicked, {
+      address: market?.address,
+      strategy: 'Buy',
+      outcome: outcomeChoice === 'yes' ? 'Yes' : 'No',
+      walletType: 'eoa',
+      ...(analyticParams ? analyticParams : {}),
+    })
+    await approveSell()
+  }
 
   const isExceedsBalance = useMemo(() => {
     if (outcomeChoice) {
@@ -359,6 +373,15 @@ export function SellForm({
       getApprovedForSellState()
     }
   }, [outcomeChoice])
+
+  useEffect(() => {
+    if (status === 'Ready') {
+      resetQuotes()
+      setCollateralAmount('')
+      setDisplayAmount('')
+      setSliderValue(0)
+    }
+  }, [status])
 
   return (
     <>
@@ -445,6 +468,7 @@ export function SellForm({
                     outcome: 'Yes',
                     marketAddress: market.address,
                     walletType: client,
+                    ...(analyticParams ? analyticParams : {}),
                   })
                   setDisplayAmount('')
                   setOutcomeChoice('yes')
@@ -562,6 +586,7 @@ export function SellForm({
                     outcome: 'No',
                     marketAddress: market.address,
                     walletType: client,
+                    ...(analyticParams ? analyticParams : {}),
                   })
                   setDisplayAmount('')
                   setOutcomeChoice('no')

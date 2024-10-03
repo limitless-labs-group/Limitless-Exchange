@@ -48,8 +48,6 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   const { trackClicked } = useAmplitude()
   const { redeem } = useTradingService()
 
-  console.log(position)
-
   /**
    * NAVIGATION
    */

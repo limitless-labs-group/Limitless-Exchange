@@ -6,6 +6,7 @@ type MobileDrawerProps = {
   trigger: ReactNode
   title?: string
   variant: 'blue' | 'common'
+  onClose?: () => void
 }
 
 export default function MobileDrawer({
@@ -13,6 +14,7 @@ export default function MobileDrawer({
   title,
   children,
   variant,
+  onClose,
 }: PropsWithChildren<MobileDrawerProps>) {
   const bgColor =
     variant === 'blue' ? 'var(--chakra-colors-blue-500)' : 'var(--chakra-colors-grey-100)'
@@ -23,7 +25,7 @@ export default function MobileDrawer({
   const titleColor = variant === 'blue' ? 'white' : 'var(--chakra-colors-grey.800)'
 
   return (
-    <Drawer.Root shouldScaleBackground>
+    <Drawer.Root shouldScaleBackground onClose={onClose}>
       <Drawer.Trigger asChild>{trigger}</Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay

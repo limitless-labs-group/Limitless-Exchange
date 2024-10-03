@@ -10,7 +10,6 @@ interface MarketTradingModalProps {
   onClose: () => void
   title: string
   market: Market
-  outcomeTokensPercent?: number[]
   setSelectedMarket?: (market: Market) => void
   marketGroup?: MarketGroup
 }
@@ -20,7 +19,6 @@ export function MarketTradingModal({
   onClose,
   title,
   market,
-  outcomeTokensPercent,
   setSelectedMarket,
   marketGroup,
 }: MarketTradingModalProps) {
@@ -42,7 +40,6 @@ export function MarketTradingModal({
         <ModalBody>
           <MarketTradingForm
             market={market}
-            outcomeTokensPercent={outcomeTokensPercent}
             setSelectedMarket={setSelectedMarket}
             marketGroup={marketGroup}
           />
