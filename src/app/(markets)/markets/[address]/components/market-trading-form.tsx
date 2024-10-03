@@ -60,6 +60,16 @@ export const MarketTradingForm = ({
     [allMarketsPositions, market]
   )
 
+  const widgetPosition = useMemo(() => {
+    if (isMobile) {
+      return 'relative'
+    }
+    if (showTitle) {
+      return 'unset'
+    }
+    return 'fixed'
+  }, [showTitle, isMobile])
+
   return (
     <Paper
       bg='blue.500'
@@ -67,7 +77,7 @@ export const MarketTradingForm = ({
       p={isMobile ? 0 : '8px'}
       h={isMobile ? '100dvh' : 'unset'}
       overflowY='scroll'
-      position={isMobile ? 'relative' : 'fixed'}
+      position={widgetPosition}
       left={isMobile ? 0 : '936px'}
     >
       {showTitle && (

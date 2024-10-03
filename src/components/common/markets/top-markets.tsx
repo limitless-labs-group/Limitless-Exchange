@@ -46,6 +46,7 @@ export default function TopMarkets({ markets }: TopMarketsProps) {
           <MarketTradingForm
             market={selectedMarket}
             analyticParams={{ quickBetSource: 'Big banner', source: 'Quick Bet' }}
+            showTitle={true}
           />
         </Box>
       )}

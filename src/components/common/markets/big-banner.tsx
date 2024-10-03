@@ -105,7 +105,7 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
       h={'324px'}
     >
       <Text {...headLineLarge} wordBreak='break-all'>
-        {market.title}
+        {market.proxyTitle ?? market.title ?? 'Noname market'}
       </Text>
       <Box w='full' h='38px'>
         {feedMessage && isMobile && (
@@ -121,6 +121,7 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
               alignItems='center'
               gap='8px'
               key={feedMessage.bodyHash}
+              style={{ width: 'calc(100% - 32px)' }}
             >
               <HStack gap='4px' alignItems='flex-start'>
                 <Avatar account={feedMessage.eventBody.account} />
@@ -262,7 +263,7 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
           </HStack>
         ) : (
           <HStack w='full' justifyContent='space-between'>
-            {feedMessage && (
+            {feedMessage ? (
               <Box>
                 <AnimatePresence>
                   <MotionBox
@@ -286,6 +287,8 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
                   </MotionBox>
                 </AnimatePresence>
               </Box>
+            ) : (
+              <Box />
             )}
             <Button variant='black' onClick={onClickQuickBuy}>
               Quick buy
