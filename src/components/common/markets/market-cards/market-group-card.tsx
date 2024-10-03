@@ -138,7 +138,7 @@ export const MarketGroupCard = ({
       bannerType: 'Standard card',
       marketCategory: category,
       marketGroup: marketGroup.title,
-      marketType: 'single',
+      marketType: 'group',
       source: 'Explore Market',
     })
   }
