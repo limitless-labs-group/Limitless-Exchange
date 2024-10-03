@@ -25,7 +25,7 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@amplitude/analytics-browser": "^2.5.2",
+    "@amplitude/analytics-browser": "^2.11.6",
     "@amplitude/session-replay-browser": "^1.11.5",
     "@chakra-ui/react": "^2.6.1",
     "@dicebear/collection": "^9.2.1",
@@ -59,6 +59,7 @@
     "big.js": "^6.2.1",
     "date-fns": "^3.6.0",
     "dayzed": "^3.2.3",
+    "embla-carousel-autoplay": "^8.3.0",
     "embla-carousel-react": "^8.3.0",
     "ethereum-multicall": "^2.25.0",
     "framer-motion": "^11.3.8",

@@ -18,14 +18,11 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   ClickEvent,
   createMarketShareUrls,
-  OpenEvent,
-  PageOpenedMetadata,
   ShareClickedMetadata,
   useAmplitude,
   useTradingService,
 } from '@/services'
 import { useMarket, useWinningIndex } from '@/services/MarketsService'
-import ApproveModal from '@/components/common/modals/approve-modal'
 import { useToken } from '@/hooks/use-token'
 import { defaultChain } from '@/constants'
 import { useRouter } from 'next/navigation'
@@ -59,7 +56,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   /**
    * ANALYTICS
    */
-  const { trackOpened, trackClicked } = useAmplitude()
+  const { trackClicked } = useAmplitude()
   const { data: winningIndex } = useWinningIndex(params.address)
   const resolved = winningIndex === 0 || winningIndex === 1
   const router = useRouter()
@@ -70,28 +67,18 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   } = useMarket(params.address)
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
   const { isLoading: isCollateralLoading } = useToken(market?.collateralToken.address)
-  const {
-    setMarket,
-    market: previousMarket,
-    approveBuy,
-    strategy,
-    resetQuotes,
-  } = useTradingService()
+  const { setMarket, resetQuotes } = useTradingService()
 
   const marketActionForm = useMemo(() => {
     if (market) {
       return market.expired ? (
         <MarketClaimingForm market={market} />
       ) : (
-        <MarketTradingForm market={market} outcomeTokensPercent={market.prices} />
+        <MarketTradingForm market={market} />
       )
     }
     return null
   }, [market])
-
-  const handleApproveMarket = async () => {
-    await approveBuy()
-  }
 
   const mobileTradeButton = useMemo(() => {
     return market?.expired ? (
@@ -118,7 +105,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
         title={market?.title || ''}
         variant='blue'
       >
-        <MarketTradingForm market={market as Market} outcomeTokensPercent={market?.prices} />
+        <MarketTradingForm market={market as Market} />
       </MobileDrawer>
     )
   }, [market])
@@ -147,10 +134,10 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   }
 
   useEffect(() => {
-    if (market != previousMarket && !fetchMarketError) {
-      setMarket(market!)
+    if (market) {
+      setMarket(market)
     }
-  }, [market, previousMarket])
+  }, [market])
 
   useEffect(() => {
     resetQuotes()
@@ -284,7 +271,6 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
               {mobileTradeButton}
             </Box>
           )}
-          <ApproveModal onApprove={handleApproveMarket} />
         </>
       )}
     </MainLayout>
