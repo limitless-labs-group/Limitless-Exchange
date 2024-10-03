@@ -183,11 +183,7 @@ export function BuyForm({
 
   useEffect(() => {
     resetForm()
-  }, [strategy])
-
-  useEffect(() => {
-    resetForm()
-  }, [])
+  }, [strategy, market.address])
 
   return (
     <>
