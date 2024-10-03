@@ -75,7 +75,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
         <NextLink href={link}>
           {targetMarket?.group?.id
             ? `${targetMarket.group.title}: ${targetMarket.title}`
-            : targetMarket?.title}
+            : targetMarket?.proxyTitle ?? targetMarket?.title}
         </NextLink>
       </Td>
       <Td>
