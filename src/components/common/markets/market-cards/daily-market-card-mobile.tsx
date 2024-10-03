@@ -103,7 +103,7 @@ export default function DailyMarketCardMobile({ market, dailyIndex }: DailyMarke
       <HStack w='full' justifyContent='space-between'>
         <MobileDrawer
           trigger={
-            <Button variant='black' onClick={handleQuickBuyClicked}>
+            <Button variant='dashed' onClick={handleQuickBuyClicked}>
               Quick buy
             </Button>
           }
@@ -116,7 +116,7 @@ export default function DailyMarketCardMobile({ market, dailyIndex }: DailyMarke
           />
         </MobileDrawer>
         <Button
-          variant='dashed'
+          variant='transparent'
           onClick={() => {
             trackClicked(ClickEvent.MarketPageOpened, {
               bannerPosition: dailyIndex,

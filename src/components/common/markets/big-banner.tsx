@@ -38,6 +38,7 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
 
   const onClickQuickBuy = (e: SyntheticEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     onMarketSelect(market)
     trackClicked(ClickEvent.QuickBetClicked, {
       // Todo add analytic params
@@ -62,7 +63,7 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
       marketType: 'single',
       page: 'Market Page',
     })
-    trackClicked(ClickEvent.MediumMarketBannerClicked, {
+    trackClicked(ClickEvent.BigBannerClicked, {
       bannerPosition: index,
       bannerPaginationPage: 1,
     })
@@ -87,11 +88,14 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
     if (message && feedMessage === message) {
       const title = message.eventBody.strategy === 'Buy' ? 'bought' : 'sold'
       const outcome = message.eventBody.outcome
-      return `${truncateEthAddress(message.eventBody.account)} ${title} ${
-        message.eventBody.contracts
-      } contracts ${outcome} for ${Math.abs(+message.eventBody.tradeAmount)} ${
-        message.eventBody.symbol
-      } in total.`
+      return `${truncateEthAddress(
+        message.eventBody.account
+      )} ${title} ${NumberUtil.formatThousands(
+        message.eventBody.contracts,
+        6
+      )} contracts ${outcome} for ${NumberUtil.convertWithDenomination(
+        Math.abs(+message.eventBody.tradeAmount)
+      )} ${message.eventBody.symbol} in total.`
     }
   }
 
@@ -107,32 +111,7 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
       <Text {...headLineLarge} wordBreak='break-all'>
         {market.proxyTitle ?? market.title ?? 'Noname market'}
       </Text>
-      <Box w='full' h='38px'>
-        {feedMessage && isMobile && (
-          <AnimatePresence>
-            <MotionBox
-              initial={{ y: -40, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -40, opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              position='absolute'
-              width='100%'
-              display='flex'
-              alignItems='center'
-              gap='8px'
-              key={feedMessage.bodyHash}
-              style={{ width: 'calc(100% - 32px)' }}
-            >
-              <HStack gap='4px' alignItems='flex-start'>
-                <Avatar account={feedMessage.eventBody.account} />
-                <Text {...paragraphMedium} color='black' mt='-2px'>
-                  {fetMarketFeedTitle(feedMessage)}
-                </Text>
-              </HStack>
-            </MotionBox>
-          </AnimatePresence>
-        )}
-      </Box>
+      <Box w='full' h='38px'></Box>
       <Box w='full'>
         {isMobile ? (
           <>
@@ -244,6 +223,7 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
                 </Button>
               }
               variant='blue'
+              title={market.proxyTitle ?? market.title ?? 'Noname market'}
             >
               <MarketTradingForm
                 market={selectedMarket as Market}
@@ -269,7 +249,7 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
                   <MotionBox
                     initial={{ y: -48, opacity: 0 }}
                     animate={{ y: -8, opacity: 1 }}
-                    exit={{ y: -48, opacity: 0 }}
+                    exit={{ y: -8, opacity: 0 }}
                     transition={{ duration: 0.5 }}
                     position='absolute'
                     width='100%'

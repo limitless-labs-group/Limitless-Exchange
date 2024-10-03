@@ -3,6 +3,7 @@ import { useQuery, UseQueryResult } from '@tanstack/react-query'
 import { limitlessApi } from '@/services'
 import { AxiosResponse } from 'axios'
 import { usePathname } from 'next/navigation'
+import { isMobile } from 'react-device-detect'
 
 export type MarketFeedData = {
   createdAt: string
@@ -31,5 +32,6 @@ export function useMarketFeed(marketAddress: string) {
       return limitlessApi.get(`/markets/${marketAddress}/get-feed-events`)
     },
     refetchInterval: pathname === '/' ? 10000 : false,
+    enabled: !isMobile,
   }) as UseQueryResult<AxiosResponse<MarketFeedData[]>>
 }
