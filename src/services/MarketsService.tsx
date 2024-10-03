@@ -177,24 +177,21 @@ export function useDailyMarkets(topic: Category | null) {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/daily`
       const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
 
-      const { data: response }: AxiosResponse<MarketsResponse> = await axios.get(marketBaseUrl)
+      const { data: response }: AxiosResponse<MarketsResponse> = await axios.get(marketBaseUrl, {
+        params: {
+          limit: 30,
+        },
+      })
 
-      const marketDataForMultiCall = response.data.flatMap((market) => {
-        // @ts-ignore
-        if (!market.slug) {
-          return {
-            // @ts-ignore
-            address: market.address,
-            decimals: market.collateralToken.decimals,
-          }
+      // @ts-ignore
+      const dailyMarkets = response.data.filter((market) => !market.slug)
+
+      const marketDataForMultiCall = dailyMarkets.map((market) => {
+        return {
+          // @ts-ignore
+          address: market.address,
+          decimals: market.collateralToken.decimals,
         }
-        // @ts-ignore
-        return market.markets.map((marketInGroup) => {
-          return {
-            address: marketInGroup.address,
-            decimals: market.collateralToken.decimals,
-          }
-        })
       }) as { address: string; decimals: number }[]
 
       const contractCallContext = marketDataForMultiCall.map(
@@ -266,28 +263,11 @@ export function useDailyMarkets(topic: Category | null) {
         new Map<Address, OddsData>()
       )
 
-      const result = response.data.map((market) => {
-        // @ts-ignore
-        if (!market.slug) {
-          return {
-            ...market,
-            // @ts-ignore
-            ...(_markets.get(market.address) as OddsData),
-          }
-        }
+      const result = dailyMarkets.map((market) => {
         return {
           ...market,
           // @ts-ignore
-          markets: market.markets
-            .map((marketInGroup: MarketSingleCardResponse) => ({
-              ...marketInGroup,
-              // @ts-ignore
-              ...(_markets.get(marketInGroup.address) as OddsData),
-            }))
-            .sort(
-              (a: MarketSingleCardResponse, b: MarketSingleCardResponse) =>
-                b.prices[0] - a.prices[0]
-            ),
+          ...(_markets.get(market.address) as OddsData),
         }
       })
 
@@ -298,26 +278,9 @@ export function useDailyMarkets(topic: Category | null) {
         },
       }
     },
-    // initialPageParam: 1, //default page number
-    // getNextPageParam: (lastPage) => {
-    //   // @ts-ignore
-    //   console.log(lastPage)
-    //   return lastPage.data.markets.length < DAILY_PER_PAGE ? null : lastPage.next
-    // },
-    // getPreviousPageParam: (lastPage) => {
-    //   console.log(lastPage)
-    //   return lastPage.next - 1 >= 1 ? lastPage.next - 1 : null
-    // },
     refetchOnWindowFocus: false,
   })
 }
-
-// const { data: marketOnChainPercentageData } = useQuery({
-//   queryKey: ['marketOnChainPercentageData'],
-//   queryFn: async () => {
-//     const markets =
-//   },
-// })
 
 export function useAllMarkets() {
   const { data: markets } = useQuery({

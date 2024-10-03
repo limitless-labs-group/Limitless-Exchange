@@ -43,6 +43,8 @@ interface ActionButtonProps {
   showFeeInValue: boolean
   setShowFeeInValue: Dispatch<SetStateAction<boolean>>
   isExceedsBalance: boolean
+  resetForm: () => void
+  analyticParams?: { quickBetSource: string; source: string }
 }
 
 const MotionBox = motion(Box)
@@ -71,6 +73,8 @@ export default function ActionButton({
   setShowFeeInValue,
   showReturnPercent,
   isExceedsBalance,
+  resetForm,
+  analyticParams,
 }: ActionButtonProps) {
   const [marketLocked, setMarketLocked] = useState(false)
   const [tradingBlocked, setTradingBlocked] = useState(false)
@@ -182,6 +186,12 @@ export default function ActionButton({
       setStatus('initial')
       return
     }
+    trackClicked(ClickEvent.BuyClicked, {
+      outcome: option,
+      marketAddress: market.address,
+      walletType: client,
+      ...(analyticParams ? analyticParams : {}),
+    })
     if (client === 'eoa') {
       const allowance = await checkAllowance(market.address, market.collateralToken.address)
       const amountBI = parseUnits(amount, decimals || 18)
@@ -206,6 +216,7 @@ export default function ActionButton({
         strategy: 'Buy',
         outcome: option,
         walletType: 'eoa',
+        ...(analyticParams ? analyticParams : {}),
       })
       await sleep(2)
       setStatus('confirm')
@@ -268,6 +279,7 @@ export default function ActionButton({
     const returnToInitial = async () => {
       await sleep(2)
       await setStatus('initial')
+      resetForm()
     }
     if (status === 'success') {
       returnToInitial()
@@ -417,17 +429,22 @@ export default function ActionButton({
           status={status}
           handleConfirmClicked={() => {
             trackClicked(ClickEvent.ConfirmTransactionClicked, {
-              address: market?.address,
+              address: market.address,
               outcome: option,
               strategy: 'Buy',
               walletType: client,
               marketType,
+              ...(analyticParams ? analyticParams : {}),
             })
 
             return handleConfirmClicked()
           }}
           onApprove={handleApprove}
           setStatus={setStatus}
+          analyticParams={analyticParams}
+          marketType={marketType}
+          outcome={option}
+          marketAddress={market.address}
         />
       </MotionBox>
     </HStack>

@@ -40,15 +40,22 @@ export default function AllMarkets({
         scrollThreshold={0.1}
         refreshFunction={fetchNextPage}
         pullDownToRefresh
+        style={{
+          overflow: 'unset',
+        }}
       >
         <VStack w={'full'} spacing={5} px={isMobile ? '16px' : 0}>
           <VStack gap={2} w='full'>
-            {markets?.map((market) => {
+            {markets?.map((market, index) => {
               // @ts-ignore
               return market.slug ? (
-                <MarketGroupCard marketGroup={market as MarketGroupCardResponse} />
+                <MarketGroupCard marketGroup={market as MarketGroupCardResponse} key={index} />
               ) : (
-                <MarketSingleCard market={market as MarketSingleCardResponse} />
+                <MarketSingleCard
+                  market={market as MarketSingleCardResponse}
+                  key={index}
+                  position={index + 1}
+                />
               )
             })}
           </VStack>
