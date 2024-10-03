@@ -80,7 +80,7 @@ export default function DailyMarketCardMobile({ market, dailyIndex }: DailyMarke
       </HStack>
       <HStack w='full' justifyContent='center' px='8px'>
         <Text {...paragraphMedium} color={colors.main} my='48px' textAlign='center'>
-          {market.title}
+          {market.proxyTitle ?? market.title ?? 'Noname market'}
         </Text>
       </HStack>
       <HStack justifyContent='space-between' alignItems='flex-end'>

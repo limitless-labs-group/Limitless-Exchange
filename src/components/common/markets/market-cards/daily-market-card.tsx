@@ -148,7 +148,7 @@ export default function DailyMarketCard({
             </HStack>
             <Flex w='full' justifyContent='center'>
               <Text {...paragraphMedium} maxW='80%' textAlign='center' color={colors.main}>
-                {market.title}
+                {market.proxyTitle ?? market.title ?? 'Noname market'}
               </Text>
             </Flex>
             <HStack justifyContent='space-between'>
