@@ -263,7 +263,7 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
           </HStack>
         ) : (
           <HStack w='full' justifyContent='space-between'>
-            {feedMessage && (
+            {feedMessage ? (
               <Box>
                 <AnimatePresence>
                   <MotionBox
@@ -287,6 +287,8 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
                   </MotionBox>
                 </AnimatePresence>
               </Box>
+            ) : (
+              <Box />
             )}
             <Button variant='black' onClick={onClickQuickBuy}>
               Quick buy
