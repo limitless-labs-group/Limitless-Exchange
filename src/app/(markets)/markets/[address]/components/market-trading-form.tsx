@@ -10,7 +10,7 @@ import { getAddress, zeroAddress } from 'viem'
 import { Market, MarketGroup } from '@/types'
 
 import { isMobile } from 'react-device-detect'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Paper from '@/components/common/paper'
 import {
   BuyForm,
@@ -69,6 +69,10 @@ export const MarketTradingForm = ({
     }
     return 'fixed'
   }, [showTitle, isMobile])
+
+  useEffect(() => {
+    setStrategy('Buy')
+  }, [])
 
   return (
     <Paper
