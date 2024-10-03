@@ -16,7 +16,7 @@ const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
 
 const config: ThemeConfig = {
-  initialColorMode: 'light',
+  initialColorMode: 'dark',
   useSystemColorMode: false,
 }
 
