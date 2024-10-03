@@ -35,7 +35,7 @@ export default function DailyMarketsSection({
     ))
 
   return (
-    <Box mt={isMobile ? '40px' : 0} mb={isMobile ? '36px' : 0}>
+    <Box mt={isMobile ? '48px' : '24px'} mb={isMobile ? '36px' : 0}>
       <Box px={isMobile ? '16px' : 0}>
         <Text {...headlineRegular} mb={isMobile ? '8px' : '4px'}>
           / Daily markets ({totalAmount})
@@ -65,14 +65,16 @@ export default function DailyMarketsSection({
           >
             {marketsArray}
           </Grid>
-          <HStack w='full' mt='12px' justifyContent='flex-end' gap='4px'>
-            <Button variant='transparent' onClick={onClickPrevPage}>
-              Previous
-            </Button>
-            <Button variant='transparent' onClick={onClickNextPage}>
-              Next
-            </Button>
-          </HStack>
+          {totalAmount > 6 && (
+            <HStack w='full' mt='12px' justifyContent='flex-end' gap='4px'>
+              <Button variant='transparent' onClick={onClickPrevPage}>
+                Previous
+              </Button>
+              <Button variant='transparent' onClick={onClickNextPage}>
+                Next
+              </Button>
+            </HStack>
+          )}
         </>
       )}
     </Box>

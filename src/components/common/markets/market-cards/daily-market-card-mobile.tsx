@@ -13,6 +13,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import MobileDrawer from '@/components/common/drawer'
 import { dailyMarketToMarket } from '@/utils/market'
 import { MarketTradingForm } from '@/app/(markets)/markets/[address]/components'
+import { isMobile } from 'react-device-detect'
 
 interface DailyMarketCardMobileProps {
   market: MarketSingleCardResponse
@@ -60,7 +61,7 @@ export default function DailyMarketCardMobile({ market, dailyIndex }: DailyMarke
   }, [market])
 
   return (
-    <Box border='1px' borderColor='grey.800' cursor='pointer' py='10px' px='8px'>
+    <Box border='1px' borderColor='grey.800' cursor='pointer' py='10px' px='8px' w='full'>
       <HStack w='full' justifyContent='space-between'>
         <HStack color={colors.main} gap='4px'>
           <LiquidityIcon width={16} height={16} />
@@ -79,7 +80,7 @@ export default function DailyMarketCardMobile({ market, dailyIndex }: DailyMarke
       </HStack>
       <HStack w='full' justifyContent='center' px='8px'>
         <Text {...paragraphMedium} color={colors.main} my='48px' textAlign='center'>
-          {market.title}
+          {market.proxyTitle ?? market.title ?? 'Noname market'}
         </Text>
       </HStack>
       <HStack justifyContent='space-between' alignItems='flex-end'>
@@ -117,6 +118,20 @@ export default function DailyMarketCardMobile({ market, dailyIndex }: DailyMarke
         <Button
           variant='dashed'
           onClick={() => {
+            trackClicked(ClickEvent.MarketPageOpened, {
+              bannerPosition: dailyIndex,
+              platform: isMobile ? 'mobile' : 'desktop',
+              bannerType: 'Medium banner',
+              source: 'Explore Market',
+              marketCategory: category,
+              marketAddress: market.address as Address,
+              marketType: 'single',
+              page: 'Market Page',
+            })
+            trackClicked(ClickEvent.MediumMarketBannerClicked, {
+              bannerPosition: dailyIndex,
+              bannerPaginationPage: 1,
+            })
             router.push(`/markets/${market.address}`)
           }}
         >
