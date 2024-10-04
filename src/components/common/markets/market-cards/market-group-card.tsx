@@ -253,83 +253,89 @@ export const MarketGroupCard = ({
           </Text>
         )}
       </VStack>
-      {isMobile && (
-        <>
-          <Divider bg='grey.800' opacity='0.2 !important' mt='16px' mb='8px' />
-          <HStack w='full' justifyContent='space-between'>
-            <MobileDrawer
-              trigger={
-                <Button variant='dashed' onClick={handleQuickBuyClicked}>
-                  Quick buy
-                </Button>
-              }
-              variant='blue'
-              title={marketGroup.title}
-            >
-              {selectedMarket && (
-                <MarketTradingForm
-                  market={selectedMarket}
-                  analyticParams={{ quickBetSource: 'Standard banner', source: 'Quick Bet' }}
-                  showTitle={true}
-                  setSelectedMarket={setMarket}
-                  //@ts-ignore
-                  marketGroup={preparedMarketGroup}
-                />
-              )}
-            </MobileDrawer>
-            <Button
-              variant='transparent'
-              onClick={() => {
-                trackClicked(ClickEvent.MarketPageOpened, {
-                  bannerPosition: position,
-                  platform: 'mobile',
-                  bannerType: 'Standard banner',
-                  source: 'Explore Market',
-                  marketCategory: category,
-                  marketGroup: marketGroup.title,
-                  marketType: 'group',
-                  page: 'Market Page',
-                })
-                trackClicked(ClickEvent.MediumMarketBannerClicked, {
-                  bannerPosition: position,
-                  bannerPaginationPage: 1,
-                })
-                router.push(`/market-group/${marketGroup.slug}`)
-              }}
-            >
-              Open market <ArrowRightIcon width={16} height={16} />
-            </Button>
-          </HStack>
-        </>
-      )}
+      {/*{isMobile && (*/}
+      {/*  <>*/}
+      {/*    <Divider bg='grey.800' opacity='0.2 !important' mt='16px' mb='8px' />*/}
+      {/*    <HStack w='full' justifyContent='space-between'>*/}
+      {/*      <MobileDrawer*/}
+      {/*        trigger={*/}
+      {/*          <Button variant='dashed' onClick={handleQuickBuyClicked}>*/}
+      {/*            Quick buy*/}
+      {/*          </Button>*/}
+      {/*        }*/}
+      {/*        variant='blue'*/}
+      {/*        title={marketGroup.title}*/}
+      {/*      >*/}
+      {/*        {selectedMarket && (*/}
+      {/*          <MarketTradingForm*/}
+      {/*            market={selectedMarket}*/}
+      {/*            analyticParams={{ quickBetSource: 'Standard banner', source: 'Quick Bet' }}*/}
+      {/*            showTitle={true}*/}
+      {/*            setSelectedMarket={setMarket}*/}
+      {/*            //@ts-ignore*/}
+      {/*            marketGroup={preparedMarketGroup}*/}
+      {/*          />*/}
+      {/*        )}*/}
+      {/*      </MobileDrawer>*/}
+      {/*      <Button*/}
+      {/*        variant='transparent'*/}
+      {/*        onClick={() => {*/}
+      {/*          trackClicked(ClickEvent.MarketPageOpened, {*/}
+      {/*            bannerPosition: position,*/}
+      {/*            platform: 'mobile',*/}
+      {/*            bannerType: 'Standard banner',*/}
+      {/*            source: 'Explore Market',*/}
+      {/*            marketCategory: category,*/}
+      {/*            marketGroup: marketGroup.title,*/}
+      {/*            marketType: 'group',*/}
+      {/*            page: 'Market Page',*/}
+      {/*          })*/}
+      {/*          trackClicked(ClickEvent.MediumMarketBannerClicked, {*/}
+      {/*            bannerPosition: position,*/}
+      {/*            bannerPaginationPage: 1,*/}
+      {/*          })*/}
+      {/*          router.push(`/market-group/${marketGroup.slug}`)*/}
+      {/*        }}*/}
+      {/*      >*/}
+      {/*        Open market <ArrowRightIcon width={16} height={16} />*/}
+      {/*      </Button>*/}
+      {/*    </HStack>*/}
+      {/*  </>*/}
+      {/*)}*/}
     </Paper>
   )
 
-  return isMobile ? (
-    content
-  ) : (
-    <Box w='full' position='relative'>
-      <NextLink href={`/market-group/${marketGroup.slug}`} style={{ width: '100%' }}>
-        {content}
-      </NextLink>
-      {tradingWidgetOpened && selectedMarket && (
-        <Box
-          position='absolute'
-          top={positionFromBottom > -7 ? 'unset' : '0'}
-          bottom={positionFromBottom > -7 ? '0' : 'unset'}
-          right={'-352px'}
-          ref={ref as LegacyRef<HTMLDivElement>}
-        >
-          <MarketTradingForm
-            market={selectedMarket}
-            analyticParams={{ quickBetSource: 'Standard banner', source: 'Quick Bet' }}
-            showTitle={true}
-            setSelectedMarket={setMarket}
-            //@ts-ignore
-            marketGroup={preparedMarketGroup}
-          />
-        </Box>
-      )}
-    </Box>
+  return (
+    <NextLink href={`/market-group/${marketGroup.slug}`} style={{ width: '100%' }}>
+      {content}
+    </NextLink>
   )
+
+  // return isMobile ? (
+  //   content
+  // ) : (
+  //   <Box w='full' position='relative'>
+  //     <NextLink href={`/market-group/${marketGroup.slug}`} style={{ width: '100%' }}>
+  //       {content}
+  //     </NextLink>
+  //     {tradingWidgetOpened && selectedMarket && (
+  //       <Box
+  //         position='absolute'
+  //         top={positionFromBottom > -7 ? 'unset' : '0'}
+  //         bottom={positionFromBottom > -7 ? '0' : 'unset'}
+  //         right={'-352px'}
+  //         ref={ref as LegacyRef<HTMLDivElement>}
+  //       >
+  //         <MarketTradingForm
+  //           market={selectedMarket}
+  //           analyticParams={{ quickBetSource: 'Standard banner', source: 'Quick Bet' }}
+  //           showTitle={true}
+  //           setSelectedMarket={setMarket}
+  //           //@ts-ignore
+  //           marketGroup={preparedMarketGroup}
+  //         />
+  //       </Box>
+  //     )}
+  //   </Box>
+  // )
 }
