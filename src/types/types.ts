@@ -18,8 +18,13 @@ export type Category = {
   name: string
 }
 
-export type MarketData = {
+export type MarketsResponse = {
   data: (MarketGroupCardResponse | MarketSingleCardResponse)[]
+  totalMarketsCount: number
+}
+
+export type MarketData = {
+  data: MarketsResponse
   next: number
 }
 
@@ -94,6 +99,7 @@ export type MarketSingleCardResponse = {
   createdAt: string
   volume: string
   volumeFormatted: string
+  conditionId: Address
   liquidity: string
   liquidityFormatted: string
   collateralToken: {

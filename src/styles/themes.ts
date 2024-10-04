@@ -11,12 +11,13 @@ import { linkTheme } from '@/styles/link'
 import { tableTheme } from '@/styles/table'
 import { skeletonTheme } from '@/styles/skeleton'
 import { textAreaTheme } from '@/styles/text-area'
+import { tabsTheme } from '@/styles/tabs'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
 
 const config: ThemeConfig = {
-  initialColorMode: 'light',
+  initialColorMode: 'dark',
   useSystemColorMode: false,
 }
 
@@ -208,15 +209,23 @@ export const chakraTheme = ChakraTheme({
         },
         black: {
           ...commonButtonProps,
-          bg: 'grey.800',
-          color: 'grey.50',
+          bg: 'black',
+          color: 'white',
           ...(isMobile
             ? {}
             : {
                 _hover: {
-                  bg: 'grey.800',
+                  bg: 'black',
                 },
               }),
+        },
+        dashed: {
+          ...commonButtonProps,
+          bg: 'unset',
+          color: 'grey.800',
+          gap: '8px',
+          border: '1px dashed',
+          borderColor: 'blackTransparent.200',
         },
         transparent: {
           background: 'unset',
@@ -264,6 +273,7 @@ export const chakraTheme = ChakraTheme({
     Link: linkTheme,
     Table: tableTheme,
     Skeleton: skeletonTheme,
+    Tabs: tabsTheme,
   },
   breakpoints: {
     sm: '320px',

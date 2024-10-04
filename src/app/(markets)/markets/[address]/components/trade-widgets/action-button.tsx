@@ -1,8 +1,6 @@
 import { isMobile } from 'react-device-detect'
-import { ClickEvent, TradeClickedMetadata, TradeQuotes, useAmplitude } from '@/services'
-import { Box, Button, HStack, Icon, Text, useOutsideClick, VStack } from '@chakra-ui/react'
-import BlockIcon from '@/resources/icons/block.svg'
-import CloseIcon from '@/resources/icons/close-icon.svg'
+import { ClickEvent, TradeQuotes, useAmplitude, useTradingService } from '@/services'
+import { Box, Button, HStack, Text, useOutsideClick, VStack } from '@chakra-ui/react'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
@@ -27,12 +25,12 @@ import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import Loader from '@/components/common/loader'
 import { parseUnits } from 'viem'
 import BigNumber from 'bignumber.js'
+import Cookies from 'js-cookie'
+import BlockedTradeTemplate from '@/app/(markets)/markets/[address]/components/trade-widgets/blocked-trade-template'
 
 interface ActionButtonProps {
   disabled: boolean
   onClick: () => Promise<void>
-  showBlock: boolean
-  onCloseBlock: () => void
   market: Market
   amount: string
   option: 'Yes' | 'No'
@@ -45,6 +43,8 @@ interface ActionButtonProps {
   showFeeInValue: boolean
   setShowFeeInValue: Dispatch<SetStateAction<boolean>>
   isExceedsBalance: boolean
+  resetForm: () => void
+  analyticParams?: { quickBetSource: string; source: string }
 }
 
 const MotionBox = motion(Box)
@@ -61,8 +61,6 @@ export type ButtonStatus =
 export default function ActionButton({
   disabled,
   onClick,
-  showBlock,
-  onCloseBlock,
   quote,
   market,
   price,
@@ -75,17 +73,25 @@ export default function ActionButton({
   setShowFeeInValue,
   showReturnPercent,
   isExceedsBalance,
+  resetForm,
+  analyticParams,
 }: ActionButtonProps) {
+  const [marketLocked, setMarketLocked] = useState(false)
+  const [tradingBlocked, setTradingBlocked] = useState(false)
   /**
    * ANALITYCS
    */
   const { trackClicked } = useAmplitude()
+  const country = Cookies.get('limitless_geo')
 
   const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
+  const { marketFee } = useTradingService()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
   const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
+  const TRADING_BLOCKED_MSG =
+    'Trading is unavailable to individuals or companies based in the U.S. or restricted territories.'
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
@@ -169,13 +175,23 @@ export default function ActionButton({
       return
     }
     if (market?.status === MarketStatus.LOCKED) {
-      await onClick()
+      setMarketLocked(true)
+      return
+    }
+    if (country === 'VVM=') {
+      setTradingBlocked(true)
       return
     }
     if (status !== 'initial') {
       setStatus('initial')
       return
     }
+    trackClicked(ClickEvent.BuyClicked, {
+      outcome: option,
+      marketAddress: market.address,
+      walletType: client,
+      ...(analyticParams ? analyticParams : {}),
+    })
     if (client === 'eoa') {
       const allowance = await checkAllowance(market.address, market.collateralToken.address)
       const amountBI = parseUnits(amount, decimals || 18)
@@ -200,6 +216,7 @@ export default function ActionButton({
         strategy: 'Buy',
         outcome: option,
         walletType: 'eoa',
+        ...(analyticParams ? analyticParams : {}),
       })
       await sleep(2)
       setStatus('confirm')
@@ -244,10 +261,25 @@ export default function ActionButton({
     setShowFeeInValue(!showFeeInValue)
   }
 
+  const blockedMessage = useMemo(() => {
+    if (tradingBlocked) {
+      return (
+        <BlockedTradeTemplate
+          onClose={() => setTradingBlocked(false)}
+          message={TRADING_BLOCKED_MSG}
+        />
+      )
+    }
+    if (marketLocked) {
+      return <BlockedTradeTemplate onClose={() => setMarketLocked(false)} message={INFO_MSG} />
+    }
+  }, [marketLocked, tradingBlocked])
+
   useEffect(() => {
     const returnToInitial = async () => {
       await sleep(2)
       await setStatus('initial')
+      resetForm()
     }
     if (status === 'success') {
       returnToInitial()
@@ -283,28 +315,8 @@ export default function ActionButton({
             WebkitTapHighlightColor: 'transparent !important',
           }}
         >
-          {showBlock ? (
-            <VStack w={'full'} h={'120px'}>
-              <HStack w={'full'} justifyContent={'space-between'}>
-                <Icon as={BlockIcon} width={'16px'} height={'16px'} color={'white'} />
-                <Icon
-                  as={CloseIcon}
-                  width={'16px'}
-                  height={'16px'}
-                  color={'white'}
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    onCloseBlock()
-                  }}
-                />
-              </HStack>
-              <HStack w={'full'}>
-                <Text {...paragraphMedium} color='white' textAlign={'left'} whiteSpace='normal'>
-                  {INFO_MSG}
-                </Text>
-                <Box w={'45px'}></Box>
-              </HStack>
-            </VStack>
+          {blockedMessage ? (
+            blockedMessage
           ) : (
             <>
               {headerStatus}
@@ -393,10 +405,10 @@ export default function ActionButton({
                   >
                     {showFeeInValue
                       ? `${NumberUtil.toFixed(
-                          new BigNumber(amount).dividedBy(100).toNumber(),
+                          new BigNumber(amount).multipliedBy(marketFee).toNumber(),
                           6
                         )} ${market?.collateralToken.symbol}`
-                      : '1%'}
+                      : `${marketFee * 100}%`}
                   </Text>
                 </HStack>
               </VStack>
@@ -417,17 +429,22 @@ export default function ActionButton({
           status={status}
           handleConfirmClicked={() => {
             trackClicked(ClickEvent.ConfirmTransactionClicked, {
-              address: market?.address,
+              address: market.address,
               outcome: option,
               strategy: 'Buy',
               walletType: client,
               marketType,
+              ...(analyticParams ? analyticParams : {}),
             })
 
             return handleConfirmClicked()
           }}
           onApprove={handleApprove}
           setStatus={setStatus}
+          analyticParams={analyticParams}
+          marketType={marketType}
+          outcome={option}
+          marketAddress={market.address}
         />
       </MotionBox>
     </HStack>

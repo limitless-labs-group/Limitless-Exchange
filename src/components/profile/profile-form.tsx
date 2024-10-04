@@ -29,18 +29,20 @@ import { APIError } from '@/types'
 import { Toast } from '@/components/common/toast'
 import { useToast } from '@/hooks'
 import { DISCORD_LINK } from '@/utils/consts'
+import Avatar from '@/components/common/avatar'
 
 export function ProfileForm() {
   const [pfpFile, setPfpFile] = useState<File | undefined>(undefined)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [hoverImage, setHoverImage] = useState(false)
-  const { displayName, displayUsername, bio, profileData, updateProfileMutation } = useAccount()
+  const { displayName, displayUsername, bio, profileData, updateProfileMutation, account } =
+    useAccount()
   const toast = useToast()
 
   const {
     handleSubmit,
     control,
-    formState: { errors, isValid, isDirty, dirtyFields },
+    formState: { errors, isValid, isDirty },
     reset,
   } = useForm<ProfileFields>({
     resolver: yupResolver(profileValidationSchema),
@@ -114,14 +116,14 @@ export function ProfileForm() {
   }, [profileData, imagePreview])
 
   const showChangeImageIcon = () => {
-    if (!isMobile && imageLink) {
+    if (!isMobile) {
       setHoverImage(true)
     }
     return
   }
 
   const hideImageIcon = () => {
-    if (!isMobile && imageLink) {
+    if (!isMobile) {
       setHoverImage(false)
     }
     return
@@ -193,7 +195,7 @@ export function ProfileForm() {
                 cursor='pointer'
               />
             ) : (
-              <ImageIcon width={16} height={16} />
+              <Avatar account={account as string} size={12} />
             )}
             {hoverImage && (
               <Box
@@ -244,7 +246,6 @@ export function ProfileForm() {
             )
           }}
         />
-        {/*<FormErrorMessage>{errors.firstName?.message}</FormErrorMessage>*/}
       </FormControl>
       <FormControl isInvalid={!!errors.username}>
         <Controller

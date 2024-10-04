@@ -6,7 +6,7 @@ import { useBalanceService, useHistory } from '@/services'
 import { Market, RedeemParams } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePathname } from 'next/navigation'
 import {
   PropsWithChildren,
@@ -16,8 +16,6 @@ import {
   useEffect,
   useMemo,
   useState,
-  Dispatch,
-  SetStateAction,
 } from 'react'
 import { Address, Hash, formatUnits, getAddress, getContract, parseUnits, zeroHash } from 'viem'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -53,12 +51,12 @@ interface ITradingServiceContext {
   redeem: (params: RedeemParams) => Promise<string | undefined>
   status: TradingServiceStatus
   tradeStatus: TradingServiceStatus
-  approveModalOpened: boolean
-  setApproveModalOpened: Dispatch<SetStateAction<boolean>>
   approveBuy: () => Promise<void>
-  approveSell: () => Promise<void>
   isLoadingRedeem: boolean
   resetQuotes: () => void
+  approveSellMutation: UseMutationResult<void, Error, void, unknown>
+  checkApprovedForSell: () => Promise<boolean>
+  marketFee: number
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -81,7 +79,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const [market, setMarket] = useState<Market | null>(null)
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
-  const [approveModalOpened, setApproveModalOpened] = useState(false)
+  const [marketFee, setMarketFee] = useState(0)
 
   /**
    * REFRESH / REFETCH
@@ -227,14 +225,12 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         otherHoldingsYes.push(balance)
       }
     }
-    const feeBI = (await fixedProductMarketMakerContract.read.fee()) as bigint
-    const fee = Number(formatUnits(feeBI, 18))
     let balanceOfCollateralToSellBIYes =
       calcSellAmountInCollateral(
         parseUnits(balanceOfOutcomeTokenCroppedYes, collateralToken?.decimals || 18),
         holdingsYes,
         otherHoldingsYes,
-        fee
+        Number(marketFee)
       ) ?? 0n
     // small balance to zero
     if (balanceOfCollateralToSellBIYes < parseUnits('0.000001', collateralToken?.decimals || 18)) {
@@ -262,7 +258,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         parseUnits(balanceOfOutcomeTokenCroppedNo, collateralToken?.decimals || 18),
         holdingsNo,
         otherHoldingsNo,
-        fee
+        Number(marketFee)
       ) ?? 0n
     // small balance to zero
     if (balanceOfCollateralToSellBINo < parseUnits('0.000001', collateralToken?.decimals || 18)) {
@@ -283,9 +279,21 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     conditionalTokensContract?.address,
   ])
 
+  const getMarketFee = async () => {
+    const feeBI = (await fixedProductMarketMakerContract?.read.fee()) as bigint
+    const fee = Number(formatUnits(feeBI, 18))
+    setMarketFee(fee)
+  }
+
   useEffect(() => {
     updateSellBalance()
   }, [market, strategy, fixedProductMarketMakerContract, conditionalTokensContract?.address])
+
+  useEffect(() => {
+    if (fixedProductMarketMakerContract) {
+      getMarketFee()
+    }
+  }, [fixedProductMarketMakerContract])
 
   /**
    * AMOUNT
@@ -509,13 +517,18 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      await refetchChain()
-
-      sleep(10).then(async () => {
-        await refetchSubgraph()
+      sleep(1).then(async () => {
+        await refetchChain()
         await queryClient.refetchQueries({
-          queryKey: ['markets', market.address],
+          queryKey: ['daily-markets'],
         })
+        await queryClient.refetchQueries({
+          queryKey: ['market', market.address],
+        })
+      })
+
+      sleep(5).then(async () => {
+        await refetchSubgraph()
       })
 
       return receipt
@@ -546,7 +559,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const { mutateAsync: approveContractSell, isPending: isLoadingApproveSell } = useMutation({
+  const approveSellMutation = useMutation({
     mutationFn: async () => {
       if (!market) {
         return
@@ -561,32 +574,23 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
           render: () => <Toast title={`Successfully approved. Proceed with sell now.`} id={id} />,
         })
       } catch (e) {
-        const id = toast({
-          render: () => (
-            <Toast title={`Something went wrong during approve transaction broadcast.`} id={id} />
-          ),
-        })
+        // @ts-ignore
+        throw new Error(e)
       }
     },
   })
+
+  const checkApprovedForSell = async () => {
+    return checkAllowanceForAll(market?.address as Address, conditionalTokensAddress as Address)
+  }
 
   /**
    * SELL
    */
   const { mutateAsync: sell, isPending: isLoadingSell } = useMutation({
-    // mutationFn: async ({ outcomeTokenId, amount }: { outcomeTokenId: number; amount: bigint }) => {
     mutationFn: async (outcomeTokenId: number) => {
       if (!account || !market || isInvalidCollateralAmount || !conditionalTokensAddress) {
         return
-      }
-
-      if (client === 'eoa') {
-        const approvedForAll = await checkAllowanceForAll(market.address, conditionalTokensAddress!)
-
-        if (!approvedForAll) {
-          setApproveModalOpened(true)
-          return
-        }
       }
 
       const receipt = await sellOutcomeTokens(
@@ -635,16 +639,20 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       await sleep(1)
 
+      await queryClient.refetchQueries({
+        queryKey: ['daily-markets'],
+      })
+      await queryClient.refetchQueries({
+        queryKey: ['market', market.address],
+      })
+
       const updateID = toast({
         render: () => <Toast title={`Updating portfolio...`} id={updateID} />,
       })
 
       // TODO: redesign subgraph refetch logic
-      sleep(10).then(async () => {
+      sleep(5).then(async () => {
         await refetchSubgraph()
-        await queryClient.refetchQueries({
-          queryKey: ['markets', market.address],
-        })
       })
 
       return receipt
@@ -713,33 +721,18 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const approveBuy = useCallback(() => approveContractBuy(), [])
 
-  const approveSell = useCallback(() => approveContractSell(), [])
-
   /**
    * STATUS
    */
   const status = useMemo<TradingServiceStatus>(() => {
-    if (
-      isLoadingBuy ||
-      isLoadingSell ||
-      isLoadingRedeem ||
-      isLoadingApproveBuy ||
-      isLoadingApproveSell
-    ) {
+    if (isLoadingBuy || isLoadingSell || isLoadingRedeem || isLoadingApproveBuy) {
       return 'Loading'
     }
     if (isInvalidCollateralAmount) {
       return 'InvalidAmount'
     }
     return 'Ready'
-  }, [
-    isInvalidCollateralAmount,
-    isLoadingBuy,
-    isLoadingSell,
-    isLoadingRedeem,
-    isLoadingApproveBuy,
-    isLoadingApproveSell,
-  ])
+  }, [isInvalidCollateralAmount, isLoadingBuy, isLoadingSell, isLoadingRedeem, isLoadingApproveBuy])
 
   const tradeStatus = useMemo<TradingServiceStatus>(() => {
     if (isLoadingBuy || isLoadingSell) {
@@ -750,6 +743,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const contextProviderValue: ITradingServiceContext = {
     market,
+    checkApprovedForSell,
     setMarket,
     strategy,
     setStrategy,
@@ -765,12 +759,11 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     redeem,
     status,
     tradeStatus,
-    approveModalOpened,
-    setApproveModalOpened,
     approveBuy,
-    approveSell,
+    approveSellMutation,
     isLoadingRedeem,
     resetQuotes,
+    marketFee,
   }
 
   return (

@@ -71,3 +71,19 @@ export const captionMedium = {
   lineHeight: '16px',
   color: 'grey.800',
 }
+
+export const headlineRegular = {
+  fontSize: isMobile ? '20px' : '16px',
+  fontStyle: 'normal',
+  fontWeight: isMobile ? 500 : 400,
+  lineHeight: '20px',
+  color: 'grey.800',
+}
+
+export const headLineLarge = {
+  fontSize: isMobile ? '24px' : '48px',
+  fontStyle: 'normal',
+  fontWeight: 700,
+  lineHeight: isMobile ? '22px' : '44px',
+  color: 'black',
+}
