@@ -375,13 +375,11 @@ export function SellForm({
   }, [outcomeChoice])
 
   useEffect(() => {
-    if (status === 'Ready') {
-      resetQuotes()
-      setCollateralAmount('')
-      setDisplayAmount('')
-      setSliderValue(0)
-    }
-  }, [status])
+    resetQuotes()
+    setCollateralAmount('')
+    setDisplayAmount('')
+    setSliderValue(0)
+  }, [market.address])
 
   return (
     <>
