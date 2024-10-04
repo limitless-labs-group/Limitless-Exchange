@@ -3,21 +3,29 @@
 import { MainLayout } from '@/components'
 import {
   Box,
+  Button,
   Divider,
   HStack,
-  Text,
-  Button,
   Image as ChakraImage,
-  MenuButton,
+  Link,
   Menu,
+  MenuButton,
   MenuItem,
   MenuList,
-  Link,
+  Tab,
+  TabIndicator,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
 } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import {
   ClickEvent,
   createMarketShareUrls,
+  OpenEvent,
+  PageOpenedMetadata,
   ShareClickedMetadata,
   useAmplitude,
   useTradingService,
@@ -29,15 +37,16 @@ import { useRouter } from 'next/navigation'
 import TextWithPixels from '@/components/common/text-with-pixels'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
-import DescriptionIcon from '@/resources/icons/description-icon.svg'
+import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import { isMobile } from 'react-device-detect'
 import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
+import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
+import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import {
   MarketClaimingForm,
   MarketMetadata,
   MarketPositions,
-  MarketPriceChart,
   MarketTradingForm,
   MobileTradeButton,
 } from './components'
@@ -49,7 +58,12 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { Address, zeroAddress } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
+import NextLink from 'next/link'
+import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
+import { v4 as uuidv4 } from 'uuid'
+import MarketActivityTab from '@/app/(markets)/markets/[address]/components/activity-tab'
+import { useMarketFeed } from '@/hooks/use-market-feed'
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -68,6 +82,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
   const { isLoading: isCollateralLoading } = useToken(market?.collateralToken.address)
   const { setMarket, resetQuotes } = useTradingService()
+  const { data: activityData } = useMarketFeed(params.address)
 
   const marketActionForm = useMemo(() => {
     if (market) {
@@ -79,6 +94,29 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     }
     return null
   }, [market])
+
+  const tabs = [
+    {
+      title: 'Overview',
+      icon: <PredictionsIcon width={16} height={16} />,
+    },
+    {
+      title: 'Activity',
+      icon: <ActivityIcon width={16} height={16} />,
+    },
+  ]
+
+  const tabPanels = useMemo(() => {
+    return [
+      <MarketOverviewTab
+        market={market as Market}
+        winningIndex={winningIndex as number}
+        resolved={resolved}
+        key={uuidv4()}
+      />,
+      <MarketActivityTab key={uuidv4()} activity={activityData?.data} />,
+    ]
+  }, [market, winningIndex, resolved, activityData?.data])
 
   const mobileTradeButton = useMemo(() => {
     return market?.expired ? (
@@ -115,22 +153,6 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       return router.back()
     }
     return router.push('/')
-  }
-
-  const parseTextWithLinks = (text: string) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g
-    const parts = text.split(urlRegex)
-
-    return parts.map((part, index) => {
-      if (urlRegex.test(part)) {
-        return (
-          <Link key={index} href={part} color='teal.500' isExternal>
-            {part}
-          </Link>
-        )
-      }
-      return part
-    })
   }
 
   useEffect(() => {
@@ -249,20 +271,30 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                 liquidity={market.liquidityFormatted}
                 volume={market.volumeFormatted}
               />
-              <MarketPriceChart
-                marketAddr={market.address[defaultChain.id] ?? zeroAddress}
-                winningIndex={winningIndex}
-                resolved={resolved}
-                outcomeTokensPercent={market.prices}
-              />
-              <MarketPositions market={market} />
-              <HStack gap='4px' marginTop='24px' mb='8px'>
-                <DescriptionIcon width='16px' height='16px' />
-                <Text {...paragraphBold}>Description</Text>
-              </HStack>
-              <Text {...paragraphRegular} userSelect='text'>
-                {parseTextWithLinks(market?.description)}
-              </Text>
+              <Box mt={isMobile ? '48px' : '24px'} />
+              <Tabs position='relative' variant='common'>
+                <TabList>
+                  {tabs.map((tab) => (
+                    <Tab key={tab.title}>
+                      <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+                        {tab.icon}
+                        <>{tab.title}</>
+                      </HStack>
+                    </Tab>
+                  ))}
+                </TabList>
+                <TabIndicator
+                  mt='-2px'
+                  height='2px'
+                  bg='grey.800'
+                  transitionDuration='200ms !important'
+                />
+                <TabPanels>
+                  {tabPanels.map((panel, index) => (
+                    <TabPanel key={index}>{panel}</TabPanel>
+                  ))}
+                </TabPanels>
+              </Tabs>
             </Box>
             {!isMobile && marketActionForm}
           </HStack>

@@ -11,6 +11,7 @@ import { linkTheme } from '@/styles/link'
 import { tableTheme } from '@/styles/table'
 import { skeletonTheme } from '@/styles/skeleton'
 import { textAreaTheme } from '@/styles/text-area'
+import { tabsTheme } from '@/styles/tabs'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
@@ -272,6 +273,7 @@ export const chakraTheme = ChakraTheme({
     Link: linkTheme,
     Table: tableTheme,
     Skeleton: skeletonTheme,
+    Tabs: tabsTheme,
   },
   breakpoints: {
     sm: '320px',

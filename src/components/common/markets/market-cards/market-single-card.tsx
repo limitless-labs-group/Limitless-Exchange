@@ -2,9 +2,16 @@ import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import { MarketSingleCardResponse } from '@/types'
 import { NumberUtil } from '@/utils'
-import { Box, Button, HStack, Text } from '@chakra-ui/react'
+import { Box, Button, Divider, HStack, Text, useOutsideClick } from '@chakra-ui/react'
 import Paper from '@/components/common/paper'
-import React, { LegacyRef, SyntheticEvent, useEffect, useRef, useState } from 'react'
+import React, {
+  LegacyRef,
+  MutableRefObject,
+  SyntheticEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import NextLink from 'next/link'
 import { isMobile } from 'react-device-detect'
@@ -17,12 +24,15 @@ import {
 } from '@/services'
 import { dailyMarketToMarket } from '@/utils/market'
 import { Address } from 'viem'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { MarketTradingForm } from '@/app/(markets)/markets/[address]/components'
+import MobileDrawer from '@/components/common/drawer'
+import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 
 interface MarketSingleCardProps {
   market: MarketSingleCardResponse
   position: number
+  positionFromBottom: number
 }
 
 const defaultColors = {
@@ -37,7 +47,12 @@ const hoverColors = {
   chartBg: 'var(--chakra-colors-transparent-300)',
 }
 
-export const MarketSingleCard = ({ market, position }: MarketSingleCardProps) => {
+export const MarketSingleCard = ({
+  market,
+  position,
+  positionFromBottom,
+}: MarketSingleCardProps) => {
+  const router = useRouter()
   const [colors, setColors] = useState(defaultColors)
   const { trackOpened, trackClicked } = useAmplitude()
   const searchParams = useSearchParams()
@@ -45,6 +60,21 @@ export const MarketSingleCard = ({ market, position }: MarketSingleCardProps) =>
   const [showQuickBetButton, setShowQuickBetButton] = useState(false)
 
   const ref = useRef<HTMLElement>()
+
+  useOutsideClick({
+    ref: ref as MutableRefObject<HTMLElement>,
+    handler: () => {
+      setTradingWidgetOpened(false)
+    },
+  })
+
+  useEffect(() => {
+    if (!tradingWidgetOpened) {
+      setShowQuickBetButton(false)
+      setColors(defaultColors)
+      setMarket(null)
+    }
+  }, [tradingWidgetOpened])
 
   const category = searchParams.get('category')
 
@@ -67,12 +97,17 @@ export const MarketSingleCard = ({ market, position }: MarketSingleCardProps) =>
     trackClicked(ClickEvent.QuickBetClicked, {
       bannerPosition: position,
       platform: isMobile ? 'mobile' : 'desktop',
-      bannerType: 'Standart card',
+      bannerType: 'Standard card',
       marketCategory: category,
       marketAddress: market.address as Address,
       marketType: 'single',
       source: 'Explore Market',
     })
+  }
+
+  const handleQuickBuyClicked = (e: SyntheticEvent) => {
+    setMarket(dailyMarketToMarket(market))
+    trackMarketClicked()
   }
 
   useEffect(() => {
@@ -89,6 +124,7 @@ export const MarketSingleCard = ({ market, position }: MarketSingleCardProps) =>
       justifyContent={'space-between'}
       cursor='pointer'
       _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
+      bg={tradingWidgetOpened ? 'blue.500' : 'grey.200'}
       onMouseEnter={() => {
         if (!isMobile) {
           // setShowQuickBetButton(true)
@@ -190,15 +226,15 @@ export const MarketSingleCard = ({ market, position }: MarketSingleCardProps) =>
       <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
         {content}
       </NextLink>
-      {tradingWidgetOpened && selectedMarket && (
-        <Box position='absolute' top='0' right={'-352px'} ref={ref as LegacyRef<HTMLDivElement>}>
-          <MarketTradingForm
-            market={selectedMarket}
-            analyticParams={{ quickBetSource: 'Medium banner', source: 'Quick Bet' }}
-            showTitle={true}
-          />
-        </Box>
-      )}
+      {/*{tradingWidgetOpened && selectedMarket && (*/}
+      {/*  <Box position='absolute' top='0' right={'-352px'} ref={ref as LegacyRef<HTMLDivElement>}>*/}
+      {/*    <MarketTradingForm*/}
+      {/*      market={selectedMarket}*/}
+      {/*      analyticParams={{ quickBetSource: 'Medium banner', source: 'Quick Bet' }}*/}
+      {/*      showTitle={true}*/}
+      {/*    />*/}
+      {/*  </Box>*/}
+      {/*)}*/}
     </>
   )
 }
