@@ -213,80 +213,28 @@ export const MarketSingleCard = ({
           </HStack>
         </HStack>
       </HStack>
-      {/*{isMobile && (*/}
-      {/*  <>*/}
-      {/*    <Divider bg='grey.800' opacity='0.2 !important' mt='16px' mb='8px' />*/}
-      {/*    <HStack w='full' justifyContent='space-between'>*/}
-      {/*      <MobileDrawer*/}
-      {/*        trigger={*/}
-      {/*          <Button variant='dashed' onClick={handleQuickBuyClicked}>*/}
-      {/*            Quick buy*/}
-      {/*          </Button>*/}
-      {/*        }*/}
-      {/*        variant='blue'*/}
-      {/*        title={market.title}*/}
-      {/*      >*/}
-      {/*        <MarketTradingForm*/}
-      {/*          market={dailyMarketToMarket(market)}*/}
-      {/*          analyticParams={{ quickBetSource: 'Medium banner', source: 'Quick Bet' }}*/}
-      {/*        />*/}
-      {/*      </MobileDrawer>*/}
-      {/*      <Button*/}
-      {/*        variant='transparent'*/}
-      {/*        onClick={() => {*/}
-      {/*          trackClicked(ClickEvent.MarketPageOpened, {*/}
-      {/*            bannerPosition: position,*/}
-      {/*            platform: 'mobile',*/}
-      {/*            bannerType: 'Standard banner',*/}
-      {/*            source: 'Explore Market',*/}
-      {/*            marketCategory: category,*/}
-      {/*            marketAddress: market.address as Address,*/}
-      {/*            marketType: 'single',*/}
-      {/*            page: 'Market Page',*/}
-      {/*          })*/}
-      {/*          trackClicked(ClickEvent.MediumMarketBannerClicked, {*/}
-      {/*            bannerPosition: position,*/}
-      {/*            bannerPaginationPage: 1,*/}
-      {/*          })*/}
-      {/*          router.push(`/markets/${market.address}`)*/}
-      {/*        }}*/}
-      {/*      >*/}
-      {/*        Open market <ArrowRightIcon width={16} height={16} />*/}
-      {/*      </Button>*/}
-      {/*    </HStack>*/}
-      {/*  </>*/}
-      {/*)}*/}
     </Paper>
   )
 
-  return (
+  return isMobile ? (
+    // Todo remove after phase 6 is implemented
     <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
       {content}
     </NextLink>
+  ) : (
+    <>
+      <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
+        {content}
+      </NextLink>
+      {/*{tradingWidgetOpened && selectedMarket && (*/}
+      {/*  <Box position='absolute' top='0' right={'-352px'} ref={ref as LegacyRef<HTMLDivElement>}>*/}
+      {/*    <MarketTradingForm*/}
+      {/*      market={selectedMarket}*/}
+      {/*      analyticParams={{ quickBetSource: 'Medium banner', source: 'Quick Bet' }}*/}
+      {/*      showTitle={true}*/}
+      {/*    />*/}
+      {/*  </Box>*/}
+      {/*)}*/}
+    </>
   )
-
-  // return isMobile ? (
-  //   content
-  // ) : (
-  //   <Box w='full' position='relative'>
-  //     <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
-  //       {content}
-  //     </NextLink>
-  //     {tradingWidgetOpened && selectedMarket && (
-  //       <Box
-  //         position='absolute'
-  //         top={positionFromBottom > -7 ? 'unset' : '0'}
-  //         bottom={positionFromBottom > -7 ? '0' : 'unset'}
-  //         right={'-352px'}
-  //         ref={ref as LegacyRef<HTMLDivElement>}
-  //       >
-  //         <MarketTradingForm
-  //           market={selectedMarket}
-  //           analyticParams={{ quickBetSource: 'Standard banner', source: 'Quick Bet' }}
-  //           showTitle={true}
-  //         />
-  //       </Box>
-  //     )}
-  //   </Box>
-  // )
 }
