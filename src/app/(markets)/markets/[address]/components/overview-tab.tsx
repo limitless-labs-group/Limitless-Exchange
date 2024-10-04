@@ -6,19 +6,22 @@ import { Box, HStack, Link, Text } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import { paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market, MarketStatus } from '@/types'
+import { Market, MarketGroup, MarketStatus } from '@/types'
 import NextLink from 'next/link'
+import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components/market-group-positions'
 
 interface MarketOverviewTabProps {
   market: Market
   winningIndex: number
   resolved: boolean
+  marketGroup?: MarketGroup
 }
 
-export default function MarketOverviewTab({
+function MarketOverviewTab({
   market,
   winningIndex,
   resolved,
+  marketGroup,
 }: MarketOverviewTabProps) {
   const parseTextWithLinks = (text: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g
@@ -43,7 +46,9 @@ export default function MarketOverviewTab({
         winningIndex={winningIndex}
         resolved={resolved}
         outcomeTokensPercent={market.prices}
+        marketGroup={marketGroup}
       />
+      {marketGroup && <MarketGroupPositions marketGroup={marketGroup} />}
       <MarketPositions market={market} />
       <HStack
         w='full'
@@ -82,3 +87,5 @@ export default function MarketOverviewTab({
     </>
   )
 }
+
+export default MarketOverviewTab

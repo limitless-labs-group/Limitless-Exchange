@@ -47,7 +47,6 @@ import {
   MarketClaimingForm,
   MarketMetadata,
   MarketPositions,
-  MarketPriceChart,
   MarketTradingForm,
   MobileTradeButton,
 } from './components'
@@ -63,6 +62,8 @@ import { Market, MarketStatus } from '@/types'
 import NextLink from 'next/link'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import { v4 as uuidv4 } from 'uuid'
+import MarketActivityTab from '@/app/(markets)/markets/[address]/components/activity-tab'
+import { useMarketFeed } from '@/hooks/use-market-feed'
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -81,6 +82,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
   const { isLoading: isCollateralLoading } = useToken(market?.collateralToken.address)
   const { setMarket, resetQuotes } = useTradingService()
+  const { data: activityData } = useMarketFeed(params.address)
 
   const marketActionForm = useMemo(() => {
     if (market) {
@@ -104,15 +106,17 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     },
   ]
 
-  const tabPanels = [
-    <MarketOverviewTab
-      market={market as Market}
-      winningIndex={winningIndex as number}
-      resolved={resolved}
-      key={uuidv4()}
-    />,
-    <></>,
-  ]
+  const tabPanels = useMemo(() => {
+    return [
+      <MarketOverviewTab
+        market={market as Market}
+        winningIndex={winningIndex as number}
+        resolved={resolved}
+        key={uuidv4()}
+      />,
+      <MarketActivityTab key={uuidv4()} activity={activityData?.data} />,
+    ]
+  }, [market, winningIndex, resolved, activityData?.data])
 
   const mobileTradeButton = useMemo(() => {
     return market?.expired ? (
