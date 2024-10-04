@@ -152,6 +152,11 @@ export enum ClickEvent {
   LimitlessLinksClicked = 'Limitless Links Clicked',
   FeeTradingDetailsClicked = 'Fee Trading Details Clicked',
   ReturnTradingDetailsClicked = 'Return Trading Details Clicked',
+  MarketPageOpened = 'Market Page Opened',
+  MediumMarketBannerClicked = 'Medium Market Banner Clicked',
+  BigBannerClicked = 'BigBannerClicked',
+  QuickBetClicked = 'Quick Bet Clicked',
+  NevermindButtonClicked = 'Nevermind Button Clicked',
 }
 
 export enum SignInEvent {
@@ -351,6 +356,11 @@ export interface SignInW3AClickedMetadata {
   option: LOGIN_PROVIDER_TYPE | CUSTOM_LOGIN_PROVIDER_TYPE | undefined
 }
 
+export interface MediumBannerClicked {
+  bannerPosition: number
+  bannerPaginationPage: number
+}
+
 export type ChangedEventMetadata =
   | StrategyChangedMetadata
   | OutcomeChangedMetadata
@@ -376,6 +386,7 @@ export type ClickedEventMetadata =
   | SignInW3AClickedMetadata
   | MarketChangeInGroupData
   | FeeAndReturnTradingDetailsClicked
+  | MediumBannerClicked
 
 export type OpenedEventMetadata = PageOpenedMetadata | ProfileSettingsMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata

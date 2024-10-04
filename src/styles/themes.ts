@@ -17,7 +17,7 @@ const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
 
 const config: ThemeConfig = {
-  initialColorMode: 'light',
+  initialColorMode: 'dark',
   useSystemColorMode: false,
 }
 
@@ -209,15 +209,23 @@ export const chakraTheme = ChakraTheme({
         },
         black: {
           ...commonButtonProps,
-          bg: 'grey.800',
-          color: 'grey.50',
+          bg: 'black',
+          color: 'white',
           ...(isMobile
             ? {}
             : {
                 _hover: {
-                  bg: 'grey.800',
+                  bg: 'black',
                 },
               }),
+        },
+        dashed: {
+          ...commonButtonProps,
+          bg: 'unset',
+          color: 'grey.800',
+          gap: '8px',
+          border: '1px dashed',
+          borderColor: 'blackTransparent.200',
         },
         transparent: {
           background: 'unset',

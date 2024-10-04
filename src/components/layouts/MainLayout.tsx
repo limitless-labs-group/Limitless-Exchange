@@ -8,9 +8,15 @@ import MobileNavigation from '@/components/layouts/mobile-navigation'
 
 interface IMainLayout extends FlexProps {
   isLoading?: boolean
+  layoutPadding?: string
 }
 
-export const MainLayout = ({ children, isLoading, ...props }: IMainLayout) => {
+export const MainLayout = ({
+  children,
+  isLoading,
+  layoutPadding = '16px',
+  ...props
+}: IMainLayout) => {
   return (
     <Box
       id='main'
@@ -35,7 +41,7 @@ export const MainLayout = ({ children, isLoading, ...props }: IMainLayout) => {
               <Spinner />
             </Flex>
           ) : (
-            <Box ml={isMobile ? 0 : '200px'} p={'16px'} w='full'>
+            <Box ml={isMobile ? 0 : '200px'} p={layoutPadding} w='full'>
               {children}
             </Box>
           )}

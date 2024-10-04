@@ -6,6 +6,13 @@ export class NumberUtil {
     }`
   }
 
+  static convertWithDenomination = (v?: number | string, decimals = 0): string => {
+    const parts = `${this.toFixed(v, decimals)}`.split('.')
+    return `${parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${
+      parts[1]?.length && +parts[0] < 10 ? `.${parts[1]}` : ''
+    }`
+  }
+
   static toFixed = (v?: number | string, decimals = 0, fill = false, truncate = true): string => {
     const numberValue = Number(v ?? 0)
     let numberStr = numberValue.toString()

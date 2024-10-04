@@ -22,8 +22,6 @@ import { isMobile } from 'react-device-detect'
 import {
   ClickEvent,
   createMarketShareUrls,
-  OpenEvent,
-  PageOpenedMetadata,
   ShareClickedMetadata,
   useAmplitude,
   useTradingService,
@@ -51,7 +49,6 @@ import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useWinningIndex } from '@/services/MarketsService'
-import ApproveModal from '@/components/common/modals/approve-modal'
 import MarketPrediction from '@/app/(markets)/market-group/[slug]/components/market-prediction'
 import useMarketGroup from '@/hooks/use-market-group'
 import BigNumber from 'bignumber.js'
@@ -65,9 +62,9 @@ import NextLink from 'next/link'
 export default function MarketGroupPage({ params }: { params: { slug: string } }) {
   const { data: marketGroup, isLoading: marketGroupLoading } = useMarketGroup(params.slug)
 
-  const { trackClicked, trackOpened } = useAmplitude()
+  const { trackClicked } = useAmplitude()
   const router = useRouter()
-  const { approveBuy, strategy, approveSell, market, setMarket, resetQuotes } = useTradingService()
+  const { market, setMarket, resetQuotes } = useTradingService()
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
 
   const { tweetURI, castURI } = createMarketShareUrls(
@@ -107,7 +104,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
           market={market}
           setSelectedMarket={setMarket}
           marketGroup={marketGroup}
-          outcomeTokensPercent={market.prices}
         />
       )
     }
@@ -147,15 +143,10 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
           market={market as Market}
           setSelectedMarket={setMarket}
           marketGroup={marketGroup}
-          outcomeTokensPercent={market?.prices}
         />
       </MobileDrawer>
     )
   }, [market])
-
-  const handleApproveMarket = async () => {
-    return strategy === 'Buy' ? approveBuy() : approveSell()
-  }
 
   const parseTextWithLinks = (text: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g
@@ -178,14 +169,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
       setMarket(marketGroup.markets[0])
     }
   }, [marketGroup])
-
-  useEffect(() => {
-    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
-      page: 'Market Page',
-      market: params.slug,
-      marketType: 'group',
-    })
-  }, [])
 
   useEffect(() => {
     resetQuotes()
@@ -386,7 +369,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
               {mobileTradeButton}
             </Box>
           )}
-          <ApproveModal onApprove={handleApproveMarket} />
         </>
       )}
     </MainLayout>
