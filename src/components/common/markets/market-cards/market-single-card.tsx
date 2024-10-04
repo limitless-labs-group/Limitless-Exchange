@@ -181,7 +181,10 @@ export const MarketSingleCard = ({ market, position }: MarketSingleCardProps) =>
   )
 
   return isMobile ? (
-    content
+    // Todo remove after phase 6 is implemented
+    <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
+      {content}
+    </NextLink>
   ) : (
     <>
       <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
