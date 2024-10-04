@@ -172,12 +172,12 @@ export default function DailyMarketCard({
             <Flex
               h={isMobile ? '240px' : '160px'}
               w={isMobile ? '100%' : '100%'}
-              alignItems='center'
+              alignItems='flex-end'
               justifyContent='center'
-              top='0'
+              bottom='4px'
               position='absolute'
             >
-              <Button variant='black' transform='rotate(-15deg)' onClick={onClickQuickBuy}>
+              <Button variant='white' onClick={onClickQuickBuy}>
                 Quick buy
               </Button>
             </Flex>
