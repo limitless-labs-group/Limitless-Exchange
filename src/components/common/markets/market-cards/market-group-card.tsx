@@ -161,14 +161,14 @@ export const MarketGroupCard = ({
       bg={tradingWidgetOpened ? 'blue.500' : 'grey.200'}
       onMouseEnter={() => {
         if (!isMobile) {
-          setShowQuickBetButton(true)
+          // setShowQuickBetButton(true)
           setColors(hoverColors)
         }
       }}
       onMouseLeave={() => {
         if (!isMobile && !tradingWidgetOpened) {
           setColors(defaultColors)
-          setShowQuickBetButton(false)
+          // setShowQuickBetButton(false)
         }
       }}
       onClick={trackMarketClicked}

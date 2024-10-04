@@ -26,13 +26,9 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { getAddress } from 'viem'
+import { useMarketPriceHistory } from '@/hooks/use-market-price-history'
 
 const ONE_HOUR = 3_600_000 // milliseconds in an hour
-
-// Define the interface for the chart data
-interface YesBuyChartData {
-  yesBuyChartData: [number, number]
-}
 
 // Define the MarketPriceChart component
 export interface IMarketPriceChart {
@@ -41,7 +37,6 @@ export interface IMarketPriceChart {
   resolved: boolean
   outcomeTokensPercent?: number[]
   marketGroup?: MarketGroup
-  setSelectedMarket?: (market: Market) => void
 }
 
 export const MarketPriceChart = ({
@@ -50,10 +45,10 @@ export const MarketPriceChart = ({
   winningIndex,
   outcomeTokensPercent,
   marketGroup,
-  setSelectedMarket,
 }: IMarketPriceChart) => {
+  console.log('rerender')
   const { colors } = useThemeProvider()
-  const { market } = useTradingService()
+  const { market, setMarket } = useTradingService()
   const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%B %e, %Y %I:%M %p', Date.now()) ?? ''
@@ -184,80 +179,8 @@ export const MarketPriceChart = ({
     ],
   })
 
-  /**
-   * Flattens and interpolates price data for a chart.
-   *
-   * This function takes an array of YesBuyChartData objects, interpolates missing
-   * hourly data points, and converts prices to percentages. The function appends
-   * the current timestamp with the last price in the data array to ensure the
-   * latest data point is included.
-   *
-   * @param {YesBuyChartData[]} data - The array of YesBuyChartData objects.
-   * @returns {number[][]} - A 2D array of flattened and interpolated price data,
-   *                         where each sub-array contains a timestamp and a price percentage.
-   */
-  const flattenPriceData = (data: YesBuyChartData[]): number[][] => {
-    if (!data || data.length === 0) {
-      return []
-    }
-
-    const flattenData: number[][] = []
-
-    // Append current timestamp with the last price
-    const lastTrade = [...data[data.length - 1].yesBuyChartData]
-    lastTrade[0] = Math.floor(Date.now())
-    data.push({ yesBuyChartData: lastTrade as [number, number] })
-    //TODO: hotfix of envio duplication
-    const deduplicator = new Set<number>()
-
-    for (let i = 0; i < data.length - 1; i++) {
-      const currentTrade = data[i].yesBuyChartData
-
-      if (isNaN(currentTrade[1])) {
-        continue
-      }
-
-      const nextTrade = data[i + 1].yesBuyChartData
-
-      if (deduplicator.has(currentTrade[1])) {
-        continue
-      }
-
-      flattenData.push(currentTrade)
-      deduplicator.add(currentTrade[1])
-
-      let currentTime = currentTrade[0]
-      while (currentTime + ONE_HOUR < nextTrade[0]) {
-        currentTime += ONE_HOUR
-        flattenData.push([currentTime, currentTrade[1]])
-      }
-    }
-
-    return flattenData
-  }
-
   // React Query to fetch the price data
-  const { data: prices } = useQuery({
-    queryKey: ['prices', market?.address],
-    queryFn: async () => {
-      const marketId = market?.address
-      const query = `query prices {
-          AutomatedMarketMakerPricing(where: { market_id: { _ilike: "${marketId}" } }) {
-            yesBuyChartData
-          }
-      }`
-
-      const response = await axios.post(newSubgraphURI[defaultChain.id], { query })
-      const pricingData = response.data.data?.AutomatedMarketMakerPricing as YesBuyChartData[]
-
-      return flattenPriceData(
-        pricingData.sort((a, b) => {
-          return a.yesBuyChartData[0] - b.yesBuyChartData[0]
-        })
-      )
-    },
-    enabled: !!market,
-  })
+  const { data: prices } = useMarketPriceHistory(market?.address)
 
   // const initialYesChance = useMemo(() => {
   //   if (market?.prices) {
@@ -339,12 +262,7 @@ export const MarketPriceChart = ({
           </MenuButton>
           <MenuList borderRadius='2px' zIndex={2} marginTop='-8px'>
             {marketGroup.markets.map((market) => (
-              <MenuItem
-                onClick={() => {
-                  setSelectedMarket && setSelectedMarket(market)
-                }}
-                key={market.address}
-              >
+              <MenuItem onClick={() => setMarket(market)} key={market.address}>
                 {market.title}
               </MenuItem>
             ))}
