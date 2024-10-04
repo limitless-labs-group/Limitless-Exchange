@@ -24,7 +24,7 @@ export type MarketFeedData = {
   bodyHash: string
 }
 
-export function useMarketFeed(marketAddress: string) {
+export function useMarketFeed(marketAddress?: string) {
   const pathname = usePathname()
   return useQuery<AxiosResponse<MarketFeedData[]>>({
     queryKey: ['market-feed', marketAddress],
@@ -32,6 +32,6 @@ export function useMarketFeed(marketAddress: string) {
       return limitlessApi.get(`/markets/${marketAddress}/get-feed-events`)
     },
     refetchInterval: pathname === '/' ? 10000 : false,
-    enabled: !isMobile,
+    enabled: (!isMobile || pathname.includes('market')) && !!marketAddress,
   }) as UseQueryResult<AxiosResponse<MarketFeedData[]>>
 }
