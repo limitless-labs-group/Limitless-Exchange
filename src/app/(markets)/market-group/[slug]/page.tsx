@@ -1,11 +1,6 @@
 'use client'
 import { MainLayout } from '@/components'
 import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
   Box,
   Button,
   Divider,
@@ -22,7 +17,6 @@ import {
   TabPanels,
   Tabs,
   Text,
-  VStack,
 } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import {
@@ -34,12 +28,7 @@ import {
 } from '@/services'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
-import {
-  h1Regular,
-  paragraphBold,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
+import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
 import TextWithPixels from '@/components/common/text-with-pixels'
@@ -47,7 +36,6 @@ import { Image as ChakraImage } from '@chakra-ui/react'
 import {
   MarketClaimingForm,
   MarketMetadata,
-  MarketPriceChart,
   MarketTradingForm,
   MobileTradeButton,
 } from '@/app/(markets)/markets/[address]/components'
@@ -55,19 +43,13 @@ import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useWinningIndex } from '@/services/MarketsService'
-import MarketPrediction from '@/app/(markets)/market-group/[slug]/components/market-prediction'
 import useMarketGroup from '@/hooks/use-market-group'
 import BigNumber from 'bignumber.js'
-import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components/market-group-positions'
-import { Address } from 'viem'
-import { Market, MarketStatus } from '@/types'
+import { Market } from '@/types'
 import MobileDrawer from '@/components/common/drawer'
-import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
-import NextLink from 'next/link'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import { v4 as uuidv4 } from 'uuid'
 import MarketActivityTab from '@/app/(markets)/markets/[address]/components/activity-tab'
-import { useMarketFeed } from '@/hooks/use-market-feed'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 
 export default function MarketGroupPage({ params }: { params: { slug: string } }) {
@@ -76,7 +58,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
   const { trackClicked } = useAmplitude()
   const router = useRouter()
   const { market, setMarket, resetQuotes } = useTradingService()
-  const { data: activityData } = useMarketFeed(market?.address)
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
 
   const { tweetURI, castURI } = createMarketShareUrls(
@@ -121,10 +102,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     }
     return null
   }, [market, marketGroup])
-
-  const marketsAboveOnePercent = marketGroup?.markets.filter((market) => market.prices[0] >= 1)
-
-  const marketsLowerOnePercent = marketGroup?.markets.filter((market) => market.prices[0] < 1)
 
   const mobileTradeButton = useMemo(() => {
     return market?.expired ? (
@@ -180,9 +157,9 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
         key={uuidv4()}
         marketGroup={marketGroup}
       />,
-      <MarketActivityTab key={uuidv4()} activity={activityData?.data} />,
+      <MarketActivityTab key={uuidv4()} />,
     ]
-  }, [market, winningIndex, resolved, activityData?.data, marketGroup])
+  }, [market, winningIndex, resolved, marketGroup])
 
   const parseTextWithLinks = (text: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g
