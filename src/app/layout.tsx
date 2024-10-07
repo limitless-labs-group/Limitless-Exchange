@@ -21,6 +21,7 @@ const RootLayout = ({ children }: PropsWithChildren) => {
     <html lang='en'>
       <head>
         <meta name='google' content='notranslate' />
+        <meta name='description' content='Daily prediction markets on Base' />
       </head>
       <body>
         <Providers>
