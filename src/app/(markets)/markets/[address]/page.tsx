@@ -32,12 +32,10 @@ import {
 } from '@/services'
 import { useMarket, useWinningIndex } from '@/services/MarketsService'
 import { useToken } from '@/hooks/use-token'
-import { defaultChain } from '@/constants'
 import { useRouter } from 'next/navigation'
 import TextWithPixels from '@/components/common/text-with-pixels'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
-import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import { isMobile } from 'react-device-detect'
 import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
@@ -46,24 +44,17 @@ import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import {
   MarketClaimingForm,
   MarketMetadata,
-  MarketPositions,
   MarketTradingForm,
   MobileTradeButton,
 } from './components'
-import {
-  h1Regular,
-  paragraphBold,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
-import { Address, zeroAddress } from 'viem'
+import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
-import { Market, MarketStatus } from '@/types'
-import NextLink from 'next/link'
+import { Market } from '@/types'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import { v4 as uuidv4 } from 'uuid'
 import MarketActivityTab from '@/app/(markets)/markets/[address]/components/activity-tab'
-import { useMarketFeed } from '@/hooks/use-market-feed'
+import { useMarketFeed, useMarketInfinityFeed } from '@/hooks/use-market-feed'
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -82,7 +73,6 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
   const { isLoading: isCollateralLoading } = useToken(market?.collateralToken.address)
   const { setMarket, resetQuotes } = useTradingService()
-  const { data: activityData } = useMarketFeed(params.address)
 
   const marketActionForm = useMemo(() => {
     if (market) {
@@ -114,9 +104,9 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
         resolved={resolved}
         key={uuidv4()}
       />,
-      <MarketActivityTab key={uuidv4()} activity={activityData?.data} />,
+      <MarketActivityTab key={uuidv4()} />,
     ]
-  }, [market, winningIndex, resolved, activityData?.data])
+  }, [market, winningIndex, resolved])
 
   const mobileTradeButton = useMemo(() => {
     return market?.expired ? (
