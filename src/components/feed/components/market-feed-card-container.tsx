@@ -35,7 +35,7 @@ export default function MarketFeedCardContainer({
       sx={{
         ...(isActivityTab
           ? {
-              '&:not(:last-child)': { borderBottom: '1px solid' },
+              '&:not(:last-child)': { borderBottom: '1px solid', borderColor: 'grey.300' },
             }
           : {}),
       }}
