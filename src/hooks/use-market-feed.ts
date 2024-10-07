@@ -26,12 +26,13 @@ export type MarketFeedData = {
 
 export function useMarketFeed(marketAddress?: string) {
   const pathname = usePathname()
+  const refetch = marketAddress && ['/', 'market'].some((path) => pathname.includes(path))
   return useQuery<AxiosResponse<MarketFeedData[]>>({
     queryKey: ['market-feed', marketAddress],
     queryFn: async () => {
       return limitlessApi.get(`/markets/${marketAddress}/get-feed-events`)
     },
-    refetchInterval: pathname === '/' ? 10000 : false,
+    refetchInterval: refetch ? 10000 : false,
     enabled: (!isMobile || pathname.includes('market')) && !!marketAddress,
   }) as UseQueryResult<AxiosResponse<MarketFeedData[]>>
 }

@@ -46,7 +46,6 @@ export const MarketPriceChart = ({
   outcomeTokensPercent,
   marketGroup,
 }: IMarketPriceChart) => {
-  console.log('rerender')
   const { colors } = useThemeProvider()
   const { market, setMarket } = useTradingService()
   const [yesChance, setYesChance] = useState('')
