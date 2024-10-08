@@ -1,4 +1,3 @@
-import { defaultChain } from '@/constants'
 import { Flex, HStack, Text, Box } from '@chakra-ui/react'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
@@ -10,6 +9,7 @@ import { isMobile } from 'react-device-detect'
 import { NumberUtil } from '@/utils'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { useMemo } from 'react'
+import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 
 export interface IMarketMetadata {
   market: Market | null
@@ -44,7 +44,17 @@ export const MarketMetadata = ({
     {
       title: 'Deadline',
       icon: <CalendarIcon width={16} height={16} />,
-      value: market?.expirationDate,
+      value:
+        market?.expirationTimestamp &&
+        market.expirationTimestamp - new Date().getTime() < 1000 * 24 * 60 * 60 ? (
+          <DailyMarketTimer
+            deadline={`${new Date(market.expirationTimestamp)}`}
+            color='grey.800'
+            showDays={false}
+          />
+        ) : (
+          market?.expirationDate
+        ),
       border: false,
     },
   ]
