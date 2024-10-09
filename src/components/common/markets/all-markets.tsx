@@ -49,12 +49,18 @@ export default function AllMarkets({
             {markets?.map((market, index) => {
               // @ts-ignore
               return market.slug ? (
-                <MarketGroupCard marketGroup={market as MarketGroupCardResponse} key={index} />
+                <MarketGroupCard
+                  marketGroup={market as MarketGroupCardResponse}
+                  key={index}
+                  position={index + 1}
+                  positionFromBottom={index - markets?.length}
+                />
               ) : (
                 <MarketSingleCard
                   market={market as MarketSingleCardResponse}
                   key={index}
                   position={index + 1}
+                  positionFromBottom={index - markets?.length}
                 />
               )
             })}

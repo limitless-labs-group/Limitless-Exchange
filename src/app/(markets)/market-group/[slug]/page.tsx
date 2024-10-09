@@ -1,11 +1,6 @@
 'use client'
 import { MainLayout } from '@/components'
 import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
   Box,
   Button,
   Divider,
@@ -15,8 +10,13 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Tab,
+  TabIndicator,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Text,
-  VStack,
 } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import {
@@ -28,12 +28,7 @@ import {
 } from '@/services'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
-import {
-  h1Regular,
-  paragraphBold,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
+import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
 import TextWithPixels from '@/components/common/text-with-pixels'
@@ -41,22 +36,21 @@ import { Image as ChakraImage } from '@chakra-ui/react'
 import {
   MarketClaimingForm,
   MarketMetadata,
-  MarketPriceChart,
   MarketTradingForm,
   MobileTradeButton,
 } from '@/app/(markets)/markets/[address]/components'
-import DescriptionIcon from '@/resources/icons/description-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useWinningIndex } from '@/services/MarketsService'
-import MarketPrediction from '@/app/(markets)/market-group/[slug]/components/market-prediction'
 import useMarketGroup from '@/hooks/use-market-group'
 import BigNumber from 'bignumber.js'
-import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components/market-group-positions'
-import { Address } from 'viem'
 import { Market } from '@/types'
 import MobileDrawer from '@/components/common/drawer'
+import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
+import { v4 as uuidv4 } from 'uuid'
+import MarketActivityTab from '@/app/(markets)/markets/[address]/components/activity-tab'
+import ActivityIcon from '@/resources/icons/activity-icon.svg'
 
 export default function MarketGroupPage({ params }: { params: { slug: string } }) {
   const { data: marketGroup, isLoading: marketGroupLoading } = useMarketGroup(params.slug)
@@ -109,10 +103,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     return null
   }, [market, marketGroup])
 
-  const marketsAboveOnePercent = marketGroup?.markets.filter((market) => market.prices[0] >= 1)
-
-  const marketsLowerOnePercent = marketGroup?.markets.filter((market) => market.prices[0] < 1)
-
   const mobileTradeButton = useMemo(() => {
     return market?.expired ? (
       <MobileTradeButton market={market} />
@@ -146,6 +136,30 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
       </MobileDrawer>
     )
   }, [market])
+
+  const tabs = [
+    {
+      title: 'Overview',
+      icon: <PredictionsIcon width={16} height={16} />,
+    },
+    {
+      title: 'Activity',
+      icon: <ActivityIcon width={16} height={16} />,
+    },
+  ]
+
+  const tabPanels = useMemo(() => {
+    return [
+      <MarketOverviewTab
+        market={market as Market}
+        winningIndex={winningIndex as number}
+        resolved={resolved}
+        key={uuidv4()}
+        marketGroup={marketGroup}
+      />,
+      <MarketActivityTab key={uuidv4()} />,
+    ]
+  }, [market, winningIndex, resolved, marketGroup])
 
   const parseTextWithLinks = (text: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g
@@ -279,60 +293,30 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                 volume={volume}
                 liquidity={liquidity}
               />
-              <MarketPriceChart
-                winningIndex={winningIndex}
-                resolved={resolved}
-                outcomeTokensPercent={market?.prices}
-                marketGroup={marketGroup}
-                setSelectedMarket={setMarket}
-                marketAddr={market?.address as Address}
-              />
-              <VStack gap='8px' alignItems='flex-start'>
-                <HStack gap='4px'>
-                  <PredictionsIcon />
-                  <Text {...paragraphBold}>Predictions</Text>
-                </HStack>
-                {marketsAboveOnePercent?.map((market) => (
-                  <MarketPrediction
-                    key={market.address}
-                    market={market}
-                    setSelectedMarket={setMarket}
-                  />
-                ))}
-                {!!marketsLowerOnePercent?.length && (
-                  <Accordion allowToggle>
-                    <AccordionItem>
-                      <h2>
-                        <AccordionButton w='fit-content' gap='4px' color='grey.500'>
-                          <Text {...paragraphMedium} color='grey.500'>
-                            Predictions with less than a 1% chance
-                          </Text>
-                          <AccordionIcon />
-                        </AccordionButton>
-                      </h2>
-                      <AccordionPanel>
-                        <VStack gap='8px'>
-                          {marketsLowerOnePercent.map((market) => (
-                            <MarketPrediction
-                              key={market.address}
-                              market={market}
-                              setSelectedMarket={setMarket}
-                            />
-                          ))}
-                        </VStack>
-                      </AccordionPanel>
-                    </AccordionItem>
-                  </Accordion>
-                )}
-              </VStack>
-              {marketGroup && <MarketGroupPositions marketGroup={marketGroup} />}
-              <HStack gap='4px' marginTop='24px' mb='8px'>
-                <DescriptionIcon width='16px' height='16px' />
-                <Text {...paragraphBold}>Description</Text>
-              </HStack>
-              <Text {...paragraphRegular} userSelect='text'>
-                {parseTextWithLinks(market?.description ?? '')}
-              </Text>
+              <Box mt={isMobile ? '48px' : '24px'} />
+              <Tabs position='relative' variant='common'>
+                <TabList>
+                  {tabs.map((tab) => (
+                    <Tab key={tab.title}>
+                      <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+                        {tab.icon}
+                        <>{tab.title}</>
+                      </HStack>
+                    </Tab>
+                  ))}
+                </TabList>
+                <TabIndicator
+                  mt='-2px'
+                  height='2px'
+                  bg='grey.800'
+                  transitionDuration='200ms !important'
+                />
+                <TabPanels>
+                  {tabPanels.map((panel, index) => (
+                    <TabPanel key={index}>{panel}</TabPanel>
+                  ))}
+                </TabPanels>
+              </Tabs>
             </Box>
             {!isMobile && marketActionForm}
           </HStack>
