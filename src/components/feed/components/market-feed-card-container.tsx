@@ -1,5 +1,5 @@
 import { FeedEventUser } from '@/types'
-import { PropsWithChildren } from 'react'
+import { PropsWithChildren, useMemo } from 'react'
 import { Box, HStack, Link, Text } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import { timeSinceCreation, truncateEthAddress } from '@/utils'
@@ -10,6 +10,7 @@ interface MarketFeedCardContainer {
   creator: FeedEventUser
   timestamp: number
   title: string
+  isActivityTab?: boolean
 }
 
 export default function MarketFeedCardContainer({
@@ -17,13 +18,27 @@ export default function MarketFeedCardContainer({
   timestamp,
   title,
   children,
+  isActivityTab = false,
 }: PropsWithChildren<MarketFeedCardContainer>) {
   const timePassed = timeSinceCreation(timestamp)
+  const bottomPadding = useMemo(() => {
+    if (isActivityTab) {
+      return 0
+    }
+    return isMobile ? '24px' : '12px'
+  }, [isActivityTab])
   return (
     <Box
       pt={isMobile ? '12px' : '8px'}
-      pb={isMobile ? '24px' : '12px'}
-      borderTop='1px solid'
+      pb={bottomPadding}
+      borderTop={isActivityTab ? 'unset' : '1px solid'}
+      sx={{
+        ...(isActivityTab
+          ? {
+              '&:not(:last-child)': { borderBottom: '1px solid', borderColor: 'grey.300' },
+            }
+          : {}),
+      }}
       borderColor='grey.300'
       w='full'
     >
