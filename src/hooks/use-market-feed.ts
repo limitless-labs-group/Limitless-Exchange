@@ -54,7 +54,7 @@ export function useMarketInfinityFeed(marketAddress?: string) {
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {
       // @ts-ignore
-      return lastPage.next ? lastPage.next : null
+      return lastPage.data.length === 10 ? lastPage.next : null
     },
     refetchOnWindowFocus: false,
     keepPreviousData: true,
