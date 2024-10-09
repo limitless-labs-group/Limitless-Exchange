@@ -26,6 +26,7 @@ interface ConfirmButtonProps {
   marketAddress: Address
   outcome: 'Yes' | 'No'
   marketType: 'single' | 'group'
+  showFullInfo: boolean
 }
 
 export default function ConfirmButton({
@@ -38,6 +39,7 @@ export default function ConfirmButton({
   marketAddress,
   outcome,
   marketType,
+  showFullInfo,
 }: ConfirmButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
 
@@ -121,7 +123,7 @@ export default function ConfirmButton({
         {...commonButtonProps}
         bg='rgba(255, 255, 255, 0.2)'
         w={isMobile ? '144px' : '124px'}
-        h={isMobile ? '156px' : '136px'}
+        h={showFullInfo ? '116px' : '64px'}
         _hover={{
           backgroundColor: 'transparent.300',
         }}
@@ -144,7 +146,7 @@ export default function ConfirmButton({
         {...commonButtonProps}
         bg='rgba(255, 255, 255, 0.2)'
         w={isMobile ? '144px' : '124px'}
-        h={isMobile ? '156px' : '136px'}
+        h={showFullInfo ? '116px' : '64px'}
         _hover={{
           backgroundColor: 'transparent.300',
         }}

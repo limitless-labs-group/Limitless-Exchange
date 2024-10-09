@@ -16,6 +16,8 @@ import {
   useEffect,
   useMemo,
   useState,
+  Dispatch,
+  SetStateAction,
 } from 'react'
 import { Address, Hash, formatUnits, getAddress, getContract, parseUnits, zeroHash } from 'viem'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -57,6 +59,8 @@ interface ITradingServiceContext {
   approveSellMutation: UseMutationResult<void, Error, void, unknown>
   checkApprovedForSell: () => Promise<boolean>
   marketFee: number
+  marketPageOpened: boolean
+  setMarketPageOpened: Dispatch<SetStateAction<boolean>>
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -80,6 +84,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const [market, setMarket] = useState<Market | null>(null)
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
   const [marketFee, setMarketFee] = useState(0)
+  const [marketPageOpened, setMarketPageOpened] = useState(false)
 
   /**
    * REFRESH / REFETCH
@@ -764,6 +769,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     isLoadingRedeem,
     resetQuotes,
     marketFee,
+    marketPageOpened,
+    setMarketPageOpened,
   }
 
   return (

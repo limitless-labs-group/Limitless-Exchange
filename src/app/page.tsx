@@ -2,7 +2,13 @@
 
 import { MainLayout } from '@/components'
 import { useIsMobile } from '@/hooks'
-import { OpenEvent, PageOpenedMetadata, useAmplitude, useCategories } from '@/services'
+import {
+  OpenEvent,
+  PageOpenedMetadata,
+  useAmplitude,
+  useCategories,
+  useTradingService,
+} from '@/services'
 import { Box, Spinner, HStack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { MarketGroupCardResponse, MarketSingleCardResponse, Sort } from '@/types'
@@ -14,11 +20,13 @@ import { useSearchParams } from 'next/navigation'
 import DailyMarketsSection from '@/components/common/markets/daily-markets'
 import AllMarkets from '@/components/common/markets/all-markets'
 import TopMarkets from '@/components/common/markets/top-markets'
+import MarketPage from '@/components/common/markets/market-page'
 
 const MainPage = () => {
   const searchParams = useSearchParams()
   const [page, setPage] = useState(1)
   const { data: categories } = useCategories()
+  const { marketPageOpened, setMarketPageOpened } = useTradingService()
   /**
    * ANALYTICS
    */
@@ -169,56 +177,70 @@ const MainPage = () => {
     }
   }, [markets, filteredAllMarkets, selectedSort])
 
+  useEffect(() => {
+    return () => {
+      setMarketPageOpened(false)
+    }
+  }, [])
+
   return (
-    <MainLayout layoutPadding={isMobile ? '0' : '16px'}>
-      <Box w={isMobile ? 'full' : '664px'}>
-        {isFetching && !isFetchingNextPage ? (
-          <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>
-            <Spinner />
-          </HStack>
-        ) : (
-          <>
-            {dailyMarkets && (
-              <>
-                <TopMarkets markets={topMarkets as MarketSingleCardResponse[]} />
-                <DailyMarketsSection
-                  markets={
-                    isMobile
-                      ? dailyMarkets.data.markets
-                      : dailyMarkets.data.markets.slice((page - 1) * 6, page * 6)
-                  }
-                  totalAmount={dailyMarkets.data.totalAmount}
-                  onClickNextPage={() => {
-                    if (dailyMarkets?.data.markets.length < 6) {
-                      return
+    <MainLayout layoutPadding={'0px'}>
+      <HStack
+        className='w-full'
+        alignItems='flex-start'
+        w='calc(100vw - 750px)'
+        justifyContent='center'
+      >
+        <Box w={isMobile ? 'full' : '696px'} p={isMobile ? 0 : '16px'}>
+          {isFetching && !isFetchingNextPage ? (
+            <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>
+              <Spinner />
+            </HStack>
+          ) : (
+            <>
+              {dailyMarkets && (
+                <>
+                  <TopMarkets markets={topMarkets as MarketSingleCardResponse[]} />
+                  <DailyMarketsSection
+                    markets={
+                      isMobile
+                        ? dailyMarkets.data.markets
+                        : dailyMarkets.data.markets.slice((page - 1) * 6, page * 6)
                     }
-                    if (6 * page >= dailyMarkets?.data.totalAmount) {
+                    totalAmount={dailyMarkets.data.totalAmount}
+                    onClickNextPage={() => {
+                      if (dailyMarkets?.data.markets.length < 6) {
+                        return
+                      }
+                      if (6 * page >= dailyMarkets?.data.totalAmount) {
+                        return
+                      }
+                      setPage(page + 1)
+                    }}
+                    onClickPrevPage={() => {
+                      if (page === 1) {
+                        return
+                      }
+                      setPage(page - 1)
                       return
-                    }
-                    setPage(page + 1)
-                  }}
-                  onClickPrevPage={() => {
-                    if (page === 1) {
-                      return
-                    }
-                    setPage(page - 1)
-                    return
-                  }}
-                  page={page}
-                />
-              </>
-            )}
-            <AllMarkets
-              dataLength={dataLength ?? 0}
-              fetchNextPage={fetchNextPage}
-              hasNextPage={hasNextPage}
-              markets={sortedMarkets}
-              handleSelectSort={handleSelectSort}
-              totalAmount={data?.pages?.[0].data.totalAmount}
-            />
-          </>
-        )}
-      </Box>
+                    }}
+                    page={page}
+                  />
+                </>
+              )}
+              <AllMarkets
+                dataLength={dataLength ?? 0}
+                fetchNextPage={fetchNextPage}
+                hasNextPage={hasNextPage}
+                markets={sortedMarkets}
+                handleSelectSort={handleSelectSort}
+                totalAmount={data?.pages?.[0].data.totalAmount}
+              />
+            </>
+          )}
+        </Box>
+      </HStack>
+      {marketPageOpened && <MarketPage />}
     </MainLayout>
   )
 }
