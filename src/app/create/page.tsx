@@ -391,7 +391,7 @@ const CreateOwnMarketPage = () => {
             <FormField label={`${token.symbol} Liquidity`}>
               <HStack>
                 <NumberInput maxW='120px' mr='2rem' value={liquidity}>
-                  <NumberInputField disabled w={'120px'} />
+                  <NumberInputField w={'120px'} />
                 </NumberInput>
                 <Slider
                   flex='1'
@@ -413,7 +413,7 @@ const CreateOwnMarketPage = () => {
             <FormField label='Starting YES Probability'>
               <HStack>
                 <NumberInput maxW='120px' mr='2rem' value={probability}>
-                  <NumberInputField disabled w={'120px'} />
+                  <NumberInputField w={'120px'} />
                 </NumberInput>
                 <Slider
                   flex='1'
