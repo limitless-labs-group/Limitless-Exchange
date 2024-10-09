@@ -154,7 +154,7 @@ export const MarketTradingForm = ({
         <BuyForm
           market={market}
           setOutcomeIndex={setOutcomeIndex}
-          outcomeTokensPercent={market.prices}
+          outcomeTokensPercent={market?.prices}
           marketList={marketGroup?.markets}
           setSelectedMarket={setSelectedMarket}
           analyticParams={analyticParams}
