@@ -23,72 +23,11 @@ export type MarketsResponse = {
   totalMarketsCount: number
 }
 
-export type MarketData = {
-  data: MarketsResponse
-  next: number
-}
-
 export interface Creator {
   name: string
   imageURI?: string
   link?: string
   address?: string
-}
-
-interface Oracle {
-  createdAt: string
-  id: number
-  name: string
-  address: string
-  imageUrl: string
-}
-
-export type MarketResponse = {
-  address: {
-    [chainId: number]: Address
-  }
-  questionId?: {
-    [chainId: number]: Hash
-  }
-  conditionId: {
-    [chainId: number]: Hash
-  }
-  collateralToken: {
-    [chainId: number]: Address
-  }
-  hidden: {
-    [chainId: number]: boolean
-  }
-  resolved: {
-    [chainId: number]: boolean
-  }
-  outcomeTokens: string[]
-  title: string
-  proxyTitle: string | null
-  description: string
-  placeholderURI: string
-  imageURI: string
-  ogImageURI?: string
-  expirationDate: string
-  expirationTimestamp: number
-  createdAt: string
-  expired?: boolean
-  tokenTicker: {
-    [chainId: number]: string
-  }
-  tokenURI: {
-    [chainId: number]: string
-  }
-  creator: Creator
-  tags?: string[]
-  winningOutcomeIndex?: number
-  volume?: string
-  volumeFormatted?: string
-  liquidity?: string
-  liquidityFormatted?: string
-  prices: number[]
-  category: string
-  status: MarketStatus
 }
 
 export type MarketSingleCardResponse = {
@@ -125,6 +64,12 @@ export type MarketGroupCardResponse = {
   category: string
 }
 
+export type DraftMetadata = {
+  fee: number
+  liquidity: number
+  initialProbability: number
+}
+
 export interface Market {
   address: Address
   conditionId: Address
@@ -157,6 +102,10 @@ export interface Market {
 
 export interface SingleMarket extends Market {
   creator: Creator
+}
+
+export interface DraftMarket extends Market {
+  draftMetadata: DraftMetadata
 }
 
 export interface MarketGroup {
