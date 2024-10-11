@@ -19,7 +19,7 @@ export type Category = {
 }
 
 export type MarketsResponse = {
-  data: (MarketGroupCardResponse | MarketSingleCardResponse)[]
+  data: (Market | MarketGroup)[]
   totalMarketsCount: number
 }
 
@@ -30,40 +30,6 @@ export interface Creator {
   address?: string
 }
 
-export type MarketSingleCardResponse = {
-  address: string
-  title: string
-  proxyTitle: string | null
-  deadline: string
-  createdAt: string
-  volume: string
-  volumeFormatted: string
-  conditionId: Address
-  liquidity: string
-  liquidityFormatted: string
-  collateralToken: {
-    symbol: string
-    address: string
-    decimals: number
-  }
-  category: string
-  prices: number[]
-}
-
-export type MarketGroupCardResponse = {
-  slug: string
-  title: string
-  createdAt: string
-  deadline: string
-  collateralToken: {
-    symbol: string
-    address: string
-    decimals: number
-  }
-  markets: MarketSingleCardResponse[]
-  category: string
-}
-
 export type DraftMetadata = {
   fee: number
   liquidity: number
@@ -72,35 +38,41 @@ export type DraftMetadata = {
 
 export interface Market {
   address: Address
-  conditionId: Address
-  description: string
+  category: Category
   collateralToken: {
     address: Address
     decimals: number
     symbol: string
   }
-  title: string
-  proxyTitle: string | null
-  ogImageURI: string | null
+  conditionId: string
+  createdAt: string
+  creator: Creator
+  description: string
   expirationDate: string
   expirationTimestamp: number
-  winningOutcomeIndex: number | null
   expired: boolean
-  tags: string[]
-  volume: string
-  volumeFormatted: string
   liquidity: string
   liquidityFormatted: string
-  prices: number[]
+  ogImageURI: string
+  proxyTitle: string | null
   status: MarketStatus
-  group?: {
-    id: number
-    title: string
-    slug: string
-  }
+  tags: string[]
+  title: string
+  volume: string
+  volumeFormatted: string
+  winningOutcomeIndex: number | null
+  prices: number[]
 }
 
-export interface SingleMarket extends Market {
+export interface MarketGroup {
+  slug: string
+  hidden: boolean
+  outcomeTokens: string[]
+  title: string
+  ogImageURI: string
+  expirationDate: string
+  expired: boolean
+  expirationTimestamp: number
   creator: Creator
 }
 
@@ -111,22 +83,14 @@ export interface DraftMarket extends Market {
 export interface MarketGroup {
   category: Category
   collateralToken: {
-    address: string
-    decimals: number
     symbol: string
+    address: Address
+    decimals: number
   }
+  tags: string[]
   createdAt: string
-  creator: Creator
-  expirationDate: string
-  expired: boolean
-  hidden: boolean
-  markets: Market[]
-  ogImageURI: string
-  outcomeTokens: string[]
-  slug: string
   status: MarketStatus
-  tags: string
-  title: string
+  markets: Market[]
 }
 
 export type GetBalanceResult = {

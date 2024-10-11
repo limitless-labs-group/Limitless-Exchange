@@ -49,7 +49,7 @@ import { Market } from '@/types'
 import MobileDrawer from '@/components/common/drawer'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import { v4 as uuidv4 } from 'uuid'
-import MarketActivityTab from '@/app/(markets)/markets/[address]/components/activity-tab'
+import MarketActivityTab from '@/components/common/markets/activity-tab'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 
 export default function MarketGroupPage({ params }: { params: { slug: string } }) {

@@ -20,12 +20,10 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react'
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   ClickEvent,
   createMarketShareUrls,
-  OpenEvent,
-  PageOpenedMetadata,
   ShareClickedMetadata,
   useAmplitude,
   useTradingService,
@@ -53,8 +51,7 @@ import MobileDrawer from '@/components/common/drawer'
 import { Market } from '@/types'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import { v4 as uuidv4 } from 'uuid'
-import MarketActivityTab from '@/app/(markets)/markets/[address]/components/activity-tab'
-import { useMarketFeed, useMarketInfinityFeed } from '@/hooks/use-market-feed'
+import MarketActivityTab from '@/components/common/markets/activity-tab'
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -65,11 +62,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   const { data: winningIndex } = useWinningIndex(params.address)
   const resolved = winningIndex === 0 || winningIndex === 1
   const router = useRouter()
-  const {
-    data: market,
-    isError: fetchMarketError,
-    isLoading: fetchMarketLoading,
-  } = useMarket(params.address)
+  const { data: market, isLoading: fetchMarketLoading } = useMarket(params.address)
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
   const { isLoading: isCollateralLoading } = useToken(market?.collateralToken.address)
   const { setMarket, resetQuotes } = useTradingService()

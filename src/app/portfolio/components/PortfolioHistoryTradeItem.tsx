@@ -20,8 +20,10 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
 
   const targetMarket = allMarkets.find((market) => market.address === trade.market.id)
 
+  // @ts-ignore
   const link = targetMarket?.group?.slug
-    ? `/market-group/${targetMarket.group.slug}`
+    ? // @ts-ignore
+      `/market-group/${targetMarket.group.slug}`
     : `/markets/${targetMarket?.address}`
 
   return (
@@ -57,11 +59,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
         overflow='hidden'
         textOverflow='ellipsis'
       >
-        <NextLink href={link}>
-          {targetMarket?.group?.id
-            ? `${targetMarket.group.title}: ${targetMarket.title}`
-            : targetMarket?.proxyTitle ?? targetMarket?.title}
-        </NextLink>
+        <NextLink href={link}>{targetMarket?.proxyTitle ?? targetMarket?.title}</NextLink>
       </Td>
       <Td>
         <Link

@@ -22,10 +22,11 @@ import Paper from '@/components/common/paper'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import { isMobile } from 'react-device-detect'
 import { useThemeProvider } from '@/providers'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { getAddress } from 'viem'
+import { rgba } from 'color2k'
 import { useMarketPriceHistory } from '@/hooks/use-market-price-history'
 
 const ONE_HOUR = 3_600_000 // milliseconds in an hour
@@ -50,7 +51,7 @@ export const MarketPriceChart = ({
   const { market, setMarket } = useTradingService()
   const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
-    Highcharts.dateFormat('%B %e, %Y %I:%M %p', Date.now()) ?? ''
+    Highcharts.dateFormat('%b %e, %Y %I:%M %p', Date.now()) ?? ''
   )
 
   const { trackClicked } = useAmplitude()
@@ -68,30 +69,28 @@ export const MarketPriceChart = ({
         type: 'x',
       },
       height: 230,
-      backgroundColor: colors.grey['200'],
+      backgroundColor: colors.grey['100'],
       marginLeft: 0,
       marginRight: 0,
     },
     title: {
       text: undefined,
     },
-    //@ts-ignore
     xAxis: {
       type: 'datetime',
       ordinal: false,
-      tickInterval: 24 * 3600 * 1000 * 10,
       tickPosition: 'outside',
-      lineColor: colors.grey['800'],
-      tickColor: colors.grey['800'],
+      lineColor: colors.grey['200'],
+      tickColor: colors.grey['200'],
+      tickLength: 0,
       labels: {
-        x: isMobile ? 20 : 10,
-        step: isMobile ? 3 : 0,
+        step: 0,
         rotation: 0,
         align: 'center',
         style: {
           fontFamily: 'Helvetica Neue',
           fontSize: isMobile ? '14px' : '12px',
-          color: colors.grey['800'],
+          color: colors.grey['400'],
         },
         formatter: function () {
           return Highcharts.dateFormat('%b %e', Number(this.value))
@@ -99,14 +98,7 @@ export const MarketPriceChart = ({
       },
     },
     yAxis: {
-      title: {
-        text: null,
-      },
-      min: 0,
-      max: 100,
-      opposite: true,
-      tickInterval: 20,
-      gridLineColor: colors.grey['400'],
+      visible: false,
     },
     legend: {
       enabled: false,
@@ -147,9 +139,9 @@ export const MarketPriceChart = ({
           },
           stops: [
             //@ts-ignore
-            [0, Highcharts.color(colors.green['500']).setOpacity(0.5).get('rgba')],
+            [0, Highcharts.color('#198020').setOpacity(0.3).get('rgba')],
             //@ts-ignore
-            [1, Highcharts.color(colors.green['500']).setOpacity(0).get('rgba')],
+            [1, Highcharts.color('#198020').setOpacity(0).get('rgba')],
           ],
           brighten: 0.2,
         },
@@ -172,7 +164,7 @@ export const MarketPriceChart = ({
         data: data,
         turboThreshold: 2000,
         boostThreshold: 2000,
-        color: colors.green['500'],
+        color: '#238020',
         lineWidth: 2,
       },
     ],
@@ -226,66 +218,81 @@ export const MarketPriceChart = ({
   }, [prices, winningIndex, resolved])
 
   return (
-    <Paper my='24px' p='8px'>
-      {marketGroup ? (
-        <Menu isOpen={isMarketListOpen} onClose={onCloseMarketList} variant='transparent'>
-          <MenuButton
-            as={Button}
-            onClick={() => {
-              trackClicked(ClickEvent.ChangeMarketInGroupClicked, {
-                marketGroup,
-              })
-              onOpenMarketList()
-            }}
-            p={0}
-            h='unset'
-          >
-            <HStack gap={isMobile ? '16px' : '8px'} color='green.500'>
-              <Text {...paragraphMedium} color='green.500'>
-                {market?.title}
-              </Text>
-              <HStack gap={isMobile ? '8px' : '4px'}>
-                <ThumbsUpIcon width={16} height={16} />
-                <Text {...paragraphMedium} color='green.500'>
-                  {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}% YES
-                </Text>
-                <Box
-                  transform={`rotate(${isMarketListOpen ? '180deg' : 0})`}
-                  transition='0.5s'
-                  color='green.500'
-                >
-                  <ChevronDownIcon width='16px' height='16px' />
-                </Box>
-              </HStack>
-            </HStack>
-          </MenuButton>
-          <MenuList borderRadius='2px' zIndex={2} marginTop='-8px'>
-            {marketGroup.markets.map((market) => (
-              <MenuItem onClick={() => setMarket(market)} key={market.address}>
-                {market.title}
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu>
-      ) : (
-        <HStack gap={'4px'} color='green.500'>
-          <ThumbsUpIcon width={16} height={16} />
-          <Text {...paragraphMedium} color='green.500'>
+    <Paper my='20px' py='8px' px={0} bg='grey.100' borderRadius='8px'>
+      {/*{marketGroup ? (*/}
+      {/*  <Menu isOpen={isMarketListOpen} onClose={onCloseMarketList} variant='transparent'>*/}
+      {/*    <MenuButton*/}
+      {/*      as={Button}*/}
+      {/*      onClick={() => {*/}
+      {/*        trackClicked(ClickEvent.ChangeMarketInGroupClicked, {*/}
+      {/*          marketGroup,*/}
+      {/*        })*/}
+      {/*        onOpenMarketList()*/}
+      {/*      }}*/}
+      {/*      p={0}*/}
+      {/*      h='unset'*/}
+      {/*    >*/}
+      {/*      <HStack gap={isMobile ? '16px' : '8px'} color='green.500'>*/}
+      {/*        <Text {...paragraphMedium} color='green.500'>*/}
+      {/*          {market?.title}*/}
+      {/*        </Text>*/}
+      {/*        <HStack gap={isMobile ? '8px' : '4px'}>*/}
+      {/*          <ThumbsUpIcon width={16} height={16} />*/}
+      {/*          <Text {...paragraphMedium} color='green.500'>*/}
+      {/*            {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}% YES*/}
+      {/*          </Text>*/}
+      {/*          <Box*/}
+      {/*            transform={`rotate(${isMarketListOpen ? '180deg' : 0})`}*/}
+      {/*            transition='0.5s'*/}
+      {/*            color='green.500'*/}
+      {/*          >*/}
+      {/*            <ChevronDownIcon width='16px' height='16px' />*/}
+      {/*          </Box>*/}
+      {/*        </HStack>*/}
+      {/*      </HStack>*/}
+      {/*    </MenuButton>*/}
+      {/*    <MenuList borderRadius='2px' zIndex={2} marginTop='-8px'>*/}
+      {/*      {marketGroup.markets.map((market) => (*/}
+      {/*        <MenuItem*/}
+      {/*          onClick={() => {*/}
+      {/*            setSelectedMarket && setSelectedMarket(market)*/}
+      {/*          }}*/}
+      {/*          key={market.address}*/}
+      {/*        >*/}
+      {/*          {market.title}*/}
+      {/*        </MenuItem>*/}
+      {/*      ))}*/}
+      {/*    </MenuList>*/}
+      {/*  </Menu>*/}
+      {/*) : (*/}
+      {/*  <HStack gap={'4px'}>*/}
+      {/*    <Text {...headline} color='grey.800'>*/}
+      {/*      {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%*/}
+      {/*    </Text>*/}
+      {/*    <Text {...headline} color='grey.800'>*/}
+      {/*      Yes*/}
+      {/*    </Text>*/}
+      {/*    /!*<ChevronDownIcon width={16} height={16} />*!/*/}
+      {/*  </HStack>*/}
+      {/*)}*/}
+      <Box px='8px'>
+        <HStack>
+          <VStack gap={-1} alignItems={'flex-start'}>
+            <Text fontSize='sm' color='grey.500'>
+              {yesDate}
+            </Text>
+          </VStack>
+        </HStack>
+        <HStack gap={'4px'} mt='4px'>
+          <Text {...headline} color='grey.800'>
             {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%
           </Text>
-          <Text {...paragraphMedium} color='green.500'>
+          <Text {...headline} color='grey.800'>
             Yes
           </Text>
           {/*<ChevronDownIcon width={16} height={16} />*/}
         </HStack>
-      )}
-      <HStack>
-        <VStack gap={-1} alignItems={'flex-start'}>
-          <Text fontSize='sm' color={'fontLight'}>
-            {yesDate}
-          </Text>
-        </VStack>
-      </HStack>
+      </Box>
       <HighchartsReact highcharts={Highcharts} options={getChartOptions(chartData)} />
     </Paper>
   )

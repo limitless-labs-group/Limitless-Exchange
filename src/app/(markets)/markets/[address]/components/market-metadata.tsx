@@ -48,7 +48,7 @@ export const MarketMetadata = ({
         market?.expirationTimestamp &&
         market.expirationTimestamp - new Date().getTime() < 1000 * 24 * 60 * 60 ? (
           <DailyMarketTimer
-            deadline={`${new Date(market.expirationTimestamp)}`}
+            deadline={market.expirationTimestamp}
             color='grey.800'
             showDays={false}
           />

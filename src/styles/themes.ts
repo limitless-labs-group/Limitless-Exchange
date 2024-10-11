@@ -12,6 +12,7 @@ import { tableTheme } from '@/styles/table'
 import { skeletonTheme } from '@/styles/skeleton'
 import { textAreaTheme } from '@/styles/text-area'
 import { tabsTheme } from '@/styles/tabs'
+import { tooltipTheme } from '@/styles/tooltip'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
@@ -274,6 +275,7 @@ export const chakraTheme = ChakraTheme({
     Table: tableTheme,
     Skeleton: skeletonTheme,
     Tabs: tabsTheme,
+    Tooltip: tooltipTheme,
   },
   breakpoints: {
     sm: '320px',

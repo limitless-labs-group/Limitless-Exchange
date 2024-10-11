@@ -2,7 +2,7 @@ import SortFilter from '@/components/common/sort-filter'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { Box, Divider, Text, VStack } from '@chakra-ui/react'
 import { MarketGroupCard, MarketSingleCard } from '@/components/common/markets/market-cards'
-import { MarketGroupCardResponse, MarketSingleCardResponse, Sort } from '@/types'
+import { Market, MarketGroup, Sort } from '@/types'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import { isMobile } from 'react-device-detect'
 
@@ -11,7 +11,7 @@ interface AllMarketsProps {
   dataLength: number
   fetchNextPage: () => void
   hasNextPage: boolean
-  markets?: (MarketGroupCardResponse | MarketSingleCardResponse)[]
+  markets?: (Market | MarketGroup)[]
   totalAmount?: number
 }
 
@@ -49,19 +49,9 @@ export default function AllMarkets({
             {markets?.map((market, index) => {
               // @ts-ignore
               return market.slug ? (
-                <MarketGroupCard
-                  marketGroup={market as MarketGroupCardResponse}
-                  key={index}
-                  position={index + 1}
-                  positionFromBottom={index - markets?.length}
-                />
+                <MarketGroupCard marketGroup={market as MarketGroup} key={index} />
               ) : (
-                <MarketSingleCard
-                  market={market as MarketSingleCardResponse}
-                  key={index}
-                  position={index + 1}
-                  positionFromBottom={index - markets?.length}
-                />
+                <MarketSingleCard market={market as Market} key={index} />
               )
             })}
           </VStack>
