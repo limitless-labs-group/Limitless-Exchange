@@ -27,6 +27,13 @@ export interface Creator {
   name: string
   imageURI?: string
   link?: string
+  address?: string
+}
+
+export type DraftMetadata = {
+  fee: number
+  liquidity: number
+  initialProbability: number
 }
 
 export interface Market {
@@ -67,6 +74,14 @@ export interface MarketGroup {
   expired: boolean
   expirationTimestamp: number
   creator: Creator
+}
+
+export interface DraftMarket extends Market {
+  draftMetadata: DraftMetadata
+}
+
+export interface MarketGroup {
+  category: Category
   collateralToken: {
     symbol: string
     address: Address
@@ -74,7 +89,6 @@ export interface MarketGroup {
   }
   tags: string[]
   createdAt: string
-  category: Category
   status: MarketStatus
   markets: Market[]
 }

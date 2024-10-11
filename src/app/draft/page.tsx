@@ -23,16 +23,17 @@ import {
   Textarea,
   VStack,
 } from '@chakra-ui/react'
-import React, { MutableRefObject, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import CreatableSelect from 'react-select/creatable'
 import axios from 'axios'
+import { useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/hooks'
 import { useCategories, useLimitlessApi } from '@/services'
 import { Toast } from '@/components/common/toast'
 import { Input } from '@/components/common/input'
 import { Category } from '@/types'
-import { OgImageGenerator } from '@/app/create/components'
+import { OgImageGenerator } from '@/app/draft/components'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import TimezoneSelect, {
@@ -127,7 +128,7 @@ interface Token {
 
 const defaultTokenSymbol = 'WETH'
 const defaultProbability = 50
-const defaultMarketFee = 1
+const defaultMarketFee = 0
 const defaultCreatorId = '1' // Limitless
 const defaultCategoryId = '2' // Crypto
 
@@ -158,12 +159,12 @@ const CreateOwnMarketPage = () => {
   const [tag, setTag] = useState<TagOption[]>([])
   const [creatorId, setCreatorId] = useState<string>(defaultCreatorId)
   const [categoryId, setCategoryId] = useState<string>(defaultCategoryId)
-  const [marketLogo, setMarketLogo] = useState<File | undefined>()
   const [ogLogo, setOgLogo] = useState<File | undefined>()
 
   const [isCreating, setIsCreating] = useState<boolean>(false)
 
   const queryClient = useQueryClient()
+  const router = useRouter()
 
   const { supportedTokens } = useLimitlessApi()
 
@@ -180,8 +181,6 @@ const CreateOwnMarketPage = () => {
   }
 
   const toast = useToast()
-
-  const ogLogoRef: MutableRefObject<any> = useRef()
 
   const createOption = (id: string, name: string): TagOption => ({
     id,
@@ -228,9 +227,8 @@ const CreateOwnMarketPage = () => {
   const handleActiveTags = (selectedOptions: TagOption[]) => {
     setTag(selectedOptions)
   }
-
-  const createMarket = async () => {
-    if (!title || !description || !creatorId || !marketLogo || !ogLogo || !tag) {
+  const draftMarket = async () => {
+    if (!title || !description || !creatorId || !ogLogo || !tag) {
       const id = toast({
         render: () => (
           <Toast
@@ -258,7 +256,6 @@ const CreateOwnMarketPage = () => {
     formData?.set('deadline', zonedTime)
     formData?.set('creatorId', creatorId)
     formData?.set('categoryId', categoryId)
-    formData?.set('imageFile', marketLogo)
     formData?.set('ogFile', ogLogo)
     formData?.set('tagIds', tag.map((tag) => tag.id).join(','))
 
@@ -271,21 +268,16 @@ const CreateOwnMarketPage = () => {
     setIsCreating(true)
 
     axios
-      .post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/admin`, formData, {
+      .post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
       .then((res) => {
-        if (res.status === 201) {
-          const newTab = window.open('', '_blank')
-          if (newTab) {
-            newTab.location.href = res.data.multisigTxLink
-          } else {
-            // Fallback if the browser blocks the popup
-            window.location.href = res.data.multisigTxLink
-          }
-        }
+        const id = toast({
+          render: () => <Toast title={`Market is drafted`} id={id} />,
+        })
+        router.push('/draft/queue')
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
@@ -340,26 +332,6 @@ const CreateOwnMarketPage = () => {
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {title?.length}/70 characters
               </FormHelperText>
-              {/*<FormHelperText*/}
-              {/*  h='fit-content'*/}
-              {/*  p={4}*/}
-              {/*  bg='bgLight'*/}
-              {/*  border={`1px solid ${colors.border}`}*/}
-              {/*  borderRadius={borderRadius}*/}
-              {/*  textAlign='start'*/}
-              {/*  color='#747675'*/}
-              {/*  display='flex'*/}
-              {/*>*/}
-              {/*  <Box display='inline-flex' flexShrink={0}>*/}
-              {/*    <CgInfo />*/}
-              {/*  </Box>*/}
-              {/*  */}
-              {/*  <Box flex={1} ml={2}>*/}
-              {/*    Imagine people only have a second to understand your market. It&apos;s important*/}
-              {/*    to create a clear and concise title so that everyone in the community can*/}
-              {/*    understand it, or at least become interested.*/}
-              {/*  </Box>*/}
-              {/*</FormHelperText>*/}
             </FormField>
 
             <FormField label='Description'>
@@ -434,7 +406,7 @@ const CreateOwnMarketPage = () => {
 
             <FormField label='Market Fee'>
               <HStack>
-                <Checkbox onChange={(e) => setMarketFee(e.target.checked ? 0 : 1)}>0% Fee</Checkbox>
+                <Checkbox onChange={(e) => setMarketFee(e.target.checked ? 1 : 0)}>1% Fee</Checkbox>
               </HStack>
             </FormField>
 
@@ -496,81 +468,16 @@ const CreateOwnMarketPage = () => {
                   setTimezone(timezone.value)
                 }}
               />
-              {/*<SingleDatepicker*/}
-              {/*  id='input'*/}
-              {/*  triggerVariant='default'*/}
-              {/*  propsConfigs={{*/}
-              {/*    inputProps: {*/}
-              {/*      size: 'md',*/}
-              {/*      width: 'full',*/}
-              {/*      isReadOnly: true,*/}
-              {/*    },*/}
-              {/*    triggerBtnProps: {*/}
-              {/*      width: '100%',*/}
-              {/*      background: 'transparent',*/}
-              {/*      border: '1px solid #E2E8F0',*/}
-              {/*      color: '#0F172A',*/}
-              {/*      justifyContent: 'space-between',*/}
-              {/*      rightIcon: (*/}
-              {/*        <Image*/}
-              {/*          src={'/assets/images/calendar.svg'}*/}
-              {/*          h={'24px'}*/}
-              {/*          w={'24px'}*/}
-              {/*          alt='calendar'*/}
-              {/*        />*/}
-              {/*      ),*/}
-              {/*    },*/}
-              {/*    popoverCompProps: {*/}
-              {/*      popoverContentProps: {*/}
-              {/*        width: '360px',*/}
-              {/*      },*/}
-              {/*    },*/}
-              {/*    dayOfMonthBtnProps: {*/}
-              {/*      todayBtnProps: {*/}
-              {/*        background: 'teal.200',*/}
-              {/*      },*/}
-              {/*    },*/}
-              {/*  }}*/}
-              {/*  name='date-input'*/}
-              {/*  date={deadline}*/}
-              {/*  usePortal={true}*/}
-              {/*  onDateChange={(date) => {*/}
-              {/*    console.log(date)*/}
-              {/*    setDeadline(new Date(date.getTime() - date.getTimezoneOffset() * 60000)) // fixed the discrepancy between local date and ISO date*/}
-              {/*  }}*/}
-              {/*  minDate={new Date()}*/}
-              {/*/>*/}
-            </FormField>
-
-            <FormField label='Picture'>
-              <HStack>
-                <input
-                  type='file'
-                  id='marketLogoUpload'
-                  name='marketLogoUpload'
-                  style={{ display: 'none' }}
-                  ref={ogLogoRef}
-                  accept={'image/png, image/jpeg'}
-                  onChange={(e) => setMarketLogo(e?.target?.files?.[0])}
-                />
-                <Button colorScheme='gray' onClick={() => ogLogoRef.current.click()}>
-                  Choose file
-                </Button>
-                <Text>{marketLogo?.name ?? 'No file chosen.'}</Text>
-              </HStack>
             </FormField>
 
             <ButtonGroup spacing='6' mt={5}>
-              <Button variant='outline' width='222px' disabled>
-                Cancel
-              </Button>
               {isCreating ? (
-                <Box width='222px' display='flex' justifyContent='center' alignItems='center'>
+                <Box width='full' justifyContent='center' alignItems='center'>
                   <Spinner />
                 </Box>
               ) : (
-                <Button colorScheme='blue' width='222px' height='52px' onClick={createMarket}>
-                  Create
+                <Button colorScheme='blue' width='465px' height='52px' onClick={draftMarket}>
+                  Draft
                 </Button>
               )}
             </ButtonGroup>
