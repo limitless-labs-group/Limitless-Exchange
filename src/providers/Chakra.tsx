@@ -40,8 +40,6 @@ export const ThemeProvider = ({
   )
   const [mode, setMode] = useState(colorModeManager.get() ? colorModeManager.get() : 'dark')
 
-  console.log(mode)
-
   const themeWithColors = {
     ...chakraTheme,
     colors,

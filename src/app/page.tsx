@@ -11,7 +11,7 @@ import {
 } from '@/services'
 import { Box, Spinner, HStack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
-import { MarketGroupCardResponse, MarketSingleCardResponse, Sort } from '@/types'
+import { Market, MarketGroup, Sort } from '@/types'
 import { getAddress } from 'viem'
 import { useDailyMarkets, useMarkets } from '@/services/MarketsService'
 import { usePriceOracle } from '@/providers'
@@ -100,7 +100,7 @@ const MainPage = () => {
     return counter + page.data.markets.length
   }, 0)
 
-  const markets: (MarketGroupCardResponse | MarketSingleCardResponse)[] = useMemo(() => {
+  const markets: (Market | MarketGroup)[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages, category])
 
@@ -115,7 +115,9 @@ const MainPage = () => {
     )
 
     if (selectedCategory) {
-      return tokenFilteredMarkets.filter((market) => market.category === selectedCategory?.name)
+      return tokenFilteredMarkets.filter(
+        (market) => market.category.name === selectedCategory?.name
+      )
     }
 
     return tokenFilteredMarkets
@@ -170,7 +172,8 @@ const MainPage = () => {
         })
       case Sort.ENDING_SOON:
         return [...filteredAllMarkets].sort(
-          (a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
+          (a, b) =>
+            new Date(a.expirationTimestamp).getTime() - new Date(b.expirationTimestamp).getTime()
         )
       default:
         return filteredAllMarkets
@@ -188,7 +191,7 @@ const MainPage = () => {
       <HStack
         className='w-full'
         alignItems='flex-start'
-        w='calc(100vw - 750px)'
+        w={isMobile ? 'full' : 'calc(100vw - 690px)'}
         justifyContent='center'
       >
         <Box w={isMobile ? 'full' : '696px'} p={isMobile ? 0 : '16px'}>
@@ -198,9 +201,9 @@ const MainPage = () => {
             </HStack>
           ) : (
             <>
-              {dailyMarkets && (
+              {dailyMarkets && Boolean(dailyMarkets?.data?.markets.length) && (
                 <>
-                  <TopMarkets markets={topMarkets as MarketSingleCardResponse[]} />
+                  <TopMarkets markets={topMarkets as Market[]} />
                   <DailyMarketsSection
                     markets={
                       isMobile

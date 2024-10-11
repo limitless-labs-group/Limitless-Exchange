@@ -1,4 +1,3 @@
-import { defaultChain } from '@/constants'
 import { useHistory } from '@/services'
 import { Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useMemo } from 'react'

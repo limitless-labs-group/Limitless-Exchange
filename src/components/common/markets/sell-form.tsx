@@ -63,6 +63,7 @@ const _transformSellValue = (value: string) => {
 }
 
 interface SellFormProps {
+  market: Market
   setOutcomeIndex: Dispatch<SetStateAction<number>>
   marketGroup?: MarketGroup
   setSelectedMarket?: (market: Market) => void
@@ -70,27 +71,12 @@ interface SellFormProps {
 }
 
 export function SellForm({
+  market,
   setOutcomeIndex,
   marketGroup,
   setSelectedMarket,
   analyticParams,
 }: SellFormProps) {
-  /**
-   * TRADING SERVICE
-   */
-  const {
-    collateralAmount,
-    setCollateralAmount,
-    balanceOfCollateralToSellYes,
-    balanceOfCollateralToSellNo,
-    quotesYes,
-    quotesNo,
-    trade,
-    approveSellMutation,
-    checkApprovedForSell,
-    market,
-    resetQuotes,
-  } = useTradingService()
   const queryClient = useQueryClient()
   const [sliderValue, setSliderValue] = useState(0)
   const [outcomeChoice, setOutcomeChoice] = useState<string | null>(null)
@@ -136,6 +122,23 @@ export function SellForm({
    * ANALITYCS
    */
   const { trackClicked } = useAmplitude()
+
+  /**
+   * TRADING SERVICE
+   */
+  const {
+    collateralAmount,
+    setCollateralAmount,
+    balanceOfCollateralToSellYes,
+    balanceOfCollateralToSellNo,
+    quotesYes,
+    quotesNo,
+    trade,
+    approveSellMutation,
+    checkApprovedForSell,
+    resetQuotes,
+    status,
+  } = useTradingService()
 
   const getApprovedForSellState = async () => {
     if (client === 'eoa') {
@@ -270,7 +273,7 @@ export function SellForm({
 
   const handleTradeClicked = async () => {
     trackClicked(ClickEvent.SellTradeClicked, {
-      address: market?.address || '0x',
+      address: market.address,
       marketType: marketGroup ? 'group' : 'single',
       ...(analyticParams ? analyticParams : {}),
     })
@@ -295,7 +298,7 @@ export function SellForm({
   const handleApproveClicked = async () => {
     trackClicked(ClickEvent.SellApproveClicked, {
       address: market?.address,
-      // @ts-ignore
+      strategy: 'Buy',
       outcome: outcomeChoice === 'yes' ? 'Yes' : 'No',
       walletType: 'eoa',
       ...(analyticParams ? analyticParams : {}),
@@ -376,7 +379,7 @@ export function SellForm({
     setCollateralAmount('')
     setDisplayAmount('')
     setSliderValue(0)
-  }, [market?.address])
+  }, [market.address])
 
   return (
     <>
@@ -402,7 +405,7 @@ export function SellForm({
               <HStack gap='8px' color='white'>
                 <PredictionsIcon />
                 <Text {...paragraphMedium} color='white'>
-                  {market?.title}
+                  {market.title}
                 </Text>
               </HStack>
             </Button>
@@ -461,7 +464,7 @@ export function SellForm({
                   }
                   trackClicked<TradeClickedMetadata>(ClickEvent.SellClicked, {
                     outcome: 'Yes',
-                    marketAddress: market?.address || '0x',
+                    marketAddress: market.address,
                     walletType: client,
                     ...(analyticParams ? analyticParams : {}),
                   })
@@ -579,7 +582,7 @@ export function SellForm({
                   }
                   trackClicked<TradeClickedMetadata>(ClickEvent.SellClicked, {
                     outcome: 'No',
-                    marketAddress: market?.address || '0x',
+                    marketAddress: market.address,
                     walletType: client,
                     ...(analyticParams ? analyticParams : {}),
                   })

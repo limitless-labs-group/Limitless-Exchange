@@ -1,6 +1,6 @@
 import { isMobile } from 'react-device-detect'
 import { ClickEvent, TradeQuotes, useAmplitude, useTradingService } from '@/services'
-import { Box, Button, HStack, Text, useOutsideClick, VStack } from '@chakra-ui/react'
+import { Box, Button, HStack, Text, Tooltip, useOutsideClick, VStack } from '@chakra-ui/react'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
@@ -170,19 +170,28 @@ export default function BuyButton({
                 </Text>
               </HStack>
             </HStack>
-            <Text
-              {...paragraphRegular}
-              color='white'
-              borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
-              onClick={handleFeeToggleClicked}
+            <Tooltip
+              variant='black'
+              label={`Fee: (${marketFee * 100}%) ${NumberUtil.convertWithDenomination(
+                new BigNumber(amount).multipliedBy(marketFee).toNumber(),
+                6
+              )} ${market?.collateralToken.symbol}`}
+              placement='top-end'
             >
-              {showFeeInValue
-                ? `${NumberUtil.toFixed(
-                    new BigNumber(amount).multipliedBy(marketFee).toNumber(),
-                    6
-                  )} ${market?.collateralToken.symbol}`
-                : `${marketFee * 100}%`}
-            </Text>
+              <Text
+                {...paragraphRegular}
+                color='white'
+                borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
+                onClick={handleFeeToggleClicked}
+              >
+                {showFeeInValue
+                  ? `${NumberUtil.convertWithDenomination(
+                      new BigNumber(amount).multipliedBy(marketFee).toNumber(),
+                      6
+                    )} ${market?.collateralToken.symbol}`
+                  : `${marketFee * 100}%`}
+              </Text>
+            </Tooltip>
           </HStack>
         )
         break
@@ -329,7 +338,7 @@ export default function BuyButton({
           bg='rgba(255, 255, 255, 0.2)'
           px='12px'
           py='8px'
-          w={'456px'}
+          w={isMobile ? 'calc(100vw - 48px)' : '456px'}
           h='unset'
           alignItems='flex-start'
           flexDir='column'
@@ -387,6 +396,7 @@ export default function BuyButton({
                   transform={`rotate(${showFullInfo ? '180deg' : 0})`}
                   transition='0.5s'
                   onClick={handleShowFullInfoArrowClicked}
+                  color='white'
                 >
                   <ChevronDownIcon width='16px' height='16px' />
                 </Box>

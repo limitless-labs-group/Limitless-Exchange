@@ -9,22 +9,30 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react'
-import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 import { css } from '@emotion/react'
 import { isMobile } from 'react-device-detect'
-import React, { useMemo, useState } from 'react'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { useBalanceService, useTradingService } from '@/services'
 import BuyButton from '@/components/common/markets/buy-button'
+import debounce from 'lodash.debounce'
+import { useQueryClient } from '@tanstack/react-query'
+import { Market } from '@/types'
 
-export default function MarketPageBuyForm() {
+interface MarketPageBuyFormProps {
+  setOutcomeIndex: Dispatch<SetStateAction<number>>
+  marketList?: Market[]
+}
+
+export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: MarketPageBuyFormProps) {
   const { balanceOfSmartWallet } = useBalanceService()
+  const queryClient = useQueryClient()
   const { collateralAmount, setCollateralAmount, market, trade, quotesYes, quotesNo, resetQuotes } =
     useTradingService()
 
   const [displayAmount, setDisplayAmount] = useState('')
-  const [outcomeIndex, setOutcomeIndex] = useState(0)
   const [showReturnPercent, setShowReturnPercent] = useState(false)
   const [showFeeInValue, setShowFeeInValue] = useState(false)
 
@@ -48,13 +56,31 @@ export default function MarketPageBuyForm() {
       setDisplayAmount(
         NumberUtil.toFixed(balance, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
       )
+      setCollateralAmount(
+        NumberUtil.toFixed(balance, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
+      )
       return
     }
     const amountByPercent = (Number(balance) * value) / 100
     setDisplayAmount(
       NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
     )
+    setCollateralAmount(
+      NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
+    )
   }
+
+  const refetchQuotes = useCallback(
+    debounce(async function () {
+      await queryClient.refetchQueries({
+        queryKey: ['tradeQuotesYes'],
+      })
+      await queryClient.refetchQueries({
+        queryKey: ['tradeQuotesNo'],
+      })
+    }, 500),
+    []
+  )
 
   const resetForm = () => {
     setDisplayAmount('')
@@ -76,11 +102,24 @@ export default function MarketPageBuyForm() {
   const isExceedsBalance = useMemo(() => {
     return new BigNumber(collateralAmount).isGreaterThan(balance)
   }, [collateralAmount, balance])
+
+  useEffect(() => {
+    if (+collateralAmount) {
+      refetchQuotes()
+    }
+    if (!+collateralAmount) {
+      resetQuotes()
+    }
+  }, [market, collateralAmount])
+
+  useEffect(() => {
+    setCollateralAmount('')
+    setDisplayAmount('')
+    resetQuotes()
+  }, [market])
+
   return (
     <>
-      <Text {...headline} color='white' mb='16px'>
-        Make prediction
-      </Text>
       <Flex justifyContent='space-between'>
         <Text {...paragraphMedium} color='white'>
           Balance
@@ -97,6 +136,7 @@ export default function MarketPageBuyForm() {
             key={title}
             flex={1}
             onClick={() => handlePercentButtonClicked(title)}
+            color='white'
           >
             {title === 100 ? 'MAX' : `${title}%`}
           </Button>
@@ -147,8 +187,7 @@ export default function MarketPageBuyForm() {
             option='Yes'
             price={market.prices?.[0]}
             decimals={market.collateralToken?.decimals}
-            marketType='single'
-            // marketType={!!marketList?.length ? 'group' : 'single'}
+            marketType={!!marketList?.length ? 'group' : 'single'}
             showReturnPercent={showReturnPercent}
             setShowReturnPercent={setShowReturnPercent}
             showFeeInValue={showFeeInValue}
@@ -168,8 +207,7 @@ export default function MarketPageBuyForm() {
             option='No'
             price={market.prices?.[1]}
             decimals={market.collateralToken?.decimals}
-            marketType='single'
-            // marketType={!!marketList?.length ? 'group' : 'single'}
+            marketType={!!marketList?.length ? 'group' : 'single'}
             showReturnPercent={showReturnPercent}
             setShowReturnPercent={setShowReturnPercent}
             showFeeInValue={showFeeInValue}
