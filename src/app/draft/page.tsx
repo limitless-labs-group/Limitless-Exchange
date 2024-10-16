@@ -40,9 +40,9 @@ import {
   defaultFormData,
   defaultTokenSymbol,
   tokenLimits,
+  selectStyles,
   OgImageGenerator,
 } from '@/app/draft/components'
-import { selectStyles } from '@/app/draft/components'
 import { MainLayout } from '@/components'
 import { useToast } from '@/hooks'
 import { useCategories, useLimitlessApi } from '@/services'

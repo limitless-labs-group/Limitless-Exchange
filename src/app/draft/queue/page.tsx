@@ -6,7 +6,7 @@ import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { Toast } from '@/components/common/toast'
-import { DraftMarketCard } from '@/app/draft/queue/components/draft-card'
+import { DraftMarket, DraftMarketCard } from '@/app/draft/queue/components/draft-card'
 import { MainLayout } from '@/components'
 import { useToast } from '@/hooks'
 
@@ -76,16 +76,15 @@ const DraftMarketsQueuePage = () => {
     <MainLayout justifyContent={'center'}>
       <Flex justifyContent={'center'}>
         <VStack w='868px' spacing={4}>
-          {draftMarkets &&
-            draftMarkets.map((draftMarket: any) => (
-              <DraftMarketCard
-                market={draftMarket}
-                key={draftMarket.id}
-                isChecked={selectedMarketIds.includes(draftMarket.id)}
-                onToggle={() => handleToggle(draftMarket.id)}
-                onClick={() => handleClick(draftMarket.id)}
-              />
-            ))}
+          {draftMarkets?.map((draftMarket: DraftMarket) => (
+            <DraftMarketCard
+              market={draftMarket}
+              key={draftMarket.id}
+              isChecked={selectedMarketIds.includes(draftMarket.id)}
+              onToggle={() => handleToggle(draftMarket.id)}
+              onClick={() => handleClick(draftMarket.id)}
+            />
+          ))}
           {isCreating ? (
             <Box width='full' display='flex' justifyContent='center' alignItems='center'>
               <Spinner />
