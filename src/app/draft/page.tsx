@@ -1,6 +1,5 @@
 'use client'
 
-import { MainLayout } from '@/components'
 import {
   Box,
   Button,
@@ -23,114 +22,32 @@ import {
   Textarea,
   VStack,
 } from '@chakra-ui/react'
-import React, { useState } from 'react'
-import CreatableSelect from 'react-select/creatable'
-import axios from 'axios'
-import { useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useToast } from '@/hooks'
-import { useCategories, useLimitlessApi } from '@/services'
-import { Toast } from '@/components/common/toast'
-import { Input } from '@/components/common/input'
-import { Category } from '@/types'
-import { OgImageGenerator } from '@/app/draft/components'
+import axios from 'axios'
+import { useRouter, useSearchParams } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import CreatableSelect from 'react-select/creatable'
 import TimezoneSelect, {
   allTimezones,
   ITimezoneOption,
   useTimezoneSelect,
 } from 'react-timezone-select'
-
-interface FormFieldProps {
-  label: string
-  children: React.ReactNode
-}
-
-interface TokenLimit {
-  min: number
-  max: number
-  step: number
-}
-
-interface TokenLimits {
-  [key: string]: TokenLimit
-}
-
-const tokenLimits: TokenLimits = {
-  HIGHER: {
-    min: 25000,
-    max: 390000,
-    step: 1000,
-  },
-  MFER: {
-    min: 12500,
-    max: 390000,
-    step: 1000,
-  },
-  DEGEN: {
-    min: 39000,
-    max: 390000,
-    step: 1000,
-  },
-  ONCHAIN: {
-    min: 390000,
-    max: 3900000,
-    step: 10000,
-  },
-  WETH: {
-    min: 0.1,
-    max: 5,
-    step: 0.1,
-  },
-  USDC: {
-    min: 300,
-    max: 30000,
-    step: 100,
-  },
-  VITA: {
-    min: 150,
-    max: 3000,
-    step: 25,
-  },
-  GHST: {
-    min: 150,
-    max: 3000,
-    step: 10,
-  },
-  BETS: {
-    min: 835000,
-    max: 8350000,
-    step: 5000,
-  },
-  cbBTC: {
-    min: 0.1,
-    max: 5,
-    step: 0.01,
-  },
-}
-
-interface TagOption {
-  id: string
-  label: string
-  value: string
-}
-
-interface Creator {
-  id: string
-  name: string
-}
-
-interface Token {
-  id: number
-  symbol: string
-}
-
-const defaultTokenSymbol = 'WETH'
-const defaultProbability = 50
-const defaultMarketFee = 0
-const defaultCreatorId = '1' // Limitless
-const defaultCategoryId = '2' // Crypto
+import { Input } from '@/components/common/input'
+import { Toast } from '@/components/common/toast'
+import {
+  defaultFormData,
+  defaultTokenSymbol,
+  tokenLimits,
+  OgImageGenerator,
+} from '@/app/draft/components'
+import { selectStyles } from '@/app/draft/components'
+import { MainLayout } from '@/components'
+import { useToast } from '@/hooks'
+import { useCategories, useLimitlessApi } from '@/services'
+import { Category } from '@/types'
+import { Token, FormFieldProps, Tag, TagOption, IFormData, Creator } from '@/types/draft'
 
 const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
   <Box mt={4}>
@@ -146,41 +63,76 @@ const CreateOwnMarketPage = () => {
     labelStyle: 'original',
     timezones: allTimezones,
   })
-  const [formData, setFormData] = useState<FormData>(new FormData())
+  const [formData, setFormData] = useState<IFormData>(defaultFormData)
 
-  const [deadline, setDeadline] = useState<Date>(new Date())
-  const [timezone, setTimezone] = useState('America/New_York')
-  const [title, setTitle] = useState<string>('')
-  const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: 1 })
-  const [description, setDescription] = useState<string>('')
-  const [liquidity, setLiquidity] = useState<number>(tokenLimits[defaultTokenSymbol].min)
-  const [probability, setProbability] = useState<number>(defaultProbability)
-  const [marketFee, setMarketFee] = useState<number>(defaultMarketFee)
-  const [tag, setTag] = useState<TagOption[]>([])
-  const [creatorId, setCreatorId] = useState<string>(defaultCreatorId)
-  const [categoryId, setCategoryId] = useState<string>(defaultCategoryId)
-  const [ogLogo, setOgLogo] = useState<File | undefined>()
+  const handleChange = (field: string, value: any) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [field]: value,
+    }))
+  }
 
   const [isCreating, setIsCreating] = useState<boolean>(false)
 
   const queryClient = useQueryClient()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const marketId = searchParams.get('market')
+
+  const { data: editMarket } = useQuery({
+    queryKey: ['editMarket', marketId],
+    queryFn: async () => {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts/${marketId}`
+      )
+      return response.data
+    },
+  })
+
+  useEffect(() => {
+    if (editMarket) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        title: editMarket.title || prevFormData.title,
+        description: editMarket.description || prevFormData.description,
+        deadline: editMarket.deadline || prevFormData.deadline,
+        token: editMarket.collateralToken
+          ? { symbol: editMarket.collateralToken.symbol, id: editMarket.collateralToken.id }
+          : prevFormData.token,
+        liquidity: editMarket.draftMetadata?.liquidity || prevFormData.liquidity,
+        probability: editMarket.draftMetadata?.initialProbability * 100 || prevFormData.probability,
+        marketFee: editMarket.draftMetadata?.fee || prevFormData.marketFee,
+        tag:
+          editMarket.tags.map((tag: Tag) => ({
+            id: tag.id,
+            value: tag.name,
+            label: tag.name,
+          })) || prevFormData.tag,
+        creatorId: editMarket.creator?.id || prevFormData.creatorId,
+        categoryId: editMarket.category?.id || prevFormData.categoryId,
+        ogLogo: editMarket.creator?.imageUrl || prevFormData.ogLogo,
+      }))
+    }
+  }, [editMarket])
 
   const { supportedTokens } = useLimitlessApi()
-
-  const handleLiquidityChange = (value: number) => setLiquidity(value)
-
-  const handleProbabilityChange = (value: number) => setProbability(value)
 
   const handleTokenSelect = (option: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedTokenId = +option.target.value
     const selectedTokenSymbol =
       option.target.selectedOptions[0].getAttribute('data-name') ?? defaultTokenSymbol
-    setToken({ symbol: selectedTokenSymbol, id: selectedTokenId })
-    setLiquidity(tokenLimits[selectedTokenSymbol].min)
+
+    handleChange('token', { symbol: selectedTokenSymbol, id: selectedTokenId })
+    handleChange('liquidity', tokenLimits[selectedTokenSymbol].min)
   }
 
   const toast = useToast()
+
+  const showToast = (message: string) => {
+    const id = toast({
+      render: () => <Toast title={message} id={id} />,
+    })
+  }
 
   const createOption = (id: string, name: string): TagOption => ({
     id,
@@ -224,70 +176,62 @@ const CreateOwnMarketPage = () => {
     ])
   }
 
-  const handleActiveTags = (selectedOptions: TagOption[]) => {
-    setTag(selectedOptions)
-  }
   const draftMarket = async () => {
+    const { title, description, creatorId, ogLogo, tag } = formData
     if (!title || !description || !creatorId || !ogLogo || !tag) {
-      const id = toast({
-        render: () => (
-          <Toast
-            title={'Title, Description, Creator, Market Logo, Og Logo, Tags are required!'}
-            id={id}
-          />
-        ),
-      })
+      showToast('Title, Description, Creator, Market Logo, Og Logo, and Tags are required!')
       return
     }
 
     const differenceInOffset =
       (parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset || 1) -
-      (parseTimezone(timezone)?.offset || 1)
+      (parseTimezone(formData.timezone)?.offset || 1)
+    const zonedTime = new Date(formData.deadline).getTime() + differenceInOffset * 60 * 60 * 1000
 
-    const zonedTime = new Date(deadline).getTime() + differenceInOffset * 60 * 60 * 1000
+    const marketFormData = new FormData()
+    marketFormData?.set('title', formData.title)
+    marketFormData?.set('description', formData.description)
+    marketFormData?.set('tokenId', formData.token.id.toString())
+    marketFormData?.set('liquidity', formData.liquidity.toString())
+    marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
+    marketFormData?.set('marketFee', formData.marketFee.toString())
+    marketFormData?.set('deadline', zonedTime.toString())
 
-    formData?.set('title', title)
-    formData?.set('description', description)
-    formData?.set('tokenId', token.id.toString())
-    formData?.set('liquidity', liquidity.toString())
-    formData?.set('initialYesProbability', (probability / 100).toString())
-    formData?.set('marketFee', marketFee.toString())
-    // @ts-ignore
-    formData?.set('deadline', zonedTime)
-    formData?.set('creatorId', creatorId)
-    formData?.set('categoryId', categoryId)
-    formData?.set('ogFile', ogLogo)
-    formData?.set('tagIds', tag.map((tag) => tag.id).join(','))
+    if (formData.creatorId) {
+      marketFormData.set('creatorId', formData.creatorId)
+    }
 
-    const id = toast({
-      render: () => (
-        <Toast title={'Request for market creation has been registered successfully.'} id={id} />
-      ),
-    })
+    if (formData.categoryId) {
+      marketFormData.set('categoryId', formData.categoryId)
+    }
+
+    if (formData.ogLogo) {
+      marketFormData.set('ogFile', formData.ogLogo)
+    }
+
+    if (formData.tag.length) {
+      marketFormData.set('tagIds', formData.tag.map((t) => t.id).join(','))
+    }
+
+    showToast('Request for market creation has been registered successfully.')
 
     setIsCreating(true)
 
     axios
-      .post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts`, formData, {
+      .post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts`, marketFormData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
       .then((res) => {
-        const id = toast({
-          render: () => <Toast title={`Market is drafted`} id={id} />,
-        })
+        showToast(`Market is ${marketId ? 'updated' : 'drafted'}`)
         router.push('/draft/queue')
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
-          const id = toast({
-            render: () => <Toast title={`Error: Payload Too Large, max 1MB per file`} id={id} />,
-          })
+          showToast('Error: Payload Too Large, max 1MB per file')
         } else {
-          const id = toast({
-            render: () => <Toast title={`Error: ${res.message}`} id={id} />,
-          })
+          showToast(`Error: ${res.message}`)
         }
       })
       .finally(() => {
@@ -304,9 +248,10 @@ const CreateOwnMarketPage = () => {
             <FormField label='OG Preview'>
               <HStack>
                 <OgImageGenerator
-                  title={title}
+                  title={formData.title}
                   category={
-                    categories?.find((category) => category.id === +categoryId)?.name ?? 'Unknown'
+                    categories?.find((category) => category.id === +formData.categoryId)?.name ??
+                    'Unknown'
                   }
                   onBlobGenerated={(blob) => {
                     console.log('Blob generated', blob)
@@ -316,7 +261,7 @@ const CreateOwnMarketPage = () => {
                     })
                     console.log('Blob transformed to File', _ogLogo)
 
-                    setOgLogo(_ogLogo)
+                    handleChange('ogLogo', _ogLogo)
                   }}
                   generateBlob={isGeneratingOgImage}
                 />
@@ -325,12 +270,13 @@ const CreateOwnMarketPage = () => {
 
             <FormField label='Title'>
               <Input
-                onChange={(e) => setTitle(e.target.value)}
+                value={formData.title}
+                onChange={(e) => handleChange('title', e.target.value)}
                 maxLength={70}
                 onBlur={() => generateOgImage()}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                {title?.length}/70 characters
+                {formData.title?.length}/70 characters
               </FormHelperText>
             </FormField>
 
@@ -340,17 +286,18 @@ const CreateOwnMarketPage = () => {
                 rows={7}
                 overflow='hidden'
                 maxLength={1500}
-                onChange={(e) => setDescription(e.target.value)}
+                value={formData.description}
+                onChange={(e) => handleChange('description', e.target.value)}
                 onBlur={() => generateOgImage()}
               />
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                {description?.length}/1500 characters
+                {formData.description?.length}/1500 characters
               </FormHelperText>
             </FormField>
 
             <FormField label='Token'>
               <HStack>
-                <Select onChange={handleTokenSelect}>
+                <Select value={formData.token.id} onChange={handleTokenSelect}>
                   {supportedTokens?.map((token: Token) => (
                     <option key={token.id} value={token.id} data-name={token.symbol}>
                       {token.symbol}
@@ -360,19 +307,19 @@ const CreateOwnMarketPage = () => {
               </HStack>
             </FormField>
 
-            <FormField label={`${token.symbol} Liquidity`}>
+            <FormField label={`${formData.token.symbol} Liquidity`}>
               <HStack>
-                <NumberInput maxW='120px' mr='2rem' value={liquidity}>
+                <NumberInput maxW='120px' mr='2rem' value={formData.liquidity}>
                   <NumberInputField w={'120px'} />
                 </NumberInput>
                 <Slider
                   flex='1'
                   focusThumbOnChange={false}
-                  value={liquidity}
-                  onChange={handleLiquidityChange}
-                  min={tokenLimits[token.symbol].min}
-                  max={tokenLimits[token.symbol].max}
-                  step={tokenLimits[token.symbol].step}
+                  value={formData.liquidity}
+                  onChange={(value) => handleChange('liquidity', value)}
+                  min={tokenLimits[formData.token.symbol]?.min}
+                  max={tokenLimits[formData.token.symbol]?.max}
+                  step={tokenLimits[formData.token.symbol]?.step}
                 >
                   <SliderTrack>
                     <SliderFilledTrack />
@@ -384,14 +331,14 @@ const CreateOwnMarketPage = () => {
 
             <FormField label='Starting YES Probability'>
               <HStack>
-                <NumberInput maxW='120px' mr='2rem' value={probability}>
+                <NumberInput maxW='120px' mr='2rem' value={formData.probability}>
                   <NumberInputField w={'120px'} />
                 </NumberInput>
                 <Slider
                   flex='1'
                   focusThumbOnChange={false}
-                  value={probability}
-                  onChange={handleProbabilityChange}
+                  value={formData.probability}
+                  onChange={(value) => handleChange('probability', value)}
                   min={1}
                   max={99}
                   step={1}
@@ -406,13 +353,21 @@ const CreateOwnMarketPage = () => {
 
             <FormField label='Market Fee'>
               <HStack>
-                <Checkbox onChange={(e) => setMarketFee(e.target.checked ? 1 : 0)}>1% Fee</Checkbox>
+                <Checkbox
+                  isChecked={formData.marketFee === 1}
+                  onChange={(e) => handleChange('marketFee', e.target.checked ? 1 : 0)}
+                >
+                  1% Fee
+                </Checkbox>
               </HStack>
             </FormField>
 
             <FormField label='Creator'>
               <HStack>
-                <Select onChange={(e) => setCreatorId(e?.target?.value)}>
+                <Select
+                  value={formData.creatorId}
+                  onChange={(e) => handleChange('creatorId', e.target.value)}
+                >
                   {creators?.map((creator: Creator) => (
                     <option key={creator.id} value={creator.id}>
                       {creator.name}
@@ -424,7 +379,10 @@ const CreateOwnMarketPage = () => {
 
             <FormField label='Category'>
               <HStack>
-                <Select onChange={(e) => setCategoryId(e?.target?.value)}>
+                <Select
+                  value={formData.categoryId}
+                  onChange={(e) => handleChange('categoryId', e.target.value)}
+                >
                   {categories?.map((category: Category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
@@ -441,8 +399,28 @@ const CreateOwnMarketPage = () => {
                     isMulti
                     onCreateOption={handleTagCreation}
                     //@ts-ignore
-                    onChange={handleActiveTags}
+                    onChange={(option) => handleChange('tag', option)}
+                    value={formData.tag}
                     options={tagOptions}
+                    styles={{
+                      option: (provided, state) => ({
+                        ...provided,
+                        backgroundColor: state.isFocused
+                          ? 'var(--chakra-colors-blue-50)'
+                          : 'var(--chakra-colors-grey-300)',
+                        color: state.isFocused
+                          ? 'var(--chakra-colors-blue-900)'
+                          : 'var(--chakra-colors-grey-900)',
+                      }),
+                      menu: (provided) => ({
+                        ...provided,
+                        ...selectStyles.menu,
+                      }),
+                      control: (provided) => ({
+                        ...provided,
+                        ...selectStyles.control,
+                      }),
+                    }}
                   />
                 </Box>
               </HStack>
@@ -452,10 +430,10 @@ const CreateOwnMarketPage = () => {
               {/*// Todo move to a separate component?*/}
               <DatePicker
                 id='input'
-                selected={deadline}
+                selected={formData.deadline}
                 onChange={(date) => {
                   if (date) {
-                    setDeadline(new Date(date.getTime()))
+                    handleChange('deadline', new Date(date.getTime()))
                   }
                 }}
                 minDate={new Date()}
@@ -463,9 +441,30 @@ const CreateOwnMarketPage = () => {
                 dateFormat='Pp'
               />
               <TimezoneSelect
-                value={timezone}
-                onChange={(timezone: ITimezoneOption) => {
-                  setTimezone(timezone.value)
+                value={formData.timezone}
+                onChange={(timezone: ITimezoneOption) => handleChange('timezone', timezone.value)}
+                styles={{
+                  option: (provided, state) => ({
+                    ...provided,
+                    backgroundColor: state.isFocused
+                      ? 'var(--chakra-colors-blue-50)'
+                      : 'var(--chakra-colors-grey-300)',
+                    color: state.isFocused
+                      ? 'var(--chakra-colors-blue-900)'
+                      : 'var(--chakra-colors-grey-900)',
+                  }),
+                  menu: (provided) => ({
+                    ...provided,
+                    ...selectStyles.menu,
+                  }),
+                  control: (provided) => ({
+                    ...provided,
+                    ...selectStyles.control,
+                  }),
+                  singleValue: (provided) => ({
+                    ...provided,
+                    ...selectStyles.singleValue,
+                  }),
                 }}
               />
             </FormField>
@@ -477,7 +476,7 @@ const CreateOwnMarketPage = () => {
                 </Box>
               ) : (
                 <Button colorScheme='blue' width='465px' height='52px' onClick={draftMarket}>
-                  Draft
+                  {marketId ? 'Save' : 'Draft'}
                 </Button>
               )}
             </ButtonGroup>

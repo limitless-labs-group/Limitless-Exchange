@@ -1,17 +1,19 @@
 'use client'
 
-import { MainLayout } from '@/components'
+import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { DraftMarketCard } from '@/app/draft/queue/components/draft-card'
-import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { Toast } from '@/components/common/toast'
+import { DraftMarketCard } from '@/app/draft/queue/components/draft-card'
+import { MainLayout } from '@/components'
 import { useToast } from '@/hooks'
 
 const DraftMarketsQueuePage = () => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
 
+  const router = useRouter()
   const { data: draftMarkets } = useQuery({
     queryKey: ['draftMarkets'],
     queryFn: async () => {
@@ -29,6 +31,10 @@ const DraftMarketsQueuePage = () => {
         ? prevSelected.filter((id) => id !== marketId)
         : [...prevSelected, marketId]
     )
+  }
+
+  const handleClick = (marketId: number) => {
+    router.push(`/draft/?market=${marketId}`)
   }
 
   const toast = useToast()
@@ -77,6 +83,7 @@ const DraftMarketsQueuePage = () => {
                 key={draftMarket.id}
                 isChecked={selectedMarketIds.includes(draftMarket.id)}
                 onToggle={() => handleToggle(draftMarket.id)}
+                onClick={() => handleClick(draftMarket.id)}
               />
             ))}
           {isCreating ? (
