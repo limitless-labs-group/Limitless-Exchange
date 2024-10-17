@@ -170,37 +170,41 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     queryFn: async () => {
       let _positions: HistoryPosition[] = []
 
-      trades?.forEach((trade) => {
-        const market = markets.find(
-          (market) => market.address.toLowerCase() === trade.market.id.toLowerCase()
-        )
+      try {
+        trades?.forEach((trade) => {
+          const market = markets.find(
+            (market) => market.address.toLowerCase() === trade.market.id.toLowerCase()
+          )
 
-        if (
-          !market ||
-          (market.expired && market.winningOutcomeIndex !== trade.outcomeIndex) // TODO: redesign filtering lost positions
-        ) {
-          return
-        }
-        const existingMarket = _positions.find(
-          (position) =>
-            position.market.id === trade.market.id && position.outcomeIndex === trade.outcomeIndex
-        )
+          if (
+            !market ||
+            (market.expired && market.winningOutcomeIndex !== trade.outcomeIndex) // TODO: redesign filtering lost positions
+          ) {
+            return
+          }
+          const existingMarket = _positions.find(
+            (position) =>
+              position.market.id === trade.market.id && position.outcomeIndex === trade.outcomeIndex
+          )
 
-        const position = existingMarket ?? {
-          market: trade.market,
-          outcomeIndex: trade.outcomeIndex,
-        }
-        position.latestTrade = trade
-        position.collateralAmount = (
-          Number(position.collateralAmount ?? 0) + Number(trade.collateralAmount)
-        ).toString()
-        position.outcomeTokenAmount = (
-          Number(position.outcomeTokenAmount ?? 0) + Number(trade.outcomeTokenAmount)
-        ).toString()
-        if (!existingMarket) {
-          _positions.push(position)
-        }
-      })
+          const position = existingMarket ?? {
+            market: trade.market,
+            outcomeIndex: trade.outcomeIndex,
+          }
+          position.latestTrade = trade
+          position.collateralAmount = (
+            Number(position.collateralAmount ?? 0) + Number(trade.collateralAmount)
+          ).toString()
+          position.outcomeTokenAmount = (
+            Number(position.outcomeTokenAmount ?? 0) + Number(trade.outcomeTokenAmount)
+          ).toString()
+          if (!existingMarket) {
+            _positions.push(position)
+          }
+        })
+      } catch (e) {
+        console.log(e)
+      }
 
       // redeems?.forEach((redeem) => {
       //   const position = _positions.find(

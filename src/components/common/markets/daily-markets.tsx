@@ -1,13 +1,13 @@
 import { Box, Button, Divider, Grid, HStack, Text, VStack } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
-import { MarketGroupCardResponse, MarketSingleCardResponse } from '@/types'
+import { Market } from '@/types'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import DailyMarketCard from '@/components/common/markets/market-cards/daily-market-card'
 import React from 'react'
 import DailyMarketCardMobile from '@/components/common/markets/market-cards/daily-market-card-mobile'
 
 interface DailyMarketsSectionProps {
-  markets: (MarketSingleCardResponse | MarketGroupCardResponse)[]
+  markets: Market[]
   totalAmount?: number
   onClickNextPage: () => void
   onClickPrevPage: () => void
@@ -27,10 +27,9 @@ export default function DailyMarketsSection({
     .filter((market) => !market.slug)
     .map((market, index) => (
       <DailyMarketCard
-        key={(market as MarketSingleCardResponse).address}
-        market={market as MarketSingleCardResponse}
+        key={market.address}
+        market={market}
         analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: page }}
-        indexAtTable={index + 1}
       />
     ))
 
@@ -46,13 +45,7 @@ export default function DailyMarketsSection({
       {isMobile ? (
         <VStack gap={2} w='full' px='16px' mt='16px'>
           {markets?.map((market, index) => {
-            return (
-              <DailyMarketCardMobile
-                key={index}
-                dailyIndex={index + 1}
-                market={market as MarketSingleCardResponse}
-              />
-            )
+            return <DailyMarketCardMobile key={index} dailyIndex={index + 1} market={market} />
           })}
         </VStack>
       ) : (

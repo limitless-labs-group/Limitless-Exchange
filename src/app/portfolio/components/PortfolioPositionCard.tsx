@@ -97,8 +97,10 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   /**
    * SHARE
    */
-  const marketURI = targetMarket?.group?.slug
-    ? `${window.location.origin}/market-group/${targetMarket?.group?.slug}`
+  // @ts-ignore
+  const marketURI = targetMarket?.slug
+    ? // @ts-ignore
+      `${window.location.origin}/market-group/${targetMarket?.slug}`
     : `${window.location.origin}/markets/${position.market.id}`
 
   const getOutcomeNotation = () => {
@@ -184,9 +186,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       <Stack spacing={'8px'}>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
           <Text {...paragraphMedium} color={cardColors.main}>
-            {targetMarket?.group?.id
-              ? `${targetMarket.group.title}: ${targetMarket.title}`
-              : targetMarket?.proxyTitle ?? targetMarket?.title}
+            {targetMarket?.proxyTitle ?? targetMarket?.title}
           </Text>
           <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
         </HStack>
@@ -269,9 +269,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
             <Box>
               <Text {...paragraphMedium} color={cardColors.main}>
-                {targetMarket?.group?.id
-                  ? `${targetMarket.group.title}: ${targetMarket.title}`
-                  : targetMarket?.proxyTitle ?? targetMarket?.title}
+                {targetMarket?.proxyTitle ?? targetMarket?.title}
               </Text>
             </Box>
 

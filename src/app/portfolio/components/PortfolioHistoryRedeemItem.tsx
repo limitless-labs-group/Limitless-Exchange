@@ -22,8 +22,10 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
 
   const targetMarket = allMarkets.find((market) => market.conditionId === redeem.conditionId)
 
-  const link = targetMarket?.group?.slug
-    ? `/market-group/${targetMarket.group.slug}`
+  // @ts-ignore
+  const link = targetMarket?.slug
+    ? // @ts-ignore
+      `/market-group/${targetMarket.slug}`
     : `/markets/${targetMarket?.address}`
 
   const multiplier = (symbol: string | undefined) => {
@@ -72,11 +74,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
         overflow='hidden'
         textOverflow='ellipsis'
       >
-        <NextLink href={link}>
-          {targetMarket?.group?.id
-            ? `${targetMarket.group.title}: ${targetMarket.title}`
-            : targetMarket?.proxyTitle ?? targetMarket?.title}
-        </NextLink>
+        <NextLink href={link}>{targetMarket?.proxyTitle ?? targetMarket?.title}</NextLink>
       </Td>
       <Td>
         <Link

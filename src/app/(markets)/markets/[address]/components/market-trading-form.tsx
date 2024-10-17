@@ -154,7 +154,7 @@ export const MarketTradingForm = ({
         <BuyForm
           market={market}
           setOutcomeIndex={setOutcomeIndex}
-          outcomeTokensPercent={market.prices}
+          outcomeTokensPercent={market?.prices}
           marketList={marketGroup?.markets}
           setSelectedMarket={setSelectedMarket}
           analyticParams={analyticParams}
@@ -162,10 +162,9 @@ export const MarketTradingForm = ({
       )}
       {strategy === 'Sell' ? (
         status === 'Loading' ? (
-          <LoadingForm market={market} outcomeIndex={outcomeIndex} />
+          <LoadingForm outcomeIndex={outcomeIndex} />
         ) : (
           <SellForm
-            market={market}
             setOutcomeIndex={setOutcomeIndex}
             setSelectedMarket={setSelectedMarket}
             marketGroup={marketGroup}

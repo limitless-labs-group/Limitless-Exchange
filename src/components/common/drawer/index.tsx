@@ -1,11 +1,11 @@
 import { Drawer } from 'vaul'
-import React, { PropsWithChildren, ReactNode } from 'react'
+import React, { PropsWithChildren, ReactNode, useMemo } from 'react'
 import { h1Regular, headline } from '@/styles/fonts/fonts.styles'
 
 type MobileDrawerProps = {
   trigger: ReactNode
   title?: string
-  variant: 'blue' | 'common'
+  variant: 'blue' | 'common' | 'black'
   onClose?: () => void
 }
 
@@ -16,8 +16,12 @@ export default function MobileDrawer({
   variant,
   onClose,
 }: PropsWithChildren<MobileDrawerProps>) {
-  const bgColor =
-    variant === 'blue' ? 'var(--chakra-colors-blue-500)' : 'var(--chakra-colors-grey-100)'
+  const bgColor = useMemo(() => {
+    if (variant === 'black') {
+      return 'var(--chakra-colors-grey-50)'
+    }
+    return variant === 'blue' ? 'var(--chakra-colors-blue-500)' : 'var(--chakra-colors-grey-100)'
+  }, [variant])
 
   const grabberBgColor =
     variant === 'blue' ? 'var(--chakra-colors-blue-400)' : 'var(--chakra-colors-grey-300)'
