@@ -61,7 +61,7 @@ export const DraftMarketCard = ({
           marginRight='8px'
           marginTop='4px'
         />
-        <Box onClick={onClick} as='a' width='100%'>
+        <Box onClick={onClick} as='a' width='95%'>
           <Stack gap='5px' width='100%'>
             <HStack justifyContent='space-between' mb='5px' alignItems='flex-start'>
               <Text {...paragraphMedium} color={colors.main}>
@@ -135,7 +135,7 @@ export const DraftMarketCard = ({
                     </Text>
                   </HStack>
                   <Text {...paragraphRegular} color={colors.main}>
-                    {market.deadline}
+                    {new Date(market.deadline).toLocaleString()}
                   </Text>
                 </HStack>
 

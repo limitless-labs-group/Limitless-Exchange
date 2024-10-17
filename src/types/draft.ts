@@ -24,6 +24,7 @@ export interface IFormData {
 export interface TokenLimit {
   min: number
   max: number
+  default?: number
   step: number
 }
 

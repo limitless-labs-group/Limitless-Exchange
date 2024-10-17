@@ -1,10 +1,10 @@
 import { TokenLimits } from '@/types/draft'
 
-export const defaultTokenSymbol = 'WETH'
+export const defaultTokenSymbol = 'USDC'
 export const defaultProbability = 50
-export const defaultMarketFee = 0
-export const defaultCreatorId = '1' // Limitless
-export const defaultCategoryId = '2' // Crypto
+export const defaultMarketFee = 1
+export const defaultCreatorId = '1' // Limitless in prod env
+export const defaultCategoryId = '2' // Crypto in prod env
 
 export const tokenLimits: TokenLimits = {
   HIGHER: {
@@ -34,6 +34,7 @@ export const tokenLimits: TokenLimits = {
   },
   USDC: {
     min: 300,
+    default: 500,
     max: 30000,
     step: 100,
   },
@@ -63,12 +64,12 @@ export const defaultFormData = {
   deadline: new Date(),
   timezone: 'America/New_York',
   title: '',
-  token: { symbol: 'WETH', id: 1 },
+  token: { symbol: 'USDC', id: 6 },
   description: '',
-  liquidity: tokenLimits[defaultTokenSymbol].min,
+  liquidity: tokenLimits[defaultTokenSymbol].default ?? tokenLimits[defaultTokenSymbol].min,
   probability: defaultProbability,
   marketFee: defaultMarketFee,
-  tag: [],
+  tag: [{ id: '52', label: 'Daily', value: 'Daily' }],
   creatorId: defaultCreatorId,
   categoryId: defaultCategoryId,
   ogLogo: undefined,
