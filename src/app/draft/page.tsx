@@ -11,7 +11,6 @@ import {
   HStack,
   NumberInput,
   NumberInputField,
-  NumberInputStepper,
   Select,
   Slider,
   SliderFilledTrack,
@@ -35,7 +34,6 @@ import TimezoneSelect, {
   ITimezoneOption,
   useTimezoneSelect,
 } from 'react-timezone-select'
-import { Input } from '@/components/common/input'
 import { Toast } from '@/components/common/toast'
 import {
   defaultFormData,
@@ -82,7 +80,7 @@ const CreateOwnMarketPage = () => {
         ...prevFormData,
         title: editMarket.title || prevFormData.title,
         description: editMarket.description || prevFormData.description,
-        deadline: editMarket.deadline || prevFormData.deadline,
+        deadline: new Date(editMarket.deadline) || prevFormData.deadline,
         token: editMarket.collateralToken
           ? { symbol: editMarket.collateralToken.symbol, id: editMarket.collateralToken.id }
           : prevFormData.token,
@@ -295,8 +293,8 @@ const CreateOwnMarketPage = () => {
               alignItems='flex-start'
             >
               <VStack w={'full'}>
-                <FormField label='OG Preview'>
-                  <HStack>
+                <FormField label='OG Preview is still here, but hidden (required to create an image)'>
+                  <HStack position='absolute' zIndex={-1} h='280px' w='600px'>
                     <OgImageGenerator
                       title={formData.title}
                       category={
@@ -351,8 +349,6 @@ const CreateOwnMarketPage = () => {
                     {formData.description?.length}/1500 characters
                   </FormHelperText>
                 </FormField>
-              </VStack>
-              <VStack w={'full'}>
                 <FormField label='Token'>
                   <HStack>
                     <Select value={formData.token.id} onChange={handleTokenSelect}>
@@ -424,7 +420,9 @@ const CreateOwnMarketPage = () => {
                     </Slider>
                   </HStack>
                 </FormField>
+              </VStack>
 
+              <VStack w={'full'}>
                 <FormField label='Market Fee'>
                   <HStack>
                     <Checkbox
@@ -504,8 +502,8 @@ const CreateOwnMarketPage = () => {
                   {/*// Todo move to a separate component?*/}
                   <DatePicker
                     id='input'
-                    selected={formData.deadline}
-                    onChange={(date) => {
+                    selected={formData.deadline || null}
+                    onChange={(date: Date | null) => {
                       if (date) {
                         handleChange('deadline', new Date(date.getTime()))
                       }
