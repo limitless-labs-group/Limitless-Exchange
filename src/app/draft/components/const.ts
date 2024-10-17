@@ -2,7 +2,7 @@ import { TokenLimits } from '@/types/draft'
 
 export const defaultTokenSymbol = 'USDC'
 export const defaultProbability = 50
-export const defaultMarketFee = 1
+export const defaultMarketFee = 0
 export const defaultCreatorId = '1' // Limitless in prod env
 export const defaultCategoryId = '2' // Crypto in prod env
 
@@ -69,7 +69,7 @@ export const defaultFormData = {
   liquidity: tokenLimits[defaultTokenSymbol].default ?? tokenLimits[defaultTokenSymbol].min,
   probability: defaultProbability,
   marketFee: defaultMarketFee,
-  tag: [{ id: '52', label: 'Daily', value: 'Daily' }],
+  tag: [{ id: '149', label: 'Daily', value: 'Daily' }],
   creatorId: defaultCreatorId,
   categoryId: defaultCategoryId,
   ogLogo: undefined,

@@ -11,6 +11,7 @@ import {
   HStack,
   NumberInput,
   NumberInputField,
+  NumberInputStepper,
   Select,
   Slider,
   SliderFilledTrack,
@@ -354,7 +355,15 @@ const CreateOwnMarketPage = () => {
 
                 <FormField label={`${formData.token.symbol} Liquidity`}>
                   <HStack>
-                    <NumberInput maxW='120px' mr='2rem' value={formData.liquidity}>
+                    <NumberInput
+                      maxW='120px'
+                      mr='2rem'
+                      value={formData.liquidity}
+                      onChange={(value) => handleChange('liquidity', Number(value))}
+                      min={tokenLimits[formData.token.symbol]?.min}
+                      max={tokenLimits[formData.token.symbol]?.max}
+                      step={tokenLimits[formData.token.symbol]?.step}
+                    >
                       <NumberInputField w={'120px'} />
                     </NumberInput>
                     <Slider
@@ -376,7 +385,15 @@ const CreateOwnMarketPage = () => {
 
                 <FormField label='Starting YES Probability'>
                   <HStack>
-                    <NumberInput maxW='120px' mr='2rem' value={formData.probability}>
+                    <NumberInput
+                      maxW='120px'
+                      mr='2rem'
+                      value={formData.probability}
+                      onChange={(value) => handleChange('probability', Number(value))}
+                      min={1}
+                      max={99}
+                      step={1}
+                    >
                       <NumberInputField w={'120px'} />
                     </NumberInput>
                     <Slider
