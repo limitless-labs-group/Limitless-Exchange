@@ -33,13 +33,19 @@ const defaultColors = {
   chartBg: 'var(--chakra-colors-grey-300)',
 }
 
+const hoverColors = {
+  main: 'var(--chakra-colors-white)',
+  secondary: 'var(--chakra-colors-transparent-700)',
+  chartBg: 'var(--chakra-colors-transparent-300)',
+}
+
 export const DraftMarketCard = ({
   market,
   isChecked,
   onToggle,
   onClick,
 }: DraftMarketSingleCardProps) => {
-  const [colors] = useState(defaultColors)
+  const [colors, setColors] = useState(defaultColors)
 
   return (
     <Paper
@@ -48,6 +54,16 @@ export const DraftMarketCard = ({
       cursor='pointer'
       _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
       position='relative'
+      onMouseEnter={() => {
+        if (!isMobile) {
+          setColors(hoverColors)
+        }
+      }}
+      onMouseLeave={() => {
+        if (!isMobile) {
+          setColors(defaultColors)
+        }
+      }}
     >
       <HStack align='start' spacing={4}>
         <Checkbox

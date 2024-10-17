@@ -268,6 +268,11 @@ const CreateOwnMarketPage = () => {
       })
   }
 
+  const resizeTextareaHeight = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    e.currentTarget.style.height = 'auto'
+    e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
+  }
+
   const submit = async () => {
     if (marketId) {
       await updateMarket()
@@ -314,7 +319,12 @@ const CreateOwnMarketPage = () => {
                 </FormField>
 
                 <FormField label='Title'>
-                  <Input
+                  <Textarea
+                    resize='none'
+                    rows={1}
+                    overflow='hidden'
+                    height='auto'
+                    onInput={resizeTextareaHeight}
                     value={formData.title}
                     onChange={(e) => handleChange('title', e.target.value)}
                     maxLength={70}
@@ -330,6 +340,8 @@ const CreateOwnMarketPage = () => {
                     resize='none'
                     rows={7}
                     overflow='hidden'
+                    height='auto'
+                    onInput={resizeTextareaHeight}
                     maxLength={1500}
                     value={formData.description}
                     onChange={(e) => handleChange('description', e.target.value)}
