@@ -17,7 +17,6 @@ import {
   SliderThumb,
   SliderTrack,
   Spinner,
-  Text,
   Textarea,
   VStack,
 } from '@chakra-ui/react'
@@ -41,6 +40,10 @@ import {
   tokenLimits,
   selectStyles,
   OgImageGenerator,
+  defaultProbability,
+  defaultMarketFee,
+  defaultCreatorId,
+  defaultCategoryId,
 } from '@/app/draft/components'
 import { FormField } from './components/form-field'
 import { MainLayout } from '@/components'
@@ -78,23 +81,25 @@ const CreateOwnMarketPage = () => {
     if (editMarket) {
       setFormData((prevFormData) => ({
         ...prevFormData,
-        title: editMarket.title || prevFormData.title,
-        description: editMarket.description || prevFormData.description,
-        deadline: new Date(editMarket.deadline) || prevFormData.deadline,
+        title: editMarket.title || '',
+        description: editMarket.description || '',
+        deadline: new Date(editMarket.deadline) || new Date(),
         token: editMarket.collateralToken
           ? { symbol: editMarket.collateralToken.symbol, id: editMarket.collateralToken.id }
           : prevFormData.token,
-        liquidity: editMarket.draftMetadata?.liquidity || prevFormData.liquidity,
-        probability: editMarket.draftMetadata?.initialProbability * 100 || prevFormData.probability,
-        marketFee: editMarket.draftMetadata?.fee || prevFormData.marketFee,
+        liquidity:
+          editMarket.draftMetadata?.liquidity ||
+          tokenLimits[editMarket.collateralToken.symbol]?.min,
+        probability: editMarket.draftMetadata?.initialProbability * 100 || defaultProbability,
+        marketFee: editMarket.draftMetadata?.fee || defaultMarketFee,
         tag:
           editMarket.tags.map((tag: Tag) => ({
             id: tag.id,
             value: tag.name,
             label: tag.name,
-          })) || prevFormData.tag,
-        creatorId: editMarket.creator?.id || prevFormData.creatorId,
-        categoryId: editMarket.category?.id || prevFormData.categoryId,
+          })) || [],
+        creatorId: editMarket.creator?.id || defaultCreatorId,
+        categoryId: editMarket.category?.id || defaultCategoryId,
       }))
       generateOgImage()
     }
@@ -283,38 +288,39 @@ const CreateOwnMarketPage = () => {
     <MainLayout>
       <Flex justifyContent={'center'}>
         <VStack w='full' spacing={4}>
-          <Text>Create Market</Text>
           <FormControl>
             <HStack
               w='full'
-              maxW='1000px'
+              maxW='1200px'
               gap={10}
               justifyContent='space-between'
               alignItems='flex-start'
             >
-              <VStack w={'full'}>
-                <FormField label='OG Preview is still here, but hidden (required to create an image)'>
-                  <HStack position='absolute' zIndex={-1} h='280px' w='600px'>
-                    <OgImageGenerator
-                      title={formData.title}
-                      category={
-                        categories?.find((category) => category.id === +formData.categoryId)
-                          ?.name ?? 'Unknown'
-                      }
-                      onBlobGenerated={(blob) => {
-                        console.log('Blob generated', blob)
-                        const _ogLogo = new File([blob], 'og.png', {
-                          type: blob.type,
-                          lastModified: Date.now(),
-                        })
-                        console.log('Blob transformed to File', _ogLogo)
+              <VStack w='full' flex='1.2'>
+                <Box position='absolute' visibility='hidden'>
+                  <FormField label='OG Preview is still here, but hidden (required to create an image)'>
+                    <HStack position='absolute' zIndex={-1} h='280px' w='600px'>
+                      <OgImageGenerator
+                        title={formData.title}
+                        category={
+                          categories?.find((category) => category.id === +formData.categoryId)
+                            ?.name ?? 'Unknown'
+                        }
+                        onBlobGenerated={(blob) => {
+                          console.log('Blob generated', blob)
+                          const _ogLogo = new File([blob], 'og.png', {
+                            type: blob.type,
+                            lastModified: Date.now(),
+                          })
+                          console.log('Blob transformed to File', _ogLogo)
 
-                        handleChange('ogLogo', _ogLogo)
-                      }}
-                      generateBlob={isGeneratingOgImage}
-                    />
-                  </HStack>
-                </FormField>
+                          handleChange('ogLogo', _ogLogo)
+                        }}
+                        generateBlob={isGeneratingOgImage}
+                      />
+                    </HStack>
+                  </FormField>
+                </Box>
 
                 <FormField label='Title'>
                   <Textarea
@@ -349,6 +355,7 @@ const CreateOwnMarketPage = () => {
                     {formData.description?.length}/1500 characters
                   </FormHelperText>
                 </FormField>
+
                 <FormField label='Token'>
                   <HStack>
                     <Select value={formData.token.id} onChange={handleTokenSelect}>
@@ -422,7 +429,7 @@ const CreateOwnMarketPage = () => {
                 </FormField>
               </VStack>
 
-              <VStack w={'full'}>
+              <VStack w={'full'} flex='0.8'>
                 <FormField label='Market Fee'>
                   <HStack>
                     <Checkbox

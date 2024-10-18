@@ -1,5 +1,5 @@
 'use client'
-import { MainLayout } from '@/components'
+
 import {
   Box,
   Button,
@@ -18,7 +18,30 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react'
+import { Image as ChakraImage } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
+import { useRouter } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { v4 as uuidv4 } from 'uuid'
+import MobileDrawer from '@/components/common/drawer'
+import MarketActivityTab from '@/components/common/markets/activity-tab'
+import TextWithPixels from '@/components/common/text-with-pixels'
+import {
+  MarketClaimingForm,
+  MarketMetadata,
+  MarketTradingForm,
+  MobileTradeButton,
+} from '@/app/(markets)/markets/[address]/components'
+import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
+import { MainLayout } from '@/components'
+import useMarketGroup from '@/hooks/use-market-group'
+import WarpcastIcon from '@/resources/icons/Farcaster.svg'
+import TwitterIcon from '@/resources/icons/X.svg'
+import ActivityIcon from '@/resources/icons/activity-icon.svg'
+import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
+import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
+import ShareIcon from '@/resources/icons/share-icon.svg'
 import {
   ClickEvent,
   createMarketShareUrls,
@@ -26,31 +49,9 @@ import {
   useAmplitude,
   useTradingService,
 } from '@/services'
-import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
-import ShareIcon from '@/resources/icons/share-icon.svg'
-import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
-import WarpcastIcon from '@/resources/icons/Farcaster.svg'
-import TwitterIcon from '@/resources/icons/X.svg'
-import TextWithPixels from '@/components/common/text-with-pixels'
-import { Image as ChakraImage } from '@chakra-ui/react'
-import {
-  MarketClaimingForm,
-  MarketMetadata,
-  MarketTradingForm,
-  MobileTradeButton,
-} from '@/app/(markets)/markets/[address]/components'
-import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
-import { useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useWinningIndex } from '@/services/MarketsService'
-import useMarketGroup from '@/hooks/use-market-group'
-import BigNumber from 'bignumber.js'
+import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
-import MobileDrawer from '@/components/common/drawer'
-import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
-import { v4 as uuidv4 } from 'uuid'
-import MarketActivityTab from '@/components/common/markets/activity-tab'
-import ActivityIcon from '@/resources/icons/activity-icon.svg'
 
 export default function MarketGroupPage({ params }: { params: { slug: string } }) {
   const { data: marketGroup, isLoading: marketGroupLoading } = useMarketGroup(params.slug)
@@ -271,7 +272,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                   <ChakraImage
                     width={6}
                     height={6}
-                    src={marketGroup?.creator.imageURI ?? '/assets/images/logo.svg'}
+                    src={marketGroup?.creator.imageUrl ?? '/assets/images/logo.svg'}
                     alt='creator'
                     borderRadius={'2px'}
                   />
