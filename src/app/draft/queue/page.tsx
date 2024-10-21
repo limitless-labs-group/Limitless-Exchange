@@ -4,11 +4,13 @@ import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import React, { ReactNode, useMemo, useState } from 'react'
+import StickyList from '@/components/common/sticky-list'
 import { Toast } from '@/components/common/toast'
 import { DraftMarket, DraftMarketCard } from '@/app/draft/queue/components/draft-card'
 import { MainLayout } from '@/components'
 import { useToast } from '@/hooks'
+import { useSortedItems } from '@/hooks/ui/use-sorted-items'
 
 const DraftMarketsQueuePage = () => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
@@ -72,25 +74,37 @@ const DraftMarketsQueuePage = () => {
       })
   }
 
+  const { checkedItems, uncheckedItems } = useSortedItems({
+    items: draftMarkets,
+    condition: (market: DraftMarket) => selectedMarketIds.includes(market.id),
+    render: (market: DraftMarket) => (
+      <DraftMarketCard
+        market={market}
+        key={market.id}
+        isChecked={selectedMarketIds.includes(market.id)}
+        onToggle={() => handleToggle(market.id)}
+        onClick={() => handleClick(market.id)}
+      />
+    ),
+  })
+
   return (
     <MainLayout justifyContent={'center'}>
       <Flex justifyContent={'center'}>
         <VStack w='868px' spacing={4}>
-          {draftMarkets?.map((draftMarket: DraftMarket) => (
-            <DraftMarketCard
-              market={draftMarket}
-              key={draftMarket.id}
-              isChecked={selectedMarketIds.includes(draftMarket.id)}
-              onToggle={() => handleToggle(draftMarket.id)}
-              onClick={() => handleClick(draftMarket.id)}
-            />
-          ))}
+          <StickyList elements={checkedItems} />
+          {uncheckedItems}
           {isCreating ? (
             <Box width='full' display='flex' justifyContent='center' alignItems='center'>
               <Spinner />
             </Box>
           ) : (
-            <Button colorScheme='blue' w={'full'} onClick={createMarketsBatch}>
+            <Button
+              colorScheme='blue'
+              w={'full'}
+              onClick={createMarketsBatch}
+              style={{ position: 'sticky', bottom: 10 }}
+            >
               Create Markets Batch
             </Button>
           )}
