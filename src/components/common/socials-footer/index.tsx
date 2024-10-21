@@ -1,13 +1,13 @@
-import { PropsWithChildren } from 'react'
 import { BoxProps, HStack, Icon, Link, Text } from '@chakra-ui/react'
-import BookIcon from '@/resources/icons/book-icon.svg'
-import SupportIcon from '@/resources/icons/support-icon.svg'
-import DiscordIcon from '@/resources/icons/discord-icon.svg'
+import { PropsWithChildren } from 'react'
+import { isMobile } from 'react-device-detect'
 import FarcasterIcon from '@/resources/icons/Farcaster.svg'
 import XIcon from '@/resources/icons/X.svg'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { isMobile } from 'react-device-detect'
+import BookIcon from '@/resources/icons/book-icon.svg'
+import DiscordIcon from '@/resources/icons/discord-icon.svg'
+import SupportIcon from '@/resources/icons/support-icon.svg'
 import { ClickEvent, useAmplitude } from '@/services'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const LINKS = {
   X: 'https://x.com/trylimitless',

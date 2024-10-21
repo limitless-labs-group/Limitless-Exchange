@@ -1,12 +1,12 @@
-import { defaultChain } from '@/constants'
-import { HistoryTrade } from '@/services'
-import { NumberUtil, truncateEthAddress } from '@/utils'
 import { HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import { useAllMarkets } from '@/services/MarketsService'
-import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import NextLink from 'next/link'
+import { defaultChain } from '@/constants'
+import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
+import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import { HistoryTrade } from '@/services'
+import { useAllMarkets } from '@/services/MarketsService'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 
 interface IPortfolioHistoryTradeItem extends TableRowProps {
   trade: HistoryTrade
@@ -20,8 +20,10 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
 
   const targetMarket = allMarkets.find((market) => market.address === trade.market.id)
 
+  // @ts-ignore
   const link = targetMarket?.group?.slug
-    ? `/market-group/${targetMarket.group.slug}`
+    ? // @ts-ignore
+      `/market-group/${targetMarket.group.slug}`
     : `/markets/${targetMarket?.address}`
 
   return (
@@ -57,11 +59,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
         overflow='hidden'
         textOverflow='ellipsis'
       >
-        <NextLink href={link}>
-          {targetMarket?.group?.id
-            ? `${targetMarket.group.title}: ${targetMarket.title}`
-            : targetMarket?.proxyTitle ?? targetMarket?.title}
-        </NextLink>
+        <NextLink href={link}>{targetMarket?.proxyTitle ?? targetMarket?.title}</NextLink>
       </Td>
       <Td>
         <Link

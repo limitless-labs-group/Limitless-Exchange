@@ -1,7 +1,9 @@
 import { tabsAnatomy } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
+import { isMobile } from 'react-device-detect'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { isMobile } from 'react-device-detect' // import utility to set light and dark mode props
+
+// import utility to set light and dark mode props
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(tabsAnatomy.keys)
 

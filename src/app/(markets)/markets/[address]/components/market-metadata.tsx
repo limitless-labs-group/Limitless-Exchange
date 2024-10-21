@@ -1,15 +1,15 @@
-import { defaultChain } from '@/constants'
 import { Flex, HStack, Text, Box } from '@chakra-ui/react'
-import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
-import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import CalendarIcon from '@/resources/icons/calendar-icon.svg'
-import { Market } from '@/types'
-import { isMobile } from 'react-device-detect'
-import { NumberUtil } from '@/utils'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
+import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import CalendarIcon from '@/resources/icons/calendar-icon.svg'
+import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
+import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import VolumeIcon from '@/resources/icons/volume-icon.svg'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
+import { NumberUtil } from '@/utils'
 
 export interface IMarketMetadata {
   market: Market | null
@@ -44,7 +44,17 @@ export const MarketMetadata = ({
     {
       title: 'Deadline',
       icon: <CalendarIcon width={16} height={16} />,
-      value: market?.expirationDate,
+      value:
+        market?.expirationTimestamp &&
+        market.expirationTimestamp - new Date().getTime() < 1000 * 24 * 60 * 60 ? (
+          <DailyMarketTimer
+            deadline={market.expirationTimestamp}
+            color='grey.800'
+            showDays={false}
+          />
+        ) : (
+          market?.expirationDate
+        ),
       border: false,
     },
   ]

@@ -1,10 +1,10 @@
-import React from 'react'
-import { EmblaOptionsType } from 'embla-carousel'
-import { DotButton, useDotButton } from './dot-button'
-import useEmblaCarousel from 'embla-carousel-react'
-import Autoplay from 'embla-carousel-autoplay'
-import './carousel-desktop.css'
 import { useToken } from '@chakra-ui/react'
+import { EmblaOptionsType } from 'embla-carousel'
+import Autoplay from 'embla-carousel-autoplay'
+import useEmblaCarousel from 'embla-carousel-react'
+import React from 'react'
+import './carousel-desktop.css'
+import { DotButton, useDotButton } from './dot-button'
 
 type PropType = {
   slides: JSX.Element[]

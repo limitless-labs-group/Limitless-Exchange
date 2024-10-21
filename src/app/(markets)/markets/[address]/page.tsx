@@ -1,6 +1,5 @@
 'use client'
 
-import { MainLayout } from '@/components'
 import {
   Box,
   Button,
@@ -20,50 +19,39 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react'
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { v4 as uuidv4 } from 'uuid'
+import { Address } from 'viem'
+import MobileDrawer from '@/components/common/drawer'
+import MarketActivityTab from '@/components/common/markets/activity-tab'
+import TextWithPixels from '@/components/common/text-with-pixels'
+import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
+import {
+  MarketClaimingForm,
+  MarketMetadata,
+  MarketTradingForm,
+  MobileTradeButton,
+} from './components'
+import { MainLayout } from '@/components'
+import { useToken } from '@/hooks/use-token'
+import WarpcastIcon from '@/resources/icons/Farcaster.svg'
+import TwitterIcon from '@/resources/icons/X.svg'
+import ActivityIcon from '@/resources/icons/activity-icon.svg'
+import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
+import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
+import ShareIcon from '@/resources/icons/share-icon.svg'
 import {
   ClickEvent,
   createMarketShareUrls,
-  OpenEvent,
-  PageOpenedMetadata,
   ShareClickedMetadata,
   useAmplitude,
   useTradingService,
 } from '@/services'
 import { useMarket, useWinningIndex } from '@/services/MarketsService'
-import { useToken } from '@/hooks/use-token'
-import { defaultChain } from '@/constants'
-import { useRouter } from 'next/navigation'
-import TextWithPixels from '@/components/common/text-with-pixels'
-import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
-import ShareIcon from '@/resources/icons/share-icon.svg'
-import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
-import { isMobile } from 'react-device-detect'
-import WarpcastIcon from '@/resources/icons/Farcaster.svg'
-import TwitterIcon from '@/resources/icons/X.svg'
-import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
-import ActivityIcon from '@/resources/icons/activity-icon.svg'
-import {
-  MarketClaimingForm,
-  MarketMetadata,
-  MarketPositions,
-  MarketTradingForm,
-  MobileTradeButton,
-} from './components'
-import {
-  h1Regular,
-  paragraphBold,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
-import { Address, zeroAddress } from 'viem'
-import MobileDrawer from '@/components/common/drawer'
-import { Market, MarketStatus } from '@/types'
-import NextLink from 'next/link'
-import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
-import { v4 as uuidv4 } from 'uuid'
-import MarketActivityTab from '@/app/(markets)/markets/[address]/components/activity-tab'
-import { useMarketFeed } from '@/hooks/use-market-feed'
+import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -74,15 +62,10 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   const { data: winningIndex } = useWinningIndex(params.address)
   const resolved = winningIndex === 0 || winningIndex === 1
   const router = useRouter()
-  const {
-    data: market,
-    isError: fetchMarketError,
-    isLoading: fetchMarketLoading,
-  } = useMarket(params.address)
+  const { data: market, isLoading: fetchMarketLoading } = useMarket(params.address)
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
   const { isLoading: isCollateralLoading } = useToken(market?.collateralToken.address)
   const { setMarket, resetQuotes } = useTradingService()
-  const { data: activityData } = useMarketFeed(params.address)
 
   const marketActionForm = useMemo(() => {
     if (market) {
@@ -114,9 +97,9 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
         resolved={resolved}
         key={uuidv4()}
       />,
-      <MarketActivityTab key={uuidv4()} activity={activityData?.data} />,
+      <MarketActivityTab key={uuidv4()} />,
     ]
-  }, [market, winningIndex, resolved, activityData?.data])
+  }, [market, winningIndex, resolved])
 
   const mobileTradeButton = useMemo(() => {
     return market?.expired ? (
@@ -249,7 +232,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                   <ChakraImage
                     width={6}
                     height={6}
-                    src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+                    src={market?.creator.imageUrl ?? '/assets/images/logo.svg'}
                     alt='creator'
                     borderRadius={'2px'}
                   />

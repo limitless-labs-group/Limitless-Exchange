@@ -1,18 +1,18 @@
-import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
-import UnlockIcon from '@/resources/icons/unlocked.svg'
-import LockIcon from '@/resources/icons/locked.svg'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Dispatch, SetStateAction, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { Address } from 'viem'
 import Loader from '@/components/common/loader'
+import { ButtonStatus } from '@/app/(markets)/markets/[address]/components/trade-widgets/action-button'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
-import { AnimatePresence, motion } from 'framer-motion'
-import { isMobile } from 'react-device-detect'
-import { ButtonStatus } from '@/app/(markets)/markets/[address]/components/trade-widgets/action-button'
-import { commonButtonProps } from '@/styles/button'
+import LockIcon from '@/resources/icons/locked.svg'
+import UnlockIcon from '@/resources/icons/unlocked.svg'
 import { ClickEvent, useAmplitude } from '@/services'
-import { Address } from 'viem'
 import { useWeb3Service } from '@/services/Web3Service'
+import { commonButtonProps } from '@/styles/button'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const MotionBox = motion(Box)
 
@@ -26,6 +26,7 @@ interface ConfirmButtonProps {
   marketAddress: Address
   outcome: 'Yes' | 'No'
   marketType: 'single' | 'group'
+  showFullInfo: boolean
 }
 
 export default function ConfirmButton({
@@ -38,6 +39,7 @@ export default function ConfirmButton({
   marketAddress,
   outcome,
   marketType,
+  showFullInfo,
 }: ConfirmButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
 
@@ -105,10 +107,7 @@ export default function ConfirmButton({
         {!isHovered ? <LockIcon width={16} height={16} /> : <UnlockIcon width={16} height={16} />}
         <Box>
           <Text {...paragraphMedium} color='white'>
-            Unlock
-          </Text>
-          <Text {...paragraphMedium} color='white'>
-            {tokenTicker}
+            Unlock {tokenTicker}
           </Text>
         </Box>
       </>
@@ -121,7 +120,7 @@ export default function ConfirmButton({
         {...commonButtonProps}
         bg='rgba(255, 255, 255, 0.2)'
         w={isMobile ? '144px' : '124px'}
-        h={isMobile ? '156px' : '136px'}
+        h={showFullInfo ? '118px' : '66px'}
         _hover={{
           backgroundColor: 'transparent.300',
         }}
@@ -144,7 +143,7 @@ export default function ConfirmButton({
         {...commonButtonProps}
         bg='rgba(255, 255, 255, 0.2)'
         w={isMobile ? '144px' : '124px'}
-        h={isMobile ? '156px' : '136px'}
+        h={showFullInfo ? '118px' : '66px'}
         _hover={{
           backgroundColor: 'transparent.300',
         }}

@@ -1,10 +1,10 @@
-import { FeedEventUser } from '@/types'
-import { PropsWithChildren, useMemo } from 'react'
 import { Box, HStack, Link, Text } from '@chakra-ui/react'
+import { PropsWithChildren, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { timeSinceCreation, truncateEthAddress } from '@/utils'
-import { captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import Avatar from '@/components/common/avatar'
+import { captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { FeedEventUser } from '@/types'
+import { timeSinceCreation, truncateEthAddress } from '@/utils'
 
 interface MarketFeedCardContainer {
   creator: FeedEventUser
@@ -35,7 +35,7 @@ export default function MarketFeedCardContainer({
       sx={{
         ...(isActivityTab
           ? {
-              '&:not(:last-child)': { borderBottom: '1px solid' },
+              '&:not(:last-child)': { borderBottom: '1px solid', borderColor: 'grey.300' },
             }
           : {}),
       }}

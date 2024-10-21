@@ -1,7 +1,7 @@
 import React from 'react'
+import { isMobile } from 'react-device-detect'
 import { IModal, Modal } from '@/components/common/modals/modal'
 import Withdraw from '@/components/layouts/wallet-page/components/withdraw'
-import { isMobile } from 'react-device-detect'
 
 type WithdrawModalProps = Omit<IModal, 'children'>
 

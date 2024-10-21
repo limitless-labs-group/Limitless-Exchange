@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react'
 import { Button, ButtonGroup, HStack } from '@chakra-ui/react'
+import React, { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-
-import { Sort } from '@/types'
 import { useIsMobile } from '@/hooks'
-import { controlsMedium } from '@/styles/fonts/fonts.styles'
 import { ClickEvent, useAmplitude } from '@/services'
+import { controlsMedium } from '@/styles/fonts/fonts.styles'
+import { Sort } from '@/types'
 
 type SortFilterProps = {
   onChange: (option: Sort) => void

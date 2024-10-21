@@ -1,6 +1,6 @@
+import { defineStyle, defineStyleConfig } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { defineStyle, defineStyleConfig } from '@chakra-ui/react'
 
 const grey = defineStyle({
   border: '1px solid',

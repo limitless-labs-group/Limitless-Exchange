@@ -1,6 +1,6 @@
-import { defaultChain, newSubgraphURI } from '@/constants'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
+import { defaultChain, newSubgraphURI } from '@/constants'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 
 export type AccountMarketResponse = {
