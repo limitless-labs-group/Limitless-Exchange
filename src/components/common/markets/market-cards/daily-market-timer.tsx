@@ -1,6 +1,6 @@
+import { Text } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Text } from '@chakra-ui/react'
 
 interface DailyMarketTimerProps {
   deadline: number

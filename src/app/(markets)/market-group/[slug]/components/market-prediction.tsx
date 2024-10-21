@@ -1,11 +1,11 @@
-import Paper from '@/components/common/paper'
-import { Market } from '@/types'
 import { Box, HStack, Text } from '@chakra-ui/react'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import Paper from '@/components/common/paper'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface MarketPredictionProps {

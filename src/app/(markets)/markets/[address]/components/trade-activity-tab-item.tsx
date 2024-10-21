@@ -1,7 +1,7 @@
-import { MarketFeedData } from '@/hooks/use-market-feed'
-import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
-import { NumberUtil, truncateEthAddress } from '@/utils'
 import { useMemo } from 'react'
+import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
+import { MarketFeedData } from '@/hooks/use-market-feed'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 
 interface TradeActivityTabItemProps {
   tradeItem: MarketFeedData

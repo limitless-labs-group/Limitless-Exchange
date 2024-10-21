@@ -1,11 +1,12 @@
-import Paper from '@/components/common/paper'
 import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { isMobile } from 'react-device-detect'
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
-import { NumberUtil } from '@/utils'
-import VolumeIcon from '@/resources/icons/volume-icon.svg'
+import { useSearchParams } from 'next/navigation'
 import React, { useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import MobileDrawer from '@/components/common/drawer'
+import MarketPage from '@/components/common/markets/market-page'
+import Paper from '@/components/common/paper'
+import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import {
   ClickEvent,
   OpenEvent,
@@ -13,10 +14,9 @@ import {
   useAmplitude,
   useTradingService,
 } from '@/services'
-import { useSearchParams } from 'next/navigation'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketGroup } from '@/types'
-import MarketPage from '@/components/common/markets/market-page'
-import MobileDrawer from '@/components/common/drawer'
+import { NumberUtil } from '@/utils'
 
 interface MarketGroupCardProps {
   marketGroup: MarketGroup

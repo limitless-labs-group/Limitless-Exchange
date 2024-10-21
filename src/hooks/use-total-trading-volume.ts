@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { limitlessApi } from '@/services'
 import { AxiosResponse } from 'axios'
+import { limitlessApi } from '@/services'
 
 export const useTotalTradingVolume = () => {
   return useQuery({

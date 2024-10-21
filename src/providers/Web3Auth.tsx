@@ -1,9 +1,10 @@
-import { Web3AuthConnector } from '@web3auth/web3auth-wagmi-connector'
-import { Web3Auth } from '@web3auth/modal'
-import { LOGIN_MODAL_EVENTS } from '@web3auth/ui'
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import { Wallet, WalletDetailsParams } from '@rainbow-me/rainbowkit'
 import { CHAIN_NAMESPACES, CustomChainConfig, IProvider, WEB3AUTH_NETWORK } from '@web3auth/base'
 import { EthereumPrivateKeyProvider } from '@web3auth/ethereum-provider'
-import { defaultChain } from '@/constants'
+import { Web3Auth } from '@web3auth/modal'
+import { LOGIN_MODAL_EVENTS } from '@web3auth/ui'
+import { Web3AuthConnector } from '@web3auth/web3auth-wagmi-connector'
 import {
   PropsWithChildren,
   createContext,
@@ -12,12 +13,11 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { useAccount as useWagmi } from 'wagmi'
-import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
-import { OpenEvent, useAmplitude } from '@/services'
-import { createConnector as createWagmiConnector } from 'wagmi'
-import { Wallet, WalletDetailsParams } from '@rainbow-me/rainbowkit'
 import { isMobile } from 'react-device-detect'
+import { useAccount as useWagmi } from 'wagmi'
+import { createConnector as createWagmiConnector } from 'wagmi'
+import { defaultChain } from '@/constants'
+import { OpenEvent, useAmplitude } from '@/services'
 
 const chainConfig: CustomChainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,

@@ -1,10 +1,3 @@
-import { Toast } from '@/components/common/toast'
-import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
-import { useMarketData, useToast } from '@/hooks'
-import { publicClient } from '@/providers'
-import { useBalanceService, useHistory } from '@/services'
-import { Market, MarketGroup, RedeemParams } from '@/types'
-import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -19,13 +12,20 @@ import {
   SetStateAction,
 } from 'react'
 import { Address, Hash, formatUnits, getAddress, getContract, parseUnits, zeroHash } from 'viem'
-import { useWeb3Service } from '@/services/Web3Service'
-import { useToken } from '@/hooks/use-token'
+import { Toast } from '@/components/common/toast'
+import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
+import { useMarketData, useToast } from '@/hooks'
 import {
   getConditionalTokenAddress,
   useConditionalTokensAddr,
 } from '@/hooks/use-conditional-tokens-addr'
+import { useToken } from '@/hooks/use-token'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { publicClient } from '@/providers'
+import { useBalanceService, useHistory } from '@/services'
+import { useWeb3Service } from '@/services/Web3Service'
+import { Market, MarketGroup, RedeemParams } from '@/types'
+import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
 import { DISCORD_LINK } from '@/utils/consts'
 
 interface ITradingServiceContext {

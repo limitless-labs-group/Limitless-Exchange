@@ -1,5 +1,5 @@
-import { isMobile } from 'react-device-detect'
 import { Slider, SliderFilledTrack, SliderThumb, SliderTrack } from '@chakra-ui/react'
+import { isMobile } from 'react-device-detect'
 
 interface AmountSliderProps {
   variant: 'base' | 'white'

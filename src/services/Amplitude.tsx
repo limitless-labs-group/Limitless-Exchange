@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
 import {
   init,
   track as amplitudeTrack,
@@ -8,12 +7,13 @@ import {
   getSessionId,
 } from '@amplitude/analytics-browser'
 import * as sessionReplay from '@amplitude/session-replay-browser'
-import { useAccount } from '@/services'
-import { Address, MarketGroup } from '@/types'
 import {
   CUSTOM_LOGIN_PROVIDER_TYPE,
   LOGIN_PROVIDER_TYPE,
 } from '@toruslabs/openlogin-utils/dist/types/interfaces'
+import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
+import { useAccount } from '@/services'
+import { Address, MarketGroup } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 const NODE_ENV = process.env.NODE_ENV ?? 'development'

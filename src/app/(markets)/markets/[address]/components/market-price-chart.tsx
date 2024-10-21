@@ -1,9 +1,5 @@
 'use client'
-import Highcharts from 'highcharts'
-import HighchartsReact from 'highcharts-react-official'
-import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { defaultChain, newSubgraphURI } from '@/constants'
+
 import {
   Text,
   HStack,
@@ -16,18 +12,23 @@ import {
   useDisclosure,
   Button,
 } from '@chakra-ui/react'
-import React, { useMemo, useState } from 'react'
-import { Market, MarketGroup } from '@/types'
-import Paper from '@/components/common/paper'
-import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import { isMobile } from 'react-device-detect'
-import { useThemeProvider } from '@/providers'
-import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import { getAddress } from 'viem'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
 import { rgba } from 'color2k'
+import Highcharts from 'highcharts'
+import HighchartsReact from 'highcharts-react-official'
+import React, { useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { getAddress } from 'viem'
+import Paper from '@/components/common/paper'
+import { defaultChain, newSubgraphURI } from '@/constants'
 import { useMarketPriceHistory } from '@/hooks/use-market-price-history'
+import { useThemeProvider } from '@/providers'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Market, MarketGroup } from '@/types'
 
 const ONE_HOUR = 3_600_000 // milliseconds in an hour
 

@@ -1,9 +1,9 @@
 import { Spinner, VStack, Text, HStack } from '@chakra-ui/react'
+import { useMemo } from 'react'
+import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
+import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import { useTradingService } from '@/services'
 import { Market } from '@/types'
-import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
-import { useMemo } from 'react'
 import { NumberUtil } from '@/utils'
 
 interface LoadingFormProps {

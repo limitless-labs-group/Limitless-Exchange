@@ -1,8 +1,8 @@
 import { Box, Button, ButtonProps } from '@chakra-ui/react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo } from 'react'
 import Loader from '@/components/common/loader'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
-import { AnimatePresence, motion } from 'framer-motion'
 
 const MotionBox = motion(Box)
 
