@@ -1,10 +1,10 @@
 import { Box, Button, Divider, Grid, HStack, Text, VStack } from '@chakra-ui/react'
-import { isMobile } from 'react-device-detect'
-import { Market } from '@/types'
-import { headlineRegular } from '@/styles/fonts/fonts.styles'
-import DailyMarketCard from '@/components/common/markets/market-cards/daily-market-card'
 import React from 'react'
+import { isMobile } from 'react-device-detect'
+import DailyMarketCard from '@/components/common/markets/market-cards/daily-market-card'
 import DailyMarketCardMobile from '@/components/common/markets/market-cards/daily-market-card-mobile'
+import { headlineRegular } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
 
 interface DailyMarketsSectionProps {
   markets: Market[]

@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { FeedEntity, FeedResponse } from '@/types'
 import axios, { AxiosResponse } from 'axios'
+import { FeedEntity, FeedResponse } from '@/types'
 
 export function useFeed() {
   return useInfiniteQuery<FeedEntity<unknown>[], Error>({

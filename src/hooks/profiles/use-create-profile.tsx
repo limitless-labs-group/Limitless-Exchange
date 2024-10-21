@@ -1,10 +1,10 @@
-import { Address, getAddress, toHex } from 'viem'
-import { limitlessApi, useEtherspot, useLimitlessApi } from '@/services'
-import { useSignMessage } from 'wagmi'
 import { useMutation } from '@tanstack/react-query'
-import { Profile, ProfileActionType } from '@/types/profiles'
-import { useToast } from '@/hooks'
+import { Address, getAddress, toHex } from 'viem'
+import { useSignMessage } from 'wagmi'
 import { Toast } from '@/components/common/toast'
+import { useToast } from '@/hooks'
+import { limitlessApi, useEtherspot, useLimitlessApi } from '@/services'
+import { Profile, ProfileActionType } from '@/types/profiles'
 
 export interface IUseCreateProfile {
   account: Address | undefined

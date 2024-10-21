@@ -1,4 +1,3 @@
-import { useTradingService } from '@/services'
 import {
   Accordion,
   AccordionButton,
@@ -10,6 +9,7 @@ import {
   Text,
 } from '@chakra-ui/react'
 import MarketPrediction from '@/app/(markets)/market-group/[slug]/components/market-prediction'
+import { useTradingService } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 export default function MarketGroupPredictions() {

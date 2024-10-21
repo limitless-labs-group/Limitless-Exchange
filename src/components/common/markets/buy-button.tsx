@@ -1,13 +1,8 @@
-import { isMobile } from 'react-device-detect'
-import { ClickEvent, TradeQuotes, useAmplitude, useTradingService } from '@/services'
 import { Box, Button, HStack, Text, Tooltip, useOutsideClick, VStack } from '@chakra-ui/react'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
-import CheckedIcon from '@/resources/icons/checked-icon.svg'
-import { NumberUtil } from '@/utils'
-import { Market, MarketStatus } from '@/types'
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import BigNumber from 'bignumber.js'
 import { AnimatePresence, motion } from 'framer-motion'
+import Cookies from 'js-cookie'
 import React, {
   Dispatch,
   LegacyRef,
@@ -19,16 +14,21 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { useWeb3Service } from '@/services/Web3Service'
-import ConfirmButton from '@/app/(markets)/markets/[address]/components/trade-widgets/confirm-button'
-import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
-import Loader from '@/components/common/loader'
+import { isMobile } from 'react-device-detect'
 import { parseUnits } from 'viem'
-import BigNumber from 'bignumber.js'
-import Cookies from 'js-cookie'
+import Loader from '@/components/common/loader'
 import BlockedTradeTemplate from '@/app/(markets)/markets/[address]/components/trade-widgets/blocked-trade-template'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import ConfirmButton from '@/app/(markets)/markets/[address]/components/trade-widgets/confirm-button'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
+import CheckedIcon from '@/resources/icons/checked-icon.svg'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
+import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import { ClickEvent, TradeQuotes, useAmplitude, useTradingService } from '@/services'
+import { useWeb3Service } from '@/services/Web3Service'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market, MarketStatus } from '@/types'
+import { NumberUtil } from '@/utils'
 
 interface ActionButtonProps {
   onClick: () => Promise<void>

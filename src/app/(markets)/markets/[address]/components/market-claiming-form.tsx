@@ -1,10 +1,9 @@
-import { useHistory } from '@/services'
 import { Text, Button, Box } from '@chakra-ui/react'
-import { useMemo } from 'react'
-import { Market } from '@/types'
-
 import { useRouter } from 'next/navigation'
+import { useMemo } from 'react'
 import Paper from '@/components/common/paper'
+import { useHistory } from '@/services'
+import { Market } from '@/types'
 
 interface MarketClaimingFormProps {
   market: Market | null

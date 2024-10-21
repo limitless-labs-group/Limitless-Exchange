@@ -1,11 +1,11 @@
-import { useTradingService } from '@/services'
-import { MarketPositions } from '@/app/(markets)/markets/[address]/components'
-import MarketGroupPredictions from '@/components/common/markets/market-group-predictions'
-import { isMobile } from 'react-device-detect'
-import NextLink from 'next/link'
 import { Box, Link, Text } from '@chakra-ui/react'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import NextLink from 'next/link'
+import { isMobile } from 'react-device-detect'
+import MarketGroupPredictions from '@/components/common/markets/market-group-predictions'
 import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components/market-group-positions'
+import { MarketPositions } from '@/app/(markets)/markets/[address]/components'
+import { useTradingService } from '@/services'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 export default function MarketPageOverviewTab() {
   const { market, marketGroup } = useTradingService()

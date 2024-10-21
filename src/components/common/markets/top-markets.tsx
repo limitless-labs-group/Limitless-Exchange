@@ -1,9 +1,9 @@
-import { Market } from '@/types'
-import BigBanner from '@/components/common/markets/big-banner'
-import CarouselDesktop from '@/components/common/carousel/carousel-desktop/carousel-desktop'
 import { Box } from '@chakra-ui/react'
 import React from 'react'
 import { isMobile } from 'react-device-detect'
+import CarouselDesktop from '@/components/common/carousel/carousel-desktop/carousel-desktop'
+import BigBanner from '@/components/common/markets/big-banner'
+import { Market } from '@/types'
 
 interface TopMarketsProps {
   markets: Market[]

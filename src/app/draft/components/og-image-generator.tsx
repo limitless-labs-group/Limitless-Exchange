@@ -10,8 +10,8 @@ import {
   useTheme,
   VStack,
 } from '@chakra-ui/react'
-import { useEffect, useMemo, useRef, useState } from 'react'
 import html2canvas from 'html2canvas'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 interface IOgImageGeneratorOptions {
   px: number | string

@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import {
   Box,
   Button,
@@ -13,10 +12,31 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { NumberUtil, truncateEthAddress } from '@/utils'
-
+import Image from 'next/image'
+import { usePathname, useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
+import { v4 as uuidv4 } from 'uuid'
+import { isAddress } from 'viem'
 import { useAccount as useWagmiAccount } from 'wagmi'
+import Avatar from '@/components/common/avatar'
+import MobileDrawer from '@/components/common/drawer'
+import Loader from '@/components/common/loader'
+import { LoginButton } from '@/components/common/login-button'
+import WrapModal from '@/components/common/modals/wrap-modal'
+import SocialsFooter from '@/components/common/socials-footer'
+import TokenFilterMobile from '@/components/common/token-filter-mobile'
+import WalletPage from '@/components/layouts/wallet-page'
+import '@/app/style.css'
+import { Profile } from '@/components'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { useThemeProvider } from '@/providers'
+import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
+import MoonIcon from '@/resources/icons/moon-icon.svg'
+import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
+import SunIcon from '@/resources/icons/sun-icon.svg'
+import SwapIcon from '@/resources/icons/swap-icon.svg'
+import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
@@ -26,30 +46,9 @@ import {
   useEtherspot,
   useHistory,
 } from '@/services'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
-import WalletIcon from '@/resources/icons/wallet-icon.svg'
-import { usePathname, useRouter } from 'next/navigation'
-import WalletPage from '@/components/layouts/wallet-page'
 import { useWeb3Service } from '@/services/Web3Service'
-import TokenFilterMobile from '@/components/common/token-filter-mobile'
-import { isMobile } from 'react-device-detect'
-import '@/app/style.css'
-import { LoginButton } from '@/components/common/login-button'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { v4 as uuidv4 } from 'uuid'
-import { useThemeProvider } from '@/providers'
-import SunIcon from '@/resources/icons/sun-icon.svg'
-import MoonIcon from '@/resources/icons/moon-icon.svg'
-import SwapIcon from '@/resources/icons/swap-icon.svg'
-import WrapModal from '@/components/common/modals/wrap-modal'
-import MobileDrawer from '@/components/common/drawer'
-import SocialsFooter from '@/components/common/socials-footer'
-import Loader from '@/components/common/loader'
-import { Profile } from '@/components'
-import Avatar from '@/components/common/avatar'
-import { isAddress } from 'viem'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 
 export default function MobileHeader() {
   const { isConnected, isConnecting } = useWagmiAccount()

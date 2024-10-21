@@ -16,11 +16,24 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { NumberUtil } from '@/utils'
+import { css } from '@emotion/react'
+import { useQueryClient } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
+import debounce from 'lodash.debounce'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { Address } from 'viem'
+import ButtonWithStates from '@/components/common/button-with-states'
+import { Toast } from '@/components/common/toast'
+import { useToast } from '@/hooks'
+import { useToken } from '@/hooks/use-token'
+import BlockIcon from '@/resources/icons/block.svg'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import CloseIcon from '@/resources/icons/close-icon.svg'
+import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
+import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
-import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ClickEvent,
   TradeClickedMetadata,
@@ -30,23 +43,10 @@ import {
   useHistory,
   useTradingService,
 } from '@/services'
-import { Market, MarketGroup, MarketStatus } from '@/types'
-import { useToken } from '@/hooks/use-token'
-import BigNumber from 'bignumber.js'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { css } from '@emotion/react'
-import { isMobile } from 'react-device-detect'
-import BlockIcon from '@/resources/icons/block.svg'
-import CloseIcon from '@/resources/icons/close-icon.svg'
 import { useWeb3Service } from '@/services/Web3Service'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
-import { Address } from 'viem'
-import debounce from 'lodash.debounce'
-import { useQueryClient } from '@tanstack/react-query'
-import ButtonWithStates from '@/components/common/button-with-states'
-import { Toast } from '@/components/common/toast'
-import { useToast } from '@/hooks'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market, MarketGroup, MarketStatus } from '@/types'
+import { NumberUtil } from '@/utils'
 
 const _transformSellValue = (value: string) => {
   const [wholeNumber, fractionalNumber] = value.split('.')

@@ -1,6 +1,6 @@
-import { FeedEntity, FeedNewPostData } from '@/types'
-import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
 import { Image } from '@chakra-ui/react'
+import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
+import { FeedEntity, FeedNewPostData } from '@/types'
 
 interface FeedNewPostProps {
   data: FeedEntity<FeedNewPostData>

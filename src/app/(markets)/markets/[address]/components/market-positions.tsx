@@ -1,10 +1,10 @@
-import { useHistory } from '@/services'
 import { Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { Market } from '@/types'
-import ChartIcon from '@/resources/icons/chart-icon.svg'
 import { PositionCard } from '@/app/(markets)/markets/[address]/components'
+import ChartIcon from '@/resources/icons/chart-icon.svg'
+import { useHistory } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
 
 interface MarketPositionsProps {
   market: Market | null

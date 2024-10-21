@@ -1,10 +1,10 @@
 import { Button, Text } from '@chakra-ui/react'
-import { useHistory } from '@/services'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
-import { Market } from '@/types'
 import '@/app/style.css'
+import { useHistory } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
 
 interface MobileTradeButtonProps {
   market: Market | null

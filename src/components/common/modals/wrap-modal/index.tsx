@@ -1,15 +1,15 @@
 import { Box, HStack, InputGroup, Text, Input, InputRightElement, Button } from '@chakra-ui/react'
-import { useBalanceService } from '@/services'
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import { useQueryClient } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Modal } from '@/components/common/modals/modal'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { NumberUtil } from '@/utils'
 import AmountSlider from '@/components/common/amount-slider'
 import ButtonWithStates from '@/components/common/button-with-states'
-import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import { Modal } from '@/components/common/modals/modal'
 import SwapIcon from '@/resources/icons/swap-icon.svg'
-import { useQueryClient } from '@tanstack/react-query'
+import { useBalanceService } from '@/services'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { NumberUtil } from '@/utils'
 
 interface WrapModalPros {
   isOpen?: boolean

@@ -1,16 +1,16 @@
-import React, { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { Box, Flex, HStack, Text } from '@chakra-ui/react'
-import Paper from '@/components/common/paper'
+import { useSearchParams } from 'next/navigation'
+import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { NumberUtil } from '@/utils'
-import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import Paper from '@/components/common/paper'
+import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import VolumeIcon from '@/resources/icons/volume-icon.svg'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
+import { NumberUtil } from '@/utils'
 
 const defaultColors = {
   main: 'var(--chakra-colors-grey-800)',
@@ -32,7 +32,7 @@ interface DailyMarketCardProps {
 export default function DailyMarketCard({ market, analyticParams }: DailyMarketCardProps) {
   const searchParams = useSearchParams()
   const [colors, setColors] = useState(defaultColors)
-  const { setMarket, setMarketPageOpened } = useTradingService()
+  const { onOpenMarketPage } = useTradingService()
   const category = searchParams.get('category')
 
   const { trackClicked } = useAmplitude()
@@ -67,8 +67,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
         trackClicked(ClickEvent.MediumMarketBannerClicked, {
           ...analyticParams,
         })
-        setMarket(market)
-        setMarketPageOpened(true)
+        onOpenMarketPage(market)
       }}
       position='relative'
       cursor='pointer'

@@ -1,7 +1,7 @@
 import { menuAnatomy } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
-import { commonButtonProps } from '@/styles/button'
 import { isMobile } from 'react-device-detect'
+import { commonButtonProps } from '@/styles/button'
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(menuAnatomy.keys)
 

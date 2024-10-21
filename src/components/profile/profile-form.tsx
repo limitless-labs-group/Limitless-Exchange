@@ -1,4 +1,3 @@
-import { isMobile } from 'react-device-detect'
 import {
   Box,
   Circle,
@@ -11,25 +10,26 @@ import {
   Text,
   Textarea,
 } from '@chakra-ui/react'
-import ButtonWithStates from '@/components/common/button-with-states'
-import ImageIcon from '@/resources/icons/add-image-icon.svg'
-import PenIcon from '@/resources/icons/pen-icon.svg'
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import { yupResolver } from '@hookform/resolvers/yup'
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Controller, useForm } from 'react-hook-form'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import UserIcon from '@/resources/icons/user-icon.svg'
+import Avatar from '@/components/common/avatar'
+import ButtonWithStates from '@/components/common/button-with-states'
+import { Toast } from '@/components/common/toast'
+import { ProfileFields, profileValidationSchema } from '@/components'
+import { useToast } from '@/hooks'
+import ImageIcon from '@/resources/icons/add-image-icon.svg'
 import EmailIcon from '@/resources/icons/email-icon.svg'
 import NotebookIcon from '@/resources/icons/notebook-icon.svg'
-import React, { ChangeEvent, useEffect, useMemo, useState } from 'react'
+import PenIcon from '@/resources/icons/pen-icon.svg'
+import UserIcon from '@/resources/icons/user-icon.svg'
 import { useAccount } from '@/services'
-import { ProfileFields, profileValidationSchema } from '@/components'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
-import { Profile } from '@/types/profiles'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { APIError } from '@/types'
-import { Toast } from '@/components/common/toast'
-import { useToast } from '@/hooks'
+import { Profile } from '@/types/profiles'
 import { DISCORD_LINK } from '@/utils/consts'
-import Avatar from '@/components/common/avatar'
 
 export function ProfileForm() {
   const [pfpFile, setPfpFile] = useState<File | undefined>(undefined)

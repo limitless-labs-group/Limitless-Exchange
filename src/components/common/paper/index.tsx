@@ -1,5 +1,5 @@
-import { PropsWithChildren } from 'react'
 import { Box, BoxProps } from '@chakra-ui/react'
+import { PropsWithChildren } from 'react'
 import { isMobile } from 'react-device-detect'
 
 export default function Paper({ children, ...props }: PropsWithChildren<BoxProps>) {

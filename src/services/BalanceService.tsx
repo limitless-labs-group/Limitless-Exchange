@@ -1,10 +1,3 @@
-import { defaultChain } from '@/constants'
-import { wethABI } from '@/contracts'
-import { useToast } from '@/hooks'
-import { usePriceOracle } from '@/providers'
-import { useEtherspot, useLimitlessApi } from '@/services'
-import { Address, GetBalanceResult, MarketTokensIds, Token } from '@/types'
-import { Logger, NumberUtil } from '@/utils'
 import {
   QueryObserverResult,
   UseMutateAsyncFunction,
@@ -12,6 +5,8 @@ import {
   UseMutationResult,
   useQuery,
 } from '@tanstack/react-query'
+import { Multicall } from 'ethereum-multicall'
+import { ethers } from 'ethers'
 import { usePathname } from 'next/navigation'
 import {
   createContext,
@@ -25,13 +20,18 @@ import {
 } from 'react'
 import { erc20Abi, formatEther, formatUnits, parseEther, parseUnits } from 'viem'
 import { getBalance } from 'viem/actions'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import { useWeb3Service } from '@/services/Web3Service'
-import { publicClient } from '@/providers'
 import { Toast } from '@/components/common/toast'
 import { ToastWithdraw } from '@/components/common/toast-withdraw'
-import { Multicall } from 'ethereum-multicall'
-import { ethers } from 'ethers'
+import { defaultChain } from '@/constants'
+import { wethABI } from '@/contracts'
+import { useToast } from '@/hooks'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { usePriceOracle } from '@/providers'
+import { publicClient } from '@/providers'
+import { useEtherspot, useLimitlessApi } from '@/services'
+import { useWeb3Service } from '@/services/Web3Service'
+import { Address, GetBalanceResult, MarketTokensIds, Token } from '@/types'
+import { Logger, NumberUtil } from '@/utils'
 
 interface IBalanceService {
   balanceOfSmartWallet: GetBalanceResult[] | undefined

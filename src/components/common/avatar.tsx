@@ -1,7 +1,7 @@
-import { createAvatar } from '@dicebear/core'
-import { pixelArt } from '@dicebear/collection'
-import { isMobile } from 'react-device-detect'
 import { Image as ChakraImage } from '@chakra-ui/react'
+import { pixelArt } from '@dicebear/collection'
+import { createAvatar } from '@dicebear/core'
+import { isMobile } from 'react-device-detect'
 
 interface AvatarProps {
   account: string

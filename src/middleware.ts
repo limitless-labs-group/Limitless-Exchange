@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { geolocation } from '@vercel/functions'
+import { NextRequest, NextResponse } from 'next/server'
 
 export const config = {
   matcher: '/:path*', // This matches all routes

@@ -1,20 +1,20 @@
 import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
-import { Market } from '@/types'
-import { headLineLarge, paragraphMedium } from '@/styles/fonts/fonts.styles'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
-import { NumberUtil, truncateEthAddress } from '@/utils'
-import React, { useEffect, useState } from 'react'
-import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import Avatar from '@/components/common/avatar'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
-import { Address } from 'viem'
-import { useSearchParams } from 'next/navigation'
-import { isMobile } from 'react-device-detect'
-import MobileDrawer from '@/components/common/drawer'
-import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useSearchParams } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { Address } from 'viem'
+import Avatar from '@/components/common/avatar'
+import MobileDrawer from '@/components/common/drawer'
+import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPage from '@/components/common/markets/market-page'
+import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
+import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import VolumeIcon from '@/resources/icons/volume-icon.svg'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { headLineLarge, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 
 const MotionBox = motion(Box)
 
@@ -27,7 +27,7 @@ export default function BigBanner({ market }: BigBannerProps) {
   const { trackClicked } = useAmplitude()
   const searchParams = useSearchParams()
   const category = searchParams.get('category')
-  const { setMarket, setMarketPageOpened } = useTradingService()
+  const { setMarket, onCloseMarketPage, onOpenMarketPage } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market.address)
 
   const onClickRedirectToMarket = () => {
@@ -41,8 +41,7 @@ export default function BigBanner({ market }: BigBannerProps) {
       marketType: 'single',
       page: 'Market Page',
     })
-    setMarket(market)
-    !isMobile && setMarketPageOpened(true)
+    onOpenMarketPage(market)
   }
 
   useEffect(() => {
@@ -213,6 +212,7 @@ export default function BigBanner({ market }: BigBannerProps) {
       trigger={content}
       variant='black'
       title={market.proxyTitle ?? market.title ?? 'Noname market'}
+      onClose={onCloseMarketPage}
     >
       <MarketPage />
     </MobileDrawer>
