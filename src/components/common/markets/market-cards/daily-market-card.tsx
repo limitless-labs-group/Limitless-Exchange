@@ -32,7 +32,7 @@ interface DailyMarketCardProps {
 export default function DailyMarketCard({ market, analyticParams }: DailyMarketCardProps) {
   const searchParams = useSearchParams()
   const [colors, setColors] = useState(defaultColors)
-  const { setMarket, setMarketPageOpened } = useTradingService()
+  const { onOpenMarketPage } = useTradingService()
   const category = searchParams.get('category')
 
   const { trackClicked } = useAmplitude()
@@ -67,8 +67,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
         trackClicked(ClickEvent.MediumMarketBannerClicked, {
           ...analyticParams,
         })
-        setMarket(market)
-        setMarketPageOpened(true)
+        onOpenMarketPage(market)
       }}
       position='relative'
       cursor='pointer'

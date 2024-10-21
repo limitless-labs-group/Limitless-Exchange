@@ -41,7 +41,7 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
 
   const searchParams = useSearchParams()
   const { trackClicked, trackOpened } = useAmplitude()
-  const { setMarket, setMarketGroup, setMarketPageOpened } = useTradingService()
+  const { setMarket, setMarketGroup, onOpenMarketPage, onCloseMarketPage } = useTradingService()
   const category = searchParams.get('category')
 
   const totalLiquidity = marketGroup.markets.reduce((a, b) => {
@@ -69,9 +69,7 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
       market: marketGroup.slug,
       marketType: 'group',
     })
-    setMarketGroup(marketGroup)
-    setMarket(marketGroup.markets[0])
-    !isMobile && setMarketPageOpened(true)
+    onOpenMarketPage(marketGroup)
   }
 
   const content = (
@@ -166,7 +164,12 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
   )
 
   return isMobile ? (
-    <MobileDrawer trigger={content} variant='black' title={marketGroup.title}>
+    <MobileDrawer
+      trigger={content}
+      variant='black'
+      title={marketGroup.title}
+      onClose={onCloseMarketPage}
+    >
       <MarketPage />
     </MobileDrawer>
   ) : (

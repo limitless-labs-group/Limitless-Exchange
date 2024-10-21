@@ -74,7 +74,7 @@ export default function MarketPage() {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
   const {
     setMarket,
-    setMarketPageOpened,
+    onCloseMarketPage,
     market,
     strategy,
     setStrategy,
@@ -133,7 +133,7 @@ export default function MarketPage() {
             variant='grey'
             onClick={() => {
               setMarket(null)
-              setMarketPageOpened(false)
+              onCloseMarketPage()
               setMarketGroup(null)
               // trackClicked(ClickEvent.BackClicked, {
               //   address: market?.address,
