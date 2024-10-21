@@ -17,7 +17,8 @@ export default function TradeActivityTabItem({ tradeItem }: TradeActivityTabItem
       tradeItem.eventBody.contracts,
       6
     )} contracts ${outcome} for ${NumberUtil.convertWithDenomination(
-      Math.abs(+tradeItem.eventBody.tradeAmount)
+      Math.abs(+tradeItem.eventBody.tradeAmount),
+      6
     )} ${tradeItem.eventBody.symbol} in total.`
   }, [tradeItem])
 

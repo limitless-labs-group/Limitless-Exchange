@@ -222,6 +222,9 @@ export default function BuyButton({
   }
 
   const handleActionIntention = async () => {
+    if (!walletAddress) {
+      return
+    }
     if (isExceedsBalance) {
       return
     }
@@ -346,11 +349,7 @@ export default function BuyButton({
           _hover={{
             backgroundColor: 'transparent.300',
           }}
-          isDisabled={
-            !collateralAmount ||
-            ['transaction-broadcasted', 'success'].includes(status) ||
-            !walletAddress
-          }
+          isDisabled={!collateralAmount || ['transaction-broadcasted', 'success'].includes(status)}
           onClick={() => {
             return handleActionIntention()
           }}
