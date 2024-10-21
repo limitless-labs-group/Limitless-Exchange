@@ -43,8 +43,6 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
     onOpenMarketPage(market)
   }
 
-  console.log(market)
-
   const content = (
     <Paper
       w={'full'}
