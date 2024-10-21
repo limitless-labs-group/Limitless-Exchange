@@ -1,12 +1,12 @@
-import { defaultChain } from '@/constants'
-import { HistoryRedeem } from '@/services'
-import { NumberUtil, truncateEthAddress } from '@/utils'
 import { Box, HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import { useAllMarkets, useMarketByConditionId } from '@/services/MarketsService'
+import NextLink from 'next/link'
+import { defaultChain } from '@/constants'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import { HistoryRedeem } from '@/services'
+import { useAllMarkets, useMarketByConditionId } from '@/services/MarketsService'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
-import NextLink from 'next/link'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 
 interface IPortfolioHistoryRedeemItem extends TableRowProps {
   redeem: HistoryRedeem
@@ -22,8 +22,10 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
 
   const targetMarket = allMarkets.find((market) => market.conditionId === redeem.conditionId)
 
-  const link = targetMarket?.group?.slug
-    ? `/market-group/${targetMarket.group.slug}`
+  // @ts-ignore
+  const link = targetMarket?.slug
+    ? // @ts-ignore
+      `/market-group/${targetMarket.slug}`
     : `/markets/${targetMarket?.address}`
 
   const multiplier = (symbol: string | undefined) => {
@@ -72,11 +74,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
         overflow='hidden'
         textOverflow='ellipsis'
       >
-        <NextLink href={link}>
-          {targetMarket?.group?.id
-            ? `${targetMarket.group.title}: ${targetMarket.title}`
-            : targetMarket?.proxyTitle ?? targetMarket?.title}
-        </NextLink>
+        <NextLink href={link}>{targetMarket?.proxyTitle ?? targetMarket?.title}</NextLink>
       </Td>
       <Td>
         <Link

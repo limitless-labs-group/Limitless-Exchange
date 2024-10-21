@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { TokenFilterProvider } from '@/contexts/TokenFilterContext'
 import {
   QueryProvider,
   WagmiProvider,
@@ -8,6 +9,7 @@ import {
   PriceOracleProvider,
   ThemeProvider,
 } from '@/providers'
+import RainbowProvider from '@/providers/Rainbow'
 import {
   AccountProvider,
   AmplitudeProvider,
@@ -17,8 +19,6 @@ import {
   LimitlessApiProvider,
   TradingServiceProvider,
 } from '@/services'
-import { TokenFilterProvider } from '@/contexts/TokenFilterContext'
-import RainbowProvider from '@/providers/Rainbow'
 
 export const Providers = ({ children }: React.PropsWithChildren) => {
   const [mounted, setMounted] = React.useState(false)

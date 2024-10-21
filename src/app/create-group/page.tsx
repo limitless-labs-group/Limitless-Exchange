@@ -1,6 +1,5 @@
 'use client'
 
-import { MainLayout } from '@/components'
 import {
   Box,
   Button,
@@ -15,16 +14,17 @@ import {
   VStack,
   Text,
 } from '@chakra-ui/react'
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-import { useToast } from '@/hooks'
-import { Toast } from '@/components/common/toast'
-import { OgImageGenerator } from '@/app/create/components'
 import { useMutation } from '@tanstack/react-query'
+import axios from 'axios'
 import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
+import React, { useState, useEffect } from 'react'
+import { Toast } from '@/components/common/toast'
+import { OgImageGenerator } from '@/app/draft/components'
+import { MainLayout } from '@/components'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI } from '@/contracts'
+import { useToast } from '@/hooks'
 import { createQuestionId } from '@/utils/ctf.utils'
 
 interface MarketsGroupMetadata {

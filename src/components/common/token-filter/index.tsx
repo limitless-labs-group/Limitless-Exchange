@@ -1,8 +1,8 @@
-import React from 'react'
 import { Text, Box, useTheme } from '@chakra-ui/react'
-import { Token } from '@/types'
-import { useLimitlessApi } from '@/services'
+import React from 'react'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
+import { useLimitlessApi } from '@/services'
+import { Token } from '@/types'
 
 export default function TokenFilter() {
   const { selectedFilterTokens, handleTokenChange } = useTokenFilter()

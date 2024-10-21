@@ -1,11 +1,11 @@
 import { Box, Divider } from '@chakra-ui/react'
-import TextWithPixels from '@/components/common/text-with-pixels'
-import Marquee from 'react-fast-marquee'
 import { useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import Marquee from 'react-fast-marquee'
+import TextWithPixels from '@/components/common/text-with-pixels'
+import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { useThemeProvider } from '@/providers'
 import { ClickEvent, useAmplitude } from '@/services'
-import { isMobile } from 'react-device-detect'
-import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { NumberUtil } from '@/utils'
 
 export default function HeaderMarquee() {

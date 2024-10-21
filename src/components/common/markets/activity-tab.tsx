@@ -1,14 +1,14 @@
-import { useMarketInfinityFeed } from '@/hooks/use-market-feed'
-import TradeActivityTabItem from '@/app/(markets)/markets/[address]/components/trade-activity-tab-item'
 import { HStack, Text, VStack } from '@chakra-ui/react'
-import Paper from '@/components/common/paper'
-import ActivityIcon from '@/resources/icons/activity-icon.svg'
-import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { useTradingService } from '@/services'
-import Loader from '@/components/common/loader'
-import InfiniteScroll from 'react-infinite-scroll-component'
-import { useCallback } from 'react'
 import debounce from 'lodash.debounce'
+import { useCallback } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import Loader from '@/components/common/loader'
+import Paper from '@/components/common/paper'
+import TradeActivityTabItem from '@/app/(markets)/markets/[address]/components/trade-activity-tab-item'
+import { useMarketInfinityFeed } from '@/hooks/use-market-feed'
+import ActivityIcon from '@/resources/icons/activity-icon.svg'
+import { useTradingService } from '@/services'
+import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 export default function MarketActivityTab() {
   const { market } = useTradingService()

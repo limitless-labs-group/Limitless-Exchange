@@ -1,12 +1,12 @@
-import { useBalanceService, useHistory } from '@/services'
 import { Flex, HStack, StackProps, Text, Box, VStack, Stack } from '@chakra-ui/react'
-import { NumberUtil } from '@/utils'
+import { useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
+import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
-import CalendarIcon from '@/resources/icons/calendar-icon.svg'
-import { isMobile } from 'react-device-detect'
-import { useMemo } from 'react'
+import { useBalanceService, useHistory } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { NumberUtil } from '@/utils'
 
 const StatBox = ({
   title,

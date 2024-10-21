@@ -1,9 +1,9 @@
 import { Modal, ModalCloseButton } from '@chakra-ui/modal'
 import { ModalBody, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react'
-import { Market, MarketGroup } from '@/types'
-import { useTradingService } from '@/services'
 import { MarketTradingForm } from './market-trading-form'
+import { useTradingService } from '@/services'
 import { headline } from '@/styles/fonts/fonts.styles'
+import { Market, MarketGroup } from '@/types'
 
 interface MarketTradingModalProps {
   open: boolean

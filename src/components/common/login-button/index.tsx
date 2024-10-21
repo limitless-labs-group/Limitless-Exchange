@@ -1,8 +1,8 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { Button } from '@chakra-ui/react'
-import { ClickEvent, SignInEvent, useAmplitude } from '@/services'
-import { web3Auth } from '@/providers'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { ADAPTER_EVENTS } from '@web3auth/base'
+import { web3Auth } from '@/providers'
+import { ClickEvent, SignInEvent, useAmplitude } from '@/services'
 
 export const LoginButton = () => {
   const { trackSignIn, trackClicked } = useAmplitude()

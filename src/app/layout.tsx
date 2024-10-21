@@ -1,9 +1,9 @@
-import { Providers } from '@/app/providers'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Metadata } from 'next'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { PropsWithChildren } from 'react'
+import { Providers } from '@/app/providers'
 import '../../public/fonts.css'
 
 export const metadata: Metadata = {

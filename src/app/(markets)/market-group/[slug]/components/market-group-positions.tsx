@@ -1,11 +1,11 @@
 import { Flex, HStack, Text, VStack } from '@chakra-ui/react'
-import ChartIcon from '@/resources/icons/chart-icon.svg'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { PositionCard } from '@/app/(markets)/markets/[address]/components'
-import { useHistory } from '@/services'
 import { useMemo } from 'react'
-import { MarketGroup } from '@/types'
 import { Address } from 'viem'
+import { PositionCard } from '@/app/(markets)/markets/[address]/components'
+import ChartIcon from '@/resources/icons/chart-icon.svg'
+import { useHistory } from '@/services'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { MarketGroup } from '@/types'
 
 interface MarketGroupPositionsProps {
   marketGroup: MarketGroup

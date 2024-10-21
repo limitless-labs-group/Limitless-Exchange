@@ -1,9 +1,9 @@
-import { Address } from 'viem'
 import { useInfiniteQuery, useQuery, UseQueryResult } from '@tanstack/react-query'
-import { limitlessApi } from '@/services'
 import axios, { AxiosResponse } from 'axios'
 import { usePathname } from 'next/navigation'
 import { isMobile } from 'react-device-detect'
+import { Address } from 'viem'
+import { limitlessApi } from '@/services'
 import { FeedEntity, FeedResponse } from '@/types'
 
 export type MarketFeedData = {
