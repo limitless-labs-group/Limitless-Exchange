@@ -1,4 +1,3 @@
-import Paper from '@/components/common/paper'
 import {
   Button,
   HStack,
@@ -20,6 +19,31 @@ import {
   Tabs,
   useDisclosure,
 } from '@chakra-ui/react'
+import React, { useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { v4 as uuidv4 } from 'uuid'
+import { Address, zeroAddress } from 'viem'
+import MarketActivityTab from '@/components/common/markets/activity-tab'
+import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
+import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
+import Paper from '@/components/common/paper'
+import {
+  LoadingForm,
+  MarketPriceChart,
+  SellForm,
+} from '@/app/(markets)/markets/[address]/components'
+import { defaultChain } from '@/constants'
+import WarpcastIcon from '@/resources/icons/Farcaster.svg'
+import TwitterIcon from '@/resources/icons/X.svg'
+import ActivityIcon from '@/resources/icons/activity-icon.svg'
+import CalendarIcon from '@/resources/icons/calendar-icon.svg'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import CloseIcon from '@/resources/icons/close-icon.svg'
+import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
+import ShareIcon from '@/resources/icons/share-icon.svg'
+import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import {
   ChangeEvent,
   ClickEvent,
@@ -30,38 +54,14 @@ import {
   useHistory,
   useTradingService,
 } from '@/services'
-import CloseIcon from '@/resources/icons/close-icon.svg'
-import ShareIcon from '@/resources/icons/share-icon.svg'
+import { useWinningIndex } from '@/services/MarketsService'
 import {
   controlsMedium,
   h1Regular,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
-import { isMobile } from 'react-device-detect'
-import WarpcastIcon from '@/resources/icons/Farcaster.svg'
-import TwitterIcon from '@/resources/icons/X.svg'
-import React, { useMemo, useState } from 'react'
-import CalendarIcon from '@/resources/icons/calendar-icon.svg'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
-import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { NumberUtil } from '@/utils'
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
-import { Address, zeroAddress } from 'viem'
-import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
-import { defaultChain } from '@/constants'
-import {
-  LoadingForm,
-  MarketPriceChart,
-  SellForm,
-} from '@/app/(markets)/markets/[address]/components'
-import { useWinningIndex } from '@/services/MarketsService'
-import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
-import ActivityIcon from '@/resources/icons/activity-icon.svg'
-import { v4 as uuidv4 } from 'uuid'
-import MarketActivityTab from '@/components/common/markets/activity-tab'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
 
 const defaultColors = {
   main: 'var(--chakra-colors-grey-800)',

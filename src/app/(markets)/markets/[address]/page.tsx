@@ -1,6 +1,5 @@
 'use client'
 
-import { MainLayout } from '@/components'
 import {
   Box,
   Button,
@@ -20,7 +19,29 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { v4 as uuidv4 } from 'uuid'
+import { Address } from 'viem'
+import MobileDrawer from '@/components/common/drawer'
+import MarketActivityTab from '@/components/common/markets/activity-tab'
+import TextWithPixels from '@/components/common/text-with-pixels'
+import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
+import {
+  MarketClaimingForm,
+  MarketMetadata,
+  MarketTradingForm,
+  MobileTradeButton,
+} from './components'
+import { MainLayout } from '@/components'
+import { useToken } from '@/hooks/use-token'
+import WarpcastIcon from '@/resources/icons/Farcaster.svg'
+import TwitterIcon from '@/resources/icons/X.svg'
+import ActivityIcon from '@/resources/icons/activity-icon.svg'
+import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
+import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
+import ShareIcon from '@/resources/icons/share-icon.svg'
 import {
   ClickEvent,
   createMarketShareUrls,
@@ -29,29 +50,8 @@ import {
   useTradingService,
 } from '@/services'
 import { useMarket, useWinningIndex } from '@/services/MarketsService'
-import { useToken } from '@/hooks/use-token'
-import { useRouter } from 'next/navigation'
-import TextWithPixels from '@/components/common/text-with-pixels'
-import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
-import ShareIcon from '@/resources/icons/share-icon.svg'
-import { isMobile } from 'react-device-detect'
-import WarpcastIcon from '@/resources/icons/Farcaster.svg'
-import TwitterIcon from '@/resources/icons/X.svg'
-import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
-import ActivityIcon from '@/resources/icons/activity-icon.svg'
-import {
-  MarketClaimingForm,
-  MarketMetadata,
-  MarketTradingForm,
-  MobileTradeButton,
-} from './components'
 import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Address } from 'viem'
-import MobileDrawer from '@/components/common/drawer'
 import { Market } from '@/types'
-import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
-import { v4 as uuidv4 } from 'uuid'
-import MarketActivityTab from '@/components/common/markets/activity-tab'
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)

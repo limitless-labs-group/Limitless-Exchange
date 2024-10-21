@@ -1,5 +1,5 @@
-import { Hash, Address } from 'viem'
 import { AxiosError } from 'axios'
+import { Hash, Address } from 'viem'
 
 export type { Hash, Address }
 

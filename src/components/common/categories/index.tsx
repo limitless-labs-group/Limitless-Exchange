@@ -1,9 +1,9 @@
-import React from 'react'
 import { Text, Box } from '@chakra-ui/react'
-import { ClickEvent, useAmplitude, useCategories } from '@/services'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import React from 'react'
 import usePageName from '@/hooks/use-page-name'
+import { ClickEvent, useAmplitude, useCategories } from '@/services'
 
 export default function CategoryFilter() {
   /**

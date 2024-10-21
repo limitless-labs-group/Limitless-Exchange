@@ -1,16 +1,16 @@
-import { chakraTheme } from '@/styles'
 import {
   ChakraProvider as ChakraDefaultProvider,
   ColorMode,
   cookieStorageManagerSSR,
   localStorageManager,
 } from '@chakra-ui/react'
-import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react'
 import { BaseNextRequest } from 'next/dist/server/base-http'
-import { lightThemeColors } from '@/styles/light-theme-colors'
-import { darkThemeColors } from '@/styles/dark-theme-colors'
-import { ColorScheme } from '@/types'
+import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { chakraTheme } from '@/styles'
+import { darkThemeColors } from '@/styles/dark-theme-colors'
+import { lightThemeColors } from '@/styles/light-theme-colors'
+import { ColorScheme } from '@/types'
 
 type ThemeProviderContext = {
   setLightTheme: () => void

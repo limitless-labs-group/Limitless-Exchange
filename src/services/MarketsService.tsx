@@ -1,13 +1,13 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
-import { Category, Market, MarketsResponse, OddsData } from '@/types'
-import { useMemo } from 'react'
-import { defaultChain, newSubgraphURI } from '@/constants'
-import { Address, formatUnits, getContract, parseUnits } from 'viem'
-import { fixedProductMarketMakerABI } from '@/contracts'
 import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
+import { useMemo } from 'react'
+import { Address, formatUnits, getContract, parseUnits } from 'viem'
+import { defaultChain, newSubgraphURI } from '@/constants'
+import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers'
+import { Category, Market, MarketsResponse, OddsData } from '@/types'
 
 const LIMIT_PER_PAGE = 10
 

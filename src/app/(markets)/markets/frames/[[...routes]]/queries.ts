@@ -1,9 +1,9 @@
-import { Market, Token } from '@/types'
 import { Address, createPublicClient, formatUnits, getContract, parseUnits } from 'viem'
+import { http } from 'wagmi'
 import { defaultChain } from '@/constants'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { TradeQuotes } from '@/services'
-import { http } from 'wagmi'
+import { Market, Token } from '@/types'
 
 export function getViemClient() {
   const client = createPublicClient({

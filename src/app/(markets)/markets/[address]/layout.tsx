@@ -1,7 +1,7 @@
-import { Metadata } from 'next'
 import axios from 'axios'
-import { Market } from '@/types'
 import { getFrameMetadata } from 'frog/next'
+import { Metadata } from 'next'
+import { Market } from '@/types'
 
 type Props = {
   params: { address: string }

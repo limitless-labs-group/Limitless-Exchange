@@ -1,14 +1,14 @@
 import { Box, HStack, Text } from '@chakra-ui/react'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
-import { NumberUtil } from '@/utils'
-import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import React, { useState } from 'react'
-import { Market } from '@/types'
 import MobileDrawer from '@/components/common/drawer'
-import { useTradingService } from '@/services'
+import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPage from '@/components/common/markets/market-page'
+import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import VolumeIcon from '@/resources/icons/volume-icon.svg'
+import { useTradingService } from '@/services'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
+import { NumberUtil } from '@/utils'
 
 interface DailyMarketCardMobileProps {
   market: Market

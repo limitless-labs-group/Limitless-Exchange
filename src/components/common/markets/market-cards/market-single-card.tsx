@@ -1,15 +1,15 @@
-import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
-import { NumberUtil } from '@/utils'
 import { Box, HStack, Text } from '@chakra-ui/react'
-import Paper from '@/components/common/paper'
 import React, { useState } from 'react'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { isMobile } from 'react-device-detect'
-import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
-import { Market } from '@/types'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
+import Paper from '@/components/common/paper'
+import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import VolumeIcon from '@/resources/icons/volume-icon.svg'
+import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
+import { NumberUtil } from '@/utils'
 
 interface MarketSingleCardProps {
   market: Market

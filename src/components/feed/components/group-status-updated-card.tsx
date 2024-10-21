@@ -1,15 +1,15 @@
-import { FeedEntity, FeedEventType, MarketGroupStatusFeedData } from '@/types'
-import React, { useState } from 'react'
-import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
+import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
 import NextLink from 'next/link'
+import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
-import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
-import { NumberUtil } from '@/utils'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import BigNumber from 'bignumber.js'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { FeedEntity, FeedEventType, MarketGroupStatusFeedData } from '@/types'
+import { NumberUtil } from '@/utils'
 
 interface GroupStatusUpdatedCard {
   data: FeedEntity<MarketGroupStatusFeedData>

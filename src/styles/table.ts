@@ -1,7 +1,7 @@
 import { tableAnatomy } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { isMobile } from 'react-device-detect'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(
   tableAnatomy.keys
