@@ -1,18 +1,16 @@
 import { Spinner, VStack, Text, HStack } from '@chakra-ui/react'
-import { useTradingService } from '@/services'
-import { Market } from '@/types'
-import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import { useMemo } from 'react'
+import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
+import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import { useTradingService } from '@/services'
 import { NumberUtil } from '@/utils'
 
 interface LoadingFormProps {
-  market: Market
   outcomeIndex: number
 }
 
-export function LoadingForm({ market, outcomeIndex }: LoadingFormProps) {
-  const { strategy, collateralAmount } = useTradingService()
+export function LoadingForm({ outcomeIndex }: LoadingFormProps) {
+  const { strategy, collateralAmount, market } = useTradingService()
 
   const amount = useMemo(() => {
     return NumberUtil.toFixed(collateralAmount, 6)
@@ -34,7 +32,7 @@ export function LoadingForm({ market, outcomeIndex }: LoadingFormProps) {
       </HStack>
 
       <Text fontWeight={500} color='white'>
-        For {amount} {market.collateralToken.symbol}
+        For {amount} {market?.collateralToken.symbol}
       </Text>
     </VStack>
   )

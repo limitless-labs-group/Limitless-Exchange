@@ -1,8 +1,8 @@
-import { isMobile } from 'react-device-detect'
 import { Box } from '@chakra-ui/react'
-
 import React from 'react'
+import { isMobile } from 'react-device-detect'
 import { ProfileForm } from '@/components'
+
 interface ProfileProps {
   isOpen: boolean
 }

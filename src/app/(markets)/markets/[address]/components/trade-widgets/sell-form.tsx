@@ -16,11 +16,24 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { NumberUtil } from '@/utils'
+import { css } from '@emotion/react'
+import { useQueryClient } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
+import debounce from 'lodash.debounce'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { Address } from 'viem'
+import ButtonWithStates from '@/components/common/button-with-states'
+import { Toast } from '@/components/common/toast'
+import { useToast } from '@/hooks'
+import { useToken } from '@/hooks/use-token'
+import BlockIcon from '@/resources/icons/block.svg'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import CloseIcon from '@/resources/icons/close-icon.svg'
+import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
+import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
-import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ClickEvent,
   TradeClickedMetadata,
@@ -30,23 +43,10 @@ import {
   useHistory,
   useTradingService,
 } from '@/services'
-import { Market, MarketGroup, MarketStatus } from '@/types'
-import { useToken } from '@/hooks/use-token'
-import BigNumber from 'bignumber.js'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { css } from '@emotion/react'
-import { isMobile } from 'react-device-detect'
-import BlockIcon from '@/resources/icons/block.svg'
-import CloseIcon from '@/resources/icons/close-icon.svg'
 import { useWeb3Service } from '@/services/Web3Service'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
-import { Address } from 'viem'
-import debounce from 'lodash.debounce'
-import { useQueryClient } from '@tanstack/react-query'
-import ButtonWithStates from '@/components/common/button-with-states'
-import { Toast } from '@/components/common/toast'
-import { useToast } from '@/hooks'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market, MarketGroup, MarketStatus } from '@/types'
+import { NumberUtil } from '@/utils'
 
 const _transformSellValue = (value: string) => {
   const [wholeNumber, fractionalNumber] = value.split('.')
@@ -63,7 +63,6 @@ const _transformSellValue = (value: string) => {
 }
 
 interface SellFormProps {
-  market: Market
   setOutcomeIndex: Dispatch<SetStateAction<number>>
   marketGroup?: MarketGroup
   setSelectedMarket?: (market: Market) => void
@@ -71,12 +70,27 @@ interface SellFormProps {
 }
 
 export function SellForm({
-  market,
   setOutcomeIndex,
   marketGroup,
   setSelectedMarket,
   analyticParams,
 }: SellFormProps) {
+  /**
+   * TRADING SERVICE
+   */
+  const {
+    collateralAmount,
+    setCollateralAmount,
+    balanceOfCollateralToSellYes,
+    balanceOfCollateralToSellNo,
+    quotesYes,
+    quotesNo,
+    trade,
+    approveSellMutation,
+    checkApprovedForSell,
+    market,
+    resetQuotes,
+  } = useTradingService()
   const queryClient = useQueryClient()
   const [sliderValue, setSliderValue] = useState(0)
   const [outcomeChoice, setOutcomeChoice] = useState<string | null>(null)
@@ -122,23 +136,6 @@ export function SellForm({
    * ANALITYCS
    */
   const { trackClicked } = useAmplitude()
-
-  /**
-   * TRADING SERVICE
-   */
-  const {
-    collateralAmount,
-    setCollateralAmount,
-    balanceOfCollateralToSellYes,
-    balanceOfCollateralToSellNo,
-    quotesYes,
-    quotesNo,
-    trade,
-    approveSellMutation,
-    checkApprovedForSell,
-    resetQuotes,
-    status,
-  } = useTradingService()
 
   const getApprovedForSellState = async () => {
     if (client === 'eoa') {
@@ -273,7 +270,7 @@ export function SellForm({
 
   const handleTradeClicked = async () => {
     trackClicked(ClickEvent.SellTradeClicked, {
-      address: market.address,
+      address: market?.address || '0x',
       marketType: marketGroup ? 'group' : 'single',
       ...(analyticParams ? analyticParams : {}),
     })
@@ -298,7 +295,7 @@ export function SellForm({
   const handleApproveClicked = async () => {
     trackClicked(ClickEvent.SellApproveClicked, {
       address: market?.address,
-      strategy: 'Buy',
+      // @ts-ignore
       outcome: outcomeChoice === 'yes' ? 'Yes' : 'No',
       walletType: 'eoa',
       ...(analyticParams ? analyticParams : {}),
@@ -379,7 +376,7 @@ export function SellForm({
     setCollateralAmount('')
     setDisplayAmount('')
     setSliderValue(0)
-  }, [market.address])
+  }, [market?.address])
 
   return (
     <>
@@ -405,7 +402,7 @@ export function SellForm({
               <HStack gap='8px' color='white'>
                 <PredictionsIcon />
                 <Text {...paragraphMedium} color='white'>
-                  {market.title}
+                  {market?.title}
                 </Text>
               </HStack>
             </Button>
@@ -464,7 +461,7 @@ export function SellForm({
                   }
                   trackClicked<TradeClickedMetadata>(ClickEvent.SellClicked, {
                     outcome: 'Yes',
-                    marketAddress: market.address,
+                    marketAddress: market?.address || '0x',
                     walletType: client,
                     ...(analyticParams ? analyticParams : {}),
                   })
@@ -582,7 +579,7 @@ export function SellForm({
                   }
                   trackClicked<TradeClickedMetadata>(ClickEvent.SellClicked, {
                     outcome: 'No',
-                    marketAddress: market.address,
+                    marketAddress: market?.address || '0x',
                     walletType: client,
                     ...(analyticParams ? analyticParams : {}),
                   })

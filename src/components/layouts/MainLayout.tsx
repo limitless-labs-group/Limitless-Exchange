@@ -1,10 +1,10 @@
 import { Box, Flex, FlexProps, HStack, Spinner } from '@chakra-ui/react'
-import Sidebar from '@/components/layouts/sidebar'
-import { isMobile } from 'react-device-detect'
 import React from 'react'
-import MobileHeader from '@/components/layouts/mobile-header'
+import { isMobile } from 'react-device-detect'
 import HeaderMarquee from '@/components/layouts/header-marquee'
+import MobileHeader from '@/components/layouts/mobile-header'
 import MobileNavigation from '@/components/layouts/mobile-navigation'
+import Sidebar from '@/components/layouts/sidebar'
 
 interface IMainLayout extends FlexProps {
   isLoading?: boolean

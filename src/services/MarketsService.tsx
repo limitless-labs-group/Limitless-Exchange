@@ -1,25 +1,15 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
-import {
-  Category,
-  Market,
-  MarketSingleCardResponse,
-  MarketsResponse,
-  OddsData,
-  SingleMarket,
-} from '@/types'
-import { useMemo } from 'react'
-import { defaultChain, newSubgraphURI } from '@/constants'
-import { Address, formatUnits, getContract, parseUnits } from 'viem'
-import { fixedProductMarketMakerABI } from '@/contracts'
 import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
+import { useMemo } from 'react'
+import { Address, formatUnits, getContract, parseUnits } from 'viem'
+import { defaultChain, newSubgraphURI } from '@/constants'
+import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers'
-import { isMobile } from 'react-device-detect'
+import { Category, Market, MarketsResponse, OddsData } from '@/types'
 
 const LIMIT_PER_PAGE = 10
-
-const DAILY_PER_PAGE = isMobile ? 40 : 6
 
 /**
  * Fetches and manages paginated active market data using the `useInfiniteQuery` hook.
@@ -102,26 +92,36 @@ export function useMarkets(topic: Category | null) {
           const collateralDecimals = market.decimals
           const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
 
-          const outcomeTokenBuyAmountYesBI = BigInt(result[0].returnValues[0].hex)
-          const outcomeTokenBuyAmountNoBI = BigInt(result[1].returnValues[0].hex)
+          if (result[0].returnValues.length) {
+            const outcomeTokenBuyAmountYesBI = BigInt(result[0].returnValues?.[0].hex)
+            const outcomeTokenBuyAmountNoBI = BigInt(result[1].returnValues?.[0].hex)
 
-          const outcomeTokenBuyAmountYes = formatUnits(
-            outcomeTokenBuyAmountYesBI,
-            collateralDecimals
-          )
-          const outcomeTokenBuyAmountNo = formatUnits(outcomeTokenBuyAmountNoBI, collateralDecimals)
+            const outcomeTokenBuyAmountYes = formatUnits(
+              outcomeTokenBuyAmountYesBI,
+              collateralDecimals
+            )
+            const outcomeTokenBuyAmountNo = formatUnits(
+              outcomeTokenBuyAmountNoBI,
+              collateralDecimals
+            )
 
-          const outcomeTokenBuyPriceYes =
-            Number(collateralAmount) / Number(outcomeTokenBuyAmountYes)
-          const outcomeTokenBuyPriceNo = Number(collateralAmount) / Number(outcomeTokenBuyAmountNo)
+            const outcomeTokenBuyPriceYes =
+              Number(collateralAmount) / Number(outcomeTokenBuyAmountYes)
+            const outcomeTokenBuyPriceNo =
+              Number(collateralAmount) / Number(outcomeTokenBuyAmountNo)
 
-          const buySum = outcomeTokenBuyPriceYes + outcomeTokenBuyPriceNo
-          const outcomeTokensBuyPercentYes = +((outcomeTokenBuyPriceYes / buySum) * 100).toFixed(1)
-          const outcomeTokensBuyPercentNo = +((outcomeTokenBuyPriceNo / buySum) * 100).toFixed(1)
+            const buySum = outcomeTokenBuyPriceYes + outcomeTokenBuyPriceNo
+            const outcomeTokensBuyPercentYes = +((outcomeTokenBuyPriceYes / buySum) * 100).toFixed(
+              1
+            )
+            const outcomeTokensBuyPercentNo = +((outcomeTokenBuyPriceNo / buySum) * 100).toFixed(1)
 
-          acc.set(marketAddress as Address, {
-            prices: [outcomeTokensBuyPercentYes, outcomeTokensBuyPercentNo],
-          })
+            acc.set(marketAddress as Address, {
+              prices: [outcomeTokensBuyPercentYes, outcomeTokensBuyPercentNo],
+            })
+
+            return acc
+          }
 
           return acc
         },
@@ -134,22 +134,24 @@ export function useMarkets(topic: Category | null) {
           return {
             ...market,
             // @ts-ignore
-            ...(_markets.get(market.address) as OddsData),
+            ...(_markets.get(market.address)
+              ? // @ts-ignore
+                (_markets.get(market.address) as OddsData)
+              : { prices: [50, 50] }),
           }
         }
         return {
           ...market,
           // @ts-ignore
           markets: market.markets
-            .map((marketInGroup: MarketSingleCardResponse) => ({
+            .map((marketInGroup: Market) => ({
               ...marketInGroup,
               // @ts-ignore
-              ...(_markets.get(marketInGroup.address) as OddsData),
+              ...(_markets.get(marketInGroup.address)
+                ? (_markets.get(marketInGroup.address) as OddsData)
+                : { prices: [50, 50] }),
             }))
-            .sort(
-              (a: MarketSingleCardResponse, b: MarketSingleCardResponse) =>
-                b.prices[0] - a.prices[0]
-            ),
+            .sort((a: Market, b: Market) => b.prices[0] - a.prices[0]),
         }
       })
 
@@ -177,11 +179,12 @@ export function useDailyMarkets(topic: Category | null) {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/daily`
       const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
 
-      const { data: response }: AxiosResponse<MarketsResponse> = await axios.get(marketBaseUrl, {
-        params: {
-          limit: 30,
-        },
-      })
+      const { data: response }: AxiosResponse<{ data: Market[]; totalMarketsCount: number }> =
+        await axios.get(marketBaseUrl, {
+          params: {
+            limit: 30,
+          },
+        })
 
       // @ts-ignore
       const dailyMarkets = response.data.filter((market) => !market.slug)
@@ -315,7 +318,7 @@ export function useMarket(address?: string) {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${address}`
       )
-      const marketRes = response.data as SingleMarket
+      const marketRes = response.data as Market
 
       let prices = [50, 50]
 
@@ -363,31 +366,6 @@ const getMarketOutcomeBuyPrice = async (decimals: number, marketAddress: Address
     0,
   ])) as bigint
   const outcomeTokenAmountNoBI = (await fixedProductMarketMakerContract.read.calcBuyAmount([
-    collateralAmountBI,
-    1,
-  ])) as bigint
-  const outcomeTokenAmountYes = formatUnits(outcomeTokenAmountYesBI, collateralDecimals)
-  const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, collateralDecimals)
-  const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
-  const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
-
-  return [outcomeTokenPriceYes, outcomeTokenPriceNo]
-}
-
-const getMarketOutcomeSellPrice = async (decimals: number, marketAddress: Address) => {
-  const fixedProductMarketMakerContract = getContract({
-    address: marketAddress,
-    abi: fixedProductMarketMakerABI,
-    client: publicClient,
-  })
-  const collateralDecimals = decimals
-  const collateralAmount = collateralDecimals <= 6 ? `0.0001` : `0.0000001`
-  const collateralAmountBI = parseUnits(collateralAmount, collateralDecimals)
-  const outcomeTokenAmountYesBI = (await fixedProductMarketMakerContract.read.calcSellAmount([
-    collateralAmountBI,
-    0,
-  ])) as bigint
-  const outcomeTokenAmountNoBI = (await fixedProductMarketMakerContract.read.calcSellAmount([
     collateralAmountBI,
     1,
   ])) as bigint

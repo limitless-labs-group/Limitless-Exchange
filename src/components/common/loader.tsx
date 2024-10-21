@@ -1,7 +1,7 @@
-import LoadingIcon from '@/resources/icons/loader-icon.svg'
-import React from 'react'
-import '../../../src/app/style.css'
 import { Box, BoxProps } from '@chakra-ui/react'
+import React from 'react'
+import LoadingIcon from '@/resources/icons/loader-icon.svg'
+import '../../../src/app/style.css'
 
 export interface ILoader extends Omit<BoxProps, 'children'> {
   loadingIconColor?: string | undefined

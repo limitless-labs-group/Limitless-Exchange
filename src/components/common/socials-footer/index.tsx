@@ -1,17 +1,17 @@
-import { PropsWithChildren } from 'react'
 import { BoxProps, HStack, Icon, Link, Text } from '@chakra-ui/react'
-import BookIcon from '@/resources/icons/book-icon.svg'
-import SupportIcon from '@/resources/icons/support-icon.svg'
-import DiscordIcon from '@/resources/icons/discord-icon.svg'
+import { PropsWithChildren } from 'react'
+import { isMobile } from 'react-device-detect'
 import FarcasterIcon from '@/resources/icons/Farcaster.svg'
 import XIcon from '@/resources/icons/X.svg'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { isMobile } from 'react-device-detect'
+import BookIcon from '@/resources/icons/book-icon.svg'
+import DiscordIcon from '@/resources/icons/discord-icon.svg'
+import SupportIcon from '@/resources/icons/support-icon.svg'
 import { ClickEvent, useAmplitude } from '@/services'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const LINKS = {
   X: 'https://x.com/trylimitless',
-  DISCORD: 'https://discord.gg/eauuteFaun',
+  DISCORD: 'https://discord.gg/5tHJzq9r3p',
   FARCASTER: 'https://warpcast.com/~/channel/limitless',
   DOCS: 'https://www.notion.so/limitlesslabs/Limitless-Exchange-Docs-0e59399dd44b492f8d494050969a1567?pvs=4',
 }

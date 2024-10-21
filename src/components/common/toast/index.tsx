@@ -1,9 +1,9 @@
 import { Box, Button, HStack, Link, Text, ToastId, VStack } from '@chakra-ui/react'
-import { isMobile } from 'react-device-detect'
-import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { useToast } from '@/hooks'
 import { PropsWithChildren } from 'react'
+import { isMobile } from 'react-device-detect'
+import { useToast } from '@/hooks'
 import CloseIcon from '@/resources/icons/close-icon.svg'
+import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 interface IToast {
   title: string

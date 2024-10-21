@@ -1,6 +1,6 @@
 import { defineStyle, defineStyleConfig } from '@chakra-ui/react'
-import { commonButtonProps } from '@/styles/button'
 import { isMobile } from 'react-device-detect'
+import { commonButtonProps } from '@/styles/button'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const transparent = defineStyle({

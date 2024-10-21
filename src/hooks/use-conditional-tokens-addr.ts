@@ -1,7 +1,7 @@
-import { defaultChain, newSubgraphURI } from '@/constants'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { Address, getAddress } from 'viem'
+import { defaultChain, newSubgraphURI } from '@/constants'
 
 export interface IUseConditionalTokensAddr {
   marketAddr: Address | undefined
