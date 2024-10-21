@@ -5,7 +5,7 @@ import {
   cookieStorageManagerSSR,
   localStorageManager,
 } from '@chakra-ui/react'
-import { createContext, PropsWithChildren, useContext, useState } from 'react'
+import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react'
 import { BaseNextRequest } from 'next/dist/server/base-http'
 import { lightThemeColors } from '@/styles/light-theme-colors'
 import { darkThemeColors } from '@/styles/dark-theme-colors'
@@ -36,9 +36,11 @@ export const ThemeProvider = ({
   const colorModeManager =
     typeof cookies === 'string' ? cookieStorageManagerSSR(cookies) : localStorageManager
   const [colors, setColors] = useState<ColorScheme>(
-    colorModeManager.get() === 'dark' ? darkThemeColors : lightThemeColors
+    colorModeManager.get() === 'light' ? lightThemeColors : darkThemeColors
   )
-  const [mode, setMode] = useState(colorModeManager.get())
+  const [mode, setMode] = useState(colorModeManager.get() ? colorModeManager.get() : 'dark')
+
+  console.log(mode)
 
   const themeWithColors = {
     ...chakraTheme,
@@ -62,6 +64,10 @@ export const ThemeProvider = ({
     }
     return
   }
+
+  useEffect(() => {
+    localStorageManager.set(mode as ColorMode)
+  }, [])
 
   return (
     <ThemeProviderContext.Provider value={{ setLightTheme, setDarkTheme, mode, colors }}>

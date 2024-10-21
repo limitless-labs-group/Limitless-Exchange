@@ -374,6 +374,13 @@ export function SellForm({
     }
   }, [outcomeChoice])
 
+  useEffect(() => {
+    resetQuotes()
+    setCollateralAmount('')
+    setDisplayAmount('')
+    setSliderValue(0)
+  }, [market.address])
+
   return (
     <>
       {marketGroup && (
