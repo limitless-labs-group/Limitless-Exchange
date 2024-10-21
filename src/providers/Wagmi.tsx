@@ -1,17 +1,17 @@
 // import { WagmiConfig, configureChains, createConfig } from 'wagmi'
 // import { publicProvider } from 'wagmi/providers/public'
 // import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
-import { defaultChain } from '@/constants'
-import { rainbowWeb3AuthConnector } from '@/providers'
-import { createPublicClient } from 'viem'
-import { WagmiProvider as WagmiDefaultProvider, http } from 'wagmi'
+import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import {
   metaMaskWallet,
   rainbowWallet,
   coinbaseWallet,
   walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets'
-import { getDefaultConfig } from '@rainbow-me/rainbowkit'
+import { createPublicClient } from 'viem'
+import { WagmiProvider as WagmiDefaultProvider, http } from 'wagmi'
+import { defaultChain } from '@/constants'
+import { rainbowWeb3AuthConnector } from '@/providers'
 
 // const { publicClient, webSocketPublicClient } = configureChains(
 //   [defaultChain],

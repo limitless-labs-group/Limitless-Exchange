@@ -1,7 +1,7 @@
-import { Token } from '@/types'
+import { useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
 import { PropsWithChildren, createContext, useContext } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { Token } from '@/types'
 import { ProfileActionType } from '@/types/profiles'
 
 interface ILimitlessApi {

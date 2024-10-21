@@ -1,6 +1,5 @@
 'use client'
 
-import { MainLayout } from '@/components'
 import {
   Box,
   Button,
@@ -9,7 +8,6 @@ import {
   Flex,
   FormControl,
   FormHelperText,
-  FormLabel,
   HStack,
   NumberInput,
   NumberInputField,
@@ -19,168 +17,125 @@ import {
   SliderThumb,
   SliderTrack,
   Spinner,
-  Text,
   Textarea,
   VStack,
 } from '@chakra-ui/react'
-import React, { useState } from 'react'
-import CreatableSelect from 'react-select/creatable'
-import axios from 'axios'
-import { useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useToast } from '@/hooks'
-import { useCategories, useLimitlessApi } from '@/services'
-import { Toast } from '@/components/common/toast'
-import { Input } from '@/components/common/input'
-import { Category } from '@/types'
-import { OgImageGenerator } from '@/app/draft/components'
+import axios from 'axios'
+import { useRouter, useSearchParams } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { MultiValue } from 'react-select'
+import CreatableSelect from 'react-select/creatable'
 import TimezoneSelect, {
   allTimezones,
   ITimezoneOption,
   useTimezoneSelect,
 } from 'react-timezone-select'
-
-interface FormFieldProps {
-  label: string
-  children: React.ReactNode
-}
-
-interface TokenLimit {
-  min: number
-  max: number
-  step: number
-}
-
-interface TokenLimits {
-  [key: string]: TokenLimit
-}
-
-const tokenLimits: TokenLimits = {
-  HIGHER: {
-    min: 25000,
-    max: 390000,
-    step: 1000,
-  },
-  MFER: {
-    min: 12500,
-    max: 390000,
-    step: 1000,
-  },
-  DEGEN: {
-    min: 39000,
-    max: 390000,
-    step: 1000,
-  },
-  ONCHAIN: {
-    min: 390000,
-    max: 3900000,
-    step: 10000,
-  },
-  WETH: {
-    min: 0.1,
-    max: 5,
-    step: 0.1,
-  },
-  USDC: {
-    min: 300,
-    max: 30000,
-    step: 100,
-  },
-  VITA: {
-    min: 150,
-    max: 3000,
-    step: 25,
-  },
-  GHST: {
-    min: 150,
-    max: 3000,
-    step: 10,
-  },
-  BETS: {
-    min: 835000,
-    max: 8350000,
-    step: 5000,
-  },
-  cbBTC: {
-    min: 0.1,
-    max: 5,
-    step: 0.01,
-  },
-}
-
-interface TagOption {
-  id: string
-  label: string
-  value: string
-}
-
-interface Creator {
-  id: string
-  name: string
-}
-
-interface Token {
-  id: number
-  symbol: string
-}
-
-const defaultTokenSymbol = 'WETH'
-const defaultProbability = 50
-const defaultMarketFee = 0
-const defaultCreatorId = '1' // Limitless
-const defaultCategoryId = '2' // Crypto
-
-const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
-  <Box mt={4}>
-    <FormLabel>
-      <strong>{label}</strong>
-    </FormLabel>
-    {children}
-  </Box>
-)
+import { Toast } from '@/components/common/toast'
+import {
+  defaultFormData,
+  defaultTokenSymbol,
+  tokenLimits,
+  selectStyles,
+  OgImageGenerator,
+  defaultProbability,
+  defaultMarketFee,
+  defaultCreatorId,
+  defaultCategoryId,
+} from '@/app/draft/components'
+import { FormField } from './components/form-field'
+import { MainLayout } from '@/components'
+import { useToast } from '@/hooks'
+import { useCategories, useLimitlessApi } from '@/services'
+import { Category } from '@/types'
+import { Token, Tag, TagOption, IFormData, Creator } from '@/types/draft'
 
 const CreateOwnMarketPage = () => {
   const { parseTimezone } = useTimezoneSelect({
     labelStyle: 'original',
     timezones: allTimezones,
   })
-  const [formData, setFormData] = useState<FormData>(new FormData())
-
-  const [deadline, setDeadline] = useState<Date>(new Date())
-  const [timezone, setTimezone] = useState('America/New_York')
-  const [title, setTitle] = useState<string>('')
-  const [token, setToken] = useState<Token>({ symbol: defaultTokenSymbol, id: 1 })
-  const [description, setDescription] = useState<string>('')
-  const [liquidity, setLiquidity] = useState<number>(tokenLimits[defaultTokenSymbol].min)
-  const [probability, setProbability] = useState<number>(defaultProbability)
-  const [marketFee, setMarketFee] = useState<number>(defaultMarketFee)
-  const [tag, setTag] = useState<TagOption[]>([])
-  const [creatorId, setCreatorId] = useState<string>(defaultCreatorId)
-  const [categoryId, setCategoryId] = useState<string>(defaultCategoryId)
-  const [ogLogo, setOgLogo] = useState<File | undefined>()
-
+  const [formData, setFormData] = useState<IFormData>(defaultFormData)
   const [isCreating, setIsCreating] = useState<boolean>(false)
-
+  const { supportedTokens } = useLimitlessApi()
+  const toast = useToast()
   const queryClient = useQueryClient()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const marketId = searchParams.get('market')
 
-  const { supportedTokens } = useLimitlessApi()
+  const { data: editMarket } = useQuery({
+    queryKey: ['editMarket', marketId],
+    queryFn: async () => {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts/${marketId}`
+      )
+      return response.data
+    },
+    enabled: !!marketId,
+  })
 
-  const handleLiquidityChange = (value: number) => setLiquidity(value)
+  useEffect(() => {
+    if (editMarket) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        title: editMarket.title || '',
+        description: editMarket.description || '',
+        deadline: new Date(editMarket.deadline) || new Date(),
+        token: editMarket.collateralToken
+          ? { symbol: editMarket.collateralToken.symbol, id: editMarket.collateralToken.id }
+          : prevFormData.token,
+        liquidity:
+          editMarket.draftMetadata?.liquidity ||
+          tokenLimits[editMarket.collateralToken.symbol]?.min,
+        probability: editMarket.draftMetadata?.initialProbability * 100 || defaultProbability,
+        marketFee: editMarket.draftMetadata?.fee || defaultMarketFee,
+        tag:
+          editMarket.tags.map((tag: Tag) => ({
+            id: tag.id,
+            value: tag.name,
+            label: tag.name,
+          })) || [],
+        creatorId: editMarket.creator?.id || defaultCreatorId,
+        categoryId: editMarket.category?.id || defaultCategoryId,
+      }))
+      generateOgImage()
+    }
+  }, [editMarket])
 
-  const handleProbabilityChange = (value: number) => setProbability(value)
+  const handleChange = <K extends keyof IFormData>(
+    field: string,
+    value: IFormData[K] | MultiValue<TagOption>
+  ) => {
+    if (field === 'tag' && Array.isArray(value)) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        [field]: [...value] as TagOption[],
+      }))
+    } else {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        [field]: value as IFormData[K],
+      }))
+    }
+  }
 
   const handleTokenSelect = (option: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedTokenId = +option.target.value
     const selectedTokenSymbol =
       option.target.selectedOptions[0].getAttribute('data-name') ?? defaultTokenSymbol
-    setToken({ symbol: selectedTokenSymbol, id: selectedTokenId })
-    setLiquidity(tokenLimits[selectedTokenSymbol].min)
+
+    handleChange('token', { symbol: selectedTokenSymbol, id: selectedTokenId })
+    handleChange('liquidity', tokenLimits[selectedTokenSymbol].min)
   }
 
-  const toast = useToast()
+  const showToast = (message: string) => {
+    const id = toast({
+      render: () => <Toast title={message} id={id} />,
+    })
+  }
 
   const createOption = (id: string, name: string): TagOption => ({
     id,
@@ -224,70 +179,66 @@ const CreateOwnMarketPage = () => {
     ])
   }
 
-  const handleActiveTags = (selectedOptions: TagOption[]) => {
-    setTag(selectedOptions)
-  }
-  const draftMarket = async () => {
+  const prepareData = () => {
+    const { title, description, creatorId, ogLogo, tag } = formData
     if (!title || !description || !creatorId || !ogLogo || !tag) {
-      const id = toast({
-        render: () => (
-          <Toast
-            title={'Title, Description, Creator, Market Logo, Og Logo, Tags are required!'}
-            id={id}
-          />
-        ),
-      })
+      showToast('Title, Description, Creator, Market Logo, Og Logo, and Tags are required!')
       return
     }
 
     const differenceInOffset =
       (parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset || 1) -
-      (parseTimezone(timezone)?.offset || 1)
+      (parseTimezone(formData.timezone)?.offset || 1)
+    const zonedTime = new Date(formData.deadline).getTime() + differenceInOffset * 60 * 60 * 1000
 
-    const zonedTime = new Date(deadline).getTime() + differenceInOffset * 60 * 60 * 1000
+    const marketFormData = new FormData()
+    marketFormData?.set('title', formData.title)
+    marketFormData?.set('description', formData.description)
+    marketFormData?.set('tokenId', formData.token.id.toString())
+    marketFormData?.set('liquidity', formData.liquidity.toString())
+    marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
+    marketFormData?.set('marketFee', formData.marketFee.toString())
+    marketFormData?.set('deadline', zonedTime.toString())
 
-    formData?.set('title', title)
-    formData?.set('description', description)
-    formData?.set('tokenId', token.id.toString())
-    formData?.set('liquidity', liquidity.toString())
-    formData?.set('initialYesProbability', (probability / 100).toString())
-    formData?.set('marketFee', marketFee.toString())
-    // @ts-ignore
-    formData?.set('deadline', zonedTime)
-    formData?.set('creatorId', creatorId)
-    formData?.set('categoryId', categoryId)
-    formData?.set('ogFile', ogLogo)
-    formData?.set('tagIds', tag.map((tag) => tag.id).join(','))
+    if (formData.creatorId) {
+      marketFormData.set('creatorId', formData.creatorId)
+    }
 
-    const id = toast({
-      render: () => (
-        <Toast title={'Request for market creation has been registered successfully.'} id={id} />
-      ),
-    })
+    if (formData.categoryId) {
+      marketFormData.set('categoryId', formData.categoryId)
+    }
 
+    if (formData.ogLogo) {
+      marketFormData.set('ogFile', formData.ogLogo)
+    }
+
+    if (formData.tag.length) {
+      marketFormData.set('tagIds', formData.tag.map((t) => t.id).join(','))
+    }
+
+    showToast('Request for market creation has been registered successfully.')
+
+    return marketFormData
+  }
+
+  const draftMarket = async () => {
+    const data = prepareData()
     setIsCreating(true)
-
     axios
-      .post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts`, formData, {
+      .post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
       .then((res) => {
-        const id = toast({
-          render: () => <Toast title={`Market is drafted`} id={id} />,
-        })
+        showToast(`Market is drafted`)
         router.push('/draft/queue')
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
-          const id = toast({
-            render: () => <Toast title={`Error: Payload Too Large, max 1MB per file`} id={id} />,
-          })
+          showToast('Error: Payload Too Large, max 1MB per file')
         } else {
-          const id = toast({
-            render: () => <Toast title={`Error: ${res.message}`} id={id} />,
-          })
+          showToast(`Error: ${res.message}`)
         }
       })
       .finally(() => {
@@ -295,192 +246,323 @@ const CreateOwnMarketPage = () => {
       })
   }
 
+  const updateMarket = async () => {
+    const data = prepareData()
+    setIsCreating(true)
+    axios
+      .put(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts/${marketId}`, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((res) => {
+        showToast(`Market ${marketId} is updated`)
+        router.push('/draft/queue')
+      })
+      .catch((res) => {
+        if (res?.response?.status === 413) {
+          showToast('Error: Payload Too Large, max 1MB per file')
+        } else {
+          showToast(`Error: ${res.message}`)
+        }
+      })
+      .finally(() => {
+        setIsCreating(false)
+      })
+  }
+
+  const resizeTextareaHeight = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    e.currentTarget.style.height = 'auto'
+    e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
+  }
+
+  const submit = async () => {
+    if (marketId) {
+      await updateMarket()
+      return
+    }
+    await draftMarket()
+  }
+
   return (
     <MainLayout>
       <Flex justifyContent={'center'}>
-        <VStack w='468px' spacing={4}>
-          <Text>Create Market</Text>
+        <VStack w='full' spacing={4}>
           <FormControl>
-            <FormField label='OG Preview'>
-              <HStack>
-                <OgImageGenerator
-                  title={title}
-                  category={
-                    categories?.find((category) => category.id === +categoryId)?.name ?? 'Unknown'
-                  }
-                  onBlobGenerated={(blob) => {
-                    console.log('Blob generated', blob)
-                    const _ogLogo = new File([blob], 'og.png', {
-                      type: blob.type,
-                      lastModified: Date.now(),
-                    })
-                    console.log('Blob transformed to File', _ogLogo)
+            <HStack
+              w='full'
+              maxW='1200px'
+              gap={10}
+              justifyContent='space-between'
+              alignItems='flex-start'
+            >
+              <VStack w='full' flex='1.2'>
+                <Box position='absolute' visibility='hidden'>
+                  <FormField label='OG Preview is still here, but hidden (required to create an image)'>
+                    <HStack position='absolute' zIndex={-1} h='280px' w='600px'>
+                      <OgImageGenerator
+                        title={formData.title}
+                        category={
+                          categories?.find((category) => category.id === +formData.categoryId)
+                            ?.name ?? 'Unknown'
+                        }
+                        onBlobGenerated={(blob) => {
+                          console.log('Blob generated', blob)
+                          const _ogLogo = new File([blob], 'og.png', {
+                            type: blob.type,
+                            lastModified: Date.now(),
+                          })
+                          console.log('Blob transformed to File', _ogLogo)
 
-                    setOgLogo(_ogLogo)
-                  }}
-                  generateBlob={isGeneratingOgImage}
-                />
-              </HStack>
-            </FormField>
+                          handleChange('ogLogo', _ogLogo)
+                        }}
+                        generateBlob={isGeneratingOgImage}
+                      />
+                    </HStack>
+                  </FormField>
+                </Box>
 
-            <FormField label='Title'>
-              <Input
-                onChange={(e) => setTitle(e.target.value)}
-                maxLength={70}
-                onBlur={() => generateOgImage()}
-              />
-              <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                {title?.length}/70 characters
-              </FormHelperText>
-            </FormField>
-
-            <FormField label='Description'>
-              <Textarea
-                resize='none'
-                rows={7}
-                overflow='hidden'
-                maxLength={1500}
-                onChange={(e) => setDescription(e.target.value)}
-                onBlur={() => generateOgImage()}
-              />
-              <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                {description?.length}/1500 characters
-              </FormHelperText>
-            </FormField>
-
-            <FormField label='Token'>
-              <HStack>
-                <Select onChange={handleTokenSelect}>
-                  {supportedTokens?.map((token: Token) => (
-                    <option key={token.id} value={token.id} data-name={token.symbol}>
-                      {token.symbol}
-                    </option>
-                  ))}
-                </Select>
-              </HStack>
-            </FormField>
-
-            <FormField label={`${token.symbol} Liquidity`}>
-              <HStack>
-                <NumberInput maxW='120px' mr='2rem' value={liquidity}>
-                  <NumberInputField w={'120px'} />
-                </NumberInput>
-                <Slider
-                  flex='1'
-                  focusThumbOnChange={false}
-                  value={liquidity}
-                  onChange={handleLiquidityChange}
-                  min={tokenLimits[token.symbol].min}
-                  max={tokenLimits[token.symbol].max}
-                  step={tokenLimits[token.symbol].step}
-                >
-                  <SliderTrack>
-                    <SliderFilledTrack />
-                  </SliderTrack>
-                  <SliderThumb fontSize='sm' boxSize='32px' />
-                </Slider>
-              </HStack>
-            </FormField>
-
-            <FormField label='Starting YES Probability'>
-              <HStack>
-                <NumberInput maxW='120px' mr='2rem' value={probability}>
-                  <NumberInputField w={'120px'} />
-                </NumberInput>
-                <Slider
-                  flex='1'
-                  focusThumbOnChange={false}
-                  value={probability}
-                  onChange={handleProbabilityChange}
-                  min={1}
-                  max={99}
-                  step={1}
-                >
-                  <SliderTrack>
-                    <SliderFilledTrack />
-                  </SliderTrack>
-                  <SliderThumb fontSize='sm' boxSize='32px' />
-                </Slider>
-              </HStack>
-            </FormField>
-
-            <FormField label='Market Fee'>
-              <HStack>
-                <Checkbox onChange={(e) => setMarketFee(e.target.checked ? 1 : 0)}>1% Fee</Checkbox>
-              </HStack>
-            </FormField>
-
-            <FormField label='Creator'>
-              <HStack>
-                <Select onChange={(e) => setCreatorId(e?.target?.value)}>
-                  {creators?.map((creator: Creator) => (
-                    <option key={creator.id} value={creator.id}>
-                      {creator.name}
-                    </option>
-                  ))}
-                </Select>
-              </HStack>
-            </FormField>
-
-            <FormField label='Category'>
-              <HStack>
-                <Select onChange={(e) => setCategoryId(e?.target?.value)}>
-                  {categories?.map((category: Category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </Select>
-              </HStack>
-            </FormField>
-
-            <FormField label='Tags'>
-              <HStack w={'full'}>
-                <Box width='full'>
-                  <CreatableSelect
-                    isMulti
-                    onCreateOption={handleTagCreation}
-                    //@ts-ignore
-                    onChange={handleActiveTags}
-                    options={tagOptions}
+                <FormField label='Title'>
+                  <Textarea
+                    resize='none'
+                    rows={1}
+                    overflow='hidden'
+                    height='auto'
+                    onInput={resizeTextareaHeight}
+                    value={formData.title}
+                    onChange={(e) => handleChange('title', e.target.value)}
+                    maxLength={70}
+                    onBlur={() => generateOgImage()}
                   />
-                </Box>
-              </HStack>
-            </FormField>
+                  <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
+                    {formData.title?.length}/70 characters
+                  </FormHelperText>
+                </FormField>
 
-            <FormField label='Deadline'>
-              {/*// Todo move to a separate component?*/}
-              <DatePicker
-                id='input'
-                selected={deadline}
-                onChange={(date) => {
-                  if (date) {
-                    setDeadline(new Date(date.getTime()))
-                  }
-                }}
-                minDate={new Date()}
-                showTimeSelect
-                dateFormat='Pp'
-              />
-              <TimezoneSelect
-                value={timezone}
-                onChange={(timezone: ITimezoneOption) => {
-                  setTimezone(timezone.value)
-                }}
-              />
-            </FormField>
+                <FormField label='Description'>
+                  <Textarea
+                    resize='none'
+                    rows={7}
+                    overflow='hidden'
+                    height='auto'
+                    onInput={resizeTextareaHeight}
+                    maxLength={1500}
+                    value={formData.description}
+                    onChange={(e) => handleChange('description', e.target.value)}
+                    onBlur={() => generateOgImage()}
+                  />
+                  <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
+                    {formData.description?.length}/1500 characters
+                  </FormHelperText>
+                </FormField>
 
-            <ButtonGroup spacing='6' mt={5}>
-              {isCreating ? (
-                <Box width='full' justifyContent='center' alignItems='center'>
-                  <Spinner />
-                </Box>
-              ) : (
-                <Button colorScheme='blue' width='465px' height='52px' onClick={draftMarket}>
-                  Draft
-                </Button>
-              )}
-            </ButtonGroup>
+                <FormField label='Token'>
+                  <HStack>
+                    <Select value={formData.token.id} onChange={handleTokenSelect}>
+                      {supportedTokens?.map((token: Token) => (
+                        <option key={token.id} value={token.id} data-name={token.symbol}>
+                          {token.symbol}
+                        </option>
+                      ))}
+                    </Select>
+                  </HStack>
+                </FormField>
+
+                <FormField label={`${formData.token.symbol} Liquidity`}>
+                  <HStack>
+                    <NumberInput
+                      maxW='120px'
+                      mr='2rem'
+                      value={formData.liquidity}
+                      onChange={(value) => handleChange('liquidity', Number(value))}
+                      min={tokenLimits[formData.token.symbol]?.min}
+                      max={tokenLimits[formData.token.symbol]?.max}
+                      step={tokenLimits[formData.token.symbol]?.step}
+                    >
+                      <NumberInputField w={'120px'} />
+                    </NumberInput>
+                    <Slider
+                      flex='1'
+                      focusThumbOnChange={false}
+                      value={formData.liquidity}
+                      onChange={(value) => handleChange('liquidity', value)}
+                      min={tokenLimits[formData.token.symbol]?.min}
+                      max={tokenLimits[formData.token.symbol]?.max}
+                      step={tokenLimits[formData.token.symbol]?.step}
+                    >
+                      <SliderTrack>
+                        <SliderFilledTrack />
+                      </SliderTrack>
+                      <SliderThumb fontSize='sm' boxSize='32px' />
+                    </Slider>
+                  </HStack>
+                </FormField>
+
+                <FormField label='Starting YES Probability'>
+                  <HStack>
+                    <NumberInput
+                      maxW='120px'
+                      mr='2rem'
+                      value={formData.probability}
+                      onChange={(value) => handleChange('probability', Number(value))}
+                      min={1}
+                      max={99}
+                      step={1}
+                    >
+                      <NumberInputField w={'120px'} />
+                    </NumberInput>
+                    <Slider
+                      flex='1'
+                      focusThumbOnChange={false}
+                      value={formData.probability}
+                      onChange={(value) => handleChange('probability', value)}
+                      min={1}
+                      max={99}
+                      step={1}
+                    >
+                      <SliderTrack>
+                        <SliderFilledTrack />
+                      </SliderTrack>
+                      <SliderThumb fontSize='sm' boxSize='32px' />
+                    </Slider>
+                  </HStack>
+                </FormField>
+              </VStack>
+
+              <VStack w={'full'} flex='0.8'>
+                <FormField label='Market Fee'>
+                  <HStack>
+                    <Checkbox
+                      isChecked={formData.marketFee === 1}
+                      onChange={(e) => handleChange('marketFee', e.target.checked ? 1 : 0)}
+                    >
+                      1% Fee
+                    </Checkbox>
+                  </HStack>
+                </FormField>
+
+                <FormField label='Creator'>
+                  <HStack>
+                    <Select
+                      value={formData.creatorId}
+                      onChange={(e) => handleChange('creatorId', e.target.value)}
+                    >
+                      {creators?.map((creator: Creator) => (
+                        <option key={creator.id} value={creator.id}>
+                          {creator.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </HStack>
+                </FormField>
+
+                <FormField label='Category'>
+                  <HStack>
+                    <Select
+                      value={formData.categoryId}
+                      onChange={(e) => handleChange('categoryId', e.target.value)}
+                    >
+                      {categories?.map((category: Category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </HStack>
+                </FormField>
+
+                <FormField label='Tags'>
+                  <HStack w={'full'}>
+                    <Box width='full'>
+                      <CreatableSelect
+                        isMulti
+                        onCreateOption={handleTagCreation}
+                        //@ts-ignore
+                        onChange={(option) => handleChange('tag', option)}
+                        value={formData.tag}
+                        options={tagOptions}
+                        styles={{
+                          option: (provided, state) => ({
+                            ...provided,
+                            backgroundColor: state.isFocused
+                              ? 'var(--chakra-colors-blue-50)'
+                              : 'var(--chakra-colors-grey-300)',
+                            color: state.isFocused
+                              ? 'var(--chakra-colors-blue-900)'
+                              : 'var(--chakra-colors-grey-900)',
+                          }),
+                          menu: (provided) => ({
+                            ...provided,
+                            ...selectStyles.menu,
+                          }),
+                          control: (provided) => ({
+                            ...provided,
+                            ...selectStyles.control,
+                          }),
+                        }}
+                      />
+                    </Box>
+                  </HStack>
+                </FormField>
+
+                <FormField label='Deadline'>
+                  {/*// Todo move to a separate component?*/}
+                  <DatePicker
+                    id='input'
+                    selected={formData.deadline || null}
+                    onChange={(date: Date | null) => {
+                      if (date) {
+                        handleChange('deadline', new Date(date.getTime()))
+                      }
+                    }}
+                    minDate={new Date()}
+                    showTimeSelect
+                    dateFormat='Pp'
+                  />
+                  <TimezoneSelect
+                    value={formData.timezone}
+                    onChange={(timezone: ITimezoneOption) =>
+                      handleChange('timezone', timezone.value)
+                    }
+                    styles={{
+                      option: (provided, state) => ({
+                        ...provided,
+                        backgroundColor: state.isFocused
+                          ? 'var(--chakra-colors-blue-50)'
+                          : 'var(--chakra-colors-grey-300)',
+                        color: state.isFocused
+                          ? 'var(--chakra-colors-blue-900)'
+                          : 'var(--chakra-colors-grey-900)',
+                      }),
+                      menu: (provided) => ({
+                        ...provided,
+                        ...selectStyles.menu,
+                      }),
+                      control: (provided) => ({
+                        ...provided,
+                        ...selectStyles.control,
+                      }),
+                      singleValue: (provided) => ({
+                        ...provided,
+                        ...selectStyles.singleValue,
+                      }),
+                    }}
+                  />
+                </FormField>
+
+                <ButtonGroup spacing='6' mt={5} w='full'>
+                  {isCreating ? (
+                    <Flex width='full' justifyContent='center' alignItems='center'>
+                      <Spinner />
+                    </Flex>
+                  ) : (
+                    <Button colorScheme='blue' w='full' height='52px' onClick={submit}>
+                      {marketId ? 'Save' : 'Draft'}
+                    </Button>
+                  )}
+                </ButtonGroup>
+              </VStack>
+            </HStack>
           </FormControl>
         </VStack>
       </Flex>

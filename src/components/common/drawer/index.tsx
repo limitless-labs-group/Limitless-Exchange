@@ -1,5 +1,5 @@
-import { Drawer } from 'vaul'
 import React, { PropsWithChildren, ReactNode, useMemo } from 'react'
+import { Drawer } from 'vaul'
 import { h1Regular, headline } from '@/styles/fonts/fonts.styles'
 
 type MobileDrawerProps = {

@@ -1,5 +1,5 @@
-import { Hash, Address } from 'viem'
 import { AxiosError } from 'axios'
+import { Hash, Address } from 'viem'
 
 export type { Hash, Address }
 
@@ -25,7 +25,7 @@ export type MarketsResponse = {
 
 export interface Creator {
   name: string
-  imageURI?: string
+  imageUrl?: string
   link?: string
   address?: string
 }

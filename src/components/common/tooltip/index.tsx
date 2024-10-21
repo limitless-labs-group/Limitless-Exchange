@@ -1,5 +1,5 @@
-import { borderRadius } from '@/styles'
 import { TooltipProps, Tooltip as ChakraTooltip, Box } from '@chakra-ui/react'
+import { borderRadius } from '@/styles'
 
 export const Tooltip = ({ children, ...props }: TooltipProps) => (
   <ChakraTooltip

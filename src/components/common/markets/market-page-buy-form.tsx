@@ -9,17 +9,17 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { NumberUtil } from '@/utils'
 import { css } from '@emotion/react'
-import { isMobile } from 'react-device-detect'
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
-import BigNumber from 'bignumber.js'
-import { useBalanceService, useTradingService } from '@/services'
-import BuyButton from '@/components/common/markets/buy-button'
-import debounce from 'lodash.debounce'
 import { useQueryClient } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
+import debounce from 'lodash.debounce'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import BuyButton from '@/components/common/markets/buy-button'
+import { useBalanceService, useTradingService } from '@/services'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
+import { NumberUtil } from '@/utils'
 
 interface MarketPageBuyFormProps {
   setOutcomeIndex: Dispatch<SetStateAction<number>>

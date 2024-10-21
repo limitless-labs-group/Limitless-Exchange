@@ -1,12 +1,12 @@
-import { defaultChain } from '@/constants'
-import { HistoryRedeem } from '@/services'
-import { NumberUtil, truncateEthAddress } from '@/utils'
 import { Box, HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import { useAllMarkets, useMarketByConditionId } from '@/services/MarketsService'
+import NextLink from 'next/link'
+import { defaultChain } from '@/constants'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import { HistoryRedeem } from '@/services'
+import { useAllMarkets, useMarketByConditionId } from '@/services/MarketsService'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
-import NextLink from 'next/link'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 
 interface IPortfolioHistoryRedeemItem extends TableRowProps {
   redeem: HistoryRedeem

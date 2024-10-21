@@ -1,5 +1,5 @@
-import { limitlessApi } from '@/services'
 import { useQuery } from '@tanstack/react-query'
+import { limitlessApi } from '@/services'
 
 export interface IUseUsernameExists {
   username: string

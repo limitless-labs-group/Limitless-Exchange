@@ -1,14 +1,14 @@
-import { defaultChain, newSubgraphURI } from '@/constants'
-import { usePriceOracle } from '@/providers'
-import { Address } from '@/types'
-import { NumberUtil } from '@/utils'
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash, formatUnits } from 'viem'
-import { useAllMarkets } from '@/services/MarketsService'
+import { defaultChain, newSubgraphURI } from '@/constants'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { usePriceOracle } from '@/providers'
 import { useLimitlessApi } from '@/services/LimitlessApi'
+import { useAllMarkets } from '@/services/MarketsService'
+import { Address } from '@/types'
+import { NumberUtil } from '@/utils'
 
 interface IHistoryService {
   trades: HistoryTrade[] | undefined

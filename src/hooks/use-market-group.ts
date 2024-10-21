@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
+import { AxiosResponse } from 'axios'
 import { ContractCallContext, Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
+import { formatUnits, parseUnits } from 'viem'
 import { defaultChain } from '@/constants'
 import { fixedProductMarketMakerABI } from '@/contracts'
-import { formatUnits, parseUnits } from 'viem'
 import { limitlessApi } from '@/services'
-import { AxiosResponse } from 'axios'
 import { MarketGroup } from '@/types'
 
 export default function useMarketGroup(slug: string) {

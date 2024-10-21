@@ -1,10 +1,3 @@
-import { Toast } from '@/components/common/toast'
-import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
-import { useMarketData, useToast } from '@/hooks'
-import { publicClient } from '@/providers'
-import { ClickEvent, useAmplitude, useBalanceService, useHistory } from '@/services'
-import { Market, MarketGroup, RedeemParams } from '@/types'
-import { calcSellAmountInCollateral, NumberUtil } from '@/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -18,15 +11,23 @@ import {
   useMemo,
   useState,
 } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Address, formatUnits, getAddress, getContract, Hash, parseUnits, zeroHash } from 'viem'
-import { useWeb3Service } from '@/services/Web3Service'
+import { Toast } from '@/components/common/toast'
+import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
+import { useMarketData, useToast } from '@/hooks'
 import {
   getConditionalTokenAddress,
   useConditionalTokensAddr,
 } from '@/hooks/use-conditional-tokens-addr'
+import { useToken } from '@/hooks/use-token'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { publicClient } from '@/providers'
+import { ClickEvent, useAmplitude, useBalanceService, useHistory } from '@/services'
+import { useWeb3Service } from '@/services/Web3Service'
+import { Market, MarketGroup, RedeemParams } from '@/types'
+import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
 import { DISCORD_LINK } from '@/utils/consts'
-import { isMobile } from 'react-device-detect'
 
 interface ITradingServiceContext {
   market: Market | null

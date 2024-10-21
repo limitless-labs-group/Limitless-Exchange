@@ -1,15 +1,15 @@
 import { Box, Link, Text, VStack } from '@chakra-ui/react'
+import NextLink from 'next/link'
+import React from 'react'
 import usePageName from '@/hooks/use-page-name'
 import FeedIcon from '@/resources/icons/feed-icon.svg'
 import GridIcon from '@/resources/icons/grid-icon.svg'
-import NextLink from 'next/link'
 import {
   ClickEvent,
   ProfileBurgerMenuClickedMetadata,
   ProfileBurgerMenuClickedOption,
   useAmplitude,
 } from '@/services'
-import React from 'react'
 
 export default function MobileNavigation() {
   const pageName = usePageName()

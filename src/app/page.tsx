@@ -1,7 +1,17 @@
 'use client'
 
+import { Box, Spinner, HStack } from '@chakra-ui/react'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
+import { getAddress } from 'viem'
+import AllMarkets from '@/components/common/markets/all-markets'
+import DailyMarketsSection from '@/components/common/markets/daily-markets'
+import MarketPage from '@/components/common/markets/market-page'
+import TopMarkets from '@/components/common/markets/top-markets'
 import { MainLayout } from '@/components'
+import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useIsMobile } from '@/hooks'
+import { usePriceOracle } from '@/providers'
 import {
   OpenEvent,
   PageOpenedMetadata,
@@ -9,18 +19,8 @@ import {
   useCategories,
   useTradingService,
 } from '@/services'
-import { Box, Spinner, HStack } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
-import { Market, MarketGroup, Sort } from '@/types'
-import { getAddress } from 'viem'
 import { useDailyMarkets, useMarkets } from '@/services/MarketsService'
-import { usePriceOracle } from '@/providers'
-import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import { useSearchParams } from 'next/navigation'
-import DailyMarketsSection from '@/components/common/markets/daily-markets'
-import AllMarkets from '@/components/common/markets/all-markets'
-import TopMarkets from '@/components/common/markets/top-markets'
-import MarketPage from '@/components/common/markets/market-page'
+import { Market, MarketGroup, Sort } from '@/types'
 
 const MainPage = () => {
   const searchParams = useSearchParams()

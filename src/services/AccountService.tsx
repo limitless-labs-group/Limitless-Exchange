@@ -1,3 +1,5 @@
+import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
+import { UserInfo } from '@web3auth/base'
 import React, {
   PropsWithChildren,
   createContext,
@@ -7,19 +9,17 @@ import React, {
   useState,
   useEffect,
 } from 'react'
-import { useWeb3Auth } from '@/providers'
-import { Address, APIError, UpdateProfileData } from '@/types'
-import { limitlessApi, useAmplitude, useEtherspot, useLimitlessApi } from '@/services'
-import { UserInfo } from '@web3auth/base'
-import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Profile, ProfileActionType } from '@/types/profiles'
 import { getAddress, toHex } from 'viem'
-import { useWeb3Service } from '@/services/Web3Service'
 import { useDisconnect, useSignMessage } from 'wagmi'
 import { useAccount as useWagmiAccount } from 'wagmi'
-import { useCreateProfile } from '@/hooks/profiles'
-import { useToast } from '@/hooks'
 import { Toast } from '@/components/common/toast'
+import { useToast } from '@/hooks'
+import { useCreateProfile } from '@/hooks/profiles'
+import { useWeb3Auth } from '@/providers'
+import { limitlessApi, useAmplitude, useEtherspot, useLimitlessApi } from '@/services'
+import { useWeb3Service } from '@/services/Web3Service'
+import { Address, APIError, UpdateProfileData } from '@/types'
+import { Profile, ProfileActionType } from '@/types/profiles'
 
 export interface IAccountContext {
   isLoggedIn: boolean

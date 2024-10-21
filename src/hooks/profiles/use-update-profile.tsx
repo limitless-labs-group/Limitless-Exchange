@@ -1,9 +1,9 @@
-import { Address, getAddress, toHex } from 'viem'
-import { limitlessApi, useEtherspot } from '@/services'
 import { useMutation } from '@tanstack/react-query'
-import { useToast } from '@/hooks'
-import { Profile } from '@/types/profiles'
+import { Address, getAddress, toHex } from 'viem'
 import { Toast } from '@/components/common/toast'
+import { useToast } from '@/hooks'
+import { limitlessApi, useEtherspot } from '@/services'
+import { Profile } from '@/types/profiles'
 
 export interface IUseUpdateProfileMutation {
   displayName: string

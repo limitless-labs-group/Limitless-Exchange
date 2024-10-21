@@ -1,10 +1,10 @@
-import SortFilter from '@/components/common/sort-filter'
-import InfiniteScroll from 'react-infinite-scroll-component'
 import { Box, Divider, Text, VStack } from '@chakra-ui/react'
-import { MarketGroupCard, MarketSingleCard } from '@/components/common/markets/market-cards'
-import { Market, MarketGroup, Sort } from '@/types'
-import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import { isMobile } from 'react-device-detect'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import { MarketGroupCard, MarketSingleCard } from '@/components/common/markets/market-cards'
+import SortFilter from '@/components/common/sort-filter'
+import { headlineRegular } from '@/styles/fonts/fonts.styles'
+import { Market, MarketGroup, Sort } from '@/types'
 
 interface AllMarketsProps {
   handleSelectSort: (option: Sort) => void

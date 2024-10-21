@@ -1,9 +1,9 @@
-import { Toast } from '@/components/common/toast'
-import { defaultChain } from '@/constants'
-import { truncateEthAddress } from '@/utils'
 import { Text, ToastId, Link } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
+import { Toast } from '@/components/common/toast'
+import { defaultChain } from '@/constants'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { truncateEthAddress } from '@/utils'
 
 interface IToastWithdraw {
   transactionHash: string

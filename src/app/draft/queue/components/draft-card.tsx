@@ -1,12 +1,12 @@
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
-import { NumberUtil } from '@/utils'
 import { Box, HStack, Link, Text, Image as ChakraImage, Checkbox, Stack } from '@chakra-ui/react'
-import Paper from '@/components/common/paper'
-import React, { useState } from 'react'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import NextLink from 'next/link'
+import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import Paper from '@/components/common/paper'
+import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Category, Creator, DraftMetadata, Token } from '@/types'
+import { NumberUtil } from '@/utils'
 
 export type DraftMarket = {
   id: number
@@ -24,6 +24,7 @@ interface DraftMarketSingleCardProps {
   market: DraftMarket
   isChecked: boolean
   onToggle: () => void
+  onClick?: () => void
 }
 
 const defaultColors = {
@@ -32,8 +33,19 @@ const defaultColors = {
   chartBg: 'var(--chakra-colors-grey-300)',
 }
 
-export const DraftMarketCard = ({ market, isChecked, onToggle }: DraftMarketSingleCardProps) => {
-  const [colors] = useState(defaultColors)
+const hoverColors = {
+  main: 'var(--chakra-colors-white)',
+  secondary: 'var(--chakra-colors-transparent-700)',
+  chartBg: 'var(--chakra-colors-transparent-300)',
+}
+
+export const DraftMarketCard = ({
+  market,
+  isChecked,
+  onToggle,
+  onClick,
+}: DraftMarketSingleCardProps) => {
+  const [colors, setColors] = useState(defaultColors)
 
   return (
     <Paper
@@ -42,6 +54,16 @@ export const DraftMarketCard = ({ market, isChecked, onToggle }: DraftMarketSing
       cursor='pointer'
       _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
       position='relative'
+      onMouseEnter={() => {
+        if (!isMobile) {
+          setColors(hoverColors)
+        }
+      }}
+      onMouseLeave={() => {
+        if (!isMobile) {
+          setColors(defaultColors)
+        }
+      }}
     >
       <HStack align='start' spacing={4}>
         <Checkbox
@@ -55,8 +77,7 @@ export const DraftMarketCard = ({ market, isChecked, onToggle }: DraftMarketSing
           marginRight='8px'
           marginTop='4px'
         />
-
-        <Box as='a' width='100%'>
+        <Box onClick={onClick} as='a' width='95%'>
           <Stack gap='5px' width='100%'>
             <HStack justifyContent='space-between' mb='5px' alignItems='flex-start'>
               <Text {...paragraphMedium} color={colors.main}>
@@ -82,7 +103,7 @@ export const DraftMarketCard = ({ market, isChecked, onToggle }: DraftMarketSing
             </HStack>
 
             <HStack alignItems='flex-start'>
-              <Text {...paragraphMedium} color={colors.main}>
+              <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
                 {market.description}
               </Text>
             </HStack>
@@ -91,7 +112,7 @@ export const DraftMarketCard = ({ market, isChecked, onToggle }: DraftMarketSing
               <ChakraImage
                 width={6}
                 height={6}
-                src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+                src={market?.creator.imageUrl ?? '/assets/images/logo.svg'}
                 alt='creator'
                 borderRadius={'2px'}
               />
@@ -130,7 +151,7 @@ export const DraftMarketCard = ({ market, isChecked, onToggle }: DraftMarketSing
                     </Text>
                   </HStack>
                   <Text {...paragraphRegular} color={colors.main}>
-                    {market.deadline}
+                    {new Date(market.deadline).toLocaleString()}
                   </Text>
                 </HStack>
 

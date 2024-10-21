@@ -1,9 +1,6 @@
-import { defaultChain } from '@/constants'
-import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
-import { useWeb3Auth } from '@/providers'
-import { Address, Token } from '@/types'
 import { ArkaPaymaster, EtherspotBundler, PrimeSdk, Web3WalletProvider } from '@etherspot/prime-sdk'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common/utils'
+import { getRandomNumber } from '@lifi/sdk'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import {
   PropsWithChildren,
@@ -21,10 +18,13 @@ import {
   erc20Abi,
   getAddress,
 } from 'viem'
+import { defaultChain } from '@/constants'
+import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
 import { contractABI } from '@/contracts/utils'
+import { useWeb3Auth } from '@/providers'
 import { publicClient } from '@/providers'
 import { useLimitlessApi } from '@/services/LimitlessApi'
-import { getRandomNumber } from '@lifi/sdk'
+import { Address, Token } from '@/types'
 
 interface IEtherspotContext {
   etherspot: Etherspot | null

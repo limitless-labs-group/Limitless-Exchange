@@ -1,8 +1,8 @@
-import React from 'react'
 import { Text, Box, useTheme, VStack } from '@chakra-ui/react'
-import { Category } from '@/types'
-import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import Link from 'next/link'
+import React from 'react'
+import { useTokenFilter } from '@/contexts/TokenFilterContext'
+import { Category } from '@/types'
 
 export interface ICategoryFilterMobile {
   categories: Category[]
