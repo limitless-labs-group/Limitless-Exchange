@@ -134,7 +134,10 @@ export function useMarkets(topic: Category | null) {
           return {
             ...market,
             // @ts-ignore
-            ...(_markets.get(market.address) as OddsData),
+            ...(_markets.get(market.address)
+              ? // @ts-ignore
+                (_markets.get(market.address) as OddsData)
+              : { prices: [50, 50] }),
           }
         }
         return {
