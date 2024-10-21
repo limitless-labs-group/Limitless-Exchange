@@ -69,7 +69,8 @@ export default function BigBanner({ market }: BigBannerProps) {
         message.eventBody.contracts,
         6
       )} contracts ${outcome} for ${NumberUtil.convertWithDenomination(
-        Math.abs(+message.eventBody.tradeAmount)
+        Math.abs(+message.eventBody.tradeAmount),
+        6
       )} ${message.eventBody.symbol} in total.`
     }
   }
