@@ -24,7 +24,7 @@ const defaultColors = {
 export default function DailyMarketCardMobile({ market }: DailyMarketCardMobileProps) {
   const [colors] = useState(defaultColors)
 
-  const { setMarket } = useTradingService()
+  const { onOpenMarketPage } = useTradingService()
 
   const content = (
     <Box
@@ -34,7 +34,7 @@ export default function DailyMarketCardMobile({ market }: DailyMarketCardMobileP
       py='10px'
       px='8px'
       w='full'
-      onClick={() => setMarket(market)}
+      onClick={() => onOpenMarketPage(market)}
     >
       <HStack w='full' justifyContent='space-between'>
         <HStack color={colors.main} gap='4px'>

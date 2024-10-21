@@ -26,7 +26,7 @@ const MainPage = () => {
   const searchParams = useSearchParams()
   const [page, setPage] = useState(1)
   const { data: categories } = useCategories()
-  const { marketPageOpened, setMarketPageOpened } = useTradingService()
+  const { marketPageOpened, onCloseMarketPage } = useTradingService()
   /**
    * ANALYTICS
    */
@@ -182,7 +182,7 @@ const MainPage = () => {
 
   useEffect(() => {
     return () => {
-      setMarketPageOpened(false)
+      onCloseMarketPage()
     }
   }, [])
 

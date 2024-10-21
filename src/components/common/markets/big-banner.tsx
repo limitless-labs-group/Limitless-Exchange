@@ -27,7 +27,7 @@ export default function BigBanner({ market }: BigBannerProps) {
   const { trackClicked } = useAmplitude()
   const searchParams = useSearchParams()
   const category = searchParams.get('category')
-  const { setMarket, setMarketPageOpened } = useTradingService()
+  const { setMarket, onCloseMarketPage, onOpenMarketPage } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market.address)
 
   const onClickRedirectToMarket = () => {
@@ -41,8 +41,7 @@ export default function BigBanner({ market }: BigBannerProps) {
       marketType: 'single',
       page: 'Market Page',
     })
-    setMarket(market)
-    !isMobile && setMarketPageOpened(true)
+    onOpenMarketPage(market)
   }
 
   useEffect(() => {
@@ -213,6 +212,7 @@ export default function BigBanner({ market }: BigBannerProps) {
       trigger={content}
       variant='black'
       title={market.proxyTitle ?? market.title ?? 'Noname market'}
+      onClose={onCloseMarketPage}
     >
       <MarketPage />
     </MobileDrawer>

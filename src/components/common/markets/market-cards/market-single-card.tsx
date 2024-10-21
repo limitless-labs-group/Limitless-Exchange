@@ -31,7 +31,7 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
   const { trackOpened } = useAmplitude()
 
-  const { setMarket, setMarketPageOpened } = useTradingService()
+  const { setMarket, onOpenMarketPage, onCloseMarketPage } = useTradingService()
 
   const trackMarketClicked = () => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
@@ -40,7 +40,7 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
       marketType: 'single',
     })
     setMarket(market)
-    !isMobile && setMarketPageOpened(true)
+    onOpenMarketPage(market)
   }
 
   const content = (
@@ -128,7 +128,12 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   )
 
   return isMobile ? (
-    <MobileDrawer trigger={content} variant='black' title={market.title}>
+    <MobileDrawer
+      trigger={content}
+      variant='black'
+      title={market.title}
+      onClose={onCloseMarketPage}
+    >
       <MarketPage />
     </MobileDrawer>
   ) : (

@@ -2,31 +2,31 @@ import { Toast } from '@/components/common/toast'
 import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'
 import { publicClient } from '@/providers'
-import { useBalanceService, useHistory } from '@/services'
+import { ClickEvent, useAmplitude, useBalanceService, useHistory } from '@/services'
 import { Market, MarketGroup, RedeemParams } from '@/types'
-import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
+import { calcSellAmountInCollateral, NumberUtil } from '@/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  PropsWithChildren,
   createContext,
+  Dispatch,
+  PropsWithChildren,
+  SetStateAction,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
-  Dispatch,
-  SetStateAction,
 } from 'react'
-import { Address, Hash, formatUnits, getAddress, getContract, parseUnits, zeroHash } from 'viem'
+import { Address, formatUnits, getAddress, getContract, Hash, parseUnits, zeroHash } from 'viem'
 import { useWeb3Service } from '@/services/Web3Service'
-import { useToken } from '@/hooks/use-token'
 import {
   getConditionalTokenAddress,
   useConditionalTokensAddr,
 } from '@/hooks/use-conditional-tokens-addr'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { DISCORD_LINK } from '@/utils/consts'
+import { isMobile } from 'react-device-detect'
 
 interface ITradingServiceContext {
   market: Market | null
@@ -62,6 +62,8 @@ interface ITradingServiceContext {
   marketFee: number
   marketPageOpened: boolean
   setMarketPageOpened: Dispatch<SetStateAction<boolean>>
+  onCloseMarketPage: () => void
+  onOpenMarketPage: (market: Market | MarketGroup) => void
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -77,6 +79,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const queryClient = useQueryClient()
   const { getTrades, getRedeems } = useHistory()
+  const { trackClicked } = useAmplitude()
   const account = useWalletAddress()
 
   /**
@@ -87,6 +90,38 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
   const [marketFee, setMarketFee] = useState(0)
   const [marketPageOpened, setMarketPageOpened] = useState(false)
+
+  const onCloseMarketPage = () => {
+    trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
+      mode: 'closed',
+      marketCategory: market?.category,
+      marketAddress: market?.address,
+      marketType: marketGroup ? 'group' : 'single',
+      marketTags: market?.tags,
+    })
+    setMarketPageOpened(false)
+  }
+
+  const onOpenMarketPage = (market: Market | MarketGroup) => {
+    trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
+      mode: 'open',
+      marketCategory: market?.category,
+      // @ts-ignore
+      marketAddress: market.slug
+        ? (market as MarketGroup).markets[0].address
+        : (market as Market).address,
+      // @ts-ignore
+      marketType: market.slug ? 'group' : 'single',
+      marketTags: market?.tags,
+    })
+    // @ts-ignore
+    if (market.slug) {
+      setMarketGroup(market as MarketGroup)
+      setMarket((market as MarketGroup).markets[0])
+    }
+    setMarket(market as Market)
+    !isMobile && setMarketPageOpened(true)
+  }
 
   const { data: conditionalTokensAddress, refetch: getConditionalTokensAddress } =
     useConditionalTokensAddr({
@@ -771,6 +806,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     marketFee,
     marketPageOpened,
     setMarketPageOpened,
+    onCloseMarketPage,
+    onOpenMarketPage,
   }
 
   return (

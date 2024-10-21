@@ -41,7 +41,7 @@ import {
 import { isMobile } from 'react-device-detect'
 import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
@@ -74,7 +74,7 @@ export default function MarketPage() {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
   const {
     setMarket,
-    setMarketPageOpened,
+    onCloseMarketPage,
     market,
     strategy,
     setStrategy,
@@ -133,7 +133,7 @@ export default function MarketPage() {
             variant='grey'
             onClick={() => {
               setMarket(null)
-              setMarketPageOpened(false)
+              onCloseMarketPage()
               setMarketGroup(null)
               // trackClicked(ClickEvent.BackClicked, {
               //   address: market?.address,

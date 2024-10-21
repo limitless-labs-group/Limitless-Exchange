@@ -157,6 +157,7 @@ export enum ClickEvent {
   BigBannerClicked = 'BigBannerClicked',
   QuickBetClicked = 'Quick Bet Clicked',
   NevermindButtonClicked = 'Nevermind Button Clicked',
+  TradingWidgetReturnDecomposition = 'Trading Widget Return Decomposition',
 }
 
 export enum SignInEvent {
