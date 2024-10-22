@@ -41,7 +41,7 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
 
   const searchParams = useSearchParams()
   const { trackClicked, trackOpened } = useAmplitude()
-  const { setMarket, setMarketGroup, onOpenMarketPage, onCloseMarketPage } = useTradingService()
+  const { onOpenMarketPage, onCloseMarketPage } = useTradingService()
   const category = searchParams.get('category')
 
   const totalLiquidity = marketGroup.markets.reduce((a, b) => {
