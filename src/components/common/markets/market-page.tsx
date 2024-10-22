@@ -135,6 +135,7 @@ export default function MarketPage() {
       top='20px'
       right={0}
       overflowY='auto'
+      p={isMobile ? '12px' : '16px'}
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
