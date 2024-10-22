@@ -6,6 +6,7 @@ import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components
 import { MarketPositions } from '@/app/(markets)/markets/[address]/components'
 import { useTradingService } from '@/services'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { parseTextWithLinks } from '@/utils/string'
 
 export default function MarketPageOverviewTab() {
   const { market, marketGroup } = useTradingService()
@@ -34,7 +35,7 @@ export default function MarketPageOverviewTab() {
           and made by the Limitless team
         </Text>
         <Text mt='16px' {...paragraphRegular}>
-          {market?.description}
+          {parseTextWithLinks(market?.description || '')}
         </Text>
       </Box>
     </>
