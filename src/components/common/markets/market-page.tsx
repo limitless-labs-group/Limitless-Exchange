@@ -19,7 +19,7 @@ import {
   Tabs,
   useDisclosure,
 } from '@chakra-ui/react'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -121,6 +121,10 @@ export default function MarketPage() {
   ]
 
   const tabPanels = [<MarketPageOverviewTab key={uuidv4()} />, <MarketActivityTab key={uuidv4()} />]
+
+  useEffect(() => {
+    setStrategy('Buy')
+  }, [])
 
   return (
     <Paper
