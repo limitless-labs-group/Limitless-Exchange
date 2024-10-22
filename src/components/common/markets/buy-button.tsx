@@ -182,6 +182,10 @@ export default function BuyButton({
                 {...paragraphRegular}
                 color='white'
                 borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
+                borderColor={'transparent.200'}
+                _hover={{
+                  borderColor: 'var(--chakra-colors-transparent-600)',
+                }}
                 onClick={handleFeeToggleClicked}
               >
                 {showFeeInValue
@@ -373,6 +377,10 @@ export default function BuyButton({
                       {...paragraphRegular}
                       color='white'
                       borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
+                      borderColor={'transparent.200'}
+                      _hover={{
+                        borderColor: 'var(--chakra-colors-transparent-600)',
+                      }}
                       cursor={quote?.outcomeTokenAmount ? 'pointer' : 'default'}
                       onClick={handleReturnToggleClicked}
                     >

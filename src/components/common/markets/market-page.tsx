@@ -19,8 +19,7 @@ import {
   Tabs,
   useDisclosure,
 } from '@chakra-ui/react'
-import { setTimeout } from '@wry/context'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -248,7 +247,7 @@ export default function MarketPage() {
               alt='creator'
               borderRadius={'2px'}
             />
-            <Link href={market?.creator.link}>
+            <Link href={market?.creator.link} variant='textLink'>
               <Text color='grey.500'>{market?.creator.name}</Text>
             </Link>
           </HStack>
