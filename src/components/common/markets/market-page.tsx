@@ -266,7 +266,7 @@ export default function MarketPage() {
           </Box>
         </HStack>
       </HStack>
-      <Divider my='8px' color='grey.300' />
+      <Divider my='8px' color='grey.100' />
       <HStack w='full' mb={isMobile ? '32px' : '24px'} mt={isMobile ? '24px' : 0}>
         <VStack alignItems='center' flex={1} gap={0}>
           <HStack color='grey.400' gap='4px'>
