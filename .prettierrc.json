@@ -5,5 +5,15 @@
   "singleQuote": true,
   "printWidth": 100,
   "jsxSingleQuote": true,
-  "useTabs": false
+  "useTabs": false,
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "importOrder": [
+    "<THIRD_PARTY_MODULES>",
+    "^@/components/(.*)$",
+    "^@/app/(.*)$",
+    "^./(.*)$",
+    "^[./]"
+  ],
+  "importOrderSeparation": false,
+  "importOrderSortSpecifiers": false
 }

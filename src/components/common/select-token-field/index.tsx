@@ -1,10 +1,10 @@
 import { Box, HStack, Menu, MenuButton, MenuItem, MenuList, Text } from '@chakra-ui/react'
+import Image from 'next/image'
 import { Dispatch, SetStateAction, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { useLimitlessApi } from '@/services'
 import { Token } from '@/types'
-import Image from 'next/image'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import { isMobile } from 'react-device-detect'
 
 type SelectTokenFieldProps = {
   setToken: Dispatch<SetStateAction<Token>>

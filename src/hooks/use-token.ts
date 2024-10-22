@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Token } from '@/types'
-import { limitlessApi } from '@/services'
 import { Address } from 'viem'
+import { limitlessApi } from '@/services'
+import { Token } from '@/types'
 
 export const useToken = (contractAddress?: Address) => {
   const queryClient = useQueryClient()

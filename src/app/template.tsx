@@ -1,10 +1,10 @@
 'use client'
 
 import { PropsWithChildren, useEffect } from 'react'
-import packageInfo from '../../package.json'
 import { LOCAL_STORAGE_VERSION_NAME } from '@/constants/application'
-import { useAccount } from '@/services'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
+import { useAccount } from '@/services'
+import packageInfo from '../../package.json'
 
 export default function Template({ children }: PropsWithChildren) {
   const { disconnectFromPlatform } = useAccount()

@@ -1,5 +1,3 @@
-import { ClickEvent, HistoryPosition, useAmplitude, useTradingService } from '@/services'
-import { NumberUtil } from '@/utils'
 import {
   HStack,
   Stack,
@@ -11,21 +9,23 @@ import {
   Divider,
   Button,
 } from '@chakra-ui/react'
-import { useMemo, useState } from 'react'
+import BigNumber from 'bignumber.js'
 import { useRouter } from 'next/navigation'
-import { useAllMarkets, useMarket } from '@/services/MarketsService'
+import { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import Paper from '@/components/common/paper'
-import CalendarIcon from '@/resources/icons/calendar-icon.svg'
-import ClosedIcon from '@/resources/icons/close-rounded-icon.svg'
-import ActiveIcon from '@/resources/icons/active-icon.svg'
-import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
-import WinIcon from '@/resources/icons/win-icon.svg'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Address } from 'viem'
 import Loader from '@/components/common/loader'
+import Paper from '@/components/common/paper'
 import PositionCardContainer from '@/app/portfolio/components/position-card-container'
-import BigNumber from 'bignumber.js'
+import ActiveIcon from '@/resources/icons/active-icon.svg'
+import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
+import CalendarIcon from '@/resources/icons/calendar-icon.svg'
+import ClosedIcon from '@/resources/icons/close-rounded-icon.svg'
+import WinIcon from '@/resources/icons/win-icon.svg'
+import { ClickEvent, HistoryPosition, useAmplitude, useTradingService } from '@/services'
+import { useAllMarkets, useMarket } from '@/services/MarketsService'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { NumberUtil } from '@/utils'
 
 export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {
   position: HistoryPosition
@@ -97,8 +97,10 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   /**
    * SHARE
    */
-  const marketURI = targetMarket?.group?.slug
-    ? `${window.location.origin}/market-group/${targetMarket?.group?.slug}`
+  // @ts-ignore
+  const marketURI = targetMarket?.slug
+    ? // @ts-ignore
+      `${window.location.origin}/market-group/${targetMarket?.slug}`
     : `${window.location.origin}/markets/${position.market.id}`
 
   const getOutcomeNotation = () => {
@@ -184,9 +186,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
       <Stack spacing={'8px'}>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
           <Text {...paragraphMedium} color={cardColors.main}>
-            {targetMarket?.group?.id
-              ? `${targetMarket.group.title}: ${targetMarket.title}`
-              : targetMarket?.proxyTitle ?? targetMarket?.title}
+            {targetMarket?.proxyTitle ?? targetMarket?.title}
           </Text>
           <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
         </HStack>
@@ -269,9 +269,7 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
           <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
             <Box>
               <Text {...paragraphMedium} color={cardColors.main}>
-                {targetMarket?.group?.id
-                  ? `${targetMarket.group.title}: ${targetMarket.title}`
-                  : targetMarket?.proxyTitle ?? targetMarket?.title}
+                {targetMarket?.proxyTitle ?? targetMarket?.title}
               </Text>
             </Box>
 

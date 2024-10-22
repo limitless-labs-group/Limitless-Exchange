@@ -1,7 +1,7 @@
-import { MarketFeedData } from '@/hooks/use-market-feed'
-import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
-import { NumberUtil, truncateEthAddress } from '@/utils'
 import { useMemo } from 'react'
+import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
+import { MarketFeedData } from '@/hooks/use-market-feed'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 
 interface TradeActivityTabItemProps {
   tradeItem: MarketFeedData
@@ -17,7 +17,8 @@ export default function TradeActivityTabItem({ tradeItem }: TradeActivityTabItem
       tradeItem.eventBody.contracts,
       6
     )} contracts ${outcome} for ${NumberUtil.convertWithDenomination(
-      Math.abs(+tradeItem.eventBody.tradeAmount)
+      Math.abs(+tradeItem.eventBody.tradeAmount),
+      6
     )} ${tradeItem.eventBody.symbol} in total.`
   }, [tradeItem])
 

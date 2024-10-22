@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
 import { Text, Box, HStack } from '@chakra-ui/react'
-import { ClickEvent, useAmplitude, useCategories } from '@/services'
-import '@/app/style.css'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import React, { useState } from 'react'
+import '@/app/style.css'
 import usePageName from '@/hooks/use-page-name'
+import { ClickEvent, useAmplitude, useCategories } from '@/services'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 export default function TokenFilterMobile() {
   const [section, setSection] = useState('Topics')

@@ -1,14 +1,15 @@
+import { Box, HStack, Link, Text } from '@chakra-ui/react'
+import NextLink from 'next/link'
+import { isMobile } from 'react-device-detect'
+import { zeroAddress } from 'viem'
+import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components/market-group-positions'
+import { MarketPositions } from '@/app/(markets)/markets/[address]/components/market-positions'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components/market-price-chart'
 import { defaultChain } from '@/constants'
-import { zeroAddress } from 'viem'
-import { MarketPositions } from '@/app/(markets)/markets/[address]/components/market-positions'
-import { Box, HStack, Link, Text } from '@chakra-ui/react'
-import { isMobile } from 'react-device-detect'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import { paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup, MarketStatus } from '@/types'
-import NextLink from 'next/link'
-import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components/market-group-positions'
+import { parseTextWithLinks } from '@/utils/string'
 
 interface MarketOverviewTabProps {
   market: Market
@@ -23,22 +24,6 @@ function MarketOverviewTab({
   resolved,
   marketGroup,
 }: MarketOverviewTabProps) {
-  const parseTextWithLinks = (text: string) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g
-    const parts = text.split(urlRegex)
-
-    return parts.map((part, index) => {
-      if (urlRegex.test(part)) {
-        return (
-          <Link key={index} href={part} color='teal.500' isExternal>
-            {part}
-          </Link>
-        )
-      }
-      return part
-    })
-  }
-
   return (
     <>
       <MarketPriceChart

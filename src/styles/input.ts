@@ -1,7 +1,7 @@
 import { inputAnatomy } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { isMobile } from 'react-device-detect'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(
   inputAnatomy.keys

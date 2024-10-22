@@ -1,13 +1,13 @@
-import Paper from '@/components/common/paper'
 import { Flex, HStack, Text } from '@chakra-ui/react'
-import { HistoryPosition } from '@/services'
-import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
-import { NumberUtil } from '@/utils'
+import BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
+import Paper from '@/components/common/paper'
+import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
+import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import { HistoryPosition } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import BigNumber from 'bignumber.js'
+import { NumberUtil } from '@/utils'
 
 interface PositionCardProps {
   position: HistoryPosition

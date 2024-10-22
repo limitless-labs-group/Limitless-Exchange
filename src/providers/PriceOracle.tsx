@@ -1,6 +1,6 @@
-import React, { createContext, useCallback, useContext } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
+import React, { createContext, useCallback, useContext } from 'react'
 import { GetCoingeckoPricesResponse, MarketTokensIds } from '@/types'
 
 /**

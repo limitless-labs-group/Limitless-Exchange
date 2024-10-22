@@ -1,7 +1,7 @@
 import { modalAnatomy as parts } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
-import { h1Regular } from '@/styles/fonts/fonts.styles'
 import { isMobile } from 'react-device-detect'
+import { h1Regular } from '@/styles/fonts/fonts.styles'
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(parts.keys)
 

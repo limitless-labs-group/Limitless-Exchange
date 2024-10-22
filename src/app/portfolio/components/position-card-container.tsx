@@ -1,5 +1,5 @@
-import { PropsWithChildren } from 'react'
 import NextLink from 'next/link'
+import { PropsWithChildren } from 'react'
 
 interface PositionCardContainerProps {
   marketLink: string

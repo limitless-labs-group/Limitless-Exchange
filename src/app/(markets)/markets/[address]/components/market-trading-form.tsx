@@ -1,3 +1,13 @@
+import { Button, HStack, Text } from '@chakra-ui/react'
+import { useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { getAddress, zeroAddress } from 'viem'
+import Paper from '@/components/common/paper'
+import {
+  BuyForm,
+  SellForm,
+  LoadingForm,
+} from '@/app/(markets)/markets/[address]/components/trade-widgets'
 import {
   StrategyChangedMetadata,
   ChangeEvent,
@@ -5,19 +15,8 @@ import {
   useTradingService,
   useHistory,
 } from '@/services'
-import { Button, HStack, Text } from '@chakra-ui/react'
-import { getAddress, zeroAddress } from 'viem'
-import { Market, MarketGroup } from '@/types'
-
-import { isMobile } from 'react-device-detect'
-import { useEffect, useMemo, useState } from 'react'
-import Paper from '@/components/common/paper'
-import {
-  BuyForm,
-  SellForm,
-  LoadingForm,
-} from '@/app/(markets)/markets/[address]/components/trade-widgets'
 import { controlsMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Market, MarketGroup } from '@/types'
 
 interface MarketTradingFormProps {
   market: Market
@@ -162,10 +161,9 @@ export const MarketTradingForm = ({
       )}
       {strategy === 'Sell' ? (
         status === 'Loading' ? (
-          <LoadingForm market={market} outcomeIndex={outcomeIndex} />
+          <LoadingForm outcomeIndex={outcomeIndex} />
         ) : (
           <SellForm
-            market={market}
             setOutcomeIndex={setOutcomeIndex}
             setSelectedMarket={setSelectedMarket}
             marketGroup={marketGroup}

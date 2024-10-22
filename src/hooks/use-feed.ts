@@ -1,17 +1,6 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
-import {
-  FeedEntity,
-  FeedEventType,
-  FeedResponse,
-  MarketGroupStatusFeedData,
-  MarketStatusFeedData,
-} from '@/types'
 import axios, { AxiosResponse } from 'axios'
-import { Address, formatUnits, parseUnits } from 'viem'
-import { fixedProductMarketMakerABI } from '@/contracts'
-import { Multicall } from 'ethereum-multicall'
-import { ethers } from 'ethers'
-import { defaultChain } from '@/constants'
+import { FeedEntity, FeedResponse } from '@/types'
 
 export function useFeed() {
   return useInfiniteQuery<FeedEntity<unknown>[], Error>({
