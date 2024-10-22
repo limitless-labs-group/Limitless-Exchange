@@ -127,7 +127,7 @@ export default function MarketPage() {
       borderBottomRightRadius={0}
       w={isMobile ? 'full' : '488px'}
       position='fixed'
-      height='calc(100vh - 21px)'
+      height={isMobile ? 'calc(100dvh - 21px)' : 'calc(100vh - 21px)'}
       top='20px'
       right={0}
       overflowY='auto'
