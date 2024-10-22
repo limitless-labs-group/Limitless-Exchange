@@ -112,7 +112,7 @@ export const DraftMarketCard = ({
               <ChakraImage
                 width={6}
                 height={6}
-                src={market?.creator.imageUrl ?? '/assets/images/logo.svg'}
+                src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
                 alt='creator'
                 borderRadius={'2px'}
               />

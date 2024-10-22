@@ -25,7 +25,7 @@ export type MarketsResponse = {
 
 export interface Creator {
   name: string
-  imageUrl?: string
+  imageURI?: string
   link?: string
   address?: string
 }
