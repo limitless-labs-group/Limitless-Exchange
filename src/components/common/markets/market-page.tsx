@@ -19,7 +19,8 @@ import {
   Tabs,
   useDisclosure,
 } from '@chakra-ui/react'
-import React, { useMemo, useState } from 'react'
+import { setTimeout } from '@wry/context'
+import React, { useEffect, useMemo, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -29,12 +30,14 @@ import DailyMarketTimer from '@/components/common/markets/market-cards/daily-mar
 import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
 import Paper from '@/components/common/paper'
+import { Toast } from '@/components/common/toast'
 import {
   LoadingForm,
   MarketPriceChart,
   SellForm,
 } from '@/app/(markets)/markets/[address]/components'
 import { defaultChain } from '@/constants'
+import { useToast } from '@/hooks'
 import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
@@ -84,6 +87,8 @@ export default function MarketPage() {
     marketGroup,
     setMarketGroup,
   } = useTradingService()
+
+  const toast = useToast()
 
   const { trackChanged, trackClicked } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
@@ -196,7 +201,14 @@ export default function MarketPage() {
                 </HStack>
               </MenuItem>
               <MenuItem>
-                <CopyToClipboard text={marketURI}>
+                <CopyToClipboard
+                  text={marketURI}
+                  onCopy={() => {
+                    const id = toast({
+                      render: () => <Toast title={'Copied'} id={id} />,
+                    })
+                  }}
+                >
                   <HStack gap='4px' w='full'>
                     <CopyIcon width={16} height={16} />
                     <Text {...paragraphMedium}>Copy Link</Text>
