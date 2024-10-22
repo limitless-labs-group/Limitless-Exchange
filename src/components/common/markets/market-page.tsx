@@ -111,6 +111,8 @@ export default function MarketPage() {
     },
   ]
 
+  console.log(market)
+
   const tabPanels = [<MarketPageOverviewTab key={uuidv4()} />, <MarketActivityTab key={uuidv4()} />]
 
   return (
@@ -219,7 +221,7 @@ export default function MarketPage() {
             <ChakraImage
               width={6}
               height={6}
-              src={market?.creator.imageUrl ?? '/assets/images/logo.svg'}
+              src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
               alt='creator'
               borderRadius={'2px'}
             />
