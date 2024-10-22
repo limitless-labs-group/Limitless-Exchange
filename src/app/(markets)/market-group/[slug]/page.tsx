@@ -272,7 +272,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                   <ChakraImage
                     width={6}
                     height={6}
-                    src={marketGroup?.creator.imageUrl ?? '/assets/images/logo.svg'}
+                    src={marketGroup?.creator.imageURI ?? '/assets/images/logo.svg'}
                     alt='creator'
                     borderRadius={'2px'}
                   />
