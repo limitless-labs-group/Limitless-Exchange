@@ -297,7 +297,7 @@ const CreateOwnMarketPage = () => {
               alignItems='flex-start'
             >
               <VStack w='full' flex='1.2'>
-                <Box position='absolute' visibility='hidden'>
+                <Box position='absolute' opacity={0} pointerEvents='none'>
                   <FormField label='OG Preview is still here, but hidden (required to create an image)'>
                     <HStack position='absolute' zIndex={-1} h='280px' w='600px'>
                       <OgImageGenerator
@@ -460,7 +460,10 @@ const CreateOwnMarketPage = () => {
                   <HStack>
                     <Select
                       value={formData.categoryId}
-                      onChange={(e) => handleChange('categoryId', e.target.value)}
+                      onChange={(e) => {
+                        handleChange('categoryId', e.target.value)
+                        generateOgImage()
+                      }}
                     >
                       {categories?.map((category: Category) => (
                         <option key={category.id} value={category.id}>
