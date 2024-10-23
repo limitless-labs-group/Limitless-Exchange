@@ -54,7 +54,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
         }
       }}
       onClick={() => {
-        trackClicked(ClickEvent.MarketPageOpened, {
+        trackClicked(ClickEvent.SidebarMarketOpened, {
           ...analyticParams,
           platform: isMobile ? 'mobile' : 'desktop',
           bannerType: 'Medium banner',

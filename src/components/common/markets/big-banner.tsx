@@ -27,12 +27,11 @@ export default function BigBanner({ market }: BigBannerProps) {
   const { trackClicked } = useAmplitude()
   const searchParams = useSearchParams()
   const category = searchParams.get('category')
-  const { setMarket, onCloseMarketPage, onOpenMarketPage } = useTradingService()
+  const { onCloseMarketPage, onOpenMarketPage } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market.address)
 
   const onClickRedirectToMarket = () => {
-    trackClicked(ClickEvent.MarketPageOpened, {
-      // bannerPosition: index,
+    trackClicked(ClickEvent.SidebarMarketOpened, {
       platform: isMobile ? 'mobile' : 'desktop',
       bannerType: 'Big banner',
       source: 'Explore Market',

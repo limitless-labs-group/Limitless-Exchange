@@ -1,25 +1,25 @@
 import {
+  Box,
   Button,
+  Divider,
   HStack,
+  Image as ChakraImage,
   Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  Text,
-  Image as ChakraImage,
-  Box,
-  Divider,
-  VStack,
-  TabList,
   Tab,
   TabIndicator,
-  TabPanels,
+  TabList,
   TabPanel,
+  TabPanels,
   Tabs,
+  Text,
   useDisclosure,
+  VStack,
 } from '@chakra-ui/react'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -76,6 +76,9 @@ const defaultColors = {
 export default function MarketPage() {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
   const [outcomeIndex, setOutcomeIndex] = useState(0)
+
+  const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
+
   const {
     setMarket,
     onCloseMarketPage,
@@ -122,12 +125,46 @@ export default function MarketPage() {
 
   const tabPanels = [<MarketPageOverviewTab key={uuidv4()} />, <MarketActivityTab key={uuidv4()} />]
 
+  const handleCloseMarketPageClicked = () => {
+    setMarket(null)
+    onCloseMarketPage()
+    setMarketGroup(null)
+    trackClicked(ClickEvent.CloseMarketClicked, {
+      marketAddress: market?.address as Address,
+    })
+  }
+
   useEffect(() => {
     setStrategy('Buy')
   }, [])
 
+  useEffect(() => {
+    const handleScroll = (e: WheelEvent) => {
+      const scrollableBlock = scrollableBlockRef.current
+      if (!scrollableBlock) return
+
+      const isAtTop = scrollableBlock.scrollTop === 0
+      const isAtBottom =
+        scrollableBlock.scrollHeight - scrollableBlock.scrollTop === scrollableBlock.clientHeight
+
+      if (isAtTop && e.deltaY < 0) {
+        e.preventDefault() // Prevent scrolling up when at the top
+      } else if (isAtBottom && e.deltaY > 0) {
+        e.preventDefault() // Prevent scrolling down when at the bottom
+      }
+    }
+
+    scrollableBlockRef.current && scrollableBlockRef.current.addEventListener('wheel', handleScroll)
+
+    return () => {
+      scrollableBlockRef.current &&
+        scrollableBlockRef.current.removeEventListener('wheel', handleScroll)
+    }
+  }, [])
+
   return (
-    <Paper
+    <Box
+      rounded='2px'
       bg='grey.50'
       borderTopLeftRadius='8px'
       borderBottomLeftRadius='8px'
@@ -140,21 +177,11 @@ export default function MarketPage() {
       right={0}
       overflowY='auto'
       p={isMobile ? '12px' : '16px'}
+      ref={scrollableBlockRef}
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
-          <Button
-            variant='grey'
-            onClick={() => {
-              setMarket(null)
-              onCloseMarketPage()
-              setMarketGroup(null)
-              // trackClicked(ClickEvent.BackClicked, {
-              //   address: market?.address,
-              // })
-              // handleBackClicked()
-            }}
-          >
+          <Button variant='grey' onClick={handleCloseMarketPageClicked}>
             <CloseIcon width={16} height={16} />
             Close
           </Button>
@@ -208,6 +235,11 @@ export default function MarketPage() {
                 <CopyToClipboard
                   text={marketURI}
                   onCopy={() => {
+                    trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
+                      type: 'Copy Link',
+                      address: market?.address,
+                      marketType: 'single',
+                    })
                     const id = toast({
                       render: () => <Toast title={'Copied'} id={id} />,
                     })
@@ -507,6 +539,6 @@ export default function MarketPage() {
           ))}
         </TabPanels>
       </Tabs>
-    </Paper>
+    </Box>
   )
 }
