@@ -1,12 +1,19 @@
 import { Box, HStack, Text } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
+import {
+  ClickEvent,
+  OpenEvent,
+  PageOpenedMetadata,
+  useAmplitude,
+  useTradingService,
+} from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -29,15 +36,22 @@ const hoverColors = {
 
 export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
-  const { trackOpened } = useAmplitude()
+  const { trackClicked } = useAmplitude()
 
   const { setMarket, onOpenMarketPage, onCloseMarketPage } = useTradingService()
 
   const trackMarketClicked = () => {
-    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
-      page: 'Market Page',
-      market: market.address,
+    trackClicked(ClickEvent.SidebarMarketOpened, {
+      platform: isMobile ? 'mobile' : 'desktop',
+      bannerType: 'Medium banner',
+      source: 'Explore Market',
+      marketCategory: market.category,
+      marketAddress: market.address as Address,
       marketType: 'single',
+      page: 'Market Page',
+    })
+    trackClicked(ClickEvent.RegularMarketBannerClicked, {
+      marketAddress: market.address,
     })
     setMarket(market)
     onOpenMarketPage(market)

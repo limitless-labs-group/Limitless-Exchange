@@ -1,23 +1,23 @@
 import {
+  Box,
   Button,
+  Divider,
   HStack,
+  Image as ChakraImage,
   Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  Text,
-  Image as ChakraImage,
-  Box,
-  Divider,
-  VStack,
-  TabList,
   Tab,
   TabIndicator,
-  TabPanels,
+  TabList,
   TabPanel,
+  TabPanels,
   Tabs,
+  Text,
   useDisclosure,
+  VStack,
 } from '@chakra-ui/react'
 import React, { useEffect, useMemo, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
@@ -122,6 +122,15 @@ export default function MarketPage() {
 
   const tabPanels = [<MarketPageOverviewTab key={uuidv4()} />, <MarketActivityTab key={uuidv4()} />]
 
+  const handleCloseMarketPageClicked = () => {
+    setMarket(null)
+    onCloseMarketPage()
+    setMarketGroup(null)
+    trackClicked(ClickEvent.CloseMarketClicked, {
+      marketAddress: market?.address as Address,
+    })
+  }
+
   useEffect(() => {
     setStrategy('Buy')
   }, [])
@@ -143,18 +152,7 @@ export default function MarketPage() {
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
-          <Button
-            variant='grey'
-            onClick={() => {
-              setMarket(null)
-              onCloseMarketPage()
-              setMarketGroup(null)
-              // trackClicked(ClickEvent.BackClicked, {
-              //   address: market?.address,
-              // })
-              // handleBackClicked()
-            }}
-          >
+          <Button variant='grey' onClick={handleCloseMarketPageClicked}>
             <CloseIcon width={16} height={16} />
             Close
           </Button>
@@ -208,6 +206,11 @@ export default function MarketPage() {
                 <CopyToClipboard
                   text={marketURI}
                   onCopy={() => {
+                    trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
+                      type: 'Copy Link',
+                      address: market?.address,
+                      marketType: 'single',
+                    })
                     const id = toast({
                       render: () => <Toast title={'Copied'} id={id} />,
                     })
