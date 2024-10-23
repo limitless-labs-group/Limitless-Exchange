@@ -1,11 +1,13 @@
 import { Box, HStack, Text } from '@chakra-ui/react'
 import React, { useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPage from '@/components/common/markets/market-page'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { useTradingService } from '@/services'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -13,6 +15,7 @@ import { NumberUtil } from '@/utils'
 interface DailyMarketCardMobileProps {
   market: Market
   dailyIndex: number
+  analyticParams: { bannerPosition: number; bannerPaginationPage: number }
 }
 
 const defaultColors = {
@@ -21,10 +24,31 @@ const defaultColors = {
   chartBg: 'var(--chakra-colors-grey-300)',
 }
 
-export default function DailyMarketCardMobile({ market }: DailyMarketCardMobileProps) {
+export default function DailyMarketCardMobile({
+  market,
+  analyticParams,
+}: DailyMarketCardMobileProps) {
   const [colors] = useState(defaultColors)
 
   const { onOpenMarketPage } = useTradingService()
+  const { trackClicked } = useAmplitude()
+
+  const handleMarketPageOpened = () => {
+    trackClicked(ClickEvent.SidebarMarketOpened, {
+      ...analyticParams,
+      platform: isMobile ? 'mobile' : 'desktop',
+      bannerType: 'Medium banner',
+      source: 'Explore Market',
+      marketCategory: market.category,
+      marketAddress: market.address as Address,
+      marketType: 'single',
+      page: 'Market Page',
+    })
+    trackClicked(ClickEvent.MediumMarketBannerClicked, {
+      ...analyticParams,
+    })
+    onOpenMarketPage(market)
+  }
 
   const content = (
     <Box
@@ -34,7 +58,7 @@ export default function DailyMarketCardMobile({ market }: DailyMarketCardMobileP
       py='10px'
       px='8px'
       w='full'
-      onClick={() => onOpenMarketPage(market)}
+      onClick={handleMarketPageOpened}
     >
       <HStack w='full' justifyContent='space-between'>
         <HStack color={colors.main} gap='4px'>

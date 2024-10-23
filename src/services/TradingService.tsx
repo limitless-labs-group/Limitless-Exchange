@@ -119,6 +119,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     if (market.slug) {
       setMarketGroup(market as MarketGroup)
       setMarket((market as MarketGroup).markets[0])
+      !isMobile && setMarketPageOpened(true)
+      return
     }
     setMarket(market as Market)
     !isMobile && setMarketPageOpened(true)

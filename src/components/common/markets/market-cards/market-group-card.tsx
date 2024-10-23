@@ -7,13 +7,7 @@ import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import {
-  ClickEvent,
-  OpenEvent,
-  PageOpenedMetadata,
-  useAmplitude,
-  useTradingService,
-} from '@/services'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketGroup } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -40,8 +34,8 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
   const [colors, setColors] = useState(defaultColors)
 
   const searchParams = useSearchParams()
-  const { trackClicked, trackOpened } = useAmplitude()
-  const { setMarket, setMarketGroup, onOpenMarketPage, onCloseMarketPage } = useTradingService()
+  const { trackClicked } = useAmplitude()
+  const { onOpenMarketPage, onCloseMarketPage } = useTradingService()
   const category = searchParams.get('category')
 
   const totalLiquidity = marketGroup.markets.reduce((a, b) => {
@@ -53,7 +47,7 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
   }, 0)
 
   const trackMarketClicked = () => {
-    trackClicked(ClickEvent.MarketPageOpened, {
+    trackClicked(ClickEvent.SidebarMarketOpened, {
       // bannerPosition: position,
       bannerPaginationPage: 1,
       platform: isMobile ? 'mobile' : 'desktop',
@@ -64,10 +58,8 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
       marketType: 'group',
       page: 'Market Page',
     })
-    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
-      page: 'Market Page',
-      market: marketGroup.slug,
-      marketType: 'group',
+    trackClicked(ClickEvent.RegularMarketBannerClicked, {
+      marketGroup: marketGroup,
     })
     onOpenMarketPage(marketGroup)
   }

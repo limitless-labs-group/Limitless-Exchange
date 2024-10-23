@@ -45,7 +45,14 @@ export default function DailyMarketsSection({
       {isMobile ? (
         <VStack gap={2} w='full' px='16px' mt='16px'>
           {markets?.map((market, index) => {
-            return <DailyMarketCardMobile key={index} dailyIndex={index + 1} market={market} />
+            return (
+              <DailyMarketCardMobile
+                key={index}
+                dailyIndex={index + 1}
+                market={market}
+                analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: page }}
+              />
+            )
           })}
         </VStack>
       ) : (

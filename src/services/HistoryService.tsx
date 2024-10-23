@@ -173,7 +173,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       try {
         trades?.forEach((trade) => {
           const market = markets.find((market) => {
-            return market?.address?.toLowerCase() === trade?.market?.id.toLowerCase()
+            return market?.address?.toLowerCase() === trade?.market?.id?.toLowerCase()
           })
 
           if (
