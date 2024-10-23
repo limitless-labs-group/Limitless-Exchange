@@ -31,6 +31,7 @@ export default function HeaderMarquee() {
           height: '20px',
           background: colors.grey['800'],
           position: 'fixed',
+          top: 0,
           zIndex: 300,
           cursor: 'pointer',
         }}
