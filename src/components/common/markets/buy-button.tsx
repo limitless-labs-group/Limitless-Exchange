@@ -345,7 +345,7 @@ export default function BuyButton({
           bg='rgba(255, 255, 255, 0.2)'
           px='12px'
           py='8px'
-          w={isMobile ? 'calc(100vw - 40px)' : '456px'}
+          w={isMobile ? 'calc(100vw - 40px)' : '440px'}
           h='unset'
           alignItems='flex-start'
           flexDir='column'
