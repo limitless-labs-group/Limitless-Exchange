@@ -20,6 +20,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import React, { useMemo, useState } from 'react'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address, zeroAddress } from 'viem'
@@ -40,6 +41,7 @@ import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
+import CopyIcon from '@/resources/icons/link-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
@@ -86,6 +88,9 @@ export default function MarketPage() {
   const { trackChanged, trackClicked } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
   const { data: winningIndex } = useWinningIndex(market?.address || '')
+  const marketURI = marketGroup
+    ? `${process.env.NEXT_PUBLIC_FRAME_URL}/market-group/${marketGroup.slug}`
+    : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.address}`
   const resolved = winningIndex === 0 || winningIndex === 1
   // Todo change creator name
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, 'asd')
@@ -111,8 +116,6 @@ export default function MarketPage() {
     },
   ]
 
-  console.log(market)
-
   const tabPanels = [<MarketPageOverviewTab key={uuidv4()} />, <MarketActivityTab key={uuidv4()} />]
 
   return (
@@ -124,7 +127,7 @@ export default function MarketPage() {
       borderBottomRightRadius={0}
       w={isMobile ? 'full' : '488px'}
       position='fixed'
-      height='calc(100vh - 21px)'
+      height={isMobile ? 'calc(100dvh - 21px)' : 'calc(100vh - 21px)'}
       top='20px'
       right={0}
       overflowY='auto'
@@ -191,6 +194,14 @@ export default function MarketPage() {
                   <TwitterIcon width={16} height={16} />
                   <Text {...paragraphMedium}>On X</Text>
                 </HStack>
+              </MenuItem>
+              <MenuItem>
+                <CopyToClipboard text={marketURI}>
+                  <HStack gap='4px' w='full'>
+                    <CopyIcon width={16} height={16} />
+                    <Text {...paragraphMedium}>Copy Link</Text>
+                  </HStack>
+                </CopyToClipboard>
               </MenuItem>
             </MenuList>
           </Menu>
