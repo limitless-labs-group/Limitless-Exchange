@@ -63,21 +63,24 @@ const RecentMarketsPage = () => {
   const { checkedItems, uncheckedItems } = useSortedItems({
     items: recentMarkets,
     condition: (market: DraftMarket) => selectedMarketIds.includes(market.id),
-    render: (market: DraftMarket) => (
-      <DraftMarketCard
-        market={market}
-        key={market.id}
-        isChecked={selectedMarketIds.includes(market.id)}
-        onToggle={() => handleToggle(market.id)}
-      />
-    ),
+    render: (market: DraftMarket) => ({
+      id: market.id,
+      node: (
+        <DraftMarketCard
+          market={market}
+          key={market.id}
+          isChecked={selectedMarketIds.includes(market.id)}
+          onToggle={() => handleToggle(market.id)}
+        />
+      ),
+    }),
   })
   return (
     <MainLayout justifyContent={'center'}>
       <Flex justifyContent={'center'}>
         <VStack w='868px' spacing={4}>
           <StickyList elements={checkedItems} />
-          {uncheckedItems}
+          {uncheckedItems?.map((element) => element.node)}
           {isCreating ? (
             <Box width='full' display='flex' justifyContent='center' alignItems='center'>
               <Spinner />
