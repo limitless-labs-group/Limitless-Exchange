@@ -1,14 +1,4 @@
-import {
-  Box,
-  HStack,
-  Link,
-  Text,
-  Image as ChakraImage,
-  Checkbox,
-  Stack,
-  isChakraTheme,
-} from '@chakra-ui/react'
-import { color } from 'highcharts'
+import { Box, HStack, Link, Text, Image as ChakraImage, Checkbox, Stack } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
