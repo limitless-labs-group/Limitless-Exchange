@@ -8,6 +8,7 @@ import {
   Stack,
   isChakraTheme,
 } from '@chakra-ui/react'
+import { color } from 'highcharts'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
@@ -65,7 +66,7 @@ export const DraftMarketCard = ({
       justifyContent={'space-between'}
       cursor='pointer'
       _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
-      bg={isChecked ? 'blue.500' : 'unset'}
+      bg={isChecked ? 'blue.500' : 'var(--chakra-colors-grey-200)'}
       position='relative'
       onMouseEnter={() => {
         if (!isMobile) {

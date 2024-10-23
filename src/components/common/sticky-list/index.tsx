@@ -12,7 +12,7 @@ const StickyList = ({ elements }: { elements: React.ReactNode[] }) => {
 
   // Function to calculate top position based on cumulative heights of previous elements
   const getTopPosition = (index: number) => {
-    return heights.slice(0, index).reduce((acc, height) => acc + height, 30)
+    return heights.slice(0, index).reduce((acc, height) => acc + height + 2, 30)
   }
 
   return elements?.map((el, index) => {
