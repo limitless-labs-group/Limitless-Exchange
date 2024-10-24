@@ -140,10 +140,6 @@ export default function MarketPage() {
               setMarket(null)
               onCloseMarketPage()
               setMarketGroup(null)
-              // trackClicked(ClickEvent.BackClicked, {
-              //   address: market?.address,
-              // })
-              // handleBackClicked()
             }}
           >
             <CloseIcon width={16} height={16} />
@@ -207,10 +203,65 @@ export default function MarketPage() {
           </Menu>
         </HStack>
       )}
-      <Text mt='10px' {...h1Regular}>
-        {marketGroup?.title || market?.title}
-      </Text>
-
+      <HStack w='full' justifyContent='space-between' mt='10px' gap='8px' alignItems='flex-start'>
+        <Text {...h1Regular}>{marketGroup?.title || market?.title}</Text>
+        {isMobile && (
+          <Menu isOpen={isShareMenuOpen} onClose={() => setShareMenuOpen(false)}>
+            <MenuButton
+              onClick={() => {
+                // trackClicked(ClickEvent.ShareMenuClicked, {
+                //   address: market?.address,
+                //   marketType: 'single',
+                // })
+                setShareMenuOpen(true)
+              }}
+              as={'div'}
+            >
+              <ShareIcon width={16} height={16} />
+            </MenuButton>
+            <MenuList borderRadius='2px' w={isMobile ? '160px' : '122px'} zIndex={2}>
+              <MenuItem
+                onClick={() => {
+                  trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
+                    type: 'Farcaster',
+                    address: market?.address,
+                    marketType: 'single',
+                  })
+                  window.open(castURI, '_blank', 'noopener')
+                }}
+              >
+                <HStack gap='4px' w='full'>
+                  <WarpcastIcon width={16} height={16} />
+                  <Text {...paragraphMedium}>On Warpcast</Text>
+                </HStack>
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
+                    type: 'X/Twitter',
+                    address: market?.address,
+                    marketType: 'single',
+                  })
+                  window.open(tweetURI, '_blank', 'noopener')
+                }}
+              >
+                <HStack gap='4px' w='full'>
+                  <TwitterIcon width={16} height={16} />
+                  <Text {...paragraphMedium}>On X</Text>
+                </HStack>
+              </MenuItem>
+              <MenuItem>
+                <CopyToClipboard text={marketURI}>
+                  <HStack gap='4px' w='full'>
+                    <CopyIcon width={16} height={16} />
+                    <Text {...paragraphMedium}>Copy Link</Text>
+                  </HStack>
+                </CopyToClipboard>
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        )}
+      </HStack>
       <HStack w='full' justifyContent='space-between' mt={isMobile ? '16px' : '10px'} mb='4px'>
         <HStack gap={isMobile ? '16px' : '24px'}>
           <HStack gap='4px' color='grey.500'>
