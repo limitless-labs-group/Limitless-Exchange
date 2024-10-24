@@ -14,7 +14,7 @@ export const parseTextWithLinks = (text: string) => {
   return parts.map((part, index) => {
     if (urlRegex.test(part)) {
       return (
-        <Link key={index} href={part} color='teal.500' isExternal>
+        <Link key={index} href={part} variant='textLink' isExternal>
           {part}
         </Link>
       )
