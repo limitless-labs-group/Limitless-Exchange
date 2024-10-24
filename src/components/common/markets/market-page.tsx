@@ -284,8 +284,8 @@ export default function MarketPage() {
               alt='creator'
               borderRadius={'2px'}
             />
-            <Link href={market?.creator.link} variant='textLink'>
-              <Text color='grey.500'>{market?.creator.name}</Text>
+            <Link href={market?.creator.link} variant='textLinkSecondary'>
+              {market?.creator.name}
             </Link>
           </HStack>
         </HStack>

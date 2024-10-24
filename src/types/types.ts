@@ -234,6 +234,10 @@ export interface ColorScheme {
     200: string
     600: string
   }
+  greyTransparent: {
+    200: string
+    600: string
+  }
   blackStale: {
     200: string
   }
