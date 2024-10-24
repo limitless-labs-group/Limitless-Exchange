@@ -34,20 +34,10 @@ export default function DailyMarketCardMobile({
   const { trackClicked } = useAmplitude()
 
   const handleMarketPageOpened = () => {
-    trackClicked(ClickEvent.SidebarMarketOpened, {
-      ...analyticParams,
-      platform: isMobile ? 'mobile' : 'desktop',
-      bannerType: 'Medium banner',
-      source: 'Explore Market',
-      marketCategory: market.category,
-      marketAddress: market.address as Address,
-      marketType: 'single',
-      page: 'Market Page',
-    })
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
       ...analyticParams,
     })
-    onOpenMarketPage(market)
+    onOpenMarketPage(market, 'Medium Banner')
   }
 
   const content = (
