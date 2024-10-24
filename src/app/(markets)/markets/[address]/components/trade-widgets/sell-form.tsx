@@ -97,6 +97,8 @@ export function SellForm({
   const [quoteYes, setQuoteYes] = useState<TradeQuotes | undefined | null>()
   const [quoteNo, setQuoteNo] = useState<TradeQuotes | undefined | null>()
   const [isApproved, setIsApproved] = useState(true)
+  const [slippage, setSlippage] = useState('1')
+  const [showSlippageDetails, setShowSlippageDetails] = useState(false)
   const toast = useToast()
 
   const { client } = useWeb3Service()
@@ -276,7 +278,7 @@ export function SellForm({
     })
     const index = outcomeChoice === 'yes' ? 0 : 1
     setOutcomeIndex(index)
-    await trade(index)
+    await trade(index, slippage)
   }
 
   const approveSell = async () =>
@@ -302,6 +304,24 @@ export function SellForm({
     })
     await approveSell()
   }
+
+  const handleSlippageChange = (value: string) => {
+    if (!value) {
+      setSlippage('')
+      return
+    }
+    if (+value >= 100) {
+      setSlippage('100')
+      return
+    }
+    setSlippage(value)
+  }
+
+  const handleSlippageClicked = (value: number) => {
+    setSlippage(value.toString())
+  }
+
+  const toggleShowSlippageDetails = () => setShowSlippageDetails(!showSlippageDetails)
 
   const isExceedsBalance = useMemo(() => {
     if (outcomeChoice) {
@@ -743,6 +763,64 @@ export function SellForm({
                   </InputRightElement>
                 </InputGroup>
               </Stack>
+              {/*<HStack*/}
+              {/*  w='full'*/}
+              {/*  justifyContent='space-between'*/}
+              {/*  mt='12px'*/}
+              {/*  cursor='pointer'*/}
+              {/*  onClick={toggleShowSlippageDetails}*/}
+              {/*>*/}
+              {/*  <Text {...paragraphRegular} color='white'>*/}
+              {/*    Slippage Tolerance{' '}*/}
+              {/*    {slippage === '100' ? 'Infinite' : !slippage ? '0%' : `${slippage}%`}*/}
+              {/*  </Text>*/}
+              {/*  <Box*/}
+              {/*    transform={`rotate(${showSlippageDetails ? '180deg' : 0})`}*/}
+              {/*    transition='0.5s'*/}
+              {/*    color='white'*/}
+              {/*  >*/}
+              {/*    <ChevronDownIcon width='16px' height='16px' />*/}
+              {/*  </Box>*/}
+              {/*</HStack>*/}
+              {/*{showSlippageDetails && (*/}
+              {/*  <HStack w='full' gap='8px' justifyContent='space-between' mt='8px'>*/}
+              {/*    <InputGroup flex={1}>*/}
+              {/*      <Input*/}
+              {/*        variant='outlined'*/}
+              {/*        value={slippage}*/}
+              {/*        onChange={(e) => handleSlippageChange(e.target.value)}*/}
+              {/*        placeholder='0'*/}
+              {/*        css={css`*/}
+              {/*          caret-color: white;*/}
+              {/*        `}*/}
+              {/*        type='number'*/}
+              {/*      />*/}
+              {/*      <InputRightElement*/}
+              {/*        h='16px'*/}
+              {/*        top={isMobile ? '8px' : '4px'}*/}
+              {/*        right={isMobile ? '8px' : '4px'}*/}
+              {/*        w='fit'*/}
+              {/*      >*/}
+              {/*        <Text {...paragraphMedium} color='white'>*/}
+              {/*          %*/}
+              {/*        </Text>*/}
+              {/*      </InputRightElement>*/}
+              {/*    </InputGroup>*/}
+              {/*    {[0.1, 0.5, 1, 100].map((title) => (*/}
+              {/*      <Button*/}
+              {/*        variant='transparentLight'*/}
+              {/*        key={title}*/}
+              {/*        flex={1}*/}
+              {/*        onClick={() => handleSlippageClicked(title)}*/}
+              {/*        color='white'*/}
+              {/*        py='2px'*/}
+              {/*        h={isMobile ? '32px' : '24px'}*/}
+              {/*      >*/}
+              {/*        {title === 100 ? <InfiniteIcon /> : `${title}%`}*/}
+              {/*      </Button>*/}
+              {/*    ))}*/}
+              {/*  </HStack>*/}
+              {/*)}*/}
               <VStack my='24px' gap={isMobile ? '8px' : '4px'} w='full'>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
