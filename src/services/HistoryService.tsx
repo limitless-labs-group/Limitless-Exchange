@@ -203,6 +203,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
           }
         })
       } catch (e) {
+        console.log('pos', e)
         console.log(e)
       }
 

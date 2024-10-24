@@ -2,6 +2,8 @@ import { HStack, Menu, MenuButton, MenuItem, MenuList, Text, useDisclosure } fro
 import React from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
+import { Toast } from '@/components/common/toast'
+import { useToast } from '@/hooks'
 import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
 import CopyIcon from '@/resources/icons/link-icon.svg'
@@ -19,6 +21,7 @@ export default function ShareMenu() {
   const { isOpen: isShareMenuOpen, onToggle: toggleShareMenu } = useDisclosure()
   const { market, marketGroup } = useTradingService()
   const { trackClicked } = useAmplitude()
+  const toast = useToast()
   const marketURI = marketGroup
     ? `${process.env.NEXT_PUBLIC_FRAME_URL}/market-group/${marketGroup.slug}`
     : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.address}`
@@ -76,7 +79,19 @@ export default function ShareMenu() {
           </HStack>
         </MenuItem>
         <MenuItem>
-          <CopyToClipboard text={marketURI}>
+          <CopyToClipboard
+            text={marketURI}
+            onCopy={() => {
+              trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
+                type: 'Copy Link',
+                address: market?.address,
+                marketType: 'single',
+              })
+              const id = toast({
+                render: () => <Toast title={'Copied'} id={id} />,
+              })
+            }}
+          >
             <HStack gap='4px' w='full'>
               <CopyIcon width={16} height={16} />
               <Text {...paragraphMedium}>Copy Link</Text>

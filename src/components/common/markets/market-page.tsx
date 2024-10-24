@@ -15,7 +15,7 @@ import {
   Tabs,
   useDisclosure,
 } from '@chakra-ui/react'
-import React, { useMemo, useState } from 'react'
+import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address, zeroAddress } from 'viem'
@@ -40,6 +40,7 @@ import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import {
   ChangeEvent,
+  ClickEvent,
   StrategyChangedMetadata,
   useAmplitude,
   useHistory,
@@ -62,6 +63,9 @@ const defaultColors = {
 
 export default function MarketPage() {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
+
+  const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
+
   const {
     setMarket,
     onCloseMarketPage,
@@ -73,7 +77,7 @@ export default function MarketPage() {
     setMarketGroup,
   } = useTradingService()
 
-  const { trackChanged } = useAmplitude()
+  const { trackChanged, trackClicked } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
   const { data: winningIndex } = useWinningIndex(market?.address || '')
 
@@ -103,8 +107,46 @@ export default function MarketPage() {
 
   const tabPanels = [<MarketPageOverviewTab key={uuidv4()} />, <MarketActivityTab key={uuidv4()} />]
 
+  const handleCloseMarketPageClicked = () => {
+    setMarket(null)
+    onCloseMarketPage()
+    setMarketGroup(null)
+    trackClicked(ClickEvent.CloseMarketClicked, {
+      marketAddress: market?.address as Address,
+    })
+  }
+
+  useEffect(() => {
+    setStrategy('Buy')
+  }, [])
+
+  useEffect(() => {
+    const handleScroll = (e: WheelEvent) => {
+      const scrollableBlock = scrollableBlockRef.current
+      if (!scrollableBlock) return
+
+      const isAtTop = scrollableBlock.scrollTop === 0
+      const isAtBottom =
+        scrollableBlock.scrollHeight - scrollableBlock.scrollTop === scrollableBlock.clientHeight
+
+      if (isAtTop && e.deltaY < 0) {
+        e.preventDefault() // Prevent scrolling up when at the top
+      } else if (isAtBottom && e.deltaY > 0) {
+        e.preventDefault() // Prevent scrolling down when at the bottom
+      }
+    }
+
+    scrollableBlockRef.current && scrollableBlockRef.current.addEventListener('wheel', handleScroll)
+
+    return () => {
+      scrollableBlockRef.current &&
+        scrollableBlockRef.current.removeEventListener('wheel', handleScroll)
+    }
+  }, [])
+
   return (
-    <Paper
+    <Box
+      rounded='2px'
       bg='grey.50'
       borderTopLeftRadius='8px'
       borderBottomLeftRadius='8px'
@@ -116,23 +158,24 @@ export default function MarketPage() {
       top='20px'
       right={0}
       overflowY='auto'
+      p={isMobile ? '12px' : '16px'}
+      ref={scrollableBlockRef}
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
-          <Button
-            variant='grey'
-            onClick={() => {
-              setMarket(null)
-              onCloseMarketPage()
-              setMarketGroup(null)
-            }}
-          >
+          <Button variant='grey' onClick={handleCloseMarketPageClicked}>
             <CloseIcon width={16} height={16} />
             Close
           </Button>
           <ShareMenu />
         </HStack>
       )}
+      <HStack w='full' justifyContent='space-between' alignItems='flex-start'>
+        <Text mt='10px' {...h1Regular}>
+          {marketGroup?.title || market?.title}
+        </Text>
+        {isMobile && <ShareMenu />}
+      </HStack>
       <HStack w='full' justifyContent='space-between' mt='10px' gap='8px' alignItems='flex-start'>
         <Text {...h1Regular}>{marketGroup?.title || market?.title}</Text>
         <ShareMenu />
@@ -162,8 +205,8 @@ export default function MarketPage() {
               alt='creator'
               borderRadius={'2px'}
             />
-            <Link href={market?.creator.link}>
-              <Text color='grey.500'>{market?.creator.name}</Text>
+            <Link href={market?.creator.link} variant='textLinkSecondary'>
+              {market?.creator.name}
             </Link>
           </HStack>
         </HStack>
@@ -181,7 +224,7 @@ export default function MarketPage() {
           </Box>
         </HStack>
       </HStack>
-      <Divider my='8px' color='grey.300' />
+      <Divider my='8px' color='grey.100' />
       <HStack w='full' mb={isMobile ? '32px' : '24px'} mt={isMobile ? '24px' : 0}>
         <VStack alignItems='center' flex={1} gap={0}>
           <HStack color='grey.400' gap='4px'>
@@ -417,6 +460,6 @@ export default function MarketPage() {
           ))}
         </TabPanels>
       </Tabs>
-    </Paper>
+    </Box>
   )
 }
