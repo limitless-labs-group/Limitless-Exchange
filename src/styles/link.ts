@@ -39,6 +39,24 @@ const textLink = defineStyle({
       }),
 })
 
+const textLinkSecondary = defineStyle({
+  ...paragraphMedium,
+  textDecoration: 'none',
+  background: 'unset',
+  borderBottom: '1px solid',
+  borderColor: 'greyTransparent.200',
+  color: 'grey.500',
+  ...(isMobile
+    ? {}
+    : {
+        _hover: {
+          textDecoration: 'none',
+          borderColor: 'greyTransparent.600',
+          background: 'unset',
+        },
+      }),
+})
+
 export const linkTheme = defineStyleConfig({
-  variants: { transparent, textLink },
+  variants: { transparent, textLink, textLinkSecondary },
 })
