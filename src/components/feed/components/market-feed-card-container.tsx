@@ -1,7 +1,9 @@
 import { Box, HStack, Link, Text } from '@chakra-ui/react'
+import { ethers } from 'ethers'
 import { PropsWithChildren, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
+import { defaultChain } from '@/constants'
 import { captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { FeedEventUser } from '@/types'
 import { timeSinceCreation, truncateEthAddress } from '@/utils'
@@ -49,9 +51,21 @@ export default function MarketFeedCardContainer({
             <Text {...captionRegular}>{creator.name}</Text>
           </Link>
         ) : (
-          <Text {...captionRegular}>
-            {isMobile ? truncateEthAddress(creator.account) : creator.account}
-          </Text>
+          <Link
+            href={`${defaultChain.blockExplorers.default.url}/address/${creator.account}`}
+            target={'_blank'}
+            variant='textLink'
+            {...captionRegular}
+            color='grey.500'
+            textOverflow='ellipsis'
+            whiteSpace='nowrap'
+            overflow='hidden'
+            maxW='calc(100% - 22px)'
+          >
+            {ethers.utils.isAddress(creator.name)
+              ? truncateEthAddress(creator.account)
+              : creator.name}
+          </Link>
         )}
         <Text {...captionRegular} color='grey.500'>
           {timePassed}
