@@ -1,6 +1,7 @@
 import { Box, Flex, FlexProps, HStack, Spinner } from '@chakra-ui/react'
 import React from 'react'
 import { isMobile } from 'react-device-detect'
+import MarketPage from '@/components/common/markets/market-page'
 import HeaderMarquee from '@/components/layouts/header-marquee'
 import MobileHeader from '@/components/layouts/mobile-header'
 import MobileNavigation from '@/components/layouts/mobile-navigation'
@@ -48,6 +49,7 @@ export const MainLayout = ({
         </HStack>
       </Box>
       {isMobile && <MobileNavigation />}
+      {marketPageOpened && <MarketPage />}
     </Box>
   )
 }

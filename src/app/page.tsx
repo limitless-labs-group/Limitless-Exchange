@@ -26,7 +26,7 @@ const MainPage = () => {
   const searchParams = useSearchParams()
   const [page, setPage] = useState(1)
   const { data: categories } = useCategories()
-  const { marketPageOpened, onCloseMarketPage } = useTradingService()
+  const { onCloseMarketPage } = useTradingService()
   /**
    * ANALYTICS
    */
@@ -243,7 +243,6 @@ const MainPage = () => {
           )}
         </Box>
       </HStack>
-      {marketPageOpened && <MarketPage />}
     </MainLayout>
   )
 }

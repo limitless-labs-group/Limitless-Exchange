@@ -349,7 +349,7 @@ export function useMarket(address?: string) {
       return {
         ...marketRes,
         prices,
-      }
+      } as Market
     },
     enabled: !!address && address !== '0x',
   })

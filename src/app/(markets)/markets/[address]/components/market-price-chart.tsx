@@ -34,7 +34,6 @@ const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
 // Define the MarketPriceChart component
 export interface IMarketPriceChart {
-  marketAddr: string
   winningIndex: number | undefined | null
   resolved: boolean
   outcomeTokensPercent?: number[]
@@ -42,7 +41,6 @@ export interface IMarketPriceChart {
 }
 
 export const MarketPriceChart = ({
-  marketAddr,
   resolved,
   winningIndex,
   outcomeTokensPercent,
@@ -196,24 +194,24 @@ export const MarketPriceChart = ({
       : _prices
 
     // special case hotfix
-    const special = {
-      [getAddress('0xD0BC7FCea7500d485329e0aaE36e0512815684BF')]: {
-        index: 0,
-        timestamp: 1722745928000, // aug 4 2024
-        exists: true,
-      },
-    }
-    if (special[getAddress(marketAddr)]?.exists) {
-      const _index = special[getAddress(marketAddr)].index
-
-      if (data[_index]) {
-        data[_index][0] = special[getAddress(marketAddr)].timestamp
-
-        for (let index = 0; index < Array.from({ length: 10 }).length; index++) {
-          data.splice(index + 1, 0, [data[index][0] + ONE_HOUR, data[index][1]])
-        }
-      }
-    }
+    // const special = {
+    //   [getAddress('0xD0BC7FCea7500d485329e0aaE36e0512815684BF')]: {
+    //     index: 0,
+    //     timestamp: 1722745928000, // aug 4 2024
+    //     exists: true,
+    //   },
+    // }
+    // if (special[getAddress(marketAddr)]?.exists) {
+    //   const _index = special[getAddress(marketAddr)].index
+    //
+    //   if (data[_index]) {
+    //     data[_index][0] = special[getAddress(marketAddr)].timestamp
+    //
+    //     for (let index = 0; index < Array.from({ length: 10 }).length; index++) {
+    //       data.splice(index + 1, 0, [data[index][0] + ONE_HOUR, data[index][1]])
+    //     }
+    //   }
+    // }
 
     return data
   }, [prices, winningIndex, resolved])

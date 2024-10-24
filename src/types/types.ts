@@ -62,6 +62,11 @@ export interface Market {
   volumeFormatted: string
   winningOutcomeIndex: number | null
   prices: number[]
+  group?: {
+    id: number
+    slug: string
+    title: string
+  }
 }
 
 export interface MarketGroup {
