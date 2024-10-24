@@ -104,6 +104,9 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   }
 
   const onOpenMarketPage = (market: Market | MarketGroup) => {
+    if (marketGroup) {
+      setMarketGroup(null)
+    }
     trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
       mode: 'open',
       marketCategory: market?.category,

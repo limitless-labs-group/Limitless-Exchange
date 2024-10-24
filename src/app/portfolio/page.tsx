@@ -8,17 +8,25 @@ import { PortfolioStats, PortfolioPositions, PortfolioHistory } from '@/app/port
 import { MainLayout } from '@/components'
 import HistoryIcon from '@/resources/icons/history-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import { OpenEvent, PageOpenedMetadata, useAmplitude } from '@/services'
+import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
 import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const PortfolioPage = () => {
   const [tab, setTab] = useState<'Investments' | 'History'>('Investments')
 
   const { trackOpened } = useAmplitude()
+  const { onCloseMarketPage } = useTradingService()
+
   useEffect(() => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
       page: 'Portfolio Page',
     })
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      !isMobile && onCloseMarketPage()
+    }
   }, [])
 
   return (

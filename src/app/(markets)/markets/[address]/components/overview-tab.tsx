@@ -27,7 +27,6 @@ function MarketOverviewTab({
   return (
     <>
       <MarketPriceChart
-        marketAddr={market.address[defaultChain.id] ?? zeroAddress}
         winningIndex={winningIndex}
         resolved={resolved}
         outcomeTokensPercent={market.prices}

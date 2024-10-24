@@ -8,7 +8,7 @@ import { fixedProductMarketMakerABI } from '@/contracts'
 import { limitlessApi } from '@/services'
 import { MarketGroup } from '@/types'
 
-export default function useMarketGroup(slug: string) {
+export default function useMarketGroup(slug?: string) {
   return useQuery({
     queryKey: ['market-group', slug],
     queryFn: async () => {
@@ -84,7 +84,7 @@ export default function useMarketGroup(slug: string) {
       return {
         ...marketGroup,
         markets: marketsWithPrices,
-      }
+      } as MarketGroup
     },
     enabled: !!slug,
   })
