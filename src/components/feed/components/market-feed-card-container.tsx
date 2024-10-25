@@ -1,20 +1,22 @@
 import { Box, HStack, Link, Text } from '@chakra-ui/react'
+import { ethers } from 'ethers'
 import { PropsWithChildren, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
+import { defaultChain } from '@/constants'
 import { captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { FeedEventUser } from '@/types'
 import { timeSinceCreation, truncateEthAddress } from '@/utils'
 
 interface MarketFeedCardContainer {
-  creator: FeedEventUser
+  user: FeedEventUser
   timestamp: number
   title: string
   isActivityTab?: boolean
 }
 
 export default function MarketFeedCardContainer({
-  creator,
+  user,
   timestamp,
   title,
   children,
@@ -43,15 +45,29 @@ export default function MarketFeedCardContainer({
       w='full'
     >
       <HStack gap='8px' flexWrap='wrap' mb={isMobile ? '16px' : '12px'}>
-        <Avatar account={creator.account || ''} avatarUrl={creator.imageURI} />
-        {creator.link ? (
-          <Link href={creator.link}>
-            <Text {...captionRegular}>{creator.name}</Text>
+        <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
+        {user.link ? (
+          <Link href={user.link}>
+            <Text {...captionRegular}>{user.name}</Text>
           </Link>
         ) : (
-          <Text {...captionRegular}>
-            {isMobile ? truncateEthAddress(creator.account) : creator.account}
-          </Text>
+          <Link
+            href={`${defaultChain.blockExplorers.default.url}/address/${user.account}`}
+            target={'_blank'}
+            variant='textLink'
+            {...captionRegular}
+            color='grey.500'
+            textOverflow='ellipsis'
+            whiteSpace='nowrap'
+            overflow='hidden'
+            maxW='calc(100% - 22px)'
+          >
+            {
+              ethers.utils.isAddress(user.name)
+                ? truncateEthAddress(user.account)
+                : user.name ?? truncateEthAddress(user.account) //?? needs to cover edge case of old account which don't have profile on the platform
+            }
+          </Link>
         )}
         <Text {...captionRegular} color='grey.500'>
           {timePassed}
