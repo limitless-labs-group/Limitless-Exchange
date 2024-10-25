@@ -37,6 +37,8 @@ import {
 } from '@/app/(markets)/markets/[address]/components'
 import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
+import useMarketGroup from '@/hooks/use-market-group'
+import { usePolling } from '@/hooks/use-polling'
 import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
@@ -58,7 +60,7 @@ import {
   useHistory,
   useTradingService,
 } from '@/services'
-import { useWinningIndex } from '@/services/MarketsService'
+import { useMarket, useWinningIndex } from '@/services/MarketsService'
 import {
   controlsMedium,
   h1Regular,
@@ -109,6 +111,13 @@ export default function MarketPage() {
       ),
     [allMarketsPositions, market]
   )
+
+  const marketAddress = useMemo(() => market?.address, [market])
+  const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
+  const isMarketSet = useMemo(() => !!market && !marketGroup, [market, marketGroup])
+
+  useMarket(marketAddress, isMarketSet)
+  useMarketGroup(marketGroupSlug, !!marketGroup)
 
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 

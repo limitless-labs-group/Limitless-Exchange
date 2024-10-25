@@ -106,6 +106,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       marketTags: market?.tags,
     })
     setMarketPageOpened(false)
+    setMarket(null)
+    setMarketGroup(null)
   }
 
   const onOpenMarketPage = (market: Market | MarketGroup) => {
