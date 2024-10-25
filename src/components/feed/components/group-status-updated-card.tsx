@@ -54,7 +54,7 @@ export default function GroupStatusUpdatedCard({ data }: GroupStatusUpdatedCard)
 
   return (
     <MarketFeedCardContainer
-      creator={data.user}
+      user={data.user}
       timestamp={new Date(data.timestamp).getTime() / 1000}
       title={`${getText()} market group`}
     >
