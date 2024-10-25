@@ -22,6 +22,7 @@ import {
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
+import { lock, unlock } from 'tua-body-scroll-lock'
 import { v4 as uuidv4 } from 'uuid'
 import { Address, zeroAddress } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
@@ -139,26 +140,32 @@ export default function MarketPage() {
   }, [])
 
   useEffect(() => {
-    const handleScroll = (e: WheelEvent) => {
-      const scrollableBlock = scrollableBlockRef.current
-      if (!scrollableBlock) return
+    // const handleScroll = (e: WheelEvent) => {
+    //   const scrollableBlock = scrollableBlockRef.current
+    //   if (!scrollableBlock) return
+    //
+    //   const isAtTop = scrollableBlock.scrollTop === 0
+    //   const isAtBottom =
+    //     scrollableBlock.scrollHeight - scrollableBlock.scrollTop === scrollableBlock.clientHeight
+    //
+    //   if (isAtTop && e.deltaY < 0) {
+    //     e.preventDefault() // Prevent scrolling up when at the top
+    //   } else if (isAtBottom && e.deltaY > 0) {
+    //     e.preventDefault() // Prevent scrolling down when at the bottom
+    //   }
+    // }
 
-      const isAtTop = scrollableBlock.scrollTop === 0
-      const isAtBottom =
-        scrollableBlock.scrollHeight - scrollableBlock.scrollTop === scrollableBlock.clientHeight
+    const scrollableBlock = scrollableBlockRef.current
+    if (!scrollableBlock) return
 
-      if (isAtTop && e.deltaY < 0) {
-        e.preventDefault() // Prevent scrolling up when at the top
-      } else if (isAtBottom && e.deltaY > 0) {
-        e.preventDefault() // Prevent scrolling down when at the bottom
-      }
-    }
+    lock(scrollableBlock)
 
-    scrollableBlockRef.current && scrollableBlockRef.current.addEventListener('wheel', handleScroll)
+    // scrollableBlockRef.current && scrollableBlockRef.current.addEventListener('wheel', handleScroll)
 
     return () => {
-      scrollableBlockRef.current &&
-        scrollableBlockRef.current.removeEventListener('wheel', handleScroll)
+      unlock(scrollableBlock)
+      // scrollableBlockRef.current &&
+      //   scrollableBlockRef.current.removeEventListener('wheel', handleScroll)
     }
   }, [])
 
