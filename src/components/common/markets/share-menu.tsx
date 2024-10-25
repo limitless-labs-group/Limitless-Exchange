@@ -36,15 +36,15 @@ export default function ShareMenu() {
           // })
           toggleShareMenu()
         }}
-        as={'div'}
+        as={isMobile ? 'div' : undefined}
       >
         {isMobile ? (
           <ShareIcon width={16} height={16} />
         ) : (
-          <>
+          <HStack gap='4px'>
             <ShareIcon width={16} height={16} />
             <Text {...paragraphMedium}>Share</Text>
-          </>
+          </HStack>
         )}
       </MenuButton>
       <MenuList borderRadius='2px' w={isMobile ? '160px' : '122px'} zIndex={2}>

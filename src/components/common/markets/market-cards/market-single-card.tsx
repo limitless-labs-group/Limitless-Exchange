@@ -121,12 +121,7 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   )
 
   return isMobile ? (
-    <MobileDrawer
-      trigger={content}
-      variant='black'
-      title={market.title}
-      onClose={onCloseMarketPage}
-    >
+    <MobileDrawer trigger={content} variant='black' onClose={onCloseMarketPage}>
       <MarketPage />
     </MobileDrawer>
   ) : (
