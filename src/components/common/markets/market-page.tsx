@@ -170,15 +170,9 @@ export default function MarketPage() {
           <ShareMenu />
         </HStack>
       )}
-      <HStack w='full' justifyContent='space-between' alignItems='flex-start'>
-        <Text mt='10px' {...h1Regular}>
-          {marketGroup?.title || market?.title}
-        </Text>
-        {isMobile && <ShareMenu />}
-      </HStack>
-      <HStack w='full' justifyContent='space-between' mt='10px' gap='8px' alignItems='flex-start'>
+      <HStack w='full' justifyContent='space-between' alignItems='flex-start' mt='10px'>
         <Text {...h1Regular}>{marketGroup?.title || market?.title}</Text>
-        <ShareMenu />
+        {isMobile && <ShareMenu />}
       </HStack>
       <HStack w='full' justifyContent='space-between' mt={isMobile ? '16px' : '10px'} mb='4px'>
         <HStack gap={isMobile ? '16px' : '24px'}>
