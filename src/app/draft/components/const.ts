@@ -38,6 +38,11 @@ export const tokenLimits: TokenLimits = {
     max: 30000,
     step: 100,
   },
+  aBasUSDC: {
+    min: 300,
+    max: 30000,
+    step: 100,
+  },
   VITA: {
     min: 150,
     max: 3000,
@@ -55,7 +60,7 @@ export const tokenLimits: TokenLimits = {
   },
   cbBTC: {
     min: 0.1,
-    max: 5,
+    max: 0.3,
     step: 0.01,
   },
 }
@@ -64,7 +69,7 @@ export const defaultFormData = {
   deadline: new Date(),
   timezone: 'America/New_York',
   title: '',
-  token: { symbol: 'USDC', id: 6 },
+  token: { symbol: 'USDC', id: 7 },
   description: '',
   liquidity: tokenLimits[defaultTokenSymbol].default ?? tokenLimits[defaultTokenSymbol].min,
   probability: defaultProbability,
