@@ -13406,11 +13406,6 @@ tsutils@^3.21.0:
   dependencies:
     tslib "^1.8.1"
 
-tua-body-scroll-lock@^1.5.3:
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/tua-body-scroll-lock/-/tua-body-scroll-lock-1.5.3.tgz#3f1464d599aea4734f31e0754088acd42804e3e8"
-  integrity sha512-44W12iqek41kZuTdpEUt3JTUsMx0IxfTajXWfQyMLgzsPaMYUPZLcJkwa4P0x24h5DQ3lYvDuYvphBo4+L0t4w==
-
 tweetnacl@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.3.tgz#ac0af71680458d8a6378d0d0d050ab1407d35596"

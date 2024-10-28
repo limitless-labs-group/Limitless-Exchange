@@ -22,7 +22,6 @@ import {
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
-import { lock, unlock } from 'tua-body-scroll-lock'
 import { v4 as uuidv4 } from 'uuid'
 import { Address, zeroAddress } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
