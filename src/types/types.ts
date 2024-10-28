@@ -26,6 +26,7 @@ export type MarketsResponse = {
 export interface Creator {
   name: string
   imageURI?: string
+  imageUrl?: string // TODO: unify imageURI and imageUrl from backend
   link?: string
   address?: string
 }
