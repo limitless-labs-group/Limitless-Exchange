@@ -124,6 +124,7 @@ export enum MarketTokensIds {
   BETS = 'all-street-bets',
   GHST = 'aavegotchi',
   cbBTC = 'coinbase-wrapped-btc',
+  aBasUSDC = 'aave-v3-usdc',
 }
 
 export enum Sort {

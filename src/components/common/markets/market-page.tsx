@@ -144,26 +144,26 @@ export default function MarketPage() {
   }, [])
 
   useEffect(() => {
-    const handleScroll = (e: WheelEvent) => {
-      const scrollableBlock = scrollableBlockRef.current
-      if (!scrollableBlock) return
-
-      const isAtTop = scrollableBlock.scrollTop === 0
-      const isAtBottom =
-        scrollableBlock.scrollHeight - scrollableBlock.scrollTop === scrollableBlock.clientHeight
-
-      if (isAtTop && e.deltaY < 0) {
-        e.preventDefault() // Prevent scrolling up when at the top
-      } else if (isAtBottom && e.deltaY > 0) {
-        e.preventDefault() // Prevent scrolling down when at the bottom
-      }
+    const handleMouseEnter = () => {
+      document.body.style.overflow = 'hidden'
     }
 
-    scrollableBlockRef.current && scrollableBlockRef.current.addEventListener('wheel', handleScroll)
+    const handleMouseLeave = () => {
+      document.body.style.overflow = ''
+    }
+
+    const scrollContainer = scrollableBlockRef.current
+    if (scrollContainer) {
+      scrollContainer.addEventListener('mouseenter', handleMouseEnter)
+      scrollContainer.addEventListener('mouseleave', handleMouseLeave)
+    }
 
     return () => {
-      scrollableBlockRef.current &&
-        scrollableBlockRef.current.removeEventListener('wheel', handleScroll)
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('mouseenter', handleMouseEnter)
+        scrollContainer.removeEventListener('mouseleave', handleMouseLeave)
+      }
+      document.body.style.overflow = '' // Clean up on unmount
     }
   }, [])
 
