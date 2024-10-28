@@ -50,6 +50,8 @@ import { useWinningIndex } from '@/services/MarketsService'
 import {
   controlsMedium,
   h1Regular,
+  h2Medium,
+  headline,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
@@ -171,7 +173,9 @@ export default function MarketPage() {
         </HStack>
       )}
       <HStack w='full' justifyContent='space-between' alignItems='flex-start' mt='10px'>
-        <Text {...h1Regular}>{marketGroup?.title || market?.title}</Text>
+        <Text {...(isMobile ? { ...h2Medium } : { ...h1Regular })}>
+          {marketGroup?.title || market?.title}
+        </Text>
         {isMobile && <ShareMenu />}
       </HStack>
       <HStack w='full' justifyContent='space-between' mt={isMobile ? '16px' : '10px'} mb='4px'>
