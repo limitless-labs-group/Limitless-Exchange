@@ -1,5 +1,4 @@
 import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
-import { useSearchParams } from 'next/navigation'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
@@ -7,13 +6,7 @@ import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import {
-  ClickEvent,
-  OpenEvent,
-  PageOpenedMetadata,
-  useAmplitude,
-  useTradingService,
-} from '@/services'
+import { useTradingService } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketGroup } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -39,10 +32,7 @@ const hoverColors = {
 export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
   const [colors, setColors] = useState(defaultColors)
 
-  const searchParams = useSearchParams()
-  const { trackClicked, trackOpened } = useAmplitude()
   const { onOpenMarketPage, onCloseMarketPage } = useTradingService()
-  const category = searchParams.get('category')
 
   const totalLiquidity = marketGroup.markets.reduce((a, b) => {
     return +a + +b.liquidityFormatted
@@ -53,23 +43,7 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
   }, 0)
 
   const trackMarketClicked = () => {
-    trackClicked(ClickEvent.MarketPageOpened, {
-      // bannerPosition: position,
-      bannerPaginationPage: 1,
-      platform: isMobile ? 'mobile' : 'desktop',
-      bannerType: 'Standard banner',
-      source: 'Explore Market',
-      marketCategory: category,
-      marketAddress: marketGroup.slug,
-      marketType: 'group',
-      page: 'Market Page',
-    })
-    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
-      page: 'Market Page',
-      market: marketGroup.slug,
-      marketType: 'group',
-    })
-    onOpenMarketPage(marketGroup)
+    onOpenMarketPage(marketGroup, 'Standard Banner')
   }
 
   const content = (
@@ -164,12 +138,7 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
   )
 
   return isMobile ? (
-    <MobileDrawer
-      trigger={content}
-      variant='black'
-      title={marketGroup.title}
-      onClose={onCloseMarketPage}
-    >
+    <MobileDrawer trigger={content} variant='black' onClose={onCloseMarketPage}>
       <MarketPage />
     </MobileDrawer>
   ) : (

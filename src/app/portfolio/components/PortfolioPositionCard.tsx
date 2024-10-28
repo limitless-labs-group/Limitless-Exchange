@@ -91,11 +91,11 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
 
   const handleOpenMarketPage = () => {
     if (marketGroup) {
-      onOpenMarketPage(marketGroup)
+      onOpenMarketPage(marketGroup, 'Portfolio Card')
       return
     }
     if (market) {
-      onOpenMarketPage(market)
+      onOpenMarketPage(market, 'Portfolio Card')
       return
     }
   }

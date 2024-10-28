@@ -11,25 +11,13 @@ import { parseTextWithLinks } from '@/utils/string'
 
 interface MarketOverviewTabProps {
   market: Market
-  winningIndex: number
-  resolved: boolean
   marketGroup?: MarketGroup
 }
 
-function MarketOverviewTab({
-  market,
-  winningIndex,
-  resolved,
-  marketGroup,
-}: MarketOverviewTabProps) {
+function MarketOverviewTab({ market, marketGroup }: MarketOverviewTabProps) {
   return (
     <>
-      <MarketPriceChart
-        winningIndex={winningIndex}
-        resolved={resolved}
-        outcomeTokensPercent={market.prices}
-        marketGroup={marketGroup}
-      />
+      <MarketPriceChart market={market} marketGroup={marketGroup} />
       {marketGroup && <MarketGroupPositions marketGroup={marketGroup} />}
       <MarketPositions market={market} />
       <HStack

@@ -154,10 +154,13 @@ export enum ClickEvent {
   ReturnTradingDetailsClicked = 'Return Trading Details Clicked',
   MarketPageOpened = 'Market Page Opened',
   MediumMarketBannerClicked = 'Medium Market Banner Clicked',
+  RegularMarketBannerClicked = 'Regular Market Banner Clicked',
   BigBannerClicked = 'BigBannerClicked',
   QuickBetClicked = 'Quick Bet Clicked',
   NevermindButtonClicked = 'Nevermind Button Clicked',
   TradingWidgetReturnDecomposition = 'Trading Widget Return Decomposition',
+  CloseMarketClicked = 'Close Market Clicked',
+  SidebarMarketOpened = 'Sidebar Market Opened',
 }
 
 export enum SignInEvent {
@@ -279,6 +282,10 @@ export interface PageOpenedMetadata {
   [key: string]: any
 }
 
+export interface CloseMarketMetadata {
+  marketAddress: string
+}
+
 export type OpenMarketClickedPage =
   | 'Creator Cabinet'
   | 'Portfolio Page'
@@ -388,6 +395,7 @@ export type ClickedEventMetadata =
   | MarketChangeInGroupData
   | FeeAndReturnTradingDetailsClicked
   | MediumBannerClicked
+  | CloseMarketMetadata
 
 export type OpenedEventMetadata = PageOpenedMetadata | ProfileSettingsMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata

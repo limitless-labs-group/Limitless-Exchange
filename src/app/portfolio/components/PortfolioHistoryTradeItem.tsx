@@ -31,11 +31,11 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
 
   const handleOpenMarketPage = () => {
     if (marketGroup) {
-      onOpenMarketPage(marketGroup)
+      onOpenMarketPage(marketGroup, 'History Card')
       return
     }
     if (market) {
-      onOpenMarketPage(market)
+      onOpenMarketPage(market, 'History Card')
       return
     }
   }

@@ -1,5 +1,5 @@
 import { Box, Flex, FlexProps, HStack, Spinner } from '@chakra-ui/react'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { isMobile } from 'react-device-detect'
 import MarketPage from '@/components/common/markets/market-page'
 import HeaderMarquee from '@/components/layouts/header-marquee'
@@ -20,24 +20,6 @@ export const MainLayout = ({
   ...props
 }: IMainLayout) => {
   const { marketPageOpened } = useTradingService()
-
-  useEffect(() => {
-    if (marketPageOpened) {
-      const mainElement = document.getElementById('main')
-      if (mainElement) {
-        mainElement.style.height = '100vh'
-        return
-      }
-    }
-    if (!marketPageOpened) {
-      const mainElement = document.getElementById('main')
-      if (mainElement) {
-        mainElement.style.height = 'unset'
-        return
-      }
-    }
-  }, [marketPageOpened])
-
   return (
     <Box
       id='main'
@@ -45,7 +27,7 @@ export const MainLayout = ({
       w={'full'}
       minH={'100vh'}
       margin={'0 auto'}
-      overflow={'hidden'}
+      // overflow={'hidden'}
       alignItems={'center'}
       justifyContent={'space-between'}
       gap={{ sm: 6, md: 10 }}
