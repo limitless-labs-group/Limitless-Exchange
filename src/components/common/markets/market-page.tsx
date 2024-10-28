@@ -85,9 +85,6 @@ export default function MarketPage() {
 
   const { trackChanged, trackClicked } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
-  const { data: winningIndex } = useWinningIndex(market?.address || '')
-
-  const resolved = winningIndex === 0 || winningIndex === 1
   // Todo change creator name
 
   const positions = useMemo(
