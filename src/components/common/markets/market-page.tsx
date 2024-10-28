@@ -19,6 +19,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
@@ -113,10 +114,21 @@ export default function MarketPage() {
 
   const marketAddress = useMemo(() => market?.address, [market])
   const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
-  const isMarketSet = useMemo(() => !!market && !marketGroup, [market, marketGroup])
 
-  useMarket(marketAddress, isMarketSet)
-  useMarketGroup(marketGroupSlug, !!marketGroup)
+  const { data: updatedMarket } = useMarket(marketAddress, !!market)
+  const { data: updatedMarketGroup } = useMarketGroup(marketGroupSlug, !!marketGroup)
+
+  useEffect(() => {
+    if (updatedMarket) {
+      setMarket(updatedMarket)
+    }
+  }, [updatedMarket])
+
+  useEffect(() => {
+    if (updatedMarketGroup) {
+      setMarketGroup(updatedMarketGroup)
+    }
+  }, [updatedMarketGroup])
 
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
