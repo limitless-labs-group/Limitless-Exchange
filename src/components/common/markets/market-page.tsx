@@ -18,7 +18,7 @@ import {
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
-import { Address, zeroAddress } from 'viem'
+import { Address } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
@@ -30,7 +30,6 @@ import {
   MarketPriceChart,
   SellForm,
 } from '@/app/(markets)/markets/[address]/components'
-import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
 import useMarketGroup from '@/hooks/use-market-group'
 import WarpcastIcon from '@/resources/icons/Farcaster.svg'
@@ -86,9 +85,6 @@ export default function MarketPage() {
 
   const { trackChanged, trackClicked } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
-  const { data: winningIndex } = useWinningIndex(market?.address || '')
-
-  const resolved = winningIndex === 0 || winningIndex === 1
   // Todo change creator name
 
   const positions = useMemo(
@@ -457,14 +453,7 @@ export default function MarketPage() {
           )
         ) : null}
       </Paper>
-      {market && (
-        <MarketPriceChart
-          marketAddr={market.address[defaultChain.id] ?? zeroAddress}
-          winningIndex={winningIndex}
-          resolved={resolved}
-          outcomeTokensPercent={market.prices}
-        />
-      )}
+      {market && <MarketPriceChart market={market} />}
       <Tabs position='relative' variant='common'>
         <TabList>
           {tabs.map((tab) => (
