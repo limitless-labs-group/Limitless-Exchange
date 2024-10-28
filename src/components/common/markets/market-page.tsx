@@ -19,7 +19,6 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
@@ -90,6 +89,7 @@ export default function MarketPage() {
     status,
     marketGroup,
     setMarketGroup,
+    refetchMarkets,
   } = useTradingService()
 
   const toast = useToast()
@@ -121,12 +121,14 @@ export default function MarketPage() {
   useEffect(() => {
     if (updatedMarket) {
       setMarket(updatedMarket)
+      refetchMarkets()
     }
   }, [updatedMarket])
 
   useEffect(() => {
     if (updatedMarketGroup) {
       setMarketGroup(updatedMarketGroup)
+      refetchMarkets()
     }
   }, [updatedMarketGroup])
 

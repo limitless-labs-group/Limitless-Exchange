@@ -70,6 +70,7 @@ interface ITradingServiceContext {
   setMarketPageOpened: Dispatch<SetStateAction<boolean>>
   onCloseMarketPage: () => void
   onOpenMarketPage: (market: Market | MarketGroup) => void
+  refetchMarkets: () => Promise<void>
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -106,8 +107,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       marketTags: market?.tags,
     })
     setMarketPageOpened(false)
-    setMarket(null)
-    setMarketGroup(null)
   }
 
   const onOpenMarketPage = (market: Market | MarketGroup) => {
@@ -708,14 +707,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         ),
       })
 
-      await sleep(1)
-
-      await queryClient.refetchQueries({
-        queryKey: ['daily-markets'],
-      })
-      await queryClient.refetchQueries({
-        queryKey: ['market', market.address],
-      })
+      await refetchMarkets()
 
       const updateID = toast({
         render: () => <Toast title={`Updating portfolio...`} id={updateID} />,
@@ -729,6 +721,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       return receipt
     },
   })
+
+  const refetchMarkets = async () => {
+    await sleep(1)
+    await queryClient.refetchQueries({
+      queryKey: ['daily-markets'],
+    })
+    await queryClient.refetchQueries({
+      queryKey: ['market', market?.address],
+    })
+  }
 
   /**
    * REDEEM / CLAIM
@@ -842,6 +844,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setMarketPageOpened,
     onCloseMarketPage,
     onOpenMarketPage,
+    refetchMarkets,
   }
 
   return (
