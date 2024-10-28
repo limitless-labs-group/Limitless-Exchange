@@ -12,7 +12,7 @@ import MarketPage from '@/components/common/markets/market-page'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { useTradingService } from '@/services'
 import { headLineLarge, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -25,24 +25,11 @@ interface BigBannerProps {
 
 export default function BigBanner({ market }: BigBannerProps) {
   const [feedMessage, setFeedMessage] = useState<MarketFeedData | null>(null)
-  const { trackClicked } = useAmplitude()
-  const searchParams = useSearchParams()
-  const category = searchParams.get('category')
-  const { setMarket, onCloseMarketPage, onOpenMarketPage } = useTradingService()
+  const { onCloseMarketPage, onOpenMarketPage } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market.address)
 
   const onClickRedirectToMarket = () => {
-    trackClicked(ClickEvent.MarketPageOpened, {
-      // bannerPosition: index,
-      platform: isMobile ? 'mobile' : 'desktop',
-      bannerType: 'Big banner',
-      source: 'Explore Market',
-      marketCategory: category,
-      marketAddress: market.address as Address,
-      marketType: 'single',
-      page: 'Market Page',
-    })
-    onOpenMarketPage(market)
+    onOpenMarketPage(market, 'Big Banner')
   }
 
   useEffect(() => {

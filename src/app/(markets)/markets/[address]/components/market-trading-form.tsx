@@ -1,4 +1,4 @@
-import { Button, HStack, Text } from '@chakra-ui/react'
+import { Box, Button, HStack, Text } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { getAddress, zeroAddress } from 'viem'
@@ -163,12 +163,14 @@ export const MarketTradingForm = ({
         status === 'Loading' ? (
           <LoadingForm outcomeIndex={outcomeIndex} />
         ) : (
-          <SellForm
-            setOutcomeIndex={setOutcomeIndex}
-            setSelectedMarket={setSelectedMarket}
-            marketGroup={marketGroup}
-            analyticParams={analyticParams}
-          />
+          <Box mx={isMobile ? '16px' : 0}>
+            <SellForm
+              setOutcomeIndex={setOutcomeIndex}
+              setSelectedMarket={setSelectedMarket}
+              marketGroup={marketGroup}
+              analyticParams={analyticParams}
+            />
+          </Box>
         )
       ) : null}
     </Paper>

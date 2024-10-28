@@ -26,7 +26,7 @@ export default function MarketPageOverviewTab() {
           rel='noopener'
           passHref
         >
-          <Link variant='textLink' {...paragraphRegular} color='grey.500' isExternal>
+          <Link variant='textLinkSecondary' {...paragraphRegular} isExternal color='grey.500'>
             Resolution is centralised
           </Link>
         </NextLink>

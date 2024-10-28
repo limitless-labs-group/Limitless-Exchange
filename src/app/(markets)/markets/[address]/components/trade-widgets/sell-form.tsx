@@ -444,7 +444,7 @@ export function SellForm({
       )}
       {!isOpenSelectMarketMenu && (
         <>
-          <VStack mt={marketGroup ? 0 : '24px'} mx={isMobile ? '16px' : 0}>
+          <VStack mt={marketGroup ? 0 : '24px'}>
             {positionsYes && (
               <Button
                 bg={outcomeChoice === 'yes' ? 'white' : 'rgba(255, 255, 255, 0.2)'}
@@ -680,7 +680,7 @@ export function SellForm({
             )}
           </VStack>
           {outcomeChoice && (
-            <Box mt='24px' mx={isMobile ? '16px' : 0}>
+            <Box mt='24px'>
               <Flex justifyContent='space-between'>
                 <Text {...paragraphMedium} color='white'>
                   Balance

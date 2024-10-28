@@ -6,7 +6,7 @@ import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
+import { useTradingService } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -29,18 +29,11 @@ const hoverColors = {
 
 export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
-  const { trackOpened } = useAmplitude()
 
-  const { setMarket, onOpenMarketPage, onCloseMarketPage } = useTradingService()
+  const { onOpenMarketPage, onCloseMarketPage } = useTradingService()
 
   const trackMarketClicked = () => {
-    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
-      page: 'Market Page',
-      market: market.address,
-      marketType: 'single',
-    })
-    setMarket(market)
-    onOpenMarketPage(market)
+    onOpenMarketPage(market, 'Standard Banner')
   }
 
   const content = (

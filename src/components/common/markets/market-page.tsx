@@ -1,25 +1,25 @@
 import {
+  Box,
   Button,
+  Divider,
   HStack,
+  Image as ChakraImage,
   Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  Text,
-  Image as ChakraImage,
-  Box,
-  Divider,
-  VStack,
-  TabList,
   Tab,
   TabIndicator,
-  TabPanels,
+  TabList,
   TabPanel,
+  TabPanels,
   Tabs,
+  Text,
   useDisclosure,
+  VStack,
 } from '@chakra-ui/react'
-import React, { useMemo, useState } from 'react'
+import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -29,12 +29,14 @@ import DailyMarketTimer from '@/components/common/markets/market-cards/daily-mar
 import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
 import Paper from '@/components/common/paper'
+import { Toast } from '@/components/common/toast'
 import {
   LoadingForm,
   MarketPriceChart,
   SellForm,
 } from '@/app/(markets)/markets/[address]/components'
 import { defaultChain } from '@/constants'
+import { useToast } from '@/hooks'
 import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
@@ -74,6 +76,9 @@ const defaultColors = {
 export default function MarketPage() {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
   const [outcomeIndex, setOutcomeIndex] = useState(0)
+
+  const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
+
   const {
     setMarket,
     onCloseMarketPage,
@@ -84,6 +89,8 @@ export default function MarketPage() {
     marketGroup,
     setMarketGroup,
   } = useTradingService()
+
+  const toast = useToast()
 
   const { trackChanged, trackClicked } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
@@ -118,8 +125,46 @@ export default function MarketPage() {
 
   const tabPanels = [<MarketPageOverviewTab key={uuidv4()} />, <MarketActivityTab key={uuidv4()} />]
 
+  const handleCloseMarketPageClicked = () => {
+    setMarket(null)
+    onCloseMarketPage()
+    setMarketGroup(null)
+    trackClicked(ClickEvent.CloseMarketClicked, {
+      marketAddress: market?.address as Address,
+    })
+  }
+
+  useEffect(() => {
+    setStrategy('Buy')
+  }, [])
+
+  useEffect(() => {
+    const handleMouseEnter = () => {
+      document.body.style.overflow = 'hidden'
+    }
+
+    const handleMouseLeave = () => {
+      document.body.style.overflow = ''
+    }
+
+    const scrollContainer = scrollableBlockRef.current
+    if (scrollContainer) {
+      scrollContainer.addEventListener('mouseenter', handleMouseEnter)
+      scrollContainer.addEventListener('mouseleave', handleMouseLeave)
+    }
+
+    return () => {
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('mouseenter', handleMouseEnter)
+        scrollContainer.removeEventListener('mouseleave', handleMouseLeave)
+      }
+      document.body.style.overflow = '' // Clean up on unmount
+    }
+  }, [])
+
   return (
-    <Paper
+    <Box
+      rounded='2px'
       bg='grey.50'
       borderTopLeftRadius='8px'
       borderBottomLeftRadius='8px'
@@ -131,21 +176,12 @@ export default function MarketPage() {
       top='20px'
       right={0}
       overflowY='auto'
+      p={isMobile ? '12px' : '16px'}
+      ref={scrollableBlockRef}
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
-          <Button
-            variant='grey'
-            onClick={() => {
-              setMarket(null)
-              onCloseMarketPage()
-              setMarketGroup(null)
-              // trackClicked(ClickEvent.BackClicked, {
-              //   address: market?.address,
-              // })
-              // handleBackClicked()
-            }}
-          >
+          <Button variant='grey' onClick={handleCloseMarketPageClicked}>
             <CloseIcon width={16} height={16} />
             Close
           </Button>
@@ -196,7 +232,19 @@ export default function MarketPage() {
                 </HStack>
               </MenuItem>
               <MenuItem>
-                <CopyToClipboard text={marketURI}>
+                <CopyToClipboard
+                  text={marketURI}
+                  onCopy={() => {
+                    trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
+                      type: 'Copy Link',
+                      address: market?.address,
+                      marketType: 'single',
+                    })
+                    const id = toast({
+                      render: () => <Toast title={'Copied'} id={id} />,
+                    })
+                  }}
+                >
                   <HStack gap='4px' w='full'>
                     <CopyIcon width={16} height={16} />
                     <Text {...paragraphMedium}>Copy Link</Text>
@@ -236,8 +284,8 @@ export default function MarketPage() {
               alt='creator'
               borderRadius={'2px'}
             />
-            <Link href={market?.creator.link}>
-              <Text color='grey.500'>{market?.creator.name}</Text>
+            <Link href={market?.creator.link} variant='textLinkSecondary'>
+              {market?.creator.name}
             </Link>
           </HStack>
         </HStack>
@@ -255,7 +303,7 @@ export default function MarketPage() {
           </Box>
         </HStack>
       </HStack>
-      <Divider my='8px' color='grey.300' />
+      <Divider my='8px' color='grey.100' />
       <HStack w='full' mb={isMobile ? '32px' : '24px'} mt={isMobile ? '24px' : 0}>
         <VStack alignItems='center' flex={1} gap={0}>
           <HStack color='grey.400' gap='4px'>
@@ -491,6 +539,6 @@ export default function MarketPage() {
           ))}
         </TabPanels>
       </Tabs>
-    </Paper>
+    </Box>
   )
 }
