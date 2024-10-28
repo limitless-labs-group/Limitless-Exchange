@@ -40,7 +40,7 @@ export default function MarketStatusUpdatedCard({ data }: MarketStatusUpdatedCar
   }
   return (
     <MarketFeedCardContainer
-      creator={data.user}
+      user={data.user}
       timestamp={new Date(data.timestamp).getTime() / 1000}
       title={`${getText()} market`}
     >

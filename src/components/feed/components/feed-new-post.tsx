@@ -9,7 +9,7 @@ interface FeedNewPostProps {
 export default function FeedNewPost({ data }: FeedNewPostProps) {
   return (
     <MarketFeedCardContainer
-      creator={data.user}
+      user={data.user}
       timestamp={new Date(data.timestamp).getTime() / 1000}
       title={`${data.data.content}`}
     >

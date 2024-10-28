@@ -157,7 +157,9 @@ const CreateOwnMarketPage = () => {
   const { data: creators } = useQuery({
     queryKey: ['creators'],
     queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/creators`)
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/profiles/creators`
+      )
       return response.data as Creator[]
     },
   })
