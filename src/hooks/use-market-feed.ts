@@ -4,7 +4,6 @@ import { usePathname } from 'next/navigation'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import { limitlessApi } from '@/services'
-import { FeedEntity, FeedResponse } from '@/types'
 
 export type MarketFeedData = {
   createdAt: string
@@ -23,6 +22,11 @@ export type MarketFeedData = {
     tradeAmountUSD: string
   }
   bodyHash: string
+  user: {
+    account: string
+    imageURI: string
+    name: string
+  }
 }
 
 export function useMarketFeed(marketAddress?: string) {

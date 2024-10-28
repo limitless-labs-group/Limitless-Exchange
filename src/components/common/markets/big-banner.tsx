@@ -50,9 +50,7 @@ export default function BigBanner({ market }: BigBannerProps) {
     if (message && feedMessage === message) {
       const title = message.eventBody.strategy === 'Buy' ? 'bought' : 'sold'
       const outcome = message.eventBody.outcome
-      return `${truncateEthAddress(
-        message.eventBody.account
-      )} ${title} ${NumberUtil.formatThousands(
+      return `${truncateEthAddress(message.user.name)} ${title} ${NumberUtil.formatThousands(
         message.eventBody.contracts,
         6
       )} contracts ${outcome} for ${NumberUtil.convertWithDenomination(
@@ -180,7 +178,7 @@ export default function BigBanner({ market }: BigBannerProps) {
                     key={feedMessage.bodyHash}
                   >
                     <HStack gap='4px' alignItems='flex-start'>
-                      <Avatar account={feedMessage.eventBody.account} />
+                      <Avatar account={feedMessage.user.imageURI || feedMessage.user.account} />
                       <Text {...paragraphMedium} color='black' mt='-2px'>
                         {fetMarketFeedTitle(feedMessage)}
                       </Text>
