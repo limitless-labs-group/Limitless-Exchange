@@ -1,12 +1,12 @@
 import { Flex, GridProps, Stack, Text } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import PortfolioPositionCard from '@/app/portfolio/components/PortfolioPositionCard'
 import { useHistory } from '@/services'
 import { useUsersMarkets } from '@/services/UsersMarketsService'
 import { Token } from '@/types'
 
-export const PortfolioPositions = ({ ...props }: GridProps) => {
+const PortfolioPositionsContainer = ({ ...props }: GridProps) => {
   const { positions, getPositions } = useHistory()
   const { data: userMarkets } = useUsersMarkets()
 
@@ -51,3 +51,5 @@ export const PortfolioPositions = ({ ...props }: GridProps) => {
     </>
   )
 }
+
+export const PortfolioPositions = memo(PortfolioPositionsContainer)

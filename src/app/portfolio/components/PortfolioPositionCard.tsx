@@ -1,6 +1,6 @@
 import { HStack, Stack, Text, Box, Icon, VStack, Button, Divider } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import { memo, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
@@ -32,7 +32,7 @@ const hoverColors = {
   secondary: 'transparent.700',
 }
 
-const PortfolioPosition = ({ position }: IPortfolioPositionCard) => {
+const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
   const [colors, setColors] = useState(unhoveredColors)
   const [isLoadingRedeem, setIsLoadingRedeem] = useState(false)
 
@@ -334,7 +334,5 @@ const PortfolioPosition = ({ position }: IPortfolioPositionCard) => {
     </Paper>
   )
 }
-
-const PortfolioPositionCard = memo(PortfolioPosition)
 
 export default PortfolioPositionCard
