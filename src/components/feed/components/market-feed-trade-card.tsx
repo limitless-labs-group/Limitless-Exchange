@@ -28,7 +28,7 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
         <PieChartIcon width={14} height={14} />
         <NextLink href={`https://${window.location.host}/markets/${data.data.address}`}>
           <Link
-            variant='textLink'
+            variant='textLinkSecondary'
             {...captionRegular}
             color='grey.500'
             textOverflow='ellipsis'

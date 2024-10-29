@@ -182,6 +182,10 @@ export default function BuyButton({
                 {...paragraphRegular}
                 color='white'
                 borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
+                borderColor={'transparent.200'}
+                _hover={{
+                  borderColor: 'var(--chakra-colors-transparent-600)',
+                }}
                 onClick={handleFeeToggleClicked}
               >
                 {showFeeInValue
@@ -222,6 +226,9 @@ export default function BuyButton({
   }
 
   const handleActionIntention = async () => {
+    if (!walletAddress) {
+      return
+    }
     if (isExceedsBalance) {
       return
     }
@@ -338,7 +345,7 @@ export default function BuyButton({
           bg='rgba(255, 255, 255, 0.2)'
           px='12px'
           py='8px'
-          w={isMobile ? 'calc(100vw - 48px)' : '456px'}
+          w={isMobile ? 'calc(100vw - 40px)' : '440px'}
           h='unset'
           alignItems='flex-start'
           flexDir='column'
@@ -346,11 +353,7 @@ export default function BuyButton({
           _hover={{
             backgroundColor: 'transparent.300',
           }}
-          isDisabled={
-            !collateralAmount ||
-            ['transaction-broadcasted', 'success'].includes(status) ||
-            !walletAddress
-          }
+          isDisabled={!collateralAmount || ['transaction-broadcasted', 'success'].includes(status)}
           onClick={() => {
             return handleActionIntention()
           }}
@@ -374,6 +377,10 @@ export default function BuyButton({
                       {...paragraphRegular}
                       color='white'
                       borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
+                      borderColor={'transparent.200'}
+                      _hover={{
+                        borderColor: 'var(--chakra-colors-transparent-600)',
+                      }}
                       cursor={quote?.outcomeTokenAmount ? 'pointer' : 'default'}
                       onClick={handleReturnToggleClicked}
                     >

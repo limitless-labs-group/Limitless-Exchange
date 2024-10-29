@@ -89,6 +89,10 @@ export const lightThemeColors: ColorScheme = {
     200: 'rgba(0, 0, 0, 0.2)',
     600: 'rgba(0, 0, 0, 0.6)',
   },
+  greyTransparent: {
+    200: 'rgba(132, 132, 132, 0.2)',
+    600: 'rgba(132, 132, 132, 0.6)',
+  },
   blackStale: {
     200: 'rgba(0, 0, 0, 0.2)',
   },

@@ -91,12 +91,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
 
   const tabPanels = useMemo(() => {
     return [
-      <MarketOverviewTab
-        market={market as Market}
-        winningIndex={winningIndex as number}
-        resolved={resolved}
-        key={uuidv4()}
-      />,
+      <MarketOverviewTab market={market as Market} key={uuidv4()} />,
       <MarketActivityTab key={uuidv4()} />,
     ]
   }, [market, winningIndex, resolved])
@@ -232,7 +227,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                   <ChakraImage
                     width={6}
                     height={6}
-                    src={market?.creator.imageUrl ?? '/assets/images/logo.svg'}
+                    src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
                     alt='creator'
                     borderRadius={'2px'}
                   />

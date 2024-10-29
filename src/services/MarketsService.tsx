@@ -5,6 +5,7 @@ import { ethers } from 'ethers'
 import { useMemo } from 'react'
 import { Address, formatUnits, getContract, parseUnits } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
+import { POLLING_INTERVAL } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers'
 import { Category, Market, MarketsResponse, OddsData } from '@/types'
@@ -276,7 +277,10 @@ export function useDailyMarkets(topic: Category | null) {
 
       return {
         data: {
-          markets: result,
+          markets: result.sort(
+            (a, b) =>
+              new Date(a.expirationTimestamp).getTime() - new Date(b.expirationTimestamp).getTime()
+          ),
           totalAmount: response.totalMarketsCount,
         },
       }
@@ -311,7 +315,7 @@ export function useMarketByConditionId(conditionId: string) {
   return useMemo(() => market ?? null, [market])
 }
 
-export function useMarket(address?: string) {
+export function useMarket(address?: string, isPolling = false) {
   return useQuery({
     queryKey: ['market', address],
     queryFn: async () => {
@@ -349,6 +353,7 @@ export function useMarket(address?: string) {
       }
     },
     enabled: !!address && address !== '0x',
+    refetchInterval: isPolling ? POLLING_INTERVAL : false,
   })
 }
 
