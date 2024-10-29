@@ -9,14 +9,14 @@ import { FeedEventUser } from '@/types'
 import { timeSinceCreation, truncateEthAddress } from '@/utils'
 
 interface MarketFeedCardContainer {
-  creator: FeedEventUser
+  user: FeedEventUser
   timestamp: number
   title: string
   isActivityTab?: boolean
 }
 
 export default function MarketFeedCardContainer({
-  creator,
+  user,
   timestamp,
   title,
   children,
@@ -45,14 +45,14 @@ export default function MarketFeedCardContainer({
       w='full'
     >
       <HStack gap='8px' flexWrap='wrap' mb={isMobile ? '16px' : '12px'}>
-        <Avatar account={creator.account || ''} avatarUrl={creator.imageURI} />
-        {creator.link ? (
-          <Link href={creator.link}>
-            <Text {...captionRegular}>{creator.name}</Text>
+        <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
+        {user.link ? (
+          <Link href={user.link}>
+            <Text {...captionRegular}>{user.name}</Text>
           </Link>
         ) : (
           <Link
-            href={`${defaultChain.blockExplorers.default.url}/address/${creator.account}`}
+            href={`${defaultChain.blockExplorers.default.url}/address/${user.account}`}
             target={'_blank'}
             variant='textLink'
             {...captionRegular}
@@ -62,9 +62,11 @@ export default function MarketFeedCardContainer({
             overflow='hidden'
             maxW='calc(100% - 22px)'
           >
-            {ethers.utils.isAddress(creator.name)
-              ? truncateEthAddress(creator.account)
-              : creator.name}
+            {
+              ethers.utils.isAddress(user.name)
+                ? truncateEthAddress(user.account)
+                : user.name ?? truncateEthAddress(user.account) //?? needs to cover edge case of old account which don't have profile on the platform
+            }
           </Link>
         )}
         <Text {...captionRegular} color='grey.500'>
