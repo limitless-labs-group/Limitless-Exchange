@@ -1,4 +1,5 @@
 import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
+import { ethers } from 'ethers'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
@@ -48,15 +49,20 @@ export default function BigBanner({ market }: BigBannerProps) {
 
   const fetMarketFeedTitle = (message: MarketFeedData | null) => {
     if (message && feedMessage === message) {
-      const title = message.eventBody.strategy === 'Buy' ? 'bought' : 'sold'
-      const outcome = message.eventBody.outcome
-      return `${truncateEthAddress(message.user.name)} ${title} ${NumberUtil.formatThousands(
-        message.eventBody.contracts,
+      const title = message.data.strategy === 'Buy' ? 'bought' : 'sold'
+      const outcome = message.data.outcome
+      return `${
+        ethers.utils.isAddress(feedMessage?.user?.name ?? '')
+          ? truncateEthAddress(feedMessage?.user?.account)
+          : feedMessage?.user?.name ?? truncateEthAddress(feedMessage?.user?.account)
+      }
+         ${title} ${NumberUtil.formatThousands(
+        message.data.contracts,
         6
       )} contracts ${outcome} for ${NumberUtil.convertWithDenomination(
-        Math.abs(+message.eventBody.tradeAmount),
+        Math.abs(+message.data.tradeAmount),
         6
-      )} ${message.eventBody.symbol} in total.`
+      )} ${message.data.symbol} in total.`
     }
   }
 
@@ -178,7 +184,7 @@ export default function BigBanner({ market }: BigBannerProps) {
                     key={feedMessage.bodyHash}
                   >
                     <HStack gap='4px' alignItems='flex-start'>
-                      <Avatar account={feedMessage.user.imageURI || feedMessage.user.account} />
+                      <Avatar account={feedMessage?.user?.account ?? ''} />
                       <Text {...paragraphMedium} color='black' mt='-2px'>
                         {fetMarketFeedTitle(feedMessage)}
                       </Text>

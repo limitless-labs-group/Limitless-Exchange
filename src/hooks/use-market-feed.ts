@@ -4,15 +4,15 @@ import { usePathname } from 'next/navigation'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import { limitlessApi } from '@/services'
+import { FeedEventUser } from '@/types'
 
 export type MarketFeedData = {
   createdAt: string
   id: number
   eventType: 'NEW_TRADE'
-  eventBody: {
+  data: {
     symbol: string
     txHash: string
-    account: Address
     address: Address
     outcome: 'YES' | 'NO'
     strategy: 'Sell' | 'Buy'
@@ -21,12 +21,8 @@ export type MarketFeedData = {
     tradeAmount: string
     tradeAmountUSD: string
   }
+  user?: FeedEventUser
   bodyHash: string
-  user: {
-    account: string
-    imageURI: string
-    name: string
-  }
 }
 
 export function useMarketFeed(marketAddress?: string) {
