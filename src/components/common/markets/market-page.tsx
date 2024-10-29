@@ -18,7 +18,7 @@ import {
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
-import { Address, zeroAddress } from 'viem'
+import { Address } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
@@ -30,7 +30,10 @@ import {
   MarketPriceChart,
   SellForm,
 } from '@/app/(markets)/markets/[address]/components'
-import { defaultChain } from '@/constants'
+import { useToast } from '@/hooks'
+import useMarketGroup from '@/hooks/use-market-group'
+import WarpcastIcon from '@/resources/icons/Farcaster.svg'
+import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
@@ -46,10 +49,12 @@ import {
   useHistory,
   useTradingService,
 } from '@/services'
-import { useWinningIndex } from '@/services/MarketsService'
+import { useMarket, useWinningIndex } from '@/services/MarketsService'
 import {
   controlsMedium,
   h1Regular,
+  h2Medium,
+  headline,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
@@ -75,13 +80,11 @@ export default function MarketPage() {
     status,
     marketGroup,
     setMarketGroup,
+    refetchMarkets,
   } = useTradingService()
 
   const { trackChanged, trackClicked } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
-  const { data: winningIndex } = useWinningIndex(market?.address || '')
-
-  const resolved = winningIndex === 0 || winningIndex === 1
   // Todo change creator name
 
   const positions = useMemo(
@@ -91,6 +94,26 @@ export default function MarketPage() {
       ),
     [allMarketsPositions, market]
   )
+
+  const marketAddress = useMemo(() => market?.address, [market])
+  const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
+
+  const { data: updatedMarket } = useMarket(marketAddress, !!market)
+  const { data: updatedMarketGroup } = useMarketGroup(marketGroupSlug, !!marketGroup)
+
+  useEffect(() => {
+    if (updatedMarket) {
+      setMarket(updatedMarket)
+      refetchMarkets()
+    }
+  }, [updatedMarket])
+
+  useEffect(() => {
+    if (updatedMarketGroup) {
+      setMarketGroup(updatedMarketGroup)
+      refetchMarkets()
+    }
+  }, [updatedMarketGroup])
 
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
@@ -170,15 +193,11 @@ export default function MarketPage() {
           <ShareMenu />
         </HStack>
       )}
-      <HStack w='full' justifyContent='space-between' alignItems='flex-start'>
-        <Text mt='10px' {...h1Regular}>
+      <HStack w='full' justifyContent='space-between' alignItems='flex-start' mt='10px'>
+        <Text {...(isMobile ? { ...h2Medium } : { ...h1Regular })}>
           {marketGroup?.title || market?.title}
         </Text>
         {isMobile && <ShareMenu />}
-      </HStack>
-      <HStack w='full' justifyContent='space-between' mt='10px' gap='8px' alignItems='flex-start'>
-        <Text {...h1Regular}>{marketGroup?.title || market?.title}</Text>
-        <ShareMenu />
       </HStack>
       <HStack w='full' justifyContent='space-between' mt={isMobile ? '16px' : '10px'} mb='4px'>
         <HStack gap={isMobile ? '16px' : '24px'}>
@@ -434,14 +453,7 @@ export default function MarketPage() {
           )
         ) : null}
       </Paper>
-      {market && (
-        <MarketPriceChart
-          marketAddr={market.address[defaultChain.id] ?? zeroAddress}
-          winningIndex={winningIndex}
-          resolved={resolved}
-          outcomeTokensPercent={market.prices}
-        />
-      )}
+      {market && <MarketPriceChart market={market} />}
       <Tabs position='relative' variant='common'>
         <TabList>
           {tabs.map((tab) => (

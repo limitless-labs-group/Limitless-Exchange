@@ -200,12 +200,7 @@ export default function BigBanner({ market }: BigBannerProps) {
   )
 
   return isMobile ? (
-    <MobileDrawer
-      trigger={content}
-      variant='black'
-      title={market.proxyTitle ?? market.title ?? 'Noname market'}
-      onClose={onCloseMarketPage}
-    >
+    <MobileDrawer trigger={content} variant='black' onClose={onCloseMarketPage}>
       <MarketPage />
     </MobileDrawer>
   ) : (

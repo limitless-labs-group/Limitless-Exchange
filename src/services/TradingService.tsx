@@ -73,6 +73,7 @@ interface ITradingServiceContext {
     market: Market | MarketGroup,
     type: 'Standard Banner' | 'Medium Banner' | 'Big Banner'
   ) => void
+  refetchMarkets: () => Promise<void>
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -713,14 +714,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         ),
       })
 
-      await sleep(1)
-
-      await queryClient.refetchQueries({
-        queryKey: ['daily-markets'],
-      })
-      await queryClient.refetchQueries({
-        queryKey: ['market', market.address],
-      })
+      await refetchMarkets()
 
       const updateID = toast({
         render: () => <Toast title={`Updating portfolio...`} id={updateID} />,
@@ -734,6 +728,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       return receipt
     },
   })
+
+  const refetchMarkets = async () => {
+    await sleep(1)
+    await queryClient.refetchQueries({
+      queryKey: ['daily-markets'],
+    })
+    await queryClient.refetchQueries({
+      queryKey: ['market', market?.address],
+    })
+  }
 
   /**
    * REDEEM / CLAIM
@@ -847,6 +851,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setMarketPageOpened,
     onCloseMarketPage,
     onOpenMarketPage,
+    refetchMarkets,
   }
 
   return (

@@ -1,4 +1,13 @@
-import { HStack, Menu, MenuButton, MenuItem, MenuList, Text, useDisclosure } from '@chakra-ui/react'
+import {
+  Box,
+  HStack,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Text,
+  useDisclosure,
+} from '@chakra-ui/react'
 import React from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
@@ -36,15 +45,17 @@ export default function ShareMenu() {
           // })
           toggleShareMenu()
         }}
-        as={'div'}
+        as={isMobile ? 'div' : undefined}
       >
         {isMobile ? (
-          <ShareIcon width={16} height={16} />
+          <Box mt='4px'>
+            <ShareIcon width={20} height={20} />
+          </Box>
         ) : (
-          <>
+          <HStack gap='4px'>
             <ShareIcon width={16} height={16} />
             <Text {...paragraphMedium}>Share</Text>
-          </>
+          </HStack>
         )}
       </MenuButton>
       <MenuList borderRadius='2px' w={isMobile ? '160px' : '122px'} zIndex={2}>
