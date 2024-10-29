@@ -17,9 +17,9 @@ import axios from 'axios'
 import { rgba } from 'color2k'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { getAddress } from 'viem'
+import { getAddress, zeroAddress } from 'viem'
 import Paper from '@/components/common/paper'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { useMarketPriceHistory } from '@/hooks/use-market-price-history'
@@ -27,6 +27,7 @@ import { useThemeProvider } from '@/providers'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { useWinningIndex } from '@/services/MarketsService'
 import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup } from '@/types'
 
@@ -34,26 +35,25 @@ const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
 // Define the MarketPriceChart component
 export interface IMarketPriceChart {
-  marketAddr: string
-  winningIndex: number | undefined | null
-  resolved: boolean
-  outcomeTokensPercent?: number[]
   marketGroup?: MarketGroup
+  market: Market
 }
 
-export const MarketPriceChart = ({
-  marketAddr,
-  resolved,
-  winningIndex,
-  outcomeTokensPercent,
-  marketGroup,
-}: IMarketPriceChart) => {
+export const MarketPriceChart = ({ marketGroup, market }: IMarketPriceChart) => {
   const { colors } = useThemeProvider()
-  const { market, setMarket } = useTradingService()
+  // const { market, setMarket } = useTradingService()
   const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%b %e, %Y %I:%M %p', Date.now()) ?? ''
   )
+  const outcomeTokensPercent = market.prices
+  const marketAddr = market.address[defaultChain.id] ?? zeroAddress
+  const { data: winningIndex } = useWinningIndex(market?.address || '')
+  const resolved = winningIndex === 0 || winningIndex === 1
+
+  useEffect(() => {
+    refetchPrices()
+  }, [market])
 
   const { trackClicked } = useAmplitude()
 
@@ -172,7 +172,7 @@ export const MarketPriceChart = ({
   })
 
   // React Query to fetch the price data
-  const { data: prices } = useMarketPriceHistory(market?.address)
+  const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(market?.address)
 
   // const initialYesChance = useMemo(() => {
   //   if (market?.prices) {

@@ -16,8 +16,10 @@ import debounce from 'lodash.debounce'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import BuyButton from '@/components/common/markets/buy-button'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import InfiniteIcon from '@/resources/icons/infinite-icon.svg'
 import { useBalanceService, useTradingService } from '@/services'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
@@ -35,6 +37,8 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
   const [displayAmount, setDisplayAmount] = useState('')
   const [showReturnPercent, setShowReturnPercent] = useState(false)
   const [showFeeInValue, setShowFeeInValue] = useState(false)
+  const [slippage, setSlippage] = useState('1')
+  const [showSlippageDetails, setShowSlippageDetails] = useState(false)
 
   const handleInputValueChange = (value: string) => {
     if (market?.collateralToken.symbol === 'USDC') {
@@ -49,6 +53,18 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
     setDisplayAmount(value)
     setCollateralAmount(value)
     return
+  }
+
+  const handleSlippageChange = (value: string) => {
+    if (!value) {
+      setSlippage('')
+      return
+    }
+    if (+value >= 100) {
+      setSlippage('100')
+      return
+    }
+    setSlippage(value)
   }
 
   const handlePercentButtonClicked = (value: number) => {
@@ -68,6 +84,10 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
     setCollateralAmount(
       NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
     )
+  }
+
+  const handleSlippageClicked = (value: number) => {
+    setSlippage(value.toString())
   }
 
   const refetchQuotes = useCallback(
@@ -102,6 +122,8 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
   const isExceedsBalance = useMemo(() => {
     return new BigNumber(collateralAmount).isGreaterThan(balance)
   }, [collateralAmount, balance])
+
+  const toggleShowSlippageDetails = () => setShowSlippageDetails(!showSlippageDetails)
 
   useEffect(() => {
     if (+collateralAmount) {
@@ -172,13 +194,70 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
           </InputRightElement>
         </InputGroup>
       </Stack>
+      <HStack
+        w='full'
+        justifyContent='space-between'
+        mt='12px'
+        cursor='pointer'
+        onClick={toggleShowSlippageDetails}
+      >
+        <Text {...paragraphRegular} color='white'>
+          Slippage Tolerance {slippage === '100' ? 'Infinite' : !slippage ? '0%' : `${slippage}%`}
+        </Text>
+        <Box
+          transform={`rotate(${showSlippageDetails ? '180deg' : 0})`}
+          transition='0.5s'
+          color='white'
+        >
+          <ChevronDownIcon width='16px' height='16px' />
+        </Box>
+      </HStack>
+      {showSlippageDetails && (
+        <HStack w='full' gap='8px' justifyContent='space-between' mt='8px'>
+          <InputGroup flex={1}>
+            <Input
+              variant='outlined'
+              value={slippage}
+              onChange={(e) => handleSlippageChange(e.target.value)}
+              placeholder='0'
+              css={css`
+                caret-color: white;
+              `}
+              type='number'
+            />
+            <InputRightElement
+              h='16px'
+              top={isMobile ? '8px' : '4px'}
+              right={isMobile ? '8px' : '4px'}
+              w='fit'
+            >
+              <Text {...paragraphMedium} color='white'>
+                %
+              </Text>
+            </InputRightElement>
+          </InputGroup>
+          {[0.1, 0.5, 1, 100].map((title) => (
+            <Button
+              variant='transparentLight'
+              key={title}
+              flex={1}
+              onClick={() => handleSlippageClicked(title)}
+              color='white'
+              py='2px'
+              h={isMobile ? '32px' : '24px'}
+            >
+              {title === 100 ? <InfiniteIcon /> : `${title}%`}
+            </Button>
+          ))}
+        </HStack>
+      )}
       {market && (
         <>
-          <Box mt='16px' />
+          <Box mt='12px' />
           <BuyButton
             onClick={async () => {
               setOutcomeIndex(0)
-              await trade(0)
+              await trade(0, slippage)
             }}
             isExceedsBalance={isExceedsBalance}
             market={market}
@@ -198,7 +277,7 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
           <BuyButton
             onClick={async () => {
               setOutcomeIndex(1)
-              await trade(1)
+              await trade(1, slippage)
             }}
             isExceedsBalance={isExceedsBalance}
             market={market}

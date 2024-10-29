@@ -151,13 +151,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
 
   const tabPanels = useMemo(() => {
     return [
-      <MarketOverviewTab
-        market={market as Market}
-        winningIndex={winningIndex as number}
-        resolved={resolved}
-        key={uuidv4()}
-        marketGroup={marketGroup}
-      />,
+      <MarketOverviewTab market={market as Market} key={uuidv4()} marketGroup={marketGroup} />,
       <MarketActivityTab key={uuidv4()} />,
     ]
   }, [market, winningIndex, resolved, marketGroup])
