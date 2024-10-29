@@ -553,7 +553,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         : (quotesYes?.outcomeTokenAmount as string)
 
       const minOutcomeTokensToBuy = slippage
-        ? new BigNumber(outcomeTokenAmount).multipliedBy(1 - +slippage / 100).toFixed(0)
+        ? new BigNumber(outcomeTokenAmount).multipliedBy(1 - +slippage / 100).toString()
         : outcomeTokenAmount
 
       const receipt = await buyOutcomeTokens(
