@@ -97,7 +97,7 @@ export function SellForm({
   const [quoteYes, setQuoteYes] = useState<TradeQuotes | undefined | null>()
   const [quoteNo, setQuoteNo] = useState<TradeQuotes | undefined | null>()
   const [isApproved, setIsApproved] = useState(true)
-  const [slippage, setSlippage] = useState('1')
+  const [slippage, setSlippage] = useState('5')
   const [showSlippageDetails, setShowSlippageDetails] = useState(false)
   const toast = useToast()
 

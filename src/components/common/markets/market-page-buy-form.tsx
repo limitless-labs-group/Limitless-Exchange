@@ -37,7 +37,7 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
   const [displayAmount, setDisplayAmount] = useState('')
   const [showReturnPercent, setShowReturnPercent] = useState(false)
   const [showFeeInValue, setShowFeeInValue] = useState(false)
-  const [slippage, setSlippage] = useState('1')
+  const [slippage, setSlippage] = useState('5')
   const [showSlippageDetails, setShowSlippageDetails] = useState(false)
 
   const handleInputValueChange = (value: string) => {
@@ -236,7 +236,7 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
               </Text>
             </InputRightElement>
           </InputGroup>
-          {[0.1, 0.5, 1, 100].map((title) => (
+          {[1, 5, 7, 100].map((title) => (
             <Button
               variant='transparentLight'
               key={title}
