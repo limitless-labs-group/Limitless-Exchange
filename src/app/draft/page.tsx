@@ -101,7 +101,7 @@ const CreateOwnMarketPage = () => {
         creatorId: editMarket.creator?.id || defaultCreatorId,
         categoryId: editMarket.category?.id || defaultCategoryId,
       }))
-      generateOgImage()
+      generateOgImage().then(() => console.log('Og image generated'))
     }
   }, [editMarket])
 
@@ -181,7 +181,7 @@ const CreateOwnMarketPage = () => {
     ])
   }
 
-  const prepareData = () => {
+  const prepareData = async () => {
     const { title, description, creatorId, ogLogo, tag } = formData
     if (!title || !description || !creatorId || !ogLogo || !tag) {
       showToast('Title, Description, Creator, Market Logo, Og Logo, and Tags are required!')
@@ -192,6 +192,8 @@ const CreateOwnMarketPage = () => {
       (parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset || 1) -
       (parseTimezone(formData.timezone)?.offset || 1)
     const zonedTime = new Date(formData.deadline).getTime() + differenceInOffset * 60 * 60 * 1000
+
+    await generateOgImage()
 
     const marketFormData = new FormData()
     marketFormData?.set('title', formData.title)
@@ -224,7 +226,7 @@ const CreateOwnMarketPage = () => {
   }
 
   const draftMarket = async () => {
-    const data = prepareData()
+    const data = await prepareData()
     setIsCreating(true)
     axios
       .post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts`, data, {
@@ -249,7 +251,7 @@ const CreateOwnMarketPage = () => {
   }
 
   const updateMarket = async () => {
-    const data = prepareData()
+    const data = await prepareData()
     setIsCreating(true)
     axios
       .put(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts/${marketId}`, data, {
