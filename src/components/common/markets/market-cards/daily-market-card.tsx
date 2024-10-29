@@ -54,20 +54,10 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
         }
       }}
       onClick={() => {
-        trackClicked(ClickEvent.MarketPageOpened, {
-          ...analyticParams,
-          platform: isMobile ? 'mobile' : 'desktop',
-          bannerType: 'Medium banner',
-          source: 'Explore Market',
-          marketCategory: category,
-          marketAddress: market.address as Address,
-          marketType: 'single',
-          page: 'Market Page',
-        })
         trackClicked(ClickEvent.MediumMarketBannerClicked, {
           ...analyticParams,
         })
-        onOpenMarketPage(market)
+        onOpenMarketPage(market, 'Medium Banner')
       }}
       position='relative'
       cursor='pointer'

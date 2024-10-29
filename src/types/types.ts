@@ -123,6 +123,7 @@ export enum MarketTokensIds {
   BETS = 'all-street-bets',
   GHST = 'aavegotchi',
   cbBTC = 'coinbase-wrapped-btc',
+  aBasUSDC = 'aave-v3-usdc',
 }
 
 export enum Sort {
@@ -231,6 +232,10 @@ export interface ColorScheme {
     700: string
   }
   blackTransparent: {
+    200: string
+    600: string
+  }
+  greyTransparent: {
     200: string
     600: string
   }

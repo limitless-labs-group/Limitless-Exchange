@@ -69,7 +69,10 @@ interface ITradingServiceContext {
   marketPageOpened: boolean
   setMarketPageOpened: Dispatch<SetStateAction<boolean>>
   onCloseMarketPage: () => void
-  onOpenMarketPage: (market: Market | MarketGroup) => void
+  onOpenMarketPage: (
+    market: Market | MarketGroup,
+    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner'
+  ) => void
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -108,8 +111,11 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setMarketPageOpened(false)
   }
 
-  const onOpenMarketPage = (market: Market | MarketGroup) => {
-    trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
+  const onOpenMarketPage = (
+    market: Market | MarketGroup,
+    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner'
+  ) => {
+    trackClicked(ClickEvent.SidebarMarketOpened, {
       mode: 'open',
       marketCategory: market?.category,
       // @ts-ignore
@@ -119,6 +125,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       // @ts-ignore
       marketType: market.slug ? 'group' : 'single',
       marketTags: market?.tags,
+      type,
     })
     // @ts-ignore
     if (market.slug) {

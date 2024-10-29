@@ -1,4 +1,5 @@
 import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
+import { ethers } from 'ethers'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
@@ -11,7 +12,7 @@ import MarketPage from '@/components/common/markets/market-page'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { useTradingService } from '@/services'
 import { headLineLarge, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -24,24 +25,11 @@ interface BigBannerProps {
 
 export default function BigBanner({ market }: BigBannerProps) {
   const [feedMessage, setFeedMessage] = useState<MarketFeedData | null>(null)
-  const { trackClicked } = useAmplitude()
-  const searchParams = useSearchParams()
-  const category = searchParams.get('category')
-  const { setMarket, onCloseMarketPage, onOpenMarketPage } = useTradingService()
+  const { onCloseMarketPage, onOpenMarketPage } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market.address)
 
   const onClickRedirectToMarket = () => {
-    trackClicked(ClickEvent.MarketPageOpened, {
-      // bannerPosition: index,
-      platform: isMobile ? 'mobile' : 'desktop',
-      bannerType: 'Big banner',
-      source: 'Explore Market',
-      marketCategory: category,
-      marketAddress: market.address as Address,
-      marketType: 'single',
-      page: 'Market Page',
-    })
-    onOpenMarketPage(market)
+    onOpenMarketPage(market, 'Big Banner')
   }
 
   useEffect(() => {
@@ -61,17 +49,20 @@ export default function BigBanner({ market }: BigBannerProps) {
 
   const fetMarketFeedTitle = (message: MarketFeedData | null) => {
     if (message && feedMessage === message) {
-      const title = message.eventBody.strategy === 'Buy' ? 'bought' : 'sold'
-      const outcome = message.eventBody.outcome
-      return `${truncateEthAddress(
-        message.eventBody.account
-      )} ${title} ${NumberUtil.formatThousands(
-        message.eventBody.contracts,
+      const title = message.data.strategy === 'Buy' ? 'bought' : 'sold'
+      const outcome = message.data.outcome
+      return `${
+        ethers.utils.isAddress(feedMessage?.user?.name ?? '')
+          ? truncateEthAddress(feedMessage?.user?.account)
+          : feedMessage?.user?.name ?? truncateEthAddress(feedMessage?.user?.account)
+      }
+         ${title} ${NumberUtil.formatThousands(
+        message.data.contracts,
         6
       )} contracts ${outcome} for ${NumberUtil.convertWithDenomination(
-        Math.abs(+message.eventBody.tradeAmount),
+        Math.abs(+message.data.tradeAmount),
         6
-      )} ${message.eventBody.symbol} in total.`
+      )} ${message.data.symbol} in total.`
     }
   }
 
@@ -193,7 +184,7 @@ export default function BigBanner({ market }: BigBannerProps) {
                     key={feedMessage.bodyHash}
                   >
                     <HStack gap='4px' alignItems='flex-start'>
-                      <Avatar account={feedMessage.eventBody.account} />
+                      <Avatar account={feedMessage?.user?.account ?? ''} />
                       <Text {...paragraphMedium} color='black' mt='-2px'>
                         {fetMarketFeedTitle(feedMessage)}
                       </Text>
