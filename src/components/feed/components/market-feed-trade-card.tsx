@@ -20,7 +20,7 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
   }, [data])
   return (
     <MarketFeedCardContainer
-      creator={data.user}
+      user={data.user}
       timestamp={new Date(data.timestamp).getTime() / 1000}
       title={eventTitle}
     >
@@ -28,7 +28,7 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
         <PieChartIcon width={14} height={14} />
         <NextLink href={`https://${window.location.host}/markets/${data.data.address}`}>
           <Link
-            variant='textLink'
+            variant='textLinkSecondary'
             {...captionRegular}
             color='grey.500'
             textOverflow='ellipsis'
