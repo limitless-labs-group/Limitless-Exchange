@@ -233,7 +233,7 @@ const CreateOwnMarketPage = () => {
   }
 
   const draftMarket = async () => {
-    const data = prepareData()
+    const data = await prepareData()
     if (!data) return
     setIsCreating(true)
     axios
@@ -259,7 +259,7 @@ const CreateOwnMarketPage = () => {
   }
 
   const updateMarket = async () => {
-    const data = prepareData()
+    const data = await prepareData()
     if (!data) return
     setIsCreating(true)
     axios
