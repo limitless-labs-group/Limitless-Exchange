@@ -181,10 +181,20 @@ const CreateOwnMarketPage = () => {
     ])
   }
 
-  const prepareData = () => {
+  const prepareData = async () => {
+    await generateOgImage()
+
     const { title, description, creatorId, ogLogo, tag } = formData
-    if (!title || !description || !creatorId || !ogLogo || !tag) {
-      showToast('Title, Description, Creator, Market Logo, Og Logo, and Tags are required!')
+
+    const missingFields: string[] = []
+    if (!title) missingFields.push('Title')
+    if (!description) missingFields.push('Description')
+    if (!creatorId) missingFields.push('Creator')
+    if (!ogLogo) missingFields.push('Og Logo')
+    if (!tag) missingFields.push('Tag')
+
+    if (missingFields.length > 0) {
+      showToast(`${missingFields.join(', ')} ${missingFields.length > 1 ? 'are' : 'is'} required!`)
       return
     }
 
@@ -224,7 +234,8 @@ const CreateOwnMarketPage = () => {
   }
 
   const draftMarket = async () => {
-    const data = prepareData()
+    const data = await prepareData()
+    if (!data) return
     setIsCreating(true)
     axios
       .post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts`, data, {
@@ -249,7 +260,8 @@ const CreateOwnMarketPage = () => {
   }
 
   const updateMarket = async () => {
-    const data = prepareData()
+    const data = await prepareData()
+    if (!data) return
     setIsCreating(true)
     axios
       .put(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts/${marketId}`, data, {
