@@ -159,6 +159,7 @@ export interface ColorScheme {
     600: string
     700: string
     800: string
+    white: string
   }
   blue: {
     50: string
