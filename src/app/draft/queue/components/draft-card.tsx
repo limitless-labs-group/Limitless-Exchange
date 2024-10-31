@@ -1,5 +1,5 @@
 import { Box, HStack, Link, Text, Image as ChakraImage, Checkbox, Stack } from '@chakra-ui/react'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
@@ -46,17 +46,13 @@ export const DraftMarketCard = ({
 }: DraftMarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
 
-  useEffect(() => {
-    setColors(isChecked ? hoverColors : defaultColors)
-  }, [isChecked])
-
   return (
     <Paper
       w={'full'}
       justifyContent={'space-between'}
       cursor='pointer'
       _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
-      bg={isChecked ? 'blue.500' : 'var(--chakra-colors-grey-200)'}
+      border={`3px solid ${isChecked ? 'var(--chakra-colors-blue-500)' : 'transparent'}`}
       position='relative'
       onMouseEnter={() => {
         if (!isMobile) {
@@ -64,7 +60,7 @@ export const DraftMarketCard = ({
         }
       }}
       onMouseLeave={() => {
-        if (!isMobile && !isChecked) {
+        if (!isMobile) {
           setColors(defaultColors)
         }
       }}
