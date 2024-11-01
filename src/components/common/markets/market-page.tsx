@@ -15,6 +15,7 @@ import {
   Tabs,
   useDisclosure,
 } from '@chakra-ui/react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -83,8 +84,18 @@ export default function MarketPage() {
     refetchMarkets,
   } = useTradingService()
 
+  const toast = useToast()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+
   const { trackChanged, trackClicked } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
+  const { data: winningIndex } = useWinningIndex(market?.address || '')
+  const marketURI = marketGroup
+    ? `${process.env.NEXT_PUBLIC_FRAME_URL}/?slug=${marketGroup.slug}`
+    : `${process.env.NEXT_PUBLIC_FRAME_URL}/?market=${market?.address}`
+  const resolved = winningIndex === 0 || winningIndex === 1
   // Todo change creator name
 
   const positions = useMemo(
@@ -130,9 +141,17 @@ export default function MarketPage() {
 
   const tabPanels = [<MarketPageOverviewTab key={uuidv4()} />, <MarketActivityTab key={uuidv4()} />]
 
+  const removeMarketQuery = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('market')
+    const newQuery = params.toString()
+    router.replace(newQuery ? `${pathname}/?${newQuery}` : pathname)
+  }
+
   const handleCloseMarketPageClicked = () => {
     setMarket(null)
     setMarketGroup(null)
+    removeMarketQuery()
     onCloseMarketPage()
     trackClicked(ClickEvent.CloseMarketClicked, {
       marketAddress: market?.address as Address,

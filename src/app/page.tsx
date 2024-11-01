@@ -11,6 +11,7 @@ import TopMarkets from '@/components/common/markets/top-markets'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useIsMobile } from '@/hooks'
+import useMarketGroup from '@/hooks/use-market-group'
 import { usePriceOracle } from '@/providers'
 import {
   OpenEvent,
@@ -19,19 +20,33 @@ import {
   useCategories,
   useTradingService,
 } from '@/services'
-import { useDailyMarkets, useMarkets } from '@/services/MarketsService'
+import { useDailyMarkets, useMarket, useMarkets } from '@/services/MarketsService'
 import { Market, MarketGroup, Sort } from '@/types'
 
 const MainPage = () => {
   const searchParams = useSearchParams()
   const [page, setPage] = useState(1)
   const { data: categories } = useCategories()
-  const { onCloseMarketPage } = useTradingService()
+  const { marketPageOpened, onOpenMarketPage, onCloseMarketPage } = useTradingService()
   /**
    * ANALYTICS
    */
   const { trackOpened } = useAmplitude()
   const category = searchParams.get('category')
+
+  const marketQuery = searchParams.get('market') || undefined
+  const marketGroupSlugQuery = searchParams.get('slug')
+  const { data: market } = useMarket(marketQuery)
+  const { data: marketGroup } = useMarketGroup(marketGroupSlugQuery ?? '')
+
+  useEffect(() => {
+    if (marketGroup) {
+      onOpenMarketPage(marketGroup, 'Standard Banner')
+    }
+    if (market) {
+      onOpenMarketPage(market, 'Standard Banner')
+    }
+  }, [market, marketGroup])
 
   useEffect(() => {
     const analyticData: PageOpenedMetadata = {
@@ -180,11 +195,11 @@ const MainPage = () => {
     }
   }, [markets, filteredAllMarkets, selectedSort])
 
-  useEffect(() => {
-    return () => {
-      onCloseMarketPage()
-    }
-  }, [])
+  // useEffect(() => {
+  //   return () => {
+  //     onCloseMarketPage()
+  //   }
+  // }, [])
 
   return (
     <MainLayout layoutPadding={'0px'}>

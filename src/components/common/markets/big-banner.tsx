@@ -1,7 +1,7 @@
 import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { ethers } from 'ethers'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
@@ -9,6 +9,7 @@ import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPage from '@/components/common/markets/market-page'
+import { MarketCardLink } from './market-cards/market-card-link'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
@@ -27,8 +28,13 @@ export default function BigBanner({ market }: BigBannerProps) {
   const [feedMessage, setFeedMessage] = useState<MarketFeedData | null>(null)
   const { onCloseMarketPage, onOpenMarketPage } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market.address)
+  const router = useRouter()
 
-  const onClickRedirectToMarket = () => {
+  const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isMobile) {
+      e.preventDefault()
+    }
+    router.push(`?market=${market.address}`, { scroll: false })
     onOpenMarketPage(market, 'Big Banner')
   }
 
@@ -75,7 +81,7 @@ export default function BigBanner({ market }: BigBannerProps) {
       borderRadius='2px'
       h={'324px'}
       cursor='pointer'
-      onClick={onClickRedirectToMarket}
+      onClick={(e) => onClickRedirectToMarket(e)}
     >
       <Text {...headLineLarge}>{market.proxyTitle ?? market.title ?? 'Noname market'}</Text>
       <Box w='full' h='38px'></Box>
@@ -200,10 +206,16 @@ export default function BigBanner({ market }: BigBannerProps) {
   )
 
   return isMobile ? (
-    <MobileDrawer trigger={content} variant='black' onClose={onCloseMarketPage}>
+    <MobileDrawer
+      id={market.address}
+      trigger={content}
+      variant='black'
+      title={market.proxyTitle ?? market.title ?? 'Noname market'}
+      onClose={onCloseMarketPage}
+    >
       <MarketPage />
     </MobileDrawer>
   ) : (
-    content
+    <MarketCardLink marketAddress={market.address}>{content}</MarketCardLink>
   )
 }
