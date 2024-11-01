@@ -33,6 +33,7 @@ import TimezoneSelect, {
   ITimezoneOption,
   useTimezoneSelect,
 } from 'react-timezone-select'
+import { ProtectedRoute } from '@/components/common/protected-route'
 import { Toast } from '@/components/common/toast'
 import {
   defaultFormData,
@@ -299,291 +300,300 @@ const CreateOwnMarketPage = () => {
   }
 
   return (
-    <MainLayout>
-      <Flex justifyContent={'center'}>
-        <VStack w='full' spacing={4}>
-          <FormControl>
-            <HStack
-              w='full'
-              maxW='1200px'
-              gap={10}
-              justifyContent='space-between'
-              alignItems='flex-start'
-            >
-              <VStack w='full' flex='1.2'>
-                <Box position='absolute' opacity={0} pointerEvents='none'>
-                  <FormField label='OG Preview is still here, but hidden (required to create an image)'>
-                    <HStack position='absolute' zIndex={-1} h='280px' w='600px'>
-                      <OgImageGenerator
-                        title={formData.title}
-                        category={
-                          categories?.find((category) => category.id === +formData.categoryId)
-                            ?.name ?? 'Unknown'
-                        }
-                        onBlobGenerated={(blob) => {
-                          console.log('Blob generated', blob)
-                          const _ogLogo = new File([blob], 'og.png', {
-                            type: blob.type,
-                            lastModified: Date.now(),
-                          })
-                          console.log('Blob transformed to File', _ogLogo)
+    <ProtectedRoute>
+      {' '}
+      <MainLayout>
+        <Flex justifyContent={'center'}>
+          <VStack w='full' spacing={4}>
+            <FormControl>
+              <HStack
+                w='full'
+                maxW='1200px'
+                gap={10}
+                justifyContent='space-between'
+                alignItems='flex-start'
+              >
+                <VStack w='full' flex='1.2'>
+                  <Box position='absolute' opacity={0} pointerEvents='none'>
+                    <FormField label='OG Preview is still here, but hidden (required to create an image)'>
+                      <HStack position='absolute' zIndex={-1} h='280px' w='600px'>
+                        <OgImageGenerator
+                          title={formData.title}
+                          category={
+                            categories?.find((category) => category.id === +formData.categoryId)
+                              ?.name ?? 'Unknown'
+                          }
+                          onBlobGenerated={(blob) => {
+                            console.log('Blob generated', blob)
+                            const _ogLogo = new File([blob], 'og.png', {
+                              type: blob.type,
+                              lastModified: Date.now(),
+                            })
+                            console.log('Blob transformed to File', _ogLogo)
 
-                          handleChange('ogLogo', _ogLogo)
-                        }}
-                        generateBlob={isGeneratingOgImage}
-                      />
+                            handleChange('ogLogo', _ogLogo)
+                          }}
+                          generateBlob={isGeneratingOgImage}
+                        />
+                      </HStack>
+                    </FormField>
+                  </Box>
+
+                  <FormField label='Title'>
+                    <Textarea
+                      resize='none'
+                      rows={1}
+                      overflow='hidden'
+                      height='auto'
+                      onInput={resizeTextareaHeight}
+                      value={formData.title}
+                      onChange={(e) => handleChange('title', e.target.value)}
+                      maxLength={70}
+                      onBlur={() => generateOgImage()}
+                    />
+                    <FormHelperText
+                      textAlign='end'
+                      style={{ fontSize: '10px', color: 'spacegray' }}
+                    >
+                      {formData.title?.length}/70 characters
+                    </FormHelperText>
+                  </FormField>
+
+                  <FormField label='Description'>
+                    <Textarea
+                      resize='none'
+                      rows={7}
+                      overflow='hidden'
+                      height='auto'
+                      onInput={resizeTextareaHeight}
+                      maxLength={1500}
+                      value={formData.description}
+                      onChange={(e) => handleChange('description', e.target.value)}
+                      onBlur={() => generateOgImage()}
+                    />
+                    <FormHelperText
+                      textAlign='end'
+                      style={{ fontSize: '10px', color: 'spacegray' }}
+                    >
+                      {formData.description?.length}/1500 characters
+                    </FormHelperText>
+                  </FormField>
+
+                  <FormField label='Token'>
+                    <HStack>
+                      <Select value={formData.token.id} onChange={handleTokenSelect}>
+                        {supportedTokens?.map((token: Token) => (
+                          <option key={token.id} value={token.id} data-name={token.symbol}>
+                            {token.symbol}
+                          </option>
+                        ))}
+                      </Select>
                     </HStack>
                   </FormField>
-                </Box>
 
-                <FormField label='Title'>
-                  <Textarea
-                    resize='none'
-                    rows={1}
-                    overflow='hidden'
-                    height='auto'
-                    onInput={resizeTextareaHeight}
-                    value={formData.title}
-                    onChange={(e) => handleChange('title', e.target.value)}
-                    maxLength={70}
-                    onBlur={() => generateOgImage()}
-                  />
-                  <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                    {formData.title?.length}/70 characters
-                  </FormHelperText>
-                </FormField>
+                  <FormField label={`${formData.token.symbol} Liquidity`}>
+                    <HStack>
+                      <NumberInput
+                        maxW='120px'
+                        mr='2rem'
+                        value={formData.liquidity}
+                        onChange={(value) => handleChange('liquidity', Number(value))}
+                        min={tokenLimits[formData.token.symbol]?.min}
+                        max={tokenLimits[formData.token.symbol]?.max}
+                        step={tokenLimits[formData.token.symbol]?.step}
+                      >
+                        <NumberInputField w={'120px'} />
+                      </NumberInput>
+                      <Slider
+                        flex='1'
+                        focusThumbOnChange={false}
+                        value={formData.liquidity}
+                        onChange={(value) => handleChange('liquidity', value)}
+                        min={tokenLimits[formData.token.symbol]?.min}
+                        max={tokenLimits[formData.token.symbol]?.max}
+                        step={tokenLimits[formData.token.symbol]?.step}
+                      >
+                        <SliderTrack>
+                          <SliderFilledTrack />
+                        </SliderTrack>
+                        <SliderThumb fontSize='sm' boxSize='32px' />
+                      </Slider>
+                    </HStack>
+                  </FormField>
 
-                <FormField label='Description'>
-                  <Textarea
-                    resize='none'
-                    rows={7}
-                    overflow='hidden'
-                    height='auto'
-                    onInput={resizeTextareaHeight}
-                    maxLength={1500}
-                    value={formData.description}
-                    onChange={(e) => handleChange('description', e.target.value)}
-                    onBlur={() => generateOgImage()}
-                  />
-                  <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                    {formData.description?.length}/1500 characters
-                  </FormHelperText>
-                </FormField>
+                  <FormField label='Starting YES Probability'>
+                    <HStack>
+                      <NumberInput
+                        maxW='120px'
+                        mr='2rem'
+                        value={formData.probability}
+                        onChange={(value) => handleChange('probability', Number(value))}
+                        min={1}
+                        max={99}
+                        step={1}
+                      >
+                        <NumberInputField w={'120px'} />
+                      </NumberInput>
+                      <Slider
+                        flex='1'
+                        focusThumbOnChange={false}
+                        value={formData.probability}
+                        onChange={(value) => handleChange('probability', value)}
+                        min={1}
+                        max={99}
+                        step={1}
+                      >
+                        <SliderTrack>
+                          <SliderFilledTrack />
+                        </SliderTrack>
+                        <SliderThumb fontSize='sm' boxSize='32px' />
+                      </Slider>
+                    </HStack>
+                  </FormField>
+                </VStack>
 
-                <FormField label='Token'>
-                  <HStack>
-                    <Select value={formData.token.id} onChange={handleTokenSelect}>
-                      {supportedTokens?.map((token: Token) => (
-                        <option key={token.id} value={token.id} data-name={token.symbol}>
-                          {token.symbol}
-                        </option>
-                      ))}
-                    </Select>
-                  </HStack>
-                </FormField>
+                <VStack w={'full'} flex='0.8'>
+                  <FormField label='Market Fee'>
+                    <HStack>
+                      <Checkbox
+                        isChecked={formData.marketFee === 1}
+                        onChange={(e) => handleChange('marketFee', e.target.checked ? 1 : 0)}
+                      >
+                        1% Fee
+                      </Checkbox>
+                    </HStack>
+                  </FormField>
 
-                <FormField label={`${formData.token.symbol} Liquidity`}>
-                  <HStack>
-                    <NumberInput
-                      maxW='120px'
-                      mr='2rem'
-                      value={formData.liquidity}
-                      onChange={(value) => handleChange('liquidity', Number(value))}
-                      min={tokenLimits[formData.token.symbol]?.min}
-                      max={tokenLimits[formData.token.symbol]?.max}
-                      step={tokenLimits[formData.token.symbol]?.step}
-                    >
-                      <NumberInputField w={'120px'} />
-                    </NumberInput>
-                    <Slider
-                      flex='1'
-                      focusThumbOnChange={false}
-                      value={formData.liquidity}
-                      onChange={(value) => handleChange('liquidity', value)}
-                      min={tokenLimits[formData.token.symbol]?.min}
-                      max={tokenLimits[formData.token.symbol]?.max}
-                      step={tokenLimits[formData.token.symbol]?.step}
-                    >
-                      <SliderTrack>
-                        <SliderFilledTrack />
-                      </SliderTrack>
-                      <SliderThumb fontSize='sm' boxSize='32px' />
-                    </Slider>
-                  </HStack>
-                </FormField>
+                  <FormField label='Creator'>
+                    <HStack>
+                      <Select
+                        value={formData.creatorId}
+                        onChange={(e) => handleChange('creatorId', e.target.value)}
+                      >
+                        {creators?.map((creator: Creator) => (
+                          <option key={creator.id} value={creator.id}>
+                            {creator.name}
+                          </option>
+                        ))}
+                      </Select>
+                    </HStack>
+                  </FormField>
 
-                <FormField label='Starting YES Probability'>
-                  <HStack>
-                    <NumberInput
-                      maxW='120px'
-                      mr='2rem'
-                      value={formData.probability}
-                      onChange={(value) => handleChange('probability', Number(value))}
-                      min={1}
-                      max={99}
-                      step={1}
-                    >
-                      <NumberInputField w={'120px'} />
-                    </NumberInput>
-                    <Slider
-                      flex='1'
-                      focusThumbOnChange={false}
-                      value={formData.probability}
-                      onChange={(value) => handleChange('probability', value)}
-                      min={1}
-                      max={99}
-                      step={1}
-                    >
-                      <SliderTrack>
-                        <SliderFilledTrack />
-                      </SliderTrack>
-                      <SliderThumb fontSize='sm' boxSize='32px' />
-                    </Slider>
-                  </HStack>
-                </FormField>
-              </VStack>
-
-              <VStack w={'full'} flex='0.8'>
-                <FormField label='Market Fee'>
-                  <HStack>
-                    <Checkbox
-                      isChecked={formData.marketFee === 1}
-                      onChange={(e) => handleChange('marketFee', e.target.checked ? 1 : 0)}
-                    >
-                      1% Fee
-                    </Checkbox>
-                  </HStack>
-                </FormField>
-
-                <FormField label='Creator'>
-                  <HStack>
-                    <Select
-                      value={formData.creatorId}
-                      onChange={(e) => handleChange('creatorId', e.target.value)}
-                    >
-                      {creators?.map((creator: Creator) => (
-                        <option key={creator.id} value={creator.id}>
-                          {creator.name}
-                        </option>
-                      ))}
-                    </Select>
-                  </HStack>
-                </FormField>
-
-                <FormField label='Category'>
-                  <HStack>
-                    <Select
-                      value={formData.categoryId}
-                      onChange={(e) => {
+                  <FormField label='Category'>
+                    <HStack>
+                      <Select
+                        value={formData.categoryId}
+                        onChange={(e) => {
                         handleChange('categoryId', e.target.value)
                         generateOgImage()
                       }}
-                    >
-                      {categories?.map((category: Category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </Select>
-                  </HStack>
-                </FormField>
+                      >
+                        {categories?.map((category: Category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </Select>
+                    </HStack>
+                  </FormField>
 
-                <FormField label='Tags'>
-                  <HStack w={'full'}>
-                    <Box width='full'>
-                      <CreatableSelect
-                        isMulti
-                        onCreateOption={handleTagCreation}
-                        //@ts-ignore
-                        onChange={(option) => handleChange('tag', option)}
-                        value={formData.tag}
-                        options={tagOptions}
-                        styles={{
-                          option: (provided, state) => ({
-                            ...provided,
-                            backgroundColor: state.isFocused
-                              ? 'var(--chakra-colors-blue-50)'
-                              : 'var(--chakra-colors-grey-300)',
-                            color: state.isFocused
-                              ? 'var(--chakra-colors-blue-900)'
-                              : 'var(--chakra-colors-grey-900)',
-                          }),
-                          menu: (provided) => ({
-                            ...provided,
-                            ...selectStyles.menu,
-                          }),
-                          control: (provided) => ({
-                            ...provided,
-                            ...selectStyles.control,
-                          }),
-                        }}
-                      />
-                    </Box>
-                  </HStack>
-                </FormField>
+                  <FormField label='Tags'>
+                    <HStack w={'full'}>
+                      <Box width='full'>
+                        <CreatableSelect
+                          isMulti
+                          onCreateOption={handleTagCreation}
+                          //@ts-ignore
+                          onChange={(option) => handleChange('tag', option)}
+                          value={formData.tag}
+                          options={tagOptions}
+                          styles={{
+                            option: (provided, state) => ({
+                              ...provided,
+                              backgroundColor: state.isFocused
+                                ? 'var(--chakra-colors-blue-50)'
+                                : 'var(--chakra-colors-grey-300)',
+                              color: state.isFocused
+                                ? 'var(--chakra-colors-blue-900)'
+                                : 'var(--chakra-colors-grey-900)',
+                            }),
+                            menu: (provided) => ({
+                              ...provided,
+                              ...selectStyles.menu,
+                            }),
+                            control: (provided) => ({
+                              ...provided,
+                              ...selectStyles.control,
+                            }),
+                          }}
+                        />
+                      </Box>
+                    </HStack>
+                  </FormField>
 
-                <FormField label='Deadline'>
-                  {/*// Todo move to a separate component?*/}
-                  <DatePicker
-                    id='input'
-                    selected={formData.deadline || null}
-                    onChange={(date: Date | null) => {
-                      if (date) {
-                        handleChange('deadline', new Date(date.getTime()))
+                  <FormField label='Deadline'>
+                    {/*// Todo move to a separate component?*/}
+                    <DatePicker
+                      id='input'
+                      selected={formData.deadline || null}
+                      onChange={(date: Date | null) => {
+                        if (date) {
+                          handleChange('deadline', new Date(date.getTime()))
+                        }
+                      }}
+                      minDate={new Date()}
+                      showTimeSelect
+                      dateFormat='Pp'
+                    />
+                    <TimezoneSelect
+                      value={formData.timezone}
+                      onChange={(timezone: ITimezoneOption) =>
+                        handleChange('timezone', timezone.value)
                       }
-                    }}
-                    minDate={new Date()}
-                    showTimeSelect
-                    dateFormat='Pp'
-                  />
-                  <TimezoneSelect
-                    value={formData.timezone}
-                    onChange={(timezone: ITimezoneOption) =>
-                      handleChange('timezone', timezone.value)
-                    }
-                    styles={{
-                      option: (provided, state) => ({
-                        ...provided,
-                        backgroundColor: state.isFocused
-                          ? 'var(--chakra-colors-blue-50)'
-                          : 'var(--chakra-colors-grey-300)',
-                        color: state.isFocused
-                          ? 'var(--chakra-colors-blue-900)'
-                          : 'var(--chakra-colors-grey-900)',
-                      }),
-                      menu: (provided) => ({
-                        ...provided,
-                        ...selectStyles.menu,
-                      }),
-                      control: (provided) => ({
-                        ...provided,
-                        ...selectStyles.control,
-                      }),
-                      singleValue: (provided) => ({
-                        ...provided,
-                        ...selectStyles.singleValue,
-                      }),
-                    }}
-                  />
-                </FormField>
+                      styles={{
+                        option: (provided, state) => ({
+                          ...provided,
+                          backgroundColor: state.isFocused
+                            ? 'var(--chakra-colors-blue-50)'
+                            : 'var(--chakra-colors-grey-300)',
+                          color: state.isFocused
+                            ? 'var(--chakra-colors-blue-900)'
+                            : 'var(--chakra-colors-grey-900)',
+                        }),
+                        menu: (provided) => ({
+                          ...provided,
+                          ...selectStyles.menu,
+                        }),
+                        control: (provided) => ({
+                          ...provided,
+                          ...selectStyles.control,
+                        }),
+                        singleValue: (provided) => ({
+                          ...provided,
+                          ...selectStyles.singleValue,
+                        }),
+                      }}
+                    />
+                  </FormField>
 
-                <ButtonGroup spacing='6' mt={5} w='full'>
-                  {isCreating ? (
-                    <Flex width='full' justifyContent='center' alignItems='center'>
-                      <Spinner />
-                    </Flex>
-                  ) : (
-                    <Button colorScheme='blue' w='full' height='52px' onClick={submit}>
-                      {marketId ? 'Save' : 'Draft'}
-                    </Button>
-                  )}
-                </ButtonGroup>
-              </VStack>
-            </HStack>
-          </FormControl>
-        </VStack>
-      </Flex>
-    </MainLayout>
+                  <ButtonGroup spacing='6' mt={5} w='full'>
+                    {isCreating ? (
+                      <Flex width='full' justifyContent='center' alignItems='center'>
+                        <Spinner />
+                      </Flex>
+                    ) : (
+                      <Button colorScheme='blue' w='full' height='52px' onClick={submit}>
+                        {marketId ? 'Save' : 'Draft'}
+                      </Button>
+                    )}
+                  </ButtonGroup>
+                </VStack>
+              </HStack>
+            </FormControl>
+          </VStack>
+        </Flex>
+      </MainLayout>
+    </ProtectedRoute>
   )
 }
 

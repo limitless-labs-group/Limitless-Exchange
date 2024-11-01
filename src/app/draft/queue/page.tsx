@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
+import { ProtectedRoute } from '@/components/common/protected-route'
 import { Toast } from '@/components/common/toast'
 import { DraftMarket, DraftMarketCard } from '@/app/draft/queue/components/draft-card'
 import { MainLayout } from '@/components'
@@ -73,37 +74,32 @@ const DraftMarketsQueuePage = () => {
   }
 
   return (
-    <MainLayout justifyContent={'center'}>
-      <Flex justifyContent={'center'}>
-        <VStack w='868px' spacing={4}>
-          {draftMarkets?.map((market: DraftMarket) => {
-            return (
+    <ProtectedRoute>
+      <MainLayout justifyContent={'center'}>
+        <Flex justifyContent={'center'}>
+          <VStack w='868px' spacing={4}>
+            {draftMarkets?.map((draftMarket: DraftMarket) => (
               <DraftMarketCard
-                market={market}
-                key={market.id}
-                isChecked={selectedMarketIds.includes(market.id)}
-                onToggle={() => handleToggle(market.id)}
-                onClick={() => handleClick(market.id)}
+                market={draftMarket}
+                key={draftMarket.id}
+                isChecked={selectedMarketIds.includes(draftMarket.id)}
+                onToggle={() => handleToggle(draftMarket.id)}
+                onClick={() => handleClick(draftMarket.id)}
               />
-            )
-          })}
-          {isCreating ? (
-            <Box width='full' display='flex' justifyContent='center' alignItems='center'>
-              <Spinner />
-            </Box>
-          ) : (
-            <Button
-              colorScheme='blue'
-              w={'full'}
-              onClick={createMarketsBatch}
-              style={{ position: 'sticky', bottom: 10 }}
-            >
-              Create Markets Batch
-            </Button>
-          )}
-        </VStack>
-      </Flex>
-    </MainLayout>
+            ))}
+            {isCreating ? (
+              <Box width='full' display='flex' justifyContent='center' alignItems='center'>
+                <Spinner />
+              </Box>
+            ) : (
+              <Button colorScheme='blue' w={'full'} onClick={createMarketsBatch}>
+                Create Markets Batch
+              </Button>
+            )}
+          </VStack>
+        </Flex>
+      </MainLayout>
+    </ProtectedRoute>
   )
 }
 
