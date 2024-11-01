@@ -28,7 +28,7 @@ export default function LumyPage() {
 
   const rules = [
     'Add liquidity',
-    'Once liquidity is 500 USD market will start',
+    'Once liquidity is 500 USDC market will start',
     'Lumy will generate a market',
     'Follow Lumy on X',
     'etc',
@@ -93,7 +93,7 @@ export default function LumyPage() {
                 Raise to start a market
               </Text>
               <Text {...paragraphMedium} color='white' mt='4px'>
-                {data ? (+formatUnits(data, 6)).toFixed(0) : 0}/500 USD
+                {data ? (+formatUnits(data, 6)).toFixed(0) : 0}/500 USDC
               </Text>
               <Box mt='16px'>
                 <Text {...paragraphMedium} color='white'>
