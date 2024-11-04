@@ -13,7 +13,7 @@ export const MarketCardLink: FC<MarketCardLinkProps> = ({ children, marketAddres
   }, [marketAddress, group])
 
   return (
-    <Link w='full' href={href}>
+    <Link w='full' href={href} _hover={{ textDecoration: 'none' }}>
       {children}
     </Link>
   )
