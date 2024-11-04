@@ -1,5 +1,5 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import React, { PropsWithChildren, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import React, { PropsWithChildren, ReactNode, useEffect, useMemo, useRef } from 'react'
 import { Drawer } from 'vaul'
 import { h1Regular, headline } from '@/styles/fonts/fonts.styles'
 
@@ -30,7 +30,6 @@ export default function MobileDrawer({
     const market = searchParams.get('market')
     const slug = searchParams.get('slug')
     if ((market === id || slug === id) && drawerRef.current) {
-      console.log('clicked')
       drawerRef.current.click()
       ref.current = true
     }

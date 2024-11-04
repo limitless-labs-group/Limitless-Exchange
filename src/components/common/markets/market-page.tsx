@@ -33,8 +33,6 @@ import {
 } from '@/app/(markets)/markets/[address]/components'
 import { useToast } from '@/hooks'
 import useMarketGroup from '@/hooks/use-market-group'
-import WarpcastIcon from '@/resources/icons/Farcaster.svg'
-import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
@@ -84,18 +82,13 @@ export default function MarketPage() {
     refetchMarkets,
   } = useTradingService()
 
-  const toast = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
   const { trackChanged, trackClicked } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
-  const { data: winningIndex } = useWinningIndex(market?.address || '')
-  const marketURI = marketGroup
-    ? `${process.env.NEXT_PUBLIC_FRAME_URL}/market-group${marketGroup.slug}`
-    : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.address}`
-  const resolved = winningIndex === 0 || winningIndex === 1
+
   // Todo change creator name
 
   const positions = useMemo(
