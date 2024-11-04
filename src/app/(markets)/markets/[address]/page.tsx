@@ -207,7 +207,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       }}
                     >
                       <HStack gap='4px'>
-                        <TwitterIcon />
+                        <TwitterIcon width={'16px'} />
                         <Text {...paragraphMedium}>On X</Text>
                       </HStack>
                     </MenuItem>

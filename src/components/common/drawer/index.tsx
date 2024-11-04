@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, ReactNode, useMemo } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import React, { PropsWithChildren, ReactNode, useEffect, useMemo, useRef } from 'react'
 import { Drawer } from 'vaul'
 import { h1Regular, headline } from '@/styles/fonts/fonts.styles'
 
@@ -7,6 +8,7 @@ type MobileDrawerProps = {
   title?: string
   variant: 'blue' | 'common' | 'black'
   onClose?: () => void
+  id?: string
 }
 
 export default function MobileDrawer({
@@ -15,7 +17,43 @@ export default function MobileDrawer({
   children,
   variant,
   onClose,
+  id,
 }: PropsWithChildren<MobileDrawerProps>) {
+  const searchParams = useSearchParams()
+  const drawerRef = useRef<HTMLButtonElement>(null)
+  const router = useRouter()
+  const pathname = usePathname()
+  const ref = useRef(false)
+
+  useEffect(() => {
+    if (ref.current) return
+    const market = searchParams.get('market')
+    const slug = searchParams.get('slug')
+    if ((market === id || slug === id) && drawerRef.current) {
+      drawerRef.current.click()
+      ref.current = true
+    }
+  }, [id])
+
+  const removeMarketQuery = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (params.has('market')) {
+      params.delete('market')
+    }
+    if (params.has('slug')) {
+      params.delete('slug')
+    }
+    const newQuery = params.toString()
+    router.replace(newQuery ? `${pathname}/?${newQuery}` : pathname)
+  }
+
+  const close = () => {
+    if (onClose) {
+      onClose()
+      removeMarketQuery()
+    }
+  }
+
   const bgColor = useMemo(() => {
     if (variant === 'black') {
       return 'var(--chakra-colors-grey-50)'
@@ -29,8 +67,12 @@ export default function MobileDrawer({
   const titleColor = variant === 'blue' ? 'white' : 'var(--chakra-colors-grey.800)'
 
   return (
-    <Drawer.Root shouldScaleBackground onClose={onClose}>
-      <Drawer.Trigger asChild>{trigger}</Drawer.Trigger>
+    <Drawer.Root shouldScaleBackground onClose={close}>
+      <Drawer.Trigger asChild>
+        <button style={{ width: '100%' }} ref={drawerRef}>
+          {trigger}
+        </button>
+      </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay
           style={{
