@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Spinner, HStack } from '@chakra-ui/react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { getAddress } from 'viem'
 import AllMarkets from '@/components/common/markets/all-markets'
@@ -11,7 +11,6 @@ import TopMarkets from '@/components/common/markets/top-markets'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useIsMobile } from '@/hooks'
-import useMarketGroup from '@/hooks/use-market-group'
 import { usePriceOracle } from '@/providers'
 import {
   OpenEvent,
@@ -20,33 +19,33 @@ import {
   useCategories,
   useTradingService,
 } from '@/services'
-import { useDailyMarkets, useMarket, useMarkets } from '@/services/MarketsService'
+import { useDailyMarkets, useMarkets } from '@/services/MarketsService'
 import { Market, MarketGroup, Sort } from '@/types'
 
 const MainPage = () => {
   const searchParams = useSearchParams()
   const [page, setPage] = useState(1)
   const { data: categories } = useCategories()
-  const { marketPageOpened, onOpenMarketPage, onCloseMarketPage } = useTradingService()
+  const { marketPageOpened, onCloseMarketPage } = useTradingService()
   /**
    * ANALYTICS
    */
   const { trackOpened } = useAmplitude()
+  const router = useRouter()
   const category = searchParams.get('category')
 
-  const marketQuery = searchParams.get('market') || undefined
-  const marketGroupSlugQuery = searchParams.get('slug')
-  const { data: market } = useMarket(marketQuery)
-  const { data: marketGroup } = useMarketGroup(marketGroupSlugQuery ?? '')
-
   useEffect(() => {
-    if (marketGroup) {
-      onOpenMarketPage(marketGroup, 'Standard Banner')
-    }
+    const market = searchParams.get('market')
+    const slug = searchParams.get('slug')
+
     if (market) {
-      onOpenMarketPage(market, 'Standard Banner')
+      router.replace(`/markets/${market}`)
+      return
     }
-  }, [market, marketGroup])
+    if (slug) {
+      router.replace(`/market-group/${slug}`)
+    }
+  }, [])
 
   useEffect(() => {
     const analyticData: PageOpenedMetadata = {
@@ -195,11 +194,11 @@ const MainPage = () => {
     }
   }, [markets, filteredAllMarkets, selectedSort])
 
-  // useEffect(() => {
-  //   return () => {
-  //     onCloseMarketPage()
-  //   }
-  // }, [])
+  useEffect(() => {
+    return () => {
+      onCloseMarketPage()
+    }
+  }, [])
 
   return (
     <MainLayout layoutPadding={'0px'}>

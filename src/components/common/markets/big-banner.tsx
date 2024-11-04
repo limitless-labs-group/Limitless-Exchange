@@ -31,6 +31,9 @@ export default function BigBanner({ market }: BigBannerProps) {
   const router = useRouter()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.metaKey || e.ctrlKey || e.button === 2) {
+      return
+    }
     if (!isMobile) {
       e.preventDefault()
     }

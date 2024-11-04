@@ -93,8 +93,8 @@ export default function MarketPage() {
   const { positions: allMarketsPositions } = useHistory()
   const { data: winningIndex } = useWinningIndex(market?.address || '')
   const marketURI = marketGroup
-    ? `${process.env.NEXT_PUBLIC_FRAME_URL}/?slug=${marketGroup.slug}`
-    : `${process.env.NEXT_PUBLIC_FRAME_URL}/?market=${market?.address}`
+    ? `${process.env.NEXT_PUBLIC_FRAME_URL}/market-group${marketGroup.slug}`
+    : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.address}`
   const resolved = winningIndex === 0 || winningIndex === 1
   // Todo change creator name
 

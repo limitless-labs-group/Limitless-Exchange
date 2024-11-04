@@ -46,7 +46,11 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
   }, 0)
 
   const trackMarketClicked = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.metaKey || e.ctrlKey || e.button === 2) {
+      return
+    }
     if (!isMobile) e.preventDefault()
+
     router.push(`?slug=${marketGroup.slug}`, { scroll: false })
     onOpenMarketPage(marketGroup, 'Standard Banner')
   }

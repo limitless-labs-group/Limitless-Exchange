@@ -35,6 +35,10 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   const { onOpenMarketPage, onCloseMarketPage } = useTradingService()
 
   const trackMarketClicked = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.metaKey || e.ctrlKey || e.button === 2) {
+      return
+    }
+
     if (!isMobile) {
       e.preventDefault()
     }

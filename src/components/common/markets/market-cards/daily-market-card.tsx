@@ -2,7 +2,6 @@ import { Box, Flex, HStack, Text } from '@chakra-ui/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Address } from 'viem'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import Paper from '@/components/common/paper'
 import { MarketCardLink } from './market-card-link'
@@ -38,6 +37,9 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
   const router = useRouter()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.metaKey || e.ctrlKey || e.button === 2) {
+      return
+    }
     e.preventDefault()
     router.push(`?market=${market.address}`, { scroll: false })
     trackClicked(ClickEvent.MediumMarketBannerClicked, {

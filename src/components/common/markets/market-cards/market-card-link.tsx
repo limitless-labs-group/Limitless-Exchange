@@ -8,8 +8,8 @@ interface MarketCardLinkProps {
 }
 export const MarketCardLink: FC<MarketCardLinkProps> = ({ children, marketAddress, group }) => {
   const href = useMemo(() => {
-    const query = group ? 'slug' : 'market'
-    return `${process.env.NEXT_PUBLIC_FRAME_URL}?${query}=${marketAddress}`
+    const query = group ? 'market-group' : 'markets'
+    return `${process.env.NEXT_PUBLIC_FRAME_URL}/${query}/${marketAddress}`
   }, [marketAddress, group])
 
   return (
