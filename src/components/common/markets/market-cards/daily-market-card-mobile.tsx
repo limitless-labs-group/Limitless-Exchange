@@ -91,7 +91,7 @@ export default function DailyMarketCardMobile({
   )
 
   return (
-    <MobileDrawer trigger={content} variant='black' title={market.title}>
+    <MobileDrawer trigger={content} variant='black'>
       <MarketPage />
     </MobileDrawer>
   )

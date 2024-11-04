@@ -101,7 +101,7 @@ const CreateOwnMarketPage = () => {
         creatorId: editMarket.creator?.id || defaultCreatorId,
         categoryId: editMarket.category?.id || defaultCategoryId,
       }))
-      generateOgImage()
+      generateOgImage().then(() => console.log('Og image generated'))
     }
   }, [editMarket])
 
