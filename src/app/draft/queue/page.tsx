@@ -5,12 +5,10 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
-import StickyList from '@/components/common/sticky-list'
 import { Toast } from '@/components/common/toast'
 import { DraftMarket, DraftMarketCard } from '@/app/draft/queue/components/draft-card'
 import { MainLayout } from '@/components'
 import { useToast } from '@/hooks'
-import { useSortedItems } from '@/hooks/ui/use-sorted-items'
 
 const DraftMarketsQueuePage = () => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
@@ -74,29 +72,21 @@ const DraftMarketsQueuePage = () => {
       })
   }
 
-  const { checkedItems, uncheckedItems } = useSortedItems({
-    items: draftMarkets,
-    condition: (market: DraftMarket) => selectedMarketIds.includes(market.id),
-    render: (market: DraftMarket) => ({
-      id: market.id,
-      node: (
-        <DraftMarketCard
-          market={market}
-          key={market.id}
-          isChecked={selectedMarketIds.includes(market.id)}
-          onToggle={() => handleToggle(market.id)}
-          onClick={() => handleClick(market.id)}
-        />
-      ),
-    }),
-  })
-
   return (
     <MainLayout justifyContent={'center'}>
       <Flex justifyContent={'center'}>
         <VStack w='868px' spacing={4}>
-          <StickyList elements={checkedItems} />
-          {uncheckedItems?.map((element) => element.node)}
+          {draftMarkets?.map((market: DraftMarket) => {
+            return (
+              <DraftMarketCard
+                market={market}
+                key={market.id}
+                isChecked={selectedMarketIds.includes(market.id)}
+                onToggle={() => handleToggle(market.id)}
+                onClick={() => handleClick(market.id)}
+              />
+            )
+          })}
           {isCreating ? (
             <Box width='full' display='flex' justifyContent='center' alignItems='center'>
               <Spinner />
