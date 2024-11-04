@@ -20,7 +20,7 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
   }, [data])
   return (
     <MarketFeedCardContainer
-      creator={data.user}
+      user={data.user}
       timestamp={new Date(data.timestamp).getTime() / 1000}
       title={eventTitle}
     >
