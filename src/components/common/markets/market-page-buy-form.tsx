@@ -37,7 +37,7 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
   const [displayAmount, setDisplayAmount] = useState('')
   const [showReturnPercent, setShowReturnPercent] = useState(false)
   const [showFeeInValue, setShowFeeInValue] = useState(false)
-  const [slippage, setSlippage] = useState('5')
+  const [slippage, setSlippage] = useState(localStorage.getItem('defaultMarketSlippage') || '5')
   const [showSlippageDetails, setShowSlippageDetails] = useState(false)
 
   const handleInputValueChange = (value: string) => {
@@ -55,6 +55,10 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
     return
   }
 
+  const saveSlippageToLocalStorage = (value: string) => {
+    localStorage.setItem('defaultMarketSlippage', value)
+  }
+
   const handleSlippageChange = (value: string) => {
     if (!value) {
       setSlippage('')
@@ -62,9 +66,11 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
     }
     if (+value >= 100) {
       setSlippage('100')
+      saveSlippageToLocalStorage('100')
       return
     }
     setSlippage(value)
+    saveSlippageToLocalStorage(value)
   }
 
   const handlePercentButtonClicked = (value: number) => {
@@ -88,6 +94,7 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
 
   const handleSlippageClicked = (value: number) => {
     setSlippage(value.toString())
+    saveSlippageToLocalStorage(value.toString())
   }
 
   const refetchQuotes = useCallback(
