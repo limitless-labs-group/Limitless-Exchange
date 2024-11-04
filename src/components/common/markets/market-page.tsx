@@ -445,11 +445,7 @@ export default function MarketPage() {
           status === 'Loading' ? (
             <LoadingForm outcomeIndex={outcomeIndex} />
           ) : (
-            <SellForm
-              setOutcomeIndex={setOutcomeIndex}
-              // setSelectedMarket={setSelectedMarket}
-              // marketGroup={marketGroup}
-            />
+            <SellForm setOutcomeIndex={setOutcomeIndex} />
           )
         ) : null}
       </Paper>
