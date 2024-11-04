@@ -88,7 +88,7 @@ export default function useMarketGroup(slug?: string, isPolling = false) {
       return {
         ...marketGroup,
         markets: marketsWithPrices,
-      }
+      } as MarketGroup
     },
     enabled: !!slug,
     refetchInterval: isPolling ? POLLING_INTERVAL : false,
