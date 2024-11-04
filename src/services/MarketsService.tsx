@@ -308,7 +308,36 @@ export function useMarketByConditionId(conditionId: string) {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/conditions/${conditionId}`
       )
-      return response.data as Market
+
+      const marketRes = response.data as Market
+
+      let prices = [50, 50]
+
+      //TODO remove this hot-fix
+      if (marketRes.expired) {
+        if (marketRes?.winningOutcomeIndex === 0) {
+          prices = [100, 0]
+        } else if (marketRes?.winningOutcomeIndex === 1) {
+          prices = [0, 100]
+        } else {
+          prices = [50, 50]
+        }
+      } else {
+        const buyPrices = await getMarketOutcomeBuyPrice(
+          marketRes.collateralToken.decimals,
+          marketRes.address
+        )
+
+        const sum = buyPrices[0] + buyPrices[1]
+        const outcomeTokensPercentYes = +((buyPrices[0] / sum) * 100).toFixed(1)
+        const outcomeTokensPercentNo = +((buyPrices[1] / sum) * 100).toFixed(1)
+        prices = [outcomeTokensPercentYes, outcomeTokensPercentNo]
+      }
+
+      return {
+        ...marketRes,
+        prices,
+      } as Market
     },
   })
 
@@ -350,7 +379,7 @@ export function useMarket(address?: string, isPolling = false) {
       return {
         ...marketRes,
         prices,
-      }
+      } as Market
     },
     enabled: !!address && address !== '0x',
     refetchInterval: isPolling ? POLLING_INTERVAL : false,

@@ -71,7 +71,7 @@ interface ITradingServiceContext {
   onCloseMarketPage: () => void
   onOpenMarketPage: (
     market: Market | MarketGroup,
-    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner'
+    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner' | 'Portfolio Card' | 'History Card'
   ) => void
   refetchMarkets: () => Promise<void>
 }
@@ -114,7 +114,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const onOpenMarketPage = (
     market: Market | MarketGroup,
-    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner'
+    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner' | 'Portfolio Card' | 'History Card'
   ) => {
     setMarket(null)
     setMarketGroup(null)
