@@ -1,12 +1,11 @@
 'use client'
 
 import { Box, Spinner, HStack } from '@chakra-ui/react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { getAddress } from 'viem'
 import AllMarkets from '@/components/common/markets/all-markets'
 import DailyMarketsSection from '@/components/common/markets/daily-markets'
-import MarketPage from '@/components/common/markets/market-page'
 import TopMarkets from '@/components/common/markets/top-markets'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
@@ -31,7 +30,21 @@ const MainPage = () => {
    * ANALYTICS
    */
   const { trackOpened } = useAmplitude()
+  const router = useRouter()
   const category = searchParams.get('category')
+
+  useEffect(() => {
+    const market = searchParams.get('market')
+    const slug = searchParams.get('slug')
+
+    if (market) {
+      router.replace(`/markets/${market}`)
+      return
+    }
+    if (slug) {
+      router.replace(`/market-group/${slug}`)
+    }
+  }, [])
 
   useEffect(() => {
     const analyticData: PageOpenedMetadata = {
