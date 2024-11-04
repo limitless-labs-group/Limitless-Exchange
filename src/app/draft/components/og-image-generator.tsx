@@ -10,8 +10,8 @@ import {
   useTheme,
   VStack,
 } from '@chakra-ui/react'
-import { useEffect, useMemo, useRef, useState } from 'react'
 import html2canvas from 'html2canvas'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 interface IOgImageGeneratorOptions {
   px: number | string
@@ -79,11 +79,12 @@ export const OgImageGenerator = ({
   const [image, setImage] = useState('')
 
   const handleGenerateBlob = async () => {
+    if (!canvasRef.current) return
     try {
-      const componentWidth = canvasRef!.current!.offsetWidth
-      const componentHeight = canvasRef!.current!.offsetHeight
-      const scale = 2110 / componentWidth! // calculate the scale factor
-      const canvas = await html2canvas(canvasRef.current!, {
+      const componentWidth = canvasRef.current.offsetWidth
+      const componentHeight = canvasRef.current.offsetHeight
+      const scale = 2110 / componentWidth // calculate the scale factor
+      const canvas = await html2canvas(canvasRef.current, {
         useCORS: true,
         logging: true,
         scale,
@@ -96,14 +97,22 @@ export const OgImageGenerator = ({
 
       const imageDataUrl = canvas.toDataURL('image/png', 1.0)
       setImage(imageDataUrl)
-
-      canvas.toBlob(async (blob) => {
-        if (blob) {
-          onBlobGenerated(blob)
-          // await new Promise((resolve) => setTimeout(resolve, 1_000))
-          // handleDownloadPreviewImage()
-        }
-      })
+      canvas.toBlob(
+        async (blob) => {
+          if (blob) {
+            onBlobGenerated(blob)
+            // let downloadLink = document.createElement('a')
+            // downloadLink.setAttribute('download', 'preview-og-image.png')
+            // let url = URL.createObjectURL(blob)
+            // downloadLink.setAttribute('href', url)
+            // downloadLink.click()
+          } else {
+            console.error('Blob generation failed')
+          }
+        },
+        'image/png',
+        1.0
+      )
     } catch (error) {
       console.error(error)
     }

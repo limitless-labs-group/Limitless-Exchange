@@ -1,5 +1,5 @@
-import { Hash, Address } from 'viem'
 import { AxiosError } from 'axios'
+import { Hash, Address } from 'viem'
 
 export type { Hash, Address }
 
@@ -19,165 +19,79 @@ export type Category = {
 }
 
 export type MarketsResponse = {
-  data: (MarketGroupCardResponse | MarketSingleCardResponse)[]
+  data: (Market | MarketGroup)[]
   totalMarketsCount: number
-}
-
-export type MarketData = {
-  data: MarketsResponse
-  next: number
 }
 
 export interface Creator {
   name: string
   imageURI?: string
+  imageUrl?: string // TODO: unify imageURI and imageUrl from backend
   link?: string
   address?: string
 }
 
-interface Oracle {
-  createdAt: string
-  id: number
-  name: string
-  address: string
-  imageUrl: string
-}
-
-export type MarketResponse = {
-  address: {
-    [chainId: number]: Address
-  }
-  questionId?: {
-    [chainId: number]: Hash
-  }
-  conditionId: {
-    [chainId: number]: Hash
-  }
-  collateralToken: {
-    [chainId: number]: Address
-  }
-  hidden: {
-    [chainId: number]: boolean
-  }
-  resolved: {
-    [chainId: number]: boolean
-  }
-  outcomeTokens: string[]
-  title: string
-  proxyTitle: string | null
-  description: string
-  placeholderURI: string
-  imageURI: string
-  ogImageURI?: string
-  expirationDate: string
-  expirationTimestamp: number
-  createdAt: string
-  expired?: boolean
-  tokenTicker: {
-    [chainId: number]: string
-  }
-  tokenURI: {
-    [chainId: number]: string
-  }
-  creator: Creator
-  tags?: string[]
-  winningOutcomeIndex?: number
-  volume?: string
-  volumeFormatted?: string
-  liquidity?: string
-  liquidityFormatted?: string
-  prices: number[]
-  category: string
-  status: MarketStatus
-}
-
-export type MarketSingleCardResponse = {
-  address: string
-  title: string
-  proxyTitle: string | null
-  deadline: string
-  createdAt: string
-  volume: string
-  volumeFormatted: string
-  conditionId: Address
-  liquidity: string
-  liquidityFormatted: string
-  collateralToken: {
-    symbol: string
-    address: string
-    decimals: number
-  }
-  category: string
-  prices: number[]
-}
-
-export type MarketGroupCardResponse = {
-  slug: string
-  title: string
-  createdAt: string
-  deadline: string
-  collateralToken: {
-    symbol: string
-    address: string
-    decimals: number
-  }
-  markets: MarketSingleCardResponse[]
-  category: string
+export type DraftMetadata = {
+  fee: number
+  liquidity: number
+  initialProbability: number
 }
 
 export interface Market {
   address: Address
-  conditionId: Address
-  description: string
+  category: Category
   collateralToken: {
     address: Address
     decimals: number
     symbol: string
   }
-  title: string
-  proxyTitle: string | null
-  ogImageURI: string | null
+  conditionId: string
+  createdAt: string
+  creator: Creator
+  description: string
   expirationDate: string
   expirationTimestamp: number
-  winningOutcomeIndex: number | null
   expired: boolean
-  tags: string[]
-  volume: string
-  volumeFormatted: string
   liquidity: string
   liquidityFormatted: string
-  prices: number[]
+  ogImageURI: string
+  proxyTitle: string | null
   status: MarketStatus
-  group?: {
-    id: number
-    title: string
-    slug: string
-  }
+  tags: string[]
+  title: string
+  volume: string
+  volumeFormatted: string
+  winningOutcomeIndex: number | null
+  prices: number[]
 }
 
-export interface SingleMarket extends Market {
+export interface MarketGroup {
+  slug: string
+  hidden: boolean
+  outcomeTokens: string[]
+  title: string
+  ogImageURI: string
+  expirationDate: string
+  expired: boolean
+  expirationTimestamp: number
   creator: Creator
+}
+
+export interface DraftMarket extends Market {
+  draftMetadata: DraftMetadata
 }
 
 export interface MarketGroup {
   category: Category
   collateralToken: {
-    address: string
-    decimals: number
     symbol: string
+    address: Address
+    decimals: number
   }
+  tags: string[]
   createdAt: string
-  creator: Creator
-  expirationDate: string
-  expired: boolean
-  hidden: boolean
-  markets: Market[]
-  ogImageURI: string
-  outcomeTokens: string[]
-  slug: string
   status: MarketStatus
-  tags: string
-  title: string
+  markets: Market[]
 }
 
 export type GetBalanceResult = {
@@ -210,6 +124,7 @@ export enum MarketTokensIds {
   BETS = 'all-street-bets',
   GHST = 'aavegotchi',
   cbBTC = 'coinbase-wrapped-btc',
+  aBasUSDC = 'aave-v3-usdc',
 }
 
 export enum Sort {
@@ -318,6 +233,10 @@ export interface ColorScheme {
     700: string
   }
   blackTransparent: {
+    200: string
+    600: string
+  }
+  greyTransparent: {
     200: string
     600: string
   }

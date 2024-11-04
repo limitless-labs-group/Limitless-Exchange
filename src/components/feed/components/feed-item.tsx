@@ -1,5 +1,8 @@
-import MarketStatusUpdatedCard from '@/components/feed/components/market-status-updated-card'
 import { Box } from '@chakra-ui/react'
+import FeedNewPost from '@/components/feed/components/feed-new-post'
+import GroupStatusUpdatedCard from '@/components/feed/components/group-status-updated-card'
+import MarketFeedTradeCard from '@/components/feed/components/market-feed-trade-card'
+import MarketStatusUpdatedCard from '@/components/feed/components/market-status-updated-card'
 import {
   FeedEventType,
   MarketStatusFeedData,
@@ -8,9 +11,6 @@ import {
   MarketGroupStatusFeedData,
   MarketNewTradeFeedData,
 } from '@/types'
-import FeedNewPost from '@/components/feed/components/feed-new-post'
-import GroupStatusUpdatedCard from '@/components/feed/components/group-status-updated-card'
-import MarketFeedTradeCard from '@/components/feed/components/market-feed-trade-card'
 
 interface FeedItemProps {
   data: FeedEntity<unknown>

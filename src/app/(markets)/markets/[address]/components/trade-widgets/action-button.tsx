@@ -1,13 +1,8 @@
-import { isMobile } from 'react-device-detect'
-import { ClickEvent, TradeQuotes, useAmplitude, useTradingService } from '@/services'
 import { Box, Button, HStack, Text, useOutsideClick, VStack } from '@chakra-ui/react'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
-import CheckedIcon from '@/resources/icons/checked-icon.svg'
-import { NumberUtil } from '@/utils'
-import { Market, MarketStatus } from '@/types'
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import BigNumber from 'bignumber.js'
 import { AnimatePresence, motion } from 'framer-motion'
+import Cookies from 'js-cookie'
 import {
   Dispatch,
   LegacyRef,
@@ -19,14 +14,19 @@ import {
   useRef,
   useState,
 } from 'react'
-import { useWeb3Service } from '@/services/Web3Service'
-import ConfirmButton from '@/app/(markets)/markets/[address]/components/trade-widgets/confirm-button'
-import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
-import Loader from '@/components/common/loader'
+import { isMobile } from 'react-device-detect'
 import { parseUnits } from 'viem'
-import BigNumber from 'bignumber.js'
-import Cookies from 'js-cookie'
+import Loader from '@/components/common/loader'
 import BlockedTradeTemplate from '@/app/(markets)/markets/[address]/components/trade-widgets/blocked-trade-template'
+import ConfirmButton from '@/app/(markets)/markets/[address]/components/trade-widgets/confirm-button'
+import CheckedIcon from '@/resources/icons/checked-icon.svg'
+import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
+import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import { ClickEvent, TradeQuotes, useAmplitude, useTradingService } from '@/services'
+import { useWeb3Service } from '@/services/Web3Service'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market, MarketStatus } from '@/types'
+import { NumberUtil } from '@/utils'
 
 interface ActionButtonProps {
   disabled: boolean
@@ -445,6 +445,7 @@ export default function ActionButton({
           marketType={marketType}
           outcome={option}
           marketAddress={market.address}
+          showFullInfo={false}
         />
       </MotionBox>
     </HStack>

@@ -1,12 +1,12 @@
-import { config as wagmiConfig, publicClient } from '@/providers'
-import { Address, encodeFunctionData, erc20Abi, getContract, parseUnits } from 'viem'
-import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
-import { defaultChain } from '@/constants'
-import { useAccount, useSendTransaction, useWriteContract } from 'wagmi'
-import { contractABI } from '@/contracts/utils'
-import { useLimitlessApi } from '@/services/LimitlessApi'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { switchChain } from '@wagmi/core'
+import { Address, encodeFunctionData, erc20Abi, getContract, parseUnits } from 'viem'
+import { useAccount, useSendTransaction, useWriteContract } from 'wagmi'
+import { defaultChain } from '@/constants'
+import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
+import { contractABI } from '@/contracts/utils'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { config as wagmiConfig, publicClient } from '@/providers'
+import { useLimitlessApi } from '@/services/LimitlessApi'
 
 export const useExternalWalletService = () => {
   const account = useWalletAddress()

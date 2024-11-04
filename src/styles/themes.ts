@@ -1,22 +1,24 @@
 import { extendTheme as ChakraTheme, ThemeConfig } from '@chakra-ui/react'
-import { radioTheme } from '@/styles/radio'
-import { modalTheme } from '@/styles/modals'
+import { isMobile } from 'react-device-detect'
 import { accordionTheme } from '@/styles/accordion'
-import { inputTheme } from '@/styles/input'
-import { menuTheme } from '@/styles/menu'
 import { commonButtonProps } from '@/styles/button'
 import { checkboxTheme } from '@/styles/checkbox'
-import { isMobile } from 'react-device-detect'
+import { inputTheme } from '@/styles/input'
 import { linkTheme } from '@/styles/link'
-import { tableTheme } from '@/styles/table'
+import { menuTheme } from '@/styles/menu'
+import { modalTheme } from '@/styles/modals'
+import { radioTheme } from '@/styles/radio'
 import { skeletonTheme } from '@/styles/skeleton'
+import { tableTheme } from '@/styles/table'
+import { tabsTheme } from '@/styles/tabs'
 import { textAreaTheme } from '@/styles/text-area'
+import { tooltipTheme } from '@/styles/tooltip'
 
 const fonts = `Helvetica Neue`
 const pixels = 'Neue Pixel Sans'
 
 const config: ThemeConfig = {
-  initialColorMode: 'light',
+  initialColorMode: 'dark',
   useSystemColorMode: false,
 }
 
@@ -272,6 +274,8 @@ export const chakraTheme = ChakraTheme({
     Link: linkTheme,
     Table: tableTheme,
     Skeleton: skeletonTheme,
+    Tabs: tabsTheme,
+    Tooltip: tooltipTheme,
   },
   breakpoints: {
     sm: '320px',

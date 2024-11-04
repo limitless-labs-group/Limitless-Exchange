@@ -1,7 +1,7 @@
-import { Category } from '@/types'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useMemo } from 'react'
+import { Category } from '@/types'
 
 export const useCategories = () => {
   const fetchCategories = useMemo(

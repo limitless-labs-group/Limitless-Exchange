@@ -1,10 +1,10 @@
-import { FeedEntity, MarketNewTradeFeedData } from '@/types'
+import { HStack, Link } from '@chakra-ui/react'
+import NextLink from 'next/link'
 import { useMemo } from 'react'
 import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
-import { HStack, Link } from '@chakra-ui/react'
-import { captionRegular } from '@/styles/fonts/fonts.styles'
 import PieChartIcon from '@/resources/icons/pie-chart-icon.svg'
-import NextLink from 'next/link'
+import { captionRegular } from '@/styles/fonts/fonts.styles'
+import { FeedEntity, MarketNewTradeFeedData } from '@/types'
 
 interface MarketFeedTradeCardProps {
   data: FeedEntity<MarketNewTradeFeedData>
@@ -20,7 +20,7 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
   }, [data])
   return (
     <MarketFeedCardContainer
-      creator={data.user}
+      user={data.user}
       timestamp={new Date(data.timestamp).getTime() / 1000}
       title={eventTitle}
     >
@@ -28,7 +28,7 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
         <PieChartIcon width={14} height={14} />
         <NextLink href={`https://${window.location.host}/markets/${data.data.address}`}>
           <Link
-            variant='textLink'
+            variant='textLinkSecondary'
             {...captionRegular}
             color='grey.500'
             textOverflow='ellipsis'

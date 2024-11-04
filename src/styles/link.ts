@@ -1,6 +1,6 @@
 import { defineStyle, defineStyleConfig } from '@chakra-ui/react'
-import { commonButtonProps } from '@/styles/button'
 import { isMobile } from 'react-device-detect'
+import { commonButtonProps } from '@/styles/button'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const transparent = defineStyle({
@@ -23,7 +23,7 @@ const transparent = defineStyle({
 
 const textLink = defineStyle({
   ...paragraphMedium,
-  textDecor: 'none',
+  textDecoration: 'none',
   background: 'unset',
   borderBottom: '1px solid',
   borderColor: 'blackTransparent.200',
@@ -32,13 +32,31 @@ const textLink = defineStyle({
     : {
         _hover: {
           bg: 'grey.200',
-          textDecor: 'none',
+          textDecoration: 'none',
           borderColor: 'blackTransparent.600',
           background: 'unset',
         },
       }),
 })
 
+const textLinkSecondary = defineStyle({
+  ...paragraphMedium,
+  textDecoration: 'none',
+  background: 'unset',
+  borderBottom: '1px solid',
+  borderColor: 'greyTransparent.200',
+  color: 'grey.500',
+  ...(isMobile
+    ? {}
+    : {
+        _hover: {
+          textDecoration: 'none',
+          borderColor: 'greyTransparent.600',
+          background: 'unset',
+        },
+      }),
+})
+
 export const linkTheme = defineStyleConfig({
-  variants: { transparent, textLink },
+  variants: { transparent, textLink, textLinkSecondary },
 })

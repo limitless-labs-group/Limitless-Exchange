@@ -1,9 +1,5 @@
 'use client'
-import Highcharts from 'highcharts'
-import HighchartsReact from 'highcharts-react-official'
-import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { defaultChain, newSubgraphURI } from '@/constants'
+
 import {
   Text,
   HStack,
@@ -16,48 +12,48 @@ import {
   useDisclosure,
   Button,
 } from '@chakra-ui/react'
-import React, { useMemo, useState } from 'react'
-import { Market, MarketGroup } from '@/types'
-import Paper from '@/components/common/paper'
-import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import { rgba } from 'color2k'
+import Highcharts from 'highcharts'
+import HighchartsReact from 'highcharts-react-official'
+import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { getAddress, zeroAddress } from 'viem'
+import Paper from '@/components/common/paper'
+import { defaultChain, newSubgraphURI } from '@/constants'
+import { useMarketPriceHistory } from '@/hooks/use-market-price-history'
 import { useThemeProvider } from '@/providers'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import { getAddress } from 'viem'
+import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { useWinningIndex } from '@/services/MarketsService'
+import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Market, MarketGroup } from '@/types'
 
 const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
-// Define the interface for the chart data
-interface YesBuyChartData {
-  yesBuyChartData: [number, number]
-}
-
 // Define the MarketPriceChart component
 export interface IMarketPriceChart {
-  marketAddr: string
-  winningIndex: number | undefined | null
-  resolved: boolean
-  outcomeTokensPercent?: number[]
   marketGroup?: MarketGroup
-  setSelectedMarket?: (market: Market) => void
+  market: Market
 }
 
-export const MarketPriceChart = ({
-  marketAddr,
-  resolved,
-  winningIndex,
-  outcomeTokensPercent,
-  marketGroup,
-  setSelectedMarket,
-}: IMarketPriceChart) => {
+export const MarketPriceChart = ({ marketGroup, market }: IMarketPriceChart) => {
   const { colors } = useThemeProvider()
-  const { market } = useTradingService()
+  // const { market, setMarket } = useTradingService()
   const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
-    Highcharts.dateFormat('%B %e, %Y %I:%M %p', Date.now()) ?? ''
+    Highcharts.dateFormat('%b %e, %Y %I:%M %p', Date.now()) ?? ''
   )
+  const outcomeTokensPercent = market.prices
+  const marketAddr = market.address[defaultChain.id] ?? zeroAddress
+  const { data: winningIndex } = useWinningIndex(market?.address || '')
+  const resolved = winningIndex === 0 || winningIndex === 1
+
+  useEffect(() => {
+    refetchPrices()
+  }, [market])
 
   const { trackClicked } = useAmplitude()
 
@@ -74,30 +70,28 @@ export const MarketPriceChart = ({
         type: 'x',
       },
       height: 230,
-      backgroundColor: colors.grey['200'],
+      backgroundColor: colors.grey['100'],
       marginLeft: 0,
       marginRight: 0,
     },
     title: {
       text: undefined,
     },
-    //@ts-ignore
     xAxis: {
       type: 'datetime',
       ordinal: false,
-      tickInterval: 24 * 3600 * 1000 * 10,
       tickPosition: 'outside',
-      lineColor: colors.grey['800'],
-      tickColor: colors.grey['800'],
+      lineColor: colors.grey['200'],
+      tickColor: colors.grey['200'],
+      tickLength: 0,
       labels: {
-        x: isMobile ? 20 : 10,
-        step: isMobile ? 3 : 0,
+        step: 0,
         rotation: 0,
         align: 'center',
         style: {
           fontFamily: 'Helvetica Neue',
           fontSize: isMobile ? '14px' : '12px',
-          color: colors.grey['800'],
+          color: colors.grey['400'],
         },
         formatter: function () {
           return Highcharts.dateFormat('%b %e', Number(this.value))
@@ -105,14 +99,7 @@ export const MarketPriceChart = ({
       },
     },
     yAxis: {
-      title: {
-        text: null,
-      },
-      min: 0,
-      max: 100,
-      opposite: true,
-      tickInterval: 20,
-      gridLineColor: colors.grey['400'],
+      visible: false,
     },
     legend: {
       enabled: false,
@@ -153,9 +140,9 @@ export const MarketPriceChart = ({
           },
           stops: [
             //@ts-ignore
-            [0, Highcharts.color(colors.green['500']).setOpacity(0.5).get('rgba')],
+            [0, Highcharts.color('#198020').setOpacity(0.3).get('rgba')],
             //@ts-ignore
-            [1, Highcharts.color(colors.green['500']).setOpacity(0).get('rgba')],
+            [1, Highcharts.color('#198020').setOpacity(0).get('rgba')],
           ],
           brighten: 0.2,
         },
@@ -178,86 +165,14 @@ export const MarketPriceChart = ({
         data: data,
         turboThreshold: 2000,
         boostThreshold: 2000,
-        color: colors.green['500'],
+        color: '#238020',
         lineWidth: 2,
       },
     ],
   })
 
-  /**
-   * Flattens and interpolates price data for a chart.
-   *
-   * This function takes an array of YesBuyChartData objects, interpolates missing
-   * hourly data points, and converts prices to percentages. The function appends
-   * the current timestamp with the last price in the data array to ensure the
-   * latest data point is included.
-   *
-   * @param {YesBuyChartData[]} data - The array of YesBuyChartData objects.
-   * @returns {number[][]} - A 2D array of flattened and interpolated price data,
-   *                         where each sub-array contains a timestamp and a price percentage.
-   */
-  const flattenPriceData = (data: YesBuyChartData[]): number[][] => {
-    if (!data || data.length === 0) {
-      return []
-    }
-
-    const flattenData: number[][] = []
-
-    // Append current timestamp with the last price
-    const lastTrade = [...data[data.length - 1].yesBuyChartData]
-    lastTrade[0] = Math.floor(Date.now())
-    data.push({ yesBuyChartData: lastTrade as [number, number] })
-    //TODO: hotfix of envio duplication
-    const deduplicator = new Set<number>()
-
-    for (let i = 0; i < data.length - 1; i++) {
-      const currentTrade = data[i].yesBuyChartData
-
-      if (isNaN(currentTrade[1])) {
-        continue
-      }
-
-      const nextTrade = data[i + 1].yesBuyChartData
-
-      if (deduplicator.has(currentTrade[1])) {
-        continue
-      }
-
-      flattenData.push(currentTrade)
-      deduplicator.add(currentTrade[1])
-
-      let currentTime = currentTrade[0]
-      while (currentTime + ONE_HOUR < nextTrade[0]) {
-        currentTime += ONE_HOUR
-        flattenData.push([currentTime, currentTrade[1]])
-      }
-    }
-
-    return flattenData
-  }
-
   // React Query to fetch the price data
-  const { data: prices } = useQuery({
-    queryKey: ['prices', market?.address],
-    queryFn: async () => {
-      const marketId = market?.address
-      const query = `query prices {
-          AutomatedMarketMakerPricing(where: { market_id: { _ilike: "${marketId}" } }) {
-            yesBuyChartData
-          }
-      }`
-
-      const response = await axios.post(newSubgraphURI[defaultChain.id], { query })
-      const pricingData = response.data.data?.AutomatedMarketMakerPricing as YesBuyChartData[]
-
-      return flattenPriceData(
-        pricingData.sort((a, b) => {
-          return a.yesBuyChartData[0] - b.yesBuyChartData[0]
-        })
-      )
-    },
-    enabled: !!market,
-  })
+  const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(market?.address)
 
   // const initialYesChance = useMemo(() => {
   //   if (market?.prices) {
@@ -304,71 +219,81 @@ export const MarketPriceChart = ({
   }, [prices, winningIndex, resolved])
 
   return (
-    <Paper my='24px' p='8px'>
-      {marketGroup ? (
-        <Menu isOpen={isMarketListOpen} onClose={onCloseMarketList} variant='transparent'>
-          <MenuButton
-            as={Button}
-            onClick={() => {
-              trackClicked(ClickEvent.ChangeMarketInGroupClicked, {
-                marketGroup,
-              })
-              onOpenMarketList()
-            }}
-            p={0}
-            h='unset'
-          >
-            <HStack gap={isMobile ? '16px' : '8px'} color='green.500'>
-              <Text {...paragraphMedium} color='green.500'>
-                {market?.title}
-              </Text>
-              <HStack gap={isMobile ? '8px' : '4px'}>
-                <ThumbsUpIcon width={16} height={16} />
-                <Text {...paragraphMedium} color='green.500'>
-                  {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}% YES
-                </Text>
-                <Box
-                  transform={`rotate(${isMarketListOpen ? '180deg' : 0})`}
-                  transition='0.5s'
-                  color='green.500'
-                >
-                  <ChevronDownIcon width='16px' height='16px' />
-                </Box>
-              </HStack>
-            </HStack>
-          </MenuButton>
-          <MenuList borderRadius='2px' zIndex={2} marginTop='-8px'>
-            {marketGroup.markets.map((market) => (
-              <MenuItem
-                onClick={() => {
-                  setSelectedMarket && setSelectedMarket(market)
-                }}
-                key={market.address}
-              >
-                {market.title}
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu>
-      ) : (
-        <HStack gap={'4px'} color='green.500'>
-          <ThumbsUpIcon width={16} height={16} />
-          <Text {...paragraphMedium} color='green.500'>
+    <Paper my='20px' py='8px' px={0} bg='grey.100' borderRadius='8px'>
+      {/*{marketGroup ? (*/}
+      {/*  <Menu isOpen={isMarketListOpen} onClose={onCloseMarketList} variant='transparent'>*/}
+      {/*    <MenuButton*/}
+      {/*      as={Button}*/}
+      {/*      onClick={() => {*/}
+      {/*        trackClicked(ClickEvent.ChangeMarketInGroupClicked, {*/}
+      {/*          marketGroup,*/}
+      {/*        })*/}
+      {/*        onOpenMarketList()*/}
+      {/*      }}*/}
+      {/*      p={0}*/}
+      {/*      h='unset'*/}
+      {/*    >*/}
+      {/*      <HStack gap={isMobile ? '16px' : '8px'} color='green.500'>*/}
+      {/*        <Text {...paragraphMedium} color='green.500'>*/}
+      {/*          {market?.title}*/}
+      {/*        </Text>*/}
+      {/*        <HStack gap={isMobile ? '8px' : '4px'}>*/}
+      {/*          <ThumbsUpIcon width={16} height={16} />*/}
+      {/*          <Text {...paragraphMedium} color='green.500'>*/}
+      {/*            {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}% YES*/}
+      {/*          </Text>*/}
+      {/*          <Box*/}
+      {/*            transform={`rotate(${isMarketListOpen ? '180deg' : 0})`}*/}
+      {/*            transition='0.5s'*/}
+      {/*            color='green.500'*/}
+      {/*          >*/}
+      {/*            <ChevronDownIcon width='16px' height='16px' />*/}
+      {/*          </Box>*/}
+      {/*        </HStack>*/}
+      {/*      </HStack>*/}
+      {/*    </MenuButton>*/}
+      {/*    <MenuList borderRadius='2px' zIndex={2} marginTop='-8px'>*/}
+      {/*      {marketGroup.markets.map((market) => (*/}
+      {/*        <MenuItem*/}
+      {/*          onClick={() => {*/}
+      {/*            setSelectedMarket && setSelectedMarket(market)*/}
+      {/*          }}*/}
+      {/*          key={market.address}*/}
+      {/*        >*/}
+      {/*          {market.title}*/}
+      {/*        </MenuItem>*/}
+      {/*      ))}*/}
+      {/*    </MenuList>*/}
+      {/*  </Menu>*/}
+      {/*) : (*/}
+      {/*  <HStack gap={'4px'}>*/}
+      {/*    <Text {...headline} color='grey.800'>*/}
+      {/*      {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%*/}
+      {/*    </Text>*/}
+      {/*    <Text {...headline} color='grey.800'>*/}
+      {/*      Yes*/}
+      {/*    </Text>*/}
+      {/*    /!*<ChevronDownIcon width={16} height={16} />*!/*/}
+      {/*  </HStack>*/}
+      {/*)}*/}
+      <Box px='8px'>
+        <HStack>
+          <VStack gap={-1} alignItems={'flex-start'}>
+            <Text fontSize='sm' color='grey.500'>
+              {yesDate}
+            </Text>
+          </VStack>
+        </HStack>
+        <HStack gap={'4px'} mt='4px'>
+          <Text {...headline} color='grey.800'>
             {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%
           </Text>
-          <Text {...paragraphMedium} color='green.500'>
+          <Text {...headline} color='grey.800'>
             Yes
           </Text>
           {/*<ChevronDownIcon width={16} height={16} />*/}
         </HStack>
-      )}
-      <HStack>
-        <VStack gap={-1} alignItems={'flex-start'}>
-          <Text fontSize='sm' color={'fontLight'}>
-            {yesDate}
-          </Text>
-        </VStack>
-      </HStack>
+      </Box>
       <HighchartsReact highcharts={Highcharts} options={getChartOptions(chartData)} />
     </Paper>
   )

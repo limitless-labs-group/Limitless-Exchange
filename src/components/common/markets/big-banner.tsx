@@ -1,72 +1,35 @@
-import { Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
-import { Market, MarketSingleCardResponse } from '@/types'
-import { headLineLarge, paragraphMedium } from '@/styles/fonts/fonts.styles'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
-import { NumberUtil, truncateEthAddress } from '@/utils'
-import React, { SyntheticEvent, useEffect, useState } from 'react'
-import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import Avatar from '@/components/common/avatar'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
-import { Address } from 'viem'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { isMobile } from 'react-device-detect'
-import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
-import MobileDrawer from '@/components/common/drawer'
-import { MarketTradingForm } from '@/app/(markets)/markets/[address]/components'
-import { dailyMarketToMarket } from '@/utils/market'
-import NextLink from 'next/link'
-import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
+import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
+import { ethers } from 'ethers'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useSearchParams } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { Address } from 'viem'
+import Avatar from '@/components/common/avatar'
+import MobileDrawer from '@/components/common/drawer'
+import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import MarketPage from '@/components/common/markets/market-page'
+import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
+import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import VolumeIcon from '@/resources/icons/volume-icon.svg'
+import { useTradingService } from '@/services'
+import { headLineLarge, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 
 const MotionBox = motion(Box)
 
 interface BigBannerProps {
-  market: MarketSingleCardResponse
-  onMarketSelect: (market: MarketSingleCardResponse) => void
-  index: number
+  market: Market
 }
 
-export default function BigBanner({ market, onMarketSelect, index }: BigBannerProps) {
+export default function BigBanner({ market }: BigBannerProps) {
   const [feedMessage, setFeedMessage] = useState<MarketFeedData | null>(null)
-  const { trackClicked } = useAmplitude()
-  const searchParams = useSearchParams()
-  const category = searchParams.get('category')
-  const router = useRouter()
-  const { market: selectedMarket, setMarket } = useTradingService()
+  const { onCloseMarketPage, onOpenMarketPage } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market.address)
 
-  const onClickQuickBuy = (e: SyntheticEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    onMarketSelect(market)
-    trackClicked(ClickEvent.QuickBetClicked, {
-      // Todo add analytic params
-      platform: 'desktop',
-      bannerType: 'Big banner',
-      marketCategory: category,
-      marketAddress: market.address as Address,
-      marketType: 'single',
-      source: 'Explore Market',
-      bannerPosition: index,
-    })
-  }
-
   const onClickRedirectToMarket = () => {
-    trackClicked(ClickEvent.MarketPageOpened, {
-      bannerPosition: index,
-      platform: isMobile ? 'mobile' : 'desktop',
-      bannerType: 'Big banner',
-      source: 'Explore Market',
-      marketCategory: category,
-      marketAddress: market.address as Address,
-      marketType: 'single',
-      page: 'Market Page',
-    })
-    trackClicked(ClickEvent.BigBannerClicked, {
-      bannerPosition: index,
-      bannerPaginationPage: 1,
-    })
+    onOpenMarketPage(market, 'Big Banner')
   }
 
   useEffect(() => {
@@ -86,16 +49,20 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
 
   const fetMarketFeedTitle = (message: MarketFeedData | null) => {
     if (message && feedMessage === message) {
-      const title = message.eventBody.strategy === 'Buy' ? 'bought' : 'sold'
-      const outcome = message.eventBody.outcome
-      return `${truncateEthAddress(
-        message.eventBody.account
-      )} ${title} ${NumberUtil.formatThousands(
-        message.eventBody.contracts,
+      const title = message.data.strategy === 'Buy' ? 'bought' : 'sold'
+      const outcome = message.data.outcome
+      return `${
+        ethers.utils.isAddress(feedMessage?.user?.name ?? '')
+          ? truncateEthAddress(feedMessage?.user?.account)
+          : feedMessage?.user?.name ?? truncateEthAddress(feedMessage?.user?.account)
+      }
+         ${title} ${NumberUtil.formatThousands(
+        message.data.contracts,
         6
       )} contracts ${outcome} for ${NumberUtil.convertWithDenomination(
-        Math.abs(+message.eventBody.tradeAmount)
-      )} ${message.eventBody.symbol} in total.`
+        Math.abs(+message.data.tradeAmount),
+        6
+      )} ${message.data.symbol} in total.`
     }
   }
 
@@ -107,10 +74,10 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
       p='16px'
       borderRadius='2px'
       h={'324px'}
+      cursor='pointer'
+      onClick={onClickRedirectToMarket}
     >
-      <Text {...headLineLarge} wordBreak='break-all'>
-        {market.proxyTitle ?? market.title ?? 'Noname market'}
-      </Text>
+      <Text {...headLineLarge}>{market.proxyTitle ?? market.title ?? 'Noname market'}</Text>
       <Box w='full' h='38px'></Box>
       <Box w='full'>
         {isMobile ? (
@@ -152,13 +119,13 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
                 </HStack>
               </HStack>
               <HStack gap='4px'>
-                <DailyMarketTimer deadline={market.deadline} color='black' />
+                <DailyMarketTimer deadline={market.expirationTimestamp} color='black' />
               </HStack>
             </HStack>
           </>
         ) : (
           <HStack w='full' justifyContent='space-between'>
-            <DailyMarketTimer deadline={market.deadline} color='black' />
+            <DailyMarketTimer deadline={market.expirationTimestamp} color='black' />
             <HStack gap='16px'>
               <HStack color='black' gap='4px'>
                 <LiquidityIcon width={16} height={16} />
@@ -199,52 +166,10 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
           w='full'
           color='rgba(0, 0, 0, 0.2)'
         />
-        {isMobile ? (
+        {isMobile ? null : (
           <HStack w='full' justifyContent='space-between'>
-            <MobileDrawer
-              trigger={
-                <Button
-                  variant='black'
-                  onClick={() => {
-                    trackClicked(ClickEvent.QuickBetClicked, {
-                      // Todo add analytic params
-                      platform: 'mobile',
-                      bannerType: 'Big banner',
-                      marketCategory: category,
-                      marketAddress: market.address as Address,
-                      marketType: 'single',
-                      source: 'Explore Market',
-                      bannerPosition: index,
-                    })
-                    setMarket(dailyMarketToMarket(market))
-                  }}
-                >
-                  Quick buy
-                </Button>
-              }
-              variant='blue'
-              title={market.proxyTitle ?? market.title ?? 'Noname market'}
-            >
-              <MarketTradingForm
-                market={selectedMarket as Market}
-                analyticParams={{ quickBetSource: 'Big Banner', source: 'Explore Market page' }}
-              />
-            </MobileDrawer>
-            <Button
-              variant='transparent'
-              onClick={() => {
-                onClickRedirectToMarket()
-                router.push(`/markets/${market.address}`)
-              }}
-              color='black'
-            >
-              Open market <ArrowRightIcon width={16} height={16} />
-            </Button>
-          </HStack>
-        ) : (
-          <HStack w='full' justifyContent='space-between'>
-            {feedMessage ? (
-              <Box>
+            {feedMessage && (
+              <Box mt='12px'>
                 <AnimatePresence>
                   <MotionBox
                     initial={{ y: -48, opacity: 0 }}
@@ -259,7 +184,7 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
                     key={feedMessage.bodyHash}
                   >
                     <HStack gap='4px' alignItems='flex-start'>
-                      <Avatar account={feedMessage.eventBody.account} />
+                      <Avatar account={feedMessage?.user?.account ?? ''} />
                       <Text {...paragraphMedium} color='black' mt='-2px'>
                         {fetMarketFeedTitle(feedMessage)}
                       </Text>
@@ -267,27 +192,18 @@ export default function BigBanner({ market, onMarketSelect, index }: BigBannerPr
                   </MotionBox>
                 </AnimatePresence>
               </Box>
-            ) : (
-              <Box />
             )}
-            <Button variant='black' onClick={onClickQuickBuy}>
-              Quick buy
-            </Button>
           </HStack>
         )}
       </Box>
     </VStack>
   )
 
-  return (
-    <Box position='relative' w='full' onClick={isMobile ? undefined : onClickRedirectToMarket}>
-      {isMobile ? (
-        content
-      ) : (
-        <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
-          {content}
-        </NextLink>
-      )}
-    </Box>
+  return isMobile ? (
+    <MobileDrawer trigger={content} variant='black' onClose={onCloseMarketPage}>
+      <MarketPage />
+    </MobileDrawer>
+  ) : (
+    content
   )
 }

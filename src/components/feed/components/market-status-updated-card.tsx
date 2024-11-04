@@ -1,14 +1,14 @@
-import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
-import Paper from '@/components/common/paper'
 import { Box, HStack, Text } from '@chakra-ui/react'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { isMobile } from 'react-device-detect'
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
-import { NumberUtil } from '@/utils'
-import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import NextLink from 'next/link'
 import React, { useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import Paper from '@/components/common/paper'
+import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
+import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import VolumeIcon from '@/resources/icons/volume-icon.svg'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { FeedEventType, FeedEntity, MarketStatusFeedData } from '@/types'
+import { NumberUtil } from '@/utils'
 
 interface MarketStatusUpdatedCardProps {
   data: FeedEntity<MarketStatusFeedData>
@@ -40,7 +40,7 @@ export default function MarketStatusUpdatedCard({ data }: MarketStatusUpdatedCar
   }
   return (
     <MarketFeedCardContainer
-      creator={data.user}
+      user={data.user}
       timestamp={new Date(data.timestamp).getTime() / 1000}
       title={`${getText()} market`}
     >

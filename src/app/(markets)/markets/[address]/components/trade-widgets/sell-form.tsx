@@ -16,11 +16,24 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { NumberUtil } from '@/utils'
+import { css } from '@emotion/react'
+import { useQueryClient } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
+import debounce from 'lodash.debounce'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { Address } from 'viem'
+import ButtonWithStates from '@/components/common/button-with-states'
+import { Toast } from '@/components/common/toast'
+import { useToast } from '@/hooks'
+import { useToken } from '@/hooks/use-token'
+import BlockIcon from '@/resources/icons/block.svg'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import CloseIcon from '@/resources/icons/close-icon.svg'
+import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
+import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
-import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ClickEvent,
   TradeClickedMetadata,
@@ -30,23 +43,10 @@ import {
   useHistory,
   useTradingService,
 } from '@/services'
-import { Market, MarketGroup, MarketStatus } from '@/types'
-import { useToken } from '@/hooks/use-token'
-import BigNumber from 'bignumber.js'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { css } from '@emotion/react'
-import { isMobile } from 'react-device-detect'
-import BlockIcon from '@/resources/icons/block.svg'
-import CloseIcon from '@/resources/icons/close-icon.svg'
 import { useWeb3Service } from '@/services/Web3Service'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
-import { Address } from 'viem'
-import debounce from 'lodash.debounce'
-import { useQueryClient } from '@tanstack/react-query'
-import ButtonWithStates from '@/components/common/button-with-states'
-import { Toast } from '@/components/common/toast'
-import { useToast } from '@/hooks'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market, MarketGroup, MarketStatus } from '@/types'
+import { NumberUtil } from '@/utils'
 
 const _transformSellValue = (value: string) => {
   const [wholeNumber, fractionalNumber] = value.split('.')
@@ -63,7 +63,6 @@ const _transformSellValue = (value: string) => {
 }
 
 interface SellFormProps {
-  market: Market
   setOutcomeIndex: Dispatch<SetStateAction<number>>
   marketGroup?: MarketGroup
   setSelectedMarket?: (market: Market) => void
@@ -71,18 +70,35 @@ interface SellFormProps {
 }
 
 export function SellForm({
-  market,
   setOutcomeIndex,
   marketGroup,
   setSelectedMarket,
   analyticParams,
 }: SellFormProps) {
+  /**
+   * TRADING SERVICE
+   */
+  const {
+    collateralAmount,
+    setCollateralAmount,
+    balanceOfCollateralToSellYes,
+    balanceOfCollateralToSellNo,
+    quotesYes,
+    quotesNo,
+    trade,
+    approveSellMutation,
+    checkApprovedForSell,
+    market,
+    resetQuotes,
+  } = useTradingService()
   const queryClient = useQueryClient()
   const [sliderValue, setSliderValue] = useState(0)
   const [outcomeChoice, setOutcomeChoice] = useState<string | null>(null)
   const [quoteYes, setQuoteYes] = useState<TradeQuotes | undefined | null>()
   const [quoteNo, setQuoteNo] = useState<TradeQuotes | undefined | null>()
   const [isApproved, setIsApproved] = useState(true)
+  const [slippage, setSlippage] = useState('5')
+  const [showSlippageDetails, setShowSlippageDetails] = useState(false)
   const toast = useToast()
 
   const { client } = useWeb3Service()
@@ -122,23 +138,6 @@ export function SellForm({
    * ANALITYCS
    */
   const { trackClicked } = useAmplitude()
-
-  /**
-   * TRADING SERVICE
-   */
-  const {
-    collateralAmount,
-    setCollateralAmount,
-    balanceOfCollateralToSellYes,
-    balanceOfCollateralToSellNo,
-    quotesYes,
-    quotesNo,
-    trade,
-    approveSellMutation,
-    checkApprovedForSell,
-    resetQuotes,
-    status,
-  } = useTradingService()
 
   const getApprovedForSellState = async () => {
     if (client === 'eoa') {
@@ -273,13 +272,13 @@ export function SellForm({
 
   const handleTradeClicked = async () => {
     trackClicked(ClickEvent.SellTradeClicked, {
-      address: market.address,
+      address: market?.address || '0x',
       marketType: marketGroup ? 'group' : 'single',
       ...(analyticParams ? analyticParams : {}),
     })
     const index = outcomeChoice === 'yes' ? 0 : 1
     setOutcomeIndex(index)
-    await trade(index)
+    await trade(index, slippage)
   }
 
   const approveSell = async () =>
@@ -298,13 +297,31 @@ export function SellForm({
   const handleApproveClicked = async () => {
     trackClicked(ClickEvent.SellApproveClicked, {
       address: market?.address,
-      strategy: 'Buy',
+      // @ts-ignore
       outcome: outcomeChoice === 'yes' ? 'Yes' : 'No',
       walletType: 'eoa',
       ...(analyticParams ? analyticParams : {}),
     })
     await approveSell()
   }
+
+  const handleSlippageChange = (value: string) => {
+    if (!value) {
+      setSlippage('')
+      return
+    }
+    if (+value >= 100) {
+      setSlippage('100')
+      return
+    }
+    setSlippage(value)
+  }
+
+  const handleSlippageClicked = (value: number) => {
+    setSlippage(value.toString())
+  }
+
+  const toggleShowSlippageDetails = () => setShowSlippageDetails(!showSlippageDetails)
 
   const isExceedsBalance = useMemo(() => {
     if (outcomeChoice) {
@@ -375,13 +392,11 @@ export function SellForm({
   }, [outcomeChoice])
 
   useEffect(() => {
-    if (status === 'Ready') {
-      resetQuotes()
-      setCollateralAmount('')
-      setDisplayAmount('')
-      setSliderValue(0)
-    }
-  }, [status])
+    resetQuotes()
+    setCollateralAmount('')
+    setDisplayAmount('')
+    setSliderValue(0)
+  }, [market?.address])
 
   return (
     <>
@@ -407,7 +422,7 @@ export function SellForm({
               <HStack gap='8px' color='white'>
                 <PredictionsIcon />
                 <Text {...paragraphMedium} color='white'>
-                  {market.title}
+                  {market?.title}
                 </Text>
               </HStack>
             </Button>
@@ -449,7 +464,7 @@ export function SellForm({
       )}
       {!isOpenSelectMarketMenu && (
         <>
-          <VStack mt={marketGroup ? 0 : '24px'} mx={isMobile ? '16px' : 0}>
+          <VStack mt={marketGroup ? 0 : '24px'}>
             {positionsYes && (
               <Button
                 bg={outcomeChoice === 'yes' ? 'white' : 'rgba(255, 255, 255, 0.2)'}
@@ -466,7 +481,7 @@ export function SellForm({
                   }
                   trackClicked<TradeClickedMetadata>(ClickEvent.SellClicked, {
                     outcome: 'Yes',
-                    marketAddress: market.address,
+                    marketAddress: market?.address || '0x',
                     walletType: client,
                     ...(analyticParams ? analyticParams : {}),
                   })
@@ -584,7 +599,7 @@ export function SellForm({
                   }
                   trackClicked<TradeClickedMetadata>(ClickEvent.SellClicked, {
                     outcome: 'No',
-                    marketAddress: market.address,
+                    marketAddress: market?.address || '0x',
                     walletType: client,
                     ...(analyticParams ? analyticParams : {}),
                   })
@@ -685,7 +700,7 @@ export function SellForm({
             )}
           </VStack>
           {outcomeChoice && (
-            <Box mt='24px' mx={isMobile ? '16px' : 0}>
+            <Box mt='24px'>
               <Flex justifyContent='space-between'>
                 <Text {...paragraphMedium} color='white'>
                   Balance
@@ -748,6 +763,64 @@ export function SellForm({
                   </InputRightElement>
                 </InputGroup>
               </Stack>
+              {/*<HStack*/}
+              {/*  w='full'*/}
+              {/*  justifyContent='space-between'*/}
+              {/*  mt='12px'*/}
+              {/*  cursor='pointer'*/}
+              {/*  onClick={toggleShowSlippageDetails}*/}
+              {/*>*/}
+              {/*  <Text {...paragraphRegular} color='white'>*/}
+              {/*    Slippage Tolerance{' '}*/}
+              {/*    {slippage === '100' ? 'Infinite' : !slippage ? '0%' : `${slippage}%`}*/}
+              {/*  </Text>*/}
+              {/*  <Box*/}
+              {/*    transform={`rotate(${showSlippageDetails ? '180deg' : 0})`}*/}
+              {/*    transition='0.5s'*/}
+              {/*    color='white'*/}
+              {/*  >*/}
+              {/*    <ChevronDownIcon width='16px' height='16px' />*/}
+              {/*  </Box>*/}
+              {/*</HStack>*/}
+              {/*{showSlippageDetails && (*/}
+              {/*  <HStack w='full' gap='8px' justifyContent='space-between' mt='8px'>*/}
+              {/*    <InputGroup flex={1}>*/}
+              {/*      <Input*/}
+              {/*        variant='outlined'*/}
+              {/*        value={slippage}*/}
+              {/*        onChange={(e) => handleSlippageChange(e.target.value)}*/}
+              {/*        placeholder='0'*/}
+              {/*        css={css`*/}
+              {/*          caret-color: white;*/}
+              {/*        `}*/}
+              {/*        type='number'*/}
+              {/*      />*/}
+              {/*      <InputRightElement*/}
+              {/*        h='16px'*/}
+              {/*        top={isMobile ? '8px' : '4px'}*/}
+              {/*        right={isMobile ? '8px' : '4px'}*/}
+              {/*        w='fit'*/}
+              {/*      >*/}
+              {/*        <Text {...paragraphMedium} color='white'>*/}
+              {/*          %*/}
+              {/*        </Text>*/}
+              {/*      </InputRightElement>*/}
+              {/*    </InputGroup>*/}
+              {/*    {[0.1, 0.5, 1, 100].map((title) => (*/}
+              {/*      <Button*/}
+              {/*        variant='transparentLight'*/}
+              {/*        key={title}*/}
+              {/*        flex={1}*/}
+              {/*        onClick={() => handleSlippageClicked(title)}*/}
+              {/*        color='white'*/}
+              {/*        py='2px'*/}
+              {/*        h={isMobile ? '32px' : '24px'}*/}
+              {/*      >*/}
+              {/*        {title === 100 ? <InfiniteIcon /> : `${title}%`}*/}
+              {/*      </Button>*/}
+              {/*    ))}*/}
+              {/*  </HStack>*/}
+              {/*)}*/}
               <VStack my='24px' gap={isMobile ? '8px' : '4px'} w='full'>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>

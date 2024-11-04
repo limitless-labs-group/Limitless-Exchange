@@ -1,28 +1,18 @@
-import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
-import { MarketSingleCardResponse } from '@/types'
-import { NumberUtil } from '@/utils'
-import { Box, Button, HStack, Text } from '@chakra-ui/react'
-import Paper from '@/components/common/paper'
-import React, { LegacyRef, SyntheticEvent, useEffect, useRef, useState } from 'react'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import NextLink from 'next/link'
+import { Box, HStack, Text } from '@chakra-ui/react'
+import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import {
-  ClickEvent,
-  OpenEvent,
-  PageOpenedMetadata,
-  useAmplitude,
-  useTradingService,
-} from '@/services'
-import { dailyMarketToMarket } from '@/utils/market'
-import { Address } from 'viem'
-import { useSearchParams } from 'next/navigation'
-import { MarketTradingForm } from '@/app/(markets)/markets/[address]/components'
+import MobileDrawer from '@/components/common/drawer'
+import MarketPage from '@/components/common/markets/market-page'
+import Paper from '@/components/common/paper'
+import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import VolumeIcon from '@/resources/icons/volume-icon.svg'
+import { useTradingService } from '@/services'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
+import { NumberUtil } from '@/utils'
 
 interface MarketSingleCardProps {
-  market: MarketSingleCardResponse
-  position: number
+  market: Market
 }
 
 const defaultColors = {
@@ -37,51 +27,14 @@ const hoverColors = {
   chartBg: 'var(--chakra-colors-transparent-300)',
 }
 
-export const MarketSingleCard = ({ market, position }: MarketSingleCardProps) => {
+export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
-  const { trackOpened, trackClicked } = useAmplitude()
-  const searchParams = useSearchParams()
-  const [tradingWidgetOpened, setTradingWidgetOpened] = useState(false)
-  const [showQuickBetButton, setShowQuickBetButton] = useState(false)
 
-  const ref = useRef<HTMLElement>()
-
-  const category = searchParams.get('category')
-
-  const { setMarket, market: selectedMarket } = useTradingService()
+  const { onOpenMarketPage, onCloseMarketPage } = useTradingService()
 
   const trackMarketClicked = () => {
-    trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
-      page: 'Market Page',
-      market: market.address,
-      marketType: 'single',
-    })
+    onOpenMarketPage(market, 'Standard Banner')
   }
-
-  const onClickQuickBuy = (e: SyntheticEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setTradingWidgetOpened(true)
-    setColors(hoverColors)
-    setMarket(dailyMarketToMarket(market))
-    trackClicked(ClickEvent.QuickBetClicked, {
-      bannerPosition: position,
-      platform: isMobile ? 'mobile' : 'desktop',
-      bannerType: 'Standart card',
-      marketCategory: category,
-      marketAddress: market.address as Address,
-      marketType: 'single',
-      source: 'Explore Market',
-    })
-  }
-
-  useEffect(() => {
-    if (!tradingWidgetOpened) {
-      setShowQuickBetButton(false)
-      setColors(defaultColors)
-      setMarket(null)
-    }
-  }, [tradingWidgetOpened])
 
   const content = (
     <Paper
@@ -91,30 +44,17 @@ export const MarketSingleCard = ({ market, position }: MarketSingleCardProps) =>
       _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
       onMouseEnter={() => {
         if (!isMobile) {
-          // setShowQuickBetButton(true)
           setColors(hoverColors)
         }
       }}
       onMouseLeave={() => {
-        if (!isMobile && !tradingWidgetOpened) {
+        if (!isMobile) {
           setColors(defaultColors)
-          // setShowQuickBetButton(false)
         }
       }}
       onClick={trackMarketClicked}
       position='relative'
     >
-      {showQuickBetButton && (
-        <Button
-          variant='black'
-          position='absolute'
-          transform='rotate(-15deg)'
-          top='16px'
-          onClick={onClickQuickBuy}
-        >
-          Quick buy
-        </Button>
-      )}
       <HStack justifyContent='space-between' mb='12px' alignItems='flex-start'>
         <Text {...paragraphMedium} color={colors.main}>
           {market.proxyTitle ?? market.title ?? 'Noname market'}
@@ -171,7 +111,7 @@ export const MarketSingleCard = ({ market, position }: MarketSingleCardProps) =>
               </Text>
             </HStack>
             <Text {...paragraphRegular} color={colors.main}>
-              {NumberUtil.formatThousands(market.volumeFormatted, 6)}{' '}
+              {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
               {market.collateralToken.symbol}
             </Text>
           </HStack>
@@ -181,21 +121,10 @@ export const MarketSingleCard = ({ market, position }: MarketSingleCardProps) =>
   )
 
   return isMobile ? (
-    content
+    <MobileDrawer trigger={content} variant='black' onClose={onCloseMarketPage}>
+      <MarketPage />
+    </MobileDrawer>
   ) : (
-    <>
-      <NextLink href={`/markets/${market.address}`} style={{ width: '100%' }}>
-        {content}
-      </NextLink>
-      {tradingWidgetOpened && selectedMarket && (
-        <Box position='absolute' top='0' right={'-352px'} ref={ref as LegacyRef<HTMLDivElement>}>
-          <MarketTradingForm
-            market={selectedMarket}
-            analyticParams={{ quickBetSource: 'Medium banner', source: 'Quick Bet' }}
-            showTitle={true}
-          />
-        </Box>
-      )}
-    </>
+    content
   )
 }

@@ -1,13 +1,14 @@
+import { Text } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Text } from '@chakra-ui/react'
 
 interface DailyMarketTimerProps {
-  deadline: string
+  deadline: number
   color: string
+  showDays?: boolean
 }
 
-const calculateTimeRemaining = (deadline: string) => {
+const calculateTimeRemaining = (deadline: number) => {
   const now = new Date().getTime()
   const timeLeft = new Date(deadline).getTime() - now
 
@@ -33,20 +34,27 @@ const formatTime = ({
   hours,
   minutes,
   seconds,
+  showDays,
 }: {
   days: number
   hours: number
   minutes: number
   seconds: number
+  showDays: boolean
 }) => {
-  return `${String(days).padStart(2, '0')}d:${String(hours).padStart(2, '0')}h:${String(
-    minutes
-  ).padStart(2, '0')}m:${String(seconds).padStart(2, '0')}s`
+  return `${showDays ? `${String(days).padStart(2, '0')}d:` : ''}${String(hours).padStart(
+    2,
+    '0'
+  )}h:${String(minutes).padStart(2, '0')}m:${String(seconds).padStart(2, '0')}s`
 }
 
-export default function DailyMarketTimer({ deadline, color }: DailyMarketTimerProps) {
+export default function DailyMarketTimer({
+  deadline,
+  color,
+  showDays = true,
+}: DailyMarketTimerProps) {
   const [timeRemaining, setTimeRemaining] = useState(
-    calculateTimeRemaining(new Date(deadline).getTime() > new Date().getTime() ? deadline : '0')
+    calculateTimeRemaining(new Date(deadline).getTime() > new Date().getTime() ? deadline : 0)
   )
 
   useEffect(() => {
@@ -63,7 +71,7 @@ export default function DailyMarketTimer({ deadline, color }: DailyMarketTimerPr
 
   return (
     <Text {...paragraphMedium} color={color}>
-      {formatTime(timeRemaining)}
+      {formatTime({ ...timeRemaining, showDays })}
     </Text>
   )
 }

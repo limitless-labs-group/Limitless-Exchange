@@ -1,17 +1,21 @@
 import { useQuery } from '@tanstack/react-query'
+import { AxiosResponse } from 'axios'
 import { ContractCallContext, Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
-import { defaultChain } from '@/constants'
-import { fixedProductMarketMakerABI } from '@/contracts'
 import { formatUnits, parseUnits } from 'viem'
+import { defaultChain } from '@/constants'
+import { POLLING_INTERVAL } from '@/constants/application'
+import { fixedProductMarketMakerABI } from '@/contracts'
 import { limitlessApi } from '@/services'
-import { AxiosResponse } from 'axios'
 import { MarketGroup } from '@/types'
 
-export default function useMarketGroup(slug: string) {
+export default function useMarketGroup(slug?: string, isPolling = false) {
   return useQuery({
     queryKey: ['market-group', slug],
     queryFn: async () => {
+      if (!slug) {
+        return
+      }
       const { data: marketGroup }: AxiosResponse<MarketGroup> = await limitlessApi.get(
         `/markets-groups/${slug}`
       )
@@ -87,5 +91,6 @@ export default function useMarketGroup(slug: string) {
       }
     },
     enabled: !!slug,
+    refetchInterval: isPolling ? POLLING_INTERVAL : false,
   })
 }

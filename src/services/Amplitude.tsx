@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
 import {
   init,
   track as amplitudeTrack,
@@ -8,12 +7,13 @@ import {
   getSessionId,
 } from '@amplitude/analytics-browser'
 import * as sessionReplay from '@amplitude/session-replay-browser'
-import { useAccount } from '@/services'
-import { Address, MarketGroup } from '@/types'
 import {
   CUSTOM_LOGIN_PROVIDER_TYPE,
   LOGIN_PROVIDER_TYPE,
 } from '@toruslabs/openlogin-utils/dist/types/interfaces'
+import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
+import { useAccount } from '@/services'
+import { Address, MarketGroup } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 const NODE_ENV = process.env.NODE_ENV ?? 'development'
@@ -154,9 +154,13 @@ export enum ClickEvent {
   ReturnTradingDetailsClicked = 'Return Trading Details Clicked',
   MarketPageOpened = 'Market Page Opened',
   MediumMarketBannerClicked = 'Medium Market Banner Clicked',
+  RegularMarketBannerClicked = 'Regular Market Banner Clicked',
   BigBannerClicked = 'BigBannerClicked',
   QuickBetClicked = 'Quick Bet Clicked',
   NevermindButtonClicked = 'Nevermind Button Clicked',
+  TradingWidgetReturnDecomposition = 'Trading Widget Return Decomposition',
+  CloseMarketClicked = 'Close Market Clicked',
+  SidebarMarketOpened = 'Sidebar Market Opened',
 }
 
 export enum SignInEvent {
@@ -278,6 +282,10 @@ export interface PageOpenedMetadata {
   [key: string]: any
 }
 
+export interface CloseMarketMetadata {
+  marketAddress: string
+}
+
 export type OpenMarketClickedPage =
   | 'Creator Cabinet'
   | 'Portfolio Page'
@@ -387,6 +395,7 @@ export type ClickedEventMetadata =
   | MarketChangeInGroupData
   | FeeAndReturnTradingDetailsClicked
   | MediumBannerClicked
+  | CloseMarketMetadata
 
 export type OpenedEventMetadata = PageOpenedMetadata | ProfileSettingsMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata
