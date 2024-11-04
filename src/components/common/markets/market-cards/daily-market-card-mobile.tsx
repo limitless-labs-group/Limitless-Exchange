@@ -1,7 +1,6 @@
 import { Box, HStack, Text } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
-import { isMobile } from 'react-device-detect'
-import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPage from '@/components/common/markets/market-page'
@@ -30,13 +29,15 @@ export default function DailyMarketCardMobile({
 }: DailyMarketCardMobileProps) {
   const [colors] = useState(defaultColors)
 
-  const { onOpenMarketPage } = useTradingService()
+  const { onOpenMarketPage, onCloseMarketPage } = useTradingService()
   const { trackClicked } = useAmplitude()
+  const router = useRouter()
 
   const handleMarketPageOpened = () => {
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
       ...analyticParams,
     })
+    router.push(`?market=${market.address}`, { scroll: false })
     onOpenMarketPage(market, 'Medium Banner')
   }
 
@@ -91,7 +92,13 @@ export default function DailyMarketCardMobile({
   )
 
   return (
-    <MobileDrawer trigger={content} variant='black' title={market.title}>
+    <MobileDrawer
+      id={market.address}
+      trigger={content}
+      onClose={onCloseMarketPage}
+      variant='black'
+      title={market.title}
+    >
       <MarketPage />
     </MobileDrawer>
   )

@@ -1,5 +1,6 @@
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
 import {
   createContext,
   Dispatch,
@@ -41,16 +42,21 @@ interface ITradingServiceContext {
   setCollateralAmount: (amount: string) => void
   quotesYes: TradeQuotes | null | undefined
   quotesNo: TradeQuotes | null | undefined
-  buy: (outcomeTokenId: number) => Promise<string | undefined>
-  sell: (outcomeTokenId: number) => Promise<string | undefined>
-  // sell: ({
-  //   outcomeTokenId,
-  //   amount,
-  // }: {
-  //   outcomeTokenId: number
-  //   amount: bigint
-  // }) => Promise<string | undefined>
-  trade: (outcomeTokenId: number) => Promise<string | undefined>
+  buy: ({
+    outcomeTokenId,
+    slippage,
+  }: {
+    outcomeTokenId: number
+    slippage: string
+  }) => Promise<string | undefined>
+  sell: ({
+    outcomeTokenId,
+    slippage,
+  }: {
+    outcomeTokenId: number
+    slippage: string
+  }) => Promise<string | undefined>
+  trade: (outcomeTokenId: number, slippage: string) => Promise<string | undefined>
   redeem: (params: RedeemParams) => Promise<string | undefined>
   status: TradingServiceStatus
   tradeStatus: TradingServiceStatus
@@ -65,8 +71,9 @@ interface ITradingServiceContext {
   onCloseMarketPage: () => void
   onOpenMarketPage: (
     market: Market | MarketGroup,
-    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner'
+    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner' | 'Portfolio Card' | 'History Card'
   ) => void
+  refetchMarkets: () => Promise<void>
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -107,8 +114,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const onOpenMarketPage = (
     market: Market | MarketGroup,
-    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner'
+    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner' | 'Portfolio Card' | 'History Card'
   ) => {
+    setMarket(null)
+    setMarketGroup(null)
     trackClicked(ClickEvent.SidebarMarketOpened, {
       mode: 'open',
       marketCategory: market?.category,
@@ -129,6 +138,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       return
     }
     setMarket(market as Market)
+    setMarketGroup(null)
     !isMobile && setMarketPageOpened(true)
   }
 
@@ -529,23 +539,32 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     redeemPositions,
   } = useWeb3Service()
   const { mutateAsync: buy, isPending: isLoadingBuy } = useMutation({
-    mutationFn: async (outcomeTokenId: number) => {
+    mutationFn: async ({
+      outcomeTokenId,
+      slippage,
+    }: {
+      outcomeTokenId: number
+      slippage: string
+    }) => {
       if (!account || !market || isInvalidCollateralAmount) {
         return
       }
 
       setCollateralAmount('')
 
+      const outcomeTokenAmount = outcomeTokenId
+        ? (quotesNo?.outcomeTokenAmount as string)
+        : (quotesYes?.outcomeTokenAmount as string)
+
+      const minOutcomeTokensToBuy = slippage
+        ? new BigNumber(outcomeTokenAmount).multipliedBy(1 - +slippage / 100).toString()
+        : outcomeTokenAmount
+
       const receipt = await buyOutcomeTokens(
         market.address,
         collateralAmountBI,
         outcomeTokenId,
-        parseUnits(
-          outcomeTokenId
-            ? (quotesNo?.outcomeTokenAmount as string)
-            : (quotesYes?.outcomeTokenAmount as string),
-          market?.collateralToken?.decimals || 18
-        ),
+        parseUnits(minOutcomeTokensToBuy, market?.collateralToken?.decimals || 18),
         market.collateralToken.address
       )
 
@@ -635,10 +654,24 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * SELL
    */
   const { mutateAsync: sell, isPending: isLoadingSell } = useMutation({
-    mutationFn: async (outcomeTokenId: number) => {
+    mutationFn: async ({
+      outcomeTokenId,
+      slippage,
+    }: {
+      outcomeTokenId: number
+      slippage: string
+    }) => {
       if (!account || !market || isInvalidCollateralAmount || !conditionalTokensAddress) {
         return
       }
+
+      const outcomeTokenAmount = outcomeTokenId
+        ? (quotesNo?.outcomeTokenAmount as string)
+        : (quotesYes?.outcomeTokenAmount as string)
+
+      const maxOutcomeTokensToSell = slippage
+        ? new BigNumber(outcomeTokenAmount).multipliedBy(1 - +slippage / 100).toFixed(0)
+        : outcomeTokenAmount
 
       const receipt = await sellOutcomeTokens(
         conditionalTokensAddress,
@@ -684,14 +717,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         ),
       })
 
-      await sleep(1)
-
-      await queryClient.refetchQueries({
-        queryKey: ['daily-markets'],
-      })
-      await queryClient.refetchQueries({
-        queryKey: ['market', market.address],
-      })
+      await refetchMarkets()
 
       const updateID = toast({
         render: () => <Toast title={`Updating portfolio...`} id={updateID} />,
@@ -705,6 +731,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       return receipt
     },
   })
+
+  const refetchMarkets = async () => {
+    await sleep(1)
+    await queryClient.refetchQueries({
+      queryKey: ['daily-markets'],
+    })
+    await queryClient.refetchQueries({
+      queryKey: ['market', market?.address],
+    })
+  }
 
   /**
    * REDEEM / CLAIM
@@ -762,7 +798,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const trade = useCallback(
     // (outcomeTokenId: number) => buy(outcomeTokenId),
-    (outcomeTokenId: number) => (strategy == 'Buy' ? buy(outcomeTokenId) : sell(outcomeTokenId)),
+    (outcomeTokenId: number, slippage: string) =>
+      strategy == 'Buy' ? buy({ outcomeTokenId, slippage }) : sell({ outcomeTokenId, slippage }),
     [strategy]
   )
 
@@ -817,6 +854,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setMarketPageOpened,
     onCloseMarketPage,
     onOpenMarketPage,
+    refetchMarkets,
   }
 
   return (

@@ -101,7 +101,7 @@ const CreateOwnMarketPage = () => {
         creatorId: editMarket.creator?.id || defaultCreatorId,
         categoryId: editMarket.category?.id || defaultCategoryId,
       }))
-      generateOgImage()
+      generateOgImage().then(() => console.log('Og image generated'))
     }
   }, [editMarket])
 
@@ -199,8 +199,8 @@ const CreateOwnMarketPage = () => {
     }
 
     const differenceInOffset =
-      (parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset || 1) -
-      (parseTimezone(formData.timezone)?.offset || 1)
+      (parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset ?? 1) -
+      (parseTimezone(formData.timezone)?.offset ?? 1)
     const zonedTime = new Date(formData.deadline).getTime() + differenceInOffset * 60 * 60 * 1000
 
     const marketFormData = new FormData()

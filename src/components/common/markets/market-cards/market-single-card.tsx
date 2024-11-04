@@ -1,9 +1,11 @@
 import { Box, HStack, Text } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import React, { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
+import { MarketCardLink } from './market-card-link'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { useTradingService } from '@/services'
@@ -29,10 +31,18 @@ const hoverColors = {
 
 export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
-
+  const router = useRouter()
   const { onOpenMarketPage, onCloseMarketPage } = useTradingService()
 
-  const trackMarketClicked = () => {
+  const trackMarketClicked = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.metaKey || e.ctrlKey || e.button === 2) {
+      return
+    }
+
+    if (!isMobile) {
+      e.preventDefault()
+    }
+    router.push(`?market=${market.address}`, { scroll: false })
     onOpenMarketPage(market, 'Standard Banner')
   }
 
@@ -40,7 +50,6 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
     <Paper
       w={'full'}
       justifyContent={'space-between'}
-      cursor='pointer'
       _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
       onMouseEnter={() => {
         if (!isMobile) {
@@ -52,7 +61,7 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
           setColors(defaultColors)
         }
       }}
-      onClick={trackMarketClicked}
+      onClick={(e) => trackMarketClicked(e)}
       position='relative'
     >
       <HStack justifyContent='space-between' mb='12px' alignItems='flex-start'>
@@ -122,6 +131,7 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
 
   return isMobile ? (
     <MobileDrawer
+      id={market.address}
       trigger={content}
       variant='black'
       title={market.title}
@@ -130,6 +140,6 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
       <MarketPage />
     </MobileDrawer>
   ) : (
-    content
+    <MarketCardLink marketAddress={market.address}>{content}</MarketCardLink>
   )
 }

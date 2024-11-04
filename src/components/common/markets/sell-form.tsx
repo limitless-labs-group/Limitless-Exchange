@@ -279,7 +279,7 @@ export function SellForm({
     })
     const index = outcomeChoice === 'yes' ? 0 : 1
     setOutcomeIndex(index)
-    await trade(index)
+    await trade(index, '1')
   }
 
   const approveSell = async () =>

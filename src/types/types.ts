@@ -26,6 +26,7 @@ export type MarketsResponse = {
 export interface Creator {
   name: string
   imageURI?: string
+  imageUrl?: string // TODO: unify imageURI and imageUrl from backend
   link?: string
   address?: string
 }
@@ -62,6 +63,11 @@ export interface Market {
   volumeFormatted: string
   winningOutcomeIndex: number | null
   prices: number[]
+  group?: {
+    id: number
+    slug: string
+    title: string
+  }
 }
 
 export interface MarketGroup {

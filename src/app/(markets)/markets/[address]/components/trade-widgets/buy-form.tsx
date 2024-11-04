@@ -24,6 +24,7 @@ import { isMobile } from 'react-device-detect'
 import ActionButton from '@/app/(markets)/markets/[address]/components/trade-widgets/action-button'
 import { useToken } from '@/hooks/use-token'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import InfiniteIcon from '@/resources/icons/infinite-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
@@ -57,6 +58,8 @@ export function BuyForm({
   const [sliderValue, setSliderValue] = useState(0)
   const [showReturnPercent, setShowReturnPercent] = useState(false)
   const [showFeeInValue, setShowFeeInValue] = useState(false)
+  const [slippage, setSlippage] = useState('5')
+  const [showSlippageDetails, setShowSlippageDetails] = useState(false)
 
   /**
    * TRADING SERVICE
@@ -130,6 +133,24 @@ export function BuyForm({
     setDisplayAmount(value)
     setCollateralAmount(value)
     return
+  }
+
+  const handleSlippageClicked = (value: number) => {
+    setSlippage(value.toString())
+  }
+
+  const toggleShowSlippageDetails = () => setShowSlippageDetails(!showSlippageDetails)
+
+  const handleSlippageChange = (value: string) => {
+    if (!value) {
+      setSlippage('')
+      return
+    }
+    if (+value >= 100) {
+      setSlippage('100')
+      return
+    }
+    setSlippage(value)
   }
 
   const resetForm = () => {
@@ -451,12 +472,69 @@ export function BuyForm({
                 </InputRightElement>
               </InputGroup>
             </Stack>
+            <HStack
+              w='full'
+              justifyContent='space-between'
+              cursor='pointer'
+              onClick={toggleShowSlippageDetails}
+            >
+              <Text {...paragraphRegular} color='white'>
+                Slippage Tolerance{' '}
+                {slippage === '100' ? 'Infinite' : !slippage ? '0%' : `${slippage}%`}
+              </Text>
+              <Box
+                transform={`rotate(${showSlippageDetails ? '180deg' : 0})`}
+                transition='0.5s'
+                color='white'
+              >
+                <ChevronDownIcon width='16px' height='16px' />
+              </Box>
+            </HStack>
+            {showSlippageDetails && (
+              <HStack w='full' gap='8px' justifyContent='space-between' mt='8px'>
+                <InputGroup flex={3}>
+                  <Input
+                    variant='outlined'
+                    value={slippage}
+                    onChange={(e) => handleSlippageChange(e.target.value)}
+                    placeholder='0'
+                    css={css`
+                      caret-color: white;
+                    `}
+                    type='number'
+                  />
+                  <InputRightElement
+                    h='16px'
+                    top={isMobile ? '8px' : '4px'}
+                    right={isMobile ? '8px' : '4px'}
+                    w='fit'
+                  >
+                    <Text {...paragraphMedium} color='white'>
+                      %
+                    </Text>
+                  </InputRightElement>
+                </InputGroup>
+                {[1, 5, 7, 100].map((title) => (
+                  <Button
+                    variant='transparentLight'
+                    key={title}
+                    flex={2}
+                    onClick={() => handleSlippageClicked(title)}
+                    color='white'
+                    py='2px'
+                    h={isMobile ? '32px' : '24px'}
+                  >
+                    {title === 100 ? <InfiniteIcon /> : `${title}%`}
+                  </Button>
+                ))}
+              </HStack>
+            )}
           </Stack>
-          <VStack mt='24px' overflowX='hidden' px={isMobile ? '16px' : 0}>
+          <VStack mt='16px' overflowX='hidden' px={isMobile ? '16px' : 0}>
             <ActionButton
               onClick={async () => {
                 setOutcomeIndex(0)
-                await trade(0)
+                await trade(0, slippage)
               }}
               isExceedsBalance={isExceedsBalance}
               disabled={!collateralAmount}
@@ -478,7 +556,7 @@ export function BuyForm({
               disabled={!collateralAmount}
               onClick={async () => {
                 setOutcomeIndex(1)
-                await trade(1)
+                await trade(1, slippage)
               }}
               isExceedsBalance={isExceedsBalance}
               market={market}
