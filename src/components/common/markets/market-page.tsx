@@ -132,8 +132,8 @@ export default function MarketPage() {
 
   const handleCloseMarketPageClicked = () => {
     setMarket(null)
-    onCloseMarketPage()
     setMarketGroup(null)
+    onCloseMarketPage()
     trackClicked(ClickEvent.CloseMarketClicked, {
       marketAddress: market?.address as Address,
     })

@@ -116,6 +116,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     market: Market | MarketGroup,
     type: 'Standard Banner' | 'Medium Banner' | 'Big Banner'
   ) => {
+    setMarket(null)
+    setMarketGroup(null)
     trackClicked(ClickEvent.SidebarMarketOpened, {
       mode: 'open',
       marketCategory: market?.category,
