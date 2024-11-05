@@ -71,7 +71,7 @@ export const MarketPriceChart = ({ marketGroup, market }: IMarketPriceChart) => 
       },
       height: 230,
       backgroundColor: colors.grey['100'],
-      marginLeft: 0,
+      marginLeft: 50,
       marginRight: 0,
     },
     title: {
@@ -99,7 +99,29 @@ export const MarketPriceChart = ({ marketGroup, market }: IMarketPriceChart) => 
       },
     },
     yAxis: {
-      visible: false,
+      visible: true,
+      min: 0,
+      max: 100,
+      tickInterval: 25,
+      title: {
+        text: 'Percentage (%)',
+        style: {
+          color: colors.grey['600'],
+        },
+      },
+      labels: {
+        format: '{value}%',
+        style: {
+          fontFamily: 'Helvetica Neue',
+          fontSize: isMobile ? '14px' : '12px',
+          color: colors.grey['400'],
+        },
+      },
+      gridLineColor: colors.grey['200'],
+      lineWidth: 1,
+      lineColor: colors.grey['200'],
+      tickWidth: 1,
+      tickColor: colors.grey['200'],
     },
     legend: {
       enabled: false,
@@ -173,13 +195,6 @@ export const MarketPriceChart = ({ marketGroup, market }: IMarketPriceChart) => 
 
   // React Query to fetch the price data
   const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(market?.address)
-
-  // const initialYesChance = useMemo(() => {
-  //   if (market?.prices) {
-  //     return market.prices[0].toFixed(2)
-  //   }
-  //   return '50.00'
-  // }, [market?.prices])
 
   const chartData = useMemo(() => {
     const _prices: number[][] = prices ?? []
