@@ -108,13 +108,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const [marketPageOpened, setMarketPageOpened] = useState(false)
 
   const onCloseMarketPage = () => {
-    trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
-      mode: 'closed',
-      marketCategory: market?.category,
-      marketAddress: market?.address,
-      marketType: marketGroup ? 'group' : 'single',
-      marketTags: market?.tags,
-    })
     setMarketPageOpened(false)
   }
 
