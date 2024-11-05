@@ -21,6 +21,7 @@ const RootLayout = ({ children }: PropsWithChildren) => {
     <html lang='en'>
       <head>
         <link rel='apple-touch-icon' sizes='180x180' href='/apple-touch-icon.png' />
+        <link rel='manifest' href='/manifest.json' />
         <meta name='apple-mobile-web-app-title' content='Limitless' />
         <meta name='apple-mobile-web-app-capable' content='yes' />
         <meta name='apple-mobile-web-app-status-bar-style' content='default' />
