@@ -352,30 +352,30 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        <NextLink href='/lumy' passHref style={{ width: '100%' }}>
-          <Link
-            onClick={() => {
-              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
-                option: 'Lumy',
-              })
-            }}
-            variant='transparent'
-            w='full'
-            bg={pageName === 'Home' ? 'grey.200' : 'unset'}
-          >
-            <HStack w='full'>
-              <AiAgentIcon />
-              <Text
-                fontWeight={500}
-                fontSize='14px'
-                bgGradient='linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'
-                bgClip='text'
-              >
-                AI Agent
-              </Text>
-            </HStack>
-          </Link>
-        </NextLink>
+        {/*<NextLink href='/lumy' passHref style={{ width: '100%' }}>*/}
+        {/*  <Link*/}
+        {/*    onClick={() => {*/}
+        {/*      trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {*/}
+        {/*        option: 'Lumy',*/}
+        {/*      })*/}
+        {/*    }}*/}
+        {/*    variant='transparent'*/}
+        {/*    w='full'*/}
+        {/*    bg={pageName === 'Home' ? 'grey.200' : 'unset'}*/}
+        {/*  >*/}
+        {/*    <HStack w='full'>*/}
+        {/*      <AiAgentIcon />*/}
+        {/*      <Text*/}
+        {/*        fontWeight={500}*/}
+        {/*        fontSize='14px'*/}
+        {/*        bgGradient='linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'*/}
+        {/*        bgClip='text'*/}
+        {/*      >*/}
+        {/*        AI Agent*/}
+        {/*      </Text>*/}
+        {/*    </HStack>*/}
+        {/*  </Link>*/}
+        {/*</NextLink>*/}
         <NextLink
           href='https://limitlesslabs.notion.site/Limitless-Creators-101-b529a4a72cd4406cacb55f27395c9b56'
           target='_blank'

@@ -319,30 +319,30 @@ export default function MobileHeader() {
                             <WrapModal onClose={() => console.log('ok')} />
                           </MobileDrawer>
                         )}
-                        <Button
-                          variant='transparent'
-                          px={0}
-                          w='full'
-                          onClick={handleNavigateToLumyPage}
-                        >
-                          <HStack justifyContent='space-between' w='full'>
-                            <HStack gap='4px'>
-                              <AiAgentIcon />
-                              <Text
-                                fontWeight={500}
-                                fontSize='16px'
-                                bgGradient='linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'
-                                bgClip='text'
-                              >
-                                AI Agent
-                              </Text>
-                            </HStack>
+                        {/*<Button*/}
+                        {/*  variant='transparent'*/}
+                        {/*  px={0}*/}
+                        {/*  w='full'*/}
+                        {/*  onClick={handleNavigateToLumyPage}*/}
+                        {/*>*/}
+                        {/*  <HStack justifyContent='space-between' w='full'>*/}
+                        {/*    <HStack gap='4px'>*/}
+                        {/*      <AiAgentIcon />*/}
+                        {/*      <Text*/}
+                        {/*        fontWeight={500}*/}
+                        {/*        fontSize='16px'*/}
+                        {/*        bgGradient='linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'*/}
+                        {/*        bgClip='text'*/}
+                        {/*      >*/}
+                        {/*        AI Agent*/}
+                        {/*      </Text>*/}
+                        {/*    </HStack>*/}
 
-                            <Box color='grey.800'>
-                              <ArrowRightIcon width={16} height={16} />
-                            </Box>
-                          </HStack>
-                        </Button>
+                        {/*    <Box color='grey.800'>*/}
+                        {/*      <ArrowRightIcon width={16} height={16} />*/}
+                        {/*    </Box>*/}
+                        {/*  </HStack>*/}
+                        {/*</Button>*/}
                       </VStack>
 
                       {client !== 'eoa' && (
