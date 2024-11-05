@@ -14,9 +14,16 @@ interface PositionCardProps {
   marketPrices: number[]
   symbol: string
   title?: string
+  isSideMarketPage?: boolean
 }
 
-export function PositionCard({ position, marketPrices, symbol, title }: PositionCardProps) {
+export function PositionCard({
+  position,
+  marketPrices,
+  symbol,
+  title,
+  isSideMarketPage,
+}: PositionCardProps) {
   const getOutcomeNotation = () => {
     const outcomeTokenId = position.outcomeIndex ?? 0
     const defaultOutcomes = ['Yes', 'No']
@@ -97,6 +104,7 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
         gap={isMobile ? '8px' : '24px'}
         flexDir={isMobile ? 'column' : 'row'}
         alignItems={isMobile ? 'flex-start' : 'center'}
+        justifyContent={isSideMarketPage ? 'space-between' : 'unset'}
       >
         {isMobile && (
           <Flex flexDir={'row'} justifyContent={isMobile ? 'space-between' : 'unset'} w={'full'}>
@@ -119,19 +127,21 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
             6
           )} ${symbol}`}</Text>
         </Flex>
-        <Flex
-          flexDir={isMobile ? 'row' : 'column'}
-          justifyContent={isMobile ? 'space-between' : 'unset'}
-          w={isMobile ? 'full' : 'unset'}
-        >
-          <Text {...paragraphMedium} color='grey.500'>
-            Initial Price
-          </Text>
-          <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
-            new BigNumber(position.latestTrade?.outcomeTokenPrice || 1).toFixed(3),
-            3
-          )} ${symbol}`}</Text>
-        </Flex>
+        {!isSideMarketPage || isMobile ? (
+          <Flex
+            flexDir={isMobile ? 'row' : 'column'}
+            justifyContent={isMobile ? 'space-between' : 'unset'}
+            w={isMobile ? 'full' : 'unset'}
+          >
+            <Text {...paragraphMedium} color='grey.500'>
+              Initial Price
+            </Text>
+            <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
+              new BigNumber(position.latestTrade?.outcomeTokenPrice || 1).toFixed(3),
+              3
+            )} ${symbol}`}</Text>
+          </Flex>
+        ) : null}
         <Flex
           flexDir={isMobile ? 'row' : 'column'}
           justifyContent={isMobile ? 'space-between' : 'unset'}
