@@ -33,9 +33,10 @@ const History = () => {
             <Th isNumeric minW='124px'>
               Contracts
             </Th>
-            <Th isNumeric minW='140px'>
+            <Th isNumeric minW='120px'>
               Amount
             </Th>
+            <Th minW='120px'>Date</Th>
             <Th w='420px'>Market</Th>
             <Th w='96px'>TX</Th>
           </Tr>

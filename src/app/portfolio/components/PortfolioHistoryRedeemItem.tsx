@@ -79,6 +79,19 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           </Text>
         </Box>
       </Td>
+      <Td>
+        <Box verticalAlign='middle'>
+          <Text>
+            {new Date(Number(redeem.blockTimestamp) * 1000).toLocaleDateString(undefined, {
+              month: 'short',
+              day: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </Text>
+        </Box>
+      </Td>
       {isMobile ? (
         <MobileDrawer
           trigger={
