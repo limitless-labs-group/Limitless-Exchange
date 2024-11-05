@@ -16,7 +16,7 @@ export default function MarketPageOverviewTab() {
       {marketGroup ? (
         <MarketGroupPositions marketGroup={marketGroup} />
       ) : (
-        <MarketPositions market={market} />
+        <MarketPositions market={market} isSideMarketPage />
       )}
       <MarketGroupPredictions />
       <Box w={isMobile ? 'full' : 'fit-content'} mt='16px' pb={isMobile ? '64px' : 0}>
