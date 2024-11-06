@@ -13,6 +13,7 @@ export const darkThemeColors: ColorScheme = {
     600: '#A3A3A3',
     700: '#C1C1C1',
     800: '#E0E0E0',
+    white: '#FFFFFF',
   },
   blue: {
     50: '#6666F5',

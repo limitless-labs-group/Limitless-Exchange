@@ -1,14 +1,14 @@
 import { Box, HStack, Text } from '@chakra-ui/react'
-import React, { useState } from 'react'
-import { isMobile } from 'react-device-detect'
-import { Address } from 'viem'
+import { useRouter } from 'next/navigation'
+import React, { SyntheticEvent, useState } from 'react'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPage from '@/components/common/markets/market-page'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import TooltipIcon from '@/resources/icons/tooltip-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { captionMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
@@ -30,6 +30,8 @@ export default function DailyMarketCardMobile({
 }: DailyMarketCardMobileProps) {
   const [colors] = useState(defaultColors)
 
+  const router = useRouter()
+
   const { onOpenMarketPage } = useTradingService()
   const { trackClicked } = useAmplitude()
 
@@ -40,15 +42,28 @@ export default function DailyMarketCardMobile({
     onOpenMarketPage(market, 'Medium Banner')
   }
 
+  const isLumy = market.title.includes('COIN')
+
+  const handleLumyButtonClicked = (e: SyntheticEvent) => {
+    e.stopPropagation()
+    router.push('/lumy')
+  }
+
   const content = (
     <Box
-      border='1px'
+      border='2px'
       borderColor='grey.800'
       cursor='pointer'
       py='10px'
       px='8px'
       w='full'
+      style={{
+        borderImage: isLumy
+          ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%) 1'
+          : 'unset',
+      }}
       onClick={handleMarketPageOpened}
+      position='relative'
     >
       <HStack w='full' justifyContent='space-between'>
         <HStack color={colors.main} gap='4px'>
@@ -87,6 +102,26 @@ export default function DailyMarketCardMobile({
           </Box>
         </HStack>
       </HStack>
+      {isLumy && (
+        <Box
+          position='absolute'
+          bottom={0}
+          left='calc(50% - 30px)'
+          py='2px'
+          px='4px'
+          borderTopLeftRadius='4px'
+          borderTopRightRadius='2px'
+          bg={'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}
+          // onClick={handleLumyButtonClicked}
+        >
+          <HStack gap='8px' color='grey.white'>
+            <Text {...captionMedium} color='grey.white'>
+              LUMY AI
+            </Text>
+            <TooltipIcon width={16} height={16} />
+          </HStack>
+        </Box>
+      )}
     </Box>
   )
 
