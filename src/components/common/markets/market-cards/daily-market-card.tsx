@@ -34,7 +34,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
   const { onOpenMarketPage } = useTradingService()
   const router = useRouter()
 
-  const isLumy = market.category.id === 7
+  const isLumy = market.category === 'Lumy'
 
   const { trackClicked } = useAmplitude()
 
