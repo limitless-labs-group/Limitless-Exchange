@@ -17,9 +17,9 @@ import axios from 'axios'
 import { rgba } from 'color2k'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { getAddress } from 'viem'
+import { getAddress, zeroAddress } from 'viem'
 import Paper from '@/components/common/paper'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { useMarketPriceHistory } from '@/hooks/use-market-price-history'
@@ -27,6 +27,7 @@ import { useThemeProvider } from '@/providers'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { useWinningIndex } from '@/services/MarketsService'
 import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup } from '@/types'
 
@@ -34,26 +35,25 @@ const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
 // Define the MarketPriceChart component
 export interface IMarketPriceChart {
-  marketAddr: string
-  winningIndex: number | undefined | null
-  resolved: boolean
-  outcomeTokensPercent?: number[]
   marketGroup?: MarketGroup
+  market: Market
 }
 
-export const MarketPriceChart = ({
-  marketAddr,
-  resolved,
-  winningIndex,
-  outcomeTokensPercent,
-  marketGroup,
-}: IMarketPriceChart) => {
+export const MarketPriceChart = ({ marketGroup, market }: IMarketPriceChart) => {
   const { colors } = useThemeProvider()
-  const { market, setMarket } = useTradingService()
+  // const { market, setMarket } = useTradingService()
   const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%b %e, %Y %I:%M %p', Date.now()) ?? ''
   )
+  const outcomeTokensPercent = market.prices
+  const marketAddr = market.address[defaultChain.id] ?? zeroAddress
+  const { data: winningIndex } = useWinningIndex(market?.address || '')
+  const resolved = winningIndex === 0 || winningIndex === 1
+
+  useEffect(() => {
+    refetchPrices()
+  }, [market])
 
   const { trackClicked } = useAmplitude()
 
@@ -172,7 +172,7 @@ export const MarketPriceChart = ({
   })
 
   // React Query to fetch the price data
-  const { data: prices } = useMarketPriceHistory(market?.address)
+  const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(market?.address)
 
   // const initialYesChance = useMemo(() => {
   //   if (market?.prices) {
@@ -196,24 +196,24 @@ export const MarketPriceChart = ({
       : _prices
 
     // special case hotfix
-    const special = {
-      [getAddress('0xD0BC7FCea7500d485329e0aaE36e0512815684BF')]: {
-        index: 0,
-        timestamp: 1722745928000, // aug 4 2024
-        exists: true,
-      },
-    }
-    if (special[getAddress(marketAddr)]?.exists) {
-      const _index = special[getAddress(marketAddr)].index
-
-      if (data[_index]) {
-        data[_index][0] = special[getAddress(marketAddr)].timestamp
-
-        for (let index = 0; index < Array.from({ length: 10 }).length; index++) {
-          data.splice(index + 1, 0, [data[index][0] + ONE_HOUR, data[index][1]])
-        }
-      }
-    }
+    // const special = {
+    //   [getAddress('0xD0BC7FCea7500d485329e0aaE36e0512815684BF')]: {
+    //     index: 0,
+    //     timestamp: 1722745928000, // aug 4 2024
+    //     exists: true,
+    //   },
+    // }
+    // if (special[getAddress(marketAddr)]?.exists) {
+    //   const _index = special[getAddress(marketAddr)].index
+    //
+    //   if (data[_index]) {
+    //     data[_index][0] = special[getAddress(marketAddr)].timestamp
+    //
+    //     for (let index = 0; index < Array.from({ length: 10 }).length; index++) {
+    //       data.splice(index + 1, 0, [data[index][0] + ONE_HOUR, data[index][1]])
+    //     }
+    //   }
+    // }
 
     return data
   }, [prices, winningIndex, resolved])
