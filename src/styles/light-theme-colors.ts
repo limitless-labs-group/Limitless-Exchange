@@ -13,6 +13,7 @@ export const lightThemeColors: ColorScheme = {
     600: '#696969',
     700: '#525252',
     800: '#000000',
+    white: '#000000',
   },
   blue: {
     50: '#E6F1FF',
