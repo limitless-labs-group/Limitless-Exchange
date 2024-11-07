@@ -91,12 +91,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
 
   const tabPanels = useMemo(() => {
     return [
-      <MarketOverviewTab
-        market={market as Market}
-        winningIndex={winningIndex as number}
-        resolved={resolved}
-        key={uuidv4()}
-      />,
+      <MarketOverviewTab market={market as Market} key={uuidv4()} />,
       <MarketActivityTab key={uuidv4()} />,
     ]
   }, [market, winningIndex, resolved])

@@ -42,7 +42,7 @@ export default function DailyMarketCardMobile({
     onOpenMarketPage(market, 'Medium Banner')
   }
 
-  const isLumy = market.title.includes('COIN')
+  const isLumy = market.category === 'Lumy'
 
   const handleLumyButtonClicked = (e: SyntheticEvent) => {
     e.stopPropagation()
@@ -126,7 +126,7 @@ export default function DailyMarketCardMobile({
   )
 
   return (
-    <MobileDrawer trigger={content} variant='black' title={market.title}>
+    <MobileDrawer trigger={content} variant='black'>
       <MarketPage />
     </MobileDrawer>
   )

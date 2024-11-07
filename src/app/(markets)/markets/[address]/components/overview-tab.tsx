@@ -1,11 +1,9 @@
 import { Box, HStack, Link, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { isMobile } from 'react-device-detect'
-import { zeroAddress } from 'viem'
 import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components/market-group-positions'
 import { MarketPositions } from '@/app/(markets)/markets/[address]/components/market-positions'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components/market-price-chart'
-import { defaultChain } from '@/constants'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import { paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup, MarketStatus } from '@/types'
@@ -13,26 +11,13 @@ import { parseTextWithLinks } from '@/utils/string'
 
 interface MarketOverviewTabProps {
   market: Market
-  winningIndex: number
-  resolved: boolean
   marketGroup?: MarketGroup
 }
 
-function MarketOverviewTab({
-  market,
-  winningIndex,
-  resolved,
-  marketGroup,
-}: MarketOverviewTabProps) {
+function MarketOverviewTab({ market, marketGroup }: MarketOverviewTabProps) {
   return (
     <>
-      <MarketPriceChart
-        marketAddr={market.address[defaultChain.id] ?? zeroAddress}
-        winningIndex={winningIndex}
-        resolved={resolved}
-        outcomeTokensPercent={market.prices}
-        marketGroup={marketGroup}
-      />
+      <MarketPriceChart market={market} marketGroup={marketGroup} />
       {marketGroup && <MarketGroupPositions marketGroup={marketGroup} />}
       <MarketPositions market={market} />
       <HStack
