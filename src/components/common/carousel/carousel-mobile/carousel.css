@@ -6,7 +6,7 @@
 }
 .embla__viewport_mobile {
   overflow: hidden;
-  padding: 0 12px
+  padding: 0 12px;
 }
 .embla__container_mobile {
   display: flex;
