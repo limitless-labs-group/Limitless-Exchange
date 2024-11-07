@@ -17,7 +17,6 @@ import {
 } from '@chakra-ui/react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
@@ -52,10 +51,10 @@ import {
   controlsMedium,
   h1Regular,
   h2Medium,
-  headline,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
+import { Market, MarketGroup } from '@/types'
 import { NumberUtil } from '@/utils'
 
 const defaultColors = {
@@ -64,7 +63,11 @@ const defaultColors = {
   chartBg: 'var(--chakra-colors-grey-300)',
 }
 
-export default function MarketPage() {
+interface MarketSlidePageProps {
+  market: Market
+}
+
+export default function MarketSlidePage({ market }: MarketSlidePageProps) {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
 
   const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
@@ -72,7 +75,6 @@ export default function MarketPage() {
   const {
     setMarket,
     onCloseMarketPage,
-    market,
     strategy,
     setStrategy,
     status,
@@ -180,38 +182,23 @@ export default function MarketPage() {
 
   return (
     <Box
-      rounded='2px'
       bg='grey.50'
-      borderTopLeftRadius='8px'
-      borderBottomLeftRadius='8px'
-      borderTopRadius={0}
-      borderBottomRightRadius={0}
-      w={isMobile ? 'full' : '488px'}
-      position='fixed'
-      height={isMobile ? 'calc(100dvh - 21px)' : 'calc(100vh - 21px)'}
+      borderTopRadius='8px'
+      w='full'
+      position='relative'
+      height='calc(100dvh - 21px)'
       top='20px'
       right={0}
       overflowY='auto'
-      p={isMobile ? '12px' : '16px'}
+      p='12px'
       ref={scrollableBlockRef}
     >
-      {!isMobile && (
-        <HStack w='full' justifyContent='space-between'>
-          <Button variant='grey' onClick={handleCloseMarketPageClicked}>
-            <CloseIcon width={16} height={16} />
-            Close
-          </Button>
-          <ShareMenu />
-        </HStack>
-      )}
       <HStack w='full' justifyContent='space-between' alignItems='flex-start' mt='10px'>
-        <Text {...(isMobile ? { ...h2Medium } : { ...h1Regular })}>
-          {marketGroup?.title || market?.title}
-        </Text>
-        {isMobile && <ShareMenu />}
+        <Text {...h2Medium}>{marketGroup?.title || market?.title}</Text>
+        <ShareMenu />
       </HStack>
-      <HStack w='full' justifyContent='space-between' mt={isMobile ? '16px' : '10px'} mb='4px'>
-        <HStack gap={isMobile ? '16px' : '24px'}>
+      <HStack w='full' justifyContent='space-between' mt='16px' mb='4px'>
+        <HStack gap='16px'>
           <HStack gap='4px' color='grey.500'>
             <CalendarIcon width={16} height={16} />
             {market?.expirationTimestamp &&
@@ -227,10 +214,10 @@ export default function MarketPage() {
               </Text>
             )}
           </HStack>
-          <HStack gap='8px' flexWrap='wrap'>
+          <HStack gap='4px' flexWrap='wrap'>
             <ChakraImage
-              width={6}
-              height={6}
+              width={3.5}
+              height={3.5}
               src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
               alt='creator'
               borderRadius={'2px'}
@@ -255,7 +242,7 @@ export default function MarketPage() {
         </HStack>
       </HStack>
       <Divider my='8px' color='grey.100' />
-      <HStack w='full' mb={isMobile ? '32px' : '24px'} mt={isMobile ? '24px' : 0}>
+      <HStack w='full' mb='32px' mt='24px'>
         <VStack alignItems='center' flex={1} gap={0}>
           <HStack color='grey.400' gap='4px'>
             <VolumeIcon width={16} height={16} />
@@ -288,11 +275,11 @@ export default function MarketPage() {
           bg='rgba(255, 255, 255, 0.20)'
           borderRadius='2px'
           py='2px'
-          px={isMobile ? '4px' : '2px'}
-          mb={isMobile ? '16px' : '24px'}
+          px='4px'
+          mb='16px'
         >
           <Button
-            h={isMobile ? '28px' : '20px'}
+            h='28px'
             flex='1'
             py='2px'
             borderRadius='2px'
@@ -314,7 +301,7 @@ export default function MarketPage() {
             </Text>
           </Button>
           <Button
-            h={isMobile ? '28px' : '20px'}
+            h='28px'
             flex='1'
             borderRadius='2px'
             py='2px'
@@ -343,12 +330,12 @@ export default function MarketPage() {
         </HStack>
         {marketGroup?.markets.length && (
           <>
-            <Box mx={isMobile ? '16px' : 0}>
+            <Box mx='16px'>
               <Button
                 variant='transparentLight'
                 w='full'
                 justifyContent='space-between'
-                mb={isOpenSelectMarketMenu ? '8px' : isMobile ? '24px' : '32px'}
+                mb={isOpenSelectMarketMenu ? '8px' : '24px'}
                 onClick={onToggleSelectMarketMenu}
                 rightIcon={
                   <Box
@@ -369,11 +356,7 @@ export default function MarketPage() {
               </Button>
             </Box>
             {isOpenSelectMarketMenu && (
-              <VStack
-                gap={isMobile ? '16px' : '8px'}
-                mb={isMobile ? '16px' : '8px'}
-                mx={isMobile ? '16px' : 0}
-              >
+              <VStack gap='16px' mb='16px' mx='16px'>
                 {marketGroup?.markets.map((market) => (
                   <Button
                     key={market.address}
@@ -415,27 +398,15 @@ export default function MarketPage() {
                         </HStack>
                       </HStack>
                     </HStack>
-                    <HStack
-                      gap={isMobile ? '8px' : '16px'}
-                      flexDirection={isMobile ? 'column' : 'row'}
-                      w='full'
-                    >
-                      <HStack
-                        w={isMobile ? '100%' : 'unset'}
-                        justifyContent={isMobile ? 'space-between' : 'unset'}
-                        color='white'
-                      >
+                    <HStack gap='8px' flexDirection='column' w='full'>
+                      <HStack w='full' justifyContent='space-between' color='white'>
                         <LiquidityIcon width={16} height={16} />
                         <Text {...paragraphRegular} color='white'>
                           {NumberUtil.formatThousands(market.liquidityFormatted, 6)}{' '}
                           {market.collateralToken.symbol}
                         </Text>
                       </HStack>
-                      <HStack
-                        w={isMobile ? '100%' : 'unset'}
-                        justifyContent={isMobile ? 'space-between' : 'unset'}
-                        color='white'
-                      >
+                      <HStack w='full' justifyContent='space-between' color='white'>
                         <VolumeIcon width={16} height={16} />
                         <Text {...paragraphRegular} color='white'>
                           {NumberUtil.formatThousands(market.volumeFormatted, 6)}{' '}
@@ -465,7 +436,7 @@ export default function MarketPage() {
         <TabList>
           {tabs.map((tab) => (
             <Tab key={tab.title}>
-              <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+              <HStack gap='8px' w='fit-content'>
                 {tab.icon}
                 <>{tab.title}</>
               </HStack>

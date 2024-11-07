@@ -144,7 +144,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const { data: conditionalTokensAddress, refetch: getConditionalTokensAddress } =
     useConditionalTokensAddr({
-      marketAddr: !market ? undefined : getAddress(market.address),
+      marketAddr: !market ? undefined : getAddress('0x06Fb7CB73D6002849D5C0977c55047C9C8716a89'),
     })
   useEffect(() => {
     getConditionalTokensAddress()

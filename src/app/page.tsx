@@ -4,9 +4,11 @@ import { Box, Spinner, HStack } from '@chakra-ui/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { getAddress } from 'viem'
+import DrawerCarousel from '@/components/common/drawer/carousel-drawer'
 import AllMarkets from '@/components/common/markets/all-markets'
 import DailyMarketsSection from '@/components/common/markets/daily-markets'
 import TopMarkets from '@/components/common/markets/top-markets'
+import { mockMarkets } from '@/app/mock-markets'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useIsMobile } from '@/hooks'
@@ -24,7 +26,7 @@ import { Market, MarketGroup, Sort } from '@/types'
 const MainPage = () => {
   const searchParams = useSearchParams()
   const [page, setPage] = useState(1)
-  const { data: categories } = useCategories()
+  // const { data: categories } = useCategories()
   const { onCloseMarketPage } = useTradingService()
   /**
    * ANALYTICS
@@ -55,13 +57,13 @@ const MainPage = () => {
     trackOpened(OpenEvent.PageOpened, analyticData)
   }, [])
 
-  const categoryEntity = useMemo(() => {
-    return (
-      categories?.find(
-        (categoryEntity) => categoryEntity.name.toLowerCase() === category?.toLowerCase()
-      ) || null
-    )
-  }, [categories, category])
+  // const categoryEntity = useMemo(() => {
+  //   return (
+  //     categories?.find(
+  //       (categoryEntity) => categoryEntity.name.toLowerCase() === category?.toLowerCase()
+  //     ) || null
+  //   )
+  // }, [categories, category])
 
   /**
    * UI
@@ -79,125 +81,130 @@ const MainPage = () => {
   const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
-    useMarkets(categoryEntity)
+  // const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
+  //   useMarkets(categoryEntity)
+  //
+  // const { data: dailyMarkets } = useDailyMarkets(categoryEntity)
 
-  const { data: dailyMarkets } = useDailyMarkets(categoryEntity)
+  const { data: dailyMarkets } = mockMarkets
 
-  const topMarkets =
-    dailyMarkets?.data.markets
-      // @ts-ignore
-      .filter((market) => !market.slug)
-      .sort((a, b) => {
-        // @ts-ignore
-        const volumeA = a?.slug
-          ? // @ts-ignore
-            a.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
-          : // @ts-ignore
-            +a.volumeFormatted
-        // @ts-ignore
-        const volumeB = b?.slug
-          ? // @ts-ignore
-            b.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
-          : // @ts-ignore
-            +b.volumeFormatted
+  // const topMarkets =
+  //   dailyMarkets?.data.markets
+  //     // @ts-ignore
+  //     .filter((market) => !market.slug)
+  //     .sort((a, b) => {
+  //       // @ts-ignore
+  //       const volumeA = a?.slug
+  //         ? // @ts-ignore
+  //           a.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
+  //         : // @ts-ignore
+  //           +a.volumeFormatted
+  //       // @ts-ignore
+  //       const volumeB = b?.slug
+  //         ? // @ts-ignore
+  //           b.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
+  //         : // @ts-ignore
+  //           +b.volumeFormatted
+  //
+  //       return (
+  //         convertTokenAmountToUsd(b.collateralToken.symbol, volumeB) -
+  //         convertTokenAmountToUsd(a.collateralToken.symbol, volumeA)
+  //       )
+  //     })
+  //     .slice(0, 3) || []
 
-        return (
-          convertTokenAmountToUsd(b.collateralToken.symbol, volumeB) -
-          convertTokenAmountToUsd(a.collateralToken.symbol, volumeA)
-        )
-      })
-      .slice(0, 3) || []
+  // const dataLength = data?.pages.reduce((counter, page) => {
+  //   return counter + page.data.markets.length
+  // }, 0)
+  //
+  // const markets: (Market | MarketGroup)[] = useMemo(() => {
+  //   return data?.pages.flatMap((page) => page.data.markets) || []
+  // }, [data?.pages, category])
 
-  const dataLength = data?.pages.reduce((counter, page) => {
-    return counter + page.data.markets.length
-  }, 0)
+  // const filteredAllMarkets = useMemo(() => {
+  //   const tokenFilteredMarkets = markets?.filter((market) =>
+  //     selectedFilterTokens.length > 0
+  //       ? selectedFilterTokens.some(
+  //           (filterToken) =>
+  //             getAddress(filterToken.address) === getAddress(market.collateralToken.address)
+  //         )
+  //       : true
+  //   )
+  //
+  //   if (selectedCategory) {
+  //     return tokenFilteredMarkets.filter(
+  //       (market) => market.category.name === selectedCategory?.name
+  //     )
+  //   }
+  //
+  //   return tokenFilteredMarkets
+  // }, [markets, selectedFilterTokens, selectedCategory])
 
-  const markets: (Market | MarketGroup)[] = useMemo(() => {
-    return data?.pages.flatMap((page) => page.data.markets) || []
-  }, [data?.pages, category])
-
-  const filteredAllMarkets = useMemo(() => {
-    const tokenFilteredMarkets = markets?.filter((market) =>
-      selectedFilterTokens.length > 0
-        ? selectedFilterTokens.some(
-            (filterToken) =>
-              getAddress(filterToken.address) === getAddress(market.collateralToken.address)
-          )
-        : true
-    )
-
-    if (selectedCategory) {
-      return tokenFilteredMarkets.filter(
-        (market) => market.category.name === selectedCategory?.name
-      )
-    }
-
-    return tokenFilteredMarkets
-  }, [markets, selectedFilterTokens, selectedCategory])
-
-  const sortedMarkets = useMemo(() => {
-    if (!filteredAllMarkets) return []
-    switch (selectedSort) {
-      case Sort.NEWEST:
-        return [...filteredAllMarkets].sort((a, b) => {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        })
-      case Sort.HIGHEST_VOLUME:
-        return [...filteredAllMarkets].sort((a, b) => {
-          // @ts-ignore
-          const volumeA = a?.slug
-            ? // @ts-ignore
-              a.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
-            : // @ts-ignore
-              +a.volumeFormatted
-          // @ts-ignore
-          const volumeB = b?.slug
-            ? // @ts-ignore
-              b.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
-            : // @ts-ignore
-              +b.volumeFormatted
-
-          return (
-            convertTokenAmountToUsd(b.collateralToken.symbol, volumeB) -
-            convertTokenAmountToUsd(a.collateralToken.symbol, volumeA)
-          )
-        })
-      case Sort.HIGHEST_LIQUIDITY:
-        return [...filteredAllMarkets].sort((a, b) => {
-          // @ts-ignore
-          const liquidityA = a?.slug
-            ? // @ts-ignore
-              a.markets.reduce((a, b) => a + +b.liquidityFormatted, 0)
-            : // @ts-ignore
-              +a.liquidityFormatted
-          // @ts-ignore
-          const liquidityB = b?.slug
-            ? // @ts-ignore
-              b.markets.reduce((a, b) => a + +b.liquidityFormatted, 0)
-            : // @ts-ignore
-              +b.liquidityFormatted
-
-          return (
-            convertTokenAmountToUsd(b.collateralToken.symbol, liquidityB) -
-            convertTokenAmountToUsd(a.collateralToken.symbol, liquidityA)
-          )
-        })
-      case Sort.ENDING_SOON:
-        return [...filteredAllMarkets].sort(
-          (a, b) =>
-            new Date(a.expirationTimestamp).getTime() - new Date(b.expirationTimestamp).getTime()
-        )
-      default:
-        return filteredAllMarkets
-    }
-  }, [markets, filteredAllMarkets, selectedSort])
+  // const sortedMarkets = useMemo(() => {
+  //   if (!filteredAllMarkets) return []
+  //   switch (selectedSort) {
+  //     case Sort.NEWEST:
+  //       return [...filteredAllMarkets].sort((a, b) => {
+  //         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  //       })
+  //     case Sort.HIGHEST_VOLUME:
+  //       return [...filteredAllMarkets].sort((a, b) => {
+  //         // @ts-ignore
+  //         const volumeA = a?.slug
+  //           ? // @ts-ignore
+  //             a.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
+  //           : // @ts-ignore
+  //             +a.volumeFormatted
+  //         // @ts-ignore
+  //         const volumeB = b?.slug
+  //           ? // @ts-ignore
+  //             b.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
+  //           : // @ts-ignore
+  //             +b.volumeFormatted
+  //
+  //         return (
+  //           convertTokenAmountToUsd(b.collateralToken.symbol, volumeB) -
+  //           convertTokenAmountToUsd(a.collateralToken.symbol, volumeA)
+  //         )
+  //       })
+  //     case Sort.HIGHEST_LIQUIDITY:
+  //       return [...filteredAllMarkets].sort((a, b) => {
+  //         // @ts-ignore
+  //         const liquidityA = a?.slug
+  //           ? // @ts-ignore
+  //             a.markets.reduce((a, b) => a + +b.liquidityFormatted, 0)
+  //           : // @ts-ignore
+  //             +a.liquidityFormatted
+  //         // @ts-ignore
+  //         const liquidityB = b?.slug
+  //           ? // @ts-ignore
+  //             b.markets.reduce((a, b) => a + +b.liquidityFormatted, 0)
+  //           : // @ts-ignore
+  //             +b.liquidityFormatted
+  //
+  //         return (
+  //           convertTokenAmountToUsd(b.collateralToken.symbol, liquidityB) -
+  //           convertTokenAmountToUsd(a.collateralToken.symbol, liquidityA)
+  //         )
+  //       })
+  //     case Sort.ENDING_SOON:
+  //       return [...filteredAllMarkets].sort(
+  //         (a, b) =>
+  //           new Date(a.expirationTimestamp).getTime() - new Date(b.expirationTimestamp).getTime()
+  //       )
+  //     default:
+  //       return filteredAllMarkets
+  //   }
+  // }, [markets, filteredAllMarkets, selectedSort])
 
   useEffect(() => {
     return () => {
       onCloseMarketPage()
     }
   }, [])
+
+  const isFetching = false
+  const isFetchingNextPage = false
 
   return (
     <MainLayout layoutPadding={'0px'}>
@@ -214,48 +221,49 @@ const MainPage = () => {
             </HStack>
           ) : (
             <>
-              {dailyMarkets && Boolean(dailyMarkets?.data?.markets.length) && (
-                <>
-                  <TopMarkets markets={topMarkets as Market[]} />
-                  <DailyMarketsSection
-                    markets={
-                      isMobile
-                        ? dailyMarkets.data.markets
-                        : dailyMarkets.data.markets.slice((page - 1) * 6, page * 6)
-                    }
-                    totalAmount={dailyMarkets.data.totalAmount}
-                    onClickNextPage={() => {
-                      if (dailyMarkets?.data.markets.length < 6) {
-                        return
-                      }
-                      if (6 * page >= dailyMarkets?.data.totalAmount) {
-                        return
-                      }
-                      setPage(page + 1)
-                    }}
-                    onClickPrevPage={() => {
-                      if (page === 1) {
-                        return
-                      }
-                      setPage(page - 1)
-                      return
-                    }}
-                    page={page}
-                  />
-                </>
-              )}
-              <AllMarkets
-                dataLength={dataLength ?? 0}
-                fetchNextPage={fetchNextPage}
-                hasNextPage={hasNextPage}
-                markets={sortedMarkets}
-                handleSelectSort={handleSelectSort}
-                totalAmount={data?.pages?.[0].data.totalAmount}
-              />
+              {/*{dailyMarkets && Boolean(dailyMarkets?.data?.markets.length) && (*/}
+              {/*  <>*/}
+              {/*    <TopMarkets markets={topMarkets as Market[]} />*/}
+              {/*    <DailyMarketsSection*/}
+              {/*      markets={*/}
+              {/*        isMobile*/}
+              {/*          ? dailyMarkets.data.markets*/}
+              {/*          : dailyMarkets.data.markets.slice((page - 1) * 6, page * 6)*/}
+              {/*      }*/}
+              {/*      totalAmount={dailyMarkets.data.totalAmount}*/}
+              {/*      onClickNextPage={() => {*/}
+              {/*        if (dailyMarkets?.data.markets.length < 6) {*/}
+              {/*          return*/}
+              {/*        }*/}
+              {/*        if (6 * page >= dailyMarkets?.data.totalAmount) {*/}
+              {/*          return*/}
+              {/*        }*/}
+              {/*        setPage(page + 1)*/}
+              {/*      }}*/}
+              {/*      onClickPrevPage={() => {*/}
+              {/*        if (page === 1) {*/}
+              {/*          return*/}
+              {/*        }*/}
+              {/*        setPage(page - 1)*/}
+              {/*        return*/}
+              {/*      }}*/}
+              {/*      page={page}*/}
+              {/*    />*/}
+              {/*  </>*/}
+              {/*)}*/}
+              {/*<AllMarkets*/}
+              {/*  dataLength={dataLength ?? 0}*/}
+              {/*  fetchNextPage={fetchNextPage}*/}
+              {/*  hasNextPage={hasNextPage}*/}
+              {/*  markets={sortedMarkets}*/}
+              {/*  handleSelectSort={handleSelectSort}*/}
+              {/*  totalAmount={data?.pages?.[0].data.totalAmount}*/}
+              {/*/>*/}
             </>
           )}
         </Box>
       </HStack>
+      {dailyMarkets && <DrawerCarousel markets={dailyMarkets.markets as unknown as Market[]} />}
     </MainLayout>
   )
 }

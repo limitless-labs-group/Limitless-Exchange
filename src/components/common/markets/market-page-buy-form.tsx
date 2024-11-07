@@ -221,7 +221,7 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
       </HStack>
       {showSlippageDetails && (
         <HStack w='full' gap='8px' justifyContent='space-between' mt='8px'>
-          <InputGroup flex={1}>
+          <InputGroup flex={isMobile ? 2 : 1}>
             <Input
               variant='outlined'
               value={slippage}
