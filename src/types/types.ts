@@ -39,7 +39,7 @@ export type DraftMetadata = {
 
 export interface Market {
   address: Address
-  category: Category
+  category: Category | string
   collateralToken: {
     address: Address
     decimals: number
