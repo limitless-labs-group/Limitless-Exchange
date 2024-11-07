@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { ProtectedRoute } from '@/components/common/protected-route'
 import { Toast } from '@/components/common/toast'
 import { DraftMarket, DraftMarketCard } from '@/app/draft/queue/components/draft-card'
 import { MainLayout } from '@/components'
@@ -59,38 +60,36 @@ const RecentMarketsPage = () => {
   }
 
   return (
-    <MainLayout justifyContent={'center'}>
-      <Flex justifyContent={'center'}>
-        <VStack w='868px' spacing={4}>
-          {recentMarkets?.map((market: DraftMarket) => {
-            return (
+    <ProtectedRoute>
+      <MainLayout justifyContent={'center'}>
+        <Flex justifyContent={'center'}>
+          <VStack w='868px' spacing={4}>
+            {recentMarkets?.map((recentMarket: DraftMarket) => (
               <DraftMarketCard
-                market={market}
-                key={market.id}
-                isChecked={selectedMarketIds.includes(market.id)}
-                onToggle={() => handleToggle(market.id)}
+                market={recentMarket}
+                key={recentMarket.id}
+                isChecked={selectedMarketIds.includes(recentMarket.id)}
+                onToggle={() => handleToggle(recentMarket.id)}
               />
-            )
-          })}
-          {isCreating ? (
-            <Box width='full' display='flex' justifyContent='center' alignItems='center'>
-              <Spinner />
-            </Box>
-          ) : (
-            <Button
-              colorScheme='blue'
-              w='full'
-              position='sticky'
-              bottom='10px'
-              onClick={duplicateMarkets}
-              disabled={isCreating || selectedMarketIds.length === 0}
-            >
-              Duplicate Markets to Queue
-            </Button>
-          )}
-        </VStack>
-      </Flex>
-    </MainLayout>
+            ))}
+            {isCreating ? (
+              <Box width='full' display='flex' justifyContent='center' alignItems='center'>
+                <Spinner />
+              </Box>
+            ) : (
+              <Button
+                colorScheme='blue'
+                w={'full'}
+                onClick={duplicateMarkets}
+                disabled={isCreating || selectedMarketIds.length === 0}
+              >
+                Duplicate Markets to Queue
+              </Button>
+            )}
+          </VStack>
+        </Flex>
+      </MainLayout>
+    </ProtectedRoute>
   )
 }
 

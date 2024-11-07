@@ -7,6 +7,8 @@ export interface Profile {
   username: string
   bio: string | undefined
   pfpUrl: string | undefined
+  isCreator: boolean
+  isAdmin: boolean
 }
 
 export enum ProfileActionType {
