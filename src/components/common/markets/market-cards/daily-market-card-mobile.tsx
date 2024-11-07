@@ -30,15 +30,15 @@ export default function DailyMarketCardMobile({
 }: DailyMarketCardMobileProps) {
   const [colors] = useState(defaultColors)
 
-  const router = useRouter()
-
-  const { onOpenMarketPage } = useTradingService()
+  const { onOpenMarketPage, onCloseMarketPage } = useTradingService()
   const { trackClicked } = useAmplitude()
+  const router = useRouter()
 
   const handleMarketPageOpened = () => {
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
       ...analyticParams,
     })
+    router.push(`?market=${market.address}`, { scroll: false })
     onOpenMarketPage(market, 'Medium Banner')
   }
 
@@ -126,7 +126,13 @@ export default function DailyMarketCardMobile({
   )
 
   return (
-    <MobileDrawer trigger={content} variant='black'>
+    <MobileDrawer
+      id={market.address}
+      trigger={content}
+      onClose={onCloseMarketPage}
+      variant='black'
+      title={market.title}
+    >
       <MarketPage />
     </MobileDrawer>
   )

@@ -15,6 +15,7 @@ import {
   Tabs,
   useDisclosure,
 } from '@chakra-ui/react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -30,10 +31,7 @@ import {
   MarketPriceChart,
   SellForm,
 } from '@/app/(markets)/markets/[address]/components'
-import { useToast } from '@/hooks'
 import useMarketGroup from '@/hooks/use-market-group'
-import WarpcastIcon from '@/resources/icons/Farcaster.svg'
-import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
@@ -49,12 +47,11 @@ import {
   useHistory,
   useTradingService,
 } from '@/services'
-import { useMarket, useWinningIndex } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
 import {
   controlsMedium,
   h1Regular,
   h2Medium,
-  headline,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
@@ -83,8 +80,13 @@ export default function MarketPage() {
     refetchMarkets,
   } = useTradingService()
 
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+
   const { trackChanged, trackClicked } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
+
   // Todo change creator name
 
   const positions = useMemo(
@@ -130,9 +132,17 @@ export default function MarketPage() {
 
   const tabPanels = [<MarketPageOverviewTab key={uuidv4()} />, <MarketActivityTab key={uuidv4()} />]
 
+  const removeMarketQuery = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('market')
+    const newQuery = params.toString()
+    router.replace(newQuery ? `${pathname}/?${newQuery}` : pathname)
+  }
+
   const handleCloseMarketPageClicked = () => {
     setMarket(null)
     setMarketGroup(null)
+    removeMarketQuery()
     onCloseMarketPage()
     trackClicked(ClickEvent.CloseMarketClicked, {
       marketAddress: market?.address as Address,

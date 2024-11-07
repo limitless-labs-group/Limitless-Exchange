@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation'
 import React, { SyntheticEvent, useState } from 'react'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import Paper from '@/components/common/paper'
+import { MarketCardLink } from './market-card-link'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import TooltipIcon from '@/resources/icons/tooltip-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
@@ -34,6 +35,18 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
   const { onOpenMarketPage } = useTradingService()
   const router = useRouter()
 
+  const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.metaKey || e.ctrlKey || e.button === 2) {
+      return
+    }
+    e.preventDefault()
+    router.push(`?market=${market.address}`, { scroll: false })
+    trackClicked(ClickEvent.MediumMarketBannerClicked, {
+      ...analyticParams,
+    })
+    onOpenMarketPage(market, 'Medium Banner')
+  }
+
   const isLumy = market.category === 'Lumy'
 
   const { trackClicked } = useAmplitude()
@@ -44,7 +57,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
   }
 
   return (
-    <Box borderRadius='2px' overflow='hidden'>
+    <MarketCardLink marketAddress={market.address}>
       <Paper
         flex={1}
         h={'160px'}
@@ -140,6 +153,6 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
           </Box>
         )}
       </Paper>
-    </Box>
+    </MarketCardLink>
   )
 }

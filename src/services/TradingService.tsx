@@ -71,7 +71,13 @@ interface ITradingServiceContext {
   onCloseMarketPage: () => void
   onOpenMarketPage: (
     market: Market | MarketGroup,
-    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner' | 'Portfolio Card' | 'History Card'
+    type:
+      | 'Standard Banner'
+      | 'Medium Banner'
+      | 'Big Banner'
+      | 'Portfolio Card'
+      | 'History Card'
+      | 'Feed'
   ) => void
   refetchMarkets: () => Promise<void>
 }
@@ -102,19 +108,18 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const [marketPageOpened, setMarketPageOpened] = useState(false)
 
   const onCloseMarketPage = () => {
-    trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
-      mode: 'closed',
-      marketCategory: market?.category,
-      marketAddress: market?.address,
-      marketType: marketGroup ? 'group' : 'single',
-      marketTags: market?.tags,
-    })
     setMarketPageOpened(false)
   }
 
   const onOpenMarketPage = (
     market: Market | MarketGroup,
-    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner' | 'Portfolio Card' | 'History Card'
+    type:
+      | 'Standard Banner'
+      | 'Medium Banner'
+      | 'Big Banner'
+      | 'Portfolio Card'
+      | 'History Card'
+      | 'Feed'
   ) => {
     setMarket(null)
     setMarketGroup(null)
@@ -138,6 +143,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       return
     }
     setMarket(market as Market)
+    setMarketGroup(null)
     !isMobile && setMarketPageOpened(true)
   }
 
