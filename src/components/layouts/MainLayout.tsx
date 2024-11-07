@@ -1,4 +1,5 @@
 import { Box, Flex, FlexProps, HStack, Spinner } from '@chakra-ui/react'
+import { usePathname } from 'next/navigation'
 import React from 'react'
 import { isMobile } from 'react-device-detect'
 import MarketPage from '@/components/common/markets/market-page'
@@ -19,7 +20,9 @@ export const MainLayout = ({
   layoutPadding = '16px',
   ...props
 }: IMainLayout) => {
+  const pathname = usePathname()
   const { marketPageOpened } = useTradingService()
+
   return (
     <Box
       id='main'
@@ -37,7 +40,11 @@ export const MainLayout = ({
       <HeaderMarquee />
       <Box mt='20px' mb={isMobile ? '60px' : 0}>
         {isMobile && <MobileHeader />}
-        <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
+        <HStack
+          minH={'calc(100vh - 20px)'}
+          alignItems='flex-start'
+          pt={isMobile && pathname !== '/' && !pathname.includes('topics') ? '48px' : 0}
+        >
           {!isMobile && <Sidebar />}
           {isLoading ? (
             <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
