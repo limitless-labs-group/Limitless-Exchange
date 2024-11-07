@@ -47,14 +47,14 @@ export default function MarketFeedCardContainer({
       <HStack gap='8px' flexWrap='wrap' mb={isMobile ? '16px' : '12px'}>
         <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
         {user.link ? (
-          <Link href={user.link}>
-            <Text {...captionRegular}>{user.name}</Text>
+          <Link href={user.link} variant='textLinkSecondary' {...captionRegular}>
+            {user.name}
           </Link>
         ) : (
           <Link
             href={`${defaultChain.blockExplorers.default.url}/address/${user.account}`}
             target={'_blank'}
-            variant='textLink'
+            variant='textLinkSecondary'
             {...captionRegular}
             color='grey.500'
             textOverflow='ellipsis'
