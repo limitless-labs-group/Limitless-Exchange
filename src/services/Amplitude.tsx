@@ -161,6 +161,8 @@ export enum ClickEvent {
   TradingWidgetReturnDecomposition = 'Trading Widget Return Decomposition',
   CloseMarketClicked = 'Close Market Clicked',
   SidebarMarketOpened = 'Sidebar Market Opened',
+  PredictionChartOpened = 'Prediction Chart Opened',
+  AssetPriceChartOpened = 'Asset Price Chart Opened',
 }
 
 export enum SignInEvent {

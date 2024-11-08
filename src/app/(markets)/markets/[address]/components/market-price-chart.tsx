@@ -1,67 +1,33 @@
 'use client'
 
-import {
-  Text,
-  HStack,
-  VStack,
-  Box,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Menu,
-  useDisclosure,
-  Button,
-} from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { rgba } from 'color2k'
+import { Text, HStack, VStack, Box } from '@chakra-ui/react'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { getAddress, zeroAddress } from 'viem'
 import Paper from '@/components/common/paper'
-import { defaultChain, newSubgraphURI } from '@/constants'
 import { useMarketPriceHistory } from '@/hooks/use-market-price-history'
 import { useThemeProvider } from '@/providers'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { useTradingService } from '@/services'
 import { useWinningIndex } from '@/services/MarketsService'
-import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup } from '@/types'
+import { headline } from '@/styles/fonts/fonts.styles'
 
 const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
-// Define the MarketPriceChart component
-export interface IMarketPriceChart {
-  marketGroup?: MarketGroup
-  market: Market
-}
-
-export const MarketPriceChart = ({ marketGroup, market }: IMarketPriceChart) => {
+export const MarketPriceChart = () => {
   const { colors } = useThemeProvider()
-  // const { market, setMarket } = useTradingService()
   const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%b %e, %Y %I:%M %p', Date.now()) ?? ''
   )
-  const outcomeTokensPercent = market.prices
-  const marketAddr = market.address[defaultChain.id] ?? zeroAddress
+  const { market } = useTradingService()
+  const outcomeTokensPercent = market?.prices
   const { data: winningIndex } = useWinningIndex(market?.address || '')
   const resolved = winningIndex === 0 || winningIndex === 1
 
   useEffect(() => {
     refetchPrices()
   }, [market])
-
-  const { trackClicked } = useAmplitude()
-
-  const {
-    isOpen: isMarketListOpen,
-    onOpen: onOpenMarketList,
-    onClose: onCloseMarketList,
-  } = useDisclosure()
 
   // Function to generate chart options
   const getChartOptions = (data: number[][] | undefined): Highcharts.Options => ({

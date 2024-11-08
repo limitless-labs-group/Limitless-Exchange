@@ -17,7 +17,7 @@ interface MarketOverviewTabProps {
 function MarketOverviewTab({ market, marketGroup }: MarketOverviewTabProps) {
   return (
     <>
-      <MarketPriceChart market={market} marketGroup={marketGroup} />
+      <MarketPriceChart />
       {marketGroup && <MarketGroupPositions marketGroup={marketGroup} />}
       <MarketPositions market={market} />
       <HStack
