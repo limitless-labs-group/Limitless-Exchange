@@ -47,7 +47,7 @@ const symbols = {
 function PythLiveChart({ id }: PythLiveChartProps) {
   const chartComponentRef = useRef(null)
   const [priceData, setPriceData] = useState<number[][]>([])
-  const [timeRange, setTimeRange] = useState('1D') // default time range
+  const [timeRange, setTimeRange] = useState('1H') // default time range
   const [live, setLive] = useState(true) // live state
   const { colors } = useThemeProvider()
 
