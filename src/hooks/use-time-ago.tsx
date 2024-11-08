@@ -2,6 +2,10 @@ import { formatDistanceToNow } from 'date-fns'
 import { useState, useEffect } from 'react'
 
 export const useTimeAgo = (createdAt: string) => {
+  if (isNaN(new Date(createdAt).getTime())) {
+    throw new Error('Invalid date string provided');
+  }
+  const getTimeAgo = () => formatDistanceToNow(new Date(createdAt), { addSuffix: true })
   const getTimeAgo = () => formatDistanceToNow(new Date(createdAt), { addSuffix: true })
   const [timeAgo, setTimeAgo] = useState(() => getTimeAgo())
 
