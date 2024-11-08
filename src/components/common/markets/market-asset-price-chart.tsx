@@ -56,18 +56,22 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   const connection = new PriceServiceConnection('https://hermes.pyth.network')
 
   const getHistory = async () => {
-    const result = await axios.get<HistoricalDataItem[]>(
-      `https://web-api.pyth.network/history?symbol=${
-        symbols[id as keyof typeof symbols]
-      }&range=${timeRange}&cluster=pythnet`
-    )
-    const preparedData = result.data.map((priceData) => {
-      return [
-        new Date(priceData.timestamp).getTime(),
-        +priceData.avg_price.toFixed(priceData.avg_price > 1 ? 2 : 6),
-      ]
-    })
-    setPriceData(preparedData)
+    try {
+      const result = await axios.get<HistoricalDataItem[]>(
+        `https://web-api.pyth.network/history?symbol=${
+          symbols[id as keyof typeof symbols]
+        }&range=${timeRange}&cluster=pythnet`
+      )
+      const preparedData = result.data.map((priceData) => {
+        return [
+          new Date(priceData.timestamp).getTime(),
+          +priceData.avg_price.toFixed(priceData.avg_price > 1 ? 2 : 6),
+        ]
+      })
+      setPriceData(preparedData)
+    } catch (e) {
+      console.log(`get price history failed`, e)
+    }
   }
 
   useEffect(() => {
@@ -82,9 +86,10 @@ function PythLiveChart({ id }: PythLiveChartProps) {
             //     Math.abs(priceFeed.getPriceNoOlderThan(60)?.expo || 8)
             //   )}`
             // )
+            const priceEntity = priceFeed.getPriceNoOlderThan(60)
             const formattedPrice = +formatUnits(
-              BigInt(priceFeed.getPriceNoOlderThan(60)?.price || '1'),
-              Math.abs(priceFeed.getPriceNoOlderThan(60)?.expo || 8)
+              BigInt(priceEntity ? priceEntity.price : '1'),
+              Math.abs(priceEntity ? priceEntity.expo : 8)
             )
             const price = +formattedPrice.toFixed(formattedPrice > 1 ? 2 : 6)
             const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
