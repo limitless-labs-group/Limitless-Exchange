@@ -1,11 +1,6 @@
-import {
-  useInfiniteQuery,
-  MutationStatus,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
-import { createContext, PropsWithChildren, useContext } from 'react'
+import { createContext, PropsWithChildren, useContext, useMemo } from 'react'
 import { getAddress, toHex } from 'viem'
 import { useSignMessage } from 'wagmi'
 import { Toast } from '@/components/common/toast'
@@ -25,7 +20,6 @@ export interface CommentServiceContext {
   createComment: (data: IUseCreateComment) => Promise<CommentPost>
   isPostCommentLoading: boolean
   isPostCommentSuccess: boolean
-  postCommentStatus: MutationStatus
 }
 
 const CommentServiceContext = createContext({} as CommentServiceContext)
@@ -90,13 +84,13 @@ export const CommentServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const contextProviderValue = {
-    createComment,
-    isPostCommentLoading,
-    isPostCommentSuccess,
-    postCommentStatus,
-    useMarketInfinityComments,
-  }
+  const contextProviderValue = useMemo(() => {
+    return {
+      createComment,
+      isPostCommentLoading,
+      isPostCommentSuccess,
+    }
+  }, [isPostCommentLoading, isPostCommentSuccess])
   return (
     <CommentServiceContext.Provider value={contextProviderValue}>
       {children}
