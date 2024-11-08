@@ -73,31 +73,35 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   useEffect(() => {
     getHistory()
     const updateDataForTimeRange = () => {
-      if (live) {
-        connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
-          // console.log(
-          //   `Received an update for ${priceFeed.id}: ${formatUnits(
-          //     BigInt(priceFeed.getPriceNoOlderThan(60)?.price || '1'),
-          //     Math.abs(priceFeed.getPriceNoOlderThan(60)?.expo || 8)
-          //   )}`
-          // )
-          const formattedPrice = +formatUnits(
-            BigInt(priceFeed.getPriceNoOlderThan(60)?.price || '1'),
-            Math.abs(priceFeed.getPriceNoOlderThan(60)?.expo || 8)
-          )
-          const price = +formattedPrice.toFixed(formattedPrice > 1 ? 2 : 6)
-          const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
-          const currentTime = latestPriceFeedEntity
-            ? latestPriceFeedEntity.publishTime * 1000
-            : new Date().getTime()
-          // @ts-ignore
-          const chart = chartComponentRef.current?.chart
-          if (chart) {
-            chart.series[0].addPoint([currentTime, price], true, false)
-          }
-        })
-      } else {
-        getHistory()
+      try {
+        if (live) {
+          connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
+            // console.log(
+            //   `Received an update for ${priceFeed.id}: ${formatUnits(
+            //     BigInt(priceFeed.getPriceNoOlderThan(60)?.price || '1'),
+            //     Math.abs(priceFeed.getPriceNoOlderThan(60)?.expo || 8)
+            //   )}`
+            // )
+            const formattedPrice = +formatUnits(
+              BigInt(priceFeed.getPriceNoOlderThan(60)?.price || '1'),
+              Math.abs(priceFeed.getPriceNoOlderThan(60)?.expo || 8)
+            )
+            const price = +formattedPrice.toFixed(formattedPrice > 1 ? 2 : 6)
+            const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
+            const currentTime = latestPriceFeedEntity
+              ? latestPriceFeedEntity.publishTime * 1000
+              : new Date().getTime()
+            // @ts-ignore
+            const chart = chartComponentRef.current?.chart
+            if (chart) {
+              chart.series[0].addPoint([currentTime, price], true, false)
+            }
+          })
+        } else {
+          getHistory()
+        }
+      } catch (e) {
+        console.log('error')
       }
     }
 
