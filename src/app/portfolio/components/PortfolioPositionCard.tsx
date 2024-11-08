@@ -1,6 +1,6 @@
 import { HStack, Stack, Text, Box, Icon, VStack, Button, Divider } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import { useMemo, useState } from 'react'
+import { SyntheticEvent, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
@@ -104,7 +104,8 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
     return (
       <Button
         variant='white'
-        onClick={async () => {
+        onClick={async (e: SyntheticEvent) => {
+          e.stopPropagation()
           setIsLoadingRedeem(true)
           trackClicked(ClickEvent.ClaimRewardOnPortfolioClicked, {
             platform: isMobile ? 'mobile' : 'desktop',
