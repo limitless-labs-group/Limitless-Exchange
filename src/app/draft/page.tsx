@@ -9,6 +9,7 @@ import {
   FormControl,
   FormHelperText,
   HStack,
+  Input,
   NumberInput,
   NumberInputField,
   Select,
@@ -538,6 +539,18 @@ const CreateOwnMarketPage = () => {
                     minDate={new Date()}
                     showTimeSelect
                     dateFormat='Pp'
+                    customInput={
+                      <Input
+                        cursor='pointer'
+                        backgroundColor='grey.100'
+                        color='grey.900'
+                        _hover={{ backgroundColor: 'grey.200' }}
+                        _focus={{ backgroundColor: 'gray.300', borderColor: 'gray.500' }}
+                        padding='8px'
+                        mb='5px'
+                        borderRadius='md'
+                      />
+                    }
                   />
                   <TimezoneSelect
                     value={formData.timezone}

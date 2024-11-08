@@ -153,7 +153,7 @@ export const DraftMarketCard = ({
                   </HStack>
                   <Text {...paragraphRegular} color={colors.main}>
                     {market.deadline
-                      ? format(market.deadline, 'dd/MM/yyyy HH:mm:ss', {
+                      ? format(market.deadline, 'dd/MM/yyyy hh:mm:ss a', {
                           timeZone: 'America/New_York',
                         })
                       : 'Invalid date'}
