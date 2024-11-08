@@ -16,6 +16,8 @@ const priceIds = {
   SOL: 'ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d',
   DOGE: 'dcef50dd0a4cd2dcc17e45df1676dcb336a11a61c69df7a0299b0150c672d25c',
   BRETT: '9b5729efe3d68e537cdcb2ca70444dea5f06e1660b562632609757076d0b9448',
+  AAVE: '0x2b9ab1e972a281585084148ba1389800799bd4be63b957507db1349314e47445',
+  APE: '0x15add95022ae13563a11992e727c91bdb6b55bc183d9d747436c80a483d8c864',
 }
 
 interface HistoricalDataItem {
@@ -42,6 +44,8 @@ const symbols = {
   SOL: 'Crypto.SOL/USD',
   DOGE: 'Crypto.DOGE/USD',
   BRETT: 'Crypto.BRETT/USD',
+  AAVE: 'Crypto.AAVE/USD',
+  APE: 'Crypto.APE/USD',
 }
 
 function PythLiveChart({ id }: PythLiveChartProps) {
