@@ -65,7 +65,7 @@ const defaultColors = {
   chartBg: 'var(--chakra-colors-grey-300)',
 }
 
-const tokens = ['BTC', 'ETH', 'SOL', 'DOGE', 'BRETT']
+const tokens = ['BTC', 'ETH', 'SOL', 'DOGE', 'BRETT', 'AAVE', 'APE']
 
 export default function MarketPage() {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
@@ -129,6 +129,8 @@ export default function MarketPage() {
     'Will SOL',
     'Will DOGE',
     'Will BRETT',
+    'Will AAVE',
+    'Will APE',
   ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = [
