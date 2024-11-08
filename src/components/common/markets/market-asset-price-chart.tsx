@@ -171,6 +171,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
         data: priceData,
         color: '#00C7C7',
         name: id,
+        lineWidth: 1,
       },
     ],
   }
@@ -182,7 +183,11 @@ function PythLiveChart({ id }: PythLiveChartProps) {
           Zoom
         </Text>
         <HStack>
-          <Button variant='transparentGray' onClick={handleLiveToggle}>
+          <Button
+            variant='transparentGray'
+            onClick={handleLiveToggle}
+            bg={live ? 'grey.300' : 'grey.200'}
+          >
             Live
           </Button>
           {['1H', '1D', '1W', '1M'].map((period) => (
@@ -190,6 +195,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
               key={period}
               variant='transparentGray'
               onClick={() => handleTimeRangeChange(period)}
+              bg={period === timeRange && !live ? 'grey.300' : 'grey.200'}
             >
               {period}
             </Button>
