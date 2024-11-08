@@ -143,6 +143,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       },
       lineColor: colors.grey['200'],
       tickColor: colors.grey['200'],
+      gridLineColor: colors.grey['200'],
       labels: {
         style: {
           fontFamily: 'Helvetica Neue',
