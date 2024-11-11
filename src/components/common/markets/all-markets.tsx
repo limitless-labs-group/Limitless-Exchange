@@ -51,7 +51,11 @@ export default function AllMarkets({
               return market.slug ? (
                 <MarketGroupCard marketGroup={market as MarketGroup} key={index} />
               ) : (
-                <MarketSingleCard market={market as Market} key={index} />
+                <MarketSingleCard
+                  market={market as Market}
+                  key={index}
+                  markets={markets as Market[]}
+                />
               )
             })}
           </VStack>

@@ -268,6 +268,14 @@ export const chakraTheme = ChakraTheme({
             bg: 'grey.300',
           },
         },
+        transparentGreyText: {
+          ...commonButtonProps,
+          bg: 'unset',
+          px: '16px',
+          height: 'unset',
+          color: 'grey.300',
+          alignItems: 'center',
+        },
       },
     },
     FormLabel: {

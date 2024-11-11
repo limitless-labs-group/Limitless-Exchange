@@ -51,6 +51,7 @@ export default function DailyMarketsSection({
                 dailyIndex={index + 1}
                 market={market}
                 analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: page }}
+                markets={markets}
               />
             )
           })}
