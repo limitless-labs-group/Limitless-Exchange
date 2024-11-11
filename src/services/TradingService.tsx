@@ -74,6 +74,8 @@ interface ITradingServiceContext {
     type: 'Standard Banner' | 'Medium Banner' | 'Big Banner' | 'Portfolio Card' | 'History Card'
   ) => void
   refetchMarkets: () => Promise<void>
+  markets?: Market[]
+  setMarkets: (markets: Market[]) => void
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -97,6 +99,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const [market, setMarket] = useState<Market | null>(null)
   const [marketGroup, setMarketGroup] = useState<MarketGroup | null>(null)
+  const [markets, setMarkets] = useState<Market[] | undefined>()
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
   const [marketFee, setMarketFee] = useState(0)
   const [marketPageOpened, setMarketPageOpened] = useState(false)
@@ -112,6 +115,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       marketTags: market?.tags,
     })
     setMarketPageOpened(false)
+    setMarkets(undefined)
   }
 
   const onOpenMarketPage = (
@@ -857,6 +861,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     onCloseMarketPage,
     onOpenMarketPage,
     refetchMarkets,
+    markets,
+    setMarkets,
   }
 
   return (

@@ -27,8 +27,6 @@ export default function Carousel({ slides, options }: CarouselProps) {
     onSelect() // Set initial active slide
   }, [emblaApi, onSelect])
 
-  console.log(activeSlide)
-
   return (
     <section className='embla_mobile'>
       <div className='embla__viewport_mobile' ref={emblaRef}>

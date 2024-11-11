@@ -187,12 +187,13 @@ export default function MarketPage() {
       borderTopRadius={0}
       borderBottomRightRadius={0}
       w={isMobile ? 'full' : '488px'}
-      position='fixed'
+      position={isMobile ? 'relative' : 'fixed'}
       height={isMobile ? 'calc(100dvh - 21px)' : 'calc(100vh - 21px)'}
       top='20px'
       right={0}
       overflowY='auto'
       p={isMobile ? '12px' : '16px'}
+      pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
     >
       {!isMobile && (
@@ -204,7 +205,12 @@ export default function MarketPage() {
           <ShareMenu />
         </HStack>
       )}
-      <HStack w='full' justifyContent='space-between' alignItems='flex-start' mt='10px'>
+      <HStack
+        w='full'
+        justifyContent='space-between'
+        alignItems='flex-start'
+        mt={isMobile ? 0 : '10px'}
+      >
         <Text {...(isMobile ? { ...h2Medium } : { ...h1Regular })}>
           {marketGroup?.title || market?.title}
         </Text>

@@ -15,6 +15,7 @@ interface DailyMarketCardMobileProps {
   market: Market
   dailyIndex: number
   analyticParams: { bannerPosition: number; bannerPaginationPage: number }
+  markets: Market[]
 }
 
 const defaultColors = {
@@ -26,10 +27,11 @@ const defaultColors = {
 export default function DailyMarketCardMobile({
   market,
   analyticParams,
+  markets,
 }: DailyMarketCardMobileProps) {
   const [colors] = useState(defaultColors)
 
-  const { onOpenMarketPage, onCloseMarketPage } = useTradingService()
+  const { onOpenMarketPage, onCloseMarketPage, setMarkets } = useTradingService()
   const { trackClicked } = useAmplitude()
   const router = useRouter()
 
@@ -39,6 +41,7 @@ export default function DailyMarketCardMobile({
     })
     router.push(`?market=${market.address}`, { scroll: false })
     onOpenMarketPage(market, 'Medium Banner')
+    setMarkets(markets)
   }
 
   const content = (
@@ -92,13 +95,7 @@ export default function DailyMarketCardMobile({
   )
 
   return (
-    <MobileDrawer
-      id={market.address}
-      trigger={content}
-      onClose={onCloseMarketPage}
-      variant='black'
-      title={market.title}
-    >
+    <MobileDrawer id={market.address} trigger={content} onClose={onCloseMarketPage} variant='black'>
       <MarketPage />
     </MobileDrawer>
   )

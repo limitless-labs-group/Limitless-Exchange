@@ -10,7 +10,9 @@ interface TopMarketsProps {
 }
 
 export default function TopMarkets({ markets }: TopMarketsProps) {
-  const desktopCards = markets.map((market) => <BigBanner market={market} key={market.address} />)
+  const desktopCards = markets.map((market) => (
+    <BigBanner market={market} key={market.address} markets={markets} />
+  ))
 
   return (
     <Box position='relative' mt={isMobile ? '12px' : 0} px={isMobile ? '16px' : 0}>

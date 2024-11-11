@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Address } from 'viem'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
@@ -22,11 +21,12 @@ const MotionBox = motion(Box)
 
 interface BigBannerProps {
   market: Market
+  markets: Market[]
 }
 
-export default function BigBanner({ market }: BigBannerProps) {
+export default function BigBanner({ market, markets }: BigBannerProps) {
   const [feedMessage, setFeedMessage] = useState<MarketFeedData | null>(null)
-  const { onCloseMarketPage, onOpenMarketPage } = useTradingService()
+  const { onCloseMarketPage, onOpenMarketPage, setMarkets } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market.address)
   const router = useRouter()
 
@@ -39,6 +39,9 @@ export default function BigBanner({ market }: BigBannerProps) {
     }
     router.push(`?market=${market.address}`, { scroll: false })
     onOpenMarketPage(market, 'Big Banner')
+    if (isMobile) {
+      setMarkets(markets)
+    }
   }
 
   useEffect(() => {
@@ -209,13 +212,7 @@ export default function BigBanner({ market }: BigBannerProps) {
   )
 
   return isMobile ? (
-    <MobileDrawer
-      id={market.address}
-      trigger={content}
-      variant='black'
-      title={market.proxyTitle ?? market.title ?? 'Noname market'}
-      onClose={onCloseMarketPage}
-    >
+    <MobileDrawer id={market.address} trigger={content} variant='black' onClose={onCloseMarketPage}>
       <MarketPage />
     </MobileDrawer>
   ) : (
