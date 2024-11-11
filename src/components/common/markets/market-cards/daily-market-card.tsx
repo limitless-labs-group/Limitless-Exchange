@@ -1,14 +1,14 @@
 import { Box, Flex, HStack, Text } from '@chakra-ui/react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useState } from 'react'
-import { isMobile } from 'react-device-detect'
+import { useRouter } from 'next/navigation'
+import React, { SyntheticEvent, useState } from 'react'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import Paper from '@/components/common/paper'
 import { MarketCardLink } from './market-card-link'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import TooltipIcon from '@/resources/icons/tooltip-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { captionMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
@@ -30,10 +30,9 @@ interface DailyMarketCardProps {
 }
 
 export default function DailyMarketCard({ market, analyticParams }: DailyMarketCardProps) {
-  const searchParams = useSearchParams()
   const [colors, setColors] = useState(defaultColors)
+  const [hovered, setHovered] = useState(false)
   const { onOpenMarketPage } = useTradingService()
-  const category = searchParams.get('category')
   const router = useRouter()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -48,28 +47,52 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
     onOpenMarketPage(market, 'Medium Banner')
   }
 
+  const isLumy = market.category === 'Lumy'
+
   const { trackClicked } = useAmplitude()
+
+  const handleLumyButtonClicked = (e: SyntheticEvent) => {
+    e.stopPropagation()
+    router.push('/lumy')
+  }
 
   return (
     <MarketCardLink marketAddress={market.address}>
       <Paper
         flex={1}
-        h={isMobile ? '240px' : '160px'}
-        w={isMobile ? '100%' : '100%'}
-        _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
+        h={'160px'}
+        w={'100%'}
+        _hover={{
+          bg: isLumy
+            ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'
+            : 'blue.500',
+          borderColor: 'blue.500',
+        }}
         onMouseEnter={() => {
-          if (!isMobile) {
-            setColors(hoverColors)
-          }
+          setColors(hoverColors)
+          setHovered(true)
         }}
         onMouseLeave={() => {
-          if (!isMobile) {
-            setColors(defaultColors)
-          }
+          setColors(defaultColors)
+          setHovered(false)
         }}
-        onClick={(e) => onClickRedirectToMarket(e)}
+        onClick={(event) => {
+          trackClicked(ClickEvent.MediumMarketBannerClicked, {
+            ...analyticParams,
+          })
+          onClickRedirectToMarket(event)
+          onOpenMarketPage(market, 'Medium Banner')
+        }}
         position='relative'
         cursor='pointer'
+        p='6px'
+        border='2px solid'
+        borderColor={'grey.200'}
+        style={{
+          borderImage: isLumy
+            ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%) 1'
+            : 'unset',
+        }}
       >
         <Flex h='full' flexDirection='column' justifyContent='space-between'>
           <HStack justifyContent='space-between'>
@@ -110,6 +133,26 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             </HStack>
           </HStack>
         </Flex>
+        {isLumy && (
+          <Box
+            position='absolute'
+            bottom={0}
+            left='calc(50% - 30px)'
+            py='2px'
+            px='4px'
+            borderTopLeftRadius='4px'
+            borderTopRightRadius='2px'
+            bg={hovered ? 'unset' : 'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}
+            // onClick={handleLumyButtonClicked}
+          >
+            <HStack gap='8px' color='grey.white'>
+              <Text {...captionMedium} color='grey.white'>
+                LUMY AI
+              </Text>
+              <TooltipIcon width={16} height={16} />
+            </HStack>
+          </Box>
+        )}
       </Paper>
     </MarketCardLink>
   )
