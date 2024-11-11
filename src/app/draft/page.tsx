@@ -9,6 +9,7 @@ import {
   FormControl,
   FormHelperText,
   HStack,
+  Input,
   NumberInput,
   NumberInputField,
   Select,
@@ -22,6 +23,8 @@ import {
 } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
+import { parseISO } from 'date-fns'
+import { toDate } from 'date-fns-tz'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
@@ -83,7 +86,7 @@ const CreateOwnMarketPage = () => {
         ...prevFormData,
         title: editMarket.title || '',
         description: editMarket.description || '',
-        deadline: new Date(editMarket.deadline) || new Date(),
+        deadline: toDate(parseISO(editMarket.deadline), { timeZone: 'America/New_York' }),
         token: editMarket.collateralToken
           ? { symbol: editMarket.collateralToken.symbol, id: editMarket.collateralToken.id }
           : prevFormData.token,
@@ -198,10 +201,11 @@ const CreateOwnMarketPage = () => {
       return
     }
 
-    const differenceInOffset =
-      (parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset ?? 1) -
-      (parseTimezone(formData.timezone)?.offset ?? 1)
-    const zonedTime = new Date(formData.deadline).getTime() + differenceInOffset * 60 * 60 * 1000
+    //now time will be shown in ET in draft cards. in case we will back to local tile, use zonedTime
+    // const differenceInOffset =
+    //   (parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset ?? 1) -
+    //   (parseTimezone(formData.timezone)?.offset ?? 1)
+    // const zonedTime = new Date(formData.deadline).getTime() + differenceInOffset * 60 * 60 * 1000
 
     const marketFormData = new FormData()
     marketFormData?.set('title', formData.title)
@@ -210,7 +214,7 @@ const CreateOwnMarketPage = () => {
     marketFormData?.set('liquidity', formData.liquidity.toString())
     marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
     marketFormData?.set('marketFee', formData.marketFee.toString())
-    marketFormData?.set('deadline', zonedTime.toString())
+    marketFormData?.set('deadline', new Date(formData.deadline).getTime().toString())
 
     if (formData.creatorId) {
       marketFormData.set('creatorId', formData.creatorId)
@@ -535,6 +539,18 @@ const CreateOwnMarketPage = () => {
                     minDate={new Date()}
                     showTimeSelect
                     dateFormat='Pp'
+                    customInput={
+                      <Input
+                        cursor='pointer'
+                        backgroundColor='grey.100'
+                        color='grey.900'
+                        _hover={{ backgroundColor: 'grey.200' }}
+                        _focus={{ backgroundColor: 'gray.300', borderColor: 'gray.500' }}
+                        padding='8px'
+                        mb='5px'
+                        borderRadius='md'
+                      />
+                    }
                   />
                   <TimezoneSelect
                     value={formData.timezone}

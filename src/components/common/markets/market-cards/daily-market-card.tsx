@@ -76,10 +76,11 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
           setColors(defaultColors)
           setHovered(false)
         }}
-        onClick={() => {
+        onClick={(event) => {
           trackClicked(ClickEvent.MediumMarketBannerClicked, {
             ...analyticParams,
           })
+          onClickRedirectToMarket(event)
           onOpenMarketPage(market, 'Medium Banner')
         }}
         position='relative'
