@@ -26,7 +26,7 @@ interface BigBannerProps {
 
 export default function BigBanner({ market, markets }: BigBannerProps) {
   const [feedMessage, setFeedMessage] = useState<MarketFeedData | null>(null)
-  const { onCloseMarketPage, onOpenMarketPage, setMarkets } = useTradingService()
+  const { onCloseMarketPage, onOpenMarketPage, setMarkets, setMarketsSection } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market.address)
   const router = useRouter()
 
@@ -41,6 +41,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
     onOpenMarketPage(market, 'Big Banner')
     if (isMobile) {
       setMarkets(markets)
+      setMarketsSection('Big Banner')
     }
   }
 

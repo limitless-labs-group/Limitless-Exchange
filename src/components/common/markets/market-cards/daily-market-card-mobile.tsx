@@ -32,7 +32,7 @@ export default function DailyMarketCardMobile({
 }: DailyMarketCardMobileProps) {
   const [colors] = useState(defaultColors)
 
-  const { onOpenMarketPage, onCloseMarketPage, setMarkets } = useTradingService()
+  const { onOpenMarketPage, onCloseMarketPage, setMarkets, setMarketsSection } = useTradingService()
   const { trackClicked } = useAmplitude()
   const router = useRouter()
 
@@ -43,6 +43,7 @@ export default function DailyMarketCardMobile({
     router.push(`?market=${market.address}`, { scroll: false })
     onOpenMarketPage(market, 'Medium Banner')
     setMarkets(markets)
+    setMarketsSection('Medium Banner')
   }
 
   const isLumy = market.category === 'Lumy'

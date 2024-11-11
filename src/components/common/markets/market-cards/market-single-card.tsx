@@ -33,7 +33,7 @@ const hoverColors = {
 export const MarketSingleCard = ({ market, markets }: MarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
   const router = useRouter()
-  const { onOpenMarketPage, onCloseMarketPage, setMarkets } = useTradingService()
+  const { onOpenMarketPage, onCloseMarketPage, setMarkets, setMarketsSection } = useTradingService()
 
   const trackMarketClicked = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {
@@ -47,6 +47,7 @@ export const MarketSingleCard = ({ market, markets }: MarketSingleCardProps) => 
     onOpenMarketPage(market, 'Standard Banner')
     if (isMobile) {
       setMarkets(markets as Market[])
+      setMarketsSection('Standard Banner')
     }
   }
 
