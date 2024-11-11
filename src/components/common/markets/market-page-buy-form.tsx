@@ -18,7 +18,7 @@ import { isMobile } from 'react-device-detect'
 import BuyButton from '@/components/common/markets/buy-button'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import InfiniteIcon from '@/resources/icons/infinite-icon.svg'
-import { useBalanceService, useTradingService } from '@/services'
+import { ClickEvent, useAmplitude, useBalanceService, useTradingService } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -35,6 +35,7 @@ export default function MarketPageBuyForm({
   slideMarket,
 }: MarketPageBuyFormProps) {
   const { balanceOfSmartWallet } = useBalanceService()
+  const { trackClicked } = useAmplitude()
   const queryClient = useQueryClient()
   const {
     collateralAmount,
@@ -88,6 +89,12 @@ export default function MarketPageBuyForm({
   }
 
   const handlePercentButtonClicked = (value: number) => {
+    trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
+      amount: value,
+      marketAddress: market?.address,
+      marketType: marketList ? 'group' : 'single',
+      marketTags: market?.tags,
+    })
     if (value == 100) {
       setDisplayAmount(
         NumberUtil.toFixed(balance, market?.collateralToken.symbol === 'USDC' ? 1 : 6)

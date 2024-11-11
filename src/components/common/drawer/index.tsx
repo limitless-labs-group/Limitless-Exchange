@@ -5,7 +5,7 @@ import React, { PropsWithChildren, ReactNode, useEffect, useMemo, useRef } from 
 import { Drawer } from 'vaul'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
-import { useTradingService } from '@/services'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { h1Regular, headline } from '@/styles/fonts/fonts.styles'
 
 type MobileDrawerProps = {
@@ -29,6 +29,7 @@ export default function MobileDrawer({
   const router = useRouter()
   const pathname = usePathname()
   const ref = useRef(false)
+  const { trackClicked } = useAmplitude()
 
   const { market: selectedMarket, onOpenMarketPage, markets } = useTradingService()
 
@@ -70,6 +71,9 @@ export default function MobileDrawer({
       ? () => {
           onOpenMarketPage(markets[indexInArray - 1], 'Big Banner')
           router.push(`?market=${markets[indexInArray - 1].address}`, { scroll: false })
+          trackClicked(ClickEvent.PreviousMarketClick, {
+            platform: 'mobile',
+          })
         }
       : undefined
 
@@ -78,6 +82,9 @@ export default function MobileDrawer({
       ? () => {
           onOpenMarketPage(markets[indexInArray + 1], 'Big Banner')
           router.push(`?market=${markets[indexInArray + 1].address}`, { scroll: false })
+          trackClicked(ClickEvent.NextMarketClick, {
+            platform: 'mobile',
+          })
         }
       : undefined
 

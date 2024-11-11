@@ -48,12 +48,11 @@ import {
 import { useMarket } from '@/services/MarketsService'
 import {
   controlsMedium,
-  h1Regular,
   h2Medium,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup } from '@/types'
+import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
 const defaultColors = {
@@ -183,13 +182,6 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
       document.body.style.overflow = '' // Clean up on unmount
     }
   }, [])
-
-  const handleMarketChosen = () => {
-    if (selectedMarket?.address !== market.address) {
-      onOpenMarketPage(market, 'Medium Banner')
-      return
-    }
-  }
 
   return (
     <Box
