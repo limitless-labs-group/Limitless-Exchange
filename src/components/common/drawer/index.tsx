@@ -7,7 +7,6 @@ import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import { useTradingService } from '@/services'
 import { h1Regular, headline } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
 
 type MobileDrawerProps = {
   trigger: ReactNode
@@ -68,12 +67,18 @@ export default function MobileDrawer({
 
   const onClickPrevious =
     isNumber(indexInArray) && indexInArray > 0 && markets
-      ? () => onOpenMarketPage(markets[indexInArray - 1], 'Big Banner')
+      ? () => {
+          onOpenMarketPage(markets[indexInArray - 1], 'Big Banner')
+          router.push(`?market=${markets[indexInArray - 1].address}`, { scroll: false })
+        }
       : undefined
 
   const onClickNext =
     isNumber(indexInArray) && markets && indexInArray < markets.length - 1
-      ? () => onOpenMarketPage(markets[indexInArray + 1], 'Big Banner')
+      ? () => {
+          onOpenMarketPage(markets[indexInArray + 1], 'Big Banner')
+          router.push(`?market=${markets[indexInArray + 1].address}`, { scroll: false })
+        }
       : undefined
 
   const bgColor = useMemo(() => {
