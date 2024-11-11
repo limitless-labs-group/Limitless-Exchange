@@ -58,6 +58,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
             query ${queryName} {
               ${queryName} (
                 where: {transactor: { _ilike: "${walletAddress}" } }
+                order_by: { blockTimestamp: desc }
               ) {
                 market {
                   id
