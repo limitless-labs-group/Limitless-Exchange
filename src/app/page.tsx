@@ -4,9 +4,11 @@ import { Box, Spinner, HStack } from '@chakra-ui/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { getAddress } from 'viem'
+import DrawerCarousel from '@/components/common/drawer/carousel-drawer'
 import AllMarkets from '@/components/common/markets/all-markets'
 import DailyMarketsSection from '@/components/common/markets/daily-markets'
 import TopMarkets from '@/components/common/markets/top-markets'
+import { mockMarkets } from '@/app/mock-markets'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useIsMobile } from '@/hooks'
@@ -256,6 +258,7 @@ const MainPage = () => {
           )}
         </Box>
       </HStack>
+      {/*{dailyMarkets && <DrawerCarousel markets={dailyMarkets.markets as unknown as Market[]} />}*/}
     </MainLayout>
   )
 }

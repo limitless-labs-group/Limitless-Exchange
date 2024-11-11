@@ -163,6 +163,9 @@ export enum ClickEvent {
   SidebarMarketOpened = 'Sidebar Market Opened',
   PredictionChartOpened = 'Prediction Chart Opened',
   AssetPriceChartOpened = 'Asset Price Chart Opened',
+  NextMarketClick = 'Next Market Click',
+  PreviousMarketClick = 'Previous Market Click',
+  TradingWidgetPricePrecetChosen = 'Trading Widget Price Preset Chosen',
 }
 
 export enum SignInEvent {
@@ -347,6 +350,10 @@ export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
 
+interface TradingWidgetPriceClickedMetadata {
+  amount: number
+}
+
 export interface SortMetadata {
   oldValue: string
   newValue: string
@@ -400,6 +407,7 @@ export type ClickedEventMetadata =
   | FeeAndReturnTradingDetailsClicked
   | MediumBannerClicked
   | CloseMarketMetadata
+  | TradingWidgetPriceClickedMetadata
 
 export type OpenedEventMetadata = PageOpenedMetadata | ProfileSettingsMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata

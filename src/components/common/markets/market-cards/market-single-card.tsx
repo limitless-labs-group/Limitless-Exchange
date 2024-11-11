@@ -1,6 +1,6 @@
 import { Box, HStack, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
@@ -15,6 +15,7 @@ import { NumberUtil } from '@/utils'
 
 interface MarketSingleCardProps {
   market: Market
+  markets?: Market[]
 }
 
 const defaultColors = {
@@ -29,10 +30,10 @@ const hoverColors = {
   chartBg: 'var(--chakra-colors-transparent-300)',
 }
 
-export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
+export const MarketSingleCard = ({ market, markets }: MarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
   const router = useRouter()
-  const { onOpenMarketPage, onCloseMarketPage } = useTradingService()
+  const { onOpenMarketPage, onCloseMarketPage, setMarkets, setMarketsSection } = useTradingService()
 
   const trackMarketClicked = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {
@@ -44,6 +45,10 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
     }
     router.push(`?market=${market.address}`, { scroll: false })
     onOpenMarketPage(market, 'Standard Banner')
+    if (isMobile) {
+      setMarkets(markets as Market[])
+      setMarketsSection('Standard Banner')
+    }
   }
 
   const content = (
@@ -130,13 +135,7 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   )
 
   return isMobile ? (
-    <MobileDrawer
-      id={market.address}
-      trigger={content}
-      variant='black'
-      title={market.title}
-      onClose={onCloseMarketPage}
-    >
+    <MobileDrawer id={market.address} trigger={content} variant='black' onClose={onCloseMarketPage}>
       <MarketPage />
     </MobileDrawer>
   ) : (

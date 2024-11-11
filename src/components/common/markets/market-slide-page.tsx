@@ -17,11 +17,9 @@ import {
 } from '@chakra-ui/react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
-import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
@@ -35,9 +33,7 @@ import {
 import useMarketGroup from '@/hooks/use-market-group'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
-import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import CloseIcon from '@/resources/icons/close-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
@@ -52,11 +48,11 @@ import {
 import { useMarket } from '@/services/MarketsService'
 import {
   controlsMedium,
-  h1Regular,
   h2Medium,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
 const defaultColors = {
@@ -65,9 +61,11 @@ const defaultColors = {
   chartBg: 'var(--chakra-colors-grey-300)',
 }
 
-const tokens = ['BTC', 'ETH', 'SOL', 'DOGE', 'BRETT']
+interface MarketSlidePageProps {
+  market: Market
+}
 
-export default function MarketPage() {
+export default function MarketSlidePage({ market }: MarketSlidePageProps) {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
 
   const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
@@ -75,13 +73,14 @@ export default function MarketPage() {
   const {
     setMarket,
     onCloseMarketPage,
-    market,
     strategy,
     setStrategy,
     status,
     marketGroup,
     setMarketGroup,
     refetchMarkets,
+    market: selectedMarket,
+    onOpenMarketPage,
   } = useTradingService()
 
   const router = useRouter()
@@ -101,10 +100,13 @@ export default function MarketPage() {
     [allMarketsPositions, market]
   )
 
-  const marketAddress = useMemo(() => market?.address, [market])
+  const marketAddress = useMemo(() => selectedMarket?.address, [selectedMarket])
   const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
 
-  const { data: updatedMarket } = useMarket(marketAddress, !!market)
+  const { data: updatedMarket } = useMarket(
+    marketAddress,
+    selectedMarket?.address === market.address
+  )
   const { data: updatedMarketGroup } = useMarketGroup(marketGroupSlug, !!marketGroup)
 
   useEffect(() => {
@@ -122,38 +124,6 @@ export default function MarketPage() {
   }, [updatedMarketGroup])
 
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
-
-  const isLivePriceSupportedMarket = [
-    'Will BTC',
-    'Will ETH',
-    'Will SOL',
-    'Will DOGE',
-    'Will BRETT',
-  ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
-
-  const chartTabs = [
-    {
-      title: 'Predictions',
-      icon: <PredictionsIcon width={16} height={16} />,
-      analyticEvent: ClickEvent.PredictionChartOpened,
-    },
-    {
-      title: 'Assets price',
-      icon: <CandlestickIcon width={16} height={16} />,
-      analyticEvent: ClickEvent.AssetPriceChartOpened,
-    },
-  ]
-
-  const chartsTabPanels = useMemo(
-    () => [
-      <MarketPriceChart key={uuidv4()} />,
-      <MarketAssetPriceChart
-        key={uuidv4()}
-        id={tokens.filter((token) => market?.title.includes(token))[0]}
-      />,
-    ],
-    [market?.title]
-  )
 
   const tabs = [
     {
@@ -185,14 +155,6 @@ export default function MarketPage() {
     })
   }
 
-  const handleChartTabClicked = (event: ClickEvent) =>
-    trackClicked(event, {
-      marketAddress: market?.address,
-      marketType: marketGroup ? 'group' : 'single',
-      marketTags: market?.tags,
-      platform: isMobile ? 'mobile' : 'desktop',
-    })
-
   useEffect(() => {
     setStrategy('Buy')
   }, [])
@@ -223,44 +185,23 @@ export default function MarketPage() {
 
   return (
     <Box
-      rounded='2px'
       bg='grey.50'
-      borderTopLeftRadius='8px'
-      borderBottomLeftRadius='8px'
-      borderTopRadius={0}
-      borderBottomRightRadius={0}
-      w={isMobile ? 'full' : '488px'}
-      position={isMobile ? 'relative' : 'fixed'}
-      height={isMobile ? 'calc(100dvh - 21px)' : 'calc(100vh - 21px)'}
+      borderTopRadius='8px'
+      w='full'
+      position='relative'
+      height='calc(100dvh - 21px)'
       top='20px'
       right={0}
       overflowY='auto'
-      p={isMobile ? '12px' : '16px'}
-      pt={isMobile ? 0 : '16px'}
+      p='12px'
       ref={scrollableBlockRef}
     >
-      {!isMobile && (
-        <HStack w='full' justifyContent='space-between'>
-          <Button variant='grey' onClick={handleCloseMarketPageClicked}>
-            <CloseIcon width={16} height={16} />
-            Close
-          </Button>
-          <ShareMenu />
-        </HStack>
-      )}
-      <HStack
-        w='full'
-        justifyContent='space-between'
-        alignItems='flex-start'
-        mt={isMobile ? 0 : '10px'}
-      >
-        <Text {...(isMobile ? { ...h2Medium } : { ...h1Regular })}>
-          {marketGroup?.title || market?.title}
-        </Text>
-        {isMobile && <ShareMenu />}
+      <HStack w='full' justifyContent='space-between' alignItems='flex-start' mt='10px'>
+        <Text {...h2Medium}>{marketGroup?.title || market?.title}</Text>
+        <ShareMenu />
       </HStack>
-      <HStack w='full' justifyContent='space-between' mt={isMobile ? '16px' : '10px'} mb='4px'>
-        <HStack gap={isMobile ? '16px' : '24px'}>
+      <HStack w='full' justifyContent='space-between' mt='16px' mb='4px'>
+        <HStack gap='16px'>
           <HStack gap='4px' color='grey.500'>
             <CalendarIcon width={16} height={16} />
             {market?.expirationTimestamp &&
@@ -276,10 +217,10 @@ export default function MarketPage() {
               </Text>
             )}
           </HStack>
-          <HStack gap='8px' flexWrap='wrap'>
+          <HStack gap='4px' flexWrap='wrap'>
             <ChakraImage
-              width={6}
-              height={6}
+              width={3.5}
+              height={3.5}
               src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
               alt='creator'
               borderRadius={'2px'}
@@ -304,7 +245,7 @@ export default function MarketPage() {
         </HStack>
       </HStack>
       <Divider my='8px' color='grey.100' />
-      <HStack w='full' mb={isMobile ? '32px' : '24px'} mt={isMobile ? '24px' : 0}>
+      <HStack w='full' mb='32px' mt='24px'>
         <VStack alignItems='center' flex={1} gap={0}>
           <HStack color='grey.400' gap='4px'>
             <VolumeIcon width={16} height={16} />
@@ -330,18 +271,24 @@ export default function MarketPage() {
           )} ${market?.collateralToken.symbol}`}</Text>
         </VStack>
       </HStack>
-      <Paper bg='blue.500' borderRadius='8px' overflowX='hidden' p='8px'>
+      <Paper
+        bg='blue.500'
+        borderRadius='8px'
+        overflowX='hidden'
+        p='8px'
+        // onClick={handleMarketChosen}
+      >
         <HStack
           w={'240px'}
           mx='auto'
           bg='rgba(255, 255, 255, 0.20)'
           borderRadius='2px'
           py='2px'
-          px={isMobile ? '4px' : '2px'}
-          mb={isMobile ? '16px' : '24px'}
+          px='4px'
+          mb='16px'
         >
           <Button
-            h={isMobile ? '28px' : '20px'}
+            h='28px'
             flex='1'
             py='2px'
             borderRadius='2px'
@@ -363,7 +310,7 @@ export default function MarketPage() {
             </Text>
           </Button>
           <Button
-            h={isMobile ? '28px' : '20px'}
+            h='28px'
             flex='1'
             borderRadius='2px'
             py='2px'
@@ -392,12 +339,12 @@ export default function MarketPage() {
         </HStack>
         {marketGroup?.markets.length && (
           <>
-            <Box mx={isMobile ? '16px' : 0}>
+            <Box mx='16px'>
               <Button
                 variant='transparentLight'
                 w='full'
                 justifyContent='space-between'
-                mb={isOpenSelectMarketMenu ? '8px' : isMobile ? '24px' : '32px'}
+                mb={isOpenSelectMarketMenu ? '8px' : '24px'}
                 onClick={onToggleSelectMarketMenu}
                 rightIcon={
                   <Box
@@ -418,11 +365,7 @@ export default function MarketPage() {
               </Button>
             </Box>
             {isOpenSelectMarketMenu && (
-              <VStack
-                gap={isMobile ? '16px' : '8px'}
-                mb={isMobile ? '16px' : '8px'}
-                mx={isMobile ? '16px' : 0}
-              >
+              <VStack gap='16px' mb='16px' mx='16px'>
                 {marketGroup?.markets.map((market) => (
                   <Button
                     key={market.address}
@@ -464,27 +407,15 @@ export default function MarketPage() {
                         </HStack>
                       </HStack>
                     </HStack>
-                    <HStack
-                      gap={isMobile ? '8px' : '16px'}
-                      flexDirection={isMobile ? 'column' : 'row'}
-                      w='full'
-                    >
-                      <HStack
-                        w={isMobile ? '100%' : 'unset'}
-                        justifyContent={isMobile ? 'space-between' : 'unset'}
-                        color='white'
-                      >
+                    <HStack gap='8px' flexDirection='column' w='full'>
+                      <HStack w='full' justifyContent='space-between' color='white'>
                         <LiquidityIcon width={16} height={16} />
                         <Text {...paragraphRegular} color='white'>
                           {NumberUtil.formatThousands(market.liquidityFormatted, 6)}{' '}
                           {market.collateralToken.symbol}
                         </Text>
                       </HStack>
-                      <HStack
-                        w={isMobile ? '100%' : 'unset'}
-                        justifyContent={isMobile ? 'space-between' : 'unset'}
-                        color='white'
-                      >
+                      <HStack w='full' justifyContent='space-between' color='white'>
                         <VolumeIcon width={16} height={16} />
                         <Text {...paragraphRegular} color='white'>
                           {NumberUtil.formatThousands(market.volumeFormatted, 6)}{' '}
@@ -499,7 +430,11 @@ export default function MarketPage() {
           </>
         )}
         {strategy === 'Buy' && (
-          <MarketPageBuyForm setOutcomeIndex={setOutcomeIndex} marketList={marketGroup?.markets} />
+          <MarketPageBuyForm
+            setOutcomeIndex={setOutcomeIndex}
+            marketList={marketGroup?.markets}
+            slideMarket={market}
+          />
         )}
         {strategy === 'Sell' ? (
           status === 'Loading' ? (
@@ -509,39 +444,12 @@ export default function MarketPage() {
           )
         ) : null}
       </Paper>
-      {isLivePriceSupportedMarket ? (
-        <Tabs position='relative' variant='common' mt='20px'>
-          <TabList>
-            {chartTabs.map((tab) => (
-              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.analyticEvent)}>
-                <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
-                  {tab.icon}
-                  <>{tab.title}</>
-                </HStack>
-              </Tab>
-            ))}
-          </TabList>
-          <TabIndicator
-            mt='-2px'
-            height='2px'
-            bg='grey.800'
-            transitionDuration='200ms !important'
-          />
-          <TabPanels>
-            {chartsTabPanels.map((panel, index) => (
-              <TabPanel key={index}>{panel}</TabPanel>
-            ))}
-          </TabPanels>
-        </Tabs>
-      ) : (
-        <MarketPriceChart />
-      )}
-
+      {market && <MarketPriceChart />}
       <Tabs position='relative' variant='common'>
         <TabList>
           {tabs.map((tab) => (
             <Tab key={tab.title}>
-              <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+              <HStack gap='8px' w='fit-content'>
                 {tab.icon}
                 <>{tab.title}</>
               </HStack>
