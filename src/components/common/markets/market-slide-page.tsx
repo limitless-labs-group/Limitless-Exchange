@@ -34,7 +34,6 @@ import useMarketGroup from '@/hooks/use-market-group'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import CloseIcon from '@/resources/icons/close-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
@@ -81,6 +80,8 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
     marketGroup,
     setMarketGroup,
     refetchMarkets,
+    market: selectedMarket,
+    onOpenMarketPage,
   } = useTradingService()
 
   const router = useRouter()
@@ -100,10 +101,13 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
     [allMarketsPositions, market]
   )
 
-  const marketAddress = useMemo(() => market?.address, [market])
+  const marketAddress = useMemo(() => selectedMarket?.address, [selectedMarket])
   const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
 
-  const { data: updatedMarket } = useMarket(marketAddress, !!market)
+  const { data: updatedMarket } = useMarket(
+    marketAddress,
+    selectedMarket?.address === market.address
+  )
   const { data: updatedMarketGroup } = useMarketGroup(marketGroupSlug, !!marketGroup)
 
   useEffect(() => {
@@ -179,6 +183,13 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
       document.body.style.overflow = '' // Clean up on unmount
     }
   }, [])
+
+  const handleMarketChosen = () => {
+    if (selectedMarket?.address !== market.address) {
+      onOpenMarketPage(market, 'Medium Banner')
+      return
+    }
+  }
 
   return (
     <Box
@@ -268,7 +279,13 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
           )} ${market?.collateralToken.symbol}`}</Text>
         </VStack>
       </HStack>
-      <Paper bg='blue.500' borderRadius='8px' overflowX='hidden' p='8px'>
+      <Paper
+        bg='blue.500'
+        borderRadius='8px'
+        overflowX='hidden'
+        p='8px'
+        // onClick={handleMarketChosen}
+      >
         <HStack
           w={'240px'}
           mx='auto'
@@ -421,7 +438,11 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
           </>
         )}
         {strategy === 'Buy' && (
-          <MarketPageBuyForm setOutcomeIndex={setOutcomeIndex} marketList={marketGroup?.markets} />
+          <MarketPageBuyForm
+            setOutcomeIndex={setOutcomeIndex}
+            marketList={marketGroup?.markets}
+            slideMarket={market}
+          />
         )}
         {strategy === 'Sell' ? (
           status === 'Loading' ? (

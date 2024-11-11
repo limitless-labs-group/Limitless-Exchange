@@ -20,8 +20,6 @@ export default function DrawerCarousel({ markets }: DrawerCarouselProps) {
   const drawerRef = useRef<HTMLButtonElement>(null)
   const [isDraggingUp, setIsDraggingUp] = useState(false)
 
-  const { onOpenMarketPage } = useTradingService()
-
   // Detecting drag direction on mobile
   const handleTouchMove = useCallback((e: any) => {
     const touch = e.touches[0]
@@ -45,10 +43,6 @@ export default function DrawerCarousel({ markets }: DrawerCarouselProps) {
       drawerEl?.removeEventListener('touchend', handleTouchEnd)
     }
   }, [handleTouchMove, handleTouchEnd])
-
-  useEffect(() => {
-    onOpenMarketPage(markets[0], 'Standard Banner')
-  }, [])
 
   return (
     <Drawer.Root shouldScaleBackground onClose={close}>

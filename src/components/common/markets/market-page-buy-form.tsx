@@ -25,20 +25,34 @@ import { NumberUtil } from '@/utils'
 
 interface MarketPageBuyFormProps {
   setOutcomeIndex: Dispatch<SetStateAction<number>>
+  slideMarket?: Market
   marketList?: Market[]
 }
 
-export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: MarketPageBuyFormProps) {
+export default function MarketPageBuyForm({
+  setOutcomeIndex,
+  marketList,
+  slideMarket,
+}: MarketPageBuyFormProps) {
   const { balanceOfSmartWallet } = useBalanceService()
   const queryClient = useQueryClient()
-  const { collateralAmount, setCollateralAmount, market, trade, quotesYes, quotesNo, resetQuotes } =
-    useTradingService()
+  const {
+    collateralAmount,
+    setCollateralAmount,
+    market: selectedMarket,
+    trade,
+    quotesYes,
+    quotesNo,
+    resetQuotes,
+  } = useTradingService()
 
   const [displayAmount, setDisplayAmount] = useState('')
   const [showReturnPercent, setShowReturnPercent] = useState(false)
   const [showFeeInValue, setShowFeeInValue] = useState(false)
   const [slippage, setSlippage] = useState(localStorage.getItem('defaultMarketSlippage') || '5')
   const [showSlippageDetails, setShowSlippageDetails] = useState(false)
+
+  const market = selectedMarket || slideMarket
 
   const handleInputValueChange = (value: string) => {
     if (market?.collateralToken.symbol === 'USDC') {

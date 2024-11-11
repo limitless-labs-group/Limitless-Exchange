@@ -2,7 +2,6 @@ import { EmblaOptionsType } from 'embla-carousel'
 import useEmblaCarousel from 'embla-carousel-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import './carousel.css'
-import { useTradingService } from '@/services'
 import { Market, MarketGroup } from '@/types'
 
 type CarouselProps = {
@@ -15,16 +14,12 @@ export default function Carousel({ slides, options }: CarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel(options)
   const [activeSlide, setActiveSlide] = useState(0)
 
-  const { onOpenMarketPage, market } = useTradingService()
-
   const onSelect = useCallback(() => {
     if (!emblaApi) return
     const activeSlide = emblaApi.selectedScrollSnap()
     setActiveSlide(activeSlide)
     // onOpenMarketPage(markets[activeSlide], 'Medium Banner')
   }, [emblaApi])
-
-  console.log(market)
 
   useEffect(() => {
     if (!emblaApi) return

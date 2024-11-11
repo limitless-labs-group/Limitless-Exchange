@@ -101,6 +101,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const [marketFee, setMarketFee] = useState(0)
   const [marketPageOpened, setMarketPageOpened] = useState(false)
 
+  console.log(market)
+
   const onCloseMarketPage = () => {
     trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
       mode: 'closed',
