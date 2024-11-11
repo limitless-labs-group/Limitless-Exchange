@@ -21,7 +21,7 @@ import {
   useTradingService,
 } from '@/services'
 import { useDailyMarkets, useMarkets } from '@/services/MarketsService'
-import { Market, MarketGroup, Sort } from '@/types'
+import { Category, Market, MarketGroup, Sort } from '@/types'
 
 const MainPage = () => {
   const searchParams = useSearchParams()
@@ -131,7 +131,7 @@ const MainPage = () => {
 
     if (selectedCategory) {
       return tokenFilteredMarkets.filter(
-        (market) => market.category.name === selectedCategory?.name
+        (market) => (market.category as Category).name === selectedCategory?.name
       )
     }
 

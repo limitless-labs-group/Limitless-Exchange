@@ -140,7 +140,7 @@ export default function MobileDrawer({
             {!!onClickPrevious || !!onClickNext ? (
               <HStack w='full' justifyContent='space-between'>
                 {onClickPrevious ? (
-                  <Button variant='transparentGrey' onClick={onClickPrevious}>
+                  <Button variant='transparentGreyText' onClick={onClickPrevious}>
                     <ArrowLeftIcon width={24} height={24} />
                     Previous
                   </Button>
@@ -148,7 +148,7 @@ export default function MobileDrawer({
                   <div />
                 )}
                 {onClickNext ? (
-                  <Button variant='transparentGrey' onClick={onClickNext}>
+                  <Button variant='transparentGreyText' onClick={onClickNext}>
                     Next
                     <ArrowRightIcon width={24} height={24} />
                   </Button>

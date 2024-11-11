@@ -3,6 +3,7 @@ import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import BigNumber from 'bignumber.js'
 import { AnimatePresence, motion } from 'framer-motion'
 import Cookies from 'js-cookie'
+import { usePathname } from 'next/navigation'
 import React, {
   Dispatch,
   LegacyRef,
@@ -45,7 +46,6 @@ interface ActionButtonProps {
   setShowFeeInValue: Dispatch<SetStateAction<boolean>>
   isExceedsBalance: boolean
   resetForm: () => void
-  analyticParams?: { quickBetSource: string; source: string }
 }
 
 const MotionBox = motion(Box)
@@ -74,11 +74,11 @@ export default function BuyButton({
   showReturnPercent,
   isExceedsBalance,
   resetForm,
-  analyticParams,
 }: ActionButtonProps) {
   const [marketLocked, setMarketLocked] = useState(false)
   const [tradingBlocked, setTradingBlocked] = useState(false)
   const [showFullInfo, setShowFullInfo] = useState(false)
+  const pathname = usePathname()
   /**
    * ANALITYCS
    */
@@ -87,7 +87,7 @@ export default function BuyButton({
 
   const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
-  const { marketFee, collateralAmount } = useTradingService()
+  const { marketFee, collateralAmount, marketGroup } = useTradingService()
   const walletAddress = useWalletAddress()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
@@ -103,6 +103,16 @@ export default function BuyButton({
       }
     },
   })
+
+  const analyticsSource = useMemo(() => {
+    if (pathname === '/') {
+      return 'Home'
+    }
+    if (pathname === '/portfolio') {
+      return 'Portfolio'
+    }
+    return 'Feed'
+  }, [pathname])
 
   const handleFeeToggleClicked = (e: SyntheticEvent) => {
     trackClicked(ClickEvent.FeeTradingDetailsClicked, {
@@ -221,6 +231,13 @@ export default function BuyButton({
   const buttonsTransform = isMobile ? 16 : 0
 
   const handleShowFullInfoArrowClicked = (e: SyntheticEvent) => {
+    trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
+      mode: showFullInfo ? 'opened' : 'closed',
+      marketCategory: market?.category,
+      marketAddress: market?.address,
+      marketType: marketGroup ? 'group' : 'single',
+      marketTags: market?.tags,
+    })
     e.stopPropagation()
     setShowFullInfo(!showFullInfo)
   }
@@ -248,7 +265,7 @@ export default function BuyButton({
       outcome: option,
       marketAddress: market.address,
       walletType: client,
-      ...(analyticParams ? analyticParams : {}),
+      source: analyticsSource,
     })
     if (client === 'eoa') {
       const allowance = await checkAllowance(market.address, market.collateralToken.address)
@@ -274,7 +291,7 @@ export default function BuyButton({
         strategy: 'Buy',
         outcome: option,
         walletType: 'eoa',
-        ...(analyticParams ? analyticParams : {}),
+        source: analyticsSource,
       })
       await sleep(2)
       setStatus('confirm')
@@ -472,14 +489,14 @@ export default function BuyButton({
               strategy: 'Buy',
               walletType: client,
               marketType,
-              ...(analyticParams ? analyticParams : {}),
+              source: analyticsSource,
             })
 
             return handleConfirmClicked()
           }}
           onApprove={handleApprove}
           setStatus={setStatus}
-          analyticParams={analyticParams}
+          analyticParams={{ source: analyticsSource }}
           marketType={marketType}
           outcome={option}
           marketAddress={market.address}

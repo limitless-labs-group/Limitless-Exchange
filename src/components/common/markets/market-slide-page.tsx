@@ -452,7 +452,7 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
           )
         ) : null}
       </Paper>
-      {market && <MarketPriceChart market={market} />}
+      {market && <MarketPriceChart />}
       <Tabs position='relative' variant='common'>
         <TabList>
           {tabs.map((tab) => (

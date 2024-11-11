@@ -3,6 +3,7 @@ import { isMobile } from 'react-device-detect'
 import { accordionTheme } from '@/styles/accordion'
 import { commonButtonProps } from '@/styles/button'
 import { checkboxTheme } from '@/styles/checkbox'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { inputTheme } from '@/styles/input'
 import { linkTheme } from '@/styles/link'
 import { menuTheme } from '@/styles/menu'
@@ -254,7 +255,20 @@ export const chakraTheme = ChakraTheme({
                 },
               }),
         },
-        transparentGrey: {
+        transparentGray: {
+          ...commonButtonProps,
+          ...paragraphRegular,
+          color: 'grey.500',
+          bg: 'grey.200',
+          borderRadius: '8px',
+          py: '2px',
+          px: '10px',
+          height: 'unset',
+          _hover: {
+            bg: 'grey.300',
+          },
+        },
+        transparentGreyText: {
           ...commonButtonProps,
           bg: 'unset',
           px: '16px',

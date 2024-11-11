@@ -36,6 +36,7 @@ import usePageName from '@/hooks/use-page-name'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useThemeProvider } from '@/providers'
+import AiAgentIcon from '@/resources/icons/ai-agent-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import FeedIcon from '@/resources/icons/feed-icon.svg'
 import GridIcon from '@/resources/icons/grid-icon.svg'
@@ -60,12 +61,10 @@ import {
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
-import { cutUsername } from '@/utils/string'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
-  const { disconnectFromPlatform, disconnectLoading, displayName, profileData, profileLoading } =
-    useAccount()
+  const { disconnectFromPlatform, displayName, profileData, profileLoading } = useAccount()
   const { overallBalanceUsd } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { trackClicked } = useAmplitude()
@@ -353,6 +352,30 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
+        {/*<NextLink href='/lumy' passHref style={{ width: '100%' }}>*/}
+        {/*  <Link*/}
+        {/*    onClick={() => {*/}
+        {/*      trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {*/}
+        {/*        option: 'Lumy',*/}
+        {/*      })*/}
+        {/*    }}*/}
+        {/*    variant='transparent'*/}
+        {/*    w='full'*/}
+        {/*    bg={pageName === 'Home' ? 'grey.200' : 'unset'}*/}
+        {/*  >*/}
+        {/*    <HStack w='full'>*/}
+        {/*      <AiAgentIcon />*/}
+        {/*      <Text*/}
+        {/*        fontWeight={500}*/}
+        {/*        fontSize='14px'*/}
+        {/*        bgGradient='linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'*/}
+        {/*        bgClip='text'*/}
+        {/*      >*/}
+        {/*        AI Agent*/}
+        {/*      </Text>*/}
+        {/*    </HStack>*/}
+        {/*  </Link>*/}
+        {/*</NextLink>*/}
         <NextLink
           href='https://limitlesslabs.notion.site/Limitless-Creators-101-b529a4a72cd4406cacb55f27395c9b56'
           target='_blank'

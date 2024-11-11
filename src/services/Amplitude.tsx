@@ -161,6 +161,8 @@ export enum ClickEvent {
   TradingWidgetReturnDecomposition = 'Trading Widget Return Decomposition',
   CloseMarketClicked = 'Close Market Clicked',
   SidebarMarketOpened = 'Sidebar Market Opened',
+  PredictionChartOpened = 'Prediction Chart Opened',
+  AssetPriceChartOpened = 'Asset Price Chart Opened',
 }
 
 export enum SignInEvent {
@@ -219,6 +221,7 @@ export type LogoClickedPage =
   | 'Unknown Page'
   | 'Home'
   | 'Feed'
+  | 'Lumy'
 export interface LogoClickedMetadata {
   page: LogoClickedPage
 }
@@ -238,7 +241,7 @@ export interface DepositClickedMetadata {
   page: DepositClickedPage
 }
 
-export type SupportChatClickedPage = 'Deposit Page' | 'Header Dropdown Menu' | 'Home'
+export type SupportChatClickedPage = 'Deposit Page' | 'Header Dropdown Menu' | 'Home' | 'Lumy'
 export interface SupportChatClickedMetadata {
   page: SupportChatClickedPage
 }
@@ -339,6 +342,7 @@ export type ProfileBurgerMenuClickedOption =
   | 'Sign Out'
   | 'Home'
   | 'Markets'
+  | 'Lumy'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
