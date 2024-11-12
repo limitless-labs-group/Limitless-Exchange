@@ -1,30 +1,30 @@
 .skeleton:after {
-    background: linear-gradient( 90deg, transparent, #2E2E2E, transparent );
-    content: '';
-    position: absolute;
-    -webkit-transform: translateX(-100%);
-    -moz-transform: translateX(-100%);
-    -ms-transform: translateX(-100%);
-    transform: translateX(-100%);
-    bottom: 0;
-    left: 0;
-    right: 0;
-    top: 0;
-    animation: wave 2.5s infinite linear;
+  background: linear-gradient(90deg, transparent, #2e2e2e, transparent);
+  content: '';
+  position: absolute;
+  -webkit-transform: translateX(-100%);
+  -moz-transform: translateX(-100%);
+  -ms-transform: translateX(-100%);
+  transform: translateX(-100%);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  animation: wave 2.5s infinite linear;
 }
 
 @keyframes wave {
-    0% {
-        transform: translateX(-100%);
-    }
-    50% {
-        transform: translateX(100%)
-    }
-    100% {
-        transform: translateX(100%);
-    }
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .skeleton:before {
-    content: "\00a0";
+  content: '\00a0';
 }
