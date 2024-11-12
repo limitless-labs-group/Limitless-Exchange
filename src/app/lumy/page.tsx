@@ -192,7 +192,7 @@ export default function LumyPage() {
               <Text mt='24px' mb='12px' {...paragraphMedium} fontSize='16px' color='grey.white'>
                 Lumy on X
               </Text>
-              <Box borderRadius='8px' bg='#5098EB' p='16px' position='relative' mb='24px'>
+              <Box borderRadius='2px' bg='#5098EB' p='16px' position='relative' mb='24px'>
                 <NextLink
                   href='https://x.com/limitless_lumy?s=21&t=v3nPJR7JbdUvpTSZN9WOIA'
                   target='_blank'

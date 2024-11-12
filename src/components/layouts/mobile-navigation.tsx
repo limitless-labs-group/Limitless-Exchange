@@ -2,6 +2,7 @@ import { Box, Link, Text, VStack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import React from 'react'
 import usePageName from '@/hooks/use-page-name'
+import AiAgentIcon from '@/resources/icons/ai-agent-icon.svg'
 import FeedIcon from '@/resources/icons/feed-icon.svg'
 import GridIcon from '@/resources/icons/grid-icon.svg'
 import {
@@ -29,6 +30,13 @@ export default function MobileNavigation() {
       link: '/feed',
       isActive: pageName === 'Feed',
       amplitudeOption: 'Feed' as ProfileBurgerMenuClickedOption,
+    },
+    {
+      title: 'AI Agent',
+      icon: <AiAgentIcon />,
+      link: '/lumy',
+      isActive: pageName === 'Lumy',
+      amplitudeOption: 'Lumy' as ProfileBurgerMenuClickedOption,
     },
   ]
 
