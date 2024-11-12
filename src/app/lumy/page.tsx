@@ -133,7 +133,7 @@ export default function LumyPage() {
             <Paper
               mt='24px'
               bg='radial-gradient(120.21% 216.83% at 0% 50%, #5F1BEC 0%, #FF3756 47.2%, #FFCB00 100%)'
-              borderRadius='8px'
+              borderRadius='2px'
               w={isMobile ? 'full' : '312px'}
               p='8px'
             >
