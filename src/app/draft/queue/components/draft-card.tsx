@@ -1,5 +1,4 @@
 import { Box, HStack, Link, Text, Image as ChakraImage, Checkbox, Stack } from '@chakra-ui/react'
-import { format } from 'date-fns-tz'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
@@ -153,8 +152,14 @@ export const DraftMarketCard = ({
                   </HStack>
                   <Text {...paragraphRegular} color={colors.main}>
                     {market.deadline
-                      ? format(market.deadline, 'dd/MM/yyyy hh:mm:ss a', {
+                      ? new Date(market.deadline).toLocaleString('en-US', {
                           timeZone: 'America/New_York',
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                          hour12: true,
                         })
                       : 'Invalid date'}
                     {' ' + 'ET'}
