@@ -278,7 +278,7 @@ export const useExternalWalletService = () => {
       abi: erc20Abi,
       client: publicClient,
     })
-    return contract.read.balanceOf(['0x54B34a6FF1f74359252984C7ff70bBf848492AFa'])
+    return contract.read.balanceOf(['0x6bb3d8A69656d1865708242223190a29D3a7E3c7'])
   }
 
   return {

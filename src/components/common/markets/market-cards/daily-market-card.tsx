@@ -143,7 +143,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             borderTopLeftRadius='4px'
             borderTopRightRadius='2px'
             bg={hovered ? 'unset' : 'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}
-            // onClick={handleLumyButtonClicked}
+            onClick={handleLumyButtonClicked}
           >
             <HStack gap='8px' color='grey.white'>
               <Text {...captionMedium} color='grey.white'>
