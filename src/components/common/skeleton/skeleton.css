@@ -10,15 +10,13 @@
   left: 0;
   right: 0;
   top: 0;
-  animation: wave 2.5s infinite linear;
+  animation: wave 1.5s infinite linear;
+
 }
 
 @keyframes wave {
   0% {
     transform: translateX(-100%);
-  }
-  50% {
-    transform: translateX(100%);
   }
   100% {
     transform: translateX(100%);
