@@ -36,7 +36,6 @@ const MainPage = () => {
   const slug = searchParams.get('slug')
   const { data: marketData } = useMarket(market ?? undefined)
   const { data: marketGroupData } = useMarketGroup(slug ?? undefined)
-  console.log('marketData', marketData)
 
   useEffect(() => {
     if (marketData) {
