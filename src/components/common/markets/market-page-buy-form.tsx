@@ -18,27 +18,42 @@ import { isMobile } from 'react-device-detect'
 import BuyButton from '@/components/common/markets/buy-button'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import InfiniteIcon from '@/resources/icons/infinite-icon.svg'
-import { useBalanceService, useTradingService } from '@/services'
+import { ClickEvent, useAmplitude, useBalanceService, useTradingService } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface MarketPageBuyFormProps {
   setOutcomeIndex: Dispatch<SetStateAction<number>>
+  slideMarket?: Market
   marketList?: Market[]
 }
 
-export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: MarketPageBuyFormProps) {
+export default function MarketPageBuyForm({
+  setOutcomeIndex,
+  marketList,
+  slideMarket,
+}: MarketPageBuyFormProps) {
   const { balanceOfSmartWallet } = useBalanceService()
+  const { trackClicked } = useAmplitude()
   const queryClient = useQueryClient()
-  const { collateralAmount, setCollateralAmount, market, trade, quotesYes, quotesNo, resetQuotes } =
-    useTradingService()
+  const {
+    collateralAmount,
+    setCollateralAmount,
+    market: selectedMarket,
+    trade,
+    quotesYes,
+    quotesNo,
+    resetQuotes,
+  } = useTradingService()
 
   const [displayAmount, setDisplayAmount] = useState('')
   const [showReturnPercent, setShowReturnPercent] = useState(false)
   const [showFeeInValue, setShowFeeInValue] = useState(false)
   const [slippage, setSlippage] = useState(localStorage.getItem('defaultMarketSlippage') || '5')
   const [showSlippageDetails, setShowSlippageDetails] = useState(false)
+
+  const market = selectedMarket || slideMarket
 
   const handleInputValueChange = (value: string) => {
     if (market?.collateralToken.symbol === 'USDC') {
@@ -74,6 +89,12 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
   }
 
   const handlePercentButtonClicked = (value: number) => {
+    trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
+      amount: value,
+      marketAddress: market?.address,
+      marketType: marketList ? 'group' : 'single',
+      marketTags: market?.tags,
+    })
     if (value == 100) {
       setDisplayAmount(
         NumberUtil.toFixed(balance, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
@@ -221,7 +242,7 @@ export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: Marke
       </HStack>
       {showSlippageDetails && (
         <HStack w='full' gap='8px' justifyContent='space-between' mt='8px'>
-          <InputGroup flex={1}>
+          <InputGroup flex={isMobile ? 2 : 1}>
             <Input
               variant='outlined'
               value={slippage}

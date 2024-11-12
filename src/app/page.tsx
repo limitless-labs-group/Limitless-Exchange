@@ -1,15 +1,18 @@
 'use client'
 
 import { Box, Spinner, HStack } from '@chakra-ui/react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { getAddress } from 'viem'
+import DrawerCarousel from '@/components/common/drawer/carousel-drawer'
 import AllMarkets from '@/components/common/markets/all-markets'
 import DailyMarketsSection from '@/components/common/markets/daily-markets'
 import TopMarkets from '@/components/common/markets/top-markets'
+import { mockMarkets } from '@/app/mock-markets'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useIsMobile } from '@/hooks'
+import useMarketGroup from '@/hooks/use-market-group'
 import { usePriceOracle } from '@/providers'
 import {
   OpenEvent,
@@ -18,33 +21,33 @@ import {
   useCategories,
   useTradingService,
 } from '@/services'
-import { useDailyMarkets, useMarkets } from '@/services/MarketsService'
+import { useDailyMarkets, useMarket, useMarkets } from '@/services/MarketsService'
 import { Category, Market, MarketGroup, Sort } from '@/types'
 
 const MainPage = () => {
   const searchParams = useSearchParams()
   const [page, setPage] = useState(1)
   const { data: categories } = useCategories()
-  const { onCloseMarketPage } = useTradingService()
+  const { onCloseMarketPage, onOpenMarketPage } = useTradingService()
   /**
    * ANALYTICS
    */
   const { trackOpened } = useAmplitude()
-  const router = useRouter()
   const category = searchParams.get('category')
+  const market = searchParams.get('market')
+  const slug = searchParams.get('slug')
+  const { data: marketData } = useMarket(market ?? undefined)
+  const { data: marketGroupData } = useMarketGroup(slug ?? undefined)
 
   useEffect(() => {
-    const market = searchParams.get('market')
-    const slug = searchParams.get('slug')
-
-    if (market) {
-      router.replace(`/markets/${market}`)
+    if (marketData) {
+      onOpenMarketPage(marketData, 'Standard Banner')
       return
     }
-    if (slug) {
-      router.replace(`/market-group/${slug}`)
+    if (marketGroupData) {
+      onOpenMarketPage(marketGroupData, 'Standard Banner')
     }
-  }, [])
+  }, [marketData, marketGroupData])
 
   useEffect(() => {
     const analyticData: PageOpenedMetadata = {
@@ -256,6 +259,7 @@ const MainPage = () => {
           )}
         </Box>
       </HStack>
+      {/*{dailyMarkets && <DrawerCarousel markets={dailyMarkets.markets as unknown as Market[]} />}*/}
     </MainLayout>
   )
 }

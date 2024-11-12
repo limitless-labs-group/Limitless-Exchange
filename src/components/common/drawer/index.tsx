@@ -1,6 +1,11 @@
+import { Button, HStack } from '@chakra-ui/react'
+import { isNumber } from '@chakra-ui/utils'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { PropsWithChildren, ReactNode, useEffect, useMemo, useRef } from 'react'
 import { Drawer } from 'vaul'
+import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
+import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { h1Regular, headline } from '@/styles/fonts/fonts.styles'
 
 type MobileDrawerProps = {
@@ -24,6 +29,9 @@ export default function MobileDrawer({
   const router = useRouter()
   const pathname = usePathname()
   const ref = useRef(false)
+  const { trackClicked } = useAmplitude()
+
+  const { market: selectedMarket, onOpenMarketPage, markets, marketsSection } = useTradingService()
 
   useEffect(() => {
     if (ref.current) return
@@ -53,6 +61,32 @@ export default function MobileDrawer({
       removeMarketQuery()
     }
   }
+
+  const indexInArray = markets
+    ? markets.findIndex((marketInArray) => selectedMarket?.address === marketInArray.address)
+    : undefined
+
+  const onClickPrevious =
+    isNumber(indexInArray) && indexInArray > 0 && markets
+      ? () => {
+          onOpenMarketPage(markets[indexInArray - 1], marketsSection)
+          router.push(`?market=${markets[indexInArray - 1].address}`, { scroll: false })
+          trackClicked(ClickEvent.PreviousMarketClick, {
+            platform: 'mobile',
+          })
+        }
+      : undefined
+
+  const onClickNext =
+    isNumber(indexInArray) && markets && indexInArray < markets.length - 1
+      ? () => {
+          onOpenMarketPage(markets[indexInArray + 1], marketsSection)
+          router.push(`?market=${markets[indexInArray + 1].address}`, { scroll: false })
+          trackClicked(ClickEvent.NextMarketClick, {
+            platform: 'mobile',
+          })
+        }
+      : undefined
 
   const bgColor = useMemo(() => {
     if (variant === 'black') {
@@ -110,6 +144,26 @@ export default function MobileDrawer({
                 background: grabberBgColor,
               }}
             />
+            {!!onClickPrevious || !!onClickNext ? (
+              <HStack w='full' justifyContent='space-between'>
+                {onClickPrevious ? (
+                  <Button variant='transparentGreyText' onClick={onClickPrevious}>
+                    <ArrowLeftIcon width={24} height={24} />
+                    Previous
+                  </Button>
+                ) : (
+                  <div />
+                )}
+                {onClickNext ? (
+                  <Button variant='transparentGreyText' onClick={onClickNext}>
+                    Next
+                    <ArrowRightIcon width={24} height={24} />
+                  </Button>
+                ) : (
+                  <div />
+                )}
+              </HStack>
+            ) : null}
             <div
               style={{
                 margin: '0 auto',
@@ -117,19 +171,21 @@ export default function MobileDrawer({
                 overflowY: 'auto',
               }}
             >
-              {title && (
-                <Drawer.Title
-                  style={{
-                    marginBottom: '32px',
-                    marginTop: '28px',
-                    padding: '0 16px',
-                    ...(variant === 'blue' ? { ...headline } : { ...h1Regular }),
-                    color: titleColor,
-                  }}
-                >
-                  {title}
-                </Drawer.Title>
-              )}
+              <>
+                {title && (
+                  <Drawer.Title
+                    style={{
+                      marginBottom: '32px',
+                      marginTop: '28px',
+                      padding: '0 16px',
+                      ...(variant === 'blue' ? { ...headline } : { ...h1Regular }),
+                      color: titleColor,
+                    }}
+                  >
+                    <>{title}</>
+                  </Drawer.Title>
+                )}
+              </>
               {children}
             </div>
           </div>

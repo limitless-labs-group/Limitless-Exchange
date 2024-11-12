@@ -33,7 +33,7 @@ export const tokenLimits: TokenLimits = {
     step: 0.1,
   },
   USDC: {
-    min: 300,
+    min: 100,
     default: 500,
     max: 30000,
     step: 100,

@@ -356,6 +356,7 @@ export default function BuyButton({
         animate={{ x: ['unlock', 'unlocking', 'confirm'].includes(status) ? transformValue : 0 }}
         transition={{ duration: 0.5 }}
         w='full'
+        display='flex'
         // ref={isMobile ? (ref as MutableRefObject<HTMLElement>) : undefined}
       >
         <Button
