@@ -1,14 +1,12 @@
 'use client'
 
-import { Box, Spinner, HStack } from '@chakra-ui/react'
+import { Box, HStack } from '@chakra-ui/react'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { getAddress } from 'viem'
-import DrawerCarousel from '@/components/common/drawer/carousel-drawer'
 import AllMarkets from '@/components/common/markets/all-markets'
 import DailyMarketsSection from '@/components/common/markets/daily-markets'
 import TopMarkets from '@/components/common/markets/top-markets'
-import { mockMarkets } from '@/app/mock-markets'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useIsMobile } from '@/hooks'
@@ -85,7 +83,7 @@ const MainPage = () => {
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     useMarkets(categoryEntity)
 
-  const { data: dailyMarkets } = useDailyMarkets(categoryEntity)
+  const { data: dailyMarkets, isFetching: isLoadingDailyMarkets } = useDailyMarkets(categoryEntity)
 
   const topMarkets =
     dailyMarkets?.data.markets
@@ -210,53 +208,55 @@ const MainPage = () => {
         w={isMobile ? 'full' : 'calc(100vw - 690px)'}
         justifyContent='center'
       >
-        <Box w={isMobile ? 'full' : '696px'} p={isMobile ? 0 : '16px'}>
-          {isFetching && !isFetchingNextPage ? (
-            <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>
-              <Spinner />
-            </HStack>
-          ) : (
-            <>
-              {dailyMarkets && Boolean(dailyMarkets?.data?.markets.length) && (
-                <>
-                  <TopMarkets markets={topMarkets as Market[]} />
-                  <DailyMarketsSection
-                    markets={
-                      isMobile
-                        ? dailyMarkets.data.markets
-                        : dailyMarkets.data.markets.slice((page - 1) * 6, page * 6)
-                    }
-                    totalAmount={dailyMarkets.data.totalAmount}
-                    onClickNextPage={() => {
-                      if (dailyMarkets?.data.markets.length < 6) {
-                        return
-                      }
-                      if (6 * page >= dailyMarkets?.data.totalAmount) {
-                        return
-                      }
-                      setPage(page + 1)
-                    }}
-                    onClickPrevPage={() => {
-                      if (page === 1) {
-                        return
-                      }
-                      setPage(page - 1)
-                      return
-                    }}
-                    page={page}
-                  />
-                </>
-              )}
-              <AllMarkets
-                dataLength={dataLength ?? 0}
-                fetchNextPage={fetchNextPage}
-                hasNextPage={hasNextPage}
-                markets={sortedMarkets}
-                handleSelectSort={handleSelectSort}
-                totalAmount={data?.pages?.[0].data.totalAmount}
-              />
-            </>
-          )}
+        <Box w={isMobile ? 'full' : '664px'}>
+          <>
+            <TopMarkets markets={topMarkets as Market[]} isLoading={isLoadingDailyMarkets} />
+            <DailyMarketsSection
+              markets={
+                isMobile
+                  ? dailyMarkets?.data.markets
+                  : dailyMarkets?.data.markets.slice((page - 1) * 6, page * 6)
+              }
+              isLoading={isLoadingDailyMarkets}
+              totalAmount={dailyMarkets?.data.totalAmount}
+              onClickNextPage={() => {
+                if (!dailyMarkets) {
+                  return
+                }
+                if (dailyMarkets.data.markets.length < 6) {
+                  return
+                }
+                if (6 * page >= dailyMarkets.data.totalAmount) {
+                  return
+                }
+                setPage(page + 1)
+              }}
+              onClickPrevPage={() => {
+                if (page === 1) {
+                  return
+                }
+                setPage(page - 1)
+                return
+              }}
+              page={page}
+            />
+            <AllMarkets
+              dataLength={dataLength ?? 0}
+              fetchNextPage={fetchNextPage}
+              hasNextPage={hasNextPage}
+              markets={sortedMarkets}
+              handleSelectSort={handleSelectSort}
+              totalAmount={data?.pages?.[0].data.totalAmount}
+              isLoading={isFetching && !isFetchingNextPage}
+            />
+          </>
+          {/*{isFetching && !isFetchingNextPage ? (*/}
+          {/*  <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>*/}
+          {/*    <Spinner />*/}
+          {/*  </HStack>*/}
+          {/*) : (*/}
+          {/*  */}
+          {/*)}*/}
         </Box>
       </HStack>
       {/*{dailyMarkets && <DrawerCarousel markets={dailyMarkets.markets as unknown as Market[]} />}*/}
