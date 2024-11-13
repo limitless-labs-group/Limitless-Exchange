@@ -116,7 +116,8 @@ export default function Sidebar() {
   }
 
   const walletTypeActionButton = useMemo(() => {
-    if (userMenuLoading || balanceLoading) {
+    const smartWalletBalanceLoading = client !== 'eoa' && balanceLoading
+    if (userMenuLoading || smartWalletBalanceLoading) {
       return (
         <Box w='full'>
           <Skeleton height={24} />
