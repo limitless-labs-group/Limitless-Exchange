@@ -1,5 +1,10 @@
 .skeleton:after {
-  background: linear-gradient(90deg, transparent, var(--chakra-colors-skeleton-highLight), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--chakra-colors-skeleton-highLight),
+    transparent
+  );
   content: '';
   position: absolute;
   -webkit-transform: translateX(-100%);
