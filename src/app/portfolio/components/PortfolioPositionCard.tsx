@@ -192,16 +192,22 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
                 </Text>
               ) : (
                 <HStack>
-                  <Text fontSize={'16px'} lineHeight={'20px'} fontWeight={500}>
-                    {`${NumberUtil.toFixed(
-                      new BigNumber(position.outcomeTokenAmount || '1')
-                        .multipliedBy(
-                          new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
-                        )
-                        .toString(),
-                      6
-                    )} ${market?.collateralToken.symbol}`}
-                  </Text>
+                  {!market ? (
+                    <Skeleton height={20} />
+                  ) : (
+                    <Text fontSize={'16px'} lineHeight={'20px'} fontWeight={500}>
+                      {`${NumberUtil.toFixed(
+                        new BigNumber(position.outcomeTokenAmount || '1')
+                          .multipliedBy(
+                            new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(
+                              100
+                            )
+                          )
+                          .toString(),
+                        6
+                      )} ${market?.collateralToken.symbol}`}
+                    </Text>
+                  )}
                   <Box gap={0} fontSize={'16px'} fontWeight={500}>
                     {contractPriceChanged}
                   </Box>
@@ -280,16 +286,20 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
               <ClaimButton />
             ) : (
               <>
-                <Text {...paragraphMedium} color={cardColors.main}>
-                  {`${NumberUtil.toFixed(
-                    new BigNumber(position.outcomeTokenAmount || '1')
-                      .multipliedBy(
-                        new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
-                      )
-                      .toString(),
-                    6
-                  )} ${market?.collateralToken.symbol}`}
-                </Text>
+                {!market ? (
+                  <Skeleton height={20} />
+                ) : (
+                  <Text {...paragraphMedium} color={cardColors.main}>
+                    {`${NumberUtil.toFixed(
+                      new BigNumber(position.outcomeTokenAmount || '1')
+                        .multipliedBy(
+                          new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
+                        )
+                        .toString(),
+                      6
+                    )} ${market?.collateralToken.symbol}`}
+                  </Text>
+                )}
 
                 <Box gap={0}>{contractPriceChanged}</Box>
               </>
@@ -315,7 +325,9 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
             </Text>
             <Text {...paragraphRegular} color={cardColors.main}>
               {!market ? (
-                <Skeleton height={20} />
+                <Box w='68px'>
+                  <Skeleton height={20} />
+                </Box>
               ) : (
                 `${NumberUtil.toFixed(position.collateralAmount, 6)} ${
                   market?.collateralToken.symbol
