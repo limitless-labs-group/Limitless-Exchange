@@ -61,6 +61,7 @@ interface IBalanceService {
   ethBalance?: string
   wrapMutation: UseMutationResult<void, Error, string, unknown>
   unwrapMutation: UseMutationResult<void, Error, string, unknown>
+  balanceLoading: boolean
 }
 
 const BalanceService = createContext({} as IBalanceService)
@@ -91,7 +92,11 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * Weth balance
    */
-  const { data: balanceOfSmartWallet, refetch: refetchbalanceOfSmartWallet } = useQuery({
+  const {
+    data: balanceOfSmartWallet,
+    refetch: refetchbalanceOfSmartWallet,
+    isLoading: balanceLoading,
+  } = useQuery({
     queryKey: ['balance', walletAddress],
     queryFn: async () => {
       if (!walletAddress && !supportedTokens) {
@@ -414,6 +419,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         ethBalance,
         wrapMutation,
         unwrapMutation,
+        balanceLoading,
       }}
     >
       {children}
