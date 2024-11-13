@@ -1,3 +1,4 @@
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
 import { Multicall } from 'ethereum-multicall'
@@ -375,6 +376,8 @@ export function useMarket(address?: string, isPolling = false) {
         const outcomeTokensPercentNo = +((buyPrices[1] / sum) * 100).toFixed(1)
         prices = [outcomeTokensPercentYes, outcomeTokensPercentNo]
       }
+
+      await sleep(5)
 
       return {
         ...marketRes,
