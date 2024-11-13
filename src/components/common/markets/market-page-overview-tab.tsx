@@ -6,7 +6,6 @@ import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components
 import { MarketPositions } from '@/app/(markets)/markets/[address]/components'
 import { useTradingService } from '@/services'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Category } from '@/types'
 import { parseTextWithLinks } from '@/utils/string'
 
 export default function MarketPageOverviewTab() {

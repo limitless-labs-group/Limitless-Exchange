@@ -132,7 +132,11 @@ export const MarketMetadata = ({
               borderColor='grey.800'
               pl={index ? '8px' : 0}
             >
-              <Text {...paragraphMedium}>{stats[index].value}</Text>
+              {marketLoading ? (
+                <Skeleton height={20} />
+              ) : (
+                <Text {...paragraphMedium}>{stats[index].value}</Text>
+              )}
               <HStack gap='4px' color='grey.500'>
                 {stats[index].icon}
                 <Text {...paragraphMedium} color='grey.500'>
