@@ -65,7 +65,7 @@ import { NumberUtil } from '@/utils'
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
   const { disconnectFromPlatform, displayName, profileData, profileLoading } = useAccount()
-  const { overallBalanceUsd } = useBalanceService()
+  const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { trackClicked } = useAmplitude()
   const account = useWalletAddress()
@@ -116,7 +116,7 @@ export default function Sidebar() {
   }
 
   const walletTypeActionButton = useMemo(() => {
-    if (userMenuLoading) {
+    if (userMenuLoading || balanceLoading) {
       return (
         <Box w='full'>
           <Skeleton height={24} />
@@ -159,7 +159,7 @@ export default function Sidebar() {
         </HStack>
       </Button>
     )
-  }, [client, isOpenWalletPage, overallBalanceUsd, userMenuLoading])
+  }, [client, isOpenWalletPage, overallBalanceUsd, userMenuLoading, balanceLoading])
 
   const volumeArray = totalVolume
     ? `$${NumberUtil.formatThousands(totalVolume.toFixed(0), 0)}`.split('')
