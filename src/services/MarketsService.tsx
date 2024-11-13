@@ -377,8 +377,6 @@ export function useMarket(address?: string, isPolling = false) {
         prices = [outcomeTokensPercentYes, outcomeTokensPercentNo]
       }
 
-      await sleep(5)
-
       return {
         ...marketRes,
         prices,
