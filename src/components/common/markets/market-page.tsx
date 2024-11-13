@@ -65,7 +65,24 @@ const defaultColors = {
   chartBg: 'var(--chakra-colors-grey-300)',
 }
 
-const tokens = ['BTC', 'ETH', 'SOL', 'DOGE', 'BRETT', 'AAVE', 'APE']
+const tokens = [
+  'AAVE',
+  'APE',
+  'ATOM',
+  'APT',
+  'BRETT',
+  'BTC',
+  'DOGE',
+  'EIGEN',
+  'ENS',
+  'ETH',
+  'FLOKI',
+  'RENDER',
+  'SOL',
+  'SUI',
+  'ZRO',
+  'ZK',
+]
 
 export default function MarketPage() {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
@@ -124,13 +141,22 @@ export default function MarketPage() {
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
   const isLivePriceSupportedMarket = [
-    'Will BTC',
-    'Will ETH',
-    'Will SOL',
-    'Will DOGE',
-    'Will BRETT',
     'Will AAVE',
     'Will APE',
+    'Will ATOM',
+    'Will APT',
+    'Will BRETT',
+    'Will BTC',
+    'Will DOGE',
+    'Will EIGEN',
+    'Will ENS',
+    'Will ETH',
+    'Will FLOKI',
+    'Will RENDER',
+    'Will SOL',
+    'Will SUI',
+    'Will ZRO',
+    'Will ZK',
   ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = [
