@@ -83,7 +83,7 @@ const MainPage = () => {
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     useMarkets(categoryEntity)
 
-  const { data: dailyMarkets, isFetching: isLoadingDailyMarkets } = useDailyMarkets(categoryEntity)
+  const { data: dailyMarkets, isLoading: isLoadingDailyMarkets } = useDailyMarkets(categoryEntity)
 
   const topMarkets =
     dailyMarkets?.data.markets

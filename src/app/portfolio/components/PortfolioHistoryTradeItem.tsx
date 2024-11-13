@@ -62,7 +62,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
           {`${NumberUtil.formatThousands(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
             6
-          )} ${targetMarket?.collateralToken.symbol}`}
+          )} ${targetMarket ? targetMarket.collateralToken.symbol : ''}`}
         </Text>
       </Td>
       <Td>

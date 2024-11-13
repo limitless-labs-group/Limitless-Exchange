@@ -145,8 +145,8 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             bg={hovered ? 'unset' : 'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}
             // onClick={handleLumyButtonClicked}
           >
-            <HStack gap='8px' color='grey.white'>
-              <Text {...captionMedium} color='grey.white'>
+            <HStack gap='8px' color='white'>
+              <Text {...captionMedium} color='white'>
                 LUMY AI
               </Text>
               <TooltipIcon width={16} height={16} />

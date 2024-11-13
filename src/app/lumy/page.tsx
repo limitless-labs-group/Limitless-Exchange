@@ -24,8 +24,6 @@ export default function LumyPage() {
 
   const { data } = useLumyBalance()
 
-  console.log(data)
-
   const rules = [
     'Add liquidity',
     'Once liquidity is 500 USDC market will start',
