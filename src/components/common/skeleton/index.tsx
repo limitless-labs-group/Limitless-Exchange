@@ -6,7 +6,7 @@ interface SkeletonProps {
 }
 
 export default function Skeleton({ height }: SkeletonProps) {
-  const [grey200] = useToken('colors', ['grey.200'])
+  const [skeletonDark] = useToken('colors', ['skeleton.dark'])
   return (
     <span
       className='skeleton'
@@ -16,7 +16,7 @@ export default function Skeleton({ height }: SkeletonProps) {
         transformOrigin: '0 100%',
         WebkitMaskImage: '-webkit-linear-gradient(white, white)',
         display: 'block',
-        background: grey200,
+        background: skeletonDark,
         borderRadius: '2px',
         overflow: 'hidden',
         position: 'relative',

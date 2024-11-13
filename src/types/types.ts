@@ -249,6 +249,10 @@ export interface ColorScheme {
   blackStale: {
     200: string
   }
+  skeleton: {
+    dark: string
+    highLight: string
+  }
 }
 
 export interface RedeemParams {
