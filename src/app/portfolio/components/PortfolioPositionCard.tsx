@@ -7,6 +7,7 @@ import MobileDrawer from '@/components/common/drawer'
 import Loader from '@/components/common/loader'
 import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
+import Skeleton from '@/components/common/skeleton'
 import useMarketGroup from '@/hooks/use-market-group'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
@@ -313,9 +314,13 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
               Invested
             </Text>
             <Text {...paragraphRegular} color={cardColors.main}>
-              {`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
-                market?.collateralToken.symbol
-              }`}
+              {!market ? (
+                <Skeleton height={20} />
+              ) : (
+                `${NumberUtil.toFixed(position.collateralAmount, 6)} ${
+                  market?.collateralToken.symbol
+                }`
+              )}
             </Text>
           </VStack>
         </HStack>
