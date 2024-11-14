@@ -13,7 +13,6 @@ import {
   useColorMode,
   useDisclosure,
   VStack,
-  Skeleton,
 } from '@chakra-ui/react'
 import '@rainbow-me/rainbowkit/styles.css'
 import Image from 'next/image'
@@ -27,6 +26,7 @@ import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
+import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
 import TextWithPixels from '@/components/common/text-with-pixels'
 import WalletPage from '@/components/layouts/wallet-page'
@@ -36,6 +36,7 @@ import usePageName from '@/hooks/use-page-name'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useThemeProvider } from '@/providers'
+import AiAgentIcon from '@/resources/icons/ai-agent-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import FeedIcon from '@/resources/icons/feed-icon.svg'
 import GridIcon from '@/resources/icons/grid-icon.svg'
@@ -60,13 +61,11 @@ import {
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
-import { cutUsername } from '@/utils/string'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
-  const { disconnectFromPlatform, disconnectLoading, displayName, profileData, profileLoading } =
-    useAccount()
-  const { overallBalanceUsd } = useBalanceService()
+  const { disconnectFromPlatform, displayName, profileData, profileLoading } = useAccount()
+  const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { trackClicked } = useAmplitude()
   const account = useWalletAddress()
@@ -116,6 +115,53 @@ export default function Sidebar() {
     onToggleProfile()
   }
 
+  const walletTypeActionButton = useMemo(() => {
+    const smartWalletBalanceLoading = client !== 'eoa' && balanceLoading
+    if (userMenuLoading || smartWalletBalanceLoading) {
+      return (
+        <Box w='full'>
+          <Skeleton height={24} />
+        </Box>
+      )
+    }
+    return client !== 'eoa' ? (
+      <Button
+        variant='transparent'
+        onClick={() => {
+          trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+            option: 'Wallet',
+          })
+          handleOpenWalletPage()
+        }}
+        w='full'
+        bg={isOpenWalletPage ? 'grey.200' : 'unset'}
+      >
+        <HStack w='full'>
+          <WalletIcon width={16} height={16} />
+          <Text fontWeight={500} fontSize='14px'>
+            {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+          </Text>
+        </HStack>
+      </Button>
+    ) : (
+      <Button
+        variant='transparent'
+        w='full'
+        onClick={() => {
+          trackClicked(ClickEvent.WithdrawClicked)
+          handleOpenWrapModal()
+        }}
+      >
+        <HStack w='full'>
+          <SwapIcon width={16} height={16} />
+          <Text fontWeight={500} fontSize='14px'>
+            Wrap ETH
+          </Text>
+        </HStack>
+      </Button>
+    )
+  }, [client, isOpenWalletPage, overallBalanceUsd, userMenuLoading, balanceLoading])
+
   const volumeArray = totalVolume
     ? `$${NumberUtil.formatThousands(totalVolume.toFixed(0), 0)}`.split('')
     : []
@@ -153,45 +199,7 @@ export default function Sidebar() {
         {isConnected ? (
           <>
             <VStack mt='16px' w='full' gap='8px'>
-              {client !== 'eoa' ? (
-                <Button
-                  variant='transparent'
-                  onClick={() => {
-                    trackClicked<ProfileBurgerMenuClickedMetadata>(
-                      ClickEvent.ProfileBurgerMenuClicked,
-                      {
-                        option: 'Wallet',
-                      }
-                    )
-                    handleOpenWalletPage()
-                  }}
-                  w='full'
-                  bg={isOpenWalletPage ? 'grey.200' : 'unset'}
-                >
-                  <HStack w='full'>
-                    <WalletIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
-                      {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-                    </Text>
-                  </HStack>
-                </Button>
-              ) : (
-                <Button
-                  variant='transparent'
-                  w='full'
-                  onClick={() => {
-                    trackClicked(ClickEvent.WithdrawClicked)
-                    handleOpenWrapModal()
-                  }}
-                >
-                  <HStack w='full'>
-                    <SwapIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
-                      Wrap ETH
-                    </Text>
-                  </HStack>
-                </Button>
-              )}
+              {walletTypeActionButton}
 
               <NextLink href='/portfolio' passHref style={{ width: '100%' }}>
                 <Link
@@ -218,7 +226,9 @@ export default function Sidebar() {
 
               <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
                 {userMenuLoading ? (
-                  <Skeleton height='24px' w='full' variant='common' />
+                  <Box w='full'>
+                    <Skeleton height={24} />
+                  </Box>
                 ) : (
                   <MenuButton
                     as={Button}
@@ -349,6 +359,30 @@ export default function Sidebar() {
               <FeedIcon width={16} height={16} />
               <Text fontWeight={500} fontSize='14px'>
                 Feed
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
+        <NextLink href='/lumy' passHref style={{ width: '100%' }}>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Lumy',
+              })
+            }}
+            variant='transparent'
+            w='full'
+            bg={pageName === 'Home' ? 'grey.200' : 'unset'}
+          >
+            <HStack w='full'>
+              <AiAgentIcon />
+              <Text
+                fontWeight={500}
+                fontSize='14px'
+                bgGradient='linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'
+                bgClip='text'
+              >
+                AI Agent
               </Text>
             </HStack>
           </Link>

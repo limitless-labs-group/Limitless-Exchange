@@ -13,6 +13,7 @@ export const darkThemeColors: ColorScheme = {
     600: '#A3A3A3',
     700: '#C1C1C1',
     800: '#E0E0E0',
+    white: '#FFFFFF',
   },
   blue: {
     50: '#6666F5',
@@ -95,5 +96,11 @@ export const darkThemeColors: ColorScheme = {
   },
   blackStale: {
     200: 'rgba(0, 0, 0, 0.2)',
+  },
+  skeleton: {
+    dark: '#232222',
+    highLight: '#2E2E2E',
+    tradeSkeleton: '#5151FF',
+    tradeSkeletonBackground: '#4D4DF3',
   },
 }

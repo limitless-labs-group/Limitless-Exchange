@@ -19,6 +19,7 @@ interface IHistoryService {
   getPositions: () => Promise<QueryObserverResult<HistoryPosition[], Error>>
   balanceInvested: string
   balanceToWin: string
+  tradesAndPositionsLoading: boolean
 }
 
 const HistoryServiceContext = createContext({} as IHistoryService)
@@ -42,7 +43,11 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * QUERIES
    */
-  const { data: trades, refetch: getTrades } = useQuery({
+  const {
+    data: trades,
+    refetch: getTrades,
+    isLoading: tradesLoading,
+  } = useQuery({
     queryKey: ['trades', walletAddress],
     queryFn: async () => {
       if (!walletAddress) {
@@ -58,6 +63,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
             query ${queryName} {
               ${queryName} (
                 where: {transactor: { _ilike: "${walletAddress}" } }
+                order_by: { blockTimestamp: desc }
               ) {
                 market {
                   id
@@ -111,7 +117,11 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     enabled: !!walletAddress && !!supportedTokens?.length,
   })
 
-  const { data: redeems, refetch: getRedeems } = useQuery({
+  const {
+    data: redeems,
+    refetch: getRedeems,
+    isLoading: redeemsLoading,
+  } = useQuery({
     queryKey: ['redeems', walletAddress],
     queryFn: async () => {
       if (!walletAddress) {
@@ -165,7 +175,11 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * Consolidate trades and redeems to get open positions
    */
-  const { data: positions, refetch: getPositions } = useQuery({
+  const {
+    data: positions,
+    refetch: getPositions,
+    isLoading: positionsLoading,
+  } = useQuery({
     queryKey: ['positions', trades, redeems],
     queryFn: async () => {
       let _positions: HistoryPosition[] = []
@@ -285,6 +299,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     return NumberUtil.toFixed(_balanceToWin, 2)
   }, [positions])
 
+  const tradesAndPositionsLoading = tradesLoading || redeemsLoading || positionsLoading
+
   const contextProviderValue: IHistoryService = {
     trades,
     getTrades,
@@ -294,6 +310,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     getPositions,
     balanceInvested,
     balanceToWin,
+    tradesAndPositionsLoading,
   }
 
   return (

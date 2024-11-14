@@ -69,11 +69,13 @@ interface ITradingServiceContext {
   marketPageOpened: boolean
   setMarketPageOpened: Dispatch<SetStateAction<boolean>>
   onCloseMarketPage: () => void
-  onOpenMarketPage: (
-    market: Market | MarketGroup,
-    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner'
-  ) => void
+  onOpenMarketPage: (market: Market | MarketGroup, type: string) => void
   refetchMarkets: () => Promise<void>
+  markets?: Market[]
+  setMarkets: (markets: Market[]) => void
+  marketsSection: string
+  setMarketsSection: (val: string) => void
+  sellBalanceLoading: boolean
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -97,25 +99,19 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const [market, setMarket] = useState<Market | null>(null)
   const [marketGroup, setMarketGroup] = useState<MarketGroup | null>(null)
+  const [markets, setMarkets] = useState<Market[] | undefined>()
+  const [marketsSection, setMarketsSection] = useState('')
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
   const [marketFee, setMarketFee] = useState(0)
   const [marketPageOpened, setMarketPageOpened] = useState(false)
 
   const onCloseMarketPage = () => {
-    trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
-      mode: 'closed',
-      marketCategory: market?.category,
-      marketAddress: market?.address,
-      marketType: marketGroup ? 'group' : 'single',
-      marketTags: market?.tags,
-    })
     setMarketPageOpened(false)
+    setMarkets(undefined)
+    setMarketsSection('')
   }
 
-  const onOpenMarketPage = (
-    market: Market | MarketGroup,
-    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner'
-  ) => {
+  const onOpenMarketPage = (market: Market | MarketGroup, type: string) => {
     setMarket(null)
     setMarketGroup(null)
     trackClicked(ClickEvent.SidebarMarketOpened, {
@@ -138,12 +134,13 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       return
     }
     setMarket(market as Market)
+    setMarketGroup(null)
     !isMobile && setMarketPageOpened(true)
   }
 
   const { data: conditionalTokensAddress, refetch: getConditionalTokensAddress } =
     useConditionalTokensAddr({
-      marketAddr: !market ? undefined : getAddress(market.address),
+      marketAddr: !market ? undefined : getAddress('0x06Fb7CB73D6002849D5C0977c55047C9C8716a89'),
     })
   useEffect(() => {
     getConditionalTokensAddress()
@@ -206,6 +203,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const [balanceOfOutcomeTokenNo, setBalanceOfOutcomeTokenNo] = useState('0')
   const [balanceOfCollateralToSellYes, setBalanceOfCollateralToSellYes] = useState('0') // ctBalance converted to collateral
   const [balanceOfCollateralToSellNo, setBalanceOfCollateralToSellNo] = useState('0')
+  const [sellBalanceLoading, setSellBalanceLoading] = useState(false)
 
   const getCTBalance = async (
     account: Address | undefined,
@@ -231,6 +229,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   }
 
   const updateSellBalance = useCallback(async () => {
+    setSellBalanceLoading(true)
     setBalanceOfOutcomeTokenYes('0')
     setBalanceOfOutcomeTokenNo('0')
     setBalanceOfCollateralToSellYes('0')
@@ -321,6 +320,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     )
 
     setBalanceOfCollateralToSellNo(_balanceOfCollateralToSellNo)
+    setSellBalanceLoading(false)
   }, [
     account,
     market,
@@ -854,6 +854,11 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     onCloseMarketPage,
     onOpenMarketPage,
     refetchMarkets,
+    markets,
+    setMarkets,
+    marketsSection,
+    setMarketsSection,
+    sellBalanceLoading,
   }
 
   return (

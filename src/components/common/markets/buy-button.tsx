@@ -3,6 +3,7 @@ import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import BigNumber from 'bignumber.js'
 import { AnimatePresence, motion } from 'framer-motion'
 import Cookies from 'js-cookie'
+import { usePathname } from 'next/navigation'
 import React, {
   Dispatch,
   LegacyRef,
@@ -17,6 +18,7 @@ import React, {
 import { isMobile } from 'react-device-detect'
 import { parseUnits } from 'viem'
 import Loader from '@/components/common/loader'
+import TradeWidgetSkeleton from '@/components/common/skeleton/trade-widget-skeleton'
 import BlockedTradeTemplate from '@/app/(markets)/markets/[address]/components/trade-widgets/blocked-trade-template'
 import ConfirmButton from '@/app/(markets)/markets/[address]/components/trade-widgets/confirm-button'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
@@ -45,7 +47,7 @@ interface ActionButtonProps {
   setShowFeeInValue: Dispatch<SetStateAction<boolean>>
   isExceedsBalance: boolean
   resetForm: () => void
-  analyticParams?: { quickBetSource: string; source: string }
+  quotesLoading: boolean
 }
 
 const MotionBox = motion(Box)
@@ -74,11 +76,12 @@ export default function BuyButton({
   showReturnPercent,
   isExceedsBalance,
   resetForm,
-  analyticParams,
+  quotesLoading,
 }: ActionButtonProps) {
   const [marketLocked, setMarketLocked] = useState(false)
   const [tradingBlocked, setTradingBlocked] = useState(false)
   const [showFullInfo, setShowFullInfo] = useState(false)
+  const pathname = usePathname()
   /**
    * ANALITYCS
    */
@@ -87,7 +90,7 @@ export default function BuyButton({
 
   const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
-  const { marketFee, collateralAmount } = useTradingService()
+  const { marketFee, collateralAmount, marketGroup } = useTradingService()
   const walletAddress = useWalletAddress()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
@@ -103,6 +106,16 @@ export default function BuyButton({
       }
     },
   })
+
+  const analyticsSource = useMemo(() => {
+    if (pathname === '/') {
+      return 'Home'
+    }
+    if (pathname === '/portfolio') {
+      return 'Portfolio'
+    }
+    return 'Feed'
+  }, [pathname])
 
   const handleFeeToggleClicked = (e: SyntheticEvent) => {
     trackClicked(ClickEvent.FeeTradingDetailsClicked, {
@@ -221,6 +234,13 @@ export default function BuyButton({
   const buttonsTransform = isMobile ? 16 : 0
 
   const handleShowFullInfoArrowClicked = (e: SyntheticEvent) => {
+    trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
+      mode: showFullInfo ? 'opened' : 'closed',
+      marketCategory: market?.category,
+      marketAddress: market?.address,
+      marketType: marketGroup ? 'group' : 'single',
+      marketTags: market?.tags,
+    })
     e.stopPropagation()
     setShowFullInfo(!showFullInfo)
   }
@@ -248,7 +268,7 @@ export default function BuyButton({
       outcome: option,
       marketAddress: market.address,
       walletType: client,
-      ...(analyticParams ? analyticParams : {}),
+      source: analyticsSource,
     })
     if (client === 'eoa') {
       const allowance = await checkAllowance(market.address, market.collateralToken.address)
@@ -274,7 +294,7 @@ export default function BuyButton({
         strategy: 'Buy',
         outcome: option,
         walletType: 'eoa',
-        ...(analyticParams ? analyticParams : {}),
+        source: analyticsSource,
       })
       await sleep(2)
       setStatus('confirm')
@@ -339,6 +359,7 @@ export default function BuyButton({
         animate={{ x: ['unlock', 'unlocking', 'confirm'].includes(status) ? transformValue : 0 }}
         transition={{ duration: 0.5 }}
         w='full'
+        display='flex'
         // ref={isMobile ? (ref as MutableRefObject<HTMLElement>) : undefined}
       >
         <Button
@@ -373,23 +394,29 @@ export default function BuyButton({
                     <Text {...paragraphRegular} color='white'>
                       Return
                     </Text>
-                    <Text
-                      {...paragraphRegular}
-                      color='white'
-                      borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
-                      borderColor={'transparent.200'}
-                      _hover={{
-                        borderColor: 'var(--chakra-colors-transparent-600)',
-                      }}
-                      cursor={quote?.outcomeTokenAmount ? 'pointer' : 'default'}
-                      onClick={handleReturnToggleClicked}
-                    >
-                      {showReturnPercent
-                        ? `${NumberUtil.toFixed(quote?.roi, 2)}%`
-                        : `${NumberUtil.formatThousands(quote?.outcomeTokenAmount, 6)} ${
-                            market.collateralToken.symbol
-                          }`}
-                    </Text>
+                    {quotesLoading ? (
+                      <Box w='120px'>
+                        <TradeWidgetSkeleton height={20} />
+                      </Box>
+                    ) : (
+                      <Text
+                        {...paragraphRegular}
+                        color='white'
+                        borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
+                        borderColor={'transparent.200'}
+                        _hover={{
+                          borderColor: 'var(--chakra-colors-transparent-600)',
+                        }}
+                        cursor={quote?.outcomeTokenAmount ? 'pointer' : 'default'}
+                        onClick={handleReturnToggleClicked}
+                      >
+                        {showReturnPercent
+                          ? `${NumberUtil.toFixed(quote?.roi, 2)}%`
+                          : `${NumberUtil.formatThousands(quote?.outcomeTokenAmount, 6)} ${
+                              market.collateralToken.symbol
+                            }`}
+                      </Text>
+                    )}
                     {/*<Tooltip*/}
                     {/*// label={*/}
                     {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
@@ -423,10 +450,16 @@ export default function BuyButton({
                       {/*  <InfoIcon width='16px' height='16px' />*/}
                       {/*</Tooltip>*/}
                     </HStack>
-                    <Text {...paragraphRegular} color='white'>{`${NumberUtil.formatThousands(
-                      quote?.outcomeTokenPrice,
-                      6
-                    )} ${market?.collateralToken.symbol}`}</Text>
+                    {quotesLoading ? (
+                      <Box w='120px'>
+                        <TradeWidgetSkeleton height={20} />
+                      </Box>
+                    ) : (
+                      <Text {...paragraphRegular} color='white'>{`${NumberUtil.formatThousands(
+                        quote?.outcomeTokenPrice,
+                        6
+                      )} ${market?.collateralToken.symbol}`}</Text>
+                    )}
                   </HStack>
                   <HStack justifyContent='space-between' w='full'>
                     <HStack gap='4px'>
@@ -441,10 +474,16 @@ export default function BuyButton({
                       {/*  <InfoIcon width='16px' height='16px' />*/}
                       {/*</Tooltip>*/}
                     </HStack>
-                    <Text {...paragraphRegular} color='white'>{`${NumberUtil.toFixed(
-                      quote?.priceImpact,
-                      2
-                    )}%`}</Text>
+                    {quotesLoading ? (
+                      <Box w='60px'>
+                        <TradeWidgetSkeleton height={20} />
+                      </Box>
+                    ) : (
+                      <Text {...paragraphRegular} color='white'>{`${NumberUtil.toFixed(
+                        quote?.priceImpact,
+                        2
+                      )}%`}</Text>
+                    )}
                   </HStack>
                 </VStack>
               )}
@@ -471,14 +510,14 @@ export default function BuyButton({
               strategy: 'Buy',
               walletType: client,
               marketType,
-              ...(analyticParams ? analyticParams : {}),
+              source: analyticsSource,
             })
 
             return handleConfirmClicked()
           }}
           onApprove={handleApprove}
           setStatus={setStatus}
-          analyticParams={analyticParams}
+          analyticParams={{ source: analyticsSource }}
           marketType={marketType}
           outcome={option}
           marketAddress={market.address}

@@ -1,10 +1,13 @@
 import { HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { isMobile } from 'react-device-detect'
+import MobileDrawer from '@/components/common/drawer'
+import MarketPage from '@/components/common/markets/market-page'
 import { defaultChain } from '@/constants'
+import useMarketGroup from '@/hooks/use-market-group'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import { HistoryTrade } from '@/services'
-import { useAllMarkets } from '@/services/MarketsService'
+import { HistoryTrade, useTradingService } from '@/services'
+import { useAllMarkets, useMarket } from '@/services/MarketsService'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
@@ -18,13 +21,24 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
    */
   const allMarkets = useAllMarkets()
 
+  const { onOpenMarketPage } = useTradingService()
+
   const targetMarket = allMarkets.find((market) => market.address === trade.market.id)
 
-  // @ts-ignore
-  const link = targetMarket?.group?.slug
-    ? // @ts-ignore
-      `/market-group/${targetMarket.group.slug}`
-    : `/markets/${targetMarket?.address}`
+  const { data: market } = useMarket(targetMarket?.address)
+
+  const { data: marketGroup } = useMarketGroup(targetMarket?.group?.slug)
+
+  const handleOpenMarketPage = () => {
+    if (marketGroup) {
+      onOpenMarketPage(marketGroup, 'History Card')
+      return
+    }
+    if (market) {
+      onOpenMarketPage(market, 'History Card')
+      return
+    }
+  }
 
   return (
     <Tr pos={'relative'} {...props}>
@@ -48,19 +62,53 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
           {`${NumberUtil.formatThousands(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
             6
-          )} ${targetMarket?.collateralToken.symbol}`}
+          )} ${targetMarket ? targetMarket.collateralToken.symbol : ''}`}
         </Text>
       </Td>
-      <Td
-        textDecoration='underline'
-        w='420px'
-        maxW='420px'
-        whiteSpace='nowrap'
-        overflow='hidden'
-        textOverflow='ellipsis'
-      >
-        <NextLink href={link}>{targetMarket?.proxyTitle ?? targetMarket?.title}</NextLink>
+      <Td>
+        {new Date(Number(trade.blockTimestamp) * 1000).toLocaleString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+          hour12: false,
+        })}
       </Td>
+      {isMobile ? (
+        <MobileDrawer
+          trigger={
+            <Td
+              textDecoration='underline'
+              w='420px'
+              maxW='420px'
+              whiteSpace='nowrap'
+              overflow='hidden'
+              textOverflow='ellipsis'
+              onClick={handleOpenMarketPage}
+              cursor='pointer'
+            >
+              {targetMarket?.proxyTitle ?? targetMarket?.title}
+            </Td>
+          }
+          variant='black'
+        >
+          <MarketPage />
+        </MobileDrawer>
+      ) : (
+        <Td
+          textDecoration='underline'
+          w='420px'
+          maxW='420px'
+          whiteSpace='nowrap'
+          overflow='hidden'
+          textOverflow='ellipsis'
+          onClick={handleOpenMarketPage}
+          cursor='pointer'
+        >
+          {targetMarket?.proxyTitle ?? targetMarket?.title}
+        </Td>
+      )}
       <Td>
         <Link
           href={`${defaultChain.blockExplorers.default.url}/tx/${trade.transactionHash}`}

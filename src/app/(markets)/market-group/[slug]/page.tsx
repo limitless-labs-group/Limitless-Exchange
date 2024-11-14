@@ -281,12 +281,10 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                 </HStack>
               </HStack>
               <MarketMetadata
-                market={market}
+                market={market ? market : undefined}
                 winningIndex={winningIndex}
                 resolved={resolved}
-                outcomeTokensPercent={market?.prices}
-                volume={volume}
-                liquidity={liquidity}
+                marketLoading={marketGroupLoading}
               />
               <Box mt={isMobile ? '48px' : '24px'} />
               <Tabs position='relative' variant='common'>

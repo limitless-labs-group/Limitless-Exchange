@@ -1,9 +1,13 @@
 import { Box, HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { isMobile } from 'react-device-detect'
+import MobileDrawer from '@/components/common/drawer'
+import MarketPage from '@/components/common/markets/market-page'
+import Skeleton from '@/components/common/skeleton'
 import { defaultChain } from '@/constants'
+import useMarketGroup from '@/hooks/use-market-group'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import { HistoryRedeem } from '@/services'
+import { HistoryRedeem, useTradingService } from '@/services'
 import { useAllMarkets, useMarketByConditionId } from '@/services/MarketsService'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -18,15 +22,13 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
    */
   const market = useMarketByConditionId(redeem.conditionId)
 
+  const { onOpenMarketPage } = useTradingService()
+
   const allMarkets = useAllMarkets()
 
   const targetMarket = allMarkets.find((market) => market.conditionId === redeem.conditionId)
 
-  // @ts-ignore
-  const link = targetMarket?.slug
-    ? // @ts-ignore
-      `/market-group/${targetMarket.slug}`
-    : `/markets/${targetMarket?.address}`
+  const { data: marketGroup } = useMarketGroup(targetMarket?.group?.slug)
 
   const multiplier = (symbol: string | undefined) => {
     switch (symbol) {
@@ -43,6 +45,17 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
     Number(redeem.collateralAmount) * multiplier(market?.collateralToken.symbol) ?? 0,
     4
   )
+
+  const handleOpenMarketPage = () => {
+    if (marketGroup) {
+      onOpenMarketPage(marketGroup, 'History Card')
+      return
+    }
+    if (market) {
+      onOpenMarketPage(market, 'History Card')
+      return
+    }
+  }
 
   return (
     <Tr pos={'relative'} {...props}>
@@ -61,21 +74,61 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
       <Td isNumeric>
         <Box verticalAlign='middle'>
           <Text>
-            {/* that's temporal solution since the bug is on indexer side. it returns not formatted values that's why we need to * on 10e12 */}
-            {`${formattedAmount} ${market?.collateralToken.symbol}`}
+            {!market ? (
+              <Skeleton height={20} />
+            ) : (
+              `${formattedAmount} ${market?.collateralToken.symbol}`
+            )}
           </Text>
         </Box>
       </Td>
-      <Td
-        textDecoration='underline'
-        w='420px'
-        maxW='420px'
-        whiteSpace='nowrap'
-        overflow='hidden'
-        textOverflow='ellipsis'
-      >
-        <NextLink href={link}>{targetMarket?.proxyTitle ?? targetMarket?.title}</NextLink>
+      <Td>
+        <Box verticalAlign='middle'>
+          <Text>
+            {new Date(Number(redeem.blockTimestamp) * 1000).toLocaleDateString(undefined, {
+              month: 'short',
+              day: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </Text>
+        </Box>
       </Td>
+      {isMobile ? (
+        <MobileDrawer
+          trigger={
+            <Td
+              textDecoration='underline'
+              w='420px'
+              maxW='420px'
+              whiteSpace='nowrap'
+              overflow='hidden'
+              textOverflow='ellipsis'
+              onClick={handleOpenMarketPage}
+              cursor='pointer'
+            >
+              {targetMarket?.proxyTitle ?? targetMarket?.title}
+            </Td>
+          }
+          variant='black'
+        >
+          <MarketPage />
+        </MobileDrawer>
+      ) : (
+        <Td
+          textDecoration='underline'
+          w='420px'
+          maxW='420px'
+          whiteSpace='nowrap'
+          overflow='hidden'
+          textOverflow='ellipsis'
+          onClick={handleOpenMarketPage}
+          cursor='pointer'
+        >
+          {targetMarket?.proxyTitle ?? targetMarket?.title}
+        </Td>
+      )}
       <Td>
         <Link
           href={`${defaultChain.blockExplorers.default.url}/tx/${redeem.transactionHash}`}

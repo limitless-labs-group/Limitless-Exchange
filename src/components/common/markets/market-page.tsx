@@ -15,11 +15,13 @@ import {
   Tabs,
   useDisclosure,
 } from '@chakra-ui/react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
+import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
@@ -30,12 +32,10 @@ import {
   MarketPriceChart,
   SellForm,
 } from '@/app/(markets)/markets/[address]/components'
-import { useToast } from '@/hooks'
 import useMarketGroup from '@/hooks/use-market-group'
-import WarpcastIcon from '@/resources/icons/Farcaster.svg'
-import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
+import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
@@ -49,12 +49,11 @@ import {
   useHistory,
   useTradingService,
 } from '@/services'
-import { useMarket, useWinningIndex } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
 import {
   controlsMedium,
   h1Regular,
   h2Medium,
-  headline,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
@@ -65,6 +64,25 @@ const defaultColors = {
   secondary: 'var(--chakra-colors-grey-500)',
   chartBg: 'var(--chakra-colors-grey-300)',
 }
+
+const tokens = [
+  'AAVE',
+  'APE',
+  'ATOM',
+  'APT',
+  'BRETT',
+  'BTC',
+  'DOGE',
+  'EIGEN',
+  'ENS',
+  'ETH',
+  'FLOKI',
+  'RENDER',
+  'SOL',
+  'SUI',
+  'ZRO',
+  'ZK',
+]
 
 export default function MarketPage() {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
@@ -83,8 +101,13 @@ export default function MarketPage() {
     refetchMarkets,
   } = useTradingService()
 
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+
   const { trackChanged, trackClicked } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
+
   // Todo change creator name
 
   const positions = useMemo(
@@ -117,6 +140,49 @@ export default function MarketPage() {
 
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
+  const isLivePriceSupportedMarket = [
+    'Will AAVE',
+    'Will APE',
+    'Will ATOM',
+    'Will APT',
+    'Will BRETT',
+    'Will BTC',
+    'Will DOGE',
+    'Will EIGEN',
+    'Will ENS',
+    'Will ETH',
+    'Will FLOKI',
+    'Will RENDER',
+    'Will SOL',
+    'Will SUI',
+    'Will ZRO',
+    'Will ZK',
+  ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
+
+  const chartTabs = [
+    {
+      title: 'Predictions',
+      icon: <PredictionsIcon width={16} height={16} />,
+      analyticEvent: ClickEvent.PredictionChartOpened,
+    },
+    {
+      title: 'Assets price',
+      icon: <CandlestickIcon width={16} height={16} />,
+      analyticEvent: ClickEvent.AssetPriceChartOpened,
+    },
+  ]
+
+  const chartsTabPanels = useMemo(
+    () => [
+      <MarketPriceChart key={uuidv4()} />,
+      <MarketAssetPriceChart
+        key={uuidv4()}
+        id={tokens.filter((token) => market?.title.includes(token))[0]}
+      />,
+    ],
+    [market?.title]
+  )
+
   const tabs = [
     {
       title: 'Overview',
@@ -130,14 +196,30 @@ export default function MarketPage() {
 
   const tabPanels = [<MarketPageOverviewTab key={uuidv4()} />, <MarketActivityTab key={uuidv4()} />]
 
+  const removeMarketQuery = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('market')
+    const newQuery = params.toString()
+    router.replace(newQuery ? `${pathname}/?${newQuery}` : pathname)
+  }
+
   const handleCloseMarketPageClicked = () => {
     setMarket(null)
     setMarketGroup(null)
+    removeMarketQuery()
     onCloseMarketPage()
     trackClicked(ClickEvent.CloseMarketClicked, {
       marketAddress: market?.address as Address,
     })
   }
+
+  const handleChartTabClicked = (event: ClickEvent) =>
+    trackClicked(event, {
+      marketAddress: market?.address,
+      marketType: marketGroup ? 'group' : 'single',
+      marketTags: market?.tags,
+      platform: isMobile ? 'mobile' : 'desktop',
+    })
 
   useEffect(() => {
     setStrategy('Buy')
@@ -176,12 +258,13 @@ export default function MarketPage() {
       borderTopRadius={0}
       borderBottomRightRadius={0}
       w={isMobile ? 'full' : '488px'}
-      position='fixed'
+      position={isMobile ? 'relative' : 'fixed'}
       height={isMobile ? 'calc(100dvh - 21px)' : 'calc(100vh - 21px)'}
       top='20px'
       right={0}
       overflowY='auto'
       p={isMobile ? '12px' : '16px'}
+      pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
     >
       {!isMobile && (
@@ -193,7 +276,12 @@ export default function MarketPage() {
           <ShareMenu />
         </HStack>
       )}
-      <HStack w='full' justifyContent='space-between' alignItems='flex-start' mt='10px'>
+      <HStack
+        w='full'
+        justifyContent='space-between'
+        alignItems='flex-start'
+        mt={isMobile ? 0 : '10px'}
+      >
         <Text {...(isMobile ? { ...h2Medium } : { ...h1Regular })}>
           {marketGroup?.title || market?.title}
         </Text>
@@ -445,15 +533,38 @@ export default function MarketPage() {
           status === 'Loading' ? (
             <LoadingForm outcomeIndex={outcomeIndex} />
           ) : (
-            <SellForm
-              setOutcomeIndex={setOutcomeIndex}
-              // setSelectedMarket={setSelectedMarket}
-              // marketGroup={marketGroup}
-            />
+            <SellForm setOutcomeIndex={setOutcomeIndex} />
           )
         ) : null}
       </Paper>
-      {market && <MarketPriceChart market={market} />}
+      {isLivePriceSupportedMarket ? (
+        <Tabs position='relative' variant='common' mt='20px'>
+          <TabList>
+            {chartTabs.map((tab) => (
+              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.analyticEvent)}>
+                <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+                  {tab.icon}
+                  <>{tab.title}</>
+                </HStack>
+              </Tab>
+            ))}
+          </TabList>
+          <TabIndicator
+            mt='-2px'
+            height='2px'
+            bg='grey.800'
+            transitionDuration='200ms !important'
+          />
+          <TabPanels>
+            {chartsTabPanels.map((panel, index) => (
+              <TabPanel key={index}>{panel}</TabPanel>
+            ))}
+          </TabPanels>
+        </Tabs>
+      ) : (
+        <MarketPriceChart />
+      )}
+
       <Tabs position='relative' variant='common'>
         <TabList>
           {tabs.map((tab) => (

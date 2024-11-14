@@ -1,7 +1,9 @@
 import { Box, Divider, Text, VStack } from '@chakra-ui/react'
+import React from 'react'
 import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { MarketGroupCard, MarketSingleCard } from '@/components/common/markets/market-cards'
+import Skeleton from '@/components/common/skeleton'
 import SortFilter from '@/components/common/sort-filter'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup, Sort } from '@/types'
@@ -13,6 +15,7 @@ interface AllMarketsProps {
   hasNextPage: boolean
   markets?: (Market | MarketGroup)[]
   totalAmount?: number
+  isLoading: boolean
 }
 
 export default function AllMarkets({
@@ -22,12 +25,13 @@ export default function AllMarkets({
   hasNextPage,
   markets,
   totalAmount = 1,
+  isLoading,
 }: AllMarketsProps) {
   return (
     <>
       <Box px={isMobile ? '16px' : 0}>
         <Text {...headlineRegular} mb={isMobile ? '8px' : '4px'} mt={isMobile ? '12px' : '40px'}>
-          / All markets ({totalAmount})
+          / All markets {isLoading ? '' : `(${totalAmount})`}
         </Text>
         <Divider orientation='horizontal' />
       </Box>
@@ -46,14 +50,20 @@ export default function AllMarkets({
       >
         <VStack w={'full'} spacing={5} px={isMobile ? '16px' : 0}>
           <VStack gap={2} w='full'>
-            {markets?.map((market, index) => {
-              // @ts-ignore
-              return market.slug ? (
-                <MarketGroupCard marketGroup={market as MarketGroup} key={index} />
-              ) : (
-                <MarketSingleCard market={market as Market} key={index} />
-              )
-            })}
+            {isLoading
+              ? [...Array(6)].map((index) => <Skeleton height={isMobile ? 148 : 76} key={index} />)
+              : markets?.map((market, index) => {
+                  // @ts-ignore
+                  return market.slug ? (
+                    <MarketGroupCard marketGroup={market as MarketGroup} key={index} />
+                  ) : (
+                    <MarketSingleCard
+                      market={market as Market}
+                      key={index}
+                      markets={markets as Market[]}
+                    />
+                  )
+                })}
           </VStack>
         </VStack>
       </InfiniteScroll>

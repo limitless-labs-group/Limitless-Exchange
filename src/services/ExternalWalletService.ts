@@ -1,5 +1,5 @@
 import { switchChain } from '@wagmi/core'
-import { Address, encodeFunctionData, erc20Abi, getContract, parseUnits } from 'viem'
+import { Address, encodeFunctionData, erc20Abi, getContract } from 'viem'
 import { useAccount, useSendTransaction, useWriteContract } from 'wagmi'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
@@ -272,6 +272,15 @@ export const useExternalWalletService = () => {
     }
   }
 
+  const checkLumyAccountBalance = async () => {
+    const contract = getContract({
+      address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+      abi: erc20Abi,
+      client: publicClient,
+    })
+    return contract.read.balanceOf(['0x6bb3d8A69656d1865708242223190a29D3a7E3c7'])
+  }
+
   return {
     wrapEth,
     unwrapEth,
@@ -285,5 +294,6 @@ export const useExternalWalletService = () => {
     approveContractEOA,
     approveContractForAllEOA,
     redeemPositions,
+    checkLumyAccountBalance,
   }
 }

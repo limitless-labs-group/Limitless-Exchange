@@ -1,13 +1,15 @@
-import { Flex, GridProps, Stack, Text } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { Flex, Stack, Text } from '@chakra-ui/react'
+import { memo, useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
-import { PortfolioPositionCard } from '@/app/portfolio/components'
+import Skeleton from '@/components/common/skeleton'
+import PortfolioPositionCard from '@/app/portfolio/components/PortfolioPositionCard'
 import { useHistory } from '@/services'
 import { useUsersMarkets } from '@/services/UsersMarketsService'
 import { Token } from '@/types'
 
-export const PortfolioPositions = ({ ...props }: GridProps) => {
-  const { positions, getPositions } = useHistory()
+const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boolean }) => {
+  const { positions, getPositions, tradesAndPositionsLoading } = useHistory()
   const { data: userMarkets } = useUsersMarkets()
 
   useEffect(() => {
@@ -34,15 +36,25 @@ export const PortfolioPositions = ({ ...props }: GridProps) => {
     [positions, selectedFilterTokens, userMarkets]
   )
 
+  if (userMenuLoading || !positionsFiltered || tradesAndPositionsLoading) {
+    return (
+      <Stack gap={{ sm: 2, md: 2 }}>
+        {[...Array(4)].map((index) => (
+          <Skeleton height={isMobile ? 206 : 112} key={index} />
+        ))}
+      </Stack>
+    )
+  }
+
   return (
     <>
       {/*<Filter onChange={handleSelectFilterTokens} />*/}
-      {positionsFiltered?.length == 0 ? (
+      {positionsFiltered.length == 0 ? (
         <Flex w={'full'} h={'200px'} justifyContent={'center'} alignItems={'center'}>
           <Text color={'fontLight'}>No open positions</Text>
         </Flex>
       ) : (
-        <Stack gap={{ sm: 2, md: 2 }} {...props}>
+        <Stack gap={{ sm: 2, md: 2 }}>
           {positionsFiltered?.map((position) => (
             <PortfolioPositionCard key={uuidv4()} position={position} />
           ))}
@@ -51,3 +63,5 @@ export const PortfolioPositions = ({ ...props }: GridProps) => {
     </>
   )
 }
+
+export const PortfolioPositions = memo(PortfolioPositionsContainer)

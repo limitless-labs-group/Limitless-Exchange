@@ -1,67 +1,33 @@
 'use client'
 
-import {
-  Text,
-  HStack,
-  VStack,
-  Box,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Menu,
-  useDisclosure,
-  Button,
-} from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { rgba } from 'color2k'
+import { Text, HStack, VStack, Box } from '@chakra-ui/react'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { getAddress, zeroAddress } from 'viem'
 import Paper from '@/components/common/paper'
-import { defaultChain, newSubgraphURI } from '@/constants'
 import { useMarketPriceHistory } from '@/hooks/use-market-price-history'
 import { useThemeProvider } from '@/providers'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { useTradingService } from '@/services'
 import { useWinningIndex } from '@/services/MarketsService'
-import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup } from '@/types'
+import { headline } from '@/styles/fonts/fonts.styles'
 
 const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
-// Define the MarketPriceChart component
-export interface IMarketPriceChart {
-  marketGroup?: MarketGroup
-  market: Market
-}
-
-export const MarketPriceChart = ({ marketGroup, market }: IMarketPriceChart) => {
+export const MarketPriceChart = () => {
   const { colors } = useThemeProvider()
-  // const { market, setMarket } = useTradingService()
   const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%b %e, %Y %I:%M %p', Date.now()) ?? ''
   )
-  const outcomeTokensPercent = market.prices
-  const marketAddr = market.address[defaultChain.id] ?? zeroAddress
+  const { market } = useTradingService()
+  const outcomeTokensPercent = market?.prices
   const { data: winningIndex } = useWinningIndex(market?.address || '')
   const resolved = winningIndex === 0 || winningIndex === 1
 
   useEffect(() => {
     refetchPrices()
   }, [market])
-
-  const { trackClicked } = useAmplitude()
-
-  const {
-    isOpen: isMarketListOpen,
-    onOpen: onOpenMarketList,
-    onClose: onCloseMarketList,
-  } = useDisclosure()
 
   // Function to generate chart options
   const getChartOptions = (data: number[][] | undefined): Highcharts.Options => ({
@@ -71,7 +37,7 @@ export const MarketPriceChart = ({ marketGroup, market }: IMarketPriceChart) => 
       },
       height: 230,
       backgroundColor: colors.grey['100'],
-      marginLeft: 0,
+      marginLeft: 50,
       marginRight: 0,
     },
     title: {
@@ -99,7 +65,29 @@ export const MarketPriceChart = ({ marketGroup, market }: IMarketPriceChart) => 
       },
     },
     yAxis: {
-      visible: false,
+      visible: true,
+      min: 0,
+      max: 100,
+      tickInterval: 25,
+      title: {
+        text: 'Percentage (%)',
+        style: {
+          color: colors.grey['600'],
+        },
+      },
+      labels: {
+        format: '{value}%',
+        style: {
+          fontFamily: 'Helvetica Neue',
+          fontSize: isMobile ? '14px' : '12px',
+          color: colors.grey['400'],
+        },
+      },
+      gridLineColor: colors.grey['200'],
+      lineWidth: 1,
+      lineColor: colors.grey['200'],
+      tickWidth: 1,
+      tickColor: colors.grey['200'],
     },
     legend: {
       enabled: false,
@@ -174,13 +162,6 @@ export const MarketPriceChart = ({ marketGroup, market }: IMarketPriceChart) => 
   // React Query to fetch the price data
   const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(market?.address)
 
-  // const initialYesChance = useMemo(() => {
-  //   if (market?.prices) {
-  //     return market.prices[0].toFixed(2)
-  //   }
-  //   return '50.00'
-  // }, [market?.prices])
-
   const chartData = useMemo(() => {
     const _prices: number[][] = prices ?? []
     const data = resolved
@@ -196,24 +177,24 @@ export const MarketPriceChart = ({ marketGroup, market }: IMarketPriceChart) => 
       : _prices
 
     // special case hotfix
-    const special = {
-      [getAddress('0xD0BC7FCea7500d485329e0aaE36e0512815684BF')]: {
-        index: 0,
-        timestamp: 1722745928000, // aug 4 2024
-        exists: true,
-      },
-    }
-    if (special[getAddress(marketAddr)]?.exists) {
-      const _index = special[getAddress(marketAddr)].index
-
-      if (data[_index]) {
-        data[_index][0] = special[getAddress(marketAddr)].timestamp
-
-        for (let index = 0; index < Array.from({ length: 10 }).length; index++) {
-          data.splice(index + 1, 0, [data[index][0] + ONE_HOUR, data[index][1]])
-        }
-      }
-    }
+    // const special = {
+    //   [getAddress('0xD0BC7FCea7500d485329e0aaE36e0512815684BF')]: {
+    //     index: 0,
+    //     timestamp: 1722745928000, // aug 4 2024
+    //     exists: true,
+    //   },
+    // }
+    // if (special[getAddress(marketAddr)]?.exists) {
+    //   const _index = special[getAddress(marketAddr)].index
+    //
+    //   if (data[_index]) {
+    //     data[_index][0] = special[getAddress(marketAddr)].timestamp
+    //
+    //     for (let index = 0; index < Array.from({ length: 10 }).length; index++) {
+    //       data.splice(index + 1, 0, [data[index][0] + ONE_HOUR, data[index][1]])
+    //     }
+    //   }
+    // }
 
     return data
   }, [prices, winningIndex, resolved])

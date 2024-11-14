@@ -7,10 +7,11 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
 interface MarketPositionsProps {
-  market: Market | null
+  market?: Market
+  isSideMarketPage?: boolean
 }
 
-export const MarketPositions = ({ market }: MarketPositionsProps) => {
+export const MarketPositions = ({ market, isSideMarketPage }: MarketPositionsProps) => {
   const { positions: allMarketsPositions } = useHistory()
 
   const positions = useMemo(
@@ -36,6 +37,7 @@ export const MarketPositions = ({ market }: MarketPositionsProps) => {
             key={index}
             symbol={market?.collateralToken.symbol || ''}
             marketPrices={market?.prices || [50, 50]}
+            isSideMarketPage={isSideMarketPage}
           />
         ))}
       </VStack>
