@@ -37,14 +37,16 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
   const walletAddress = useWalletAddress()
 
   useEffect(() => {
-    init(AMPLITUDE_API_KEY, undefined, {
-      defaultTracking: {
-        sessions: true,
-        pageViews: false,
-        attribution: false,
-        formInteractions: false,
-      },
-    })
+    if (process.env.NODE_ENV === 'production') {
+      init(AMPLITUDE_API_KEY, undefined, {
+        defaultTracking: {
+          sessions: true,
+          pageViews: false,
+          attribution: false,
+          formInteractions: false,
+        },
+      })
+    }
     //   .promise.then(() => {
     //   sessionReplay.init(AMPLITUDE_API_KEY, {
     //     deviceId: getDeviceId(),
@@ -65,7 +67,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         event_type: String(eventType),
         event_properties: {
           ...customData,
-          userWallet: walletAddress,
+          walletAddress,
           ...sessionReplay.getSessionReplayProperties(),
         },
         user_properties: {
@@ -158,7 +160,6 @@ export enum ClickEvent {
   LimitlessLinksClicked = 'Limitless Links Clicked',
   FeeTradingDetailsClicked = 'Fee Trading Details Clicked',
   ReturnTradingDetailsClicked = 'Return Trading Details Clicked',
-  MarketPageOpened = 'Market Page Opened',
   MediumMarketBannerClicked = 'Medium Market Banner Clicked',
   RegularMarketBannerClicked = 'Regular Market Banner Clicked',
   BigBannerClicked = 'BigBannerClicked',
@@ -183,6 +184,7 @@ export enum OpenEvent {
   PageOpened = 'Page Opened',
   LoginWindowOpened = 'Login Window Opened',
   ProfileSettingsOpened = 'Profile Settings Opened',
+  MarketPageOpened = 'Market Page Opened',
 }
 
 export enum AuthenticationEvent {
