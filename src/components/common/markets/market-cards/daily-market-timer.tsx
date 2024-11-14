@@ -1,32 +1,11 @@
 import { Text } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 interface DailyMarketTimerProps {
   deadline: number
   color: string
   showDays?: boolean
-}
-
-const calculateTimeRemaining = (deadline: number) => {
-  const now = new Date().getTime()
-  const timeLeft = new Date(deadline).getTime() - now
-
-  if (timeLeft < 0) {
-    return {
-      days: 0,
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-    }
-  }
-
-  return {
-    days: Math.floor((timeLeft % (1000 * 60 * 60 * 24 * 7)) / (1000 * 60 * 60 * 24)),
-    hours: Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-    minutes: Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60)),
-    seconds: Math.floor((timeLeft % (1000 * 60)) / 1000),
-  }
 }
 
 const formatTime = ({
@@ -53,21 +32,36 @@ export default function DailyMarketTimer({
   color,
   showDays = true,
 }: DailyMarketTimerProps) {
-  const [timeRemaining, setTimeRemaining] = useState(
-    calculateTimeRemaining(new Date(deadline).getTime() > new Date().getTime() ? deadline : 0)
-  )
+  const calculateTimeRemaining = useCallback(() => {
+    const now = new Date().getTime()
+    const timeLeft = new Date(deadline).getTime() - now
+
+    if (timeLeft < 0) {
+      return {
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+      }
+    }
+
+    return {
+      days: Math.floor((timeLeft % (1000 * 60 * 60 * 24 * 7)) / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+      minutes: Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60)),
+      seconds: Math.floor((timeLeft % (1000 * 60)) / 1000),
+    }
+  }, [deadline])
+
+  const [timeRemaining, setTimeRemaining] = useState(calculateTimeRemaining())
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimeRemaining(calculateTimeRemaining(deadline))
+      setTimeRemaining(calculateTimeRemaining())
     }, 1000)
 
-    if (new Date(deadline).getTime() < new Date().getTime()) {
-      clearInterval(interval)
-    }
-
     return () => clearInterval(interval)
-  }, [deadline])
+  }, [calculateTimeRemaining])
 
   return (
     <Text {...paragraphMedium} color={color}>

@@ -97,4 +97,10 @@ export const lightThemeColors: ColorScheme = {
   blackStale: {
     200: 'rgba(0, 0, 0, 0.2)',
   },
+  skeleton: {
+    dark: '#EDEDED',
+    highLight: '#F3F3F3',
+    tradeSkeleton: '#5151FF',
+    tradeSkeletonBackground: '#4D4DF3',
+  },
 }

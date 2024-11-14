@@ -1,6 +1,7 @@
 import { Flex, HStack, StackProps, Text, Box, VStack, Stack } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
+import Skeleton from '@/components/common/skeleton'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
@@ -19,7 +20,7 @@ const StatBox = ({
 }: {
   title: string
   icon: JSX.Element
-  value: string
+  value: string | JSX.Element
   border: boolean
   isLast?: boolean
   isFirst?: boolean
@@ -61,27 +62,42 @@ const StatBox = ({
 }
 
 export const PortfolioStats = ({ ...props }: StackProps) => {
-  const { overallBalanceUsd } = useBalanceService()
-  const { balanceInvested, balanceToWin } = useHistory()
+  const { overallBalanceUsd, balanceLoading, balanceOfSmartWallet } = useBalanceService()
+  const { balanceInvested, balanceToWin, tradesAndPositionsLoading, positions } = useHistory()
   const stats = [
     {
       title: 'Portfolio',
       icon: <PortfolioIcon width={16} height={16} />,
-      value: `${NumberUtil.formatThousands(balanceInvested, 2)} USD`,
+      value:
+        tradesAndPositionsLoading || !positions ? (
+          <Skeleton height={20} />
+        ) : (
+          `${NumberUtil.formatThousands(balanceInvested, 2)} USD`
+        ),
       border: true,
       w: '213px',
     },
     {
       title: 'To win',
       icon: <CalendarIcon width={16} height={16} />,
-      value: `${NumberUtil.formatThousands(balanceToWin, 2)} USD`,
+      value:
+        tradesAndPositionsLoading || !positions ? (
+          <Skeleton height={20} />
+        ) : (
+          `${NumberUtil.formatThousands(balanceToWin, 2)} USD`
+        ),
       border: !isMobile,
       w: '166px',
     },
     {
       title: 'Available Balance',
       icon: <WalletIcon width={16} height={16} />,
-      value: `${NumberUtil.formatThousands(overallBalanceUsd, 2)} USD`,
+      value:
+        balanceLoading || !balanceOfSmartWallet ? (
+          <Skeleton height={20} />
+        ) : (
+          `${NumberUtil.formatThousands(overallBalanceUsd, 2)} USD`
+        ),
       border: true,
     },
   ]
