@@ -252,6 +252,8 @@ export interface ColorScheme {
   skeleton: {
     dark: string
     highLight: string
+    tradeSkeleton: string
+    tradeSkeletonBackground: string
   }
 }
 

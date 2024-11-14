@@ -16,6 +16,7 @@ import debounce from 'lodash.debounce'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import BuyButton from '@/components/common/markets/buy-button'
+import TradeWidgetSkeleton from '@/components/common/skeleton/trade-widget-skeleton'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import InfiniteIcon from '@/resources/icons/infinite-icon.svg'
 import { ClickEvent, useAmplitude, useBalanceService, useTradingService } from '@/services'
@@ -34,7 +35,7 @@ export default function MarketPageBuyForm({
   marketList,
   slideMarket,
 }: MarketPageBuyFormProps) {
-  const { balanceOfSmartWallet } = useBalanceService()
+  const { balanceOfSmartWallet, balanceLoading } = useBalanceService()
   const { trackClicked } = useAmplitude()
   const queryClient = useQueryClient()
   const {
@@ -52,6 +53,7 @@ export default function MarketPageBuyForm({
   const [showFeeInValue, setShowFeeInValue] = useState(false)
   const [slippage, setSlippage] = useState(localStorage.getItem('defaultMarketSlippage') || '5')
   const [showSlippageDetails, setShowSlippageDetails] = useState(false)
+  const [quotesLoading, setQuotesLoading] = useState(false)
 
   const market = selectedMarket || slideMarket
 
@@ -126,6 +128,7 @@ export default function MarketPageBuyForm({
       await queryClient.refetchQueries({
         queryKey: ['tradeQuotesNo'],
       })
+      setQuotesLoading(false)
     }, 500),
     []
   )
@@ -155,6 +158,7 @@ export default function MarketPageBuyForm({
 
   useEffect(() => {
     if (+collateralAmount) {
+      setQuotesLoading(true)
       refetchQuotes()
     }
     if (!+collateralAmount) {
@@ -168,16 +172,24 @@ export default function MarketPageBuyForm({
     resetQuotes()
   }, [market])
 
+  console.log(balance)
+
   return (
     <>
       <Flex justifyContent='space-between'>
         <Text {...paragraphMedium} color='white'>
           Balance
         </Text>
-        <Text {...paragraphMedium} color='white'>
-          {NumberUtil.formatThousands(balance, market?.collateralToken.symbol === 'USDC' ? 1 : 6)}{' '}
-          {market?.collateralToken.symbol}
-        </Text>
+        {balanceLoading ? (
+          <Box w='90px'>
+            <TradeWidgetSkeleton height={20} />
+          </Box>
+        ) : (
+          <Text {...paragraphMedium} color='white'>
+            {NumberUtil.formatThousands(balance, market?.collateralToken.symbol === 'USDC' ? 1 : 6)}{' '}
+            {market?.collateralToken.symbol}
+          </Text>
+        )}
       </Flex>
       <HStack w='full' gap='4px' mt='4px'>
         {[10, 25, 50, 100].map((title) => (
@@ -300,6 +312,7 @@ export default function MarketPageBuyForm({
             showFeeInValue={showFeeInValue}
             setShowFeeInValue={setShowFeeInValue}
             resetForm={resetForm}
+            quotesLoading={quotesLoading}
           />
           <Box mt='8px' />
           <BuyButton
@@ -320,6 +333,7 @@ export default function MarketPageBuyForm({
             showFeeInValue={showFeeInValue}
             setShowFeeInValue={setShowFeeInValue}
             resetForm={resetForm}
+            quotesLoading={quotesLoading}
           />
         </>
       )}

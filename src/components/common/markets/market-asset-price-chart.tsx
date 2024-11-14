@@ -102,20 +102,24 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       try {
         if (live) {
           connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
-            const priceEntity = priceFeed.getPriceNoOlderThan(60)
-            const formattedPrice = +formatUnits(
-              BigInt(priceEntity ? priceEntity.price : '1'),
-              Math.abs(priceEntity ? priceEntity.expo : 8)
-            )
-            const price = +formattedPrice.toFixed(formattedPrice > 1 ? 2 : 6)
-            const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
-            const currentTime = latestPriceFeedEntity
-              ? latestPriceFeedEntity.publishTime * 1000
-              : new Date().getTime()
-            // @ts-ignore
-            const chart = chartComponentRef.current?.chart
-            if (chart) {
-              chart.series[0].addPoint([currentTime, price], true, false)
+            try {
+              const priceEntity = priceFeed.getPriceNoOlderThan(60)
+              const formattedPrice = +formatUnits(
+                BigInt(priceEntity ? priceEntity.price : '1'),
+                Math.abs(priceEntity ? priceEntity.expo : 8)
+              )
+              const price = +formattedPrice.toFixed(formattedPrice > 1 ? 2 : 6)
+              const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
+              const currentTime = latestPriceFeedEntity
+                ? latestPriceFeedEntity.publishTime * 1000
+                : new Date().getTime()
+              // @ts-ignore
+              const chart = chartComponentRef.current?.chart
+              if (chart) {
+                chart.series[0].addPoint([currentTime, price], true, false)
+              }
+            } catch (e) {
+              console.log(e)
             }
           })
         } else {
