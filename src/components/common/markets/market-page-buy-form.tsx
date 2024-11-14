@@ -172,8 +172,6 @@ export default function MarketPageBuyForm({
     resetQuotes()
   }, [market])
 
-  console.log(balance)
-
   return (
     <>
       <Flex justifyContent='space-between'>
