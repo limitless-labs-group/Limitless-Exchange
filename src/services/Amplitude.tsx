@@ -55,11 +55,10 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     // })
   }, [])
 
-  console.log(NODE_ENV)
-
   const trackEvent = useCallback(
     async (eventType: EventType, customData?: EventMetadata) => {
-      if (NODE_ENV !== 'production') {
+      console.log(window.location.origin)
+      if (window.location.origin !== 'http://limitless.exchange') {
         return
       }
 
