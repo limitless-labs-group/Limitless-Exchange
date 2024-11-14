@@ -203,9 +203,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     refetchInterval: 10000,
   })
 
-  console.log(`isConnecting ${isConnecting}`)
-  console.log(`isConnected ${isConnected}`)
-
   const userMenuLoading = useMemo(() => {
     if (isConnecting) {
       return true
