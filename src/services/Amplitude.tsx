@@ -57,15 +57,13 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
       return amplitudeTrack({
         event_type: String(eventType),
         event_properties: {
-          ...{
-            ...customData,
-            walletAddress,
-          },
+          ...customData,
           ...sessionReplay.getSessionReplayProperties(),
         },
         user_properties: {
           account,
           ...userInfo,
+          walletAddress,
         },
       }).promise
     },
