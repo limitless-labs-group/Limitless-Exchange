@@ -37,16 +37,14 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
   const walletAddress = useWalletAddress()
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'production') {
-      init(AMPLITUDE_API_KEY, undefined, {
-        defaultTracking: {
-          sessions: true,
-          pageViews: false,
-          attribution: false,
-          formInteractions: false,
-        },
-      })
-    }
+    init(AMPLITUDE_API_KEY, undefined, {
+      defaultTracking: {
+        sessions: true,
+        pageViews: false,
+        attribution: false,
+        formInteractions: false,
+      },
+    })
     //   .promise.then(() => {
     //   sessionReplay.init(AMPLITUDE_API_KEY, {
     //     deviceId: getDeviceId(),
@@ -57,9 +55,11 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     // })
   }, [])
 
+  console.log(NODE_ENV)
+
   const trackEvent = useCallback(
     async (eventType: EventType, customData?: EventMetadata) => {
-      if (NODE_ENV === 'development') {
+      if (NODE_ENV !== 'production') {
         return
       }
 
