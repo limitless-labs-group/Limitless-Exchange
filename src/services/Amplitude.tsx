@@ -41,18 +41,12 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         attribution: false,
         formInteractions: false,
       },
-    }).promise.then(() => {
-      return sessionReplay.init(AMPLITUDE_API_KEY, {
-        deviceId: getDeviceId(),
-        sessionId: getSessionId(),
-        sampleRate: 1,
-      }).promise
     })
   }, [])
 
   const trackEvent = useCallback(
     async (eventType: EventType, customData?: EventMetadata) => {
-      if (NODE_ENV === 'development') {
+      if (window.location.origin === 'https://limitless.exchange') {
         return
       }
 
