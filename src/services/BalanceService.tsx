@@ -210,14 +210,11 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   console.log(`loadingSmartWallet ${isLoadingSmartWalletAddress}`)
   console.log(`balanceOfSmartWalletLoading ${balanceOfSmartWalletLoading}`)
   const userMenuLoading = useMemo(() => {
-    if (isConnecting) {
-      return true
-    }
     if (isConnected) {
       return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
     }
     return false
-  }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
+  }, [isConnected, profileLoading, isLoadingSmartWalletAddress, profileData])
 
   console.log(userMenuLoading)
 
