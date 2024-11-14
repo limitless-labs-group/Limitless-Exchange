@@ -253,7 +253,6 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
         </Paper>
       }
       variant='black'
-      title={targetMarket?.group?.title ? targetMarket.group.title : targetMarket?.title}
       onClose={() => {
         setMarket(null)
         setMarketGroup(null)

@@ -26,12 +26,12 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
 
   return (
     mounted && (
-      <AmplitudeProvider>
-        <ThemeProvider>
-          <QueryProvider>
-            <WagmiProvider>
-              <RainbowProvider>
-                <Web3AuthProvider>
+      <ThemeProvider>
+        <QueryProvider>
+          <WagmiProvider>
+            <RainbowProvider>
+              <Web3AuthProvider>
+                <AmplitudeProvider>
                   <LimitlessApiProvider>
                     <EtherspotProvider>
                       <AccountProvider>
@@ -47,12 +47,12 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                       </AccountProvider>
                     </EtherspotProvider>
                   </LimitlessApiProvider>
-                </Web3AuthProvider>
-              </RainbowProvider>
-            </WagmiProvider>
-          </QueryProvider>
-        </ThemeProvider>
-      </AmplitudeProvider>
+                </AmplitudeProvider>
+              </Web3AuthProvider>
+            </RainbowProvider>
+          </WagmiProvider>
+        </QueryProvider>
+      </ThemeProvider>
     )
   )
 }

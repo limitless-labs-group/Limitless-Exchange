@@ -18,6 +18,7 @@ import React, {
 import { isMobile } from 'react-device-detect'
 import { parseUnits } from 'viem'
 import Loader from '@/components/common/loader'
+import TradeWidgetSkeleton from '@/components/common/skeleton/trade-widget-skeleton'
 import BlockedTradeTemplate from '@/app/(markets)/markets/[address]/components/trade-widgets/blocked-trade-template'
 import ConfirmButton from '@/app/(markets)/markets/[address]/components/trade-widgets/confirm-button'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
@@ -46,6 +47,7 @@ interface ActionButtonProps {
   setShowFeeInValue: Dispatch<SetStateAction<boolean>>
   isExceedsBalance: boolean
   resetForm: () => void
+  quotesLoading: boolean
 }
 
 const MotionBox = motion(Box)
@@ -74,6 +76,7 @@ export default function BuyButton({
   showReturnPercent,
   isExceedsBalance,
   resetForm,
+  quotesLoading,
 }: ActionButtonProps) {
   const [marketLocked, setMarketLocked] = useState(false)
   const [tradingBlocked, setTradingBlocked] = useState(false)
@@ -391,23 +394,29 @@ export default function BuyButton({
                     <Text {...paragraphRegular} color='white'>
                       Return
                     </Text>
-                    <Text
-                      {...paragraphRegular}
-                      color='white'
-                      borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
-                      borderColor={'transparent.200'}
-                      _hover={{
-                        borderColor: 'var(--chakra-colors-transparent-600)',
-                      }}
-                      cursor={quote?.outcomeTokenAmount ? 'pointer' : 'default'}
-                      onClick={handleReturnToggleClicked}
-                    >
-                      {showReturnPercent
-                        ? `${NumberUtil.toFixed(quote?.roi, 2)}%`
-                        : `${NumberUtil.formatThousands(quote?.outcomeTokenAmount, 6)} ${
-                            market.collateralToken.symbol
-                          }`}
-                    </Text>
+                    {quotesLoading ? (
+                      <Box w='120px'>
+                        <TradeWidgetSkeleton height={20} />
+                      </Box>
+                    ) : (
+                      <Text
+                        {...paragraphRegular}
+                        color='white'
+                        borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
+                        borderColor={'transparent.200'}
+                        _hover={{
+                          borderColor: 'var(--chakra-colors-transparent-600)',
+                        }}
+                        cursor={quote?.outcomeTokenAmount ? 'pointer' : 'default'}
+                        onClick={handleReturnToggleClicked}
+                      >
+                        {showReturnPercent
+                          ? `${NumberUtil.toFixed(quote?.roi, 2)}%`
+                          : `${NumberUtil.formatThousands(quote?.outcomeTokenAmount, 6)} ${
+                              market.collateralToken.symbol
+                            }`}
+                      </Text>
+                    )}
                     {/*<Tooltip*/}
                     {/*// label={*/}
                     {/*//   'Each contract will expire at 0 or 1 WETH, depending on the outcome reported. You may trade partial contracts, ie 0.1'*/}
@@ -441,10 +450,16 @@ export default function BuyButton({
                       {/*  <InfoIcon width='16px' height='16px' />*/}
                       {/*</Tooltip>*/}
                     </HStack>
-                    <Text {...paragraphRegular} color='white'>{`${NumberUtil.formatThousands(
-                      quote?.outcomeTokenPrice,
-                      6
-                    )} ${market?.collateralToken.symbol}`}</Text>
+                    {quotesLoading ? (
+                      <Box w='120px'>
+                        <TradeWidgetSkeleton height={20} />
+                      </Box>
+                    ) : (
+                      <Text {...paragraphRegular} color='white'>{`${NumberUtil.formatThousands(
+                        quote?.outcomeTokenPrice,
+                        6
+                      )} ${market?.collateralToken.symbol}`}</Text>
+                    )}
                   </HStack>
                   <HStack justifyContent='space-between' w='full'>
                     <HStack gap='4px'>
@@ -459,10 +474,16 @@ export default function BuyButton({
                       {/*  <InfoIcon width='16px' height='16px' />*/}
                       {/*</Tooltip>*/}
                     </HStack>
-                    <Text {...paragraphRegular} color='white'>{`${NumberUtil.toFixed(
-                      quote?.priceImpact,
-                      2
-                    )}%`}</Text>
+                    {quotesLoading ? (
+                      <Box w='60px'>
+                        <TradeWidgetSkeleton height={20} />
+                      </Box>
+                    ) : (
+                      <Text {...paragraphRegular} color='white'>{`${NumberUtil.toFixed(
+                        quote?.priceImpact,
+                        2
+                      )}%`}</Text>
+                    )}
                   </HStack>
                 </VStack>
               )}

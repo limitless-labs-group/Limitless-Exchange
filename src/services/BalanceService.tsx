@@ -20,6 +20,7 @@ import {
 } from 'react'
 import { erc20Abi, formatEther, formatUnits, parseEther, parseUnits } from 'viem'
 import { getBalance } from 'viem/actions'
+import { useAccount as useWagmiAccount } from 'wagmi'
 import { Toast } from '@/components/common/toast'
 import { ToastWithdraw } from '@/components/common/toast-withdraw'
 import { defaultChain } from '@/constants'
@@ -28,7 +29,7 @@ import { useToast } from '@/hooks'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { usePriceOracle } from '@/providers'
 import { publicClient } from '@/providers'
-import { useEtherspot, useLimitlessApi } from '@/services'
+import { useAccount, useEtherspot, useLimitlessApi } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { Address, GetBalanceResult, MarketTokensIds, Token } from '@/types'
 import { Logger, NumberUtil } from '@/utils'
@@ -76,6 +77,9 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
+  const { isConnected, isConnecting } = useWagmiAccount()
+  const { profileData, profileLoading } = useAccount()
+  const { isLoadingSmartWalletAddress } = useEtherspot()
 
   /**
    * Etherspot
@@ -95,7 +99,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const {
     data: balanceOfSmartWallet,
     refetch: refetchbalanceOfSmartWallet,
-    isLoading: balanceLoading,
+    isLoading: balanceOfSmartWalletLoading,
   } = useQuery({
     queryKey: ['balance', walletAddress],
     queryFn: async () => {
@@ -198,6 +202,23 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     enabled: !!walletAddress && !!supportedTokens,
     refetchInterval: 10000,
   })
+
+  console.log(`isConnecting ${isConnecting}`)
+  console.log(`isConnected ${isConnected}`)
+  console.log(`profile ${profileData}`)
+  console.log(`profileLoading ${profileLoading}`)
+  console.log(`loadingSmartWallet ${isLoadingSmartWalletAddress}`)
+  console.log(`balanceOfSmartWalletLoading ${balanceOfSmartWalletLoading}`)
+  const userMenuLoading = useMemo(() => {
+    if (isConnected) {
+      return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
+    }
+    return false
+  }, [isConnected, profileLoading, isLoadingSmartWalletAddress, profileData])
+
+  console.log(userMenuLoading)
+
+  const balanceLoading = userMenuLoading || balanceOfSmartWalletLoading
 
   const { data: ethBalance } = useQuery({
     queryKey: ['ethBalance', walletAddress],

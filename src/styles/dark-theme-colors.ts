@@ -100,5 +100,7 @@ export const darkThemeColors: ColorScheme = {
   skeleton: {
     dark: '#232222',
     highLight: '#2E2E2E',
+    tradeSkeleton: '#5151FF',
+    tradeSkeletonBackground: '#4D4DF3',
   },
 }
