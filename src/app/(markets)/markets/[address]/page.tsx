@@ -37,7 +37,6 @@ import {
   MobileTradeButton,
 } from './components'
 import { MainLayout } from '@/components'
-import { useToken } from '@/hooks/use-token'
 import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
@@ -47,6 +46,7 @@ import ShareIcon from '@/resources/icons/share-icon.svg'
 import {
   ClickEvent,
   createMarketShareUrls,
+  OpenEvent,
   ShareClickedMetadata,
   useAmplitude,
   useTradingService,
@@ -60,7 +60,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   /**
    * ANALYTICS
    */
-  const { trackClicked } = useAmplitude()
+  const { trackClicked, trackOpened } = useAmplitude()
   const { data: winningIndex } = useWinningIndex(params.address)
   const resolved = winningIndex === 0 || winningIndex === 1
   const router = useRouter()
@@ -153,6 +153,15 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   useEffect(() => {
     resetQuotes()
   }, [])
+
+  useEffect(() => {
+    if (market) {
+      trackOpened(OpenEvent.MarketPageOpened, {
+        marketAddress: market.address,
+        page: 'Market Page',
+      })
+    }
+  }, [market])
 
   return (
     <MainLayout>
