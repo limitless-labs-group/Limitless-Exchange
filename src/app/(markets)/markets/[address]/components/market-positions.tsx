@@ -7,7 +7,7 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
 interface MarketPositionsProps {
-  market: Market | null
+  market?: Market
   isSideMarketPage?: boolean
 }
 

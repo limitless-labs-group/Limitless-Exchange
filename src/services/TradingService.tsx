@@ -75,6 +75,7 @@ interface ITradingServiceContext {
   setMarkets: (markets: Market[]) => void
   marketsSection: string
   setMarketsSection: (val: string) => void
+  sellBalanceLoading: boolean
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -202,6 +203,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const [balanceOfOutcomeTokenNo, setBalanceOfOutcomeTokenNo] = useState('0')
   const [balanceOfCollateralToSellYes, setBalanceOfCollateralToSellYes] = useState('0') // ctBalance converted to collateral
   const [balanceOfCollateralToSellNo, setBalanceOfCollateralToSellNo] = useState('0')
+  const [sellBalanceLoading, setSellBalanceLoading] = useState(false)
 
   const getCTBalance = async (
     account: Address | undefined,
@@ -227,6 +229,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   }
 
   const updateSellBalance = useCallback(async () => {
+    setSellBalanceLoading(true)
     setBalanceOfOutcomeTokenYes('0')
     setBalanceOfOutcomeTokenNo('0')
     setBalanceOfCollateralToSellYes('0')
@@ -317,6 +320,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     )
 
     setBalanceOfCollateralToSellNo(_balanceOfCollateralToSellNo)
+    setSellBalanceLoading(false)
   }, [
     account,
     market,
@@ -854,6 +858,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setMarkets,
     marketsSection,
     setMarketsSection,
+    sellBalanceLoading,
   }
 
   return (

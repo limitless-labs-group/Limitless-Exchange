@@ -151,7 +151,6 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
       id={marketGroup.slug}
       trigger={content}
       variant='black'
-      title={marketGroup.title}
       onClose={onCloseMarketPage}
     >
       <MarketPage />

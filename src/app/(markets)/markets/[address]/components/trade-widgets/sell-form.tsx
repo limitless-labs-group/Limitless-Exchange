@@ -24,6 +24,7 @@ import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useSt
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
+import TradeWidgetSkeleton from '@/components/common/skeleton/trade-widget-skeleton'
 import { Toast } from '@/components/common/toast'
 import { useToast } from '@/hooks'
 import { useToken } from '@/hooks/use-token'
@@ -90,6 +91,7 @@ export function SellForm({
     checkApprovedForSell,
     market,
     resetQuotes,
+    sellBalanceLoading,
   } = useTradingService()
   const queryClient = useQueryClient()
   const [sliderValue, setSliderValue] = useState(0)
@@ -99,6 +101,7 @@ export function SellForm({
   const [isApproved, setIsApproved] = useState(true)
   const [slippage, setSlippage] = useState('5')
   const [showSlippageDetails, setShowSlippageDetails] = useState(false)
+  const [quotesLoading, setQuotesLoading] = useState(false)
   const toast = useToast()
 
   const { client } = useWeb3Service()
@@ -213,6 +216,7 @@ export function SellForm({
       await queryClient.refetchQueries({
         queryKey: ['tradeQuotesYes'],
       })
+      setQuotesLoading(false)
     }, 500),
     []
   )
@@ -222,6 +226,7 @@ export function SellForm({
       await queryClient.refetchQueries({
         queryKey: ['tradeQuotesNo'],
       })
+      setQuotesLoading(false)
     }, 500),
     []
   )
@@ -255,6 +260,13 @@ export function SellForm({
   const positionsNo = positions?.find((position) => position.outcomeIndex === 1)
 
   const perShareYes = useMemo(() => {
+    if (!token) {
+      return (
+        <Box w='80px'>
+          <TradeWidgetSkeleton height={20} />
+        </Box>
+      )
+    }
     return quoteYes
       ? `${NumberUtil.formatThousands(quoteYes.outcomeTokenPrice, 6)} ${
           market?.collateralToken.symbol
@@ -263,6 +275,13 @@ export function SellForm({
   }, [quoteYes, market?.collateralToken.symbol, market?.prices, token?.symbol])
 
   const perShareNo = useMemo(() => {
+    if (!token) {
+      return (
+        <Box w='80px'>
+          <TradeWidgetSkeleton height={20} />
+        </Box>
+      )
+    }
     return quoteNo
       ? `${NumberUtil.formatThousands(quoteNo.outcomeTokenPrice, 6)} ${
           market?.collateralToken.symbol
@@ -337,6 +356,9 @@ export function SellForm({
   }, [collateralAmount, outcomeChoice, balanceOfCollateralToSellYes, balanceOfCollateralToSellNo])
 
   const tradeButton = useMemo(() => {
+    if (quotesLoading) {
+      return null
+    }
     if (displayAmount) {
       if (!isApproved) {
         return (
@@ -357,7 +379,14 @@ export function SellForm({
       )
     }
     return null
-  }, [displayAmount, isApproved, isMobile, isExceedsBalance, approveSellMutation.status])
+  }, [
+    displayAmount,
+    isApproved,
+    isMobile,
+    isExceedsBalance,
+    approveSellMutation.status,
+    quotesLoading,
+  ])
 
   useEffect(() => {
     if (isZeroBalance) {
@@ -370,6 +399,7 @@ export function SellForm({
 
   useEffect(() => {
     if (+displayAmount) {
+      setQuotesLoading(true)
       if (outcomeChoice === 'yes') {
         refetchQuotesYes()
       }
@@ -705,9 +735,15 @@ export function SellForm({
                 <Text {...paragraphMedium} color='white'>
                   Balance
                 </Text>
-                <Text {...paragraphMedium} color='white'>
-                  {NumberUtil.formatThousands(balance, 6)} {token?.symbol}
-                </Text>
+                {sellBalanceLoading ? (
+                  <Box w='120px'>
+                    <TradeWidgetSkeleton height={20} />
+                  </Box>
+                ) : (
+                  <Text {...paragraphMedium} color='white'>
+                    {NumberUtil.formatThousands(balance, 6)} {token?.symbol}
+                  </Text>
+                )}
               </Flex>
               <Slider
                 aria-label='slider-ex-6'
@@ -828,10 +864,16 @@ export function SellForm({
                       Price impact
                     </Text>
                   </HStack>
-                  <Text {...paragraphRegular} color='white'>{`${NumberUtil.toFixed(
-                    outcomeChoice == 'yes' ? quoteYes?.priceImpact : quoteNo?.priceImpact,
-                    2
-                  )}%`}</Text>
+                  {quotesLoading ? (
+                    <Box w='40px'>
+                      <TradeWidgetSkeleton height={20} />
+                    </Box>
+                  ) : (
+                    <Text {...paragraphRegular} color='white'>{`${NumberUtil.toFixed(
+                      outcomeChoice == 'yes' ? quoteYes?.priceImpact : quoteNo?.priceImpact,
+                      2
+                    )}%`}</Text>
+                  )}
                 </HStack>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
@@ -839,9 +881,16 @@ export function SellForm({
                       ROI
                     </Text>
                   </HStack>
-                  <Text {...paragraphRegular} color='white'>
-                    {NumberUtil.toFixed(outcomeChoice == 'yes' ? quoteYes?.roi : quoteNo?.roi, 2)}%
-                  </Text>
+                  {quotesLoading ? (
+                    <Box w='60px'>
+                      <TradeWidgetSkeleton height={20} />
+                    </Box>
+                  ) : (
+                    <Text {...paragraphRegular} color='white'>
+                      {NumberUtil.toFixed(outcomeChoice == 'yes' ? quoteYes?.roi : quoteNo?.roi, 2)}
+                      %
+                    </Text>
+                  )}
                 </HStack>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
@@ -849,9 +898,15 @@ export function SellForm({
                       Total
                     </Text>
                   </HStack>
-                  <Text {...paragraphRegular} color='white'>
-                    {NumberUtil.toFixed(displayAmount, 6)} {token?.symbol}
-                  </Text>
+                  {quotesLoading ? (
+                    <Box w='120px'>
+                      <TradeWidgetSkeleton height={20} />
+                    </Box>
+                  ) : (
+                    <Text {...paragraphRegular} color='white'>
+                      {NumberUtil.toFixed(displayAmount, 6)} {token?.symbol}
+                    </Text>
+                  )}
                 </HStack>
               </VStack>
               {tradeButton}

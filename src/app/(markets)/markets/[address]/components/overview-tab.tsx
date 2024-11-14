@@ -10,7 +10,7 @@ import { Category, Market, MarketGroup, MarketStatus } from '@/types'
 import { parseTextWithLinks } from '@/utils/string'
 
 interface MarketOverviewTabProps {
-  market: Market
+  market?: Market
   marketGroup?: MarketGroup
 }
 
@@ -31,7 +31,7 @@ function MarketOverviewTab({ market, marketGroup }: MarketOverviewTabProps) {
         <HStack gap='4px'>
           <ResolutionIcon width='16px' height='16px' />
           <Text {...paragraphBold}>
-            Resolution {market.status !== MarketStatus.RESOLVED ? 'rules' : 'results'}
+            Resolution {market?.status !== MarketStatus.RESOLVED ? 'rules' : 'results'}
           </Text>
         </HStack>
         <Box w={isMobile ? 'full' : 'fit-content'}>
@@ -60,7 +60,7 @@ function MarketOverviewTab({ market, marketGroup }: MarketOverviewTabProps) {
         </Box>
       </HStack>
       <Text {...paragraphRegular} userSelect='text'>
-        {parseTextWithLinks(market?.description)}
+        {parseTextWithLinks(market?.description || '')}
       </Text>
     </>
   )
