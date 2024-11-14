@@ -50,9 +50,11 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
 
   const trackEvent = useCallback(
     async (eventType: EventType, customData?: EventMetadata) => {
-      if (window.location.origin !== 'https://limitless.exchange') {
+      if (window.location.origin === 'https://limitless.exchange') {
         return
       }
+
+      console.log(walletAddress)
 
       return amplitudeTrack({
         event_type: String(eventType),
