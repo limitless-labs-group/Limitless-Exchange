@@ -203,20 +203,12 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     refetchInterval: 10000,
   })
 
-  console.log(`isConnecting ${isConnecting}`)
-  console.log(`isConnected ${isConnected}`)
-  console.log(`profile ${profileData}`)
-  console.log(`profileLoading ${profileLoading}`)
-  console.log(`loadingSmartWallet ${isLoadingSmartWalletAddress}`)
-  console.log(`balanceOfSmartWalletLoading ${balanceOfSmartWalletLoading}`)
   const userMenuLoading = useMemo(() => {
     if (isConnected) {
       return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
     }
     return false
   }, [isConnected, profileLoading, isLoadingSmartWalletAddress, profileData])
-
-  console.log(userMenuLoading)
 
   const balanceLoading = userMenuLoading || balanceOfSmartWalletLoading
 
