@@ -1,24 +1,17 @@
 'use client'
 
-import {
-  init,
-  track as amplitudeTrack,
-  getDeviceId,
-  getSessionId,
-} from '@amplitude/analytics-browser'
+import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
 import * as sessionReplay from '@amplitude/session-replay-browser'
 import {
   CUSTOM_LOGIN_PROVIDER_TYPE,
   LOGIN_PROVIDER_TYPE,
 } from '@toruslabs/openlogin-utils/dist/types/interfaces'
-import { uuidv4 } from '@walletconnect/utils'
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useAccount } from '@/services'
 import { Address, MarketGroup } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
-const NODE_ENV = process.env.NODE_ENV ?? 'development'
 
 interface IAmplitudeContext {
   trackSignUp: () => void
@@ -65,16 +58,16 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         event_type: String(eventType),
         event_properties: {
           ...customData,
-          walletAddress,
           ...sessionReplay.getSessionReplayProperties(),
         },
         user_properties: {
           account,
           ...userInfo,
+          walletAddress,
         },
       }).promise
     },
-    [account]
+    [account, walletAddress]
   )
 
   const trackSignUp = async () => {
