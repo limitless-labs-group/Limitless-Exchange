@@ -26,6 +26,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
+import CommentTab from '@/components/common/markets/comment-tab'
 import TextWithPixels from '@/components/common/text-with-pixels'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import {
@@ -40,6 +41,7 @@ import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
+import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
 import {
@@ -87,12 +89,17 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       title: 'Activity',
       icon: <ActivityIcon width={16} height={16} />,
     },
+    {
+      title: 'Opinions',
+      icon: <OpinionIcon width={16} height={16} />,
+    },
   ]
 
   const tabPanels = useMemo(() => {
     return [
       <MarketOverviewTab market={market as Market} key={uuidv4()} />,
       <MarketActivityTab key={uuidv4()} />,
+      <CommentTab key={uuidv4()} />,
     ]
   }, [market, winningIndex, resolved])
 
@@ -207,7 +214,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       }}
                     >
                       <HStack gap='4px'>
-                        <TwitterIcon />
+                        <TwitterIcon width={16} />
                         <Text {...paragraphMedium}>On X</Text>
                       </HStack>
                     </MenuItem>
