@@ -18,6 +18,7 @@ import {
   HistoryServiceProvider,
   LimitlessApiProvider,
   TradingServiceProvider,
+  CommentServiceProvider,
 } from '@/services'
 
 export const Providers = ({ children }: React.PropsWithChildren) => {
@@ -39,7 +40,9 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                           <BalanceServiceProvider>
                             <HistoryServiceProvider>
                               <TokenFilterProvider>
-                                <TradingServiceProvider>{children}</TradingServiceProvider>
+                                <CommentServiceProvider>
+                                  <TradingServiceProvider>{children}</TradingServiceProvider>
+                                </CommentServiceProvider>
                               </TokenFilterProvider>
                             </HistoryServiceProvider>
                           </BalanceServiceProvider>

@@ -1,5 +1,6 @@
 import { AxiosError } from 'axios'
 import { Hash, Address } from 'viem'
+import { Profile } from './profiles'
 
 export type { Hash, Address }
 
@@ -39,7 +40,7 @@ export type DraftMetadata = {
 
 export interface Market {
   address: Address
-  category: Category
+  category: Category | string
   collateralToken: {
     address: Address
     decimals: number
@@ -165,6 +166,7 @@ export interface ColorScheme {
     600: string
     700: string
     800: string
+    white: string
   }
   blue: {
     50: string
@@ -263,6 +265,25 @@ export interface UpdateProfileData {
   username: string
   pfpFile?: File
   bio?: string
+}
+
+export interface CommentPost {
+  content: string
+  market: Market
+  author: Profile
+  createdAt: string
+  id: string
+}
+export interface CommentResponse {
+  comments: Comment[]
+  totalPages: number
+}
+
+export interface CommentType {
+  id: string
+  createdAt: string
+  content: string
+  author: Profile
 }
 
 export type APIError = AxiosError<{ message: string; statusCode: number }>

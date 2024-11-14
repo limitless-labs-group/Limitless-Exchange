@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { getAddress } from 'viem'
 import AllMarkets from '@/components/common/markets/all-markets'
 import DailyMarketsSection from '@/components/common/markets/daily-markets'
-import MarketPage from '@/components/common/markets/market-page'
 import TopMarkets from '@/components/common/markets/top-markets'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
@@ -20,7 +19,7 @@ import {
   useTradingService,
 } from '@/services'
 import { useDailyMarkets, useMarkets } from '@/services/MarketsService'
-import { Market, MarketGroup, Sort } from '@/types'
+import { Category, Market, MarketGroup, Sort } from '@/types'
 
 const MainPage = () => {
   const searchParams = useSearchParams()
@@ -116,7 +115,7 @@ const MainPage = () => {
 
     if (selectedCategory) {
       return tokenFilteredMarkets.filter(
-        (market) => market.category.name === selectedCategory?.name
+        (market) => (market.category as Category).name === selectedCategory?.name
       )
     }
 

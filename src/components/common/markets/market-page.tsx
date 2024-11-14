@@ -30,15 +30,14 @@ import {
   MarketPriceChart,
   SellForm,
 } from '@/app/(markets)/markets/[address]/components'
-import { useToast } from '@/hooks'
+import CommentTab from './comment-tab'
 import useMarketGroup from '@/hooks/use-market-group'
-import WarpcastIcon from '@/resources/icons/Farcaster.svg'
-import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import {
@@ -49,12 +48,11 @@ import {
   useHistory,
   useTradingService,
 } from '@/services'
-import { useMarket, useWinningIndex } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
 import {
   controlsMedium,
   h1Regular,
   h2Medium,
-  headline,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
@@ -126,9 +124,17 @@ export default function MarketPage() {
       title: 'Activity',
       icon: <ActivityIcon width={16} height={16} />,
     },
+    {
+      title: 'Opinions',
+      icon: <OpinionIcon width={16} height={16} />,
+    },
   ]
 
-  const tabPanels = [<MarketPageOverviewTab key={uuidv4()} />, <MarketActivityTab key={uuidv4()} />]
+  const tabPanels = [
+    <MarketPageOverviewTab key={uuidv4()} />,
+    <MarketActivityTab key={uuidv4()} />,
+    <CommentTab key={uuidv4()} />,
+  ]
 
   const handleCloseMarketPageClicked = () => {
     setMarket(null)
