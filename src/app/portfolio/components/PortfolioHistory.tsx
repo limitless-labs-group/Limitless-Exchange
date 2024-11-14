@@ -1,11 +1,11 @@
 import { Flex, Table, TableContainer, Tbody, Text, Th, Thead, Tr } from '@chakra-ui/react'
-import { useEffect, useMemo } from 'react'
+import { memo, useEffect, useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { PortfolioHistoryRedeemItem } from '@/app/portfolio/components/PortfolioHistoryRedeemItem'
 import { PortfolioHistoryTradeItem } from '@/app/portfolio/components/PortfolioHistoryTradeItem'
 import { HistoryRedeem, HistoryTrade, useHistory } from '@/services'
 
-export const PortfolioHistory = () => {
+const History = () => {
   const { trades, getTrades, redeems, getRedeems } = useHistory()
 
   useEffect(() => {
@@ -53,3 +53,5 @@ export const PortfolioHistory = () => {
     </TableContainer>
   )
 }
+
+export const PortfolioHistory = memo(History)

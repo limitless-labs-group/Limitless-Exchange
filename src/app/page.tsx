@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { getAddress } from 'viem'
 import AllMarkets from '@/components/common/markets/all-markets'
 import DailyMarketsSection from '@/components/common/markets/daily-markets'
-import MarketPage from '@/components/common/markets/market-page'
 import TopMarkets from '@/components/common/markets/top-markets'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
@@ -26,7 +25,7 @@ const MainPage = () => {
   const searchParams = useSearchParams()
   const [page, setPage] = useState(1)
   const { data: categories } = useCategories()
-  const { marketPageOpened, onCloseMarketPage } = useTradingService()
+  const { onCloseMarketPage } = useTradingService()
   /**
    * ANALYTICS
    */
@@ -243,7 +242,6 @@ const MainPage = () => {
           )}
         </Box>
       </HStack>
-      {marketPageOpened && <MarketPage />}
     </MainLayout>
   )
 }

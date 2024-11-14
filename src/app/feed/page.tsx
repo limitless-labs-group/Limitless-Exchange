@@ -71,7 +71,7 @@ export default function MainPage() {
 
   return (
     <MainLayout isLoading={false}>
-      <Box w={isMobile ? 'full' : '664px'} ml={isMobile ? 'auto' : '200px'}>
+      <Box w={isMobile ? 'full' : '664px'}>
         <Divider bg='grey.800' orientation='horizontal' h='3px' mb='16px' />
         <TextWithPixels
           text={`Limitless Feed`}

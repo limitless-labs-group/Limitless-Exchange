@@ -71,7 +71,13 @@ interface ITradingServiceContext {
   onCloseMarketPage: () => void
   onOpenMarketPage: (
     market: Market | MarketGroup,
-    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner'
+    type:
+      | 'Standard Banner'
+      | 'Medium Banner'
+      | 'Big Banner'
+      | 'Portfolio Card'
+      | 'History Card'
+      | 'Feed'
   ) => void
   refetchMarkets: () => Promise<void>
 }
@@ -102,20 +108,21 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const [marketPageOpened, setMarketPageOpened] = useState(false)
 
   const onCloseMarketPage = () => {
-    trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
-      mode: 'closed',
-      marketCategory: market?.category,
-      marketAddress: market?.address,
-      marketType: marketGroup ? 'group' : 'single',
-      marketTags: market?.tags,
-    })
     setMarketPageOpened(false)
   }
 
   const onOpenMarketPage = (
     market: Market | MarketGroup,
-    type: 'Standard Banner' | 'Medium Banner' | 'Big Banner'
+    type:
+      | 'Standard Banner'
+      | 'Medium Banner'
+      | 'Big Banner'
+      | 'Portfolio Card'
+      | 'History Card'
+      | 'Feed'
   ) => {
+    setMarket(null)
+    setMarketGroup(null)
     trackClicked(ClickEvent.SidebarMarketOpened, {
       mode: 'open',
       marketCategory: market?.category,
@@ -554,7 +561,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         : (quotesYes?.outcomeTokenAmount as string)
 
       const minOutcomeTokensToBuy = slippage
-        ? new BigNumber(outcomeTokenAmount).multipliedBy(1 - +slippage / 100).toFixed(0)
+        ? new BigNumber(outcomeTokenAmount).multipliedBy(1 - +slippage / 100).toString()
         : outcomeTokenAmount
 
       const receipt = await buyOutcomeTokens(

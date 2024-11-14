@@ -63,6 +63,11 @@ export interface Market {
   volumeFormatted: string
   winningOutcomeIndex: number | null
   prices: number[]
+  group?: {
+    id: number
+    slug: string
+    title: string
+  }
 }
 
 export interface MarketGroup {
@@ -160,6 +165,7 @@ export interface ColorScheme {
     600: string
     700: string
     800: string
+    white: string
   }
   blue: {
     50: string

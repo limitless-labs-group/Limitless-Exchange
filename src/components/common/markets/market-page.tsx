@@ -30,10 +30,7 @@ import {
   MarketPriceChart,
   SellForm,
 } from '@/app/(markets)/markets/[address]/components'
-import { useToast } from '@/hooks'
 import useMarketGroup from '@/hooks/use-market-group'
-import WarpcastIcon from '@/resources/icons/Farcaster.svg'
-import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
@@ -49,12 +46,11 @@ import {
   useHistory,
   useTradingService,
 } from '@/services'
-import { useMarket, useWinningIndex } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
 import {
   controlsMedium,
   h1Regular,
   h2Medium,
-  headline,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
@@ -132,8 +128,8 @@ export default function MarketPage() {
 
   const handleCloseMarketPageClicked = () => {
     setMarket(null)
-    onCloseMarketPage()
     setMarketGroup(null)
+    onCloseMarketPage()
     trackClicked(ClickEvent.CloseMarketClicked, {
       marketAddress: market?.address as Address,
     })
@@ -445,11 +441,7 @@ export default function MarketPage() {
           status === 'Loading' ? (
             <LoadingForm outcomeIndex={outcomeIndex} />
           ) : (
-            <SellForm
-              setOutcomeIndex={setOutcomeIndex}
-              // setSelectedMarket={setSelectedMarket}
-              // marketGroup={marketGroup}
-            />
+            <SellForm setOutcomeIndex={setOutcomeIndex} />
           )
         ) : null}
       </Paper>

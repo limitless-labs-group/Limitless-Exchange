@@ -22,7 +22,7 @@ interface ConfirmButtonProps {
   setStatus: Dispatch<SetStateAction<ButtonStatus>>
   handleConfirmClicked: () => Promise<void>
   onApprove: () => Promise<void>
-  analyticParams?: { quickBetSource: string; source: string }
+  analyticParams?: { source: string }
   marketAddress: Address
   outcome: 'Yes' | 'No'
   marketType: 'single' | 'group'
