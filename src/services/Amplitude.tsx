@@ -54,8 +54,6 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      console.log(walletAddress)
-
       return amplitudeTrack({
         event_type: String(eventType),
         event_properties: {
