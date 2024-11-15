@@ -54,7 +54,7 @@ export default function SortFilter({ onChange }: SortFilterProps) {
               })
               handleFilterItemClicked(option)
             }}
-            _hover={{ bg: option === selectedSortFilter ? 'grey.800' : 'grey.400' }}
+            _hover={{ bg: option === selectedSortFilter ? 'grey.50' : 'grey.400' }}
             borderRadius='8px'
             h={isMobile ? '28px' : '20px'}
             whiteSpace='nowrap'
