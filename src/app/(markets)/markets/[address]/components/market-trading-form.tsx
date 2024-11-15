@@ -85,7 +85,7 @@ export const MarketTradingForm = ({
     >
       {showTitle && (
         <Text {...paragraphMedium} mb='24px' textAlign='center' color='white'>
-          {market.title}
+          {market?.proxyTitle ?? market?.title}
         </Text>
       )}
       <HStack
