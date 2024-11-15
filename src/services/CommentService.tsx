@@ -1,15 +1,10 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
 import { createContext, PropsWithChildren, useContext, useMemo } from 'react'
-import { getAddress, toHex } from 'viem'
-import { useSignMessage } from 'wagmi'
 import { Toast } from '@/components/common/toast'
+import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { useToast } from '@/hooks'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import { useEtherspot, useLimitlessApi } from '@/services'
-import { useWeb3Service } from '@/services/Web3Service'
 import { CommentPost } from '@/types'
-import { ProfileActionType } from '@/types/profiles'
 
 export interface IUseCreateComment {
   content: string
@@ -27,51 +22,20 @@ const CommentServiceContext = createContext({} as CommentServiceContext)
 export const CommentServiceProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
 
-  const { signMessage, smartWalletExternallyOwnedAccountAddress } = useEtherspot()
-  const { signMessageAsync } = useSignMessage()
-  const { getSigningMessage } = useLimitlessApi()
-  const { client } = useWeb3Service()
-  const account = useWalletAddress()
+  const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()
 
   const {
     mutateAsync: createComment,
     isPending: isPostCommentLoading,
     isSuccess: isPostCommentSuccess,
-    status: postCommentStatus,
   } = useMutation({
     mutationKey: ['create-comment'],
     mutationFn: async ({ content, marketAddress }: IUseCreateComment): Promise<CommentPost> => {
-      const { data: registerProfileSigningMessage } = await getSigningMessage(
-        ProfileActionType.LEAVE_COMMENT
-      )
-
-      if (!registerProfileSigningMessage) throw new Error('Failed to get signing message')
-      const signature = (
-        client === 'eoa'
-          ? await signMessageAsync({ message: registerProfileSigningMessage, account })
-          : await signMessage(registerProfileSigningMessage)
-      ) as `0x${string}`
-
-      const headers = {
-        'x-account':
-          client === 'eoa'
-            ? getAddress(account!)
-            : getAddress(smartWalletExternallyOwnedAccountAddress!),
-        'x-signature': signature,
-        'x-signing-message': toHex(String(registerProfileSigningMessage)),
-      }
-
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/comments`,
-        {
-          content,
-          marketAddress,
-        },
-        {
-          headers,
-        }
-      )
+      const res = await privateClient.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/comments`, {
+        content,
+        marketAddress,
+      })
       return res.data
     },
     onSuccess: (_, { marketAddress }) => {
