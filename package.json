@@ -5,7 +5,7 @@
   "author": "Limitless Labs",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development wagmi generate && next dev",
+    "dev": "NODE_ENV=development wagmi generate && next dev --experimental-https",
     "build": "wagmi generate && next build",
     "analyze": "ANALYZE=true yarn build",
     "deploy": "vercel",

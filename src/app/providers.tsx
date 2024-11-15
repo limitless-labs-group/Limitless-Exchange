@@ -20,6 +20,7 @@ import {
   TradingServiceProvider,
   CommentServiceProvider,
 } from '@/services'
+import { AxiosProvider } from '@/services/AxiosPrivateClient'
 
 export const Providers = ({ children }: React.PropsWithChildren) => {
   const [mounted, setMounted] = React.useState(false)
@@ -33,23 +34,25 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
             <WagmiProvider>
               <RainbowProvider>
                 <Web3AuthProvider>
-                  <LimitlessApiProvider>
-                    <EtherspotProvider>
-                      <AccountProvider>
-                        <PriceOracleProvider>
-                          <BalanceServiceProvider>
-                            <HistoryServiceProvider>
-                              <TokenFilterProvider>
-                                <CommentServiceProvider>
-                                  <TradingServiceProvider>{children}</TradingServiceProvider>
-                                </CommentServiceProvider>
-                              </TokenFilterProvider>
-                            </HistoryServiceProvider>
-                          </BalanceServiceProvider>
-                        </PriceOracleProvider>
-                      </AccountProvider>
-                    </EtherspotProvider>
-                  </LimitlessApiProvider>
+                  <AxiosProvider>
+                    <LimitlessApiProvider>
+                      <EtherspotProvider>
+                        <AccountProvider>
+                          <PriceOracleProvider>
+                            <BalanceServiceProvider>
+                              <HistoryServiceProvider>
+                                <TokenFilterProvider>
+                                  <CommentServiceProvider>
+                                    <TradingServiceProvider>{children}</TradingServiceProvider>
+                                  </CommentServiceProvider>
+                                </TokenFilterProvider>
+                              </HistoryServiceProvider>
+                            </BalanceServiceProvider>
+                          </PriceOracleProvider>
+                        </AccountProvider>
+                      </EtherspotProvider>
+                    </LimitlessApiProvider>
+                  </AxiosProvider>
                 </Web3AuthProvider>
               </RainbowProvider>
             </WagmiProvider>
