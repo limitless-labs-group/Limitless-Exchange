@@ -139,7 +139,7 @@ export default function MobileHeader() {
                 >
                   <VStack
                     ml='40px'
-                    bg='grey.100'
+                    bg='grey.50'
                     h='full'
                     p='16px'
                     justifyContent='space-between'
@@ -388,7 +388,6 @@ export default function MobileHeader() {
           </HStack>
         </HStack>
       </Box>
-      {isMobile && (pathname === '/' || pathname.includes('topics')) && <TokenFilterMobile />}
     </>
   )
 }

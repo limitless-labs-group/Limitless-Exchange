@@ -417,7 +417,6 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        {!isMobile && <CategoryFilter />}
         <Spacer />
         {totalVolume && (
           <NextLink

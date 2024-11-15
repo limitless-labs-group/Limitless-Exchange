@@ -100,6 +100,7 @@ export default function LumyPage() {
         w={isMobile ? 'full' : '648px'}
         pb={isMobile ? '40px' : 0}
         bg='grey.50'
+        mt={isMobile ? '16px' : 0}
       >
         <img
           src={isMobile ? lumyMobileImage : '/assets/images/ai-logo-main.png'}

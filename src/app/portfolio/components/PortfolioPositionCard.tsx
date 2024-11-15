@@ -288,7 +288,9 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
             ) : (
               <>
                 {!market ? (
-                  <Skeleton height={20} />
+                  <Box w='120px'>
+                    <Skeleton height={20} />
+                  </Box>
                 ) : (
                   <Text {...paragraphMedium} color={cardColors.main}>
                     {`${NumberUtil.toFixed(
