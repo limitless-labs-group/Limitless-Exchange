@@ -11,7 +11,7 @@ const baseStyle = definePartsStyle({
   button: {
     ...commonButtonProps,
     bg: 'grey.300',
-    borderRadius: '2px',
+    borderRadius: '8px',
     ...(isMobile
       ? {}
       : {
@@ -35,7 +35,7 @@ const baseStyle = definePartsStyle({
   },
   item: {
     bg: 'unset',
-    borderRadius: '2px',
+    borderRadius: '8px',
     px: '4px',
     py: isMobile ? '6px' : '2px',
     ...(isMobile
@@ -52,7 +52,7 @@ const baseStyle = definePartsStyle({
 const variants = {
   outlined: {
     button: {
-      borderLeftRadius: '2px',
+      borderLeftRadius: '8px',
       border: '1px solid',
       borderColor: 'grey.300',
       bg: 'unset',

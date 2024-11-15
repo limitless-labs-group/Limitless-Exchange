@@ -199,7 +199,7 @@ export default function MobileHeader() {
                           gap='2px'
                           p='2px'
                           bg='grey.300'
-                          borderRadius='2px'
+                          borderRadius='8px'
                           w='full'
                         >
                           <Button
@@ -377,7 +377,7 @@ export default function MobileHeader() {
                     >
                       Log Out
                     </Button>
-                    <Divider mt={'12px'} borderColor={'grey.300'} />
+                    <Divider mt={'12px'} />
                     <SocialsFooter />
                   </VStack>
                 </Slide>

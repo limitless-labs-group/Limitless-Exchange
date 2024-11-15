@@ -200,7 +200,7 @@ export const MarketPriceChart = () => {
   }, [prices, winningIndex, resolved])
 
   return (
-    <Paper my='20px' py='8px' px={0} bg='grey.100' borderRadius='8px'>
+    <Paper my='20px' py='8px' px={0} bg='grey.100'>
       {/*{marketGroup ? (*/}
       {/*  <Menu isOpen={isMarketListOpen} onClose={onCloseMarketList} variant='transparent'>*/}
       {/*    <MenuButton*/}

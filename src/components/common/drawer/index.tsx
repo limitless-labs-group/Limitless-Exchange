@@ -140,7 +140,7 @@ export default function MobileDrawer({
                 margin: '8px auto',
                 width: '36px',
                 height: '4px',
-                borderRadius: '2px',
+                borderRadius: '8px',
                 background: grabberBgColor,
               }}
             />

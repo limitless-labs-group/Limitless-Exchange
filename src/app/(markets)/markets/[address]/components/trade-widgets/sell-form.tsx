@@ -519,7 +519,7 @@ export function SellForm({
                   setOutcomeChoice('yes')
                   setCollateralAmount('')
                 }}
-                borderRadius='2px'
+                borderRadius='8px'
                 _hover={{
                   backgroundColor: outcomeChoice === 'yes' ? 'white' : 'transparent.300',
                 }}
@@ -637,7 +637,7 @@ export function SellForm({
                   setOutcomeChoice('no')
                   setCollateralAmount('')
                 }}
-                borderRadius='2px'
+                borderRadius='8px'
                 _hover={{
                   backgroundColor: outcomeChoice === 'no' ? 'white' : 'transparent.300',
                 }}

@@ -34,7 +34,7 @@ export const MainLayout = ({
       alignItems={'center'}
       justifyContent={'space-between'}
       gap={{ sm: 6, md: 10 }}
-      bg='grey.100'
+      bg='grey.50'
       {...props}
     >
       <HeaderMarquee />

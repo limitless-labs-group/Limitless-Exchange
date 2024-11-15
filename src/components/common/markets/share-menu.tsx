@@ -58,7 +58,7 @@ export default function ShareMenu() {
           </HStack>
         )}
       </MenuButton>
-      <MenuList borderRadius='2px' w={isMobile ? '160px' : '122px'} zIndex={2}>
+      <MenuList borderRadius='8px' w={isMobile ? '160px' : '122px'} zIndex={2}>
         <MenuItem
           onClick={() => {
             trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {

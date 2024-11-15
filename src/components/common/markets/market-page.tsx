@@ -251,12 +251,9 @@ export default function MarketPage() {
 
   return (
     <Box
-      rounded='2px'
       bg='grey.50'
-      borderTopLeftRadius='8px'
-      borderBottomLeftRadius='8px'
-      borderTopRadius={0}
-      borderBottomRightRadius={0}
+      borderLeft={isMobile ? 'unset' : '1px solid'}
+      borderColor='grey.100'
       w={isMobile ? 'full' : '488px'}
       position={isMobile ? 'relative' : 'fixed'}
       height={isMobile ? 'calc(100dvh - 21px)' : 'calc(100vh - 21px)'}
@@ -331,7 +328,7 @@ export default function MarketPage() {
           </Box>
         </HStack>
       </HStack>
-      <Divider my='8px' color='grey.100' />
+      <Divider my='8px' />
       <HStack w='full' mb={isMobile ? '32px' : '24px'} mt={isMobile ? '24px' : 0}>
         <VStack alignItems='center' flex={1} gap={0}>
           <HStack color='grey.400' gap='4px'>
@@ -363,7 +360,7 @@ export default function MarketPage() {
           w={'240px'}
           mx='auto'
           bg='rgba(255, 255, 255, 0.20)'
-          borderRadius='2px'
+          borderRadius='8px'
           py='2px'
           px={isMobile ? '4px' : '2px'}
           mb={isMobile ? '16px' : '24px'}
@@ -372,7 +369,7 @@ export default function MarketPage() {
             h={isMobile ? '28px' : '20px'}
             flex='1'
             py='2px'
-            borderRadius='2px'
+            borderRadius='8px'
             bg={strategy === 'Buy' ? 'white' : 'unset'}
             color={strategy === 'Buy' ? 'black' : 'white'}
             _hover={{
@@ -393,7 +390,7 @@ export default function MarketPage() {
           <Button
             h={isMobile ? '28px' : '20px'}
             flex='1'
-            borderRadius='2px'
+            borderRadius='8px'
             py='2px'
             bg={strategy === 'Sell' ? 'white' : 'unset'}
             color={strategy === 'Sell' ? 'black' : 'white'}

@@ -12,7 +12,7 @@ const baseStyle = definePartsStyle({
     h: '12px',
     border: '1px solid',
     borderColor: 'grey.300',
-    borderRadius: '2px',
+    borderRadius: '8px',
     color: 'grey.100',
     _focus: {
       boxShadow: 'unset',

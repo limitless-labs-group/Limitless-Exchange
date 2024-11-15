@@ -175,6 +175,7 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
           w={'full'}
           bg={market?.expired ? 'green.500' : 'grey.200'}
           p={'16px'}
+          borderRadius='8px'
         >
           <Stack spacing={'8px'}>
             <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
@@ -226,7 +227,7 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
             <HStack>{market?.expired && <ClaimButton />}</HStack>
           </Stack>
 
-          <Divider w={'full'} bgColor={'grey.400'} h={'1px'} mb={'10px'} mt={'10px'} />
+          <Divider w={'full'} h={'1px'} mb={'10px'} mt={'10px'} />
 
           <Stack w={'full'}>
             <HStack alignItems={'start'} gap={0} justifyContent={'space-between'}>
@@ -271,6 +272,7 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
       onMouseEnter={() => setColors(hoverColors)}
       onMouseLeave={() => setColors(unhoveredColors)}
       onClick={handleOpenMarketPage}
+      borderRadius='8px'
     >
       <Stack direction='row'>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>

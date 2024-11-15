@@ -85,7 +85,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
       justifyContent='space-between'
       bg='lime.500'
       p='16px'
-      borderRadius='2px'
+      borderRadius='8px'
       h={'324px'}
       cursor='pointer'
       onClick={(e) => onClickRedirectToMarket(e)}
@@ -177,7 +177,9 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
           mt={'12px'}
           mb='8px'
           w='full'
-          color='rgba(0, 0, 0, 0.2)'
+          bg='rgba(0, 0, 0, 0.2)'
+          borderColor='rgba(0, 0, 0, 0.2)'
+          opacity='0.2 !important'
         />
         {isMobile ? null : (
           <HStack w='full' justifyContent='space-between'>

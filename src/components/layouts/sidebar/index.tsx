@@ -171,12 +171,12 @@ export default function Sidebar() {
       <VStack
         padding='16px 8px'
         borderRight='1px solid'
-        borderColor='grey.200'
+        borderColor='grey.100'
         h='full'
         minW={'188px'}
         minH={'100vh'}
         zIndex={200}
-        bg='grey.100'
+        bg='grey.50'
         pos='fixed'
         overflowY='auto'
       >
@@ -214,6 +214,7 @@ export default function Sidebar() {
                   variant='transparent'
                   w='full'
                   bg={pageName === 'Portfolio' ? 'grey.200' : 'unset'}
+                  rounded='8px'
                 >
                   <HStack w='full'>
                     <PortfolioIcon width={16} height={16} />
@@ -261,7 +262,7 @@ export default function Sidebar() {
                   </MenuButton>
                 )}
 
-                <MenuList borderRadius='2px' w='180px' zIndex={2}>
+                <MenuList borderRadius='8px' w='180px' zIndex={2}>
                   <HStack gap='4px' mb='4px'>
                     <Button
                       variant={mode === 'dark' ? 'grey' : 'black'}
@@ -335,6 +336,7 @@ export default function Sidebar() {
             variant='transparent'
             w='full'
             bg={pageName === 'Explore Markets' ? 'grey.200' : 'unset'}
+            rounded='8px'
           >
             <HStack w='full'>
               <GridIcon width={16} height={16} />
@@ -354,6 +356,7 @@ export default function Sidebar() {
             variant='transparent'
             w='full'
             bg={pageName === 'Home' ? 'grey.200' : 'unset'}
+            rounded='8px'
           >
             <HStack w='full'>
               <FeedIcon width={16} height={16} />
@@ -373,6 +376,7 @@ export default function Sidebar() {
             variant='transparent'
             w='full'
             bg={pageName === 'Home' ? 'grey.200' : 'unset'}
+            rounded='8px'
           >
             <HStack w='full'>
               <AiAgentIcon />
@@ -403,6 +407,7 @@ export default function Sidebar() {
             }}
             variant='transparent'
             w='full'
+            rounded='8px'
           >
             <HStack w='full'>
               <SquarePlusIcon width={16} height={16} />
@@ -426,6 +431,7 @@ export default function Sidebar() {
               display='flex'
               cursor='pointer'
               _hover={{ bg: 'grey.300' }}
+              borderRadius='8px'
             >
               {volumeArray.map((volumeSymbol, index) => (
                 <TextWithPixels

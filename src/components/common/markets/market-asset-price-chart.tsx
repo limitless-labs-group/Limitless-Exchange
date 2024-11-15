@@ -202,7 +202,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   }
 
   return (
-    <Paper bg='grey.100' my='20px' borderRadius='8px'>
+    <Paper bg='grey.100' my='20px'>
       <HStack gap='8px' mb='16px'>
         <Text {...paragraphRegular} color='grey.500'>
           Zoom

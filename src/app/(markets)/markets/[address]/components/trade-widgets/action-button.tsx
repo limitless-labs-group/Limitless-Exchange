@@ -310,7 +310,7 @@ export default function ActionButton({
           onClick={() => {
             return handleActionIntention()
           }}
-          borderRadius='2px'
+          borderRadius='8px'
           sx={{
             WebkitTapHighlightColor: 'transparent !important',
           }}

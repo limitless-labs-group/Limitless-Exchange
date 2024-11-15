@@ -17,7 +17,7 @@ export default function TradeWidgetSkeleton({ height }: SkeletonProps) {
         WebkitMaskImage: '-webkit-linear-gradient(white, white)',
         display: 'block',
         background: tradeSkeletonBackground,
-        borderRadius: '2px',
+        borderRadius: '12px',
         overflow: 'hidden',
         position: 'relative',
       }}
