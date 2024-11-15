@@ -34,9 +34,9 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
             <WagmiProvider>
               <RainbowProvider>
                 <Web3AuthProvider>
-                  <AxiosProvider>
-                    <LimitlessApiProvider>
-                      <EtherspotProvider>
+                  <LimitlessApiProvider>
+                    <EtherspotProvider>
+                      <AxiosProvider>
                         <AccountProvider>
                           <PriceOracleProvider>
                             <BalanceServiceProvider>
@@ -50,9 +50,9 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                             </BalanceServiceProvider>
                           </PriceOracleProvider>
                         </AccountProvider>
-                      </EtherspotProvider>
-                    </LimitlessApiProvider>
-                  </AxiosProvider>
+                      </AxiosProvider>
+                    </EtherspotProvider>
+                  </LimitlessApiProvider>
                 </Web3AuthProvider>
               </RainbowProvider>
             </WagmiProvider>

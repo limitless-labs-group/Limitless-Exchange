@@ -58,7 +58,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { provider, web3Auth, isConnected } = useWeb3Auth()
   const isLoggedIn = isConnected && !!provider
 
-  const { smartWalletExternallyOwnedAccountAddress, smartWalletAddress } = useEtherspot()
+  const { etherspot, smartWalletExternallyOwnedAccountAddress, smartWalletAddress } = useEtherspot()
   const { address } = useWagmiAccount()
   const toast = useToast()
 
@@ -81,7 +81,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       }
     }
     return address
-  }, [address, smartWalletAddress, web3Auth.connectedAdapterName, web3Auth.status])
+  }, [address, smartWalletAddress, web3Auth.connectedAdapterName, web3Auth.status, isConnected])
 
   /**
    * USER INFO / METADATA
@@ -244,6 +244,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     disconnect()
     await logout()
     await web3Auth.logout()
+    web3Auth.clearCache()
+    await etherspot?.destroy()
     queryClient.removeQueries({
       queryKey: ['profiles'],
     })
