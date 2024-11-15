@@ -63,19 +63,7 @@ export default function DailyMarketCardMobile({
       p='2px'
       onClick={handleMarketPageOpened}
     >
-      <Paper
-        flex={1}
-        w={'100%'}
-        _hover={{
-          bg: isLumy
-            ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'
-            : 'blue.500',
-          borderColor: isLumy ? 'none' : 'blue.500',
-        }}
-        position='relative'
-        cursor='pointer'
-        p='6px'
-      >
+      <Paper flex={1} w={'100%'} position='relative' cursor='pointer' p='6px'>
         <HStack w='full' justifyContent='space-between'>
           <HStack color={colors.main} gap='4px'>
             <LiquidityIcon width={16} height={16} />
