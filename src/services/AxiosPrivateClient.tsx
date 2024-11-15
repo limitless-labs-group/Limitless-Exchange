@@ -45,6 +45,8 @@ const useSetupAxiosInstance = () => {
         originalRequest._retry = true
 
         const account = getAccount()
+        if (!account) throw new Error('Failed to get account')
+
         try {
           const { data: registerProfileSigningMessage } = await axiosInstance.get(
             `/auth/signing-message`
