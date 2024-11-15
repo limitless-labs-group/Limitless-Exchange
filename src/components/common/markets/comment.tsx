@@ -17,7 +17,6 @@ export type CommentProps = {
 }
 
 export default function Comment({ comment, isReply }: CommentProps) {
-  const { account } = useAccount()
   const time = useTimeAgo(comment.createdAt)
   const name = comment.author?.username ?? comment.author.displayName
 
@@ -27,7 +26,10 @@ export default function Comment({ comment, isReply }: CommentProps) {
     <VStack w='full' gap='12px' align='start'>
       <HStack w='full' justifyContent='space-between'>
         <HStack>
-          <Avatar account={account as string} avatarUrl={comment.author?.pfpUrl} />
+          <Avatar
+            account={(comment.author?.account as string) ?? ''}
+            avatarUrl={comment.author?.pfpUrl}
+          />
           <Text {...captionRegular}>{isMobile ? name.slice(0, 20) + '...' : name}</Text>
           <Text {...captionRegular} color='grey.500'>
             {time}
