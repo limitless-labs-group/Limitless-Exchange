@@ -283,7 +283,7 @@ export default function MarketPage() {
         mt={isMobile ? 0 : '10px'}
       >
         <Text {...(isMobile ? { ...h2Medium } : { ...h1Regular })}>
-          {marketGroup?.title || market?.title}
+          {marketGroup?.title || market?.proxyTitle || market?.title}
         </Text>
         {isMobile && <ShareMenu />}
       </HStack>
