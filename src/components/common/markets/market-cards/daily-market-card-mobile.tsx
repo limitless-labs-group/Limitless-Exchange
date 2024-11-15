@@ -4,6 +4,7 @@ import React, { SyntheticEvent, useState } from 'react'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPage from '@/components/common/markets/market-page'
+import Paper from '@/components/common/paper'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import TooltipIcon from '@/resources/icons/tooltip-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
@@ -55,77 +56,85 @@ export default function DailyMarketCardMobile({
 
   const content = (
     <Box
-      border='2px'
-      borderColor='grey.800'
-      cursor='pointer'
-      py='10px'
-      px='8px'
-      w='full'
-      style={{
-        borderImage: isLumy
-          ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%) 1'
-          : 'unset',
-      }}
+      bg={
+        isLumy ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)' : 'grey.100'
+      }
+      rounded='12px'
+      p='2px'
       onClick={handleMarketPageOpened}
-      position='relative'
     >
-      <HStack w='full' justifyContent='space-between'>
-        <HStack color={colors.main} gap='4px'>
-          <LiquidityIcon width={16} height={16} />
-          <Text {...paragraphMedium} color={colors.main}>
-            {NumberUtil.formatThousands(market.liquidityFormatted, 6) +
-              ' ' +
-              market.collateralToken.symbol}
-          </Text>
-        </HStack>
-        <HStack color={colors.main} gap='4px'>
-          <VolumeIcon width={16} height={16} />
-          <Text {...paragraphMedium} color={colors.main}>
-            {NumberUtil.formatThousands(market.volumeFormatted, 6)} {market.collateralToken.symbol}
-          </Text>
-        </HStack>
-      </HStack>
-      <HStack w='full' justifyContent='center' px='8px'>
-        <Text {...paragraphMedium} color={colors.main} my='48px' textAlign='center'>
-          {market.proxyTitle ?? market.title ?? 'Noname market'}
-        </Text>
-      </HStack>
-      <HStack justifyContent='space-between' alignItems='flex-end'>
-        <DailyMarketTimer deadline={market.expirationTimestamp} color={colors.main} />
-        <HStack gap={1} color={colors.main}>
-          <Text {...paragraphMedium} color={colors.main}>
-            {market.prices[0]}%
-          </Text>
-          <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
-            <Box
-              h='100%'
-              w='100%'
-              borderRadius='100%'
-              bg={`conic-gradient(${colors.main} ${market.prices[0]}% 10%, ${colors.chartBg} ${market.prices[0]}% 100%)`}
-            />
-          </Box>
-        </HStack>
-      </HStack>
-      {isLumy && (
-        <Box
-          position='absolute'
-          bottom={0}
-          left='calc(50% - 30px)'
-          py='2px'
-          px='4px'
-          borderTopLeftRadius='4px'
-          borderTopRightRadius='2px'
-          bg={'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}
-          onClick={handleLumyButtonClicked}
-        >
-          <HStack gap='8px' color='white'>
-            <Text {...captionMedium} color='white'>
-              LUMY AI
+      <Paper
+        flex={1}
+        w={'100%'}
+        _hover={{
+          bg: isLumy
+            ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'
+            : 'blue.500',
+          borderColor: isLumy ? 'none' : 'blue.500',
+        }}
+        position='relative'
+        cursor='pointer'
+        p='6px'
+      >
+        <HStack w='full' justifyContent='space-between'>
+          <HStack color={colors.main} gap='4px'>
+            <LiquidityIcon width={16} height={16} />
+            <Text {...paragraphMedium} color={colors.main}>
+              {NumberUtil.formatThousands(market.liquidityFormatted, 6) +
+                ' ' +
+                market.collateralToken.symbol}
             </Text>
-            <TooltipIcon width={16} height={16} />
           </HStack>
-        </Box>
-      )}
+          <HStack color={colors.main} gap='4px'>
+            <VolumeIcon width={16} height={16} />
+            <Text {...paragraphMedium} color={colors.main}>
+              {NumberUtil.formatThousands(market.volumeFormatted, 6)}{' '}
+              {market.collateralToken.symbol}
+            </Text>
+          </HStack>
+        </HStack>
+        <HStack w='full' justifyContent='center' px='8px'>
+          <Text {...paragraphMedium} color={colors.main} my='48px' textAlign='center'>
+            {market.proxyTitle ?? market.title ?? 'Noname market'}
+          </Text>
+        </HStack>
+        <HStack justifyContent='space-between' alignItems='flex-end'>
+          <DailyMarketTimer deadline={market.expirationTimestamp} color={colors.main} />
+          <HStack gap={1} color={colors.main}>
+            <Text {...paragraphMedium} color={colors.main}>
+              {market.prices[0]}%
+            </Text>
+            <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
+              <Box
+                h='100%'
+                w='100%'
+                borderRadius='100%'
+                bg={`conic-gradient(${colors.main} ${market.prices[0]}% 10%, ${colors.chartBg} ${market.prices[0]}% 100%)`}
+              />
+            </Box>
+          </HStack>
+        </HStack>
+        {isLumy && (
+          <Box
+            position='absolute'
+            bottom={0}
+            left='calc(50% - 30px)'
+            py='2px'
+            px='4px'
+            borderTopLeftRadius='4px'
+            borderTopRightRadius='2px'
+            bg={'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}
+            onClick={handleLumyButtonClicked}
+          >
+            <HStack gap='8px' color='white'>
+              <Text {...captionMedium} color='white'>
+                LUMY AI
+              </Text>
+              <TooltipIcon width={16} height={16} />
+            </HStack>
+          </Box>
+        )}
+      </Paper>
     </Box>
   )
 

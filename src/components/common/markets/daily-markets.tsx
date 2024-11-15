@@ -48,7 +48,7 @@ export default function DailyMarketsSection({
         <Text {...headlineRegular} mb={isMobile ? '8px' : '4px'}>
           / Daily markets {isLoading ? '' : `(${totalAmount})`}
         </Text>
-        <Divider orientation='horizontal' />
+        <Divider orientation='horizontal' borderColor='grey.800' />
       </Box>
 
       {isMobile ? (

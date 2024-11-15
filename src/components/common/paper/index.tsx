@@ -7,7 +7,7 @@ export default function Paper({
   ...props
 }: PropsWithChildren<BoxProps & { ref?: LegacyRef<HTMLDivElement> }>) {
   return (
-    <Box bg='grey.200' rounded='2px' p={isMobile ? '16px' : '8px'} {...props}>
+    <Box bg='grey.100' rounded='12px' p={isMobile ? '16px' : '8px'} {...props}>
       {children}
     </Box>
   )

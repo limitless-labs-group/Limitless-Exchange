@@ -60,6 +60,7 @@ export default function MarketStatusUpdatedCard({ data }: MarketStatusUpdatedCar
       onMouseEnter={() => setColors(hoverColors)}
       onMouseLeave={() => setColors(defaultColors)}
       onClick={() => onOpenMarketPage(market as Market, 'Feed')}
+      rounded='8px'
     >
       <HStack justifyContent='space-between' mb='12px'>
         <Text {...paragraphMedium} color={colors.main} fontSize={'14px'} lineHeight={'20px'}>

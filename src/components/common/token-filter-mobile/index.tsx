@@ -21,10 +21,10 @@ export default function TokenFilterMobile() {
       const _selected = category.name === searchParams?.get('category')
       return (
         <Box
-          bg={_selected ? 'grey.800' : 'grey.300'}
+          bg={_selected ? 'grey.800' : 'grey.100'}
           padding='4px 8px'
           key={category.id}
-          borderRadius='2px'
+          borderRadius='8px'
           w='fit-content'
           marginBottom='4px'
           cursor='pointer'

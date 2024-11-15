@@ -33,10 +33,10 @@ import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
-import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
+import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
+import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
+import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
-import SwapIcon from '@/resources/icons/swap-icon.svg'
-import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
@@ -139,7 +139,7 @@ export default function MobileHeader() {
                 >
                   <VStack
                     ml='40px'
-                    bg='grey.100'
+                    bg='grey.50'
                     h='full'
                     p='16px'
                     justifyContent='space-between'
@@ -199,7 +199,7 @@ export default function MobileHeader() {
                           gap='2px'
                           p='2px'
                           bg='grey.300'
-                          borderRadius='2px'
+                          borderRadius='8px'
                           w='full'
                         >
                           <Button
@@ -377,7 +377,7 @@ export default function MobileHeader() {
                     >
                       Log Out
                     </Button>
-                    <Divider mt={'12px'} borderColor={'grey.300'} />
+                    <Divider mt={'12px'} />
                     <SocialsFooter />
                   </VStack>
                 </Slide>
@@ -388,7 +388,6 @@ export default function MobileHeader() {
           </HStack>
         </HStack>
       </Box>
-      {isMobile && (pathname === '/' || pathname.includes('topics')) && <TokenFilterMobile />}
     </>
   )
 }

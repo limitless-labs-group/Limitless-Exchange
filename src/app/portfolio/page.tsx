@@ -53,7 +53,7 @@ const PortfolioPage = () => {
   return (
     <MainLayout>
       <Box w={isMobile ? 'full' : 'calc(100vw - 720px)'}>
-        <Divider bg='grey.800' orientation='horizontal' h='3px' />
+        <Divider orientation='horizontal' h='3px' borderColor='grey.800' bg='grey.800' />
         <TextWithPixels
           text={'Portfolio Overview'}
           {...(isMobile ? { ...h1Regular } : {})}

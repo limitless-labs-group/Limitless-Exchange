@@ -38,16 +38,16 @@ import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useThemeProvider } from '@/providers'
 import AiAgentIcon from '@/resources/icons/ai-agent-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import FeedIcon from '@/resources/icons/feed-icon.svg'
-import GridIcon from '@/resources/icons/grid-icon.svg'
 import LogoutIcon from '@/resources/icons/log-out-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
-import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import SquarePlusIcon from '@/resources/icons/square-plus-icon.svg'
+import FeedIcon from '@/resources/icons/sidebar/Feed.svg'
+import GridIcon from '@/resources/icons/sidebar/Markets.svg'
+import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
+import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
+import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
+import SquarePlusIcon from '@/resources/icons/sidebar/suggest_market.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
-import SwapIcon from '@/resources/icons/swap-icon.svg'
 import UserIcon from '@/resources/icons/user-icon.svg'
-import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
@@ -171,12 +171,12 @@ export default function Sidebar() {
       <VStack
         padding='16px 8px'
         borderRight='1px solid'
-        borderColor='grey.200'
+        borderColor='grey.100'
         h='full'
         minW={'188px'}
         minH={'100vh'}
         zIndex={200}
-        bg='grey.100'
+        bg='grey.50'
         pos='fixed'
         overflowY='auto'
       >
@@ -214,6 +214,7 @@ export default function Sidebar() {
                   variant='transparent'
                   w='full'
                   bg={pageName === 'Portfolio' ? 'grey.200' : 'unset'}
+                  rounded='8px'
                 >
                   <HStack w='full'>
                     <PortfolioIcon width={16} height={16} />
@@ -261,7 +262,7 @@ export default function Sidebar() {
                   </MenuButton>
                 )}
 
-                <MenuList borderRadius='2px' w='180px' zIndex={2}>
+                <MenuList borderRadius='8px' w='180px' zIndex={2}>
                   <HStack gap='4px' mb='4px'>
                     <Button
                       variant={mode === 'dark' ? 'grey' : 'black'}
@@ -335,6 +336,7 @@ export default function Sidebar() {
             variant='transparent'
             w='full'
             bg={pageName === 'Explore Markets' ? 'grey.200' : 'unset'}
+            rounded='8px'
           >
             <HStack w='full'>
               <GridIcon width={16} height={16} />
@@ -354,6 +356,7 @@ export default function Sidebar() {
             variant='transparent'
             w='full'
             bg={pageName === 'Home' ? 'grey.200' : 'unset'}
+            rounded='8px'
           >
             <HStack w='full'>
               <FeedIcon width={16} height={16} />
@@ -373,6 +376,7 @@ export default function Sidebar() {
             variant='transparent'
             w='full'
             bg={pageName === 'Home' ? 'grey.200' : 'unset'}
+            rounded='8px'
           >
             <HStack w='full'>
               <AiAgentIcon />
@@ -403,6 +407,7 @@ export default function Sidebar() {
             }}
             variant='transparent'
             w='full'
+            rounded='8px'
           >
             <HStack w='full'>
               <SquarePlusIcon width={16} height={16} />
@@ -412,7 +417,6 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        {!isMobile && <CategoryFilter />}
         <Spacer />
         {totalVolume && (
           <NextLink
@@ -426,6 +430,7 @@ export default function Sidebar() {
               display='flex'
               cursor='pointer'
               _hover={{ bg: 'grey.300' }}
+              borderRadius='8px'
             >
               {volumeArray.map((volumeSymbol, index) => (
                 <TextWithPixels
