@@ -2,24 +2,40 @@ import axios, { AxiosInstance } from 'axios'
 import React, { createContext, useContext } from 'react'
 import { getAddress, toHex } from 'viem'
 import { useSignMessage } from 'wagmi'
+import { useAccount as useWagmiAccount } from 'wagmi'
 import { useEtherspot } from './Etherspot'
 import { useWeb3Service } from './Web3Service'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { useWeb3Auth } from '@/providers'
 
 const useSetupAxiosInstance = () => {
-  const { signMessage, smartWalletExternallyOwnedAccountAddress } = useEtherspot()
+  const { signMessage, smartWalletExternallyOwnedAccountAddress, smartWalletAddress } =
+    useEtherspot()
   const { signMessageAsync } = useSignMessage()
   const { client } = useWeb3Service()
-  const account = useWalletAddress()
+  const { web3Auth } = useWeb3Auth()
+  const { address } = useWagmiAccount()
+
+  //todo: redo. it's difficult to manage providers wrapper to use here useAccount()
+  const getAccount = () => {
+    if (web3Auth.status === 'not_ready') {
+      return
+    }
+    if (smartWalletAddress && smartWalletExternallyOwnedAccountAddress) {
+      return smartWalletAddress
+    }
+    if (web3Auth.connectedAdapterName) {
+      if (web3Auth.connectedAdapterName === 'openlogin' && !smartWalletAddress) {
+        return
+      }
+    }
+    return address
+  }
 
   const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
     withCredentials: true,
   })
 
-  const getSigningMsg = async () => {
-    return axiosInstance.get(`/auth/signing-message`)
-  }
   axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -28,8 +44,13 @@ const useSetupAxiosInstance = () => {
       if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true
 
+        const account = getAccount()
+        if (!account) throw new Error('Failed to get account')
+
         try {
-          const { data: registerProfileSigningMessage } = await getSigningMsg()
+          const { data: registerProfileSigningMessage } = await axiosInstance.get(
+            `/auth/signing-message`
+          )
 
           if (!registerProfileSigningMessage) throw new Error('Failed to get signing message')
 

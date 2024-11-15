@@ -63,6 +63,10 @@ export default function CommentTextarea() {
             maxLength={140}
             contentEditable={true}
             resize='none'
+            whiteSpace='pre-wrap'
+            wordBreak='break-word'
+            overflow='auto'
+            wrap='soft'
             onChange={(e) => setComment(DOMPurify.sanitize(e.target.value))}
             rows={isMobile ? 1 : 2}
             w='full'
