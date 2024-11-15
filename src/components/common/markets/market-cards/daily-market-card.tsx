@@ -66,6 +66,21 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
       _hover={{
         ...(!isLumy ? { bg: 'blue.500' } : {}),
       }}
+      onMouseEnter={() => {
+        setColors(hoverColors)
+        setHovered(true)
+      }}
+      onMouseLeave={() => {
+        setColors(defaultColors)
+        setHovered(false)
+      }}
+      onClick={(event) => {
+        trackClicked(ClickEvent.MediumMarketBannerClicked, {
+          ...analyticParams,
+        })
+        onClickRedirectToMarket(event)
+        onOpenMarketPage(market, 'Medium Banner')
+      }}
     >
       <Paper
         flex={1}
@@ -77,29 +92,9 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             : 'blue.500',
           borderColor: isLumy ? 'none' : 'blue.500',
         }}
-        onMouseEnter={() => {
-          setColors(hoverColors)
-          setHovered(true)
-        }}
-        onMouseLeave={() => {
-          setColors(defaultColors)
-          setHovered(false)
-        }}
-        onClick={(event) => {
-          trackClicked(ClickEvent.MediumMarketBannerClicked, {
-            ...analyticParams,
-          })
-          onClickRedirectToMarket(event)
-          onOpenMarketPage(market, 'Medium Banner')
-        }}
         position='relative'
         cursor='pointer'
         p='6px'
-        // style={{
-        //   borderImage: isLumy
-        //     ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%) 1'
-        //     : 'unset',
-        // }}
       >
         <Flex h='full' flexDirection='column' justifyContent='space-between'>
           <HStack justifyContent='space-between'>
