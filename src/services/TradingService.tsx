@@ -23,7 +23,7 @@ import {
 } from '@/hooks/use-conditional-tokens-addr'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { publicClient } from '@/providers'
-import { ClickEvent, useAmplitude, useBalanceService, useHistory } from '@/services'
+import { ClickEvent, useAmplitude, useBalanceQuery, useHistory } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { Market, MarketGroup, RedeemParams } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
@@ -202,7 +202,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * BALANCE TO BUY
    */
-  const { refetchbalanceOfSmartWallet } = useBalanceService()
+  const { refetchbalanceOfSmartWallet } = useBalanceQuery()
 
   /**
    * BALANCE TO SELL
