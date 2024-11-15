@@ -33,10 +33,10 @@ import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
-import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
+import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
+import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
+import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
-import SwapIcon from '@/resources/icons/swap-icon.svg'
-import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
