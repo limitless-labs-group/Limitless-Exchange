@@ -18,7 +18,7 @@ import { isMobile } from 'react-device-detect'
 import BuyButton from '@/components/common/markets/buy-button'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import InfiniteIcon from '@/resources/icons/infinite-icon.svg'
-import { useBalanceService, useTradingService } from '@/services'
+import { useBalanceQuery, useBalanceService, useTradingService } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -29,7 +29,7 @@ interface MarketPageBuyFormProps {
 }
 
 export default function MarketPageBuyForm({ setOutcomeIndex, marketList }: MarketPageBuyFormProps) {
-  const { balanceOfSmartWallet } = useBalanceService()
+  const { balanceOfSmartWallet } = useBalanceQuery()
   const queryClient = useQueryClient()
   const { collateralAmount, setCollateralAmount, market, trade, quotesYes, quotesNo, resetQuotes } =
     useTradingService()
