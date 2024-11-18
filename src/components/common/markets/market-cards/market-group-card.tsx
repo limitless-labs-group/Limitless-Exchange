@@ -1,9 +1,11 @@
 import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
+import { MarketCardLink } from './market-card-link'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { useTradingService } from '@/services'
@@ -31,6 +33,7 @@ const hoverColors = {
 
 export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
   const [colors, setColors] = useState(defaultColors)
+  const router = useRouter()
 
   const { onOpenMarketPage, onCloseMarketPage } = useTradingService()
 
@@ -42,7 +45,13 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
     return +a + +b.volumeFormatted
   }, 0)
 
-  const trackMarketClicked = () => {
+  const trackMarketClicked = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.metaKey || e.ctrlKey || e.button === 2) {
+      return
+    }
+    if (!isMobile) e.preventDefault()
+
+    router.push(`?slug=${marketGroup.slug}`, { scroll: false })
     onOpenMarketPage(marketGroup, 'Standard Banner')
   }
 
@@ -63,7 +72,7 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
           setColors(defaultColors)
         }
       }}
-      onClick={trackMarketClicked}
+      onClick={(e) => trackMarketClicked(e)}
     >
       <HStack justifyContent='space-between' mb='12px'>
         <Text {...paragraphMedium} color={colors.main} lineHeight={'20px'}>
@@ -138,10 +147,17 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
   )
 
   return isMobile ? (
-    <MobileDrawer trigger={content} variant='black' onClose={onCloseMarketPage}>
+    <MobileDrawer
+      id={marketGroup.slug}
+      trigger={content}
+      variant='black'
+      onClose={onCloseMarketPage}
+    >
       <MarketPage />
     </MobileDrawer>
   ) : (
-    content
+    <MarketCardLink marketAddress={marketGroup.slug} group>
+      {content}
+    </MarketCardLink>
   )
 }

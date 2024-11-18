@@ -19,3 +19,7 @@
 .infinite-scroll-component {
   overflow: unset !important;
 }
+
+* {
+  outline: none;
+}

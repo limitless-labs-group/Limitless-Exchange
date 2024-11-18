@@ -39,7 +39,7 @@ export type DraftMetadata = {
 
 export interface Market {
   address: Address
-  category: Category
+  category: Category | string
   collateralToken: {
     address: Address
     decimals: number
@@ -233,6 +233,61 @@ export interface ColorScheme {
     700: string
     800: string
   }
+  pink: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  orange: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  yellow: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  mint: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  indigo: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
   transparent: {
     200: string
     300: string
@@ -248,6 +303,12 @@ export interface ColorScheme {
   }
   blackStale: {
     200: string
+  }
+  skeleton: {
+    dark: string
+    highLight: string
+    tradeSkeleton: string
+    tradeSkeletonBackground: string
   }
 }
 
