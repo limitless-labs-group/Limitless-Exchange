@@ -13,7 +13,7 @@ const baseStyle = definePartsStyle({
     border: '1px solid',
     borderColor: 'grey.300',
     borderRadius: '2px',
-    color: 'grey.100',
+    color: 'grey.50',
     _focus: {
       boxShadow: 'unset',
     },

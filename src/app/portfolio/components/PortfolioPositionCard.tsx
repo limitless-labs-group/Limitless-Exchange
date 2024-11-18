@@ -1,12 +1,13 @@
 import { HStack, Stack, Text, Box, Icon, VStack, Button, Divider } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import { useMemo, useState } from 'react'
+import { SyntheticEvent, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import Loader from '@/components/common/loader'
 import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
+import Skeleton from '@/components/common/skeleton'
 import useMarketGroup from '@/hooks/use-market-group'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
@@ -104,7 +105,8 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
     return (
       <Button
         variant='white'
-        onClick={async () => {
+        onClick={async (e: SyntheticEvent) => {
+          e.stopPropagation()
           setIsLoadingRedeem(true)
           trackClicked(ClickEvent.ClaimRewardOnPortfolioClicked, {
             platform: isMobile ? 'mobile' : 'desktop',
@@ -173,6 +175,7 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
           w={'full'}
           bg={market?.expired ? 'green.500' : 'grey.200'}
           p={'16px'}
+          borderRadius='8px'
         >
           <Stack spacing={'8px'}>
             <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
@@ -190,16 +193,22 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
                 </Text>
               ) : (
                 <HStack>
-                  <Text fontSize={'16px'} lineHeight={'20px'} fontWeight={500}>
-                    {`${NumberUtil.toFixed(
-                      new BigNumber(position.outcomeTokenAmount || '1')
-                        .multipliedBy(
-                          new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
-                        )
-                        .toString(),
-                      6
-                    )} ${market?.collateralToken.symbol}`}
-                  </Text>
+                  {!market ? (
+                    <Skeleton height={20} />
+                  ) : (
+                    <Text fontSize={'16px'} lineHeight={'20px'} fontWeight={500}>
+                      {`${NumberUtil.toFixed(
+                        new BigNumber(position.outcomeTokenAmount || '1')
+                          .multipliedBy(
+                            new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(
+                              100
+                            )
+                          )
+                          .toString(),
+                        6
+                      )} ${market?.collateralToken.symbol}`}
+                    </Text>
+                  )}
                   <Box gap={0} fontSize={'16px'} fontWeight={500}>
                     {contractPriceChanged}
                   </Box>
@@ -218,7 +227,7 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
             <HStack>{market?.expired && <ClaimButton />}</HStack>
           </Stack>
 
-          <Divider w={'full'} bgColor={'grey.400'} h={'1px'} mb={'10px'} mt={'10px'} />
+          <Divider w={'full'} h={'1px'} mb={'10px'} mt={'10px'} />
 
           <Stack w={'full'}>
             <HStack alignItems={'start'} gap={0} justifyContent={'space-between'}>
@@ -245,7 +254,6 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
         </Paper>
       }
       variant='black'
-      title={targetMarket?.group?.title ? targetMarket.group.title : targetMarket?.title}
       onClose={() => {
         setMarket(null)
         setMarketGroup(null)
@@ -264,6 +272,7 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
       onMouseEnter={() => setColors(hoverColors)}
       onMouseLeave={() => setColors(unhoveredColors)}
       onClick={handleOpenMarketPage}
+      borderRadius='8px'
     >
       <Stack direction='row'>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
@@ -278,16 +287,22 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
               <ClaimButton />
             ) : (
               <>
-                <Text {...paragraphMedium} color={cardColors.main}>
-                  {`${NumberUtil.toFixed(
-                    new BigNumber(position.outcomeTokenAmount || '1')
-                      .multipliedBy(
-                        new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
-                      )
-                      .toString(),
-                    6
-                  )} ${market?.collateralToken.symbol}`}
-                </Text>
+                {!market ? (
+                  <Box w='120px'>
+                    <Skeleton height={20} />
+                  </Box>
+                ) : (
+                  <Text {...paragraphMedium} color={cardColors.main}>
+                    {`${NumberUtil.toFixed(
+                      new BigNumber(position.outcomeTokenAmount || '1')
+                        .multipliedBy(
+                          new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
+                        )
+                        .toString(),
+                      6
+                    )} ${market?.collateralToken.symbol}`}
+                  </Text>
+                )}
 
                 <Box gap={0}>{contractPriceChanged}</Box>
               </>
@@ -312,9 +327,15 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
               Invested
             </Text>
             <Text {...paragraphRegular} color={cardColors.main}>
-              {`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
-                market?.collateralToken.symbol
-              }`}
+              {!market ? (
+                <Box w='68px'>
+                  <Skeleton height={20} />
+                </Box>
+              ) : (
+                `${NumberUtil.toFixed(position.collateralAmount, 6)} ${
+                  market?.collateralToken.symbol
+                }`
+              )}
             </Text>
           </VStack>
         </HStack>

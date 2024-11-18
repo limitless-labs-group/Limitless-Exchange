@@ -1,14 +1,14 @@
 import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { ethers } from 'ethers'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Address } from 'viem'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPage from '@/components/common/markets/market-page'
+import { MarketCardLink } from './market-cards/market-card-link'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
@@ -21,15 +21,28 @@ const MotionBox = motion(Box)
 
 interface BigBannerProps {
   market: Market
+  markets: Market[]
 }
 
-export default function BigBanner({ market }: BigBannerProps) {
+export default function BigBanner({ market, markets }: BigBannerProps) {
   const [feedMessage, setFeedMessage] = useState<MarketFeedData | null>(null)
-  const { onCloseMarketPage, onOpenMarketPage } = useTradingService()
+  const { onCloseMarketPage, onOpenMarketPage, setMarkets, setMarketsSection } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market.address)
+  const router = useRouter()
 
-  const onClickRedirectToMarket = () => {
+  const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.metaKey || e.ctrlKey || e.button === 2) {
+      return
+    }
+    if (!isMobile) {
+      e.preventDefault()
+    }
+    router.push(`?market=${market.address}`, { scroll: false })
     onOpenMarketPage(market, 'Big Banner')
+    if (isMobile) {
+      setMarkets(markets)
+      setMarketsSection('Big Banner')
+    }
   }
 
   useEffect(() => {
@@ -72,10 +85,10 @@ export default function BigBanner({ market }: BigBannerProps) {
       justifyContent='space-between'
       bg='lime.500'
       p='16px'
-      borderRadius='2px'
+      borderRadius='8px'
       h={'324px'}
       cursor='pointer'
-      onClick={onClickRedirectToMarket}
+      onClick={(e) => onClickRedirectToMarket(e)}
     >
       <Text {...headLineLarge}>{market.proxyTitle ?? market.title ?? 'Noname market'}</Text>
       <Box w='full' h='38px'></Box>
@@ -164,7 +177,9 @@ export default function BigBanner({ market }: BigBannerProps) {
           mt={'12px'}
           mb='8px'
           w='full'
-          color='rgba(0, 0, 0, 0.2)'
+          bg='rgba(0, 0, 0, 0.2)'
+          borderColor='rgba(0, 0, 0, 0.2)'
+          opacity='0.2 !important'
         />
         {isMobile ? null : (
           <HStack w='full' justifyContent='space-between'>
@@ -200,10 +215,10 @@ export default function BigBanner({ market }: BigBannerProps) {
   )
 
   return isMobile ? (
-    <MobileDrawer trigger={content} variant='black' onClose={onCloseMarketPage}>
+    <MobileDrawer id={market.address} trigger={content} variant='black' onClose={onCloseMarketPage}>
       <MarketPage />
     </MobileDrawer>
   ) : (
-    content
+    <MarketCardLink marketAddress={market.address}>{content}</MarketCardLink>
   )
 }

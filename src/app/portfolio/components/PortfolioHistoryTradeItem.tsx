@@ -62,8 +62,18 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
           {`${NumberUtil.formatThousands(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
             6
-          )} ${targetMarket?.collateralToken.symbol}`}
+          )} ${targetMarket ? targetMarket.collateralToken.symbol : ''}`}
         </Text>
+      </Td>
+      <Td>
+        {new Date(Number(trade.blockTimestamp) * 1000).toLocaleString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+          hour12: false,
+        })}
       </Td>
       {isMobile ? (
         <MobileDrawer

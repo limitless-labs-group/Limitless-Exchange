@@ -1,8 +1,8 @@
 import { Box, HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import NextLink from 'next/link'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
+import Skeleton from '@/components/common/skeleton'
 import { defaultChain } from '@/constants'
 import useMarketGroup from '@/hooks/use-market-group'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
@@ -74,8 +74,24 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
       <Td isNumeric>
         <Box verticalAlign='middle'>
           <Text>
-            {/* that's temporal solution since the bug is on indexer side. it returns not formatted values that's why we need to * on 10e12 */}
-            {`${formattedAmount} ${market?.collateralToken.symbol}`}
+            {!market ? (
+              <Skeleton height={20} />
+            ) : (
+              `${formattedAmount} ${market?.collateralToken.symbol}`
+            )}
+          </Text>
+        </Box>
+      </Td>
+      <Td>
+        <Box verticalAlign='middle'>
+          <Text>
+            {new Date(Number(redeem.blockTimestamp) * 1000).toLocaleDateString(undefined, {
+              month: 'short',
+              day: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </Text>
         </Box>
       </Td>

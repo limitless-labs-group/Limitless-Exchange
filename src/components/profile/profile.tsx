@@ -10,7 +10,7 @@ interface ProfileProps {
 export function Profile({ isOpen }: ProfileProps) {
   return (
     <Box
-      bg='grey.100'
+      bg='grey.50'
       w={isMobile ? 'full' : '328px'}
       px={isMobile ? '16px' : '8px'}
       pt={isMobile ? 0 : '8px'}

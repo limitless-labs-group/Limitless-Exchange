@@ -1,9 +1,11 @@
 import { Box, HStack, Text } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
+import { MarketCardLink } from './market-card-link'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { useTradingService } from '@/services'
@@ -13,6 +15,7 @@ import { NumberUtil } from '@/utils'
 
 interface MarketSingleCardProps {
   market: Market
+  markets?: Market[]
 }
 
 const defaultColors = {
@@ -27,20 +30,31 @@ const hoverColors = {
   chartBg: 'var(--chakra-colors-transparent-300)',
 }
 
-export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
+export const MarketSingleCard = ({ market, markets }: MarketSingleCardProps) => {
   const [colors, setColors] = useState(defaultColors)
+  const router = useRouter()
+  const { onOpenMarketPage, onCloseMarketPage, setMarkets, setMarketsSection } = useTradingService()
 
-  const { onOpenMarketPage, onCloseMarketPage } = useTradingService()
+  const trackMarketClicked = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.metaKey || e.ctrlKey || e.button === 2) {
+      return
+    }
 
-  const trackMarketClicked = () => {
+    if (!isMobile) {
+      e.preventDefault()
+    }
+    router.push(`?market=${market.address}`, { scroll: false })
     onOpenMarketPage(market, 'Standard Banner')
+    if (isMobile) {
+      setMarkets(markets as Market[])
+      setMarketsSection('Standard Banner')
+    }
   }
 
   const content = (
     <Paper
       w={'full'}
       justifyContent={'space-between'}
-      cursor='pointer'
       _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
       onMouseEnter={() => {
         if (!isMobile) {
@@ -52,7 +66,7 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
           setColors(defaultColors)
         }
       }}
-      onClick={trackMarketClicked}
+      onClick={(e) => trackMarketClicked(e)}
       position='relative'
     >
       <HStack justifyContent='space-between' mb='12px' alignItems='flex-start'>
@@ -121,10 +135,10 @@ export const MarketSingleCard = ({ market }: MarketSingleCardProps) => {
   )
 
   return isMobile ? (
-    <MobileDrawer trigger={content} variant='black' onClose={onCloseMarketPage}>
+    <MobileDrawer id={market.address} trigger={content} variant='black' onClose={onCloseMarketPage}>
       <MarketPage />
     </MobileDrawer>
   ) : (
-    content
+    <MarketCardLink marketAddress={market.address}>{content}</MarketCardLink>
   )
 }
