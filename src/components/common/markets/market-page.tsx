@@ -358,7 +358,7 @@ export default function MarketPage() {
       {market?.expired ? (
         <Paper h={isMobile ? '348px' : '332px'}>
           <VStack h='full' justifyContent='space-between' alignItems='flex-start'>
-            <Text fontWeight={500} color='white'>
+            <Text fontWeight={500} color='grey.800'>
               Market is closed
             </Text>
             <Button
