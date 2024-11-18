@@ -357,9 +357,19 @@ export default function MarketPage() {
       </HStack>
       {market?.expired ? (
         <Paper h={isMobile ? '348px' : '332px'}>
-          <Text fontWeight={500} color='white'>
-            Market is closed
-          </Text>
+          <VStack h='full' justifyContent='space-between' alignItems='flex-start'>
+            <Text fontWeight={500} color='white'>
+              Market is closed
+            </Text>
+            <Button
+              variant='white'
+              onClick={() => {
+                router.push('/')
+              }}
+            >
+              Explore Opened Markets
+            </Button>
+          </VStack>
         </Paper>
       ) : (
         <Paper bg='blue.500' borderRadius='8px' overflowX='hidden' p='8px'>
