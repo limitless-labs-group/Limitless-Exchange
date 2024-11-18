@@ -45,7 +45,7 @@ export default function CommentTextarea() {
             {!isMobile ? (
               <HStack gap='4px'>
                 <Avatar account={account as string} avatarUrl={profileData?.pfpUrl} />
-                <Text {...captionRegular}>{profileData?.username ?? profileData?.displayName}</Text>
+                <Text {...captionRegular}>{profileData?.displayName ?? profileData?.username}</Text>
               </HStack>
             ) : null}
             <Button

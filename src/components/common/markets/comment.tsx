@@ -20,7 +20,7 @@ export default function Comment({ comment, isReply }: CommentProps) {
   const { profileData } = useAccount()
   const account = useWalletAddress()
   const time = useTimeAgo(comment.createdAt)
-  const name = comment.author?.username ?? comment.author.displayName
+  const name = comment.author.displayName ?? comment.author?.username
 
   //commented stuff will be needed in future
 
