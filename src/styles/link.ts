@@ -15,7 +15,7 @@ const transparent = defineStyle({
     ? {}
     : {
         _hover: {
-          bg: 'grey.200',
+          bg: 'grey.400',
           textDecoration: 'none',
         },
       }),

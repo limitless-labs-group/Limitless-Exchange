@@ -106,6 +106,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { mutateAsync: createProfile } = useCreateProfile()
 
   const onCreateProfile = async () => {
+    debugger
     await createProfile({
       displayName: displayName ? displayName : '',
       username: account ? account : '',
@@ -231,10 +232,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData, userInfo, account])
 
   useEffect(() => {
-    if (!profileLoading && profileData === null) {
+    if (!profileLoading && profileData === null && isLoggedIn) {
       onCreateProfile()
     }
-  }, [profileLoading, profileData])
+  }, [profileLoading, profileData, isLoggedIn])
 
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
@@ -259,16 +260,18 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     setUserInfo(undefined)
   }
 
+  console.log(web3Auth)
+
   const disconnectFromPlatform = useCallback(async () => {
     disconnect()
     await web3Auth.logout()
+    disconnectAccount()
     queryClient.removeQueries({
       queryKey: ['profiles'],
     })
     queryClient.removeQueries({
       queryKey: ['smartWalletAddress'],
     })
-    disconnectAccount()
   }, [])
 
   const disconnectLoading = useMemo<boolean>(() => {

@@ -237,7 +237,7 @@ export const chakraTheme = ChakraTheme({
             ? {}
             : {
                 _hover: {
-                  bg: 'grey.200',
+                  bg: 'grey.400',
                 },
               }),
         },

@@ -134,7 +134,7 @@ export default function Sidebar() {
           handleOpenWalletPage()
         }}
         w='full'
-        bg={isOpenWalletPage ? 'grey.200' : 'unset'}
+        bg={isOpenWalletPage ? 'grey.400' : 'unset'}
       >
         <HStack w='full'>
           <WalletIcon width={16} height={16} />
@@ -213,7 +213,7 @@ export default function Sidebar() {
                   }}
                   variant='transparent'
                   w='full'
-                  bg={pageName === 'Portfolio' ? 'grey.200' : 'unset'}
+                  bg={pageName === 'Portfolio' ? 'grey.400' : 'unset'}
                   rounded='8px'
                 >
                   <HStack w='full'>
@@ -235,15 +235,15 @@ export default function Sidebar() {
                     as={Button}
                     onClick={onToggleAuthMenu}
                     rightIcon={<ChevronDownIcon width='16px' height='16px' />}
-                    bg={isOpenAuthMenu ? 'grey.200' : 'unset'}
+                    bg={isOpenAuthMenu ? 'grey.400' : 'unset'}
                     h='24px'
                     px='8px'
                     w='full'
                     _active={{
-                      bg: 'grey.200',
+                      bg: 'grey.400',
                     }}
                     _hover={{
-                      bg: 'grey.200',
+                      bg: 'grey.400',
                     }}
                   >
                     <HStack gap='8px'>
@@ -335,7 +335,7 @@ export default function Sidebar() {
             }}
             variant='transparent'
             w='full'
-            bg={pageName === 'Explore Markets' ? 'grey.200' : 'unset'}
+            bg={pageName === 'Explore Markets' ? 'grey.400' : 'unset'}
             rounded='8px'
           >
             <HStack w='full'>
@@ -355,7 +355,7 @@ export default function Sidebar() {
             }}
             variant='transparent'
             w='full'
-            bg={pageName === 'Home' ? 'grey.200' : 'unset'}
+            bg={pageName === 'Home' ? 'grey.400' : 'unset'}
             rounded='8px'
           >
             <HStack w='full'>
@@ -375,7 +375,7 @@ export default function Sidebar() {
             }}
             variant='transparent'
             w='full'
-            bg={pageName === 'Home' ? 'grey.200' : 'unset'}
+            bg={pageName === 'Home' ? 'grey.400' : 'unset'}
             rounded='8px'
           >
             <HStack w='full'>
@@ -429,7 +429,7 @@ export default function Sidebar() {
               justifyContent='space-between'
               display='flex'
               cursor='pointer'
-              _hover={{ bg: 'grey.300' }}
+              _hover={{ bg: 'grey.400' }}
               borderRadius='8px'
             >
               {volumeArray.map((volumeSymbol, index) => (
