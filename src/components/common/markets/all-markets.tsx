@@ -33,7 +33,7 @@ export default function AllMarkets({
         <Text {...headlineRegular} mb={isMobile ? '8px' : '4px'} mt={isMobile ? '12px' : '40px'}>
           / All markets {isLoading ? '' : `(${totalAmount})`}
         </Text>
-        <Divider orientation='horizontal' />
+        <Divider orientation='horizontal' borderColor='grey.800' />
       </Box>
       <SortFilter onChange={handleSelectSort} />
       <InfiniteScroll

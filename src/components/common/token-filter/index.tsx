@@ -36,7 +36,7 @@ export default function TokenFilter() {
       <Box
         padding='2px 4px'
         key={'ALL'}
-        borderRadius='2px'
+        borderRadius='8px'
         w='fit-content'
         marginBottom='4px'
         cursor='pointer'
@@ -61,7 +61,7 @@ export default function TokenFilter() {
             }
             padding='2px 4px'
             key={token.symbol}
-            borderRadius='2px'
+            borderRadius='8px'
             w='fit-content'
             marginBottom='4px'
             cursor='pointer'

@@ -14,6 +14,7 @@ type MobileDrawerProps = {
   variant: 'blue' | 'common' | 'black'
   onClose?: () => void
   id?: string
+  triggerStyle?: React.CSSProperties | undefined
 }
 
 export default function MobileDrawer({
@@ -23,6 +24,7 @@ export default function MobileDrawer({
   variant,
   onClose,
   id,
+  triggerStyle,
 }: PropsWithChildren<MobileDrawerProps>) {
   const searchParams = useSearchParams()
   const drawerRef = useRef<HTMLButtonElement>(null)
@@ -92,18 +94,18 @@ export default function MobileDrawer({
     if (variant === 'black') {
       return 'var(--chakra-colors-grey-50)'
     }
-    return variant === 'blue' ? 'var(--chakra-colors-blue-500)' : 'var(--chakra-colors-grey-100)'
+    return variant === 'blue' ? 'var(--chakra-colors-blue-500)' : 'var(--chakra-colors-grey-50)'
   }, [variant])
 
   const grabberBgColor =
-    variant === 'blue' ? 'var(--chakra-colors-blue-400)' : 'var(--chakra-colors-grey-300)'
+    variant === 'blue' ? 'var(--chakra-colors-blue-400)' : 'var(--chakra-colors-grey-200)'
 
   const titleColor = variant === 'blue' ? 'white' : 'var(--chakra-colors-grey.800)'
 
   return (
     <Drawer.Root shouldScaleBackground onClose={close}>
       <Drawer.Trigger asChild>
-        <button style={{ width: '100%' }} ref={drawerRef}>
+        <button style={{ width: '100%', ...triggerStyle }} ref={drawerRef}>
           {trigger}
         </button>
       </Drawer.Trigger>
@@ -140,7 +142,7 @@ export default function MobileDrawer({
                 margin: '8px auto',
                 width: '36px',
                 height: '4px',
-                borderRadius: '2px',
+                borderRadius: '8px',
                 background: grabberBgColor,
               }}
             />

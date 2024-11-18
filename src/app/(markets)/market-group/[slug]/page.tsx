@@ -190,7 +190,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
         <>
           <HStack gap='40px' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
             <Box w={isMobile ? 'full' : '664px'}>
-              <Divider bg='grey.800' orientation='horizontal' h='3px' />
+              <Divider orientation='horizontal' h='3px' />
               <HStack justifyContent='space-between' mt='10px' mb='24px'>
                 <Button
                   variant='grey'
@@ -219,7 +219,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                       <Text {...paragraphMedium}>Share</Text>
                     </HStack>
                   </MenuButton>
-                  <MenuList borderRadius='2px' w={isMobile ? '160px' : '122px'} zIndex={2}>
+                  <MenuList borderRadius='8px' w={isMobile ? '160px' : '122px'} zIndex={2}>
                     <MenuItem
                       onClick={() => {
                         trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {

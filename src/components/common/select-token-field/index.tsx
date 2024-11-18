@@ -29,7 +29,7 @@ export default function SelectTokenField({ token, setToken }: SelectTokenFieldPr
         </HStack>
       </MenuButton>
       <MenuList
-        borderRadius='2px'
+        borderRadius='8px'
         w={isMobile ? 'calc(100vw - 32px)' : '416px'}
         maxH={isMobile ? 'unset' : '104px'}
         overflowY={isMobile ? 'unset' : 'auto'}

@@ -13,9 +13,8 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { isAddress } from 'viem'
 import { useAccount as useWagmiAccount } from 'wagmi'
@@ -25,7 +24,6 @@ import Loader from '@/components/common/loader'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import SocialsFooter from '@/components/common/socials-footer'
-import TokenFilterMobile from '@/components/common/token-filter-mobile'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
@@ -33,10 +31,10 @@ import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
-import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
+import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
+import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
+import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
-import SwapIcon from '@/resources/icons/swap-icon.svg'
-import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
@@ -60,7 +58,6 @@ export default function MobileHeader() {
   const { isLoadingSmartWalletAddress } = useEtherspot()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
-  const pathname = usePathname()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
 
   const userMenuLoading = useMemo(() => {
@@ -139,7 +136,7 @@ export default function MobileHeader() {
                 >
                   <VStack
                     ml='40px'
-                    bg='grey.100'
+                    bg='grey.50'
                     h='full'
                     p='16px'
                     justifyContent='space-between'
@@ -198,13 +195,13 @@ export default function MobileHeader() {
                           variant='outline'
                           gap='2px'
                           p='2px'
-                          bg='grey.300'
-                          borderRadius='2px'
+                          bg='grey.100'
+                          borderRadius='8px'
                           w='full'
                         >
                           <Button
                             key={uuidv4()}
-                            variant={mode === 'dark' ? 'grey' : 'black'}
+                            variant={mode === 'dark' ? 'transparent' : 'black'}
                             onClick={setLightTheme}
                             w='full'
                           >
@@ -212,7 +209,7 @@ export default function MobileHeader() {
                           </Button>
                           <Button
                             key={uuidv4()}
-                            variant={mode === 'dark' ? 'black' : 'grey'}
+                            variant={mode === 'dark' ? 'black' : 'transparent'}
                             onClick={setDarkTheme}
                             w='full'
                           >
@@ -377,7 +374,7 @@ export default function MobileHeader() {
                     >
                       Log Out
                     </Button>
-                    <Divider mt={'12px'} borderColor={'grey.300'} />
+                    <Divider mt={'12px'} />
                     <SocialsFooter />
                   </VStack>
                 </Slide>
@@ -388,7 +385,6 @@ export default function MobileHeader() {
           </HStack>
         </HStack>
       </Box>
-      {isMobile && (pathname === '/' || pathname.includes('topics')) && <TokenFilterMobile />}
     </>
   )
 }

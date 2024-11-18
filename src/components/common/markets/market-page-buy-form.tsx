@@ -204,7 +204,7 @@ export default function MarketPageBuyForm({
       </HStack>
       <Stack
         w={'full'}
-        borderRadius='2px'
+        borderRadius='8px'
         border={'1px solid grey.50'}
         borderColor={isExceedsBalance ? 'red' : 'border'}
         mt='8px'
