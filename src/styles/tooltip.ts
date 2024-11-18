@@ -5,7 +5,7 @@ const black = defineStyle(() => {
   return {
     bg: 'black',
     color: 'white',
-    borderRadius: '2px',
+    borderRadius: '8px',
     padding: '4px 8px',
   }
 })

@@ -1,22 +1,17 @@
 'use client'
 
-import {
-  init,
-  track as amplitudeTrack,
-  getDeviceId,
-  getSessionId,
-} from '@amplitude/analytics-browser'
+import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
 import * as sessionReplay from '@amplitude/session-replay-browser'
 import {
   CUSTOM_LOGIN_PROVIDER_TYPE,
   LOGIN_PROVIDER_TYPE,
 } from '@toruslabs/openlogin-utils/dist/types/interfaces'
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useAccount } from '@/services'
 import { Address, MarketGroup } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
-const NODE_ENV = process.env.NODE_ENV ?? 'development'
 
 interface IAmplitudeContext {
   trackSignUp: () => void
@@ -32,6 +27,7 @@ export const useAmplitude = () => useContext(AmplitudeContext)
 
 export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
   const { account, userInfo } = useAccount()
+  const walletAddress = useWalletAddress()
 
   useEffect(() => {
     init(AMPLITUDE_API_KEY, undefined, {
@@ -42,6 +38,14 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         formInteractions: false,
       },
     })
+    //   .promise.then(() => {
+    //   sessionReplay.init(AMPLITUDE_API_KEY, {
+    //     deviceId: getDeviceId(),
+    //     sessionId: getSessionId(),
+    //     sampleRate: 0.1,
+    //     sessionReplayId: uuidv4(),
+    //   })
+    // })
   }, [])
 
   const trackEvent = useCallback(
@@ -59,10 +63,11 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         user_properties: {
           account,
           ...userInfo,
+          walletAddress,
         },
       }).promise
     },
-    [account]
+    [account, walletAddress]
   )
 
   const trackSignUp = async () => {
@@ -146,7 +151,6 @@ export enum ClickEvent {
   LimitlessLinksClicked = 'Limitless Links Clicked',
   FeeTradingDetailsClicked = 'Fee Trading Details Clicked',
   ReturnTradingDetailsClicked = 'Return Trading Details Clicked',
-  MarketPageOpened = 'Market Page Opened',
   MediumMarketBannerClicked = 'Medium Market Banner Clicked',
   RegularMarketBannerClicked = 'Regular Market Banner Clicked',
   BigBannerClicked = 'BigBannerClicked',
@@ -155,6 +159,11 @@ export enum ClickEvent {
   TradingWidgetReturnDecomposition = 'Trading Widget Return Decomposition',
   CloseMarketClicked = 'Close Market Clicked',
   SidebarMarketOpened = 'Sidebar Market Opened',
+  PredictionChartOpened = 'Prediction Chart Opened',
+  AssetPriceChartOpened = 'Asset Price Chart Opened',
+  NextMarketClick = 'Next Market Click',
+  PreviousMarketClick = 'Previous Market Click',
+  TradingWidgetPricePrecetChosen = 'Trading Widget Price Preset Chosen',
 }
 
 export enum SignInEvent {
@@ -166,6 +175,7 @@ export enum OpenEvent {
   PageOpened = 'Page Opened',
   LoginWindowOpened = 'Login Window Opened',
   ProfileSettingsOpened = 'Profile Settings Opened',
+  MarketPageOpened = 'Market Page Opened',
 }
 
 export enum AuthenticationEvent {
@@ -339,6 +349,10 @@ export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
 
+interface TradingWidgetPriceClickedMetadata {
+  amount: number
+}
+
 export interface SortMetadata {
   oldValue: string
   newValue: string
@@ -392,6 +406,7 @@ export type ClickedEventMetadata =
   | FeeAndReturnTradingDetailsClicked
   | MediumBannerClicked
   | CloseMarketMetadata
+  | TradingWidgetPriceClickedMetadata
 
 export type OpenedEventMetadata = PageOpenedMetadata | ProfileSettingsMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata

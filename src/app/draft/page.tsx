@@ -9,6 +9,7 @@ import {
   FormControl,
   FormHelperText,
   HStack,
+  Input,
   NumberInput,
   NumberInputField,
   Select,
@@ -22,6 +23,7 @@ import {
 } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
+import { toZonedTime } from 'date-fns-tz'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
@@ -83,7 +85,7 @@ const CreateOwnMarketPage = () => {
         ...prevFormData,
         title: editMarket.title || '',
         description: editMarket.description || '',
-        deadline: new Date(editMarket.deadline) || new Date(),
+        deadline: toZonedTime(editMarket.deadline, 'America/New_York'),
         token: editMarket.collateralToken
           ? { symbol: editMarket.collateralToken.symbol, id: editMarket.collateralToken.id }
           : prevFormData.token,
@@ -535,6 +537,18 @@ const CreateOwnMarketPage = () => {
                     minDate={new Date()}
                     showTimeSelect
                     dateFormat='Pp'
+                    customInput={
+                      <Input
+                        cursor='pointer'
+                        backgroundColor='grey.100'
+                        color='grey.900'
+                        _hover={{ backgroundColor: 'grey.200' }}
+                        _focus={{ backgroundColor: 'gray.300', borderColor: 'gray.500' }}
+                        padding='8px'
+                        mb='5px'
+                        borderRadius='md'
+                      />
+                    }
                   />
                   <TimezoneSelect
                     value={formData.timezone}

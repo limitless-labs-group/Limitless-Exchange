@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation'
 import React, { SyntheticEvent, useState } from 'react'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import Paper from '@/components/common/paper'
+import { MarketCardLink } from './market-card-link'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import TooltipIcon from '@/resources/icons/tooltip-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
@@ -34,7 +35,19 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
   const { onOpenMarketPage } = useTradingService()
   const router = useRouter()
 
-  const isLumy = market.category.id === 7
+  const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.metaKey || e.ctrlKey || e.button === 2) {
+      return
+    }
+    e.preventDefault()
+    router.push(`?market=${market.address}`, { scroll: false })
+    trackClicked(ClickEvent.MediumMarketBannerClicked, {
+      ...analyticParams,
+    })
+    onOpenMarketPage(market, 'Medium Banner')
+  }
+
+  const isLumy = market.category === 'Lumy'
 
   const { trackClicked } = useAmplitude()
 
@@ -43,8 +56,32 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
     router.push('/lumy')
   }
 
-  return (
-    <Box borderRadius='2px' overflow='hidden'>
+  const content = (
+    <Box
+      bg={
+        isLumy ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)' : 'grey.100'
+      }
+      rounded='12px'
+      p='2px'
+      _hover={{
+        ...(!isLumy ? { bg: 'blue.500' } : {}),
+      }}
+      onMouseEnter={() => {
+        setColors(hoverColors)
+        setHovered(true)
+      }}
+      onMouseLeave={() => {
+        setColors(defaultColors)
+        setHovered(false)
+      }}
+      onClick={(event) => {
+        trackClicked(ClickEvent.MediumMarketBannerClicked, {
+          ...analyticParams,
+        })
+        onClickRedirectToMarket(event)
+        onOpenMarketPage(market, 'Medium Banner')
+      }}
+    >
       <Paper
         flex={1}
         h={'160px'}
@@ -53,32 +90,11 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
           bg: isLumy
             ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'
             : 'blue.500',
-          borderColor: 'blue.500',
-        }}
-        onMouseEnter={() => {
-          setColors(hoverColors)
-          setHovered(true)
-        }}
-        onMouseLeave={() => {
-          setColors(defaultColors)
-          setHovered(false)
-        }}
-        onClick={() => {
-          trackClicked(ClickEvent.MediumMarketBannerClicked, {
-            ...analyticParams,
-          })
-          onOpenMarketPage(market, 'Medium Banner')
+          borderColor: isLumy ? 'none' : 'blue.500',
         }}
         position='relative'
         cursor='pointer'
         p='6px'
-        border='2px solid'
-        borderColor={'grey.200'}
-        style={{
-          borderImage: isLumy
-            ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%) 1'
-            : 'unset',
-        }}
       >
         <Flex h='full' flexDirection='column' justifyContent='space-between'>
           <HStack justifyContent='space-between'>
@@ -129,7 +145,8 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             borderTopLeftRadius='4px'
             borderTopRightRadius='2px'
             bg={hovered ? 'unset' : 'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}
-            // onClick={handleLumyButtonClicked}
+            onClick={handleLumyButtonClicked}
+            className='lumy-button'
           >
             <HStack gap='8px' color='grey.white'>
               <Text {...captionMedium} color='grey.white'>
@@ -141,5 +158,11 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
         )}
       </Paper>
     </Box>
+  )
+
+  return isLumy ? (
+    content
+  ) : (
+    <MarketCardLink marketAddress={market.address}>{content}</MarketCardLink>
   )
 }

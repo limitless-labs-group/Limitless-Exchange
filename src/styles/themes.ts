@@ -3,6 +3,7 @@ import { isMobile } from 'react-device-detect'
 import { accordionTheme } from '@/styles/accordion'
 import { commonButtonProps } from '@/styles/button'
 import { checkboxTheme } from '@/styles/checkbox'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { inputTheme } from '@/styles/input'
 import { linkTheme } from '@/styles/link'
 import { menuTheme } from '@/styles/menu'
@@ -37,7 +38,7 @@ export const chakraTheme = ChakraTheme({
         overflowX: 'hidden',
         userSelect: 'none',
         color: 'grey.800',
-        background: 'grey.100',
+        background: 'grey.50',
         fontSize: '14px',
       },
       hr: {
@@ -129,7 +130,7 @@ export const chakraTheme = ChakraTheme({
         backgroundColor: 'unset !important',
         color: 'grey.800 !important',
         borderColor: 'transparent.200 !important',
-        borderRadius: '2px solid',
+        borderRadius: '8px solid',
         _hover: {
           borderColor: 'transparent.700 !important',
         },
@@ -147,7 +148,6 @@ export const chakraTheme = ChakraTheme({
         px: '8px',
         fontWeight: 500,
         gap: '4px',
-        borderRadius: '2px',
         outline: 'none !important',
         _disabled: {
           opacity: 1,
@@ -254,6 +254,27 @@ export const chakraTheme = ChakraTheme({
                 },
               }),
         },
+        transparentGray: {
+          ...commonButtonProps,
+          ...paragraphRegular,
+          color: 'grey.500',
+          bg: 'grey.200',
+          borderRadius: '8px',
+          py: '2px',
+          px: '10px',
+          height: 'unset',
+          _hover: {
+            bg: 'grey.300',
+          },
+        },
+        transparentGreyText: {
+          ...commonButtonProps,
+          bg: 'unset',
+          px: '16px',
+          height: 'unset',
+          color: 'grey.300',
+          alignItems: 'center',
+        },
       },
     },
     FormLabel: {
@@ -276,6 +297,12 @@ export const chakraTheme = ChakraTheme({
     Skeleton: skeletonTheme,
     Tabs: tabsTheme,
     Tooltip: tooltipTheme,
+    Divider: {
+      baseStyle: {
+        borderColor: 'grey.100',
+        bg: 'grey.100',
+      },
+    },
   },
   breakpoints: {
     sm: '320px',

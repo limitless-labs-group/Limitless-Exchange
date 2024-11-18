@@ -9,9 +9,13 @@ import { MarketGroup } from '@/types'
 
 interface MarketGroupPositionsProps {
   marketGroup: MarketGroup
+  isSideMarketPage?: boolean
 }
 
-export default function MarketGroupPositions({ marketGroup }: MarketGroupPositionsProps) {
+export default function MarketGroupPositions({
+  marketGroup,
+  isSideMarketPage,
+}: MarketGroupPositionsProps) {
   const { positions: allMarketsPositions } = useHistory()
 
   const positions = useMemo(
@@ -52,6 +56,7 @@ export default function MarketGroupPositions({ marketGroup }: MarketGroupPositio
             symbol={marketGroup.collateralToken.symbol}
             marketPrices={getMarketPrices(position.market.id) || [50, 50]}
             title={getMarketTitle(position.market.id)}
+            isSideMarketPage={isSideMarketPage}
           />
         ))}
       </VStack>

@@ -20,7 +20,6 @@ export const MainLayout = ({
   layoutPadding = '16px',
   ...props
 }: IMainLayout) => {
-  const pathname = usePathname()
   const { marketPageOpened } = useTradingService()
 
   return (
@@ -34,17 +33,13 @@ export const MainLayout = ({
       alignItems={'center'}
       justifyContent={'space-between'}
       gap={{ sm: 6, md: 10 }}
-      bg='grey.100'
+      bg='grey.50'
       {...props}
     >
       <HeaderMarquee />
       <Box mt='20px' mb={isMobile ? '60px' : 0}>
         {isMobile && <MobileHeader />}
-        <HStack
-          minH={'calc(100vh - 20px)'}
-          alignItems='flex-start'
-          pt={isMobile && pathname !== '/' && !pathname.includes('topics') ? '48px' : 0}
-        >
+        <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
           {!isMobile && <Sidebar />}
           {isLoading ? (
             <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>

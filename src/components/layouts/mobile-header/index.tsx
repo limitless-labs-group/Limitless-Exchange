@@ -31,13 +31,12 @@ import '@/app/style.css'
 import { Profile } from '@/components'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useThemeProvider } from '@/providers'
-import AiAgentIcon from '@/resources/icons/ai-agent-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
-import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
+import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
+import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
+import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
-import SwapIcon from '@/resources/icons/swap-icon.svg'
-import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
@@ -79,11 +78,6 @@ export default function MobileHeader() {
   const handleNavigateToPortfolioPage = () => {
     onToggleUserMenu()
     router.push('/portfolio')
-  }
-
-  const handleNavigateToLumyPage = () => {
-    onToggleUserMenu()
-    router.push('/lumy')
   }
 
   const handleOpenWrapModal = () => {
@@ -145,7 +139,7 @@ export default function MobileHeader() {
                 >
                   <VStack
                     ml='40px'
-                    bg='grey.100'
+                    bg='grey.50'
                     h='full'
                     p='16px'
                     justifyContent='space-between'
@@ -205,7 +199,7 @@ export default function MobileHeader() {
                           gap='2px'
                           p='2px'
                           bg='grey.300'
-                          borderRadius='2px'
+                          borderRadius='8px'
                           w='full'
                         >
                           <Button
@@ -319,30 +313,6 @@ export default function MobileHeader() {
                             <WrapModal onClose={() => console.log('ok')} />
                           </MobileDrawer>
                         )}
-                        {/*<Button*/}
-                        {/*  variant='transparent'*/}
-                        {/*  px={0}*/}
-                        {/*  w='full'*/}
-                        {/*  onClick={handleNavigateToLumyPage}*/}
-                        {/*>*/}
-                        {/*  <HStack justifyContent='space-between' w='full'>*/}
-                        {/*    <HStack gap='4px'>*/}
-                        {/*      <AiAgentIcon />*/}
-                        {/*      <Text*/}
-                        {/*        fontWeight={500}*/}
-                        {/*        fontSize='16px'*/}
-                        {/*        bgGradient='linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'*/}
-                        {/*        bgClip='text'*/}
-                        {/*      >*/}
-                        {/*        AI Agent*/}
-                        {/*      </Text>*/}
-                        {/*    </HStack>*/}
-
-                        {/*    <Box color='grey.800'>*/}
-                        {/*      <ArrowRightIcon width={16} height={16} />*/}
-                        {/*    </Box>*/}
-                        {/*  </HStack>*/}
-                        {/*</Button>*/}
                       </VStack>
 
                       {client !== 'eoa' && (
@@ -407,7 +377,7 @@ export default function MobileHeader() {
                     >
                       Log Out
                     </Button>
-                    <Divider mt={'12px'} borderColor={'grey.300'} />
+                    <Divider mt={'12px'} />
                     <SocialsFooter />
                   </VStack>
                 </Slide>
@@ -418,7 +388,6 @@ export default function MobileHeader() {
           </HStack>
         </HStack>
       </Box>
-      {isMobile && (pathname === '/' || pathname.includes('topics')) && <TokenFilterMobile />}
     </>
   )
 }

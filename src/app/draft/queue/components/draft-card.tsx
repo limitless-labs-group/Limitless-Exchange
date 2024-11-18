@@ -151,7 +151,18 @@ export const DraftMarketCard = ({
                     </Text>
                   </HStack>
                   <Text {...paragraphRegular} color={colors.main}>
-                    {new Date(market.deadline).toLocaleString()}
+                    {market.deadline
+                      ? new Date(market.deadline).toLocaleString('en-US', {
+                          timeZone: 'America/New_York',
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                          hour12: true,
+                        })
+                      : 'Invalid date'}
+                    {' ' + 'ET'}
                   </Text>
                 </HStack>
 
