@@ -364,6 +364,9 @@ export default function MarketPage() {
             <Button
               variant='white'
               onClick={() => {
+                if (!isMobile) {
+                  handleCloseMarketPageClicked()
+                }
                 router.push('/')
               }}
             >
