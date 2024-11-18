@@ -16,6 +16,7 @@ import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
+import { useUserSession } from '@/hooks/profiles/use-session'
 import { useWeb3Auth } from '@/providers'
 import { useAmplitude, useEtherspot } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -201,6 +202,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
+  const { refetch: refetchSession } = useUserSession({ client, account })
+
   const displayName = useMemo(() => {
     if (profileData?.displayName) {
       return profileData.displayName
@@ -214,7 +217,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (!profileLoading && profileData === null) {
       onCreateProfile()
+      return
     }
+    refetchSession()
   }, [profileLoading, profileData])
 
   const displayUsername = useMemo(() => {
