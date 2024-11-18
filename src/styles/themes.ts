@@ -232,7 +232,7 @@ export const chakraTheme = ChakraTheme({
           background: 'unset',
           ...commonButtonProps,
           px: '8px',
-          gap: '8px',
+          gap: '4px',
           ...(isMobile
             ? {}
             : {
