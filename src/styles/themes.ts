@@ -34,11 +34,14 @@ export const chakraTheme = ChakraTheme({
   // colors: mode(lightThemeColors, darkThemeColors)((props) => props),
   styles: {
     global: {
+      '.infinite-scroll-component__outerdiv': {
+        width: '100%',
+      },
       body: {
         overflowX: 'hidden',
         userSelect: 'none',
         color: 'grey.800',
-        background: 'grey.100',
+        background: 'grey.50',
         fontSize: '14px',
       },
       hr: {
@@ -130,7 +133,7 @@ export const chakraTheme = ChakraTheme({
         backgroundColor: 'unset !important',
         color: 'grey.800 !important',
         borderColor: 'transparent.200 !important',
-        borderRadius: '2px solid',
+        borderRadius: '8px solid',
         _hover: {
           borderColor: 'transparent.700 !important',
         },
@@ -148,7 +151,6 @@ export const chakraTheme = ChakraTheme({
         px: '8px',
         fontWeight: 500,
         gap: '4px',
-        borderRadius: '2px',
         outline: 'none !important',
         _disabled: {
           opacity: 1,
@@ -233,7 +235,7 @@ export const chakraTheme = ChakraTheme({
           background: 'unset',
           ...commonButtonProps,
           px: '8px',
-          gap: '8px',
+          gap: '4px',
           ...(isMobile
             ? {}
             : {
@@ -298,6 +300,12 @@ export const chakraTheme = ChakraTheme({
     Skeleton: skeletonTheme,
     Tabs: tabsTheme,
     Tooltip: tooltipTheme,
+    Divider: {
+      baseStyle: {
+        borderColor: 'grey.100',
+        bg: 'grey.100',
+      },
+    },
   },
   breakpoints: {
     sm: '320px',

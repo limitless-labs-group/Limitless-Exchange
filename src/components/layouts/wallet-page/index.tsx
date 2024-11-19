@@ -14,7 +14,13 @@ import { usePriceOracle } from '@/providers'
 import BaseIcon from '@/resources/crypto/base.svg'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
-import { ClickEvent, useAmplitude, useBalanceService, useLimitlessApi } from '@/services'
+import {
+  ClickEvent,
+  useAmplitude,
+  useBalanceQuery,
+  useBalanceService,
+  useLimitlessApi,
+} from '@/services'
 import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
@@ -24,7 +30,8 @@ interface WalletPageProps {
 
 export default function WalletPage({ onClose }: WalletPageProps) {
   const [copied, setCopied] = useState(false)
-  const { overallBalanceUsd, balanceOfSmartWallet } = useBalanceService()
+  const { overallBalanceUsd } = useBalanceService()
+  const { balanceOfSmartWallet } = useBalanceQuery()
   const { supportedTokens } = useLimitlessApi()
   const address = useWalletAddress()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
@@ -70,6 +77,9 @@ export default function WalletPage({ onClose }: WalletPageProps) {
       }
       variant='common'
       title='Withdraw crypto'
+      triggerStyle={{
+        width: 'unset',
+      }}
     >
       <Box mx='16px'>
         <Withdraw onClose={() => console.log('ok')} isOpen={true} />
@@ -97,7 +107,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
 
   return (
     <Box
-      bg='grey.100'
+      bg='grey.50'
       w={isMobile ? 'full' : '328px'}
       p='8px'
       h='full'
@@ -169,7 +179,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
                 {NumberUtil.formatThousands(balanceItem.formatted, 4)}
               </Text>
             </HStack>
-            <Divider my='12px' bg='grey.400' orientation='horizontal' h='1px' />
+            <Divider my='12px' orientation='horizontal' h='1px' borderColor='grey.200' />
             <HStack justifyContent='space-between' mb='8px'>
               <Text {...paragraphMedium} color='grey.500'>
                 Current price

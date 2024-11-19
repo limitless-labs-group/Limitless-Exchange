@@ -28,10 +28,10 @@ export default function CategoryFilter() {
       </Text>
       {categories?.map((category) => (
         <Box
-          bg={category.name === searchParams?.get('category') ? 'grey.800' : 'grey.300'}
+          bg={category.name === searchParams?.get('category') ? 'grey.800' : 'grey.100'}
           padding='2px 4px'
           key={category.id}
-          borderRadius='2px'
+          borderRadius='8px'
           w='fit-content'
           marginBottom='4px'
           cursor='pointer'

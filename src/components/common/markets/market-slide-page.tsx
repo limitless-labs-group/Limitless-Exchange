@@ -244,7 +244,7 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
           </Box>
         </HStack>
       </HStack>
-      <Divider my='8px' color='grey.100' />
+      <Divider my='8px' />
       <HStack w='full' mb='32px' mt='24px'>
         <VStack alignItems='center' flex={1} gap={0}>
           <HStack color='grey.400' gap='4px'>
@@ -282,7 +282,7 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
           w={'240px'}
           mx='auto'
           bg='rgba(255, 255, 255, 0.20)'
-          borderRadius='2px'
+          borderRadius='8px'
           py='2px'
           px='4px'
           mb='16px'
@@ -291,7 +291,7 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
             h='28px'
             flex='1'
             py='2px'
-            borderRadius='2px'
+            borderRadius='8px'
             bg={strategy === 'Buy' ? 'white' : 'unset'}
             color={strategy === 'Buy' ? 'black' : 'white'}
             _hover={{
@@ -312,7 +312,7 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
           <Button
             h='28px'
             flex='1'
-            borderRadius='2px'
+            borderRadius='8px'
             py='2px'
             bg={strategy === 'Sell' ? 'white' : 'unset'}
             color={strategy === 'Sell' ? 'black' : 'white'}

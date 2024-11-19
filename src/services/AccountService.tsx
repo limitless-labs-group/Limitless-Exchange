@@ -9,17 +9,19 @@ import React, {
   useState,
   useEffect,
 } from 'react'
-import { getAddress, toHex } from 'viem'
-import { useDisconnect, useSignMessage } from 'wagmi'
+import { getAddress } from 'viem'
+import { useDisconnect } from 'wagmi'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import { Toast } from '@/components/common/toast'
+import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { useToast } from '@/hooks'
-import { useCreateProfile } from '@/hooks/profiles'
+import { useLogin } from '@/hooks/profiles/use-login'
+import { useUserSession } from '@/hooks/profiles/use-session'
 import { useWeb3Auth } from '@/providers'
-import { limitlessApi, useAmplitude, useEtherspot, useLimitlessApi } from '@/services'
+import { useAmplitude, useEtherspot } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { Address, APIError, UpdateProfileData } from '@/types'
-import { Profile, ProfileActionType } from '@/types/profiles'
+import { Profile } from '@/types/profiles'
 
 export interface IAccountContext {
   isLoggedIn: boolean
@@ -50,17 +52,15 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const queryClient = useQueryClient()
   const { disconnect, isPending: disconnectPending } = useDisconnect()
   const { client } = useWeb3Service()
+  const privateClient = useAxiosPrivateClient()
   /**
    * WEB3AUTH
    */
   const { provider, web3Auth, isConnected } = useWeb3Auth()
   const isLoggedIn = isConnected && !!provider
 
-  const { signMessageAsync } = useSignMessage()
-  const { smartWalletExternallyOwnedAccountAddress, smartWalletAddress, signMessage } =
-    useEtherspot()
+  const { etherspot, smartWalletExternallyOwnedAccountAddress, smartWalletAddress } = useEtherspot()
   const { address } = useWagmiAccount()
-  const { getSigningMessage } = useLimitlessApi()
   const toast = useToast()
 
   /**
@@ -82,7 +82,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       }
     }
     return address
-  }, [address, smartWalletAddress, web3Auth.connectedAdapterName, web3Auth.status])
+  }, [address, smartWalletAddress, web3Auth.connectedAdapterName, web3Auth.status, isConnected])
 
   /**
    * USER INFO / METADATA
@@ -97,22 +97,16 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     queryKey: ['profiles', { account }],
     queryFn: async (): Promise<Profile | null> => {
       const wallet = client === 'eoa' ? account : smartWalletExternallyOwnedAccountAddress
-      const res = await limitlessApi.get(`/profiles/${getAddress(wallet as string)}`)
+      const res = await privateClient.get(`/profiles/${getAddress(wallet as string)}`)
       return res.data
     },
     enabled: !!account,
   })
 
-  const { mutateAsync: createProfile } = useCreateProfile()
+  const { mutateAsync: login } = useLogin()
 
   const onCreateProfile = async () => {
-    await createProfile({
-      displayName: displayName ? displayName : '',
-      username: account ? account : '',
-      bio: '',
-      account,
-      client,
-    })
+    await login({ client, account })
     await refetchProfile()
   }
 
@@ -125,29 +119,11 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     mutationKey: ['update-profile'],
     mutationFn: async (data: UpdateProfileData) => {
       const { pfpFile, isDirty, bio, displayName, username } = data
-      const { data: updateProfileMessage } = await getSigningMessage(
-        ProfileActionType.UPDATE_PROFILE
-      )
-      const signature =
-        client === 'eoa'
-          ? await signMessageAsync({ message: updateProfileMessage, account })
-          : await signMessage(updateProfileMessage)
-      const headers = {
-        'content-type': 'multipart/form-data',
-        'x-account':
-          client === 'eoa'
-            ? getAddress(account as string)
-            : getAddress(smartWalletExternallyOwnedAccountAddress as string),
-        'x-signature': signature,
-        'x-signing-message': toHex(String(updateProfileMessage)),
-      }
       if (pfpFile) {
         try {
           const formData = new FormData()
           formData.set('pfpFile', pfpFile)
-          const response = await limitlessApi.put('/profiles/pfp', formData, {
-            headers,
-          })
+          const response = await privateClient.put('/profiles/pfp', formData, {})
           await queryClient.refetchQueries({
             queryKey: ['profiles', { account }],
           })
@@ -162,7 +138,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       }
       if (isDirty) {
         try {
-          const response = await limitlessApi.put(
+          const response = await privateClient.put(
             '/profiles',
             {
               ...(profileData?.displayName === displayName ? {} : { displayName }),
@@ -171,7 +147,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             },
             {
               headers: {
-                ...headers,
                 'content-type': 'application/json',
               },
             }
@@ -220,6 +195,15 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   //   enabled: userInfo?.typeOfLogin === 'farcaster',
   // })
 
+  const { mutateAsync: logout } = useMutation({
+    mutationKey: ['logout'],
+    mutationFn: async () => {
+      await privateClient.post('/auth/logout')
+    },
+  })
+
+  const { refetch: refetchSession } = useUserSession({ client, account })
+
   const displayName = useMemo(() => {
     if (profileData?.displayName) {
       return profileData.displayName
@@ -231,9 +215,11 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData, userInfo, account])
 
   useEffect(() => {
-    if (!profileLoading && profileData === null) {
+    if (!profileLoading && profileData === null && isLoggedIn) {
       onCreateProfile()
+      return
     }
+    refetchSession()
   }, [profileLoading, profileData])
 
   const displayUsername = useMemo(() => {
@@ -259,16 +245,20 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     setUserInfo(undefined)
   }
 
+  console.log(web3Auth)
+
   const disconnectFromPlatform = useCallback(async () => {
     disconnect()
+    await logout()
     await web3Auth.logout()
+    web3Auth.clearCache()
+    await etherspot?.destroy()
     queryClient.removeQueries({
       queryKey: ['profiles'],
     })
     queryClient.removeQueries({
       queryKey: ['smartWalletAddress'],
     })
-    disconnectAccount()
   }, [])
 
   const disconnectLoading = useMemo<boolean>(() => {
