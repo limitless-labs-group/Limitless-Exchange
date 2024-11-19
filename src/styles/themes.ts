@@ -303,6 +303,31 @@ export const chakraTheme = ChakraTheme({
         bg: 'grey.100',
       },
     },
+    Progress: {
+      baseStyle: {
+        track: {
+          borderRadius: '8px',
+        },
+      },
+      variants: {
+        white: {
+          filledTrack: {
+            bg: 'white',
+          },
+          track: {
+            bg: 'transparent.200',
+          },
+        },
+        market: {
+          filledTrack: {
+            bg: '#0FC591',
+          },
+          track: {
+            bg: '#FF3756',
+          },
+        },
+      },
+    },
   },
   breakpoints: {
     sm: '320px',
