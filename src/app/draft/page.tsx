@@ -49,6 +49,7 @@ import { FormField } from './components/form-field'
 import { MainLayout } from '@/components'
 import { useToast } from '@/hooks'
 import { useCategories, useLimitlessApi } from '@/services'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Category } from '@/types'
 import { Token, Tag, TagOption, IFormData, Creator } from '@/types/draft'
 
@@ -65,13 +66,12 @@ const CreateOwnMarketPage = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const marketId = searchParams.get('market')
+  const privateClient = useAxiosPrivateClient()
 
   const { data: editMarket } = useQuery({
     queryKey: ['editMarket', marketId],
     queryFn: async () => {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts/${marketId}`
-      )
+      const response = await privateClient.get(`/markets/drafts/${marketId}`)
       return response.data
     },
     enabled: !!marketId,
@@ -237,8 +237,8 @@ const CreateOwnMarketPage = () => {
     const data = await prepareData()
     if (!data) return
     setIsCreating(true)
-    axios
-      .post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts`, data, {
+    privateClient
+      .post(`/markets/drafts`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -263,8 +263,8 @@ const CreateOwnMarketPage = () => {
     const data = await prepareData()
     if (!data) return
     setIsCreating(true)
-    axios
-      .put(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts/${marketId}`, data, {
+    privateClient
+      .put(`/markets/drafts/${marketId}`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
