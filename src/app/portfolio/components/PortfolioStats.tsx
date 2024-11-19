@@ -5,7 +5,7 @@ import Skeleton from '@/components/common/skeleton'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
-import { useBalanceService, useHistory } from '@/services'
+import { useBalanceQuery, useBalanceService, useHistory } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
@@ -62,7 +62,8 @@ const StatBox = ({
 }
 
 export const PortfolioStats = ({ ...props }: StackProps) => {
-  const { overallBalanceUsd, balanceLoading, balanceOfSmartWallet } = useBalanceService()
+  const { overallBalanceUsd, balanceLoading } = useBalanceService()
+  const { balanceOfSmartWallet } = useBalanceQuery()
   const { balanceInvested, balanceToWin, tradesAndPositionsLoading, positions } = useHistory()
   const stats = [
     {

@@ -19,7 +19,13 @@ import BuyButton from '@/components/common/markets/buy-button'
 import TradeWidgetSkeleton from '@/components/common/skeleton/trade-widget-skeleton'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import InfiniteIcon from '@/resources/icons/infinite-icon.svg'
-import { ClickEvent, useAmplitude, useBalanceService, useTradingService } from '@/services'
+import {
+  ClickEvent,
+  useAmplitude,
+  useBalanceQuery,
+  useBalanceService,
+  useTradingService,
+} from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -35,7 +41,8 @@ export default function MarketPageBuyForm({
   marketList,
   slideMarket,
 }: MarketPageBuyFormProps) {
-  const { balanceOfSmartWallet, balanceLoading } = useBalanceService()
+  const { balanceLoading } = useBalanceService()
+  const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
   const queryClient = useQueryClient()
   const {

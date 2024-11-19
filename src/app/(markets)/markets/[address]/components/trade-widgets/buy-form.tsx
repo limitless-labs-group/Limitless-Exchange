@@ -29,7 +29,7 @@ import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { useBalanceService, useTradingService } from '@/services'
+import { useBalanceQuery, useBalanceService, useTradingService } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -77,7 +77,8 @@ export function BuyForm({
   /**
    * BALANCE
    */
-  const { balanceOfSmartWallet, setToken, token } = useBalanceService()
+  const { setToken, token } = useBalanceService()
+  const { balanceOfSmartWallet } = useBalanceQuery()
 
   const refetchQuotes = useCallback(
     debounce(async function () {
