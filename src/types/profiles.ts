@@ -12,4 +12,5 @@ export interface Profile {
 export enum ProfileActionType {
   REGISTER_PROFILE = 'REGISTER_PROFILE',
   UPDATE_PROFILE = 'UPDATE_PROFILE',
+  LEAVE_COMMENT = 'LEAVE_COMMENT',
 }
