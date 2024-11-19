@@ -20,6 +20,7 @@ import {
 } from 'react'
 import { erc20Abi, formatEther, formatUnits, parseEther, parseUnits } from 'viem'
 import { getBalance } from 'viem/actions'
+import { useAccount as useWagmiAccount } from 'wagmi'
 import { Toast } from '@/components/common/toast'
 import { ToastWithdraw } from '@/components/common/toast-withdraw'
 import { defaultChain } from '@/constants'
@@ -28,7 +29,7 @@ import { useToast } from '@/hooks'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { usePriceOracle } from '@/providers'
 import { publicClient } from '@/providers'
-import { useEtherspot, useLimitlessApi } from '@/services'
+import { useAccount, useEtherspot, useLimitlessApi } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { Address, GetBalanceResult, MarketTokensIds, Token } from '@/types'
 import { Logger, NumberUtil } from '@/utils'
@@ -57,6 +58,7 @@ interface IBalanceService {
   ethBalance?: string
   wrapMutation: UseMutationResult<void, Error, string, unknown>
   unwrapMutation: UseMutationResult<void, Error, string, unknown>
+  balanceLoading: boolean
 }
 
 const BalanceService = createContext({} as IBalanceService)
@@ -71,7 +73,11 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
-  const { balanceOfSmartWallet, refetchbalanceOfSmartWallet } = useBalanceQuery()
+  const { isConnected, isConnecting } = useWagmiAccount()
+  const { profileData, profileLoading } = useAccount()
+  const { isLoadingSmartWalletAddress } = useEtherspot()
+  const { balanceOfSmartWallet, refetchbalanceOfSmartWallet, balanceOfSmartWalletLoading } =
+    useBalanceQuery()
 
   /**
    * Etherspot
@@ -84,6 +90,19 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const { mintErc20, transferErc20, unwrapEth, transferEthers, wrapEth } = useWeb3Service()
 
   const { supportedTokens } = useLimitlessApi()
+
+  /**
+   * Weth balance
+   */
+
+  const userMenuLoading = useMemo(() => {
+    if (isConnected) {
+      return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
+    }
+    return false
+  }, [isConnected, profileLoading, isLoadingSmartWalletAddress, profileData])
+
+  const balanceLoading = userMenuLoading || balanceOfSmartWalletLoading
 
   const { data: ethBalance } = useQuery({
     queryKey: ['ethBalance', walletAddress],
@@ -303,6 +322,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         ethBalance,
         wrapMutation,
         unwrapMutation,
+        balanceLoading,
       }}
     >
       {children}
@@ -328,7 +348,11 @@ export const useBalanceQuery = () => {
 
   const { supportedTokens } = useLimitlessApi()
 
-  const { data: balanceOfSmartWallet, refetch } = useQuery({
+  const {
+    data: balanceOfSmartWallet,
+    refetch,
+    isLoading: balanceOfSmartWalletLoading,
+  } = useQuery({
     queryKey: ['balance', walletAddress],
     queryFn: async () => {
       if (!walletAddress && !supportedTokens) {
@@ -432,7 +456,7 @@ export const useBalanceQuery = () => {
   })
   const refetchbalanceOfSmartWallet = useCallback(() => refetch(), [])
   return useMemo(() => {
-    return { balanceOfSmartWallet, refetchbalanceOfSmartWallet }
+    return { balanceOfSmartWallet, refetchbalanceOfSmartWallet, balanceOfSmartWalletLoading }
   }, [balanceOfSmartWallet])
 }
 

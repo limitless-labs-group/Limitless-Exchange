@@ -77,6 +77,9 @@ export default function WalletPage({ onClose }: WalletPageProps) {
       }
       variant='common'
       title='Withdraw crypto'
+      triggerStyle={{
+        width: 'unset',
+      }}
     >
       <Box mx='16px'>
         <Withdraw onClose={() => console.log('ok')} isOpen={true} />
@@ -104,7 +107,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
 
   return (
     <Box
-      bg='grey.100'
+      bg='grey.50'
       w={isMobile ? 'full' : '328px'}
       p='8px'
       h='full'
@@ -176,7 +179,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
                 {NumberUtil.formatThousands(balanceItem.formatted, 4)}
               </Text>
             </HStack>
-            <Divider my='12px' bg='grey.400' orientation='horizontal' h='1px' />
+            <Divider my='12px' orientation='horizontal' h='1px' borderColor='grey.200' />
             <HStack justifyContent='space-between' mb='8px'>
               <Text {...paragraphMedium} color='grey.500'>
                 Current price
