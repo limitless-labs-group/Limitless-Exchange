@@ -154,7 +154,9 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     await queryClient.invalidateQueries({
       queryKey: ['outcomeTokensSellPrice', market?.address],
     })
-    await refetchbalanceOfSmartWallet()
+    await queryClient.invalidateQueries({
+      queryKey: ['balance', account],
+    })
     await updateSellBalance()
   }
 
@@ -194,7 +196,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * BALANCE TO BUY
    */
-  const { refetchbalanceOfSmartWallet } = useBalanceQuery()
 
   /**
    * BALANCE TO SELL
