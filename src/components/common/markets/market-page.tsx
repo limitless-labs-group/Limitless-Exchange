@@ -38,6 +38,7 @@ import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
+import ExpandIcon from '@/resources/icons/expand-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
@@ -213,6 +214,11 @@ export default function MarketPage() {
     })
   }
 
+  const handleFullPageClicked = () => {
+    router.push(`/markets/${market?.address}`)
+    onCloseMarketPage()
+  }
+
   const handleChartTabClicked = (event: ClickEvent) =>
     trackClicked(event, {
       marketAddress: market?.address,
@@ -266,10 +272,16 @@ export default function MarketPage() {
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
-          <Button variant='grey' onClick={handleCloseMarketPageClicked}>
-            <CloseIcon width={16} height={16} />
-            Close
-          </Button>
+          <HStack gap='16px'>
+            <Button variant='grey' onClick={handleCloseMarketPageClicked}>
+              <CloseIcon width={16} height={16} />
+              Close
+            </Button>
+            <Button variant='grey' onClick={handleFullPageClicked}>
+              <ExpandIcon width={16} height={16} />
+              Full page
+            </Button>
+          </HStack>
           <ShareMenu />
         </HStack>
       )}
