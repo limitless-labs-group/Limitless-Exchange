@@ -191,11 +191,11 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                         <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
                       </Box>
                     ))}
-                    <Text {...paragraphRegular} color='transparent.700'>
+                    <Text {...paragraphRegular} color='grey.500'>
                       Volume
                     </Text>
                   </HStack>
-                  <Text {...paragraphRegular} color='transparent.700'>
+                  <Text {...paragraphRegular} color='grey.500'>
                     {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
                     {market.collateralToken.symbol}
                   </Text>
