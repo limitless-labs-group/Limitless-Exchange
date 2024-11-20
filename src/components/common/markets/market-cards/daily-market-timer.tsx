@@ -96,9 +96,9 @@ export default function DailyMarketTimer({
           w='100%'
           borderRadius='100%'
           bg={`conic-gradient(var(--chakra-colors-${
-            topMarket ? 'transparent-700' : 'grey-500'
-          }) ${deadlineLeftInPercent.toFixed(0)}% 0%, var(--chakra-colors-${
             topMarket ? 'transparent-200' : 'grey-200'
+          }) ${deadlineLeftInPercent.toFixed(0)}% 0%, var(--chakra-colors-${
+            topMarket ? 'transparent-700' : 'grey-500'
           }) ${deadlineLeftInPercent.toFixed(0)}% 100%)`}
         />
       </Box>
