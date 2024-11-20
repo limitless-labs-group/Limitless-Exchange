@@ -13,22 +13,19 @@ type DailyMarketTimerProps = TextProps & {
 }
 
 const formatTime = ({
-  days,
   hours,
   minutes,
   seconds,
   showDays,
 }: {
-  days: number
   hours: number
   minutes: number
   seconds: number
   showDays: boolean
 }) => {
-  return `${showDays ? `${String(days).padStart(2, '0')}d:` : ''}${String(hours).padStart(
-    2,
-    '0'
-  )}h:${String(minutes).padStart(2, '0')}m:${String(seconds).padStart(2, '0')}s`
+  return `${String(hours).padStart(2, '0')}h:${String(minutes).padStart(2, '0')}m:${String(
+    seconds
+  ).padStart(2, '0')}s`
 }
 
 export default function DailyMarketTimer({
@@ -45,7 +42,6 @@ export default function DailyMarketTimer({
 
     if (timeLeft < 0) {
       return {
-        days: 0,
         hours: 0,
         minutes: 0,
         seconds: 0,
@@ -53,7 +49,6 @@ export default function DailyMarketTimer({
     }
 
     return {
-      days: Math.floor((timeLeft % (1000 * 60 * 60 * 24 * 7)) / (1000 * 60 * 60 * 24)),
       hours: Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
       minutes: Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60)),
       seconds: Math.floor((timeLeft % (1000 * 60)) / 1000),
@@ -76,10 +71,6 @@ export default function DailyMarketTimer({
   }, [calculateTimeRemaining, deadline])
 
   const deadlineLeftInPercent = 100 - ((deadline - new Date().getTime()) / 86400000) * 100
-  console.log(deadline)
-  console.log(new Date().getTime())
-  console.log(deadline - new Date().getTime())
-  console.log(deadlineLeftInPercent)
 
   return new Date(deadline).getTime() - new Date().getTime() > 86400000 ? (
     <HStack gap={isMobile ? '8px' : '4px'} color={color} {...props}>
