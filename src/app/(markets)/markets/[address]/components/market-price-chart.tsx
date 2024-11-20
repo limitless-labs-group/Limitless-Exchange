@@ -241,7 +241,7 @@ export const MarketPriceChart = () => {
       {/*          }}*/}
       {/*          key={market.address}*/}
       {/*        >*/}
-      {/*          {market.title}*/}
+      {/*          {(market?.proxyTitle ?? market?.title)}*/}
       {/*        </MenuItem>*/}
       {/*      ))}*/}
       {/*    </MenuList>*/}

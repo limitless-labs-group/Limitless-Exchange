@@ -26,6 +26,7 @@ import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import MobileDrawer from '@/components/common/drawer'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
+import CommentTab from '@/components/common/markets/comment-tab'
 import TextWithPixels from '@/components/common/text-with-pixels'
 import {
   MarketClaimingForm,
@@ -40,6 +41,7 @@ import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
+import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
 import {
@@ -147,12 +149,17 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
       title: 'Activity',
       icon: <ActivityIcon width={16} height={16} />,
     },
+    {
+      title: 'Opinions',
+      icon: <OpinionIcon width={16} height={16} />,
+    },
   ]
 
   const tabPanels = useMemo(() => {
     return [
       <MarketOverviewTab market={market as Market} key={uuidv4()} marketGroup={marketGroup} />,
       <MarketActivityTab key={uuidv4()} />,
+      <CommentTab key={uuidv4()} />,
     ]
   }, [market, winningIndex, resolved, marketGroup])
 

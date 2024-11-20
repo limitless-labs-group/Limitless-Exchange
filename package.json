@@ -5,7 +5,7 @@
   "author": "Limitless Labs",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development wagmi generate && next dev",
+    "dev": "NODE_ENV=development wagmi generate && next dev --experimental-https",
     "build": "wagmi generate && next build",
     "analyze": "ANALYZE=true yarn build",
     "deploy": "vercel",
@@ -61,6 +61,7 @@
     "date-fns": "^3.6.0",
     "date-fns-tz": "^3.2.0",
     "dayzed": "^3.2.3",
+    "dompurify": "^3.1.7",
     "embla-carousel-autoplay": "^8.3.0",
     "embla-carousel-react": "^8.3.0",
     "ethereum-multicall": "^2.25.0",
@@ -99,6 +100,7 @@
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "@types/dompurify": "^3.0.5",
     "@types/node": "^17.0.31",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.0",

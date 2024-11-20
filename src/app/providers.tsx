@@ -18,7 +18,9 @@ import {
   HistoryServiceProvider,
   LimitlessApiProvider,
   TradingServiceProvider,
+  CommentServiceProvider,
 } from '@/services'
+import { AxiosProvider } from '@/services/AxiosPrivateClient'
 
 export const Providers = ({ children }: React.PropsWithChildren) => {
   const [mounted, setMounted] = React.useState(false)
@@ -34,17 +36,21 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                 <AmplitudeProvider>
                   <LimitlessApiProvider>
                     <EtherspotProvider>
-                      <AccountProvider>
-                        <PriceOracleProvider>
-                          <BalanceServiceProvider>
-                            <HistoryServiceProvider>
-                              <TokenFilterProvider>
-                                <TradingServiceProvider>{children}</TradingServiceProvider>
-                              </TokenFilterProvider>
-                            </HistoryServiceProvider>
-                          </BalanceServiceProvider>
-                        </PriceOracleProvider>
-                      </AccountProvider>
+                      <AxiosProvider>
+                        <AccountProvider>
+                          <PriceOracleProvider>
+                            <BalanceServiceProvider>
+                              <HistoryServiceProvider>
+                                <TokenFilterProvider>
+                                  <CommentServiceProvider>
+                                    <TradingServiceProvider>{children}</TradingServiceProvider>
+                                  </CommentServiceProvider>
+                                </TokenFilterProvider>
+                              </HistoryServiceProvider>
+                            </BalanceServiceProvider>
+                          </PriceOracleProvider>
+                        </AccountProvider>
+                      </AxiosProvider>
                     </EtherspotProvider>
                   </LimitlessApiProvider>
                 </AmplitudeProvider>

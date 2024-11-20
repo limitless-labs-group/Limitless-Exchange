@@ -2,22 +2,24 @@
 
 import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { Toast } from '@/components/common/toast'
 import { DraftMarket, DraftMarketCard } from '@/app/draft/queue/components/draft-card'
 import { MainLayout } from '@/components'
 import { useToast } from '@/hooks'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 
 const DraftMarketsQueuePage = () => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
+
+  const privateClient = useAxiosPrivateClient()
 
   const router = useRouter()
   const { data: draftMarkets } = useQuery({
     queryKey: ['draftMarkets'],
     queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts`)
+      const response = await privateClient.get(`/markets/drafts`)
 
       return response.data
     },
@@ -41,9 +43,9 @@ const DraftMarketsQueuePage = () => {
 
   const createMarketsBatch = () => {
     setIsCreating(true)
-    axios
+    privateClient
       .post(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/create-batch`,
+        `/markets/create-batch`,
         { marketsIds: selectedMarketIds },
         {
           headers: {

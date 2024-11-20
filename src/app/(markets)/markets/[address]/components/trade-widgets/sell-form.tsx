@@ -452,7 +452,7 @@ export function SellForm({
               <HStack gap='8px' color='white'>
                 <PredictionsIcon />
                 <Text {...paragraphMedium} color='white'>
-                  {market?.title}
+                  {market?.proxyTitle ?? market?.title}
                 </Text>
               </HStack>
             </Button>
@@ -478,7 +478,7 @@ export function SellForm({
                   <HStack mb='8px' w='full'>
                     <HStack justifyContent='space-between' w='full' alignItems='flex-start'>
                       <Text {...paragraphMedium} color='white'>
-                        {market.title}
+                        {market?.proxyTitle ?? market?.title}
                       </Text>
                       <Text {...paragraphMedium} color='white'>
                         {NumberUtil.formatThousands(getTotalContractsAmount(market.address), 6)}{' '}

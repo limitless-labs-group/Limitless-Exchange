@@ -14,7 +14,13 @@ import { usePriceOracle } from '@/providers'
 import BaseIcon from '@/resources/crypto/base.svg'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
-import { ClickEvent, useAmplitude, useBalanceService, useLimitlessApi } from '@/services'
+import {
+  ClickEvent,
+  useAmplitude,
+  useBalanceQuery,
+  useBalanceService,
+  useLimitlessApi,
+} from '@/services'
 import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
@@ -24,7 +30,8 @@ interface WalletPageProps {
 
 export default function WalletPage({ onClose }: WalletPageProps) {
   const [copied, setCopied] = useState(false)
-  const { overallBalanceUsd, balanceOfSmartWallet } = useBalanceService()
+  const { overallBalanceUsd } = useBalanceService()
+  const { balanceOfSmartWallet } = useBalanceQuery()
   const { supportedTokens } = useLimitlessApi()
   const address = useWalletAddress()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
