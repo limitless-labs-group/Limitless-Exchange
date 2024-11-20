@@ -68,7 +68,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
         ethers.utils.isAddress(feedMessage?.user?.name ?? '')
           ? truncateEthAddress(feedMessage?.user?.account)
           : feedMessage?.user?.name
-          ? cutUsername(feedMessage.user.name, 30)
+          ? cutUsername(feedMessage.user.name, 25)
           : truncateEthAddress(feedMessage?.user?.account)
       }
          ${title} ${outcome} outcome for ${NumberUtil.convertWithDenomination(
