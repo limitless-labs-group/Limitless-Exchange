@@ -75,9 +75,10 @@ export default function DailyMarketTimer({
     return () => clearInterval(interval)
   }, [calculateTimeRemaining, deadline])
 
-  const deadlineLeftInPercent = ((deadline - new Date().getTime()) / (deadline - 86400000)) * 100
+  const deadlineLeftInPercent = ((deadline - new Date().getTime()) / 86400000) * 100
   console.log(deadline)
   console.log(new Date().getTime())
+  console.log(deadline - new Date().getTime())
   console.log(deadlineLeftInPercent)
 
   return new Date(deadline).getTime() - new Date().getTime() > 86400000 ? (
