@@ -73,7 +73,7 @@ export default function DailyMarketTimer({
   const deadlineLeftInPercent = 100 - ((deadline - new Date().getTime()) / 86400000) * 100
 
   return (
-    <HStack gap='8px'>
+    <HStack gap='8px' w='full'>
       <Text {...paragraphRegular} color='grey.500'>
         Ends {new Date(deadline).getTime() - new Date().getTime() > 86400000 ? 'on' : 'in'}
       </Text>
