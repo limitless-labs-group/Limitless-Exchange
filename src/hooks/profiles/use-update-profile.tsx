@@ -1,8 +1,9 @@
 import { useMutation } from '@tanstack/react-query'
-import { Address, getAddress, toHex } from 'viem'
+import { Address } from 'viem'
 import { Toast } from '@/components/common/toast'
 import { useToast } from '@/hooks'
-import { limitlessApi, useEtherspot } from '@/services'
+import { useEtherspot } from '@/services'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Profile } from '@/types/profiles'
 
 export interface IUseUpdateProfileMutation {
@@ -18,7 +19,7 @@ export interface IUseUpdateProfileMutation {
 export const useUpdateProfile = () => {
   const toast = useToast()
   const { smartWalletExternallyOwnedAccountAddress } = useEtherspot()
-
+  const privateAxios = useAxiosPrivateClient()
   return useMutation({
     mutationKey: ['update-profile'],
     mutationFn: async ({
@@ -27,32 +28,15 @@ export const useUpdateProfile = () => {
       bio: _bio,
       account,
       client,
-      signature,
-      updateProfileMessage,
     }: IUseUpdateProfileMutation) => {
-      const headers = {
-        'x-account':
-          client === 'eoa'
-            ? getAddress(account!)
-            : getAddress(smartWalletExternallyOwnedAccountAddress!),
-        'x-signature': signature,
-        'x-signing-message': toHex(String(updateProfileMessage)),
-      }
-
-      const res = await limitlessApi.put(
-        '/profiles',
-        {
-          displayName: _displayName,
-          username: _username,
-          bio: _bio,
-          eoaWallet: client === 'eoa' ? account : smartWalletExternallyOwnedAccountAddress,
-          smartWallet: client === 'eoa' ? '' : account,
-          client,
-        },
-        {
-          headers,
-        }
-      )
+      const res = await privateAxios.put('/profiles', {
+        displayName: _displayName,
+        username: _username,
+        bio: _bio,
+        eoaWallet: client === 'eoa' ? account : smartWalletExternallyOwnedAccountAddress,
+        smartWallet: client === 'eoa' ? '' : account,
+        client,
+      })
       return res.data as Profile
     },
     onSuccess: () => {

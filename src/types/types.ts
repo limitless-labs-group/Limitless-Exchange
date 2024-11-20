@@ -1,5 +1,6 @@
 import { AxiosError } from 'axios'
 import { Hash, Address } from 'viem'
+import { Profile } from './profiles'
 
 export type { Hash, Address }
 
@@ -325,6 +326,25 @@ export interface UpdateProfileData {
   username: string
   pfpFile?: File
   bio?: string
+}
+
+export interface CommentPost {
+  content: string
+  market: Market
+  author: Profile
+  createdAt: string
+  id: string
+}
+export interface CommentResponse {
+  comments: Comment[]
+  totalPages: number
+}
+
+export interface CommentType {
+  id: string
+  createdAt: string
+  content: string
+  author: Profile
 }
 
 export type APIError = AxiosError<{ message: string; statusCode: number }>

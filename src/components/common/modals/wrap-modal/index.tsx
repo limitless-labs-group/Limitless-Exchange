@@ -7,7 +7,7 @@ import AmountSlider from '@/components/common/amount-slider'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { Modal } from '@/components/common/modals/modal'
 import SwapIcon from '@/resources/icons/swap-icon.svg'
-import { useBalanceService } from '@/services'
+import { useBalanceQuery, useBalanceService } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
@@ -20,7 +20,8 @@ export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
   const queryClient = useQueryClient()
   const [displayAmount, setDisplayAmount] = useState('')
   const [sliderValue, setSliderValue] = useState(0)
-  const { ethBalance, wrapMutation, unwrapMutation, balanceOfSmartWallet } = useBalanceService()
+  const { ethBalance, wrapMutation, unwrapMutation } = useBalanceService()
+  const { balanceOfSmartWallet } = useBalanceQuery()
   const [tokenFrom, setTokenFrom] = useState<'ETH' | 'WETH'>('ETH')
   const [tokenTo, setTokenTo] = useState<'ETH' | 'WETH'>('WETH')
 

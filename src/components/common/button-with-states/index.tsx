@@ -1,4 +1,5 @@
 import { Box, Button, ButtonProps } from '@chakra-ui/react'
+import { MutationStatus } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo } from 'react'
 import Loader from '@/components/common/loader'
@@ -7,7 +8,7 @@ import CheckedIcon from '@/resources/icons/checked-icon.svg'
 const MotionBox = motion(Box)
 
 type ButtonWithStatesProps = ButtonProps & {
-  status: 'idle' | 'pending' | 'success' | 'error'
+  status: MutationStatus
 }
 
 export default function ButtonWithStates({ children, status, ...props }: ButtonWithStatesProps) {

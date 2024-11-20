@@ -34,6 +34,9 @@ export const chakraTheme = ChakraTheme({
   // colors: mode(lightThemeColors, darkThemeColors)((props) => props),
   styles: {
     global: {
+      '.infinite-scroll-component__outerdiv': {
+        width: '100%',
+      },
       body: {
         overflowX: 'hidden',
         userSelect: 'none',

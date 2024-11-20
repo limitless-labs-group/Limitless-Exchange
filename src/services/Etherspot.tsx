@@ -414,6 +414,10 @@ class Etherspot {
     const transactionReceipt = await this.waitForTransaction(opHash)
     return transactionReceipt?.transactionHash
   }
+
+  async destroy() {
+    await this.primeSdk.destroy()
+  }
 }
 
 interface ITransferErc20 {
