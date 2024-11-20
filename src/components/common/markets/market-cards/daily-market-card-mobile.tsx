@@ -93,19 +93,12 @@ export default function DailyMarketCardMobile({
       <Paper flex={1} w={'100%'} position='relative' cursor='pointer' p='14px'>
         <VStack w='full' gap='56px' mt='8px'>
           <Box w='full'>
-            <HStack gap='8px' w='full'>
-              <Box>
-                <Text {...paragraphRegular} color='grey.500'>
-                  Ends in
-                </Text>
-              </Box>
-              <DailyMarketTimer
-                deadline={market.expirationTimestamp}
-                deadlineText={market.expirationDate}
-                {...paragraphRegular}
-                color='grey.500'
-              />
-            </HStack>
+            <DailyMarketTimer
+              deadline={market.expirationTimestamp}
+              deadlineText={market.expirationDate}
+              {...paragraphRegular}
+              color='grey.500'
+            />
             <Text {...paragraphBold} fontSize='20px' mt='4px' textAlign='left'>
               {market.proxyTitle ?? market.title}
             </Text>

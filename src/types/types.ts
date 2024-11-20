@@ -305,6 +305,9 @@ export interface ColorScheme {
   blackStale: {
     200: string
   }
+  background: {
+    90: string
+  }
   skeleton: {
     dark: string
     highLight: string

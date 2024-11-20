@@ -2,7 +2,7 @@ import { Box, HStack, Text, TextProps } from '@chakra-ui/react'
 import React, { useEffect, useState, useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 type DailyMarketTimerProps = TextProps & {
   deadline: number
@@ -72,30 +72,37 @@ export default function DailyMarketTimer({
 
   const deadlineLeftInPercent = 100 - ((deadline - new Date().getTime()) / 86400000) * 100
 
-  return new Date(deadline).getTime() - new Date().getTime() > 86400000 ? (
-    <HStack gap={isMobile ? '8px' : '4px'} color={color} {...props}>
-      <CalendarIcon width={16} height={16} />
-      <Text {...paragraphMedium} color={color} {...props}>
-        {deadlineText}
+  return (
+    <HStack gap='8px'>
+      <Text {...paragraphRegular} color='grey.500'>
+        Ends {new Date(deadline).getTime() - new Date().getTime() > 86400000 ? 'on' : 'in'}
       </Text>
-    </HStack>
-  ) : (
-    <HStack gap='4px'>
-      <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
-        <Box
-          h='100%'
-          w='100%'
-          borderRadius='100%'
-          bg={`conic-gradient(var(--chakra-colors-${
-            topMarket ? 'transparent-200' : 'grey-200'
-          }) ${deadlineLeftInPercent.toFixed(0)}% 0%, var(--chakra-colors-${
-            topMarket ? 'transparent-700' : 'grey-500'
-          }) ${deadlineLeftInPercent.toFixed(0)}% 100%)`}
-        />
-      </Box>
-      <Text {...paragraphMedium} color={color} {...props}>
-        {formatTime({ ...timeRemaining, showDays })}
-      </Text>
+      {new Date(deadline).getTime() - new Date().getTime() > 86400000 ? (
+        <HStack gap={isMobile ? '8px' : '4px'} color={color} {...props}>
+          <CalendarIcon width={16} height={16} />
+          <Text {...paragraphMedium} color={color} {...props}>
+            {deadlineText}
+          </Text>
+        </HStack>
+      ) : (
+        <HStack gap='4px'>
+          <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
+            <Box
+              h='100%'
+              w='100%'
+              borderRadius='100%'
+              bg={`conic-gradient(var(--chakra-colors-${
+                topMarket ? 'transparent-200' : 'grey-200'
+              }) ${deadlineLeftInPercent.toFixed(0)}% 0%, var(--chakra-colors-${
+                topMarket ? 'transparent-700' : 'grey-500'
+              }) ${deadlineLeftInPercent.toFixed(0)}% 100%)`}
+            />
+          </Box>
+          <Text {...paragraphMedium} color={color} {...props}>
+            {formatTime({ ...timeRemaining, showDays })}
+          </Text>
+        </HStack>
+      )}
     </HStack>
   )
 }

@@ -295,6 +295,7 @@ export default function MarketPage() {
 
   return (
     <Box
+      bg='background.90'
       borderLeft={isMobile ? 'unset' : '1px solid'}
       borderColor='grey.100'
       w={isMobile ? 'full' : '488px'}
@@ -306,7 +307,7 @@ export default function MarketPage() {
       p={isMobile ? '12px' : '16px'}
       pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
-      backdropFilter='blur(30px)'
+      backdropFilter='blur(7.5px)'
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
@@ -330,21 +331,14 @@ export default function MarketPage() {
         mt={isMobile ? 0 : '20px'}
         flexWrap='wrap'
       >
-        <HStack gap='8px'>
-          <Box>
-            <Text {...paragraphRegular} color='grey.500'>
-              Ends in
-            </Text>
-          </Box>
-          {market && (
-            <DailyMarketTimer
-              deadline={market.expirationTimestamp}
-              deadlineText={market.expirationDate}
-              {...paragraphRegular}
-              color='grey.500'
-            />
-          )}
-        </HStack>
+        {market && (
+          <DailyMarketTimer
+            deadline={market.expirationTimestamp}
+            deadlineText={market.expirationDate}
+            {...paragraphRegular}
+            color='grey.500'
+          />
+        )}
         <HStack gap='8px' flexWrap='wrap'>
           <Text {...paragraphRegular} color='grey.500'>
             Created by

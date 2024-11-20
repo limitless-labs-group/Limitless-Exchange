@@ -106,20 +106,13 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
       cursor='pointer'
       onClick={(e) => onClickRedirectToMarket(e)}
     >
-      <HStack gap='8px' w='full'>
-        <Box>
-          <Text {...paragraphRegular} color='transparent.700'>
-            Ends in
-          </Text>
-        </Box>
-        <DailyMarketTimer
-          deadline={market.expirationTimestamp}
-          deadlineText={market.expirationDate}
-          topMarket={true}
-          {...paragraphRegular}
-          color='transparent.700'
-        />
-      </HStack>
+      <DailyMarketTimer
+        deadline={market.expirationTimestamp}
+        deadlineText={market.expirationDate}
+        topMarket={true}
+        {...paragraphRegular}
+        color='transparent.700'
+      />
       <Text {...headLineLarge} color='white' textAlign='left'>
         {market.proxyTitle ?? market.title ?? 'Noname market'}
       </Text>
