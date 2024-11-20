@@ -10,7 +10,6 @@ import {
   Text,
   Textarea,
 } from '@chakra-ui/react'
-import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { yupResolver } from '@hookform/resolvers/yup'
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -102,8 +101,6 @@ export function ProfileForm() {
         },
       }
     )
-    await sleep(1)
-    updateProfileMutation.reset()
   }
 
   const imageLink = useMemo(() => {
