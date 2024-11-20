@@ -15,8 +15,8 @@ import { tabsTheme } from '@/styles/tabs'
 import { textAreaTheme } from '@/styles/text-area'
 import { tooltipTheme } from '@/styles/tooltip'
 
-const fonts = `Helvetica Neue`
-const pixels = 'Neue Pixel Sans'
+const fonts = `"Helvetica Neue", Arial, sans-serif`
+const pixels = '"Neue Pixel Sans",  sans-serif'
 
 const config: ThemeConfig = {
   initialColorMode: 'dark',
