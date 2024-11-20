@@ -361,7 +361,7 @@ export default function MarketPage() {
           </Text>
         </HStack>
         <ProgressBar variant='market' value={market ? market.prices[0] : 50} />
-        <HStack gap='8px' justifyContent='space-between' mt='8px'>
+        <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
             <HStack gap='4px'>
               {uniqueUsersTrades?.map(({ user }, index) => (
@@ -378,11 +378,7 @@ export default function MarketPage() {
               {market?.collateralToken.symbol}
             </Text>
           </HStack>
-          <HStack
-            gap='4px'
-            w={isMobile ? 'full' : 'unset'}
-            justifyContent={isMobile ? 'flex-end' : 'unset'}
-          >
+          <HStack gap='4px' w={isMobile ? 'full' : 'unset'} justifyContent='unset'>
             <Box {...paragraphRegular}>💧 </Box>
             <Text {...paragraphRegular} color='grey.500'>
               Liquidity {NumberUtil.convertWithDenomination(market?.liquidityFormatted, 6)}{' '}
