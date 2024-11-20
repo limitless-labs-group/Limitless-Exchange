@@ -85,7 +85,10 @@ function PythLiveChart({ id }: PythLiveChartProps) {
         }&range=${timeRange}&cluster=pythnet`
       )
       const preparedData = result.data.map((priceData) => {
-        return [new Date(priceData.timestamp).getTime(), +priceData.avg_price.toFixed()]
+        return [
+          new Date(priceData.timestamp).getTime(),
+          +priceData.avg_price.toFixed(priceData.avg_price > 1 ? 2 : 6),
+        ]
       })
       setPriceData(preparedData)
     } catch (e) {
