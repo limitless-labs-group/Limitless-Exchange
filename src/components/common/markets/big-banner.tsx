@@ -94,11 +94,6 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
     return null
   }, [marketFeedData])
 
-  const deadlineLeftInPercent =
-    ((market.expirationTimestamp - new Date().getTime()) /
-      (market.expirationTimestamp - new Date(market.createdAt).getTime())) *
-    100
-
   const content = (
     <VStack
       w='full'
@@ -120,6 +115,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
         <DailyMarketTimer
           deadline={market.expirationTimestamp}
           deadlineText={market.expirationDate}
+          topMarket={true}
           {...paragraphRegular}
           color='transparent.700'
         />

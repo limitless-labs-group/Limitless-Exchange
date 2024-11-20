@@ -8,6 +8,7 @@ type DailyMarketTimerProps = TextProps & {
   deadline: number
   color: string
   showDays?: boolean
+  topMarket?: boolean
   deadlineText: string
 }
 
@@ -35,6 +36,7 @@ export default function DailyMarketTimer({
   color,
   deadlineText,
   showDays = true,
+  topMarket = false,
   ...props
 }: DailyMarketTimerProps) {
   const calculateTimeRemaining = useCallback(() => {
@@ -73,8 +75,7 @@ export default function DailyMarketTimer({
     return () => clearInterval(interval)
   }, [calculateTimeRemaining, deadline])
 
-  const deadlineLeftInPercent =
-    1 - ((deadline - new Date().getTime()) / (deadline - 86400000)) * 100
+  const deadlineLeftInPercent = ((deadline - new Date().getTime()) / (deadline - 86400000)) * 100
 
   return new Date(deadline).getTime() - new Date().getTime() > 86400000 ? (
     <HStack gap={isMobile ? '8px' : '4px'} color={color} {...props}>
@@ -90,9 +91,11 @@ export default function DailyMarketTimer({
           h='100%'
           w='100%'
           borderRadius='100%'
-          bg={`conic-gradient(var(--chakra-colors-grey-500) ${deadlineLeftInPercent.toFixed(
-            0
-          )}% 10%, var(--chakra-colors-grey-200) ${deadlineLeftInPercent.toFixed(0)}% 100%)`}
+          bg={`conic-gradient(var(--chakra-colors-${
+            topMarket ? 'transparent-700' : 'grey-500'
+          }) ${deadlineLeftInPercent.toFixed(0)}% 10%, var(--chakra-colors-${
+            topMarket ? 'transparent-200' : 'grey-200'
+          }) ${deadlineLeftInPercent.toFixed(0)}% 100%)`}
         />
       </Box>
       <Text {...paragraphMedium} color={color} {...props}>
