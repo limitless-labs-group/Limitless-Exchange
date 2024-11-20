@@ -1,8 +1,8 @@
-import { Text } from '@chakra-ui/react'
+import { Text, TextProps } from '@chakra-ui/react'
 import { useEffect, useState, useCallback } from 'react'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
-interface DailyMarketTimerProps {
+type DailyMarketTimerProps = TextProps & {
   deadline: number
   color: string
   showDays?: boolean
@@ -31,6 +31,7 @@ export default function DailyMarketTimer({
   deadline,
   color,
   showDays = true,
+  ...props
 }: DailyMarketTimerProps) {
   const calculateTimeRemaining = useCallback(() => {
     const now = new Date().getTime()
@@ -64,7 +65,7 @@ export default function DailyMarketTimer({
   }, [calculateTimeRemaining])
 
   return (
-    <Text {...paragraphMedium} color={color}>
+    <Text {...paragraphMedium} color={color} {...props}>
       {formatTime({ ...timeRemaining, showDays })}
     </Text>
   )
