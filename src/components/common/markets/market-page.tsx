@@ -230,7 +230,6 @@ export default function MarketPage() {
       marketType: 'single',
       marketTags: market?.tags,
     })
-    onCloseMarketPage()
   }
 
   const handleChartTabClicked = (event: ClickEvent) =>
@@ -269,12 +268,6 @@ export default function MarketPage() {
     }
   }, [])
 
-  const deadlineLeftInPercent = market
-    ? ((market.expirationTimestamp - new Date().getTime()) /
-        (market.expirationTimestamp - new Date(market.createdAt).getTime())) *
-      100
-    : 1
-
   const uniqueUsersTrades = useMemo(() => {
     if (marketFeedData?.data.length) {
       const uniqueUsers = new Map()
@@ -302,7 +295,6 @@ export default function MarketPage() {
 
   return (
     <Box
-      bg='grey.50'
       borderLeft={isMobile ? 'unset' : '1px solid'}
       borderColor='grey.100'
       w={isMobile ? 'full' : '488px'}
@@ -314,6 +306,7 @@ export default function MarketPage() {
       p={isMobile ? '12px' : '16px'}
       pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
+      backdropFilter='blur(7.5px)'
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
@@ -330,7 +323,13 @@ export default function MarketPage() {
           <ShareMenu />
         </HStack>
       )}
-      <HStack w='full' mb='8px' justifyContent='space-between' mt={isMobile ? 0 : '20px'}>
+      <HStack
+        w='full'
+        mb='8px'
+        justifyContent='space-between'
+        mt={isMobile ? 0 : '20px'}
+        flexWrap='wrap'
+      >
         <HStack gap='8px'>
           <Box>
             <Text {...paragraphRegular} color='grey.500'>
