@@ -71,6 +71,14 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
       (market.expirationTimestamp - new Date(market.createdAt).getTime())) *
     100
 
+  const onClickJoinPrediction = () => {
+    trackClicked(ClickEvent.JoinPredictionClicked, {
+      marketAddress: market.address,
+      marketTags: market.tags,
+      marketType: 'single',
+    })
+  }
+
   useEffect(() => {
     if (selectedMarket && selectedMarket.address !== market.address) {
       setHovered(false)
@@ -164,6 +172,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                 py='8px'
                 {...paragraphMedium}
                 h='unset'
+                onClick={onClickJoinPrediction}
               >
                 ⚖️ Join the Prediction
               </Button>

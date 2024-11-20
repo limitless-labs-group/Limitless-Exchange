@@ -69,6 +69,14 @@ export default function DailyMarketCardMobile({
     setMarketsSection('Medium Banner')
   }
 
+  const onClickJoinPrediction = () => {
+    trackClicked(ClickEvent.JoinPredictionClicked, {
+      marketAddress: market.address,
+      marketTags: market.tags,
+      marketType: 'single',
+    })
+  }
+
   const deadlineLeftInPercent =
     ((market.expirationTimestamp - new Date().getTime()) /
       (market.expirationTimestamp - new Date(market.createdAt).getTime())) *
@@ -156,6 +164,7 @@ export default function DailyMarketCardMobile({
                   {...paragraphMedium}
                   h='unset'
                   w='full'
+                  onClick={onClickJoinPrediction}
                 >
                   ⚖️ Join the Prediction
                 </Button>
