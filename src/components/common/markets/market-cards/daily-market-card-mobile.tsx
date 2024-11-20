@@ -1,6 +1,6 @@
 import { Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import React, { SyntheticEvent, useEffect, useMemo, useState } from 'react'
+import React, { SyntheticEvent, useMemo } from 'react'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'

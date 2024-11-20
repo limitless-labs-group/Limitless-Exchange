@@ -164,6 +164,7 @@ export enum ClickEvent {
   NextMarketClick = 'Next Market Click',
   PreviousMarketClick = 'Previous Market Click',
   TradingWidgetPricePrecetChosen = 'Trading Widget Price Preset Chosen',
+  FullPageClicked = 'Full Page Clicked',
 }
 
 export enum SignInEvent {
@@ -287,6 +288,12 @@ export interface PageOpenedMetadata {
   [key: string]: any
 }
 
+interface FullPageClickedMetaData {
+  marketAddress?: Address
+  marketType?: 'group' | 'single'
+  marketTags?: string[]
+}
+
 export interface CloseMarketMetadata {
   marketAddress: string
 }
@@ -407,6 +414,7 @@ export type ClickedEventMetadata =
   | MediumBannerClicked
   | CloseMarketMetadata
   | TradingWidgetPriceClickedMetadata
+  | FullPageClickedMetaData
 
 export type OpenedEventMetadata = PageOpenedMetadata | ProfileSettingsMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata
