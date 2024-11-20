@@ -1,5 +1,4 @@
 import { geolocation } from '@vercel/functions'
-import axios from 'axios'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const config = {
@@ -15,16 +14,6 @@ export async function middleware(req: NextRequest) {
 
   const response = NextResponse.next()
 
-  if (pathname.startsWith('/draft')) {
-    try {
-      await axios.get(`${baseUrl}/auth/verify-auth`)
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
-        return NextResponse.redirect(home ?? '')
-      }
-    }
-  }
-
   if (country === 'US') {
     response.cookies.set('limitless_geo', btoa(country), {
       path: '/',
@@ -36,5 +25,23 @@ export async function middleware(req: NextRequest) {
     response.cookies.delete('limitless_geo')
   }
 
+  if (!baseUrl || !home) {
+    console.error('Missing required environment variables.')
+    return response
+  }
+
+  if (pathname.startsWith('/draft')) {
+    try {
+      const authResponse = await fetch(`${baseUrl}/auth/verify-auth`, {
+        method: 'GET',
+      })
+
+      if (!authResponse.ok && authResponse.status === 401) {
+        return NextResponse.redirect(home)
+      }
+    } catch (error) {
+      console.error('Error verifying auth:', error)
+    }
+  }
   return response
 }
