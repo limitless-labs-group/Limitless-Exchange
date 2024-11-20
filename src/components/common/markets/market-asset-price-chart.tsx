@@ -108,7 +108,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
                 BigInt(priceEntity ? priceEntity.price : '1'),
                 Math.abs(priceEntity ? priceEntity.expo : 8)
               )
-              const price = +formattedPrice.toFixed(formattedPrice > 1 ? 2 : 6)
+              const price = +formattedPrice.toFixed(6)
               const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
               const currentTime = latestPriceFeedEntity
                 ? latestPriceFeedEntity.publishTime * 1000
