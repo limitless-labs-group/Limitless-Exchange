@@ -306,7 +306,7 @@ export default function MarketPage() {
       p={isMobile ? '12px' : '16px'}
       pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
-      backdropFilter='blur(7.5px)'
+      backdropFilter='blur(30px)'
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
