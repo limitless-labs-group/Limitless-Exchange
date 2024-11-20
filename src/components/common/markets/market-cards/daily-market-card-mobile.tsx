@@ -110,9 +110,9 @@ export default function DailyMarketCardMobile({
                     h='100%'
                     w='100%'
                     borderRadius='100%'
-                    bg={`conic-gradient(var(--chakra-colors-transparent-700) ${deadlineLeftInPercent.toFixed(
+                    bg={`conic-gradient(var(--chakra-colors-grey-500) ${deadlineLeftInPercent.toFixed(
                       0
-                    )}% 10%, var(--chakra-colors-transparent-200) ${deadlineLeftInPercent.toFixed(
+                    )}% 10%, var(--chakra-colors-grey-200) ${deadlineLeftInPercent.toFixed(
                       0
                     )}% 100%)`}
                   />
