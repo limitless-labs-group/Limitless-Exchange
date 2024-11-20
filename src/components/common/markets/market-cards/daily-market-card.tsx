@@ -155,7 +155,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             <HStack w='full' mt='16px' justifyContent='space-between'>
               <Button
                 variant='grey'
-                bg={hovered ? 'grey.400' : 'grey.200'}
+                bg={hovered ? 'grey.300' : 'grey.200'}
                 py='8px'
                 {...paragraphMedium}
                 h='unset'

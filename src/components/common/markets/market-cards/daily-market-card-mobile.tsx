@@ -106,8 +106,8 @@ export default function DailyMarketCardMobile({
                 color='grey.500'
               />
             </HStack>
-            <Text {...paragraphBold} fontSize='20px' mt='4px'>
-              {market.title}
+            <Text {...paragraphBold} fontSize='20px' mt='4px' textAlign='left'>
+              {market.proxyTitle ?? market.title}
             </Text>
           </Box>
           <Box w='full'>
