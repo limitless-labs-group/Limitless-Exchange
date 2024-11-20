@@ -76,6 +76,7 @@ export default function DailyMarketTimer({
   }, [calculateTimeRemaining, deadline])
 
   const deadlineLeftInPercent = ((deadline - new Date().getTime()) / (deadline - 86400000)) * 100
+  console.log(deadlineLeftInPercent)
 
   return new Date(deadline).getTime() - new Date().getTime() > 86400000 ? (
     <HStack gap={isMobile ? '8px' : '4px'} color={color} {...props}>
