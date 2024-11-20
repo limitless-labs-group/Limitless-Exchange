@@ -235,7 +235,7 @@ export const chakraTheme = ChakraTheme({
           background: 'unset',
           ...commonButtonProps,
           px: '8px',
-          gap: '8px',
+          gap: '4px',
           ...(isMobile
             ? {}
             : {
@@ -304,6 +304,31 @@ export const chakraTheme = ChakraTheme({
       baseStyle: {
         borderColor: 'grey.100',
         bg: 'grey.100',
+      },
+    },
+    Progress: {
+      baseStyle: {
+        track: {
+          borderRadius: '8px',
+        },
+      },
+      variants: {
+        white: {
+          filledTrack: {
+            bg: 'white',
+          },
+          track: {
+            bg: 'transparent.200',
+          },
+        },
+        market: {
+          filledTrack: {
+            bg: '#0FC591',
+          },
+          track: {
+            bg: '#FF3756',
+          },
+        },
       },
     },
   },

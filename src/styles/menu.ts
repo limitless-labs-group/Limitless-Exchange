@@ -74,6 +74,9 @@ const variants = {
       w: 'full',
       background: 'unset !important',
     },
+    list: {
+      bg: 'grey.100',
+    },
   },
   blue: {
     button: {

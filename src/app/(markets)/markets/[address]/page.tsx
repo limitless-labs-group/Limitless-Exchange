@@ -136,7 +136,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
             Trade
           </Button>
         }
-        title={market?.title || ''}
+        title={(market?.proxyTitle ?? market?.title) || ''}
         variant='blue'
       >
         <MarketTradingForm market={market as Market} />

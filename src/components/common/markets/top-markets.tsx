@@ -18,7 +18,11 @@ export default function TopMarkets({ markets, isLoading }: TopMarketsProps) {
 
   return (
     <Box position='relative' mt={isMobile ? '12px' : '16px'} px={isMobile ? '16px' : 0} w='inherit'>
-      {isLoading ? <Skeleton height={338} /> : <CarouselDesktop slides={desktopCards} />}
+      {isLoading ? (
+        <Skeleton height={isMobile ? 224 : 338} />
+      ) : (
+        <CarouselDesktop slides={desktopCards} />
+      )}
     </Box>
   )
 }

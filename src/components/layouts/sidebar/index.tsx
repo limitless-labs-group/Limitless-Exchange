@@ -18,10 +18,8 @@ import '@rainbow-me/rainbowkit/styles.css'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useCallback, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import Avatar from '@/components/common/avatar'
-import CategoryFilter from '@/components/common/categories'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import { Overlay } from '@/components/common/overlay'
@@ -134,7 +132,7 @@ export default function Sidebar() {
           handleOpenWalletPage()
         }}
         w='full'
-        bg={isOpenWalletPage ? 'grey.200' : 'unset'}
+        bg={isOpenWalletPage ? 'grey.100' : 'unset'}
       >
         <HStack w='full'>
           <WalletIcon width={16} height={16} />
@@ -213,7 +211,7 @@ export default function Sidebar() {
                   }}
                   variant='transparent'
                   w='full'
-                  bg={pageName === 'Portfolio' ? 'grey.200' : 'unset'}
+                  bg={pageName === 'Portfolio' ? 'grey.100' : 'unset'}
                   rounded='8px'
                 >
                   <HStack w='full'>
@@ -235,15 +233,15 @@ export default function Sidebar() {
                     as={Button}
                     onClick={onToggleAuthMenu}
                     rightIcon={<ChevronDownIcon width='16px' height='16px' />}
-                    bg={isOpenAuthMenu ? 'grey.200' : 'unset'}
+                    bg={isOpenAuthMenu ? 'grey.100' : 'unset'}
                     h='24px'
                     px='8px'
                     w='full'
                     _active={{
-                      bg: 'grey.200',
+                      bg: 'grey.100',
                     }}
                     _hover={{
-                      bg: 'grey.200',
+                      bg: 'grey.100',
                     }}
                   >
                     <HStack gap='8px'>
@@ -265,7 +263,7 @@ export default function Sidebar() {
                 <MenuList borderRadius='8px' w='180px' zIndex={2}>
                   <HStack gap='4px' mb='4px'>
                     <Button
-                      variant={mode === 'dark' ? 'grey' : 'black'}
+                      variant={mode === 'dark' ? 'transparent' : 'black'}
                       w='full'
                       onClick={() => {
                         toggleColorMode()
@@ -278,7 +276,7 @@ export default function Sidebar() {
                       <SunIcon width={16} height={16} />
                     </Button>
                     <Button
-                      variant={mode === 'dark' ? 'black' : 'grey'}
+                      variant={mode === 'dark' ? 'black' : 'transparent'}
                       w='full'
                       onClick={() => {
                         toggleColorMode()
@@ -292,7 +290,7 @@ export default function Sidebar() {
                     </Button>
                   </HStack>
                   <Button
-                    variant='grey'
+                    variant='transparent'
                     w='full'
                     onClick={handleOpenProfile}
                     justifyContent='flex-start'
@@ -301,7 +299,7 @@ export default function Sidebar() {
                     Profile
                   </Button>
                   <Button
-                    variant='grey'
+                    variant='transparent'
                     w='full'
                     onClick={() => {
                       trackClicked(ClickEvent.SignOutClicked, {
@@ -335,7 +333,7 @@ export default function Sidebar() {
             }}
             variant='transparent'
             w='full'
-            bg={pageName === 'Explore Markets' ? 'grey.200' : 'unset'}
+            bg={pageName === 'Explore Markets' ? 'grey.100' : 'unset'}
             rounded='8px'
           >
             <HStack w='full'>
@@ -355,7 +353,7 @@ export default function Sidebar() {
             }}
             variant='transparent'
             w='full'
-            bg={pageName === 'Home' ? 'grey.200' : 'unset'}
+            bg={pageName === 'Home' ? 'grey.100' : 'unset'}
             rounded='8px'
           >
             <HStack w='full'>
@@ -375,7 +373,7 @@ export default function Sidebar() {
             }}
             variant='transparent'
             w='full'
-            bg={pageName === 'Home' ? 'grey.200' : 'unset'}
+            bg={pageName === 'Home' ? 'grey.100' : 'unset'}
             rounded='8px'
           >
             <HStack w='full'>
@@ -429,7 +427,7 @@ export default function Sidebar() {
               justifyContent='space-between'
               display='flex'
               cursor='pointer'
-              _hover={{ bg: 'grey.300' }}
+              _hover={{ bg: 'grey.100' }}
               borderRadius='8px'
             >
               {volumeArray.map((volumeSymbol, index) => (

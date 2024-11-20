@@ -231,7 +231,7 @@ export function BuyForm({
               <HStack gap='8px' color='white'>
                 <PredictionsIcon />
                 <Text {...paragraphMedium} color='white'>
-                  {market.title}
+                  {market?.proxyTitle ?? market?.title}
                 </Text>
               </HStack>
             </Button>
@@ -256,7 +256,7 @@ export function BuyForm({
                   <HStack mb='8px' w='full'>
                     <HStack justifyContent='space-between' w='full' alignItems='flex-start'>
                       <Text {...paragraphMedium} color='white'>
-                        {market.title}
+                        {market?.proxyTitle ?? market?.title}
                       </Text>
                       <HStack gap='4px'>
                         <Text {...paragraphMedium} color='white'>

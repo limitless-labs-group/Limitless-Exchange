@@ -215,7 +215,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData, userInfo, account])
 
   useEffect(() => {
-    if (!profileLoading && profileData === null) {
+    if (!profileLoading && profileData === null && isLoggedIn) {
       onCreateProfile()
       return
     }
@@ -245,6 +245,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     setUserInfo(undefined)
   }
 
+  console.log(web3Auth)
+
   const disconnectFromPlatform = useCallback(async () => {
     disconnect()
     await logout()
@@ -257,7 +259,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     queryClient.removeQueries({
       queryKey: ['smartWalletAddress'],
     })
-    disconnectAccount()
   }, [])
 
   const disconnectLoading = useMemo<boolean>(() => {
