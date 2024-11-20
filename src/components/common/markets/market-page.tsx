@@ -49,7 +49,6 @@ import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import {
   ChangeEvent,
   ClickEvent,
-  OpenEvent,
   StrategyChangedMetadata,
   useAmplitude,
   useHistory,
@@ -107,7 +106,7 @@ export default function MarketPage() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const { trackChanged, trackClicked, trackOpened } = useAmplitude()
+  const { trackChanged, trackClicked } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
 
   // Todo change creator name
@@ -283,15 +282,6 @@ export default function MarketPage() {
     }
     return null
   }, [marketFeedData])
-
-  useEffect(() => {
-    trackOpened(OpenEvent.SidebarMarketOpened, {
-      marketAddress: market?.address,
-      marketTags: market?.tags,
-      marketType: 'single',
-      category: market?.category,
-    })
-  }, [market?.address])
 
   return (
     <Box
