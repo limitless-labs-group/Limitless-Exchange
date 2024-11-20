@@ -117,25 +117,12 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
             Ends in
           </Text>
         </Box>
-        <HStack gap='4px'>
-          <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
-            <Box
-              h='100%'
-              w='100%'
-              borderRadius='100%'
-              bg={`conic-gradient(var(--chakra-colors-transparent-700) ${deadlineLeftInPercent.toFixed(
-                0
-              )}% 10%, var(--chakra-colors-transparent-200) ${deadlineLeftInPercent.toFixed(
-                0
-              )}% 100%)`}
-            />
-          </Box>
-          <DailyMarketTimer
-            deadline={market.expirationTimestamp}
-            {...paragraphRegular}
-            color='transparent.700'
-          />
-        </HStack>
+        <DailyMarketTimer
+          deadline={market.expirationTimestamp}
+          deadlineText={market.expirationDate}
+          {...paragraphRegular}
+          color='transparent.700'
+        />
       </HStack>
       <Text {...headLineLarge} color='white' textAlign='left'>
         {market.proxyTitle ?? market.title ?? 'Noname market'}

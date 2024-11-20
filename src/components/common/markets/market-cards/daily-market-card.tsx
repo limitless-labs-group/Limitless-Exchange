@@ -128,25 +128,12 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                   Ends in
                 </Text>
               </Box>
-              <HStack gap='4px'>
-                <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
-                  <Box
-                    h='100%'
-                    w='100%'
-                    borderRadius='100%'
-                    bg={`conic-gradient(var(--chakra-colors-grey-500) ${deadlineLeftInPercent.toFixed(
-                      0
-                    )}% 10%, var(--chakra-colors-grey-200) ${deadlineLeftInPercent.toFixed(
-                      0
-                    )}% 100%)`}
-                  />
-                </Box>
-                <DailyMarketTimer
-                  deadline={market.expirationTimestamp}
-                  {...paragraphRegular}
-                  color='grey.500'
-                />
-              </HStack>
+              <DailyMarketTimer
+                deadline={market.expirationTimestamp}
+                deadlineText={market.expirationDate}
+                {...paragraphRegular}
+                color='grey.500'
+              />
             </HStack>
             <Text {...paragraphBold} fontSize='20px' mt='4px'>
               {market.title}

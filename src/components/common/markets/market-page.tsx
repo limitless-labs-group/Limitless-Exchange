@@ -337,27 +337,14 @@ export default function MarketPage() {
               Ends in
             </Text>
           </Box>
-          <HStack gap='4px'>
-            <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
-              <Box
-                h='100%'
-                w='100%'
-                borderRadius='100%'
-                bg={`conic-gradient(var(--chakra-colors-transparent-700) ${deadlineLeftInPercent.toFixed(
-                  0
-                )}% 10%, var(--chakra-colors-transparent-200) ${deadlineLeftInPercent.toFixed(
-                  0
-                )}% 100%)`}
-              />
-            </Box>
-            {market && (
-              <DailyMarketTimer
-                deadline={market.expirationTimestamp}
-                {...paragraphRegular}
-                color='grey.500'
-              />
-            )}
-          </HStack>
+          {market && (
+            <DailyMarketTimer
+              deadline={market.expirationTimestamp}
+              deadlineText={market.expirationDate}
+              {...paragraphRegular}
+              color='grey.500'
+            />
+          )}
         </HStack>
         <HStack gap='8px' flexWrap='wrap'>
           <Text {...paragraphRegular} color='grey.500'>
