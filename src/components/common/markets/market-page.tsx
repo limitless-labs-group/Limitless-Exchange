@@ -141,24 +141,28 @@ export default function MarketPage() {
 
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
-  const isLivePriceSupportedMarket = [
-    'Will AAVE',
-    'Will APE',
-    'Will ATOM',
-    'Will APT',
-    'Will BRETT',
-    'Will BTC',
-    'Will DOGE',
-    'Will EIGEN',
-    'Will ENS',
-    'Will ETH',
-    'Will FLOKI',
-    'Will RENDER',
-    'Will SOL',
-    'Will SUI',
-    'Will ZRO',
-    'Will ZK',
-  ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
+  const isLumy = market?.category === 'Lumy'
+
+  const isLivePriceSupportedMarket =
+    isLumy &&
+    [
+      'Will AAVE',
+      'Will APE',
+      'Will ATOM',
+      'Will APT',
+      'Will BRETT',
+      'Will BTC',
+      'Will DOGE',
+      'Will EIGEN',
+      'Will ENS',
+      'Will ETH',
+      'Will FLOKI',
+      'Will RENDER',
+      'Will SOL',
+      'Will SUI',
+      'Will ZRO',
+      'Will ZK',
+    ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = [
     {
