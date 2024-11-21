@@ -32,20 +32,24 @@ import { publicClient } from '@/providers'
 // }
 
 export const calculateYesPotentialReturn = async (address: Address) => {
-  debugger
   let outcomeTokenAmountBI = 0n
   const fixedProductMarketMakerContract = getContract({
     address,
     abi: fixedProductMarketMakerABI,
     client: publicClient,
   })
+  console.log(fixedProductMarketMakerContract)
   const collateralAmountBI = parseUnits('100', 6)
+  console.log(collateralAmountBI)
   outcomeTokenAmountBI = (await fixedProductMarketMakerContract.read.calcBuyAmount([
     collateralAmountBI,
     0,
   ])) as bigint
+  console.log(outcomeTokenAmountBI)
   const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 6)
+  console.log(outcomeTokenAmount)
   const outcomeTokenPrice = (100 / Number(outcomeTokenAmount)).toString()
+  console.log(outcomeTokenPrice)
   return outcomeTokenPrice
 }
 
