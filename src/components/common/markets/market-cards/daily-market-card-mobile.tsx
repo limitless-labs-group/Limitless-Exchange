@@ -1,13 +1,16 @@
 import { Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import React, { SyntheticEvent, useMemo } from 'react'
+import React, { SyntheticEvent, useMemo, useState } from 'react'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
+import Skeleton from '@/components/common/skeleton'
+import { useCalculateNoReturn, useCalculateYesReturn } from '@/hooks/use-calculate-return'
 import { useMarketFeed } from '@/hooks/use-market-feed'
+import CloseIcon from '@/resources/icons/close-icon.svg'
 import TooltipIcon from '@/resources/icons/tooltip-icon.svg'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import {
@@ -30,9 +33,30 @@ export default function DailyMarketCardMobile({
   markets,
   analyticParams,
 }: DailyMarketCardProps) {
+  const [estimateOpened, setEstimateOpened] = useState(false)
   const { onOpenMarketPage, onCloseMarketPage, setMarkets, setMarketsSection } = useTradingService()
   const router = useRouter()
   const { data: marketFeedData } = useMarketFeed(market.address)
+  const { data: yesReturn, isLoading: yesLoading } = useCalculateYesReturn(
+    market.address,
+    estimateOpened
+  )
+  const { data: noReturn, isLoading: noLoading } = useCalculateNoReturn(
+    market.address,
+    estimateOpened
+  )
+
+  const onEstimteEarningOpenClicked = (e: SyntheticEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setEstimateOpened(true)
+  }
+
+  const onCloseEstimateClicked = (e: SyntheticEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setEstimateOpened(false)
+  }
 
   const uniqueUsersTrades = useMemo(() => {
     if (marketFeedData?.data.length) {
@@ -143,13 +167,11 @@ export default function DailyMarketCardMobile({
                 >
                   ⚖️ Join the Prediction
                 </Button>
-                <HStack gap='4px'>
-                  <Box {...paragraphRegular}>💧 </Box>
-                  <Text {...paragraphRegular} color='grey.500'>
-                    Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
-                    {market.collateralToken.symbol}
-                  </Text>
-                </HStack>
+                {market.collateralToken.symbol === 'USDC' && (
+                  <Button variant='transparent' onClick={onEstimteEarningOpenClicked}>
+                    🤑 Estimate Earnings
+                  </Button>
+                )}
               </VStack>
             </Box>
           </Box>
@@ -173,6 +195,58 @@ export default function DailyMarketCardMobile({
               </Text>
               <TooltipIcon width={16} height={16} />
             </HStack>
+          </Box>
+        )}
+        {estimateOpened && (
+          <Box bg='grey.200' p='16px' mt='16px' borderRadius='12px'>
+            <HStack w='full' justifyContent='space-between' color='grey.500'>
+              <Text {...paragraphMedium} fontSize='16px'>
+                🤑 Estimated Earnings
+              </Text>
+              <button onClick={onCloseEstimateClicked}>
+                <CloseIcon width={16} height={16} />
+              </button>
+            </HStack>
+            <Text mt='8px' {...paragraphRegular} textAlign='left'>
+              Curious about potential rewards? Here’s how it works:
+            </Text>
+            <Box my='16px'>
+              <Text {...paragraphRegular} textAlign='left'>
+                <strong>If “Yes” wins:</strong> 100 USDC could earn
+              </Text>
+              {yesLoading ? (
+                <Box w='72px'>
+                  <Skeleton height={20} />
+                </Box>
+              ) : (
+                <Text {...paragraphMedium} textAlign='left'>
+                  {NumberUtil.formatThousands(yesReturn, 6)} USDC
+                </Text>
+              )}
+              <Text {...paragraphRegular} textAlign='left' mt='8px'>
+                <strong>If “No” wins:</strong> 100 USDC could earn
+              </Text>
+              {noLoading ? (
+                <Box w='72px'>
+                  <Skeleton height={20} />
+                </Box>
+              ) : (
+                <Text {...paragraphMedium} textAlign='left'>
+                  {NumberUtil.formatThousands(noReturn, 6)} USDC
+                </Text>
+              )}
+            </Box>
+            {/*<NextLink*/}
+            {/*  href='https://www.notion.so/limitlesslabs/Limitless-Docs-0e59399dd44b492f8d494050969a1567?pvs=4#5dd6f962c66044eaa00e28d2c61b92bb'*/}
+            {/*  target='_blank'*/}
+            {/*  rel='noopener'*/}
+            {/*  passHref*/}
+            {/*  onClick={(e) => e.stopPropagation()}*/}
+            {/*>*/}
+            {/*  <Link isExternal variant='textLink'>*/}
+            {/*    Read How Prediction Market works.*/}
+            {/*  </Link>*/}
+            {/*</NextLink>*/}
           </Box>
         )}
       </Paper>

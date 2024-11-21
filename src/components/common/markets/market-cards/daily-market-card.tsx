@@ -1,5 +1,4 @@
-import { Box, Button, Divider, HStack, Link, Text, VStack } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { SyntheticEvent, useEffect, useMemo, useState } from 'react'
 import Avatar from '@/components/common/avatar'
@@ -108,9 +107,6 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
     e.stopPropagation()
     setEstimateOpened(false)
   }
-
-  console.log(yesReturn)
-  console.log(noReturn)
 
   const content = (
     <Box

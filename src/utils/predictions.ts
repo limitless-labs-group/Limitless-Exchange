@@ -1,4 +1,3 @@
-import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { Address, formatUnits, getContract, parseUnits } from 'viem'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers'
@@ -16,9 +15,7 @@ export const calculateYesPotentialReturn = async (address: Address) => {
     0,
   ])) as bigint
   const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 6)
-  const outcomeTokenPrice = +outcomeTokenAmount - 100
-  await sleep(5)
-  return outcomeTokenPrice
+  return +outcomeTokenAmount - 100
 }
 
 export const calculateNoPotentialReturn = async (address: Address) => {
@@ -34,8 +31,5 @@ export const calculateNoPotentialReturn = async (address: Address) => {
     1,
   ])) as bigint
   const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 6)
-  console.log(outcomeTokenAmount)
-  const outcomeTokenPrice = +outcomeTokenAmount - 100
-  await sleep(5)
-  return outcomeTokenPrice
+  return +outcomeTokenAmount - 100
 }
