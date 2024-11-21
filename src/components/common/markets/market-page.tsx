@@ -370,7 +370,8 @@ export default function MarketPage() {
         <Divider my={isMobile ? '24px' : '16px'} />
       </Box>
       {market?.expired ? (
-        <Paper h={isMobile ? '348px' : '332px'}>
+        <Paper h={'120px'}>
+          {/*<Paper h={isMobile ? '348px' : '332px'}>*/}
           <VStack h='full' justifyContent='space-between' alignItems='flex-start'>
             <Text {...paragraphMedium} color='grey.800'>
               Market is closed
