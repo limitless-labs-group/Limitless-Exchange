@@ -99,6 +99,12 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
   const onEstimteEarningOpenClicked = (e: SyntheticEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    trackClicked(ClickEvent.EstimateEarningClicked, {
+      marketAddress: market.address,
+      marketType: 'single',
+      marketTags: market.tags,
+      marketCategory: market.category,
+    })
     setEstimateOpened(true)
   }
 

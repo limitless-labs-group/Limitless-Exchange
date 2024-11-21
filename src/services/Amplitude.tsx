@@ -166,6 +166,7 @@ export enum ClickEvent {
   TradingWidgetPricePrecetChosen = 'Trading Widget Price Preset Chosen',
   FullPageClicked = 'Full Page Clicked',
   JoinPredictionClicked = 'Join Prediction Clicked',
+  EstimateEarningClicked = 'Estimate Earnings Clicked',
 }
 
 export enum SignInEvent {
