@@ -1,4 +1,5 @@
-import { Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, Divider, HStack, Link, Text, VStack } from '@chakra-ui/react'
+import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { SyntheticEvent, useEffect, useMemo, useState } from 'react'
 import Avatar from '@/components/common/avatar'
@@ -6,7 +7,9 @@ import DailyMarketTimer from '@/components/common/markets/market-cards/daily-mar
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
 import { MarketCardLink } from './market-card-link'
+import { useCalculateNoReturn, useCalculateYesReturn } from '@/hooks/use-calculate-return'
 import { useMarketFeed } from '@/hooks/use-market-feed'
+import CloseIcon from '@/resources/icons/close-icon.svg'
 import TooltipIcon from '@/resources/icons/tooltip-icon.svg'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import {
@@ -25,9 +28,19 @@ interface DailyMarketCardProps {
 
 export default function DailyMarketCard({ market, analyticParams }: DailyMarketCardProps) {
   const [hovered, setHovered] = useState(false)
+  const [estimateOpened, setEstimateOpened] = useState(false)
   const { onOpenMarketPage, market: selectedMarket } = useTradingService()
   const router = useRouter()
   const { data: marketFeedData } = useMarketFeed(market.address)
+
+  const { data: yesReturn, isLoading: yesLoading } = useCalculateYesReturn(
+    market.address,
+    estimateOpened
+  )
+  const { data: noReturn, isLoading: noLoading } = useCalculateNoReturn(
+    market.address,
+    estimateOpened
+  )
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {
@@ -66,11 +79,6 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
     router.push('/lumy')
   }
 
-  const deadlineLeftInPercent =
-    ((market.expirationTimestamp - new Date().getTime()) /
-      (market.expirationTimestamp - new Date(market.createdAt).getTime())) *
-    100
-
   const onClickJoinPrediction = () => {
     trackClicked(ClickEvent.JoinPredictionClicked, {
       marketAddress: market.address,
@@ -87,6 +95,21 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
       setHovered(false)
     }
   }, [selectedMarket, market])
+
+  const onEstimteEarningOpenClicked = (e: SyntheticEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setEstimateOpened(true)
+  }
+
+  const onCloseEstimateClicked = (e: SyntheticEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setEstimateOpened(false)
+  }
+
+  console.log(yesReturn)
+  console.log(noReturn)
 
   const content = (
     <Box
@@ -146,16 +169,23 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
           <Box w='full'>
             <Divider orientation='horizontal' borderColor='grey.200' color='grey.200' />
             <HStack w='full' mt='16px' justifyContent='space-between'>
-              <Button
-                variant='grey'
-                bg={hovered ? 'grey.300' : 'grey.200'}
-                py='8px'
-                {...paragraphMedium}
-                h='unset'
-                onClick={onClickJoinPrediction}
-              >
-                ⚖️ Join the Prediction
-              </Button>
+              <HStack gap='8px'>
+                <Button
+                  variant='grey'
+                  bg={hovered ? 'grey.300' : 'grey.200'}
+                  py='8px'
+                  {...paragraphMedium}
+                  h='unset'
+                  onClick={onClickJoinPrediction}
+                >
+                  ⚖️ Join the Prediction
+                </Button>
+                {market.collateralToken.symbol === 'USDC' && (
+                  <Button variant='transparent' onClick={onEstimteEarningOpenClicked}>
+                    🤑 Estimate Earnings
+                  </Button>
+                )}
+              </HStack>
               <HStack gap='16px'>
                 <HStack gap='4px'>
                   <Box {...paragraphRegular}>💧 </Box>
@@ -203,6 +233,40 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
               </Text>
               <TooltipIcon width={16} height={16} />
             </HStack>
+          </Box>
+        )}
+        {estimateOpened && (
+          <Box bg='grey.200' p='16px' mt='16px' borderRadius='12px'>
+            <HStack w='full' justifyContent='space-between' color='grey.500'>
+              <Text {...paragraphMedium} fontSize='16px'>
+                🤑 Estimated Earnings
+              </Text>
+              <button onClick={onCloseEstimateClicked}>
+                <CloseIcon width={16} height={16} />
+              </button>
+            </HStack>
+            <Text mt='8px' {...paragraphRegular}>
+              Curious about potential rewards? Here’s how it works:
+            </Text>
+            <Box my='16px'>
+              <Text {...paragraphRegular}>
+                <strong>If “Yes” wins:</strong> 100 USDC could earn <strong>0.30 USDC</strong>
+              </Text>
+              <Text {...paragraphRegular}>
+                <strong>If “No” wins:</strong> 100 USDC could earn <strong>16,000.30 USDC</strong>
+              </Text>
+            </Box>
+            {/*<NextLink*/}
+            {/*  href='https://www.notion.so/limitlesslabs/Limitless-Docs-0e59399dd44b492f8d494050969a1567?pvs=4#5dd6f962c66044eaa00e28d2c61b92bb'*/}
+            {/*  target='_blank'*/}
+            {/*  rel='noopener'*/}
+            {/*  passHref*/}
+            {/*  onClick={(e) => e.stopPropagation()}*/}
+            {/*>*/}
+            {/*  <Link isExternal variant='textLink'>*/}
+            {/*    Read How Prediction Market works.*/}
+            {/*  </Link>*/}
+            {/*</NextLink>*/}
           </Box>
         )}
       </Paper>
