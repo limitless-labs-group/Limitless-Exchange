@@ -74,7 +74,7 @@ export default function DailyMarketTimer({
 
   return (
     <HStack gap='8px'>
-      <Text {...paragraphRegular} color='grey.500'>
+      <Text {...paragraphRegular} color={color || 'grey.500'}>
         Ends {new Date(deadline).getTime() - new Date().getTime() > 86400000 ? 'on' : 'in'}
       </Text>
       {new Date(deadline).getTime() - new Date().getTime() > 86400000 ? (
