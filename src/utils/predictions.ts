@@ -29,7 +29,7 @@ export const calculateNoPotentialReturn = async (address: Address) => {
   const collateralAmountBI = parseUnits('100', 6)
   outcomeTokenAmountBI = (await fixedProductMarketMakerContract.read.calcSellAmount([
     collateralAmountBI,
-    0,
+    1,
   ])) as bigint
   const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 6)
   console.log(outcomeTokenAmount)
