@@ -20,7 +20,6 @@ import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
-import Avatar from '@/components/common/avatar'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
@@ -35,7 +34,7 @@ import {
   SellForm,
 } from '@/app/(markets)/markets/[address]/components'
 import CommentTab from './comment-tab'
-import { useMarketFeed } from '@/hooks/use-market-feed'
+import { UniqueTraders } from './unique-traders'
 import useMarketGroup from '@/hooks/use-market-group'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
@@ -100,8 +99,6 @@ export default function MarketPage() {
     refetchMarkets,
   } = useTradingService()
 
-  const { data: marketFeedData } = useMarketFeed(market?.address)
-
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -141,24 +138,28 @@ export default function MarketPage() {
 
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
-  const isLivePriceSupportedMarket = [
-    'Will AAVE',
-    'Will APE',
-    'Will ATOM',
-    'Will APT',
-    'Will BRETT',
-    'Will BTC',
-    'Will DOGE',
-    'Will EIGEN',
-    'Will ENS',
-    'Will ETH',
-    'Will FLOKI',
-    'Will RENDER',
-    'Will SOL',
-    'Will SUI',
-    'Will ZRO',
-    'Will ZK',
-  ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
+  const isLumy = market?.category === 'Lumy'
+
+  const isLivePriceSupportedMarket =
+    isLumy &&
+    [
+      'Will AAVE',
+      'Will APE',
+      'Will ATOM',
+      'Will APT',
+      'Will BRETT',
+      'Will BTC',
+      'Will DOGE',
+      'Will EIGEN',
+      'Will ENS',
+      'Will ETH',
+      'Will FLOKI',
+      'Will RENDER',
+      'Will SOL',
+      'Will SUI',
+      'Will ZRO',
+      'Will ZK',
+    ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = [
     {
@@ -267,22 +268,6 @@ export default function MarketPage() {
     }
   }, [])
 
-  const uniqueUsersTrades = useMemo(() => {
-    if (marketFeedData?.data.length) {
-      const uniqueUsers = new Map()
-
-      for (const event of marketFeedData.data) {
-        if (!uniqueUsers.has(event.user?.account)) {
-          uniqueUsers.set(event.user?.account, event)
-        }
-        if (uniqueUsers.size >= 3) break
-      }
-
-      return Array.from(uniqueUsers.values())
-    }
-    return null
-  }, [marketFeedData])
-
   return (
     <Box
       bg='background.90'
@@ -364,11 +349,7 @@ export default function MarketPage() {
         <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
             <HStack gap='4px'>
-              {uniqueUsersTrades?.map(({ user }, index) => (
-                <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
-                  <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
-                </Box>
-              ))}
+              <UniqueTraders />
               <Text {...paragraphRegular} color='grey.500'>
                 Volume
               </Text>
