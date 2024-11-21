@@ -1,35 +1,6 @@
-import { address } from '@metamask/abi-utils/dist/parsers'
 import { Address, formatUnits, getContract, parseUnits } from 'viem'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers'
-
-// export function calculateYesPotentialReturn(
-//   initialLiquidity: number,
-//   yesPrice: number,
-//   noPrice: number,
-//   fee: number
-// ) {
-//   const remainingYes = (initialLiquidity * noPrice) / Math.max(yesPrice, noPrice)
-//   const remainingNo = (initialLiquidity * yesPrice) / Math.max(yesPrice, noPrice)
-//   const sendBackAmountYes = initialLiquidity - remainingYes
-//   console.log(`sendBackAmountYes ${sendBackAmountYes}`)
-//   const sendBackAmountNo = initialLiquidity - remainingNo
-//   console.log(`sendBackAmountNo ${sendBackAmountNo}`)
-//   const inventoryBalanceYes = initialLiquidity - sendBackAmountYes
-//   console.log(`inventoryBalanceYes ${inventoryBalanceYes}`)
-//   const inventoryBalanceNo = initialLiquidity - sendBackAmountNo
-//   console.log(`inventoryBalanceNo ${inventoryBalanceNo}`)
-//   const investmentAmountMinusFees = 100 - 100 * fee
-//   console.log(`investmentAmountMinusFees ${investmentAmountMinusFees}`)
-//   const endingOutcomeBalance =
-//     (inventoryBalanceYes * inventoryBalanceNo) / (inventoryBalanceNo + investmentAmountMinusFees)
-//   console.log(`endingOutcomeBalance ${endingOutcomeBalance}`)
-//   const yesTokensAmount = inventoryBalanceYes + investmentAmountMinusFees - endingOutcomeBalance
-//   console.log(`yesTokensAmount ${yesTokensAmount}`)
-//   const potentialReturn = yesTokensAmount - 100
-//   console.log(`potentialReturn ${potentialReturn}`)
-//   return potentialReturn
-// }
 
 export const calculateYesPotentialReturn = async (address: Address) => {
   let outcomeTokenAmountBI = 0n
@@ -38,18 +9,13 @@ export const calculateYesPotentialReturn = async (address: Address) => {
     abi: fixedProductMarketMakerABI,
     client: publicClient,
   })
-  console.log(fixedProductMarketMakerContract)
   const collateralAmountBI = parseUnits('100', 6)
-  console.log(collateralAmountBI)
   outcomeTokenAmountBI = (await fixedProductMarketMakerContract.read.calcBuyAmount([
     collateralAmountBI,
     0,
   ])) as bigint
-  console.log(outcomeTokenAmountBI)
   const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 6)
-  console.log(outcomeTokenAmount)
-  const outcomeTokenPrice = (100 / Number(outcomeTokenAmount)).toString()
-  console.log(outcomeTokenPrice)
+  const outcomeTokenPrice = +outcomeTokenAmount - 100
   return outcomeTokenPrice
 }
 
@@ -66,6 +32,6 @@ export const calculateNoPotentialReturn = async (address: Address) => {
     0,
   ])) as bigint
   const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 6)
-  const outcomeTokenPrice = (100 / Number(outcomeTokenAmount)).toString()
+  const outcomeTokenPrice = +outcomeTokenAmount - 100
   return outcomeTokenPrice
 }

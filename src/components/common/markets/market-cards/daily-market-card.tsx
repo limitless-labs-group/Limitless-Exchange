@@ -6,6 +6,7 @@ import Avatar from '@/components/common/avatar'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
+import Skeleton from '@/components/common/skeleton'
 import { MarketCardLink } from './market-card-link'
 import { useCalculateNoReturn, useCalculateYesReturn } from '@/hooks/use-calculate-return'
 import { useMarketFeed } from '@/hooks/use-market-feed'
@@ -250,10 +251,24 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             </Text>
             <Box my='16px'>
               <Text {...paragraphRegular}>
-                <strong>If “Yes” wins:</strong> 100 USDC could earn <strong>0.30 USDC</strong>
+                <strong>If “Yes” wins:</strong> 100 USDC could earn{' '}
+                {yesLoading ? (
+                  <Box w='72px'>
+                    <Skeleton height={16} />
+                  </Box>
+                ) : (
+                  <strong>{NumberUtil.formatThousands(yesReturn, 6)} USDC</strong>
+                )}
               </Text>
               <Text {...paragraphRegular}>
-                <strong>If “No” wins:</strong> 100 USDC could earn <strong>16,000.30 USDC</strong>
+                <strong>If “No” wins:</strong> 100 USDC could earn{' '}
+                {noLoading ? (
+                  <Box w='72px'>
+                    <Skeleton height={16} />
+                  </Box>
+                ) : (
+                  <strong>{NumberUtil.formatThousands(noReturn, 6)} USDC</strong>
+                )}
               </Text>
             </Box>
             {/*<NextLink*/}

@@ -417,7 +417,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       }
 
       let outcomeTokenAmountBI = 0n
-      console.log(fixedProductMarketMakerContract)
       if (strategy == 'Buy') {
         outcomeTokenAmountBI = (await fixedProductMarketMakerContract.read.calcBuyAmount([
           collateralAmountBI,
@@ -438,7 +437,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
           outcomeTokenAmountBI = balanceOfOutcomeTokenBI
         }
       }
-      console.log(outcomeTokenAmountBI)
 
       if (outcomeTokenAmountBI == 0n) {
         setQuotesYes(null)
@@ -449,9 +447,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         outcomeTokenAmountBI,
         market?.collateralToken?.decimals || 18
       )
-      console.log(outcomeTokenAmount)
       const outcomeTokenPrice = (Number(collateralAmount) / Number(outcomeTokenAmount)).toString()
-      console.log(outcomeTokenPrice)
       const roi = ((Number(outcomeTokenAmount) / Number(collateralAmount) - 1) * 100).toString()
       const outcomeTokensPriceCurrent =
         strategy == 'Buy' ? outcomeTokensBuyPriceCurrent : outcomeTokensSellPriceCurrent
