@@ -181,7 +181,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                   <Button
                     variant='transparent'
                     onClick={onEstimteEarningOpenClicked}
-                    px='8px'
+                    py='8px'
                     h='unset'
                   >
                     🤑 Estimate Earnings
