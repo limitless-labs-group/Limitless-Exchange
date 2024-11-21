@@ -250,8 +250,10 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
               Curious about potential rewards? Here’s how it works:
             </Text>
             <Box my='16px'>
-              <Text {...paragraphRegular}>
-                <strong>If “Yes” wins:</strong> 100 USDC could earn{' '}
+              <HStack gap={0}>
+                <Text {...paragraphRegular}>
+                  <strong>If “Yes” wins:</strong> 100 USDC could earn{' '}
+                </Text>
                 {yesLoading ? (
                   <Box w='72px'>
                     <Skeleton height={16} />
@@ -259,9 +261,11 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                 ) : (
                   <strong>{NumberUtil.formatThousands(yesReturn, 6)} USDC</strong>
                 )}
-              </Text>
-              <Text {...paragraphRegular}>
-                <strong>If “No” wins:</strong> 100 USDC could earn{' '}
+              </HStack>
+              <HStack gap={0}>
+                <Text {...paragraphRegular}>
+                  <strong>If “No” wins:</strong> 100 USDC could earn{' '}
+                </Text>
                 {noLoading ? (
                   <Box w='72px'>
                     <Skeleton height={16} />
@@ -269,7 +273,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                 ) : (
                   <strong>{NumberUtil.formatThousands(noReturn, 6)} USDC</strong>
                 )}
-              </Text>
+              </HStack>
             </Box>
             {/*<NextLink*/}
             {/*  href='https://www.notion.so/limitlesslabs/Limitless-Docs-0e59399dd44b492f8d494050969a1567?pvs=4#5dd6f962c66044eaa00e28d2c61b92bb'*/}
