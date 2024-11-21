@@ -243,26 +243,26 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             <Box my='16px'>
               <HStack gap={0}>
                 <Text {...paragraphRegular}>
-                  <strong>If “Yes” wins:</strong> 100 USDC could earn{' '}
+                  <strong>If “Yes” wins:</strong> 100 USDC could earn&nbsp;
                 </Text>
                 {yesLoading ? (
-                  <Box w='72px' mt='2px'>
+                  <Box w='72px' ml='2px'>
                     <Skeleton height={16} />
                   </Box>
                 ) : (
-                  <strong> {NumberUtil.formatThousands(yesReturn, 6)} USDC</strong>
+                  <strong>{NumberUtil.formatThousands(yesReturn, 6)} USDC</strong>
                 )}
               </HStack>
               <HStack gap={0}>
                 <Text {...paragraphRegular}>
-                  <strong>If “No” wins:</strong> 100 USDC could earn{' '}
+                  <strong>If “No” wins:</strong> 100 USDC could earn&nbsp;
                 </Text>
                 {noLoading ? (
                   <Box w='72px' ml='2px'>
                     <Skeleton height={16} />
                   </Box>
                 ) : (
-                  <strong> {NumberUtil.formatThousands(noReturn, 6)} USDC</strong>
+                  <strong>{NumberUtil.formatThousands(noReturn, 6)} USDC</strong>
                 )}
               </HStack>
             </Box>
