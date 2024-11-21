@@ -32,6 +32,7 @@ export const calculateNoPotentialReturn = async (address: Address) => {
     0,
   ])) as bigint
   const outcomeTokenAmount = formatUnits(outcomeTokenAmountBI, 6)
+  console.log(outcomeTokenAmount)
   const outcomeTokenPrice = +outcomeTokenAmount - 100
   return outcomeTokenPrice
 }
