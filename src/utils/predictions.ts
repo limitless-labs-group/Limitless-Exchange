@@ -32,6 +32,7 @@ import { publicClient } from '@/providers'
 // }
 
 export const calculateYesPotentialReturn = async (address: Address) => {
+  debugger
   let outcomeTokenAmountBI = 0n
   const fixedProductMarketMakerContract = getContract({
     address,

@@ -411,6 +411,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       // outcomeTokensSellPriceCurrent,
     ],
     queryFn: async () => {
+      debugger
       if (!fixedProductMarketMakerContract || !(Number(collateralAmount) > 0)) {
         setQuotesYes(null)
         return null
