@@ -38,7 +38,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * UTILS
    */
   const { convertAssetAmountToUsd } = usePriceOracle()
-  const markets = useAllMarkets()
 
   const { supportedTokens } = useLimitlessApi()
 
@@ -55,12 +54,15 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       if (!walletAddress) {
         return []
       }
-
-      const response = await privateClient.get<HistoryTrade[]>(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/portfolio`
-      )
-
-      return response.data
+      try {
+        const response = await privateClient.get<HistoryTrade[]>(
+          `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/portfolio/trades`
+        )
+        return response.data
+      } catch (error) {
+        console.error('Error fetching trades:', error)
+        return []
+      }
     },
     enabled: !!walletAddress && !!supportedTokens?.length,
   })
@@ -75,141 +77,39 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       if (!walletAddress) {
         return []
       }
-
-      const queryName = 'Redemption'
-      const response = await axios.request({
-        url: newSubgraphURI[defaultChain.id],
-        method: 'post',
-        data: {
-          query: `
-            query ${queryName} {
-              ${queryName} (
-                where: {
-                  redeemer: {
-                    _ilike: "${walletAddress}"
-                  } 
-                },
-                order_by: { blockTimestamp: desc }
-              ) {
-                payout
-                conditionId
-                indexSets
-                blockTimestamp
-                transactionHash
-              }
-            }
-          `,
-        },
-      })
-      const _redeems = response.data.data?.[queryName] as HistoryRedeem[]
-      _redeems.map((redeem) => {
-        redeem.collateralAmount = formatUnits(
-          BigInt(redeem.payout),
-          supportedTokens?.find((token) => token.address === redeem.collateralToken)?.decimals || 18
+      try {
+        const response = await privateClient.get<HistoryRedeem[]>(
+          `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/portfolio/redeems`
         )
-        redeem.outcomeIndex = redeem.indexSets[0] == '1' ? 0 : 1
-      })
-
-      _redeems.filter((redeem) => Number(redeem.collateralAmount) > 0)
-
-      _redeems.sort(
-        (redeemA, redeemB) => Number(redeemB.blockTimestamp) - Number(redeemA.blockTimestamp)
-      )
-
-      return _redeems
+        return response.data
+      } catch (error) {
+        console.error('Error fetching redeems:', error)
+        return []
+      }
     },
   })
 
-  // Todo change to useMemo
-  /**
-   * Consolidate trades and redeems to get open positions
-   */
   const {
     data: positions,
     refetch: getPositions,
     isLoading: positionsLoading,
   } = useQuery({
-    queryKey: ['positions', trades, redeems],
+    queryKey: ['positions'],
     queryFn: async () => {
-      let _positions: HistoryPosition[] = []
-
-      try {
-        trades?.forEach((trade) => {
-          const market = markets.find((market) => {
-            return market?.address?.toLowerCase() === trade?.market?.id?.toLowerCase()
-          })
-
-          if (
-            !market ||
-            (market.expired && market.winningOutcomeIndex !== trade.outcomeIndex) // TODO: redesign filtering lost positions
-          ) {
-            return
-          }
-          const existingMarket = _positions.find(
-            (position) =>
-              position.market.id === trade.market.id && position.outcomeIndex === trade.outcomeIndex
-          )
-
-          const position = existingMarket ?? {
-            market: trade.market,
-            outcomeIndex: trade.outcomeIndex,
-          }
-          position.latestTrade = trade
-          position.collateralAmount = (
-            Number(position.collateralAmount ?? 0) + Number(trade.collateralAmount)
-          ).toString()
-          position.outcomeTokenAmount = (
-            Number(position.outcomeTokenAmount ?? 0) + Number(trade.outcomeTokenAmount)
-          ).toString()
-          if (!existingMarket) {
-            _positions.push(position)
-          }
-        })
-      } catch (e) {
-        console.log('pos', e)
-        console.log(e)
+      if (!walletAddress) {
+        return []
       }
-
-      // redeems?.forEach((redeem) => {
-      //   const position = _positions.find(
-      //     (position) =>
-      //       position.market.conditionId === redeem.conditionId &&
-      //       position.outcomeIndex == redeem.outcomeIndex
-      //   )
-      //   if (!position) {
-      //     return
-      //   }
-      //   position.collateralAmount = (
-      //     Number(position.collateralAmount ?? 0) - Number(redeem.collateralAmount)
-      //   ).toString()
-      //   position.outcomeTokenAmount = (
-      //     Number(position.outcomeTokenAmount ?? 0) - Number(redeem.collateralAmount)
-      //   ).toString()
-      // })
-
-      // filter redeemed markets
-      _positions = _positions.filter(
-        (position) =>
-          !redeems?.find((redeem) => redeem.conditionId === position.market.condition_id)
-      )
-
-      // filter markets with super small balance
-      _positions = _positions.filter((position) => Number(position.outcomeTokenAmount) > 0.00001)
-
-      // Todo remove this mapping
-      return _positions.map((position) => ({
-        ...position,
-        market: {
-          ...position.market,
-          collateral: {
-            symbol: position.market.collateral?.symbol
-              ? position.market.collateral?.symbol
-              : 'MFER',
-          },
-        },
-      }))
+      try {
+        const response = await privateClient.get<HistoryPosition[]>(
+          `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/portfolio/positions`
+        )
+        return response.data
+      } catch (error) {
+        console.error('Error fetching positions:', error)
+        return []
+      }
     },
-    enabled: !!walletAddress && !!markets.length && !!trades,
+    enabled: !!walletAddress,
   })
 
   /**
