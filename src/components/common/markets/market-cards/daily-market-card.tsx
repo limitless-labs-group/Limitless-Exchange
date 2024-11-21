@@ -187,30 +187,21 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                   </Button>
                 )}
               </HStack>
-              <HStack gap='16px'>
+              <HStack gap='4px'>
                 <HStack gap='4px'>
-                  <Box {...paragraphRegular}>💧 </Box>
+                  {uniqueUsersTrades?.map(({ user }, index) => (
+                    <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
+                      <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
+                    </Box>
+                  ))}
                   <Text {...paragraphRegular} color='grey.500'>
-                    Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
-                    {market.collateralToken.symbol}
+                    Volume
                   </Text>
                 </HStack>
-                <HStack gap='4px'>
-                  <HStack gap='4px'>
-                    {uniqueUsersTrades?.map(({ user }, index) => (
-                      <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
-                        <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
-                      </Box>
-                    ))}
-                    <Text {...paragraphRegular} color='grey.500'>
-                      Volume
-                    </Text>
-                  </HStack>
-                  <Text {...paragraphRegular} color='grey.500'>
-                    {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
-                    {market.collateralToken.symbol}
-                  </Text>
-                </HStack>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
+                  {market.collateralToken.symbol}
+                </Text>
               </HStack>
             </HStack>
           </Box>
@@ -255,11 +246,11 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                   <strong>If “Yes” wins:</strong> 100 USDC could earn{' '}
                 </Text>
                 {yesLoading ? (
-                  <Box w='72px'>
+                  <Box w='72px' mt='2px'>
                     <Skeleton height={16} />
                   </Box>
                 ) : (
-                  <strong>{NumberUtil.formatThousands(yesReturn, 6)} USDC</strong>
+                  <strong> {NumberUtil.formatThousands(yesReturn, 6)} USDC</strong>
                 )}
               </HStack>
               <HStack gap={0}>
@@ -267,11 +258,11 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                   <strong>If “No” wins:</strong> 100 USDC could earn{' '}
                 </Text>
                 {noLoading ? (
-                  <Box w='72px'>
+                  <Box w='72px' ml='2px'>
                     <Skeleton height={16} />
                   </Box>
                 ) : (
-                  <strong>{NumberUtil.formatThousands(noReturn, 6)} USDC</strong>
+                  <strong> {NumberUtil.formatThousands(noReturn, 6)} USDC</strong>
                 )}
               </HStack>
             </Box>
