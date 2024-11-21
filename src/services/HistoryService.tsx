@@ -5,6 +5,7 @@ import { Hash, formatUnits } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { usePriceOracle } from '@/providers'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useLimitlessApi } from '@/services/LimitlessApi'
 import { useAllMarkets } from '@/services/MarketsService'
 import { Address } from '@/types'
@@ -31,6 +32,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * ACCOUNT
    */
   const walletAddress = useWalletAddress()
+  const privateClient = useAxiosPrivateClient()
 
   /**
    * UTILS
@@ -54,65 +56,11 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         return []
       }
 
-      const queryName = 'Trade'
-      const response = await axios.request({
-        url: newSubgraphURI[defaultChain.id],
-        method: 'post',
-        data: {
-          query: `
-            query ${queryName} {
-              ${queryName} (
-                where: {transactor: { _ilike: "${walletAddress}" } }
-                order_by: { blockTimestamp: desc }
-              ) {
-                market {
-                  id
-                  closed
-                  funding
-                  condition_id
-                  collateral {
-                    symbol
-                  }
-                }
-                outcomeTokenAmounts
-                outcomeTokenNetCost
-                blockTimestamp
-                transactionHash
-              }
-            }
-          `,
-        },
-      })
-      const _trades = response.data.data?.[queryName] as HistoryTrade[]
-      _trades.map((trade) => {
-        const collateralToken = supportedTokens?.find(
-          (token) => token.symbol === trade.market.collateral?.symbol
-        )
-        const outcomeTokenAmountBI = BigInt(
-          trade.outcomeTokenAmounts.find((amount) => BigInt(amount) != 0n) ?? 0
-        )
-        trade.outcomeTokenAmount = formatUnits(
-          outcomeTokenAmountBI,
-          collateralToken?.decimals || 18
-        )
-        trade.strategy = Number(trade.outcomeTokenAmount) > 0 ? 'Buy' : 'Sell'
-        trade.outcomeIndex = trade.outcomeTokenAmounts.findIndex((amount) => BigInt(amount) != 0n)
-        trade.collateralAmount = formatUnits(
-          BigInt(trade.outcomeTokenNetCost),
-          collateralToken?.decimals || 18
-        )
-        trade.outcomeTokenPrice = (
-          Number(trade.collateralAmount) / Number(trade.outcomeTokenAmount)
-        ).toString()
-
-        // trade.outcomePercent = Number(trade.outcomeTokenPrice)
-      })
-
-      _trades.sort(
-        (tradeA, tradeB) => Number(tradeB.blockTimestamp) - Number(tradeA.blockTimestamp)
+      const response = await privateClient.get<HistoryTrade[]>(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/portfolio`
       )
 
-      return _trades
+      return response.data
     },
     enabled: !!walletAddress && !!supportedTokens?.length,
   })
@@ -140,7 +88,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
                   redeemer: {
                     _ilike: "${walletAddress}"
                   } 
-                }
+                },
+                order_by: { blockTimestamp: desc }
               ) {
                 payout
                 conditionId
