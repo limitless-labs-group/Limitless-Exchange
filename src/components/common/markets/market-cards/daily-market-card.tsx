@@ -178,7 +178,12 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                   ⚖️ Join the Prediction
                 </Button>
                 {market.collateralToken.symbol === 'USDC' && (
-                  <Button variant='transparent' onClick={onEstimteEarningOpenClicked}>
+                  <Button
+                    variant='transparent'
+                    onClick={onEstimteEarningOpenClicked}
+                    px='8px'
+                    h='unset'
+                  >
                     🤑 Estimate Earnings
                   </Button>
                 )}
