@@ -55,7 +55,7 @@ export const MarketPriceChart = () => {
         rotation: 0,
         align: 'center',
         style: {
-          fontFamily: 'Helvetica Neue',
+          fontFamily: 'Inter',
           fontSize: isMobile ? '14px' : '12px',
           color: colors.grey['400'],
         },
@@ -78,7 +78,7 @@ export const MarketPriceChart = () => {
       labels: {
         format: '{value}%',
         style: {
-          fontFamily: 'Helvetica Neue',
+          fontFamily: 'Inter',
           fontSize: isMobile ? '14px' : '12px',
           color: colors.grey['400'],
         },

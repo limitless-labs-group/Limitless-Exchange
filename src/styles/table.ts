@@ -20,7 +20,7 @@ const baseStyle = definePartsStyle({
   },
   th: {
     '&[data-is-numeric=true]': {},
-    fontFamily: 'Helvetica Neue',
+    fontFamily: 'Inter',
   },
   td: {
     '&[data-is-numeric=true]': {

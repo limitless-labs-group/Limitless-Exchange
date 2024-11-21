@@ -8,6 +8,7 @@ import MobileHeader from '@/components/layouts/mobile-header'
 import MobileNavigation from '@/components/layouts/mobile-navigation'
 import Sidebar from '@/components/layouts/sidebar'
 import { useTradingService } from '@/services'
+import { inter } from '@/styles'
 
 interface IMainLayout extends FlexProps {
   isLoading?: boolean
@@ -24,6 +25,7 @@ export const MainLayout = ({
 
   return (
     <Box
+      className={inter.className}
       id='main'
       flexDir={'column'}
       w={'full'}
