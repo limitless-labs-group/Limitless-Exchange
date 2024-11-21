@@ -208,6 +208,7 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
             market.expirationTimestamp - new Date().getTime() < 1000 * 24 * 60 * 60 ? (
               <DailyMarketTimer
                 deadline={market.expirationTimestamp}
+                deadlineText={market.expirationDate}
                 color='grey.500'
                 showDays={false}
               />

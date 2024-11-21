@@ -49,7 +49,6 @@ import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import {
   ChangeEvent,
   ClickEvent,
-  OpenEvent,
   StrategyChangedMetadata,
   useAmplitude,
   useHistory,
@@ -107,7 +106,7 @@ export default function MarketPage() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const { trackChanged, trackClicked, trackOpened } = useAmplitude()
+  const { trackChanged, trackClicked } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
 
   // Todo change creator name
@@ -230,7 +229,6 @@ export default function MarketPage() {
       marketType: 'single',
       marketTags: market?.tags,
     })
-    onCloseMarketPage()
   }
 
   const handleChartTabClicked = (event: ClickEvent) =>
@@ -269,12 +267,6 @@ export default function MarketPage() {
     }
   }, [])
 
-  const deadlineLeftInPercent = market
-    ? ((market.expirationTimestamp - new Date().getTime()) /
-        (market.expirationTimestamp - new Date(market.createdAt).getTime())) *
-      100
-    : 1
-
   const uniqueUsersTrades = useMemo(() => {
     if (marketFeedData?.data.length) {
       const uniqueUsers = new Map()
@@ -291,18 +283,9 @@ export default function MarketPage() {
     return null
   }, [marketFeedData])
 
-  useEffect(() => {
-    trackOpened(OpenEvent.SidebarMarketOpened, {
-      marketAddress: market?.address,
-      marketTags: market?.tags,
-      marketType: 'single',
-      category: market?.category,
-    })
-  }, [market?.address])
-
   return (
     <Box
-      bg='grey.50'
+      bg='background.90'
       borderLeft={isMobile ? 'unset' : '1px solid'}
       borderColor='grey.100'
       w={isMobile ? 'full' : '488px'}
@@ -314,6 +297,7 @@ export default function MarketPage() {
       p={isMobile ? '12px' : '16px'}
       pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
+      backdropFilter='blur(7.5px)'
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
@@ -330,35 +314,21 @@ export default function MarketPage() {
           <ShareMenu />
         </HStack>
       )}
-      <HStack w='full' mb='8px' justifyContent='space-between' mt={isMobile ? 0 : '20px'}>
-        <HStack gap='8px'>
-          <Box>
-            <Text {...paragraphRegular} color='grey.500'>
-              Ends in
-            </Text>
-          </Box>
-          <HStack gap='4px'>
-            <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
-              <Box
-                h='100%'
-                w='100%'
-                borderRadius='100%'
-                bg={`conic-gradient(var(--chakra-colors-transparent-700) ${deadlineLeftInPercent.toFixed(
-                  0
-                )}% 10%, var(--chakra-colors-transparent-200) ${deadlineLeftInPercent.toFixed(
-                  0
-                )}% 100%)`}
-              />
-            </Box>
-            {market && (
-              <DailyMarketTimer
-                deadline={market.expirationTimestamp}
-                {...paragraphRegular}
-                color='grey.500'
-              />
-            )}
-          </HStack>
-        </HStack>
+      <HStack
+        w='full'
+        mb='8px'
+        justifyContent='space-between'
+        mt={isMobile ? 0 : '20px'}
+        flexWrap='wrap'
+      >
+        {market && (
+          <DailyMarketTimer
+            deadline={market.expirationTimestamp}
+            deadlineText={market.expirationDate}
+            {...paragraphRegular}
+            color='grey.500'
+          />
+        )}
         <HStack gap='8px' flexWrap='wrap'>
           <Text {...paragraphRegular} color='grey.500'>
             Created by
@@ -391,7 +361,7 @@ export default function MarketPage() {
           </Text>
         </HStack>
         <ProgressBar variant='market' value={market ? market.prices[0] : 50} />
-        <HStack gap='8px' justifyContent='space-between' mt='8px'>
+        <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
             <HStack gap='4px'>
               {uniqueUsersTrades?.map(({ user }, index) => (
@@ -408,11 +378,7 @@ export default function MarketPage() {
               {market?.collateralToken.symbol}
             </Text>
           </HStack>
-          <HStack
-            gap='4px'
-            w={isMobile ? 'full' : 'unset'}
-            justifyContent={isMobile ? 'flex-end' : 'unset'}
-          >
+          <HStack gap='4px' w={isMobile ? 'full' : 'unset'} justifyContent='unset'>
             <Box {...paragraphRegular}>💧 </Box>
             <Text {...paragraphRegular} color='grey.500'>
               Liquidity {NumberUtil.convertWithDenomination(market?.liquidityFormatted, 6)}{' '}
