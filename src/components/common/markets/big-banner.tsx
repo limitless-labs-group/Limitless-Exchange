@@ -106,13 +106,15 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
       cursor='pointer'
       onClick={(e) => onClickRedirectToMarket(e)}
     >
-      <DailyMarketTimer
-        deadline={market.expirationTimestamp}
-        deadlineText={market.expirationDate}
-        topMarket={true}
-        {...paragraphRegular}
-        color='transparent.700'
-      />
+      <Box w='full'>
+        <DailyMarketTimer
+          deadline={market.expirationTimestamp}
+          deadlineText={market.expirationDate}
+          topMarket={true}
+          {...paragraphRegular}
+          color='transparent.700'
+        />
+      </Box>
       <Text {...headLineLarge} color='white' textAlign='left'>
         {market.proxyTitle ?? market.title ?? 'Noname market'}
       </Text>
