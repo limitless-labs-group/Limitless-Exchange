@@ -23,6 +23,28 @@ export default function CommentTextarea() {
   const { market } = useTradingService()
   const { createComment, isPostCommentLoading } = useCommentService()
 
+  //by default, DOMPurify treat any < symbol as a part of html tag
+  const sanitizeInput = (input: string) => {
+    const sanitized = DOMPurify.sanitize(input, {
+      FORBID_TAGS: [
+        'script',
+        'style',
+        'iframe',
+        'object',
+        'embed',
+        'applet',
+        'form',
+        'link',
+        'meta',
+        'base',
+        'svg',
+        'math',
+      ],
+      FORBID_ATTR: ['on*', 'src', 'href', 'style', 'data', 'action', 'formaction', 'xlink:href'],
+    })
+    return sanitized.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+  }
+
   const submit = async () => {
     await createComment({ content: comment, marketAddress: market?.address as string }).then(() => {
       setComment('')
@@ -67,7 +89,7 @@ export default function CommentTextarea() {
             wordBreak='break-word'
             overflow='auto'
             wrap='soft'
-            onChange={(e) => setComment(DOMPurify.sanitize(e.target.value))}
+            onChange={(e) => setComment(sanitizeInput(e.target.value))}
             rows={isMobile ? 1 : 2}
             w='full'
             p={isMobile ? '5px 12px' : '0 0 0 20px'}
