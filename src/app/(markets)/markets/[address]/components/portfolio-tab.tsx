@@ -24,7 +24,7 @@ export default function PortfolioTab() {
   if (!positions?.length) {
     return (
       <Text {...headline} mt='24px'>
-        No recent activity
+        No open positions
       </Text>
     )
   }
