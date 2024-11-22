@@ -17,7 +17,7 @@ export default function PortfolioTab() {
   ) : (
     <>
       {marketGroup && <MarketGroupPositions marketGroup={marketGroup} />}
-      <MarketPositions market={market} />
+      <MarketPositions market={market} showPortfolioIcon={false} />
     </>
   )
 }
