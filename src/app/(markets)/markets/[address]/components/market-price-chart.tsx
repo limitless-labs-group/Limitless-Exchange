@@ -128,9 +128,9 @@ export const MarketPriceChart = () => {
           },
           stops: [
             //@ts-ignore
-            [0, Highcharts.color('#198020').setOpacity(0.3).get('rgba')],
+            [0, Highcharts.color('#0FC591').setOpacity(0.3).get('rgba')],
             //@ts-ignore
-            [1, Highcharts.color('#198020').setOpacity(0).get('rgba')],
+            [1, Highcharts.color('#0FC591').setOpacity(0).get('rgba')],
           ],
           brighten: 0.2,
         },
@@ -153,7 +153,7 @@ export const MarketPriceChart = () => {
         data: data,
         turboThreshold: 2000,
         boostThreshold: 2000,
-        color: '#238020',
+        color: '#0FC591',
         lineWidth: 2,
       },
     ],
@@ -200,7 +200,7 @@ export const MarketPriceChart = () => {
   }, [prices, winningIndex, resolved])
 
   return (
-    <Paper my='20px' py='8px' px={0} bg='grey.100'>
+    <Paper my='16px' py='8px' px={0} bg='grey.100'>
       {/*{marketGroup ? (*/}
       {/*  <Menu isOpen={isMarketListOpen} onClose={onCloseMarketList} variant='transparent'>*/}
       {/*    <MenuButton*/}
