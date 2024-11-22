@@ -41,126 +41,126 @@ export default function HeaderMarquee() {
       >
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <BaseIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Base network'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <MarketsByCommunityIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Markets BY COMMUNITY'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <DifferentTokensIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Different tokens'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <BaseIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Base network'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <MarketsByCommunityIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Markets BY COMMUNITY'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <DifferentTokensIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Different tokens'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <BaseIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Base network'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <MarketsByCommunityIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Markets BY COMMUNITY'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <DifferentTokensIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Different tokens'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <BaseIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Base network'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <MarketsByCommunityIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Markets BY COMMUNITY'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <DifferentTokensIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Different tokens'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <BaseIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Base network'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <MarketsByCommunityIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Markets BY COMMUNITY'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <DifferentTokensIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Different tokens'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <BaseIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Base network'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <MarketsByCommunityIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Markets BY COMMUNITY'}
           </Text>
         </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
         <HStack marginX='6px' gap='4px' color='grey.50'>
           {!isMobile && <DifferentTokensIcon />}
-          <Text {...captionRegular} textTransform='uppercase'>
+          <Text {...captionRegular} textTransform='uppercase' color='grey.50'>
             {isMobile ? `Total Trading Volume: ${volume}` : 'Different tokens'}
           </Text>
         </HStack>
