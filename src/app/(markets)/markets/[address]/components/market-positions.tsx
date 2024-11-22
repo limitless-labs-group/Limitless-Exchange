@@ -38,7 +38,7 @@ export const MarketPositions = ({
         </Flex>
       )}
 
-      <VStack gap='8px' flexDir='column' w='full'>
+      <VStack gap='8px' flexDir='column' w='full' mt={showPortfolioIcon ? 0 : '24px'}>
         {positions?.map((position, index) => (
           <PositionCard
             position={position}
