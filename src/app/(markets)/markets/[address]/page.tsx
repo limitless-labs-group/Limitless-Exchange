@@ -21,13 +21,15 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import CommentTab from '@/components/common/markets/comment-tab'
+import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import ProgressBar from '@/components/common/progress-bar'
 import Skeleton from '@/components/common/skeleton'
 import TextWithPixels from '@/components/common/text-with-pixels'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
@@ -54,7 +56,7 @@ import {
   useTradingService,
 } from '@/services'
 import { useMarket, useWinningIndex } from '@/services/MarketsService'
-import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { h1Regular, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
@@ -178,8 +180,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
         <>
           <HStack gap='40px' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
             <Box w={isMobile ? 'full' : '664px'}>
-              <Divider orientation='horizontal' h='3px' />
-              <HStack justifyContent='space-between' mt='10px' mb='24px'>
+              <HStack justifyContent='space-between' mb='24px'>
                 <Button
                   variant='grey'
                   onClick={() => {
@@ -241,26 +242,27 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                   </MenuList>
                 </Menu>
               </HStack>
-              <Box>
-                {fetchMarketLoading ? (
-                  <VStack w='full' gap='12px'>
-                    <Skeleton height={42} />
-                    <Skeleton height={42} />
-                  </VStack>
+              <HStack w='full' justifyContent='space-between'>
+                {!market ? (
+                  <Box w='160px'>
+                    <Skeleton height={20} />
+                  </Box>
                 ) : (
-                  <TextWithPixels
-                    text={(market?.proxyTitle ?? market?.title) || ''}
-                    {...(isMobile ? { ...h1Regular } : {})}
-                    fontSize='32px'
-                    userSelect='text'
+                  <DailyMarketTimer
+                    deadline={market.expirationTimestamp}
+                    deadlineText={market.expirationDate}
+                    color='grey.500'
                   />
                 )}
-              </Box>
-              <HStack gap={isMobile ? '4px' : '16px'} mt='16px' mb='24px'>
-                {fetchMarketLoading ? (
-                  <Skeleton height={24} />
+                {!market ? (
+                  <Box w='136px'>
+                    <Skeleton height={20} />
+                  </Box>
                 ) : (
-                  <HStack gap='8px' flexWrap='wrap'>
+                  <HStack gap='4px'>
+                    <Text {...paragraphRegular} color='grey.500'>
+                      Created by
+                    </Text>
                     <ChakraImage
                       width={6}
                       height={6}
@@ -271,20 +273,51 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                     <Link href={market?.creator.link}>
                       <Text color='grey.500'>{market?.creator.name}</Text>
                     </Link>
-                    {market?.tags?.map((tag) => (
-                      <Text color='grey.500' key={tag}>
-                        #{tag}
-                      </Text>
-                    ))}
                   </HStack>
                 )}
               </HStack>
-              <MarketMetadata
-                market={market}
-                winningIndex={winningIndex}
-                resolved={resolved}
-                marketLoading={fetchMarketLoading}
-              />
+              <Box mb='24px'>
+                {fetchMarketLoading ? (
+                  <VStack w='full' gap='12px' mt='8px'>
+                    <Skeleton height={38} />
+                    <Skeleton height={38} />
+                  </VStack>
+                ) : (
+                  <TextWithPixels
+                    text={(market?.proxyTitle ?? market?.title) || ''}
+                    {...(isMobile ? { ...h1Regular } : {})}
+                    fontSize='32px'
+                    userSelect='text'
+                    fontWeight={700}
+                  />
+                )}
+              </Box>
+              {!market ? (
+                <HStack w='full' justifyContent='space-between'>
+                  <Box w='80px'>
+                    <Skeleton height={20} />
+                  </Box>
+                  <Box w='80px'>
+                    <Skeleton height={20} />
+                  </Box>
+                </HStack>
+              ) : (
+                <HStack w='full' justifyContent='space-between' mb='4px'>
+                  <Text {...paragraphMedium} color='#0FC591'>
+                    Yes {market.prices[0]}%
+                  </Text>
+                  <Text {...paragraphMedium} color='#FF3756'>
+                    No {market.prices[1]}%
+                  </Text>
+                </HStack>
+              )}
+              {!market ? (
+                <Box mt='4px'>
+                  <Skeleton height={16} />
+                </Box>
+              ) : (
+                <ProgressBar variant='market' value={market.prices[0]} />
+              )}
               <Box mt={isMobile ? '48px' : '24px'} />
               {fetchMarketLoading ? (
                 <Skeleton height={400} />
