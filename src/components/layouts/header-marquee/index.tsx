@@ -1,10 +1,13 @@
-import { Box, Divider } from '@chakra-ui/react'
+import { Box, Divider, HStack } from '@chakra-ui/react'
 import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Marquee from 'react-fast-marquee'
 import TextWithPixels from '@/components/common/text-with-pixels'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { useThemeProvider } from '@/providers'
+import BaseIcon from '@/resources/icons/base-icon-white.svg'
+import DifferentTokensIcon from '@/resources/icons/different-tokens.svg'
+import MarketsByCommunityIcon from '@/resources/icons/markets-by-community.svg'
 import { ClickEvent, useAmplitude } from '@/services'
 import { NumberUtil } from '@/utils'
 
@@ -36,17 +39,19 @@ export default function HeaderMarquee() {
           cursor: 'pointer',
         }}
       >
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          {!isMobile && <BaseIcon />}
           <TextWithPixels
-            text={isMobile ? `Total Trading Volume: ${volume}` : 'Transparent Voting'}
+            text={isMobile ? `Total Trading Volume: ${volume}` : 'Base network'}
             fontWeight={400}
             fontSize='12px'
             textTransform='uppercase'
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          {!isMobile && <MarketsByCommunityIcon />}
           <TextWithPixels
             text={isMobile ? `Total Trading Volume: ${volume}` : 'Markets BY COMMUNITY'}
             fontWeight={400}
@@ -55,9 +60,10 @@ export default function HeaderMarquee() {
             highlightWord={3}
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          <DifferentTokensIcon />
           <TextWithPixels
             text={isMobile ? `Total Trading Volume: ${volume}` : 'Different tokens'}
             fontWeight={400}
@@ -65,19 +71,21 @@ export default function HeaderMarquee() {
             textTransform='uppercase'
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          {!isMobile && <BaseIcon />}
           <TextWithPixels
-            text={isMobile ? `Total Trading Volume: ${volume}` : 'Transparent Voting'}
+            text={isMobile ? `Total Trading Volume: ${volume}` : 'Base network'}
             fontWeight={400}
             fontSize='12px'
             textTransform='uppercase'
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          {!isMobile && <MarketsByCommunityIcon />}
           <TextWithPixels
             text={isMobile ? `Total Trading Volume: ${volume}` : 'Markets BY COMMUNITY'}
             fontWeight={400}
@@ -86,9 +94,10 @@ export default function HeaderMarquee() {
             highlightWord={3}
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          <DifferentTokensIcon />
           <TextWithPixels
             text={isMobile ? `Total Trading Volume: ${volume}` : 'Different tokens'}
             fontWeight={400}
@@ -96,19 +105,21 @@ export default function HeaderMarquee() {
             textTransform='uppercase'
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          {!isMobile && <BaseIcon />}
           <TextWithPixels
-            text={isMobile ? `Total Trading Volume: ${volume}` : 'Transparent Voting'}
+            text={isMobile ? `Total Trading Volume: ${volume}` : 'Base network'}
             fontWeight={400}
             fontSize='12px'
             textTransform='uppercase'
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          {!isMobile && <MarketsByCommunityIcon />}
           <TextWithPixels
             text={isMobile ? `Total Trading Volume: ${volume}` : 'Markets BY COMMUNITY'}
             fontWeight={400}
@@ -117,9 +128,10 @@ export default function HeaderMarquee() {
             highlightWord={3}
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          <DifferentTokensIcon />
           <TextWithPixels
             text={isMobile ? `Total Trading Volume: ${volume}` : 'Different tokens'}
             fontWeight={400}
@@ -127,19 +139,21 @@ export default function HeaderMarquee() {
             textTransform='uppercase'
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          {!isMobile && <BaseIcon />}
           <TextWithPixels
-            text={isMobile ? `Total Trading Volume: ${volume}` : 'Transparent Voting'}
+            text={isMobile ? `Total Trading Volume: ${volume}` : 'Base network'}
             fontWeight={400}
             fontSize='12px'
             textTransform='uppercase'
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          {!isMobile && <MarketsByCommunityIcon />}
           <TextWithPixels
             text={isMobile ? `Total Trading Volume: ${volume}` : 'Markets BY COMMUNITY'}
             fontWeight={400}
@@ -148,9 +162,10 @@ export default function HeaderMarquee() {
             highlightWord={3}
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          <DifferentTokensIcon />
           <TextWithPixels
             text={isMobile ? `Total Trading Volume: ${volume}` : 'Different tokens'}
             fontWeight={400}
@@ -158,19 +173,21 @@ export default function HeaderMarquee() {
             textTransform='uppercase'
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          {!isMobile && <BaseIcon />}
           <TextWithPixels
-            text={isMobile ? `Total Trading Volume: ${volume}` : 'Transparent Voting'}
+            text={isMobile ? `Total Trading Volume: ${volume}` : 'Base network'}
             fontWeight={400}
             fontSize='12px'
             textTransform='uppercase'
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          {!isMobile && <MarketsByCommunityIcon />}
           <TextWithPixels
             text={isMobile ? `Total Trading Volume: ${volume}` : 'Markets BY COMMUNITY'}
             fontWeight={400}
@@ -179,9 +196,10 @@ export default function HeaderMarquee() {
             highlightWord={3}
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          <DifferentTokensIcon />
           <TextWithPixels
             text={isMobile ? `Total Trading Volume: ${volume}` : 'Different tokens'}
             fontWeight={400}
@@ -189,19 +207,21 @@ export default function HeaderMarquee() {
             textTransform='uppercase'
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          {!isMobile && <BaseIcon />}
           <TextWithPixels
-            text={isMobile ? `Total Trading Volume: ${volume}` : 'Transparent Voting'}
+            text={isMobile ? `Total Trading Volume: ${volume}` : 'Base network'}
             fontWeight={400}
             fontSize='12px'
             textTransform='uppercase'
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          {!isMobile && <MarketsByCommunityIcon />}
           <TextWithPixels
             text={isMobile ? `Total Trading Volume: ${volume}` : 'Markets BY COMMUNITY'}
             fontWeight={400}
@@ -210,9 +230,10 @@ export default function HeaderMarquee() {
             highlightWord={3}
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
-        <Box marginX='6px'>
+        <HStack marginX='6px' gap='4px' color='grey.50'>
+          <DifferentTokensIcon />
           <TextWithPixels
             text={isMobile ? `Total Trading Volume: ${volume}` : 'Different tokens'}
             fontWeight={400}
@@ -220,7 +241,7 @@ export default function HeaderMarquee() {
             textTransform='uppercase'
             color='grey.50'
           />
-        </Box>
+        </HStack>
         <Divider orientation='vertical' color='grey.50' height='16px' />
       </Marquee>
     </Box>
