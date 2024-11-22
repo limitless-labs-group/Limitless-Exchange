@@ -15,6 +15,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
+import NextLink from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -224,7 +225,6 @@ export default function MarketPage() {
   }
 
   const handleFullPageClicked = () => {
-    router.push(`/markets/${market?.address}`)
     trackClicked(ClickEvent.FullPageClicked, {
       marketAddress: market?.address,
       marketType: 'single',
@@ -291,10 +291,12 @@ export default function MarketPage() {
               <CloseIcon width={16} height={16} />
               Close
             </Button>
-            <Button variant='grey' onClick={handleFullPageClicked}>
-              <ExpandIcon width={16} height={16} />
-              Full page
-            </Button>
+            <NextLink href={`/markets/${market?.address}`}>
+              <Button variant='grey' onClick={handleFullPageClicked}>
+                <ExpandIcon width={16} height={16} />
+                Full page
+              </Button>
+            </NextLink>
           </HStack>
           <ShareMenu />
         </HStack>
