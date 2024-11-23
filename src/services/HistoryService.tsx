@@ -5,7 +5,6 @@ import { Hash, formatUnits } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { usePriceOracle } from '@/providers'
-import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useLimitlessApi } from '@/services/LimitlessApi'
 import { useAllMarkets } from '@/services/MarketsService'
 import { Address } from '@/types'
@@ -32,12 +31,12 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * ACCOUNT
    */
   const walletAddress = useWalletAddress()
-  const privateClient = useAxiosPrivateClient()
 
   /**
    * UTILS
    */
   const { convertAssetAmountToUsd } = usePriceOracle()
+  const markets = useAllMarkets()
 
   const { supportedTokens } = useLimitlessApi()
 
@@ -54,15 +53,66 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       if (!walletAddress) {
         return []
       }
-      try {
-        const response = await privateClient.get<HistoryTrade[]>(
-          `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/portfolio/trades`
+
+      const queryName = 'Trade'
+      const response = await axios.request({
+        url: newSubgraphURI[defaultChain.id],
+        method: 'post',
+        data: {
+          query: `
+            query ${queryName} {
+              ${queryName} (
+                where: {transactor: { _ilike: "${walletAddress}" } }
+                order_by: { blockTimestamp: desc }
+              ) {
+                market {
+                  id
+                  closed
+                  funding
+                  condition_id
+                  collateral {
+                    symbol
+                  }
+                }
+                outcomeTokenAmounts
+                outcomeTokenNetCost
+                blockTimestamp
+                transactionHash
+              }
+            }
+          `,
+        },
+      })
+      const _trades = response.data.data?.[queryName] as HistoryTrade[]
+      _trades.map((trade) => {
+        const collateralToken = supportedTokens?.find(
+          (token) => token.symbol === trade.market.collateral?.symbol
         )
-        return response.data
-      } catch (error) {
-        console.error('Error fetching trades:', error)
-        return []
-      }
+        const outcomeTokenAmountBI = BigInt(
+          trade.outcomeTokenAmounts.find((amount) => BigInt(amount) != 0n) ?? 0
+        )
+        trade.outcomeTokenAmount = formatUnits(
+          outcomeTokenAmountBI,
+          collateralToken?.decimals || 18
+        )
+        trade.strategy = Number(trade.outcomeTokenAmount) > 0 ? 'Buy' : 'Sell'
+        trade.outcomeIndex = trade.outcomeTokenAmounts.findIndex((amount) => BigInt(amount) != 0n)
+        trade.collateralAmount = formatUnits(
+          BigInt(trade.outcomeTokenNetCost),
+          collateralToken?.decimals || 18
+        )
+        trade.outcomeTokenPrice = (
+          Number(trade.collateralAmount) / Number(trade.outcomeTokenAmount)
+        ).toString()
+
+        // trade.outcomePercent = Number(trade.outcomeTokenPrice)
+      })
+
+      _trades.sort(
+        (tradeA, tradeB) => Number(tradeB.blockTimestamp) - Number(tradeA.blockTimestamp)
+      )
+
+      return _trades
     },
     enabled: !!walletAddress && !!supportedTokens?.length,
   })
@@ -77,39 +127,141 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       if (!walletAddress) {
         return []
       }
-      try {
-        const response = await privateClient.get<HistoryRedeem[]>(
-          `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/portfolio/redeems`
+
+      const queryName = 'Redemption'
+      const response = await axios.request({
+        url: newSubgraphURI[defaultChain.id],
+        method: 'post',
+        data: {
+          query: `
+            query ${queryName} {
+              ${queryName} (
+                where: {
+                  redeemer: {
+                    _ilike: "${walletAddress}"
+                  } 
+                },
+                order_by: { blockTimestamp: desc }
+              ) {
+                payout
+                conditionId
+                indexSets
+                blockTimestamp
+                transactionHash
+              }
+            }
+          `,
+        },
+      })
+      const _redeems = response.data.data?.[queryName] as HistoryRedeem[]
+      _redeems.map((redeem) => {
+        redeem.collateralAmount = formatUnits(
+          BigInt(redeem.payout),
+          supportedTokens?.find((token) => token.address === redeem.collateralToken)?.decimals || 18
         )
-        return response.data
-      } catch (error) {
-        console.error('Error fetching redeems:', error)
-        return []
-      }
+        redeem.outcomeIndex = redeem.indexSets[0] == '1' ? 0 : 1
+      })
+
+      _redeems.filter((redeem) => Number(redeem.collateralAmount) > 0)
+
+      _redeems.sort(
+        (redeemA, redeemB) => Number(redeemB.blockTimestamp) - Number(redeemA.blockTimestamp)
+      )
+
+      return _redeems
     },
   })
 
+  // Todo change to useMemo
+  /**
+   * Consolidate trades and redeems to get open positions
+   */
   const {
     data: positions,
     refetch: getPositions,
     isLoading: positionsLoading,
   } = useQuery({
-    queryKey: ['positions'],
+    queryKey: ['positions', trades, redeems],
     queryFn: async () => {
-      if (!walletAddress) {
-        return []
-      }
+      let _positions: HistoryPosition[] = []
+
       try {
-        const response = await privateClient.get<HistoryPosition[]>(
-          `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/portfolio/positions`
-        )
-        return response.data
-      } catch (error) {
-        console.error('Error fetching positions:', error)
-        return []
+        trades?.forEach((trade) => {
+          const market = markets.find((market) => {
+            return market?.address?.toLowerCase() === trade?.market?.id?.toLowerCase()
+          })
+
+          if (
+            !market ||
+            (market.expired && market.winningOutcomeIndex !== trade.outcomeIndex) // TODO: redesign filtering lost positions
+          ) {
+            return
+          }
+          const existingMarket = _positions.find(
+            (position) =>
+              position.market.id === trade.market.id && position.outcomeIndex === trade.outcomeIndex
+          )
+
+          const position = existingMarket ?? {
+            market: trade.market,
+            outcomeIndex: trade.outcomeIndex,
+          }
+          position.latestTrade = trade
+          position.collateralAmount = (
+            Number(position.collateralAmount ?? 0) + Number(trade.collateralAmount)
+          ).toString()
+          position.outcomeTokenAmount = (
+            Number(position.outcomeTokenAmount ?? 0) + Number(trade.outcomeTokenAmount)
+          ).toString()
+          if (!existingMarket) {
+            _positions.push(position)
+          }
+        })
+      } catch (e) {
+        console.log('pos', e)
+        console.log(e)
       }
+
+      // redeems?.forEach((redeem) => {
+      //   const position = _positions.find(
+      //     (position) =>
+      //       position.market.conditionId === redeem.conditionId &&
+      //       position.outcomeIndex == redeem.outcomeIndex
+      //   )
+      //   if (!position) {
+      //     return
+      //   }
+      //   position.collateralAmount = (
+      //     Number(position.collateralAmount ?? 0) - Number(redeem.collateralAmount)
+      //   ).toString()
+      //   position.outcomeTokenAmount = (
+      //     Number(position.outcomeTokenAmount ?? 0) - Number(redeem.collateralAmount)
+      //   ).toString()
+      // })
+
+      // filter redeemed markets
+      _positions = _positions.filter(
+        (position) =>
+          !redeems?.find((redeem) => redeem.conditionId === position.market.condition_id)
+      )
+
+      // filter markets with super small balance
+      _positions = _positions.filter((position) => Number(position.outcomeTokenAmount) > 0.00001)
+
+      // Todo remove this mapping
+      return _positions.map((position) => ({
+        ...position,
+        market: {
+          ...position.market,
+          collateral: {
+            symbol: position.market.collateral?.symbol
+              ? position.market.collateral?.symbol
+              : 'MFER',
+          },
+        },
+      }))
     },
-    enabled: !!walletAddress,
+    enabled: !!walletAddress && !!markets.length && !!trades,
   })
 
   /**
