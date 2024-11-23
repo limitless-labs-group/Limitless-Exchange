@@ -40,7 +40,6 @@ import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/over
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
 import {
   LoadingForm,
-  MarketClaimingForm,
   MarketPriceChart,
   MarketTradingForm,
   MobileTradeButton,
@@ -315,7 +314,17 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       )
     }
     return null
-  }, [market, fetchMarketLoading])
+  }, [
+    fetchMarketLoading,
+    market,
+    strategy,
+    positions?.length,
+    marketGroup?.markets,
+    isOpenSelectMarketMenu,
+    status,
+    outcomeIndex,
+    router,
+  ])
 
   const tabs = [
     {
@@ -561,7 +570,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       <HStack gap='4px'>
                         <UniqueTraders />
                         <Text {...paragraphRegular} color='grey.500'>
-                          Volume {NumberUtil.convertWithDenomination(market?.liquidityFormatted, 6)}{' '}
+                          Volume {NumberUtil.convertWithDenomination(market?.volumeFormatted, 6)}{' '}
                           {market?.collateralToken.symbol}
                         </Text>
                       </HStack>
