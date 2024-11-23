@@ -570,7 +570,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       <HStack gap='4px'>
                         <UniqueTraders />
                         <Text {...paragraphRegular} color='grey.500'>
-                          Volume {NumberUtil.convertWithDenomination(market?.liquidityFormatted, 6)}{' '}
+                          Volume {NumberUtil.convertWithDenomination(market?.volumeFormatted, 6)}{' '}
                           {market?.collateralToken.symbol}
                         </Text>
                       </HStack>
