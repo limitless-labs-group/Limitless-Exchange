@@ -151,6 +151,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                     borderColor='#4905a1'
                     zIndex={100 + index}
                     border='2px solid'
+                    size='20px'
                     color='#4905a1 !important'
                     showBorder
                     bg='#4905a1'
