@@ -42,7 +42,7 @@ const useSetupAxiosInstance = () => {
   const handleSigningProcess = async () => {
     if (signingPromise) return signingPromise
 
-    signingPromise = new Promise(async (resolve, reject) => {
+    signingPromise = (async () => {
       try {
         const account = getAccount()
         if (!account) throw new Error('Failed to get account')
@@ -68,13 +68,12 @@ const useSetupAxiosInstance = () => {
         }
 
         await axiosInstance.post('/auth/login', { client }, { headers, withCredentials: true })
-        resolve()
       } catch (error) {
-        reject(error)
+        throw error
       } finally {
         signingPromise = null
       }
-    })
+    })()
 
     return signingPromise
   }
@@ -84,10 +83,7 @@ const useSetupAxiosInstance = () => {
     async (error) => {
       const originalRequest = error.config
 
-      if (
-        (error.response?.status === 401 || error.response?.status === 401) &&
-        !originalRequest._retry
-      ) {
+      if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true
 
         return new Promise((resolve, reject) => {
@@ -96,15 +92,19 @@ const useSetupAxiosInstance = () => {
           if (!signingPromise) {
             handleSigningProcess()
               .then(() => {
-                Promise.allSettled(requestQueue.map((req) => req()))
-                  .then(() => {
-                    requestQueue.length = 0
+                const requests = [...requestQueue]
+                requestQueue.length = 0
+                Promise.allSettled(requests.map((req) => req())).then((results) => {
+                  results.forEach((result, index) => {
+                    if (result.status === 'rejected') {
+                      console.error(`Request ${index} failed:`, result.reason)
+                    }
                   })
-                  .catch((e) => {
-                    console.error(e)
-                  })
+                })
               })
               .catch(() => {
+                console.error('Signing process failed:', error)
+
                 requestQueue.length = 0
               })
           }
