@@ -303,9 +303,9 @@ export default function MarketPage() {
       )}
       <HStack
         w='full'
-        mb='8px'
+        mb='12px'
         justifyContent='space-between'
-        mt={isMobile ? 0 : '20px'}
+        mt={isMobile ? 0 : '24px'}
         flexWrap='wrap'
       >
         {market && (
@@ -316,7 +316,7 @@ export default function MarketPage() {
             color='grey.500'
           />
         )}
-        <HStack gap='8px' flexWrap='wrap'>
+        <HStack gap='6px' flexWrap='wrap'>
           <Text {...paragraphRegular} color='grey.500'>
             Created by
           </Text>

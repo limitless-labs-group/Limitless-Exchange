@@ -20,6 +20,7 @@ import {
   Text,
   useDisclosure,
   VStack,
+  Heading,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'

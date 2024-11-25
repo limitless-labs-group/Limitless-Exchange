@@ -12,7 +12,7 @@ import ProgressBar from '@/components/common/progress-bar'
 import { MarketCardLink } from './market-cards/market-card-link'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
 import { useTradingService } from '@/services'
-import { headLineLarge, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { cutUsername } from '@/utils/string'
@@ -115,7 +115,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
           color='transparent.700'
         />
       </Box>
-      <Text {...headLineLarge} color='white' textAlign='left'>
+      <Text {...(isMobile ? { h2Bold } : { h1Bold })} color='white' textAlign='left'>
         {market.proxyTitle ?? market.title ?? 'Noname market'}
       </Text>
       <Box w='full' h='38px'></Box>
