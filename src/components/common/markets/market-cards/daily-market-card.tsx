@@ -208,6 +208,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                         color='grey.100 !important'
                         showBorder
                         bg='grey.100'
+                        size='20px'
                         style={{
                           border: '2px solid',
                           marginLeft: index > 0 ? '-6px' : 0,
