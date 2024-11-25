@@ -105,6 +105,22 @@ const variants = {
       },
     },
   },
+  block: {
+    item: {
+      background: 'none',
+      _hover: { background: 'none' },
+      _focus: { background: 'none' },
+      _active: { background: 'none' },
+      padding: 0,
+      border: 'none',
+      cursor: 'default',
+    },
+
+    list: {
+      bg: 'grey.100',
+      p: '8px',
+    },
+  },
 }
 
 // export the base styles in the component theme

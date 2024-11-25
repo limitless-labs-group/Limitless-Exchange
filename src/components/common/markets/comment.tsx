@@ -1,15 +1,20 @@
-import { Box, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, HStack, MenuItem, Text, VStack } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import { useTimeAgo } from '@/hooks/use-time-ago'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import ReplyIcon from '@/resources/icons/reply-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
-import Dots from '@/resources/icons/three-horizontal-dots.svg'
 import { useAccount, useCommentService } from '@/services'
-import { captionMedium, captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import {
+  captionMedium,
+  captionRegular,
+  paragraphMedium,
+  paragraphRegular,
+} from '@/styles/fonts/fonts.styles'
 import { CommentType } from '@/types'
 import Avatar from '../avatar'
+import { UserContextMenu } from '../user-context-menu'
 
 export type CommentProps = {
   comment: CommentType
@@ -35,7 +40,7 @@ export default function Comment({ comment, isReply }: CommentProps) {
             {time}
           </Text>
         </HStack>
-        <Box cursor='pointer'>{/* <Dots /> */}</Box>
+        <UserContextMenu />
       </HStack>
       <VStack gap='8px' align='start'>
         <Text {...paragraphRegular}>{comment.content}</Text>
