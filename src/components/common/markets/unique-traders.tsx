@@ -28,29 +28,16 @@ export const UniqueTraders = React.memo(() => {
 
   return (
     <>
-      <Box display='flex' alignItems='center'>
-        {uniqueUsersTrades?.map(({ user }, index) => (
-          <Box
-            key={index}
-            position='relative'
-            ml={index === 0 ? 0 : -2} // Negative margin for overlap
-            _before={{
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              borderRadius: '50%',
-              backgroundColor: 'black', // Adjust to match your design
-              opacity: 0.01, // 1px opacity effect
-              zIndex: -1,
-            }}
-          >
+      {uniqueUsersTrades?.map(({ user }, index) => (
+        <>
+          {index > 0 && index < uniqueUsersTrades?.length && (
+            <Box p='1px' borderRadius='100%' ml='-12px' />
+          )}
+          <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
             <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
           </Box>
-        ))}
-      </Box>
+        </>
+      ))}
     </>
   )
 })
