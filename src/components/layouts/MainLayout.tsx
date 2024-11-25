@@ -20,6 +20,7 @@ export const MainLayout = ({
   layoutPadding = '16px',
   ...props
 }: IMainLayout) => {
+  const pathname = usePathname()
   const { marketPageOpened } = useTradingService()
 
   return (
@@ -36,9 +37,11 @@ export const MainLayout = ({
       bg='grey.50'
       {...props}
     >
-      <HeaderMarquee />
-      <Box mt='20px' mb={isMobile ? '60px' : 0}>
+      <Box position={isMobile ? 'fixed' : 'relative'}>
+        <HeaderMarquee />
         {isMobile && <MobileHeader />}
+      </Box>
+      <Box mt='20px' mb={isMobile ? '60px' : 0} pt={isMobile && pathname !== '/lumy' ? '88px' : 0}>
         <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
           {!isMobile && <Sidebar />}
           {isLoading ? (

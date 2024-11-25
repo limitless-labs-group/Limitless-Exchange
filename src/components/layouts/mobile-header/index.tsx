@@ -83,7 +83,12 @@ export default function MobileHeader() {
 
   return (
     <>
-      <Box p='16px' pb={0}>
+      <Box
+        p='16px'
+        pb='52px'
+        w='100vw'
+        bg='linear-gradient(180deg, #2E2E2E 0%, rgba(46, 46, 46, 0.00) 100%)'
+      >
         <HStack justifyContent='space-between' alignItems='center'>
           <Box onClick={() => router.push('/')}>
             <Image

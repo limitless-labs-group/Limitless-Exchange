@@ -1,6 +1,7 @@
 import { Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { SyntheticEvent, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
@@ -120,7 +121,13 @@ export default function DailyMarketCardMobile({
       }}
       onClick={handleMarketPageOpened}
     >
-      <Paper flex={1} w={'100%'} position='relative' cursor='pointer' p='14px'>
+      <Paper
+        flex={1}
+        w={'100%'}
+        position={isMobile ? 'unset' : 'relative'}
+        cursor='pointer'
+        p='14px'
+      >
         <VStack w='full' gap='56px' mt='8px'>
           <Box w='full'>
             <DailyMarketTimer
@@ -146,7 +153,14 @@ export default function DailyMarketCardMobile({
             <HStack w='full' justifyContent='space-between'>
               <HStack gap='4px' mt='8px'>
                 {uniqueUsersTrades?.map(({ user }, index) => (
-                  <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
+                  <Box
+                    key={user.account}
+                    marginLeft={index > 0 ? '-12px' : '0px'}
+                    bg={index ? 'grey.100' : 'unset'}
+                    p={index ? '1px' : 'unset'}
+                    borderRadius={index ? '100%' : 'unset'}
+                    overflow={index ? 'hidden' : 'unset'}
+                  >
                     <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
                   </Box>
                 ))}
@@ -170,6 +184,7 @@ export default function DailyMarketCardMobile({
                   h='unset'
                   w='full'
                   onClick={onClickJoinPrediction}
+                  position={isMobile ? 'unset' : 'relative'}
                 >
                   ⚖️ Join the Prediction
                 </Button>

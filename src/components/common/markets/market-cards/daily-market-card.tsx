@@ -197,7 +197,14 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
               <HStack gap='4px'>
                 <HStack gap='4px'>
                   {uniqueUsersTrades?.map(({ user }, index) => (
-                    <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
+                    <Box
+                      key={user.account}
+                      marginLeft={index > 0 ? '-12px' : '0px'}
+                      bg={index ? 'grey.100' : 'unset'}
+                      p={index ? '1px' : 'unset'}
+                      borderRadius={index ? '100%' : 'unset'}
+                      overflow={index ? 'hidden' : 'unset'}
+                    >
                       <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
                     </Box>
                   ))}

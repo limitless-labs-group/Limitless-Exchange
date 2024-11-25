@@ -72,10 +72,7 @@ export default function LumyPage() {
     },
   ]
 
-  const lumyMobileImage =
-    mode === 'light'
-      ? '/assets/images/ai-logo-mobile-white.png'
-      : '/assets/images/ai-logo-mobile.png'
+  const lumyMobileImage = '/assets/images/ai-logo-mobile.svg'
 
   const onClickCopy = () => {
     trackClicked(ClickEvent.CopyAddressClicked, {
@@ -107,6 +104,7 @@ export default function LumyPage() {
           alt='ai-logo'
           style={{
             marginTop: -16,
+            width: isMobile ? '100%' : 'unset',
           }}
         />
         <Box px='16px'>
