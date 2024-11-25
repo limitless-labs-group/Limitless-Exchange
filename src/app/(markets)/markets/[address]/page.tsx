@@ -36,7 +36,6 @@ import { UniqueTraders } from '@/components/common/markets/unique-traders'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
 import Skeleton from '@/components/common/skeleton'
-import TextWithPixels from '@/components/common/text-with-pixels'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
 import {
@@ -526,13 +525,14 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       <Skeleton height={38} />
                     </VStack>
                   ) : (
-                    <TextWithPixels
-                      text={(market?.proxyTitle ?? market?.title) || ''}
+                    <Heading
                       {...(isMobile ? { ...h1Regular } : {})}
                       fontSize='32px'
                       userSelect='text'
                       fontWeight={700}
-                    />
+                    >
+                      {(market?.proxyTitle ?? market?.title) || ''}
+                    </Heading>
                   )}
                 </Box>
                 {!market ? (
