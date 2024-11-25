@@ -196,7 +196,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
               </HStack>
               <HStack gap='4px'>
                 <HStack gap='4px'>
-                  <AvatarGroup max={3}>
+                  <AvatarGroup>
                     {uniqueUsersTrades?.map(({ user }, index) => (
                       <Avatar
                         account={user.account || ''}
