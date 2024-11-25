@@ -194,11 +194,11 @@ export default function DailyMarketCardMobile({
                     />
                   ))}
                 </HStack>
-                <Text {...paragraphRegular} color='transparent.700'>
+                <Text {...paragraphRegular} color='grey.500'>
                   Volume
                 </Text>
               </HStack>
-              <Text {...paragraphRegular} color='transparent.700'>
+              <Text {...paragraphRegular} color='grey.500'>
                 {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
                 {market.collateralToken.symbol}
               </Text>
