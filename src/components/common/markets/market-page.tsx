@@ -351,7 +351,7 @@ export default function MarketPage() {
         <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
             <HStack gap='4px'>
-              <UniqueTraders />
+              <UniqueTraders color='grey.50' />
               <Text {...paragraphRegular} color='grey.500'>
                 Volume
               </Text>

@@ -142,16 +142,25 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
         {isMobile ? (
           <HStack w='full' justifyContent='space-between'>
             <HStack gap='4px' mt='8px'>
-              {uniqueUsersTrades?.map(({ user }, index) => (
-                <>
-                  {index > 0 && index < uniqueUsersTrades?.length && (
-                    <Box p='1px' borderRadius='100%' ml='-12px' />
-                  )}
-                  <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
-                    <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
-                  </Box>
-                </>
-              ))}
+              <HStack gap={0}>
+                {uniqueUsersTrades?.map(({ user }, index) => (
+                  <Avatar
+                    account={user.account || ''}
+                    avatarUrl={user.imageURI}
+                    key={index}
+                    borderColor='grey.100'
+                    zIndex={100 + index}
+                    border='1px solid'
+                    color='grey.100 !important'
+                    showBorder
+                    bg='grey.100'
+                    style={{
+                      border: '1px solid',
+                      marginLeft: index > 0 ? '-6px' : 0,
+                    }}
+                  />
+                ))}
+              </HStack>
               <Text {...paragraphRegular} color='transparent.700'>
                 Volume
               </Text>

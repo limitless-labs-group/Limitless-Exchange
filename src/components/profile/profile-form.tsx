@@ -195,7 +195,7 @@ export function ProfileForm() {
                 cursor='pointer'
               />
             ) : (
-              <Avatar account={account as string} size={12} />
+              <Avatar account={account as string} size='48px' />
             )}
             {hoverImage && (
               <Box

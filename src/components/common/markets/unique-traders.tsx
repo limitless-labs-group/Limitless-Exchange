@@ -1,11 +1,15 @@
-import { Box } from '@chakra-ui/react'
+import { HStack } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import React from 'react'
 import { useMarketFeed } from '@/hooks/use-market-feed'
 import { useTradingService } from '@/services'
 import Avatar from '../avatar'
 
-export const UniqueTraders = React.memo(() => {
+type UniqueTradersProps = {
+  color: string
+}
+
+export const UniqueTraders = React.memo(({ color }: UniqueTradersProps) => {
   const { market } = useTradingService()
 
   const { data: marketFeedData } = useMarketFeed(market?.address)
@@ -28,29 +32,25 @@ export const UniqueTraders = React.memo(() => {
 
   return (
     <>
-      <Box display='flex' alignItems='center'>
+      <HStack gap={0}>
         {uniqueUsersTrades?.map(({ user }, index) => (
-          <Box
+          <Avatar
+            account={user.account || ''}
+            avatarUrl={user.imageURI}
             key={index}
-            position='relative'
-            ml={index === 0 ? 0 : -2} // Negative margin for overlap
-            _before={{
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              borderRadius: '50%',
-              backgroundColor: 'black', // Adjust to match your design
-              opacity: 0.01, // 1px opacity effect
-              zIndex: -1,
+            borderColor={color}
+            zIndex={100 + index}
+            border='1px solid'
+            color={`${color} !important`}
+            showBorder
+            bg='grey.100'
+            style={{
+              border: '1px solid',
+              marginLeft: index > 0 ? '-6px' : 0,
             }}
-          >
-            <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
-          </Box>
+          />
         ))}
-      </Box>
+      </HStack>
     </>
   )
 })
