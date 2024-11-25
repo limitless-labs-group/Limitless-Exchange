@@ -201,7 +201,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                       key={user.account}
                       marginLeft={index > 0 ? '-12px' : '0px'}
                       bg={index ? 'grey.100' : 'unset'}
-                      p={index ? '1px' : 'unset'}
+                      p={index ? '2px' : 'unset'}
                       borderRadius={index ? '100%' : 'unset'}
                       overflow={index ? 'hidden' : 'unset'}
                     >
