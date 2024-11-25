@@ -175,16 +175,14 @@ export default function DailyMarketCardMobile({
             <HStack w='full' justifyContent='space-between'>
               <HStack gap='4px' mt='8px'>
                 {uniqueUsersTrades?.map(({ user }, index) => (
-                  <Box
-                    key={user.account}
-                    marginLeft={index > 0 ? '-12px' : '0px'}
-                    bg={index ? 'grey.100' : 'unset'}
-                    p={index ? '2px' : 'unset'}
-                    borderRadius={index ? '100%' : 'unset'}
-                    overflow={index ? 'hidden' : 'unset'}
-                  >
-                    <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
-                  </Box>
+                  <>
+                    {index && index + 1 !== uniqueUsersTrades?.length && (
+                      <Box p='1px' borderRadius='100%' ml='-12px' />
+                    )}
+                    <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
+                      <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
+                    </Box>
+                  </>
                 ))}
                 <Text {...paragraphRegular} color='transparent.700'>
                   Volume
