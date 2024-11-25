@@ -3,6 +3,7 @@ import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash } from 'viem'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { usePriceOracle } from '@/providers'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useLimitlessApi } from '@/services/LimitlessApi'
 import { Address } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -28,13 +29,12 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * ACCOUNT
    */
   const walletAddress = useWalletAddress()
+  const privateClient = useAxiosPrivateClient()
 
   /**
    * UTILS
    */
   const { convertAssetAmountToUsd } = usePriceOracle()
-  const markets = useAllMarkets()
-
   const { supportedTokens } = useLimitlessApi()
 
   /**
@@ -60,7 +60,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     },
     enabled: !!walletAddress && !!supportedTokens?.length,
   })
-
   const {
     data: redeems,
     refetch: getRedeems,
@@ -81,19 +80,16 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  // Todo change to useMemo
-  /**
-   * Consolidate trades and redeems to get open positions
-   */
   const {
     data: positions,
     refetch: getPositions,
     isLoading: positionsLoading,
   } = useQuery({
-    queryKey: ['positions', trades, redeems],
+    queryKey: ['positions'],
     queryFn: async () => {
-      let _positions: HistoryPosition[] = []
-
+      if (!walletAddress) {
+        return []
+      }
       try {
         const response = await privateClient.get<HistoryPosition[]>(`/portfolio/positions`)
         return response.data
@@ -101,47 +97,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         console.error('Error fetching positions:', error)
         return []
       }
-
-      // redeems?.forEach((redeem) => {
-      //   const position = _positions.find(
-      //     (position) =>
-      //       position.market.conditionId === redeem.conditionId &&
-      //       position.outcomeIndex == redeem.outcomeIndex
-      //   )
-      //   if (!position) {
-      //     return
-      //   }
-      //   position.collateralAmount = (
-      //     Number(position.collateralAmount ?? 0) - Number(redeem.collateralAmount)
-      //   ).toString()
-      //   position.outcomeTokenAmount = (
-      //     Number(position.outcomeTokenAmount ?? 0) - Number(redeem.collateralAmount)
-      //   ).toString()
-      // })
-
-      // filter redeemed markets
-      _positions = _positions.filter(
-        (position) =>
-          !redeems?.find((redeem) => redeem.conditionId === position.market.condition_id)
-      )
-
-      // filter markets with super small balance
-      _positions = _positions.filter((position) => Number(position.outcomeTokenAmount) > 0.00001)
-
-      // Todo remove this mapping
-      return _positions.map((position) => ({
-        ...position,
-        market: {
-          ...position.market,
-          collateral: {
-            symbol: position.market.collateral?.symbol
-              ? position.market.collateral?.symbol
-              : 'MFER',
-          },
-        },
-      }))
     },
-    enabled: !!walletAddress && !!markets.length && !!trades,
+    enabled: !!walletAddress,
   })
 
   /**
