@@ -37,7 +37,7 @@ export const MainLayout = ({
       bg='grey.50'
       {...props}
     >
-      <Box position={isMobile ? 'fixed' : 'relative'}>
+      <Box position={isMobile ? 'fixed' : 'relative'} zIndex={9999}>
         <HeaderMarquee />
         {isMobile && <MobileHeader />}
       </Box>
