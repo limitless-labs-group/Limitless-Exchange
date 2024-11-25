@@ -198,7 +198,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                 <HStack gap='4px'>
                   {uniqueUsersTrades?.map(({ user }, index) => (
                     <>
-                      {index > 0 && index + 1 !== uniqueUsersTrades?.length && (
+                      {index > 0 && index + 1 < uniqueUsersTrades?.length && (
                         <Box p='1px' borderRadius='100%' ml='-12px' />
                       )}
                       <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
