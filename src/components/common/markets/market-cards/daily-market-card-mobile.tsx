@@ -176,7 +176,7 @@ export default function DailyMarketCardMobile({
               <HStack gap='4px' mt='8px'>
                 {uniqueUsersTrades?.map(({ user }, index) => (
                   <>
-                    {index > 0 && index + 1 < uniqueUsersTrades?.length && (
+                    {index > 0 && index < uniqueUsersTrades?.length && (
                       <Box p='1px' borderRadius='100%' ml='-12px' />
                     )}
                     <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
