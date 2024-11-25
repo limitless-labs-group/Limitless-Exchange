@@ -18,7 +18,7 @@ export interface IUseUpdateProfileMutation {
 
 export const useUpdateProfile = () => {
   const toast = useToast()
-  const { smartWalletExternallyOwnedAccountAddress } = useEtherspot()
+  const { smartWalletAddress } = useEtherspot()
   const privateAxios = useAxiosPrivateClient()
   return useMutation({
     mutationKey: ['update-profile'],
@@ -33,7 +33,7 @@ export const useUpdateProfile = () => {
         displayName: _displayName,
         username: _username,
         bio: _bio,
-        eoaWallet: client === 'eoa' ? account : smartWalletExternallyOwnedAccountAddress,
+        eoaWallet: client === 'eoa' ? account : smartWalletAddress,
         smartWallet: client === 'eoa' ? '' : account,
         client,
       })
