@@ -15,6 +15,7 @@ import { useThemeProvider } from '@/providers'
 import ArrowExternalIcon from '@/resources/icons/arrow-external.svg'
 import BaseWhiteIcon from '@/resources/icons/base-icon-white.svg'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
+import LumyDesktopIcon from '@/resources/icons/lumy-desktop.svg'
 import LumyImage from '@/resources/icons/lumy-image.svg'
 import PigIcon from '@/resources/icons/pig-icon.svg'
 import TrophyIcon from '@/resources/icons/trophy-icon.svg'
@@ -99,14 +100,21 @@ export default function LumyPage() {
         bg='grey.50'
         mt={isMobile ? '16px' : 0}
       >
-        <img
-          src={isMobile ? lumyMobileImage : '/assets/images/ai-logo-main.png'}
-          alt='ai-logo'
-          style={{
-            marginTop: -16,
-            width: isMobile ? '100%' : 'unset',
-          }}
-        />
+        {isMobile ? (
+          <img
+            src={lumyMobileImage}
+            alt='ai-logo'
+            style={{
+              marginTop: -16,
+              width: isMobile ? '100%' : 'unset',
+            }}
+          />
+        ) : (
+          <Box mt={'-16px'}>
+            <LumyDesktopIcon />
+          </Box>
+        )}
+
         <Box px='16px'>
           <HStack w='full' justifyContent='center'>
             <Text
