@@ -115,7 +115,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
           color='transparent.700'
         />
       </Box>
-      <Text {...(isMobile ? { h2Bold } : { h1Bold })} color='white' textAlign='left'>
+      <Text {...(isMobile ? h2Bold : h1Bold)} color='white' textAlign='left'>
         {market.proxyTitle ?? market.title ?? 'Noname market'}
       </Text>
       <Box w='full' h='38px'></Box>
