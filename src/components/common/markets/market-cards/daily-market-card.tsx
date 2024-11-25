@@ -204,12 +204,12 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                         key={index}
                         borderColor='grey.100'
                         zIndex={100 + index}
-                        border='1px solid'
+                        border='2px solid'
                         color='grey.100 !important'
                         showBorder
                         bg='grey.100'
                         style={{
-                          border: '1px solid',
+                          border: '2px solid',
                           marginLeft: index > 0 ? '-6px' : 0,
                         }}
                       />

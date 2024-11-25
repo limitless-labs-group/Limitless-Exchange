@@ -40,12 +40,12 @@ export const UniqueTraders = React.memo(({ color }: UniqueTradersProps) => {
             key={index}
             borderColor={color}
             zIndex={100 + index}
-            border='1px solid'
+            border='2px solid'
             color={`${color} !important`}
             showBorder
             bg='grey.100'
             style={{
-              border: '1px solid',
+              border: '2px solid',
               marginLeft: index > 0 ? '-6px' : 0,
             }}
           />

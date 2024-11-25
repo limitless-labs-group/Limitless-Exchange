@@ -150,12 +150,12 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                     key={index}
                     borderColor='#4905a1'
                     zIndex={100 + index}
-                    border='1px solid'
+                    border='2px solid'
                     color='#4905a1 !important'
                     showBorder
                     bg='#4905a1'
                     style={{
-                      border: '1px solid',
+                      border: '2px solid',
                       marginLeft: index > 0 ? '-6px' : 0,
                     }}
                   />
