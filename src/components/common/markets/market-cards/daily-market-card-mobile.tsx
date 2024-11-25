@@ -183,6 +183,7 @@ export default function DailyMarketCardMobile({
                       borderColor='grey.100'
                       zIndex={100 + index}
                       border='2px solid'
+                      size='20px'
                       color='grey.100 !important'
                       showBorder
                       bg='grey.200'
