@@ -1,12 +1,9 @@
 import { QueryObserverResult, useQuery } from '@tanstack/react-query'
-import axios from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
-import { Hash, formatUnits } from 'viem'
-import { defaultChain, newSubgraphURI } from '@/constants'
+import { Hash } from 'viem'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { usePriceOracle } from '@/providers'
 import { useLimitlessApi } from '@/services/LimitlessApi'
-import { useAllMarkets } from '@/services/MarketsService'
 import { Address } from '@/types'
 import { NumberUtil } from '@/utils'
 
@@ -53,66 +50,13 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       if (!walletAddress) {
         return []
       }
-
-      const queryName = 'Trade'
-      const response = await axios.request({
-        url: newSubgraphURI[defaultChain.id],
-        method: 'post',
-        data: {
-          query: `
-            query ${queryName} {
-              ${queryName} (
-                where: {transactor: { _ilike: "${walletAddress}" } }
-                order_by: { blockTimestamp: desc }
-              ) {
-                market {
-                  id
-                  closed
-                  funding
-                  condition_id
-                  collateral {
-                    symbol
-                  }
-                }
-                outcomeTokenAmounts
-                outcomeTokenNetCost
-                blockTimestamp
-                transactionHash
-              }
-            }
-          `,
-        },
-      })
-      const _trades = response.data.data?.[queryName] as HistoryTrade[]
-      _trades.map((trade) => {
-        const collateralToken = supportedTokens?.find(
-          (token) => token.symbol === trade.market.collateral?.symbol
-        )
-        const outcomeTokenAmountBI = BigInt(
-          trade.outcomeTokenAmounts.find((amount) => BigInt(amount) != 0n) ?? 0
-        )
-        trade.outcomeTokenAmount = formatUnits(
-          outcomeTokenAmountBI,
-          collateralToken?.decimals || 18
-        )
-        trade.strategy = Number(trade.outcomeTokenAmount) > 0 ? 'Buy' : 'Sell'
-        trade.outcomeIndex = trade.outcomeTokenAmounts.findIndex((amount) => BigInt(amount) != 0n)
-        trade.collateralAmount = formatUnits(
-          BigInt(trade.outcomeTokenNetCost),
-          collateralToken?.decimals || 18
-        )
-        trade.outcomeTokenPrice = (
-          Number(trade.collateralAmount) / Number(trade.outcomeTokenAmount)
-        ).toString()
-
-        // trade.outcomePercent = Number(trade.outcomeTokenPrice)
-      })
-
-      _trades.sort(
-        (tradeA, tradeB) => Number(tradeB.blockTimestamp) - Number(tradeA.blockTimestamp)
-      )
-
-      return _trades
+      try {
+        const response = await privateClient.get<HistoryTrade[]>(`/portfolio/trades`)
+        return response.data
+      } catch (error) {
+        console.error('Error fetching trades:', error)
+        return []
+      }
     },
     enabled: !!walletAddress && !!supportedTokens?.length,
   })
@@ -127,48 +71,13 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       if (!walletAddress) {
         return []
       }
-
-      const queryName = 'Redemption'
-      const response = await axios.request({
-        url: newSubgraphURI[defaultChain.id],
-        method: 'post',
-        data: {
-          query: `
-            query ${queryName} {
-              ${queryName} (
-                where: {
-                  redeemer: {
-                    _ilike: "${walletAddress}"
-                  } 
-                },
-                order_by: { blockTimestamp: desc }
-              ) {
-                payout
-                conditionId
-                indexSets
-                blockTimestamp
-                transactionHash
-              }
-            }
-          `,
-        },
-      })
-      const _redeems = response.data.data?.[queryName] as HistoryRedeem[]
-      _redeems.map((redeem) => {
-        redeem.collateralAmount = formatUnits(
-          BigInt(redeem.payout),
-          supportedTokens?.find((token) => token.address === redeem.collateralToken)?.decimals || 18
-        )
-        redeem.outcomeIndex = redeem.indexSets[0] == '1' ? 0 : 1
-      })
-
-      _redeems.filter((redeem) => Number(redeem.collateralAmount) > 0)
-
-      _redeems.sort(
-        (redeemA, redeemB) => Number(redeemB.blockTimestamp) - Number(redeemA.blockTimestamp)
-      )
-
-      return _redeems
+      try {
+        const response = await privateClient.get<HistoryRedeem[]>(`/portfolio/redeems`)
+        return response.data
+      } catch (error) {
+        console.error('Error fetching redeems:', error)
+        return []
+      }
     },
   })
 
@@ -186,40 +95,11 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       let _positions: HistoryPosition[] = []
 
       try {
-        trades?.forEach((trade) => {
-          const market = markets.find((market) => {
-            return market?.address?.toLowerCase() === trade?.market?.id?.toLowerCase()
-          })
-
-          if (
-            !market ||
-            (market.expired && market.winningOutcomeIndex !== trade.outcomeIndex) // TODO: redesign filtering lost positions
-          ) {
-            return
-          }
-          const existingMarket = _positions.find(
-            (position) =>
-              position.market.id === trade.market.id && position.outcomeIndex === trade.outcomeIndex
-          )
-
-          const position = existingMarket ?? {
-            market: trade.market,
-            outcomeIndex: trade.outcomeIndex,
-          }
-          position.latestTrade = trade
-          position.collateralAmount = (
-            Number(position.collateralAmount ?? 0) + Number(trade.collateralAmount)
-          ).toString()
-          position.outcomeTokenAmount = (
-            Number(position.outcomeTokenAmount ?? 0) + Number(trade.outcomeTokenAmount)
-          ).toString()
-          if (!existingMarket) {
-            _positions.push(position)
-          }
-        })
-      } catch (e) {
-        console.log('pos', e)
-        console.log(e)
+        const response = await privateClient.get<HistoryPosition[]>(`/portfolio/positions`)
+        return response.data
+      } catch (error) {
+        console.error('Error fetching positions:', error)
+        return []
       }
 
       // redeems?.forEach((redeem) => {

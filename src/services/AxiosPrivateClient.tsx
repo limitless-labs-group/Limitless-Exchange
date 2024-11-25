@@ -15,7 +15,10 @@ const useSetupAxiosInstance = () => {
   const { web3Auth } = useWeb3Auth()
   const { address } = useWagmiAccount()
 
-  //todo: redo. it's difficult to manage providers wrapper to use here useAccount()
+  //avoid triggering signing message pop-up several times, when the few private requests will come simultaneously
+  let signingPromise: Promise<void> | null = null
+  const requestQueue: (() => Promise<unknown>)[] = []
+
   const getAccount = () => {
     if (web3Auth.status === 'not_ready') {
       return
@@ -36,50 +39,76 @@ const useSetupAxiosInstance = () => {
     withCredentials: true,
   })
 
+  const handleSigningProcess = async () => {
+    if (signingPromise) return signingPromise
+
+    signingPromise = new Promise(async (resolve, reject) => {
+      try {
+        const account = getAccount()
+        if (!account) throw new Error('Failed to get account')
+
+        const { data: signingMessage } = await axiosInstance.get(`/auth/signing-message`)
+        if (!signingMessage) throw new Error('Failed to get signing message')
+
+        const signature = (
+          client === 'eoa'
+            ? await signMessageAsync({ message: signingMessage, account })
+            : await signMessage(signingMessage)
+        ) as `0x${string}`
+
+        const headers = {
+          'content-type': 'application/json',
+          'x-account': getAddress(
+            client === 'eoa'
+              ? (account as `0x${string}`)
+              : (smartWalletExternallyOwnedAccountAddress as string)
+          ),
+          'x-signature': signature,
+          'x-signing-message': toHex(String(signingMessage)),
+        }
+
+        await axiosInstance.post('/auth/login', { client }, { headers, withCredentials: true })
+        resolve()
+      } catch (error) {
+        reject(error)
+      } finally {
+        signingPromise = null
+      }
+    })
+
+    return signingPromise
+  }
+
   axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config
 
-      if (error.response?.status === 401 && !originalRequest._retry) {
+      if (
+        (error.response?.status === 401 || error.response?.status === 401) &&
+        !originalRequest._retry
+      ) {
         originalRequest._retry = true
 
-        const account = getAccount()
-        if (!account) throw new Error('Failed to get account')
+        return new Promise((resolve, reject) => {
+          requestQueue.push(async () => axiosInstance(originalRequest).then(resolve).catch(reject))
 
-        try {
-          const { data: registerProfileSigningMessage } = await axiosInstance.get(
-            `/auth/signing-message`
-          )
-
-          if (!registerProfileSigningMessage) throw new Error('Failed to get signing message')
-
-          const signature = (
-            client === 'eoa'
-              ? await signMessageAsync({ message: registerProfileSigningMessage, account })
-              : await signMessage(registerProfileSigningMessage)
-          ) as `0x${string}`
-
-          const headers = {
-            'content-type': 'application/json',
-            'x-account': getAddress(
-              client === 'eoa'
-                ? (account as `0x${string}`)
-                : (smartWalletExternallyOwnedAccountAddress as string)
-            ),
-            'x-signature': signature,
-            'x-signing-message': toHex(String(registerProfileSigningMessage)),
+          if (!signingPromise) {
+            handleSigningProcess()
+              .then(() => {
+                Promise.allSettled(requestQueue.map((req) => req()))
+                  .then(() => {
+                    requestQueue.length = 0
+                  })
+                  .catch((e) => {
+                    console.error(e)
+                  })
+              })
+              .catch(() => {
+                requestQueue.length = 0
+              })
           }
-
-          try {
-            await axiosInstance.post('/auth/login', { client }, { headers, withCredentials: true })
-            return axiosInstance(originalRequest)
-          } catch (e) {
-            console.log('e', e)
-          }
-        } catch (reAuthError) {
-          return Promise.reject(reAuthError)
-        }
+        })
       }
 
       return Promise.reject(error)
