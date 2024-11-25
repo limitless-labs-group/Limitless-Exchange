@@ -1,4 +1,4 @@
-import { Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
+import { AvatarGroup, Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { SyntheticEvent, useEffect, useMemo, useState } from 'react'
 import Avatar from '@/components/common/avatar'
@@ -196,11 +196,25 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
               </HStack>
               <HStack gap='4px'>
                 <HStack gap='4px'>
-                  {uniqueUsersTrades?.map(({ user }, index) => (
-                    <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
-                      <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
-                    </Box>
-                  ))}
+                  <HStack gap={0}>
+                    {uniqueUsersTrades?.map(({ user }, index) => (
+                      <Avatar
+                        account={user.account || ''}
+                        avatarUrl={user.imageURI}
+                        key={index}
+                        borderColor='grey.100'
+                        zIndex={100 + index}
+                        border='2px solid'
+                        color='grey.100 !important'
+                        showBorder
+                        bg='grey.100'
+                        style={{
+                          border: '2px solid',
+                          marginLeft: index > 0 ? '-6px' : 0,
+                        }}
+                      />
+                    ))}
+                  </HStack>
                   <Text {...paragraphRegular} color='grey.500'>
                     Volume
                   </Text>
