@@ -30,14 +30,13 @@ export const MainLayout = ({
       w={'full'}
       minH={'100vh'}
       margin={'0 auto'}
-      // overflow={'hidden'}
       alignItems={'center'}
       justifyContent={'space-between'}
       gap={{ sm: 6, md: 10 }}
       bg='grey.50'
       {...props}
     >
-      <Box position={isMobile ? 'fixed' : 'relative'} zIndex={9999}>
+      <Box position={isMobile ? 'fixed' : 'relative'} zIndex={9999} top={0}>
         <HeaderMarquee />
         {isMobile && <MobileHeader />}
       </Box>
