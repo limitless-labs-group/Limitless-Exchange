@@ -131,7 +131,7 @@ export default function DailyMarketCardMobile({
         {isLumy && (
           <Box
             top={0}
-            marginLeft='calc(50% - 30px)'
+            marginLeft='calc(50% - 40px)'
             py='2px'
             px='4px'
             borderBottomLeftRadius='4px'
@@ -139,6 +139,8 @@ export default function DailyMarketCardMobile({
             bg={'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}
             onClick={handleLumyButtonClicked}
             className='lumy-button'
+            w='fit-content'
+            marginTop='-14px'
           >
             <HStack gap='8px' color='grey.white'>
               <Text {...captionMedium} color='grey.white'>
