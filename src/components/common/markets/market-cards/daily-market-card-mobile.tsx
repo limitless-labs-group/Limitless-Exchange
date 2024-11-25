@@ -128,6 +128,26 @@ export default function DailyMarketCardMobile({
         cursor='pointer'
         p='14px'
       >
+        {isLumy && (
+          <Box
+            top={0}
+            marginLeft='calc(50% - 30px)'
+            py='2px'
+            px='4px'
+            borderBottomLeftRadius='4px'
+            borderBottomRightRadius='2px'
+            bg={'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}
+            onClick={handleLumyButtonClicked}
+            className='lumy-button'
+          >
+            <HStack gap='8px' color='grey.white'>
+              <Text {...captionMedium} color='grey.white'>
+                LUMY AI
+              </Text>
+              <TooltipIcon width={16} height={16} />
+            </HStack>
+          </Box>
+        )}
         <VStack w='full' gap='56px' mt='8px'>
           <Box w='full'>
             <DailyMarketTimer
@@ -197,27 +217,6 @@ export default function DailyMarketCardMobile({
             </Box>
           </Box>
         </VStack>
-        {isLumy && (
-          <Box
-            position='absolute'
-            top={0}
-            left='calc(50% - 30px)'
-            py='2px'
-            px='4px'
-            borderBottomLeftRadius='4px'
-            borderBottomRightRadius='2px'
-            bg={'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}
-            onClick={handleLumyButtonClicked}
-            className='lumy-button'
-          >
-            <HStack gap='8px' color='grey.white'>
-              <Text {...captionMedium} color='grey.white'>
-                LUMY AI
-              </Text>
-              <TooltipIcon width={16} height={16} />
-            </HStack>
-          </Box>
-        )}
         {estimateOpened && (
           <Box bg='grey.200' p='16px' mt='16px' borderRadius='12px'>
             <HStack w='full' justifyContent='space-between' color='grey.500'>
@@ -257,17 +256,6 @@ export default function DailyMarketCardMobile({
                 </Text>
               )}
             </Box>
-            {/*<NextLink*/}
-            {/*  href='https://www.notion.so/limitlesslabs/Limitless-Docs-0e59399dd44b492f8d494050969a1567?pvs=4#5dd6f962c66044eaa00e28d2c61b92bb'*/}
-            {/*  target='_blank'*/}
-            {/*  rel='noopener'*/}
-            {/*  passHref*/}
-            {/*  onClick={(e) => e.stopPropagation()}*/}
-            {/*>*/}
-            {/*  <Link isExternal variant='textLink'>*/}
-            {/*    Read How Prediction Market works.*/}
-            {/*  </Link>*/}
-            {/*</NextLink>*/}
           </Box>
         )}
       </Paper>
