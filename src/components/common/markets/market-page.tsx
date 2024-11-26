@@ -15,6 +15,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
+import NextLink from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -224,7 +225,6 @@ export default function MarketPage() {
   }
 
   const handleFullPageClicked = () => {
-    router.push(`/markets/${market?.address}`)
     trackClicked(ClickEvent.FullPageClicked, {
       marketAddress: market?.address,
       marketType: 'single',
@@ -291,10 +291,12 @@ export default function MarketPage() {
               <CloseIcon width={16} height={16} />
               Close
             </Button>
-            <Button variant='grey' onClick={handleFullPageClicked}>
-              <ExpandIcon width={16} height={16} />
-              Full page
-            </Button>
+            <NextLink href={`/markets/${market?.address}`}>
+              <Button variant='grey' onClick={handleFullPageClicked}>
+                <ExpandIcon width={16} height={16} />
+                Full page
+              </Button>
+            </NextLink>
           </HStack>
           <ShareMenu />
         </HStack>
@@ -349,7 +351,7 @@ export default function MarketPage() {
         <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
             <HStack gap='4px'>
-              <UniqueTraders />
+              <UniqueTraders color='grey.50' />
               <Text {...paragraphRegular} color='grey.500'>
                 Volume
               </Text>
@@ -370,7 +372,8 @@ export default function MarketPage() {
         <Divider my={isMobile ? '24px' : '16px'} />
       </Box>
       {market?.expired ? (
-        <Paper h={isMobile ? '348px' : '332px'}>
+        <Paper h={'120px'}>
+          {/*<Paper h={isMobile ? '348px' : '332px'}>*/}
           <VStack h='full' justifyContent='space-between' alignItems='flex-start'>
             <Text {...paragraphMedium} color='grey.800'>
               Market is closed

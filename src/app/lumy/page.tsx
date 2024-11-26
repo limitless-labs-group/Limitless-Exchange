@@ -15,6 +15,7 @@ import { useThemeProvider } from '@/providers'
 import ArrowExternalIcon from '@/resources/icons/arrow-external.svg'
 import BaseWhiteIcon from '@/resources/icons/base-icon-white.svg'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
+import LumyDesktopIcon from '@/resources/icons/lumy-desktop.svg'
 import LumyImage from '@/resources/icons/lumy-image.svg'
 import PigIcon from '@/resources/icons/pig-icon.svg'
 import TrophyIcon from '@/resources/icons/trophy-icon.svg'
@@ -72,10 +73,7 @@ export default function LumyPage() {
     },
   ]
 
-  const lumyMobileImage =
-    mode === 'light'
-      ? '/assets/images/ai-logo-mobile-white.png'
-      : '/assets/images/ai-logo-mobile.png'
+  const lumyMobileImage = '/assets/images/ai-logo-mobile.svg'
 
   const onClickCopy = () => {
     trackClicked(ClickEvent.CopyAddressClicked, {
@@ -102,13 +100,21 @@ export default function LumyPage() {
         bg='grey.50'
         mt={isMobile ? '16px' : 0}
       >
-        <img
-          src={isMobile ? lumyMobileImage : '/assets/images/ai-logo-main.png'}
-          alt='ai-logo'
-          style={{
-            marginTop: -16,
-          }}
-        />
+        {isMobile ? (
+          <img
+            src={lumyMobileImage}
+            alt='ai-logo'
+            style={{
+              marginTop: -16,
+              width: isMobile ? '100%' : 'unset',
+            }}
+          />
+        ) : (
+          <Box mt={'-16px'}>
+            <LumyDesktopIcon />
+          </Box>
+        )}
+
         <Box px='16px'>
           <HStack w='full' justifyContent='center'>
             <Text
@@ -167,7 +173,7 @@ export default function LumyPage() {
                     </CopyToClipboard>
                   </HStack>
                 </Box>
-                <HStack gap='4px'>
+                <HStack gap='4px' color='white'>
                   <BaseWhiteIcon />
                   <TextWithPixels text='BASE NETWORK' {...captionRegular} color='white' />
                 </HStack>

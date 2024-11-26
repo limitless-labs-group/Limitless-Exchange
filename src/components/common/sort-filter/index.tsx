@@ -62,6 +62,7 @@ export default function SortFilter({ onChange }: SortFilterProps) {
             color={'grey.800'}
             p={'2px 12px 2px 12px'}
             marginInlineStart='0px !important'
+            position={isMobile ? 'unset' : 'relative'}
           >
             {option}
           </Button>

@@ -74,13 +74,13 @@ export default function DailyMarketTimer({
 
   return (
     <HStack gap='8px'>
-      <Text {...paragraphRegular} color='grey.500'>
+      <Text {...paragraphRegular} color={color || 'grey.500'}>
         Ends {new Date(deadline).getTime() - new Date().getTime() > 86400000 ? 'on' : 'in'}
       </Text>
       {new Date(deadline).getTime() - new Date().getTime() > 86400000 ? (
         <HStack gap={isMobile ? '8px' : '4px'} color={color} {...props}>
           <CalendarIcon width={16} height={16} />
-          <Text {...paragraphMedium} color={color} {...props}>
+          <Text {...paragraphRegular} color={color} {...props}>
             {deadlineText}
           </Text>
         </HStack>
@@ -98,7 +98,7 @@ export default function DailyMarketTimer({
               }) ${deadlineLeftInPercent.toFixed(0)}% 100%)`}
             />
           </Box>
-          <Text {...paragraphMedium} color={color} {...props}>
+          <Text {...paragraphRegular} color={color} {...props}>
             {formatTime({ ...timeRemaining, showDays })}
           </Text>
         </HStack>
