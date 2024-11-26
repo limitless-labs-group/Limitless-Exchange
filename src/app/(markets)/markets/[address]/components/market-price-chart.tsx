@@ -203,7 +203,7 @@ export const MarketPriceChart = () => {
 
   return !prices ? (
     <Box my='16px'>
-      <Skeleton height={230} />
+      <Skeleton height={290} />
     </Box>
   ) : (
     <Paper my='16px' py='8px' px={0} bg='grey.100'>
