@@ -50,7 +50,6 @@ export const MarketPriceChart = () => {
       backgroundColor: colors.grey['100'],
       marginLeft: 50,
       marginRight: 0,
-      spacingRight: 8,
     },
     title: {
       text: undefined,
