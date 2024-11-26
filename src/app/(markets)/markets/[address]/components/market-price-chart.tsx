@@ -202,7 +202,9 @@ export const MarketPriceChart = () => {
   }, [prices, winningIndex, resolved])
 
   return !prices ? (
-    <Skeleton height={230} />
+    <Box my='16px'>
+      <Skeleton height={230} />
+    </Box>
   ) : (
     <Paper my='16px' py='8px' px={0} bg='grey.100'>
       {/*{marketGroup ? (*/}
