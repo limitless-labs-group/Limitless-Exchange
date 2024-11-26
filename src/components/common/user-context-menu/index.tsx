@@ -39,6 +39,7 @@ export const UserContextMenu = ({ username, userAccount }: UserContextMenuProps)
         _hover={{ bg: 'grey.200' }}
         borderRadius='12px'
         p='4px'
+        color='red.500'
       >
         <BlockUserIcon />
         <Text {...paragraphMedium} color='red.500'>
