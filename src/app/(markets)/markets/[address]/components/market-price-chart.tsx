@@ -61,7 +61,7 @@ export const MarketPriceChart = () => {
       lineColor: colors.grey['200'],
       tickColor: colors.grey['200'],
       tickLength: 0,
-      max: data ? data[data.length - 1][0] : new Date().getTime(),
+      max: getMaxChartTimestamp(data),
       labels: {
         step: 0,
         rotation: 0,
