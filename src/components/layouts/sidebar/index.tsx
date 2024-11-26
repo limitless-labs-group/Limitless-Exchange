@@ -53,6 +53,7 @@ import {
   ProfileBurgerMenuClickedMetadata,
   useAccount,
   useAmplitude,
+  useBalanceQuery,
   useBalanceService,
   useEtherspot,
 } from '@/services'
@@ -65,6 +66,7 @@ export default function Sidebar() {
   const { disconnectFromPlatform, displayName, profileData, profileLoading } = useAccount()
   const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
+  const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
   const account = useWalletAddress()
   const { isConnected, isConnecting } = useWagmiAccount()
@@ -114,7 +116,7 @@ export default function Sidebar() {
   }
 
   const walletTypeActionButton = useMemo(() => {
-    const smartWalletBalanceLoading = client !== 'eoa' && balanceLoading
+    const smartWalletBalanceLoading = (client !== 'eoa' && balanceLoading) || !balanceOfSmartWallet
     if (userMenuLoading || smartWalletBalanceLoading) {
       return (
         <Box w='full'>
@@ -158,7 +160,14 @@ export default function Sidebar() {
         </HStack>
       </Button>
     )
-  }, [client, isOpenWalletPage, overallBalanceUsd, userMenuLoading, balanceLoading])
+  }, [
+    client,
+    isOpenWalletPage,
+    overallBalanceUsd,
+    userMenuLoading,
+    balanceLoading,
+    balanceOfSmartWallet,
+  ])
 
   const volumeArray = totalVolume
     ? `$${NumberUtil.formatThousands(totalVolume.toFixed(0), 0)}`.split('')
