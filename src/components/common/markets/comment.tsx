@@ -1,17 +1,8 @@
-import { Box, HStack, MenuItem, Text, VStack } from '@chakra-ui/react'
+import { HStack, Text, VStack } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
+import { useAccount } from 'wagmi'
 import { useTimeAgo } from '@/hooks/use-time-ago'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import ReplyIcon from '@/resources/icons/reply-icon.svg'
-import ShareIcon from '@/resources/icons/share-icon.svg'
-import { useAccount, useCommentService } from '@/services'
-import {
-  captionMedium,
-  captionRegular,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
+import { captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { CommentType } from '@/types'
 import Avatar from '../avatar'
 import { UserContextMenu } from '../user-context-menu'
@@ -24,6 +15,7 @@ export type CommentProps = {
 export default function Comment({ comment, isReply }: CommentProps) {
   const time = useTimeAgo(comment.createdAt)
   const name = comment.author.displayName ?? comment.author?.username
+  const { isConnected } = useAccount()
 
   //commented stuff will be needed in future
 
@@ -40,7 +32,12 @@ export default function Comment({ comment, isReply }: CommentProps) {
             {time}
           </Text>
         </HStack>
-        <UserContextMenu />
+        {isConnected && (
+          <UserContextMenu
+            username={comment.author?.displayName}
+            userAccount={comment.author?.account}
+          />
+        )}
       </HStack>
       <VStack gap='8px' align='start'>
         <Text {...paragraphRegular}>{comment.content}</Text>

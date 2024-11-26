@@ -2,6 +2,7 @@ import { Box, HStack, Link, Text } from '@chakra-ui/react'
 import { ethers } from 'ethers'
 import { PropsWithChildren, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
+import { useAccount } from 'wagmi'
 import Avatar from '@/components/common/avatar'
 import { UserContextMenu } from '@/components/common/user-context-menu'
 import { defaultChain } from '@/constants'
@@ -26,6 +27,7 @@ export default function MarketFeedCardContainer({
   isActivityTab = false,
 }: PropsWithChildren<MarketFeedCardContainer>) {
   const timePassed = timeSinceCreation(timestamp)
+  const { isConnected } = useAccount()
   const bottomPadding = useMemo(() => {
     if (isActivityTab) {
       return 0
@@ -82,7 +84,9 @@ export default function MarketFeedCardContainer({
             {timePassed}
           </Text>
         </HStack>
-        {eventType === FeedEventType.NewTrade ? <UserContextMenu /> : null}
+        {eventType === FeedEventType.NewTrade && isConnected ? (
+          <UserContextMenu userAccount={user.account} username={user.name} />
+        ) : null}
       </HStack>
       <Text
         {...paragraphRegular}

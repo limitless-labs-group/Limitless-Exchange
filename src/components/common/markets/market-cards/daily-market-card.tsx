@@ -31,14 +31,14 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
   const [estimateOpened, setEstimateOpened] = useState(false)
   const { onOpenMarketPage, market: selectedMarket } = useTradingService()
   const router = useRouter()
-  const { data: marketFeedData } = useMarketFeed(market.address)
+  const { data: marketFeedData } = useMarketFeed(market?.address || '')
 
   const { data: yesReturn, isLoading: yesLoading } = useCalculateYesReturn(
-    market.address,
+    market?.address,
     estimateOpened
   )
   const { data: noReturn, isLoading: noLoading } = useCalculateNoReturn(
-    market.address,
+    market?.address,
     estimateOpened
   )
 
@@ -70,7 +70,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
     return null
   }, [marketFeedData])
 
-  const isLumy = market.category === 'Lumy'
+  const isLumy = market?.category === 'Lumy'
 
   const { trackClicked } = useAmplitude()
 
@@ -148,26 +148,26 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
       <Paper flex={1} w={'100%'} position='relative' cursor='pointer' p='14px'>
         <VStack w='full' gap='32px'>
           <Box w='full'>
-            <DailyMarketTimer
-              deadline={market.expirationTimestamp}
-              deadlineText={market.expirationDate}
-              {...paragraphRegular}
-              color='grey.500'
-            />
-            <Text {...paragraphBold} fontSize='20px' mt='4px'>
-              {market.title}
-            </Text>
+            {/*<DailyMarketTimer*/}
+            {/*  deadline={market.expirationTimestamp}*/}
+            {/*  deadlineText={market.expirationDate}*/}
+            {/*  {...paragraphRegular}*/}
+            {/*  color='grey.500'*/}
+            {/*/>*/}
+            {/*<Text {...paragraphBold} fontSize='20px' mt='4px'>*/}
+            {/*  {market.title}*/}
+            {/*</Text>*/}
           </Box>
           <Box w='full'>
             <HStack w='full' justifyContent='space-between' mb='4px'>
               <Text {...paragraphMedium} color='#0FC591'>
-                Yes {market.prices[0]}% (Predicted to Happen)
+                Yes {market?.prices[0]}% (Predicted to Happen)
               </Text>
               <Text {...paragraphMedium} color='#FF3756'>
-                No {market.prices[1]}% (Unlikely to Happen)
+                No {market?.prices[1]}% (Unlikely to Happen)
               </Text>
             </HStack>
-            <ProgressBar variant='market' value={market.prices[0]} />
+            {/*<ProgressBar variant='market' value={market.prices[0]} />*/}
           </Box>
           <Box w='full'>
             <Divider orientation='horizontal' borderColor='grey.200' color='grey.200' />
@@ -183,16 +183,16 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                 >
                   ⚖️ Join the Prediction
                 </Button>
-                {market.collateralToken.symbol === 'USDC' && (
-                  <Button
-                    variant='transparent'
-                    onClick={onEstimteEarningOpenClicked}
-                    py='8px'
-                    h='unset'
-                  >
-                    🤑 Estimate Earnings
-                  </Button>
-                )}
+                {/*{market.collateralToken.symbol === 'USDC' && (*/}
+                {/*  <Button*/}
+                {/*    variant='transparent'*/}
+                {/*    onClick={onEstimteEarningOpenClicked}*/}
+                {/*    py='8px'*/}
+                {/*    h='unset'*/}
+                {/*  >*/}
+                {/*    🤑 Estimate Earnings*/}
+                {/*  </Button>*/}
+                {/*)}*/}
               </HStack>
               <HStack gap='4px'>
                 <HStack gap='4px'>
@@ -205,10 +205,10 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                     Volume
                   </Text>
                 </HStack>
-                <Text {...paragraphRegular} color='grey.500'>
-                  {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
-                  {market.collateralToken.symbol}
-                </Text>
+                {/*<Text {...paragraphRegular} color='grey.500'>*/}
+                {/*  {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}*/}
+                {/*  {market.collateralToken.symbol}*/}
+                {/*</Text>*/}
               </HStack>
             </HStack>
           </Box>
@@ -293,6 +293,6 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
   return isLumy ? (
     content
   ) : (
-    <MarketCardLink marketAddress={market.address}>{content}</MarketCardLink>
+    <MarketCardLink marketAddress={market?.address}>{content}</MarketCardLink>
   )
 }
