@@ -148,15 +148,15 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
       <Paper flex={1} w={'100%'} position='relative' cursor='pointer' p='14px'>
         <VStack w='full' gap='32px'>
           <Box w='full'>
-            {/*<DailyMarketTimer*/}
-            {/*  deadline={market.expirationTimestamp}*/}
-            {/*  deadlineText={market.expirationDate}*/}
-            {/*  {...paragraphRegular}*/}
-            {/*  color='grey.500'*/}
-            {/*/>*/}
-            {/*<Text {...paragraphBold} fontSize='20px' mt='4px'>*/}
-            {/*  {market.title}*/}
-            {/*</Text>*/}
+            <DailyMarketTimer
+              deadline={market.expirationTimestamp}
+              deadlineText={market.expirationDate}
+              {...paragraphRegular}
+              color='grey.500'
+            />
+            <Text {...paragraphBold} fontSize='20px' mt='4px'>
+              {market.title}
+            </Text>
           </Box>
           <Box w='full'>
             <HStack w='full' justifyContent='space-between' mb='4px'>
@@ -167,7 +167,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                 No {market?.prices[1]}% (Unlikely to Happen)
               </Text>
             </HStack>
-            {/*<ProgressBar variant='market' value={market.prices[0]} />*/}
+            <ProgressBar variant='market' value={market.prices[0]} />
           </Box>
           <Box w='full'>
             <Divider orientation='horizontal' borderColor='grey.200' color='grey.200' />
@@ -183,16 +183,16 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                 >
                   ⚖️ Join the Prediction
                 </Button>
-                {/*{market.collateralToken.symbol === 'USDC' && (*/}
-                {/*  <Button*/}
-                {/*    variant='transparent'*/}
-                {/*    onClick={onEstimteEarningOpenClicked}*/}
-                {/*    py='8px'*/}
-                {/*    h='unset'*/}
-                {/*  >*/}
-                {/*    🤑 Estimate Earnings*/}
-                {/*  </Button>*/}
-                {/*)}*/}
+                {market.collateralToken.symbol === 'USDC' && (
+                  <Button
+                    variant='transparent'
+                    onClick={onEstimteEarningOpenClicked}
+                    py='8px'
+                    h='unset'
+                  >
+                    🤑 Estimate Earnings
+                  </Button>
+                )}
               </HStack>
               <HStack gap='4px'>
                 <HStack gap='4px'>
@@ -205,10 +205,10 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                     Volume
                   </Text>
                 </HStack>
-                {/*<Text {...paragraphRegular} color='grey.500'>*/}
-                {/*  {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}*/}
-                {/*  {market.collateralToken.symbol}*/}
-                {/*</Text>*/}
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
+                  {market.collateralToken.symbol}
+                </Text>
               </HStack>
             </HStack>
           </Box>
