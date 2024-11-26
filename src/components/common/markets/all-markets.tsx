@@ -24,7 +24,7 @@ export default function AllMarkets({
 }: AllMarketsProps) {
   return (
     <>
-      <Box px={isMobile ? '16px' : 0}>
+      <Box px={isMobile ? '16px' : 0} mt='40px'>
         <Divider orientation='horizontal' borderColor='grey.800' />
         <Text {...headlineRegular} mb={isMobile ? '8px' : '4px'} mt={isMobile ? '8px' : '4px'}>
           / All markets {isLoading ? '' : `(${totalAmount})`}

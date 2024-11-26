@@ -15,12 +15,12 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
+import NextLink from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
-import Avatar from '@/components/common/avatar'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
@@ -35,7 +35,7 @@ import {
   SellForm,
 } from '@/app/(markets)/markets/[address]/components'
 import CommentTab from './comment-tab'
-import { useMarketFeed } from '@/hooks/use-market-feed'
+import { UniqueTraders } from './unique-traders'
 import useMarketGroup from '@/hooks/use-market-group'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
@@ -49,7 +49,6 @@ import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import {
   ChangeEvent,
   ClickEvent,
-  OpenEvent,
   StrategyChangedMetadata,
   useAmplitude,
   useHistory,
@@ -101,13 +100,11 @@ export default function MarketPage() {
     refetchMarkets,
   } = useTradingService()
 
-  const { data: marketFeedData } = useMarketFeed(market?.address)
-
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const { trackChanged, trackClicked, trackOpened } = useAmplitude()
+  const { trackChanged, trackClicked } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
 
   // Todo change creator name
@@ -142,24 +139,28 @@ export default function MarketPage() {
 
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
-  const isLivePriceSupportedMarket = [
-    'Will AAVE',
-    'Will APE',
-    'Will ATOM',
-    'Will APT',
-    'Will BRETT',
-    'Will BTC',
-    'Will DOGE',
-    'Will EIGEN',
-    'Will ENS',
-    'Will ETH',
-    'Will FLOKI',
-    'Will RENDER',
-    'Will SOL',
-    'Will SUI',
-    'Will ZRO',
-    'Will ZK',
-  ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
+  const isLumy = market?.category === 'Lumy'
+
+  const isLivePriceSupportedMarket =
+    isLumy &&
+    [
+      'Will AAVE',
+      'Will APE',
+      'Will ATOM',
+      'Will APT',
+      'Will BRETT',
+      'Will BTC',
+      'Will DOGE',
+      'Will EIGEN',
+      'Will ENS',
+      'Will ETH',
+      'Will FLOKI',
+      'Will RENDER',
+      'Will SOL',
+      'Will SUI',
+      'Will ZRO',
+      'Will ZK',
+    ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = [
     {
@@ -224,13 +225,11 @@ export default function MarketPage() {
   }
 
   const handleFullPageClicked = () => {
-    router.push(`/markets/${market?.address}`)
     trackClicked(ClickEvent.FullPageClicked, {
       marketAddress: market?.address,
       marketType: 'single',
       marketTags: market?.tags,
     })
-    onCloseMarketPage()
   }
 
   const handleChartTabClicked = (event: ClickEvent) =>
@@ -269,40 +268,9 @@ export default function MarketPage() {
     }
   }, [])
 
-  const deadlineLeftInPercent = market
-    ? ((market.expirationTimestamp - new Date().getTime()) /
-        (market.expirationTimestamp - new Date(market.createdAt).getTime())) *
-      100
-    : 1
-
-  const uniqueUsersTrades = useMemo(() => {
-    if (marketFeedData?.data.length) {
-      const uniqueUsers = new Map()
-
-      for (const event of marketFeedData.data) {
-        if (!uniqueUsers.has(event.user?.account)) {
-          uniqueUsers.set(event.user?.account, event)
-        }
-        if (uniqueUsers.size >= 3) break
-      }
-
-      return Array.from(uniqueUsers.values())
-    }
-    return null
-  }, [marketFeedData])
-
-  useEffect(() => {
-    trackOpened(OpenEvent.SidebarMarketOpened, {
-      marketAddress: market?.address,
-      marketTags: market?.tags,
-      marketType: 'single',
-      category: market?.category,
-    })
-  }, [market?.address])
-
   return (
     <Box
-      bg='grey.50'
+      bg='background.90'
       borderLeft={isMobile ? 'unset' : '1px solid'}
       borderColor='grey.100'
       w={isMobile ? 'full' : '488px'}
@@ -314,6 +282,7 @@ export default function MarketPage() {
       p={isMobile ? '12px' : '16px'}
       pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
+      backdropFilter='blur(7.5px)'
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
@@ -322,43 +291,31 @@ export default function MarketPage() {
               <CloseIcon width={16} height={16} />
               Close
             </Button>
-            <Button variant='grey' onClick={handleFullPageClicked}>
-              <ExpandIcon width={16} height={16} />
-              Full page
-            </Button>
+            <NextLink href={`/markets/${market?.address}`}>
+              <Button variant='grey' onClick={handleFullPageClicked}>
+                <ExpandIcon width={16} height={16} />
+                Full page
+              </Button>
+            </NextLink>
           </HStack>
           <ShareMenu />
         </HStack>
       )}
-      <HStack w='full' mb='8px' justifyContent='space-between' mt={isMobile ? 0 : '20px'}>
-        <HStack gap='8px'>
-          <Box>
-            <Text {...paragraphRegular} color='grey.500'>
-              Ends in
-            </Text>
-          </Box>
-          <HStack gap='4px'>
-            <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
-              <Box
-                h='100%'
-                w='100%'
-                borderRadius='100%'
-                bg={`conic-gradient(var(--chakra-colors-transparent-700) ${deadlineLeftInPercent.toFixed(
-                  0
-                )}% 10%, var(--chakra-colors-transparent-200) ${deadlineLeftInPercent.toFixed(
-                  0
-                )}% 100%)`}
-              />
-            </Box>
-            {market && (
-              <DailyMarketTimer
-                deadline={market.expirationTimestamp}
-                {...paragraphRegular}
-                color='grey.500'
-              />
-            )}
-          </HStack>
-        </HStack>
+      <HStack
+        w='full'
+        mb='8px'
+        justifyContent='space-between'
+        mt={isMobile ? 0 : '20px'}
+        flexWrap='wrap'
+      >
+        {market && (
+          <DailyMarketTimer
+            deadline={market.expirationTimestamp}
+            deadlineText={market.expirationDate}
+            {...paragraphRegular}
+            color='grey.500'
+          />
+        )}
         <HStack gap='8px' flexWrap='wrap'>
           <Text {...paragraphRegular} color='grey.500'>
             Created by
@@ -391,14 +348,10 @@ export default function MarketPage() {
           </Text>
         </HStack>
         <ProgressBar variant='market' value={market ? market.prices[0] : 50} />
-        <HStack gap='8px' justifyContent='space-between' mt='8px'>
+        <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
             <HStack gap='4px'>
-              {uniqueUsersTrades?.map(({ user }, index) => (
-                <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
-                  <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
-                </Box>
-              ))}
+              <UniqueTraders color='grey.50' />
               <Text {...paragraphRegular} color='grey.500'>
                 Volume
               </Text>
@@ -408,11 +361,7 @@ export default function MarketPage() {
               {market?.collateralToken.symbol}
             </Text>
           </HStack>
-          <HStack
-            gap='4px'
-            w={isMobile ? 'full' : 'unset'}
-            justifyContent={isMobile ? 'flex-end' : 'unset'}
-          >
+          <HStack gap='4px' w={isMobile ? 'full' : 'unset'} justifyContent='unset'>
             <Box {...paragraphRegular}>💧 </Box>
             <Text {...paragraphRegular} color='grey.500'>
               Liquidity {NumberUtil.convertWithDenomination(market?.liquidityFormatted, 6)}{' '}
@@ -423,7 +372,8 @@ export default function MarketPage() {
         <Divider my={isMobile ? '24px' : '16px'} />
       </Box>
       {market?.expired ? (
-        <Paper h={isMobile ? '348px' : '332px'}>
+        <Paper h={'120px'}>
+          {/*<Paper h={isMobile ? '348px' : '332px'}>*/}
           <VStack h='full' justifyContent='space-between' alignItems='flex-start'>
             <Text {...paragraphMedium} color='grey.800'>
               Market is closed

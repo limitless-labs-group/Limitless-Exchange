@@ -68,7 +68,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
         ethers.utils.isAddress(feedMessage?.user?.name ?? '')
           ? truncateEthAddress(feedMessage?.user?.account)
           : feedMessage?.user?.name
-          ? cutUsername(feedMessage.user.name, 30)
+          ? cutUsername(feedMessage.user.name, 25)
           : truncateEthAddress(feedMessage?.user?.account)
       }
          ${title} ${outcome} outcome for ${NumberUtil.convertWithDenomination(
@@ -94,11 +94,6 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
     return null
   }, [marketFeedData])
 
-  const deadlineLeftInPercent =
-    ((market.expirationTimestamp - new Date().getTime()) /
-      (market.expirationTimestamp - new Date(market.createdAt).getTime())) *
-    100
-
   const content = (
     <VStack
       w='full'
@@ -111,32 +106,15 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
       cursor='pointer'
       onClick={(e) => onClickRedirectToMarket(e)}
     >
-      <HStack gap='8px' w='full'>
-        <Box>
-          <Text {...paragraphRegular} color='transparent.700'>
-            Ends in
-          </Text>
-        </Box>
-        <HStack gap='4px'>
-          <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
-            <Box
-              h='100%'
-              w='100%'
-              borderRadius='100%'
-              bg={`conic-gradient(var(--chakra-colors-transparent-700) ${deadlineLeftInPercent.toFixed(
-                0
-              )}% 10%, var(--chakra-colors-transparent-200) ${deadlineLeftInPercent.toFixed(
-                0
-              )}% 100%)`}
-            />
-          </Box>
-          <DailyMarketTimer
-            deadline={market.expirationTimestamp}
-            {...paragraphRegular}
-            color='transparent.700'
-          />
-        </HStack>
-      </HStack>
+      <Box w='full'>
+        <DailyMarketTimer
+          deadline={market.expirationTimestamp}
+          deadlineText={market.expirationDate}
+          topMarket={true}
+          {...paragraphRegular}
+          color='transparent.700'
+        />
+      </Box>
       <Text {...headLineLarge} color='white' textAlign='left'>
         {market.proxyTitle ?? market.title ?? 'Noname market'}
       </Text>
@@ -164,11 +142,26 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
         {isMobile ? (
           <HStack w='full' justifyContent='space-between'>
             <HStack gap='4px' mt='8px'>
-              {uniqueUsersTrades?.map(({ user }, index) => (
-                <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
-                  <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
-                </Box>
-              ))}
+              <HStack gap={0}>
+                {uniqueUsersTrades?.map(({ user }, index) => (
+                  <Avatar
+                    account={user.account || ''}
+                    avatarUrl={user.imageURI}
+                    key={index}
+                    borderColor='#4905a1'
+                    zIndex={100 + index}
+                    border='2px solid'
+                    size='20px'
+                    color='#4905a1 !important'
+                    showBorder
+                    bg='#4905a1'
+                    style={{
+                      border: '2px solid',
+                      marginLeft: index > 0 ? '-6px' : 0,
+                    }}
+                  />
+                ))}
+              </HStack>
               <Text {...paragraphRegular} color='transparent.700'>
                 Volume
               </Text>

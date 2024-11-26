@@ -115,7 +115,7 @@ export default function MobileDrawer({
             position: 'fixed',
             inset: 0,
             background: 'rgba(0, 0, 0, 0.3)',
-            zIndex: 400,
+            zIndex: 99999,
           }}
         />
         <Drawer.Content
@@ -128,7 +128,7 @@ export default function MobileDrawer({
             bottom: 0,
             left: 0,
             right: 0,
-            zIndex: 500,
+            zIndex: 99999,
             outline: 'none',
           }}
         >

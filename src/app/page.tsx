@@ -212,11 +212,7 @@ const MainPage = () => {
           <>
             <TopMarkets markets={topMarkets as Market[]} isLoading={isLoadingDailyMarkets} />
             <DailyMarketsSection
-              markets={
-                isMobile
-                  ? dailyMarkets?.data.markets
-                  : dailyMarkets?.data.markets.slice((page - 1) * 6, page * 6)
-              }
+              markets={dailyMarkets?.data.markets}
               isLoading={isLoadingDailyMarkets}
               totalAmount={dailyMarkets?.data.totalAmount}
             />
