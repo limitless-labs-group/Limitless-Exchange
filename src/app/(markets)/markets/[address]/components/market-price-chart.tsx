@@ -30,6 +30,16 @@ export const MarketPriceChart = () => {
     refetchPrices()
   }, [market])
 
+  const getMaxChartTimestamp = (data?: number[][]) => {
+    if (market) {
+      if (new Date().getTime() > market.expirationTimestamp) {
+        return market.expirationTimestamp + 1200000
+      }
+      return data ? data[data.length - 1][0] : new Date().getTime()
+    }
+    return new Date().getTime()
+  }
+
   // Function to generate chart options
   const getChartOptions = (data: number[][] | undefined): Highcharts.Options => ({
     chart: {
@@ -51,7 +61,7 @@ export const MarketPriceChart = () => {
       lineColor: colors.grey['200'],
       tickColor: colors.grey['200'],
       tickLength: 0,
-      max: data ? data[data.length - 1][0] : new Date().getTime(),
+      max: getMaxChartTimestamp(data),
       labels: {
         step: 0,
         rotation: 0,
