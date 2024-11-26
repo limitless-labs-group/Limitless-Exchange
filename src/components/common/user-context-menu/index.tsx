@@ -48,7 +48,8 @@ export const UserContextMenu = ({ username, userAccount }: UserContextMenuProps)
       </HStack>
       <Box color='grey.500'>
         You will no longer see activities or comments from{' '}
-        {cutUsername(username as string) || cutUsername(userAccount as string)} after blocking
+        {username ? cutUsername(username as string) : cutUsername(userAccount as string)} after
+        blocking
       </Box>
     </>
   )
