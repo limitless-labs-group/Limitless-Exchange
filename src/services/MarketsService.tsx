@@ -184,7 +184,7 @@ export function useDailyMarkets(topic: Category | null) {
       const { data: response }: AxiosResponse<{ data: Market[]; totalMarketsCount: number }> =
         await axios.get(marketBaseUrl, {
           params: {
-            limit: 30,
+            limit: 50,
           },
         })
 

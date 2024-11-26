@@ -42,6 +42,7 @@ export interface IAccountContext {
     UpdateProfileData,
     unknown
   >
+  onBlockUser: UseMutationResult<void, Error, { account: Address }>
 }
 
 const AccountContext = createContext({} as IAccountContext)
@@ -104,6 +105,25 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   })
 
   const { mutateAsync: login } = useLogin()
+
+  const onBlockUser = useMutation({
+    mutationKey: ['block-user', account],
+    mutationFn: async (data: { account: Address }) => {
+      await privateClient.put(`/profiles/${data.account}/block`)
+      await queryClient.invalidateQueries({
+        queryKey: ['feed'],
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['market-comments'],
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['market-page-feed'],
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['market-feed'],
+      })
+    },
+  })
 
   const onCreateProfile = async () => {
     await login({ client, account })
@@ -283,6 +303,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     profileLoading,
     profileData,
     updateProfileMutation,
+    onBlockUser,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>

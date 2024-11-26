@@ -1,20 +1,21 @@
 import {
-  Button,
-  HStack,
-  Link,
-  Text,
-  Image as ChakraImage,
   Box,
+  Button,
   Divider,
-  VStack,
-  TabList,
+  HStack,
+  Image as ChakraImage,
+  Link,
   Tab,
   TabIndicator,
-  TabPanels,
+  TabList,
   TabPanel,
+  TabPanels,
   Tabs,
+  Text,
   useDisclosure,
+  VStack,
 } from '@chakra-ui/react'
+import NextLink from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -27,18 +28,20 @@ import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
 import ShareMenu from '@/components/common/markets/share-menu'
 import Paper from '@/components/common/paper'
+import ProgressBar from '@/components/common/progress-bar'
 import {
   LoadingForm,
   MarketPriceChart,
   SellForm,
 } from '@/app/(markets)/markets/[address]/components'
 import CommentTab from './comment-tab'
+import { UniqueTraders } from './unique-traders'
 import useMarketGroup from '@/hooks/use-market-group'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
-import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
+import ExpandIcon from '@/resources/icons/expand-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
@@ -60,12 +63,6 @@ import {
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
-
-const defaultColors = {
-  main: 'var(--chakra-colors-grey-800)',
-  secondary: 'var(--chakra-colors-grey-500)',
-  chartBg: 'var(--chakra-colors-grey-300)',
-}
 
 const tokens = [
   'AAVE',
@@ -142,24 +139,28 @@ export default function MarketPage() {
 
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
-  const isLivePriceSupportedMarket = [
-    'Will AAVE',
-    'Will APE',
-    'Will ATOM',
-    'Will APT',
-    'Will BRETT',
-    'Will BTC',
-    'Will DOGE',
-    'Will EIGEN',
-    'Will ENS',
-    'Will ETH',
-    'Will FLOKI',
-    'Will RENDER',
-    'Will SOL',
-    'Will SUI',
-    'Will ZRO',
-    'Will ZK',
-  ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
+  const isLumy = market?.category === 'Lumy'
+
+  const isLivePriceSupportedMarket =
+    isLumy &&
+    [
+      'Will AAVE',
+      'Will APE',
+      'Will ATOM',
+      'Will APT',
+      'Will BRETT',
+      'Will BTC',
+      'Will DOGE',
+      'Will EIGEN',
+      'Will ENS',
+      'Will ETH',
+      'Will FLOKI',
+      'Will RENDER',
+      'Will SOL',
+      'Will SUI',
+      'Will ZRO',
+      'Will ZK',
+    ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = [
     {
@@ -223,6 +224,14 @@ export default function MarketPage() {
     })
   }
 
+  const handleFullPageClicked = () => {
+    trackClicked(ClickEvent.FullPageClicked, {
+      marketAddress: market?.address,
+      marketType: 'single',
+      marketTags: market?.tags,
+    })
+  }
+
   const handleChartTabClicked = (event: ClickEvent) =>
     trackClicked(event, {
       marketAddress: market?.address,
@@ -261,7 +270,7 @@ export default function MarketPage() {
 
   return (
     <Box
-      bg='grey.50'
+      bg='background.90'
       borderLeft={isMobile ? 'unset' : '1px solid'}
       borderColor='grey.100'
       w={isMobile ? 'full' : '488px'}
@@ -273,100 +282,98 @@ export default function MarketPage() {
       p={isMobile ? '12px' : '16px'}
       pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
+      backdropFilter='blur(7.5px)'
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
-          <Button variant='grey' onClick={handleCloseMarketPageClicked}>
-            <CloseIcon width={16} height={16} />
-            Close
-          </Button>
+          <HStack gap='16px'>
+            <Button variant='grey' onClick={handleCloseMarketPageClicked}>
+              <CloseIcon width={16} height={16} />
+              Close
+            </Button>
+            <NextLink href={`/markets/${market?.address}`}>
+              <Button variant='grey' onClick={handleFullPageClicked}>
+                <ExpandIcon width={16} height={16} />
+                Full page
+              </Button>
+            </NextLink>
+          </HStack>
           <ShareMenu />
         </HStack>
       )}
       <HStack
         w='full'
+        mb='8px'
         justifyContent='space-between'
-        alignItems='flex-start'
-        mt={isMobile ? 0 : '10px'}
+        mt={isMobile ? 0 : '20px'}
+        flexWrap='wrap'
       >
+        {market && (
+          <DailyMarketTimer
+            deadline={market.expirationTimestamp}
+            deadlineText={market.expirationDate}
+            {...paragraphRegular}
+            color='grey.500'
+          />
+        )}
+        <HStack gap='8px' flexWrap='wrap'>
+          <Text {...paragraphRegular} color='grey.500'>
+            Created by
+          </Text>
+          <ChakraImage
+            width={6}
+            height={6}
+            src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+            alt='creator'
+            borderRadius={'2px'}
+          />
+          <Link href={market?.creator.link} variant='textLinkSecondary' fontWeight={400}>
+            {market?.creator.name}
+          </Link>
+        </HStack>
+      </HStack>
+      <HStack w='full' justifyContent='space-between' alignItems='flex-start'>
         <Text {...(isMobile ? { ...h2Medium } : { ...h1Regular })}>
           {marketGroup?.title || market?.proxyTitle || market?.title}
         </Text>
         {isMobile && <ShareMenu />}
       </HStack>
-      <HStack w='full' justifyContent='space-between' mt={isMobile ? '16px' : '10px'} mb='4px'>
-        <HStack gap={isMobile ? '16px' : '24px'}>
-          <HStack gap='4px' color='grey.500'>
-            <CalendarIcon width={16} height={16} />
-            {market?.expirationTimestamp &&
-            market.expirationTimestamp - new Date().getTime() < 1000 * 24 * 60 * 60 ? (
-              <DailyMarketTimer
-                deadline={market.expirationTimestamp}
-                color='grey.500'
-                showDays={false}
-              />
-            ) : (
-              <Text {...paragraphMedium} color='grey.500'>
-                {market?.expirationDate}
-              </Text>
-            )}
-          </HStack>
-          <HStack gap='8px' flexWrap='wrap'>
-            <ChakraImage
-              width={6}
-              height={6}
-              src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
-              alt='creator'
-              borderRadius={'2px'}
-            />
-            <Link href={market?.creator.link} variant='textLinkSecondary'>
-              {market?.creator.name}
-            </Link>
-          </HStack>
-        </HStack>
-        <HStack gap={1} color={defaultColors.main}>
-          <Text {...paragraphMedium} color={defaultColors.main}>
-            {market?.prices[0]}%
+      <Box w='full' mt={isMobile ? '56px' : '24px'}>
+        <HStack w='full' justifyContent='space-between' mb='4px'>
+          <Text {...paragraphMedium} color='#0FC591'>
+            Yes {market?.prices[0]}%
           </Text>
-          <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
-            <Box
-              h='100%'
-              w='100%'
-              borderRadius='100%'
-              bg={`conic-gradient(${defaultColors.main} ${market?.prices[0]}% 10%, ${defaultColors.chartBg} ${market?.prices[0]}% 100%)`}
-            />
-          </Box>
+          <Text {...paragraphMedium} color='#FF3756'>
+            No {market?.prices[1]}%
+          </Text>
         </HStack>
-      </HStack>
-      <Divider my='8px' />
-      <HStack w='full' mb={isMobile ? '32px' : '24px'} mt={isMobile ? '24px' : 0}>
-        <VStack alignItems='center' flex={1} gap={0}>
-          <HStack color='grey.400' gap='4px'>
-            <VolumeIcon width={16} height={16} />
-            <Text {...paragraphMedium} color='grey.400'>
-              Volume
+        <ProgressBar variant='market' value={market ? market.prices[0] : 50} />
+        <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
+          <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
+            <HStack gap='4px'>
+              <UniqueTraders />
+              <Text {...paragraphRegular} color='grey.500'>
+                Volume
+              </Text>
+            </HStack>
+            <Text {...paragraphRegular} color='grey.500'>
+              {NumberUtil.convertWithDenomination(market?.volumeFormatted, 6)}{' '}
+              {market?.collateralToken.symbol}
             </Text>
           </HStack>
-          <Text {...paragraphMedium} color='grey.500'>{`${NumberUtil.convertWithDenomination(
-            market?.volumeFormatted,
-            6
-          )} ${market?.collateralToken.symbol}`}</Text>
-        </VStack>
-        <VStack alignItems='center' flex={1} gap={0}>
-          <HStack color='grey.400' gap='4px'>
-            <LiquidityIcon width={16} height={16} />
-            <Text {...paragraphMedium} color='grey.400'>
-              Liquidity
+          <HStack gap='4px' w={isMobile ? 'full' : 'unset'} justifyContent='unset'>
+            <Box {...paragraphRegular}>💧 </Box>
+            <Text {...paragraphRegular} color='grey.500'>
+              Liquidity {NumberUtil.convertWithDenomination(market?.liquidityFormatted, 6)}{' '}
+              {market?.collateralToken.symbol}
             </Text>
           </HStack>
-          <Text {...paragraphMedium} color='grey.500'>{`${NumberUtil.convertWithDenomination(
-            market?.liquidityFormatted,
-            6
-          )} ${market?.collateralToken.symbol}`}</Text>
-        </VStack>
-      </HStack>
+        </HStack>
+        <Divider my={isMobile ? '24px' : '16px'} />
+      </Box>
       {market?.expired ? (
-        <Paper h={isMobile ? '348px' : '332px'}>
+        <Paper h={'120px'}>
+          {/*<Paper h={isMobile ? '348px' : '332px'}>*/}
           <VStack h='full' justifyContent='space-between' alignItems='flex-start'>
             <Text {...paragraphMedium} color='grey.800'>
               Market is closed

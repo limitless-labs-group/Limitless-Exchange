@@ -10,6 +10,7 @@ export default function FeedNewPost({ data }: FeedNewPostProps) {
   return (
     <MarketFeedCardContainer
       user={data.user}
+      eventType={data.eventType}
       timestamp={new Date(data.timestamp).getTime() / 1000}
       title={`${data.data.content}`}
     >

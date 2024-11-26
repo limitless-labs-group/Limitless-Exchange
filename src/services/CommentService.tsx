@@ -1,9 +1,11 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
 import { createContext, PropsWithChildren, useContext, useMemo } from 'react'
+import { useAccount as useWagmiAccount } from 'wagmi'
 import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { useToast } from '@/hooks'
+import { limitlessApi } from '@/services/LimitlessApi'
 import { CommentPost } from '@/types'
 
 export interface IUseCreateComment {
@@ -65,12 +67,15 @@ export const CommentServiceProvider = ({ children }: PropsWithChildren) => {
 export const useCommentService = () => useContext(CommentServiceContext)
 
 export const useMarketInfinityComments = (marketAddress?: string) => {
+  const { isConnected } = useWagmiAccount()
+  const privateClient = useAxiosPrivateClient()
   return useInfiniteQuery<Comment[], Error>({
     queryKey: ['market-comments', marketAddress],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      const response: AxiosResponse<Comment[]> = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/comments/markets/${marketAddress}`,
+      const client = isConnected ? privateClient : limitlessApi
+      const response: AxiosResponse<Comment[]> = await client.get(
+        `/comments/markets/${marketAddress}`,
         {
           params: {
             page: pageParam,

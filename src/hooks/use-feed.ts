@@ -1,14 +1,20 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
+import { useAccount as useWagmiAccount } from 'wagmi'
+import { limitlessApi } from '@/services'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { FeedEntity, FeedResponse } from '@/types'
 
 export function useFeed() {
+  const { isConnected } = useWagmiAccount()
+  const privateClient = useAxiosPrivateClient()
   return useInfiniteQuery<FeedEntity<unknown>[], Error>({
     queryKey: ['feed'],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/feed`
-      const response: AxiosResponse<FeedResponse> = await axios.get(baseUrl, {
+      const client = isConnected ? privateClient : limitlessApi
+      const response: AxiosResponse<FeedResponse> = await client.get('/feed', {
         params: {
           page: pageParam,
           limit: 10,

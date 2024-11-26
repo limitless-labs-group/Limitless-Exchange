@@ -9,7 +9,7 @@ import {
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useAccount } from '@/services'
-import { Address, MarketGroup } from '@/types'
+import { Address, Category, MarketGroup } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 
@@ -164,6 +164,9 @@ export enum ClickEvent {
   NextMarketClick = 'Next Market Click',
   PreviousMarketClick = 'Previous Market Click',
   TradingWidgetPricePrecetChosen = 'Trading Widget Price Preset Chosen',
+  FullPageClicked = 'Full Page Clicked',
+  JoinPredictionClicked = 'Join Prediction Clicked',
+  EstimateEarningClicked = 'Estimate Earnings Clicked',
 }
 
 export enum SignInEvent {
@@ -176,6 +179,7 @@ export enum OpenEvent {
   LoginWindowOpened = 'Login Window Opened',
   ProfileSettingsOpened = 'Profile Settings Opened',
   MarketPageOpened = 'Market Page Opened',
+  SidebarMarketOpened = 'Sidebar Market Opened',
 }
 
 export enum AuthenticationEvent {
@@ -285,6 +289,19 @@ export interface PageOpenedMetadata {
   marketAddress?: Address
   category?: string
   [key: string]: any
+}
+
+export interface SidebarMarketOpenedMetadata {
+  marketAddress?: Address
+  category?: Category | string
+  marketTags?: string[]
+  marketType: 'single' | 'group'
+}
+
+interface FullPageClickedMetaData {
+  marketAddress?: Address
+  marketType?: 'group' | 'single'
+  marketTags?: string[]
 }
 
 export interface CloseMarketMetadata {
@@ -407,8 +424,12 @@ export type ClickedEventMetadata =
   | MediumBannerClicked
   | CloseMarketMetadata
   | TradingWidgetPriceClickedMetadata
+  | FullPageClickedMetaData
 
-export type OpenedEventMetadata = PageOpenedMetadata | ProfileSettingsMetadata
+export type OpenedEventMetadata =
+  | PageOpenedMetadata
+  | ProfileSettingsMetadata
+  | SidebarMarketOpenedMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata
 export type CopiedEventMetadata = WalletAddressCopiedMetadata
 

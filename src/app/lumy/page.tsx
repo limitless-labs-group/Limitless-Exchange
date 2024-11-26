@@ -167,7 +167,7 @@ export default function LumyPage() {
                     </CopyToClipboard>
                   </HStack>
                 </Box>
-                <HStack gap='4px'>
+                <HStack gap='4px' color='white'>
                   <BaseWhiteIcon />
                   <TextWithPixels text='BASE NETWORK' {...captionRegular} color='white' />
                 </HStack>
