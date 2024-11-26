@@ -272,7 +272,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                     <Skeleton height={16} />
                   </Box>
                 ) : (
-                  <strong>{NumberUtil.formatThousands(yesReturn, 6)} USDC</strong>
+                  <strong>{NumberUtil.formatThousands(yesReturn, 2)} USDC</strong>
                 )}
               </HStack>
               <HStack gap={0}>
