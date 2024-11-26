@@ -6,6 +6,7 @@ import HighchartsReact from 'highcharts-react-official'
 import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
+import Skeleton from '@/components/common/skeleton'
 import { useMarketPriceHistory } from '@/hooks/use-market-price-history'
 import { useThemeProvider } from '@/providers'
 import { useTradingService } from '@/services'
@@ -200,7 +201,9 @@ export const MarketPriceChart = () => {
     return data
   }, [prices, winningIndex, resolved])
 
-  return (
+  return !prices ? (
+    <Skeleton height={230} />
+  ) : (
     <Paper my='16px' py='8px' px={0} bg='grey.100'>
       {/*{marketGroup ? (*/}
       {/*  <Menu isOpen={isMarketListOpen} onClose={onCloseMarketList} variant='transparent'>*/}
