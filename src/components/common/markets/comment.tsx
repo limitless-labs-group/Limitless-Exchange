@@ -22,9 +22,9 @@ export default function Comment({ comment, isReply }: CommentProps) {
   //commented stuff will be needed in future
 
   return (
-    <VStack w='full' gap='12px' align='start' opacity={messageBlocked ? 0.5 : 1}>
+    <VStack w='full' gap='12px' align='start'>
       <HStack w='full' justifyContent='space-between'>
-        <HStack>
+        <HStack opacity={messageBlocked ? 0.5 : 1}>
           <Avatar
             account={(comment.author?.account as string) ?? ''}
             avatarUrl={comment.author?.pfpUrl}
@@ -42,7 +42,7 @@ export default function Comment({ comment, isReply }: CommentProps) {
           />
         )}
       </HStack>
-      <VStack gap='8px' align='start'>
+      <VStack gap='8px' align='start' opacity={messageBlocked ? 0.5 : 1}>
         <Text {...paragraphRegular}>{comment.content}</Text>
         {/* {comment.contracts.yes || comment.contracts.no ? ( */}
         {/*   <HStack {...captionRegular} w='full' color='grey.500' gap='4px'> */}
