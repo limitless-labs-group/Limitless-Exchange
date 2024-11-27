@@ -26,7 +26,6 @@ import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
-import TextWithPixels from '@/components/common/text-with-pixels'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
@@ -440,12 +439,9 @@ export default function Sidebar() {
               borderRadius='8px'
             >
               {volumeArray.map((volumeSymbol, index) => (
-                <TextWithPixels
-                  key={index}
-                  text={volumeSymbol}
-                  highlightWord={1}
-                  {...paragraphRegular}
-                />
+                <Text key={index} {...paragraphRegular}>
+                  {volumeSymbol}
+                </Text>
               ))}
             </Paper>
           </NextLink>

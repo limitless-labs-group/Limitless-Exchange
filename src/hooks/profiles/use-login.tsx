@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Address, getAddress, toHex } from 'viem'
 import { useSignMessage } from 'wagmi'
 import { Toast } from '@/components/common/toast'
@@ -18,6 +18,7 @@ export const useLogin = () => {
   const { signMessage, smartWalletExternallyOwnedAccountAddress } = useEtherspot()
   const { signMessageAsync } = useSignMessage()
   const axiosInstance = useAxiosPrivateClient()
+  const queryClient = useQueryClient()
 
   const getSigningMsg = async () => {
     return axiosInstance.get(`/auth/signing-message`)
@@ -52,8 +53,8 @@ export const useLogin = () => {
       )
       return res.data as Profile
     },
-    onSuccess: () => {
-      // const id = toast({ render: () => <Toast id={id} title='Profile registered successfully' /> })
+    onSuccess: (updatedData, variables) => {
+      queryClient.setQueryData(['profiles', { account: variables.account }], updatedData)
     },
     onError: () => {
       const id = toast({ render: () => <Toast id={id} title='Failed to register profile' /> })

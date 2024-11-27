@@ -1,15 +1,12 @@
-import { Box, HStack, Text, VStack } from '@chakra-ui/react'
+import { HStack, Text, VStack } from '@chakra-ui/react'
+import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { useAccount } from 'wagmi'
 import { useTimeAgo } from '@/hooks/use-time-ago'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import ReplyIcon from '@/resources/icons/reply-icon.svg'
-import ShareIcon from '@/resources/icons/share-icon.svg'
-import Dots from '@/resources/icons/three-horizontal-dots.svg'
-import { useAccount, useCommentService } from '@/services'
-import { captionMedium, captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { CommentType } from '@/types'
 import Avatar from '../avatar'
+import { UserContextMenu } from '../user-context-menu'
 
 export type CommentProps = {
   comment: CommentType
@@ -19,13 +16,15 @@ export type CommentProps = {
 export default function Comment({ comment, isReply }: CommentProps) {
   const time = useTimeAgo(comment.createdAt)
   const name = comment.author.displayName ?? comment.author?.username
+  const { isConnected } = useAccount()
+  const [messageBlocked, setMessageBlocked] = useState(false)
 
   //commented stuff will be needed in future
 
   return (
     <VStack w='full' gap='12px' align='start'>
       <HStack w='full' justifyContent='space-between'>
-        <HStack>
+        <HStack opacity={messageBlocked ? 0.5 : 1}>
           <Avatar
             account={(comment.author?.account as string) ?? ''}
             avatarUrl={comment.author?.pfpUrl}
@@ -35,9 +34,15 @@ export default function Comment({ comment, isReply }: CommentProps) {
             {time}
           </Text>
         </HStack>
-        <Box cursor='pointer'>{/* <Dots /> */}</Box>
+        {isConnected && (
+          <UserContextMenu
+            username={comment.author?.displayName}
+            userAccount={comment.author?.account}
+            setMessageBlocked={setMessageBlocked}
+          />
+        )}
       </HStack>
-      <VStack gap='8px' align='start'>
+      <VStack gap='8px' align='start' opacity={messageBlocked ? 0.5 : 1}>
         <Text {...paragraphRegular}>{comment.content}</Text>
         {/* {comment.contracts.yes || comment.contracts.no ? ( */}
         {/*   <HStack {...captionRegular} w='full' color='grey.500' gap='4px'> */}

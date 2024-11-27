@@ -156,7 +156,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       tickColor: colors.grey['200'],
       labels: {
         style: {
-          fontFamily: 'Helvetica Neue',
+          fontFamily: 'Inter',
           fontSize: isMobile ? '14px' : '12px',
           fontWeight: 500,
           color: colors.grey['400'],
@@ -172,7 +172,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       gridLineColor: colors.grey['200'],
       labels: {
         style: {
-          fontFamily: 'Helvetica Neue',
+          fontFamily: 'Inter',
           fontSize: isMobile ? '14px' : '12px',
           fontWeight: 500,
           color: colors.grey['400'],
