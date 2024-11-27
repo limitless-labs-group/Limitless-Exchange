@@ -67,6 +67,7 @@ export const UserContextMenu = ({ username, userAccount }: UserContextMenuProps)
           borderRadius='12px'
           p='4px'
           color='red.500'
+          w='full'
         >
           <BlockUserIcon />
           <Text {...paragraphMedium} color='red.500'>
@@ -96,6 +97,7 @@ export const UserContextMenu = ({ username, userAccount }: UserContextMenuProps)
           borderRadius='12px'
           p='4px'
           cursor='pointer'
+          w='full'
         >
           <HStack gap='4px' cursor='pointer'>
             <CloseIcon width={16} />
