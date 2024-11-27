@@ -86,7 +86,7 @@ export const UserContextMenu = ({ username, userAccount }: UserContextMenuProps)
       <HStack gap='4px'>
         <OkIcon />
         <Text {...paragraphMedium} color='green.500'>
-          {username ? cutUsername(username as string) : cutUsername(userAccount as string)} Howard
+          {username ? cutUsername(username as string) : cutUsername(userAccount as string)}
           is blocked
         </Text>
       </HStack>
