@@ -28,7 +28,7 @@ export default function MarketStatusUpdatedCard({ data }: MarketStatusUpdatedCar
   const { data: market, isLoading: marketLoading } = useMarket(data.data.address)
 
   const content = useMemo(() => {
-    if (marketLoading) {
+    if (marketLoading || !market) {
       return <Skeleton height={isMobile ? 317 : 230} />
     }
     return isMobile ? (
