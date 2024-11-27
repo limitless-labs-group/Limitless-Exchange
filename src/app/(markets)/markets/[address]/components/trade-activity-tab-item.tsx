@@ -18,6 +18,7 @@ export default function TradeActivityTabItem({ tradeItem }: TradeActivityTabItem
   return (
     <MarketFeedCardContainer
       user={tradeItem.user}
+      eventType={tradeItem.eventType}
       timestamp={new Date(tradeItem.timestamp).getTime() / 1000}
       title={title}
       isActivityTab={true}
