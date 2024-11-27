@@ -49,7 +49,6 @@ export default function MarketFeedCardContainer({
       }}
       borderColor='grey.300'
       w='full'
-      opacity={messageBlocked ? 0.5 : 1}
     >
       <HStack
         gap='8px'
@@ -57,7 +56,7 @@ export default function MarketFeedCardContainer({
         flexWrap='wrap'
         mb={isMobile ? '16px' : '12px'}
       >
-        <HStack>
+        <HStack opacity={messageBlocked ? 0.5 : 1}>
           <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
           {user.link ? (
             <Link href={user.link} variant='textLinkSecondary' {...captionRegular}>
@@ -94,16 +93,18 @@ export default function MarketFeedCardContainer({
           />
         ) : null}
       </HStack>
-      <Text
-        {...paragraphRegular}
-        fontSize='16px'
-        marginTop={isMobile ? '16px' : '12px'}
-        marginBottom={isMobile ? '12px' : '8px'}
-        userSelect='text'
-      >
-        {title}
-      </Text>
-      {children}
+      <Box opacity={messageBlocked ? 0.5 : 1}>
+        <Text
+          {...paragraphRegular}
+          fontSize='16px'
+          marginTop={isMobile ? '16px' : '12px'}
+          marginBottom={isMobile ? '12px' : '8px'}
+          userSelect='text'
+        >
+          {title}
+        </Text>
+        {children}
+      </Box>
     </Box>
   )
 }
