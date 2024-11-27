@@ -56,6 +56,7 @@ export const UserContextMenu = ({
 
   const undo = async () => {
     handleEventClicked(ClickEvent.UndoBlockingUser)
+    setMessageBlocked(false)
     if (timeoutId) {
       clearTimeout(timeoutId)
       setTimeoutId(null)
