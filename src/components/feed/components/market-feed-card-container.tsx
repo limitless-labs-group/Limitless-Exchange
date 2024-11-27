@@ -1,6 +1,6 @@
 import { Box, HStack, Link, Text } from '@chakra-ui/react'
 import { ethers } from 'ethers'
-import { PropsWithChildren, useMemo } from 'react'
+import { PropsWithChildren, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useAccount } from 'wagmi'
 import Avatar from '@/components/common/avatar'
@@ -26,6 +26,7 @@ export default function MarketFeedCardContainer({
   children,
   isActivityTab = false,
 }: PropsWithChildren<MarketFeedCardContainer>) {
+  const [messageBlocked, setMessageBlocked] = useState(false)
   const timePassed = timeSinceCreation(timestamp)
   const { isConnected } = useAccount()
   const bottomPadding = useMemo(() => {
@@ -48,6 +49,7 @@ export default function MarketFeedCardContainer({
       }}
       borderColor='grey.300'
       w='full'
+      opacity={messageBlocked ? 0.5 : 1}
     >
       <HStack
         gap='8px'
@@ -85,7 +87,11 @@ export default function MarketFeedCardContainer({
           </Text>
         </HStack>
         {eventType === FeedEventType.NewTrade && isConnected ? (
-          <UserContextMenu userAccount={user.account} username={user.name} />
+          <UserContextMenu
+            userAccount={user.account}
+            username={user.name}
+            setMessageBlocked={setMessageBlocked}
+          />
         ) : null}
       </HStack>
       <Text

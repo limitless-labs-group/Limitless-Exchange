@@ -1,31 +1,50 @@
 import { Box, Text, HStack, Menu, MenuButton, MenuItem, MenuList, VStack } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
+import usePageName from '@/hooks/use-page-name'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import BlockUserIcon from '@/resources/icons/block-user.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import OkIcon from '@/resources/icons/ok-icon.svg'
 import Dots from '@/resources/icons/three-horizontal-dots.svg'
-import { useAccount } from '@/services'
+import { ClickEvent, useAccount, useAmplitude } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { cutUsername } from '@/utils/string'
 
 interface UserContextMenuProps {
   username?: string
   userAccount?: string
+  setMessageBlocked: (val: boolean) => void
 }
 
-export const UserContextMenu = ({ username, userAccount }: UserContextMenuProps) => {
+export const UserContextMenu = ({
+  username,
+  userAccount,
+  setMessageBlocked,
+}: UserContextMenuProps) => {
+  const pageName = usePageName()
   const [menuState, setMenuState] = useState<'default' | 'success'>('default')
   const [showUndo, setShowUndo] = useState(false)
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null)
+
+  const { trackClicked } = useAmplitude()
 
   const wallet = useWalletAddress()
 
   const { onBlockUser } = useAccount()
 
+  const handleEventClicked = (event: ClickEvent) => {
+    trackClicked(event, {
+      source: pageName,
+      platform: isMobile ? 'mobile' : 'desktop',
+    })
+  }
+
   const block = async () => {
+    handleEventClicked(ClickEvent.BlockedUserClicked)
     setShowUndo(true)
+    setMessageBlocked(true)
     const id = setTimeout(async () => {
       await onBlockUser.mutateAsync({ account: userAccount as Address })
       setShowUndo(false)
@@ -36,6 +55,7 @@ export const UserContextMenu = ({ username, userAccount }: UserContextMenuProps)
   }
 
   const undo = async () => {
+    handleEventClicked(ClickEvent.UndoBlockingUser)
     if (timeoutId) {
       clearTimeout(timeoutId)
       setTimeoutId(null)
@@ -64,7 +84,7 @@ export const UserContextMenu = ({ username, userAccount }: UserContextMenuProps)
           cursor='pointer'
           onClick={block}
           _hover={{ bg: 'grey.200' }}
-          borderRadius='12px'
+          borderRadius='8px'
           p='4px'
           color='red.500'
           w='full'
@@ -94,7 +114,7 @@ export const UserContextMenu = ({ username, userAccount }: UserContextMenuProps)
         <Box
           onClick={undo}
           _hover={{ bg: 'grey.200' }}
-          borderRadius='12px'
+          borderRadius='8px'
           p='4px'
           cursor='pointer'
           w='full'
@@ -111,15 +131,18 @@ export const UserContextMenu = ({ username, userAccount }: UserContextMenuProps)
   const node = () => {
     return (
       <MenuItem as='div'>
-        <VStack w='250px' alignItems='start' bg='grey.100'>
+        <VStack w='250px' alignItems='start' bg='grey.100' gap={0}>
           {menuState === 'default' ? defaultItem : successItem}
         </VStack>
       </MenuItem>
     )
   }
   return (
-    <Menu variant='block' closeOnSelect={false} onClose={close} direction='rtl'>
-      <MenuButton as='div' style={{ cursor: 'pointer' }}>
+    <Menu variant='block' closeOnSelect={false} onClose={close} placement='bottom-end'>
+      <MenuButton
+        style={{ cursor: 'pointer' }}
+        onClick={() => handleEventClicked(ClickEvent.ThreeDotsClicked)}
+      >
         <Dots color='grey.500' />
       </MenuButton>
       <MenuList>{node()}</MenuList>
