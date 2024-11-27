@@ -57,8 +57,7 @@ import {
 import { useMarket } from '@/services/MarketsService'
 import {
   controlsMedium,
-  h1Regular,
-  h2Medium,
+  h2Bold,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
@@ -333,9 +332,7 @@ export default function MarketPage() {
         </HStack>
       </HStack>
       <HStack w='full' justifyContent='space-between' alignItems='flex-start'>
-        <Text {...(isMobile ? { ...h2Medium } : { ...h1Regular })}>
-          {marketGroup?.title || market?.proxyTitle || market?.title}
-        </Text>
+        <Text {...h2Bold}>{marketGroup?.title || market?.proxyTitle || market?.title}</Text>
         {isMobile && <ShareMenu />}
       </HStack>
       <Box w='full' mt={isMobile ? '56px' : '24px'}>

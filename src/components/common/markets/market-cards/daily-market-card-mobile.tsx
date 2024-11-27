@@ -15,7 +15,7 @@ import TooltipIcon from '@/resources/icons/tooltip-icon.svg'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import {
   captionMedium,
-  paragraphBold,
+  h3Bold,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
@@ -129,7 +129,7 @@ export default function DailyMarketCardMobile({
               {...paragraphRegular}
               color='grey.500'
             />
-            <Text {...paragraphBold} fontSize='20px' mt='4px' textAlign='left'>
+            <Text {...h3Bold} mt='4px' textAlign='left'>
               {market.proxyTitle ?? market.title}
             </Text>
           </Box>
