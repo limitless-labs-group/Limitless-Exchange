@@ -31,18 +31,19 @@ export default function MarketStatusUpdatedCard({ data }: MarketStatusUpdatedCar
     if (marketLoading) {
       return <Skeleton height={isMobile ? 317 : 230} />
     }
-    return isMobile ? (
-      <DailyMarketCardMobile
-        market={market as Market}
-        analyticParams={{ bannerPosition: 0, bannerPaginationPage: 1 }}
-        markets={[]}
-      />
-    ) : (
-      <DailyMarketCard
-        market={market as Market}
-        analyticParams={{ bannerPosition: 0, bannerPaginationPage: 1 }}
-      />
-    )
+    return null
+    // return isMobile ? (
+    //   <DailyMarketCardMobile
+    //     market={market as Market}
+    //     analyticParams={{ bannerPosition: 0, bannerPaginationPage: 1 }}
+    //     markets={[]}
+    //   />
+    // ) : (
+    //   <DailyMarketCard
+    //     market={market as Market}
+    //     analyticParams={{ bannerPosition: 0, bannerPaginationPage: 1 }}
+    //   />
+    // )
   }, [marketLoading, market])
 
   return (

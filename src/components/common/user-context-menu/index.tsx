@@ -1,7 +1,8 @@
 import { Box, Text, HStack, Menu, MenuButton, MenuItem, MenuList, VStack } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Address } from 'viem'
 import BlockUserIcon from '@/resources/icons/block-user.svg'
+import CloseIcon from '@/resources/icons/close-icon.svg'
 import OkIcon from '@/resources/icons/ok-icon.svg'
 import Dots from '@/resources/icons/three-horizontal-dots.svg'
 import { useAccount } from '@/services'
@@ -15,20 +16,38 @@ interface UserContextMenuProps {
 
 export const UserContextMenu = ({ username, userAccount }: UserContextMenuProps) => {
   const [menuState, setMenuState] = useState<'default' | 'success'>('default')
+  const [showUndo, setShowUndo] = useState(false)
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null)
 
   const { onBlockUser } = useAccount()
 
   const block = async () => {
-    await onBlockUser.mutateAsync({ account: userAccount as Address })
+    setShowUndo(true)
+    const id = setTimeout(async () => {
+      await onBlockUser.mutateAsync({ account: userAccount as Address })
+      setShowUndo(false)
+    }, 5000)
+
+    setTimeoutId(id)
     setMenuState('success')
   }
 
-  const undo = () => {
-    setMenuState('success')
+  const undo = async () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+      setTimeoutId(null)
+    }
+    setMenuState('default')
   }
   const close = () => {
     setMenuState('default')
   }
+
+  useEffect(() => {
+    return () => {
+      setTimeoutId(null)
+    }
+  }, [])
 
   const defaultItem = (
     <>
@@ -62,12 +81,14 @@ export const UserContextMenu = ({ username, userAccount }: UserContextMenuProps)
           is blocked
         </Text>
       </HStack>
-      {/*<Box onClick={undo}>*/}
-      {/*  <HStack gap='4px' cursor='pointer'>*/}
-      {/*    <CloseIcon width={16} />*/}
-      {/*    <Text {...paragraphMedium}>Undo</Text>*/}
-      {/*  </HStack>*/}
-      {/*</Box>*/}
+      {showUndo && (
+        <Box onClick={undo}>
+          <HStack gap='4px' cursor='pointer'>
+            <CloseIcon width={16} />
+            <Text {...paragraphMedium}>Undo</Text>
+          </HStack>
+        </Box>
+      )}
     </>
   )
 
