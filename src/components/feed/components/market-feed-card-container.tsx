@@ -71,7 +71,7 @@ export default function MarketFeedCardContainer({
               textOverflow='ellipsis'
               whiteSpace='nowrap'
               overflow='hidden'
-              maxW='calc(100% - 22px)'
+              maxW='240px'
             >
               {
                 ethers.utils.isAddress(user.name)
