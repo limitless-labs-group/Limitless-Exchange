@@ -343,9 +343,10 @@ export default function ActionButton({
                   >
                     {showReturnPercent
                       ? `${NumberUtil.toFixed(quote?.roi, 2)}%`
-                      : `${NumberUtil.formatThousands(quote?.outcomeTokenAmount, 6)} ${
-                          market.collateralToken.symbol
-                        }`}
+                      : `${NumberUtil.formatThousands(
+                          quote?.outcomeTokenAmount,
+                          market.collateralToken.symbol === 'USDC' ? 2 : 6
+                        )} ${market.collateralToken.symbol}`}
                   </Text>
                 </HStack>
                 <HStack justifyContent='space-between' w='full'>
