@@ -37,10 +37,6 @@ export function PositionCard({
     <ThumbsDownIcon width={16} height={16} />
   )
 
-  const currentContractsPrice = new BigNumber(position?.collateralAmount || 1)
-    .multipliedBy(new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100))
-    .toNumber()
-
   const contractPrice = new BigNumber(marketPrices[position.outcomeIndex] || 1)
     .dividedBy(100)
     .dividedBy(
@@ -94,7 +90,7 @@ export function PositionCard({
                   new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100)
                 )
                 .toString(),
-              6
+              symbol === 'USDC' ? 2 : 6
             )} ${symbol}`}</Text>
             {contractPriceChanged}
           </HStack>
@@ -111,7 +107,9 @@ export function PositionCard({
             <Text {...paragraphMedium} color='grey.500'>
               Contracts
             </Text>
-            <Text {...paragraphRegular}>{NumberUtil.toFixed(position.outcomeTokenAmount, 6)}</Text>
+            <Text {...paragraphRegular}>
+              {NumberUtil.toFixed(position.outcomeTokenAmount, symbol === 'USDC' ? 2 : 6)}
+            </Text>
           </Flex>
         )}
         <Flex
@@ -124,7 +122,7 @@ export function PositionCard({
           </Text>
           <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
             position.collateralAmount,
-            6
+            symbol === 'USDC' ? 2 : 6
           )} ${symbol}`}</Text>
         </Flex>
         {!isSideMarketPage || isMobile ? (
@@ -164,7 +162,10 @@ export function PositionCard({
             To Win
           </Text>
           <Text {...paragraphRegular}>
-            {`${NumberUtil.toFixed(position.outcomeTokenAmount, 6)} ${symbol}`}
+            {`${NumberUtil.toFixed(
+              position.outcomeTokenAmount,
+              symbol === 'USDC' ? 2 : 6
+            )} ${symbol}`}
           </Text>
         </Flex>
       </HStack>
