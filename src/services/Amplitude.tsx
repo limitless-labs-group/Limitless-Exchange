@@ -167,6 +167,9 @@ export enum ClickEvent {
   FullPageClicked = 'Full Page Clicked',
   JoinPredictionClicked = 'Join Prediction Clicked',
   EstimateEarningClicked = 'Estimate Earnings Clicked',
+  ThreeDotsClicked = 'Three Dots Clicked',
+  BlockedUserClicked = 'Blocked User Clicked',
+  UndoBlockingUser = 'Undo Blocking User',
 }
 
 export enum SignInEvent {

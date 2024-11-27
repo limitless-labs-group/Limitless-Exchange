@@ -1,4 +1,5 @@
 import { HStack, Text, VStack } from '@chakra-ui/react'
+import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useAccount } from 'wagmi'
 import { useTimeAgo } from '@/hooks/use-time-ago'
@@ -16,11 +17,12 @@ export default function Comment({ comment, isReply }: CommentProps) {
   const time = useTimeAgo(comment.createdAt)
   const name = comment.author.displayName ?? comment.author?.username
   const { isConnected } = useAccount()
+  const [messageBlocked, setMessageBlocked] = useState(false)
 
   //commented stuff will be needed in future
 
   return (
-    <VStack w='full' gap='12px' align='start'>
+    <VStack w='full' gap='12px' align='start' opacity={messageBlocked ? 0.5 : 1}>
       <HStack w='full' justifyContent='space-between'>
         <HStack>
           <Avatar
@@ -36,6 +38,7 @@ export default function Comment({ comment, isReply }: CommentProps) {
           <UserContextMenu
             username={comment.author?.displayName}
             userAccount={comment.author?.account}
+            setMessageBlocked={setMessageBlocked}
           />
         )}
       </HStack>

@@ -36,7 +36,7 @@ export const paragraphMedium = {
   fontSize: isMobile ? '16px' : '14px',
   fontStyle: 'normal',
   fontWeight: 500,
-  lineHeight: '20px',
+  lineHeight: '16px',
   color: 'grey.800',
 }
 

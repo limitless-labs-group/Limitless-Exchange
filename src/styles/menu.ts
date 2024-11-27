@@ -116,6 +116,15 @@ const variants = {
       cursor: 'default',
     },
 
+    button: {
+      borderRadius: '2px',
+      background: 'unset',
+      p: 0,
+      h: 'fit-content',
+      _hover: { bg: 'none' },
+      _active: { bg: 'grey.100' },
+    },
+
     list: {
       bg: 'grey.100',
       p: '8px',
