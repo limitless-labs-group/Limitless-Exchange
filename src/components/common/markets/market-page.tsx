@@ -57,8 +57,7 @@ import {
 import { useMarket } from '@/services/MarketsService'
 import {
   controlsMedium,
-  h1Regular,
-  h2Medium,
+  h2Bold,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
@@ -303,9 +302,9 @@ export default function MarketPage() {
       )}
       <HStack
         w='full'
-        mb='8px'
+        mb='12px'
         justifyContent='space-between'
-        mt={isMobile ? 0 : '20px'}
+        mt={isMobile ? 0 : '24px'}
         flexWrap='wrap'
       >
         {market && (
@@ -316,7 +315,7 @@ export default function MarketPage() {
             color='grey.500'
           />
         )}
-        <HStack gap='8px' flexWrap='wrap'>
+        <HStack gap='6px' flexWrap='wrap'>
           <Text {...paragraphRegular} color='grey.500'>
             Created by
           </Text>
@@ -333,9 +332,7 @@ export default function MarketPage() {
         </HStack>
       </HStack>
       <HStack w='full' justifyContent='space-between' alignItems='flex-start'>
-        <Text {...(isMobile ? { ...h2Medium } : { ...h1Regular })}>
-          {marketGroup?.title || market?.proxyTitle || market?.title}
-        </Text>
+        <Text {...h2Bold}>{marketGroup?.title || market?.proxyTitle || market?.title}</Text>
         {isMobile && <ShareMenu />}
       </HStack>
       <Box w='full' mt={isMobile ? '56px' : '24px'}>

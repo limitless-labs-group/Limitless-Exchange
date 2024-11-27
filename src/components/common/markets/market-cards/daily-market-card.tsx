@@ -154,7 +154,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
               {...paragraphRegular}
               color='grey.500'
             />
-            <Text {...paragraphBold} fontSize='20px' mt='4px'>
+            <Text {...paragraphBold} fontSize='20px' mt='12px'>
               {market.title}
             </Text>
           </Box>
