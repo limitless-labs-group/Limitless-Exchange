@@ -6,6 +6,7 @@ import HighchartsReact from 'highcharts-react-official'
 import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
+import Skeleton from '@/components/common/skeleton'
 import { useMarketPriceHistory } from '@/hooks/use-market-price-history'
 import { useThemeProvider } from '@/providers'
 import { useTradingService } from '@/services'
@@ -29,6 +30,16 @@ export const MarketPriceChart = () => {
     refetchPrices()
   }, [market])
 
+  const getMaxChartTimestamp = (data?: number[][]) => {
+    if (market) {
+      if (new Date().getTime() > market.expirationTimestamp) {
+        return market.expirationTimestamp + 1200000
+      }
+      return data ? data[data.length - 1][0] : new Date().getTime()
+    }
+    return new Date().getTime()
+  }
+
   // Function to generate chart options
   const getChartOptions = (data: number[][] | undefined): Highcharts.Options => ({
     chart: {
@@ -50,12 +61,13 @@ export const MarketPriceChart = () => {
       lineColor: colors.grey['200'],
       tickColor: colors.grey['200'],
       tickLength: 0,
+      max: getMaxChartTimestamp(data),
       labels: {
         step: 0,
         rotation: 0,
         align: 'center',
         style: {
-          fontFamily: 'Helvetica Neue',
+          fontFamily: 'Inter',
           fontSize: isMobile ? '14px' : '12px',
           color: colors.grey['400'],
         },
@@ -78,7 +90,7 @@ export const MarketPriceChart = () => {
       labels: {
         format: '{value}%',
         style: {
-          fontFamily: 'Helvetica Neue',
+          fontFamily: 'Inter',
           fontSize: isMobile ? '14px' : '12px',
           color: colors.grey['400'],
         },
@@ -199,7 +211,11 @@ export const MarketPriceChart = () => {
     return data
   }, [prices, winningIndex, resolved])
 
-  return (
+  return !prices ? (
+    <Box my='16px'>
+      <Skeleton height={290} />
+    </Box>
+  ) : (
     <Paper my='16px' py='8px' px={0} bg='grey.100'>
       {/*{marketGroup ? (*/}
       {/*  <Menu isOpen={isMarketListOpen} onClose={onCloseMarketList} variant='transparent'>*/}

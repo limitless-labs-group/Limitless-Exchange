@@ -91,15 +91,15 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
    */
   const [userInfo, setUserInfo] = useState<Partial<UserInfo> | undefined>()
 
-  const {
-    data: profileData,
-    isLoading: profileLoading,
-    refetch: refetchProfile,
-  } = useQuery({
+  const getUserAddress = (account?: `0x${string}`) => {
+    const wallet = client === 'eoa' ? account : smartWalletExternallyOwnedAccountAddress
+    return getAddress(wallet as string)
+  }
+
+  const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ['profiles', { account }],
     queryFn: async (): Promise<Profile | null> => {
-      const wallet = client === 'eoa' ? account : smartWalletExternallyOwnedAccountAddress
-      const res = await privateClient.get(`/profiles/${getAddress(wallet as string)}`)
+      const res = await privateClient.get(`/profiles/${getUserAddress(account)}`)
       return res.data
     },
     enabled: !!account,
@@ -144,7 +144,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const onCreateProfile = async () => {
     await login({ client, account })
-    await refetchProfile()
   }
 
   const updateProfileMutation = useMutation<
@@ -161,9 +160,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           const formData = new FormData()
           formData.set('pfpFile', pfpFile)
           const response = await privateClient.put('/profiles/pfp', formData, {})
-          await queryClient.refetchQueries({
-            queryKey: ['profiles', { account }],
-          })
           if (!isDirty) {
             return response.data
           }
@@ -188,9 +184,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
               },
             }
           )
-          await queryClient.refetchQueries({
-            queryKey: ['profiles', { account }],
-          })
           return response.data
         } catch (e) {
           const id = toast({
@@ -201,6 +194,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           })
         }
       }
+    },
+    onSuccess: (updatedData) => {
+      queryClient.setQueryData(['profiles', { account }], updatedData)
     },
   })
 
@@ -252,11 +248,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData, userInfo, account])
 
   useEffect(() => {
-    if (!profileLoading && profileData === null && isLoggedIn) {
-      onCreateProfile()
-      return
+    if (!profileLoading) {
+      if (profileData === null && isLoggedIn) {
+        onCreateProfile()
+        return
+      }
+      refetchSession()
     }
-    refetchSession()
   }, [profileLoading, profileData])
 
   const displayUsername = useMemo(() => {

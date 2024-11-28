@@ -8,6 +8,7 @@ import MobileHeader from '@/components/layouts/mobile-header'
 import MobileNavigation from '@/components/layouts/mobile-navigation'
 import Sidebar from '@/components/layouts/sidebar'
 import { useTradingService } from '@/services'
+import { inter } from '@/styles'
 
 interface IMainLayout extends FlexProps {
   isLoading?: boolean
@@ -20,25 +21,28 @@ export const MainLayout = ({
   layoutPadding = '16px',
   ...props
 }: IMainLayout) => {
+  const pathname = usePathname()
   const { marketPageOpened } = useTradingService()
 
   return (
     <Box
+      className={inter.className}
       id='main'
       flexDir={'column'}
       w={'full'}
       minH={'100vh'}
       margin={'0 auto'}
-      // overflow={'hidden'}
       alignItems={'center'}
       justifyContent={'space-between'}
       gap={{ sm: 6, md: 10 }}
       bg='grey.50'
       {...props}
     >
-      <HeaderMarquee />
-      <Box mt='20px' mb={isMobile ? '60px' : 0}>
+      <Box position={isMobile ? 'fixed' : 'relative'} zIndex={9999} top={0}>
+        <HeaderMarquee />
         {isMobile && <MobileHeader />}
+      </Box>
+      <Box mt='20px' mb={isMobile ? '60px' : 0} pt={isMobile && pathname !== '/lumy' ? '88px' : 0}>
         <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
           {!isMobile && <Sidebar />}
           {isLoading ? (

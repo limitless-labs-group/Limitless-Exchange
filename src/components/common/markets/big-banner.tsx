@@ -12,7 +12,7 @@ import ProgressBar from '@/components/common/progress-bar'
 import { MarketCardLink } from './market-cards/market-card-link'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
 import { useTradingService } from '@/services'
-import { headLineLarge, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { cutUsername } from '@/utils/string'
@@ -115,7 +115,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
           color='transparent.700'
         />
       </Box>
-      <Text {...headLineLarge} color='white' textAlign='left'>
+      <Text {...(isMobile ? h2Bold : h1Bold)} color='white' textAlign='left'>
         {market.proxyTitle ?? market.title ?? 'Noname market'}
       </Text>
       <Box w='full' h='38px'></Box>
@@ -142,11 +142,26 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
         {isMobile ? (
           <HStack w='full' justifyContent='space-between'>
             <HStack gap='4px' mt='8px'>
-              {uniqueUsersTrades?.map(({ user }, index) => (
-                <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
-                  <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
-                </Box>
-              ))}
+              <HStack gap={0}>
+                {uniqueUsersTrades?.map(({ user }, index) => (
+                  <Avatar
+                    account={user.account || ''}
+                    avatarUrl={user.imageURI}
+                    key={index}
+                    borderColor='#4905a1'
+                    zIndex={100 + index}
+                    border='2px solid'
+                    size='20px'
+                    color='#4905a1 !important'
+                    showBorder
+                    bg='#4905a1'
+                    style={{
+                      border: '2px solid',
+                      marginLeft: index > 0 ? '-6px' : 0,
+                    }}
+                  />
+                ))}
+              </HStack>
               <Text {...paragraphRegular} color='transparent.700'>
                 Volume
               </Text>

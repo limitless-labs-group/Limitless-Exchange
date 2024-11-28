@@ -50,6 +50,7 @@ export default function MobileNavigation() {
       py='8px'
       bg='grey.50'
       display='flex'
+      zIndex={200}
     >
       {pagesMenu.map((page) => (
         <NextLink href={page.link} passHref style={{ width: '100%' }} key={page.title}>

@@ -5,6 +5,7 @@ import {
   Button,
   Divider,
   HStack,
+  Heading,
   Link,
   Menu,
   MenuButton,
@@ -27,7 +28,6 @@ import { v4 as uuidv4 } from 'uuid'
 import MobileDrawer from '@/components/common/drawer'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import CommentTab from '@/components/common/markets/comment-tab'
-import TextWithPixels from '@/components/common/text-with-pixels'
 import {
   MarketClaimingForm,
   MarketMetadata,
@@ -261,12 +261,9 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                 </Menu>
               </HStack>
               <Box>
-                <TextWithPixels
-                  text={marketGroup?.title || ''}
-                  {...(isMobile ? { ...h1Regular } : {})}
-                  fontSize='32px'
-                  userSelect='text'
-                />
+                <Heading {...h1Regular} userSelect='text'>
+                  {marketGroup?.title}
+                </Heading>
               </Box>
               <HStack gap={isMobile ? '4px' : '16px'} mt='16px' mb='24px'>
                 <HStack gap='8px' flexWrap='wrap'>

@@ -1,6 +1,7 @@
-import { Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
+import { AvatarGroup, Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { SyntheticEvent, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
@@ -15,7 +16,7 @@ import TooltipIcon from '@/resources/icons/tooltip-icon.svg'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import {
   captionMedium,
-  paragraphBold,
+  h3Bold,
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
@@ -120,7 +121,35 @@ export default function DailyMarketCardMobile({
       }}
       onClick={handleMarketPageOpened}
     >
-      <Paper flex={1} w={'100%'} position='relative' cursor='pointer' p='14px'>
+      <Paper
+        flex={1}
+        w={'100%'}
+        position={isMobile ? 'unset' : 'relative'}
+        cursor='pointer'
+        p='14px'
+      >
+        {isLumy && (
+          <Box
+            top={0}
+            marginLeft='calc(50% - 40px)'
+            py='2px'
+            px='4px'
+            borderBottomLeftRadius='4px'
+            borderBottomRightRadius='2px'
+            bg={'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}
+            onClick={handleLumyButtonClicked}
+            className='lumy-button'
+            w='fit-content'
+            marginTop='-14px'
+          >
+            <HStack gap='8px' color='grey.white'>
+              <Text {...captionMedium} color='grey.white'>
+                LUMY AI
+              </Text>
+              <TooltipIcon width={16} height={16} />
+            </HStack>
+          </Box>
+        )}
         <VStack w='full' gap='56px' mt='8px'>
           <Box w='full'>
             <DailyMarketTimer
@@ -129,7 +158,7 @@ export default function DailyMarketCardMobile({
               {...paragraphRegular}
               color='grey.500'
             />
-            <Text {...paragraphBold} fontSize='20px' mt='4px' textAlign='left'>
+            <Text {...h3Bold} mt='4px' textAlign='left'>
               {market.proxyTitle ?? market.title}
             </Text>
           </Box>
@@ -145,16 +174,31 @@ export default function DailyMarketCardMobile({
             <ProgressBar variant='market' value={market.prices[0]} />
             <HStack w='full' justifyContent='space-between'>
               <HStack gap='4px' mt='8px'>
-                {uniqueUsersTrades?.map(({ user }, index) => (
-                  <Box key={user.account} marginLeft={index > 0 ? '-12px' : '0px'}>
-                    <Avatar account={user.account || ''} avatarUrl={user.imageURI} />
-                  </Box>
-                ))}
-                <Text {...paragraphRegular} color='transparent.700'>
+                <HStack gap={0}>
+                  {uniqueUsersTrades?.map(({ user }, index) => (
+                    <Avatar
+                      account={user.account || ''}
+                      avatarUrl={user.imageURI}
+                      key={index}
+                      borderColor='grey.100'
+                      zIndex={100 + index}
+                      border='2px solid'
+                      size='20px'
+                      color='grey.100 !important'
+                      showBorder
+                      bg='grey.200'
+                      style={{
+                        border: '1px solid',
+                        marginLeft: index > 0 ? '-6px' : 0,
+                      }}
+                    />
+                  ))}
+                </HStack>
+                <Text {...paragraphRegular} color='grey.500'>
                   Volume
                 </Text>
               </HStack>
-              <Text {...paragraphRegular} color='transparent.700'>
+              <Text {...paragraphRegular} color='grey.500'>
                 {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
                 {market.collateralToken.symbol}
               </Text>
@@ -170,6 +214,7 @@ export default function DailyMarketCardMobile({
                   h='unset'
                   w='full'
                   onClick={onClickJoinPrediction}
+                  position={isMobile ? 'unset' : 'relative'}
                 >
                   ⚖️ Join the Prediction
                 </Button>
@@ -182,27 +227,6 @@ export default function DailyMarketCardMobile({
             </Box>
           </Box>
         </VStack>
-        {isLumy && (
-          <Box
-            position='absolute'
-            top={0}
-            left='calc(50% - 30px)'
-            py='2px'
-            px='4px'
-            borderBottomLeftRadius='4px'
-            borderBottomRightRadius='2px'
-            bg={'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}
-            onClick={handleLumyButtonClicked}
-            className='lumy-button'
-          >
-            <HStack gap='8px' color='grey.white'>
-              <Text {...captionMedium} color='grey.white'>
-                LUMY AI
-              </Text>
-              <TooltipIcon width={16} height={16} />
-            </HStack>
-          </Box>
-        )}
         {estimateOpened && (
           <Box bg='grey.200' p='16px' mt='16px' borderRadius='12px'>
             <HStack w='full' justifyContent='space-between' color='grey.500'>
@@ -226,7 +250,7 @@ export default function DailyMarketCardMobile({
                 </Box>
               ) : (
                 <Text {...paragraphMedium} textAlign='left'>
-                  {NumberUtil.formatThousands(yesReturn, 6)} USDC
+                  {NumberUtil.toFixed(yesReturn, 2)} USDC
                 </Text>
               )}
               <Text {...paragraphRegular} textAlign='left' mt='8px'>
@@ -238,21 +262,10 @@ export default function DailyMarketCardMobile({
                 </Box>
               ) : (
                 <Text {...paragraphMedium} textAlign='left'>
-                  {NumberUtil.formatThousands(noReturn, 6)} USDC
+                  {NumberUtil.toFixed(noReturn, 2)} USDC
                 </Text>
               )}
             </Box>
-            {/*<NextLink*/}
-            {/*  href='https://www.notion.so/limitlesslabs/Limitless-Docs-0e59399dd44b492f8d494050969a1567?pvs=4#5dd6f962c66044eaa00e28d2c61b92bb'*/}
-            {/*  target='_blank'*/}
-            {/*  rel='noopener'*/}
-            {/*  passHref*/}
-            {/*  onClick={(e) => e.stopPropagation()}*/}
-            {/*>*/}
-            {/*  <Link isExternal variant='textLink'>*/}
-            {/*    Read How Prediction Market works.*/}
-            {/*  </Link>*/}
-            {/*</NextLink>*/}
           </Box>
         )}
       </Paper>

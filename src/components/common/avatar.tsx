@@ -1,24 +1,20 @@
-import { Image as ChakraImage } from '@chakra-ui/react'
+import { Avatar as ChakraAvatar, AvatarProps } from '@chakra-ui/react'
 import { pixelArt } from '@dicebear/collection'
 import { createAvatar } from '@dicebear/core'
-import { isMobile } from 'react-device-detect'
 
-interface AvatarProps {
+type AvatarCustomProps = AvatarProps & {
   account: string
   avatarUrl?: string
-  size?: number
 }
 
-export default function Avatar({ account, avatarUrl, size = 4 }: AvatarProps) {
-  const avatarSize = isMobile ? `${size * 4}px` : size
+export default function Avatar({ account, avatarUrl, ...props }: AvatarCustomProps) {
   if (avatarUrl) {
     return (
-      <ChakraImage
-        width={avatarSize}
-        height={avatarSize}
+      <ChakraAvatar
         src={avatarUrl}
-        alt='avatar'
-        borderRadius={'2px'}
+        width={props.size || '16px'}
+        height={props.size || '16px'}
+        {...props}
       />
     )
   }
@@ -30,12 +26,6 @@ export default function Avatar({ account, avatarUrl, size = 4 }: AvatarProps) {
   const svg = avatar.toDataUri()
 
   return (
-    <ChakraImage
-      width={avatarSize}
-      height={avatarSize}
-      src={svg}
-      alt='avatar'
-      borderRadius={'2px'}
-    />
+    <ChakraAvatar src={svg} width={props.size || '16px'} height={props.size || '16px'} {...props} />
   )
 }

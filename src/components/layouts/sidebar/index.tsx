@@ -26,7 +26,6 @@ import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
-import TextWithPixels from '@/components/common/text-with-pixels'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
@@ -53,6 +52,7 @@ import {
   ProfileBurgerMenuClickedMetadata,
   useAccount,
   useAmplitude,
+  useBalanceQuery,
   useBalanceService,
   useEtherspot,
 } from '@/services'
@@ -65,6 +65,7 @@ export default function Sidebar() {
   const { disconnectFromPlatform, displayName, profileData, profileLoading } = useAccount()
   const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
+  const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
   const account = useWalletAddress()
   const { isConnected, isConnecting } = useWagmiAccount()
@@ -114,7 +115,7 @@ export default function Sidebar() {
   }
 
   const walletTypeActionButton = useMemo(() => {
-    const smartWalletBalanceLoading = client !== 'eoa' && balanceLoading
+    const smartWalletBalanceLoading = (client !== 'eoa' && balanceLoading) || !balanceOfSmartWallet
     if (userMenuLoading || smartWalletBalanceLoading) {
       return (
         <Box w='full'>
@@ -158,7 +159,14 @@ export default function Sidebar() {
         </HStack>
       </Button>
     )
-  }, [client, isOpenWalletPage, overallBalanceUsd, userMenuLoading, balanceLoading])
+  }, [
+    client,
+    isOpenWalletPage,
+    overallBalanceUsd,
+    userMenuLoading,
+    balanceLoading,
+    balanceOfSmartWallet,
+  ])
 
   const volumeArray = totalVolume
     ? `$${NumberUtil.formatThousands(totalVolume.toFixed(0), 0)}`.split('')
@@ -431,12 +439,9 @@ export default function Sidebar() {
               borderRadius='8px'
             >
               {volumeArray.map((volumeSymbol, index) => (
-                <TextWithPixels
-                  key={index}
-                  text={volumeSymbol}
-                  highlightWord={1}
-                  {...paragraphRegular}
-                />
+                <Text key={index} {...paragraphRegular}>
+                  {volumeSymbol}
+                </Text>
               ))}
             </Paper>
           </NextLink>
