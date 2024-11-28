@@ -1,5 +1,5 @@
 import { extendTheme as ChakraTheme, ThemeConfig } from '@chakra-ui/react'
-import { Inter, Pixelify_Sans } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import { isMobile } from 'react-device-detect'
 import { accordionTheme } from '@/styles/accordion'
 import { commonButtonProps } from '@/styles/button'
