@@ -1,5 +1,6 @@
 import { Button, HStack } from '@chakra-ui/react'
 import { isNumber } from '@chakra-ui/utils'
+import debounce from 'lodash.debounce'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, {
   PropsWithChildren,
@@ -114,12 +115,17 @@ export default function MobileDrawer({
 
   useEffect(() => {
     const handleResize = () => {
-      const isKeyboard = window.innerHeight < window.outerHeight * 0.75
+      const isKeyboard = window.visualViewport
+        ? window.innerHeight < window.visualViewport.height
+        : window.innerHeight < (window.screen?.height ?? window.outerHeight) * 0.85
       setIsKeyboardVisible(isKeyboard)
     }
 
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    handleResize()
+
+    const debouncedHandleResize = debounce(handleResize, 100)
+    window.addEventListener('resize', debouncedHandleResize)
+    return () => window.removeEventListener('resize', debouncedHandleResize)
   }, [])
 
   const drawerStyle = useMemo(
