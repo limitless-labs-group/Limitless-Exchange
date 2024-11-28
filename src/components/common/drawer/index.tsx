@@ -1,7 +1,15 @@
 import { Button, HStack } from '@chakra-ui/react'
 import { isNumber } from '@chakra-ui/utils'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import React, { PropsWithChildren, ReactNode, useEffect, useMemo, useRef } from 'react'
+import React, {
+  PropsWithChildren,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  CSSProperties,
+} from 'react'
 import { Drawer } from 'vaul'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
@@ -102,6 +110,45 @@ export default function MobileDrawer({
 
   const titleColor = variant === 'blue' ? 'white' : 'var(--chakra-colors-grey.800)'
 
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      const isKeyboard = window.innerHeight < window.outerHeight * 0.75
+      setIsKeyboardVisible(isKeyboard)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const drawerStyle = useMemo(
+    (): CSSProperties => ({
+      background: bgColor,
+      display: 'flex',
+      flexDirection: 'column',
+      height: isKeyboardVisible ? '100%' : 'calc(100dvh - 36px)',
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      zIndex: 99999,
+      outline: 'none',
+      transition: 'height 0.3s ease-out',
+    }),
+    [bgColor, isKeyboardVisible]
+  )
+
+  const contentStyle = useMemo(
+    (): CSSProperties => ({
+      margin: '0 auto',
+      maxHeight: isKeyboardVisible ? '100%' : 'calc(100dvh - 68px)',
+      overflowY: 'auto',
+      paddingBottom: isKeyboardVisible ? '20px' : '0',
+    }),
+    [isKeyboardVisible]
+  )
+
   return (
     <Drawer.Root shouldScaleBackground onClose={close}>
       <Drawer.Trigger asChild>
@@ -118,20 +165,7 @@ export default function MobileDrawer({
             zIndex: 99999,
           }}
         />
-        <Drawer.Content
-          style={{
-            background: bgColor,
-            display: 'flex',
-            flexDirection: 'column',
-            height: 'calc(100dvh - 36px)',
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 99999,
-            outline: 'none',
-          }}
-        >
+        <Drawer.Content style={drawerStyle}>
           <div
             style={{
               flex: 1,
@@ -166,13 +200,7 @@ export default function MobileDrawer({
                 )}
               </HStack>
             ) : null}
-            <div
-              style={{
-                margin: '0 auto',
-                maxHeight: 'calc(100dvh - 68px)',
-                overflowY: 'auto',
-              }}
-            >
+            <div style={contentStyle}>
               <>
                 {title && (
                   <Drawer.Title
