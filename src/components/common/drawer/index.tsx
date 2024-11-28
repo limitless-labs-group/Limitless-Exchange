@@ -1,6 +1,5 @@
 import { Button, HStack } from '@chakra-ui/react'
 import { isNumber } from '@chakra-ui/utils'
-import debounce from 'lodash.debounce'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, {
   PropsWithChildren,
@@ -111,21 +110,19 @@ export default function MobileDrawer({
 
   const titleColor = variant === 'blue' ? 'white' : 'var(--chakra-colors-grey.800)'
 
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
 
   useEffect(() => {
     const handleResize = () => {
-      const isKeyboard = window.visualViewport
-        ? window.innerHeight < window.visualViewport.height
-        : window.innerHeight < (window.screen?.height ?? window.outerHeight) * 0.85
-      setIsKeyboardVisible(isKeyboard)
+      if (window.visualViewport) {
+        const newKeyboardHeight = window.innerHeight - window.visualViewport.height
+        setKeyboardHeight(newKeyboardHeight > 0 ? newKeyboardHeight : 0)
+      }
     }
 
     handleResize()
-
-    const debouncedHandleResize = debounce(handleResize, 100)
-    window.addEventListener('resize', debouncedHandleResize)
-    return () => window.removeEventListener('resize', debouncedHandleResize)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   const drawerStyle = useMemo(
@@ -133,26 +130,25 @@ export default function MobileDrawer({
       background: bgColor,
       display: 'flex',
       flexDirection: 'column',
-      height: isKeyboardVisible ? '100%' : 'calc(100dvh - 36px)',
+      height: 'calc(100dvh - 36px)',
       position: 'fixed',
       bottom: 0,
       left: 0,
       right: 0,
       zIndex: 99999,
       outline: 'none',
-      transition: 'height 0.3s ease-out',
     }),
-    [bgColor, isKeyboardVisible]
+    [bgColor]
   )
 
   const contentStyle = useMemo(
     (): CSSProperties => ({
       margin: '0 auto',
-      maxHeight: isKeyboardVisible ? '100%' : 'calc(100dvh - 68px)',
+      maxHeight: 'calc(100dvh - 68px)',
       overflowY: 'auto',
-      paddingBottom: isKeyboardVisible ? '20px' : '0',
+      marginBottom: `${keyboardHeight}px`,
     }),
-    [isKeyboardVisible]
+    [keyboardHeight]
   )
 
   return (
