@@ -9,7 +9,7 @@ import {
   FormHelperText,
 } from '@chakra-ui/react'
 import DOMPurify from 'dompurify'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useAccount, useTradingService } from '@/services'
 import { useCommentService } from '@/services/CommentService'
@@ -43,6 +43,15 @@ export default function CommentTextarea() {
       FORBID_ATTR: ['on*', 'src', 'href', 'style', 'data', 'action', 'formaction', 'xlink:href'],
     })
     return sanitized.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+  }
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const handleFocus = () => {
+    textareaRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    })
   }
 
   const submit = async () => {
@@ -84,6 +93,8 @@ export default function CommentTextarea() {
             placeholder='Share an opinion or stfo...'
             maxLength={140}
             contentEditable={true}
+            ref={textareaRef}
+            onFocus={handleFocus}
             resize='none'
             whiteSpace='pre-wrap'
             wordBreak='break-word'
