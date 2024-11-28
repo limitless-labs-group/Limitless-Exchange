@@ -299,7 +299,7 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
                           new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
                         )
                         .toString(),
-                      6
+                      market.collateralToken.symbol === 'USDC' ? 2 : 6
                     )} ${market?.collateralToken.symbol}`}
                   </Text>
                 )}
@@ -332,9 +332,10 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
                   <Skeleton height={20} />
                 </Box>
               ) : (
-                `${NumberUtil.toFixed(position.collateralAmount, 6)} ${
-                  market?.collateralToken.symbol
-                }`
+                `${NumberUtil.toFixed(
+                  position.collateralAmount,
+                  market.collateralToken.symbol === 'USDC' ? 2 : 6
+                )} ${market?.collateralToken.symbol}`
               )}
             </Text>
           </VStack>

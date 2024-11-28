@@ -1,9 +1,10 @@
 import { useInfiniteQuery, useQuery, UseQueryResult } from '@tanstack/react-query'
-import axios, { AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import { usePathname } from 'next/navigation'
-import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
+import { useAccount as useWagmiAccount } from 'wagmi'
 import { limitlessApi } from '@/services'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { FeedEventUser } from '@/types'
 
 export type MarketFeedData = {
@@ -27,23 +28,29 @@ export type MarketFeedData = {
 
 export function useMarketFeed(marketAddress?: string) {
   const pathname = usePathname()
+  const { isConnected } = useWagmiAccount()
+  const privateClient = useAxiosPrivateClient()
   return useQuery<AxiosResponse<MarketFeedData[]>>({
     queryKey: ['market-feed', marketAddress],
     queryFn: async () => {
-      return limitlessApi.get(`/markets/${marketAddress}/get-feed-events`)
+      const client = isConnected ? privateClient : limitlessApi
+      return client.get(`/markets/${marketAddress}/get-feed-events`)
     },
     refetchInterval: pathname === '/' ? 10000 : false,
-    enabled: !isMobile && !!marketAddress,
+    enabled: !!marketAddress,
   }) as UseQueryResult<AxiosResponse<MarketFeedData[]>>
 }
 
 export function useMarketInfinityFeed(marketAddress?: string) {
+  const { isConnected } = useWagmiAccount()
+  const privateClient = useAxiosPrivateClient()
   return useInfiniteQuery<MarketFeedData[], Error>({
     queryKey: ['market-page-feed', marketAddress],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${marketAddress}/get-feed-events`
-      const response: AxiosResponse<MarketFeedData[]> = await axios.get(baseUrl, {
+      const client = isConnected ? privateClient : limitlessApi
+      const baseUrl = `/markets/${marketAddress}/get-feed-events`
+      const response: AxiosResponse<MarketFeedData[]> = await client.get(baseUrl, {
         params: {
           page: pageParam,
           limit: 10,

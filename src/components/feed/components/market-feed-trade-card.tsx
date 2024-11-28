@@ -9,6 +9,7 @@ import { useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { captionRegular } from '@/styles/fonts/fonts.styles'
 import { FeedEntity, Market, MarketNewTradeFeedData } from '@/types'
+import { NumberUtil } from '@/utils'
 
 interface MarketFeedTradeCardProps {
   data: FeedEntity<MarketNewTradeFeedData>
@@ -19,8 +20,13 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
   const eventTitle = useMemo(() => {
     const title = data.data.strategy === 'Buy' ? 'Bought' : 'Sold'
     const outcome = data.data.outcome
-    return `${title} ${data.data.contracts} contracts ${outcome} for ${Math.abs(
-      +data.data.tradeAmount
+    return `${title} ${NumberUtil.toFixed(
+      data.data.contracts,
+      6
+    )} contracts ${outcome} for ${NumberUtil.convertWithDenomination(
+      Math.abs(+data.data.tradeAmount),
+      6,
+      data.data.symbol
     )} ${data.data.symbol} in total.`
   }, [data])
 
@@ -55,6 +61,7 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
   return (
     <MarketFeedCardContainer
       user={data.user}
+      eventType={data.eventType}
       timestamp={new Date(data.timestamp).getTime() / 1000}
       title={eventTitle}
     >

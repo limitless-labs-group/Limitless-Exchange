@@ -1,4 +1,5 @@
 import { extendTheme as ChakraTheme, ThemeConfig } from '@chakra-ui/react'
+import { Inter, Pixelify_Sans } from '@next/font/google'
 import { isMobile } from 'react-device-detect'
 import { accordionTheme } from '@/styles/accordion'
 import { commonButtonProps } from '@/styles/button'
@@ -15,8 +16,10 @@ import { tabsTheme } from '@/styles/tabs'
 import { textAreaTheme } from '@/styles/text-area'
 import { tooltipTheme } from '@/styles/tooltip'
 
-const fonts = `Helvetica Neue`
-const pixels = 'Neue Pixel Sans'
+export const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+})
 
 const config: ThemeConfig = {
   initialColorMode: 'dark',
@@ -28,8 +31,8 @@ export const borderRadius = 'lg'
 export const chakraTheme = ChakraTheme({
   ...config,
   fonts: {
-    heading: pixels,
-    body: fonts,
+    heading: inter.style.fontFamily,
+    body: inter.style.fontFamily,
   },
   // colors: mode(lightThemeColors, darkThemeColors)((props) => props),
   styles: {
@@ -304,6 +307,31 @@ export const chakraTheme = ChakraTheme({
       baseStyle: {
         borderColor: 'grey.100',
         bg: 'grey.100',
+      },
+    },
+    Progress: {
+      baseStyle: {
+        track: {
+          borderRadius: '8px',
+        },
+      },
+      variants: {
+        white: {
+          filledTrack: {
+            bg: 'white',
+          },
+          track: {
+            bg: 'transparent.200',
+          },
+        },
+        market: {
+          filledTrack: {
+            bg: '#0FC591',
+          },
+          track: {
+            bg: '#FF3756',
+          },
+        },
       },
     },
   },

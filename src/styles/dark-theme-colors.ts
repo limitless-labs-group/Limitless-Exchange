@@ -152,6 +152,9 @@ export const darkThemeColors: ColorScheme = {
   blackStale: {
     200: 'rgba(0, 0, 0, 0.2)',
   },
+  background: {
+    90: 'rgba(28, 28, 28, 0.9)',
+  },
   skeleton: {
     dark: '#232222',
     highLight: '#2E2E2E',

@@ -85,10 +85,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
         }&range=${timeRange}&cluster=pythnet`
       )
       const preparedData = result.data.map((priceData) => {
-        return [
-          new Date(priceData.timestamp).getTime(),
-          +priceData.avg_price.toFixed(priceData.avg_price > 1 ? 2 : 6),
-        ]
+        return [new Date(priceData.timestamp).getTime(), +priceData.avg_price.toFixed(6)]
       })
       setPriceData(preparedData)
     } catch (e) {
@@ -108,7 +105,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
                 BigInt(priceEntity ? priceEntity.price : '1'),
                 Math.abs(priceEntity ? priceEntity.expo : 8)
               )
-              const price = +formattedPrice.toFixed(formattedPrice > 1 ? 2 : 6)
+              const price = +formattedPrice.toFixed(6)
               const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
               const currentTime = latestPriceFeedEntity
                 ? latestPriceFeedEntity.publishTime * 1000
@@ -159,7 +156,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       tickColor: colors.grey['200'],
       labels: {
         style: {
-          fontFamily: 'Helvetica Neue',
+          fontFamily: 'Inter',
           fontSize: isMobile ? '14px' : '12px',
           fontWeight: 500,
           color: colors.grey['400'],
@@ -175,7 +172,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       gridLineColor: colors.grey['200'],
       labels: {
         style: {
-          fontFamily: 'Helvetica Neue',
+          fontFamily: 'Inter',
           fontSize: isMobile ? '14px' : '12px',
           fontWeight: 500,
           color: colors.grey['400'],

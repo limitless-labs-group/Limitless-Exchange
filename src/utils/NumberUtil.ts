@@ -6,8 +6,9 @@ export class NumberUtil {
     }`
   }
 
-  static convertWithDenomination = (v?: number | string, decimals = 0): string => {
-    const parts = `${this.toFixed(v, decimals)}`.split('.')
+  static convertWithDenomination = (v?: number | string, decimals = 0, symbol?: string): string => {
+    const denominationDigits = symbol === 'USDC' ? 2 : decimals
+    const parts = `${this.toFixed(v, denominationDigits)}`.split('.')
     return `${parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${
       parts[1]?.length && +parts[0] < 10 ? `.${parts[1]}` : ''
     }`

@@ -2,20 +2,20 @@ import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { ethers } from 'ethers'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPage from '@/components/common/markets/market-page'
+import ProgressBar from '@/components/common/progress-bar'
 import { MarketCardLink } from './market-cards/market-card-link'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
-import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { useTradingService } from '@/services'
-import { headLineLarge, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
+import { cutUsername } from '@/utils/string'
 
 const MotionBox = motion(Box)
 
@@ -67,124 +67,114 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
       return `${
         ethers.utils.isAddress(feedMessage?.user?.name ?? '')
           ? truncateEthAddress(feedMessage?.user?.account)
-          : feedMessage?.user?.name ?? truncateEthAddress(feedMessage?.user?.account)
+          : feedMessage?.user?.name
+          ? cutUsername(feedMessage.user.name, 25)
+          : truncateEthAddress(feedMessage?.user?.account)
       }
-         ${title} ${NumberUtil.formatThousands(
-        message.data.contracts,
-        6
-      )} contracts ${outcome} for ${NumberUtil.convertWithDenomination(
+         ${title} ${outcome} outcome for ${NumberUtil.convertWithDenomination(
         Math.abs(+message.data.tradeAmount),
         6
-      )} ${message.data.symbol} in total.`
+      )} ${message.data.symbol}.`
     }
   }
+
+  const uniqueUsersTrades = useMemo(() => {
+    if (marketFeedData?.data.length) {
+      const uniqueUsers = new Map()
+
+      for (const event of marketFeedData.data) {
+        if (!uniqueUsers.has(event.user?.account)) {
+          uniqueUsers.set(event.user?.account, event)
+        }
+        if (uniqueUsers.size >= 3) break
+      }
+
+      return Array.from(uniqueUsers.values())
+    }
+    return null
+  }, [marketFeedData])
 
   const content = (
     <VStack
       w='full'
       justifyContent='space-between'
-      bg='lime.500'
+      backgroundImage='url("/assets/images/top-market-bg.png")'
+      backgroundSize='100% 100%'
       p='16px'
       borderRadius='8px'
-      h={'324px'}
+      h={isMobile ? '232px' : '324px'}
       cursor='pointer'
       onClick={(e) => onClickRedirectToMarket(e)}
     >
-      <Text {...headLineLarge}>{market.proxyTitle ?? market.title ?? 'Noname market'}</Text>
+      <Box w='full'>
+        <DailyMarketTimer
+          deadline={market.expirationTimestamp}
+          deadlineText={market.expirationDate}
+          topMarket={true}
+          {...paragraphRegular}
+          color='transparent.700'
+        />
+      </Box>
+      <Text {...(isMobile ? h2Bold : h1Bold)} color='white' textAlign='left'>
+        {market.proxyTitle ?? market.title ?? 'Noname market'}
+      </Text>
       <Box w='full' h='38px'></Box>
       <Box w='full'>
+        <HStack w='full' justifyContent='space-between' mb='4px'>
+          <Text {...paragraphMedium} color='white'>
+            Yes {market.prices[0]}%
+          </Text>
+          <Text {...paragraphMedium} color='white'>
+            No {market.prices[1]}%
+          </Text>
+        </HStack>
+        <ProgressBar value={market.prices[0]} variant='white' />
+        {!isMobile && (
+          <Divider
+            orientation='horizontal'
+            mt={'12px'}
+            mb='8px'
+            w='full'
+            bg='transparent.200'
+            borderColor='transparent.200'
+          />
+        )}
         {isMobile ? (
-          <>
-            <HStack w='full' justifyContent='space-between'>
-              <HStack gap='4px'>
-                <HStack color='black' gap='4px'>
-                  <VolumeIcon width={16} height={16} />
-                  <Text {...paragraphMedium} color='black'>
-                    {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
-                    {market.collateralToken.symbol}
-                  </Text>
-                </HStack>
+          <HStack w='full' justifyContent='space-between'>
+            <HStack gap='4px' mt='8px'>
+              <HStack gap={0}>
+                {uniqueUsersTrades?.map(({ user }, index) => (
+                  <Avatar
+                    account={user.account || ''}
+                    avatarUrl={user.imageURI}
+                    key={index}
+                    borderColor='#4905a1'
+                    zIndex={100 + index}
+                    border='2px solid'
+                    size='20px'
+                    color='#4905a1 !important'
+                    showBorder
+                    bg='#4905a1'
+                    style={{
+                      border: '2px solid',
+                      marginLeft: index > 0 ? '-6px' : 0,
+                    }}
+                  />
+                ))}
               </HStack>
-              <HStack gap='4px'>
-                <HStack gap={1} color='black'>
-                  <Text {...paragraphMedium} color='black'>
-                    {market.prices[0]}%
-                  </Text>
-                  <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
-                    <Box
-                      h='100%'
-                      w='100%'
-                      borderRadius='100%'
-                      bg={`conic-gradient(black ${market.prices[0]}% 10%, rgba(0, 0, 0, 0.2) ${market.prices[0]}% 100%)`}
-                    />
-                  </Box>
-                </HStack>
-              </HStack>
+              <Text {...paragraphRegular} color='transparent.700'>
+                Volume
+              </Text>
             </HStack>
-            <HStack w='full' justifyContent='space-between' mt='8px'>
-              <HStack gap='4px'>
-                <HStack color='black' gap='4px'>
-                  <LiquidityIcon width={16} height={16} />
-                  <Text {...paragraphMedium} color='black'>
-                    {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
-                    {market.collateralToken.symbol}
-                  </Text>
-                </HStack>
-              </HStack>
-              <HStack gap='4px'>
-                <DailyMarketTimer deadline={market.expirationTimestamp} color='black' />
-              </HStack>
-            </HStack>
-          </>
+            <Text {...paragraphRegular} color='transparent.700'>
+              {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
+              {market.collateralToken.symbol}
+            </Text>
+          </HStack>
         ) : (
           <HStack w='full' justifyContent='space-between'>
-            <DailyMarketTimer deadline={market.expirationTimestamp} color='black' />
-            <HStack gap='16px'>
-              <HStack color='black' gap='4px'>
-                <LiquidityIcon width={16} height={16} />
-                <Text {...paragraphMedium} color='black'>
-                  {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
-                  {market.collateralToken.symbol}
-                </Text>
-              </HStack>
-              <HStack gap='4px' color='black'>
-                <HStack color='black' gap='4px'>
-                  <VolumeIcon width={16} height={16} />
-                  <Text {...paragraphMedium} color='black'>
-                    {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
-                    {market.collateralToken.symbol}
-                  </Text>
-                </HStack>
-              </HStack>
-              <HStack gap={1} color='black'>
-                <Text {...paragraphMedium} color='black'>
-                  {market.prices[0]}%
-                </Text>
-                <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
-                  <Box
-                    h='100%'
-                    w='100%'
-                    borderRadius='100%'
-                    bg={`conic-gradient(black ${market.prices[0]}% 10%, rgba(0, 0, 0, 0.2) ${market.prices[0]}% 100%)`}
-                  />
-                </Box>
-              </HStack>
-            </HStack>
-          </HStack>
-        )}
-        <Divider
-          orientation='horizontal'
-          mt={'12px'}
-          mb='8px'
-          w='full'
-          bg='rgba(0, 0, 0, 0.2)'
-          borderColor='rgba(0, 0, 0, 0.2)'
-          opacity='0.2 !important'
-        />
-        {isMobile ? null : (
-          <HStack w='full' justifyContent='space-between'>
             {feedMessage && (
-              <Box mt='12px'>
+              <Box>
                 <AnimatePresence>
                   <MotionBox
                     initial={{ y: -48, opacity: 0 }}
@@ -200,7 +190,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                   >
                     <HStack gap='4px' alignItems='flex-start'>
                       <Avatar account={feedMessage?.user?.account ?? ''} />
-                      <Text {...paragraphMedium} color='black' mt='-2px'>
+                      <Text {...paragraphMedium} color='white' mt='-2px'>
                         {fetMarketFeedTitle(feedMessage)}
                       </Text>
                     </HStack>
@@ -208,6 +198,13 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                 </AnimatePresence>
               </Box>
             )}
+            <HStack gap='4px'>
+              <Box {...paragraphRegular}>💧 </Box>
+              <Text {...paragraphRegular} color='transparent.700'>
+                Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
+                {market.collateralToken.symbol}
+              </Text>
+            </HStack>
           </HStack>
         )}
       </Box>
