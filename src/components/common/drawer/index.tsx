@@ -1,5 +1,6 @@
 import { Button, HStack } from '@chakra-ui/react'
 import { isNumber } from '@chakra-ui/utils'
+import debounce from 'lodash.debounce'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, {
   PropsWithChildren,
@@ -121,8 +122,9 @@ export default function MobileDrawer({
     }
 
     handleResize()
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    const debouncedHandleResize = debounce(handleResize, 100)
+    window.addEventListener('resize', debouncedHandleResize)
+    return () => window.removeEventListener('resize', debouncedHandleResize)
   }, [])
 
   const drawerStyle = useMemo(
@@ -137,8 +139,9 @@ export default function MobileDrawer({
       right: 0,
       zIndex: 99999,
       outline: 'none',
+      marginBottom: `${keyboardHeight}px`,
     }),
-    [bgColor]
+    [bgColor, keyboardHeight]
   )
 
   const contentStyle = useMemo(
@@ -146,9 +149,8 @@ export default function MobileDrawer({
       margin: '0 auto',
       maxHeight: 'calc(100dvh - 68px)',
       overflowY: 'auto',
-      marginBottom: `${keyboardHeight}px`,
     }),
-    [keyboardHeight]
+    []
   )
 
   return (
