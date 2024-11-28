@@ -48,11 +48,13 @@ export default function CommentTextarea() {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleFocus = () => {
-    textareaRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-      inline: 'nearest',
-    })
+    if (isMobile) {
+      textareaRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest',
+      })
+    }
   }
 
   const submit = async () => {

@@ -1,6 +1,7 @@
 import { Text, Divider, HStack, VStack, Flex } from '@chakra-ui/react'
 import debounce from 'lodash.debounce'
 import { Fragment, useCallback } from 'react'
+import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import Paper from '@/components/common/paper'
@@ -50,7 +51,7 @@ export default function Comments() {
       </InfiniteScroll>
     </Flex>
   ) : (
-    <VStack w='full' mt='24px' mb='55px'>
+    <VStack w='full' mt='24px' mb={isMobile ? '60px' : '24px'}>
       <Paper p='16px'>
         <CommentIcon width={24} height={24} />
       </Paper>
