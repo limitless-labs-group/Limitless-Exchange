@@ -3,7 +3,9 @@ import debounce from 'lodash.debounce'
 import { Fragment, useCallback } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
+import Paper from '@/components/common/paper'
 import Comment from './comment'
+import CommentIcon from '@/resources/icons/opinion-icon.svg'
 import { useMarketInfinityComments, useTradingService } from '@/services'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
@@ -48,10 +50,14 @@ export default function Comments() {
       </InfiniteScroll>
     </Flex>
   ) : (
-    <VStack w='full' mt='24px'>
+    <VStack w='full' mt='24px' mb='55px'>
+      <Paper p='16px'>
+        <CommentIcon width={24} height={24} />
+      </Paper>
       <Text {...headline} mt='4px'>
-        No comments yet
+        No comment yet
       </Text>
+      <Text {...paragraphRegular}>Be the first to share your opinion!</Text>
     </VStack>
   )
 }

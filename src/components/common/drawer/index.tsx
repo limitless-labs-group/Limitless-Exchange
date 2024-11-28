@@ -139,9 +139,8 @@ export default function MobileDrawer({
       right: 0,
       zIndex: 99999,
       outline: 'none',
-      marginBottom: `${keyboardHeight}px`,
     }),
-    [bgColor, keyboardHeight]
+    [bgColor]
   )
 
   const contentStyle = useMemo(
@@ -149,8 +148,9 @@ export default function MobileDrawer({
       margin: '0 auto',
       maxHeight: 'calc(100dvh - 68px)',
       overflowY: 'auto',
+      paddingBottom: `${keyboardHeight}px`,
     }),
-    []
+    [keyboardHeight]
   )
 
   return (

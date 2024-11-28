@@ -50,7 +50,8 @@ export default function CommentTextarea() {
   const handleFocus = () => {
     textareaRef.current?.scrollIntoView({
       behavior: 'smooth',
-      block: 'center',
+      block: 'start',
+      inline: 'nearest',
     })
   }
 
