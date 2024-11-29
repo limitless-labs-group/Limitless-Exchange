@@ -250,7 +250,7 @@ export default function DailyMarketCardMobile({
                 </Box>
               ) : (
                 <Text {...paragraphMedium} textAlign='left'>
-                  {NumberUtil.formatThousands(yesReturn, 2)} USDC
+                  {NumberUtil.toFixed(yesReturn, 2)} USDC
                 </Text>
               )}
               <Text {...paragraphRegular} textAlign='left' mt='8px'>
@@ -262,7 +262,7 @@ export default function DailyMarketCardMobile({
                 </Box>
               ) : (
                 <Text {...paragraphMedium} textAlign='left'>
-                  {NumberUtil.formatThousands(noReturn, 6)} USDC
+                  {NumberUtil.toFixed(noReturn, 2)} USDC
                 </Text>
               )}
             </Box>

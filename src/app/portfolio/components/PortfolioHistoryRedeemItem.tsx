@@ -43,7 +43,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
 
   const formattedAmount = NumberUtil.formatThousands(
     Number(redeem.collateralAmount) * multiplier(market?.collateralToken.symbol) ?? 0,
-    4
+    market?.collateralToken.symbol === 'USDC' ? 2 : 6
   )
 
   const handleOpenMarketPage = () => {

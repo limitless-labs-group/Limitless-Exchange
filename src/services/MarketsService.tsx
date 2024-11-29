@@ -278,10 +278,7 @@ export function useDailyMarkets(topic: Category | null) {
 
       return {
         data: {
-          markets: result.sort(
-            (a, b) =>
-              new Date(a.expirationTimestamp).getTime() - new Date(b.expirationTimestamp).getTime()
-          ),
+          markets: result,
           totalAmount: response.totalMarketsCount,
         },
       }
