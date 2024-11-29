@@ -186,7 +186,9 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                     Value {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}{' '}
                     {market.collateralToken.symbol}
                   </Text>
-                  <OpenInterestTooltip iconColor='transparent.700' />
+                  <Box zIndex={400}>
+                    <OpenInterestTooltip iconColor='transparent.700' />
+                  </Box>
                 </>
               ) : (
                 <>

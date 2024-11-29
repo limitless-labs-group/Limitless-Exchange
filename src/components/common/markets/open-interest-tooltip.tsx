@@ -16,7 +16,6 @@ export default function OpenInterestTooltip({ iconColor }: { iconColor: string }
       {...paragraphMedium}
       color='white'
       cursor='pointer'
-      zIndex={400}
       onClick={(e) => e.stopPropagation()}
     >
       <Box color={iconColor}>
