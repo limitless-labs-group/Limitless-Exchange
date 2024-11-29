@@ -157,14 +157,46 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
         )}
         {isMobile ? (
           <HStack w='full' justifyContent='space-between'>
-            <HStack gap='4px' mt='8px'>
-              <Text {...paragraphRegular} color='transparent.700'>
-                Volume
-              </Text>
-              <Text {...paragraphRegular} color='transparent.700'>
-                {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
-                {market.collateralToken.symbol}
-              </Text>
+            <Box />
+            <HStack gap='4px'>
+              {defineOpenInterestOverVolume(market.openInterestFormatted, market.liquidityFormatted)
+                .showOpenInterest ? (
+                <>
+                  <HStack gap={0}>
+                    {uniqueUsersTrades?.map(({ user }, index) => (
+                      <Avatar
+                        account={user.account || ''}
+                        avatarUrl={user.imageURI}
+                        key={index}
+                        borderColor='#7e4070'
+                        zIndex={100 + index}
+                        border='2px solid'
+                        size='20px'
+                        color='#7e4070 !important'
+                        showBorder
+                        bg='#7e4070'
+                        style={{
+                          border: '2px solid',
+                          marginLeft: index > 0 ? '-6px' : 0,
+                        }}
+                      />
+                    ))}
+                  </HStack>
+                  <Text {...paragraphRegular} color='transparent.700'>
+                    Value {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}{' '}
+                    {market.collateralToken.symbol}
+                  </Text>
+                  <OpenInterestTooltip iconColor='transparent.700' />
+                </>
+              ) : (
+                <>
+                  <Box {...paragraphRegular}>💧 </Box>
+                  <Text {...paragraphRegular} color='transparent.700'>
+                    Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
+                    {market.collateralToken.symbol}
+                  </Text>
+                </>
+              )}
             </HStack>
           </HStack>
         ) : (
