@@ -144,46 +144,13 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
         {isMobile ? (
           <HStack w='full' justifyContent='space-between'>
             <HStack gap='4px' mt='8px'>
-              <HStack gap={0}>
-                {uniqueUsersTrades ? (
-                  uniqueUsersTrades.map(({ user }, index) => (
-                    <Avatar
-                      account={user.account || ''}
-                      avatarUrl={user.imageURI}
-                      key={index}
-                      borderColor='#4905a1'
-                      zIndex={100 + index}
-                      border='2px solid'
-                      size='20px'
-                      color='#4905a1 !important'
-                      showBorder
-                      bg='#4905a1'
-                      style={{
-                        border: '2px solid',
-                        marginLeft: index > 0 ? '-6px' : 0,
-                      }}
-                    />
-                  ))
-                ) : (
-                  <Box />
-                )}
-              </HStack>
               <Text {...paragraphRegular} color='transparent.700'>
-                {defineOpenInterestOverVolume(market.openInterestFormatted, market.volumeFormatted)
-                  .showOpenInterest
-                  ? 'Value'
-                  : 'Volume'}
+                Volume
               </Text>
               <Text {...paragraphRegular} color='transparent.700'>
-                {NumberUtil.convertWithDenomination(
-                  defineOpenInterestOverVolume(market.openInterestFormatted, market.volumeFormatted)
-                    .value,
-                  6
-                )}{' '}
+                {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
                 {market.collateralToken.symbol}
               </Text>
-              {defineOpenInterestOverVolume(market.openInterestFormatted, market.volumeFormatted)
-                .showOpenInterest && <OpenInterestTooltip />}
             </HStack>
           </HStack>
         ) : (
@@ -216,11 +183,44 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
               <Box />
             )}
             <HStack gap='4px'>
-              <Box {...paragraphRegular}>💧 </Box>
-              <Text {...paragraphRegular} color='transparent.700'>
-                Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
-                {market.collateralToken.symbol}
-              </Text>
+              {defineOpenInterestOverVolume(market.openInterestFormatted, market.liquidityFormatted)
+                .showOpenInterest ? (
+                <>
+                  <HStack gap={0}>
+                    {uniqueUsersTrades?.map(({ user }, index) => (
+                      <Avatar
+                        account={user.account || ''}
+                        avatarUrl={user.imageURI}
+                        key={index}
+                        borderColor='#4905a1'
+                        zIndex={100 + index}
+                        border='2px solid'
+                        size='20px'
+                        color='#4905a1 !important'
+                        showBorder
+                        bg='#4905a1'
+                        style={{
+                          border: '2px solid',
+                          marginLeft: index > 0 ? '-6px' : 0,
+                        }}
+                      />
+                    ))}
+                  </HStack>
+                  <Text {...paragraphRegular} color='transparent.700'>
+                    Liquidity {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}{' '}
+                    {market.collateralToken.symbol}
+                  </Text>
+                  <OpenInterestTooltip />
+                </>
+              ) : (
+                <>
+                  <Box {...paragraphRegular}>💧 </Box>
+                  <Text {...paragraphRegular} color='transparent.700'>
+                    Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
+                    {market.collateralToken.symbol}
+                  </Text>
+                </>
+              )}
             </HStack>
           </HStack>
         )}

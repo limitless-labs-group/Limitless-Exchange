@@ -1,4 +1,4 @@
-import { AvatarGroup, Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { SyntheticEvent, useEffect, useMemo, useState } from 'react'
 import Avatar from '@/components/common/avatar'
@@ -198,48 +198,45 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
               </HStack>
               <HStack gap='4px'>
                 <HStack gap='4px'>
-                  <HStack gap={0}>
-                    {uniqueUsersTrades?.map(({ user }, index) => (
-                      <Avatar
-                        account={user.account || ''}
-                        avatarUrl={user.imageURI}
-                        key={index}
-                        borderColor='grey.100'
-                        zIndex={100 + index}
-                        border='2px solid'
-                        color='grey.100 !important'
-                        showBorder
-                        bg='grey.100'
-                        size='20px'
-                        style={{
-                          border: '2px solid',
-                          marginLeft: index > 0 ? '-6px' : 0,
-                        }}
-                      />
-                    ))}
-                  </HStack>
-                  <Text {...paragraphRegular} color='grey.500'>
-                    {defineOpenInterestOverVolume(
-                      market.openInterestFormatted,
-                      market.volumeFormatted
-                    ).showOpenInterest
-                      ? 'Value'
-                      : 'Volume'}
-                  </Text>
-                  <Text {...paragraphRegular} color='grey.500'>
-                    {NumberUtil.convertWithDenomination(
-                      defineOpenInterestOverVolume(
-                        market.openInterestFormatted,
-                        market.volumeFormatted
-                      ).value,
-                      6
-                    )}{' '}
-                    {market.collateralToken.symbol}
-                  </Text>
                   {defineOpenInterestOverVolume(
                     market.openInterestFormatted,
-                    market.volumeFormatted
-                  ).showOpenInterest && <OpenInterestTooltip />}
+                    market.liquidityFormatted
+                  ).showOpenInterest ? (
+                    <>
+                      <HStack gap={0}>
+                        {uniqueUsersTrades?.map(({ user }, index) => (
+                          <Avatar
+                            account={user.account || ''}
+                            avatarUrl={user.imageURI}
+                            key={index}
+                            borderColor='grey.100'
+                            zIndex={100 + index}
+                            border='2px solid'
+                            color='grey.100 !important'
+                            showBorder
+                            bg='grey.100'
+                            size='20px'
+                            style={{
+                              border: '2px solid',
+                              marginLeft: index > 0 ? '-6px' : 0,
+                            }}
+                          />
+                        ))}
+                      </HStack>
+                      <Text {...paragraphRegular} color='grey.500'>
+                        Value
+                      </Text>
+                      <OpenInterestTooltip />
+                    </>
+                  ) : (
+                    <>
+                      <Box {...paragraphRegular}>💧 </Box>
+                      <Text {...paragraphRegular} color='transparent.700'>
+                        Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
+                        {market.collateralToken.symbol}
+                      </Text>
+                    </>
+                  )}
                 </HStack>
               </HStack>
             </HStack>

@@ -176,46 +176,48 @@ export default function DailyMarketCardMobile({
             <ProgressBar variant='market' value={market.prices[0]} />
             <HStack w='full' justifyContent='space-between'>
               <HStack gap='4px' mt='8px'>
-                <HStack gap={0}>
-                  {uniqueUsersTrades?.map(({ user }, index) => (
-                    <Avatar
-                      account={user.account || ''}
-                      avatarUrl={user.imageURI}
-                      key={index}
-                      borderColor='grey.100'
-                      zIndex={100 + index}
-                      border='2px solid'
-                      size='20px'
-                      color='grey.100 !important'
-                      showBorder
-                      bg='grey.200'
-                      style={{
-                        border: '1px solid',
-                        marginLeft: index > 0 ? '-6px' : 0,
-                      }}
-                    />
-                  ))}
-                </HStack>
-                <Text {...paragraphRegular} color='grey.500'>
-                  {defineOpenInterestOverVolume(
-                    market.openInterestFormatted,
-                    market.volumeFormatted
-                  ).showOpenInterest
-                    ? 'Value'
-                    : 'Volume'}
-                </Text>
-                <Text {...paragraphRegular} color='grey.500'>
-                  {NumberUtil.convertWithDenomination(
-                    defineOpenInterestOverVolume(
-                      market.openInterestFormatted,
-                      market.volumeFormatted
-                    ).value,
-                    6
-                  )}{' '}
-                  {market.collateralToken.symbol}
-                </Text>
-                {defineOpenInterestOverVolume(market.openInterestFormatted, market.volumeFormatted)
-                  .showOpenInterest && <OpenInterestTooltip />}
+                {defineOpenInterestOverVolume(
+                  market.openInterestFormatted,
+                  market.liquidityFormatted
+                ).showOpenInterest ? (
+                  <>
+                    <HStack gap={0}>
+                      {uniqueUsersTrades?.map(({ user }, index) => (
+                        <Avatar
+                          account={user.account || ''}
+                          avatarUrl={user.imageURI}
+                          key={index}
+                          borderColor='grey.100'
+                          zIndex={100 + index}
+                          border='2px solid'
+                          size='20px'
+                          color='grey.100 !important'
+                          showBorder
+                          bg='grey.200'
+                          style={{
+                            border: '1px solid',
+                            marginLeft: index > 0 ? '-6px' : 0,
+                          }}
+                        />
+                      ))}
+                    </HStack>
+                    <Text {...paragraphRegular} color='grey.500'>
+                      Value
+                    </Text>
+                    <Text {...paragraphRegular} color='grey.500'>
+                      {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}
+                    </Text>
+                    <OpenInterestTooltip />
+                  </>
+                ) : (
+                  <>
+                    <Box {...paragraphRegular}>💧 </Box>
+                    <Text {...paragraphRegular} color='transparent.700'>
+                      Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
+                      {market.collateralToken.symbol}
+                    </Text>
+                  </>
+                )}
               </HStack>
             </HStack>
             <Box w='full' mt='12px'>

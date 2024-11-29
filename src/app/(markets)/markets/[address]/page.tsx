@@ -571,27 +571,9 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       </Box>
                     ) : (
                       <HStack gap='4px'>
-                        <UniqueTraders color='grey.50' />
                         <Text {...paragraphRegular} color='grey.500'>
-                          {defineOpenInterestOverVolume(
-                            market.openInterestFormatted,
-                            market.volumeFormatted
-                          ).showOpenInterest
-                            ? 'Value'
-                            : 'Volume'}{' '}
-                          {NumberUtil.convertWithDenomination(
-                            defineOpenInterestOverVolume(
-                              market.openInterestFormatted,
-                              market.volumeFormatted
-                            ).value,
-                            6
-                          )}{' '}
-                          {market?.collateralToken.symbol}
+                          Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
                         </Text>
-                        {defineOpenInterestOverVolume(
-                          market?.openInterestFormatted || '0',
-                          market?.volumeFormatted || '0'
-                        ).showOpenInterest && <OpenInterestTooltip />}
                       </HStack>
                     )}
                     {!market ? (
@@ -600,12 +582,29 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       </Box>
                     ) : (
                       <HStack gap='4px'>
-                        <Box {...paragraphRegular}>💧 </Box>
-                        <Text {...paragraphRegular} color='grey.500'>
-                          Liquidity{' '}
-                          {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
-                          {market.collateralToken.symbol}
-                        </Text>
+                        {defineOpenInterestOverVolume(
+                          market.openInterestFormatted,
+                          market.liquidityFormatted
+                        ).showOpenInterest ? (
+                          <HStack gap='4px'>
+                            <UniqueTraders color='grey.50' />
+                            <Text {...paragraphRegular} color='grey.500'>
+                              Value{' '}
+                              {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}{' '}
+                              {market.collateralToken.symbol}
+                            </Text>
+                            <OpenInterestTooltip />
+                          </HStack>
+                        ) : (
+                          <>
+                            <Box {...paragraphRegular}>💧 </Box>
+                            <Text {...paragraphRegular} color='grey.500'>
+                              Liquidity{' '}
+                              {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
+                              {market.collateralToken.symbol}
+                            </Text>
+                          </>
+                        )}
                       </HStack>
                     )}
                   </HStack>
