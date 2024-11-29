@@ -189,7 +189,10 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                     key={feedMessage.bodyHash}
                   >
                     <HStack gap='4px' alignItems='flex-start'>
-                      <Avatar account={feedMessage?.user?.account ?? ''} />
+                      <Avatar
+                        account={feedMessage.user?.account || ''}
+                        avatarUrl={feedMessage.user?.imageURI}
+                      />
                       <Text {...paragraphMedium} color='white' mt='-2px'>
                         {fetMarketFeedTitle(feedMessage)}
                       </Text>
