@@ -573,6 +573,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       <HStack gap='4px'>
                         <Text {...paragraphRegular} color='grey.500'>
                           Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
+                          {market.collateralToken.symbol}
                         </Text>
                       </HStack>
                     )}

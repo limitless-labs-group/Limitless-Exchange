@@ -367,7 +367,7 @@ export default function MarketPage() {
               <>
                 <UniqueTraders color='grey.50' />
                 <Text {...paragraphRegular} color='grey.500'>
-                  Liquidity {NumberUtil.convertWithDenomination(market?.openInterestFormatted, 6)}{' '}
+                  Value {NumberUtil.convertWithDenomination(market?.openInterestFormatted, 6)}{' '}
                   {market?.collateralToken.symbol}
                 </Text>
                 <OpenInterestTooltip iconColor='grey.500' />

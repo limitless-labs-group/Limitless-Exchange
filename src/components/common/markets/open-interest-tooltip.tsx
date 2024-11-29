@@ -15,6 +15,7 @@ export default function OpenInterestTooltip({ iconColor }: { iconColor: string }
       placement='top-end'
       {...paragraphMedium}
       color='white'
+      cursor='pointer'
     >
       <Box color={iconColor}>
         <QuestionIcon />
