@@ -8,6 +8,7 @@ import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPage from '@/components/common/markets/market-page'
+import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ProgressBar from '@/components/common/progress-bar'
 import { MarketCardLink } from './market-cards/market-card-link'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
@@ -15,6 +16,7 @@ import { useTradingService } from '@/services'
 import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
+import { defineOpenInterestOverVolume } from '@/utils/market'
 import { cutUsername } from '@/utils/string'
 
 const MotionBox = motion(Box)
@@ -143,37 +145,50 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
           <HStack w='full' justifyContent='space-between'>
             <HStack gap='4px' mt='8px'>
               <HStack gap={0}>
-                {uniqueUsersTrades?.map(({ user }, index) => (
-                  <Avatar
-                    account={user.account || ''}
-                    avatarUrl={user.imageURI}
-                    key={index}
-                    borderColor='#4905a1'
-                    zIndex={100 + index}
-                    border='2px solid'
-                    size='20px'
-                    color='#4905a1 !important'
-                    showBorder
-                    bg='#4905a1'
-                    style={{
-                      border: '2px solid',
-                      marginLeft: index > 0 ? '-6px' : 0,
-                    }}
-                  />
-                ))}
+                {uniqueUsersTrades ? (
+                  uniqueUsersTrades.map(({ user }, index) => (
+                    <Avatar
+                      account={user.account || ''}
+                      avatarUrl={user.imageURI}
+                      key={index}
+                      borderColor='#4905a1'
+                      zIndex={100 + index}
+                      border='2px solid'
+                      size='20px'
+                      color='#4905a1 !important'
+                      showBorder
+                      bg='#4905a1'
+                      style={{
+                        border: '2px solid',
+                        marginLeft: index > 0 ? '-6px' : 0,
+                      }}
+                    />
+                  ))
+                ) : (
+                  <Box />
+                )}
               </HStack>
               <Text {...paragraphRegular} color='transparent.700'>
-                Volume
+                {defineOpenInterestOverVolume(market.openInterestFormatted, market.volumeFormatted)
+                  .showOpenInterest
+                  ? 'Value'
+                  : 'Volume'}
               </Text>
+              <Text {...paragraphRegular} color='transparent.700'>
+                {NumberUtil.convertWithDenomination(
+                  defineOpenInterestOverVolume(market.openInterestFormatted, market.volumeFormatted)
+                    .value,
+                  6
+                )}{' '}
+                {market.collateralToken.symbol}
+              </Text>
+              {defineOpenInterestOverVolume(market.openInterestFormatted, market.volumeFormatted)
+                .showOpenInterest && <OpenInterestTooltip />}
             </HStack>
-            <Text {...paragraphRegular} color='transparent.700'>
-              {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
-              {market.collateralToken.symbol}
-            </Text>
           </HStack>
         ) : (
           <HStack w='full' justifyContent='space-between'>
-            {feedMessage && (
+            {feedMessage ? (
               <Box>
                 <AnimatePresence>
                   <MotionBox
@@ -197,6 +212,8 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                   </MotionBox>
                 </AnimatePresence>
               </Box>
+            ) : (
+              <Box />
             )}
             <HStack gap='4px'>
               <Box {...paragraphRegular}>💧 </Box>

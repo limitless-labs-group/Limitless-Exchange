@@ -1,4 +1,4 @@
-import { AvatarGroup, Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { SyntheticEvent, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -6,6 +6,7 @@ import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPage from '@/components/common/markets/market-page'
+import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
 import Skeleton from '@/components/common/skeleton'
@@ -22,6 +23,7 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
+import { defineOpenInterestOverVolume } from '@/utils/market'
 
 interface DailyMarketCardProps {
   market: Market
@@ -195,13 +197,26 @@ export default function DailyMarketCardMobile({
                   ))}
                 </HStack>
                 <Text {...paragraphRegular} color='grey.500'>
-                  Volume
+                  {defineOpenInterestOverVolume(
+                    market.openInterestFormatted,
+                    market.volumeFormatted
+                  ).showOpenInterest
+                    ? 'Value'
+                    : 'Volume'}
                 </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(
+                    defineOpenInterestOverVolume(
+                      market.openInterestFormatted,
+                      market.volumeFormatted
+                    ).value,
+                    6
+                  )}{' '}
+                  {market.collateralToken.symbol}
+                </Text>
+                {defineOpenInterestOverVolume(market.openInterestFormatted, market.volumeFormatted)
+                  .showOpenInterest && <OpenInterestTooltip />}
               </HStack>
-              <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
-                {market.collateralToken.symbol}
-              </Text>
             </HStack>
             <Box w='full' mt='12px'>
               <Divider orientation='horizontal' borderColor='grey.200' color='grey.200' />

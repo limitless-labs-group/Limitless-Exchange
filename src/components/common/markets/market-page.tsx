@@ -26,6 +26,7 @@ import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
+import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
@@ -62,6 +63,7 @@ import {
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { defineOpenInterestOverVolume } from '@/utils/market'
 
 const tokens = [
   'AAVE',
@@ -350,13 +352,30 @@ export default function MarketPage() {
             <HStack gap='4px'>
               <UniqueTraders color='grey.50' />
               <Text {...paragraphRegular} color='grey.500'>
-                Volume
+                {defineOpenInterestOverVolume(
+                  market?.openInterestFormatted || '0',
+                  market?.volumeFormatted || '0'
+                ).showOpenInterest
+                  ? 'Value'
+                  : 'Volume'}
               </Text>
             </HStack>
             <Text {...paragraphRegular} color='grey.500'>
-              {NumberUtil.convertWithDenomination(market?.volumeFormatted, 6)}{' '}
+              {NumberUtil.convertWithDenomination(
+                NumberUtil.convertWithDenomination(
+                  defineOpenInterestOverVolume(
+                    market?.openInterestFormatted || '0',
+                    market?.volumeFormatted || '0'
+                  ).value,
+                  6
+                )
+              )}{' '}
               {market?.collateralToken.symbol}
             </Text>
+            {defineOpenInterestOverVolume(
+              market?.openInterestFormatted || '0',
+              market?.volumeFormatted || '0'
+            ).showOpenInterest && <OpenInterestTooltip />}
           </HStack>
           <HStack gap='4px' w={isMobile ? 'full' : 'unset'} justifyContent='unset'>
             <Box {...paragraphRegular}>💧 </Box>

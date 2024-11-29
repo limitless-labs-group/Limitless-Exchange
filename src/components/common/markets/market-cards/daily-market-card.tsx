@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation'
 import React, { SyntheticEvent, useEffect, useMemo, useState } from 'react'
 import Avatar from '@/components/common/avatar'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
 import Skeleton from '@/components/common/skeleton'
@@ -20,6 +21,7 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
+import { defineOpenInterestOverVolume } from '@/utils/market'
 
 interface DailyMarketCardProps {
   market: Market
@@ -217,13 +219,28 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                     ))}
                   </HStack>
                   <Text {...paragraphRegular} color='grey.500'>
-                    Volume
+                    {defineOpenInterestOverVolume(
+                      market.openInterestFormatted,
+                      market.volumeFormatted
+                    ).showOpenInterest
+                      ? 'Value'
+                      : 'Volume'}
                   </Text>
+                  <Text {...paragraphRegular} color='grey.500'>
+                    {NumberUtil.convertWithDenomination(
+                      defineOpenInterestOverVolume(
+                        market.openInterestFormatted,
+                        market.volumeFormatted
+                      ).value,
+                      6
+                    )}{' '}
+                    {market.collateralToken.symbol}
+                  </Text>
+                  {defineOpenInterestOverVolume(
+                    market.openInterestFormatted,
+                    market.volumeFormatted
+                  ).showOpenInterest && <OpenInterestTooltip />}
                 </HStack>
-                <Text {...paragraphRegular} color='grey.500'>
-                  {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
-                  {market.collateralToken.symbol}
-                </Text>
               </HStack>
             </HStack>
           </Box>
