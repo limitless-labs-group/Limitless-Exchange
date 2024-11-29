@@ -362,13 +362,11 @@ export default function MarketPage() {
             </HStack>
             <Text {...paragraphRegular} color='grey.500'>
               {NumberUtil.convertWithDenomination(
-                NumberUtil.convertWithDenomination(
-                  defineOpenInterestOverVolume(
-                    market?.openInterestFormatted || '0',
-                    market?.volumeFormatted || '0'
-                  ).value,
-                  6
-                )
+                defineOpenInterestOverVolume(
+                  market?.openInterestFormatted || '0',
+                  market?.volumeFormatted || '0'
+                ).value,
+                6
               )}{' '}
               {market?.collateralToken.symbol}
             </Text>
