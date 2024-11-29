@@ -571,7 +571,6 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       </Box>
                     ) : (
                       <HStack gap='4px'>
-                        <UniqueTraders color='grey.50' />
                         <Text {...paragraphRegular} color='grey.500'>
                           Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
                           {market.collateralToken.symbol}
@@ -589,7 +588,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                           market.liquidityFormatted
                         ).showOpenInterest ? (
                           <>
-                            <UniqueTraders color='grey.500' />
+                            <UniqueTraders color='grey.50' />
                             <Text {...paragraphRegular} color='grey.500'>
                               Value{' '}
                               {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}{' '}

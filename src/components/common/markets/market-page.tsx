@@ -349,7 +349,6 @@ export default function MarketPage() {
         <ProgressBar variant='market' value={market ? market.prices[0] : 50} />
         <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
-            <UniqueTraders color='grey.50' />
             <Text {...paragraphRegular} color='grey.500'>
               Volume
             </Text>
