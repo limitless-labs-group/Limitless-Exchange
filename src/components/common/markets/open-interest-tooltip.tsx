@@ -1,5 +1,5 @@
-import { Box, useDisclosure } from '@chakra-ui/react'
-import React from 'react'
+import { Box, useDisclosure, useOutsideClick } from '@chakra-ui/react'
+import React, { MutableRefObject, useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Tooltip } from '@/components/common/tooltip'
 import QuestionIcon from '@/resources/icons/question-icon.svg'
@@ -7,6 +7,15 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 export default function OpenInterestTooltip({ iconColor }: { iconColor: string }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const ref = useRef<HTMLElement>()
+
+  useOutsideClick({
+    ref: ref as MutableRefObject<HTMLElement>,
+    handler: () => {
+      isMobile && onClose()
+    },
+  })
+
   return (
     <Tooltip
       bg='background.90'
@@ -30,9 +39,7 @@ export default function OpenInterestTooltip({ iconColor }: { iconColor: string }
         onClick={(e) => {
           e.stopPropagation()
           e.preventDefault()
-          if (isMobile) {
-            isOpen ? onClose() : onOpen()
-          }
+          isMobile && onOpen()
         }}
       >
         <QuestionIcon />
