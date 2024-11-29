@@ -36,6 +36,7 @@ export default function DailyMarketCardMobile({
   markets,
   analyticParams,
 }: DailyMarketCardProps) {
+  console.log(market)
   const [estimateOpened, setEstimateOpened] = useState(false)
   const { onOpenMarketPage, onCloseMarketPage, setMarkets, setMarketsSection } = useTradingService()
   const router = useRouter()

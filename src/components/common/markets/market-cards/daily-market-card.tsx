@@ -29,6 +29,7 @@ interface DailyMarketCardProps {
 }
 
 export default function DailyMarketCard({ market, analyticParams }: DailyMarketCardProps) {
+  console.log(market)
   const [hovered, setHovered] = useState(false)
   const [estimateOpened, setEstimateOpened] = useState(false)
   const { onOpenMarketPage, market: selectedMarket } = useTradingService()
