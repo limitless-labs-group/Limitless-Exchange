@@ -351,21 +351,37 @@ export default function MarketPage() {
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
             <UniqueTraders color='grey.50' />
             <Text {...paragraphRegular} color='grey.500'>
-              Value
+              Volume
             </Text>
             <Text {...paragraphRegular} color='grey.500'>
-              {NumberUtil.convertWithDenomination(market?.openInterestFormatted || '0', 6)}{' '}
-              {market?.collateralToken.symbol}
-            </Text>
-            <OpenInterestTooltip iconColor='grey.500' />
-          </HStack>
-          <HStack gap='4px' w={isMobile ? 'full' : 'unset'} justifyContent='unset'>
-            <Box {...paragraphRegular}>💧 </Box>
-            <Text {...paragraphRegular} color='grey.500'>
-              Liquidity {NumberUtil.convertWithDenomination(market?.liquidityFormatted, 6)}{' '}
+              {NumberUtil.convertWithDenomination(market?.volumeFormatted || '0', 6)}{' '}
               {market?.collateralToken.symbol}
             </Text>
           </HStack>
+          {defineOpenInterestOverVolume(
+            market?.openInterestFormatted || '0',
+            market?.liquidityFormatted || '0'
+          ).showOpenInterest ? (
+            <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
+              <UniqueTraders color='grey.50' />
+              <Text {...paragraphRegular} color='grey.500'>
+                Value
+              </Text>
+              <Text {...paragraphRegular} color='grey.500'>
+                {NumberUtil.convertWithDenomination(market?.openInterestFormatted || '0', 6)}{' '}
+                {market?.collateralToken.symbol}
+              </Text>
+              <OpenInterestTooltip iconColor='grey.500' />
+            </HStack>
+          ) : (
+            <HStack gap='4px' w={isMobile ? 'full' : 'unset'} justifyContent='unset'>
+              <Box {...paragraphRegular}>💧 </Box>
+              <Text {...paragraphRegular} color='grey.500'>
+                Liquidity {NumberUtil.convertWithDenomination(market?.liquidityFormatted, 6)}{' '}
+                {market?.collateralToken.symbol}
+              </Text>
+            </HStack>
+          )}
         </HStack>
         <Divider my={isMobile ? '24px' : '16px'} />
       </Box>
