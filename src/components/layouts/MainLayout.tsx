@@ -24,8 +24,6 @@ export const MainLayout = ({
   const pathname = usePathname()
   const { marketPageOpened, market } = useTradingService()
 
-  console.log(pathname)
-
   return (
     <Box
       className={inter.className}
