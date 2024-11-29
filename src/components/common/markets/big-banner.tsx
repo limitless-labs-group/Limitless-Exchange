@@ -66,17 +66,31 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
     if (message && feedMessage === message) {
       const title = message.data.strategy === 'Buy' ? 'bought' : 'sold'
       const outcome = message.data.outcome
-      return `${
-        ethers.utils.isAddress(feedMessage?.user?.name ?? '')
-          ? truncateEthAddress(feedMessage?.user?.account)
-          : feedMessage?.user?.name
-          ? cutUsername(feedMessage.user.name, 25)
-          : truncateEthAddress(feedMessage?.user?.account)
-      }
-         ${title} ${outcome} outcome for ${NumberUtil.convertWithDenomination(
-        Math.abs(+message.data.tradeAmount),
-        6
-      )} ${message.data.symbol}.`
+      return (
+        <HStack gap='2px'>
+          <Text
+            {...paragraphMedium}
+            color='white'
+            maxW='20%'
+            whiteSpace='nowrap'
+            overflow='hidden'
+            textOverflow='ellipsis'
+          >
+            {ethers.utils.isAddress(feedMessage?.user?.name ?? '')
+              ? truncateEthAddress(feedMessage?.user?.account)
+              : feedMessage?.user?.name
+              ? cutUsername(feedMessage.user.name, 25)
+              : truncateEthAddress(feedMessage?.user?.account)}
+          </Text>
+          <Text
+            {...paragraphMedium}
+            color='white'
+          >{`${title} ${outcome} outcome for ${NumberUtil.convertWithDenomination(
+            Math.abs(+message.data.tradeAmount),
+            6
+          )} ${message.data.symbol}.`}</Text>
+        </HStack>
+      )
     }
   }
 
@@ -172,9 +186,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                   >
                     <HStack gap='4px' alignItems='flex-start'>
                       <Avatar account={feedMessage?.user?.account ?? ''} />
-                      <Text {...paragraphMedium} color='white'>
-                        {fetMarketFeedTitle(feedMessage)}
-                      </Text>
+                      {fetMarketFeedTitle(feedMessage)}
                     </HStack>
                   </MotionBox>
                 </AnimatePresence>
@@ -198,7 +210,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                         size='20px'
                         color='#4905a1 !important'
                         showBorder
-                        bg='#4905a1'
+                        bg='#7e4070'
                         style={{
                           border: '2px solid',
                           marginLeft: index > 0 ? '-6px' : 0,
@@ -207,10 +219,10 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                     ))}
                   </HStack>
                   <Text {...paragraphRegular} color='transparent.700'>
-                    Liquidity {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}{' '}
+                    Value {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}{' '}
                     {market.collateralToken.symbol}
                   </Text>
-                  <OpenInterestTooltip />
+                  <OpenInterestTooltip iconColor='transparent.700' />
                 </>
               ) : (
                 <>

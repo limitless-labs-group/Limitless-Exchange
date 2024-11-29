@@ -370,7 +370,7 @@ export default function MarketPage() {
                   Liquidity {NumberUtil.convertWithDenomination(market?.openInterestFormatted, 6)}{' '}
                   {market?.collateralToken.symbol}
                 </Text>
-                <OpenInterestTooltip />
+                <OpenInterestTooltip iconColor='grey.500' />
               </>
             ) : (
               <>

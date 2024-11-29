@@ -1,10 +1,10 @@
-import { Box } from '@chakra-ui/react'
+import { Box, TooltipProps } from '@chakra-ui/react'
 import React from 'react'
 import { Tooltip } from '@/components/common/tooltip'
 import QuestionIcon from '@/resources/icons/question-icon.svg'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
-export default function OpenInterestTooltip() {
+export default function OpenInterestTooltip({ iconColor }: { iconColor: string }) {
   return (
     <Tooltip
       bg='background.90'
@@ -16,7 +16,7 @@ export default function OpenInterestTooltip() {
       {...paragraphMedium}
       color='white'
     >
-      <Box color='transparent.700'>
+      <Box color={iconColor}>
         <QuestionIcon />
       </Box>
     </Tooltip>

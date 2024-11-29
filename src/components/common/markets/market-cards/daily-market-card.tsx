@@ -226,7 +226,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                       <Text {...paragraphRegular} color='grey.500'>
                         Value
                       </Text>
-                      <OpenInterestTooltip />
+                      <OpenInterestTooltip iconColor='grey.500' />
                     </>
                   ) : (
                     <>

@@ -207,7 +207,7 @@ export default function DailyMarketCardMobile({
                     <Text {...paragraphRegular} color='grey.500'>
                       {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}
                     </Text>
-                    <OpenInterestTooltip />
+                    <OpenInterestTooltip iconColor='grey.500' />
                   </>
                 ) : (
                   <>

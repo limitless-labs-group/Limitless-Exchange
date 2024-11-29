@@ -593,7 +593,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                               {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}{' '}
                               {market.collateralToken.symbol}
                             </Text>
-                            <OpenInterestTooltip />
+                            <OpenInterestTooltip iconColor='grey.500' />
                           </HStack>
                         ) : (
                           <>
