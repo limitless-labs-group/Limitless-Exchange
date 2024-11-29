@@ -204,11 +204,11 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                         account={user.account || ''}
                         avatarUrl={user.imageURI}
                         key={index}
-                        borderColor='#4905a1'
+                        borderColor='#7e4070'
                         zIndex={100 + index}
                         border='2px solid'
                         size='20px'
-                        color='#4905a1 !important'
+                        color='#7e4070 !important'
                         showBorder
                         bg='#7e4070'
                         style={{
