@@ -1,4 +1,4 @@
-import { Box, TooltipProps } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import React from 'react'
 import { Tooltip } from '@/components/common/tooltip'
 import QuestionIcon from '@/resources/icons/question-icon.svg'
@@ -16,6 +16,7 @@ export default function OpenInterestTooltip({ iconColor }: { iconColor: string }
       {...paragraphMedium}
       color='white'
       cursor='pointer'
+      onClick={(e) => e.stopPropagation()}
     >
       <Box color={iconColor}>
         <QuestionIcon />

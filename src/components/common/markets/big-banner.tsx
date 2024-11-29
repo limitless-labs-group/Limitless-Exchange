@@ -156,7 +156,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
           />
         )}
         {isMobile ? (
-          <HStack w='full' justifyContent='space-between'>
+          <HStack w='full' justifyContent='space-between' mt='8px'>
             <Box />
             <HStack gap='4px'>
               {defineOpenInterestOverVolume(market.openInterestFormatted, market.liquidityFormatted)
