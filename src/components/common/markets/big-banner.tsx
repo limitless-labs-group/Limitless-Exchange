@@ -197,6 +197,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                     Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
                     {market.collateralToken.symbol}
                   </Text>
+                  <OpenInterestTooltip iconColor='grey.500' />
                 </>
               )}
             </HStack>
@@ -267,7 +268,6 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                     Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
                     {market.collateralToken.symbol}
                   </Text>
-                  <OpenInterestTooltip iconColor='grey.500' />
                 </>
               )}
             </HStack>
