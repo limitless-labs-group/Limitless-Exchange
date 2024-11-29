@@ -34,7 +34,11 @@ export function useMarketFeed(marketAddress?: string) {
     queryKey: ['market-feed', marketAddress],
     queryFn: async () => {
       const client = isConnected ? privateClient : limitlessApi
-      return client.get(`/markets/${marketAddress}/get-feed-events`)
+      return client.get(`/markets/${marketAddress}/get-feed-events`, {
+        params: {
+          limit: 50,
+        },
+      })
     },
     refetchInterval: pathname === '/' ? 10000 : false,
     enabled: !!marketAddress,
