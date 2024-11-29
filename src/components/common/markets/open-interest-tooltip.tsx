@@ -26,7 +26,6 @@ export default function OpenInterestTooltip({ iconColor }: { iconColor: string }
       placement='top-end'
       {...paragraphMedium}
       color='white'
-      cursor='pointer'
       {...(isMobile
         ? {
             isOpen,
@@ -36,6 +35,7 @@ export default function OpenInterestTooltip({ iconColor }: { iconColor: string }
     >
       <Box
         color={iconColor}
+        cursor='pointer'
         onClick={(e) => {
           e.stopPropagation()
           e.preventDefault()
