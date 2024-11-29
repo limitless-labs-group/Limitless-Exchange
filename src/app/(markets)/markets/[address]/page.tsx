@@ -32,6 +32,7 @@ import MarketActivityTab from '@/components/common/markets/activity-tab'
 import CommentTab from '@/components/common/markets/comment-tab'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
+import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import { UniqueTraders } from '@/components/common/markets/unique-traders'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
@@ -77,6 +78,7 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
+import { defineOpenInterestOverVolume } from '@/utils/market'
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -571,9 +573,11 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       <HStack gap='4px'>
                         <UniqueTraders color='grey.50' />
                         <Text {...paragraphRegular} color='grey.500'>
-                          Volume {NumberUtil.convertWithDenomination(market?.volumeFormatted, 6)}{' '}
-                          {market?.collateralToken.symbol}
+                          Value{' '}
+                          {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}{' '}
+                          {market.collateralToken.symbol}
                         </Text>
+                        <OpenInterestTooltip iconColor='grey.500' />
                       </HStack>
                     )}
                     {!market ? (

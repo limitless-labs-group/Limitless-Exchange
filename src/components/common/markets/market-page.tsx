@@ -26,6 +26,7 @@ import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
+import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
@@ -62,6 +63,7 @@ import {
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { defineOpenInterestOverVolume } from '@/utils/market'
 
 const tokens = [
   'AAVE',
@@ -347,16 +349,15 @@ export default function MarketPage() {
         <ProgressBar variant='market' value={market ? market.prices[0] : 50} />
         <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
-            <HStack gap='4px'>
-              <UniqueTraders color='grey.50' />
-              <Text {...paragraphRegular} color='grey.500'>
-                Volume
-              </Text>
-            </HStack>
+            <UniqueTraders color='grey.50' />
             <Text {...paragraphRegular} color='grey.500'>
-              {NumberUtil.convertWithDenomination(market?.volumeFormatted, 6)}{' '}
+              Value
+            </Text>
+            <Text {...paragraphRegular} color='grey.500'>
+              {NumberUtil.convertWithDenomination(market?.openInterestFormatted || '0', 6)}{' '}
               {market?.collateralToken.symbol}
             </Text>
+            <OpenInterestTooltip iconColor='grey.500' />
           </HStack>
           <HStack gap='4px' w={isMobile ? 'full' : 'unset'} justifyContent='unset'>
             <Box {...paragraphRegular}>💧 </Box>
