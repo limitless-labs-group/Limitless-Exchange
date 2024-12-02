@@ -544,7 +544,7 @@ export default function LeaderboardPage() {
   }
 
   return (
-    <MainLayout>
+    <MainLayout layoutPadding={isMobile ? '0' : '16px'}>
       <HStack
         className='w-full'
         alignItems='flex-start'
@@ -603,35 +603,37 @@ export default function LeaderboardPage() {
             <Text {...headlineRegular}>{selectedSortFilter} - 1152 people</Text>
           </HStack>
           <Leaders />
-          <TableContainerWrapper>
-            {currentData.map((data, index) => (
-              <Tr key={index}>
-                <Td h='44px'>
-                  {currentPage === 1 && index < 3 ? (
-                    <LeaderIcon index={index} />
-                  ) : (
-                    `${(currentPage - 1) * 10 + (index + 1)}`
-                  )}
-                </Td>
-                <Td>
-                  <HStack gap='4px'>
-                    <Box w='16px' h='16px' borderRadius='100%' bg='#D9D9D9' />
-                    <Text>{data.name}</Text>
-                  </HStack>
-                </Td>
-                <Td>{data.outcome}</Td>
-                <Td textAlign='right'>{data.shares}</Td>
-                <Td textAlign='right'>
-                  {data.value} {data.collateralToken}
-                </Td>
-              </Tr>
-            ))}
-          </TableContainerWrapper>
-          <TablePagination
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-            totalPages={totalPages}
-          />
+          <Box px='16px' mb='24px'>
+            <TableContainerWrapper>
+              {currentData.map((data, index) => (
+                <Tr key={index}>
+                  <Td h='44px'>
+                    {currentPage === 1 && index < 3 ? (
+                      <LeaderIcon index={index} />
+                    ) : (
+                      `${(currentPage - 1) * 10 + (index + 1)}`
+                    )}
+                  </Td>
+                  <Td>
+                    <HStack gap='4px'>
+                      <Box w='16px' h='16px' borderRadius='100%' bg='#D9D9D9' />
+                      <Text>{data.name}</Text>
+                    </HStack>
+                  </Td>
+                  <Td>{data.outcome}</Td>
+                  <Td textAlign='right'>{data.shares}</Td>
+                  <Td textAlign='right'>
+                    {data.value} {data.collateralToken}
+                  </Td>
+                </Tr>
+              ))}
+            </TableContainerWrapper>
+            <TablePagination
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              totalPages={totalPages}
+            />
+          </Box>
         </Box>
       </HStack>
     </MainLayout>

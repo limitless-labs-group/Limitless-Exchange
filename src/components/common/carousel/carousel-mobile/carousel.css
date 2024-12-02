@@ -1,10 +1,12 @@
 .embla_mobile {
   margin: auto;
   --slide-spacing: 1rem;
-  --slide-size: 70%;
+  --slide-size: 100%;
 }
 .embla__viewport_mobile {
   overflow: hidden;
+  padding-left: 20%;
+  padding-right: 20%;
 }
 .embla__container_mobile {
   display: flex;
