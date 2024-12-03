@@ -26,13 +26,14 @@ import { useLeaderboard, useTopThreeLeaders } from '@/hooks/use-leaderboard'
 import WreathsBronzeIcon from '@/resources/icons/wreaths_bronze.svg'
 import WreathsGoldIcon from '@/resources/icons/wreaths_gold.svg'
 import WreathsSilverIcon from '@/resources/icons/wreaths_silver.svg'
+import { ChangeEvent, useAmplitude } from '@/services'
 import { h1Regular, h2Medium, headlineRegular, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { LeaderboardSort } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
 const sortOptions = [
-  LeaderboardSort.DAILY,
-  LeaderboardSort.WEEKLY,
+  // LeaderboardSort.DAILY,
+  // LeaderboardSort.WEEKLY,
   LeaderboardSort.MONTHLY,
   LeaderboardSort.ALL_TIME,
 ]
@@ -73,6 +74,8 @@ export default function LeaderboardPage() {
   )
   const [currentPage, setCurrentPage] = useState(1)
 
+  const { trackChanged } = useAmplitude()
+
   const { data: leaderboardStats, isLoading } = useLeaderboard(selectedSortFilter, currentPage)
 
   const { data: topThreeLeaders, isLoading: topThreeLoading } =
@@ -81,11 +84,18 @@ export default function LeaderboardPage() {
   const totalPages = Math.ceil(leaderboardStats ? +leaderboardStats.data.totalCount / 10 : 1)
 
   const handlePageChange = (page: number) => {
+    trackChanged(ChangeEvent.LeaderboardPageChanged, {
+      from: currentPage,
+      to: page,
+    })
     setCurrentPage(page)
   }
 
   const handleFilterItemClicked = (option: LeaderboardSort) => {
     window.sessionStorage.setItem('LEADERBOARD_SORT', option)
+    trackChanged(ChangeEvent.LeaderboardViewChanged, {
+      option,
+    })
     setSelectedSortFilter(option)
   }
 

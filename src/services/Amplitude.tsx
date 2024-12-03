@@ -10,7 +10,7 @@ import { useEffect, createContext, PropsWithChildren, useContext, useCallback } 
 import { PageName } from '@/hooks/use-page-name'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useAccount } from '@/services'
-import { Address, Category, MarketGroup } from '@/types'
+import { Address, Category, LeaderboardSort, MarketGroup } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 
@@ -117,6 +117,8 @@ export enum ChangeEvent {
   OutcomeChanged = 'Outcome Changed',
   ProfilePictureUploadedChanged = 'Profile Picture Uploaded',
   ProfileSettingsChanged = 'Profile Settings Changed',
+  LeaderboardViewChanged = 'Leaderboard View Changed',
+  LeaderboardPageChanged = 'Leaderboard Page Changed',
 }
 
 export enum ClickEvent {
@@ -317,6 +319,15 @@ export type ProfilePictureUploadClickedMetadata = ProfileSettingsMetadata
 export type ProfilePictureUploadedChangedMetadata = ProfileSettingsMetadata
 export type ProfileSettingsChangedMetadata = ProfileSettingsMetadata
 
+export type LeaderboardViewChangedMetadata = {
+  option: LeaderboardSort
+}
+
+export type LeaderboardPageChangedMetadata = {
+  from: number
+  to: number
+}
+
 export interface OpenMarketClickedMetadata {
   page: OpenMarketClickedPage
 }
@@ -397,6 +408,8 @@ export type ChangedEventMetadata =
   | OutcomeChangedMetadata
   | ProfilePictureUploadedChangedMetadata
   | ProfileSettingsChangedMetadata
+  | LeaderboardViewChangedMetadata
+  | LeaderboardPageChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
   | PricePresetClickedMetadata
