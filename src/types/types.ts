@@ -143,6 +143,13 @@ export enum Sort {
   HIGHEST_VOLUME = 'High Volume',
 }
 
+export enum LeaderboardSort {
+  DAILY = 'Daily',
+  WEEKLY = 'Weekly',
+  MONTHLY = 'Monthly',
+  ALL_TIME = 'All time',
+}
+
 export enum MarketStatus {
   RESOLVED = 'RESOLVED',
   FUNDED = 'FUNDED',

@@ -93,7 +93,6 @@ export default function DrawerCarousel({ markets }: DrawerCarouselProps) {
                 slides={markets.map((market) => (
                   <MarketSlidePage key={market.expirationTimestamp} market={market} />
                 ))}
-                markets={markets}
               />
             </div>
           </div>

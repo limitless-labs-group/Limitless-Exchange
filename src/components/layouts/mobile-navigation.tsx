@@ -5,6 +5,7 @@ import usePageName from '@/hooks/use-page-name'
 import AiAgentIcon from '@/resources/icons/ai-agent-icon.svg'
 import FeedIcon from '@/resources/icons/sidebar/Feed.svg'
 import GridIcon from '@/resources/icons/sidebar/Markets.svg'
+import CrownIcon from '@/resources/icons/sidebar/crone-icon.svg'
 import {
   ClickEvent,
   ProfileBurgerMenuClickedMetadata,
@@ -23,6 +24,13 @@ export default function MobileNavigation() {
       link: '/',
       isActive: pageName === 'Explore Markets',
       amplitudeOption: 'Markets' as ProfileBurgerMenuClickedOption,
+    },
+    {
+      title: 'Leaders',
+      icon: <CrownIcon />,
+      link: '/leaderboard',
+      isActive: pageName === 'Leaderboard',
+      amplitudeOption: 'Leaderboard' as ProfileBurgerMenuClickedOption,
     },
     {
       title: 'Feed',

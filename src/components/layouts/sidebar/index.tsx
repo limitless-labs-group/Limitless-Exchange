@@ -42,6 +42,7 @@ import GridIcon from '@/resources/icons/sidebar/Markets.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
+import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
 import SquarePlusIcon from '@/resources/icons/sidebar/suggest_market.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import UserIcon from '@/resources/icons/user-icon.svg'
@@ -348,6 +349,26 @@ export default function Sidebar() {
               <GridIcon width={16} height={16} />
               <Text fontWeight={500} fontSize='14px'>
                 Markets
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
+        <NextLink href='/leaderboard' passHref style={{ width: '100%' }}>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Leaderboard',
+              })
+            }}
+            variant='transparent'
+            w='full'
+            bg={pageName === 'Leaderboard' ? 'grey.100' : 'unset'}
+            rounded='8px'
+          >
+            <HStack w='full'>
+              <SidebarIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                Leaderboard
               </Text>
             </HStack>
           </Link>
