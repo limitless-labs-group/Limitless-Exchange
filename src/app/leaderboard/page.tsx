@@ -40,7 +40,7 @@ const sortOptions = [
 
 const TableContainerWrapper = ({ children }: PropsWithChildren) => {
   return (
-    <TableContainer overflow={'auto'} mt='16px' mb='8px'>
+    <TableContainer overflow={'auto'} mt='16px' mb='8px' px={isMobile ? '16px' : 0}>
       <Table variant={'simple'}>
         <Thead>
           <Tr>
@@ -108,7 +108,7 @@ export default function LeaderboardPage() {
       )
     }
     return (
-      <>
+      <Box mb={isMobile ? '40px' : 0}>
         <TableContainerWrapper>
           {leaderboardStats?.data?.data.map((data, index) => (
             <Tr key={index}>
@@ -138,7 +138,7 @@ export default function LeaderboardPage() {
           onPageChange={handlePageChange}
           totalPages={totalPages}
         />
-      </>
+      </Box>
     )
   }, [currentPage, leaderboardStats?.data.data, totalPages])
 
@@ -207,7 +207,7 @@ export default function LeaderboardPage() {
               </ButtonGroup>
             </HStack>
             {isLoading ? (
-              <Box w='160px'>
+              <Box w='160px' px={isMobile ? '16px' : 0}>
                 <Skeleton height={20} />
               </Box>
             ) : (
@@ -217,14 +217,14 @@ export default function LeaderboardPage() {
             )}
           </HStack>
           {topThreeLoading ? (
-            <Box my='16px'>
+            <Box my='16px' px={isMobile ? '16px' : 0}>
               <Skeleton height={132} />
             </Box>
           ) : (
             renderLeaders
           )}
           {isLoading ? (
-            <Box mt='16px'>
+            <Box mt='16px' px={isMobile ? '16px' : 0}>
               <Skeleton height={520} />
             </Box>
           ) : (
