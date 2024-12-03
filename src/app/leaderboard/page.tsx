@@ -105,6 +105,7 @@ export default function LeaderboardPage() {
       option,
     })
     setSelectedSortFilter(option)
+    setCurrentPage(1)
   }
 
   const renderTable = useMemo(() => {
