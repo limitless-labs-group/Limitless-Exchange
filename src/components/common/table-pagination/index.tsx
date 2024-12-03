@@ -21,7 +21,6 @@ export default function TablePagination({
       if (currentPage === 3) {
         pages.push(1)
       }
-      // Always show first, last, current, and surrounding pages
       if (currentPage > 3) {
         pages.push(1, '...') // +
       }
@@ -35,10 +34,9 @@ export default function TablePagination({
       }
 
       if (currentPage < totalPages - 2) {
-        pages.push('...', totalPages) // Dots and last page
+        pages.push('...', totalPages)
       }
     } else {
-      // Show all pages if 5 or fewer
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i)
       }

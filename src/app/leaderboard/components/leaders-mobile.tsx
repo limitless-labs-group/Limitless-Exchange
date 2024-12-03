@@ -3,15 +3,21 @@ import React from 'react'
 import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import Carousel from '@/components/common/carousel/carousel-mobile/carousel'
+import { LeaderboardEntity } from '@/hooks/use-leaderboard'
 import { controlsMedium } from '@/styles/fonts/fonts.styles'
+import { truncateEthAddress } from '@/utils'
 
-export default function LeadersMobile() {
+interface LeadersProps {
+  data?: LeaderboardEntity[]
+}
+
+export default function LeadersMobile({ data }: LeadersProps) {
   const slides = [
     <VStack h='132px' key={1} w='full' justifyContent='end' gap={0}>
       <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
-        <Avatar account='asd' />
+        <Avatar account={data?.[1].account || '0x'} />
         <Text {...controlsMedium} fontSize='16px'>
-          Habibi
+          {truncateEthAddress(data?.[1].account)}
         </Text>
       </HStack>
       <img
@@ -24,9 +30,9 @@ export default function LeadersMobile() {
     </VStack>,
     <VStack h='132px' key={2} w='full' justifyContent='end' gap={0}>
       <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
-        <Avatar account='asd' />
+        <Avatar account={data?.[0].account || '0x'} />
         <Text {...controlsMedium} fontSize='16px'>
-          Habibi
+          {truncateEthAddress(data?.[0].account || '0x')}
         </Text>
       </HStack>
       <img
@@ -39,9 +45,9 @@ export default function LeadersMobile() {
     </VStack>,
     <VStack h='132px' key={3} w='full' justifyContent='end' gap={0}>
       <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
-        <Avatar account='asd' />
+        <Avatar account={data?.[2].account || '0x'} />
         <Text {...controlsMedium} fontSize='16px'>
-          Habibi
+          {truncateEthAddress(data?.[2].account || '0x')}
         </Text>
       </HStack>
       <img

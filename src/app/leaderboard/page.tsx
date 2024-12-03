@@ -17,478 +17,24 @@ import {
 import React, { PropsWithChildren, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
+import Avatar from '@/components/common/avatar'
+import Skeleton from '@/components/common/skeleton'
 import TablePagination from '@/components/common/table-pagination'
 import Leaders from '@/app/leaderboard/components/leaders'
 import { MainLayout } from '@/components'
+import { useLeaderboard, useTopThreeLeaders } from '@/hooks/use-leaderboard'
 import WreathsBronzeIcon from '@/resources/icons/wreaths_bronze.svg'
 import WreathsGoldIcon from '@/resources/icons/wreaths_gold.svg'
 import WreathsSilverIcon from '@/resources/icons/wreaths_silver.svg'
-import { h1Regular, headlineRegular, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { h1Regular, h2Medium, headlineRegular, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { LeaderboardSort } from '@/types'
+import { NumberUtil, truncateEthAddress } from '@/utils'
 
 const sortOptions = [
   LeaderboardSort.DAILY,
   LeaderboardSort.WEEKLY,
   LeaderboardSort.MONTHLY,
   LeaderboardSort.ALL_TIME,
-]
-
-const mockData = [
-  {
-    name: 'AntiMAGA',
-    outcome: 'YES',
-    shares: 18213812,
-    value: 123123282,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'TWP',
-    outcome: 'NO',
-    shares: 1821381,
-    value: 12312328,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'alfie',
-    outcome: 'YES',
-    shares: 182138,
-    value: 1231232,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'sqqqqq',
-    outcome: 'YES',
-    shares: 18213,
-    value: 123123,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'asd',
-    outcome: 'YES',
-    shares: 1821,
-    value: 12312,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'AntiMAGA',
-    outcome: 'YES',
-    shares: 18213812,
-    value: 123123282,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'TWP',
-    outcome: 'NO',
-    shares: 1821381,
-    value: 12312328,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'alfie',
-    outcome: 'YES',
-    shares: 182138,
-    value: 1231232,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'sqqqqq',
-    outcome: 'YES',
-    shares: 18213,
-    value: 123123,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'asd',
-    outcome: 'YES',
-    shares: 1821,
-    value: 12312,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'AntiMAGA',
-    outcome: 'YES',
-    shares: 18213812,
-    value: 123123282,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'TWP',
-    outcome: 'NO',
-    shares: 1821381,
-    value: 12312328,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'alfie',
-    outcome: 'YES',
-    shares: 182138,
-    value: 1231232,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'sqqqqq',
-    outcome: 'YES',
-    shares: 18213,
-    value: 123123,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'asd',
-    outcome: 'YES',
-    shares: 1821,
-    value: 12312,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'AntiMAGA',
-    outcome: 'YES',
-    shares: 18213812,
-    value: 123123282,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'TWP',
-    outcome: 'NO',
-    shares: 1821381,
-    value: 12312328,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'alfie',
-    outcome: 'YES',
-    shares: 182138,
-    value: 1231232,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'sqqqqq',
-    outcome: 'YES',
-    shares: 18213,
-    value: 123123,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'asd',
-    outcome: 'YES',
-    shares: 1821,
-    value: 12312,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'AntiMAGA',
-    outcome: 'YES',
-    shares: 18213812,
-    value: 123123282,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'TWP',
-    outcome: 'NO',
-    shares: 1821381,
-    value: 12312328,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'alfie',
-    outcome: 'YES',
-    shares: 182138,
-    value: 1231232,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'sqqqqq',
-    outcome: 'YES',
-    shares: 18213,
-    value: 123123,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'asd',
-    outcome: 'YES',
-    shares: 1821,
-    value: 12312,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'AntiMAGA',
-    outcome: 'YES',
-    shares: 18213812,
-    value: 123123282,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'TWP',
-    outcome: 'NO',
-    shares: 1821381,
-    value: 12312328,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'alfie',
-    outcome: 'YES',
-    shares: 182138,
-    value: 1231232,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'sqqqqq',
-    outcome: 'YES',
-    shares: 18213,
-    value: 123123,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'asd',
-    outcome: 'YES',
-    shares: 1821,
-    value: 12312,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'AntiMAGA',
-    outcome: 'YES',
-    shares: 18213812,
-    value: 123123282,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'TWP',
-    outcome: 'NO',
-    shares: 1821381,
-    value: 12312328,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'alfie',
-    outcome: 'YES',
-    shares: 182138,
-    value: 1231232,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'sqqqqq',
-    outcome: 'YES',
-    shares: 18213,
-    value: 123123,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'asd',
-    outcome: 'YES',
-    shares: 1821,
-    value: 12312,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'AntiMAGA',
-    outcome: 'YES',
-    shares: 18213812,
-    value: 123123282,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'TWP',
-    outcome: 'NO',
-    shares: 1821381,
-    value: 12312328,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'alfie',
-    outcome: 'YES',
-    shares: 182138,
-    value: 1231232,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'sqqqqq',
-    outcome: 'YES',
-    shares: 18213,
-    value: 123123,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'asd',
-    outcome: 'YES',
-    shares: 1821,
-    value: 12312,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'AntiMAGA',
-    outcome: 'YES',
-    shares: 18213812,
-    value: 123123282,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'TWP',
-    outcome: 'NO',
-    shares: 1821381,
-    value: 12312328,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'alfie',
-    outcome: 'YES',
-    shares: 182138,
-    value: 1231232,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'sqqqqq',
-    outcome: 'YES',
-    shares: 18213,
-    value: 123123,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'asd',
-    outcome: 'YES',
-    shares: 1821,
-    value: 12312,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'AntiMAGA',
-    outcome: 'YES',
-    shares: 18213812,
-    value: 123123282,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'TWP',
-    outcome: 'NO',
-    shares: 1821381,
-    value: 12312328,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'alfie',
-    outcome: 'YES',
-    shares: 182138,
-    value: 1231232,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'sqqqqq',
-    outcome: 'YES',
-    shares: 18213,
-    value: 123123,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'asd',
-    outcome: 'YES',
-    shares: 1821,
-    value: 12312,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'AntiMAGA',
-    outcome: 'YES',
-    shares: 18213812,
-    value: 123123282,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'TWP',
-    outcome: 'NO',
-    shares: 1821381,
-    value: 12312328,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'alfie',
-    outcome: 'YES',
-    shares: 182138,
-    value: 1231232,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'sqqqqq',
-    outcome: 'YES',
-    shares: 18213,
-    value: 123123,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'asd',
-    outcome: 'YES',
-    shares: 1821,
-    value: 12312,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'AntiMAGA',
-    outcome: 'YES',
-    shares: 18213812,
-    value: 123123282,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'TWP',
-    outcome: 'NO',
-    shares: 1821381,
-    value: 12312328,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'alfie',
-    outcome: 'YES',
-    shares: 182138,
-    value: 1231232,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'sqqqqq',
-    outcome: 'YES',
-    shares: 18213,
-    value: 123123,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'asd',
-    outcome: 'YES',
-    shares: 1821,
-    value: 12312,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'AntiMAGA',
-    outcome: 'YES',
-    shares: 18213812,
-    value: 123123282,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'TWP',
-    outcome: 'NO',
-    shares: 1821381,
-    value: 12312328,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'alfie',
-    outcome: 'YES',
-    shares: 182138,
-    value: 1231232,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'sqqqqq',
-    outcome: 'YES',
-    shares: 18213,
-    value: 123123,
-    collateralToken: 'USDC',
-  },
-  {
-    name: 'asd',
-    outcome: 'YES',
-    shares: 1821,
-    value: 12312,
-    collateralToken: 'USDC',
-  },
 ]
 
 const TableContainerWrapper = ({ children }: PropsWithChildren) => {
@@ -499,12 +45,8 @@ const TableContainerWrapper = ({ children }: PropsWithChildren) => {
           <Tr>
             <Th w='28px'></Th>
             <Th w='220px'>Username</Th>
-            <Th w='82px'>Outcome</Th>
-            <Th w='100px' textAlign='right'>
-              Shares
-            </Th>
             <Th w='170px' textAlign='right'>
-              Value
+              Total Volume
             </Th>
           </Tr>
         </Thead>
@@ -526,13 +68,17 @@ const LeaderIcon = ({ index }: { index: number }) => {
 
 export default function LeaderboardPage() {
   const [selectedSortFilter, setSelectedSortFilter] = useState<LeaderboardSort>(
-    (window.sessionStorage.getItem('LEADERBOARD_SORT') as LeaderboardSort) ?? LeaderboardSort.DAILY
+    (window.sessionStorage.getItem('LEADERBOARD_SORT') as LeaderboardSort) ??
+      LeaderboardSort.MONTHLY
   )
   const [currentPage, setCurrentPage] = useState(1)
 
-  const totalPages = Math.ceil(mockData.length / 10)
+  const { data: leaderboardStats, isLoading } = useLeaderboard(selectedSortFilter, currentPage)
 
-  const currentData = mockData.slice((currentPage - 1) * 10, currentPage * 10)
+  const { data: topThreeLeaders, isLoading: topThreeLoading } =
+    useTopThreeLeaders(selectedSortFilter)
+
+  const totalPages = Math.ceil(leaderboardStats ? +leaderboardStats.data.totalCount / 10 : 1)
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
@@ -542,6 +88,54 @@ export default function LeaderboardPage() {
     window.sessionStorage.setItem('LEADERBOARD_SORT', option)
     setSelectedSortFilter(option)
   }
+
+  const renderTable = useMemo(() => {
+    if (!leaderboardStats?.data.data.length) {
+      return (
+        <Box mt='24px'>
+          <Text {...h2Medium}>No data available for requested period.</Text>
+        </Box>
+      )
+    }
+    return (
+      <>
+        <TableContainerWrapper>
+          {leaderboardStats?.data?.data.map((data, index) => (
+            <Tr key={index}>
+              <Td h='44px'>
+                {currentPage === 1 && index < 3 ? (
+                  <LeaderIcon index={index} />
+                ) : (
+                  `${(currentPage - 1) * 10 + (index + 1)}`
+                )}
+              </Td>
+              <Td>
+                <HStack gap='4px'>
+                  <Avatar account={data.account} />
+                  <Text>{truncateEthAddress(data.account)}</Text>
+                </HStack>
+              </Td>
+              {/*<Td>{data.outcome}</Td>*/}
+              {/*<Td textAlign='right'>{data.shares}</Td>*/}
+              <Td textAlign='right'>{NumberUtil.convertWithDenomination(data.totalVolume, 0)}</Td>
+            </Tr>
+          ))}
+        </TableContainerWrapper>
+        <TablePagination
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          totalPages={totalPages}
+        />
+      </>
+    )
+  }, [currentPage, leaderboardStats?.data.data, totalPages])
+
+  const renderLeaders = useMemo(() => {
+    if (!topThreeLeaders?.data.data.length) {
+      return null
+    }
+    return <Leaders data={topThreeLeaders?.data.data} />
+  }, [topThreeLeaders?.data.data])
 
   return (
     <MainLayout layoutPadding={isMobile ? '0' : '16px'}>
@@ -600,40 +194,30 @@ export default function LeaderboardPage() {
                 ))}
               </ButtonGroup>
             </HStack>
-            <Text {...headlineRegular}>{selectedSortFilter} - 1152 people</Text>
+            {isLoading ? (
+              <Box w='160px'>
+                <Skeleton height={20} />
+              </Box>
+            ) : (
+              <Text {...headlineRegular}>
+                {selectedSortFilter} - {leaderboardStats?.data.totalCount || 0} people
+              </Text>
+            )}
           </HStack>
-          <Leaders />
-          <Box px='16px' mb='24px'>
-            <TableContainerWrapper>
-              {currentData.map((data, index) => (
-                <Tr key={index}>
-                  <Td h='44px'>
-                    {currentPage === 1 && index < 3 ? (
-                      <LeaderIcon index={index} />
-                    ) : (
-                      `${(currentPage - 1) * 10 + (index + 1)}`
-                    )}
-                  </Td>
-                  <Td>
-                    <HStack gap='4px'>
-                      <Box w='16px' h='16px' borderRadius='100%' bg='#D9D9D9' />
-                      <Text>{data.name}</Text>
-                    </HStack>
-                  </Td>
-                  <Td>{data.outcome}</Td>
-                  <Td textAlign='right'>{data.shares}</Td>
-                  <Td textAlign='right'>
-                    {data.value} {data.collateralToken}
-                  </Td>
-                </Tr>
-              ))}
-            </TableContainerWrapper>
-            <TablePagination
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-              totalPages={totalPages}
-            />
-          </Box>
+          {topThreeLoading ? (
+            <Box my='16px'>
+              <Skeleton height={132} />
+            </Box>
+          ) : (
+            renderLeaders
+          )}
+          {isLoading ? (
+            <Box mt='16px'>
+              <Skeleton height={520} />
+            </Box>
+          ) : (
+            renderTable
+          )}
         </Box>
       </HStack>
     </MainLayout>
