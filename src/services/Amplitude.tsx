@@ -7,6 +7,7 @@ import {
   LOGIN_PROVIDER_TYPE,
 } from '@toruslabs/openlogin-utils/dist/types/interfaces'
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
+import { PageName } from '@/hooks/use-page-name'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useAccount } from '@/services'
 import { Address, Category, MarketGroup } from '@/types'
@@ -222,21 +223,12 @@ export interface ClickedApproveMetadata {
 export interface ClickedWithdrawMetadata {
   coin: string
 }
-
-export type LogoClickedPage =
-  | 'Explore Markets'
-  | 'Portfolio'
-  | 'Market Page'
-  | 'Unknown Page'
-  | 'Home'
-  | 'Feed'
-  | 'Lumy'
 export interface LogoClickedMetadata {
-  page: LogoClickedPage
+  page: PageName
 }
 
 export interface CreateMarketClickedMetadata {
-  page: LogoClickedPage
+  page: PageName
 }
 
 export type DepositClickedPage =
@@ -365,6 +357,7 @@ export type ProfileBurgerMenuClickedOption =
   | 'Home'
   | 'Markets'
   | 'Lumy'
+  | 'Leaderboard'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
