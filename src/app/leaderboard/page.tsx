@@ -5,6 +5,7 @@ import {
   Button,
   ButtonGroup,
   HStack,
+  Link,
   Table,
   TableContainer,
   Tbody,
@@ -14,6 +15,7 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react'
+import NextLink from 'next/link'
 import React, { PropsWithChildren, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -27,7 +29,13 @@ import WreathsBronzeIcon from '@/resources/icons/wreaths_bronze.svg'
 import WreathsGoldIcon from '@/resources/icons/wreaths_gold.svg'
 import WreathsSilverIcon from '@/resources/icons/wreaths_silver.svg'
 import { ChangeEvent, useAmplitude } from '@/services'
-import { h1Regular, h2Medium, headlineRegular, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import {
+  h1Regular,
+  h2Medium,
+  headlineRegular,
+  paragraphMedium,
+  paragraphRegular,
+} from '@/styles/fonts/fonts.styles'
 import { LeaderboardSort } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
@@ -122,7 +130,16 @@ export default function LeaderboardPage() {
               <Td>
                 <HStack gap='4px'>
                   <Avatar account={data.account} />
-                  <Text>{truncateEthAddress(data.account)}</Text>
+                  <NextLink
+                    href={`https://basescan.org/address/${data.account}`}
+                    target='_blank'
+                    rel='noopener'
+                    passHref
+                  >
+                    <Link variant='textLinkSecondary' {...paragraphRegular} isExternal>
+                      {isMobile ? truncateEthAddress(data.account) : data.account}
+                    </Link>
+                  </NextLink>
                 </HStack>
               </Td>
               {/*<Td>{data.outcome}</Td>*/}
