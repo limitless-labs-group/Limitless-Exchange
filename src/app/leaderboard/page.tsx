@@ -117,7 +117,9 @@ export default function LeaderboardPage() {
               </Td>
               {/*<Td>{data.outcome}</Td>*/}
               {/*<Td textAlign='right'>{data.shares}</Td>*/}
-              <Td textAlign='right'>{NumberUtil.convertWithDenomination(data.totalVolume, 0)}</Td>
+              <Td textAlign='right'>
+                {NumberUtil.convertWithDenomination(data.totalVolume, 0)} USDC
+              </Td>
             </Tr>
           ))}
         </TableContainerWrapper>
