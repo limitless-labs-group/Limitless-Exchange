@@ -69,7 +69,7 @@ const LeaderIcon = ({ index }: { index: number }) => {
 export default function LeaderboardPage() {
   const [selectedSortFilter, setSelectedSortFilter] = useState<LeaderboardSort>(
     (window.sessionStorage.getItem('LEADERBOARD_SORT') as LeaderboardSort) ??
-      LeaderboardSort.MONTHLY
+      LeaderboardSort.ALL_TIME
   )
   const [currentPage, setCurrentPage] = useState(1)
 
