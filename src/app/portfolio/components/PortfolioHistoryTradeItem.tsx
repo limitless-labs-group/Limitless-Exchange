@@ -1,5 +1,5 @@
 import { HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
@@ -28,17 +28,11 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
     [allMarkets, trade.market.id]
   )
 
-  const [shouldFetchMarket, setFetchMarket] = useState(false)
-  const [shouldFetchMarketGroup, setFetchMarketGroup] = useState(false)
-  const { data: market, refetch: refetchMarket } = useMarket(
-    targetMarket?.address,
-    false,
-    shouldFetchMarket
-  )
+  const { data: market, refetch: refetchMarket } = useMarket(targetMarket?.address, false, false)
   const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
     targetMarket?.group?.slug,
     false,
-    shouldFetchMarketGroup
+    false
   )
 
   const handleOpenMarketPage = async () => {

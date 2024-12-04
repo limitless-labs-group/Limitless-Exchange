@@ -13,7 +13,6 @@ import {
 import debounce from 'lodash.debounce'
 import React, { memo, PropsWithChildren, useCallback } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { v4 as uuidv4 } from 'uuid'
 import Loader from '@/components/common/loader'
 import Skeleton from '@/components/common/skeleton'
 import { PortfolioHistoryRedeemItem } from '@/app/portfolio/components/PortfolioHistoryRedeemItem'
@@ -101,9 +100,9 @@ const History = ({ userMenuLoading }: { userMenuLoading: boolean }) => {
       <TableContainerWrapper>
         {historyFlat.map((item) =>
           'strategy' in item ? (
-            <PortfolioHistoryTradeItem key={uuidv4()} trade={item as HistoryTrade} />
+            <PortfolioHistoryTradeItem key={item.market.id} trade={item as HistoryTrade} />
           ) : (
-            <PortfolioHistoryRedeemItem key={uuidv4()} redeem={item as HistoryRedeem} />
+            <PortfolioHistoryRedeemItem key={item.conditionId} redeem={item as HistoryRedeem} />
           )
         )}
       </TableContainerWrapper>

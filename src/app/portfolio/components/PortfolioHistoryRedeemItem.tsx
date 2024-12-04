@@ -1,5 +1,4 @@
 import { Box, HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
@@ -23,14 +22,12 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
    */
   const allMarkets = useAllMarkets()
   const targetMarket = allMarkets.find((market) => market.conditionId === redeem.conditionId)
-  const [shouldFetchMarket, setFetchMarket] = useState(false)
-  const [shouldFetchMarketGroup, setFetchMarketGroup] = useState(false)
 
-  const { market, refetchMarket } = useMarketByConditionId(redeem.conditionId, shouldFetchMarket)
+  const { market, refetchMarket } = useMarketByConditionId(redeem.conditionId, false)
   const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
     targetMarket?.group?.slug,
     false,
-    shouldFetchMarketGroup
+    false
   )
   const { onOpenMarketPage } = useTradingService()
 
