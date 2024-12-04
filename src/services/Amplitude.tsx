@@ -7,9 +7,10 @@ import {
   LOGIN_PROVIDER_TYPE,
 } from '@toruslabs/openlogin-utils/dist/types/interfaces'
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
+import { PageName } from '@/hooks/use-page-name'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useAccount } from '@/services'
-import { Address, Category, MarketGroup } from '@/types'
+import { Address, Category, LeaderboardSort, MarketGroup } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 
@@ -50,6 +51,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
 
   const trackEvent = useCallback(
     async (eventType: EventType, customData?: EventMetadata) => {
+      const urlParams = new URLSearchParams(window.location.search)
       if (window.location.origin !== 'https://limitless.exchange') {
         return
       }
@@ -59,6 +61,11 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         event_properties: {
           ...customData,
           ...sessionReplay.getSessionReplayProperties(),
+          utm_source: urlParams.get('utm_source') || 'unknown',
+          utm_medium: urlParams.get('utm_medium') || 'unknown',
+          utm_campaign: urlParams.get('utm_campaign') || 'unknown',
+          utm_term: urlParams.get('utm_term') || 'unknown',
+          utm_content: urlParams.get('utm_content') || 'unknown',
         },
         user_properties: {
           account,
@@ -116,6 +123,8 @@ export enum ChangeEvent {
   OutcomeChanged = 'Outcome Changed',
   ProfilePictureUploadedChanged = 'Profile Picture Uploaded',
   ProfileSettingsChanged = 'Profile Settings Changed',
+  LeaderboardViewChanged = 'Leaderboard View Changed',
+  LeaderboardPageChanged = 'Leaderboard Page Changed',
 }
 
 export enum ClickEvent {
@@ -222,21 +231,12 @@ export interface ClickedApproveMetadata {
 export interface ClickedWithdrawMetadata {
   coin: string
 }
-
-export type LogoClickedPage =
-  | 'Explore Markets'
-  | 'Portfolio'
-  | 'Market Page'
-  | 'Unknown Page'
-  | 'Home'
-  | 'Feed'
-  | 'Lumy'
 export interface LogoClickedMetadata {
-  page: LogoClickedPage
+  page: PageName
 }
 
 export interface CreateMarketClickedMetadata {
-  page: LogoClickedPage
+  page: PageName
 }
 
 export type DepositClickedPage =
@@ -325,6 +325,15 @@ export type ProfilePictureUploadClickedMetadata = ProfileSettingsMetadata
 export type ProfilePictureUploadedChangedMetadata = ProfileSettingsMetadata
 export type ProfileSettingsChangedMetadata = ProfileSettingsMetadata
 
+export type LeaderboardViewChangedMetadata = {
+  option: LeaderboardSort
+}
+
+export type LeaderboardPageChangedMetadata = {
+  from: number
+  to: number
+}
+
 export interface OpenMarketClickedMetadata {
   page: OpenMarketClickedPage
 }
@@ -365,6 +374,7 @@ export type ProfileBurgerMenuClickedOption =
   | 'Home'
   | 'Markets'
   | 'Lumy'
+  | 'Leaderboard'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
@@ -404,6 +414,8 @@ export type ChangedEventMetadata =
   | OutcomeChangedMetadata
   | ProfilePictureUploadedChangedMetadata
   | ProfileSettingsChangedMetadata
+  | LeaderboardViewChangedMetadata
+  | LeaderboardPageChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
   | PricePresetClickedMetadata

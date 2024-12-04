@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useIsMobile } from '@/hooks'
 import { ClickEvent, useAmplitude } from '@/services'
-import { controlsMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Sort } from '@/types'
 
 type SortFilterProps = {
