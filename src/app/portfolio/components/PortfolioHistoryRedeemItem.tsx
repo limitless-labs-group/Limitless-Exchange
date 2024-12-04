@@ -1,4 +1,5 @@
 import { Box, HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
@@ -20,15 +21,18 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
   /**
    * MARKET DATA
    */
-  const market = useMarketByConditionId(redeem.conditionId)
-
-  const { onOpenMarketPage } = useTradingService()
-
   const allMarkets = useAllMarkets()
-
   const targetMarket = allMarkets.find((market) => market.conditionId === redeem.conditionId)
+  const [shouldFetchMarket, setFetchMarket] = useState(false)
+  const [shouldFetchMarketGroup, setFetchMarketGroup] = useState(false)
 
-  const { data: marketGroup } = useMarketGroup(targetMarket?.group?.slug)
+  const { market, refetchMarket } = useMarketByConditionId(redeem.conditionId, shouldFetchMarket)
+  const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
+    targetMarket?.group?.slug,
+    false,
+    shouldFetchMarketGroup
+  )
+  const { onOpenMarketPage } = useTradingService()
 
   const multiplier = (symbol: string | undefined) => {
     switch (symbol) {
@@ -46,14 +50,27 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
     market?.collateralToken.symbol === 'USDC' ? 2 : 6
   )
 
-  const handleOpenMarketPage = () => {
-    if (marketGroup) {
-      onOpenMarketPage(marketGroup, 'History Card')
-      return
+  const handleOpenMarketPage = async () => {
+    if (targetMarket?.address) {
+      if (!market) {
+        const { data: fetchedMarket } = await refetchMarket()
+        if (fetchedMarket) {
+          onOpenMarketPage(fetchedMarket, 'History card')
+        }
+      } else {
+        onOpenMarketPage(market, 'History card')
+      }
     }
-    if (market) {
-      onOpenMarketPage(market, 'History Card')
-      return
+
+    if (targetMarket?.group?.slug) {
+      if (!marketGroup) {
+        const { data: fetchedMarketGroup } = await refetchMarketGroup()
+        if (fetchedMarketGroup) {
+          onOpenMarketPage(fetchedMarketGroup, 'History card')
+        }
+      } else {
+        onOpenMarketPage(marketGroup, 'History card')
+      }
     }
   }
 

@@ -1,4 +1,5 @@
-import { QueryObserverResult, useQuery } from '@tanstack/react-query'
+import { QueryObserverResult, useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { AxiosResponse } from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash } from 'viem'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
@@ -158,6 +159,59 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   )
 }
 
+export const usePortfolioHistory = (page: number) => {
+  const privateClient = useAxiosPrivateClient()
+  return useQuery({
+    queryKey: ['history', page],
+    queryFn: async (): Promise<AxiosResponse<History>> => {
+      return privateClient.get<History>(
+        '/portfolio/history',
+
+        {
+          params: {
+            page: page,
+            limit: 10,
+          },
+        }
+      )
+    },
+  })
+}
+
+export const useInfinityHistory = () => {
+  const privateClient = useAxiosPrivateClient()
+  const walletAddress = useWalletAddress()
+  return useInfiniteQuery<History[], Error>({
+    queryKey: ['history-infinity'],
+    // @ts-ignore
+    queryFn: async ({ pageParam = 1 }) => {
+      if (!walletAddress) {
+        return []
+      }
+
+      const response = await privateClient.get<History[]>(
+        '/portfolio/history',
+
+        {
+          params: {
+            page: pageParam,
+            limit: 30,
+          },
+        }
+      )
+      return { data: response.data, next: (pageParam as number) + 1 }
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      // @ts-ignore
+      return lastPage.data.data.length === 30 ? lastPage.next : null
+    },
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
+    enabled: !!walletAddress,
+  })
+}
+
 export type HistoryTrade = {
   market: HistoryMarket
   strategy?: 'Buy' | 'Sell'
@@ -193,6 +247,11 @@ export type HistoryRedeem = {
   blockTimestamp: string
   transactionHash: Hash
   collateralToken: string
+}
+
+export type History = {
+  data: HistoryPosition[] | HistoryRedeem[]
+  totalCount: number
 }
 
 export type HistoryPosition = {
