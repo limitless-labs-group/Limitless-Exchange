@@ -69,6 +69,8 @@ export interface Market {
     slug: string
     title: string
   }
+  openInterest: string
+  openInterestFormatted: string
 }
 
 export interface MarketGroup {
