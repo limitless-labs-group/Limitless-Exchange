@@ -35,7 +35,7 @@
 .react-datepicker {
   border: unset;
   background-color: var(--chakra-colors-grey-100);
-  border-radius: 12px
+  border-radius: 12px;
 }
 
 .react-datepicker__header {
@@ -57,7 +57,7 @@
 }
 
 .react-datepicker__time-container {
-  border-left: 1px solid var(--chakra-colors-grey-200)
+  border-left: 1px solid var(--chakra-colors-grey-200);
 }
 
 .react-datepicker__time-container .react-datepicker__time {
@@ -65,11 +65,11 @@
 }
 
 .react-datepicker__current-month {
-  color: var(--chakra-colors-grey-800)
+  color: var(--chakra-colors-grey-800);
 }
 
 .react-datepicker-time__header {
-  color: var(--chakra-colors-grey-800)
+  color: var(--chakra-colors-grey-800);
 }
 
 .react-datepicker__day {
@@ -83,12 +83,12 @@
 }
 
 .react-datepicker__day--disabled {
-  color: var(--chakra-colors-grey-200)
+  color: var(--chakra-colors-grey-200);
 }
 
 .react-datepicker__day--keyboard-selected {
   background: var(--chakra-colors-blue-500);
-  color: var(--chakra-colors-white)
+  color: var(--chakra-colors-white);
 }
 
 .react-datepicker__day--keyboard-selected:hover {
@@ -105,11 +105,11 @@
 }
 
 .react-datepicker__day-name {
-  color: var(--chakra-colors-grey-500)
+  color: var(--chakra-colors-grey-500);
 }
 
 .react-datepicker__time-list-item {
-  color: var(--chakra-colors-grey-500)
+  color: var(--chakra-colors-grey-500);
 }
 
 .react-datepicker__time-list-item:hover {
