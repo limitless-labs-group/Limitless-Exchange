@@ -292,19 +292,22 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
                     <Skeleton height={20} />
                   </Box>
                 ) : (
-                  <Text {...paragraphMedium} color={cardColors.main}>
-                    {`${NumberUtil.toFixed(
-                      new BigNumber(position.outcomeTokenAmount || '1')
-                        .multipliedBy(
-                          new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
-                        )
-                        .toString(),
-                      market.collateralToken.symbol === 'USDC' ? 2 : 6
-                    )} ${market?.collateralToken.symbol}`}
-                  </Text>
+                  <>
+                    <Text {...paragraphMedium} color={cardColors.main}>
+                      {`${NumberUtil.toFixed(
+                        new BigNumber(position.outcomeTokenAmount || '1')
+                          .multipliedBy(
+                            new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(
+                              100
+                            )
+                          )
+                          .toString(),
+                        market.collateralToken.symbol === 'USDC' ? 2 : 6
+                      )} ${market?.collateralToken.symbol}`}
+                    </Text>
+                    <Box gap={0}>{contractPriceChanged}</Box>
+                  </>
                 )}
-
-                <Box gap={0}>{contractPriceChanged}</Box>
               </>
             )}
           </HStack>

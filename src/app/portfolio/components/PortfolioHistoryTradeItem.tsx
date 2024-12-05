@@ -1,4 +1,5 @@
 import { HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
@@ -22,21 +23,39 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
   const allMarkets = useAllMarkets()
 
   const { onOpenMarketPage } = useTradingService()
+  const targetMarket = useMemo(
+    () => allMarkets.find((market) => market.address === trade.market.id),
+    [allMarkets, trade.market.id]
+  )
 
-  const targetMarket = allMarkets.find((market) => market.address === trade.market.id)
+  const { data: market, refetch: refetchMarket } = useMarket(targetMarket?.address, false, false)
+  const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
+    targetMarket?.group?.slug,
+    false,
+    false
+  )
 
-  const { data: market } = useMarket(targetMarket?.address)
-
-  const { data: marketGroup } = useMarketGroup(targetMarket?.group?.slug)
-
-  const handleOpenMarketPage = () => {
-    if (marketGroup) {
-      onOpenMarketPage(marketGroup, 'History Card')
-      return
+  const handleOpenMarketPage = async () => {
+    if (targetMarket?.address) {
+      if (!market) {
+        const { data: fetchedMarket } = await refetchMarket()
+        if (fetchedMarket) {
+          onOpenMarketPage(fetchedMarket, 'History card')
+        }
+      } else {
+        onOpenMarketPage(market, 'History card')
+      }
     }
-    if (market) {
-      onOpenMarketPage(market, 'History Card')
-      return
+
+    if (targetMarket?.group?.slug) {
+      if (!marketGroup) {
+        const { data: fetchedMarketGroup } = await refetchMarketGroup()
+        if (fetchedMarketGroup) {
+          onOpenMarketPage(fetchedMarketGroup, 'History card')
+        }
+      } else {
+        onOpenMarketPage(marketGroup, 'History card')
+      }
     }
   }
 

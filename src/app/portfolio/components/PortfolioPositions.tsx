@@ -1,7 +1,6 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
 import { memo, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { v4 as uuidv4 } from 'uuid'
 import Skeleton from '@/components/common/skeleton'
 import PortfolioPositionCard from '@/app/portfolio/components/PortfolioPositionCard'
 import { useHistory } from '@/services'
@@ -56,7 +55,7 @@ const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boo
       ) : (
         <Stack gap={{ sm: 2, md: 2 }}>
           {positionsFiltered?.map((position) => (
-            <PortfolioPositionCard key={uuidv4()} position={position} />
+            <PortfolioPositionCard key={position.market.id} position={position} />
           ))}
         </Stack>
       )}
