@@ -39,6 +39,24 @@ const hoverColors = {
   secondary: 'transparent.700',
 }
 
+const StatusIcon = ({ isClosed, color }: { isClosed: boolean | undefined; color: string }) => {
+  return isClosed ? (
+    <>
+      <Icon as={ClosedIcon} width={'16px'} height={'16px'} color={color} />
+      <Text {...paragraphMedium} color={color}>
+        Closed
+      </Text>
+    </>
+  ) : (
+    <>
+      <ActiveIcon width={16} height={16} />
+      <Text {...paragraphMedium} color={color}>
+        Active
+      </Text>
+    </>
+  )
+}
+
 const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => {
   const [colors, setColors] = useState(unhoveredColors)
   const [isLoadingRedeem, setIsLoadingRedeem] = useState(false)
@@ -54,7 +72,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
 
   const targetMarket = allMarkets.find((market) => market.address === position.market.id)
 
-  const contractPrice = new BigNumber(prices?.prices[position.outcomeIndex] || 1)
+  const contractPrice = new BigNumber(prices?.prices[position.outcomeIndex] ?? 1)
     .dividedBy(100)
     .dividedBy(
       new BigNumber(
@@ -137,7 +155,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
           await redeem({
             conditionId: position?.market.condition_id as Address,
             collateralAddress: position?.market?.collateral?.id as Address,
-            marketAddress: position.market.id as Address,
+            marketAddress: position.market.id,
             outcomeIndex: position.latestTrade?.outcomeIndex as number,
           })
           setIsLoadingRedeem(false)
@@ -171,24 +189,6 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
       secondary: colors.secondary,
     }
   }, [position, colors])
-
-  const StatusIcon = ({ isClosed }: { isClosed: boolean | undefined }) => {
-    return isClosed ? (
-      <>
-        <Icon as={ClosedIcon} width={'16px'} height={'16px'} color={cardColors.secondary} />
-        <Text {...paragraphMedium} color={cardColors.secondary}>
-          Closed
-        </Text>
-      </>
-    ) : (
-      <>
-        <ActiveIcon width={16} height={16} />
-        <Text {...paragraphMedium} color={cardColors.secondary}>
-          Active
-        </Text>
-      </>
-    )
-  }
 
   return isMobile ? (
     <MobileDrawer
@@ -239,7 +239,9 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
               )}
             </HStack>
             <HStack color={cardColors.secondary}>
-              <HStack gap={1}>{<StatusIcon isClosed={position?.market?.closed} />}</HStack>
+              <HStack gap={1}>
+                {<StatusIcon isClosed={position?.market?.closed} color={cardColors.secondary} />}
+              </HStack>
               <HStack gap={1} color={cardColors.secondary}>
                 <CalendarIcon width={'16px'} height={'16px'} />
                 <Text {...paragraphMedium} color={cardColors.secondary}>
@@ -367,7 +369,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
 
         <HStack w={'full'} justifyContent={'flex-end'} alignItems={'flex-end'}>
           <HStack gap={1} color={cardColors.secondary}>
-            {<StatusIcon isClosed={position.market?.closed} />}
+            {<StatusIcon isClosed={position.market?.closed} color={cardColors.secondary} />}
           </HStack>
           <HStack gap={1} color={cardColors.secondary}>
             <CalendarIcon width={'16px'} height={'16px'} />
