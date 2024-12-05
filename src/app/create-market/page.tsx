@@ -302,6 +302,8 @@ const CreateOwnMarketPage = () => {
     await draftMarket()
   }
 
+  console.log(formData)
+
   return (
     <MainLayout>
       <Box w={isMobile ? 'full' : 'calc(100vw - 720px)'}>
@@ -357,6 +359,7 @@ const CreateOwnMarketPage = () => {
                       onChange={(e) => handleChange('title', e.target.value)}
                       maxLength={70}
                       onBlur={() => generateOgImage()}
+                      id='title'
                     />
                     <FormHelperText
                       textAlign='end'
@@ -378,6 +381,7 @@ const CreateOwnMarketPage = () => {
                       value={formData.description}
                       onChange={(e) => handleChange('description', e.target.value)}
                       onBlur={() => generateOgImage()}
+                      id='description'
                     />
                     <FormHelperText
                       textAlign='end'
@@ -419,7 +423,7 @@ const CreateOwnMarketPage = () => {
                         max={tokenLimits[formData.token.symbol]?.max}
                         step={tokenLimits[formData.token.symbol]?.step}
                       >
-                        <NumberInputField w={'120px'} />
+                        <NumberInputField w={'120px'} id='liquidity' />
                       </NumberInput>
                       <Slider
                         flex='1'
@@ -449,7 +453,7 @@ const CreateOwnMarketPage = () => {
                         max={99}
                         step={1}
                       >
-                        <NumberInputField w={'120px'} />
+                        <NumberInputField w={'120px'} id='probability' />
                       </NumberInput>
                       <Slider
                         flex='1'
@@ -482,11 +486,12 @@ const CreateOwnMarketPage = () => {
                   minDate={new Date()}
                   showTimeSelect
                   dateFormat='Pp'
-                  customInput={<Input variant='grey' mb='5px' />}
+                  customInput={<Input variant='grey' mb='5px' id='deadline' />}
                 />
                 <TimezoneSelect
                   value={formData.timezone}
                   onChange={(timezone: ITimezoneOption) => handleChange('timezone', timezone.value)}
+                  id='timezone'
                   styles={{
                     option: (provided) => ({
                       ...provided,

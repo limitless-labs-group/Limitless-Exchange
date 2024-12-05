@@ -232,8 +232,8 @@ export default function MyMarkets() {
         My Markets
       </Text>
       <VStack mt='24px' gap='8px' w='full'>
-        {mockMarkets.map((mockMarket) => (
-          <MyMarketCard key={mockMarket.address} market={mockMarket} />
+        {mockMarkets.map((mockMarket, index) => (
+          <MyMarketCard key={index} market={mockMarket} />
         ))}
       </VStack>
     </Box>
