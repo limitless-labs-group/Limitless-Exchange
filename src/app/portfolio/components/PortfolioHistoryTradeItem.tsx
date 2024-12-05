@@ -28,7 +28,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
     [allMarkets, trade.market.id]
   )
 
-  const { data: market, refetch: refetchMarket } = useMarket(targetMarket?.address, false, false)
+  const { data: market, refetch: refetchMarket } = useMarket(trade.market?.id, false, false)
   const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
     targetMarket?.group?.slug,
     false,
@@ -80,8 +80,8 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
         <Text>
           {`${NumberUtil.formatThousands(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
-            targetMarket?.collateralToken.symbol === 'USDC' ? 2 : 6
-          )} ${targetMarket ? targetMarket.collateralToken.symbol : ''}`}
+            trade.market.collateral?.symbol === 'USDC' ? 2 : 6
+          )} ${trade.market.collateral?.symbol ?? ''}`}
         </Text>
       </Td>
       <Td>
@@ -107,7 +107,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
               onClick={handleOpenMarketPage}
               cursor='pointer'
             >
-              {targetMarket?.proxyTitle ?? targetMarket?.title}
+              {trade.market.title}
             </Td>
           }
           variant='black'
@@ -125,7 +125,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
           onClick={handleOpenMarketPage}
           cursor='pointer'
         >
-          {targetMarket?.proxyTitle ?? targetMarket?.title}
+          {trade.market.title}
         </Td>
       )}
       <Td>
