@@ -25,7 +25,7 @@ export default function OpenInterestTooltip({ iconColor }: { iconColor: string }
       }
       placement='top-end'
       {...paragraphMedium}
-      color='white'
+      color='grey.800'
       {...(isMobile
         ? {
             isOpen,
