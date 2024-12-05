@@ -20,40 +20,43 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
   /**
    * MARKET DATA
    */
-  const market = useMarketByConditionId(redeem.conditionId)
-
-  const { onOpenMarketPage } = useTradingService()
-
   const allMarkets = useAllMarkets()
-
   const targetMarket = allMarkets.find((market) => market.conditionId === redeem.conditionId)
 
-  const { data: marketGroup } = useMarketGroup(targetMarket?.group?.slug)
-
-  const multiplier = (symbol: string | undefined) => {
-    switch (symbol) {
-      case 'USDC':
-        return Math.pow(10, 12)
-      case 'cbBTC':
-        return Math.pow(10, 10)
-      default:
-        return 1
-    }
-  }
+  const { market, refetchMarket } = useMarketByConditionId(redeem.conditionId, false)
+  const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
+    targetMarket?.group?.slug,
+    false,
+    false
+  )
+  const { onOpenMarketPage } = useTradingService()
 
   const formattedAmount = NumberUtil.formatThousands(
-    Number(redeem.collateralAmount) * multiplier(market?.collateralToken.symbol) ?? 0,
-    market?.collateralToken.symbol === 'USDC' ? 2 : 6
+    Number(redeem.collateralAmount) ?? 0,
+    redeem.collateralSymbol === 'USDC' ? 2 : 6
   )
 
-  const handleOpenMarketPage = () => {
-    if (marketGroup) {
-      onOpenMarketPage(marketGroup, 'History Card')
-      return
+  const handleOpenMarketPage = async () => {
+    if (targetMarket?.address) {
+      if (!market) {
+        const { data: fetchedMarket } = await refetchMarket()
+        if (fetchedMarket) {
+          onOpenMarketPage(fetchedMarket, 'History card')
+        }
+      } else {
+        onOpenMarketPage(market, 'History card')
+      }
     }
-    if (market) {
-      onOpenMarketPage(market, 'History Card')
-      return
+
+    if (targetMarket?.group?.slug) {
+      if (!marketGroup) {
+        const { data: fetchedMarketGroup } = await refetchMarketGroup()
+        if (fetchedMarketGroup) {
+          onOpenMarketPage(fetchedMarketGroup, 'History card')
+        }
+      } else {
+        onOpenMarketPage(marketGroup, 'History card')
+      }
     }
   }
 
@@ -74,11 +77,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
       <Td isNumeric>
         <Box verticalAlign='middle'>
           <Text>
-            {!market ? (
-              <Skeleton height={20} />
-            ) : (
-              `${formattedAmount} ${market?.collateralToken.symbol}`
-            )}
+            {!redeem ? <Skeleton height={20} /> : `${formattedAmount} ${redeem.collateralSymbol}`}
           </Text>
         </Box>
       </Td>
