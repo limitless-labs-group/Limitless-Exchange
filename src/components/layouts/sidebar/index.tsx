@@ -44,6 +44,7 @@ import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
+import MyMarketsIcon from '@/resources/icons/sidebar/my-markets.svg'
 import SquarePlusIcon from '@/resources/icons/sidebar/suggest_market.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import UserIcon from '@/resources/icons/user-icon.svg'
@@ -250,7 +251,7 @@ export default function Sidebar() {
                 bg={isOpenMyMarkets ? 'grey.100' : 'unset'}
               >
                 <HStack w='full'>
-                  <PortfolioIcon width={16} height={16} />
+                  <MyMarketsIcon width={16} height={16} />
                   <Text fontWeight={500} fontSize='14px'>
                     My Markets
                   </Text>
@@ -294,7 +295,7 @@ export default function Sidebar() {
                   </MenuButton>
                 )}
 
-                <MenuList borderRadius='8px' w='180px' zIndex={2}>
+                <MenuList borderRadius='8px' w='182px' zIndex={2}>
                   <HStack gap='4px' mb='4px'>
                     <Button
                       variant={mode === 'dark' ? 'transparent' : 'black'}

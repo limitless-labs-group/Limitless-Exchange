@@ -78,6 +78,7 @@ export const defaultFormData = {
   creatorId: defaultCreatorId,
   categoryId: defaultCategoryId,
   ogLogo: undefined,
+  txHash: '',
 }
 
 export const selectStyles = {
@@ -94,6 +95,7 @@ export const selectStyles = {
     '&:hover': {
       borderColor: 'var(--chakra-colors-grey-400)',
     },
+    minHeight: '26px',
   },
   singleValue: {
     color: 'var(--chakra-colors-grey-900)',

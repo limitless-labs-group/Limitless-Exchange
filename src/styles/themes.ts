@@ -11,6 +11,7 @@ import { menuTheme } from '@/styles/menu'
 import { modalTheme } from '@/styles/modals'
 import { numberInputTheme } from '@/styles/number-input'
 import { radioTheme } from '@/styles/radio'
+import { selectTheme } from '@/styles/select'
 import { skeletonTheme } from '@/styles/skeleton'
 import { sliderTheme } from '@/styles/slider'
 import { tableTheme } from '@/styles/table'
@@ -313,6 +314,7 @@ export const chakraTheme = ChakraTheme({
       },
     },
     Slider: sliderTheme,
+    Select: selectTheme,
     Progress: {
       baseStyle: {
         track: {

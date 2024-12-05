@@ -54,7 +54,6 @@ import { useToast } from '@/hooks'
 import { useCategories, useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { h1Bold } from '@/styles/fonts/fonts.styles'
-import { Category } from '@/types'
 import { Token, Tag, TagOption, IFormData, Creator } from '@/types/draft'
 
 const CreateOwnMarketPage = () => {
@@ -147,43 +146,11 @@ const CreateOwnMarketPage = () => {
     value: name,
   })
 
-  const { data: tagOptions } = useQuery({
-    queryKey: ['tagOptions'],
-    queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`)
-
-      return response.data.map((tag: { id: string; name: string }) =>
-        createOption(tag.id, tag.name)
-      ) as TagOption[]
-    },
-  })
-
-  const { data: creators } = useQuery({
-    queryKey: ['creators'],
-    queryFn: async () => {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/profiles/creators`
-      )
-      return response.data as Creator[]
-    },
-  })
-
   const { data: categories } = useCategories()
   const { mutateAsync: generateOgImage, isPending: isGeneratingOgImage } = useMutation({
     mutationKey: ['generate-og-image'],
     mutationFn: async () => new Promise((resolve) => setTimeout(resolve, 1_000)),
   })
-
-  const handleTagCreation = async (tagToCreate: string) => {
-    const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`, {
-      name: tagToCreate,
-    })
-
-    queryClient.setQueryData(['tagOptions'], (oldData: TagOption[]) => [
-      ...oldData,
-      createOption(res.data.id, res.data.name),
-    ])
-  }
 
   const prepareData = async () => {
     await generateOgImage()
@@ -247,36 +214,6 @@ const CreateOwnMarketPage = () => {
           'Content-Type': 'multipart/form-data',
         },
       })
-      .then((res) => {
-        showToast(`Market is drafted`)
-        router.push('/draft/queue')
-      })
-      .catch((res) => {
-        if (res?.response?.status === 413) {
-          showToast('Error: Payload Too Large, max 1MB per file')
-        } else {
-          showToast(`Error: ${res.message}`)
-        }
-      })
-      .finally(() => {
-        setIsCreating(false)
-      })
-  }
-
-  const updateMarket = async () => {
-    const data = await prepareData()
-    if (!data) return
-    setIsCreating(true)
-    privateClient
-      .put(`/markets/drafts/${marketId}`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-      .then((res) => {
-        showToast(`Market ${marketId} is updated`)
-        router.push('/draft/queue')
-      })
       .catch((res) => {
         if (res?.response?.status === 413) {
           showToast('Error: Payload Too Large, max 1MB per file')
@@ -295,10 +232,6 @@ const CreateOwnMarketPage = () => {
   }
 
   const submit = async () => {
-    if (marketId) {
-      await updateMarket()
-      return
-    }
     await draftMarket()
   }
 
@@ -380,7 +313,6 @@ const CreateOwnMarketPage = () => {
                       maxLength={1500}
                       value={formData.description}
                       onChange={(e) => handleChange('description', e.target.value)}
-                      onBlur={() => generateOgImage()}
                       id='description'
                     />
                     <FormHelperText
@@ -486,7 +418,7 @@ const CreateOwnMarketPage = () => {
                   minDate={new Date()}
                   showTimeSelect
                   dateFormat='Pp'
-                  customInput={<Input variant='grey' mb='5px' id='deadline' />}
+                  customInput={<Input variant='grey' mb='5px' id='deadline' h='26px' />}
                 />
                 <TimezoneSelect
                   value={formData.timezone}
@@ -514,8 +446,29 @@ const CreateOwnMarketPage = () => {
                       ...provided,
                       ...selectStyles.singleValue,
                     }),
+                    indicatorSeparator: (provided) => ({
+                      ...provided,
+                      display: 'none',
+                    }),
                   }}
                 />
+              </FormField>
+
+              <FormField label='Tx Hash'>
+                <Textarea
+                  resize='none'
+                  rows={1}
+                  overflow='hidden'
+                  height='auto'
+                  variant='grey'
+                  onInput={resizeTextareaHeight}
+                  value={formData.txHash}
+                  onChange={(e) => handleChange('txHash', e.target.value)}
+                  id='txHash'
+                />
+                <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
+                  Market liquidity deposit tx hash
+                </FormHelperText>
               </FormField>
 
               <ButtonGroup spacing='6' mt={5} w='full'>
