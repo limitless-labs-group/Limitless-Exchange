@@ -35,7 +35,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
       defaultTracking: {
         sessions: true,
         pageViews: false,
-        attribution: true,
+        // attribution: true,
         formInteractions: false,
       },
       autocapture: {
@@ -54,10 +54,12 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
 
   const trackEvent = useCallback(
     async (eventType: EventType, customData?: EventMetadata) => {
-      // const urlParams = new URLSearchParams(window.location.search)
-      if (window.location.origin !== 'https://limitless.exchange') {
-        return
-      }
+      // const queryPart = window.location.search.split('?')[2] // Extracts "utm_source%3Dtwitter"
+      // const decodedQuery = decodeURIComponent(queryPart)
+      // const urlParams = new URLSearchParams(decodedQuery)
+      // if (window.location.origin !== 'https://limitless.exchange') {
+      //   return
+      // }
 
       return amplitudeTrack({
         event_type: String(eventType),
