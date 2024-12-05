@@ -85,11 +85,12 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
         <Box verticalAlign='middle'>
           <Text>
             {new Date(Number(redeem.blockTimestamp) * 1000).toLocaleDateString(undefined, {
-              month: 'short',
-              day: '2-digit',
               year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
+              hour12: false,
             })}
           </Text>
         </Box>
@@ -107,7 +108,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
               onClick={handleOpenMarketPage}
               cursor='pointer'
             >
-              {targetMarket?.proxyTitle ?? targetMarket?.title}
+              {redeem.title}
             </Td>
           }
           variant='black'
@@ -125,7 +126,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           onClick={handleOpenMarketPage}
           cursor='pointer'
         >
-          {targetMarket?.proxyTitle ?? targetMarket?.title}
+          {redeem.title}
         </Td>
       )}
       <Td>

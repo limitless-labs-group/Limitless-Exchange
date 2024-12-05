@@ -90,7 +90,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * SERVICES
    */
   const queryClient = useQueryClient()
-  const { getTrades, getRedeems } = useHistory()
   const { trackClicked, trackOpened } = useAmplitude()
   const account = useWalletAddress()
 
@@ -174,8 +173,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     await queryClient.invalidateQueries({
       queryKey: ['marketData', market?.address],
     })
-    await getTrades()
-    await getRedeems()
   }
 
   /**
