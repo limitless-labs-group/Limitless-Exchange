@@ -247,6 +247,8 @@ export type HistoryRedeem = {
   blockTimestamp: string
   transactionHash: Hash
   collateralToken: string
+  collateralSymbol: string
+  title: string
 }
 
 export type History = {
