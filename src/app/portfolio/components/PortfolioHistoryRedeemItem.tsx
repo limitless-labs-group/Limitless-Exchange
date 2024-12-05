@@ -31,20 +31,9 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
   )
   const { onOpenMarketPage } = useTradingService()
 
-  const multiplier = (symbol: string | undefined) => {
-    switch (symbol) {
-      case 'USDC':
-        return Math.pow(10, 12)
-      case 'cbBTC':
-        return Math.pow(10, 10)
-      default:
-        return 1
-    }
-  }
-
   const formattedAmount = NumberUtil.formatThousands(
-    Number(redeem.collateralAmount) * multiplier(market?.collateralToken.symbol) ?? 0,
-    market?.collateralToken.symbol === 'USDC' ? 2 : 6
+    Number(redeem.collateralAmount) ?? 0,
+    redeem.collateralSymbol === 'USDC' ? 2 : 6
   )
 
   const handleOpenMarketPage = async () => {
@@ -88,11 +77,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
       <Td isNumeric>
         <Box verticalAlign='middle'>
           <Text>
-            {!market ? (
-              <Skeleton height={20} />
-            ) : (
-              `${formattedAmount} ${market?.collateralToken.symbol}`
-            )}
+            {!redeem ? <Skeleton height={20} /> : `${formattedAmount} ${redeem.collateralSymbol}`}
           </Text>
         </Box>
       </Td>
