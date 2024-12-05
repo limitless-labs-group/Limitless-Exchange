@@ -153,6 +153,7 @@ export const darkThemeColors: ColorScheme = {
     200: 'rgba(0, 0, 0, 0.2)',
   },
   background: {
+    80: 'rgba(28, 28, 28, 0.8)',
     90: 'rgba(28, 28, 28, 0.9)',
   },
   skeleton: {

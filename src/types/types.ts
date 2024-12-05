@@ -71,6 +71,7 @@ export interface Market {
   }
   openInterest: string
   openInterestFormatted: string
+  priorityIndex: number
 }
 
 export interface MarketGroup {
@@ -154,6 +155,7 @@ export enum MarketStatus {
   RESOLVED = 'RESOLVED',
   FUNDED = 'FUNDED',
   LOCKED = 'LOCKED',
+  PENDING = 'pending',
 }
 
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>
@@ -315,6 +317,7 @@ export interface ColorScheme {
     200: string
   }
   background: {
+    80: string
     90: string
   }
   skeleton: {

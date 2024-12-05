@@ -82,12 +82,18 @@ export const defaultFormData = {
 
 export const selectStyles = {
   menu: {
-    backgroundColor: 'var(--chakra-colors-grey-300)',
+    backgroundColor: 'var(--chakra-colors-grey-100)',
     color: 'var(--chakra-colors-grey-900)',
   },
   control: {
-    backgroundColor: 'var(--chakra-colors-grey-100)',
+    backgroundColor: 'unset',
+    borderRadius: '8px',
     color: 'var(--chakra-colors-grey-900)',
+    borderColor: 'var(--chakra-colors-grey-300)',
+    boxShadow: 'unset',
+    '&:hover': {
+      borderColor: 'var(--chakra-colors-grey-400)',
+    },
   },
   singleValue: {
     color: 'var(--chakra-colors-grey-900)',

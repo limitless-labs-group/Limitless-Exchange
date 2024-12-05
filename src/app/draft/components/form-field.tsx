@@ -3,7 +3,7 @@ import { FormFieldProps } from '@/types/draft'
 
 export const FormField: React.FC<FormFieldProps> = ({ label, children }) => (
   <Box mt={4} w={'full'}>
-    <FormLabel>
+    <FormLabel mb={1}>
       <strong>{label}</strong>
     </FormLabel>
     {children}

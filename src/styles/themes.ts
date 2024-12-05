@@ -9,8 +9,10 @@ import { inputTheme } from '@/styles/input'
 import { linkTheme } from '@/styles/link'
 import { menuTheme } from '@/styles/menu'
 import { modalTheme } from '@/styles/modals'
+import { numberInputTheme } from '@/styles/number-input'
 import { radioTheme } from '@/styles/radio'
 import { skeletonTheme } from '@/styles/skeleton'
+import { sliderTheme } from '@/styles/slider'
 import { tableTheme } from '@/styles/table'
 import { tabsTheme } from '@/styles/tabs'
 import { textAreaTheme } from '@/styles/text-area'
@@ -296,6 +298,7 @@ export const chakraTheme = ChakraTheme({
     Modal: modalTheme,
     Accordion: accordionTheme,
     Input: inputTheme,
+    NumberInput: numberInputTheme,
     Menu: menuTheme,
     Checkbox: checkboxTheme,
     Link: linkTheme,
@@ -309,6 +312,7 @@ export const chakraTheme = ChakraTheme({
         bg: 'grey.100',
       },
     },
+    Slider: sliderTheme,
     Progress: {
       baseStyle: {
         track: {
@@ -330,6 +334,14 @@ export const chakraTheme = ChakraTheme({
           },
           track: {
             bg: '#FF3756',
+          },
+        },
+        draft: {
+          filledTrack: {
+            bg: 'grey.400',
+          },
+          track: {
+            bg: 'grey.200',
           },
         },
       },
