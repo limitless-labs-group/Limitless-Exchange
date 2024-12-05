@@ -35,8 +35,11 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
       defaultTracking: {
         sessions: true,
         pageViews: false,
-        attribution: false,
+        attribution: true,
         formInteractions: false,
+      },
+      autocapture: {
+        attribution: true,
       },
     })
     //   .promise.then(() => {
@@ -51,7 +54,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
 
   const trackEvent = useCallback(
     async (eventType: EventType, customData?: EventMetadata) => {
-      const urlParams = new URLSearchParams(window.location.search)
+      // const urlParams = new URLSearchParams(window.location.search)
       if (window.location.origin !== 'https://limitless.exchange') {
         return
       }
@@ -61,11 +64,11 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         event_properties: {
           ...customData,
           ...sessionReplay.getSessionReplayProperties(),
-          utm_source: urlParams.get('utm_source') || 'unknown',
-          utm_medium: urlParams.get('utm_medium') || 'unknown',
-          utm_campaign: urlParams.get('utm_campaign') || 'unknown',
-          utm_term: urlParams.get('utm_term') || 'unknown',
-          utm_content: urlParams.get('utm_content') || 'unknown',
+          // utm_source: urlParams.get('utm_source') || 'unknown',
+          // utm_medium: urlParams.get('utm_medium') || 'unknown',
+          // utm_campaign: urlParams.get('utm_campaign') || 'unknown',
+          // utm_term: urlParams.get('utm_term') || 'unknown',
+          // utm_content: urlParams.get('utm_content') || 'unknown',
         },
         user_properties: {
           account,
