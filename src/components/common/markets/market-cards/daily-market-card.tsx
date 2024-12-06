@@ -145,7 +145,6 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
       }}
       onClick={(event) => {
         onClickRedirectToMarket(event)
-        onOpenMarketPage(market)
       }}
     >
       <Paper flex={1} w={'100%'} position='relative' cursor='pointer' p='14px'>
