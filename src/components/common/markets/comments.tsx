@@ -51,7 +51,7 @@ export default function Comments() {
       </InfiniteScroll>
     </Flex>
   ) : (
-    <VStack w='full' mt='24px' mb={isMobile ? '60px' : '24px'}>
+    <VStack w='full' mt={isMobile ? '50px' : '24px'} mb={isMobile ? '120px' : '24px'}>
       <Paper p='16px'>
         <CommentIcon width={24} height={24} />
       </Paper>
