@@ -20,6 +20,7 @@ export const defineOpenInterestOverVolume = (
 }
 
 export async function getPrices(data: { address: `0x${string}`; decimals: number }[]) {
+  debugger
   const contractCallContext = data.map((market: { address: `0x${string}`; decimals: number }) => {
     const collateralDecimals = market.decimals
     const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
@@ -68,6 +69,7 @@ export async function getPrices(data: { address: `0x${string}`; decimals: number
         const result = marketResult.callsReturnContext
         const collateralDecimals = market.decimals
         const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
+        console.log(result)
 
         if (!result[0]?.returnValues?.[0]?.hex || !result[1]?.returnValues?.[0]?.hex) {
           console.error(`Invalid return values for market ${marketAddress}`)
