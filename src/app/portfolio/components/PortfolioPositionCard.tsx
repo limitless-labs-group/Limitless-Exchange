@@ -17,12 +17,10 @@ import WinIcon from '@/resources/icons/win-icon.svg'
 import { ClickEvent, HistoryPosition, useAmplitude, useTradingService } from '@/services'
 import { useAllMarkets, useMarket } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export interface IPortfolioPositionCard {
   position: HistoryPosition
-  market?: Market
   prices?: {
     market: `0x${string}`
     prices: number[]
@@ -75,9 +73,12 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
   const contractPrice = new BigNumber(prices?.prices[position.outcomeIndex] ?? 1)
     .dividedBy(100)
     .dividedBy(
-      new BigNumber(
-        position.latestTrade?.outcomeTokenPrice ? +position.latestTrade.outcomeTokenPrice : 1
-      )
+      (() => {
+        const price = position.latestTrade?.outcomeTokenPrice
+          ? +position.latestTrade.outcomeTokenPrice
+          : 1
+        return price === 0 ? 1 : price
+      })()
     )
     .toNumber()
 
@@ -167,8 +168,8 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
             platform: isMobile ? 'mobile' : 'desktop',
           })
           await redeem({
-            conditionId: position?.market.condition_id as Address,
-            collateralAddress: position?.market?.collateral?.id as Address,
+            conditionId: position.market.condition_id as Address,
+            collateralAddress: position.market.collateral?.id as Address,
             marketAddress: position.market.id,
             outcomeIndex: position.latestTrade?.outcomeIndex as number,
           })

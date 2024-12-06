@@ -23,7 +23,6 @@ import {
 } from '@/hooks/use-conditional-tokens-addr'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { publicClient } from '@/providers'
-import { useHistory } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { Market, MarketGroup, RedeemParams } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'

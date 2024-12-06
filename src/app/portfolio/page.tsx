@@ -113,7 +113,7 @@ const PortfolioPage = () => {
           {tab == 'Investments' ? (
             <PortfolioPositions userMenuLoading={userMenuLoading} />
           ) : (
-            <PortfolioHistory userMenuLoading={userMenuLoading} />
+            <PortfolioHistory />
           )}
         </Stack>
 
