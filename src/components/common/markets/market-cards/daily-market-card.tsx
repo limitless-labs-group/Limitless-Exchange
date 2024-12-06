@@ -51,9 +51,13 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
     e.preventDefault()
     router.push(`?market=${market.address}`, { scroll: false })
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
+      marketCategory: market.category,
+      marketAddress: market.address,
+      marketType: 'single',
+      marketTags: market.tags,
       ...analyticParams,
     })
-    onOpenMarketPage(market, 'Medium Banner')
+    onOpenMarketPage(market)
   }
 
   const uniqueUsersTrades = useMemo(() => {
@@ -140,11 +144,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
         }
       }}
       onClick={(event) => {
-        trackClicked(ClickEvent.MediumMarketBannerClicked, {
-          ...analyticParams,
-        })
         onClickRedirectToMarket(event)
-        onOpenMarketPage(market, 'Medium Banner')
       }}
     >
       <Paper flex={1} w={'100%'} position='relative' cursor='pointer' p='14px'>
@@ -227,7 +227,10 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                         Value
                       </Text>
                       <Text {...paragraphRegular} color='grey.500'>
-                        {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}{' '}
+                        {NumberUtil.convertWithDenomination(
+                          +market.openInterestFormatted + +market.liquidityFormatted,
+                          6
+                        )}{' '}
                         {market.collateralToken.symbol}
                       </Text>
                       <OpenInterestTooltip iconColor='grey.500' />

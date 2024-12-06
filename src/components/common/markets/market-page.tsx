@@ -50,6 +50,7 @@ import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import {
   ChangeEvent,
   ClickEvent,
+  OpenEvent,
   StrategyChangedMetadata,
   useAmplitude,
   useHistory,
@@ -105,7 +106,7 @@ export default function MarketPage() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const { trackChanged, trackClicked } = useAmplitude()
+  const { trackChanged, trackClicked, trackOpened } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
 
   // Todo change creator name
@@ -246,6 +247,17 @@ export default function MarketPage() {
   }, [])
 
   useEffect(() => {
+    if (market) {
+      trackOpened(OpenEvent.SidebarMarketOpened, {
+        marketAddress: market.address,
+        marketTags: market.tags,
+        marketType: 'single',
+        category: market.category,
+      })
+    }
+  }, [market?.address])
+
+  useEffect(() => {
     const handleMouseEnter = () => {
       document.body.style.overflow = 'hidden'
     }
@@ -367,7 +379,10 @@ export default function MarketPage() {
                 Value
               </Text>
               <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(market?.openInterestFormatted || '0', 6)}{' '}
+                {NumberUtil.convertWithDenomination(
+                  market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
+                  6
+                )}{' '}
                 {market?.collateralToken.symbol}
               </Text>
               <OpenInterestTooltip iconColor='grey.500' />

@@ -123,10 +123,10 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
       if (!oneMarket) {
         const { data: fetchedMarket } = await refetchMarket()
         if (fetchedMarket) {
-          onOpenMarketPage(fetchedMarket, 'History card')
+          onOpenMarketPage(fetchedMarket)
         }
       } else {
-        onOpenMarketPage(oneMarket, 'History card')
+        onOpenMarketPage(oneMarket)
       }
     }
 
@@ -134,10 +134,10 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
       if (!marketGroup) {
         const { data: fetchedMarketGroup } = await refetchMarketGroup()
         if (fetchedMarketGroup) {
-          onOpenMarketPage(fetchedMarketGroup, 'History card')
+          onOpenMarketPage(fetchedMarketGroup)
         }
       } else {
-        onOpenMarketPage(marketGroup, 'History card')
+        onOpenMarketPage(marketGroup)
       }
     }
   }

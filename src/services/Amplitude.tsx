@@ -35,7 +35,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
       defaultTracking: {
         sessions: true,
         pageViews: false,
-        attribution: false,
+        attribution: true,
         formInteractions: false,
       },
     })
@@ -51,7 +51,10 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
 
   const trackEvent = useCallback(
     async (eventType: EventType, customData?: EventMetadata) => {
-      const urlParams = new URLSearchParams(window.location.search)
+      const queryPart = window.location.search.split('?')
+      const queryString = queryPart[queryPart.length - 1]
+      const decodedQuery = decodeURIComponent(queryString)
+      const urlParams = new URLSearchParams(decodedQuery)
       if (window.location.origin !== 'https://limitless.exchange') {
         return
       }
@@ -61,11 +64,11 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         event_properties: {
           ...customData,
           ...sessionReplay.getSessionReplayProperties(),
-          utm_source: urlParams.get('utm_source') || 'unknown',
-          utm_medium: urlParams.get('utm_medium') || 'unknown',
-          utm_campaign: urlParams.get('utm_campaign') || 'unknown',
-          utm_term: urlParams.get('utm_term') || 'unknown',
-          utm_content: urlParams.get('utm_content') || 'unknown',
+          ...(urlParams.get('utm_source') ? { utm_source: urlParams.get('utm_source') } : {}),
+          ...(urlParams.get('utm_medium') ? { utm_medium: urlParams.get('utm_medium') } : {}),
+          ...(urlParams.get('utm_campaign') ? { utm_campaign: urlParams.get('utm_campaign') } : {}),
+          ...(urlParams.get('utm_term') ? { utm_term: urlParams.get('utm_term') } : {}),
+          ...(urlParams.get('utm_content') ? { utm_content: urlParams.get('utm_content') } : {}),
         },
         user_properties: {
           account,
@@ -168,6 +171,8 @@ export enum ClickEvent {
   TradingWidgetReturnDecomposition = 'Trading Widget Return Decomposition',
   CloseMarketClicked = 'Close Market Clicked',
   SidebarMarketOpened = 'Sidebar Market Opened',
+  FeedMarketClicked = 'Feed Market Clicked',
+  PortfolioMarketClicked = 'PortfolioMarketClicked',
   PredictionChartOpened = 'Prediction Chart Opened',
   AssetPriceChartOpened = 'Asset Price Chart Opened',
   NextMarketClick = 'Next Market Click',
