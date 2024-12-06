@@ -58,9 +58,9 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
       const queryString = queryPart[queryPart.length - 1]
       const decodedQuery = decodeURIComponent(queryString)
       const urlParams = new URLSearchParams(decodedQuery)
-      if (window.location.origin !== 'https://limitless.exchange') {
-        return
-      }
+      // if (window.location.origin !== 'https://limitless.exchange') {
+      //   return
+      // }
 
       return amplitudeTrack({
         event_type: String(eventType),
@@ -174,6 +174,8 @@ export enum ClickEvent {
   TradingWidgetReturnDecomposition = 'Trading Widget Return Decomposition',
   CloseMarketClicked = 'Close Market Clicked',
   SidebarMarketOpened = 'Sidebar Market Opened',
+  FeedMarketClicked = 'Feed Market Clicked',
+  PortfolioMarketClicked = 'PortfolioMarketClicked',
   PredictionChartOpened = 'Prediction Chart Opened',
   AssetPriceChartOpened = 'Asset Price Chart Opened',
   NextMarketClick = 'Next Market Click',

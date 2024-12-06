@@ -70,7 +70,7 @@ export default function GroupStatusUpdatedCard({ data }: GroupStatusUpdatedCard)
           })}
       onMouseEnter={() => setColors(hoverColors)}
       onMouseLeave={() => setColors(defaultColors)}
-      onClick={() => onOpenMarketPage(marketGroup as MarketGroup, 'Feed')}
+      onClick={() => onOpenMarketPage(marketGroup as MarketGroup)}
       rounded='8px'
     >
       <HStack justifyContent='space-between' mb='12px'>

@@ -7,7 +7,7 @@ import { defaultChain } from '@/constants'
 import useMarketGroup from '@/hooks/use-market-group'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import { HistoryRedeem, useTradingService } from '@/services'
+import { ClickEvent, HistoryRedeem, useAmplitude, useTradingService } from '@/services'
 import { useAllMarkets, useMarketByConditionId } from '@/services/MarketsService'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -30,6 +30,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
     false
   )
   const { onOpenMarketPage } = useTradingService()
+  const { trackClicked } = useAmplitude()
 
   const formattedAmount = NumberUtil.formatThousands(
     Number(redeem.collateralAmount) ?? 0,
@@ -41,10 +42,24 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
       if (!market) {
         const { data: fetchedMarket } = await refetchMarket()
         if (fetchedMarket) {
-          onOpenMarketPage(fetchedMarket, 'History card')
+          onOpenMarketPage(fetchedMarket)
+          trackClicked(ClickEvent.PortfolioMarketClicked, {
+            marketCategory: fetchedMarket.category,
+            marketAddress: fetchedMarket.address,
+            marketType: 'single',
+            marketTags: fetchedMarket.tags,
+            type: 'History',
+          })
         }
       } else {
-        onOpenMarketPage(market, 'History card')
+        onOpenMarketPage(market)
+        trackClicked(ClickEvent.PortfolioMarketClicked, {
+          marketCategory: market.category,
+          marketAddress: market.address,
+          marketType: 'single',
+          marketTags: market.tags,
+          type: 'History',
+        })
       }
     }
 
@@ -52,10 +67,10 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
       if (!marketGroup) {
         const { data: fetchedMarketGroup } = await refetchMarketGroup()
         if (fetchedMarketGroup) {
-          onOpenMarketPage(fetchedMarketGroup, 'History card')
+          onOpenMarketPage(fetchedMarketGroup)
         }
       } else {
-        onOpenMarketPage(marketGroup, 'History card')
+        onOpenMarketPage(marketGroup)
       }
     }
   }

@@ -92,11 +92,18 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
 
   const handleOpenMarketPage = () => {
     if (marketGroup) {
-      onOpenMarketPage(marketGroup, 'Portfolio Card')
+      onOpenMarketPage(marketGroup)
       return
     }
     if (market) {
-      onOpenMarketPage(market, 'Portfolio Card')
+      onOpenMarketPage(market)
+      trackClicked(ClickEvent.PortfolioMarketClicked, {
+        marketCategory: market.category,
+        marketAddress: market.address,
+        marketType: 'single',
+        marketTags: market.tags,
+        type: 'Portolio',
+      })
       return
     }
   }

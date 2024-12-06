@@ -7,7 +7,7 @@ import { defaultChain } from '@/constants'
 import useMarketGroup from '@/hooks/use-market-group'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import { HistoryTrade, useTradingService } from '@/services'
+import { ClickEvent, HistoryTrade, useAmplitude, useTradingService } from '@/services'
 import { useAllMarkets, useMarket } from '@/services/MarketsService'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -35,15 +35,31 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
     false
   )
 
+  const { trackClicked } = useAmplitude()
+
   const handleOpenMarketPage = async () => {
     if (targetMarket?.address) {
       if (!market) {
         const { data: fetchedMarket } = await refetchMarket()
         if (fetchedMarket) {
-          onOpenMarketPage(fetchedMarket, 'History card')
+          onOpenMarketPage(fetchedMarket)
+          trackClicked(ClickEvent.PortfolioMarketClicked, {
+            marketCategory: fetchedMarket.category,
+            marketAddress: fetchedMarket.address,
+            marketType: 'single',
+            marketTags: fetchedMarket.tags,
+            type: 'History',
+          })
         }
       } else {
-        onOpenMarketPage(market, 'History card')
+        onOpenMarketPage(market)
+        trackClicked(ClickEvent.PortfolioMarketClicked, {
+          marketCategory: market.category,
+          marketAddress: market.address,
+          marketType: 'single',
+          marketTags: market.tags,
+          type: 'History',
+        })
       }
     }
 
@@ -51,10 +67,10 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
       if (!marketGroup) {
         const { data: fetchedMarketGroup } = await refetchMarketGroup()
         if (fetchedMarketGroup) {
-          onOpenMarketPage(fetchedMarketGroup, 'History card')
+          onOpenMarketPage(fetchedMarketGroup)
         }
       } else {
-        onOpenMarketPage(marketGroup, 'History card')
+        onOpenMarketPage(marketGroup)
       }
     }
   }
