@@ -89,7 +89,7 @@ export function PositionCard({
             <Text {...paragraphMedium}>{`${NumberUtil.toFixed(
               new BigNumber(position.outcomeTokenAmount || '1')
                 .multipliedBy(
-                  new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100)
+                  new BigNumber(marketPrices?.[position.outcomeIndex] || 1).dividedBy(100)
                 )
                 .toString(),
               symbol === 'USDC' ? 2 : 6
