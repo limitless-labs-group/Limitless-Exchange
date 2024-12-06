@@ -24,7 +24,7 @@ import { NumberUtil } from '@/utils'
 export const DailyCardTrigger = React.memo(
   ({ market, markets, analyticParams }: DailyMarketCardProps) => {
     const [estimateOpened, setEstimateOpened] = useState(false)
-    const { onOpenMarketPage, setMarkets, setMarketsSection } = useTradingService()
+    const { onOpenMarketPage, setMarkets } = useTradingService()
     const router = useRouter()
     const { data: marketFeedData } = useMarketFeed(market.address)
     const { data: yesReturn, isLoading: yesLoading } = useCalculateYesReturn(
@@ -39,11 +39,12 @@ export const DailyCardTrigger = React.memo(
     const onEstimteEarningOpenClicked = (e: SyntheticEvent) => {
       e.preventDefault()
       e.stopPropagation()
-      trackClicked(ClickEvent.EstimateEarningClicked, {
+      trackClicked(ClickEvent.MediumMarketBannerClicked, {
+        marketCategory: market.category,
         marketAddress: market.address,
         marketType: 'single',
         marketTags: market.tags,
-        marketCategory: market.category,
+        ...analyticParams,
       })
       setEstimateOpened(true)
     }
@@ -84,9 +85,8 @@ export const DailyCardTrigger = React.memo(
         ...analyticParams,
       })
       router.push(`?market=${market.address}`, { scroll: false })
-      onOpenMarketPage(market, 'Medium Banner')
+      onOpenMarketPage(market)
       setMarkets(markets)
-      setMarketsSection('Medium Banner')
     }
 
     const onClickJoinPrediction = () => {

@@ -9,7 +9,7 @@ import DailyMarketTimer from '@/components/common/markets/market-cards/daily-mar
 import ProgressBar from '@/components/common/progress-bar'
 import { BigBannerProps } from './big-banner'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
-import { useTradingService } from '@/services'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { cutUsername } from '@/utils/string'
@@ -18,9 +18,10 @@ const MotionBox = motion(Box)
 
 export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps) => {
   const [feedMessage, setFeedMessage] = useState<MarketFeedData | null>(null)
-  const { onOpenMarketPage, setMarkets, setMarketsSection } = useTradingService()
+  const { onOpenMarketPage, setMarkets } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market.address)
   const router = useRouter()
+  const { trackClicked } = useAmplitude()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {
@@ -30,10 +31,15 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
       e.preventDefault()
     }
     router.push(`?market=${market.address}`, { scroll: false })
-    onOpenMarketPage(market, 'Big Banner')
+    trackClicked(ClickEvent.BigBannerClicked, {
+      marketCategory: market.category,
+      marketAddress: market.address,
+      marketType: 'single',
+      marketTags: market.tags,
+    })
+    onOpenMarketPage(market)
     if (isMobile) {
       setMarkets(markets)
-      setMarketsSection('Big Banner')
     }
   }
 
