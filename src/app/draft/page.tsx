@@ -537,6 +537,7 @@ const CreateOwnMarketPage = () => {
                     minDate={new Date()}
                     showTimeSelect
                     dateFormat='Pp'
+                    calendarStartDay={1}
                     customInput={
                       <Input
                         cursor='pointer'
