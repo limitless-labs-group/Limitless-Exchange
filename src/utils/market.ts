@@ -20,6 +20,7 @@ export const defineOpenInterestOverVolume = (
 }
 
 export async function getPrices(data: { address: `0x${string}`; decimals: number }[]) {
+  debugger
   const contractCallContext = data.map((market: { address: `0x${string}`; decimals: number }) => {
     const collateralDecimals = market.decimals
     const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
