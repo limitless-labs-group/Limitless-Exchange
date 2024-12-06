@@ -45,7 +45,7 @@ const TableContainerWrapper = ({ children }: PropsWithChildren) => {
   )
 }
 
-const History = ({ userMenuLoading }: { userMenuLoading: boolean }) => {
+const History = () => {
   const {
     data: historyData,
     fetchNextPage,
@@ -100,9 +100,15 @@ const History = ({ userMenuLoading }: { userMenuLoading: boolean }) => {
       <TableContainerWrapper>
         {historyFlat.map((item) =>
           'strategy' in item ? (
-            <PortfolioHistoryTradeItem key={item.market.id} trade={item as HistoryTrade} />
+            <PortfolioHistoryTradeItem
+              key={(item as HistoryTrade).transactionHash}
+              trade={item as HistoryTrade}
+            />
           ) : (
-            <PortfolioHistoryRedeemItem key={item.conditionId} redeem={item as HistoryRedeem} />
+            <PortfolioHistoryRedeemItem
+              key={(item as HistoryRedeem).transactionHash}
+              redeem={item as HistoryRedeem}
+            />
           )
         )}
       </TableContainerWrapper>
