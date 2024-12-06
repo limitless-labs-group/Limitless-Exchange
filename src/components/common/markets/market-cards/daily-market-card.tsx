@@ -227,7 +227,10 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
                         Value
                       </Text>
                       <Text {...paragraphRegular} color='grey.500'>
-                        {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}{' '}
+                        {NumberUtil.convertWithDenomination(
+                          +market.openInterestFormatted + +market.liquidityFormatted,
+                          6
+                        )}{' '}
                         {market.collateralToken.symbol}
                       </Text>
                       <OpenInterestTooltip iconColor='grey.500' />
