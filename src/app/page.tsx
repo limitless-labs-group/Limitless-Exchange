@@ -212,38 +212,11 @@ const MainPage = () => {
           <>
             <TopMarkets markets={topMarkets as Market[]} isLoading={isLoadingDailyMarkets} />
             <DailyMarketsSection
-              markets={
-                isMobile
-                  ? dailyMarkets?.data.markets
-                  : dailyMarkets?.data.markets.slice((page - 1) * 6, page * 6)
-              }
+              markets={dailyMarkets?.data.markets}
               isLoading={isLoadingDailyMarkets}
               totalAmount={dailyMarkets?.data.totalAmount}
-              onClickNextPage={() => {
-                if (!dailyMarkets) {
-                  return
-                }
-                if (dailyMarkets.data.markets.length < 6) {
-                  return
-                }
-                if (6 * page >= dailyMarkets.data.totalAmount) {
-                  return
-                }
-                setPage(page + 1)
-              }}
-              onClickPrevPage={() => {
-                if (page === 1) {
-                  return
-                }
-                setPage(page - 1)
-                return
-              }}
-              page={page}
             />
             <AllMarkets
-              dataLength={dataLength ?? 0}
-              fetchNextPage={fetchNextPage}
-              hasNextPage={hasNextPage}
               markets={sortedMarkets}
               handleSelectSort={handleSelectSort}
               totalAmount={data?.pages?.[0].data.totalAmount}

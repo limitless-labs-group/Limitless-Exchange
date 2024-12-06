@@ -23,7 +23,7 @@ import {
 } from '@/hooks/use-conditional-tokens-addr'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { publicClient } from '@/providers'
-import { ClickEvent, useAmplitude, useBalanceService, useHistory } from '@/services'
+import { ClickEvent, OpenEvent, useAmplitude, useHistory } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { Market, MarketGroup, RedeemParams } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
@@ -91,7 +91,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const queryClient = useQueryClient()
   const { getTrades, getRedeems } = useHistory()
-  const { trackClicked } = useAmplitude()
+  const { trackClicked, trackOpened } = useAmplitude()
   const account = useWalletAddress()
 
   /**
@@ -126,6 +126,15 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       marketTags: market?.tags,
       type,
     })
+    trackOpened(OpenEvent.SidebarMarketOpened, {
+      // @ts-ignore
+      marketAddress: market.slug
+        ? (market as MarketGroup).markets[0].address
+        : (market as Market).address,
+      marketTags: market?.tags,
+      marketType: 'single',
+      category: market?.category,
+    })
     // @ts-ignore
     if (market.slug) {
       setMarketGroup(market as MarketGroup)
@@ -154,7 +163,9 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     await queryClient.invalidateQueries({
       queryKey: ['outcomeTokensSellPrice', market?.address],
     })
-    await refetchbalanceOfSmartWallet()
+    await queryClient.invalidateQueries({
+      queryKey: ['balance', account],
+    })
     await updateSellBalance()
   }
 
@@ -194,7 +205,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * BALANCE TO BUY
    */
-  const { refetchbalanceOfSmartWallet } = useBalanceService()
 
   /**
    * BALANCE TO SELL

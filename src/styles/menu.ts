@@ -74,6 +74,9 @@ const variants = {
       w: 'full',
       background: 'unset !important',
     },
+    list: {
+      bg: 'grey.100',
+    },
   },
   blue: {
     button: {
@@ -100,6 +103,31 @@ const variants = {
       _hover: {
         bg: 'transparent.300',
       },
+    },
+  },
+  block: {
+    item: {
+      background: 'none',
+      _hover: { background: 'none' },
+      _focus: { background: 'none' },
+      _active: { background: 'none' },
+      padding: 0,
+      border: 'none',
+      cursor: 'default',
+    },
+
+    button: {
+      borderRadius: '2px',
+      background: 'unset',
+      p: 0,
+      h: 'fit-content',
+      _hover: { bg: 'none' },
+      _active: { bg: 'grey.100' },
+    },
+
+    list: {
+      bg: 'grey.100',
+      p: '8px',
     },
   },
 }

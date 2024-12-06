@@ -10,19 +10,23 @@ const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpe
 // define a custom variant
 const common = definePartsStyle(() => {
   return {
+    root: {
+      overflowX: 'auto',
+    },
     tab: {
       ...paragraphMedium,
       padding: isMobile ? '8px 12px' : '4px 8px',
       color: 'grey.500',
-      borderBottom: 'none',
       _selected: {
         color: 'grey.800',
         borderColor: 'inherit',
         borderBottom: 'none',
       },
+      borderBottom: isMobile ? '1px solid' : 'unset',
+      borderColor: 'grey.500',
     },
     tablist: {
-      borderBottom: '1px solid',
+      borderBottom: isMobile ? 'unset' : '1px solid',
       borderColor: 'grey.500',
     },
     tabpanel: {

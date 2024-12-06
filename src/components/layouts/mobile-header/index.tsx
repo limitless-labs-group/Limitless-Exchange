@@ -10,12 +10,13 @@ import {
   StackItem,
   Text,
   useDisclosure,
+  useTheme,
   VStack,
 } from '@chakra-ui/react'
+import { rgba } from 'color2k'
 import Image from 'next/image'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { isAddress } from 'viem'
 import { useAccount as useWagmiAccount } from 'wagmi'
@@ -25,7 +26,6 @@ import Loader from '@/components/common/loader'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import SocialsFooter from '@/components/common/socials-footer'
-import TokenFilterMobile from '@/components/common/token-filter-mobile'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
@@ -60,7 +60,6 @@ export default function MobileHeader() {
   const { isLoadingSmartWalletAddress } = useEtherspot()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
-  const pathname = usePathname()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
 
   const userMenuLoading = useMemo(() => {
@@ -86,7 +85,15 @@ export default function MobileHeader() {
 
   return (
     <>
-      <Box p='16px' pb={0}>
+      <Box
+        p='16px'
+        pb='52px'
+        w='100vw'
+        bg={`linear-gradient(180deg, var(--chakra-colors-grey-50) 0%, ${
+          mode === 'light' ? 'rgba(255, 255, 255, 0)' : 'rgba(0, 0, 0, 0)'
+        }  100%)`}
+        marginTop='20px'
+      >
         <HStack justifyContent='space-between' alignItems='center'>
           <Box onClick={() => router.push('/')}>
             <Image
@@ -198,13 +205,13 @@ export default function MobileHeader() {
                           variant='outline'
                           gap='2px'
                           p='2px'
-                          bg='grey.300'
+                          bg='grey.100'
                           borderRadius='8px'
                           w='full'
                         >
                           <Button
                             key={uuidv4()}
-                            variant={mode === 'dark' ? 'grey' : 'black'}
+                            variant={mode === 'dark' ? 'transparent' : 'black'}
                             onClick={setLightTheme}
                             w='full'
                           >
@@ -212,7 +219,7 @@ export default function MobileHeader() {
                           </Button>
                           <Button
                             key={uuidv4()}
-                            variant={mode === 'dark' ? 'black' : 'grey'}
+                            variant={mode === 'dark' ? 'black' : 'transparent'}
                             onClick={setDarkTheme}
                             w='full'
                           >

@@ -8,7 +8,13 @@ import { IModal } from '@/components/common/modals/modal'
 import SelectTokenField from '@/components/common/select-token-field'
 import BaseIcon from '@/resources/crypto/base.svg'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
-import { ClickEvent, useAmplitude, useBalanceService, useLimitlessApi } from '@/services'
+import {
+  ClickEvent,
+  useAmplitude,
+  useBalanceQuery,
+  useBalanceService,
+  useLimitlessApi,
+} from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Token } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -18,8 +24,8 @@ type WithdrawProps = Omit<IModal, 'children'>
 export default function Withdraw({ isOpen, onClose }: WithdrawProps) {
   const [amount, setAmount] = useState('')
   const [address, setAddress] = useState('')
-  const { balanceOfSmartWallet, unwrap, setUnwrap, withdraw, status } = useBalanceService()
-
+  const { unwrap, setUnwrap, withdraw, status } = useBalanceService()
+  const { balanceOfSmartWallet } = useBalanceQuery()
   const { supportedTokens } = useLimitlessApi()
 
   const [selectedToken, setSelectedToken] = useState((supportedTokens as Token[])[0])
