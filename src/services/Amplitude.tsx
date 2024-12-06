@@ -35,11 +35,8 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
       defaultTracking: {
         sessions: true,
         pageViews: false,
-        // attribution: true,
-        formInteractions: false,
-      },
-      autocapture: {
         attribution: true,
+        formInteractions: false,
       },
     })
     //   .promise.then(() => {
