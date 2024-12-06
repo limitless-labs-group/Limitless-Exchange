@@ -2,14 +2,13 @@
 
 import {
   Box,
-  Button,
-  ButtonGroup,
   Divider,
   Flex,
   FormControl,
   FormHelperText,
   Heading,
   HStack,
+  Img,
   Input,
   NumberInput,
   NumberInputField,
@@ -18,15 +17,18 @@ import {
   SliderFilledTrack,
   SliderThumb,
   SliderTrack,
-  Spinner,
+  Spacer,
+  Text,
   Textarea,
+  useTheme,
   VStack,
 } from '@chakra-ui/react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import axios from 'axios'
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import { useQuery } from '@tanstack/react-query'
 import { toZonedTime } from 'date-fns-tz'
-import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import html2canvas from 'html2canvas'
+import { useSearchParams } from 'next/navigation'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { isMobile } from 'react-device-detect'
@@ -36,25 +38,43 @@ import TimezoneSelect, {
   ITimezoneOption,
   useTimezoneSelect,
 } from 'react-timezone-select'
+import ButtonWithStates from '@/components/common/button-with-states'
 import { Toast } from '@/components/common/toast'
 import {
   defaultFormData,
   defaultTokenSymbol,
   tokenLimits,
   selectStyles,
-  OgImageGenerator,
   defaultProbability,
   defaultMarketFee,
   defaultCreatorId,
   defaultCategoryId,
+  IOgImageGeneratorOptions,
 } from '@/app/draft/components'
 import { FormField } from '@/app/draft/components/form-field'
 import { MainLayout } from '@/components'
 import { useToast } from '@/hooks'
-import { useCategories, useLimitlessApi } from '@/services'
+import { useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import { h1Bold } from '@/styles/fonts/fonts.styles'
-import { Token, Tag, TagOption, IFormData, Creator } from '@/types/draft'
+import { h1Bold, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Token, Tag, TagOption, IFormData } from '@/types/draft'
+
+const [backgroundColor] = ['#0000EE']
+const exportOptions: IOgImageGeneratorOptions = {
+  px: 150,
+  p: 10,
+  height: `1100px`,
+  width: `2110px`,
+  fontSize: 113.68,
+  borderRadius: 'none',
+  divider: {
+    borderWidth: '4px',
+  },
+  logo: {
+    width: '847px',
+    height: '148px',
+  },
+}
 
 const CreateOwnMarketPage = () => {
   const { parseTimezone } = useTimezoneSelect({
@@ -65,8 +85,8 @@ const CreateOwnMarketPage = () => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
   const { supportedTokens } = useLimitlessApi()
   const toast = useToast()
-  const queryClient = useQueryClient()
-  const router = useRouter()
+  const theme = useTheme()
+  const canvasRef = useRef<HTMLDivElement>(null)
   const searchParams = useSearchParams()
   const marketId = searchParams.get('market')
   const privateClient = useAxiosPrivateClient()
@@ -104,7 +124,6 @@ const CreateOwnMarketPage = () => {
         creatorId: editMarket.creator?.id || defaultCreatorId,
         categoryId: editMarket.category?.id || defaultCategoryId,
       }))
-      generateOgImage().then(() => console.log('Og image generated'))
     }
   }, [editMarket])
 
@@ -140,22 +159,60 @@ const CreateOwnMarketPage = () => {
     })
   }
 
-  const createOption = (id: string, name: string): TagOption => ({
-    id,
-    label: name,
-    value: name,
-  })
+  const { firstWord, secondWord, words } = useMemo(() => {
+    const [firstWord, secondWord, ...words] = formData.title.split(' ')
+    return {
+      firstWord,
+      secondWord,
+      words,
+    }
+  }, [formData.title])
 
-  const { data: categories } = useCategories()
-  const { mutateAsync: generateOgImage, isPending: isGeneratingOgImage } = useMutation({
-    mutationKey: ['generate-og-image'],
-    mutationFn: async () => new Promise((resolve) => setTimeout(resolve, 1_000)),
-  })
+  const generateOgImage = async () => {
+    if (!canvasRef.current) return
+    const componentWidth = canvasRef.current.offsetWidth
+    const componentHeight = canvasRef.current.offsetHeight
+    const scale = 2110 / componentWidth // calculate the scale factor
+    const canvas = await html2canvas(canvasRef.current, {
+      useCORS: true,
+      logging: true,
+      scale,
+      width: componentWidth * scale,
+      height: componentHeight * scale,
+      backgroundColor: backgroundColor,
+      scrollX: -window.scrollX,
+      scrollY: -window.scrollY,
+    })
+
+    let ogLogo
+
+    canvas.toBlob(
+      (blob) => {
+        if (blob) {
+          const _ogLogo = new File([blob], 'og.png', {
+            type: blob.type,
+            lastModified: Date.now(),
+          })
+          console.log('Blob transformed to File', _ogLogo)
+
+          ogLogo = _ogLogo
+        } else {
+          console.error('Blob generation failed')
+        }
+      },
+      'image/png',
+      1.0
+    )
+    while (!ogLogo) {
+      await sleep(1)
+    }
+    return ogLogo
+  }
 
   const prepareData = async () => {
-    await generateOgImage()
+    const ogLogo = await generateOgImage()
 
-    const { title, description, creatorId, ogLogo, tag } = formData
+    const { title, description, creatorId, tag, txHash, token, liquidity, probability } = formData
 
     const missingFields: string[] = []
     if (!title) missingFields.push('Title')
@@ -163,6 +220,7 @@ const CreateOwnMarketPage = () => {
     if (!creatorId) missingFields.push('Creator')
     if (!ogLogo) missingFields.push('Og Logo')
     if (!tag) missingFields.push('Tag')
+    if (!tag) missingFields.push('Tx Hash')
 
     if (missingFields.length > 0) {
       showToast(`${missingFields.join(', ')} ${missingFields.length > 1 ? 'are' : 'is'} required!`)
@@ -175,13 +233,14 @@ const CreateOwnMarketPage = () => {
     const zonedTime = new Date(formData.deadline).getTime() + differenceInOffset * 60 * 60 * 1000
 
     const marketFormData = new FormData()
-    marketFormData?.set('title', formData.title)
-    marketFormData?.set('description', formData.description)
-    marketFormData?.set('tokenId', formData.token.id.toString())
-    marketFormData?.set('liquidity', formData.liquidity.toString())
-    marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
+    marketFormData?.set('title', title)
+    marketFormData?.set('description', description)
+    marketFormData?.set('tokenId', token.id.toString())
+    marketFormData?.set('liquidity', liquidity.toString())
+    marketFormData?.set('initialYesProbability', (probability / 100).toString())
     marketFormData?.set('marketFee', formData.marketFee.toString())
     marketFormData?.set('deadline', zonedTime.toString())
+    marketFormData.set('txHash', txHash)
 
     if (formData.creatorId) {
       marketFormData.set('creatorId', formData.creatorId)
@@ -191,8 +250,8 @@ const CreateOwnMarketPage = () => {
       marketFormData.set('categoryId', formData.categoryId)
     }
 
-    if (formData.ogLogo) {
-      marketFormData.set('ogFile', formData.ogLogo)
+    if (ogLogo) {
+      marketFormData.set('ogFile', ogLogo)
     }
 
     if (formData.tag.length) {
@@ -205,9 +264,9 @@ const CreateOwnMarketPage = () => {
   }
 
   const draftMarket = async () => {
+    setIsCreating(true)
     const data = await prepareData()
     if (!data) return
-    setIsCreating(true)
     privateClient
       .post(`/markets/drafts`, data, {
         headers: {
@@ -226,20 +285,13 @@ const CreateOwnMarketPage = () => {
       })
   }
 
-  const resizeTextareaHeight = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    e.currentTarget.style.height = 'auto'
-    e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
-  }
-
   const submit = async () => {
     await draftMarket()
   }
 
-  console.log(formData)
-
   return (
     <MainLayout>
-      <Box w={isMobile ? 'full' : 'calc(100vw - 720px)'}>
+      <Box w={isMobile ? 'full' : '40%'}>
         <Divider orientation='horizontal' h='3px' borderColor='grey.800' bg='grey.800' />
         <Heading {...h1Bold} gap={2}>
           Create market
@@ -258,24 +310,72 @@ const CreateOwnMarketPage = () => {
                   <Box position='absolute' opacity={0} pointerEvents='none'>
                     <FormField label='OG Preview is still here, but hidden (required to create an image)'>
                       <HStack position='absolute' zIndex={-1} h='280px' w='600px'>
-                        <OgImageGenerator
-                          title={formData.title}
-                          category={
-                            categories?.find((category) => category.id === +formData.categoryId)
-                              ?.name ?? 'Unknown'
-                          }
-                          onBlobGenerated={(blob) => {
-                            console.log('Blob generated', blob)
-                            const _ogLogo = new File([blob], 'og.png', {
-                              type: blob.type,
-                              lastModified: Date.now(),
-                            })
-                            console.log('Blob transformed to File', _ogLogo)
+                        <Box display='inline-block' w='full' position='absolute' top='-9999px'>
+                          <Box
+                            ref={canvasRef}
+                            bg={backgroundColor}
+                            width={exportOptions.width}
+                            height={exportOptions.height}
+                            p={exportOptions.p}
+                            pt={35}
+                            pb={112}
+                            px={exportOptions.px}
+                            borderRadius={exportOptions.borderRadius}
+                            style={{
+                              lineHeight: '0.5 !important',
+                            }}
+                          >
+                            <Divider
+                              color='white'
+                              borderWidth={exportOptions.divider.borderWidth}
+                              pos='absolute'
+                              top='75px'
+                              w={1800}
+                              // p={0} m={0}
+                            />
 
-                            handleChange('ogLogo', _ogLogo)
-                          }}
-                          generateBlob={isGeneratingOgImage}
-                        />
+                            <VStack w='full' h='full' display='flex' gap={0}>
+                              <Text
+                                // bg='red'
+                                fontWeight={400}
+                                height='146px'
+                                fontSize={exportOptions.fontSize}
+                                color='white'
+                                w='full'
+                                pb={50}
+                                style={{
+                                  lineHeight: '0.5 !important',
+                                }}
+                              >
+                                <span style={{ fontFamily: theme.fonts.body }}>{firstWord}</span>{' '}
+                                <span style={{ fontFamily: theme.fonts.heading }}>
+                                  {' '}
+                                  {secondWord}{' '}
+                                </span>
+                                <span style={{ fontFamily: theme.fonts.body }}>
+                                  {words.join(' ')}
+                                </span>
+                              </Text>
+
+                              <Spacer />
+
+                              <Box
+                                display='flex'
+                                justifyContent='start'
+                                alignItems='center'
+                                w='full'
+                              >
+                                <Img
+                                  src='/logo-og-markets.png'
+                                  // src='/logo-og.png' // use this for dynamic category
+                                  alt='Limitless Logo'
+                                  width={exportOptions.logo.width}
+                                  height={exportOptions.logo.height}
+                                />
+                              </Box>
+                            </VStack>
+                          </Box>
+                        </Box>
                       </HStack>
                     </FormField>
                   </Box>
@@ -287,11 +387,9 @@ const CreateOwnMarketPage = () => {
                       overflow='hidden'
                       height='auto'
                       variant='grey'
-                      onInput={resizeTextareaHeight}
                       value={formData.title}
                       onChange={(e) => handleChange('title', e.target.value)}
                       maxLength={70}
-                      onBlur={() => generateOgImage()}
                       id='title'
                     />
                     <FormHelperText
@@ -309,7 +407,6 @@ const CreateOwnMarketPage = () => {
                       overflow='hidden'
                       height='auto'
                       variant='grey'
-                      onInput={resizeTextareaHeight}
                       maxLength={1500}
                       value={formData.description}
                       onChange={(e) => handleChange('description', e.target.value)}
@@ -334,6 +431,7 @@ const CreateOwnMarketPage = () => {
                         _focusVisible={{
                           borderColor: 'grey.800',
                         }}
+                        {...paragraphMedium}
                       >
                         {supportedTokens?.map((token: Token) => (
                           <option key={token.id} value={token.id} data-name={token.symbol}>
@@ -429,7 +527,7 @@ const CreateOwnMarketPage = () => {
                       ...provided,
                       cursor: 'pointer',
                       background: 'unset',
-                      color: 'var(--chakra-colors-grey-800)',
+                      ...paragraphMedium,
                       '&:hover': {
                         background: 'var(--chakra-colors-grey-300)',
                       },
@@ -461,7 +559,6 @@ const CreateOwnMarketPage = () => {
                   overflow='hidden'
                   height='auto'
                   variant='grey'
-                  onInput={resizeTextareaHeight}
                   value={formData.txHash}
                   onChange={(e) => handleChange('txHash', e.target.value)}
                   id='txHash'
@@ -471,17 +568,16 @@ const CreateOwnMarketPage = () => {
                 </FormHelperText>
               </FormField>
 
-              <ButtonGroup spacing='6' mt={5} w='full'>
-                {isCreating ? (
-                  <Flex width='full' justifyContent='center' alignItems='center'>
-                    <Spinner />
-                  </Flex>
-                ) : (
-                  <Button variant='contained' w='full' height='52px' onClick={submit}>
-                    Submit For Review
-                  </Button>
-                )}
-              </ButtonGroup>
+              <ButtonWithStates
+                status={isCreating ? 'pending' : 'idle'}
+                variant='contained'
+                onClick={submit}
+                w='full'
+                h='52px'
+                mt='16px'
+              >
+                Submit For Review
+              </ButtonWithStates>
             </FormControl>
           </VStack>
         </Flex>
