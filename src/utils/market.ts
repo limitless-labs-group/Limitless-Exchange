@@ -59,11 +59,18 @@ export async function getPrices(data: { address: `0x${string}`; decimals: number
       try {
         const marketAddress = market.address
 
-        const result = results.results[marketAddress].callsReturnContext
+        const marketResult = results.results[marketAddress]
+        if (!marketResult) {
+          console.error(`No result found for market ${marketAddress}`)
+          return acc
+        }
+
+        const result = marketResult.callsReturnContext
         const collateralDecimals = market.decimals
         const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
 
-        if (!result[0].returnValues[0]?.hex || !result[1].returnValues[0]?.hex) {
+        if (!result[0]?.returnValues?.[0]?.hex || !result[1]?.returnValues?.[0]?.hex) {
+          console.error(`Invalid return values for market ${marketAddress}`)
           return acc
         }
 
