@@ -149,7 +149,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const { data: conditionalTokensAddress, refetch: getConditionalTokensAddress } =
     useConditionalTokensAddr({
-      marketAddr: !market ? undefined : getAddress('0x06Fb7CB73D6002849D5C0977c55047C9C8716a89'),
+      marketAddr: !market ? undefined : getAddress(market.address),
     })
   useEffect(() => {
     getConditionalTokensAddress()
@@ -289,7 +289,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     // small balance to zero
     if (
       balanceOfCollateralToSellBIYes <
-      parseUnits('0.000001', market.collateralToken?.decimals || 18)
+      parseUnits('0.00000001', market.collateralToken?.decimals || 18)
     ) {
       balanceOfCollateralToSellBIYes = 0n
     }
