@@ -249,7 +249,6 @@ export default function MarketPage() {
   useEffect(() => {
     if (market) {
       trackOpened(OpenEvent.SidebarMarketOpened, {
-        // @ts-ignore
         marketAddress: market.address,
         marketTags: market.tags,
         marketType: 'single',
