@@ -9,7 +9,7 @@ import {
   FormHelperText,
 } from '@chakra-ui/react'
 import DOMPurify from 'dompurify'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useAccount, useTradingService } from '@/services'
 import { useCommentService } from '@/services/CommentService'
@@ -22,8 +22,8 @@ export default function CommentTextarea() {
   const [comment, setComment] = useState<string>('')
   const { market } = useTradingService()
   const { createComment, isPostCommentLoading } = useCommentService()
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  //by default, DOMPurify treat any < symbol as a part of html tag
   const sanitizeInput = (input: string) => {
     const sanitized = DOMPurify.sanitize(input, {
       FORBID_TAGS: [
@@ -45,11 +45,33 @@ export default function CommentTextarea() {
     return sanitized.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
   }
 
-  const submit = async () => {
-    await createComment({ content: comment, marketAddress: market?.address as string }).then(() => {
-      setComment('')
-    })
+  const handleFocus = () => {
+    if (isMobile && textareaRef.current) {
+      setTimeout(() => {
+        textareaRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
+    }
   }
+
+  const submit = async () => {
+    await createComment({ content: comment, marketAddress: market?.address as string })
+    setComment('')
+  }
+
+  useEffect(() => {
+    if (isMobile) {
+      const adjustViewport = () => {
+        const vh = window.innerHeight * 0.01
+        document.documentElement.style.setProperty('--vh', `${vh}px`)
+      }
+      window.addEventListener('resize', adjustViewport)
+      adjustViewport()
+      return () => window.removeEventListener('resize', adjustViewport)
+    }
+  }, [])
 
   return (
     <FormControl>
@@ -84,6 +106,8 @@ export default function CommentTextarea() {
             placeholder='Share an opinion or stfo...'
             maxLength={140}
             contentEditable={true}
+            ref={textareaRef}
+            onFocus={handleFocus}
             resize='none'
             whiteSpace='pre-wrap'
             wordBreak='break-word'

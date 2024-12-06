@@ -9,6 +9,7 @@ import { POLLING_INTERVAL } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers'
 import { Category, Market, MarketsResponse, OddsData } from '@/types'
+import { getPrices } from '@/utils/market'
 
 const LIMIT_PER_PAGE = 10
 
@@ -296,6 +297,17 @@ export function useAllMarkets() {
   })
 
   return useMemo(() => markets ?? [], [markets])
+}
+
+export function usePrices(data: { address: `0x${string}`; decimals: number }[]) {
+  return useQuery({
+    queryKey: ['get-prices', data],
+    queryFn: async () => {
+      const response = await getPrices(data)
+      return response
+    },
+    refetchOnWindowFocus: true,
+  })
 }
 
 export function useMarketByConditionId(conditionId: string, enabled = true) {

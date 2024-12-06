@@ -23,7 +23,6 @@ import {
 } from '@/hooks/use-conditional-tokens-addr'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { publicClient } from '@/providers'
-import { ClickEvent, OpenEvent, useAmplitude, useHistory } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { Market, MarketGroup, RedeemParams } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
@@ -69,12 +68,10 @@ interface ITradingServiceContext {
   marketPageOpened: boolean
   setMarketPageOpened: Dispatch<SetStateAction<boolean>>
   onCloseMarketPage: () => void
-  onOpenMarketPage: (market: Market | MarketGroup, type: string) => void
+  onOpenMarketPage: (market: Market | MarketGroup) => void
   refetchMarkets: () => Promise<void>
   markets?: Market[]
   setMarkets: (markets: Market[]) => void
-  marketsSection: string
-  setMarketsSection: (val: string) => void
   sellBalanceLoading: boolean
 }
 
@@ -90,8 +87,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * SERVICES
    */
   const queryClient = useQueryClient()
-  const { getTrades, getRedeems } = useHistory()
-  const { trackClicked, trackOpened } = useAmplitude()
   const account = useWalletAddress()
 
   /**
@@ -100,7 +95,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const [market, setMarket] = useState<Market | null>(null)
   const [marketGroup, setMarketGroup] = useState<MarketGroup | null>(null)
   const [markets, setMarkets] = useState<Market[] | undefined>()
-  const [marketsSection, setMarketsSection] = useState('')
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
   const [marketFee, setMarketFee] = useState(0)
   const [marketPageOpened, setMarketPageOpened] = useState(false)
@@ -108,33 +102,11 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const onCloseMarketPage = () => {
     setMarketPageOpened(false)
     setMarkets(undefined)
-    setMarketsSection('')
   }
 
-  const onOpenMarketPage = (market: Market | MarketGroup, type: string) => {
+  const onOpenMarketPage = (market: Market | MarketGroup) => {
     setMarket(null)
     setMarketGroup(null)
-    trackClicked(ClickEvent.SidebarMarketOpened, {
-      mode: 'open',
-      marketCategory: market?.category,
-      // @ts-ignore
-      marketAddress: market.slug
-        ? (market as MarketGroup).markets[0].address
-        : (market as Market).address,
-      // @ts-ignore
-      marketType: market.slug ? 'group' : 'single',
-      marketTags: market?.tags,
-      type,
-    })
-    trackOpened(OpenEvent.SidebarMarketOpened, {
-      // @ts-ignore
-      marketAddress: market.slug
-        ? (market as MarketGroup).markets[0].address
-        : (market as Market).address,
-      marketTags: market?.tags,
-      marketType: 'single',
-      category: market?.category,
-    })
     // @ts-ignore
     if (market.slug) {
       setMarketGroup(market as MarketGroup)
@@ -149,7 +121,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const { data: conditionalTokensAddress, refetch: getConditionalTokensAddress } =
     useConditionalTokensAddr({
-      marketAddr: !market ? undefined : getAddress('0x06Fb7CB73D6002849D5C0977c55047C9C8716a89'),
+      marketAddr: !market ? undefined : getAddress(market.address),
     })
   useEffect(() => {
     getConditionalTokensAddress()
@@ -174,8 +146,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     await queryClient.invalidateQueries({
       queryKey: ['marketData', market?.address],
     })
-    await getTrades()
-    await getRedeems()
   }
 
   /**
@@ -289,7 +259,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     // small balance to zero
     if (
       balanceOfCollateralToSellBIYes <
-      parseUnits('0.000001', market.collateralToken?.decimals || 18)
+      parseUnits('0.00000001', market.collateralToken?.decimals || 18)
     ) {
       balanceOfCollateralToSellBIYes = 0n
     }
@@ -319,7 +289,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       ) ?? 0n
     // small balance to zero
     if (
-      balanceOfCollateralToSellBINo < parseUnits('0.000001', market.collateralToken?.decimals || 18)
+      balanceOfCollateralToSellBINo <
+      parseUnits('0.00000001', market.collateralToken?.decimals || 18)
     ) {
       balanceOfCollateralToSellBINo = 0n
     }
@@ -866,8 +837,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     refetchMarkets,
     markets,
     setMarkets,
-    marketsSection,
-    setMarketsSection,
     sellBalanceLoading,
   }
 

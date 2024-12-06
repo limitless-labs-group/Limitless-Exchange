@@ -35,11 +35,8 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
       defaultTracking: {
         sessions: true,
         pageViews: false,
-        // attribution: true,
-        formInteractions: false,
-      },
-      autocapture: {
         attribution: true,
+        formInteractions: false,
       },
     })
     //   .promise.then(() => {
@@ -174,6 +171,8 @@ export enum ClickEvent {
   TradingWidgetReturnDecomposition = 'Trading Widget Return Decomposition',
   CloseMarketClicked = 'Close Market Clicked',
   SidebarMarketOpened = 'Sidebar Market Opened',
+  FeedMarketClicked = 'Feed Market Clicked',
+  PortfolioMarketClicked = 'PortfolioMarketClicked',
   PredictionChartOpened = 'Prediction Chart Opened',
   AssetPriceChartOpened = 'Asset Price Chart Opened',
   NextMarketClick = 'Next Market Click',

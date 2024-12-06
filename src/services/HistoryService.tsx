@@ -10,10 +10,6 @@ import { Address } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface IHistoryService {
-  trades: HistoryTrade[] | undefined
-  getTrades: () => Promise<QueryObserverResult<HistoryTrade[], Error>>
-  redeems: HistoryRedeem[] | undefined
-  getRedeems: () => Promise<QueryObserverResult<HistoryRedeem[], Error>>
   positions: HistoryPosition[] | undefined
   getPositions: () => Promise<QueryObserverResult<HistoryPosition[], Error>>
   balanceInvested: string
@@ -41,45 +37,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * QUERIES
    */
-  const {
-    data: trades,
-    refetch: getTrades,
-    isLoading: tradesLoading,
-  } = useQuery({
-    queryKey: ['trades', walletAddress],
-    queryFn: async () => {
-      if (!walletAddress) {
-        return []
-      }
-      try {
-        const response = await privateClient.get<HistoryTrade[]>(`/portfolio/trades`)
-        return response.data
-      } catch (error) {
-        console.error('Error fetching trades:', error)
-        return []
-      }
-    },
-    enabled: !!walletAddress && !!supportedTokens?.length,
-  })
-  const {
-    data: redeems,
-    refetch: getRedeems,
-    isLoading: redeemsLoading,
-  } = useQuery({
-    queryKey: ['redeems', walletAddress],
-    queryFn: async () => {
-      if (!walletAddress) {
-        return []
-      }
-      try {
-        const response = await privateClient.get<HistoryRedeem[]>(`/portfolio/redeems`)
-        return response.data
-      } catch (error) {
-        console.error('Error fetching redeems:', error)
-        return []
-      }
-    },
-  })
 
   const {
     data: positions,
@@ -138,13 +95,9 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     return NumberUtil.toFixed(_balanceToWin, 2)
   }, [positions])
 
-  const tradesAndPositionsLoading = tradesLoading || redeemsLoading || positionsLoading
+  const tradesAndPositionsLoading = positionsLoading
 
   const contextProviderValue: IHistoryService = {
-    trades,
-    getTrades,
-    redeems,
-    getRedeems,
     positions,
     getPositions,
     balanceInvested,
@@ -235,7 +188,10 @@ export type HistoryMarket = {
   holdersCount?: number
   collateral?: {
     symbol: string
+    id: string
   }
+  expirationDate: string
+  title: string
 }
 
 export type HistoryRedeem = {

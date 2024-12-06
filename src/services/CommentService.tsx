@@ -69,7 +69,11 @@ export const useCommentService = () => useContext(CommentServiceContext)
 export const useMarketInfinityComments = (marketAddress?: string) => {
   const { isConnected } = useWagmiAccount()
   const privateClient = useAxiosPrivateClient()
-  return useInfiniteQuery<Comment[], Error>({
+  const {
+    data: comments,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery<Comment[], Error>({
     queryKey: ['market-comments', marketAddress],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
@@ -94,4 +98,11 @@ export const useMarketInfinityComments = (marketAddress?: string) => {
     keepPreviousData: true,
     enabled: !!marketAddress,
   })
+  return useMemo(() => {
+    return {
+      data: comments,
+      hasNextPage,
+      fetchNextPage,
+    }
+  }, [comments, hasNextPage, fetchNextPage])
 }

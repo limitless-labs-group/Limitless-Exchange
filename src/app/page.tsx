@@ -39,11 +39,12 @@ const MainPage = () => {
 
   useEffect(() => {
     if (marketData) {
-      onOpenMarketPage(marketData, 'Standard Banner')
+      onOpenMarketPage(marketData)
+
       return
     }
     if (marketGroupData) {
-      onOpenMarketPage(marketGroupData, 'Standard Banner')
+      onOpenMarketPage(marketGroupData)
     }
   }, [marketData, marketGroupData])
 

@@ -7,7 +7,7 @@ import { defaultChain } from '@/constants'
 import useMarketGroup from '@/hooks/use-market-group'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import { HistoryTrade, useTradingService } from '@/services'
+import { ClickEvent, HistoryTrade, useAmplitude, useTradingService } from '@/services'
 import { useAllMarkets, useMarket } from '@/services/MarketsService'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -28,22 +28,38 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
     [allMarkets, trade.market.id]
   )
 
-  const { data: market, refetch: refetchMarket } = useMarket(targetMarket?.address, false, false)
+  const { data: market, refetch: refetchMarket } = useMarket(trade.market?.id, false, false)
   const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
     targetMarket?.group?.slug,
     false,
     false
   )
 
+  const { trackClicked } = useAmplitude()
+
   const handleOpenMarketPage = async () => {
     if (targetMarket?.address) {
       if (!market) {
         const { data: fetchedMarket } = await refetchMarket()
         if (fetchedMarket) {
-          onOpenMarketPage(fetchedMarket, 'History card')
+          onOpenMarketPage(fetchedMarket)
+          trackClicked(ClickEvent.PortfolioMarketClicked, {
+            marketCategory: fetchedMarket.category,
+            marketAddress: fetchedMarket.address,
+            marketType: 'single',
+            marketTags: fetchedMarket.tags,
+            type: 'History',
+          })
         }
       } else {
-        onOpenMarketPage(market, 'History card')
+        onOpenMarketPage(market)
+        trackClicked(ClickEvent.PortfolioMarketClicked, {
+          marketCategory: market.category,
+          marketAddress: market.address,
+          marketType: 'single',
+          marketTags: market.tags,
+          type: 'History',
+        })
       }
     }
 
@@ -51,10 +67,10 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
       if (!marketGroup) {
         const { data: fetchedMarketGroup } = await refetchMarketGroup()
         if (fetchedMarketGroup) {
-          onOpenMarketPage(fetchedMarketGroup, 'History card')
+          onOpenMarketPage(fetchedMarketGroup)
         }
       } else {
-        onOpenMarketPage(marketGroup, 'History card')
+        onOpenMarketPage(marketGroup)
       }
     }
   }
@@ -80,8 +96,8 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
         <Text>
           {`${NumberUtil.formatThousands(
             Number(trade.collateralAmount ?? 0) * (trade.strategy == 'Sell' ? -1 : 1),
-            targetMarket?.collateralToken.symbol === 'USDC' ? 2 : 6
-          )} ${targetMarket ? targetMarket.collateralToken.symbol : ''}`}
+            trade.market.collateral?.symbol === 'USDC' ? 2 : 6
+          )} ${trade.market.collateral?.symbol ?? ''}`}
         </Text>
       </Td>
       <Td>
@@ -107,7 +123,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
               onClick={handleOpenMarketPage}
               cursor='pointer'
             >
-              {targetMarket?.proxyTitle ?? targetMarket?.title}
+              {trade.market.title}
             </Td>
           }
           variant='black'
@@ -125,7 +141,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
           onClick={handleOpenMarketPage}
           cursor='pointer'
         >
-          {targetMarket?.proxyTitle ?? targetMarket?.title}
+          {trade.market.title}
         </Td>
       )}
       <Td>
