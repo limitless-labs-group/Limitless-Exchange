@@ -63,6 +63,7 @@ export async function getPrices(data: { address: `0x${string}`; decimals: number
         const result = results.results[marketAddress].callsReturnContext
         const collateralDecimals = market.decimals
         const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
+        console.log(result)
 
         if (!result[0].returnValues[0]?.hex || !result[1].returnValues[0]?.hex) {
           return acc

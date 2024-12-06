@@ -37,6 +37,8 @@ export function PositionCard({
     <ThumbsDownIcon width={16} height={16} />
   )
 
+  console.log(marketPrices)
+
   const contractPrice = new BigNumber(marketPrices[position.outcomeIndex] || 1)
     .dividedBy(100)
     .dividedBy(
