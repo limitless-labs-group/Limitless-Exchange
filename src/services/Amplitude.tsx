@@ -35,12 +35,12 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
       defaultTracking: {
         sessions: true,
         pageViews: false,
-        // attribution: true,
+        attribution: true,
         formInteractions: false,
       },
-      autocapture: {
-        attribution: true,
-      },
+      // autocapture: {
+      //   attribution: true,
+      // },
     })
     //   .promise.then(() => {
     //   sessionReplay.init(AMPLITUDE_API_KEY, {
@@ -58,9 +58,9 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
       const queryString = queryPart[queryPart.length - 1]
       const decodedQuery = decodeURIComponent(queryString)
       const urlParams = new URLSearchParams(decodedQuery)
-      if (window.location.origin !== 'https://limitless.exchange') {
-        return
-      }
+      // if (window.location.origin !== 'https://limitless.exchange') {
+      //   return
+      // }
 
       return amplitudeTrack({
         event_type: String(eventType),
