@@ -14,10 +14,9 @@ export default function TradeActivityTabItem({ tradeItem }: TradeActivityTabItem
     return `${title} ${NumberUtil.toFixed(
       tradeItem.data.contracts,
       6
-    )} contracts ${outcome} for ${NumberUtil.convertWithDenomination(
+    )} contracts ${outcome} for ${NumberUtil.toFixed(
       Math.abs(+tradeItem.data.tradeAmount),
-      6,
-      tradeItem.data.symbol
+      tradeItem.data.symbol === 'USDC' ? 2 : 6
     )} ${tradeItem.data.symbol} in total.`
   }, [tradeItem])
 

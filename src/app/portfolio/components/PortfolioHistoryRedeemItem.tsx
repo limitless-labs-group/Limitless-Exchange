@@ -7,7 +7,7 @@ import { defaultChain } from '@/constants'
 import useMarketGroup from '@/hooks/use-market-group'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import { HistoryRedeem, useTradingService } from '@/services'
+import { ClickEvent, HistoryRedeem, useAmplitude, useTradingService } from '@/services'
 import { useAllMarkets, useMarketByConditionId } from '@/services/MarketsService'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -20,40 +20,58 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
   /**
    * MARKET DATA
    */
-  const market = useMarketByConditionId(redeem.conditionId)
-
-  const { onOpenMarketPage } = useTradingService()
-
   const allMarkets = useAllMarkets()
-
   const targetMarket = allMarkets.find((market) => market.conditionId === redeem.conditionId)
 
-  const { data: marketGroup } = useMarketGroup(targetMarket?.group?.slug)
-
-  const multiplier = (symbol: string | undefined) => {
-    switch (symbol) {
-      case 'USDC':
-        return Math.pow(10, 12)
-      case 'cbBTC':
-        return Math.pow(10, 10)
-      default:
-        return 1
-    }
-  }
+  const { market, refetchMarket } = useMarketByConditionId(redeem.conditionId, false)
+  const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
+    targetMarket?.group?.slug,
+    false,
+    false
+  )
+  const { onOpenMarketPage } = useTradingService()
+  const { trackClicked } = useAmplitude()
 
   const formattedAmount = NumberUtil.formatThousands(
-    Number(redeem.collateralAmount) * multiplier(market?.collateralToken.symbol) ?? 0,
-    market?.collateralToken.symbol === 'USDC' ? 2 : 6
+    Number(redeem.collateralAmount) ?? 0,
+    redeem.collateralSymbol === 'USDC' ? 2 : 6
   )
 
-  const handleOpenMarketPage = () => {
-    if (marketGroup) {
-      onOpenMarketPage(marketGroup, 'History Card')
-      return
+  const handleOpenMarketPage = async () => {
+    if (targetMarket?.address) {
+      if (!market) {
+        const { data: fetchedMarket } = await refetchMarket()
+        if (fetchedMarket) {
+          onOpenMarketPage(fetchedMarket)
+          trackClicked(ClickEvent.PortfolioMarketClicked, {
+            marketCategory: fetchedMarket.category,
+            marketAddress: fetchedMarket.address,
+            marketType: 'single',
+            marketTags: fetchedMarket.tags,
+            type: 'History',
+          })
+        }
+      } else {
+        onOpenMarketPage(market)
+        trackClicked(ClickEvent.PortfolioMarketClicked, {
+          marketCategory: market.category,
+          marketAddress: market.address,
+          marketType: 'single',
+          marketTags: market.tags,
+          type: 'History',
+        })
+      }
     }
-    if (market) {
-      onOpenMarketPage(market, 'History Card')
-      return
+
+    if (targetMarket?.group?.slug) {
+      if (!marketGroup) {
+        const { data: fetchedMarketGroup } = await refetchMarketGroup()
+        if (fetchedMarketGroup) {
+          onOpenMarketPage(fetchedMarketGroup)
+        }
+      } else {
+        onOpenMarketPage(marketGroup)
+      }
     }
   }
 
@@ -74,11 +92,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
       <Td isNumeric>
         <Box verticalAlign='middle'>
           <Text>
-            {!market ? (
-              <Skeleton height={20} />
-            ) : (
-              `${formattedAmount} ${market?.collateralToken.symbol}`
-            )}
+            {!redeem ? <Skeleton height={20} /> : `${formattedAmount} ${redeem.collateralSymbol}`}
           </Text>
         </Box>
       </Td>
@@ -86,11 +100,12 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
         <Box verticalAlign='middle'>
           <Text>
             {new Date(Number(redeem.blockTimestamp) * 1000).toLocaleDateString(undefined, {
-              month: 'short',
-              day: '2-digit',
               year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
+              hour12: false,
             })}
           </Text>
         </Box>
@@ -108,7 +123,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
               onClick={handleOpenMarketPage}
               cursor='pointer'
             >
-              {targetMarket?.proxyTitle ?? targetMarket?.title}
+              {redeem.title}
             </Td>
           }
           variant='black'
@@ -126,7 +141,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           onClick={handleOpenMarketPage}
           cursor='pointer'
         >
-          {targetMarket?.proxyTitle ?? targetMarket?.title}
+          {redeem.title}
         </Td>
       )}
       <Td>

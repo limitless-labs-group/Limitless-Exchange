@@ -42,7 +42,7 @@ export default function MobileDrawer({
   const ref = useRef(false)
   const { trackClicked } = useAmplitude()
 
-  const { market: selectedMarket, onOpenMarketPage, markets, marketsSection } = useTradingService()
+  const { market: selectedMarket, onOpenMarketPage, markets } = useTradingService()
 
   useEffect(() => {
     if (ref.current) return
@@ -80,7 +80,7 @@ export default function MobileDrawer({
   const onClickPrevious =
     isNumber(indexInArray) && indexInArray > 0 && markets
       ? () => {
-          onOpenMarketPage(markets[indexInArray - 1], marketsSection)
+          onOpenMarketPage(markets[indexInArray - 1])
           router.push(`?market=${markets[indexInArray - 1].address}`, { scroll: false })
           trackClicked(ClickEvent.PreviousMarketClick, {
             platform: 'mobile',
@@ -91,7 +91,7 @@ export default function MobileDrawer({
   const onClickNext =
     isNumber(indexInArray) && markets && indexInArray < markets.length - 1
       ? () => {
-          onOpenMarketPage(markets[indexInArray + 1], marketsSection)
+          onOpenMarketPage(markets[indexInArray + 1])
           router.push(`?market=${markets[indexInArray + 1].address}`, { scroll: false })
           trackClicked(ClickEvent.NextMarketClick, {
             platform: 'mobile',

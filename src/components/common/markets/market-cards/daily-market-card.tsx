@@ -1,8 +1,9 @@
-import { AvatarGroup, Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { SyntheticEvent, useEffect, useMemo, useState } from 'react'
 import Avatar from '@/components/common/avatar'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
 import Skeleton from '@/components/common/skeleton'
@@ -20,6 +21,7 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
+import { defineOpenInterestOverVolume } from '@/utils/market'
 
 interface DailyMarketCardProps {
   market: Market
@@ -49,9 +51,13 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
     e.preventDefault()
     router.push(`?market=${market.address}`, { scroll: false })
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
+      marketCategory: market.category,
+      marketAddress: market.address,
+      marketType: 'single',
+      marketTags: market.tags,
       ...analyticParams,
     })
-    onOpenMarketPage(market, 'Medium Banner')
+    onOpenMarketPage(market)
   }
 
   const uniqueUsersTrades = useMemo(() => {
@@ -138,11 +144,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
         }
       }}
       onClick={(event) => {
-        trackClicked(ClickEvent.MediumMarketBannerClicked, {
-          ...analyticParams,
-        })
         onClickRedirectToMarket(event)
-        onOpenMarketPage(market, 'Medium Banner')
       }}
     >
       <Paper flex={1} w={'100%'} position='relative' cursor='pointer' p='14px'>
@@ -196,34 +198,53 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
               </HStack>
               <HStack gap='4px'>
                 <HStack gap='4px'>
-                  <HStack gap={0}>
-                    {uniqueUsersTrades?.map(({ user }, index) => (
-                      <Avatar
-                        account={user.account || ''}
-                        avatarUrl={user.imageURI}
-                        key={index}
-                        borderColor='grey.100'
-                        zIndex={100 + index}
-                        border='2px solid'
-                        color='grey.100 !important'
-                        showBorder
-                        bg='grey.100'
-                        size='20px'
-                        style={{
-                          border: '2px solid',
-                          marginLeft: index > 0 ? '-6px' : 0,
-                        }}
-                      />
-                    ))}
-                  </HStack>
-                  <Text {...paragraphRegular} color='grey.500'>
-                    Volume
-                  </Text>
+                  {defineOpenInterestOverVolume(
+                    market.openInterestFormatted,
+                    market.liquidityFormatted
+                  ).showOpenInterest ? (
+                    <>
+                      <HStack gap={0}>
+                        {uniqueUsersTrades?.map(({ user }, index) => (
+                          <Avatar
+                            account={user.account || ''}
+                            avatarUrl={user.imageURI}
+                            key={index}
+                            borderColor='grey.100'
+                            zIndex={100 + index}
+                            border='2px solid'
+                            color='grey.100 !important'
+                            showBorder
+                            bg='grey.100'
+                            size='20px'
+                            style={{
+                              border: '2px solid',
+                              marginLeft: index > 0 ? '-6px' : 0,
+                            }}
+                          />
+                        ))}
+                      </HStack>
+                      <Text {...paragraphRegular} color='grey.500'>
+                        Value
+                      </Text>
+                      <Text {...paragraphRegular} color='grey.500'>
+                        {NumberUtil.convertWithDenomination(
+                          +market.openInterestFormatted + +market.liquidityFormatted,
+                          6
+                        )}{' '}
+                        {market.collateralToken.symbol}
+                      </Text>
+                      <OpenInterestTooltip iconColor='grey.500' />
+                    </>
+                  ) : (
+                    <>
+                      <Box {...paragraphRegular}>💧 </Box>
+                      <Text {...paragraphRegular} color='grey.500'>
+                        Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
+                        {market.collateralToken.symbol}
+                      </Text>
+                    </>
+                  )}
                 </HStack>
-                <Text {...paragraphRegular} color='grey.500'>
-                  {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
-                  {market.collateralToken.symbol}
-                </Text>
               </HStack>
             </HStack>
           </Box>

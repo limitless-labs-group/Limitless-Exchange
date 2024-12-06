@@ -69,6 +69,8 @@ export interface Market {
     slug: string
     title: string
   }
+  openInterest: string
+  openInterestFormatted: string
 }
 
 export interface MarketGroup {
@@ -139,6 +141,13 @@ export enum Sort {
   ENDING_SOON = 'Ending Soon',
   HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VOLUME = 'High Volume',
+}
+
+export enum LeaderboardSort {
+  DAILY = 'Daily',
+  WEEKLY = 'Weekly',
+  MONTHLY = 'Monthly',
+  ALL_TIME = 'All time',
 }
 
 export enum MarketStatus {

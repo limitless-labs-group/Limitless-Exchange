@@ -22,7 +22,7 @@ export const MainLayout = ({
   ...props
 }: IMainLayout) => {
   const pathname = usePathname()
-  const { marketPageOpened } = useTradingService()
+  const { marketPageOpened, market } = useTradingService()
 
   return (
     <Box
@@ -57,7 +57,7 @@ export const MainLayout = ({
         </HStack>
       </Box>
       {isMobile && <MobileNavigation />}
-      {marketPageOpened && <MarketPage />}
+      {marketPageOpened && pathname !== `/markets/${market?.address}` && <MarketPage />}
     </Box>
   )
 }

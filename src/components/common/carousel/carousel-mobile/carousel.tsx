@@ -2,17 +2,18 @@ import { EmblaOptionsType } from 'embla-carousel'
 import useEmblaCarousel from 'embla-carousel-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import './carousel.css'
-import { Market, MarketGroup } from '@/types'
 
 type CarouselProps = {
   slides: JSX.Element[]
-  markets: (Market | MarketGroup)[]
   options?: EmblaOptionsType
 }
 
 export default function Carousel({ slides, options }: CarouselProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel(options)
-  const [activeSlide, setActiveSlide] = useState(0)
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    ...options,
+    startIndex: 1,
+  })
+  const [activeSlide, setActiveSlide] = useState(1)
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return

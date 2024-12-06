@@ -1,7 +1,6 @@
 import { Box, Divider, Text, VStack } from '@chakra-ui/react'
 import React from 'react'
 import { isMobile } from 'react-device-detect'
-import { MarketSingleCard } from '@/components/common/markets/market-cards'
 import DailyMarketCard from '@/components/common/markets/market-cards/daily-market-card'
 import DailyMarketCardMobile from '@/components/common/markets/market-cards/daily-market-card-mobile'
 import Skeleton from '@/components/common/skeleton'
