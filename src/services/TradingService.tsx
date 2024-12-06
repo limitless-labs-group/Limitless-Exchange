@@ -319,7 +319,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       ) ?? 0n
     // small balance to zero
     if (
-      balanceOfCollateralToSellBINo < parseUnits('0.000001', market.collateralToken?.decimals || 18)
+      balanceOfCollateralToSellBINo <
+      parseUnits('0.00000001', market.collateralToken?.decimals || 18)
     ) {
       balanceOfCollateralToSellBINo = 0n
     }
