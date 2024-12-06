@@ -37,7 +37,7 @@ export default function DailyMarketCardMobile({
   analyticParams,
 }: DailyMarketCardProps) {
   const [estimateOpened, setEstimateOpened] = useState(false)
-  const { onOpenMarketPage, onCloseMarketPage, setMarkets, setMarketsSection } = useTradingService()
+  const { onOpenMarketPage, onCloseMarketPage, setMarkets } = useTradingService()
   const router = useRouter()
   const { data: marketFeedData } = useMarketFeed(market.address)
   const { data: yesReturn, isLoading: yesLoading } = useCalculateYesReturn(
@@ -94,12 +94,15 @@ export default function DailyMarketCardMobile({
 
   const handleMarketPageOpened = () => {
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
+      marketCategory: market.category,
+      marketAddress: market.address,
+      marketType: 'single',
+      marketTags: market.tags,
       ...analyticParams,
     })
     router.push(`?market=${market.address}`, { scroll: false })
-    onOpenMarketPage(market, 'Medium Banner')
+    onOpenMarketPage(market)
     setMarkets(markets)
-    setMarketsSection('Medium Banner')
   }
 
   const onClickJoinPrediction = () => {

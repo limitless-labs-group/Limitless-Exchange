@@ -12,7 +12,7 @@ import OpenInterestTooltip from '@/components/common/markets/open-interest-toolt
 import ProgressBar from '@/components/common/progress-bar'
 import { MarketCardLink } from './market-cards/market-card-link'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
-import { useTradingService } from '@/services'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -28,9 +28,10 @@ interface BigBannerProps {
 
 export default function BigBanner({ market, markets }: BigBannerProps) {
   const [feedMessage, setFeedMessage] = useState<MarketFeedData | null>(null)
-  const { onCloseMarketPage, onOpenMarketPage, setMarkets, setMarketsSection } = useTradingService()
+  const { onCloseMarketPage, onOpenMarketPage, setMarkets } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market.address)
   const router = useRouter()
+  const { trackClicked } = useAmplitude()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {
@@ -40,10 +41,15 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
       e.preventDefault()
     }
     router.push(`?market=${market.address}`, { scroll: false })
-    onOpenMarketPage(market, 'Big Banner')
+    trackClicked(ClickEvent.BigBannerClicked, {
+      marketCategory: market.category,
+      marketAddress: market.address,
+      marketType: 'single',
+      marketTags: market.tags,
+    })
+    onOpenMarketPage(market)
     if (isMobile) {
       setMarkets(markets)
-      setMarketsSection('Big Banner')
     }
   }
 
