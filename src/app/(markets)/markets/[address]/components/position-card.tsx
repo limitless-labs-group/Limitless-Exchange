@@ -39,7 +39,7 @@ export function PositionCard({
 
   console.log(marketPrices)
 
-  const contractPrice = new BigNumber(marketPrices[position.outcomeIndex] || 1)
+  const contractPrice = new BigNumber(marketPrices?.[position.outcomeIndex] || 1)
     .dividedBy(100)
     .dividedBy(
       new BigNumber(
@@ -151,7 +151,7 @@ export function PositionCard({
             Current Price
           </Text>
           <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
-            new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100).toFixed(3),
+            new BigNumber(marketPrices?.[position.outcomeIndex] || 1).dividedBy(100).toFixed(3),
             3
           )} ${symbol}`}</Text>
         </Flex>
