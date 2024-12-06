@@ -367,7 +367,10 @@ export default function MarketPage() {
                 Value
               </Text>
               <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(market?.openInterestFormatted || '0', 6)}{' '}
+                {NumberUtil.convertWithDenomination(
+                  market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
+                  6
+                )}{' '}
                 {market?.collateralToken.symbol}
               </Text>
               <OpenInterestTooltip iconColor='grey.500' />

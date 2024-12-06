@@ -183,7 +183,11 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                     ))}
                   </HStack>
                   <Text {...paragraphRegular} color='transparent.700'>
-                    Value {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}{' '}
+                    Value{' '}
+                    {NumberUtil.convertWithDenomination(
+                      +market.openInterestFormatted + +market.liquidityFormatted,
+                      6
+                    )}{' '}
                     {market.collateralToken.symbol}
                   </Text>
                   <Box zIndex={400}>
@@ -194,7 +198,11 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                 <>
                   <Box {...paragraphRegular}>💧 </Box>
                   <Text {...paragraphRegular} color='transparent.700'>
-                    Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
+                    Liquidity{' '}
+                    {NumberUtil.convertWithDenomination(
+                      +market.openInterestFormatted + +market.liquidityFormatted,
+                      6
+                    )}{' '}
                     {market.collateralToken.symbol}
                   </Text>
                   <OpenInterestTooltip iconColor='grey.500' />
@@ -257,7 +265,11 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
                     ))}
                   </HStack>
                   <Text {...paragraphRegular} color='transparent.700'>
-                    Value {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}{' '}
+                    Value{' '}
+                    {NumberUtil.convertWithDenomination(
+                      +market.openInterestFormatted + +market.liquidityFormatted,
+                      6
+                    )}{' '}
                     {market.collateralToken.symbol}
                   </Text>
                   <Box zIndex={400}>
