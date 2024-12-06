@@ -591,7 +591,10 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                             <UniqueTraders color='grey.50' />
                             <Text {...paragraphRegular} color='grey.500'>
                               Value{' '}
-                              {NumberUtil.convertWithDenomination(market.openInterestFormatted, 6)}{' '}
+                              {NumberUtil.convertWithDenomination(
+                                +market.openInterestFormatted + +market.liquidityFormatted,
+                                6
+                              )}{' '}
                               {market.collateralToken.symbol}
                             </Text>
                             <OpenInterestTooltip iconColor='grey.500' />
