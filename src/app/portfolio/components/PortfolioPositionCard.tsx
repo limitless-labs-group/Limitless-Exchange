@@ -124,9 +124,23 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
         const { data: fetchedMarket } = await refetchMarket()
         if (fetchedMarket) {
           onOpenMarketPage(fetchedMarket)
+          trackClicked(ClickEvent.PortfolioMarketClicked, {
+            marketCategory: fetchedMarket.category,
+            marketAddress: fetchedMarket.address,
+            marketType: 'single',
+            marketTags: fetchedMarket.tags,
+            type: 'Portolio',
+          })
         }
       } else {
         onOpenMarketPage(oneMarket)
+        trackClicked(ClickEvent.PortfolioMarketClicked, {
+          marketCategory: oneMarket.category,
+          marketAddress: oneMarket.address,
+          marketType: 'single',
+          marketTags: oneMarket.tags,
+          type: 'Portolio',
+        })
       }
     }
 
