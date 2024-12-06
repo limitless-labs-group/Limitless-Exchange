@@ -256,7 +256,7 @@ export default function MarketPage() {
         category: market.category,
       })
     }
-  }, [market])
+  }, [market?.address])
 
   useEffect(() => {
     const handleMouseEnter = () => {
