@@ -242,15 +242,21 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const { refetch: refetchSession } = useUserSession({ client, account })
 
-  const signout = () => {
-    logout()
-    queryClient.invalidateQueries({
-      queryKey: ['positions'],
-    })
-    queryClient.invalidateQueries({
-      queryKey: ['history'],
-    })
-    router.push('/')
+  const signout = async () => {
+    try {
+      await logout()
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['positions'] }),
+        queryClient.invalidateQueries({ queryKey: ['history'] }),
+        queryClient.invalidateQueries({ queryKey: ['profiles'] }),
+        queryClient.invalidateQueries({ queryKey: ['balance'] }),
+        queryClient.invalidateQueries({ queryKey: ['ethBalance'] }),
+        queryClient.invalidateQueries({ queryKey: ['createdMarkets'] }),
+      ])
+      router.push('/')
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
   }
 
   const displayName = useMemo(() => {
@@ -276,15 +282,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (isAccountConnected && !isInitialLoad.current) {
       if (previousAddressRef.current && previousAddressRef.current !== address) {
-        console.log('Account changed. Logging out...')
-        signout()
+        signout().catch(console.error)
       }
     }
 
     previousAddressRef.current = address
 
     isInitialLoad.current = false
-  }, [address, isAccountConnected, logout])
+  }, [address, isAccountConnected, logout, signout])
 
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
