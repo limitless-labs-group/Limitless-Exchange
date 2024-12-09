@@ -1,9 +1,9 @@
-import { HStack, Text, VStack } from '@chakra-ui/react'
-import { useState } from 'react'
+import { HStack, Text, VStack, useTheme } from '@chakra-ui/react'
+import { memo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useAccount } from 'wagmi'
 import { useTimeAgo } from '@/hooks/use-time-ago'
-import { captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { captionMedium, captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { CommentType } from '@/types'
 import Avatar from '../avatar'
 import { UserContextMenu } from '../user-context-menu'
@@ -18,6 +18,13 @@ export default function Comment({ comment, isReply }: CommentProps) {
   const name = comment.author.displayName ?? comment.author?.username
   const { isConnected } = useAccount()
   const [messageBlocked, setMessageBlocked] = useState(false)
+  const [isLiked, setIsLiked] = useState(false)
+  const likeCount = useRef(0)
+
+  const like = () => {
+    setIsLiked(!isLiked)
+    likeCount.current += 1
+  }
 
   //commented stuff will be needed in future
 
@@ -59,6 +66,15 @@ export default function Comment({ comment, isReply }: CommentProps) {
         {/*   </HStack> */}
         {/* ) : null} */}
       </VStack>
+      <HStack {...captionMedium} w='full' gap='16px' color='grey.500'>
+        <HStack gap='4px' cursor='pointer' onClick={like}>
+          <LikeIcon isLiked={isLiked} />
+          <Text color={isLiked ? 'red.500' : 'grey.500'}>
+            {likeCount.current === 0 ? 'Like' : likeCount.current}
+          </Text>
+        </HStack>
+      </HStack>
+
       {/* <HStack {...captionMedium} w='full' gap='16px' color='grey.500'> */}
       {/*   <HStack gap='4px' cursor='pointer'> */}
       {/*     <ReplyIcon /> */}
@@ -80,3 +96,28 @@ export default function Comment({ comment, isReply }: CommentProps) {
     </VStack>
   )
 }
+
+type LikeIconProps = {
+  isLiked: boolean
+}
+
+const LikeIcon = memo(({ isLiked }: LikeIconProps) => {
+  const theme = useTheme()
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      width='16'
+      height='16'
+      viewBox='0 0 16 16'
+      fill={isLiked ? theme.colors.red[500] : 'none'}
+      stroke={isLiked ? theme.colors.red[500] : theme.colors.grey[500]}
+      strokeWidth='1.33333'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    >
+      <path d='M12.6667 9.33333C13.66 8.36 14.6667 7.19333 14.6667 5.66667C14.6667 4.69421 14.2804 3.76158 13.5927 3.07394C12.9051 2.38631 11.9725 2 11 2C9.82668 2 9.00001 2.33333 8.00001 3.33333C7.00001 2.33333 6.17334 2 5.00001 2C4.02755 2 3.09492 2.38631 2.40729 3.07394C1.71965 3.76158 1.33334 4.69421 1.33334 5.66667C1.33334 7.2 2.33334 8.36667 3.33334 9.33333L8.00001 14L12.6667 9.33333Z' />
+    </svg>
+  )
+})
+
+LikeIcon.displayName = 'LikeIcon'
