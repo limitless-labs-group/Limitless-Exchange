@@ -70,7 +70,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
 
   const targetMarket = allMarkets.find((market) => market.address === position.market.id)
 
-  const contractPrice = new BigNumber(prices?.prices[position.outcomeIndex] ?? 1)
+  const contractPrice = new BigNumber(prices?.prices?.[position.outcomeIndex] ?? 1)
     .dividedBy(100)
     .dividedBy(
       (() => {
@@ -337,7 +337,9 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
                       {`${NumberUtil.toFixed(
                         new BigNumber(position.outcomeTokenAmount || '1')
                           .multipliedBy(
-                            new BigNumber(prices.prices[position.outcomeIndex] || 1).dividedBy(100)
+                            new BigNumber(prices?.prices?.[position.outcomeIndex] || 1).dividedBy(
+                              100
+                            )
                           )
                           .toString(),
                         position.market.collateral?.symbol === 'USDC' ? 2 : 6

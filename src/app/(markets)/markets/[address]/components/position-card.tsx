@@ -37,7 +37,9 @@ export function PositionCard({
     <ThumbsDownIcon width={16} height={16} />
   )
 
-  const contractPrice = new BigNumber(marketPrices[position.outcomeIndex] || 1)
+  console.log(marketPrices)
+
+  const contractPrice = new BigNumber(marketPrices?.[position.outcomeIndex] || 1)
     .dividedBy(100)
     .dividedBy(
       new BigNumber(
@@ -87,7 +89,7 @@ export function PositionCard({
             <Text {...paragraphMedium}>{`${NumberUtil.toFixed(
               new BigNumber(position.outcomeTokenAmount || '1')
                 .multipliedBy(
-                  new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100)
+                  new BigNumber(marketPrices?.[position.outcomeIndex] || 1).dividedBy(100)
                 )
                 .toString(),
               symbol === 'USDC' ? 2 : 6
@@ -149,7 +151,7 @@ export function PositionCard({
             Current Price
           </Text>
           <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
-            new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100).toFixed(3),
+            new BigNumber(marketPrices?.[position.outcomeIndex] || 1).dividedBy(100).toFixed(3),
             3
           )} ${symbol}`}</Text>
         </Flex>
