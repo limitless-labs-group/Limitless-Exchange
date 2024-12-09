@@ -1,5 +1,6 @@
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import { UserInfo } from '@web3auth/base'
+import { useRouter } from 'next/navigation'
 import React, {
   PropsWithChildren,
   createContext,
@@ -8,6 +9,7 @@ import React, {
   useMemo,
   useState,
   useEffect,
+  useRef,
 } from 'react'
 import { getAddress } from 'viem'
 import { useDisconnect } from 'wagmi'
@@ -62,8 +64,11 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const isLoggedIn = isConnected && !!provider
 
   const { etherspot, smartWalletExternallyOwnedAccountAddress, smartWalletAddress } = useEtherspot()
-  const { address } = useWagmiAccount()
+  const { address, isConnected: isAccountConnected } = useWagmiAccount()
   const toast = useToast()
+  const router = useRouter()
+  const previousAddressRef = useRef<Address>()
+  const isInitialLoad = useRef(true)
 
   /**
    * ADDRESSES
@@ -237,6 +242,17 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const { refetch: refetchSession } = useUserSession({ client, account })
 
+  const signout = () => {
+    logout()
+    queryClient.invalidateQueries({
+      queryKey: ['positions'],
+    })
+    queryClient.invalidateQueries({
+      queryKey: ['history'],
+    })
+    router.push('/')
+  }
+
   const displayName = useMemo(() => {
     if (profileData?.displayName) {
       return profileData.displayName
@@ -256,6 +272,19 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       refetchSession()
     }
   }, [profileLoading, profileData])
+
+  useEffect(() => {
+    if (isAccountConnected && !isInitialLoad.current) {
+      if (previousAddressRef.current && previousAddressRef.current !== address) {
+        console.log('Account changed. Logging out...')
+        signout()
+      }
+    }
+
+    previousAddressRef.current = address
+
+    isInitialLoad.current = false
+  }, [address, isAccountConnected, logout])
 
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
