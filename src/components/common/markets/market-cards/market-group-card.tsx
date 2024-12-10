@@ -52,7 +52,7 @@ export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
     if (!isMobile) e.preventDefault()
 
     router.push(`?slug=${marketGroup.slug}`, { scroll: false })
-    onOpenMarketPage(marketGroup, 'Standard Banner')
+    onOpenMarketPage(marketGroup)
   }
 
   const content = (

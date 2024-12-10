@@ -32,6 +32,7 @@ const baseStyle = definePartsStyle({
       padding: isMobile ? '12px' : '8px',
       ...paragraphRegular,
       color: 'grey.500 !important',
+      borderColor: 'grey.100',
       textTransform: 'unset',
       '&[data-is-numeric=true]': {
         textAlign: 'start',
@@ -42,7 +43,7 @@ const baseStyle = definePartsStyle({
     td: {
       ...paragraphRegular,
       borderBottomWidth: '1px',
-      borderColor: 'grey.300',
+      borderColor: 'grey.100',
       padding: isMobile ? '12px' : '7.5px 8px',
       '&[data-is-numeric=true]': {
         textAlign: 'start',

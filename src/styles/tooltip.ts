@@ -10,9 +10,18 @@ const black = defineStyle(() => {
   }
 })
 
+const grey = defineStyle(() => {
+  return {
+    bg: 'background.90',
+    color: 'white',
+    padding: '8px 12px',
+  }
+})
+
 // define custom variants
 const variants = {
   black,
+  grey,
 }
 
 // export the component theme

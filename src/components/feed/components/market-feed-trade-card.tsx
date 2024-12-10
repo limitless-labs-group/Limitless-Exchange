@@ -5,7 +5,7 @@ import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
 import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
 import PieChartIcon from '@/resources/icons/pie-chart-icon.svg'
-import { useTradingService } from '@/services'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { captionRegular } from '@/styles/fonts/fonts.styles'
 import { FeedEntity, Market, MarketNewTradeFeedData } from '@/types'
@@ -17,6 +17,7 @@ interface MarketFeedTradeCardProps {
 
 export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) {
   const { onOpenMarketPage } = useTradingService()
+  const { trackClicked } = useAmplitude()
   const eventTitle = useMemo(() => {
     const title = data.data.strategy === 'Buy' ? 'Bought' : 'Sold'
     const outcome = data.data.outcome
@@ -43,7 +44,15 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
         _hover={{
           borderColor: 'greyTransparent.600',
         }}
-        onClick={() => onOpenMarketPage(market as Market, 'Feed')}
+        onClick={() => {
+          onOpenMarketPage(market as Market)
+          trackClicked(ClickEvent.FeedMarketClicked, {
+            marketCategory: market?.category,
+            marketAddress: market?.address,
+            marketType: 'single',
+            marketTags: market?.tags,
+          })
+        }}
       >
         <Text
           {...captionRegular}

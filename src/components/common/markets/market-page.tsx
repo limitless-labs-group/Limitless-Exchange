@@ -26,6 +26,7 @@ import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
+import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
@@ -49,6 +50,7 @@ import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import {
   ChangeEvent,
   ClickEvent,
+  OpenEvent,
   StrategyChangedMetadata,
   useAmplitude,
   useHistory,
@@ -62,6 +64,7 @@ import {
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { defineOpenInterestOverVolume } from '@/utils/market'
 
 const tokens = [
   'AAVE',
@@ -103,7 +106,7 @@ export default function MarketPage() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const { trackChanged, trackClicked } = useAmplitude()
+  const { trackChanged, trackClicked, trackOpened } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
 
   // Todo change creator name
@@ -244,6 +247,17 @@ export default function MarketPage() {
   }, [])
 
   useEffect(() => {
+    if (market) {
+      trackOpened(OpenEvent.SidebarMarketOpened, {
+        marketAddress: market.address,
+        marketTags: market.tags,
+        marketType: 'single',
+        category: market.category,
+      })
+    }
+  }, [market?.address])
+
+  useEffect(() => {
     const handleMouseEnter = () => {
       document.body.style.overflow = 'hidden'
     }
@@ -347,24 +361,41 @@ export default function MarketPage() {
         <ProgressBar variant='market' value={market ? market.prices[0] : 50} />
         <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
-            <HStack gap='4px'>
+            <Text {...paragraphRegular} color='grey.500'>
+              Volume
+            </Text>
+            <Text {...paragraphRegular} color='grey.500'>
+              {NumberUtil.convertWithDenomination(market?.volumeFormatted || '0', 6)}{' '}
+              {market?.collateralToken.symbol}
+            </Text>
+          </HStack>
+          {defineOpenInterestOverVolume(
+            market?.openInterestFormatted || '0',
+            market?.liquidityFormatted || '0'
+          ).showOpenInterest ? (
+            <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
               <UniqueTraders color='grey.50' />
               <Text {...paragraphRegular} color='grey.500'>
-                Volume
+                Value
+              </Text>
+              <Text {...paragraphRegular} color='grey.500'>
+                {NumberUtil.convertWithDenomination(
+                  market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
+                  6
+                )}{' '}
+                {market?.collateralToken.symbol}
+              </Text>
+              <OpenInterestTooltip iconColor='grey.500' />
+            </HStack>
+          ) : (
+            <HStack gap='4px' w={isMobile ? 'full' : 'unset'} justifyContent='unset'>
+              <Box {...paragraphRegular}>💧 </Box>
+              <Text {...paragraphRegular} color='grey.500'>
+                Liquidity {NumberUtil.convertWithDenomination(market?.liquidityFormatted, 6)}{' '}
+                {market?.collateralToken.symbol}
               </Text>
             </HStack>
-            <Text {...paragraphRegular} color='grey.500'>
-              {NumberUtil.convertWithDenomination(market?.volumeFormatted, 6)}{' '}
-              {market?.collateralToken.symbol}
-            </Text>
-          </HStack>
-          <HStack gap='4px' w={isMobile ? 'full' : 'unset'} justifyContent='unset'>
-            <Box {...paragraphRegular}>💧 </Box>
-            <Text {...paragraphRegular} color='grey.500'>
-              Liquidity {NumberUtil.convertWithDenomination(market?.liquidityFormatted, 6)}{' '}
-              {market?.collateralToken.symbol}
-            </Text>
-          </HStack>
+          )}
         </HStack>
         <Divider my={isMobile ? '24px' : '16px'} />
       </Box>
