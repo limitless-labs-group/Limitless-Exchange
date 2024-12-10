@@ -7,10 +7,16 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
 interface MarketPositionsProps {
-  market: Market | null
+  market?: Market
+  isSideMarketPage?: boolean
+  showPortfolioIcon?: boolean
 }
 
-export const MarketPositions = ({ market }: MarketPositionsProps) => {
+export const MarketPositions = ({
+  market,
+  isSideMarketPage,
+  showPortfolioIcon = true,
+}: MarketPositionsProps) => {
   const { positions: allMarketsPositions } = useHistory()
 
   const positions = useMemo(
@@ -23,19 +29,23 @@ export const MarketPositions = ({ market }: MarketPositionsProps) => {
 
   return Number(positions?.length) > 0 ? (
     <>
-      <Flex mt='24px' justifyContent='space-between' mb='8px'>
-        <HStack color='grey.800' gap='4px'>
-          <ChartIcon width='16px' height='16px' />
-          <Text {...paragraphMedium}>Portfolio</Text>
-        </HStack>
-      </Flex>
-      <VStack gap='8px' flexDir='column' w='full'>
+      {showPortfolioIcon && (
+        <Flex mt='24px' justifyContent='space-between' mb='8px'>
+          <HStack color='grey.800' gap='4px'>
+            <ChartIcon width='16px' height='16px' />
+            <Text {...paragraphMedium}>Portfolio</Text>
+          </HStack>
+        </Flex>
+      )}
+
+      <VStack gap='8px' flexDir='column' w='full' mt={showPortfolioIcon ? 0 : '24px'}>
         {positions?.map((position, index) => (
           <PositionCard
             position={position}
             key={index}
             symbol={market?.collateralToken.symbol || ''}
             marketPrices={market?.prices || [50, 50]}
+            isSideMarketPage={isSideMarketPage}
           />
         ))}
       </VStack>

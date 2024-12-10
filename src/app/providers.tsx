@@ -20,6 +20,7 @@ import {
   TradingServiceProvider,
   CommentServiceProvider,
 } from '@/services'
+import { AxiosProvider } from '@/services/AxiosPrivateClient'
 
 export const Providers = ({ children }: React.PropsWithChildren) => {
   const [mounted, setMounted] = React.useState(false)
@@ -27,35 +28,37 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
 
   return (
     mounted && (
-      <AmplitudeProvider>
-        <ThemeProvider>
-          <QueryProvider>
-            <WagmiProvider>
-              <RainbowProvider>
-                <Web3AuthProvider>
+      <ThemeProvider>
+        <QueryProvider>
+          <WagmiProvider>
+            <RainbowProvider>
+              <Web3AuthProvider>
+                <AmplitudeProvider>
                   <LimitlessApiProvider>
                     <EtherspotProvider>
-                      <AccountProvider>
-                        <PriceOracleProvider>
-                          <BalanceServiceProvider>
-                            <HistoryServiceProvider>
-                              <TokenFilterProvider>
-                                <CommentServiceProvider>
-                                  <TradingServiceProvider>{children}</TradingServiceProvider>
-                                </CommentServiceProvider>
-                              </TokenFilterProvider>
-                            </HistoryServiceProvider>
-                          </BalanceServiceProvider>
-                        </PriceOracleProvider>
-                      </AccountProvider>
+                      <AxiosProvider>
+                        <AccountProvider>
+                          <PriceOracleProvider>
+                            <BalanceServiceProvider>
+                              <HistoryServiceProvider>
+                                <TokenFilterProvider>
+                                  <CommentServiceProvider>
+                                    <TradingServiceProvider>{children}</TradingServiceProvider>
+                                  </CommentServiceProvider>
+                                </TokenFilterProvider>
+                              </HistoryServiceProvider>
+                            </BalanceServiceProvider>
+                          </PriceOracleProvider>
+                        </AccountProvider>
+                      </AxiosProvider>
                     </EtherspotProvider>
                   </LimitlessApiProvider>
-                </Web3AuthProvider>
-              </RainbowProvider>
-            </WagmiProvider>
-          </QueryProvider>
-        </ThemeProvider>
-      </AmplitudeProvider>
+                </AmplitudeProvider>
+              </Web3AuthProvider>
+            </RainbowProvider>
+          </WagmiProvider>
+        </QueryProvider>
+      </ThemeProvider>
     )
   )
 }

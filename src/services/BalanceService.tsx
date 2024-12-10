@@ -1,5 +1,4 @@
 import {
-  QueryObserverResult,
   UseMutateAsyncFunction,
   useMutation,
   UseMutationResult,
@@ -13,6 +12,7 @@ import {
   Dispatch,
   PropsWithChildren,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -20,6 +20,7 @@ import {
 } from 'react'
 import { erc20Abi, formatEther, formatUnits, parseEther, parseUnits } from 'viem'
 import { getBalance } from 'viem/actions'
+import { useAccount as useWagmiAccount } from 'wagmi'
 import { Toast } from '@/components/common/toast'
 import { ToastWithdraw } from '@/components/common/toast-withdraw'
 import { defaultChain } from '@/constants'
@@ -28,16 +29,12 @@ import { useToast } from '@/hooks'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { usePriceOracle } from '@/providers'
 import { publicClient } from '@/providers'
-import { useEtherspot, useLimitlessApi } from '@/services'
+import { useAccount, useEtherspot, useLimitlessApi } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { Address, GetBalanceResult, MarketTokensIds, Token } from '@/types'
 import { Logger, NumberUtil } from '@/utils'
 
 interface IBalanceService {
-  balanceOfSmartWallet: GetBalanceResult[] | undefined
-  refetchbalanceOfSmartWallet: () => Promise<
-    QueryObserverResult<GetBalanceResult[] | undefined, Error>
-  >
   overallBalanceUsd: string
 
   mint: (params: { address: Address; newToken?: boolean }) => void
@@ -61,6 +58,7 @@ interface IBalanceService {
   ethBalance?: string
   wrapMutation: UseMutationResult<void, Error, string, unknown>
   unwrapMutation: UseMutationResult<void, Error, string, unknown>
+  balanceLoading: boolean
 }
 
 const BalanceService = createContext({} as IBalanceService)
@@ -75,6 +73,11 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
+  const { isConnected, isConnecting } = useWagmiAccount()
+  const { profileData, profileLoading } = useAccount()
+  const { isLoadingSmartWalletAddress } = useEtherspot()
+  const { balanceOfSmartWallet, refetchbalanceOfSmartWallet, balanceOfSmartWalletLoading } =
+    useBalanceQuery()
 
   /**
    * Etherspot
@@ -91,108 +94,15 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * Weth balance
    */
-  const { data: balanceOfSmartWallet, refetch: refetchbalanceOfSmartWallet } = useQuery({
-    queryKey: ['balance', walletAddress],
-    queryFn: async () => {
-      if (!walletAddress && !supportedTokens) {
-        return
-      }
 
-      const multicall = new Multicall({
-        ethersProvider: new ethers.providers.JsonRpcProvider(
-          defaultChain.rpcUrls.default.http.toString()
-        ),
-        tryAggregate: true,
-        multicallCustomContractAddress: defaultChain.contracts.multicall3.address,
-      })
+  const userMenuLoading = useMemo(() => {
+    if (isConnected) {
+      return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
+    }
+    return false
+  }, [isConnected, profileLoading, isLoadingSmartWalletAddress, profileData])
 
-      //@ts-ignore
-      const contractCallContext: ContractCallContext[] = supportedTokens?.map((token) => ({
-        reference: token.address,
-        contractAddress: token.address,
-        abi: token.priceOracleId === MarketTokensIds.WETH ? wethABI : erc20Abi,
-        calls: [
-          { reference: 'balance', methodName: 'balanceOf', methodParameters: [walletAddress] },
-        ],
-      }))
-      let balanceResult: GetBalanceResult[]
-
-      try {
-        const results = await multicall.call(contractCallContext)
-
-        //@ts-ignore
-        balanceResult = supportedTokens?.map((token) => {
-          const result = results.results[token.address]
-          const balance = BigInt(result.callsReturnContext[0].returnValues[0].hex)
-          let formatted = formatUnits(balance, token.decimals)
-
-          if (Number(formatted) < 0.00001) {
-            //Filter small balances
-            formatted = '0'
-          }
-
-          return {
-            symbol: token.symbol,
-            id: token.priceOracleId,
-            name: token.name,
-            decimals: token.decimals,
-            value: balance,
-            formatted: formatted,
-            image: token.logoUrl,
-            contractAddress: token.address,
-            price: marketTokensPrices ? marketTokensPrices[token.priceOracleId].usd : 0,
-          } as GetBalanceResult
-        })
-      } catch (err) {
-        //@ts-ignore
-        balanceResult = supportedTokens?.map((token) => {
-          return {
-            symbol: token.symbol,
-            id: token.priceOracleId,
-            name: token.name,
-            decimals: token.decimals,
-            value: 0n,
-            formatted: formatUnits(0n, token.decimals),
-            image: token.logoUrl,
-            contractAddress: token.address,
-            price: marketTokensPrices ? marketTokensPrices[token.priceOracleId].usd : 0,
-          } as GetBalanceResult
-        })
-      }
-
-      log.success('ON_BALANCE_SUCC', walletAddress, balanceResult)
-
-      balanceResult.forEach((balance) => {
-        if (!!balanceOfSmartWallet) {
-          const currentBalance = balanceOfSmartWallet.find((currentBalanceEntity) => {
-            return currentBalanceEntity.id === balance.id
-          })
-          if (currentBalance && balance.value > currentBalance.value) {
-            !defaultChain.testnet && etherspot && whitelist()
-            const depositAmount = formatUnits(
-              balance.value - currentBalance.value,
-              currentBalance.decimals
-            )
-
-            const id = toast({
-              render: () => (
-                <Toast
-                  title={`Balance top up: ${NumberUtil.toFixed(depositAmount, 6)} ${
-                    balance.symbol
-                  }`}
-                  id={id}
-                />
-              ),
-            })
-          }
-        }
-      })
-
-      return balanceResult
-    },
-    enabled: !!walletAddress && !!supportedTokens,
-    refetchInterval: 10000,
-  })
+  const balanceLoading = userMenuLoading || balanceOfSmartWalletLoading
 
   const { data: ethBalance } = useQuery({
     queryKey: ['ethBalance', walletAddress],
@@ -398,8 +308,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   return (
     <BalanceService.Provider
       value={{
-        balanceOfSmartWallet,
-        refetchbalanceOfSmartWallet,
         overallBalanceUsd,
         mint,
         isLoadingMint,
@@ -414,11 +322,142 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         ethBalance,
         wrapMutation,
         unwrapMutation,
+        balanceLoading,
       }}
     >
       {children}
     </BalanceService.Provider>
   )
+}
+
+/**
+ * Weth balance
+ */
+export const useBalanceQuery = () => {
+  const toast = useToast()
+  const log = new Logger(BalanceServiceProvider.name)
+  const { marketTokensPrices } = usePriceOracle()
+
+  /**
+   * Etherspot
+   */
+  // Todo rework
+  const { whitelist, etherspot } = useEtherspot()
+
+  const walletAddress = useWalletAddress()
+
+  const { supportedTokens } = useLimitlessApi()
+
+  const {
+    data: balanceOfSmartWallet,
+    refetch,
+    isLoading: balanceOfSmartWalletLoading,
+  } = useQuery({
+    queryKey: ['balance', walletAddress],
+    queryFn: async () => {
+      if (!walletAddress && !supportedTokens) {
+        return
+      }
+
+      const multicall = new Multicall({
+        ethersProvider: new ethers.providers.JsonRpcProvider(
+          defaultChain.rpcUrls.default.http.toString()
+        ),
+        tryAggregate: true,
+        multicallCustomContractAddress: defaultChain.contracts.multicall3.address,
+      })
+
+      //@ts-ignore
+      const contractCallContext: ContractCallContext[] = supportedTokens?.map((token) => ({
+        reference: token.address,
+        contractAddress: token.address,
+        abi: token.priceOracleId === MarketTokensIds.WETH ? wethABI : erc20Abi,
+        calls: [
+          { reference: 'balance', methodName: 'balanceOf', methodParameters: [walletAddress] },
+        ],
+      }))
+      let balanceResult: GetBalanceResult[]
+
+      try {
+        const results = await multicall.call(contractCallContext)
+
+        //@ts-ignore
+        balanceResult = supportedTokens?.map((token) => {
+          const result = results.results[token.address]
+          const balance = BigInt(result.callsReturnContext[0].returnValues[0].hex)
+          let formatted = formatUnits(balance, token.decimals)
+
+          if (Number(formatted) < 0.00001) {
+            //Filter small balances
+            formatted = '0'
+          }
+
+          return {
+            symbol: token.symbol,
+            id: token.priceOracleId,
+            name: token.name,
+            decimals: token.decimals,
+            value: balance,
+            formatted: formatted,
+            image: token.logoUrl,
+            contractAddress: token.address,
+            price: marketTokensPrices ? marketTokensPrices[token.priceOracleId].usd : 0,
+          } as GetBalanceResult
+        })
+      } catch (err) {
+        //@ts-ignore
+        balanceResult = supportedTokens?.map((token) => {
+          return {
+            symbol: token.symbol,
+            id: token.priceOracleId,
+            name: token.name,
+            decimals: token.decimals,
+            value: 0n,
+            formatted: formatUnits(0n, token.decimals),
+            image: token.logoUrl,
+            contractAddress: token.address,
+            price: marketTokensPrices ? marketTokensPrices[token.priceOracleId].usd : 0,
+          } as GetBalanceResult
+        })
+      }
+
+      log.success('ON_BALANCE_SUCC', walletAddress, balanceResult)
+
+      balanceResult.forEach((balance) => {
+        if (!!balanceOfSmartWallet) {
+          const currentBalance = balanceOfSmartWallet.find((currentBalanceEntity) => {
+            return currentBalanceEntity.id === balance.id
+          })
+          if (currentBalance && balance.value > currentBalance.value) {
+            !defaultChain.testnet && etherspot && whitelist()
+            const depositAmount = formatUnits(
+              balance.value - currentBalance.value,
+              currentBalance.decimals
+            )
+
+            const id = toast({
+              render: () => (
+                <Toast
+                  title={`Balance top up: ${NumberUtil.toFixed(depositAmount, 6)} ${
+                    balance.symbol
+                  }`}
+                  id={id}
+                />
+              ),
+            })
+          }
+        }
+      })
+
+      return balanceResult
+    },
+    enabled: !!walletAddress && !!supportedTokens,
+    refetchInterval: 10000,
+  })
+  const refetchbalanceOfSmartWallet = useCallback(() => refetch(), [])
+  return useMemo(() => {
+    return { balanceOfSmartWallet, refetchbalanceOfSmartWallet, balanceOfSmartWalletLoading }
+  }, [balanceOfSmartWallet])
 }
 
 export type BalanceServiceStatus =

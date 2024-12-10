@@ -2,8 +2,10 @@ import { Box, Link, Text, VStack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import React from 'react'
 import usePageName from '@/hooks/use-page-name'
-import FeedIcon from '@/resources/icons/feed-icon.svg'
-import GridIcon from '@/resources/icons/grid-icon.svg'
+import AiAgentIcon from '@/resources/icons/ai-agent-icon.svg'
+import FeedIcon from '@/resources/icons/sidebar/Feed.svg'
+import GridIcon from '@/resources/icons/sidebar/Markets.svg'
+import CrownIcon from '@/resources/icons/sidebar/crone-icon.svg'
 import {
   ClickEvent,
   ProfileBurgerMenuClickedMetadata,
@@ -24,11 +26,25 @@ export default function MobileNavigation() {
       amplitudeOption: 'Markets' as ProfileBurgerMenuClickedOption,
     },
     {
+      title: 'Leaders',
+      icon: <CrownIcon />,
+      link: '/leaderboard',
+      isActive: pageName === 'Leaderboard',
+      amplitudeOption: 'Leaderboard' as ProfileBurgerMenuClickedOption,
+    },
+    {
       title: 'Feed',
       icon: <FeedIcon width={16} height={16} />,
       link: '/feed',
       isActive: pageName === 'Feed',
       amplitudeOption: 'Feed' as ProfileBurgerMenuClickedOption,
+    },
+    {
+      title: 'AI Agent',
+      icon: <AiAgentIcon />,
+      link: '/lumy',
+      isActive: pageName === 'Lumy',
+      amplitudeOption: 'Lumy' as ProfileBurgerMenuClickedOption,
     },
   ]
 
@@ -40,8 +56,9 @@ export default function MobileNavigation() {
       borderTop='1px solid'
       borderColor='grey.200'
       py='8px'
-      bg='grey.100'
+      bg='grey.50'
       display='flex'
+      zIndex={200}
     >
       {pagesMenu.map((page) => (
         <NextLink href={page.link} passHref style={{ width: '100%' }} key={page.title}>

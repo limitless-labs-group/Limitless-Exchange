@@ -1,21 +1,41 @@
 'use client'
 
-import { Box, Divider, HStack, Icon, Spacer, Stack, Text } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { Box, Divider, Heading, HStack, Icon, Spacer, Stack, Text } from '@chakra-ui/react'
+import { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import TextWithPixels from '@/components/common/text-with-pixels'
+import { useAccount as useWagmiAccount } from 'wagmi'
 import { PortfolioStats, PortfolioPositions, PortfolioHistory } from '@/app/portfolio/components'
 import { MainLayout } from '@/components'
 import HistoryIcon from '@/resources/icons/history-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
-import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import {
+  OpenEvent,
+  PageOpenedMetadata,
+  useAccount,
+  useAmplitude,
+  useEtherspot,
+  useTradingService,
+} from '@/services'
+import { h1Bold, paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const PortfolioPage = () => {
   const [tab, setTab] = useState<'Investments' | 'History'>('Investments')
 
   const { trackOpened } = useAmplitude()
   const { onCloseMarketPage } = useTradingService()
+  const { isLoadingSmartWalletAddress } = useEtherspot()
+  const { isConnected, isConnecting } = useWagmiAccount()
+  const { profileData, profileLoading } = useAccount()
+
+  const userMenuLoading = useMemo(() => {
+    if (isConnecting) {
+      return true
+    }
+    if (isConnected) {
+      return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
+    }
+    return false //#fix for dev env
+  }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
 
   useEffect(() => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
@@ -32,13 +52,10 @@ const PortfolioPage = () => {
   return (
     <MainLayout>
       <Box w={isMobile ? 'full' : 'calc(100vw - 720px)'}>
-        <Divider bg='grey.800' orientation='horizontal' h='3px' />
-        <TextWithPixels
-          text={'Portfolio Overview'}
-          {...(isMobile ? { ...h1Regular } : {})}
-          fontSize='32px'
-          gap={2}
-        />
+        <Divider orientation='horizontal' h='3px' borderColor='grey.800' bg='grey.800' />
+        <Heading {...h1Bold} gap={2}>
+          Portfolio Overview
+        </Heading>
         <PortfolioStats mt={'20px'} />
 
         <Stack w={'full'} spacing={5}>
@@ -93,7 +110,11 @@ const PortfolioPage = () => {
             </Stack>
           </HStack>
 
-          {tab == 'Investments' ? <PortfolioPositions /> : <PortfolioHistory />}
+          {tab == 'Investments' ? (
+            <PortfolioPositions userMenuLoading={userMenuLoading} />
+          ) : (
+            <PortfolioHistory />
+          )}
         </Stack>
 
         <Spacer />

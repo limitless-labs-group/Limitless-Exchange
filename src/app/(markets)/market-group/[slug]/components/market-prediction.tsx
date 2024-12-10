@@ -7,6 +7,7 @@ import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
+import { defineOpenInterestOverVolume } from '@/utils/market'
 
 interface MarketPredictionProps {
   market: Market
@@ -90,11 +91,19 @@ export default function MarketPrediction({ market, setSelectedMarket }: MarketPr
           <HStack color={colors.secondary} gap='4px'>
             <VolumeIcon width={16} height={16} />
             <Text {...paragraphMedium} color={colors.secondary}>
-              Volume
+              {defineOpenInterestOverVolume(market.openInterestFormatted, market.liquidityFormatted)
+                .showOpenInterest
+                ? 'Value'
+                : 'Liquidity'}
             </Text>
           </HStack>
           <Text {...paragraphRegular} color={colors.main}>
-            {NumberUtil.formatThousands(market.volumeFormatted, 6)} {market.collateralToken.symbol}
+            {NumberUtil.formatThousands(
+              defineOpenInterestOverVolume(market.openInterestFormatted, market.liquidityFormatted)
+                .value,
+              6
+            )}{' '}
+            {market.collateralToken.symbol}
           </Text>
         </HStack>
       </HStack>

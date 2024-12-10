@@ -29,7 +29,7 @@ import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { useBalanceService, useTradingService } from '@/services'
+import { useBalanceQuery, useBalanceService, useTradingService } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -77,7 +77,8 @@ export function BuyForm({
   /**
    * BALANCE
    */
-  const { balanceOfSmartWallet, setToken, token } = useBalanceService()
+  const { setToken, token } = useBalanceService()
+  const { balanceOfSmartWallet } = useBalanceQuery()
 
   const refetchQuotes = useCallback(
     debounce(async function () {
@@ -230,7 +231,7 @@ export function BuyForm({
               <HStack gap='8px' color='white'>
                 <PredictionsIcon />
                 <Text {...paragraphMedium} color='white'>
-                  {market.title}
+                  {market?.proxyTitle ?? market?.title}
                 </Text>
               </HStack>
             </Button>
@@ -255,7 +256,7 @@ export function BuyForm({
                   <HStack mb='8px' w='full'>
                     <HStack justifyContent='space-between' w='full' alignItems='flex-start'>
                       <Text {...paragraphMedium} color='white'>
-                        {market.title}
+                        {market?.proxyTitle ?? market?.title}
                       </Text>
                       <HStack gap='4px'>
                         <Text {...paragraphMedium} color='white'>
@@ -445,7 +446,7 @@ export function BuyForm({
             </HStack>
             <Stack
               w={'full'}
-              borderRadius='2px'
+              borderRadius='8px'
               border={'1px solid grey.50'}
               borderColor={isExceedsBalance ? 'red' : 'border'}
             >

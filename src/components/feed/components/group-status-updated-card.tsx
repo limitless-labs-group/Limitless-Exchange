@@ -70,7 +70,8 @@ export default function GroupStatusUpdatedCard({ data }: GroupStatusUpdatedCard)
           })}
       onMouseEnter={() => setColors(hoverColors)}
       onMouseLeave={() => setColors(defaultColors)}
-      onClick={() => onOpenMarketPage(marketGroup as MarketGroup, 'Feed')}
+      onClick={() => onOpenMarketPage(marketGroup as MarketGroup)}
+      rounded='8px'
     >
       <HStack justifyContent='space-between' mb='12px'>
         <Text {...paragraphMedium} color={colors.main} lineHeight={'20px'}>
@@ -147,6 +148,7 @@ export default function GroupStatusUpdatedCard({ data }: GroupStatusUpdatedCard)
   return (
     <MarketFeedCardContainer
       user={data.user}
+      eventType={data.eventType}
       timestamp={new Date(data.timestamp).getTime() / 1000}
       title={`${getText()} market group`}
     >

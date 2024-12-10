@@ -2,13 +2,13 @@
 
 import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Toast } from '@/components/common/toast'
 import { DraftMarket, DraftMarketCard } from '@/app/draft/queue/components/draft-card'
 import { MainLayout } from '@/components'
 import { useToast } from '@/hooks/ui/useToast'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 
 const RecentMarketsPage = () => {
   const router = useRouter()
@@ -16,12 +16,11 @@ const RecentMarketsPage = () => {
 
   const [isCreating, setIsCreating] = useState<boolean>(false)
 
+  const privateClient = useAxiosPrivateClient()
   const { data: recentMarkets } = useQuery({
     queryKey: ['recentMarkets'],
     queryFn: async () => {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts/recent`
-      )
+      const response = await privateClient.get(`/markets/drafts/recent`)
       return response.data
     },
   })
@@ -38,8 +37,8 @@ const RecentMarketsPage = () => {
 
   const duplicateMarkets = () => {
     setIsCreating(true)
-    axios
-      .post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/drafts/duplicate`, {
+    privateClient
+      .post(`/markets/drafts/duplicate`, {
         marketsIds: selectedMarketIds,
       })
       .then((res) => {

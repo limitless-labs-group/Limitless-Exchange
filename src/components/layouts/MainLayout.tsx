@@ -8,6 +8,7 @@ import MobileHeader from '@/components/layouts/mobile-header'
 import MobileNavigation from '@/components/layouts/mobile-navigation'
 import Sidebar from '@/components/layouts/sidebar'
 import { useTradingService } from '@/services'
+import { inter } from '@/styles'
 
 interface IMainLayout extends FlexProps {
   isLoading?: boolean
@@ -21,30 +22,28 @@ export const MainLayout = ({
   ...props
 }: IMainLayout) => {
   const pathname = usePathname()
-  const { marketPageOpened } = useTradingService()
+  const { marketPageOpened, market } = useTradingService()
 
   return (
     <Box
+      className={inter.className}
       id='main'
       flexDir={'column'}
       w={'full'}
       minH={'100vh'}
       margin={'0 auto'}
-      // overflow={'hidden'}
       alignItems={'center'}
       justifyContent={'space-between'}
       gap={{ sm: 6, md: 10 }}
-      bg='grey.100'
+      bg='grey.50'
       {...props}
     >
-      <HeaderMarquee />
-      <Box mt='20px' mb={isMobile ? '60px' : 0}>
+      <Box position={isMobile ? 'fixed' : 'relative'} zIndex={9999} top={0}>
+        <HeaderMarquee />
         {isMobile && <MobileHeader />}
-        <HStack
-          minH={'calc(100vh - 20px)'}
-          alignItems='flex-start'
-          pt={isMobile && pathname !== '/' && !pathname.includes('topics') ? '48px' : 0}
-        >
+      </Box>
+      <Box mt='20px' mb={isMobile ? '60px' : 0} pt={isMobile && pathname !== '/lumy' ? '88px' : 0}>
+        <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
           {!isMobile && <Sidebar />}
           {isLoading ? (
             <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
@@ -58,7 +57,7 @@ export const MainLayout = ({
         </HStack>
       </Box>
       {isMobile && <MobileNavigation />}
-      {marketPageOpened && <MarketPage />}
+      {marketPageOpened && pathname !== `/markets/${market?.address}` && <MarketPage />}
     </Box>
   )
 }

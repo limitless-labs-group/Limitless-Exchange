@@ -11,7 +11,7 @@ const baseStyle = definePartsStyle({
   button: {
     ...commonButtonProps,
     bg: 'grey.300',
-    borderRadius: '2px',
+    borderRadius: '8px',
     ...(isMobile
       ? {}
       : {
@@ -35,7 +35,7 @@ const baseStyle = definePartsStyle({
   },
   item: {
     bg: 'unset',
-    borderRadius: '2px',
+    borderRadius: '8px',
     px: '4px',
     py: isMobile ? '6px' : '2px',
     ...(isMobile
@@ -52,7 +52,7 @@ const baseStyle = definePartsStyle({
 const variants = {
   outlined: {
     button: {
-      borderLeftRadius: '2px',
+      borderLeftRadius: '8px',
       border: '1px solid',
       borderColor: 'grey.300',
       bg: 'unset',
@@ -73,6 +73,9 @@ const variants = {
     button: {
       w: 'full',
       background: 'unset !important',
+    },
+    list: {
+      bg: 'grey.100',
     },
   },
   blue: {
@@ -100,6 +103,31 @@ const variants = {
       _hover: {
         bg: 'transparent.300',
       },
+    },
+  },
+  block: {
+    item: {
+      background: 'none',
+      _hover: { background: 'none' },
+      _focus: { background: 'none' },
+      _active: { background: 'none' },
+      padding: 0,
+      border: 'none',
+      cursor: 'default',
+    },
+
+    button: {
+      borderRadius: '2px',
+      background: 'unset',
+      p: 0,
+      h: 'fit-content',
+      _hover: { bg: 'none' },
+      _active: { bg: 'grey.100' },
+    },
+
+    list: {
+      bg: 'grey.100',
+      p: '8px',
     },
   },
 }

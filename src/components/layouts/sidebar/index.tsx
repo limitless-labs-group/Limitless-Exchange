@@ -13,22 +13,19 @@ import {
   useColorMode,
   useDisclosure,
   VStack,
-  Skeleton,
 } from '@chakra-ui/react'
 import '@rainbow-me/rainbowkit/styles.css'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useCallback, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import Avatar from '@/components/common/avatar'
-import CategoryFilter from '@/components/common/categories'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
+import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
-import TextWithPixels from '@/components/common/text-with-pixels'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
@@ -38,16 +35,17 @@ import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useThemeProvider } from '@/providers'
 import AiAgentIcon from '@/resources/icons/ai-agent-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import FeedIcon from '@/resources/icons/feed-icon.svg'
-import GridIcon from '@/resources/icons/grid-icon.svg'
 import LogoutIcon from '@/resources/icons/log-out-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
-import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import SquarePlusIcon from '@/resources/icons/square-plus-icon.svg'
+import FeedIcon from '@/resources/icons/sidebar/Feed.svg'
+import GridIcon from '@/resources/icons/sidebar/Markets.svg'
+import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
+import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
+import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
+import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
+import SquarePlusIcon from '@/resources/icons/sidebar/suggest_market.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
-import SwapIcon from '@/resources/icons/swap-icon.svg'
 import UserIcon from '@/resources/icons/user-icon.svg'
-import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
@@ -55,6 +53,7 @@ import {
   ProfileBurgerMenuClickedMetadata,
   useAccount,
   useAmplitude,
+  useBalanceQuery,
   useBalanceService,
   useEtherspot,
 } from '@/services'
@@ -65,8 +64,9 @@ import { NumberUtil } from '@/utils'
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
   const { disconnectFromPlatform, displayName, profileData, profileLoading } = useAccount()
-  const { overallBalanceUsd } = useBalanceService()
+  const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
+  const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
   const account = useWalletAddress()
   const { isConnected, isConnecting } = useWagmiAccount()
@@ -115,6 +115,60 @@ export default function Sidebar() {
     onToggleProfile()
   }
 
+  const walletTypeActionButton = useMemo(() => {
+    const smartWalletBalanceLoading = (client !== 'eoa' && balanceLoading) || !balanceOfSmartWallet
+    if (userMenuLoading || smartWalletBalanceLoading) {
+      return (
+        <Box w='full'>
+          <Skeleton height={24} />
+        </Box>
+      )
+    }
+    return client !== 'eoa' ? (
+      <Button
+        variant='transparent'
+        onClick={() => {
+          trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+            option: 'Wallet',
+          })
+          handleOpenWalletPage()
+        }}
+        w='full'
+        bg={isOpenWalletPage ? 'grey.100' : 'unset'}
+      >
+        <HStack w='full'>
+          <WalletIcon width={16} height={16} />
+          <Text fontWeight={500} fontSize='14px'>
+            {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+          </Text>
+        </HStack>
+      </Button>
+    ) : (
+      <Button
+        variant='transparent'
+        w='full'
+        onClick={() => {
+          trackClicked(ClickEvent.WithdrawClicked)
+          handleOpenWrapModal()
+        }}
+      >
+        <HStack w='full'>
+          <SwapIcon width={16} height={16} />
+          <Text fontWeight={500} fontSize='14px'>
+            Wrap ETH
+          </Text>
+        </HStack>
+      </Button>
+    )
+  }, [
+    client,
+    isOpenWalletPage,
+    overallBalanceUsd,
+    userMenuLoading,
+    balanceLoading,
+    balanceOfSmartWallet,
+  ])
+
   const volumeArray = totalVolume
     ? `$${NumberUtil.formatThousands(totalVolume.toFixed(0), 0)}`.split('')
     : []
@@ -124,12 +178,12 @@ export default function Sidebar() {
       <VStack
         padding='16px 8px'
         borderRight='1px solid'
-        borderColor='grey.200'
+        borderColor='grey.100'
         h='full'
         minW={'188px'}
         minH={'100vh'}
         zIndex={200}
-        bg='grey.100'
+        bg='grey.50'
         pos='fixed'
         overflowY='auto'
       >
@@ -152,45 +206,7 @@ export default function Sidebar() {
         {isConnected ? (
           <>
             <VStack mt='16px' w='full' gap='8px'>
-              {client !== 'eoa' ? (
-                <Button
-                  variant='transparent'
-                  onClick={() => {
-                    trackClicked<ProfileBurgerMenuClickedMetadata>(
-                      ClickEvent.ProfileBurgerMenuClicked,
-                      {
-                        option: 'Wallet',
-                      }
-                    )
-                    handleOpenWalletPage()
-                  }}
-                  w='full'
-                  bg={isOpenWalletPage ? 'grey.200' : 'unset'}
-                >
-                  <HStack w='full'>
-                    <WalletIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
-                      {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-                    </Text>
-                  </HStack>
-                </Button>
-              ) : (
-                <Button
-                  variant='transparent'
-                  w='full'
-                  onClick={() => {
-                    trackClicked(ClickEvent.WithdrawClicked)
-                    handleOpenWrapModal()
-                  }}
-                >
-                  <HStack w='full'>
-                    <SwapIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
-                      Wrap ETH
-                    </Text>
-                  </HStack>
-                </Button>
-              )}
+              {walletTypeActionButton}
 
               <NextLink href='/portfolio' passHref style={{ width: '100%' }}>
                 <Link
@@ -204,7 +220,8 @@ export default function Sidebar() {
                   }}
                   variant='transparent'
                   w='full'
-                  bg={pageName === 'Portfolio' ? 'grey.200' : 'unset'}
+                  bg={pageName === 'Portfolio' ? 'grey.100' : 'unset'}
+                  rounded='8px'
                 >
                   <HStack w='full'>
                     <PortfolioIcon width={16} height={16} />
@@ -217,21 +234,23 @@ export default function Sidebar() {
 
               <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
                 {userMenuLoading ? (
-                  <Skeleton height='24px' w='full' variant='common' />
+                  <Box w='full'>
+                    <Skeleton height={24} />
+                  </Box>
                 ) : (
                   <MenuButton
                     as={Button}
                     onClick={onToggleAuthMenu}
                     rightIcon={<ChevronDownIcon width='16px' height='16px' />}
-                    bg={isOpenAuthMenu ? 'grey.200' : 'unset'}
+                    bg={isOpenAuthMenu ? 'grey.100' : 'unset'}
                     h='24px'
                     px='8px'
                     w='full'
                     _active={{
-                      bg: 'grey.200',
+                      bg: 'grey.100',
                     }}
                     _hover={{
-                      bg: 'grey.200',
+                      bg: 'grey.100',
                     }}
                   >
                     <HStack gap='8px'>
@@ -250,10 +269,10 @@ export default function Sidebar() {
                   </MenuButton>
                 )}
 
-                <MenuList borderRadius='2px' w='180px' zIndex={2}>
+                <MenuList borderRadius='8px' w='180px' zIndex={2}>
                   <HStack gap='4px' mb='4px'>
                     <Button
-                      variant={mode === 'dark' ? 'grey' : 'black'}
+                      variant={mode === 'dark' ? 'transparent' : 'black'}
                       w='full'
                       onClick={() => {
                         toggleColorMode()
@@ -266,7 +285,7 @@ export default function Sidebar() {
                       <SunIcon width={16} height={16} />
                     </Button>
                     <Button
-                      variant={mode === 'dark' ? 'black' : 'grey'}
+                      variant={mode === 'dark' ? 'black' : 'transparent'}
                       w='full'
                       onClick={() => {
                         toggleColorMode()
@@ -280,7 +299,7 @@ export default function Sidebar() {
                     </Button>
                   </HStack>
                   <Button
-                    variant='grey'
+                    variant='transparent'
                     w='full'
                     onClick={handleOpenProfile}
                     justifyContent='flex-start'
@@ -289,7 +308,7 @@ export default function Sidebar() {
                     Profile
                   </Button>
                   <Button
-                    variant='grey'
+                    variant='transparent'
                     w='full'
                     onClick={() => {
                       trackClicked(ClickEvent.SignOutClicked, {
@@ -323,12 +342,33 @@ export default function Sidebar() {
             }}
             variant='transparent'
             w='full'
-            bg={pageName === 'Explore Markets' ? 'grey.200' : 'unset'}
+            bg={pageName === 'Explore Markets' ? 'grey.100' : 'unset'}
+            rounded='8px'
           >
             <HStack w='full'>
               <GridIcon width={16} height={16} />
               <Text fontWeight={500} fontSize='14px'>
                 Markets
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
+        <NextLink href='/leaderboard' passHref style={{ width: '100%' }}>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Leaderboard',
+              })
+            }}
+            variant='transparent'
+            w='full'
+            bg={pageName === 'Leaderboard' ? 'grey.100' : 'unset'}
+            rounded='8px'
+          >
+            <HStack w='full'>
+              <SidebarIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                Leaderboard
               </Text>
             </HStack>
           </Link>
@@ -342,7 +382,8 @@ export default function Sidebar() {
             }}
             variant='transparent'
             w='full'
-            bg={pageName === 'Home' ? 'grey.200' : 'unset'}
+            bg={pageName === 'Home' ? 'grey.100' : 'unset'}
+            rounded='8px'
           >
             <HStack w='full'>
               <FeedIcon width={16} height={16} />
@@ -352,30 +393,31 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        {/*<NextLink href='/lumy' passHref style={{ width: '100%' }}>*/}
-        {/*  <Link*/}
-        {/*    onClick={() => {*/}
-        {/*      trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {*/}
-        {/*        option: 'Lumy',*/}
-        {/*      })*/}
-        {/*    }}*/}
-        {/*    variant='transparent'*/}
-        {/*    w='full'*/}
-        {/*    bg={pageName === 'Home' ? 'grey.200' : 'unset'}*/}
-        {/*  >*/}
-        {/*    <HStack w='full'>*/}
-        {/*      <AiAgentIcon />*/}
-        {/*      <Text*/}
-        {/*        fontWeight={500}*/}
-        {/*        fontSize='14px'*/}
-        {/*        bgGradient='linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'*/}
-        {/*        bgClip='text'*/}
-        {/*      >*/}
-        {/*        AI Agent*/}
-        {/*      </Text>*/}
-        {/*    </HStack>*/}
-        {/*  </Link>*/}
-        {/*</NextLink>*/}
+        <NextLink href='/lumy' passHref style={{ width: '100%' }}>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Lumy',
+              })
+            }}
+            variant='transparent'
+            w='full'
+            bg={pageName === 'Home' ? 'grey.100' : 'unset'}
+            rounded='8px'
+          >
+            <HStack w='full'>
+              <AiAgentIcon />
+              <Text
+                fontWeight={500}
+                fontSize='14px'
+                bgGradient='linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'
+                bgClip='text'
+              >
+                AI Agent
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
         <NextLink
           href='https://limitlesslabs.notion.site/Limitless-Creators-101-b529a4a72cd4406cacb55f27395c9b56'
           target='_blank'
@@ -392,6 +434,7 @@ export default function Sidebar() {
             }}
             variant='transparent'
             w='full'
+            rounded='8px'
           >
             <HStack w='full'>
               <SquarePlusIcon width={16} height={16} />
@@ -401,7 +444,6 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        {!isMobile && <CategoryFilter />}
         <Spacer />
         {totalVolume && (
           <NextLink
@@ -414,15 +456,13 @@ export default function Sidebar() {
               justifyContent='space-between'
               display='flex'
               cursor='pointer'
-              _hover={{ bg: 'grey.300' }}
+              _hover={{ bg: 'grey.100' }}
+              borderRadius='8px'
             >
               {volumeArray.map((volumeSymbol, index) => (
-                <TextWithPixels
-                  key={index}
-                  text={volumeSymbol}
-                  highlightWord={1}
-                  {...paragraphRegular}
-                />
+                <Text key={index} {...paragraphRegular}>
+                  {volumeSymbol}
+                </Text>
               ))}
             </Paper>
           </NextLink>

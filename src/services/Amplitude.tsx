@@ -1,22 +1,18 @@
 'use client'
 
-import {
-  init,
-  track as amplitudeTrack,
-  getDeviceId,
-  getSessionId,
-} from '@amplitude/analytics-browser'
+import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
 import * as sessionReplay from '@amplitude/session-replay-browser'
 import {
   CUSTOM_LOGIN_PROVIDER_TYPE,
   LOGIN_PROVIDER_TYPE,
 } from '@toruslabs/openlogin-utils/dist/types/interfaces'
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
+import { PageName } from '@/hooks/use-page-name'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useAccount } from '@/services'
-import { Address, MarketGroup } from '@/types'
+import { Address, Category, LeaderboardSort, MarketGroup } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
-const NODE_ENV = process.env.NODE_ENV ?? 'development'
 
 interface IAmplitudeContext {
   trackSignUp: () => void
@@ -32,20 +28,33 @@ export const useAmplitude = () => useContext(AmplitudeContext)
 
 export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
   const { account, userInfo } = useAccount()
+  const walletAddress = useWalletAddress()
 
   useEffect(() => {
     init(AMPLITUDE_API_KEY, undefined, {
       defaultTracking: {
         sessions: true,
         pageViews: false,
-        attribution: false,
+        attribution: true,
         formInteractions: false,
       },
     })
+    //   .promise.then(() => {
+    //   sessionReplay.init(AMPLITUDE_API_KEY, {
+    //     deviceId: getDeviceId(),
+    //     sessionId: getSessionId(),
+    //     sampleRate: 0.1,
+    //     sessionReplayId: uuidv4(),
+    //   })
+    // })
   }, [])
 
   const trackEvent = useCallback(
     async (eventType: EventType, customData?: EventMetadata) => {
+      const queryPart = window.location.search.split('?')
+      const queryString = queryPart[queryPart.length - 1]
+      const decodedQuery = decodeURIComponent(queryString)
+      const urlParams = new URLSearchParams(decodedQuery)
       if (window.location.origin !== 'https://limitless.exchange') {
         return
       }
@@ -55,14 +64,20 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         event_properties: {
           ...customData,
           ...sessionReplay.getSessionReplayProperties(),
+          ...(urlParams.get('utm_source') ? { utm_source: urlParams.get('utm_source') } : {}),
+          ...(urlParams.get('utm_medium') ? { utm_medium: urlParams.get('utm_medium') } : {}),
+          ...(urlParams.get('utm_campaign') ? { utm_campaign: urlParams.get('utm_campaign') } : {}),
+          ...(urlParams.get('utm_term') ? { utm_term: urlParams.get('utm_term') } : {}),
+          ...(urlParams.get('utm_content') ? { utm_content: urlParams.get('utm_content') } : {}),
         },
         user_properties: {
           account,
           ...userInfo,
+          walletAddress,
         },
       }).promise
     },
-    [account]
+    [account, walletAddress]
   )
 
   const trackSignUp = async () => {
@@ -111,6 +126,8 @@ export enum ChangeEvent {
   OutcomeChanged = 'Outcome Changed',
   ProfilePictureUploadedChanged = 'Profile Picture Uploaded',
   ProfileSettingsChanged = 'Profile Settings Changed',
+  LeaderboardViewChanged = 'Leaderboard View Changed',
+  LeaderboardPageChanged = 'Leaderboard Page Changed',
 }
 
 export enum ClickEvent {
@@ -146,7 +163,6 @@ export enum ClickEvent {
   LimitlessLinksClicked = 'Limitless Links Clicked',
   FeeTradingDetailsClicked = 'Fee Trading Details Clicked',
   ReturnTradingDetailsClicked = 'Return Trading Details Clicked',
-  MarketPageOpened = 'Market Page Opened',
   MediumMarketBannerClicked = 'Medium Market Banner Clicked',
   RegularMarketBannerClicked = 'Regular Market Banner Clicked',
   BigBannerClicked = 'BigBannerClicked',
@@ -155,6 +171,19 @@ export enum ClickEvent {
   TradingWidgetReturnDecomposition = 'Trading Widget Return Decomposition',
   CloseMarketClicked = 'Close Market Clicked',
   SidebarMarketOpened = 'Sidebar Market Opened',
+  FeedMarketClicked = 'Feed Market Clicked',
+  PortfolioMarketClicked = 'PortfolioMarketClicked',
+  PredictionChartOpened = 'Prediction Chart Opened',
+  AssetPriceChartOpened = 'Asset Price Chart Opened',
+  NextMarketClick = 'Next Market Click',
+  PreviousMarketClick = 'Previous Market Click',
+  TradingWidgetPricePrecetChosen = 'Trading Widget Price Preset Chosen',
+  FullPageClicked = 'Full Page Clicked',
+  JoinPredictionClicked = 'Join Prediction Clicked',
+  EstimateEarningClicked = 'Estimate Earnings Clicked',
+  ThreeDotsClicked = 'Three Dots Clicked',
+  BlockedUserClicked = 'Blocked User Clicked',
+  UndoBlockingUser = 'Undo Blocking User',
 }
 
 export enum SignInEvent {
@@ -166,6 +195,8 @@ export enum OpenEvent {
   PageOpened = 'Page Opened',
   LoginWindowOpened = 'Login Window Opened',
   ProfileSettingsOpened = 'Profile Settings Opened',
+  MarketPageOpened = 'Market Page Opened',
+  SidebarMarketOpened = 'Sidebar Market Opened',
 }
 
 export enum AuthenticationEvent {
@@ -205,21 +236,12 @@ export interface ClickedApproveMetadata {
 export interface ClickedWithdrawMetadata {
   coin: string
 }
-
-export type LogoClickedPage =
-  | 'Explore Markets'
-  | 'Portfolio'
-  | 'Market Page'
-  | 'Unknown Page'
-  | 'Home'
-  | 'Feed'
-  | 'Lumy'
 export interface LogoClickedMetadata {
-  page: LogoClickedPage
+  page: PageName
 }
 
 export interface CreateMarketClickedMetadata {
-  page: LogoClickedPage
+  page: PageName
 }
 
 export type DepositClickedPage =
@@ -277,6 +299,19 @@ export interface PageOpenedMetadata {
   [key: string]: any
 }
 
+export interface SidebarMarketOpenedMetadata {
+  marketAddress?: Address
+  category?: Category | string
+  marketTags?: string[]
+  marketType: 'single' | 'group'
+}
+
+interface FullPageClickedMetaData {
+  marketAddress?: Address
+  marketType?: 'group' | 'single'
+  marketTags?: string[]
+}
+
 export interface CloseMarketMetadata {
   marketAddress: string
 }
@@ -294,6 +329,15 @@ export type ProfileSettingsOpenedMetadata = ProfileSettingsMetadata
 export type ProfilePictureUploadClickedMetadata = ProfileSettingsMetadata
 export type ProfilePictureUploadedChangedMetadata = ProfileSettingsMetadata
 export type ProfileSettingsChangedMetadata = ProfileSettingsMetadata
+
+export type LeaderboardViewChangedMetadata = {
+  option: LeaderboardSort
+}
+
+export type LeaderboardPageChangedMetadata = {
+  from: number
+  to: number
+}
 
 export interface OpenMarketClickedMetadata {
   page: OpenMarketClickedPage
@@ -335,8 +379,13 @@ export type ProfileBurgerMenuClickedOption =
   | 'Home'
   | 'Markets'
   | 'Lumy'
+  | 'Leaderboard'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
+}
+
+interface TradingWidgetPriceClickedMetadata {
+  amount: number
 }
 
 export interface SortMetadata {
@@ -370,6 +419,8 @@ export type ChangedEventMetadata =
   | OutcomeChangedMetadata
   | ProfilePictureUploadedChangedMetadata
   | ProfileSettingsChangedMetadata
+  | LeaderboardViewChangedMetadata
+  | LeaderboardPageChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
   | PricePresetClickedMetadata
@@ -392,8 +443,13 @@ export type ClickedEventMetadata =
   | FeeAndReturnTradingDetailsClicked
   | MediumBannerClicked
   | CloseMarketMetadata
+  | TradingWidgetPriceClickedMetadata
+  | FullPageClickedMetaData
 
-export type OpenedEventMetadata = PageOpenedMetadata | ProfileSettingsMetadata
+export type OpenedEventMetadata =
+  | PageOpenedMetadata
+  | ProfileSettingsMetadata
+  | SidebarMarketOpenedMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata
 export type CopiedEventMetadata = WalletAddressCopiedMetadata
 

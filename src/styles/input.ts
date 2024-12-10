@@ -10,7 +10,7 @@ const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpe
 const outlined = definePartsStyle({
   field: {
     border: '1px solid',
-    borderRadius: '2px',
+    borderRadius: '8px',
     borderColor: 'transparent.200',
     p: '4px 8px',
     h: isMobile ? '32px' : '24px',
@@ -35,7 +35,7 @@ const outlined = definePartsStyle({
 const grey = definePartsStyle({
   field: {
     border: '1px solid',
-    borderRadius: '2px',
+    borderRadius: '8px',
     borderColor: 'grey.300',
     px: isMobile ? '12px' : '8px',
     py: isMobile ? '8px' : '4px',

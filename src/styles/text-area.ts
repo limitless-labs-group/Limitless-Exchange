@@ -4,7 +4,7 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const grey = defineStyle({
   border: '1px solid',
-  borderRadius: '2px',
+  borderRadius: '8px',
   borderColor: 'grey.300',
   px: isMobile ? '12px' : '8px',
   py: isMobile ? '8px' : '4px',

@@ -1,24 +1,20 @@
-import { QueryObserverResult, useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+import { QueryObserverResult, useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { AxiosResponse } from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
-import { Hash, formatUnits } from 'viem'
-import { defaultChain, newSubgraphURI } from '@/constants'
+import { Hash } from 'viem'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { usePriceOracle } from '@/providers'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useLimitlessApi } from '@/services/LimitlessApi'
-import { useAllMarkets } from '@/services/MarketsService'
 import { Address } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface IHistoryService {
-  trades: HistoryTrade[] | undefined
-  getTrades: () => Promise<QueryObserverResult<HistoryTrade[], Error>>
-  redeems: HistoryRedeem[] | undefined
-  getRedeems: () => Promise<QueryObserverResult<HistoryRedeem[], Error>>
   positions: HistoryPosition[] | undefined
   getPositions: () => Promise<QueryObserverResult<HistoryPosition[], Error>>
   balanceInvested: string
   balanceToWin: string
+  tradesAndPositionsLoading: boolean
 }
 
 const HistoryServiceContext = createContext({} as IHistoryService)
@@ -30,223 +26,37 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * ACCOUNT
    */
   const walletAddress = useWalletAddress()
+  const privateClient = useAxiosPrivateClient()
 
   /**
    * UTILS
    */
   const { convertAssetAmountToUsd } = usePriceOracle()
-  const markets = useAllMarkets()
-
   const { supportedTokens } = useLimitlessApi()
 
   /**
    * QUERIES
    */
-  const { data: trades, refetch: getTrades } = useQuery({
-    queryKey: ['trades', walletAddress],
+
+  const {
+    data: positions,
+    refetch: getPositions,
+    isLoading: positionsLoading,
+  } = useQuery({
+    queryKey: ['positions'],
     queryFn: async () => {
       if (!walletAddress) {
         return []
       }
-
-      const queryName = 'Trade'
-      const response = await axios.request({
-        url: newSubgraphURI[defaultChain.id],
-        method: 'post',
-        data: {
-          query: `
-            query ${queryName} {
-              ${queryName} (
-                where: {transactor: { _ilike: "${walletAddress}" } }
-              ) {
-                market {
-                  id
-                  closed
-                  funding
-                  condition_id
-                  collateral {
-                    symbol
-                  }
-                }
-                outcomeTokenAmounts
-                outcomeTokenNetCost
-                blockTimestamp
-                transactionHash
-              }
-            }
-          `,
-        },
-      })
-      const _trades = response.data.data?.[queryName] as HistoryTrade[]
-      _trades.map((trade) => {
-        const collateralToken = supportedTokens?.find(
-          (token) => token.symbol === trade.market.collateral?.symbol
-        )
-        const outcomeTokenAmountBI = BigInt(
-          trade.outcomeTokenAmounts.find((amount) => BigInt(amount) != 0n) ?? 0
-        )
-        trade.outcomeTokenAmount = formatUnits(
-          outcomeTokenAmountBI,
-          collateralToken?.decimals || 18
-        )
-        trade.strategy = Number(trade.outcomeTokenAmount) > 0 ? 'Buy' : 'Sell'
-        trade.outcomeIndex = trade.outcomeTokenAmounts.findIndex((amount) => BigInt(amount) != 0n)
-        trade.collateralAmount = formatUnits(
-          BigInt(trade.outcomeTokenNetCost),
-          collateralToken?.decimals || 18
-        )
-        trade.outcomeTokenPrice = (
-          Number(trade.collateralAmount) / Number(trade.outcomeTokenAmount)
-        ).toString()
-
-        // trade.outcomePercent = Number(trade.outcomeTokenPrice)
-      })
-
-      _trades.sort(
-        (tradeA, tradeB) => Number(tradeB.blockTimestamp) - Number(tradeA.blockTimestamp)
-      )
-
-      return _trades
-    },
-    enabled: !!walletAddress && !!supportedTokens?.length,
-  })
-
-  const { data: redeems, refetch: getRedeems } = useQuery({
-    queryKey: ['redeems', walletAddress],
-    queryFn: async () => {
-      if (!walletAddress) {
-        return []
-      }
-
-      const queryName = 'Redemption'
-      const response = await axios.request({
-        url: newSubgraphURI[defaultChain.id],
-        method: 'post',
-        data: {
-          query: `
-            query ${queryName} {
-              ${queryName} (
-                where: {
-                  redeemer: {
-                    _ilike: "${walletAddress}"
-                  } 
-                }
-              ) {
-                payout
-                conditionId
-                indexSets
-                blockTimestamp
-                transactionHash
-              }
-            }
-          `,
-        },
-      })
-      const _redeems = response.data.data?.[queryName] as HistoryRedeem[]
-      _redeems.map((redeem) => {
-        redeem.collateralAmount = formatUnits(
-          BigInt(redeem.payout),
-          supportedTokens?.find((token) => token.address === redeem.collateralToken)?.decimals || 18
-        )
-        redeem.outcomeIndex = redeem.indexSets[0] == '1' ? 0 : 1
-      })
-
-      _redeems.filter((redeem) => Number(redeem.collateralAmount) > 0)
-
-      _redeems.sort(
-        (redeemA, redeemB) => Number(redeemB.blockTimestamp) - Number(redeemA.blockTimestamp)
-      )
-
-      return _redeems
-    },
-  })
-
-  // Todo change to useMemo
-  /**
-   * Consolidate trades and redeems to get open positions
-   */
-  const { data: positions, refetch: getPositions } = useQuery({
-    queryKey: ['positions', trades, redeems],
-    queryFn: async () => {
-      let _positions: HistoryPosition[] = []
-
       try {
-        trades?.forEach((trade) => {
-          const market = markets.find((market) => {
-            return market?.address?.toLowerCase() === trade?.market?.id?.toLowerCase()
-          })
-
-          if (
-            !market ||
-            (market.expired && market.winningOutcomeIndex !== trade.outcomeIndex) // TODO: redesign filtering lost positions
-          ) {
-            return
-          }
-          const existingMarket = _positions.find(
-            (position) =>
-              position.market.id === trade.market.id && position.outcomeIndex === trade.outcomeIndex
-          )
-
-          const position = existingMarket ?? {
-            market: trade.market,
-            outcomeIndex: trade.outcomeIndex,
-          }
-          position.latestTrade = trade
-          position.collateralAmount = (
-            Number(position.collateralAmount ?? 0) + Number(trade.collateralAmount)
-          ).toString()
-          position.outcomeTokenAmount = (
-            Number(position.outcomeTokenAmount ?? 0) + Number(trade.outcomeTokenAmount)
-          ).toString()
-          if (!existingMarket) {
-            _positions.push(position)
-          }
-        })
-      } catch (e) {
-        console.log('pos', e)
-        console.log(e)
+        const response = await privateClient.get<HistoryPosition[]>(`/portfolio/positions`)
+        return response.data
+      } catch (error) {
+        console.error('Error fetching positions:', error)
+        return []
       }
-
-      // redeems?.forEach((redeem) => {
-      //   const position = _positions.find(
-      //     (position) =>
-      //       position.market.conditionId === redeem.conditionId &&
-      //       position.outcomeIndex == redeem.outcomeIndex
-      //   )
-      //   if (!position) {
-      //     return
-      //   }
-      //   position.collateralAmount = (
-      //     Number(position.collateralAmount ?? 0) - Number(redeem.collateralAmount)
-      //   ).toString()
-      //   position.outcomeTokenAmount = (
-      //     Number(position.outcomeTokenAmount ?? 0) - Number(redeem.collateralAmount)
-      //   ).toString()
-      // })
-
-      // filter redeemed markets
-      _positions = _positions.filter(
-        (position) =>
-          !redeems?.find((redeem) => redeem.conditionId === position.market.condition_id)
-      )
-
-      // filter markets with super small balance
-      _positions = _positions.filter((position) => Number(position.outcomeTokenAmount) > 0.00001)
-
-      // Todo remove this mapping
-      return _positions.map((position) => ({
-        ...position,
-        market: {
-          ...position.market,
-          collateral: {
-            symbol: position.market.collateral?.symbol
-              ? position.market.collateral?.symbol
-              : 'MFER',
-          },
-        },
-      }))
     },
-    enabled: !!walletAddress && !!markets.length && !!trades,
+    enabled: !!walletAddress,
   })
 
   /**
@@ -285,15 +95,14 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     return NumberUtil.toFixed(_balanceToWin, 2)
   }, [positions])
 
+  const tradesAndPositionsLoading = positionsLoading
+
   const contextProviderValue: IHistoryService = {
-    trades,
-    getTrades,
-    redeems,
-    getRedeems,
     positions,
     getPositions,
     balanceInvested,
     balanceToWin,
+    tradesAndPositionsLoading,
   }
 
   return (
@@ -301,6 +110,59 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       {children}
     </HistoryServiceContext.Provider>
   )
+}
+
+export const usePortfolioHistory = (page: number) => {
+  const privateClient = useAxiosPrivateClient()
+  return useQuery({
+    queryKey: ['history', page],
+    queryFn: async (): Promise<AxiosResponse<History>> => {
+      return privateClient.get<History>(
+        '/portfolio/history',
+
+        {
+          params: {
+            page: page,
+            limit: 10,
+          },
+        }
+      )
+    },
+  })
+}
+
+export const useInfinityHistory = () => {
+  const privateClient = useAxiosPrivateClient()
+  const walletAddress = useWalletAddress()
+  return useInfiniteQuery<History[], Error>({
+    queryKey: ['history-infinity'],
+    // @ts-ignore
+    queryFn: async ({ pageParam = 1 }) => {
+      if (!walletAddress) {
+        return []
+      }
+
+      const response = await privateClient.get<History[]>(
+        '/portfolio/history',
+
+        {
+          params: {
+            page: pageParam,
+            limit: 30,
+          },
+        }
+      )
+      return { data: response.data, next: (pageParam as number) + 1 }
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      // @ts-ignore
+      return lastPage.data.data.length === 30 ? lastPage.next : null
+    },
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
+    enabled: !!walletAddress,
+  })
 }
 
 export type HistoryTrade = {
@@ -326,7 +188,10 @@ export type HistoryMarket = {
   holdersCount?: number
   collateral?: {
     symbol: string
+    id: string
   }
+  expirationDate: string
+  title: string
 }
 
 export type HistoryRedeem = {
@@ -338,6 +203,13 @@ export type HistoryRedeem = {
   blockTimestamp: string
   transactionHash: Hash
   collateralToken: string
+  collateralSymbol: string
+  title: string
+}
+
+export type History = {
+  data: HistoryPosition[] | HistoryRedeem[]
+  totalCount: number
 }
 
 export type HistoryPosition = {

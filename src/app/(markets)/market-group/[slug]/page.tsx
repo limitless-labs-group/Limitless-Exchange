@@ -5,6 +5,7 @@ import {
   Button,
   Divider,
   HStack,
+  Heading,
   Link,
   Menu,
   MenuButton,
@@ -27,7 +28,6 @@ import { v4 as uuidv4 } from 'uuid'
 import MobileDrawer from '@/components/common/drawer'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import CommentTab from '@/components/common/markets/comment-tab'
-import TextWithPixels from '@/components/common/text-with-pixels'
 import {
   MarketClaimingForm,
   MarketMetadata,
@@ -197,7 +197,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
         <>
           <HStack gap='40px' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
             <Box w={isMobile ? 'full' : '664px'}>
-              <Divider bg='grey.800' orientation='horizontal' h='3px' />
+              <Divider orientation='horizontal' h='3px' />
               <HStack justifyContent='space-between' mt='10px' mb='24px'>
                 <Button
                   variant='grey'
@@ -226,7 +226,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                       <Text {...paragraphMedium}>Share</Text>
                     </HStack>
                   </MenuButton>
-                  <MenuList borderRadius='2px' w={isMobile ? '160px' : '122px'} zIndex={2}>
+                  <MenuList borderRadius='8px' w={isMobile ? '160px' : '122px'} zIndex={2}>
                     <MenuItem
                       onClick={() => {
                         trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
@@ -261,12 +261,9 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                 </Menu>
               </HStack>
               <Box>
-                <TextWithPixels
-                  text={marketGroup?.title || ''}
-                  {...(isMobile ? { ...h1Regular } : {})}
-                  fontSize='32px'
-                  userSelect='text'
-                />
+                <Heading {...h1Regular} userSelect='text'>
+                  {marketGroup?.title}
+                </Heading>
               </Box>
               <HStack gap={isMobile ? '4px' : '16px'} mt='16px' mb='24px'>
                 <HStack gap='8px' flexWrap='wrap'>
@@ -288,12 +285,10 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                 </HStack>
               </HStack>
               <MarketMetadata
-                market={market}
+                market={market ? market : undefined}
                 winningIndex={winningIndex}
                 resolved={resolved}
-                outcomeTokensPercent={market?.prices}
-                volume={volume}
-                liquidity={liquidity}
+                marketLoading={marketGroupLoading}
               />
               <Box mt={isMobile ? '48px' : '24px'} />
               <Tabs position='relative' variant='common'>

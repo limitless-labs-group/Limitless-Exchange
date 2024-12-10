@@ -1,5 +1,20 @@
-import React, { PropsWithChildren, ReactNode, useMemo } from 'react'
+import { Button, HStack } from '@chakra-ui/react'
+import { isNumber } from '@chakra-ui/utils'
+import debounce from 'lodash.debounce'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import React, {
+  PropsWithChildren,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  CSSProperties,
+} from 'react'
 import { Drawer } from 'vaul'
+import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
+import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { h1Regular, headline } from '@/styles/fonts/fonts.styles'
 
 type MobileDrawerProps = {
@@ -7,6 +22,8 @@ type MobileDrawerProps = {
   title?: string
   variant: 'blue' | 'common' | 'black'
   onClose?: () => void
+  id?: string
+  triggerStyle?: React.CSSProperties | undefined
 }
 
 export default function MobileDrawer({
@@ -15,45 +32,143 @@ export default function MobileDrawer({
   children,
   variant,
   onClose,
+  id,
+  triggerStyle,
 }: PropsWithChildren<MobileDrawerProps>) {
+  const searchParams = useSearchParams()
+  const drawerRef = useRef<HTMLButtonElement>(null)
+  const router = useRouter()
+  const pathname = usePathname()
+  const ref = useRef(false)
+  const { trackClicked } = useAmplitude()
+
+  const { market: selectedMarket, onOpenMarketPage, markets } = useTradingService()
+
+  useEffect(() => {
+    if (ref.current) return
+    const market = searchParams.get('market')
+    const slug = searchParams.get('slug')
+    if ((market === id || slug === id) && drawerRef.current) {
+      drawerRef.current.click()
+      ref.current = true
+    }
+  }, [id])
+
+  const removeMarketQuery = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (params.has('market')) {
+      params.delete('market')
+    }
+    if (params.has('slug')) {
+      params.delete('slug')
+    }
+    const newQuery = params.toString()
+    router.replace(newQuery ? `${pathname}/?${newQuery}` : pathname)
+  }
+
+  const close = () => {
+    if (onClose) {
+      onClose()
+      removeMarketQuery()
+    }
+  }
+
+  const indexInArray = markets
+    ? markets.findIndex((marketInArray) => selectedMarket?.address === marketInArray.address)
+    : undefined
+
+  const onClickPrevious =
+    isNumber(indexInArray) && indexInArray > 0 && markets
+      ? () => {
+          onOpenMarketPage(markets[indexInArray - 1])
+          router.push(`?market=${markets[indexInArray - 1].address}`, { scroll: false })
+          trackClicked(ClickEvent.PreviousMarketClick, {
+            platform: 'mobile',
+          })
+        }
+      : undefined
+
+  const onClickNext =
+    isNumber(indexInArray) && markets && indexInArray < markets.length - 1
+      ? () => {
+          onOpenMarketPage(markets[indexInArray + 1])
+          router.push(`?market=${markets[indexInArray + 1].address}`, { scroll: false })
+          trackClicked(ClickEvent.NextMarketClick, {
+            platform: 'mobile',
+          })
+        }
+      : undefined
+
   const bgColor = useMemo(() => {
     if (variant === 'black') {
       return 'var(--chakra-colors-grey-50)'
     }
-    return variant === 'blue' ? 'var(--chakra-colors-blue-500)' : 'var(--chakra-colors-grey-100)'
+    return variant === 'blue' ? 'var(--chakra-colors-blue-500)' : 'var(--chakra-colors-grey-50)'
   }, [variant])
 
   const grabberBgColor =
-    variant === 'blue' ? 'var(--chakra-colors-blue-400)' : 'var(--chakra-colors-grey-300)'
+    variant === 'blue' ? 'var(--chakra-colors-blue-400)' : 'var(--chakra-colors-grey-200)'
 
   const titleColor = variant === 'blue' ? 'white' : 'var(--chakra-colors-grey.800)'
 
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.visualViewport) {
+        const newKeyboardHeight = window.innerHeight - window.visualViewport.height
+        setKeyboardHeight(newKeyboardHeight > 0 ? newKeyboardHeight : 0)
+      }
+    }
+
+    handleResize()
+    const debouncedHandleResize = debounce(handleResize, 100)
+    window.addEventListener('resize', debouncedHandleResize)
+    return () => window.removeEventListener('resize', debouncedHandleResize)
+  }, [])
+
+  const drawerStyle = useMemo(
+    (): CSSProperties => ({
+      background: bgColor,
+      display: 'flex',
+      flexDirection: 'column',
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      zIndex: 99999,
+      outline: 'none',
+    }),
+    [bgColor]
+  )
+
+  const contentStyle = useMemo(
+    (): CSSProperties => ({
+      margin: '0 auto',
+      maxHeight: 'calc(100dvh - 68px)',
+      overflowY: 'auto',
+      paddingBottom: `${keyboardHeight}px`,
+    }),
+    [keyboardHeight]
+  )
+
   return (
-    <Drawer.Root shouldScaleBackground onClose={onClose}>
-      <Drawer.Trigger asChild>{trigger}</Drawer.Trigger>
+    <Drawer.Root shouldScaleBackground onClose={close}>
+      <Drawer.Trigger asChild>
+        <button style={{ width: '100%', ...triggerStyle }} ref={drawerRef}>
+          {trigger}
+        </button>
+      </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay
           style={{
             position: 'fixed',
             inset: 0,
             background: 'rgba(0, 0, 0, 0.3)',
-            zIndex: 400,
+            zIndex: 99999,
           }}
         />
-        <Drawer.Content
-          style={{
-            background: bgColor,
-            display: 'flex',
-            flexDirection: 'column',
-            height: 'calc(100dvh - 36px)',
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 500,
-            outline: 'none',
-          }}
-        >
+        <Drawer.Content style={drawerStyle}>
           <div
             style={{
               flex: 1,
@@ -64,30 +179,46 @@ export default function MobileDrawer({
                 margin: '8px auto',
                 width: '36px',
                 height: '4px',
-                borderRadius: '2px',
+                borderRadius: '8px',
                 background: grabberBgColor,
               }}
             />
-            <div
-              style={{
-                margin: '0 auto',
-                maxHeight: 'calc(100dvh - 68px)',
-                overflowY: 'auto',
-              }}
-            >
-              {title && (
-                <Drawer.Title
-                  style={{
-                    marginBottom: '32px',
-                    marginTop: '28px',
-                    padding: '0 16px',
-                    ...(variant === 'blue' ? { ...headline } : { ...h1Regular }),
-                    color: titleColor,
-                  }}
-                >
-                  {title}
-                </Drawer.Title>
-              )}
+            {!!onClickPrevious || !!onClickNext ? (
+              <HStack w='full' justifyContent='space-between'>
+                {onClickPrevious ? (
+                  <Button variant='transparentGreyText' onClick={onClickPrevious}>
+                    <ArrowLeftIcon width={24} height={24} />
+                    Previous
+                  </Button>
+                ) : (
+                  <div />
+                )}
+                {onClickNext ? (
+                  <Button variant='transparentGreyText' onClick={onClickNext}>
+                    Next
+                    <ArrowRightIcon width={24} height={24} />
+                  </Button>
+                ) : (
+                  <div />
+                )}
+              </HStack>
+            ) : null}
+            <div style={contentStyle}>
+              <>
+                {title && (
+                  <Drawer.Title
+                    style={{
+                      marginBottom: '32px',
+                      marginTop: '28px',
+                      padding: '0 16px',
+                      ...(variant === 'blue' ? { ...headline } : { ...h1Regular }),
+                      color: titleColor,
+                    }}
+                  >
+                    <>{title}</>
+                  </Drawer.Title>
+                )}
+              </>
               {children}
             </div>
           </div>

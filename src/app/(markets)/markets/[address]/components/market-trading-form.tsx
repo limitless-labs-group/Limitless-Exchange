@@ -85,14 +85,14 @@ export const MarketTradingForm = ({
     >
       {showTitle && (
         <Text {...paragraphMedium} mb='24px' textAlign='center' color='white'>
-          {market.title}
+          {market?.proxyTitle ?? market?.title}
         </Text>
       )}
       <HStack
         w={'240px'}
         mx='auto'
         bg='rgba(255, 255, 255, 0.20)'
-        borderRadius='2px'
+        borderRadius='8px'
         py='2px'
         px={isMobile ? '4px' : '2px'}
         mb={isMobile ? '32px' : '24px'}
@@ -101,7 +101,7 @@ export const MarketTradingForm = ({
           h={isMobile ? '28px' : '20px'}
           flex='1'
           py='2px'
-          borderRadius='2px'
+          borderRadius='8px'
           bg={strategy === 'Buy' ? 'white' : 'unset'}
           color={strategy === 'Buy' ? 'black' : 'white'}
           _hover={{
@@ -123,7 +123,7 @@ export const MarketTradingForm = ({
         <Button
           h={isMobile ? '28px' : '20px'}
           flex='1'
-          borderRadius='2px'
+          borderRadius='8px'
           py='2px'
           bg={strategy === 'Sell' ? 'white' : 'unset'}
           color={strategy === 'Sell' ? 'black' : 'white'}

@@ -1,17 +1,16 @@
 'use client'
 
-import { Box, Divider, HStack, VStack, Text } from '@chakra-ui/react'
+import { Box, Divider, HStack, VStack, Text, Heading } from '@chakra-ui/react'
 import debounce from 'lodash.debounce'
 import { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { v4 as uuidv4 } from 'uuid'
 import Loader from '@/components/common/loader'
-import TextWithPixels from '@/components/common/text-with-pixels'
 import FeedItem from '@/components/feed/components/feed-item'
 import { MainLayout } from '@/components'
 import { useFeed } from '@/hooks/use-feed'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { h1Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { FeedEntity } from '@/types'
 
 export default function MainPage() {
@@ -72,14 +71,10 @@ export default function MainPage() {
   return (
     <MainLayout isLoading={false}>
       <Box w={isMobile ? 'full' : '664px'}>
-        <Divider bg='grey.800' orientation='horizontal' h='3px' mb='16px' />
-        <TextWithPixels
-          text={`Limitless Feed`}
-          fontSize={'32px'}
-          gap={2}
-          userSelect='text'
-          highlightWord={1}
-        />
+        <Divider orientation='horizontal' h='3px' mb='16px' borderColor='grey.800' bg='grey.800' />
+        <Heading {...h1Bold} gap={2} userSelect='text'>
+          Limitless Feed
+        </Heading>
         {/*<HStack justifyContent='center' w='full'>*/}
         {/*  <Box*/}
         {/*    ref={buttonRef}*/}

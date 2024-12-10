@@ -14,9 +14,16 @@ interface PositionCardProps {
   marketPrices: number[]
   symbol: string
   title?: string
+  isSideMarketPage?: boolean
 }
 
-export function PositionCard({ position, marketPrices, symbol, title }: PositionCardProps) {
+export function PositionCard({
+  position,
+  marketPrices,
+  symbol,
+  title,
+  isSideMarketPage,
+}: PositionCardProps) {
   const getOutcomeNotation = () => {
     const outcomeTokenId = position.outcomeIndex ?? 0
     const defaultOutcomes = ['Yes', 'No']
@@ -30,11 +37,9 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
     <ThumbsDownIcon width={16} height={16} />
   )
 
-  const currentContractsPrice = new BigNumber(position?.collateralAmount || 1)
-    .multipliedBy(new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100))
-    .toNumber()
+  console.log(marketPrices)
 
-  const contractPrice = new BigNumber(marketPrices[position.outcomeIndex] || 1)
+  const contractPrice = new BigNumber(marketPrices?.[position.outcomeIndex] || 1)
     .dividedBy(100)
     .dividedBy(
       new BigNumber(
@@ -84,10 +89,10 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
             <Text {...paragraphMedium}>{`${NumberUtil.toFixed(
               new BigNumber(position.outcomeTokenAmount || '1')
                 .multipliedBy(
-                  new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100)
+                  new BigNumber(marketPrices?.[position.outcomeIndex] || 1).dividedBy(100)
                 )
                 .toString(),
-              6
+              symbol === 'USDC' ? 2 : 6
             )} ${symbol}`}</Text>
             {contractPriceChanged}
           </HStack>
@@ -97,13 +102,16 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
         gap={isMobile ? '8px' : '24px'}
         flexDir={isMobile ? 'column' : 'row'}
         alignItems={isMobile ? 'flex-start' : 'center'}
+        justifyContent={isSideMarketPage ? 'space-between' : 'unset'}
       >
         {isMobile && (
           <Flex flexDir={'row'} justifyContent={isMobile ? 'space-between' : 'unset'} w={'full'}>
             <Text {...paragraphMedium} color='grey.500'>
               Contracts
             </Text>
-            <Text {...paragraphRegular}>{NumberUtil.toFixed(position.outcomeTokenAmount, 6)}</Text>
+            <Text {...paragraphRegular}>
+              {NumberUtil.toFixed(position.outcomeTokenAmount, symbol === 'USDC' ? 2 : 6)}
+            </Text>
           </Flex>
         )}
         <Flex
@@ -116,22 +124,24 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
           </Text>
           <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
             position.collateralAmount,
-            6
+            symbol === 'USDC' ? 2 : 6
           )} ${symbol}`}</Text>
         </Flex>
-        <Flex
-          flexDir={isMobile ? 'row' : 'column'}
-          justifyContent={isMobile ? 'space-between' : 'unset'}
-          w={isMobile ? 'full' : 'unset'}
-        >
-          <Text {...paragraphMedium} color='grey.500'>
-            Initial Price
-          </Text>
-          <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
-            new BigNumber(position.latestTrade?.outcomeTokenPrice || 1).toFixed(3),
-            3
-          )} ${symbol}`}</Text>
-        </Flex>
+        {!isSideMarketPage || isMobile ? (
+          <Flex
+            flexDir={isMobile ? 'row' : 'column'}
+            justifyContent={isMobile ? 'space-between' : 'unset'}
+            w={isMobile ? 'full' : 'unset'}
+          >
+            <Text {...paragraphMedium} color='grey.500'>
+              Initial Price
+            </Text>
+            <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
+              new BigNumber(position.latestTrade?.outcomeTokenPrice || 1).toFixed(3),
+              3
+            )} ${symbol}`}</Text>
+          </Flex>
+        ) : null}
         <Flex
           flexDir={isMobile ? 'row' : 'column'}
           justifyContent={isMobile ? 'space-between' : 'unset'}
@@ -141,7 +151,7 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
             Current Price
           </Text>
           <Text {...paragraphRegular}>{`${NumberUtil.toFixed(
-            new BigNumber(marketPrices[position.outcomeIndex] || 1).dividedBy(100).toFixed(3),
+            new BigNumber(marketPrices?.[position.outcomeIndex] || 1).dividedBy(100).toFixed(3),
             3
           )} ${symbol}`}</Text>
         </Flex>
@@ -154,7 +164,10 @@ export function PositionCard({ position, marketPrices, symbol, title }: Position
             To Win
           </Text>
           <Text {...paragraphRegular}>
-            {`${NumberUtil.toFixed(position.outcomeTokenAmount, 6)} ${symbol}`}
+            {`${NumberUtil.toFixed(
+              position.outcomeTokenAmount,
+              symbol === 'USDC' ? 2 : 6
+            )} ${symbol}`}
           </Text>
         </Flex>
       </HStack>

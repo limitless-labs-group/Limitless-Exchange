@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useIsMobile } from '@/hooks'
 import { ClickEvent, useAmplitude } from '@/services'
-import { controlsMedium } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Sort } from '@/types'
 
 type SortFilterProps = {
@@ -41,12 +41,12 @@ export default function SortFilter({ onChange }: SortFilterProps) {
       h={isMobile ? '32px' : '24px'}
       px={isMobile ? '16px' : 0}
     >
-      <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.300' borderRadius='2px'>
+      <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.100' borderRadius='8px'>
         {sortOptions.map((option) => (
           <Button
             variant='grey'
             key={uuidv4()}
-            bg={option === selectedSortFilter ? 'grey.800' : 'unset'}
+            bg={option === selectedSortFilter ? 'grey.50' : 'unset'}
             onClick={() => {
               trackClicked(ClickEvent.SortClicked, {
                 oldValue: selectedSortFilter,
@@ -54,15 +54,15 @@ export default function SortFilter({ onChange }: SortFilterProps) {
               })
               handleFilterItemClicked(option)
             }}
-            _hover={{ bg: option === selectedSortFilter ? 'grey.800' : 'grey.400' }}
-            borderRadius='2px'
+            _hover={{ bg: option === selectedSortFilter ? 'grey.50' : 'grey.400' }}
+            borderRadius='8px'
             h={isMobile ? '28px' : '20px'}
             whiteSpace='nowrap'
-            {...controlsMedium}
-            fontSize={isMobile ? '14px' : '12px'}
-            color={option === selectedSortFilter ? 'grey.50' : 'grey.800'}
+            {...paragraphMedium}
+            color={'grey.800'}
             p={'2px 12px 2px 12px'}
             marginInlineStart='0px !important'
+            position={isMobile ? 'unset' : 'relative'}
           >
             {option}
           </Button>
