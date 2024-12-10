@@ -8,7 +8,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import Paper from '@/components/common/paper'
-import TextWithPixels from '@/components/common/text-with-pixels'
 import { MainLayout } from '@/components'
 import { useLumyBalance } from '@/hooks/use-lumy-balance'
 import { useThemeProvider } from '@/providers'
@@ -175,7 +174,9 @@ export default function LumyPage() {
                 </Box>
                 <HStack gap='4px' color='white'>
                   <BaseWhiteIcon />
-                  <TextWithPixels text='BASE NETWORK' {...captionRegular} color='white' />
+                  <Text {...captionRegular} color='white'>
+                    BASE NETWORK
+                  </Text>
                 </HStack>
               </HStack>
             </Paper>

@@ -78,14 +78,12 @@ const app = new Frog<{
     return { market: marketFinal, addressOfMarket }
   },
   imageOptions: async () => {
-    const localFont = await readFile(
-      path.join(process.cwd(), '/src/resources/HelveticaNeueMedium.ttf')
-    )
+    const localFont = await readFile(path.join(process.cwd(), '/src/resources/Inter.ttf'))
 
     return {
       fonts: [
         {
-          name: 'Helvetica',
+          name: 'Inter',
           data: localFont,
         },
       ],
@@ -279,7 +277,7 @@ app
             <div
               style={{
                 display: 'flex',
-                fontFamily: 'Helvetica',
+                fontFamily: 'Inter',
                 color: 'white',
                 fontWeight: 500,
               }}
@@ -289,32 +287,30 @@ app
             <div style={{ display: 'flex', flexDirection: 'column', gap: '42px' }}>
               <div style={{ display: 'flex', gap: '84px', width: '80%' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>Avg. Price</span>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>Avg. Price</span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>
                     {quote ? (+quote.outcomeTokenPrice).toFixed(6) : 0}{' '}
                     {market.collateralToken.symbol || ''}
                   </span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>Est. ROI</span>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>Est. ROI</span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>
                     {quote ? (+quote.roi).toFixed(2) : 0}%
                   </span>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '84px', width: '80%' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
-                    Potential Return
-                  </span>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>Potential Return</span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>
                     {quote ? (+quote.outcomeTokenAmount).toFixed(6) : 0}{' '}
                     {market.collateralToken.symbol}
                   </span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>Price Impact</span>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>Price Impact</span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>
                     {quote ? (+quote.priceImpact).toFixed(2) : '0.00'}%
                   </span>
                 </div>
@@ -396,7 +392,7 @@ app
             <div
               style={{
                 display: 'flex',
-                fontFamily: 'Helvetica',
+                fontFamily: 'Inter',
                 color: 'white',
                 fontWeight: 500,
               }}
@@ -406,32 +402,30 @@ app
             <div style={{ display: 'flex', flexDirection: 'column', gap: '42px' }}>
               <div style={{ display: 'flex', gap: '84px', width: '80%' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>Avg. Price</span>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>Avg. Price</span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>
                     {quote ? (+quote.outcomeTokenPrice).toFixed(6) : '0.00'}{' '}
                     {market.collateralToken.symbol}
                   </span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>Est. ROI</span>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>Est. ROI</span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>
                     {quote ? (+quote.roi).toFixed(2) : '0.00'}%
                   </span>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '84px', width: '80%' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
-                    Potential Return
-                  </span>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>Potential Return</span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>
                     {quote ? (+quote.outcomeTokenAmount).toFixed(6) : '0.00'}{' '}
                     {market.collateralToken.symbol}
                   </span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>Price Impact</span>
-                  <span style={{ fontSize: '40px', fontFamily: 'Helvetica' }}>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>Price Impact</span>
+                  <span style={{ fontSize: '40px', fontFamily: 'Inter' }}>
                     {quote ? (+quote.priceImpact).toFixed(2) : '0.00'}%
                   </span>
                 </div>

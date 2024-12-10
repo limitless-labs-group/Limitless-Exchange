@@ -3,7 +3,7 @@ export function timeSinceCreation(timestamp: number): string {
   const diffInSeconds = Math.floor((now - timestamp * 1000) / 1000)
 
   if (diffInSeconds <= 60) {
-    return `${diffInSeconds}seconds`
+    return `${diffInSeconds} sec`
   }
 
   const diffInMinutes = Math.floor(diffInSeconds / 60)

@@ -1,10 +1,24 @@
-import { Flex, Table, TableContainer, Tbody, Text, Th, Thead, Tr, VStack } from '@chakra-ui/react'
-import React, { memo, PropsWithChildren, useEffect, useMemo } from 'react'
-import { v4 as uuidv4 } from 'uuid'
+import {
+  Flex,
+  HStack,
+  Table,
+  TableContainer,
+  Tbody,
+  Text,
+  Th,
+  Thead,
+  Tr,
+  VStack,
+} from '@chakra-ui/react'
+import debounce from 'lodash.debounce'
+import React, { memo, PropsWithChildren, useCallback } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import Loader from '@/components/common/loader'
 import Skeleton from '@/components/common/skeleton'
 import { PortfolioHistoryRedeemItem } from '@/app/portfolio/components/PortfolioHistoryRedeemItem'
 import { PortfolioHistoryTradeItem } from '@/app/portfolio/components/PortfolioHistoryTradeItem'
-import { HistoryRedeem, HistoryTrade, useHistory } from '@/services'
+import { HistoryRedeem, HistoryTrade, useInfinityHistory } from '@/services'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 const TableContainerWrapper = ({ children }: PropsWithChildren) => {
   return (
@@ -31,34 +45,21 @@ const TableContainerWrapper = ({ children }: PropsWithChildren) => {
   )
 }
 
-const History = ({ userMenuLoading }: { userMenuLoading: boolean }) => {
-  const { trades, getTrades, redeems, getRedeems, tradesAndPositionsLoading } = useHistory()
+const History = () => {
+  const {
+    data: historyData,
+    fetchNextPage,
+    hasNextPage,
+    isLoading: isHistoryLoading,
+  } = useInfinityHistory()
 
-  useEffect(() => {
-    getTrades()
-    getRedeems()
-  }, [])
-
-  const tradesAndRedeems = useMemo(() => {
-    const _tradesAndRedeems = [...(trades ?? []), ...(redeems ?? [])]
-    _tradesAndRedeems.sort((a, b) => Number(b.blockTimestamp) - Number(a.blockTimestamp))
-    return _tradesAndRedeems
-  }, [trades, redeems])
-
-  const historyLoading = useMemo(() => {
-    return tradesAndPositionsLoading || !tradesAndRedeems || userMenuLoading
-  }, [tradesAndPositionsLoading, tradesAndRedeems, userMenuLoading])
-
-  const noTradesAndRedeems = useMemo(() => {
-    return (
-      !userMenuLoading &&
-      !tradesAndPositionsLoading &&
-      tradesAndRedeems &&
-      tradesAndRedeems.length === 0
-    )
-  }, [userMenuLoading, tradesAndPositionsLoading, tradesAndRedeems])
-
-  if (historyLoading) {
+  const getNextPage = useCallback(
+    debounce(async () => fetchNextPage(), 1000),
+    []
+  )
+  //@ts-ignore
+  const historyFlat = historyData?.pages.flatMap((page) => page.data.data)
+  if (isHistoryLoading) {
     return (
       <>
         <TableContainerWrapper />
@@ -71,7 +72,7 @@ const History = ({ userMenuLoading }: { userMenuLoading: boolean }) => {
     )
   }
 
-  if (noTradesAndRedeems) {
+  if (!historyFlat || historyFlat.length === 0) {
     return (
       <>
         <TableContainerWrapper />
@@ -83,33 +84,36 @@ const History = ({ userMenuLoading }: { userMenuLoading: boolean }) => {
   }
 
   return (
-    <TableContainerWrapper>
-      {tradesAndRedeems.map((item) =>
-        'strategy' in item ? (
-          <PortfolioHistoryTradeItem key={uuidv4()} trade={item as HistoryTrade} />
-        ) : (
-          <PortfolioHistoryRedeemItem key={uuidv4()} redeem={item as HistoryRedeem} />
-        )
-      )}
-    </TableContainerWrapper>
+    <InfiniteScroll
+      className='scroll'
+      dataLength={historyFlat?.length ?? 0}
+      next={getNextPage}
+      hasMore={hasNextPage}
+      style={{ width: '100%' }}
+      loader={
+        <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+          <Loader />
+          <Text {...paragraphRegular}>Loading more history</Text>
+        </HStack>
+      }
+    >
+      <TableContainerWrapper>
+        {historyFlat.map((item) =>
+          'strategy' in item ? (
+            <PortfolioHistoryTradeItem
+              key={(item as HistoryTrade).transactionHash}
+              trade={item as HistoryTrade}
+            />
+          ) : (
+            <PortfolioHistoryRedeemItem
+              key={(item as HistoryRedeem).transactionHash}
+              redeem={item as HistoryRedeem}
+            />
+          )
+        )}
+      </TableContainerWrapper>
+    </InfiniteScroll>
   )
-
-  // return tradesAndRedeems?.length == 0 ? (
-  //   <Flex w={'full'} h={'200px'} justifyContent={'center'} alignItems={'center'}>
-  //     <Text color={'fontLight'}>No trading history</Text>
-  //   </Flex>
-  // ) : (
-  //   <>
-  //
-  //     {(tradesAndPositionsLoading || !tradesAndRedeems || userMenuLoading) && (
-  //       <VStack w='full' gap='8px'>
-  //         {[...Array(5)].map((index) => (
-  //           <Skeleton height={36} key={index} />
-  //         ))}
-  //       </VStack>
-  //     )}
-  //   </>
-  // )
 }
 
 export const PortfolioHistory = memo(History)

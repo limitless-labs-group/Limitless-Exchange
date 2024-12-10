@@ -26,7 +26,6 @@ import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
-import TextWithPixels from '@/components/common/text-with-pixels'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
@@ -43,6 +42,7 @@ import GridIcon from '@/resources/icons/sidebar/Markets.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
+import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
 import SquarePlusIcon from '@/resources/icons/sidebar/suggest_market.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import UserIcon from '@/resources/icons/user-icon.svg'
@@ -353,6 +353,26 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
+        <NextLink href='/leaderboard' passHref style={{ width: '100%' }}>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Leaderboard',
+              })
+            }}
+            variant='transparent'
+            w='full'
+            bg={pageName === 'Leaderboard' ? 'grey.100' : 'unset'}
+            rounded='8px'
+          >
+            <HStack w='full'>
+              <SidebarIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                Leaderboard
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
         <NextLink href='/feed' passHref style={{ width: '100%' }}>
           <Link
             onClick={() => {
@@ -440,12 +460,9 @@ export default function Sidebar() {
               borderRadius='8px'
             >
               {volumeArray.map((volumeSymbol, index) => (
-                <TextWithPixels
-                  key={index}
-                  text={volumeSymbol}
-                  highlightWord={1}
-                  {...paragraphRegular}
-                />
+                <Text key={index} {...paragraphRegular}>
+                  {volumeSymbol}
+                </Text>
               ))}
             </Paper>
           </NextLink>
