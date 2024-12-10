@@ -35,7 +35,7 @@ export const MarketPriceChart = () => {
       if (new Date().getTime() > market.expirationTimestamp) {
         return market.expirationTimestamp + 1200000
       }
-      return data ? data[data.length - 1][0] : new Date().getTime()
+      return data ? data[data.length - 1]?.[0] : new Date().getTime()
     }
     return new Date().getTime()
   }
