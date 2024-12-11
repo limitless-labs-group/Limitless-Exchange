@@ -30,3 +30,30 @@
 .tradeSkeleton:before {
   content: '\00a0';
 }
+
+.tradeSkeleton.widgetYes:after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--chakra-colors-skeleton-widgetBgYes),
+    transparent
+  );
+}
+
+.tradeSkeleton.widgetNo:after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--chakra-colors-skeleton-widgetBgNo),
+    transparent
+  );
+}
+
+.tradeSkeleton.widgetGrey:after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--chakra-colors-skeleton-widgetBgGrey),
+    transparent
+  );
+}

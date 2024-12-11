@@ -11,7 +11,7 @@ import { useMarketPriceHistory } from '@/hooks/use-market-price-history'
 import { useThemeProvider } from '@/providers'
 import { useTradingService } from '@/services'
 import { useWinningIndex } from '@/services/MarketsService'
-import { headline } from '@/styles/fonts/fonts.styles'
+import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
@@ -48,7 +48,7 @@ export const MarketPriceChart = () => {
       },
       height: 230,
       backgroundColor: colors.grey['100'],
-      marginLeft: 50,
+      marginLeft: isMobile ? 60 : 50,
       marginRight: 0,
     },
     title: {
@@ -282,10 +282,10 @@ export const MarketPriceChart = () => {
           </VStack>
         </HStack>
         <HStack gap={'4px'} mt='4px'>
-          <Text {...headline} color='grey.800'>
+          <Text {...(isMobile ? paragraphMedium : headline)} color='grey.800'>
             {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%
           </Text>
-          <Text {...headline} color='grey.800'>
+          <Text {...(isMobile ? paragraphMedium : headline)} color='grey.800'>
             Yes
           </Text>
           {/*<ChevronDownIcon width={16} height={16} />*/}
