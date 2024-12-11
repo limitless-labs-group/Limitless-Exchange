@@ -427,11 +427,6 @@ export default function MarketPage() {
           p='8px'
           position='relative'
         >
-          <Box
-            position='absolute'
-            cursor='pointer'
-            {...(isMobile ? { right: '14px', top: '14px' } : { right: '12px', top: '12px' })}
-          ></Box>
           <HStack
             w={'240px'}
             mx='auto'

@@ -275,12 +275,7 @@ export default function MarketPageBuyForm({
             }}
             type='number'
           />
-          <InputRightElement
-            h='16px'
-            top={isMobile ? '8px' : '8px'}
-            right={isMobile ? '8px' : '12px'}
-            w='fit'
-          >
+          <InputRightElement h='16px' top='8px' right={isMobile ? '8px' : '12px'} w='fit'>
             <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'}>
               {market?.collateralToken.symbol}
             </Text>
