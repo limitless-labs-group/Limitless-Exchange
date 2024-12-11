@@ -14,6 +14,7 @@ import { useWeb3Service } from '@/services/Web3Service'
 import { commonButtonProps } from '@/styles/button'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
+// @ts-ignore
 const MotionBox = motion(Box)
 
 interface ConfirmButtonProps {

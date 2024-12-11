@@ -36,8 +36,10 @@
     "@fvictorio/newton-raphson-method": "^1.0.5",
     "@hookform/resolvers": "^3.9.0",
     "@next/bundle-analyzer": "^14.2.3",
+    "@privy-io/react-auth": "1.94.0",
+    "@privy-io/wagmi": "0.2.12",
     "@pythnetwork/price-service-client": "^1.9.0",
-    "@rainbow-me/rainbowkit": "^2.1.6",
+    "@solana/web3.js": "^1.95.8",
     "@svgr/webpack": "^8.1.0",
     "@tanstack/react-query": "^5.26.3",
     "@tanstack/react-query-devtools": "^5.36.0",
@@ -94,8 +96,8 @@
     "supports-color": "^8.1.1",
     "uuid": "^9.0.1",
     "vaul": "^0.9.1",
-    "viem": "^2.21.7",
-    "wagmi": "^2.12.11",
+    "viem": "^2.16.0",
+    "wagmi": "^2.10.4",
     "yup": "^1.4.0"
   },
   "devDependencies": {

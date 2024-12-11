@@ -1,19 +1,19 @@
 import { switchChain } from '@wagmi/core'
 import { Address, encodeFunctionData, erc20Abi, getContract } from 'viem'
-import { useAccount, useSendTransaction, useWriteContract } from 'wagmi'
+import { useSendTransaction, useWriteContract } from 'wagmi'
+import { useAccount as useWagmiAccount } from 'wagmi'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
-import { contractABI } from '@/contracts/utils'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import { config as wagmiConfig, publicClient } from '@/providers'
+import { configureChainsConfig, publicClient } from '@/providers/Privy'
+import { useAccount } from '@/services/AccountService'
 import { useLimitlessApi } from '@/services/LimitlessApi'
 
 export const useExternalWalletService = () => {
-  const account = useWalletAddress()
+  const { account } = useAccount()
   const { writeContractAsync } = useWriteContract()
   const { sendTransactionAsync } = useSendTransaction()
   const { supportedTokens } = useLimitlessApi()
-  const { chainId } = useAccount()
+  const { chainId } = useWagmiAccount()
 
   const collateralTokenAddress = supportedTokens ? supportedTokens[0].address : '0x'
 
@@ -120,32 +120,6 @@ export const useExternalWalletService = () => {
     return txHash
   }
 
-  const mintErc20 = async (
-    token: Address,
-    value: bigint,
-    smartWalletAddress: Address,
-    newToken?: boolean
-  ) => {
-    await checkAndSwitchChainIfNeeded()
-    const args = newToken ? [smartWalletAddress, value] : [value]
-    let txHash = ''
-    await writeContractAsync(
-      {
-        abi: newToken ? contractABI[defaultChain.id] : wethABI,
-        address: token,
-        functionName: 'mint',
-        args,
-      },
-      {
-        onSuccess: (data) => {
-          txHash = data
-        },
-        onError: (data) => console.log(data),
-      }
-    )
-    return txHash
-  }
-
   const transferEthers = async (to: Address, value: bigint) => {
     await checkAndSwitchChainIfNeeded()
     let txHash = ''
@@ -195,6 +169,7 @@ export const useExternalWalletService = () => {
     outcomeIndex: number,
     minOutcomeTokensToBuy: bigint
   ) => {
+    debugger
     await checkAndSwitchChainIfNeeded()
     let txHash = ''
     await writeContractAsync(
@@ -268,7 +243,7 @@ export const useExternalWalletService = () => {
 
   const checkAndSwitchChainIfNeeded = async () => {
     if (chainId !== defaultChain.id) {
-      await switchChain(wagmiConfig, { chainId: defaultChain.id })
+      await switchChain(configureChainsConfig, { chainId: defaultChain.id })
     }
   }
 
@@ -284,7 +259,6 @@ export const useExternalWalletService = () => {
   return {
     wrapEth,
     unwrapEth,
-    mintErc20,
     transferErc20,
     transferEthers,
     buyOutcomeTokens,

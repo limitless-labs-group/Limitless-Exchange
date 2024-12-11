@@ -1,38 +1,16 @@
+import { usePrivy } from '@privy-io/react-auth'
 import axios, { AxiosInstance } from 'axios'
 import React, { createContext, useContext } from 'react'
 import { getAddress, toHex } from 'viem'
 import { useSignMessage } from 'wagmi'
-import { useAccount as useWagmiAccount } from 'wagmi'
-import { useEtherspot } from './Etherspot'
-import { useWeb3Service } from './Web3Service'
-import { useWeb3Auth } from '@/providers'
 
 const useSetupAxiosInstance = () => {
-  const { signMessage, smartWalletExternallyOwnedAccountAddress, smartWalletAddress } =
-    useEtherspot()
+  const { signMessage, user } = usePrivy()
   const { signMessageAsync } = useSignMessage()
-  const { client } = useWeb3Service()
-  const { web3Auth } = useWeb3Auth()
-  const { address } = useWagmiAccount()
 
   //avoid triggering signing message pop-up several times, when the few private requests will come simultaneously
   let signingPromise: Promise<void> | null = null
   const requestQueue: (() => Promise<unknown>)[] = []
-
-  const getAccount = () => {
-    if (web3Auth.status === 'not_ready') {
-      return
-    }
-    if (smartWalletAddress && smartWalletExternallyOwnedAccountAddress) {
-      return smartWalletAddress
-    }
-    if (web3Auth.connectedAdapterName) {
-      if (web3Auth.connectedAdapterName === 'openlogin' && !smartWalletAddress) {
-        return
-      }
-    }
-    return address
-  }
 
   const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
@@ -44,25 +22,20 @@ const useSetupAxiosInstance = () => {
 
     signingPromise = (async () => {
       try {
-        const account = getAccount()
-        if (!account) throw new Error('Failed to get account')
+        if (!user?.wallet?.address) throw new Error('Failed to get account')
 
         const { data: signingMessage } = await axiosInstance.get(`/auth/signing-message`)
         if (!signingMessage) throw new Error('Failed to get signing message')
+        const client = user.wallet.connectorType === 'injected' ? 'eoa' : 'etherspot'
 
-        const signature = (
+        const signature =
           client === 'eoa'
-            ? await signMessageAsync({ message: signingMessage, account })
-            : await signMessage(signingMessage)
-        ) as `0x${string}`
+            ? await signMessageAsync({ message: signingMessage })
+            : await signMessage(signingMessage, undefined, user.wallet.address)
 
         const headers = {
           'content-type': 'application/json',
-          'x-account': getAddress(
-            client === 'eoa'
-              ? (account as `0x${string}`)
-              : (smartWalletExternallyOwnedAccountAddress as string)
-          ),
+          'x-account': getAddress(user.wallet.address),
           'x-signature': signature,
           'x-signing-message': toHex(String(signingMessage)),
         }
@@ -88,7 +61,6 @@ const useSetupAxiosInstance = () => {
 
         return new Promise((resolve, reject) => {
           requestQueue.push(async () => axiosInstance(originalRequest).then(resolve).catch(reject))
-
           if (!signingPromise) {
             handleSigningProcess()
               .then(() => {

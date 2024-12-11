@@ -21,8 +21,8 @@ import {
   getConditionalTokenAddress,
   useConditionalTokensAddr,
 } from '@/hooks/use-conditional-tokens-addr'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import { publicClient } from '@/providers'
+import { publicClient } from '@/providers/Privy'
+import { useAccount } from '@/services/AccountService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { Market, MarketGroup, RedeemParams } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
@@ -87,7 +87,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * SERVICES
    */
   const queryClient = useQueryClient()
-  const account = useWalletAddress()
+  const { account } = useAccount()
 
   /**
    * OPTIONS

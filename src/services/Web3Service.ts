@@ -1,16 +1,11 @@
-import { useEtherspot } from '@/services/Etherspot'
+import usePrivySendTransaction from '@/hooks/use-privy-send-transaction'
+import { useAccount } from '@/services/AccountService'
 import { useExternalWalletService } from '@/services/ExternalWalletService'
 import { Address } from '@/types'
 
 type Web3Service = {
   wrapEth: (value: bigint) => Promise<string>
   unwrapEth: (value: bigint) => Promise<string | undefined>
-  mintErc20: (
-    token: Address,
-    value: bigint,
-    smartWalletAddress: Address,
-    newToken?: boolean
-  ) => Promise<string | undefined>
   transferErc20: (token: Address, to: Address, value: bigint) => Promise<string | undefined>
   transferEthers: (to: Address, value: bigint) => Promise<string | undefined>
   buyOutcomeTokens: (
@@ -49,49 +44,35 @@ type Web3Service = {
 }
 
 export function useWeb3Service(): Web3Service {
-  const { etherspot } = useEtherspot()
   const externalWalletService = useExternalWalletService()
+  const privyService = usePrivySendTransaction()
 
-  const client = etherspot ? 'etherspot' : 'eoa'
+  const { web3Client } = useAccount()
 
   const wrapEth = async (value: bigint) => {
-    if (client === 'etherspot') {
-      const receipt = await etherspot?.wrapEth(value)
-      return receipt?.transactionHash || ''
+    if (web3Client === 'etherspot') {
+      return privyService.wrapEth(value)
     }
     return externalWalletService.wrapEth(value)
   }
 
   const unwrapEth = async (value: bigint) => {
-    if (client === 'etherspot') {
-      const receipt = await etherspot?.unwrapEth(value)
-      return receipt?.transactionHash
+    if (web3Client === 'etherspot') {
+      return privyService.unwrapEth(value)
     }
     return externalWalletService.unwrapEth(value)
   }
 
-  const mintErc20 = async (
-    token: Address,
-    value: bigint,
-    smartWalletAddress: Address,
-    newToken?: boolean
-  ) => {
-    if (client === 'etherspot') {
-      return etherspot?.mintErc20(token, value, smartWalletAddress, newToken)
-    }
-    return externalWalletService.mintErc20(token, value, smartWalletAddress, newToken)
-  }
-
   const transferEthers = async (to: Address, value: bigint) => {
-    if (client === 'etherspot') {
-      return etherspot?.transferEthers(to, value)
+    if (web3Client === 'etherspot') {
+      return privyService.transferEthers(to, value)
     }
     return externalWalletService.transferEthers(to, value)
   }
 
   const transferErc20 = async (token: Address, to: Address, value: bigint) => {
-    if (client === 'etherspot') {
-      return etherspot?.transferErc20(token, to, value)
+    if (web3Client === 'etherspot') {
+      return privyService.transferErc20(token, to, value)
     }
     return externalWalletService.transferErc20(token, to, value)
   }
@@ -103,8 +84,8 @@ export function useWeb3Service(): Web3Service {
     minOutcomeTokensToBuy: bigint,
     collateralContract: Address
   ) => {
-    if (client === 'etherspot') {
-      return etherspot?.buyOutcomeTokens(
+    if (web3Client === 'etherspot') {
+      return privyService.buyOutcomeTokens(
         fixedProductMarketMakerAddress,
         collateralAmount,
         outcomeIndex,
@@ -127,8 +108,8 @@ export function useWeb3Service(): Web3Service {
     outcomeIndex: number,
     maxOutcomeTokensToSell: bigint
   ) => {
-    if (client === 'etherspot') {
-      return etherspot?.sellOutcomeTokens(
+    if (web3Client === 'etherspot') {
+      return privyService.sellOutcomeTokens(
         conditionalTokensAddress,
         fixedProductMarketMakerAddress,
         collateralAmount,
@@ -151,8 +132,8 @@ export function useWeb3Service(): Web3Service {
     marketConditionId: Address,
     indexSets: number[]
   ) => {
-    if (client === 'etherspot') {
-      return etherspot?.redeemPositions(
+    if (web3Client === 'etherspot') {
+      return privyService.redeemPositions(
         conditionalTokensAddress,
         collateralAddress,
         parentCollectionId,
@@ -183,13 +164,12 @@ export function useWeb3Service(): Web3Service {
 
   return {
     wrapEth,
-    mintErc20,
     transferErc20,
     unwrapEth,
     transferEthers,
     buyOutcomeTokens,
     sellOutcomeTokens,
-    client,
+    client: web3Client,
     checkAllowance,
     checkAllowanceForAll,
     approveContract,

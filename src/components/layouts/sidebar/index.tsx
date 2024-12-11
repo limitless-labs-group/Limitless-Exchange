@@ -14,11 +14,9 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import '@rainbow-me/rainbowkit/styles.css'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useCallback, useMemo } from 'react'
-import { useAccount as useWagmiAccount } from 'wagmi'
 import Avatar from '@/components/common/avatar'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
@@ -29,9 +27,9 @@ import SocialsFooter from '@/components/common/socials-footer'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
+import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useThemeProvider } from '@/providers'
 import AiAgentIcon from '@/resources/icons/ai-agent-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
@@ -55,35 +53,22 @@ import {
   useAmplitude,
   useBalanceQuery,
   useBalanceService,
-  useEtherspot,
 } from '@/services'
-import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
-  const { disconnectFromPlatform, displayName, profileData, profileLoading } = useAccount()
+  const { disconnectFromPlatform, displayName, profileData, profileLoading, account, web3Client } =
+    useAccount()
   const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
-  const account = useWalletAddress()
-  const { isConnected, isConnecting } = useWagmiAccount()
-  const { client } = useWeb3Service()
-  const { isLoadingSmartWalletAddress } = useEtherspot()
   const { data: totalVolume } = useTotalTradingVolume()
+  const { isLogged } = useClient()
 
   const pageName = usePageName()
-  const userMenuLoading = useMemo(() => {
-    if (isConnecting) {
-      return true
-    }
-    if (isConnected) {
-      return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
-    }
-    return false //#fix for dev env
-  }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
 
   const {
     isOpen: isOpenWalletPage,
@@ -105,9 +90,9 @@ export default function Sidebar() {
   const { isOpen: isOpenProfile, onToggle: onToggleProfile } = useDisclosure()
 
   const handleOpenWalletPage = useCallback(() => {
-    if (client === 'eoa') return
+    if (web3Client === 'eoa') return
     onToggleWalletPage()
-  }, [client])
+  }, [web3Client])
   const handleOpenWrapModal = useCallback(() => onOpenWrapModal(), [])
   const handleOpenProfile = () => {
     onCloseWalletPage()
@@ -116,15 +101,16 @@ export default function Sidebar() {
   }
 
   const walletTypeActionButton = useMemo(() => {
-    const smartWalletBalanceLoading = (client !== 'eoa' && balanceLoading) || !balanceOfSmartWallet
-    if (userMenuLoading || smartWalletBalanceLoading) {
+    const smartWalletBalanceLoading =
+      (web3Client !== 'eoa' && balanceLoading) || !balanceOfSmartWallet
+    if (profileLoading || smartWalletBalanceLoading) {
       return (
         <Box w='full'>
           <Skeleton height={24} />
         </Box>
       )
     }
-    return client !== 'eoa' ? (
+    return web3Client !== 'eoa' ? (
       <Button
         variant='transparent'
         onClick={() => {
@@ -161,12 +147,12 @@ export default function Sidebar() {
       </Button>
     )
   }, [
-    client,
-    isOpenWalletPage,
-    overallBalanceUsd,
-    userMenuLoading,
+    web3Client,
     balanceLoading,
     balanceOfSmartWallet,
+    profileLoading,
+    isOpenWalletPage,
+    overallBalanceUsd,
   ])
 
   const volumeArray = totalVolume
@@ -202,8 +188,7 @@ export default function Sidebar() {
             />
           </Link>
         </NextLink>
-
-        {isConnected ? (
+        {isLogged ? (
           <>
             <VStack mt='16px' w='full' gap='8px'>
               {walletTypeActionButton}
@@ -233,7 +218,7 @@ export default function Sidebar() {
               </NextLink>
 
               <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
-                {userMenuLoading ? (
+                {profileLoading ? (
                   <Box w='full'>
                     <Skeleton height={24} />
                   </Box>
@@ -332,6 +317,7 @@ export default function Sidebar() {
             <LoginButton />
           </Box>
         )}
+
         <Divider my='12px' />
         <NextLink href='/' passHref style={{ width: '100%' }}>
           <Link

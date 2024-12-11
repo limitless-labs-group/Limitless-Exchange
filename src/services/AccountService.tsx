@@ -1,5 +1,7 @@
+import { usePrivy } from '@privy-io/react-auth'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import { UserInfo } from '@web3auth/base'
+import Cookies from 'js-cookie'
 import React, {
   PropsWithChildren,
   createContext,
@@ -10,16 +12,13 @@ import React, {
   useEffect,
 } from 'react'
 import { getAddress } from 'viem'
-import { useDisconnect } from 'wagmi'
-import { useAccount as useWagmiAccount } from 'wagmi'
 import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
 import { useUserSession } from '@/hooks/profiles/use-session'
-import { useWeb3Auth } from '@/providers'
-import { useAmplitude, useEtherspot } from '@/services'
-import { useWeb3Service } from '@/services/Web3Service'
+import useClient from '@/hooks/use-client'
+import { useAmplitude } from '@/services'
 import { Address, APIError, UpdateProfileData } from '@/types'
 import { Profile } from '@/types/profiles'
 
@@ -28,9 +27,7 @@ export interface IAccountContext {
   account: Address | undefined
   userInfo: Partial<UserInfo> | undefined
   // farcasterInfo: FarcasterUserData | undefined
-  disconnectAccount: () => void
   disconnectFromPlatform: () => void
-  disconnectLoading: boolean
   displayName?: string
   displayUsername: string
   bio: string
@@ -44,6 +41,7 @@ export interface IAccountContext {
   >
   onBlockUser: UseMutationResult<void, Error, { account: Address }>
   onUnblockUser: UseMutationResult<void, Error, { account: Address }>
+  web3Client: 'eoa' | 'etherspot'
 }
 
 const AccountContext = createContext({} as IAccountContext)
@@ -52,63 +50,40 @@ export const useAccount = () => useContext(AccountContext)
 
 export const AccountProvider = ({ children }: PropsWithChildren) => {
   const queryClient = useQueryClient()
-  const { disconnect, isPending: disconnectPending } = useDisconnect()
-  const { client } = useWeb3Service()
+  const { logout: disconnect, authenticated, user } = usePrivy()
   const privateClient = useAxiosPrivateClient()
-  /**
-   * WEB3AUTH
-   */
-  const { provider, web3Auth, isConnected } = useWeb3Auth()
-  const isLoggedIn = isConnected && !!provider
+  const { mutateAsync: login } = useLogin()
+  const { isLogged } = useClient()
+  const web3Client = user?.wallet?.connectorType === 'injected' ? 'eoa' : 'etherspot'
+  const { trackSignUp } = useAmplitude()
 
-  const { etherspot, smartWalletExternallyOwnedAccountAddress, smartWalletAddress } = useEtherspot()
-  const { address } = useWagmiAccount()
   const toast = useToast()
-
-  /**
-   * ADDRESSES
-   */
-  // Todo refactor
-  const account = useMemo(() => {
-    if (web3Auth.status === 'not_ready') {
-      return
-    }
-
-    if (smartWalletAddress && smartWalletExternallyOwnedAccountAddress) {
-      return smartWalletAddress
-    }
-
-    if (web3Auth.connectedAdapterName) {
-      if (web3Auth.connectedAdapterName === 'openlogin' && !smartWalletAddress) {
-        return
-      }
-    }
-    return address
-  }, [address, smartWalletAddress, web3Auth.connectedAdapterName, web3Auth.status, isConnected])
 
   /**
    * USER INFO / METADATA
    */
   const [userInfo, setUserInfo] = useState<Partial<UserInfo> | undefined>()
 
-  const getUserAddress = (account?: `0x${string}`) => {
-    const wallet = client === 'eoa' ? account : smartWalletExternallyOwnedAccountAddress
-    return getAddress(wallet as string)
-  }
-
   const { data: profileData, isLoading: profileLoading } = useQuery({
-    queryKey: ['profiles', { account }],
+    queryKey: ['profiles', { account: user?.wallet?.address }],
     queryFn: async (): Promise<Profile | null> => {
-      const res = await privateClient.get(`/profiles/${getUserAddress(account)}`)
+      const res = await privateClient.get(
+        `/profiles/${getAddress(user?.wallet?.address as string)}`
+      )
       return res.data
     },
-    enabled: !!account,
+    enabled: !!user?.wallet?.address,
   })
 
-  const { mutateAsync: login } = useLogin()
+  const userMenuLoading = useMemo(() => {
+    if (isLogged) {
+      return profileData === undefined || profileLoading
+    }
+    return false
+  }, [isLogged, profileData, profileLoading])
 
   const onBlockUser = useMutation({
-    mutationKey: ['block-user', account],
+    mutationKey: ['block-user', user?.wallet?.address],
     mutationFn: async (data: { account: Address }) => {
       await privateClient.put(`/profiles/${data.account}/block`)
       await queryClient.invalidateQueries({
@@ -127,7 +102,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   })
 
   const onUnblockUser = useMutation({
-    mutationKey: ['unblock-user', account],
+    mutationKey: ['unblock-user', user?.wallet?.address],
     mutationFn: async (data: { account: Address }) => {
       await privateClient.put(`/profiles/${data.account}/unblock`)
       await queryClient.invalidateQueries({
@@ -143,7 +118,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   })
 
   const onCreateProfile = async () => {
-    await login({ client, account })
+    if (user?.wallet?.address) {
+      await login({ client: web3Client, account: user.wallet.address as Address })
+      trackSignUp()
+    }
   }
 
   const updateProfileMutation = useMutation<
@@ -196,17 +174,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       }
     },
     onSuccess: (updatedData) => {
-      queryClient.setQueryData(['profiles', { account }], updatedData)
+      queryClient.setQueryData(['profiles', { account: user?.wallet?.address }], updatedData)
     },
   })
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      web3Auth.getUserInfo().then((userInfo) => {
-        setUserInfo(userInfo)
-      })
-    }
-  }, [isLoggedIn])
 
   /**
    * FARCASTER
@@ -235,7 +205,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const { refetch: refetchSession } = useUserSession({ client, account })
+  const { refetch: refetchSession } = useUserSession({
+    client: web3Client,
+    account: user?.wallet?.address as Address | undefined,
+  })
 
   const displayName = useMemo(() => {
     if (profileData?.displayName) {
@@ -244,25 +217,30 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     if (userInfo?.name) {
       return userInfo.name
     }
-    return account
-  }, [profileData, userInfo, account])
+    return user?.wallet?.address
+  }, [profileData, userInfo, user?.wallet?.address])
 
   useEffect(() => {
     if (!profileLoading) {
-      if (profileData === null && isLoggedIn) {
+      if (profileData === null && authenticated) {
         onCreateProfile()
         return
       }
       refetchSession()
     }
-  }, [profileLoading, profileData])
+    if (!profileLoading && user?.wallet?.address) {
+      const isLogged = Cookies.get('logged-in-to-limitless')
+      if (!isLogged) {
+        login({ client: web3Client, account: user.wallet.address as Address })
+      }
+    }
+  }, [profileLoading, profileData, user])
 
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
       return profileData.username
     }
     // Todo add farcaster username
-    // if(userInfo.)
     return ''
   }, [profileData?.username])
 
@@ -273,53 +251,29 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     return ''
   }, [profileData?.bio])
 
-  const disconnectAccount = () => {
-    queryClient.removeQueries({
-      queryKey: ['farcaster'],
-    })
-    setUserInfo(undefined)
-  }
-
-  console.log(web3Auth)
-
   const disconnectFromPlatform = useCallback(async () => {
-    disconnect()
     await logout()
-    await web3Auth.logout()
-    web3Auth.clearCache()
-    await etherspot?.destroy()
+    await disconnect()
     queryClient.removeQueries({
       queryKey: ['profiles'],
     })
-    queryClient.removeQueries({
-      queryKey: ['smartWalletAddress'],
-    })
+    Cookies.remove('logged-in-to-limitless')
   }, [])
 
-  const disconnectLoading = useMemo<boolean>(() => {
-    return !!account && disconnectPending
-  }, [disconnectPending, account])
-
-  /**
-   * ANALYTICS
-   */
-  const { trackSignUp } = useAmplitude()
-
   const contextProviderValue: IAccountContext = {
-    isLoggedIn,
-    account,
+    isLoggedIn: authenticated,
+    account: user?.wallet?.address as Address | undefined,
     userInfo,
     displayName,
     displayUsername,
     bio,
     disconnectFromPlatform,
-    disconnectLoading,
-    disconnectAccount,
-    profileLoading,
+    profileLoading: userMenuLoading,
     profileData,
     updateProfileMutation,
     onBlockUser,
     onUnblockUser,
+    web3Client,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>

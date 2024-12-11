@@ -2,8 +2,9 @@ import { QueryObserverResult, useInfiniteQuery, useQuery } from '@tanstack/react
 import { AxiosResponse } from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash } from 'viem'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
+import useClient from '@/hooks/use-client'
 import { usePriceOracle } from '@/providers'
+import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useLimitlessApi } from '@/services/LimitlessApi'
 import { Address } from '@/types'
@@ -22,10 +23,8 @@ const HistoryServiceContext = createContext({} as IHistoryService)
 export const useHistory = () => useContext(HistoryServiceContext)
 
 export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
-  /**
-   * ACCOUNT
-   */
-  const walletAddress = useWalletAddress()
+  const { checkIsLogged } = useClient()
+  const { profileData } = useAccount()
   const privateClient = useAxiosPrivateClient()
 
   /**
@@ -45,9 +44,12 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   } = useQuery({
     queryKey: ['positions'],
     queryFn: async () => {
-      if (!walletAddress) {
+      const isLogged = checkIsLogged()
+
+      if (!isLogged) {
         return []
       }
+
       try {
         const response = await privateClient.get<HistoryPosition[]>(`/portfolio/positions`)
         return response.data
@@ -56,7 +58,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         return []
       }
     },
-    enabled: !!walletAddress,
+    enabled: !!profileData?.id,
   })
 
   /**
@@ -133,12 +135,15 @@ export const usePortfolioHistory = (page: number) => {
 
 export const useInfinityHistory = () => {
   const privateClient = useAxiosPrivateClient()
-  const walletAddress = useWalletAddress()
+  const { checkIsLogged } = useClient()
+  const { profileData } = useAccount()
   return useInfiniteQuery<History[], Error>({
     queryKey: ['history-infinity'],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      if (!walletAddress) {
+      const isLogged = checkIsLogged()
+
+      if (!isLogged) {
         return []
       }
 
@@ -161,7 +166,7 @@ export const useInfinityHistory = () => {
     },
     refetchOnWindowFocus: false,
     keepPreviousData: true,
-    enabled: !!walletAddress,
+    enabled: !!profileData?.id,
   })
 }
 
