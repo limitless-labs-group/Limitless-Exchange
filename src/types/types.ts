@@ -317,11 +317,20 @@ export interface ColorScheme {
   background: {
     90: string
   }
+  text: {
+    100: string
+  }
   skeleton: {
     dark: string
     highLight: string
     tradeSkeleton: string
     tradeSkeletonBackground: string
+    widgetYes: string
+    widgetBgYes: string
+    widgetNo: string
+    widgetBgNo: string
+    widgetGrey: string
+    widgetBgGrey: string
   }
 }
 
