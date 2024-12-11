@@ -3,8 +3,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 import { Address, getAddress, toHex } from 'viem'
 import { useSignMessage } from 'wagmi'
-import { Toast } from '@/components/common/toast'
-import { useToast } from '@/hooks'
 import useRefetchAfterLogin from '@/hooks/use-refetch-after-login'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Profile } from '@/types/profiles'
@@ -15,7 +13,6 @@ export interface IUseLogin {
 }
 
 export const useLogin = () => {
-  const toast = useToast()
   const { signMessage } = usePrivy()
   const { refetchAll } = useRefetchAfterLogin()
   const { signMessageAsync } = useSignMessage()
@@ -35,7 +32,7 @@ export const useLogin = () => {
       const signature =
         client === 'eoa'
           ? await signMessageAsync({ message: loginSigningMessage })
-          : await signMessage(loginSigningMessage, {}, account)
+          : await signMessage(loginSigningMessage)
 
       const headers = {
         'x-account': getAddress(account as Address),
@@ -57,8 +54,8 @@ export const useLogin = () => {
       queryClient.setQueryData(['profiles', { account: variables.account }], updatedData)
       refetchAll()
     },
-    onError: () => {
-      const id = toast({ render: () => <Toast id={id} title='Failed to register profile' /> })
-    },
+    // onError: () => {
+    //   const id = toast({ render: () => <Toast id={id} title='Failed to register profile' /> })
+    // },
   })
 }

@@ -7,6 +7,7 @@ import { createPublicClient, Transport } from 'viem'
 import { createConfig, http } from 'wagmi'
 import { base, baseSepolia } from 'wagmi/chains'
 import { defaultChain } from '@/constants'
+import { useThemeProvider } from '@/providers/Chakra'
 import { QueryProvider } from '@/providers/ReactQuery'
 
 export const publicClient = createPublicClient({
@@ -21,26 +22,25 @@ export const configureChainsConfig = createConfig({
   } as Record<8453 | 84532, Transport>,
 })
 
-const privvyConfig: PrivyClientConfig = {
-  // Customize Privy's appearance in your app
-  appearance: {
-    theme: 'light',
-    accentColor: '#2492ff',
-    logo: 'https://limitless-web.vercel.app/assets/images/logo.svg',
-  },
-  // Create embedded wallets for users who don't have a wallet
-  embeddedWallets: {
-    createOnLogin: 'users-without-wallets',
-    noPromptOnSignature: true,
-    showWalletUIs: false,
-  },
-  externalWallets: {},
-  defaultChain: defaultChain,
-  supportedChains: [baseSepolia, base],
-  loginMethods: ['email', 'wallet', 'google', 'farcaster', 'discord'],
-}
-
 export default function PrivyAuthProvider({ children }: PropsWithChildren) {
+  const { mode } = useThemeProvider()
+  const privvyConfig: PrivyClientConfig = {
+    // Customize Privy's appearance in your app
+    appearance: {
+      theme: mode,
+      logo: 'https://limitless-web.vercel.app/assets/images/logo.svg',
+    },
+    // Create embedded wallets for users who don't have a wallet
+    embeddedWallets: {
+      createOnLogin: 'users-without-wallets',
+      noPromptOnSignature: true,
+      showWalletUIs: false,
+    },
+    externalWallets: {},
+    defaultChain: defaultChain,
+    supportedChains: [baseSepolia, base],
+    loginMethods: ['email', 'wallet', 'google', 'farcaster', 'discord'],
+  }
   return (
     <PrivyProvider appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID as string} config={privvyConfig}>
       <QueryProvider>

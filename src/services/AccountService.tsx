@@ -221,7 +221,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData, userInfo, user?.wallet?.address])
 
   useEffect(() => {
-    if (!profileLoading) {
+    if (!profileLoading && user?.wallet?.address) {
       if (profileData === null && authenticated) {
         onCreateProfile()
         return
