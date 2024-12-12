@@ -24,7 +24,8 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import axios from 'axios'
 import { toZonedTime } from 'date-fns-tz'
 import html2canvas from 'html2canvas'
 import { useSearchParams } from 'next/navigation'
@@ -33,6 +34,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { isMobile } from 'react-device-detect'
 import { MultiValue } from 'react-select'
+import CreatableSelect from 'react-select/creatable'
 import TimezoneSelect, {
   allTimezones,
   ITimezoneOption,
@@ -43,7 +45,6 @@ import { Toast } from '@/components/common/toast'
 import {
   defaultFormData,
   defaultTokenSymbol,
-  tokenLimits,
   selectStyles,
   defaultProbability,
   defaultMarketFee,
@@ -54,9 +55,10 @@ import {
 import { FormField } from '@/app/draft/components/form-field'
 import { MainLayout } from '@/components'
 import { useToast } from '@/hooks'
-import { useLimitlessApi } from '@/services'
+import { useCategories, useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { h1Bold, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Category } from '@/types'
 import { Token, Tag, TagOption, IFormData } from '@/types/draft'
 
 const [backgroundColor] = ['#0000EE']
@@ -90,6 +92,8 @@ const CreateOwnMarketPage = () => {
   const searchParams = useSearchParams()
   const marketId = searchParams.get('market')
   const privateClient = useAxiosPrivateClient()
+  const queryClient = useQueryClient()
+  const { data: categories } = useCategories()
 
   const { data: editMarket } = useQuery({
     queryKey: ['editMarket', marketId],
@@ -98,6 +102,17 @@ const CreateOwnMarketPage = () => {
       return response.data
     },
     enabled: !!marketId,
+  })
+
+  const { data: tagOptions } = useQuery({
+    queryKey: ['tagOptions'],
+    queryFn: async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`)
+
+      return response.data.map((tag: { id: string; name: string }) =>
+        createOption(tag.id, tag.name)
+      ) as TagOption[]
+    },
   })
 
   useEffect(() => {
@@ -110,9 +125,6 @@ const CreateOwnMarketPage = () => {
         token: editMarket.collateralToken
           ? { symbol: editMarket.collateralToken.symbol, id: editMarket.collateralToken.id }
           : prevFormData.token,
-        liquidity:
-          editMarket.draftMetadata?.liquidity ||
-          tokenLimits[editMarket.collateralToken.symbol]?.min,
         probability: editMarket.draftMetadata?.initialProbability * 100 || defaultProbability,
         marketFee: editMarket.draftMetadata?.fee || defaultMarketFee,
         tag:
@@ -150,7 +162,6 @@ const CreateOwnMarketPage = () => {
       option.target.selectedOptions[0].getAttribute('data-name') ?? defaultTokenSymbol
 
     handleChange('token', { symbol: selectedTokenSymbol, id: selectedTokenId })
-    handleChange('liquidity', tokenLimits[selectedTokenSymbol].min)
   }
 
   const showToast = (message: string) => {
@@ -212,7 +223,7 @@ const CreateOwnMarketPage = () => {
   const prepareData = async () => {
     const ogLogo = await generateOgImage()
 
-    const { title, description, creatorId, tag, txHash, token, liquidity, probability } = formData
+    const { title, description, creatorId, tag, txHash, token, probability } = formData
 
     const missingFields: string[] = []
     if (!title) missingFields.push('Title')
@@ -221,9 +232,16 @@ const CreateOwnMarketPage = () => {
     if (!ogLogo) missingFields.push('Og Logo')
     if (!tag) missingFields.push('Tag')
     if (!tag) missingFields.push('Tx Hash')
+    debugger
+    if (!txHash.startsWith('0x')) {
+      showToast('Transaction hash should start with 0x')
+      setIsCreating(false)
+      return
+    }
 
     if (missingFields.length > 0) {
       showToast(`${missingFields.join(', ')} ${missingFields.length > 1 ? 'are' : 'is'} required!`)
+      setIsCreating(false)
       return
     }
 
@@ -236,53 +254,60 @@ const CreateOwnMarketPage = () => {
     marketFormData?.set('title', title)
     marketFormData?.set('description', description)
     marketFormData?.set('tokenId', token.id.toString())
-    marketFormData?.set('liquidity', liquidity.toString())
-    marketFormData?.set('initialYesProbability', (probability / 100).toString())
-    marketFormData?.set('marketFee', formData.marketFee.toString())
     marketFormData?.set('deadline', zonedTime.toString())
-    marketFormData.set('txHash', txHash)
-
-    if (formData.creatorId) {
-      marketFormData.set('creatorId', formData.creatorId)
+    if (formData.tag.length) {
+      marketFormData.set('tagIds', formData.tag.map((t) => t.id).join(','))
     }
-
     if (formData.categoryId) {
       marketFormData.set('categoryId', formData.categoryId)
     }
+    marketFormData?.set('initialYesProbability', (probability / 100).toString())
+    marketFormData.set('txHash', txHash)
 
     if (ogLogo) {
       marketFormData.set('ogFile', ogLogo)
     }
 
-    if (formData.tag.length) {
-      marketFormData.set('tagIds', formData.tag.map((t) => t.id).join(','))
-    }
-
-    showToast('Request for market creation has been registered successfully.')
-
     return marketFormData
+  }
+
+  const createOption = (id: string, name: string): TagOption => ({
+    id,
+    label: name,
+    value: name,
+  })
+
+  const handleTagCreation = async (tagToCreate: string) => {
+    const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`, {
+      name: tagToCreate,
+    })
+
+    queryClient.setQueryData(['tagOptions'], (oldData: TagOption[]) => [
+      ...oldData,
+      createOption(res.data.id, res.data.name),
+    ])
   }
 
   const draftMarket = async () => {
     setIsCreating(true)
     const data = await prepareData()
     if (!data) return
-    privateClient
-      .post(`/markets/drafts`, data, {
+    try {
+      await privateClient.post(`/markets/user-drafts`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
-      .catch((res) => {
-        if (res?.response?.status === 413) {
-          showToast('Error: Payload Too Large, max 1MB per file')
-        } else {
-          showToast(`Error: ${res.message}`)
-        }
+      showToast('Request for market creation has been registered successfully.')
+      await queryClient.resetQueries({
+        queryKey: ['my-markets'],
       })
-      .finally(() => {
-        setIsCreating(false)
-      })
+    } catch (e) {
+      const error = e as Error
+      showToast(`Error: ${error.message}`)
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   const submit = async () => {
@@ -432,6 +457,7 @@ const CreateOwnMarketPage = () => {
                           borderColor: 'grey.800',
                         }}
                         {...paragraphMedium}
+                        disabled={true}
                       >
                         {supportedTokens?.map((token: Token) => (
                           <option key={token.id} value={token.id} data-name={token.symbol}>
@@ -439,36 +465,6 @@ const CreateOwnMarketPage = () => {
                           </option>
                         ))}
                       </Select>
-                    </HStack>
-                  </FormField>
-
-                  <FormField label={`${formData.token.symbol} Liquidity`}>
-                    <HStack>
-                      <NumberInput
-                        maxW='120px'
-                        mr='2rem'
-                        value={formData.liquidity}
-                        onChange={(value) => handleChange('liquidity', Number(value))}
-                        min={tokenLimits[formData.token.symbol]?.min}
-                        max={tokenLimits[formData.token.symbol]?.max}
-                        step={tokenLimits[formData.token.symbol]?.step}
-                      >
-                        <NumberInputField w={'120px'} id='liquidity' />
-                      </NumberInput>
-                      <Slider
-                        flex='1'
-                        focusThumbOnChange={false}
-                        value={formData.liquidity}
-                        onChange={(value) => handleChange('liquidity', value)}
-                        min={tokenLimits[formData.token.symbol]?.min}
-                        max={tokenLimits[formData.token.symbol]?.max}
-                        step={tokenLimits[formData.token.symbol]?.step}
-                      >
-                        <SliderTrack>
-                          <SliderFilledTrack />
-                        </SliderTrack>
-                        <SliderThumb fontSize='sm' />
-                      </Slider>
                     </HStack>
                   </FormField>
 
@@ -552,13 +548,76 @@ const CreateOwnMarketPage = () => {
                 />
               </FormField>
 
-              <FormField label='Tx Hash'>
-                <Textarea
-                  resize='none'
-                  rows={1}
-                  overflow='hidden'
-                  height='auto'
-                  variant='grey'
+              <FormField label='Category'>
+                <HStack>
+                  <Select
+                    value={formData.categoryId}
+                    onChange={(e) => {
+                      handleChange('categoryId', e.target.value)
+                    }}
+                    borderRadius='8px'
+                    borderColor='grey.300'
+                    h='26px'
+                    _focusVisible={{
+                      borderColor: 'grey.800',
+                    }}
+                    {...paragraphMedium}
+                  >
+                    {categories?.map((category: Category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </Select>
+                </HStack>
+              </FormField>
+
+              <FormField label='Tags'>
+                <HStack w={'full'}>
+                  <Box width='full'>
+                    <CreatableSelect
+                      isMulti
+                      onCreateOption={handleTagCreation}
+                      //@ts-ignore
+                      onChange={(option) => handleChange('tag', option)}
+                      value={formData.tag}
+                      options={tagOptions}
+                      styles={{
+                        option: (provided) => ({
+                          ...provided,
+                          cursor: 'pointer',
+                          background: 'unset',
+                          ...paragraphMedium,
+                          '&:hover': {
+                            background: 'var(--chakra-colors-grey-300)',
+                          },
+                        }),
+                        multiValue: (provided) => ({
+                          ...provided,
+                          backgroundColor: 'var(--chakra-colors-grey-300)',
+                          borderRadius: '8px',
+                        }),
+                        multiValueLabel: (provided) => ({
+                          ...provided,
+                          color: 'var(--chakra-colors-grey-800)',
+                        }),
+                        menu: (provided) => ({
+                          ...provided,
+                          ...selectStyles.menu,
+                        }),
+                        control: (provided) => ({
+                          ...provided,
+                          ...selectStyles.control,
+                        }),
+                      }}
+                    />
+                  </Box>
+                </HStack>
+              </FormField>
+
+              <FormField label='Tx Hash (min 250 USDC)'>
+                <Input
+                  variant='outlined'
                   value={formData.txHash}
                   onChange={(e) => handleChange('txHash', e.target.value)}
                   id='txHash'

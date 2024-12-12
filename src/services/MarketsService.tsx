@@ -342,7 +342,7 @@ export function useMarketByConditionId(conditionId: string) {
   return useMemo(() => market ?? null, [market])
 }
 
-export function useMarket(address?: string, isPolling = false) {
+export function useMarket(address?: string | null, isPolling = false) {
   return useQuery({
     queryKey: ['market', address],
     queryFn: async () => {
