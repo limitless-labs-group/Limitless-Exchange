@@ -228,7 +228,6 @@ export const CreateMarket: FC = () => {
     if (formData.tag.length) {
       marketFormData.set('tagIds', formData.tag.map((t) => t.id).join(','))
     }
-    marketFormData?.set('priorityIndex', '1')
 
     showToast('Request for market creation has been registered successfully.')
 
@@ -535,6 +534,7 @@ export const CreateMarket: FC = () => {
                   }}
                   minDate={new Date()}
                   showTimeSelect
+                  timeIntervals={60}
                   dateFormat='Pp'
                   calendarStartDay={1}
                   customInput={
