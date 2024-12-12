@@ -155,7 +155,6 @@ export const lightThemeColors: ColorScheme = {
   background: {
     90: 'rgba(255, 255, 255, 0.9)',
   },
-
   text: {
     100: '#1C1C1C',
   },
@@ -170,5 +169,9 @@ export const lightThemeColors: ColorScheme = {
     widgetBgNo: '#f87171',
     widgetGrey: '#71717a',
     widgetBgGrey: '#52525b',
+  },
+  draftCard: {
+    bg: '#dcfce7',
+    border: '#bbf7d0',
   },
 }
