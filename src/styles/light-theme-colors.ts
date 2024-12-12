@@ -153,6 +153,7 @@ export const lightThemeColors: ColorScheme = {
     200: 'rgba(0, 0, 0, 0.2)',
   },
   background: {
+    80: 'rgba(255, 255, 255, 0.8)',
     90: 'rgba(255, 255, 255, 0.9)',
   },
   text: {

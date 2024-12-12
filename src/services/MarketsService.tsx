@@ -357,7 +357,7 @@ export function useMarketByConditionId(conditionId: string, enabled = true) {
   return { market, isLoading, refetchMarket }
 }
 
-export function useMarket(address?: string, isPolling = false, enabled = true) {
+export function useMarket(address?: string | null, isPolling = false, enabled = true) {
   return useQuery({
     queryKey: ['market', address],
     queryFn: async () => {

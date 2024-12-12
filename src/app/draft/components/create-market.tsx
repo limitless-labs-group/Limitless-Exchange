@@ -208,7 +208,7 @@ export const CreateMarket: FC = () => {
     marketFormData?.set('title', formData.title)
     marketFormData?.set('description', formData.description)
     marketFormData?.set('tokenId', formData.token.id.toString())
-    marketFormData?.set('liquidity', formData.liquidity.toString())
+    marketFormData?.set('liquidity', formData.liquidity?.toString() || '')
     marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
     marketFormData?.set('marketFee', formData.marketFee.toString())
     marketFormData?.set('deadline', zonedTime.toString())

@@ -184,6 +184,7 @@ export enum ClickEvent {
   ThreeDotsClicked = 'Three Dots Clicked',
   BlockedUserClicked = 'Blocked User Clicked',
   UndoBlockingUser = 'Undo Blocking User',
+  UserMarketClicked = 'User Market Clicked',
 }
 
 export enum SignInEvent {
@@ -380,6 +381,7 @@ export type ProfileBurgerMenuClickedOption =
   | 'Markets'
   | 'Lumy'
   | 'Leaderboard'
+  | 'My Markets'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }

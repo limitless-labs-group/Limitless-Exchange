@@ -1,3 +1,4 @@
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { TokenLimits } from '@/types/draft'
 
 export const defaultTokenSymbol = 'USDC'
@@ -78,18 +79,30 @@ export const defaultFormData = {
   creatorId: defaultCreatorId,
   categoryId: defaultCategoryId,
   ogLogo: undefined,
+  txHash: '',
 }
 
 export const selectStyles = {
   menu: {
-    backgroundColor: 'var(--chakra-colors-grey-300)',
-    color: 'var(--chakra-colors-grey-900)',
-  },
-  control: {
     backgroundColor: 'var(--chakra-colors-grey-100)',
     color: 'var(--chakra-colors-grey-900)',
+    borderRadius: '12px',
+    border: 'unset',
+    overflow: 'hidden',
+    boxShadow: 'unset',
+  },
+  control: {
+    backgroundColor: 'unset',
+    borderRadius: '8px',
+    borderColor: 'var(--chakra-colors-grey-300)',
+    boxShadow: 'unset',
+    '&:hover': {
+      borderColor: 'var(--chakra-colors-grey-400)',
+    },
+    minHeight: '26px',
+    ...paragraphMedium,
   },
   singleValue: {
-    color: 'var(--chakra-colors-grey-900)',
+    ...paragraphMedium,
   },
 }

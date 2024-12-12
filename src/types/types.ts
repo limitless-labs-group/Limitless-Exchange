@@ -71,6 +71,79 @@ export interface Market {
   }
   openInterest: string
   openInterestFormatted: string
+  priorityIndex: number
+}
+
+export type UserCreatedMarket = {
+  id: number
+  address: null | string
+  title: string
+  proxyTitle: null
+  description: string
+  questionId: string
+  conditionId: null
+  outcomeSlotCount: 2
+  winningIndex: null
+  payoutNumerators: null
+  status: MarketStatus
+  ogUrl: string
+  imageUrl: null | string
+  deadline: string
+  hidden: boolean
+  txHash: null | string
+  resolutionTxHash: null | string
+  draftMetadata: {
+    fee: number
+    liquidity: number
+    initialProbability: number
+  }
+  priorityIndex: number
+  token: Token
+  creator: {
+    id: number
+    account: Address
+    username: Address
+    displayName: Address
+    bio: string
+    client: string
+    pfpUrl: null | string
+    smartWallet: null | string
+    isCreator: boolean
+    isAdmin: boolean
+    socialUrl: null | string
+  }
+  tags: [
+    {
+      createdAt: string
+      id: number
+      name: string
+    }
+  ]
+  oracle: {
+    createdAt: string
+    id: number
+    name: string
+    address: string
+    imageUrl: string
+  }
+  category: Category
+  marketsGroup: null
+}
+
+export interface UserMarket {
+  title: string
+  description: string
+  expirationTimestamp: number
+  expirationDate: string
+  status: MarketStatus
+  openInterestFormatted: string
+  liquidityFormatted: string
+  collateralToken: {
+    address: string
+    decimals: number
+    symbol: string
+  }
+  initialProbability?: number
 }
 
 export interface MarketGroup {
@@ -154,6 +227,7 @@ export enum MarketStatus {
   RESOLVED = 'RESOLVED',
   FUNDED = 'FUNDED',
   LOCKED = 'LOCKED',
+  PENDING = 'DRAFTED',
 }
 
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>
@@ -315,6 +389,7 @@ export interface ColorScheme {
     200: string
   }
   background: {
+    80: string
     90: string
   }
   text: {

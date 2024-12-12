@@ -22,6 +22,7 @@ import { useAccount as useWagmiAccount } from 'wagmi'
 import Avatar from '@/components/common/avatar'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
+import MyMarkets from '@/components/common/my-markets'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
@@ -43,6 +44,7 @@ import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
+import MyMarketsIcon from '@/resources/icons/sidebar/my-markets.svg'
 import SquarePlusIcon from '@/resources/icons/sidebar/suggest_market.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import UserIcon from '@/resources/icons/user-icon.svg'
@@ -103,6 +105,8 @@ export default function Sidebar() {
   } = useDisclosure()
 
   const { isOpen: isOpenProfile, onToggle: onToggleProfile } = useDisclosure()
+
+  const { isOpen: isOpenMyMarkets, onToggle: onToggleMyMarkets } = useDisclosure()
 
   const handleOpenWalletPage = useCallback(() => {
     if (client === 'eoa') return
@@ -232,6 +236,28 @@ export default function Sidebar() {
                 </Link>
               </NextLink>
 
+              <Button
+                variant='transparent'
+                onClick={() => {
+                  trackClicked<ProfileBurgerMenuClickedMetadata>(
+                    ClickEvent.ProfileBurgerMenuClicked,
+                    {
+                      option: 'My Markets',
+                    }
+                  )
+                  onToggleMyMarkets()
+                }}
+                w='full'
+                bg={isOpenMyMarkets ? 'grey.100' : 'unset'}
+              >
+                <HStack w='full'>
+                  <MyMarketsIcon width={16} height={16} />
+                  <Text fontWeight={500} fontSize='14px'>
+                    My Markets
+                  </Text>
+                </HStack>
+              </Button>
+
               <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
                 {userMenuLoading ? (
                   <Box w='full'>
@@ -269,7 +295,7 @@ export default function Sidebar() {
                   </MenuButton>
                 )}
 
-                <MenuList borderRadius='8px' w='180px' zIndex={2}>
+                <MenuList borderRadius='8px' w='182px' zIndex={2}>
                   <HStack gap='4px' mb='4px'>
                     <Button
                       variant={mode === 'dark' ? 'transparent' : 'black'}
@@ -418,15 +444,8 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        <NextLink
-          href='https://limitlesslabs.notion.site/Limitless-Creators-101-b529a4a72cd4406cacb55f27395c9b56'
-          target='_blank'
-          rel='noopener'
-          passHref
-          style={{ width: '100%' }}
-        >
+        <NextLink href='/create-market' passHref style={{ width: '100%' }}>
           <Link
-            isExternal
             onClick={() => {
               trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
                 page: pageName,
@@ -439,7 +458,7 @@ export default function Sidebar() {
             <HStack w='full'>
               <SquarePlusIcon width={16} height={16} />
               <Text fontWeight={500} fontSize='14px'>
-                Suggest market
+                Create market
               </Text>
             </HStack>
           </Link>
@@ -470,20 +489,21 @@ export default function Sidebar() {
         <Divider />
         <SocialsFooter />
       </VStack>
-      {isOpenWalletPage && (
-        <Box
-          position='fixed'
-          top={0}
-          left={0}
-          bottom={0}
-          w='full'
-          zIndex={100}
-          bg='rgba(0, 0, 0, 0.3)'
-          mt='20px'
-          ml='188px'
-          animation='fadeIn 0.5s'
-        ></Box>
-      )}
+      {isOpenWalletPage ||
+        (isOpenMyMarkets && (
+          <Box
+            position='fixed'
+            top={0}
+            left={0}
+            bottom={0}
+            w='full'
+            zIndex={100}
+            bg='rgba(0, 0, 0, 0.3)'
+            mt='20px'
+            ml='188px'
+            animation='fadeIn 0.5s'
+          ></Box>
+        ))}
       <Slide
         direction='left'
         in={isOpenWalletPage}
@@ -519,6 +539,24 @@ export default function Sidebar() {
         }}
       >
         <Profile isOpen={isOpenProfile} />
+      </Slide>
+      <Slide
+        direction='left'
+        in={isOpenMyMarkets}
+        style={{
+          zIndex: 100,
+          marginTop: '20px',
+          marginLeft: '197px',
+          transition: '0.1s',
+        }}
+        onClick={() => {
+          trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+            page: pageName,
+          })
+          onToggleMyMarkets()
+        }}
+      >
+        <MyMarkets />
       </Slide>
 
       {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}
