@@ -231,8 +231,7 @@ const CreateOwnMarketPage = () => {
     if (!creatorId) missingFields.push('Creator')
     if (!ogLogo) missingFields.push('Og Logo')
     if (!tag) missingFields.push('Tag')
-    if (!tag) missingFields.push('Tx Hash')
-    debugger
+    if (!txHash) missingFields.push('Tx Hash')
     if (!txHash.startsWith('0x')) {
       showToast('Transaction hash should start with 0x')
       setIsCreating(false)
