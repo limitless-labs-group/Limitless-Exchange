@@ -184,6 +184,7 @@ export enum ClickEvent {
   ThreeDotsClicked = 'Three Dots Clicked',
   BlockedUserClicked = 'Blocked User Clicked',
   UndoBlockingUser = 'Undo Blocking User',
+  UserMarketClicked = 'User Market Clicked',
 }
 
 export enum SignInEvent {

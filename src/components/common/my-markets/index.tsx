@@ -1,5 +1,6 @@
 import { Box, Text, VStack } from '@chakra-ui/react'
 import React from 'react'
+import { isMobile } from 'react-device-detect'
 import MyMarketCard from '@/components/common/my-markets/components/my-market-card'
 import Skeleton from '@/components/common/skeleton'
 import useUserCreatedMarkets from '@/hooks/use-user-created-markets'
@@ -9,14 +10,15 @@ export default function MyMarkets() {
   const { data: userMarkets, isLoading } = useUserCreatedMarkets()
   return (
     <Box
-      borderRight='1px solid'
+      borderRight={isMobile ? 'none' : '1px solid'}
       borderColor='grey.100'
-      w='400px'
+      w={isMobile ? 'full' : '400px'}
       h='full'
       backdropFilter='blur(7.5px)'
       bg='background.80'
       p='16px'
       overflowY='scroll'
+      mb={isMobile ? '40px' : 0}
     >
       <Text {...h3Bold} textAlign='center'>
         My Markets

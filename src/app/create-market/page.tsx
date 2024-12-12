@@ -324,17 +324,11 @@ const CreateOwnMarketPage = () => {
         <Flex justifyContent={'center'}>
           <VStack w='full' spacing={4}>
             <FormControl>
-              <HStack
-                w='full'
-                maxW='1200px'
-                gap={10}
-                justifyContent='space-between'
-                alignItems='flex-start'
-              >
+              <HStack w='full' gap={10} justifyContent='space-between' alignItems='flex-start'>
                 <VStack w='full' flex='1.2'>
                   <Box position='absolute' opacity={0} pointerEvents='none'>
                     <FormField label='OG Preview is still here, but hidden (required to create an image)'>
-                      <HStack position='absolute' zIndex={-1} h='280px' w='600px'>
+                      <HStack position='absolute' display='none' h='280px' w='600px'>
                         <Box display='inline-block' w='full' position='absolute' top='-9999px'>
                           <Box
                             ref={canvasRef}
@@ -355,7 +349,6 @@ const CreateOwnMarketPage = () => {
                               borderWidth={exportOptions.divider.borderWidth}
                               pos='absolute'
                               top='75px'
-                              w={1800}
                               // p={0} m={0}
                             />
 
@@ -634,6 +627,7 @@ const CreateOwnMarketPage = () => {
                 w='full'
                 h='52px'
                 mt='16px'
+                mb={isMobile ? '40px' : 0}
               >
                 Submit For Review
               </ButtonWithStates>

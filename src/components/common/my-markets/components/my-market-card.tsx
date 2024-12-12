@@ -1,9 +1,12 @@
 import { Box, Divider, HStack, Text } from '@chakra-ui/react'
 import React, { useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
+import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
-import { useTradingService } from '@/services'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { paragraphBold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketStatus, UserCreatedMarket } from '@/types'
@@ -14,8 +17,9 @@ type MyMarketCardProps = {
 }
 
 export default function MyMarketCard({ market }: MyMarketCardProps) {
-  const fullMarket = useMarket(market.address)
+  const { data: fullMarket } = useMarket(market.address)
   const { onOpenMarketPage } = useTradingService()
+  const { trackClicked } = useAmplitude()
   const statusText = useMemo(() => {
     switch (market.status) {
       case MarketStatus.RESOLVED:
@@ -53,13 +57,27 @@ export default function MyMarketCard({ market }: MyMarketCardProps) {
     return `${month} ${day}, ${year}`
   }
 
-  return (
+  const handleOpenMarket = () => {
+    if (fullMarket) {
+      onOpenMarketPage(fullMarket)
+      trackClicked(ClickEvent.UserMarketClicked, {
+        marketCategory: fullMarket.category,
+        marketAddress: fullMarket.address,
+        marketType: 'single',
+        marketTags: fullMarket.tags,
+        type: 'User Market',
+      })
+    }
+  }
+
+  const content = (
     <Paper
       flex={1}
       w={'100%'}
       position='relative'
       cursor={market.status !== MarketStatus.PENDING ? 'pointer' : 'default'}
       p='14px'
+      onClick={handleOpenMarket}
     >
       <Box w='full'>
         <HStack w='full' justifyContent='space-between'>
@@ -76,7 +94,7 @@ export default function MyMarketCard({ market }: MyMarketCardProps) {
             </Text>
           </HStack>
         </HStack>
-        <Text {...paragraphBold} fontSize='16px' mt='12px'>
+        <Text {...paragraphBold} fontSize='16px' mt='12px' textAlign='left'>
           {market.title}
         </Text>
       </Box>
@@ -93,6 +111,19 @@ export default function MyMarketCard({ market }: MyMarketCardProps) {
           <ProgressBar variant={'draft'} value={market.draftMetadata.initialProbability * 100} />
         </Box>
       )}
+      {fullMarket?.prices && (
+        <Box w='full' mt='40px'>
+          <HStack w='full' justifyContent='space-between' mb='4px'>
+            <Text {...paragraphMedium} color={'grey.500'}>
+              Yes {fullMarket.prices[0]}%
+            </Text>
+            <Text {...paragraphMedium} color={'grey.500'}>
+              No {fullMarket.prices[1]}%
+            </Text>
+          </HStack>
+          <ProgressBar variant={'market'} value={fullMarket.prices[0]} />
+        </Box>
+      )}
       <Divider my='16px' borderColor='grey.200' color='grey.200' />
       <HStack w='full' justifyContent='space-between'>
         <Box />
@@ -102,5 +133,13 @@ export default function MyMarketCard({ market }: MyMarketCardProps) {
         </Text>
       </HStack>
     </Paper>
+  )
+
+  return isMobile && market.status !== MarketStatus.PENDING ? (
+    <MobileDrawer trigger={content} variant='black'>
+      <MarketPage />
+    </MobileDrawer>
+  ) : (
+    content
   )
 }
