@@ -306,6 +306,7 @@ export const CreateMarket: FC = () => {
           <HStack
             w='full'
             maxW='1200px'
+            mx='auto'
             gap={10}
             justifyContent='space-between'
             alignItems='flex-start'

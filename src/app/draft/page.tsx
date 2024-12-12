@@ -66,7 +66,13 @@ const CreateOwnMarketPage = () => {
 
   return (
     <MainLayout>
-      <Tabs position='relative' variant='common' index={activeIndex} onChange={onTabChange}>
+      <Tabs
+        height='100vh'
+        position='relative'
+        variant='common'
+        index={activeIndex}
+        onChange={onTabChange}
+      >
         <TabList>
           {tabs.map((tab) => (
             <Tab key={tab.title}>
