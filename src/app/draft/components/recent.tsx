@@ -79,7 +79,7 @@ export const RecentMarkets = () => {
             colorScheme='green'
             w='full'
             position='sticky'
-            bottom='10px'
+            bottom='40px'
             onClick={duplicateMarkets}
             disabled={isCreating || selectedMarketIds.length === 0}
           >

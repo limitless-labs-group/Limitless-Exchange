@@ -97,7 +97,7 @@ export const DraftMarketsQueue = () => {
             mt='16px'
             w={'full'}
             onClick={createMarketsBatch}
-            style={{ position: 'sticky', bottom: 10 }}
+            style={{ position: 'sticky', bottom: 40 }}
           >
             Create Markets Batch
           </Button>
