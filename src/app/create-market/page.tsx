@@ -25,11 +25,13 @@ import {
 } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { setTimeout } from '@wry/context'
 import axios from 'axios'
 import { toZonedTime } from 'date-fns-tz'
 import html2canvas from 'html2canvas'
 import { useSearchParams } from 'next/navigation'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { isMobile } from 'react-device-detect'
@@ -40,7 +42,9 @@ import TimezoneSelect, {
   ITimezoneOption,
   useTimezoneSelect,
 } from 'react-timezone-select'
+import { formatUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
+import Paper from '@/components/common/paper'
 import { Toast } from '@/components/common/toast'
 import {
   defaultFormData,
@@ -54,12 +58,22 @@ import {
 } from '@/app/draft/components'
 import { FormField } from '@/app/draft/components/form-field'
 import { MainLayout } from '@/components'
+import { defaultChain } from '@/constants'
+import { draftMarketAddress } from '@/constants/application'
 import { useToast } from '@/hooks'
-import { useCategories, useLimitlessApi } from '@/services'
+import BaseWhiteIcon from '@/resources/icons/base-icon-white.svg'
+import CopyIcon from '@/resources/icons/copy-icon.svg'
+import { ClickEvent, useAmplitude, useCategories, useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import { h1Bold, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import {
+  captionRegular,
+  h1Bold,
+  paragraphMedium,
+  paragraphRegular,
+} from '@/styles/fonts/fonts.styles'
 import { Category } from '@/types'
 import { Token, Tag, TagOption, IFormData } from '@/types/draft'
+import { truncateEthAddress } from '@/utils'
 
 const [backgroundColor] = ['#0000EE']
 const exportOptions: IOgImageGeneratorOptions = {
@@ -85,6 +99,8 @@ const CreateOwnMarketPage = () => {
   })
   const [formData, setFormData] = useState<IFormData>(defaultFormData)
   const [isCreating, setIsCreating] = useState<boolean>(false)
+  const [copied, setCopied] = useState(false)
+
   const { supportedTokens } = useLimitlessApi()
   const toast = useToast()
   const theme = useTheme()
@@ -94,6 +110,7 @@ const CreateOwnMarketPage = () => {
   const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()
   const { data: categories } = useCategories()
+  const { trackClicked } = useAmplitude()
 
   const { data: editMarket } = useQuery({
     queryKey: ['editMarket', marketId],
@@ -221,6 +238,7 @@ const CreateOwnMarketPage = () => {
   }
 
   const prepareData = async () => {
+    debugger
     const ogLogo = await generateOgImage()
 
     const { title, description, creatorId, tag, txHash, token, probability } = formData
@@ -309,6 +327,22 @@ const CreateOwnMarketPage = () => {
     }
   }
 
+  const onClickCopy = () => {
+    trackClicked(ClickEvent.CopyAddressClicked, {
+      page: 'Create Market',
+      address: '0x',
+    })
+    setCopied(true)
+  }
+
+  useEffect(() => {
+    const hideCopiedMessage = setTimeout(() => {
+      setCopied(false)
+    }, 2000)
+
+    return () => clearTimeout(hideCopiedMessage)
+  }, [copied])
+
   const submit = async () => {
     await draftMarket()
   }
@@ -327,7 +361,7 @@ const CreateOwnMarketPage = () => {
                 <VStack w='full' flex='1.2'>
                   <Box position='absolute' opacity={0} pointerEvents='none'>
                     <FormField label='OG Preview is still here, but hidden (required to create an image)'>
-                      <HStack position='absolute' display='none' h='280px' w='600px'>
+                      <HStack position='absolute' h='280px' w='600px'>
                         <Box display='inline-block' w='full' position='absolute' top='-9999px'>
                           <Box
                             ref={canvasRef}
@@ -607,7 +641,49 @@ const CreateOwnMarketPage = () => {
                 </HStack>
               </FormField>
 
-              <FormField label='Tx Hash (min 250 USDC)'>
+              <Paper
+                my='24px'
+                bg='radial-gradient(120.21% 216.83% at 0% 50%, #5F1BEC 0%, #FF3756 47.2%, #FFCB00 100%)'
+                w='full'
+                p='8px'
+              >
+                <Text {...paragraphMedium} color='white'>
+                  Send min. 250 USDC to submit market
+                </Text>
+                <HStack w='full' justifyContent='space-between' alignItems='flex-end'>
+                  <Box mt='16px'>
+                    <Text {...paragraphMedium} color='white'>
+                      Address
+                    </Text>
+                    <HStack gap='4px'>
+                      <CopyToClipboard
+                        text={draftMarketAddress[defaultChain.id]}
+                        onCopy={onClickCopy}
+                      >
+                        <HStack gap='4px' color='white' cursor='pointer'>
+                          <Text {...paragraphMedium} color='white'>
+                            {truncateEthAddress('0x6bb3d8A69656d1865708242223190a29D3a7E3c7')}
+                          </Text>
+                          <CopyIcon width='16px' height='16px' />
+                          {copied && (
+                            <Text {...paragraphMedium} color='white' ml='4px'>
+                              Copied!
+                            </Text>
+                          )}
+                        </HStack>
+                      </CopyToClipboard>
+                    </HStack>
+                  </Box>
+                  <HStack gap='4px' color='white'>
+                    <BaseWhiteIcon />
+                    <Text {...captionRegular} color='white'>
+                      BASE NETWORK
+                    </Text>
+                  </HStack>
+                </HStack>
+              </Paper>
+
+              <FormField label='Tx Hash'>
                 <Input
                   variant='grey'
                   value={formData.txHash}
