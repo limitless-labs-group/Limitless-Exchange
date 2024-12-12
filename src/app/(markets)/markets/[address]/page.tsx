@@ -132,11 +132,17 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
           </VStack>
         </Paper>
       ) : (
-        <Paper bg='blue.500' borderRadius='8px' overflowX='hidden' p='8px' w='424px'>
+        <Paper
+          bg={'var(--chakra-colors-grey-100)'}
+          borderRadius='8px'
+          overflowX='hidden'
+          p='8px'
+          w='424px'
+        >
           <HStack
             w={'240px'}
             mx='auto'
-            bg='rgba(255, 255, 255, 0.20)'
+            bg='grey.200'
             borderRadius='8px'
             py='2px'
             px={isMobile ? '4px' : '2px'}
@@ -147,10 +153,10 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
               flex='1'
               py='2px'
               borderRadius='8px'
-              bg={strategy === 'Buy' ? 'white' : 'unset'}
-              color={strategy === 'Buy' ? 'black' : 'white'}
+              bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
+              color='grey.800'
               _hover={{
-                backgroundColor: strategy === 'Buy' ? 'white' : 'rgba(255, 255, 255, 0.30)',
+                backgroundColor: strategy === 'Buy' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
               }}
               onClick={() => {
                 trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
@@ -169,10 +175,10 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
               flex='1'
               borderRadius='8px'
               py='2px'
-              bg={strategy === 'Sell' ? 'white' : 'unset'}
-              color={strategy === 'Sell' ? 'black' : 'white'}
+              bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
+              color='grey.800'
               _hover={{
-                backgroundColor: strategy === 'Sell' ? 'white' : 'rgba(255, 255, 255, 0.30)',
+                backgroundColor: strategy === 'Sell' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
               }}
               _disabled={{
                 opacity: '50%',

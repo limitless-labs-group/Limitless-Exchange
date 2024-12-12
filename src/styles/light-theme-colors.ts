@@ -155,10 +155,20 @@ export const lightThemeColors: ColorScheme = {
   background: {
     90: 'rgba(255, 255, 255, 0.9)',
   },
+
+  text: {
+    100: '#1C1C1C',
+  },
   skeleton: {
     dark: '#EDEDED',
     highLight: '#F3F3F3',
     tradeSkeleton: '#5151FF',
     tradeSkeletonBackground: '#4D4DF3',
+    widgetYes: '#16a34a',
+    widgetBgYes: '#4ade80',
+    widgetNo: '#dc2626',
+    widgetBgNo: '#f87171',
+    widgetGrey: '#71717a',
+    widgetBgGrey: '#52525b',
   },
 }
