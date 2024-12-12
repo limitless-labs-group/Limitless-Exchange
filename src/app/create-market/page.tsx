@@ -610,7 +610,7 @@ const CreateOwnMarketPage = () => {
 
               <FormField label='Tx Hash (min 250 USDC)'>
                 <Input
-                  variant='outlined'
+                  variant='grey'
                   value={formData.txHash}
                   onChange={(e) => handleChange('txHash', e.target.value)}
                   id='txHash'
