@@ -332,6 +332,10 @@ export interface ColorScheme {
     widgetGrey: string
     widgetBgGrey: string
   }
+  draftCard: {
+    bg: string
+    border: string
+  }
 }
 
 export interface RedeemParams {
