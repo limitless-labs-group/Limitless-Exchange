@@ -50,6 +50,7 @@ import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import {
   ChangeEvent,
   ClickEvent,
+  OpenEvent,
   StrategyChangedMetadata,
   useAmplitude,
   useHistory,
@@ -105,7 +106,7 @@ export default function MarketPage() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const { trackChanged, trackClicked } = useAmplitude()
+  const { trackChanged, trackClicked, trackOpened } = useAmplitude()
   const { positions: allMarketsPositions } = useHistory()
 
   // Todo change creator name
@@ -246,6 +247,17 @@ export default function MarketPage() {
   }, [])
 
   useEffect(() => {
+    if (market) {
+      trackOpened(OpenEvent.SidebarMarketOpened, {
+        marketAddress: market.address,
+        marketTags: market.tags,
+        marketType: 'single',
+        category: market.category,
+      })
+    }
+  }, [market?.address])
+
+  useEffect(() => {
     const handleMouseEnter = () => {
       document.body.style.overflow = 'hidden'
     }
@@ -367,7 +379,10 @@ export default function MarketPage() {
                 Value
               </Text>
               <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(market?.openInterestFormatted || '0', 6)}{' '}
+                {NumberUtil.convertWithDenomination(
+                  market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
+                  6
+                )}{' '}
                 {market?.collateralToken.symbol}
               </Text>
               <OpenInterestTooltip iconColor='grey.500' />
@@ -405,25 +420,31 @@ export default function MarketPage() {
           </VStack>
         </Paper>
       ) : (
-        <Paper bg='blue.500' borderRadius='8px' overflowX='hidden' p='8px'>
+        <Paper
+          bg={'var(--chakra-colors-grey-100)'}
+          borderRadius='8px'
+          overflowX='hidden'
+          p='8px'
+          position='relative'
+        >
           <HStack
             w={'240px'}
             mx='auto'
-            bg='rgba(255, 255, 255, 0.20)'
+            bg='grey.200'
             borderRadius='8px'
             py='2px'
-            px={isMobile ? '4px' : '2px'}
+            px={'2px'}
             mb={isMobile ? '16px' : '24px'}
           >
             <Button
               h={isMobile ? '28px' : '20px'}
               flex='1'
               py='2px'
-              borderRadius='8px'
-              bg={strategy === 'Buy' ? 'white' : 'unset'}
-              color={strategy === 'Buy' ? 'black' : 'white'}
+              borderRadius='6px'
+              bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
+              color='grey.800'
               _hover={{
-                backgroundColor: strategy === 'Buy' ? 'white' : 'rgba(255, 255, 255, 0.30)',
+                backgroundColor: strategy === 'Buy' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
               }}
               onClick={() => {
                 trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
@@ -440,12 +461,12 @@ export default function MarketPage() {
             <Button
               h={isMobile ? '28px' : '20px'}
               flex='1'
-              borderRadius='8px'
+              borderRadius='6px'
               py='2px'
-              bg={strategy === 'Sell' ? 'white' : 'unset'}
-              color={strategy === 'Sell' ? 'black' : 'white'}
+              bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
+              color='grey.800'
               _hover={{
-                backgroundColor: strategy === 'Sell' ? 'white' : 'rgba(255, 255, 255, 0.30)',
+                backgroundColor: strategy === 'Sell' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
               }}
               _disabled={{
                 opacity: '50%',

@@ -9,7 +9,7 @@ import { fixedProductMarketMakerABI } from '@/contracts'
 import { limitlessApi } from '@/services'
 import { MarketGroup } from '@/types'
 
-export default function useMarketGroup(slug?: string, isPolling = false) {
+export default function useMarketGroup(slug?: string, isPolling = false, enabled = true) {
   return useQuery({
     queryKey: ['market-group', slug],
     queryFn: async () => {
@@ -90,7 +90,8 @@ export default function useMarketGroup(slug?: string, isPolling = false) {
         markets: marketsWithPrices,
       } as MarketGroup
     },
-    enabled: !!slug,
+    enabled: !!slug && enabled,
+    refetchOnWindowFocus: enabled,
     refetchInterval: isPolling ? POLLING_INTERVAL : false,
   })
 }

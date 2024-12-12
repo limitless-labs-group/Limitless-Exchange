@@ -1,4 +1,3 @@
-import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
 import { Multicall } from 'ethereum-multicall'
@@ -10,6 +9,7 @@ import { POLLING_INTERVAL } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers'
 import { Category, Market, MarketsResponse, OddsData } from '@/types'
+import { getPrices } from '@/utils/market'
 
 const LIMIT_PER_PAGE = 10
 
@@ -299,8 +299,19 @@ export function useAllMarkets() {
   return useMemo(() => markets ?? [], [markets])
 }
 
-export function useMarketByConditionId(conditionId: string) {
-  const { data: market } = useQuery({
+export function usePrices(data: { address: `0x${string}`; decimals: number }[]) {
+  return useQuery({
+    queryKey: ['get-prices', data],
+    queryFn: async () => {
+      const response = await getPrices(data)
+      return response
+    },
+    refetchOnWindowFocus: true,
+  })
+}
+
+export function useMarketByConditionId(conditionId: string, enabled = true) {
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['marketByConditionId', conditionId],
     queryFn: async () => {
       const response = await axios.get(
@@ -337,12 +348,16 @@ export function useMarketByConditionId(conditionId: string) {
         prices,
       } as Market
     },
+    enabled: enabled,
   })
 
-  return useMemo(() => market ?? null, [market])
+  const market = useMemo(() => data ?? null, [data])
+
+  const refetchMarket = () => refetch()
+  return { market, isLoading, refetchMarket }
 }
 
-export function useMarket(address?: string | null, isPolling = false) {
+export function useMarket(address?: string | null, isPolling = false, enabled = true) {
   return useQuery({
     queryKey: ['market', address],
     queryFn: async () => {
@@ -379,7 +394,7 @@ export function useMarket(address?: string | null, isPolling = false) {
         prices,
       } as Market
     },
-    enabled: !!address && address !== '0x',
+    enabled: !!address && address !== '0x' && enabled,
     refetchInterval: isPolling ? POLLING_INTERVAL : false,
   })
 }

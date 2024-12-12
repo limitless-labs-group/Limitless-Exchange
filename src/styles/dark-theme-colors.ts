@@ -156,10 +156,19 @@ export const darkThemeColors: ColorScheme = {
     80: 'rgba(28, 28, 28, 0.8)',
     90: 'rgba(28, 28, 28, 0.9)',
   },
+  text: {
+    100: 'white',
+  },
   skeleton: {
     dark: '#232222',
     highLight: '#2E2E2E',
     tradeSkeleton: '#5151FF',
-    tradeSkeletonBackground: '#4D4DF3',
+    tradeSkeletonBackground: '#71717a',
+    widgetYes: '#16a34a',
+    widgetBgYes: '#4ade80',
+    widgetNo: '#dc2626',
+    widgetBgNo: '#f87171',
+    widgetGrey: '#71717a',
+    widgetBgGrey: '#52525b',
   },
 }
