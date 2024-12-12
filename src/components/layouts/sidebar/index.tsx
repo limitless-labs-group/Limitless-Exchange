@@ -258,6 +258,26 @@ export default function Sidebar() {
                 </HStack>
               </Button>
 
+              <NextLink href='/create-market' passHref style={{ width: '100%' }}>
+                <Link
+                  onClick={() => {
+                    trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
+                      page: pageName,
+                    })
+                  }}
+                  variant='transparent'
+                  w='full'
+                  rounded='8px'
+                >
+                  <HStack w='full'>
+                    <SquarePlusIcon width={16} height={16} />
+                    <Text fontWeight={500} fontSize='14px'>
+                      Create market
+                    </Text>
+                  </HStack>
+                </Link>
+              </NextLink>
+
               <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
                 {userMenuLoading ? (
                   <Box w='full'>
@@ -440,25 +460,6 @@ export default function Sidebar() {
                 bgClip='text'
               >
                 AI Agent
-              </Text>
-            </HStack>
-          </Link>
-        </NextLink>
-        <NextLink href='/create-market' passHref style={{ width: '100%' }}>
-          <Link
-            onClick={() => {
-              trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
-                page: pageName,
-              })
-            }}
-            variant='transparent'
-            w='full'
-            rounded='8px'
-          >
-            <HStack w='full'>
-              <SquarePlusIcon width={16} height={16} />
-              <Text fontWeight={500} fontSize='14px'>
-                Create market
               </Text>
             </HStack>
           </Link>

@@ -326,64 +326,64 @@ export default function MobileHeader() {
                             <WrapModal onClose={() => console.log('ok')} />
                           </MobileDrawer>
                         )}
-                        <Button
-                          variant='transparent'
-                          px={0}
-                          w='full'
-                          onClick={handleNavigateToCreateMarketPage}
-                        >
-                          <HStack justifyContent='space-between' w='full'>
-                            <HStack color='grey.500' gap='4px'>
-                              <SquarePlusIcon width={16} height={16} />
-                              <Text fontWeight={500} fontSize='16px'>
-                                Create Market
-                              </Text>
-                            </HStack>
+                        {/*<Button*/}
+                        {/*  variant='transparent'*/}
+                        {/*  px={0}*/}
+                        {/*  w='full'*/}
+                        {/*  onClick={handleNavigateToCreateMarketPage}*/}
+                        {/*>*/}
+                        {/*  <HStack justifyContent='space-between' w='full'>*/}
+                        {/*    <HStack color='grey.500' gap='4px'>*/}
+                        {/*      <SquarePlusIcon width={16} height={16} />*/}
+                        {/*      <Text fontWeight={500} fontSize='16px'>*/}
+                        {/*        Create Market*/}
+                        {/*      </Text>*/}
+                        {/*    </HStack>*/}
 
-                            <HStack gap='8px'>
-                              <Box color='grey.800'>
-                                <ArrowRightIcon width={16} height={16} />
-                              </Box>
-                            </HStack>
-                          </HStack>
-                        </Button>
-                        <MobileDrawer
-                          trigger={
-                            <Button
-                              variant='transparent'
-                              px={0}
-                              onClick={() => {
-                                trackClicked<ProfileBurgerMenuClickedMetadata>(
-                                  ClickEvent.ProfileBurgerMenuClicked,
-                                  {
-                                    option: 'My Markets',
-                                  }
-                                )
-                              }}
-                              w='full'
-                            >
-                              <HStack w='full'>
-                                <HStack justifyContent='space-between' w='full'>
-                                  <HStack color='grey.500' gap='4px'>
-                                    <MyMarketsIcon width={16} height={16} />
-                                    <Text fontWeight={500} fontSize='16px'>
-                                      My Markets
-                                    </Text>
-                                  </HStack>
+                        {/*    <HStack gap='8px'>*/}
+                        {/*      <Box color='grey.800'>*/}
+                        {/*        <ArrowRightIcon width={16} height={16} />*/}
+                        {/*      </Box>*/}
+                        {/*    </HStack>*/}
+                        {/*  </HStack>*/}
+                        {/*</Button>*/}
+                        {/*<MobileDrawer*/}
+                        {/*  trigger={*/}
+                        {/*    <Button*/}
+                        {/*      variant='transparent'*/}
+                        {/*      px={0}*/}
+                        {/*      onClick={() => {*/}
+                        {/*        trackClicked<ProfileBurgerMenuClickedMetadata>(*/}
+                        {/*          ClickEvent.ProfileBurgerMenuClicked,*/}
+                        {/*          {*/}
+                        {/*            option: 'My Markets',*/}
+                        {/*          }*/}
+                        {/*        )*/}
+                        {/*      }}*/}
+                        {/*      w='full'*/}
+                        {/*    >*/}
+                        {/*      <HStack w='full'>*/}
+                        {/*        <HStack justifyContent='space-between' w='full'>*/}
+                        {/*          <HStack color='grey.500' gap='4px'>*/}
+                        {/*            <MyMarketsIcon width={16} height={16} />*/}
+                        {/*            <Text fontWeight={500} fontSize='16px'>*/}
+                        {/*              My Markets*/}
+                        {/*            </Text>*/}
+                        {/*          </HStack>*/}
 
-                                  <HStack gap='8px'>
-                                    <Box color='grey.800'>
-                                      <ArrowRightIcon width={16} height={16} />
-                                    </Box>
-                                  </HStack>
-                                </HStack>
-                              </HStack>
-                            </Button>
-                          }
-                          variant='common'
-                        >
-                          <MyMarkets />
-                        </MobileDrawer>
+                        {/*          <HStack gap='8px'>*/}
+                        {/*            <Box color='grey.800'>*/}
+                        {/*              <ArrowRightIcon width={16} height={16} />*/}
+                        {/*            </Box>*/}
+                        {/*          </HStack>*/}
+                        {/*        </HStack>*/}
+                        {/*      </HStack>*/}
+                        {/*    </Button>*/}
+                        {/*  }*/}
+                        {/*  variant='common'*/}
+                        {/*>*/}
+                        {/*  <MyMarkets />*/}
+                        {/*</MobileDrawer>*/}
                       </VStack>
 
                       {client !== 'eoa' && (
