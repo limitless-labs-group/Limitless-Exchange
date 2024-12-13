@@ -238,7 +238,6 @@ const CreateOwnMarketPage = () => {
   }
 
   const prepareData = async () => {
-    debugger
     const ogLogo = await generateOgImage()
 
     const { title, description, creatorId, tag, txHash, token, probability } = formData
@@ -248,7 +247,7 @@ const CreateOwnMarketPage = () => {
     if (!description) missingFields.push('Description')
     if (!creatorId) missingFields.push('Creator')
     if (!ogLogo) missingFields.push('Og Logo')
-    if (!tag) missingFields.push('Tag')
+    // if (!tag) missingFields.push('Tag')
     if (!txHash) missingFields.push('Tx Hash')
     if (!txHash.startsWith('0x')) {
       showToast('Transaction hash should start with 0x')
@@ -598,48 +597,48 @@ const CreateOwnMarketPage = () => {
                 </HStack>
               </FormField>
 
-              <FormField label='Tags'>
-                <HStack w={'full'}>
-                  <Box width='full'>
-                    <CreatableSelect
-                      isMulti
-                      onCreateOption={handleTagCreation}
-                      //@ts-ignore
-                      onChange={(option) => handleChange('tag', option)}
-                      value={formData.tag}
-                      options={tagOptions}
-                      styles={{
-                        option: (provided) => ({
-                          ...provided,
-                          cursor: 'pointer',
-                          background: 'unset',
-                          ...paragraphMedium,
-                          '&:hover': {
-                            background: 'var(--chakra-colors-grey-300)',
-                          },
-                        }),
-                        multiValue: (provided) => ({
-                          ...provided,
-                          backgroundColor: 'var(--chakra-colors-grey-300)',
-                          borderRadius: '8px',
-                        }),
-                        multiValueLabel: (provided) => ({
-                          ...provided,
-                          color: 'var(--chakra-colors-grey-800)',
-                        }),
-                        menu: (provided) => ({
-                          ...provided,
-                          ...selectStyles.menu,
-                        }),
-                        control: (provided) => ({
-                          ...provided,
-                          ...selectStyles.control,
-                        }),
-                      }}
-                    />
-                  </Box>
-                </HStack>
-              </FormField>
+              {/*<FormField label='Tags'>*/}
+              {/*  <HStack w={'full'}>*/}
+              {/*    <Box width='full'>*/}
+              {/*      <CreatableSelect*/}
+              {/*        isMulti*/}
+              {/*        onCreateOption={handleTagCreation}*/}
+              {/*        //@ts-ignore*/}
+              {/*        onChange={(option) => handleChange('tag', option)}*/}
+              {/*        value={formData.tag}*/}
+              {/*        options={tagOptions}*/}
+              {/*        styles={{*/}
+              {/*          option: (provided) => ({*/}
+              {/*            ...provided,*/}
+              {/*            cursor: 'pointer',*/}
+              {/*            background: 'unset',*/}
+              {/*            ...paragraphMedium,*/}
+              {/*            '&:hover': {*/}
+              {/*              background: 'var(--chakra-colors-grey-300)',*/}
+              {/*            },*/}
+              {/*          }),*/}
+              {/*          multiValue: (provided) => ({*/}
+              {/*            ...provided,*/}
+              {/*            backgroundColor: 'var(--chakra-colors-grey-300)',*/}
+              {/*            borderRadius: '8px',*/}
+              {/*          }),*/}
+              {/*          multiValueLabel: (provided) => ({*/}
+              {/*            ...provided,*/}
+              {/*            color: 'var(--chakra-colors-grey-800)',*/}
+              {/*          }),*/}
+              {/*          menu: (provided) => ({*/}
+              {/*            ...provided,*/}
+              {/*            ...selectStyles.menu,*/}
+              {/*          }),*/}
+              {/*          control: (provided) => ({*/}
+              {/*            ...provided,*/}
+              {/*            ...selectStyles.control,*/}
+              {/*          }),*/}
+              {/*        }}*/}
+              {/*      />*/}
+              {/*    </Box>*/}
+              {/*  </HStack>*/}
+              {/*</FormField>*/}
 
               <Paper
                 my='24px'
@@ -662,7 +661,9 @@ const CreateOwnMarketPage = () => {
                       >
                         <HStack gap='4px' color='white' cursor='pointer'>
                           <Text {...paragraphMedium} color='white'>
-                            {draftMarketAddress[defaultChain.id]}
+                            {isMobile
+                              ? truncateEthAddress(draftMarketAddress[defaultChain.id])
+                              : draftMarketAddress[defaultChain.id]}
                           </Text>
                           <CopyIcon width='16px' height='16px' />
                           {copied && (
