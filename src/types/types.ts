@@ -365,11 +365,26 @@ export interface CommentResponse {
   totalPages: number
 }
 
+export interface Like {
+  createdAt: string
+  id: number
+  user: Profile
+}
+
 export interface CommentType {
   id: string
   createdAt: string
   content: string
   author: Profile
+  likes: Like[]
+}
+
+export interface LikePost {
+  message: string
+}
+
+export interface LikesGet {
+  likes: number
 }
 
 export type APIError = AxiosError<{ message: string; statusCode: number }>
