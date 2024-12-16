@@ -35,20 +35,27 @@ export default function Comment({ comment, isReply }: CommentProps) {
   const handleLike = async () => {
     if (!isConnected) {
       const id = toast({
-        render: () => <Toast title={'Loggin to like a post'} id={id} />,
+        render: () => <Toast title={'Login to like a post'} id={id} />,
         position: 'top-right',
       })
       return
     }
-    if (isLiked) {
-      await unlike()
-      setIsLiked(false)
-      setLikes(likes - 1)
-      return
+    try {
+      if (isLiked) {
+        await unlike()
+        setIsLiked(false)
+        setLikes(likes - 1)
+        return
+      }
+      await like()
+      setIsLiked(true)
+      setLikes(likes + 1)
+    } catch (error) {
+      const id = toast({
+        render: () => <Toast title={'Failed to update like'} id={id} />,
+        position: 'top-right',
+      })
     }
-    await like()
-    setIsLiked(true)
-    setLikes(likes + 1)
   }
 
   //commented stuff will be needed in future

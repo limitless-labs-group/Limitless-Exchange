@@ -43,6 +43,11 @@ export interface FeedNewComment {
   content: string
 }
 
+export interface FeedNewCommentLike {
+  title: string
+  content: string
+}
+
 export interface FeedResponse {
   data: FeedEntity<unknown>[]
   totalPages: number

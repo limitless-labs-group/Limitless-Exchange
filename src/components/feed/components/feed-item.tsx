@@ -12,6 +12,7 @@ import {
   MarketGroupStatusFeedData,
   MarketNewTradeFeedData,
   FeedNewComment,
+  FeedNewCommentLike,
 } from '@/types'
 
 interface FeedItemProps {
@@ -61,7 +62,7 @@ export default function FeedItem({ data }: FeedItemProps) {
       return <FeedComment data={item} />
     })(),
     [FeedEventType.CommentLike]: (() => {
-      const item = data as FeedEntity<FeedNewComment>
+      const item = data as FeedEntity<FeedNewCommentLike>
       return <FeedComment data={item} />
     })(),
     // [FeedEventType.MarketClosed]: (() => {
