@@ -114,10 +114,10 @@ export default function MyMarketCard({ market }: MyMarketCardProps) {
       {fullMarket?.prices && (
         <Box w='full' mt='40px'>
           <HStack w='full' justifyContent='space-between' mb='4px'>
-            <Text {...paragraphMedium} color={'grey.500'}>
+            <Text {...paragraphMedium} color={'#0FC591'}>
               Yes {fullMarket.prices[0]}%
             </Text>
-            <Text {...paragraphMedium} color={'grey.500'}>
+            <Text {...paragraphMedium} color={'#FF3756'}>
               No {fullMarket.prices[1]}%
             </Text>
           </HStack>
