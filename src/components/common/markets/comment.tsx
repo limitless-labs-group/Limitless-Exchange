@@ -30,7 +30,7 @@ export default function Comment({ comment, isReply }: CommentProps) {
     [comment, account]
   )
   const [isLiked, setIsLiked] = useState(isLikedByAuthor ?? 0)
-  const [likes, setLikes] = useState(comment.likes.length)
+  const [likes, setLikes] = useState(comment?.likes?.length ?? 0)
 
   const handleLike = async () => {
     if (!isConnected) {
