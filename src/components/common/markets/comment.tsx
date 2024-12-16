@@ -26,10 +26,10 @@ export default function Comment({ comment, isReply }: CommentProps) {
   const { mutateAsync: unlike, isPending: isUnlikeLoading } = useUnlikeComment(Number(comment.id))
   const toast = useToast()
   const isLikedByAuthor = useMemo(
-    () => comment.likes.some((item) => item.user.account === account),
+    () => comment?.likes?.some((item) => item.user.account === account),
     [comment, account]
   )
-  const [isLiked, setIsLiked] = useState(isLikedByAuthor)
+  const [isLiked, setIsLiked] = useState(isLikedByAuthor ?? 0)
   const [likes, setLikes] = useState(comment.likes.length)
 
   const handleLike = async () => {
