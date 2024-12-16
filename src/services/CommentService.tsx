@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
 import { createContext, PropsWithChildren, useContext, useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
@@ -6,11 +6,15 @@ import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { useToast } from '@/hooks'
 import { limitlessApi } from '@/services/LimitlessApi'
-import { CommentPost } from '@/types'
+import { CommentPost, LikePost, LikesGet } from '@/types'
 
 export interface IUseCreateComment {
   content: string
   marketAddress: string
+}
+
+export interface ILikeComment {
+  id: number
 }
 
 export interface CommentServiceContext {
@@ -105,4 +109,44 @@ export const useMarketInfinityComments = (marketAddress?: string) => {
       fetchNextPage,
     }
   }, [comments, hasNextPage, fetchNextPage])
+}
+
+export const useLikeComment = (id: number) => {
+  const { isConnected } = useWagmiAccount()
+  const privateClient = useAxiosPrivateClient()
+  return useMutation({
+    mutationKey: ['like-comment', id],
+    mutationFn: async (): Promise<LikePost> => {
+      if (!isConnected) throw new Error('Login to like comments')
+
+      const res = await privateClient.post(`/comments/${id}/like`)
+      return res.data
+    },
+  })
+}
+
+export const useUnlikeComment = (id: number) => {
+  const { isConnected } = useWagmiAccount()
+  const privateClient = useAxiosPrivateClient()
+  return useMutation({
+    mutationKey: ['unlike-comment', id],
+    mutationFn: async (): Promise<LikePost> => {
+      if (!isConnected) throw new Error('Login to unlike comments')
+
+      const res = await privateClient.post(`/comments/${id}/unlike`)
+      return res.data
+    },
+  })
+}
+
+export const useLikes = (id: number) => {
+  const privateClient = useAxiosPrivateClient()
+  return useQuery({
+    queryKey: ['likes', id],
+    queryFn: async () => {
+      const res = await privateClient.get(`/comments/${id}/likes`)
+      return res.data
+    },
+    enabled: !!id,
+  })
 }
