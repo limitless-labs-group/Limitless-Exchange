@@ -173,5 +173,6 @@ export const darkThemeColors: ColorScheme = {
   draftCard: {
     bg: '#042713',
     border: '#124a28',
+    selectedBg: '#18181b',
   },
 }
