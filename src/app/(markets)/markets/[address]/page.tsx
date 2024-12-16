@@ -20,6 +20,7 @@ import {
   Text,
   useDisclosure,
   VStack,
+  Heading,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
@@ -31,11 +32,11 @@ import MarketActivityTab from '@/components/common/markets/activity-tab'
 import CommentTab from '@/components/common/markets/comment-tab'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
+import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import { UniqueTraders } from '@/components/common/markets/unique-traders'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
 import Skeleton from '@/components/common/skeleton'
-import TextWithPixels from '@/components/common/text-with-pixels'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
 import {
@@ -77,6 +78,7 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
+import { defineOpenInterestOverVolume } from '@/utils/market'
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
@@ -130,11 +132,17 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
           </VStack>
         </Paper>
       ) : (
-        <Paper bg='blue.500' borderRadius='8px' overflowX='hidden' p='8px' w='424px'>
+        <Paper
+          bg={'var(--chakra-colors-grey-100)'}
+          borderRadius='8px'
+          overflowX='hidden'
+          p='8px'
+          w='424px'
+        >
           <HStack
             w={'240px'}
             mx='auto'
-            bg='rgba(255, 255, 255, 0.20)'
+            bg='grey.200'
             borderRadius='8px'
             py='2px'
             px={isMobile ? '4px' : '2px'}
@@ -145,10 +153,10 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
               flex='1'
               py='2px'
               borderRadius='8px'
-              bg={strategy === 'Buy' ? 'white' : 'unset'}
-              color={strategy === 'Buy' ? 'black' : 'white'}
+              bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
+              color='grey.800'
               _hover={{
-                backgroundColor: strategy === 'Buy' ? 'white' : 'rgba(255, 255, 255, 0.30)',
+                backgroundColor: strategy === 'Buy' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
               }}
               onClick={() => {
                 trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
@@ -167,10 +175,10 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
               flex='1'
               borderRadius='8px'
               py='2px'
-              bg={strategy === 'Sell' ? 'white' : 'unset'}
-              color={strategy === 'Sell' ? 'black' : 'white'}
+              bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
+              color='grey.800'
               _hover={{
-                backgroundColor: strategy === 'Sell' ? 'white' : 'rgba(255, 255, 255, 0.30)',
+                backgroundColor: strategy === 'Sell' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
               }}
               _disabled={{
                 opacity: '50%',
@@ -525,13 +533,14 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       <Skeleton height={38} />
                     </VStack>
                   ) : (
-                    <TextWithPixels
-                      text={(market?.proxyTitle ?? market?.title) || ''}
+                    <Heading
                       {...(isMobile ? { ...h1Regular } : {})}
                       fontSize='32px'
                       userSelect='text'
                       fontWeight={700}
-                    />
+                    >
+                      {(market?.proxyTitle ?? market?.title) || ''}
+                    </Heading>
                   )}
                 </Box>
                 {!market ? (
@@ -568,10 +577,9 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       </Box>
                     ) : (
                       <HStack gap='4px'>
-                        <UniqueTraders color='grey.50' />
                         <Text {...paragraphRegular} color='grey.500'>
-                          Volume {NumberUtil.convertWithDenomination(market?.volumeFormatted, 6)}{' '}
-                          {market?.collateralToken.symbol}
+                          Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
+                          {market.collateralToken.symbol}
                         </Text>
                       </HStack>
                     )}
@@ -581,12 +589,32 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       </Box>
                     ) : (
                       <HStack gap='4px'>
-                        <Box {...paragraphRegular}>💧 </Box>
-                        <Text {...paragraphRegular} color='grey.500'>
-                          Liquidity{' '}
-                          {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
-                          {market.collateralToken.symbol}
-                        </Text>
+                        {defineOpenInterestOverVolume(
+                          market.openInterestFormatted,
+                          market.liquidityFormatted
+                        ).showOpenInterest ? (
+                          <>
+                            <UniqueTraders color='grey.50' />
+                            <Text {...paragraphRegular} color='grey.500'>
+                              Value{' '}
+                              {NumberUtil.convertWithDenomination(
+                                +market.openInterestFormatted + +market.liquidityFormatted,
+                                6
+                              )}{' '}
+                              {market.collateralToken.symbol}
+                            </Text>
+                            <OpenInterestTooltip iconColor='grey.500' />
+                          </>
+                        ) : (
+                          <>
+                            <Box {...paragraphRegular}>💧 </Box>
+                            <Text {...paragraphRegular} color='grey.500'>
+                              Liquidity{' '}
+                              {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
+                              {market.collateralToken.symbol}
+                            </Text>
+                          </>
+                        )}
                       </HStack>
                     )}
                   </HStack>

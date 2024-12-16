@@ -1,10 +1,9 @@
 'use client'
 
-import { Box, Divider, HStack, Icon, Spacer, Stack, Text } from '@chakra-ui/react'
+import { Box, Divider, Heading, HStack, Icon, Spacer, Stack, Text } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useAccount as useWagmiAccount } from 'wagmi'
-import TextWithPixels from '@/components/common/text-with-pixels'
 import { PortfolioStats, PortfolioPositions, PortfolioHistory } from '@/app/portfolio/components'
 import { MainLayout } from '@/components'
 import HistoryIcon from '@/resources/icons/history-icon.svg'
@@ -17,7 +16,7 @@ import {
   useEtherspot,
   useTradingService,
 } from '@/services'
-import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { h1Bold, paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const PortfolioPage = () => {
   const [tab, setTab] = useState<'Investments' | 'History'>('Investments')
@@ -54,12 +53,9 @@ const PortfolioPage = () => {
     <MainLayout>
       <Box w={isMobile ? 'full' : 'calc(100vw - 720px)'}>
         <Divider orientation='horizontal' h='3px' borderColor='grey.800' bg='grey.800' />
-        <TextWithPixels
-          text={'Portfolio Overview'}
-          {...(isMobile ? { ...h1Regular } : {})}
-          fontSize='32px'
-          gap={2}
-        />
+        <Heading {...h1Bold} gap={2}>
+          Portfolio Overview
+        </Heading>
         <PortfolioStats mt={'20px'} />
 
         <Stack w={'full'} spacing={5}>
@@ -117,7 +113,7 @@ const PortfolioPage = () => {
           {tab == 'Investments' ? (
             <PortfolioPositions userMenuLoading={userMenuLoading} />
           ) : (
-            <PortfolioHistory userMenuLoading={userMenuLoading} />
+            <PortfolioHistory />
           )}
         </Stack>
 

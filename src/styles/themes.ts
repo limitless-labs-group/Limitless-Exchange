@@ -1,4 +1,5 @@
 import { extendTheme as ChakraTheme, ThemeConfig } from '@chakra-ui/react'
+import { Inter } from 'next/font/google'
 import { isMobile } from 'react-device-detect'
 import { accordionTheme } from '@/styles/accordion'
 import { commonButtonProps } from '@/styles/button'
@@ -8,15 +9,20 @@ import { inputTheme } from '@/styles/input'
 import { linkTheme } from '@/styles/link'
 import { menuTheme } from '@/styles/menu'
 import { modalTheme } from '@/styles/modals'
+import { numberInputTheme } from '@/styles/number-input'
 import { radioTheme } from '@/styles/radio'
+import { selectTheme } from '@/styles/select'
 import { skeletonTheme } from '@/styles/skeleton'
+import { sliderTheme } from '@/styles/slider'
 import { tableTheme } from '@/styles/table'
 import { tabsTheme } from '@/styles/tabs'
 import { textAreaTheme } from '@/styles/text-area'
 import { tooltipTheme } from '@/styles/tooltip'
 
-const fonts = `Helvetica Neue`
-const pixels = 'Neue Pixel Sans'
+export const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+})
 
 const config: ThemeConfig = {
   initialColorMode: 'dark',
@@ -28,8 +34,8 @@ export const borderRadius = 'lg'
 export const chakraTheme = ChakraTheme({
   ...config,
   fonts: {
-    heading: pixels,
-    body: fonts,
+    heading: inter.style.fontFamily,
+    body: inter.style.fontFamily,
   },
   // colors: mode(lightThemeColors, darkThemeColors)((props) => props),
   styles: {
@@ -293,6 +299,7 @@ export const chakraTheme = ChakraTheme({
     Modal: modalTheme,
     Accordion: accordionTheme,
     Input: inputTheme,
+    NumberInput: numberInputTheme,
     Menu: menuTheme,
     Checkbox: checkboxTheme,
     Link: linkTheme,
@@ -306,6 +313,8 @@ export const chakraTheme = ChakraTheme({
         bg: 'grey.100',
       },
     },
+    Slider: sliderTheme,
+    Select: selectTheme,
     Progress: {
       baseStyle: {
         track: {
@@ -327,6 +336,14 @@ export const chakraTheme = ChakraTheme({
           },
           track: {
             bg: '#FF3756',
+          },
+        },
+        draft: {
+          filledTrack: {
+            bg: 'grey.400',
+          },
+          track: {
+            bg: 'grey.200',
           },
         },
       },

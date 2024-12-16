@@ -21,6 +21,10 @@ import { NumberUtil } from '@/utils'
 
 export interface IPortfolioPositionCard {
   position: HistoryPosition
+  prices?: {
+    market: `0x${string}`
+    prices: number[]
+  }
 }
 
 const unhoveredColors = {
@@ -33,7 +37,25 @@ const hoverColors = {
   secondary: 'transparent.700',
 }
 
-const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
+const StatusIcon = ({ isClosed, color }: { isClosed: boolean | undefined; color: string }) => {
+  return isClosed ? (
+    <>
+      <Icon as={ClosedIcon} width={'16px'} height={'16px'} color={color} />
+      <Text {...paragraphMedium} color={color}>
+        Closed
+      </Text>
+    </>
+  ) : (
+    <>
+      <ActiveIcon width={16} height={16} />
+      <Text {...paragraphMedium} color={color}>
+        Active
+      </Text>
+    </>
+  )
+}
+
+const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => {
   const [colors, setColors] = useState(unhoveredColors)
   const [isLoadingRedeem, setIsLoadingRedeem] = useState(false)
 
@@ -43,20 +65,20 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
   /**
    * MARKET DATA
    */
-  const { data: market } = useMarket(position.market.id)
 
   const allMarkets = useAllMarkets()
 
   const targetMarket = allMarkets.find((market) => market.address === position.market.id)
 
-  const { data: marketGroup } = useMarketGroup(targetMarket?.group?.slug)
-
-  const contractPrice = new BigNumber(market?.prices[position.outcomeIndex] || 1)
+  const contractPrice = new BigNumber(prices?.prices?.[position.outcomeIndex] ?? 1)
     .dividedBy(100)
     .dividedBy(
-      new BigNumber(
-        position.latestTrade?.outcomeTokenPrice ? +position.latestTrade.outcomeTokenPrice : 1
-      )
+      (() => {
+        const price = position.latestTrade?.outcomeTokenPrice
+          ? +position.latestTrade.outcomeTokenPrice
+          : 1
+        return price === 0 ? 1 : price
+      })()
     )
     .toNumber()
 
@@ -90,14 +112,48 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
     return defaultOutcomes[outcomeTokenId]
   }
 
-  const handleOpenMarketPage = () => {
-    if (marketGroup) {
-      onOpenMarketPage(marketGroup, 'Portfolio Card')
-      return
+  const { data: oneMarket, refetch: refetchMarket } = useMarket(position.market.id, false, false)
+  const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
+    targetMarket?.group?.slug,
+    false,
+    false
+  )
+
+  const handleOpenMarketPage = async () => {
+    if (position.market?.id) {
+      if (!oneMarket) {
+        const { data: fetchedMarket } = await refetchMarket()
+        if (fetchedMarket) {
+          onOpenMarketPage(fetchedMarket)
+          trackClicked(ClickEvent.PortfolioMarketClicked, {
+            marketCategory: fetchedMarket.category,
+            marketAddress: fetchedMarket.address,
+            marketType: 'single',
+            marketTags: fetchedMarket.tags,
+            type: 'Portolio',
+          })
+        }
+      } else {
+        onOpenMarketPage(oneMarket)
+        trackClicked(ClickEvent.PortfolioMarketClicked, {
+          marketCategory: oneMarket.category,
+          marketAddress: oneMarket.address,
+          marketType: 'single',
+          marketTags: oneMarket.tags,
+          type: 'Portolio',
+        })
+      }
     }
-    if (market) {
-      onOpenMarketPage(market, 'Portfolio Card')
-      return
+
+    if (targetMarket?.group?.slug) {
+      if (!marketGroup) {
+        const { data: fetchedMarketGroup } = await refetchMarketGroup()
+        if (fetchedMarketGroup) {
+          onOpenMarketPage(fetchedMarketGroup)
+        }
+      } else {
+        onOpenMarketPage(marketGroup)
+      }
     }
   }
 
@@ -112,10 +168,10 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
             platform: isMobile ? 'mobile' : 'desktop',
           })
           await redeem({
-            conditionId: market?.conditionId as Address,
-            collateralAddress: market?.collateralToken.address as Address,
-            marketAddress: market?.address as Address,
-            outcomeIndex: market?.winningOutcomeIndex as number,
+            conditionId: position.market.condition_id as Address,
+            collateralAddress: position.market.collateral?.id as Address,
+            marketAddress: position.market.id,
+            outcomeIndex: position.latestTrade?.outcomeIndex as number,
           })
           setIsLoadingRedeem(false)
         }}
@@ -128,7 +184,7 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
             <Icon as={WinIcon} color={'black'} />
             Claim{' '}
             {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 6)} ${
-              market?.collateralToken.symbol
+              position.market.collateral?.symbol
             }`}
           </>
         )}
@@ -137,7 +193,7 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
   }
 
   const cardColors = useMemo(() => {
-    if (market?.expired) {
+    if (position.market.closed) {
       return {
         main: 'white',
         secondary: isMobile ? 'white' : 'transparent.700',
@@ -147,25 +203,7 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
       main: colors.main,
       secondary: colors.secondary,
     }
-  }, [market, colors])
-
-  //@ts-ignore
-  const StatusIcon = ({ market }) =>
-    market?.expired ? (
-      <>
-        <Icon as={ClosedIcon} width={'16px'} height={'16px'} color={cardColors.secondary} />
-        <Text {...paragraphMedium} color={cardColors.secondary}>
-          Closed
-        </Text>
-      </>
-    ) : (
-      <>
-        <ActiveIcon width={16} height={16} />
-        <Text {...paragraphMedium} color={cardColors.secondary}>
-          Active
-        </Text>
-      </>
-    )
+  }, [position, colors])
 
   return isMobile ? (
     <MobileDrawer
@@ -173,40 +211,40 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
         <Paper
           onClick={handleOpenMarketPage}
           w={'full'}
-          bg={market?.expired ? 'green.500' : 'grey.200'}
+          bg={position.market?.closed ? 'green.500' : 'grey.200'}
           p={'16px'}
           borderRadius='8px'
         >
           <Stack spacing={'8px'}>
             <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
               <Text {...paragraphMedium} color={cardColors.main}>
-                {targetMarket?.proxyTitle ?? targetMarket?.title}
+                {position.market.title}
               </Text>
               <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
             </HStack>
             <HStack>
-              {market?.expired ? (
+              {position.market?.closed ? (
                 <Text {...paragraphMedium} color={cardColors.main}>
                   {`Won ${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
-                    market?.collateralToken.symbol
+                    position.market.collateral?.symbol
                   }`}
                 </Text>
               ) : (
                 <HStack>
-                  {!market ? (
+                  {!position || !prices ? (
                     <Skeleton height={20} />
                   ) : (
                     <Text fontSize={'16px'} lineHeight={'20px'} fontWeight={500}>
                       {`${NumberUtil.toFixed(
                         new BigNumber(position.outcomeTokenAmount || '1')
                           .multipliedBy(
-                            new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(
+                            new BigNumber(prices?.prices?.[position.outcomeIndex] || 1).dividedBy(
                               100
                             )
                           )
                           .toString(),
                         6
-                      )} ${market?.collateralToken.symbol}`}
+                      )} ${position.market?.collateral?.symbol}`}
                     </Text>
                   )}
                   <Box gap={0} fontSize={'16px'} fontWeight={500}>
@@ -216,15 +254,17 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
               )}
             </HStack>
             <HStack color={cardColors.secondary}>
-              <HStack gap={1}>{<StatusIcon market={market} />}</HStack>
+              <HStack gap={1}>
+                {<StatusIcon isClosed={position?.market?.closed} color={cardColors.secondary} />}
+              </HStack>
               <HStack gap={1} color={cardColors.secondary}>
                 <CalendarIcon width={'16px'} height={'16px'} />
                 <Text {...paragraphMedium} color={cardColors.secondary}>
-                  {market?.expirationDate}
+                  {position?.market.expirationDate}
                 </Text>
               </HStack>
             </HStack>
-            <HStack>{market?.expired && <ClaimButton />}</HStack>
+            <HStack>{position.market?.closed && <ClaimButton />}</HStack>
           </Stack>
 
           <Divider w={'full'} h={'1px'} mb={'10px'} mt={'10px'} />
@@ -246,7 +286,7 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
               </Text>
               <Text color={cardColors.main} lineHeight={'20px'} fontWeight={400} fontSize={'16px'}>
                 {`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
-                  market?.collateralToken.symbol
+                  position.market?.collateral?.symbol
                 }`}
               </Text>
             </HStack>
@@ -264,9 +304,9 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
   ) : (
     <Paper
       w={'full'}
-      bg={market?.expired ? 'green.500' : 'grey.200'}
+      bg={position.market?.closed ? 'green.500' : 'grey.200'}
       _hover={{
-        bg: market?.expired ? 'green.600' : 'blue.500',
+        bg: position.market?.closed ? 'green.600' : 'blue.500',
       }}
       cursor='pointer'
       onMouseEnter={() => setColors(hoverColors)}
@@ -278,33 +318,36 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
           <Box>
             <Text {...paragraphMedium} color={cardColors.main}>
-              {targetMarket?.proxyTitle ?? targetMarket?.title}
+              {position.market.title}
             </Text>
           </Box>
 
           <HStack>
-            {market?.expired ? (
+            {position.market?.closed ? (
               <ClaimButton />
             ) : (
               <>
-                {!market ? (
+                {!position || !prices ? (
                   <Box w='120px'>
                     <Skeleton height={20} />
                   </Box>
                 ) : (
-                  <Text {...paragraphMedium} color={cardColors.main}>
-                    {`${NumberUtil.toFixed(
-                      new BigNumber(position.outcomeTokenAmount || '1')
-                        .multipliedBy(
-                          new BigNumber(market?.prices?.[position.outcomeIndex] || 1).dividedBy(100)
-                        )
-                        .toString(),
-                      6
-                    )} ${market?.collateralToken.symbol}`}
-                  </Text>
+                  <>
+                    <Text {...paragraphMedium} color={cardColors.main}>
+                      {`${NumberUtil.toFixed(
+                        new BigNumber(position.outcomeTokenAmount || '1')
+                          .multipliedBy(
+                            new BigNumber(prices?.prices?.[position.outcomeIndex] || 1).dividedBy(
+                              100
+                            )
+                          )
+                          .toString(),
+                        position.market.collateral?.symbol === 'USDC' ? 2 : 6
+                      )} ${position.market?.collateral?.symbol}`}
+                    </Text>
+                    <Box gap={0}>{contractPriceChanged}</Box>
+                  </>
                 )}
-
-                <Box gap={0}>{contractPriceChanged}</Box>
               </>
             )}
           </HStack>
@@ -327,14 +370,15 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
               Invested
             </Text>
             <Text {...paragraphRegular} color={cardColors.main}>
-              {!market ? (
+              {!position ? (
                 <Box w='68px'>
                   <Skeleton height={20} />
                 </Box>
               ) : (
-                `${NumberUtil.toFixed(position.collateralAmount, 6)} ${
-                  market?.collateralToken.symbol
-                }`
+                `${NumberUtil.toFixed(
+                  position.collateralAmount,
+                  position.market?.collateral?.symbol === 'USDC' ? 2 : 6
+                )} ${position.market?.collateral?.symbol}`
               )}
             </Text>
           </VStack>
@@ -342,12 +386,16 @@ const PortfolioPositionCard = ({ position }: IPortfolioPositionCard) => {
 
         <HStack w={'full'} justifyContent={'flex-end'} alignItems={'flex-end'}>
           <HStack gap={1} color={cardColors.secondary}>
-            {<StatusIcon market={market} />}
+            {<StatusIcon isClosed={position.market?.closed} color={cardColors.secondary} />}
           </HStack>
           <HStack gap={1} color={cardColors.secondary}>
             <CalendarIcon width={'16px'} height={'16px'} />
             <Text {...paragraphMedium} color={cardColors.secondary}>
-              {market?.expirationDate}
+              {new Date(position.market?.expirationDate).toLocaleDateString(undefined, {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })}
             </Text>
           </HStack>
         </HStack>

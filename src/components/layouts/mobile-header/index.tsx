@@ -10,10 +10,8 @@ import {
   StackItem,
   Text,
   useDisclosure,
-  useTheme,
   VStack,
 } from '@chakra-ui/react'
-import { rgba } from 'color2k'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
@@ -25,6 +23,7 @@ import MobileDrawer from '@/components/common/drawer'
 import Loader from '@/components/common/loader'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
+import MyMarkets from '@/components/common/my-markets'
 import SocialsFooter from '@/components/common/socials-footer'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
@@ -36,10 +35,12 @@ import MoonIcon from '@/resources/icons/moon-icon.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
+import MyMarketsIcon from '@/resources/icons/sidebar/my-markets.svg'
+import SquarePlusIcon from '@/resources/icons/sidebar/suggest_market.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import {
   ClickEvent,
-  CreateMarketClickedMetadata,
+  ProfileBurgerMenuClickedMetadata,
   useAccount,
   useAmplitude,
   useBalanceService,
@@ -81,6 +82,11 @@ export default function MobileHeader() {
 
   const handleOpenWrapModal = () => {
     onToggleUserMenu()
+  }
+
+  const handleNavigateToCreateMarketPage = () => {
+    onToggleUserMenu()
+    router.push('/create-market')
   }
 
   return (
@@ -320,6 +326,64 @@ export default function MobileHeader() {
                             <WrapModal onClose={() => console.log('ok')} />
                           </MobileDrawer>
                         )}
+                        {/*<Button*/}
+                        {/*  variant='transparent'*/}
+                        {/*  px={0}*/}
+                        {/*  w='full'*/}
+                        {/*  onClick={handleNavigateToCreateMarketPage}*/}
+                        {/*>*/}
+                        {/*  <HStack justifyContent='space-between' w='full'>*/}
+                        {/*    <HStack color='grey.500' gap='4px'>*/}
+                        {/*      <SquarePlusIcon width={16} height={16} />*/}
+                        {/*      <Text fontWeight={500} fontSize='16px'>*/}
+                        {/*        Create Market*/}
+                        {/*      </Text>*/}
+                        {/*    </HStack>*/}
+
+                        {/*    <HStack gap='8px'>*/}
+                        {/*      <Box color='grey.800'>*/}
+                        {/*        <ArrowRightIcon width={16} height={16} />*/}
+                        {/*      </Box>*/}
+                        {/*    </HStack>*/}
+                        {/*  </HStack>*/}
+                        {/*</Button>*/}
+                        {/*<MobileDrawer*/}
+                        {/*  trigger={*/}
+                        {/*    <Button*/}
+                        {/*      variant='transparent'*/}
+                        {/*      px={0}*/}
+                        {/*      onClick={() => {*/}
+                        {/*        trackClicked<ProfileBurgerMenuClickedMetadata>(*/}
+                        {/*          ClickEvent.ProfileBurgerMenuClicked,*/}
+                        {/*          {*/}
+                        {/*            option: 'My Markets',*/}
+                        {/*          }*/}
+                        {/*        )*/}
+                        {/*      }}*/}
+                        {/*      w='full'*/}
+                        {/*    >*/}
+                        {/*      <HStack w='full'>*/}
+                        {/*        <HStack justifyContent='space-between' w='full'>*/}
+                        {/*          <HStack color='grey.500' gap='4px'>*/}
+                        {/*            <MyMarketsIcon width={16} height={16} />*/}
+                        {/*            <Text fontWeight={500} fontSize='16px'>*/}
+                        {/*              My Markets*/}
+                        {/*            </Text>*/}
+                        {/*          </HStack>*/}
+
+                        {/*          <HStack gap='8px'>*/}
+                        {/*            <Box color='grey.800'>*/}
+                        {/*              <ArrowRightIcon width={16} height={16} />*/}
+                        {/*            </Box>*/}
+                        {/*          </HStack>*/}
+                        {/*        </HStack>*/}
+                        {/*      </HStack>*/}
+                        {/*    </Button>*/}
+                        {/*  }*/}
+                        {/*  variant='common'*/}
+                        {/*>*/}
+                        {/*  <MyMarkets />*/}
+                        {/*</MobileDrawer>*/}
                       </VStack>
 
                       {client !== 'eoa' && (
@@ -344,27 +408,6 @@ export default function MobileHeader() {
                           <WalletPage onClose={() => console.log('ok')} />
                         </MobileDrawer>
                       )}
-                      <Button
-                        variant='grey'
-                        w='full'
-                        mt='24px'
-                        h='32px'
-                        onClick={() => {
-                          trackClicked<CreateMarketClickedMetadata>(
-                            ClickEvent.CreateMarketClicked,
-                            {
-                              page: 'Explore Markets',
-                            }
-                          )
-                          window.open(
-                            'https://limitlesslabs.notion.site/Limitless-Creators-101-fbbde33a51104fcb83c57f6ce9d69d2a?pvs=4',
-                            '_blank',
-                            'noopener'
-                          )
-                        }}
-                      >
-                        Create Market
-                      </Button>
                     </Box>
 
                     <Spacer />
