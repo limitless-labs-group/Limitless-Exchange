@@ -9,6 +9,8 @@ export enum FeedEventType {
   FundedGroup = 'FUNDED_GROUP',
   LockedGroup = 'LOCKED_GROUP',
   NewTrade = 'NEW_TRADE',
+  Comment = 'COMMENT',
+  CommentLike = 'COMMENT_LIKE',
 }
 
 export interface FeedEventUser {
@@ -34,6 +36,11 @@ export interface MarketStatusFeedData {
 export interface FeedNewPostData {
   content: string
   media: string
+}
+
+export interface FeedNewComment {
+  title: string
+  content: string
 }
 
 export interface FeedResponse {

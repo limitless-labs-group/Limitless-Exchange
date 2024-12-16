@@ -1,11 +1,14 @@
-import { HStack, Text, VStack, useTheme } from '@chakra-ui/react'
-import { memo, useRef, useState } from 'react'
+import { HStack, Text, VStack, useTheme, useToast } from '@chakra-ui/react'
+import { memo, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useAccount } from 'wagmi'
 import { useTimeAgo } from '@/hooks/use-time-ago'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { useLikeComment, useUnlikeComment } from '@/services/CommentService'
 import { captionMedium, captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { CommentType } from '@/types'
 import Avatar from '../avatar'
+import { Toast } from '../toast'
 import { UserContextMenu } from '../user-context-menu'
 
 export type CommentProps = {
@@ -16,14 +19,36 @@ export type CommentProps = {
 export default function Comment({ comment, isReply }: CommentProps) {
   const time = useTimeAgo(comment.createdAt)
   const name = comment.author.displayName ?? comment.author?.username
+  const account = useWalletAddress()
   const { isConnected } = useAccount()
   const [messageBlocked, setMessageBlocked] = useState(false)
-  const [isLiked, setIsLiked] = useState(false)
-  const likeCount = useRef(0)
+  const { mutateAsync: like, isPending: isLikeLoading } = useLikeComment(Number(comment.id))
+  const { mutateAsync: unlike, isPending: isUnlikeLoading } = useUnlikeComment(Number(comment.id))
+  const toast = useToast()
+  const isLikedByAuthor = useMemo(
+    () => comment.likes.some((item) => item.user.account === account),
+    [comment, account]
+  )
+  const [isLiked, setIsLiked] = useState(isLikedByAuthor)
+  const [likes, setLikes] = useState(comment.likes.length)
 
-  const like = () => {
-    setIsLiked(!isLiked)
-    likeCount.current += 1
+  const handleLike = async () => {
+    if (!isConnected) {
+      const id = toast({
+        render: () => <Toast title={'Loggin to like a post'} id={id} />,
+        position: 'top-right',
+      })
+      return
+    }
+    if (isLiked) {
+      await unlike()
+      setIsLiked(false)
+      setLikes(likes - 1)
+      return
+    }
+    await like()
+    setIsLiked(true)
+    setLikes(likes + 1)
   }
 
   //commented stuff will be needed in future
@@ -67,11 +92,16 @@ export default function Comment({ comment, isReply }: CommentProps) {
         {/* ) : null} */}
       </VStack>
       <HStack {...captionMedium} w='full' gap='16px' color='grey.500'>
-        <HStack gap='4px' cursor='pointer' onClick={like}>
+        <HStack
+          as='button'
+          gap='4px'
+          cursor='pointer'
+          aria-label={isLiked ? 'Unlike comment' : 'Like comment'}
+          disabled={isLikeLoading || isUnlikeLoading}
+          onClick={handleLike}
+        >
           <LikeIcon isLiked={isLiked} />
-          <Text color={isLiked ? 'red.500' : 'grey.500'}>
-            {likeCount.current === 0 ? 'Like' : likeCount.current}
-          </Text>
+          <Text color={isLiked ? 'red.500' : 'grey.500'}>{likes === 0 ? 'Like' : likes}</Text>
         </HStack>
       </HStack>
 
@@ -108,6 +138,7 @@ const LikeIcon = memo(({ isLiked }: LikeIconProps) => {
       xmlns='http://www.w3.org/2000/svg'
       width='16'
       height='16'
+      aria-hidden='true'
       viewBox='0 0 16 16'
       fill={isLiked ? theme.colors.red[500] : 'none'}
       stroke={isLiked ? theme.colors.red[500] : theme.colors.grey[500]}

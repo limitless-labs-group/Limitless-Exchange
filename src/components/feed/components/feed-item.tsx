@@ -3,6 +3,7 @@ import FeedNewPost from '@/components/feed/components/feed-new-post'
 import GroupStatusUpdatedCard from '@/components/feed/components/group-status-updated-card'
 import MarketFeedTradeCard from '@/components/feed/components/market-feed-trade-card'
 import MarketStatusUpdatedCard from '@/components/feed/components/market-status-updated-card'
+import { FeedComment } from './comment-feed'
 import {
   FeedEventType,
   MarketStatusFeedData,
@@ -10,6 +11,7 @@ import {
   FeedNewPostData,
   MarketGroupStatusFeedData,
   MarketNewTradeFeedData,
+  FeedNewComment,
 } from '@/types'
 
 interface FeedItemProps {
@@ -53,6 +55,14 @@ export default function FeedItem({ data }: FeedItemProps) {
     [FeedEventType.Locked]: (() => {
       const item = data as FeedEntity<MarketStatusFeedData>
       return <MarketStatusUpdatedCard data={item} />
+    })(),
+    [FeedEventType.Comment]: (() => {
+      const item = data as FeedEntity<FeedNewComment>
+      return <FeedComment data={item} />
+    })(),
+    [FeedEventType.CommentLike]: (() => {
+      const item = data as FeedEntity<FeedNewComment>
+      return <FeedComment data={item} />
     })(),
     // [FeedEventType.MarketClosed]: (() => {
     //   const item = data as FeedItem<MarketStatusData>
