@@ -2,6 +2,7 @@ import { Box, HStack, Link, Text, Image as ChakraImage, Checkbox, Stack } from '
 import React from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
+import TextEditor from '@/components/common/text-editor'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Category, Creator, DraftMetadata, Token } from '@/types'
@@ -87,7 +88,7 @@ export const DraftMarketCard = ({
 
             <HStack alignItems='flex-start'>
               <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
-                {market.description}
+                <TextEditor value={market?.description ?? ''} readOnly />
               </Text>
             </HStack>
 
