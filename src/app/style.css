@@ -20,10 +20,6 @@
   overflow: unset !important;
 }
 
-* {
-  outline: none;
-}
-
 .read-only .ql-container.ql-snow {
   border: none !important;
 }
@@ -49,4 +45,8 @@
 .ql-toolbar {
   border-top-left-radius: 5px !important;
   border-top-right-radius: 5px !important;
+}
+
+* {
+  outline: none;
 }
