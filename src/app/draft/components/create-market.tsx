@@ -35,6 +35,7 @@ import TimezoneSelect, {
   ITimezoneOption,
   useTimezoneSelect,
 } from 'react-timezone-select'
+import TextEditor from '@/components/common/text-editor'
 import { Toast } from '@/components/common/toast'
 import {
   defaultFormData,
@@ -355,16 +356,14 @@ export const CreateMarket: FC = () => {
               </FormField>
 
               <FormField label='Description'>
-                <Textarea
-                  resize='none'
-                  rows={7}
-                  overflow='hidden'
-                  height='auto'
-                  onInput={resizeTextareaHeight}
-                  maxLength={1500}
+                <TextEditor
                   value={formData.description}
-                  onChange={(e) => handleChange('description', e.target.value)}
-                  onBlur={() => generateOgImage()}
+                  readOnly={false}
+                  onChange={(e) => {
+                    if (e.length <= 1500) {
+                      handleChange('description', e)
+                    }
+                  }}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                   {formData.description?.length}/1500 characters
