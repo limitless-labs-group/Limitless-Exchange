@@ -296,6 +296,13 @@ export default function MarketPage() {
       pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
       backdropFilter='blur(7.5px)'
+      sx={{
+        '::-webkit-scrollbar': {
+          display: 'none',
+        },
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+      }}
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
