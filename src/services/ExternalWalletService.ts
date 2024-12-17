@@ -70,10 +70,11 @@ export const useExternalWalletService = () => {
 
   const checkAllowanceForAllEOA = async (spender: Address, contractAddress: Address) => {
     const contract = getContract({
-      address: contractAddress,
+      address: contractAddress, // conditional
       abi: conditionalTokensABI,
       client: publicClient,
     })
+    // spender - CTF exchange
     const isApprovedForAll = await contract.read.isApprovedForAll([account as Address, spender])
     return isApprovedForAll as boolean
   }

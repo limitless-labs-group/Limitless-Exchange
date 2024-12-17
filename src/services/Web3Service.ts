@@ -203,7 +203,7 @@ export function useWeb3Service(): Web3Service {
         new BigNumber(convertedPrice).multipliedBy(new BigNumber(shares)).toString(),
         decimals
       ).toString(), // limit price * shares with decimals
-      takerAmount: parseUnits(new BigNumber(convertedPrice).toString(), decimals).toString(), // shares * decimals
+      takerAmount: parseUnits(shares, decimals).toString(), // shares * decimals
       expiration: '0',
       nonce: '0',
       feeRateBps: '0',

@@ -1,15 +1,31 @@
-import {
-  Order,
-  EIP712TypedData,
-  EIP712_DOMAIN,
-  ORDER_STRUCTURE,
-  PROTOCOL_NAME,
-  PROTOCOL_VERSION,
-} from '@polymarket/order-utils'
+import { Order, EIP712TypedData, PROTOCOL_NAME, PROTOCOL_VERSION } from '@polymarket/order-utils'
 import { defaultChain } from '@/constants'
 
+export const EIP712_DOMAIN = [
+  { name: 'name', type: 'string' },
+  { name: 'version', type: 'string' },
+  { name: 'chainId', type: 'uint256' },
+  { name: 'verifyingContract', type: 'address' },
+]
+
+export const ORDER_STRUCTURE = [
+  { name: 'salt', type: 'uint256' },
+  { name: 'maker', type: 'address' },
+  { name: 'signer', type: 'address' },
+  { name: 'taker', type: 'address' },
+  { name: 'tokenId', type: 'uint256' },
+  { name: 'makerAmount', type: 'uint256' },
+  { name: 'takerAmount', type: 'uint256' },
+  { name: 'expiration', type: 'uint256' },
+  { name: 'nonce', type: 'uint256' },
+  { name: 'feeRateBps', type: 'uint256' },
+  { name: 'side', type: 'uint8' },
+  { name: 'signatureType', type: 'uint8' },
+]
+
 export const buildOrderTypedData = (order: Order): EIP712TypedData => {
-  return {
+  console.log(order)
+  const result = {
     primaryType: 'Order',
     types: {
       EIP712Domain: EIP712_DOMAIN,
@@ -32,10 +48,12 @@ export const buildOrderTypedData = (order: Order): EIP712TypedData => {
       expiration: order.expiration,
       nonce: order.nonce,
       feeRateBps: order.feeRateBps,
-      side: order.side,
-      signatureType: order.signatureType,
+      side: order.side.toString(),
+      signatureType: order.signatureType.toString(),
     },
   }
+  console.log(result)
+  return result
 }
 
 /*
