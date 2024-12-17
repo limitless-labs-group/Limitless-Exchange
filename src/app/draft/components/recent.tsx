@@ -3,9 +3,10 @@
 import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Toast } from '@/components/common/toast'
 import { DraftMarket, DraftMarketCard } from '@/app/draft/components/draft-card'
+import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks/ui/useToast'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 
@@ -33,6 +34,14 @@ export const RecentMarkets = () => {
         : [...prevSelected, marketId]
     )
   }
+  const selectedMarket = useMemo(() => {
+    if (!recentMarkets || !Array.isArray(recentMarkets)) return []
+    return recentMarkets
+      ?.filter((market: DraftMarket) => selectedMarketIds.includes(market.id))
+      .map((market: DraftMarket) => {
+        return { title: market.title, id: market.id }
+      })
+  }, [selectedMarketIds, recentMarkets])
 
   const duplicateMarkets = () => {
     setIsCreating(true)
@@ -74,17 +83,18 @@ export const RecentMarkets = () => {
             <Spinner />
           </Box>
         ) : (
-          <Button
-            mt='16px'
-            colorScheme='green'
-            w='full'
-            position='sticky'
-            bottom='40px'
-            onClick={duplicateMarkets}
-            disabled={isCreating || selectedMarketIds.length === 0}
-          >
-            Duplicate Markets to Queue
-          </Button>
+          <Box style={{ width: '100%', position: 'sticky', bottom: 40 }}>
+            <SelectedMarkets market={selectedMarket} />
+            <Button
+              colorScheme='green'
+              mt='16px'
+              w={'full'}
+              onClick={duplicateMarkets}
+              disabled={isCreating || selectedMarketIds.length === 0}
+            >
+              Duplicate Markets to Queue
+            </Button>
+          </Box>
         )}
       </VStack>
     </Flex>
