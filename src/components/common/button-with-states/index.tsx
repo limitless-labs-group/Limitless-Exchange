@@ -1,7 +1,8 @@
 import { Box, Button, ButtonProps } from '@chakra-ui/react'
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { MutationStatus } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import Loader from '@/components/common/loader'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
 
@@ -9,9 +10,15 @@ const MotionBox = motion(Box)
 
 type ButtonWithStatesProps = ButtonProps & {
   status: MutationStatus
+  onReset?: () => Promise<void>
 }
 
-export default function ButtonWithStates({ children, status, ...props }: ButtonWithStatesProps) {
+export default function ButtonWithStates({
+  children,
+  status,
+  onReset,
+  ...props
+}: ButtonWithStatesProps) {
   const buttonContent = useMemo(() => {
     switch (status) {
       case 'pending':
@@ -35,6 +42,17 @@ export default function ButtonWithStates({ children, status, ...props }: ButtonW
         return children
     }
   }, [status, children])
+
+  const resetButtonState = async () => {
+    await sleep(3)
+    onReset && (await onReset())
+  }
+
+  useEffect(() => {
+    if (status === 'success') {
+      resetButtonState()
+    }
+  }, [status])
 
   // const refreshToInitial = async () => {
   //   await sleep(2)

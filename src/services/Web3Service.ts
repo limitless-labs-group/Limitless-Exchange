@@ -1,6 +1,11 @@
+import { SignedOrder } from '@polymarket/order-utils'
+import BigNumber from 'bignumber.js'
+import { parseUnits } from 'viem'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useEtherspot } from '@/services/Etherspot'
 import { useExternalWalletService } from '@/services/ExternalWalletService'
 import { Address } from '@/types'
+import { buildOrderTypedData } from '@/utils/orders'
 
 type Web3Service = {
   wrapEth: (value: bigint) => Promise<string>
@@ -46,11 +51,19 @@ type Web3Service = {
     marketConditionId: Address,
     indexSets: number[]
   ) => Promise<string | undefined>
+  placeLimitOrder: (
+    tokenId: string,
+    decimals: number,
+    price: string,
+    shares: string,
+    side: number
+  ) => Promise<SignedOrder>
 }
 
 export function useWeb3Service(): Web3Service {
   const { etherspot } = useEtherspot()
   const externalWalletService = useExternalWalletService()
+  const walletAddress = useWalletAddress()
 
   const client = etherspot ? 'etherspot' : 'eoa'
 
@@ -169,6 +182,43 @@ export function useWeb3Service(): Web3Service {
     )
   }
 
+  const placeLimitOrder = async (
+    tokenId: string,
+    decimals: number,
+    price: string,
+    shares: string,
+    side: number
+  ): Promise<SignedOrder> => {
+    console.log(shares)
+    console.log(price)
+    const convertedPrice = new BigNumber(price).dividedBy(100).toString()
+    console.log(convertedPrice)
+    const orderData = {
+      salt: Math.round(Math.random() * Date.now()) + '',
+      maker: walletAddress as Address,
+      signer: walletAddress as Address,
+      taker: '0x0000000000000000000000000000000000000000',
+      tokenId,
+      makerAmount: parseUnits(
+        new BigNumber(convertedPrice).multipliedBy(new BigNumber(shares)).toString(),
+        decimals
+      ).toString(), // limit price * shares with decimals
+      takerAmount: parseUnits(new BigNumber(convertedPrice).toString(), decimals).toString(), // shares * decimals
+      expiration: '0',
+      nonce: '0',
+      feeRateBps: '0',
+      side, // buy 0, sell 1
+      signatureType: 0,
+    }
+    const order = buildOrderTypedData(orderData)
+
+    const signature = await externalWalletService.signTypedData(order)
+    return {
+      ...orderData,
+      signature,
+    }
+  }
+
   const checkAllowance = async (contractAddress: Address, spender: Address) =>
     externalWalletService.checkAllowanceEOA(contractAddress, spender)
 
@@ -195,5 +245,6 @@ export function useWeb3Service(): Web3Service {
     approveContract,
     approveAllowanceForAll,
     redeemPositions,
+    placeLimitOrder,
   }
 }

@@ -50,7 +50,7 @@ export default function AllMarkets({
             ? [...Array(6)].map((index) => <Skeleton height={isMobile ? 148 : 76} key={index} />)
             : markets?.map((market, index) => {
                 // @ts-ignore
-                return market.slug ? null : (
+                return (
                   <>
                     {isMobile ? (
                       <DailyMarketCardMobile

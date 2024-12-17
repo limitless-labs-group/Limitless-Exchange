@@ -22,3 +22,7 @@ export const parseTextWithLinks = (text: string, partText?: string, linkVariant?
     return part
   })
 }
+
+export const uppercaseFirstLetter = (word: string) => {
+  return `${word[0].toUpperCase()}${word.slice(1)}`
+}

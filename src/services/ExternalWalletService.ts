@@ -1,6 +1,7 @@
+import { EIP712TypedData } from '@polymarket/order-utils'
 import { switchChain } from '@wagmi/core'
 import { Address, encodeFunctionData, erc20Abi, getContract } from 'viem'
-import { useAccount, useSendTransaction, useWriteContract } from 'wagmi'
+import { useAccount, useSendTransaction, useSignTypedData, useWriteContract } from 'wagmi'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
 import { contractABI } from '@/contracts/utils'
@@ -12,6 +13,7 @@ export const useExternalWalletService = () => {
   const account = useWalletAddress()
   const { writeContractAsync } = useWriteContract()
   const { sendTransactionAsync } = useSendTransaction()
+  const { signTypedDataAsync } = useSignTypedData()
   const { supportedTokens } = useLimitlessApi()
   const { chainId } = useAccount()
 
@@ -281,6 +283,10 @@ export const useExternalWalletService = () => {
     return contract.read.balanceOf(['0x6bb3d8A69656d1865708242223190a29D3a7E3c7'])
   }
 
+  const signTypedData = async (typedData: EIP712TypedData) => {
+    return signTypedDataAsync(typedData)
+  }
+
   return {
     wrapEth,
     unwrapEth,
@@ -295,5 +301,6 @@ export const useExternalWalletService = () => {
     approveContractForAllEOA,
     redeemPositions,
     checkLumyAccountBalance,
+    signTypedData,
   }
 }
