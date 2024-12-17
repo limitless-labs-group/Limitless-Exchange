@@ -20,7 +20,11 @@ export default function TextEditor({
   style,
 }: TextEditorProps) {
   return (
-    <Box className={readOnly ? 'read-only' : ''} overflow='hidden'>
+    <Box
+      className={readOnly ? 'read-only' : ''}
+      overflow={readOnly ? 'visible' : 'hidden'}
+      zIndex={1}
+    >
       <ReactQuill
         theme={readOnly ? undefined : 'snow'}
         value={value}
