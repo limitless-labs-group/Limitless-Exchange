@@ -20,6 +20,11 @@ import {
   Spinner,
   Textarea,
   VStack,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
 } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
@@ -35,6 +40,7 @@ import TimezoneSelect, {
   ITimezoneOption,
   useTimezoneSelect,
 } from 'react-timezone-select'
+import TextEditor from '@/components/common/text-editor'
 import { Toast } from '@/components/common/toast'
 import {
   defaultFormData,
@@ -312,30 +318,42 @@ export const CreateMarket: FC = () => {
             alignItems='flex-start'
           >
             <VStack w='full' flex='1.2'>
-              <Box position='absolute' opacity={0} pointerEvents='none'>
-                <FormField label='OG Preview is still here, but hidden (required to create an image)'>
-                  <HStack position='absolute' zIndex={-1} h='280px' w='600px'>
-                    <OgImageGenerator
-                      title={formData.title}
-                      category={
-                        categories?.find((category) => category.id === +formData.categoryId)
-                          ?.name ?? 'Unknown'
-                      }
-                      onBlobGenerated={(blob) => {
-                        console.log('Blob generated', blob)
-                        const _ogLogo = new File([blob], 'og.png', {
-                          type: blob.type,
-                          lastModified: Date.now(),
-                        })
-                        console.log('Blob transformed to File', _ogLogo)
+              <Accordion allowToggle>
+                <AccordionItem>
+                  <h2>
+                    <AccordionButton>
+                      <Box flex='1' textAlign='left'>
+                        OG Preview (Click to Expand)
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4}>
+                    <Box pointerEvents='none'>
+                      <HStack h='280px' w='600px'>
+                        <OgImageGenerator
+                          title={formData.title}
+                          category={
+                            categories?.find((category) => category.id === +formData.categoryId)
+                              ?.name ?? 'Unknown'
+                          }
+                          onBlobGenerated={(blob) => {
+                            console.log('Blob generated', blob)
+                            const _ogLogo = new File([blob], 'og.png', {
+                              type: blob.type,
+                              lastModified: Date.now(),
+                            })
+                            console.log('Blob transformed to File', _ogLogo)
 
-                        handleChange('ogLogo', _ogLogo)
-                      }}
-                      generateBlob={isGeneratingOgImage}
-                    />
-                  </HStack>
-                </FormField>
-              </Box>
+                            handleChange('ogLogo', _ogLogo)
+                          }}
+                          generateBlob={isGeneratingOgImage}
+                        />
+                      </HStack>
+                    </Box>
+                  </AccordionPanel>
+                </AccordionItem>
+              </Accordion>
 
               <FormField label='Title'>
                 <Textarea
@@ -355,16 +373,14 @@ export const CreateMarket: FC = () => {
               </FormField>
 
               <FormField label='Description'>
-                <Textarea
-                  resize='none'
-                  rows={7}
-                  overflow='hidden'
-                  height='auto'
-                  onInput={resizeTextareaHeight}
-                  maxLength={1500}
+                <TextEditor
                   value={formData.description}
-                  onChange={(e) => handleChange('description', e.target.value)}
-                  onBlur={() => generateOgImage()}
+                  readOnly={false}
+                  onChange={(e) => {
+                    if (e.length <= 1500) {
+                      handleChange('description', e)
+                    }
+                  }}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                   {formData.description?.length}/1500 characters
