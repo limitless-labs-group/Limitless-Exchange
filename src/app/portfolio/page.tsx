@@ -9,6 +9,7 @@ import { MainLayout } from '@/components'
 import HistoryIcon from '@/resources/icons/history-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import {
+  HistoryServiceProvider,
   OpenEvent,
   PageOpenedMetadata,
   useAccount,
@@ -50,76 +51,69 @@ const PortfolioPage = () => {
   }, [])
 
   return (
-    <MainLayout>
-      <Box w={isMobile ? 'full' : 'calc(100vw - 720px)'}>
-        <Divider orientation='horizontal' h='3px' borderColor='grey.800' bg='grey.800' />
-        <Heading {...h1Bold} gap={2}>
-          Portfolio Overview
-        </Heading>
-        <PortfolioStats mt={'20px'} />
+    <Box w={isMobile ? 'full' : 'calc(100vw - 720px)'}>
+      <Divider orientation='horizontal' h='3px' borderColor='grey.800' bg='grey.800' />
+      <Heading {...h1Bold} gap={2}>
+        Portfolio Overview
+      </Heading>
+      <PortfolioStats mt={'20px'} />
 
-        <Stack w={'full'} spacing={5}>
-          <HStack gap={0} borderBottom={'1px solid'} borderColor={'grey.400'} alignItems='flex-end'>
-            <Stack cursor={'pointer'} onClick={() => setTab('Investments')} mb='-1px' gap={0}>
-              <HStack
-                color={tab === 'Investments' ? 'grey.800' : 'grey.500'}
-                px='8px'
-                gap='4px'
-                mb='4px'
-              >
-                <Icon as={PortfolioIcon} w={'16px'} h={'16px'} />
-                <Text {...paragraphMedium} color={tab === 'Investments' ? 'grey.800' : 'grey.500'}>
-                  Investments
-                </Text>
-              </HStack>
-              <Box
-                w={'full'}
-                h={'3px'}
-                bg={'grey.800'}
-                visibility={tab == 'Investments' ? 'visible' : 'hidden'}
-              />
-            </Stack>
-            <Stack
-              cursor={'pointer'}
-              onClick={() => {
-                trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
-                  page: 'Portfolio - History tab',
-                })
-                setTab('History')
-              }}
-              mb='-1px'
-              gap={0}
+      <Stack w={'full'} spacing={5}>
+        <HStack gap={0} borderBottom={'1px solid'} borderColor={'grey.400'} alignItems='flex-end'>
+          <Stack cursor={'pointer'} onClick={() => setTab('Investments')} mb='-1px' gap={0}>
+            <HStack
+              color={tab === 'Investments' ? 'grey.800' : 'grey.500'}
+              px='8px'
+              gap='4px'
+              mb='4px'
             >
-              <HStack
-                color={tab === 'History' ? 'grey.800' : 'grey.500'}
-                px='8px'
-                gap='4px'
-                mb='4px'
-              >
-                <Icon as={HistoryIcon} w={'16px'} h={'16px'} />
-                <Text {...paragraphMedium} color={tab === 'History' ? 'grey.800' : 'grey.500'}>
-                  History
-                </Text>
-              </HStack>
-              <Box
-                w={'full'}
-                h={'3px'}
-                bg={'grey.800'}
-                visibility={tab == 'History' ? 'visible' : 'hidden'}
-              />
-            </Stack>
-          </HStack>
+              <Icon as={PortfolioIcon} w={'16px'} h={'16px'} />
+              <Text {...paragraphMedium} color={tab === 'Investments' ? 'grey.800' : 'grey.500'}>
+                Investments
+              </Text>
+            </HStack>
+            <Box
+              w={'full'}
+              h={'3px'}
+              bg={'grey.800'}
+              visibility={tab == 'Investments' ? 'visible' : 'hidden'}
+            />
+          </Stack>
+          <Stack
+            cursor={'pointer'}
+            onClick={() => {
+              trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
+                page: 'Portfolio - History tab',
+              })
+              setTab('History')
+            }}
+            mb='-1px'
+            gap={0}
+          >
+            <HStack color={tab === 'History' ? 'grey.800' : 'grey.500'} px='8px' gap='4px' mb='4px'>
+              <Icon as={HistoryIcon} w={'16px'} h={'16px'} />
+              <Text {...paragraphMedium} color={tab === 'History' ? 'grey.800' : 'grey.500'}>
+                History
+              </Text>
+            </HStack>
+            <Box
+              w={'full'}
+              h={'3px'}
+              bg={'grey.800'}
+              visibility={tab == 'History' ? 'visible' : 'hidden'}
+            />
+          </Stack>
+        </HStack>
 
-          {tab == 'Investments' ? (
-            <PortfolioPositions userMenuLoading={userMenuLoading} />
-          ) : (
-            <PortfolioHistory />
-          )}
-        </Stack>
+        {tab == 'Investments' ? (
+          <PortfolioPositions userMenuLoading={userMenuLoading} />
+        ) : (
+          <PortfolioHistory />
+        )}
+      </Stack>
 
-        <Spacer />
-      </Box>
-    </MainLayout>
+      <Spacer />
+    </Box>
   )
 }
 
