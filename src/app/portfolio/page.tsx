@@ -5,11 +5,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import { PortfolioStats, PortfolioPositions, PortfolioHistory } from '@/app/portfolio/components'
-import { MainLayout } from '@/components'
+import { TabButton } from './components/tab-button'
 import HistoryIcon from '@/resources/icons/history-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import {
-  HistoryServiceProvider,
   OpenEvent,
   PageOpenedMetadata,
   useAccount,
@@ -17,7 +16,7 @@ import {
   useEtherspot,
   useTradingService,
 } from '@/services'
-import { h1Bold, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { h1Bold } from '@/styles/fonts/fonts.styles'
 
 const PortfolioPage = () => {
   const [tab, setTab] = useState<'Investments' | 'History'>('Investments')
@@ -60,49 +59,18 @@ const PortfolioPage = () => {
 
       <Stack w={'full'} spacing={5}>
         <HStack gap={0} borderBottom={'1px solid'} borderColor={'grey.400'} alignItems='flex-end'>
-          <Stack cursor={'pointer'} onClick={() => setTab('Investments')} mb='-1px' gap={0}>
-            <HStack
-              color={tab === 'Investments' ? 'grey.800' : 'grey.500'}
-              px='8px'
-              gap='4px'
-              mb='4px'
-            >
-              <Icon as={PortfolioIcon} w={'16px'} h={'16px'} />
-              <Text {...paragraphMedium} color={tab === 'Investments' ? 'grey.800' : 'grey.500'}>
-                Investments
-              </Text>
-            </HStack>
-            <Box
-              w={'full'}
-              h={'3px'}
-              bg={'grey.800'}
-              visibility={tab == 'Investments' ? 'visible' : 'hidden'}
-            />
-          </Stack>
-          <Stack
-            cursor={'pointer'}
-            onClick={() => {
-              trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
-                page: 'Portfolio - History tab',
-              })
-              setTab('History')
-            }}
-            mb='-1px'
-            gap={0}
-          >
-            <HStack color={tab === 'History' ? 'grey.800' : 'grey.500'} px='8px' gap='4px' mb='4px'>
-              <Icon as={HistoryIcon} w={'16px'} h={'16px'} />
-              <Text {...paragraphMedium} color={tab === 'History' ? 'grey.800' : 'grey.500'}>
-                History
-              </Text>
-            </HStack>
-            <Box
-              w={'full'}
-              h={'3px'}
-              bg={'grey.800'}
-              visibility={tab == 'History' ? 'visible' : 'hidden'}
-            />
-          </Stack>
+          <TabButton
+            isActive={tab === 'Investments'}
+            icon={PortfolioIcon}
+            label='Investments'
+            onClick={() => setTab('Investments')}
+          />
+          <TabButton
+            isActive={tab === 'History'}
+            icon={HistoryIcon}
+            label='History'
+            onClick={() => setTab('History')}
+          />
         </HStack>
 
         {tab == 'Investments' ? (
