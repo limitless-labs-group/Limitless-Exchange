@@ -64,6 +64,7 @@ export interface Market {
   volumeFormatted: string
   winningOutcomeIndex: number | null
   prices: number[]
+  slug: string
   group?: {
     id: number
     slug: string
@@ -72,6 +73,10 @@ export interface Market {
   openInterest: string
   openInterestFormatted: string
   priorityIndex: number
+  tokens: {
+    yes: string
+    no: string
+  }
 }
 
 export type UserCreatedMarket = {
@@ -463,3 +468,8 @@ export interface LikesGet {
 }
 
 export type APIError = AxiosError<{ message: string; statusCode: number }>
+
+export enum MarketOrderType {
+  LIMIT = 'limit',
+  MARKET = 'market',
+}

@@ -32,147 +32,150 @@ export const MarketPriceChart = () => {
 
   const getMaxChartTimestamp = (data?: number[][]) => {
     if (market) {
-      if (new Date().getTime() > market.expirationTimestamp) {
-        return market.expirationTimestamp + 1200000
-      }
+      // Todo revert this back before going to prod
+      // if (new Date().getTime() > market.expirationTimestamp) {
+      //   return market.expirationTimestamp + 1200000
+      // }
       return data ? data[data.length - 1]?.[0] : new Date().getTime()
     }
     return new Date().getTime()
   }
 
   // Function to generate chart options
-  const getChartOptions = (data: number[][] | undefined): Highcharts.Options => ({
-    chart: {
-      zooming: {
-        type: 'x',
-      },
-      height: 230,
-      backgroundColor: colors.grey['100'],
-      marginLeft: isMobile ? 60 : 50,
-      marginRight: 0,
-    },
-    title: {
-      text: undefined,
-    },
-    xAxis: {
-      type: 'datetime',
-      ordinal: false,
-      tickPosition: 'outside',
-      lineColor: colors.grey['200'],
-      tickColor: colors.grey['200'],
-      tickLength: 0,
-      max: getMaxChartTimestamp(data),
-      labels: {
-        step: 0,
-        rotation: 0,
-        align: 'center',
-        style: {
-          fontFamily: 'Inter',
-          fontSize: isMobile ? '14px' : '12px',
-          color: colors.grey['400'],
+  const getChartOptions = (data: number[][] | undefined): Highcharts.Options => {
+    return {
+      chart: {
+        zooming: {
+          type: 'x',
         },
-        formatter: function () {
-          return Highcharts.dateFormat('%b %e', Number(this.value))
-        },
+        height: 230,
+        backgroundColor: colors.grey['100'],
+        marginLeft: isMobile ? 60 : 50,
+        marginRight: 0,
       },
-    },
-    yAxis: {
-      visible: true,
-      min: 0,
-      max: 100,
-      tickInterval: 25,
       title: {
-        text: 'Percentage (%)',
-        style: {
-          color: colors.grey['600'],
+        text: undefined,
+      },
+      xAxis: {
+        type: 'datetime',
+        ordinal: false,
+        tickPosition: 'outside',
+        lineColor: colors.grey['200'],
+        tickColor: colors.grey['200'],
+        tickLength: 0,
+        max: getMaxChartTimestamp(data),
+        labels: {
+          step: 0,
+          rotation: 0,
+          align: 'center',
+          style: {
+            fontFamily: 'Inter',
+            fontSize: isMobile ? '14px' : '12px',
+            color: colors.grey['400'],
+          },
+          formatter: function () {
+            return Highcharts.dateFormat('%b %e', Number(this.value))
+          },
         },
       },
-      labels: {
-        format: '{value}%',
-        style: {
-          fontFamily: 'Inter',
-          fontSize: isMobile ? '14px' : '12px',
-          color: colors.grey['400'],
+      yAxis: {
+        visible: true,
+        min: 0,
+        max: 100,
+        tickInterval: 25,
+        title: {
+          text: 'Percentage (%)',
+          style: {
+            color: colors.grey['600'],
+          },
+        },
+        labels: {
+          format: '{value}%',
+          style: {
+            fontFamily: 'Inter',
+            fontSize: isMobile ? '14px' : '12px',
+            color: colors.grey['400'],
+          },
+        },
+        gridLineColor: colors.grey['200'],
+        lineWidth: 1,
+        lineColor: colors.grey['200'],
+        tickWidth: 1,
+        tickColor: colors.grey['200'],
+      },
+      legend: {
+        enabled: false,
+      },
+      credits: {
+        enabled: false,
+      },
+      tooltip: {
+        shared: true,
+        formatter: function () {
+          return `YES: <b>${Number(this.y).toFixed(2)}%</b>`
         },
       },
-      gridLineColor: colors.grey['200'],
-      lineWidth: 1,
-      lineColor: colors.grey['200'],
-      tickWidth: 1,
-      tickColor: colors.grey['200'],
-    },
-    legend: {
-      enabled: false,
-    },
-    credits: {
-      enabled: false,
-    },
-    tooltip: {
-      shared: true,
-      formatter: function () {
-        return `YES: <b>${Number(this.y).toFixed(2)}%</b>`
-      },
-    },
-    plotOptions: {
-      series: {
-        lineWidth: 4,
-        marker: {
-          enabled: false,
-        },
-        point: {
-          events: {
-            mouseOver: function () {
-              //@ts-ignore
-              setYesDate(Highcharts.dateFormat('%B %e, %Y %I:%M %p', Number(this.x)))
-              //@ts-ignore
-              setYesChance(this.y.toFixed(2))
+      plotOptions: {
+        series: {
+          lineWidth: 4,
+          marker: {
+            enabled: false,
+          },
+          point: {
+            events: {
+              mouseOver: function () {
+                //@ts-ignore
+                setYesDate(Highcharts.dateFormat('%B %e, %Y %I:%M %p', Number(this.x)))
+                //@ts-ignore
+                setYesChance(this.y.toFixed(2))
+              },
             },
           },
         },
-      },
-      area: {
-        fillColor: {
-          linearGradient: {
-            x1: 0,
-            y1: 0,
-            x2: 0,
-            y2: 1,
+        area: {
+          fillColor: {
+            linearGradient: {
+              x1: 0,
+              y1: 0,
+              x2: 0,
+              y2: 1,
+            },
+            stops: [
+              //@ts-ignore
+              [0, Highcharts.color('#0FC591').setOpacity(0.3).get('rgba')],
+              //@ts-ignore
+              [1, Highcharts.color('#0FC591').setOpacity(0).get('rgba')],
+            ],
+            brighten: 0.2,
           },
-          stops: [
-            //@ts-ignore
-            [0, Highcharts.color('#0FC591').setOpacity(0.3).get('rgba')],
-            //@ts-ignore
-            [1, Highcharts.color('#0FC591').setOpacity(0).get('rgba')],
-          ],
-          brighten: 0.2,
-        },
-        marker: {
-          radius: 2,
-        },
-        lineWidth: 1,
-        states: {
-          hover: {
-            lineWidth: 1,
+          marker: {
+            radius: 2,
           },
+          lineWidth: 1,
+          states: {
+            hover: {
+              lineWidth: 1,
+            },
+          },
+          threshold: null,
         },
-        threshold: null,
       },
-    },
-    series: [
-      {
-        type: 'area',
-        name: 'Price',
-        data: data,
-        turboThreshold: 2000,
-        boostThreshold: 2000,
-        color: '#0FC591',
-        lineWidth: 2,
-      },
-    ],
-  })
+      series: [
+        {
+          type: 'area',
+          name: 'Price',
+          data: data,
+          turboThreshold: 2000,
+          boostThreshold: 2000,
+          color: '#0FC591',
+          lineWidth: 2,
+        },
+      ],
+    }
+  }
 
   // React Query to fetch the price data
-  const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(market?.address)
+  const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(market)
 
   const chartData = useMemo(() => {
     const _prices: number[][] = prices ?? []
@@ -210,6 +213,8 @@ export const MarketPriceChart = () => {
 
     return data
   }, [prices, winningIndex, resolved])
+
+  console.log(chartData)
 
   return !prices ? (
     <Box my='16px'>

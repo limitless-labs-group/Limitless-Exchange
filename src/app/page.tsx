@@ -90,7 +90,7 @@ const MainPage = () => {
   const topMarkets =
     dailyMarkets?.data.markets
       // @ts-ignore
-      .filter((market) => !market.slug)
+      // .filter((market) => !market.slug)
       .sort((a, b) => {
         // @ts-ignore
         const volumeA = a?.slug

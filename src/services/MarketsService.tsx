@@ -35,20 +35,25 @@ export function useMarkets(topic: Category | null) {
 
       const marketDataForMultiCall = response.data.flatMap((market) => {
         // @ts-ignore
-        if (!market.slug) {
-          return {
-            // @ts-ignore
-            address: market.address,
-            decimals: market.collateralToken.decimals,
-          }
+        // if (!market.slug) {
+        //   return {
+        //     // @ts-ignore
+        //     address: market.address,
+        //     decimals: market.collateralToken.decimals,
+        //   }
+        // }
+        return {
+          // @ts-ignore
+          address: market.address,
+          decimals: market.collateralToken.decimals,
         }
         // @ts-ignore
-        return market.markets.map((marketInGroup) => {
-          return {
-            address: marketInGroup.address,
-            decimals: market.collateralToken.decimals,
-          }
-        })
+        // return market.markets.map((marketInGroup) => {
+        //   return {
+        //     address: marketInGroup.address,
+        //     decimals: market.collateralToken.decimals,
+        //   }
+        // })
       }) as { address: string; decimals: number }[]
 
       const contractCallContext = marketDataForMultiCall.map(
@@ -131,30 +136,38 @@ export function useMarkets(topic: Category | null) {
       )
 
       const result = response.data.map((market) => {
-        // @ts-ignore
-        if (!market.slug) {
-          return {
-            ...market,
-            // @ts-ignore
-            ...(_markets.get(market.address)
-              ? // @ts-ignore
-                (_markets.get(market.address) as OddsData)
-              : { prices: [50, 50] }),
-          }
-        }
         return {
           ...market,
           // @ts-ignore
-          markets: market.markets
-            .map((marketInGroup: Market) => ({
-              ...marketInGroup,
-              // @ts-ignore
-              ...(_markets.get(marketInGroup.address)
-                ? (_markets.get(marketInGroup.address) as OddsData)
-                : { prices: [50, 50] }),
-            }))
-            .sort((a: Market, b: Market) => b.prices[0] - a.prices[0]),
+          ...(_markets.get(market.address)
+            ? // @ts-ignore
+              (_markets.get(market.address) as OddsData)
+            : { prices: [50, 50] }),
         }
+        // @ts-ignore
+        // if (!market.slug) {
+        //   return {
+        //     ...market,
+        //     // @ts-ignore
+        //     ...(_markets.get(market.address)
+        //       ? // @ts-ignore
+        //         (_markets.get(market.address) as OddsData)
+        //       : { prices: [50, 50] }),
+        //   }
+        // }
+        // return {
+        //   ...market,
+        //   // @ts-ignore
+        //   markets: market.markets
+        //     .map((marketInGroup: Market) => ({
+        //       ...marketInGroup,
+        //       // @ts-ignore
+        //       ...(_markets.get(marketInGroup.address)
+        //         ? (_markets.get(marketInGroup.address) as OddsData)
+        //         : { prices: [50, 50] }),
+        //     }))
+        //     .sort((a: Market, b: Market) => b.prices[0] - a.prices[0]),
+        // }
       })
 
       return {
@@ -189,7 +202,8 @@ export function useDailyMarkets(topic: Category | null) {
         })
 
       // @ts-ignore
-      const dailyMarkets = response.data.filter((market) => !market.slug)
+      // const dailyMarkets = response.data.filter((market) => !market.slug)
+      const dailyMarkets = response.data
 
       const marketDataForMultiCall = dailyMarkets.map((market) => {
         return {

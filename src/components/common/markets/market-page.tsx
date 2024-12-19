@@ -28,6 +28,9 @@ import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
+import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
+import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/trading-widget-advanced'
+import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
 import {
@@ -38,15 +41,13 @@ import {
 import CommentTab from './comment-tab'
 import { UniqueTraders } from './unique-traders'
 import useMarketGroup from '@/hooks/use-market-group'
+import { useOrderBook } from '@/hooks/use-order-book'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import ExpandIcon from '@/resources/icons/expand-icon.svg'
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
-import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import {
   ChangeEvent,
   ClickEvent,
@@ -86,8 +87,6 @@ const tokens = [
 ]
 
 export default function MarketPage() {
-  const [outcomeIndex, setOutcomeIndex] = useState(0)
-
   const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
 
   const {
@@ -107,17 +106,8 @@ export default function MarketPage() {
   const pathname = usePathname()
 
   const { trackChanged, trackClicked, trackOpened } = useAmplitude()
-  const { positions: allMarketsPositions } = useHistory()
 
   // Todo change creator name
-
-  const positions = useMemo(
-    () =>
-      allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
-      ),
-    [allMarketsPositions, market]
-  )
 
   const marketAddress = useMemo(() => market?.address, [market])
   const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
@@ -138,8 +128,6 @@ export default function MarketPage() {
       refetchMarkets()
     }
   }, [updatedMarketGroup])
-
-  const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
   const isLumy = market?.category === 'Lumy'
 
@@ -187,6 +175,13 @@ export default function MarketPage() {
     ],
     [market?.title]
   )
+
+  const tradingWidget = useMemo(() => {
+    if (market?.expired) {
+      return <MarketClosedWidget handleCloseMarketPageClicked={handleCloseMarketPageClicked} />
+    }
+    return market?.slug ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
+  }, [market])
 
   const tabs = [
     {
@@ -399,216 +394,7 @@ export default function MarketPage() {
         </HStack>
         <Divider my={isMobile ? '24px' : '16px'} />
       </Box>
-      {market?.expired ? (
-        <Paper h={'120px'}>
-          {/*<Paper h={isMobile ? '348px' : '332px'}>*/}
-          <VStack h='full' justifyContent='space-between' alignItems='flex-start'>
-            <Text {...paragraphMedium} color='grey.800'>
-              Market is closed
-            </Text>
-            <Button
-              variant='white'
-              onClick={() => {
-                if (!isMobile) {
-                  handleCloseMarketPageClicked()
-                }
-                router.push('/')
-              }}
-            >
-              Explore Opened Markets
-            </Button>
-          </VStack>
-        </Paper>
-      ) : (
-        <Paper
-          bg={'var(--chakra-colors-grey-100)'}
-          borderRadius='8px'
-          overflowX='hidden'
-          p='8px'
-          position='relative'
-        >
-          <HStack
-            w={'240px'}
-            mx='auto'
-            bg='grey.200'
-            borderRadius='8px'
-            py='2px'
-            px={'2px'}
-            mb={isMobile ? '16px' : '24px'}
-          >
-            <Button
-              h={isMobile ? '28px' : '20px'}
-              flex='1'
-              py='2px'
-              borderRadius='6px'
-              bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
-              color='grey.800'
-              _hover={{
-                backgroundColor: strategy === 'Buy' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
-              }}
-              onClick={() => {
-                trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
-                  type: 'Buy selected',
-                  marketAddress: market?.address as Address,
-                })
-                setStrategy('Buy')
-              }}
-            >
-              <Text {...controlsMedium} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
-                Buy
-              </Text>
-            </Button>
-            <Button
-              h={isMobile ? '28px' : '20px'}
-              flex='1'
-              borderRadius='6px'
-              py='2px'
-              bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
-              color='grey.800'
-              _hover={{
-                backgroundColor: strategy === 'Sell' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
-              }}
-              _disabled={{
-                opacity: '50%',
-                pointerEvents: 'none',
-              }}
-              onClick={() => {
-                trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
-                  type: 'Sell selected',
-                  marketAddress: market?.address as Address,
-                })
-                setStrategy('Sell')
-              }}
-              isDisabled={!positions?.length}
-            >
-              <Text {...controlsMedium} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
-                Sell
-              </Text>
-            </Button>
-          </HStack>
-          {marketGroup?.markets.length && (
-            <>
-              <Box mx={isMobile ? '16px' : 0}>
-                <Button
-                  variant='transparentLight'
-                  w='full'
-                  justifyContent='space-between'
-                  mb={isOpenSelectMarketMenu ? '8px' : isMobile ? '24px' : '32px'}
-                  onClick={onToggleSelectMarketMenu}
-                  rightIcon={
-                    <Box
-                      transform={`rotate(${isOpenSelectMarketMenu ? '180deg' : 0})`}
-                      transition='0.5s'
-                      color='white'
-                    >
-                      <ChevronDownIcon width='16px' height='16px' />
-                    </Box>
-                  }
-                >
-                  <HStack gap='8px' color='white'>
-                    <PredictionsIcon />
-                    <Text {...paragraphMedium} color='white'>
-                      {market?.title}
-                    </Text>
-                  </HStack>
-                </Button>
-              </Box>
-              {isOpenSelectMarketMenu && (
-                <VStack
-                  gap={isMobile ? '16px' : '8px'}
-                  mb={isMobile ? '16px' : '8px'}
-                  mx={isMobile ? '16px' : 0}
-                >
-                  {marketGroup?.markets.map((market) => (
-                    <Button
-                      key={market.address}
-                      onClick={() => {
-                        setMarket(market)
-                        onToggleSelectMarketMenu()
-                      }}
-                      flexDirection='column'
-                      variant='transparentLight'
-                      w='full'
-                    >
-                      <HStack mb='8px' w='full'>
-                        <HStack justifyContent='space-between' w='full' alignItems='flex-start'>
-                          <Text {...paragraphMedium} color='white'>
-                            {market.title}
-                          </Text>
-                          <HStack gap='4px'>
-                            <Text {...paragraphMedium} color='white'>
-                              {market.prices[0]}%
-                            </Text>
-                            <Box
-                              w='16px'
-                              h='16px'
-                              display='flex'
-                              alignItems='center'
-                              justifyContent='center'
-                            >
-                              <Box
-                                h='100%'
-                                w='100%'
-                                borderRadius='100%'
-                                bg={`conic-gradient(white 0% ${
-                                  market.prices[0]
-                                }%, var(--chakra-colors-transparent-300) ${
-                                  market.prices[0] < 1 ? 1 : market.prices[0]
-                                }% 100%)`}
-                              />
-                            </Box>
-                          </HStack>
-                        </HStack>
-                      </HStack>
-                      <HStack
-                        gap={isMobile ? '8px' : '16px'}
-                        flexDirection={isMobile ? 'column' : 'row'}
-                        w='full'
-                      >
-                        <HStack
-                          w={isMobile ? '100%' : 'unset'}
-                          justifyContent={isMobile ? 'space-between' : 'unset'}
-                          color='white'
-                        >
-                          <LiquidityIcon width={16} height={16} />
-                          <Text {...paragraphRegular} color='white'>
-                            {NumberUtil.formatThousands(market.liquidityFormatted, 6)}{' '}
-                            {market.collateralToken.symbol}
-                          </Text>
-                        </HStack>
-                        <HStack
-                          w={isMobile ? '100%' : 'unset'}
-                          justifyContent={isMobile ? 'space-between' : 'unset'}
-                          color='white'
-                        >
-                          <VolumeIcon width={16} height={16} />
-                          <Text {...paragraphRegular} color='white'>
-                            {NumberUtil.formatThousands(market.volumeFormatted, 6)}{' '}
-                            {market.collateralToken.symbol}
-                          </Text>
-                        </HStack>
-                      </HStack>
-                    </Button>
-                  ))}
-                </VStack>
-              )}
-            </>
-          )}
-          {strategy === 'Buy' && (
-            <MarketPageBuyForm
-              setOutcomeIndex={setOutcomeIndex}
-              marketList={marketGroup?.markets}
-            />
-          )}
-          {strategy === 'Sell' ? (
-            status === 'Loading' ? (
-              <LoadingForm outcomeIndex={outcomeIndex} />
-            ) : (
-              <SellForm setOutcomeIndex={setOutcomeIndex} />
-            )
-          ) : null}
-        </Paper>
-      )}
+      {tradingWidget}
       {isLivePriceSupportedMarket ? (
         <Tabs position='relative' variant='common' mt='20px'>
           <TabList>
