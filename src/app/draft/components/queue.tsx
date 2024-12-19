@@ -3,9 +3,10 @@
 import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Toast } from '@/components/common/toast'
 import { DraftMarket, DraftMarketCard } from '@/app/draft/components/draft-card'
+import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 
@@ -33,6 +34,15 @@ export const DraftMarketsQueue = () => {
         : [...prevSelected, marketId]
     )
   }
+
+  const selectedMarket = useMemo(() => {
+    if (!draftMarkets || !Array.isArray(draftMarkets)) return []
+    return draftMarkets
+      ?.filter((market: DraftMarket) => selectedMarketIds.includes(market.id))
+      .map((market: DraftMarket) => {
+        return { title: market.title, id: market.id }
+      })
+  }, [selectedMarketIds, draftMarkets])
 
   const handleClick = (marketId: number) => {
     router.push(`/draft/?market=${marketId}`)
@@ -92,15 +102,12 @@ export const DraftMarketsQueue = () => {
             <Spinner />
           </Box>
         ) : (
-          <Button
-            colorScheme='green'
-            mt='16px'
-            w={'full'}
-            onClick={createMarketsBatch}
-            style={{ position: 'sticky', bottom: 10 }}
-          >
-            Create Markets Batch
-          </Button>
+          <Box style={{ width: '100%', position: 'sticky', bottom: 40 }}>
+            <SelectedMarkets market={selectedMarket} />
+            <Button colorScheme='green' mt='16px' w={'full'} onClick={createMarketsBatch}>
+              Create Markets Batch
+            </Button>
+          </Box>
         )}
       </VStack>
     </Flex>

@@ -174,5 +174,6 @@ export const lightThemeColors: ColorScheme = {
   draftCard: {
     bg: '#dcfce7',
     border: '#bbf7d0',
+    selectedBg: '#fff',
   },
 }

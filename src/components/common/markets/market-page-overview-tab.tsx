@@ -6,6 +6,7 @@ import MarketPositionsClob from '@/components/common/markets/positions/market-po
 import { useTradingService } from '@/services'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { parseTextWithLinks } from '@/utils/string'
+import TextEditor from '../text-editor'
 
 export default function MarketPageOverviewTab() {
   const { market } = useTradingService()
@@ -41,7 +42,7 @@ export default function MarketPageOverviewTab() {
         )}
 
         <Text mt='16px' {...paragraphRegular}>
-          {parseTextWithLinks(market?.description || '')}
+          <TextEditor value={market?.description ?? ''} readOnly={true} />
         </Text>
       </Box>
     </>
