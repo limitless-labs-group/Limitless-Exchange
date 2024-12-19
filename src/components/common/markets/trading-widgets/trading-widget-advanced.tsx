@@ -13,7 +13,7 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -42,10 +42,12 @@ export default function TradingWidgetAdvanced() {
   const { strategy, setStrategy, market } = useTradingService()
   const privateClient = useAxiosPrivateClient()
   const { profileData } = useAccount()
+  const queryClient = useQueryClient()
   const {
     checkAllowance,
     approveContract,
     placeLimitOrder,
+    placeMarketOrder,
     approveAllowanceForAll,
     checkAllowanceForAll,
   } = useWeb3Service()
@@ -142,6 +144,48 @@ export default function TradingWidgetAdvanced() {
     },
   })
 
+  const placeMarketOrderMutation = useMutation({
+    mutationKey: ['market-order', market?.address, price],
+    mutationFn: async () => {
+      if (market) {
+        const tokenId = outcome === 1 ? market.tokens.no : market.tokens.yes
+        const side = strategy === 'Buy' ? 0 : 1
+        const signedOrder = await placeMarketOrder(
+          tokenId,
+          market.collateralToken.decimals,
+          outcome === 0 ? yesPrice : noPrice,
+          side,
+          price
+        )
+        const data = {
+          order: {
+            ...signedOrder,
+            salt: +signedOrder.salt,
+            price:
+              orderType === MarketOrderType.LIMIT
+                ? new BigNumber(price).dividedBy(100).toNumber()
+                : undefined,
+            makerAmount:
+              orderType === MarketOrderType.LIMIT
+                ? +signedOrder.makerAmount
+                : +parseUnits(price, market.collateralToken.decimals).toString(),
+            takerAmount: +signedOrder.takerAmount,
+            nonce: +signedOrder.nonce,
+            feeRateBps: +signedOrder.feeRateBps,
+          },
+          ownerId: profileData?.id,
+          orderType: orderType === MarketOrderType.LIMIT ? 'GTC' : 'FOK',
+          marketSlug: market.slug,
+        }
+        return privateClient.post('/orders', data)
+      }
+    },
+    onSuccess: async () =>
+      queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      }),
+  })
+
   const placeBuyLimitOrderMutation = useMutation({
     mutationKey: ['limit-order', market?.address, price],
     mutationFn: async () => {
@@ -159,8 +203,14 @@ export default function TradingWidgetAdvanced() {
           order: {
             ...signedOrder,
             salt: +signedOrder.salt,
-            price: new BigNumber(price).dividedBy(100).toNumber(),
-            makerAmount: +signedOrder.makerAmount,
+            price:
+              orderType === MarketOrderType.LIMIT
+                ? new BigNumber(price).dividedBy(100).toNumber()
+                : undefined,
+            makerAmount:
+              orderType === MarketOrderType.LIMIT
+                ? +signedOrder.makerAmount
+                : +parseUnits(price, market.collateralToken.decimals).toString(),
             takerAmount: +signedOrder.takerAmount,
             nonce: +signedOrder.nonce,
             feeRateBps: +signedOrder.feeRateBps,
@@ -172,6 +222,10 @@ export default function TradingWidgetAdvanced() {
         return privateClient.post('/orders', data)
       }
     },
+    onSuccess: async () =>
+      queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      }),
   })
 
   const checkMarketAllowance = async () => {
@@ -196,7 +250,9 @@ export default function TradingWidgetAdvanced() {
   }
 
   const onClickBuy = async () => {
-    await placeBuyLimitOrderMutation.mutateAsync()
+    return orderType === MarketOrderType.LIMIT
+      ? await placeBuyLimitOrderMutation.mutateAsync()
+      : await placeMarketOrderMutation.mutateAsync()
   }
 
   const resetFormFields = () => {

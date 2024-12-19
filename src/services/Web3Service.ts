@@ -58,6 +58,13 @@ type Web3Service = {
     shares: string,
     side: number
   ) => Promise<SignedOrder>
+  placeMarketOrder: (
+    tokenId: string,
+    decimals: number,
+    price: string,
+    side: number,
+    amount: string
+  ) => Promise<SignedOrder>
 }
 
 export function useWeb3Service(): Web3Service {
@@ -189,10 +196,7 @@ export function useWeb3Service(): Web3Service {
     shares: string,
     side: number
   ): Promise<SignedOrder> => {
-    console.log(shares)
-    console.log(price)
     const convertedPrice = new BigNumber(price).dividedBy(100).toString()
-    console.log(convertedPrice)
     const orderData = {
       salt: Math.round(Math.random() * Date.now()) + '',
       maker: walletAddress as Address,
@@ -211,6 +215,46 @@ export function useWeb3Service(): Web3Service {
           ? parseUnits(shares, decimals).toString()
           : parseUnits(
               new BigNumber(convertedPrice).multipliedBy(new BigNumber(shares)).toString(),
+              decimals
+            ).toString(), // shares * decimals
+      expiration: '0',
+      nonce: '0',
+      feeRateBps: '0',
+      side, // buy 0, sell 1
+      signatureType: 0,
+    }
+    const order = buildOrderTypedData(orderData)
+
+    const signature = await externalWalletService.signTypedData(order)
+    return {
+      ...orderData,
+      signature,
+    }
+  }
+
+  const placeMarketOrder = async (
+    tokenId: string,
+    decimals: number,
+    price: string,
+    side: number,
+    amount: string
+  ) => {
+    const convertedPrice = new BigNumber(price).dividedBy(100).toString()
+    const orderData = {
+      salt: Math.round(Math.random() * Date.now()) + '',
+      maker: walletAddress as Address,
+      signer: walletAddress as Address,
+      taker: '0x0000000000000000000000000000000000000000',
+      tokenId,
+      makerAmount: parseUnits(amount, decimals).toString(), // amount in $ put in order
+      takerAmount:
+        side === 0
+          ? parseUnits(
+              new BigNumber(amount).dividedBy(new BigNumber(convertedPrice)).toString(),
+              decimals
+            ).toString()
+          : parseUnits(
+              new BigNumber(amount).multipliedBy(new BigNumber(convertedPrice)).toString(),
               decimals
             ).toString(), // shares * decimals
       expiration: '0',
@@ -255,5 +299,6 @@ export function useWeb3Service(): Web3Service {
     approveAllowanceForAll,
     redeemPositions,
     placeLimitOrder,
+    placeMarketOrder,
   }
 }
