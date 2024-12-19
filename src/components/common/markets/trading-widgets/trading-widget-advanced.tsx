@@ -93,18 +93,24 @@ export default function TradingWidgetAdvanced() {
     if (orderBook) {
       if (strategy === 'Buy') {
         return {
-          yesPrice: orderBook?.asks.sort((a, b) => a.price - b.price)[0]?.price * 100 || 0,
-          noPrice: (1 - orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price) * 100 || 0,
+          yesPrice:
+            (orderBook?.asks.sort((a, b) => a.price - b.price)[0]?.price * 100).toFixed() || '0',
+          noPrice:
+            ((1 - orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price) * 100).toFixed() ||
+            '0',
         }
       }
       return {
-        yesPrice: orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price * 100 || 0,
-        noPrice: (1 - orderBook?.asks.sort((a, b) => b.price - a.price)[0]?.price) * 100 || 0,
+        yesPrice:
+          (orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price * 100).toFixed() || '0',
+        noPrice:
+          ((1 - orderBook?.asks.sort((a, b) => b.price - a.price)[0]?.price) * 100).toFixed() ||
+          '0',
       }
     }
     return {
-      yesPrice: 0,
-      noPrice: 0,
+      yesPrice: '0',
+      noPrice: '0',
     }
   }, [strategy, orderBook])
 
