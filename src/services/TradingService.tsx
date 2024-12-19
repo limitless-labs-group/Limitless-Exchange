@@ -127,6 +127,15 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     getConditionalTokensAddress()
   }, [market])
 
+  const refetchHistory = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: ['positions'],
+    })
+    await queryClient.invalidateQueries({
+      queryKey: ['history'],
+    })
+  }
+
   // TODO: refactor
   const refetchChain = async () => {
     await queryClient.invalidateQueries({
@@ -571,6 +580,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         await queryClient.refetchQueries({
           queryKey: ['market', market.address],
         })
+        await refetchHistory()
       })
 
       sleep(5).then(async () => {
@@ -698,6 +708,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       })
 
       await refetchMarkets()
+      await refetchHistory()
 
       const updateID = toast({
         render: () => <Toast title={`Updating portfolio...`} id={updateID} />,
@@ -758,6 +769,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       }
 
       await refetchChain()
+      await refetchHistory()
 
       const id = toast({
         render: () => <Toast title={`Successfully redeemed`} id={id} />,

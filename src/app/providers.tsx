@@ -15,10 +15,10 @@ import {
   AmplitudeProvider,
   BalanceServiceProvider,
   EtherspotProvider,
-  HistoryServiceProvider,
   LimitlessApiProvider,
   TradingServiceProvider,
   CommentServiceProvider,
+  HistoryServiceProvider,
 } from '@/services'
 import { AxiosProvider } from '@/services/AxiosPrivateClient'
 
