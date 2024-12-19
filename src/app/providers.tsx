@@ -18,6 +18,7 @@ import {
   LimitlessApiProvider,
   TradingServiceProvider,
   CommentServiceProvider,
+  HistoryServiceProvider,
 } from '@/services'
 import { AxiosProvider } from '@/services/AxiosPrivateClient'
 
@@ -39,11 +40,13 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                         <AccountProvider>
                           <PriceOracleProvider>
                             <BalanceServiceProvider>
-                              <TokenFilterProvider>
-                                <CommentServiceProvider>
-                                  <TradingServiceProvider>{children}</TradingServiceProvider>
-                                </CommentServiceProvider>
-                              </TokenFilterProvider>
+                              <HistoryServiceProvider>
+                                <TokenFilterProvider>
+                                  <CommentServiceProvider>
+                                    <TradingServiceProvider>{children}</TradingServiceProvider>
+                                  </CommentServiceProvider>
+                                </TokenFilterProvider>
+                              </HistoryServiceProvider>
                             </BalanceServiceProvider>
                           </PriceOracleProvider>
                         </AccountProvider>

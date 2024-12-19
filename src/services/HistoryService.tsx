@@ -96,6 +96,7 @@ export const usePosition = () => {
       }
     },
     enabled: !!walletAddress,
+    refetchInterval: !!walletAddress ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
   })
 }
 

@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Divider,
+  Flex,
   HStack,
   Link,
   Menu,
@@ -56,6 +57,7 @@ import {
   useBalanceQuery,
   useBalanceService,
   useEtherspot,
+  usePosition,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -73,6 +75,7 @@ export default function Sidebar() {
   const { client } = useWeb3Service()
   const { isLoadingSmartWalletAddress } = useEtherspot()
   const { data: totalVolume } = useTotalTradingVolume()
+  const { data: positions } = usePosition()
 
   const pageName = usePageName()
   const userMenuLoading = useMemo(() => {
@@ -84,6 +87,10 @@ export default function Sidebar() {
     }
     return false //#fix for dev env
   }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
+
+  const hasWinningPosition = useMemo(() => {
+    return positions?.some((position) => position.market.closed)
+  }, [positions])
 
   const {
     isOpen: isOpenWalletPage,
@@ -223,11 +230,21 @@ export default function Sidebar() {
                   bg={pageName === 'Portfolio' ? 'grey.100' : 'unset'}
                   rounded='8px'
                 >
-                  <HStack w='full'>
+                  <HStack w='full' gap='0'>
                     <PortfolioIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
+                    <Text fontWeight={500} fontSize='14px' marginLeft='8px'>
                       Portfolio
                     </Text>
+                    {hasWinningPosition ? (
+                      <Flex
+                        bg='red.500'
+                        h='8px'
+                        w='8px'
+                        borderRadius='10px'
+                        marginLeft='3px'
+                        alignSelf='start'
+                      />
+                    ) : null}
                   </HStack>
                 </Link>
               </NextLink>
