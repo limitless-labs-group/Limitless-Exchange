@@ -199,11 +199,20 @@ export function useWeb3Service(): Web3Service {
       signer: walletAddress as Address,
       taker: '0x0000000000000000000000000000000000000000',
       tokenId,
-      makerAmount: parseUnits(
-        new BigNumber(convertedPrice).multipliedBy(new BigNumber(shares)).toString(),
-        decimals
-      ).toString(), // limit price * shares with decimals
-      takerAmount: parseUnits(shares, decimals).toString(), // shares * decimals
+      makerAmount:
+        side === 0
+          ? parseUnits(
+              new BigNumber(convertedPrice).multipliedBy(new BigNumber(shares)).toString(),
+              decimals
+            ).toString()
+          : parseUnits(shares, decimals).toString(), // limit price * shares with decimals
+      takerAmount:
+        side === 0
+          ? parseUnits(shares, decimals).toString()
+          : parseUnits(
+              new BigNumber(convertedPrice).multipliedBy(new BigNumber(shares)).toString(),
+              decimals
+            ).toString(), // shares * decimals
       expiration: '0',
       nonce: '0',
       feeRateBps: '0',

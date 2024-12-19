@@ -22,7 +22,7 @@ import ButtonWithStates from '@/components/common/button-with-states'
 import { Modal } from '@/components/common/modals/modal'
 import Paper from '@/components/common/paper'
 import { useConditionalTokensAddr } from '@/hooks/use-conditional-tokens-addr'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { useOrderBook } from '@/hooks/use-order-book'
 import {
   ChangeEvent,
   StrategyChangedMetadata,
@@ -37,11 +37,10 @@ import { controlsMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 import { uppercaseFirstLetter } from '@/utils/string'
 
-export default function TradingWidget() {
+export default function TradingWidgetAdvanced() {
   const { trackChanged } = useAmplitude()
   const { strategy, setStrategy, market } = useTradingService()
   const privateClient = useAxiosPrivateClient()
-  const walletAddress = useWalletAddress()
   const { profileData } = useAccount()
   const {
     checkAllowance,
@@ -54,7 +53,11 @@ export default function TradingWidget() {
     marketAddr: !market ? undefined : getAddress(market.address),
   })
   const { positions: allMarketsPositions } = useHistory()
-  const [orderType, setOrderType] = useState<MarketOrderType>(MarketOrderType.LIMIT)
+  const { data: orderBook } = useOrderBook(market?.slug)
+
+  console.log(orderBook)
+
+  const [orderType, setOrderType] = useState<MarketOrderType>(MarketOrderType.MARKET)
   const [outcome, setOutcome] = useState(0)
   const [price, setPrice] = useState('')
   const [sharesAmount, setSharesAmount] = useState('')
@@ -85,6 +88,25 @@ export default function TradingWidget() {
     }
     return '0'
   }, [orderType, price, sharesAmount])
+
+  const { yesPrice, noPrice } = useMemo(() => {
+    if (orderBook) {
+      if (strategy === 'Buy') {
+        return {
+          yesPrice: orderBook?.asks.sort((a, b) => a.price - b.price)[0]?.price * 100 || 0,
+          noPrice: (1 - orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price) * 100 || 0,
+        }
+      }
+      return {
+        yesPrice: orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price * 100 || 0,
+        noPrice: (1 - orderBook?.asks.sort((a, b) => b.price - a.price)[0]?.price) * 100 || 0,
+      }
+    }
+    return {
+      yesPrice: 0,
+      noPrice: 0,
+    }
+  }, [strategy, orderBook])
 
   const approveMutation = useMutation({
     mutationKey: ['approve', market?.address],
@@ -340,7 +362,7 @@ export default function TradingWidget() {
             }}
           >
             <Text {...controlsMedium} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
-              Yes
+              Yes {yesPrice} %
             </Text>
           </Button>
           <Button
@@ -366,20 +388,21 @@ export default function TradingWidget() {
             }}
           >
             <Text {...controlsMedium} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
-              No
+              No {noPrice}%
             </Text>
           </Button>
         </HStack>
         <Divider my='8px' />
-        <Text {...paragraphMedium} mb='12px'>
-          Limit price
+        <Text {...paragraphMedium} mb='8px'>
+          {orderType === MarketOrderType.LIMIT ? 'Limit price' : 'Amount'}
         </Text>
         <InputGroup>
-          <InputLeftElement pointerEvents='none'>
+          <InputLeftElement pointerEvents='none' w='24px' h='24px' pl='12px'>
             {orderType === MarketOrderType.LIMIT ? '¢' : '$'}
           </InputLeftElement>
           <Input
             type='number'
+            variant='grey'
             placeholder='0'
             value={price}
             max={orderType === MarketOrderType.LIMIT ? 100 : undefined}
@@ -387,12 +410,13 @@ export default function TradingWidget() {
             step={orderType === MarketOrderType.LIMIT ? 1 : undefined}
             onChange={(e) => setPrice(e.target.value)}
             onWheel={(e) => e.preventDefault()}
+            pl='32px'
           />
         </InputGroup>
         <Divider my='8px' />
         {orderType === MarketOrderType.LIMIT && (
           <>
-            <Text {...paragraphMedium} mb='12px'>
+            <Text {...paragraphMedium} mb='8px'>
               Shares
             </Text>
             <InputGroup>
@@ -402,6 +426,7 @@ export default function TradingWidget() {
                 value={sharesAmount}
                 onChange={(e) => setSharesAmount(e.target.value)}
                 onWheel={(e) => e.stopPropagation()}
+                variant='grey'
               />
             </InputGroup>
           </>

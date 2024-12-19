@@ -24,11 +24,12 @@ export const ORDER_STRUCTURE = [
 ]
 
 export const buildOrderTypedData = (order: Order): EIP712TypedData => {
+  debugger
   console.log(order)
   const result = {
     primaryType: 'Order',
     types: {
-      EIP712Domain: EIP712_DOMAIN,
+      // EIP712Domain: EIP712_DOMAIN,
       Order: ORDER_STRUCTURE,
     },
     domain: {
@@ -48,8 +49,8 @@ export const buildOrderTypedData = (order: Order): EIP712TypedData => {
       expiration: order.expiration,
       nonce: order.nonce,
       feeRateBps: order.feeRateBps,
-      side: order.side.toString(),
-      signatureType: order.signatureType.toString(),
+      side: order.side,
+      signatureType: order.signatureType,
     },
   }
   console.log(result)
