@@ -42,6 +42,8 @@ export const DraftMarketCard = ({
   return (
     <Paper
       w={'full'}
+      id={String(market.id)}
+      scrollMarginTop='50px'
       justifyContent={'space-between'}
       cursor='pointer'
       _hover={{ ...(!isMobile ? { bg: 'var(--chakra-colors-grey-200)' } : {}) }}

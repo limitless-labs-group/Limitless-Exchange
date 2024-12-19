@@ -415,6 +415,7 @@ export interface ColorScheme {
   draftCard: {
     bg: string
     border: string
+    selectedBg: string
   }
 }
 
