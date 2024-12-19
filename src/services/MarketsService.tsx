@@ -392,15 +392,22 @@ export function useMarket(address?: string | null, isPolling = false, enabled = 
           prices = [50, 50]
         }
       } else {
-        const buyPrices = await getMarketOutcomeBuyPrice(
-          marketRes.collateralToken.decimals,
-          marketRes.address
-        )
+        try {
+          const buyPrices = await getMarketOutcomeBuyPrice(
+            marketRes.collateralToken.decimals,
+            marketRes.address
+          )
 
-        const sum = buyPrices[0] + buyPrices[1]
-        const outcomeTokensPercentYes = +((buyPrices[0] / sum) * 100).toFixed(1)
-        const outcomeTokensPercentNo = +((buyPrices[1] / sum) * 100).toFixed(1)
-        prices = [outcomeTokensPercentYes, outcomeTokensPercentNo]
+          const sum = buyPrices[0] + buyPrices[1]
+          const outcomeTokensPercentYes = +((buyPrices[0] / sum) * 100).toFixed(1)
+          const outcomeTokensPercentNo = +((buyPrices[1] / sum) * 100).toFixed(1)
+          prices = [outcomeTokensPercentYes, outcomeTokensPercentNo]
+        } catch (e) {
+          return {
+            ...marketRes,
+            prices: [50, 50],
+          } as Market
+        }
       }
 
       return {
