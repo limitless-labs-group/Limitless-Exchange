@@ -113,9 +113,10 @@ export const MarketPriceChart = () => {
         y: 11,
       },
       style: {
-        color: '#999999',
+        color: colors.grey['300'],
         cursor: 'pointer',
         fontSize: '1em',
+        fontFamily: 'Inter',
       },
       text: 'Limitless',
     },
