@@ -111,7 +111,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
       marketTags: market.tags,
       marketCategory: market.category,
     })
-    setEstimateOpened(true)
+    setEstimateOpened(!estimateOpened)
   }
 
   const onCloseEstimateClicked = (e: SyntheticEvent) => {
@@ -326,9 +326,5 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
     </Box>
   )
 
-  return isLumy ? (
-    content
-  ) : (
-    <MarketCardLink marketAddress={market?.address}>{content}</MarketCardLink>
-  )
+  return <MarketCardLink marketAddress={market?.address}>{content}</MarketCardLink>
 }

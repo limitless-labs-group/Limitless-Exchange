@@ -17,7 +17,6 @@ const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
 export const MarketPriceChart = () => {
   const { colors } = useThemeProvider()
-  const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%b %e, %Y %I:%M %p', Date.now()) ?? ''
   )
@@ -105,7 +104,20 @@ export const MarketPriceChart = () => {
       enabled: false,
     },
     credits: {
-      enabled: false,
+      enabled: true,
+      href: 'https://limitless.exchange/',
+      position: {
+        align: 'right',
+        verticalAlign: 'top',
+        x: -10,
+        y: 11,
+      },
+      style: {
+        color: '#999999',
+        cursor: 'pointer',
+        fontSize: '1em',
+      },
+      text: 'Limitless',
     },
     tooltip: {
       shared: true,
@@ -121,11 +133,8 @@ export const MarketPriceChart = () => {
         },
         point: {
           events: {
-            mouseOver: function () {
-              //@ts-ignore
-              setYesDate(Highcharts.dateFormat('%B %e, %Y %I:%M %p', Number(this.x)))
-              //@ts-ignore
-              setYesChance(this.y.toFixed(2))
+            mouseOver: function (this: Highcharts.Point) {
+              setYesDate(Highcharts.dateFormat('%B %e, %Y %I:%M %p', this.x as number))
             },
           },
         },
