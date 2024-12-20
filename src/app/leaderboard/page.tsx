@@ -24,6 +24,7 @@ import Skeleton from '@/components/common/skeleton'
 import TablePagination from '@/components/common/table-pagination'
 import Leaders from '@/app/leaderboard/components/leaders'
 import { MainLayout } from '@/components'
+import { useDateRanges } from '@/hooks/use-date-range'
 import { useLeaderboard, useTopThreeLeaders } from '@/hooks/use-leaderboard'
 import WreathsBronzeIcon from '@/resources/icons/wreaths_bronze.svg'
 import WreathsGoldIcon from '@/resources/icons/wreaths_gold.svg'
@@ -80,6 +81,20 @@ export default function LeaderboardPage() {
     (window.sessionStorage.getItem('LEADERBOARD_SORT') as LeaderboardSort) ??
       LeaderboardSort.ALL_TIME
   )
+
+  const { MONTHLY_LEADERBOARD_PERIOD, WEEKLY_LEADERBOARD_PERIOD } = useDateRanges()
+
+  const period = useMemo(() => {
+    switch (selectedSortFilter) {
+      case LeaderboardSort.MONTHLY:
+        return MONTHLY_LEADERBOARD_PERIOD
+      case LeaderboardSort.WEEKLY:
+        return WEEKLY_LEADERBOARD_PERIOD
+      default:
+        return LeaderboardSort.ALL_TIME
+    }
+  }, [selectedSortFilter, MONTHLY_LEADERBOARD_PERIOD, WEEKLY_LEADERBOARD_PERIOD])
+
   const [currentPage, setCurrentPage] = useState(1)
 
   const { trackChanged } = useAmplitude()
@@ -230,7 +245,8 @@ export default function LeaderboardPage() {
               </Box>
             ) : (
               <Text {...headlineRegular}>
-                {selectedSortFilter} - {leaderboardStats?.data.totalCount || 0} people
+                {period}
+                {','} {leaderboardStats?.data.totalCount || 0} people
               </Text>
             )}
           </HStack>

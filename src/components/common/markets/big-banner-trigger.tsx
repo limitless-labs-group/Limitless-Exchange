@@ -186,8 +186,11 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
                     gap='8px'
                     key={feedMessage.bodyHash}
                   >
-                    <HStack gap='4px' alignItems='flex-start'>
-                      <Avatar account={feedMessage?.user?.account ?? ''} />
+                    <HStack gap='4px' alignItems='end'>
+                      <Avatar
+                        account={feedMessage?.user?.account ?? ''}
+                        avatarUrl={feedMessage?.user?.imageURI}
+                      />
                       <Text {...paragraphMedium} color='white' mt='-2px'>
                         {fetMarketFeedTitle(feedMessage)}
                       </Text>
