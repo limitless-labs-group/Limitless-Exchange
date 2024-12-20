@@ -24,8 +24,6 @@ export const ORDER_STRUCTURE = [
 ]
 
 export const buildOrderTypedData = (order: Order): EIP712TypedData => {
-  debugger
-  console.log(order)
   const result = {
     primaryType: 'Order',
     types: {
