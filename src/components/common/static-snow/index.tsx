@@ -25,9 +25,16 @@ const StaticSnowBackground: React.FC<StaticSnowBackgroundProps> = ({
     canvas.width = width
     canvas.height = height
 
+    // Helper function to generate a random number between 0 and max to avoid Math.random
+    const getRandomNumber = (max: number) => {
+      const array = new Uint32Array(1)
+      window.crypto.getRandomValues(array)
+      return (array[0] / (0xffffffff + 1)) * max
+    }
+
     for (let i = 0; i < numDots; i++) {
-      const x = Math.random() * width
-      const y = Math.random() * height
+      const x = getRandomNumber(width)
+      const y = getRandomNumber(height)
 
       ctx.beginPath()
       ctx.arc(x, y, dotRadius, 0, Math.PI * 2)
