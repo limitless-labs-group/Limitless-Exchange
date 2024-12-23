@@ -18,7 +18,7 @@ import {
 import '@rainbow-me/rainbowkit/styles.css'
 import Image from 'next/image'
 import NextLink from 'next/link'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import Avatar from '@/components/common/avatar'
 import { LoginButton } from '@/components/common/login-button'
@@ -26,7 +26,6 @@ import WrapModal from '@/components/common/modals/wrap-modal'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
-import SnowBackground from '@/components/common/snow-background'
 import SocialsFooter from '@/components/common/socials-footer'
 import StaticSnowBackground from '@/components/common/static-snow'
 import WalletPage from '@/components/layouts/wallet-page'
@@ -196,7 +195,6 @@ export default function Sidebar() {
         pos='fixed'
         overflowY='auto'
       >
-        {/* <SnowBackground height={2000} width={188} numDots={500} isMoving={isMoving} /> */}
         {mode === 'dark' ? (
           <StaticSnowBackground height={60} width={188} numDots={40} dotRadius={0.8} />
         ) : null}
