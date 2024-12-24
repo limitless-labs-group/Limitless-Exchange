@@ -22,8 +22,13 @@ const StaticSnowBackground: React.FC<StaticSnowBackgroundProps> = ({
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    canvas.width = width
-    canvas.height = height
+    // Scale the canvas for high DPI devices
+    const dpr = window.devicePixelRatio || 1
+    canvas.width = width * dpr
+    canvas.height = height * dpr
+    canvas.style.width = `${width}px`
+    canvas.style.height = `${height}px`
+    ctx.scale(dpr, dpr)
 
     // Helper function to generate a random number between 0 and max to avoid Math.random
     const getRandomNumber = (max: number) => {
@@ -32,6 +37,7 @@ const StaticSnowBackground: React.FC<StaticSnowBackgroundProps> = ({
       return (array[0] / (0xffffffff + 1)) * max
     }
 
+    // Draw snowflakes
     for (let i = 0; i < numDots; i++) {
       const x = getRandomNumber(width)
       const y = getRandomNumber(height)
