@@ -27,6 +27,7 @@ import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
+import StaticSnowBackground from '@/components/common/static-snow'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
@@ -60,7 +61,7 @@ import {
   usePosition,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular, headline } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
 export default function Sidebar() {
@@ -194,19 +195,28 @@ export default function Sidebar() {
         pos='fixed'
         overflowY='auto'
       >
-        <NextLink href='/' passHref>
+        {mode === 'dark' ? (
+          <StaticSnowBackground height={60} width={188} numDots={40} dotRadius={0.8} />
+        ) : null}
+
+        <NextLink href='/' passHref style={{ width: '100%', textDecoration: 'none' }}>
           <Link
             onClick={() => {
               trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
               window.localStorage.removeItem('SORT')
             }}
+            style={{ textDecoration: 'none' }}
+            _hover={{ textDecoration: 'none' }}
           >
-            <Image
-              src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
-              height={32}
-              width={156}
-              alt='logo'
-            />
+            <HStack w='full' alignItems='center'>
+              <Image
+                src={mode === 'dark' ? '/snow-logo.png' : '/snow-logo-light.png'}
+                height={46}
+                width={46}
+                alt='logo'
+              />
+              <Text {...headline}>Limitless</Text>
+            </HStack>
           </Link>
         </NextLink>
 
