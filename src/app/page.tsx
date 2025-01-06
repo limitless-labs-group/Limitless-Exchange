@@ -20,7 +20,8 @@ import {
   useTradingService,
 } from '@/services'
 import { useDailyMarkets, useMarket, useMarkets } from '@/services/MarketsService'
-import { Category, Market, MarketGroup, Sort } from '@/types'
+import { Category, Market, MarketGroup, Sort, SortStorageName } from '@/types'
+import { sortMarkets } from '@/utils/market-sorting'
 
 const MainPage = () => {
   const searchParams = useSearchParams()
@@ -70,12 +71,27 @@ const MainPage = () => {
    */
   const isMobile = useIsMobile()
 
-  const [selectedSort, setSelectedSort] = useState<Sort>(
-    (window.localStorage.getItem('SORT') as Sort) ?? Sort.BASE
-  )
-  const handleSelectSort = (options: Sort) => {
-    window.localStorage.setItem('SORT', options)
-    setSelectedSort(options)
+  const [selectedSort, setSelectedSort] = useState<Sort>(() => {
+    if (typeof window !== 'undefined') {
+      return (window.localStorage.getItem(SortStorageName.SORT) as Sort) ?? Sort.BASE
+    }
+    return Sort.BASE
+  })
+
+  const [selectedSortDaily, setSelectedSortDaily] = useState<Sort>(() => {
+    if (typeof window !== 'undefined') {
+      return (window.localStorage.getItem(SortStorageName.SORT_DAILY) as Sort) ?? Sort.BASE
+    }
+    return Sort.BASE
+  })
+
+  const handleSelectSort = (options: Sort, name: SortStorageName) => {
+    window.localStorage.setItem(name, options)
+    if (name === SortStorageName.SORT) {
+      setSelectedSort(options)
+      return
+    }
+    setSelectedSortDaily(options)
   }
 
   const { selectedFilterTokens, selectedCategory } = useTokenFilter()
@@ -120,7 +136,9 @@ const MainPage = () => {
   }, [data?.pages, category])
 
   const filteredAllMarkets = useMemo(() => {
-    const tokenFilteredMarkets = markets?.filter((market) =>
+    if (!markets) return []
+
+    const tokenFilteredMarkets = markets.filter((market) =>
       selectedFilterTokens.length > 0
         ? selectedFilterTokens.some(
             (filterToken) =>
@@ -136,64 +154,16 @@ const MainPage = () => {
     }
 
     return tokenFilteredMarkets
-  }, [markets, selectedFilterTokens, selectedCategory])
+  }, [markets])
 
-  const sortedMarkets = useMemo(() => {
-    if (!filteredAllMarkets) return []
-    switch (selectedSort) {
-      case Sort.NEWEST:
-        return [...filteredAllMarkets].sort((a, b) => {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        })
-      case Sort.HIGHEST_VOLUME:
-        return [...filteredAllMarkets].sort((a, b) => {
-          // @ts-ignore
-          const volumeA = a?.slug
-            ? // @ts-ignore
-              a.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
-            : // @ts-ignore
-              +a.volumeFormatted
-          // @ts-ignore
-          const volumeB = b?.slug
-            ? // @ts-ignore
-              b.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
-            : // @ts-ignore
-              +b.volumeFormatted
+  const sortedAllMarkets = useMemo(() => {
+    return sortMarkets(filteredAllMarkets, selectedSort, convertTokenAmountToUsd)
+  }, [filteredAllMarkets, selectedSort, convertTokenAmountToUsd])
 
-          return (
-            convertTokenAmountToUsd(b.collateralToken.symbol, volumeB) -
-            convertTokenAmountToUsd(a.collateralToken.symbol, volumeA)
-          )
-        })
-      case Sort.HIGHEST_LIQUIDITY:
-        return [...filteredAllMarkets].sort((a, b) => {
-          // @ts-ignore
-          const liquidityA = a?.slug
-            ? // @ts-ignore
-              a.markets.reduce((a, b) => a + +b.liquidityFormatted, 0)
-            : // @ts-ignore
-              +a.liquidityFormatted
-          // @ts-ignore
-          const liquidityB = b?.slug
-            ? // @ts-ignore
-              b.markets.reduce((a, b) => a + +b.liquidityFormatted, 0)
-            : // @ts-ignore
-              +b.liquidityFormatted
-
-          return (
-            convertTokenAmountToUsd(b.collateralToken.symbol, liquidityB) -
-            convertTokenAmountToUsd(a.collateralToken.symbol, liquidityA)
-          )
-        })
-      case Sort.ENDING_SOON:
-        return [...filteredAllMarkets].sort(
-          (a, b) =>
-            new Date(a.expirationTimestamp).getTime() - new Date(b.expirationTimestamp).getTime()
-        )
-      default:
-        return filteredAllMarkets
-    }
-  }, [markets, filteredAllMarkets, selectedSort])
+  const sortedDailyMarkets = useMemo(() => {
+    if (!dailyMarkets?.data.markets) return []
+    return sortMarkets(dailyMarkets.data.markets, selectedSortDaily, convertTokenAmountToUsd)
+  }, [dailyMarkets?.data.markets, selectedSortDaily, convertTokenAmountToUsd])
 
   useEffect(() => {
     return () => {
@@ -213,16 +183,17 @@ const MainPage = () => {
           <>
             <TopMarkets markets={topMarkets as Market[]} isLoading={isLoadingDailyMarkets} />
             <DailyMarketsSection
-              markets={dailyMarkets?.data.markets}
+              markets={sortedDailyMarkets}
+              handleSelectSort={handleSelectSort}
               isLoading={isLoadingDailyMarkets}
               totalAmount={dailyMarkets?.data.totalAmount}
             />
-            <AllMarkets
-              markets={sortedMarkets}
-              handleSelectSort={handleSelectSort}
-              totalAmount={data?.pages?.[0].data.totalAmount}
-              isLoading={isFetching && !isFetchingNextPage}
-            />
+            {/* <AllMarkets */}
+            {/*   markets={sortedAllMarkets} */}
+            {/*   handleSelectSort={handleSelectSort} */}
+            {/*   totalAmount={data?.pages?.[0].data.totalAmount} */}
+            {/*   isLoading={isFetching && !isFetchingNextPage} */}
+            {/* /> */}
           </>
           {/*{isFetching && !isFetchingNextPage ? (*/}
           {/*  <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>*/}

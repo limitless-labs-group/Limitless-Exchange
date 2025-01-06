@@ -143,6 +143,11 @@ export enum Sort {
   HIGHEST_VOLUME = 'High Volume',
 }
 
+export enum SortStorageName {
+  SORT = 'SORT',
+  SORT_DAILY = 'SORT_DAILY',
+}
+
 export enum LeaderboardSort {
   DAILY = 'Daily',
   WEEKLY = 'Weekly',

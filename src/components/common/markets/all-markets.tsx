@@ -6,10 +6,10 @@ import DailyMarketCardMobile from '@/components/common/markets/market-cards/dail
 import Skeleton from '@/components/common/skeleton'
 import SortFilter from '@/components/common/sort-filter'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup, Sort } from '@/types'
+import { Market, MarketGroup, Sort, SortStorageName } from '@/types'
 
 interface AllMarketsProps {
-  handleSelectSort: (option: Sort) => void
+  handleSelectSort: (option: Sort, name: SortStorageName) => void
   markets?: (Market | MarketGroup)[]
   totalAmount?: number
   isLoading: boolean
@@ -29,7 +29,7 @@ export default function AllMarkets({
           / All markets {isLoading ? '' : `(${totalAmount})`}
         </Text>
       </Box>
-      <SortFilter onChange={handleSelectSort} />
+      <SortFilter onChange={handleSelectSort} storageName={SortStorageName.SORT} />
       {/*<InfiniteScroll*/}
       {/*  dataLength={dataLength}*/}
       {/*  next={fetchNextPage}*/}
