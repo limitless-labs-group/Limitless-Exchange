@@ -5,16 +5,19 @@ import DailyMarketCard from '@/components/common/markets/market-cards/daily-mark
 import DailyMarketCardMobile from '@/components/common/markets/market-cards/daily-market-card-mobile'
 import Skeleton from '@/components/common/skeleton'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
+import { Market, Sort, SortStorageName } from '@/types'
+import SortFilter from '../sort-filter'
 
 interface DailyMarketsSectionProps {
   markets?: Market[]
+  handleSelectSort: (option: Sort, name: SortStorageName) => void
   totalAmount?: number
   isLoading: boolean
 }
 
 export default function DailyMarketsSection({
   markets,
+  handleSelectSort,
   totalAmount = 1,
   isLoading,
 }: DailyMarketsSectionProps) {
@@ -26,6 +29,7 @@ export default function DailyMarketsSection({
           / Daily markets {isLoading ? '' : `(${totalAmount})`}
         </Text>
       </Box>
+      <SortFilter onChange={handleSelectSort} storageName={SortStorageName.SORT_DAILY} />
       <VStack gap={2} w='full' px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : '24px'}>
         {isLoading
           ? [...Array(3)].map((index) => <Skeleton height={200} key={index} />)

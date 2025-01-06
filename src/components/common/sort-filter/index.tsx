@@ -4,29 +4,32 @@ import { v4 as uuidv4 } from 'uuid'
 import { useIsMobile } from '@/hooks'
 import { ClickEvent, useAmplitude } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Sort } from '@/types'
+import { Sort, SortStorageName } from '@/types'
 
 type SortFilterProps = {
-  onChange: (option: Sort) => void
+  onChange: (option: Sort, storageName: SortStorageName) => void
+  storageName: SortStorageName
 }
 
 const sortOptions = [Sort.ENDING_SOON, Sort.HIGHEST_VOLUME, Sort.HIGHEST_LIQUIDITY, Sort.NEWEST]
 
-export default function SortFilter({ onChange }: SortFilterProps) {
+export default function SortFilter({ onChange, storageName }: SortFilterProps) {
   const [selectedSortFilter, setSelectedSortFilter] = useState<Sort>(
-    (window.sessionStorage.getItem('SORT') as Sort) ?? Sort.ENDING_SOON
+    (window.sessionStorage.getItem(storageName) as Sort) ?? Sort.ENDING_SOON
   )
   const { trackClicked } = useAmplitude()
 
   const handleFilterItemClicked = (option: Sort) => {
-    window.sessionStorage.setItem('SORT', option)
+    window.sessionStorage.setItem(storageName, option)
     setSelectedSortFilter(option)
   }
 
   const isMobile = useIsMobile()
 
   useEffect(() => {
-    onChange(selectedSortFilter)
+    if (onChange) {
+      onChange(selectedSortFilter, storageName)
+    }
   }, [selectedSortFilter])
 
   return (
