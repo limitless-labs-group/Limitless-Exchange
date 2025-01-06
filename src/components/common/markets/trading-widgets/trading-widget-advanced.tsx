@@ -296,10 +296,13 @@ export default function TradingWidgetAdvanced() {
   }, [strategy, orderType])
 
   const isSharePriceValid = useMemo(() => {
-    if (orderType === MarketOrderType.LIMIT && !!price) {
-      return +price > 0 && +price < 100
+    if (!!price) {
+      if (orderType === MarketOrderType.LIMIT) {
+        return +price > 0 && +price < 100
+      }
+      return new BigNumber(price).isLessThan(new BigNumber(balance))
     }
-    return new BigNumber(price).isLessThan(new BigNumber(balance))
+    return true
   }, [orderType, price, balance])
 
   const actionButton = useMemo(() => {
