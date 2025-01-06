@@ -26,7 +26,7 @@ export default function DailyMarketsSection({
       <Box px={isMobile ? '16px' : 0}>
         <Divider orientation='horizontal' borderColor='grey.800' />
         <Text {...headlineRegular} mt={isMobile ? '8px' : '4px'}>
-          / Daily markets {isLoading ? '' : `(${totalAmount})`}
+          / Markets {isLoading ? '' : `(${totalAmount})`}
         </Text>
       </Box>
       <SortFilter onChange={handleSelectSort} storageName={SortStorageName.SORT_DAILY} />
