@@ -68,21 +68,31 @@ import { defineOpenInterestOverVolume } from '@/utils/market'
 
 const tokens = [
   'AAVE',
+  'AERO',
+  'ALGO',
   'APE',
   'ATOM',
   'APT',
-  'BRETT',
-  'BTC',
-  'DOGE',
+  'AVAX',
+  'DOT',
   'EIGEN',
   'ENS',
-  'ETH',
-  'FLOKI',
+  'FTM',
+  'HBAR',
+  'ICP',
+  'INJ',
+  'JUP',
+  'LDO',
+  'LINK',
+  'NEAR',
+  'ONDO',
+  'OP',
+  'PYTH',
   'RENDER',
-  'SOL',
   'SUI',
-  'ZRO',
+  'WLD',
   'ZK',
+  'ZRO',
 ]
 
 export default function MarketPage() {
@@ -145,24 +155,9 @@ export default function MarketPage() {
 
   const isLivePriceSupportedMarket =
     isLumy &&
-    [
-      'Will AAVE',
-      'Will APE',
-      'Will ATOM',
-      'Will APT',
-      'Will BRETT',
-      'Will BTC',
-      'Will DOGE',
-      'Will EIGEN',
-      'Will ENS',
-      'Will ETH',
-      'Will FLOKI',
-      'Will RENDER',
-      'Will SOL',
-      'Will SUI',
-      'Will ZRO',
-      'Will ZK',
-    ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
+    tokens
+      .map((token) => `Will ${token}`)
+      .some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = [
     {
