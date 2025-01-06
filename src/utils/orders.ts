@@ -51,7 +51,6 @@ export const buildOrderTypedData = (order: Order): EIP712TypedData => {
       signatureType: order.signatureType,
     },
   }
-  console.log(result)
   return result
 }
 

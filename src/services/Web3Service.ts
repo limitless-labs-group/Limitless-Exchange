@@ -247,16 +247,17 @@ export function useWeb3Service(): Web3Service {
       taker: '0x0000000000000000000000000000000000000000',
       tokenId,
       makerAmount: parseUnits(amount, decimals).toString(), // amount in $ put in order
-      takerAmount:
-        side === 0
-          ? parseUnits(
-              new BigNumber(amount).dividedBy(new BigNumber(convertedPrice)).toString(),
-              decimals
-            ).toString()
-          : parseUnits(
-              new BigNumber(amount).multipliedBy(new BigNumber(convertedPrice)).toString(),
-              decimals
-            ).toString(), // shares * decimals
+      takerAmount: '1',
+      // takerAmount:
+      //   side === 0
+      //     ? parseUnits(
+      //         new BigNumber(amount).dividedBy(new BigNumber(convertedPrice)).toString(),
+      //         decimals
+      //       ).toString()
+      //     : parseUnits(
+      //         new BigNumber(amount).multipliedBy(new BigNumber(convertedPrice)).toString(),
+      //         decimals
+      //       ).toString(), // shares * decimals
       expiration: '0',
       nonce: '0',
       feeRateBps: '0',

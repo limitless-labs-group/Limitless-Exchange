@@ -29,8 +29,6 @@ export default function LumyPage() {
 
   const { mode } = useThemeProvider()
 
-  console.log(mode)
-
   const { data } = useLumyBalance()
 
   const rules = [

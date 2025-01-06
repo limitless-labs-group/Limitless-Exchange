@@ -28,6 +28,7 @@ import {
   StrategyChangedMetadata,
   useAccount,
   useAmplitude,
+  useBalanceQuery,
   useHistory,
   useTradingService,
 } from '@/services'
@@ -41,7 +42,7 @@ export default function TradingWidgetAdvanced() {
   const { trackChanged } = useAmplitude()
   const { strategy, setStrategy, market } = useTradingService()
   const privateClient = useAxiosPrivateClient()
-  const { profileData } = useAccount()
+  const { profileData, account } = useAccount()
   const queryClient = useQueryClient()
   const {
     checkAllowance,
@@ -55,9 +56,8 @@ export default function TradingWidgetAdvanced() {
     marketAddr: !market ? undefined : getAddress(market.address),
   })
   const { positions: allMarketsPositions } = useHistory()
+  const { balanceOfSmartWallet } = useBalanceQuery()
   const { data: orderBook } = useOrderBook(market?.slug)
-
-  console.log(orderBook)
 
   const [orderType, setOrderType] = useState<MarketOrderType>(MarketOrderType.MARKET)
   const [outcome, setOutcome] = useState(0)
@@ -94,27 +94,36 @@ export default function TradingWidgetAdvanced() {
   const { yesPrice, noPrice } = useMemo(() => {
     if (orderBook) {
       if (strategy === 'Buy') {
+        const yesPrice = orderBook?.asks.sort((a, b) => a.price - b.price)[0]?.price * 100
+        const noPrice = (1 - orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price) * 100
         return {
-          yesPrice:
-            (orderBook?.asks.sort((a, b) => a.price - b.price)[0]?.price * 100).toFixed() || '0',
-          noPrice:
-            ((1 - orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price) * 100).toFixed() ||
-            '0',
+          yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(),
+          noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(),
         }
       }
+      const yesPrice = orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price * 100
+      const noPrice = (1 - orderBook?.asks.sort((a, b) => b.price - a.price)[0]?.price) * 100
       return {
-        yesPrice:
-          (orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price * 100).toFixed() || '0',
-        noPrice:
-          ((1 - orderBook?.asks.sort((a, b) => b.price - a.price)[0]?.price) * 100).toFixed() ||
-          '0',
+        yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(),
+        noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(),
       }
     }
     return {
-      yesPrice: '0',
-      noPrice: '0',
+      yesPrice: 0,
+      noPrice: 0,
     }
   }, [strategy, orderBook])
+
+  const balance = useMemo(() => {
+    if (balanceOfSmartWallet) {
+      return (
+        balanceOfSmartWallet.find(
+          (balanceItem) => balanceItem.contractAddress === market?.collateralToken.address
+        )?.formatted || ''
+      )
+    }
+    return ''
+  }, [balanceOfSmartWallet, strategy, market])
 
   const approveMutation = useMutation({
     mutationKey: ['approve', market?.address],
@@ -153,7 +162,7 @@ export default function TradingWidgetAdvanced() {
         const signedOrder = await placeMarketOrder(
           tokenId,
           market.collateralToken.decimals,
-          outcome === 0 ? yesPrice : noPrice,
+          outcome === 0 ? yesPrice.toString() : noPrice.toString(),
           side,
           price
         )
@@ -174,7 +183,7 @@ export default function TradingWidgetAdvanced() {
             feeRateBps: +signedOrder.feeRateBps,
           },
           ownerId: profileData?.id,
-          orderType: orderType === MarketOrderType.LIMIT ? 'GTC' : 'FOK',
+          orderType: 'FOK',
           marketSlug: market.slug,
         }
         return privateClient.post('/orders', data)
@@ -186,7 +195,7 @@ export default function TradingWidgetAdvanced() {
       }),
   })
 
-  const placeBuyLimitOrderMutation = useMutation({
+  const placeLimitOrderMutation = useMutation({
     mutationKey: ['limit-order', market?.address, price],
     mutationFn: async () => {
       if (market) {
@@ -216,7 +225,7 @@ export default function TradingWidgetAdvanced() {
             feeRateBps: +signedOrder.feeRateBps,
           },
           ownerId: profileData?.id,
-          orderType: orderType === MarketOrderType.LIMIT ? 'GTC' : 'FOK',
+          orderType: 'GTC',
           marketSlug: market.slug,
         }
         return privateClient.post('/orders', data)
@@ -251,14 +260,47 @@ export default function TradingWidgetAdvanced() {
 
   const onClickBuy = async () => {
     return orderType === MarketOrderType.LIMIT
-      ? await placeBuyLimitOrderMutation.mutateAsync()
+      ? await placeLimitOrderMutation.mutateAsync()
       : await placeMarketOrderMutation.mutateAsync()
+  }
+
+  const handleChangePrice = (value: string) => {
+    if (orderType === MarketOrderType.LIMIT) {
+      if (/^-?\d*$/.test(value)) {
+        setPrice(value)
+        return
+      }
+      return
+    }
+    if (market?.collateralToken?.symbol === 'USDC') {
+      const decimals = value.split('.')[1]
+      if (decimals && decimals.length > 1) {
+        return
+      }
+      setPrice(value)
+      return
+    }
+    setPrice(value)
   }
 
   const resetFormFields = () => {
     setPrice('')
     setSharesAmount('')
   }
+
+  const priceTitle = useMemo(() => {
+    if (orderType === MarketOrderType.MARKET) {
+      return strategy === 'Buy' ? 'Amount' : 'Shares'
+    }
+    return 'Limit price'
+  }, [strategy, orderType])
+
+  const isSharePriceValid = useMemo(() => {
+    if (orderType === MarketOrderType.LIMIT && !!price) {
+      return +price > 0 && +price < 100
+    }
+    return new BigNumber(price).isLessThan(new BigNumber(balance))
+  }, [orderType, price, balance])
 
   const actionButton = useMemo(() => {
     if (strategy === 'Buy') {
@@ -273,7 +315,7 @@ export default function TradingWidgetAdvanced() {
             w='full'
             mt='24px'
             onClick={isApprovalNeeded ? onApprove : onClickBuy}
-            disabled={!+sharesPrice}
+            isDisabled={!+sharesPrice || !isSharePriceValid}
             onReset={async () => {
               approveMutation.reset()
               await checkMarketAllowance()
@@ -292,7 +334,7 @@ export default function TradingWidgetAdvanced() {
           w='full'
           mt='24px'
           onClick={!isApprovedForSell ? onApproveSell : onClickBuy}
-          disabled={!+sharesPrice}
+          isDisabled={!+sharesPrice || !isSharePriceValid}
           onReset={async () => {
             approveForSellMutation.reset()
             await checkMarketAllowance()
@@ -304,13 +346,21 @@ export default function TradingWidgetAdvanced() {
     }
 
     return <Box mt='24px' />
-  }, [allowance, market, sharesPrice, strategy, approveMutation.status, isApprovedForSell])
+  }, [
+    allowance,
+    market,
+    sharesPrice,
+    strategy,
+    approveMutation.status,
+    isApprovedForSell,
+    isSharePriceValid,
+  ])
 
   useEffect(() => {
-    if (market && conditionalTokensAddress) {
+    if (market && conditionalTokensAddress && account) {
       checkMarketAllowance()
     }
-  }, [market, conditionalTokensAddress])
+  }, [market, conditionalTokensAddress, account])
 
   return (
     <>
@@ -401,78 +451,90 @@ export default function TradingWidgetAdvanced() {
           </Menu>
         </HStack>
         <Divider mb='8px' bg='grey.300' borderColor='grey.300' />
-        <Text {...paragraphMedium} mb='12px'>
-          Outcome
-        </Text>
-        <HStack w={'240px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'} flex={1}>
-          <Button
-            h={isMobile ? '28px' : '20px'}
-            flex='1'
-            py='2px'
-            borderRadius='6px'
-            bg={outcome === 0 ? 'green.500' : 'unset'}
-            color='grey.800'
-            _hover={{
-              backgroundColor: outcome === 0 ? 'green.500' : 'rgba(255, 255, 255, 0.10)',
-            }}
-            onClick={() => {
-              // trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
-              //   type: 'Buy selected',
-              //   marketAddress: market?.address as Address,
-              // })
-              setOutcome(0)
-            }}
-          >
-            <Text {...controlsMedium} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
-              Yes {yesPrice} %
-            </Text>
-          </Button>
-          <Button
-            h={isMobile ? '28px' : '20px'}
-            flex='1'
-            borderRadius='6px'
-            py='2px'
-            bg={outcome === 1 ? 'red.500' : 'unset'}
-            color='grey.800'
-            _hover={{
-              backgroundColor: outcome === 1 ? 'red.500' : 'rgba(255, 255, 255, 0.10)',
-            }}
-            _disabled={{
-              opacity: '50%',
-              pointerEvents: 'none',
-            }}
-            onClick={() => {
-              // trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
-              //   type: 'Sell selected',
-              //   marketAddress: market?.address as Address,
-              // })
-              setOutcome(1)
-            }}
-          >
-            <Text {...controlsMedium} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
-              No {noPrice}%
-            </Text>
-          </Button>
+        <HStack w='full' justifyContent='space-between'>
+          <Text {...paragraphMedium} mb='12px'>
+            Outcome
+          </Text>
+          <Text {...paragraphMedium} mb='12px'>
+            Balance
+          </Text>
+        </HStack>
+        <HStack w='full' justifyContent='space-between'>
+          <HStack w={'240px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
+            <Button
+              h={isMobile ? '28px' : '20px'}
+              flex='1'
+              py='2px'
+              borderRadius='6px'
+              bg={outcome === 0 ? 'green.500' : 'unset'}
+              color='grey.800'
+              _hover={{
+                backgroundColor: outcome === 0 ? 'green.500' : 'rgba(255, 255, 255, 0.10)',
+              }}
+              onClick={() => {
+                // trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
+                //   type: 'Buy selected',
+                //   marketAddress: market?.address as Address,
+                // })
+                setOutcome(0)
+              }}
+            >
+              <Text {...controlsMedium} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
+                Yes {yesPrice} %
+              </Text>
+            </Button>
+            <Button
+              h={isMobile ? '28px' : '20px'}
+              flex='1'
+              borderRadius='6px'
+              py='2px'
+              bg={outcome === 1 ? 'red.500' : 'unset'}
+              color='grey.800'
+              _hover={{
+                backgroundColor: outcome === 1 ? 'red.500' : 'rgba(255, 255, 255, 0.10)',
+              }}
+              _disabled={{
+                opacity: '50%',
+                pointerEvents: 'none',
+              }}
+              onClick={() => {
+                // trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
+                //   type: 'Sell selected',
+                //   marketAddress: market?.address as Address,
+                // })
+                setOutcome(1)
+              }}
+            >
+              <Text {...controlsMedium} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
+                No {noPrice}%
+              </Text>
+            </Button>
+          </HStack>
+          <Text {...paragraphMedium}>
+            {balance} {market?.collateralToken.symbol}
+          </Text>
         </HStack>
         <Divider my='8px' />
-        <Text {...paragraphMedium} mb='8px'>
-          {orderType === MarketOrderType.LIMIT ? 'Limit price' : 'Amount'}
-        </Text>
+        <HStack w='full' justifyContent='space-between' mb='8px'>
+          <Text {...paragraphMedium}>{priceTitle}</Text>
+          {!isSharePriceValid && (
+            <Text {...paragraphMedium} color='red.500'>
+              Invalid amount
+            </Text>
+          )}
+        </HStack>
         <InputGroup>
           <InputLeftElement pointerEvents='none' w='24px' h='24px' pl='12px'>
             {orderType === MarketOrderType.LIMIT ? '¢' : '$'}
           </InputLeftElement>
           <Input
-            type='number'
             variant='grey'
             placeholder='0'
             value={price}
-            max={orderType === MarketOrderType.LIMIT ? 100 : undefined}
-            min={orderType === MarketOrderType.LIMIT ? 1 : undefined}
-            step={orderType === MarketOrderType.LIMIT ? 1 : undefined}
-            onChange={(e) => setPrice(e.target.value)}
+            onChange={(e) => handleChangePrice(e.target.value)}
             onWheel={(e) => e.preventDefault()}
             pl='32px'
+            isInvalid={!isSharePriceValid}
           />
         </InputGroup>
         <Divider my='8px' />

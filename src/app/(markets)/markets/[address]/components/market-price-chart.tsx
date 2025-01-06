@@ -214,8 +214,6 @@ export const MarketPriceChart = () => {
     return data
   }, [prices, winningIndex, resolved])
 
-  console.log(chartData)
-
   return !prices ? (
     <Box my='16px'>
       <Skeleton height={290} />

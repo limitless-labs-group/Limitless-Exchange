@@ -40,6 +40,7 @@ import {
 } from '@/app/(markets)/markets/[address]/components'
 import CommentTab from './comment-tab'
 import { UniqueTraders } from './unique-traders'
+import useMarketActivity from '@/hooks/use-market-activity'
 import useMarketGroup from '@/hooks/use-market-group'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import { useOrderBook } from '@/hooks/use-order-book'
