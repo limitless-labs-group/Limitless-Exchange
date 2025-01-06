@@ -1,4 +1,5 @@
-import { HStack, VStack, Text, Divider, Box } from '@chakra-ui/react'
+import { HStack, VStack, Text, Divider, Box, Button } from '@chakra-ui/react'
+import { useQueryClient } from '@tanstack/react-query'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import Paper from '@/components/common/paper'
@@ -7,29 +8,50 @@ import { useMarketOrders } from '@/hooks/use-market-orders'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import { useTradingService } from '@/services'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { ClobPosition } from '@/types/orders'
 
 export default function MarketPositionsClob() {
   const { market } = useTradingService()
   const { data: userOrders, isLoading } = useMarketOrders(market?.slug)
+  const privateClient = useAxiosPrivateClient()
+  const queryClient = useQueryClient()
+
+  const handleDeleteOrder = async (orderId: string) => {
+    await privateClient.delete(`/orders/${orderId}`)
+    await queryClient.refetchQueries({
+      queryKey: ['user-orders', market?.slug],
+    })
+  }
 
   const getOutcome = (order: ClobPosition) => {
     const orderSide = order.side === 'BUY' ? 'Buy' : 'Sell'
     const outcome = market?.tokens.yes === order.token ? 'Yes' : 'No'
     return (
       <HStack gap='8px' w='full' justifyContent='space-between'>
-        <Text {...paragraphMedium} color={order.side === 'BUY' ? 'green.500' : 'red.500'}>
-          {orderSide}
-        </Text>
-        <HStack gap='4px'>
-          {outcome === 'Yes' ? (
-            <ThumbsUpIcon height={16} width={16} />
-          ) : (
-            <ThumbsDownIcon height={16} width={16} />
-          )}
-          <Text {...paragraphMedium}>{outcome}</Text>
+        <HStack>
+          <Text {...paragraphMedium} color={order.side === 'BUY' ? 'green.500' : 'red.500'}>
+            {orderSide}
+          </Text>
+          <HStack gap='4px'>
+            {outcome === 'Yes' ? (
+              <ThumbsUpIcon height={16} width={16} />
+            ) : (
+              <ThumbsDownIcon height={16} width={16} />
+            )}
+            <Text {...paragraphMedium}>{outcome}</Text>
+          </HStack>
         </HStack>
+        <Button
+          {...paragraphMedium}
+          color='red.500'
+          p={0}
+          h='unset'
+          onClick={() => handleDeleteOrder(order.id)}
+        >
+          Delete ⛌
+        </Button>
       </HStack>
     )
   }
@@ -55,7 +77,7 @@ export default function MarketPositionsClob() {
                   <Text {...paragraphMedium} color='grey.500' mb='4px'>
                     Shares total
                   </Text>
-                  <Text {...paragraphMedium}>
+                  <Text {...paragraphMedium} textAlign='center'>
                     {formatUnits(BigInt(order.originalSize), market?.collateralToken.decimals || 6)}
                   </Text>
                 </Box>
@@ -63,7 +85,7 @@ export default function MarketPositionsClob() {
                   <Text {...paragraphMedium} color='grey.500' mb='4px'>
                     Shares remaining
                   </Text>
-                  <Text {...paragraphMedium}>
+                  <Text {...paragraphMedium} textAlign='center'>
                     {formatUnits(
                       BigInt(order.remainingSize),
                       market?.collateralToken.decimals || 6
