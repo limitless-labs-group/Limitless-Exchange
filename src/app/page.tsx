@@ -71,12 +71,20 @@ const MainPage = () => {
    */
   const isMobile = useIsMobile()
 
-  const [selectedSort, setSelectedSort] = useState<Sort>(
-    (window.localStorage.getItem(SortStorageName.SORT) as Sort) ?? Sort.BASE
-  )
-  const [selectedSortDaily, setSelectedSortDaily] = useState<Sort>(
-    (window.localStorage.getItem(SortStorageName.SORT_DAILY) as Sort) ?? Sort.BASE
-  )
+  const [selectedSort, setSelectedSort] = useState<Sort>(() => {
+    if (typeof window !== 'undefined') {
+      return (window.localStorage.getItem(SortStorageName.SORT) as Sort) ?? Sort.BASE
+    }
+    return Sort.BASE
+  })
+
+  const [selectedSortDaily, setSelectedSortDaily] = useState<Sort>(() => {
+    if (typeof window !== 'undefined') {
+      return (window.localStorage.getItem(SortStorageName.SORT_DAILY) as Sort) ?? Sort.BASE
+    }
+    return Sort.BASE
+  })
+
   const handleSelectSort = (options: Sort, name: SortStorageName) => {
     window.localStorage.setItem(name, options)
     if (name === SortStorageName.SORT) {
