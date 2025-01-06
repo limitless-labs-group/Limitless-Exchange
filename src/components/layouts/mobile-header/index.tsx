@@ -13,7 +13,6 @@ import {
   useTheme,
   VStack,
 } from '@chakra-ui/react'
-import { rgba } from 'color2k'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
@@ -26,6 +25,7 @@ import Loader from '@/components/common/loader'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import SocialsFooter from '@/components/common/socials-footer'
+import StaticSnowBackground from '@/components/common/static-snow'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
@@ -47,7 +47,7 @@ import {
   useHistory,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
 export default function MobileHeader() {
@@ -95,13 +95,28 @@ export default function MobileHeader() {
         marginTop='20px'
       >
         <HStack justifyContent='space-between' alignItems='center'>
+          {mode === 'dark' ? (
+            <StaticSnowBackground height={85} width={500} numDots={60} dotRadius={1} />
+          ) : null}
           <Box onClick={() => router.push('/')}>
-            <Image
-              src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
-              height={32}
-              width={156}
-              alt='calendar'
-            />
+            <HStack w='full' alignItems='center'>
+              <Image
+                src={mode === 'dark' ? '/snow-logo.png' : '/snow-logo-light.png'}
+                height={46}
+                width={46}
+                alt='logo'
+              />
+              <Text {...headline} _hover={{ textDecoration: 'none' }}>
+                Limitless
+              </Text>
+            </HStack>
+
+            {/* <Image */}
+            {/*   src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'} */}
+            {/*   height={32} */}
+            {/*   width={156} */}
+            {/*   alt='calendar' */}
+            {/* /> */}
           </Box>
           <HStack gap='4px'>
             {isConnected ? (

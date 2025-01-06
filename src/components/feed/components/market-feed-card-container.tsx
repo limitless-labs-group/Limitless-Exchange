@@ -29,6 +29,10 @@ export default function MarketFeedCardContainer({
   const [messageBlocked, setMessageBlocked] = useState(false)
   const timePassed = timeSinceCreation(timestamp)
   const { isConnected } = useAccount()
+  const isCommentFeed = useMemo(
+    () => eventType === FeedEventType.Comment || eventType === FeedEventType.CommentLike,
+    [eventType]
+  )
   const bottomPadding = useMemo(() => {
     if (isActivityTab) {
       return 0
@@ -81,6 +85,19 @@ export default function MarketFeedCardContainer({
               }
             </Link>
           )}
+
+          {eventType === FeedEventType.Comment ? (
+            <Text {...captionRegular} color='grey.500'>
+              commented
+            </Text>
+          ) : null}
+
+          {eventType === FeedEventType.CommentLike ? (
+            <Text {...captionRegular} color='grey.500'>
+              liked
+            </Text>
+          ) : null}
+
           <Text {...captionRegular} color='grey.500'>
             {timePassed}
           </Text>
@@ -94,15 +111,17 @@ export default function MarketFeedCardContainer({
         ) : null}
       </HStack>
       <Box opacity={messageBlocked ? 0.5 : 1}>
-        <Text
-          {...paragraphRegular}
-          fontSize='16px'
-          marginTop={isMobile ? '16px' : '12px'}
-          marginBottom={isMobile ? '12px' : '8px'}
-          userSelect='text'
-        >
-          {title}
-        </Text>
+        {!isCommentFeed ? (
+          <Text
+            {...paragraphRegular}
+            fontSize='16px'
+            marginTop={isMobile ? '16px' : '12px'}
+            marginBottom={isMobile ? '12px' : '8px'}
+            userSelect='text'
+          >
+            {title}
+          </Text>
+        ) : null}
         {children}
       </Box>
     </Box>

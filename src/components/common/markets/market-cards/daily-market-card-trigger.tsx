@@ -46,7 +46,7 @@ export const DailyCardTrigger = React.memo(
         marketTags: market.tags,
         ...analyticParams,
       })
-      setEstimateOpened(true)
+      setEstimateOpened(!estimateOpened)
     }
 
     const onCloseEstimateClicked = (e: SyntheticEvent) => {

@@ -18,14 +18,14 @@ import React, {
 import { isMobile } from 'react-device-detect'
 import { parseUnits } from 'viem'
 import Loader from '@/components/common/loader'
-import TradeWidgetSkeleton from '@/components/common/skeleton/trade-widget-skeleton'
+import TradeWidgetSkeleton, {
+  SkeletonType,
+} from '@/components/common/skeleton/trade-widget-skeleton'
 import BlockedTradeTemplate from '@/app/(markets)/markets/[address]/components/trade-widgets/blocked-trade-template'
 import ConfirmButton from '@/app/(markets)/markets/[address]/components/trade-widgets/confirm-button'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
-import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import { ClickEvent, TradeQuotes, useAmplitude, useTradingService } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -169,17 +169,9 @@ export default function BuyButton({
         content = (
           <HStack w='full' justifyContent='space-between'>
             <HStack gap='8px'>
-              {option === 'Yes' ? (
-                <ThumbsUpIcon width='16px' height='16px' />
-              ) : (
-                <ThumbsDownIcon width={16} height={16} />
-              )}
               <HStack gap='4px'>
                 <Text {...paragraphMedium} color='white'>
-                  {price}%
-                </Text>
-                <Text {...paragraphMedium} color='white'>
-                  {option}
+                  {option === 'Yes' ? 'YES' : 'NO'} {`${price}%`}
                 </Text>
               </HStack>
             </HStack>
@@ -353,6 +345,17 @@ export default function BuyButton({
     }
   }, [status])
 
+  const colors = {
+    Yes: {
+      main: 'green.500',
+      hover: 'green.300',
+    },
+    No: {
+      main: 'red.500',
+      hover: 'red.300',
+    },
+  }
+
   return (
     <HStack w='full' gap={'8px'} ref={ref as LegacyRef<HTMLDivElement>}>
       <MotionBox
@@ -371,8 +374,9 @@ export default function BuyButton({
           alignItems='flex-start'
           flexDir='column'
           gap={'8px'}
+          backgroundColor={colors[option].main}
           _hover={{
-            backgroundColor: 'transparent.300',
+            backgroundColor: colors[option].hover,
           }}
           isDisabled={!collateralAmount || ['transaction-broadcasted', 'success'].includes(status)}
           onClick={() => {
@@ -396,7 +400,10 @@ export default function BuyButton({
                     </Text>
                     {quotesLoading ? (
                       <Box w='120px'>
-                        <TradeWidgetSkeleton height={20} />
+                        <TradeWidgetSkeleton
+                          height={20}
+                          type={option === 'Yes' ? SkeletonType.WIDGET_YES : SkeletonType.WIDGET_NO}
+                        />
                       </Box>
                     ) : (
                       <Text
@@ -453,7 +460,10 @@ export default function BuyButton({
                     </HStack>
                     {quotesLoading ? (
                       <Box w='120px'>
-                        <TradeWidgetSkeleton height={20} />
+                        <TradeWidgetSkeleton
+                          height={20}
+                          type={option === 'Yes' ? SkeletonType.WIDGET_YES : SkeletonType.WIDGET_NO}
+                        />
                       </Box>
                     ) : (
                       <Text {...paragraphRegular} color='white'>{`${NumberUtil.formatThousands(
@@ -477,7 +487,10 @@ export default function BuyButton({
                     </HStack>
                     {quotesLoading ? (
                       <Box w='60px'>
-                        <TradeWidgetSkeleton height={20} />
+                        <TradeWidgetSkeleton
+                          height={20}
+                          type={option === 'Yes' ? SkeletonType.WIDGET_YES : SkeletonType.WIDGET_NO}
+                        />
                       </Box>
                     ) : (
                       <Text {...paragraphRegular} color='white'>{`${NumberUtil.toFixed(
