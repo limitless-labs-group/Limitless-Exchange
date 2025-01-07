@@ -529,7 +529,12 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
         <>Market not found</>
       ) : (
         <>
-          <HStack gap='40px' w='full' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
+          <HStack
+            gap='40px'
+            w={isMobile ? 'full' : 'unset'}
+            alignItems='flex-start'
+            mb={isMobile ? '84px' : 0}
+          >
             <Box w={isMobile ? 'full' : '664px'}>
               <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>
                 <HStack justifyContent='space-between' mb='24px'>
