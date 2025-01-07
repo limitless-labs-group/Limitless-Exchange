@@ -694,6 +694,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       setCollateralAmount('')
 
+      await refetchHistory()
       await refetchChain()
 
       const successId = toast({
@@ -708,7 +709,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       })
 
       await refetchMarkets()
-      await refetchHistory()
 
       const updateID = toast({
         render: () => <Toast title={`Updating portfolio...`} id={updateID} />,
@@ -768,8 +768,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      await refetchChain()
       await refetchHistory()
+      await refetchChain()
 
       const id = toast({
         render: () => <Toast title={`Successfully redeemed`} id={id} />,
