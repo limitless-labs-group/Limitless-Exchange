@@ -6,6 +6,7 @@ import Carousel from '@/components/common/carousel/carousel-mobile/carousel'
 import { LeaderboardEntity } from '@/hooks/use-leaderboard'
 import { controlsMedium } from '@/styles/fonts/fonts.styles'
 import { truncateEthAddress } from '@/utils'
+import { cutUsername } from '@/utils/string'
 
 interface LeadersProps {
   data?: LeaderboardEntity[]
@@ -15,9 +16,11 @@ export default function LeadersMobile({ data }: LeadersProps) {
   const slides = [
     <VStack h='132px' key={1} w='full' justifyContent='end' gap={0}>
       <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
-        <Avatar account={data?.[1].account || '0x'} />
+        <Avatar account={data?.[1].account || '0x'} avatarUrl={data?.[1].pfpUrl} />
         <Text {...controlsMedium} fontSize='16px'>
-          {truncateEthAddress(data?.[1].account)}
+          {data?.[1].displayName
+            ? cutUsername(data[1].displayName, 25)
+            : truncateEthAddress(data?.[1].account)}
         </Text>
       </HStack>
       <img
