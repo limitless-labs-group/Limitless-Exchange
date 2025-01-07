@@ -1,7 +1,8 @@
-import { HStack, VStack, Text, Divider, Box, Button } from '@chakra-ui/react'
+import { HStack, VStack, Text, Divider, Box, Button, useDisclosure } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
+import DeleteOrderModal from '@/components/common/modals/delete-order-modal'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import { useMarketOrders } from '@/hooks/use-market-orders'
@@ -17,6 +18,7 @@ export default function MarketPositionsClob() {
   const { data: userOrders, isLoading } = useMarketOrders(market?.slug)
   const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()
+  const { isOpen: isOpenDeleteOrderModal, onToggle: toggleDeleteOrderModal } = useDisclosure()
 
   const handleDeleteOrder = async (orderId: string) => {
     await privateClient.delete(`/orders/${orderId}`)
@@ -48,7 +50,7 @@ export default function MarketPositionsClob() {
           color='red.500'
           p={0}
           h='unset'
-          onClick={() => handleDeleteOrder(order.id)}
+          onClick={toggleDeleteOrderModal}
         >
           Delete ⛌
         </Button>
@@ -93,6 +95,11 @@ export default function MarketPositionsClob() {
                   </Text>
                 </Box>
               </HStack>
+              <DeleteOrderModal
+                isOpen={isOpenDeleteOrderModal}
+                onClose={toggleDeleteOrderModal}
+                onDeleteOrder={() => handleDeleteOrder(order.id)}
+              />
             </Paper>
           ))}
     </VStack>

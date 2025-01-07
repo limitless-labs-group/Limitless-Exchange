@@ -9,6 +9,7 @@ import useMarketActivity from '@/hooks/use-market-activity'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import { useTradingService } from '@/services'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { ClobTradeEvent } from '@/types/orders'
 
 export default function ActivityClob() {
   const { market } = useTradingService()
@@ -34,8 +35,8 @@ export default function ActivityClob() {
         </HStack>
       }
     >
-      {activity.map((activityItem) => (
-        <ActivityClobItem key={activityItem} data={activityItem} />
+      {activity.map((activityItem: ClobTradeEvent) => (
+        <ActivityClobItem key={activityItem.createdAt} data={activityItem} />
       ))}
     </InfiniteScroll>
   ) : (
