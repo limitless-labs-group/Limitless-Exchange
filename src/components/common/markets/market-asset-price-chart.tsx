@@ -232,7 +232,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
               $
               {Number(priceData[priceData.length - 1][1]).toLocaleString(undefined, {
                 minimumFractionDigits: 2,
-                maximumFractionDigits: 6,
+                maximumFractionDigits: 2,
               })}
             </Text>
           ) : (
