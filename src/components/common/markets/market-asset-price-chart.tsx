@@ -8,7 +8,7 @@ import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import Paper from '@/components/common/paper'
 import { useThemeProvider } from '@/providers'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 const priceIds = {
   AAVE: '0x2b9ab1e972a281585084148ba1389800799bd4be63b957507db1349314e47445',
@@ -222,8 +222,25 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   return (
     <Paper bg='grey.100' my='20px'>
       <HStack gap='8px' mb='16px'>
-        <Text {...paragraphRegular} color='grey.500'>
-          {priceData[priceData.length - 1]}
+        <Text {...paragraphRegular} color='grey.800'>
+          {priceData.length > 0 ? (
+            <Text
+              as='span'
+              {...(isMobile ? paragraphMedium : headline)}
+              color='grey.800'
+              aria-label={`Current price: ${priceData[priceData.length - 1][1]}`}
+            >
+              $
+              {Number(priceData[priceData.length - 1][1]).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 6,
+              })}
+            </Text>
+          ) : (
+            <Text as='span' color='grey.400'>
+              Loading...
+            </Text>
+          )}
         </Text>
         <HStack>
           <Button

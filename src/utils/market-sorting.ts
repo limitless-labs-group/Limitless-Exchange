@@ -18,7 +18,7 @@ const getLiquidityForMarket = (market: MarketOrGroup): number => {
 
 const getValueForMarket = (market: MarketOrGroup): number => {
   if ('slug' in market && market.slug) {
-    return (market as MarketGroup).markets.reduce(
+    return market.markets.reduce(
       (acc, m) => acc + Number(m.liquidityFormatted) + Number(m.openInterestFormatted),
       0
     )

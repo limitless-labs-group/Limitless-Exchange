@@ -203,7 +203,8 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
               <Text {...paragraphRegular} color='transparent.700'>
                 Value{' '}
                 {NumberUtil.convertWithDenomination(
-                  +market.openInterestFormatted + +market.liquidityFormatted,
+                  Number(market.openInterestFormatted || 0) +
+                    Number(market.liquidityFormatted || 0),
                   6
                 )}{' '}
                 {market.collateralToken.symbol}
