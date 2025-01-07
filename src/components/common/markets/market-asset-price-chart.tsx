@@ -3,7 +3,7 @@ import { PriceServiceConnection } from '@pythnetwork/price-service-client'
 import axios from 'axios'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
-import React, { memo, useEffect, useRef, useState } from 'react'
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import Paper from '@/components/common/paper'
@@ -218,28 +218,37 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     ],
   }
 
+  const currentPrice = useMemo(() => {
+    if (!priceData.length) {
+      return (
+        <Text as='span' color='grey.400'>
+          Loading...
+        </Text>
+      )
+    }
+
+    const price = priceData[priceData.length - 1][1]
+    return (
+      <Text
+        as='span'
+        {...(isMobile ? paragraphMedium : headline)}
+        color='grey.800'
+        aria-label={`Current price: ${price}`}
+      >
+        $
+        {Number(price).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
+      </Text>
+    )
+  }, [priceData, live])
+
   return (
     <Paper bg='grey.100' my='20px'>
       <HStack gap='8px' mb='16px'>
         <Text {...paragraphRegular} color='grey.800'>
-          {priceData.length > 0 ? (
-            <Text
-              as='span'
-              {...(isMobile ? paragraphMedium : headline)}
-              color='grey.800'
-              aria-label={`Current price: ${priceData[priceData.length - 1][1]}`}
-            >
-              $
-              {Number(priceData[priceData.length - 1][1]).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </Text>
-          ) : (
-            <Text as='span' color='grey.400'>
-              Loading...
-            </Text>
-          )}
+          {currentPrice}
         </Text>
         <HStack>
           <Button
