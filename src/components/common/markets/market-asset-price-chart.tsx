@@ -163,7 +163,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     setTimeRange('1D')
     setLive(true)
   }
-  console.log('price', priceData)
 
   const options = {
     chart: {
