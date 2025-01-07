@@ -73,6 +73,12 @@ interface ITradingServiceContext {
   markets?: Market[]
   setMarkets: (markets: Market[]) => void
   sellBalanceLoading: boolean
+  splitSharesMutation: UseMutationResult<
+    void,
+    Error,
+    { amount: string; decimals: number; contractAddress: `0x${string}`; conditionId: string },
+    unknown
+  >
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -517,6 +523,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     checkAllowanceForAll,
     approveAllowanceForAll,
     redeemPositions,
+    splitShares,
   } = useWeb3Service()
   const { mutateAsync: buy, isPending: isLoadingBuy } = useMutation({
     mutationFn: async ({
@@ -776,6 +783,28 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
+  const splitSharesMutation = useMutation({
+    mutationFn: async ({
+      amount,
+      decimals,
+      conditionId,
+      contractAddress,
+    }: {
+      amount: string
+      decimals: number
+      contractAddress: Address
+      conditionId: string
+    }) => {
+      try {
+        const value = parseUnits(amount, decimals)
+        await splitShares(contractAddress, conditionId, value)
+      } catch (e) {
+        // @ts-ignore
+        throw new Error(e)
+      }
+    },
+  })
+
   const trade = useCallback(
     // (outcomeTokenId: number) => buy(outcomeTokenId),
     (outcomeTokenId: number, slippage: string) =>
@@ -838,6 +867,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     markets,
     setMarkets,
     sellBalanceLoading,
+    splitSharesMutation,
   }
 
   return (
