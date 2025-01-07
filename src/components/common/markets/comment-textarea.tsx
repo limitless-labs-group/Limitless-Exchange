@@ -89,7 +89,7 @@ export default function CommentTextarea() {
   }, [error])
 
   const areaBorderStyle = useMemo(() => {
-    if (error) {
+    if (error && isMobile) {
       return '1px solid var(--chakra-colors-red-300)'
     }
     if (isMobile) {
@@ -139,8 +139,11 @@ export default function CommentTextarea() {
             overflow='auto'
             wrap='soft'
             onChange={(e) => {
-              setError('')
-              setComment(sanitizeInput(e.target.value))
+              const sanitized = sanitizeInput(e.target.value)
+              if (sanitized || sanitized.trim()) {
+                setError('')
+              }
+              setComment(sanitized)
             }}
             rows={isMobile ? 1 : 2}
             w='full'
@@ -157,7 +160,7 @@ export default function CommentTextarea() {
           {!isMobile ? (
             <HStack justifyContent='space-between'>
               <Text fontSize='12px' lineHeight='12px' mt='8px' color='red.300'>
-                {error ? error : ''}
+                {error ?? ''}
               </Text>
               <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                 {comment.length}/140
