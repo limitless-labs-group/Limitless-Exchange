@@ -16,6 +16,18 @@ const getLiquidityForMarket = (market: MarketOrGroup): number => {
   return Number((market as Market).liquidityFormatted)
 }
 
+const getValueForMarket = (market: MarketOrGroup): number => {
+  if ('slug' in market && market.slug) {
+    return (market as MarketGroup).markets.reduce(
+      (acc, m) => acc + Number(m.liquidityFormatted) + Number(m.openInterestFormatted),
+      0
+    )
+  }
+  return (
+    Number((market as Market).liquidityFormatted) + Number((market as Market).openInterestFormatted)
+  )
+}
+
 export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | MarketGroup)[]>(
   markets: T,
   sortType: Sort,
@@ -58,6 +70,17 @@ export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | Marke
         (a, b) =>
           new Date(a.expirationTimestamp).getTime() - new Date(b.expirationTimestamp).getTime()
       ) as T
+
+    case Sort.HIGHEST_VALUE:
+      return marketsCopy.sort((a, b) => {
+        const valueA = getValueForMarket(a)
+        const valueB = getValueForMarket(b)
+
+        return (
+          convertTokenAmountToUsd(b.collateralToken.symbol, valueB) -
+          convertTokenAmountToUsd(a.collateralToken.symbol, valueA)
+        )
+      }) as T
 
     default:
       return marketsCopy as T

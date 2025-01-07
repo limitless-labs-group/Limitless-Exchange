@@ -11,7 +11,7 @@ type SortFilterProps = {
   storageName: SortStorageName
 }
 
-const sortOptions = [Sort.ENDING_SOON, Sort.HIGHEST_VOLUME, Sort.HIGHEST_LIQUIDITY, Sort.NEWEST]
+const sortOptions = [Sort.ENDING_SOON, Sort.HIGHEST_VALUE, Sort.HIGHEST_VOLUME, Sort.NEWEST]
 
 export default function SortFilter({ onChange, storageName }: SortFilterProps) {
   const [selectedSortFilter, setSelectedSortFilter] = useState<Sort>(

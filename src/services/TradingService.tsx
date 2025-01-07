@@ -128,7 +128,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   }, [market])
 
   const refetchHistory = async () => {
-    await queryClient.invalidateQueries({
+    await queryClient.refetchQueries({
       queryKey: ['positions'],
     })
     await queryClient.invalidateQueries({

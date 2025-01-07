@@ -163,6 +163,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     setTimeRange('1D')
     setLive(true)
   }
+  console.log('price', priceData)
 
   const options = {
     chart: {
@@ -222,7 +223,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     <Paper bg='grey.100' my='20px'>
       <HStack gap='8px' mb='16px'>
         <Text {...paragraphRegular} color='grey.500'>
-          Zoom
+          {priceData[priceData.length - 1]}
         </Text>
         <HStack>
           <Button
