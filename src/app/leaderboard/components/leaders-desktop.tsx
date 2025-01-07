@@ -21,7 +21,7 @@ export default function LeadersDesktop({ data }: LeadersProps) {
           <Avatar account={data?.[1].account || '0x'} avatarUrl={data?.[1].pfpUrl} />
           <Text {...controlsMedium} fontSize='16px'>
             {data?.[1].displayName
-              ? cutUsername(data[1].displayName, 20)
+              ? cutUsername(data[1].displayName, 17)
               : truncateEthAddress(data?.[1].account)}
           </Text>
         </HStack>
