@@ -269,6 +269,35 @@ export const useExternalWalletService = () => {
     return txHash
   }
 
+  const splitPositions = async (
+    collateralAddress: Address,
+    conditionId: string,
+    amount: bigint
+  ) => {
+    let txHash = ''
+    await writeContractAsync(
+      {
+        abi: conditionalTokensABI,
+        functionName: 'splitPosition',
+        address: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+        args: [
+          collateralAddress,
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+          conditionId,
+          [1, 2],
+          amount,
+        ],
+      },
+      {
+        onSuccess: (data) => {
+          txHash = data
+        },
+        onError: (data) => console.log(data),
+      }
+    )
+    return txHash
+  }
+
   const checkAndSwitchChainIfNeeded = async () => {
     if (chainId !== defaultChain.id) {
       await switchChain(wagmiConfig, { chainId: defaultChain.id })
@@ -303,5 +332,6 @@ export const useExternalWalletService = () => {
     redeemPositions,
     checkLumyAccountBalance,
     signTypedData,
+    splitPositions,
   }
 }

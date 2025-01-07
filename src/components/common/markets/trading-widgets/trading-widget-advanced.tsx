@@ -19,7 +19,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, getAddress, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
-import { Modal } from '@/components/common/modals/modal'
+import SplitSharesModal from '@/components/common/modals/split-shares-modal'
 import Paper from '@/components/common/paper'
 import { useConditionalTokensAddr } from '@/hooks/use-conditional-tokens-addr'
 import { useOrderBook } from '@/hooks/use-order-book'
@@ -577,9 +577,7 @@ export default function TradingWidgetAdvanced() {
           </MenuList>
         </Menu>
       </Paper>
-      <Modal isOpen={splitSharesModalOpened} onClose={onToggleSplitSharesModal}>
-        Split shares
-      </Modal>
+      <SplitSharesModal isOpen={splitSharesModalOpened} onClose={onToggleSplitSharesModal} />
     </>
   )
 }
