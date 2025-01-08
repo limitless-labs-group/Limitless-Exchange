@@ -54,3 +54,49 @@ export interface Token {
   id: number
   symbol: string
 }
+
+export interface DraftMarketResponse {
+  id: number
+  title: string
+  description: string
+  deadline: string
+  collateralToken: {
+    id: number
+    name: string
+    symbol: string
+    decimals: number
+    priceOracleId: string
+    address: string
+    logoUrl: string
+  }
+  creator: {
+    id: number
+    account: string
+    username: string
+    displayName: string
+    bio: string
+    client: null
+    pfpUrl: null | string
+    smartWallet: null | string
+    isCreator: boolean
+    isAdmin: boolean
+    socialUrl: null | string
+  }
+  tags: [
+    {
+      createdAt: string
+      id: number
+      name: string
+    }
+  ]
+  category: {
+    id: number
+    name: string
+    priority: null | number
+  }
+  type?: 'CLOB'
+  draftMetadata: {
+    fee: number
+    type?: 'CLOB'
+  }
+}
