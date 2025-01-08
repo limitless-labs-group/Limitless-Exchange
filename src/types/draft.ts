@@ -19,6 +19,7 @@ export interface IFormData {
   creatorId: string
   categoryId: string
   ogLogo: File | undefined
+  isBannered: boolean
 }
 
 export interface TokenLimit {

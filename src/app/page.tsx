@@ -102,6 +102,8 @@ const MainPage = () => {
 
   const { data: dailyMarkets, isLoading: isLoadingDailyMarkets } = useDailyMarkets(categoryEntity)
 
+  const banneredMarkets = dailyMarkets?.data.markets.filter((market) => market.isBannered) ?? []
+
   const topMarkets =
     dailyMarkets?.data.markets
       // @ts-ignore
@@ -181,7 +183,10 @@ const MainPage = () => {
       >
         <Box w={isMobile ? 'full' : '664px'}>
           <>
-            <TopMarkets markets={topMarkets as Market[]} isLoading={isLoadingDailyMarkets} />
+            <TopMarkets
+              markets={banneredMarkets.length > 0 ? banneredMarkets : (topMarkets as Market[])}
+              isLoading={isLoadingDailyMarkets}
+            />
             <DailyMarketsSection
               markets={sortedDailyMarkets}
               handleSelectSort={handleSelectSort}

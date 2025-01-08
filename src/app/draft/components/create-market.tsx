@@ -93,6 +93,7 @@ export const CreateMarket: FC = () => {
           tokenLimits[editMarket.collateralToken.symbol]?.min,
         probability: editMarket.draftMetadata?.initialProbability * 100 || defaultProbability,
         marketFee: editMarket.draftMetadata?.fee || defaultMarketFee,
+        isBannered: editMarket.metadata?.isBannered || false,
         tag:
           editMarket.tags.map((tag: Tag) => ({
             id: tag.id,
@@ -211,6 +212,7 @@ export const CreateMarket: FC = () => {
     marketFormData?.set('liquidity', formData.liquidity.toString())
     marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
     marketFormData?.set('marketFee', formData.marketFee.toString())
+    marketFormData?.set('isBannered', String(formData.isBannered))
     marketFormData?.set('deadline', zonedTime.toString())
 
     if (formData.creatorId) {
@@ -239,11 +241,28 @@ export const CreateMarket: FC = () => {
     if (!data) return
     setIsCreating(true)
     privateClient
-      .post(`/markets/drafts`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
+      .post(
+        `/markets/drafts`,
+        {
+          title: data.get('title'),
+          description: data.get('description'),
+          tokenId: Number(data.get('tokenId')),
+          liquidity: Number(data.get('liquidity')),
+          initialYesProbability: Number(data.get('initialYesProbability')),
+          marketFee: Number(data.get('marketFee')),
+          deadline: Number(data.get('deadline')),
+          isBannered: data.get('isBannered') === 'true',
+          creatorId: data.get('creatorId'),
+          categoryId: data.get('categoryId'),
+          ogFile: data.get('ogFile'),
+          tagIds: data.get('tagIds'),
         },
-      })
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      )
       .then((res) => {
         showToast(`Market is drafted`)
         router.push('/draft?tab=queue')
@@ -452,6 +471,16 @@ export const CreateMarket: FC = () => {
                     onChange={(e) => handleChange('marketFee', e.target.checked ? 1 : 0)}
                   >
                     1% Fee
+                  </Checkbox>
+                </HStack>
+              </FormField>
+              <FormField label='Is Bannered'>
+                <HStack>
+                  <Checkbox
+                    isChecked={formData.isBannered}
+                    onChange={(e) => handleChange('isBannered', e.target.checked)}
+                  >
+                    Add market to big banner
                   </Checkbox>
                 </HStack>
               </FormField>
