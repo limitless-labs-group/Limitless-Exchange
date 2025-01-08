@@ -2,6 +2,7 @@ import { Button, HStack, Text } from '@chakra-ui/react'
 import { PriceServiceConnection } from '@pythnetwork/price-service-client'
 import axios from 'axios'
 import Highcharts from 'highcharts'
+import type { Options } from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import debounce from 'lodash/debounce'
 import React, { memo, useEffect, useMemo, useRef, useState, useCallback } from 'react'
@@ -88,9 +89,12 @@ const symbols = {
 }
 
 function PythLiveChart({ id }: PythLiveChartProps) {
-  const chartComponentRef = useRef(null)
+  const chartComponentRef = useRef<HighchartsReact.RefObject>(null)
   const [priceData, setPriceData] = useState<number[][]>([])
   const [livePrice, setLivePrice] = useState<number>()
+
+  const lastUpdateTimeRef = useRef<number>(0)
+  const lastPriceRef = useRef<number | null>(null)
 
   const debouncedSetLivePrice = useCallback(
     debounce(
@@ -103,6 +107,17 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     []
   )
 
+  const debouncedUpdateChart = useCallback(
+    debounce(
+      (chart: Highcharts.Chart, time: number, price: number) => {
+        chart.series[0].addPoint([time, price], true, false)
+      },
+      1000,
+      { leading: true, maxWait: 1000 }
+    ),
+    []
+  )
+
   const [timeRange, setTimeRange] = useState('1H') // default time range
   const [live, setLive] = useState(true) // live state
   const { colors } = useThemeProvider()
@@ -110,6 +125,16 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   const priceId = priceIds[id as keyof typeof priceIds]
 
   const connection = new PriceServiceConnection('https://hermes.pyth.network')
+
+  // Reconnection handler
+  const handleReconnection = useCallback(() => {
+    connection.closeWebSocket()
+    setTimeout(() => {
+      connection.subscribePriceFeedUpdates([priceId], () => {
+        console.log('Reconnected to price feed')
+      })
+    }, 1000)
+  }, [priceId])
 
   const getHistory = async () => {
     try {
@@ -129,36 +154,76 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
   useEffect(() => {
     getHistory()
+    const MAX_DATA_GAP = 10000 // 10 seconds
+    const STALE_DATA_THRESHOLD = 15000 // 15 seconds
+
     const updateDataForTimeRange = () => {
       try {
         if (live) {
           connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
             try {
               const priceEntity = priceFeed.getPriceNoOlderThan(60)
+              if (!priceEntity) {
+                console.warn('No recent price data available')
+                return
+              }
+
               const formattedPrice = +formatUnits(
-                BigInt(priceEntity ? priceEntity.price : '1'),
-                Math.abs(priceEntity ? priceEntity.expo : 8)
+                BigInt(priceEntity.price),
+                Math.abs(priceEntity.expo)
               )
               const price = +formattedPrice.toFixed(6)
+
+              if (price <= 0 || !isFinite(price)) {
+                console.warn('Invalid price received:', price)
+                return
+              }
+
+              const currentTime = priceEntity.publishTime * 1000
+              const now = Date.now()
+
+              if (now - currentTime > STALE_DATA_THRESHOLD) {
+                console.warn('Received stale data, requesting reconnection')
+                handleReconnection()
+                return
+              }
+
+              // Handle data gaps
+              if (lastUpdateTimeRef.current > 0) {
+                const timeDiff = currentTime - lastUpdateTimeRef.current
+
+                if (timeDiff > MAX_DATA_GAP && lastPriceRef.current !== null) {
+                  // Fill the gap with intermediate points
+                  const chart = chartComponentRef.current?.chart
+                  if (chart) {
+                    const intermediateTime = lastUpdateTimeRef.current + MAX_DATA_GAP / 2
+                    chart.series[0].addPoint([intermediateTime, lastPriceRef.current], true, false)
+                  }
+                }
+              }
+
+              // Update refs
+              lastUpdateTimeRef.current = currentTime
+              lastPriceRef.current = price
+
               debouncedSetLivePrice(price)
-              const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
-              const currentTime = latestPriceFeedEntity
-                ? latestPriceFeedEntity.publishTime * 1000
-                : new Date().getTime()
-              // @ts-ignore
+
+              // Update chart with debounce
               const chart = chartComponentRef.current?.chart
               if (chart) {
-                chart.series[0].addPoint([currentTime, price], true, false)
+                debouncedUpdateChart(chart, currentTime, price)
               }
             } catch (e) {
-              console.log(e)
+              console.error('Error processing price feed:', e)
+              handleReconnection()
             }
           })
         } else {
           getHistory()
         }
       } catch (e) {
-        console.log('error')
+        console.error('Connection error:', e)
+        handleReconnection()
       }
     }
 
@@ -167,8 +232,11 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     return () => {
       connection.closeWebSocket()
       debouncedSetLivePrice.cancel()
+      debouncedUpdateChart.cancel()
+      lastUpdateTimeRef.current = 0
+      lastPriceRef.current = null
     }
-  }, [live, timeRange])
+  }, [live, timeRange, handleReconnection])
 
   const handleTimeRangeChange = (range: string) => {
     setTimeRange(range)
@@ -180,7 +248,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     setLive(true)
   }
 
-  const options = {
+  const options: Options = {
     chart: {
       type: 'line',
       backgroundColor: colors.grey['100'],
@@ -194,7 +262,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
         style: {
           fontFamily: 'Inter',
           fontSize: isMobile ? '14px' : '12px',
-          fontWeight: 500,
+          fontWeight: '500',
           color: colors.grey['400'],
         },
       },
@@ -210,7 +278,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
         style: {
           fontFamily: 'Inter',
           fontSize: isMobile ? '14px' : '12px',
-          fontWeight: 500,
+          fontWeight: '500',
           color: colors.grey['400'],
         },
       },
@@ -226,11 +294,12 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     },
     series: [
       {
+        type: 'line',
         data: priceData,
         color: '#00C7C7',
         name: id,
         lineWidth: 1,
-      },
+      } as Highcharts.SeriesLineOptions,
     ],
   }
 
