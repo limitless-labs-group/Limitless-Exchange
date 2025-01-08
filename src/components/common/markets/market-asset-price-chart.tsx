@@ -127,6 +127,8 @@ function PythLiveChart({ id }: PythLiveChartProps) {
                 Math.abs(priceEntity ? priceEntity.expo : 8)
               )
               const price = +formattedPrice.toFixed(6)
+              setLivePrice(price)
+              console.log('price soket', price)
               const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
               const currentTime = latestPriceFeedEntity
                 ? latestPriceFeedEntity.publishTime * 1000
@@ -135,7 +137,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
               const chart = chartComponentRef.current?.chart
               if (chart) {
                 chart.series[0].addPoint([currentTime, price], true, false)
-                setLivePrice(price)
               }
             } catch (e) {
               console.log(e)
@@ -230,6 +231,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     }
 
     const price = live ? livePrice : priceData[priceData.length - 1][1]
+    console.log('price memo', price)
     return (
       <Text
         as='span'
