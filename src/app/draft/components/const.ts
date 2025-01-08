@@ -78,6 +78,7 @@ export const defaultFormData = {
   creatorId: defaultCreatorId,
   categoryId: defaultCategoryId,
   ogLogo: undefined,
+  isBannered: false,
 }
 
 export const selectStyles = {
