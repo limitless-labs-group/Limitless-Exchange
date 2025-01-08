@@ -3,7 +3,8 @@ import { PriceServiceConnection } from '@pythnetwork/price-service-client'
 import axios from 'axios'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react'
+import debounce from 'lodash/debounce'
+import React, { memo, useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import Paper from '@/components/common/paper'
@@ -90,6 +91,17 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   const chartComponentRef = useRef(null)
   const [priceData, setPriceData] = useState<number[][]>([])
   const [livePrice, setLivePrice] = useState<number>()
+
+  const debouncedSetLivePrice = useCallback(
+    debounce(
+      (price: number) => {
+        setLivePrice(price)
+      },
+      3000,
+      { leading: true, maxWait: 3000 }
+    ),
+    []
+  )
   const [timeRange, setTimeRange] = useState('1H') // default time range
   const [live, setLive] = useState(true) // live state
   const { colors } = useThemeProvider()
@@ -127,8 +139,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
                 Math.abs(priceEntity ? priceEntity.expo : 8)
               )
               const price = +formattedPrice.toFixed(6)
-              setLivePrice(price)
-              console.log('price soket', price)
+              debouncedSetLivePrice(price)
               const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
               const currentTime = latestPriceFeedEntity
                 ? latestPriceFeedEntity.publishTime * 1000
@@ -154,6 +165,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
     return () => {
       connection.closeWebSocket()
+      debouncedSetLivePrice.cancel()
     }
   }, [live, timeRange])
 
@@ -231,7 +243,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     }
 
     const price = live ? livePrice : priceData[priceData.length - 1][1]
-    console.log('price memo', price)
     return (
       <Text
         as='span'
@@ -246,7 +257,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
         })}
       </Text>
     )
-  }, [priceData, live])
+  }, [priceData, live, livePrice])
 
   return (
     <Paper bg='grey.100' my='20px'>
