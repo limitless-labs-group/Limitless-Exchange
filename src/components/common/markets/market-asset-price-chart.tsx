@@ -89,6 +89,7 @@ const symbols = {
 function PythLiveChart({ id }: PythLiveChartProps) {
   const chartComponentRef = useRef(null)
   const [priceData, setPriceData] = useState<number[][]>([])
+  const [livePrice, setLivePrice] = useState<number>()
   const [timeRange, setTimeRange] = useState('1H') // default time range
   const [live, setLive] = useState(true) // live state
   const { colors } = useThemeProvider()
@@ -134,6 +135,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
               const chart = chartComponentRef.current?.chart
               if (chart) {
                 chart.series[0].addPoint([currentTime, price], true, false)
+                setLivePrice(price)
               }
             } catch (e) {
               console.log(e)
@@ -227,7 +229,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       )
     }
 
-    const price = priceData[priceData.length - 1][1]
+    const price = live ? livePrice : priceData[priceData.length - 1][1]
     return (
       <Text
         as='span'
