@@ -120,6 +120,8 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     let subscription: any
 
     const updateDataForTimeRange = async () => {
+      await getHistory()
+
       try {
         if (live) {
           subscription = connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
