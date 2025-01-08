@@ -71,7 +71,9 @@ export interface Market {
   }
   openInterest: string
   openInterestFormatted: string
-  isBannered: boolean
+  metadata: {
+    isBannered: boolean
+  }
 }
 
 export interface MarketGroup {
