@@ -103,7 +103,7 @@ const MainPage = () => {
   const { data: dailyMarkets, isLoading: isLoadingDailyMarkets } = useDailyMarkets(categoryEntity)
 
   const banneredMarkets =
-    dailyMarkets?.data.markets.filter((market) => market.metadata.isBannered) ?? []
+    dailyMarkets?.data.markets.filter((market) => market.metadata?.isBannered) ?? []
 
   const topMarkets =
     dailyMarkets?.data.markets
