@@ -4,7 +4,7 @@ import axios from 'axios'
 import Highcharts from 'highcharts'
 import type { Options } from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react'
+import React, { memo, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import Paper from '@/components/common/paper'
@@ -117,41 +117,50 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   }
 
   useEffect(() => {
-    getHistory()
-    const updateDataForTimeRange = () => {
+    let subscription: any
+
+    const updateDataForTimeRange = async () => {
       try {
         if (live) {
-          connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
+          subscription = connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
             try {
               const priceEntity = priceFeed.getPriceNoOlderThan(60)
-              const formattedPrice = +formatUnits(
-                BigInt(priceEntity ? priceEntity.price : '1'),
-                Math.abs(priceEntity ? priceEntity.expo : 8)
-              )
-              const price = +formattedPrice.toFixed(6)
-              const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
-              const currentTime = latestPriceFeedEntity
-                ? latestPriceFeedEntity.publishTime * 1000
-                : new Date().getTime()
-              // @ts-ignore
-              const chart = chartComponentRef.current?.chart
-              if (chart) {
-                setLivePrice(price)
-                chart.series[0].addPoint([currentTime, price], true, false)
+              if (priceEntity) {
+                const formattedPrice = +formatUnits(
+                  BigInt(priceEntity ? priceEntity.price : '1'),
+                  Math.abs(priceEntity ? priceEntity.expo : 8)
+                )
+
+                const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
+                const currentTime = latestPriceFeedEntity
+                  ? latestPriceFeedEntity.publishTime * 1000
+                  : new Date().getTime()
+
+                const chart = chartComponentRef.current?.chart
+
+                if (chart) {
+                  setLivePrice(formattedPrice)
+                  chart.series[0].addPoint([currentTime, formattedPrice], true, false)
+                }
               }
             } catch (e) {
-              console.log(e)
+              console.error('Error processing live data:', e)
             }
           })
         } else {
-          getHistory()
+          await getHistory()
         }
       } catch (e) {
-        console.log('error')
+        console.error('Error updating data:', e)
       }
     }
+
     updateDataForTimeRange()
+
     return () => {
+      if (subscription) {
+        connection.unsubscribePriceFeedUpdates(subscription)
+      }
       connection.closeWebSocket()
     }
   }, [live, timeRange])
