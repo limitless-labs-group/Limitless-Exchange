@@ -221,17 +221,56 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     ],
   }
 
-  const currentPrice = useMemo(() => {
-    if (!priceData.length) {
-      return (
+  return (
+    <Paper bg='grey.100' my='20px'>
+      <HStack gap='8px' mb='16px'>
+        <CurrentPriceDisplay priceData={priceData} live={live} livePrice={livePrice} />
+        <HStack>
+          <Button
+            variant='transparentGray'
+            onClick={handleLiveToggle}
+            bg={live ? 'grey.300' : 'grey.200'}
+          >
+            Live
+          </Button>
+          {['1H', '1D', '1W', '1M'].map((period) => (
+            <Button
+              key={period}
+              variant='transparentGray'
+              onClick={() => handleTimeRangeChange(period)}
+              bg={period === timeRange && !live ? 'grey.300' : 'grey.200'}
+            >
+              {period}
+            </Button>
+          ))}
+        </HStack>
+      </HStack>
+      <HighchartsReact highcharts={Highcharts} options={options} ref={chartComponentRef} />
+    </Paper>
+  )
+}
+
+interface CurrentPriceDisplayProps {
+  priceData: number[][]
+  live: boolean
+  livePrice?: number
+}
+
+const CurrentPriceDisplay = memo(({ priceData, live, livePrice }: CurrentPriceDisplayProps) => {
+  if (!priceData.length) {
+    return (
+      <Text {...paragraphRegular} color='grey.800'>
         <Text as='span' color='grey.400'>
           Loading...
         </Text>
-      )
-    }
+      </Text>
+    )
+  }
 
-    const price = live ? livePrice : priceData[priceData.length - 1][1]
-    return (
+  const price = live ? livePrice : priceData[priceData.length - 1][1]
+
+  return (
+    <Text {...paragraphRegular} color='grey.800'>
       <Text
         as='span'
         {...(isMobile ? paragraphMedium : headline)}
@@ -244,60 +283,10 @@ function PythLiveChart({ id }: PythLiveChartProps) {
           maximumFractionDigits: 2,
         })}
       </Text>
-    )
-  }, [priceData, live, livePrice])
-
-  return (
-    <Paper bg='grey.100' my='20px'>
-      <HStack gap='8px' mb='16px'>
-        <Text {...paragraphRegular} color='grey.800'>
-          {currentPrice}
-        </Text>
-        <TimeRangeButtons
-          live={live}
-          timeRange={timeRange}
-          onLiveToggle={handleLiveToggle}
-          onTimeRangeChange={handleTimeRangeChange}
-        />
-      </HStack>
-      <HighchartsReact highcharts={Highcharts} options={options} ref={chartComponentRef} />
-    </Paper>
+    </Text>
   )
-}
+})
 
-interface TimeRangeButtonsProps {
-  live: boolean
-  timeRange: string
-  onLiveToggle: () => void
-  onTimeRangeChange: (period: string) => void
-}
-
-const TimeRangeButtons = memo(
-  ({ live, timeRange, onLiveToggle, onTimeRangeChange }: TimeRangeButtonsProps) => {
-    return (
-      <HStack>
-        <Button
-          variant='transparentGray'
-          onClick={onLiveToggle}
-          bg={live ? 'grey.300' : 'grey.200'}
-        >
-          Live
-        </Button>
-        {['1H', '1D', '1W', '1M'].map((period) => (
-          <Button
-            key={period}
-            variant='transparentGray'
-            onClick={() => onTimeRangeChange(period)}
-            bg={period === timeRange && !live ? 'grey.300' : 'grey.200'}
-          >
-            {period}
-          </Button>
-        ))}
-      </HStack>
-    )
-  }
-)
-
-TimeRangeButtons.displayName = 'TimeRangeButtons'
+CurrentPriceDisplay.displayName = 'CurrentPriceDisplay'
 
 export const MarketAssetPriceChart = memo(PythLiveChart)
