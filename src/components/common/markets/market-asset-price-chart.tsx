@@ -4,7 +4,6 @@ import axios from 'axios'
 import Highcharts from 'highcharts'
 import type { Options } from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
-import debounce from 'lodash/debounce'
 import React, { memo, useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
@@ -96,28 +95,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   const lastUpdateTimeRef = useRef<number>(0)
   const lastPriceRef = useRef<number | null>(null)
 
-  const debouncedSetLivePrice = useCallback(
-    debounce(
-      (price: number) => {
-        setLivePrice(price)
-      },
-      3000,
-      { leading: true, maxWait: 3000 }
-    ),
-    []
-  )
-
-  const debouncedUpdateChart = useCallback(
-    debounce(
-      (chart: Highcharts.Chart, time: number, price: number) => {
-        chart.series[0].addPoint([time, price], true, false)
-      },
-      1000,
-      { leading: true, maxWait: 1000 }
-    ),
-    []
-  )
-
   const [timeRange, setTimeRange] = useState('1H') // default time range
   const [live, setLive] = useState(true) // live state
   const { colors } = useThemeProvider()
@@ -126,7 +103,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
   const connection = new PriceServiceConnection('https://hermes.pyth.network')
 
-  // Reconnection handler
   const handleReconnection = useCallback(() => {
     connection.closeWebSocket()
     setTimeout(() => {
@@ -202,16 +178,14 @@ function PythLiveChart({ id }: PythLiveChartProps) {
                 }
               }
 
-              // Update refs
               lastUpdateTimeRef.current = currentTime
               lastPriceRef.current = price
 
-              debouncedSetLivePrice(price)
+              setLivePrice(price)
 
-              // Update chart with debounce
               const chart = chartComponentRef.current?.chart
               if (chart) {
-                debouncedUpdateChart(chart, currentTime, price)
+                chart.series[0].addPoint([currentTime, price], true, false)
               }
             } catch (e) {
               console.error('Error processing price feed:', e)
@@ -231,8 +205,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
     return () => {
       connection.closeWebSocket()
-      debouncedSetLivePrice.cancel()
-      debouncedUpdateChart.cancel()
       lastUpdateTimeRef.current = 0
       lastPriceRef.current = null
     }
