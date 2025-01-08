@@ -92,16 +92,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   const [priceData, setPriceData] = useState<number[][]>([])
   const [livePrice, setLivePrice] = useState<number>()
 
-  const debouncedSetLivePrice = useCallback(
-    debounce(
-      (price: number) => {
-        setLivePrice(price)
-      },
-      3000,
-      { leading: true, maxWait: 3000 }
-    ),
-    []
-  )
   const [timeRange, setTimeRange] = useState('1H') // default time range
   const [live, setLive] = useState(true) // live state
   const { colors } = useThemeProvider()
@@ -131,28 +121,41 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     const updateDataForTimeRange = () => {
       try {
         if (live) {
-          connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
-            try {
-              const priceEntity = priceFeed.getPriceNoOlderThan(60)
-              const formattedPrice = +formatUnits(
-                BigInt(priceEntity ? priceEntity.price : '1'),
-                Math.abs(priceEntity ? priceEntity.expo : 8)
-              )
-              const price = +formattedPrice.toFixed(6)
-              debouncedSetLivePrice(price)
-              const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
-              const currentTime = latestPriceFeedEntity
-                ? latestPriceFeedEntity.publishTime * 1000
-                : new Date().getTime()
-              // @ts-ignore
-              const chart = chartComponentRef.current?.chart
-              if (chart) {
-                chart.series[0].addPoint([currentTime, price], true, false)
+          const debouncedPriceUpdate = debounce(
+            (priceFeed) => {
+              try {
+                const priceEntity = priceFeed.getPriceNoOlderThan(60)
+                const formattedPrice = +formatUnits(
+                  BigInt(priceEntity ? priceEntity.price : '1'),
+                  Math.abs(priceEntity ? priceEntity.expo : 8)
+                )
+                const price = +formattedPrice.toFixed(6)
+                setLivePrice(price)
+                const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
+                const currentTime = latestPriceFeedEntity
+                  ? latestPriceFeedEntity.publishTime * 1000
+                  : new Date().getTime()
+                // @ts-ignore
+                const chart = chartComponentRef.current?.chart
+                if (chart) {
+                  chart.series[0].addPoint([currentTime, price], true, false)
+                }
+              } catch (e) {
+                console.log(e)
               }
-            } catch (e) {
-              console.log(e)
-            }
+            },
+            3000,
+            { leading: true, maxWait: 3000 }
+          )
+
+          connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
+            debouncedPriceUpdate(priceFeed)
           })
+
+          // Cleanup function to cancel debounce when component unmounts or dependencies change
+          return () => {
+            debouncedPriceUpdate.cancel()
+          }
         } else {
           getHistory()
         }
@@ -165,7 +168,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
     return () => {
       connection.closeWebSocket()
-      debouncedSetLivePrice.cancel()
     }
   }, [live, timeRange])
 
