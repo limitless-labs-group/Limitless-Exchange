@@ -140,6 +140,7 @@ export enum Sort {
   NEWEST = 'Newest',
   ENDING_SOON = 'Ending Soon',
   HIGHEST_LIQUIDITY = 'High Liquidity',
+  HIGHEST_VALUE = 'High Value',
   HIGHEST_VOLUME = 'High Volume',
 }
 

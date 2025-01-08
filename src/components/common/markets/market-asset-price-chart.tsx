@@ -2,13 +2,14 @@ import { Button, HStack, Text } from '@chakra-ui/react'
 import { PriceServiceConnection } from '@pythnetwork/price-service-client'
 import axios from 'axios'
 import Highcharts from 'highcharts'
+import type { Options } from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import React, { memo, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import Paper from '@/components/common/paper'
 import { useThemeProvider } from '@/providers'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 const priceIds = {
   AAVE: '0x2b9ab1e972a281585084148ba1389800799bd4be63b957507db1349314e47445',
@@ -87,8 +88,10 @@ const symbols = {
 }
 
 function PythLiveChart({ id }: PythLiveChartProps) {
-  const chartComponentRef = useRef(null)
+  const chartComponentRef = useRef<HighchartsReact.RefObject>(null)
   const [priceData, setPriceData] = useState<number[][]>([])
+  const [livePrice, setLivePrice] = useState<number>()
+
   const [timeRange, setTimeRange] = useState('1H') // default time range
   const [live, setLive] = useState(true) // live state
   const { colors } = useThemeProvider()
@@ -114,42 +117,52 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   }
 
   useEffect(() => {
-    getHistory()
-    const updateDataForTimeRange = () => {
+    let subscription: any
+
+    const updateDataForTimeRange = async () => {
+      // await getHistory()  //it needs for historical data on live mode (data before live updates)
+
       try {
         if (live) {
-          connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
+          subscription = connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
             try {
               const priceEntity = priceFeed.getPriceNoOlderThan(60)
-              const formattedPrice = +formatUnits(
-                BigInt(priceEntity ? priceEntity.price : '1'),
-                Math.abs(priceEntity ? priceEntity.expo : 8)
-              )
-              const price = +formattedPrice.toFixed(6)
-              const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
-              const currentTime = latestPriceFeedEntity
-                ? latestPriceFeedEntity.publishTime * 1000
-                : new Date().getTime()
-              // @ts-ignore
-              const chart = chartComponentRef.current?.chart
-              if (chart) {
-                chart.series[0].addPoint([currentTime, price], true, false)
+              if (priceEntity) {
+                const formattedPrice = +formatUnits(
+                  BigInt(priceEntity ? priceEntity.price : '1'),
+                  Math.abs(priceEntity ? priceEntity.expo : 8)
+                )
+
+                const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
+                const currentTime = latestPriceFeedEntity
+                  ? latestPriceFeedEntity.publishTime * 1000
+                  : new Date().getTime()
+
+                const chart = chartComponentRef.current?.chart
+
+                if (chart) {
+                  setLivePrice(formattedPrice)
+                  chart.series[0].addPoint([currentTime, formattedPrice], true, false)
+                }
               }
             } catch (e) {
-              console.log(e)
+              console.error('Error processing live data:', e)
             }
           })
         } else {
-          getHistory()
+          await getHistory()
         }
       } catch (e) {
-        console.log('error')
+        console.error('Error updating data:', e)
       }
     }
 
     updateDataForTimeRange()
 
     return () => {
+      if (subscription) {
+        connection.unsubscribePriceFeedUpdates(subscription)
+      }
       connection.closeWebSocket()
     }
   }, [live, timeRange])
@@ -164,7 +177,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     setLive(true)
   }
 
-  const options = {
+  const options: Options = {
     chart: {
       type: 'line',
       backgroundColor: colors.grey['100'],
@@ -178,7 +191,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
         style: {
           fontFamily: 'Inter',
           fontSize: isMobile ? '14px' : '12px',
-          fontWeight: 500,
+          fontWeight: '500',
           color: colors.grey['400'],
         },
       },
@@ -194,7 +207,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
         style: {
           fontFamily: 'Inter',
           fontSize: isMobile ? '14px' : '12px',
-          fontWeight: 500,
+          fontWeight: '500',
           color: colors.grey['400'],
         },
       },
@@ -210,20 +223,19 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     },
     series: [
       {
+        type: 'line',
         data: priceData,
         color: '#00C7C7',
         name: id,
         lineWidth: 1,
-      },
+      } as Highcharts.SeriesLineOptions,
     ],
   }
 
   return (
     <Paper bg='grey.100' my='20px'>
       <HStack gap='8px' mb='16px'>
-        <Text {...paragraphRegular} color='grey.500'>
-          Zoom
-        </Text>
+        <CurrentPriceDisplay priceData={priceData} live={live} livePrice={livePrice} />
         <HStack>
           <Button
             variant='transparentGray'
@@ -248,5 +260,44 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     </Paper>
   )
 }
+
+interface CurrentPriceDisplayProps {
+  priceData: number[][]
+  live: boolean
+  livePrice?: number
+}
+
+const CurrentPriceDisplay = memo(({ priceData, live, livePrice }: CurrentPriceDisplayProps) => {
+  if (!priceData.length) {
+    return (
+      <Text {...paragraphRegular} color='grey.800'>
+        <Text as='span' color='grey.400'>
+          Loading...
+        </Text>
+      </Text>
+    )
+  }
+
+  const price = live ? livePrice : priceData[priceData.length - 1][1]
+
+  return (
+    <Text {...paragraphRegular} color='grey.800'>
+      <Text
+        as='span'
+        {...(isMobile ? paragraphMedium : headline)}
+        color='grey.800'
+        aria-label={`Current price: ${price}`}
+      >
+        $
+        {Number(price).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
+      </Text>
+    </Text>
+  )
+})
+
+CurrentPriceDisplay.displayName = 'CurrentPriceDisplay'
 
 export const MarketAssetPriceChart = memo(PythLiveChart)
