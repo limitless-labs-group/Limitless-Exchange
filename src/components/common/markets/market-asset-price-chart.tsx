@@ -4,7 +4,7 @@ import axios from 'axios'
 import Highcharts from 'highcharts'
 import type { Options } from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
-import React, { memo, useEffect, useMemo, useRef, useState, useCallback } from 'react'
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import Paper from '@/components/common/paper'
@@ -92,9 +92,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   const [priceData, setPriceData] = useState<number[][]>([])
   const [livePrice, setLivePrice] = useState<number>()
 
-  const lastUpdateTimeRef = useRef<number>(0)
-  const lastPriceRef = useRef<number | null>(null)
-
   const [timeRange, setTimeRange] = useState('1H') // default time range
   const [live, setLive] = useState(true) // live state
   const { colors } = useThemeProvider()
@@ -102,15 +99,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   const priceId = priceIds[id as keyof typeof priceIds]
 
   const connection = new PriceServiceConnection('https://hermes.pyth.network')
-
-  const handleReconnection = useCallback(() => {
-    connection.closeWebSocket()
-    setTimeout(() => {
-      connection.subscribePriceFeedUpdates([priceId], () => {
-        console.log('Reconnected to price feed')
-      })
-    }, 1000)
-  }, [priceId])
 
   const getHistory = async () => {
     try {
@@ -130,85 +118,43 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
   useEffect(() => {
     getHistory()
-    const MAX_DATA_GAP = 10000 // 10 seconds
-    const STALE_DATA_THRESHOLD = 15000 // 15 seconds
-
     const updateDataForTimeRange = () => {
       try {
         if (live) {
           connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
             try {
               const priceEntity = priceFeed.getPriceNoOlderThan(60)
-              if (!priceEntity) {
-                console.warn('No recent price data available')
-                return
-              }
-
               const formattedPrice = +formatUnits(
-                BigInt(priceEntity.price),
-                Math.abs(priceEntity.expo)
+                BigInt(priceEntity ? priceEntity.price : '1'),
+                Math.abs(priceEntity ? priceEntity.expo : 8)
               )
               const price = +formattedPrice.toFixed(6)
-
-              if (price <= 0 || !isFinite(price)) {
-                console.warn('Invalid price received:', price)
-                return
-              }
-
-              const currentTime = priceEntity.publishTime * 1000
-              const now = Date.now()
-
-              if (now - currentTime > STALE_DATA_THRESHOLD) {
-                console.warn('Received stale data, requesting reconnection')
-                handleReconnection()
-                return
-              }
-
-              // Handle data gaps
-              if (lastUpdateTimeRef.current > 0) {
-                const timeDiff = currentTime - lastUpdateTimeRef.current
-
-                if (timeDiff > MAX_DATA_GAP && lastPriceRef.current !== null) {
-                  // Fill the gap with intermediate points
-                  const chart = chartComponentRef.current?.chart
-                  if (chart) {
-                    const intermediateTime = lastUpdateTimeRef.current + MAX_DATA_GAP / 2
-                    chart.series[0].addPoint([intermediateTime, lastPriceRef.current], true, false)
-                  }
-                }
-              }
-
-              lastUpdateTimeRef.current = currentTime
-              lastPriceRef.current = price
-
-              setLivePrice(price)
-
+              const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
+              const currentTime = latestPriceFeedEntity
+                ? latestPriceFeedEntity.publishTime * 1000
+                : new Date().getTime()
+              // @ts-ignore
               const chart = chartComponentRef.current?.chart
               if (chart) {
+                setLivePrice(price)
                 chart.series[0].addPoint([currentTime, price], true, false)
               }
             } catch (e) {
-              console.error('Error processing price feed:', e)
-              handleReconnection()
+              console.log(e)
             }
           })
         } else {
           getHistory()
         }
       } catch (e) {
-        console.error('Connection error:', e)
-        handleReconnection()
+        console.log('error')
       }
     }
-
     updateDataForTimeRange()
-
     return () => {
       connection.closeWebSocket()
-      lastUpdateTimeRef.current = 0
-      lastPriceRef.current = null
     }
-  }, [live, timeRange, handleReconnection])
+  }, [live, timeRange])
 
   const handleTimeRangeChange = (range: string) => {
     setTimeRange(range)
@@ -307,29 +253,51 @@ function PythLiveChart({ id }: PythLiveChartProps) {
         <Text {...paragraphRegular} color='grey.800'>
           {currentPrice}
         </Text>
-        <HStack>
-          <Button
-            variant='transparentGray'
-            onClick={handleLiveToggle}
-            bg={live ? 'grey.300' : 'grey.200'}
-          >
-            Live
-          </Button>
-          {['1H', '1D', '1W', '1M'].map((period) => (
-            <Button
-              key={period}
-              variant='transparentGray'
-              onClick={() => handleTimeRangeChange(period)}
-              bg={period === timeRange && !live ? 'grey.300' : 'grey.200'}
-            >
-              {period}
-            </Button>
-          ))}
-        </HStack>
+        <TimeRangeButtons
+          live={live}
+          timeRange={timeRange}
+          onLiveToggle={handleLiveToggle}
+          onTimeRangeChange={handleTimeRangeChange}
+        />
       </HStack>
       <HighchartsReact highcharts={Highcharts} options={options} ref={chartComponentRef} />
     </Paper>
   )
 }
+
+interface TimeRangeButtonsProps {
+  live: boolean
+  timeRange: string
+  onLiveToggle: () => void
+  onTimeRangeChange: (period: string) => void
+}
+
+const TimeRangeButtons = memo(
+  ({ live, timeRange, onLiveToggle, onTimeRangeChange }: TimeRangeButtonsProps) => {
+    return (
+      <HStack>
+        <Button
+          variant='transparentGray'
+          onClick={onLiveToggle}
+          bg={live ? 'grey.300' : 'grey.200'}
+        >
+          Live
+        </Button>
+        {['1H', '1D', '1W', '1M'].map((period) => (
+          <Button
+            key={period}
+            variant='transparentGray'
+            onClick={() => onTimeRangeChange(period)}
+            bg={period === timeRange && !live ? 'grey.300' : 'grey.200'}
+          >
+            {period}
+          </Button>
+        ))}
+      </HStack>
+    )
+  }
+)
+
+TimeRangeButtons.displayName = 'TimeRangeButtons'
 
 export const MarketAssetPriceChart = memo(PythLiveChart)
