@@ -30,7 +30,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { toZonedTime } from 'date-fns-tz'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { FC, cache, useEffect, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { MultiValue } from 'react-select'
@@ -372,20 +372,18 @@ export const CreateMarket: FC = () => {
                     </AccordionButton>
                   </h2>
                   <AccordionPanel pb={4}>
-                    {(ogImageError || formData.ogLogo) && (
-                      <Button
-                        size='sm'
-                        colorScheme='blue'
-                        onClick={async () => {
-                          setOgImageError(null)
-                          await generateOgImage()
-                        }}
-                        mb={4}
-                        isLoading={isGeneratingOgImage}
-                      >
-                        Regenerate OG Image
-                      </Button>
-                    )}
+                    <Button
+                      size='sm'
+                      colorScheme='blue'
+                      onClick={async () => {
+                        setOgImageError(null)
+                        await generateOgImage()
+                      }}
+                      mb={4}
+                      isLoading={isGeneratingOgImage}
+                    >
+                      Regenerate OG Image
+                    </Button>
                     <Box pointerEvents='none'>
                       <HStack h='280px' w='600px'>
                         <OgImageGenerator
