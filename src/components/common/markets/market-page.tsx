@@ -241,8 +241,12 @@ export default function MarketPage() {
     setStrategy('Buy')
   }, [])
 
+  const trackedMarketsRef = useRef(new Set<string>())
+
   useEffect(() => {
-    if (market) {
+    //avoid triggering amplitude call twice
+    if (market?.address && !trackedMarketsRef.current.has(market.address)) {
+      trackedMarketsRef.current.add(market.address)
       trackOpened(OpenEvent.SidebarMarketOpened, {
         marketAddress: market.address,
         marketTags: market.tags,
@@ -291,6 +295,7 @@ export default function MarketPage() {
       pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
       backdropFilter='blur(7.5px)'
+      zIndex='200'
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
