@@ -13,12 +13,37 @@ export type TextEditorProps = Readonly<{
   style?: React.CSSProperties
 }>
 
+const linkify = (text: string) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g
+  return text.replace(
+    urlRegex,
+    (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+  )
+}
+const isFormattedText = (text: string): boolean => {
+  const htmlTagRegex = /<[^>]*>/
+  return htmlTagRegex.test(text)
+}
+
 export default function TextEditor({
   value = '',
   readOnly = false,
   onChange,
   style,
 }: TextEditorProps) {
+  const isHtml = isFormattedText(value)
+
+  //need for keeping both options (plain text and html) for transition period
+  const getFormattedValue = (value: string): string => {
+    if (readOnly) {
+      if (isHtml) {
+        return value
+      }
+      return linkify(value)
+    }
+    return value
+  }
+
   return (
     <Box
       className={readOnly ? 'read-only' : ''}
@@ -27,7 +52,7 @@ export default function TextEditor({
     >
       <ReactQuill
         theme={readOnly ? undefined : 'snow'}
-        value={value}
+        value={getFormattedValue(value)}
         readOnly={readOnly}
         onChange={onChange}
         modules={{ toolbar: !readOnly }} // Disable toolbar in read mode
