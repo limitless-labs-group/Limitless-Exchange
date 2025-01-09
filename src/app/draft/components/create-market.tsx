@@ -87,6 +87,8 @@ export const CreateMarket: FC = () => {
     enabled: !!marketId,
   })
 
+  console.log(editMarket)
+
   const handleSwitchClicked = () => {
     setCreateClobMarket(!createClobMarket)
   }
@@ -116,6 +118,7 @@ export const CreateMarket: FC = () => {
         categoryId: editMarket.category?.id || defaultCategoryId,
       }))
       generateOgImage().then(() => console.log('Og image generated'))
+      setCreateClobMarket(!!editMarket.type)
     }
   }, [editMarket])
 
