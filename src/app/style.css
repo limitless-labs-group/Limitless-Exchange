@@ -33,6 +33,12 @@
   line-height: 20px !important;
 }
 
+.ql-editor {
+  min-height: 150px;
+  background: var(--chakra-colors-grey-50) !important;
+  font-size: 16px;
+}
+
 .read-only .ql-editor {
   padding: 0 !important;
   z-index: 10;
