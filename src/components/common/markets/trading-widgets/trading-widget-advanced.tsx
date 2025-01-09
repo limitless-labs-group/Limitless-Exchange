@@ -59,12 +59,12 @@ export default function TradingWidgetAdvanced() {
   const { positions: allMarketsPositions } = useHistory()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { data: orderBook } = useOrderBook(market?.slug)
-  const { data: ownedShares } = useClobMarketShares(account, [
-    market?.tokens.yes as string,
-    market?.tokens.no as string,
-  ])
-
-  console.log(ownedShares)
+  // const { data: ownedShares } = useClobMarketShares(account, [
+  //   market?.tokens.yes as string,
+  //   market?.tokens.no as string,
+  // ])
+  //
+  // console.log(ownedShares)
 
   const [orderType, setOrderType] = useState<MarketOrderType>(MarketOrderType.MARKET)
   const [outcome, setOutcome] = useState(0)
