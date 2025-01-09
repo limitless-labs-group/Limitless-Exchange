@@ -21,6 +21,7 @@ import { Address, getAddress, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import SplitSharesModal from '@/components/common/modals/split-shares-modal'
 import Paper from '@/components/common/paper'
+import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import { useConditionalTokensAddr } from '@/hooks/use-conditional-tokens-addr'
 import { useOrderBook } from '@/hooks/use-order-book'
 import {
@@ -58,6 +59,12 @@ export default function TradingWidgetAdvanced() {
   const { positions: allMarketsPositions } = useHistory()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { data: orderBook } = useOrderBook(market?.slug)
+  // const { data: ownedShares } = useClobMarketShares(account, [
+  //   market?.tokens.yes as string,
+  //   market?.tokens.no as string,
+  // ])
+  //
+  // console.log(ownedShares)
 
   const [orderType, setOrderType] = useState<MarketOrderType>(MarketOrderType.MARKET)
   const [outcome, setOutcome] = useState(0)

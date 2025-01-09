@@ -284,8 +284,9 @@ export const CreateMarket: FC = () => {
     const data = await prepareData()
     if (!data) return
     setIsCreating(true)
+    const url = createClobMarket ? '/markets/clob/drafts' : '/markets/drafts'
     privateClient
-      .put(`/markets/drafts/${marketId}`, data, {
+      .put(`${url}/${marketId}`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
