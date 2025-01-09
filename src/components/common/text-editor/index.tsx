@@ -15,13 +15,33 @@ export type TextEditorProps = Readonly<{
 
 const linkify = (text: string) => {
   const urlRegex = /(https?:\/\/[^\s]+)/g
-  return text.replace(
-    urlRegex,
-    (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+  const escapeHtml = (unsafe: string) => {
+    return unsafe
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+  }
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url)
+      return true
+    } catch {
+      return false
+    }
+  }
+  return text.replace(urlRegex, (url) =>
+    isValidUrl(url)
+      ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(
+          url
+        )}</a>`
+      : url
   )
 }
+
 const isFormattedText = (text: string): boolean => {
-  const htmlTagRegex = /<[^>]*>/
+  const htmlTagRegex = /<\/?[a-z][\s\S]*>/i
   return htmlTagRegex.test(text)
 }
 
