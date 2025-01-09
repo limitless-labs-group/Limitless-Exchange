@@ -9,6 +9,7 @@ import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import { useMarketPriceHistory } from '@/hooks/use-market-price-history'
 import { useThemeProvider } from '@/providers'
+import LimitlessLogo from '@/resources/icons/limitless-logo.svg'
 import { useTradingService } from '@/services'
 import { useWinningIndex } from '@/services/MarketsService'
 import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
@@ -17,7 +18,6 @@ const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
 export const MarketPriceChart = () => {
   const { colors } = useThemeProvider()
-  const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%b %e, %Y %I:%M %p', Date.now()) ?? ''
   )
@@ -48,7 +48,7 @@ export const MarketPriceChart = () => {
       },
       height: 230,
       backgroundColor: colors.grey['100'],
-      marginLeft: isMobile ? 60 : 50,
+      marginLeft: isMobile ? 75 : 50,
       marginRight: 0,
     },
     title: {
@@ -121,11 +121,8 @@ export const MarketPriceChart = () => {
         },
         point: {
           events: {
-            mouseOver: function () {
-              //@ts-ignore
-              setYesDate(Highcharts.dateFormat('%B %e, %Y %I:%M %p', Number(this.x)))
-              //@ts-ignore
-              setYesChance(this.y.toFixed(2))
+            mouseOver: function (this: Highcharts.Point) {
+              setYesDate(Highcharts.dateFormat('%B %e, %Y %I:%M %p', this.x as number))
             },
           },
         },
@@ -273,24 +270,31 @@ export const MarketPriceChart = () => {
       {/*    /!*<ChevronDownIcon width={16} height={16} />*!/*/}
       {/*  </HStack>*/}
       {/*)}*/}
-      <Box px='8px'>
-        <HStack>
-          <VStack gap={-1} alignItems={'flex-start'}>
-            <Text fontSize='sm' color='grey.500'>
-              {yesDate}
+      <HStack px='8px' justifyContent='space-between'>
+        <VStack alignItems='start'>
+          <HStack>
+            <VStack gap={-1} alignItems={'flex-start'}>
+              <Text fontSize='sm' color='grey.500'>
+                {yesDate}
+              </Text>
+            </VStack>
+          </HStack>
+          <HStack gap={'4px'} mt='4px' mb='4px'>
+            <Text {...(isMobile ? paragraphMedium : headline)} color='grey.800'>
+              {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%
             </Text>
-          </VStack>
-        </HStack>
-        <HStack gap={'4px'} mt='4px'>
-          <Text {...(isMobile ? paragraphMedium : headline)} color='grey.800'>
-            {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%
+            <Text {...(isMobile ? paragraphMedium : headline)} color='grey.800'>
+              Yes
+            </Text>
+          </HStack>
+        </VStack>
+        <HStack gap='4px'>
+          <LimitlessLogo color={'var(--chakra-colors-grey-300)'} />
+          <Text {...headline} color={'var(--chakra-colors-grey-300)'}>
+            Limitless
           </Text>
-          <Text {...(isMobile ? paragraphMedium : headline)} color='grey.800'>
-            Yes
-          </Text>
-          {/*<ChevronDownIcon width={16} height={16} />*/}
         </HStack>
-      </Box>
+      </HStack>
       <HighchartsReact highcharts={Highcharts} options={getChartOptions(chartData)} />
     </Paper>
   )
