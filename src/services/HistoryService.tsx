@@ -85,6 +85,7 @@ export const usePosition = () => {
   return useQuery({
     queryKey: ['positions'],
     queryFn: async () => {
+      console.log(walletAddress)
       if (!walletAddress) {
         return []
       }

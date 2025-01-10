@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Divider, Heading, HStack, Icon, Spacer, Stack, Text } from '@chakra-ui/react'
+import { Box, Divider, Heading, HStack, Spacer, Stack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useAccount as useWagmiAccount } from 'wagmi'

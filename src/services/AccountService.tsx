@@ -117,8 +117,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     enabled: !!user?.wallet?.address,
   })
 
-  console.log(`wallets ${JSON.stringify(wallets)}`)
-
   const userMenuLoading = useMemo(() => {
     if (isLogged) {
       if (web3Client === 'etherspot' && !smartAccountClient) {
@@ -314,10 +312,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData, userInfo, web3Client, user?.wallet?.address, smartAccountClient])
 
   const account = useMemo(() => {
-    return smartAccountClient?.account?.address
-      ? smartAccountClient.account.address
-      : (user?.wallet?.address as Address | undefined)
-  }, [smartAccountClient, user])
+    if (web3Client === 'etherspot') {
+      if (smartAccountClient) {
+        return smartAccountClient.account?.address
+      }
+    }
+    return user?.wallet?.address as Address | undefined
+  }, [smartAccountClient, user, web3Client])
 
   useEffect(() => {
     if (web3Client === 'etherspot' && !smartAccountClient) {
