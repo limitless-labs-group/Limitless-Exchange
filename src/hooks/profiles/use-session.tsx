@@ -10,16 +10,19 @@ const useCheckSession = () => {
   }
 }
 
-export const useUserSession = ({ client, account }: IUseLogin) => {
+export const useUserSession = ({ client, account, smartWallet }: IUseLogin) => {
   const checkSession = useCheckSession()
   const { mutateAsync: loginUser } = useLogin()
 
   return useQuery({
     queryKey: ['user-session'],
     queryFn: async () => {
+      if (client === 'etherspot' && !smartWallet) {
+        return
+      }
       const status = await checkSession()
       if (status === 401) {
-        return loginUser({ client, account })
+        return loginUser({ client, account, smartWallet })
       }
     },
     staleTime: Infinity,

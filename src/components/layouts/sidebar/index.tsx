@@ -68,6 +68,8 @@ export default function Sidebar() {
   const { data: totalVolume } = useTotalTradingVolume()
   const { isLogged } = useClient()
 
+  // console.log(`account ${account}`)
+
   const pageName = usePageName()
 
   const {

@@ -10,6 +10,7 @@ import { Profile } from '@/types/profiles'
 export interface IUseLogin {
   account?: Address
   client: 'etherspot' | 'eoa'
+  smartWallet?: string
 }
 
 export const useLogin = () => {
@@ -25,7 +26,7 @@ export const useLogin = () => {
 
   return useMutation({
     mutationKey: ['login'],
-    mutationFn: async ({ client, account }: IUseLogin): Promise<Profile> => {
+    mutationFn: async ({ client, account, smartWallet }: IUseLogin): Promise<Profile> => {
       const { data: loginSigningMessage } = await getSigningMsg()
 
       if (!loginSigningMessage) throw new Error('Failed to get signing message')
@@ -42,7 +43,7 @@ export const useLogin = () => {
 
       const res = await axiosInstance.post(
         '/auth/login',
-        { client },
+        { client, smartWallet },
         {
           headers,
         }

@@ -3,10 +3,12 @@ import axios, { AxiosInstance } from 'axios'
 import React, { createContext, useContext } from 'react'
 import { getAddress, toHex } from 'viem'
 import { useSignMessage } from 'wagmi'
+import { useAccount } from '@/services/AccountService'
 
 const useSetupAxiosInstance = () => {
   const { signMessage, user } = usePrivy()
   const { signMessageAsync } = useSignMessage()
+  const { smartAccountClient } = useAccount()
 
   //avoid triggering signing message pop-up several times, when the few private requests will come simultaneously
   let signingPromise: Promise<void> | null = null
@@ -24,9 +26,14 @@ const useSetupAxiosInstance = () => {
       try {
         if (!user?.wallet?.address) throw new Error('Failed to get account')
 
+        const client = user.wallet.connectorType === 'injected' ? 'eoa' : 'etherspot'
+
+        if (client === 'etherspot' && !smartAccountClient) {
+          return
+        }
+
         const { data: signingMessage } = await axiosInstance.get(`/auth/signing-message`)
         if (!signingMessage) throw new Error('Failed to get signing message')
-        const client = user.wallet.connectorType === 'injected' ? 'eoa' : 'etherspot'
 
         const signature =
           client === 'eoa'
@@ -40,7 +47,16 @@ const useSetupAxiosInstance = () => {
           'x-signing-message': toHex(String(signingMessage)),
         }
 
-        await axiosInstance.post('/auth/login', { client }, { headers, withCredentials: true })
+        await axiosInstance.post(
+          '/auth/login',
+          {
+            client,
+            ...(client === 'etherspot'
+              ? { smartWallet: smartAccountClient?.account?.address }
+              : {}),
+          },
+          { headers, withCredentials: true }
+        )
       } catch (error) {
         throw error
       } finally {
