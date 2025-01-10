@@ -10,7 +10,6 @@ import { formatUnits } from 'viem'
 import Paper from '@/components/common/paper'
 import { MainLayout } from '@/components'
 import { useLumyBalance } from '@/hooks/use-lumy-balance'
-import { useThemeProvider } from '@/providers'
 import ArrowExternalIcon from '@/resources/icons/arrow-external.svg'
 import BaseWhiteIcon from '@/resources/icons/base-icon-white.svg'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
@@ -26,10 +25,6 @@ export default function LumyPage() {
   const [copied, setCopied] = useState(false)
 
   const { trackClicked } = useAmplitude()
-
-  const { mode } = useThemeProvider()
-
-  console.log(mode)
 
   const { data } = useLumyBalance()
 
@@ -154,6 +149,7 @@ export default function LumyPage() {
                     Address
                   </Text>
                   <HStack gap='4px'>
+                    {/*// @ts-ignore*/}
                     <CopyToClipboard
                       text={'0x6bb3d8A69656d1865708242223190a29D3a7E3c7'}
                       onCopy={onClickCopy}

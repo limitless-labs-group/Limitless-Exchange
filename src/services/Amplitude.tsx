@@ -8,7 +8,6 @@ import {
 } from '@toruslabs/openlogin-utils/dist/types/interfaces'
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
 import { PageName } from '@/hooks/use-page-name'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useAccount } from '@/services'
 import { Address, Category, LeaderboardSort, MarketGroup } from '@/types'
 
@@ -27,8 +26,7 @@ const AmplitudeContext = createContext<IAmplitudeContext>({} as IAmplitudeContex
 export const useAmplitude = () => useContext(AmplitudeContext)
 
 export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
-  const { account, userInfo } = useAccount()
-  const walletAddress = useWalletAddress()
+  const { account: walletAddress, userInfo } = useAccount()
 
   useEffect(() => {
     init(AMPLITUDE_API_KEY, undefined, {
@@ -71,13 +69,13 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
           ...(urlParams.get('utm_content') ? { utm_content: urlParams.get('utm_content') } : {}),
         },
         user_properties: {
-          account,
+          account: walletAddress,
           ...userInfo,
           walletAddress,
         },
       }).promise
     },
-    [account, walletAddress]
+    [walletAddress]
   )
 
   const trackSignUp = async () => {

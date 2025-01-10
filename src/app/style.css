@@ -23,3 +23,21 @@
 * {
   outline: none;
 }
+
+body {
+  --privy-border-radius-sm: 4px;
+  --privy-border-radius-md: 8px;
+  --privy-border-radius-lg: 12px;
+  --privy-border-radius-full: 100%;
+  --privy-color-background: var(--chakra-colors-grey-100);
+  --privy-color-background-2: var(--chakra-colors-grey-300);
+  --privy-color-background-3: var(--chakra-colors-grey-400);
+  --privy-color-foreground: var(--chakra-colors-grey-800);
+  --privy-color-foreground-2: var(--chakra-colors-grey-800);
+  --privy-color-foreground-3: var(--chakra-colors-grey-500);
+  --privy-color-foreground-4: var(--chakra-colors-grey-300);
+  --privy-color-accent: var(--chakra-colors-blue-500);
+  --privy-color-success: var(--chakra-colors-green-500);
+  --privy-color-error: var(--chakra-colors-red-500);
+  --privy-color-accent-dark: var(--chakra-colors-blue-500);
+}

@@ -2,8 +2,9 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash } from 'viem'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
+import useClient from '@/hooks/use-client'
 import { usePriceOracle } from '@/providers'
+import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useLimitlessApi } from '@/services/LimitlessApi'
 import { Address } from '@/types'
@@ -78,7 +79,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 }
 
 export const usePosition = () => {
-  const walletAddress = useWalletAddress()
+  const { account: walletAddress } = useAccount()
   const privateClient = useAxiosPrivateClient()
 
   return useQuery({
@@ -121,12 +122,15 @@ export const usePortfolioHistory = (page: number) => {
 
 export const useInfinityHistory = () => {
   const privateClient = useAxiosPrivateClient()
-  const walletAddress = useWalletAddress()
+  const { checkIsLogged } = useClient()
+  const { profileData } = useAccount()
   return useInfiniteQuery<History[], Error>({
     queryKey: ['history-infinity'],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      if (!walletAddress) {
+      const isLogged = checkIsLogged()
+
+      if (!isLogged) {
         return []
       }
 
@@ -149,7 +153,7 @@ export const useInfinityHistory = () => {
     },
     refetchOnWindowFocus: false,
     keepPreviousData: true,
-    enabled: !!walletAddress,
+    enabled: !!profileData?.id,
   })
 }
 

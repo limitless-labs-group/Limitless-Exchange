@@ -1,6 +1,6 @@
 {
   "name": "limitless-exchange",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "private": false,
   "author": "Limitless Labs",
   "license": "MIT",
@@ -36,8 +36,10 @@
     "@fvictorio/newton-raphson-method": "^1.0.5",
     "@hookform/resolvers": "^3.9.0",
     "@next/bundle-analyzer": "^14.2.3",
+    "@privy-io/react-auth": "1.89.0",
+    "@privy-io/wagmi": "0.2.11",
     "@pythnetwork/price-service-client": "^1.9.0",
-    "@rainbow-me/rainbowkit": "^2.1.6",
+    "@solana/web3.js": "^1.95.8",
     "@svgr/webpack": "^8.1.0",
     "@tanstack/react-query": "^5.26.3",
     "@tanstack/react-query-devtools": "^5.36.0",
@@ -77,6 +79,7 @@
     "lodash.debounce": "^4.0.8",
     "moment": "^2.30.1",
     "next": "^14.2.3",
+    "permissionless": "^0.1.45",
     "react": "^18.3.1",
     "react-copy-to-clipboard": "^5.1.0",
     "react-datepicker": "^7.3.0",
@@ -94,8 +97,8 @@
     "supports-color": "^8.1.1",
     "uuid": "^9.0.1",
     "vaul": "^0.9.1",
-    "viem": "^2.21.7",
-    "wagmi": "^2.12.11",
+    "viem": "^2.17.2",
+    "wagmi": "^2.10.9",
     "yup": "^1.4.0"
   },
   "devDependencies": {
@@ -116,7 +119,7 @@
     "jest-environment-jsdom": "^29.5.0",
     "lint-staged": "^13.2.2",
     "prettier": "^2.8.8",
-    "typescript": "^5.0.4",
+    "typescript": "^5",
     "vercel": "^32.4.1"
   }
 }

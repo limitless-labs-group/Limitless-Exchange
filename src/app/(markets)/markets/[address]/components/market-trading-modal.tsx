@@ -1,5 +1,11 @@
-import { Modal, ModalCloseButton } from '@chakra-ui/modal'
-import { ModalBody, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react'
+import {
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+} from '@chakra-ui/react'
 import { MarketTradingForm } from './market-trading-form'
 import { useTradingService } from '@/services'
 import { headline } from '@/styles/fonts/fonts.styles'

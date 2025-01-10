@@ -4,32 +4,29 @@ import {
   ButtonGroup,
   Divider,
   HStack,
-  Skeleton,
   Slide,
   Spacer,
-  StackItem,
   Text,
   useDisclosure,
-  useTheme,
   VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { isAddress } from 'viem'
-import { useAccount as useWagmiAccount } from 'wagmi'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import Loader from '@/components/common/loader'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
+import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
 import StaticSnowBackground from '@/components/common/static-snow'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
+import useClient from '@/hooks/use-client'
 import { useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
@@ -42,8 +39,8 @@ import {
   CreateMarketClickedMetadata,
   useAccount,
   useAmplitude,
+  useBalanceQuery,
   useBalanceService,
-  useEtherspot,
   useHistory,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -51,26 +48,15 @@ import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
 export default function MobileHeader() {
-  const { isConnected, isConnecting } = useWagmiAccount()
   const { overallBalanceUsd } = useBalanceService()
-  const account = useWalletAddress()
   const { balanceInvested } = useHistory()
   const router = useRouter()
-  const { disconnectFromPlatform, profileData, profileLoading, displayName } = useAccount()
-  const { isLoadingSmartWalletAddress } = useEtherspot()
+  const { disconnectFromPlatform, profileData, profileLoading, displayName, account } = useAccount()
+  const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
+  const { isLogged } = useClient()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
-
-  const userMenuLoading = useMemo(() => {
-    if (isConnecting) {
-      return true
-    }
-    if (isConnected) {
-      return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
-    }
-    return false
-  }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
 
@@ -119,7 +105,7 @@ export default function MobileHeader() {
             {/* /> */}
           </Box>
           <HStack gap='4px'>
-            {isConnected ? (
+            {isLogged ? (
               <>
                 <Button
                   variant='transparent'
@@ -131,11 +117,19 @@ export default function MobileHeader() {
                     onToggleUserMenu()
                   }}
                 >
-                  <Text fontWeight={500} fontSize='16px'>
-                    {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-                  </Text>
-                  {userMenuLoading ? (
-                    <Skeleton variant='common' w='24px' h='24px' />
+                  {!balanceOfSmartWallet ? (
+                    <Box w='100px'>
+                      <Skeleton height={24} />
+                    </Box>
+                  ) : (
+                    <Text fontWeight={500} fontSize='16px'>
+                      {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+                    </Text>
+                  )}
+                  {profileLoading ? (
+                    <Box w='24px'>
+                      <Skeleton height={24} />
+                    </Box>
                   ) : (
                     <Avatar account={account as string} avatarUrl={profileData?.pfpUrl} />
                   )}
@@ -168,7 +162,7 @@ export default function MobileHeader() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Box w='full'>
-                      {userMenuLoading ? (
+                      {profileLoading ? (
                         <Button h='24px' px='8px' w='full'>
                           <Loader />
                         </Button>
@@ -183,24 +177,21 @@ export default function MobileHeader() {
                                 onToggleUserMenu()
                               }}
                             >
-                              <StackItem display='flex' justifyContent='center' alignItems='center'>
+                              <HStack gap='4px'>
                                 <Avatar
                                   account={account as string}
                                   avatarUrl={profileData?.pfpUrl}
                                 />
-                                <Box mx='4px' />
                                 <Text {...paragraphMedium} className={'amp-mask'}>
                                   {isAddress(displayName || '')
                                     ? truncateEthAddress(displayName)
                                     : displayName}
                                 </Text>
-                              </StackItem>
+                              </HStack>
 
-                              <StackItem>
-                                <Box color='grey.800'>
-                                  <ArrowRightIcon width={16} height={16} />
-                                </Box>
-                              </StackItem>
+                              <Box color='grey.800'>
+                                <ArrowRightIcon width={16} height={16} />
+                              </Box>
                             </HStack>
                           }
                           variant='common'
