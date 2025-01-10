@@ -29,7 +29,7 @@ export default function DailyMarketsSection({
           / Markets {isLoading ? '' : `(${totalAmount})`}
         </Text>
       </Box>
-      <SortFilter onChange={handleSelectSort} storageName={SortStorageName.SORT_DAILY} />
+      <SortFilter onChange={handleSelectSort} storageName={SortStorageName.SORT} />
       <VStack gap={2} w='full' px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : '24px'}>
         {isLoading
           ? [...Array(3)].map((index) => <Skeleton height={200} key={index} />)
