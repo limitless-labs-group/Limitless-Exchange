@@ -57,7 +57,6 @@ import {
   useBalanceService,
   usePosition,
 } from '@/services'
-import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular, headline } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
