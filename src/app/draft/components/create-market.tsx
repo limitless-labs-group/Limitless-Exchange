@@ -238,6 +238,7 @@ export const CreateMarket: FC = () => {
       marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
       marketFormData?.set('marketFee', formData.marketFee.toString())
       marketFormData?.set('deadline', zonedTime.toString())
+      marketFormData?.set('isBannered', formData.isBannered.toString())
 
       if (formData.creatorId) {
         marketFormData.set('creatorId', formData.creatorId)
