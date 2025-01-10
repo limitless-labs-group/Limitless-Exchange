@@ -61,7 +61,6 @@ const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boo
 
   return (
     <>
-      {/*<Filter onChange={handleSelectFilterTokens} />*/}
       {positionsFiltered.length == 0 ? (
         <Flex w={'full'} h={'200px'} justifyContent={'center'} alignItems={'center'}>
           <Text color={'fontLight'}>No open positions</Text>
