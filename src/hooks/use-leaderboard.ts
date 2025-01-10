@@ -5,6 +5,8 @@ import { LeaderboardSort } from '@/types'
 
 export interface LeaderboardEntity {
   account: string
+  displayName: string
+  pfpUrl: string
   totalVolume: string
 }
 

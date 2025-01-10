@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Divider,
+  Flex,
   HStack,
   Link,
   Menu,
@@ -24,6 +25,7 @@ import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
+import StaticSnowBackground from '@/components/common/static-snow'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
@@ -53,8 +55,10 @@ import {
   useAmplitude,
   useBalanceQuery,
   useBalanceService,
+  usePosition,
 } from '@/services'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { useWeb3Service } from '@/services/Web3Service'
+import { paragraphMedium, paragraphRegular, headline } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
 export default function Sidebar() {
@@ -69,8 +73,13 @@ export default function Sidebar() {
   const { isLogged } = useClient()
 
   // console.log(`account ${account}`)
+  const { data: positions } = usePosition()
 
   const pageName = usePageName()
+
+  const hasWinningPosition = useMemo(() => {
+    return positions?.some((position) => position.market.closed)
+  }, [positions])
 
   const {
     isOpen: isOpenWalletPage,
@@ -175,19 +184,28 @@ export default function Sidebar() {
         pos='fixed'
         overflowY='auto'
       >
-        <NextLink href='/' passHref>
+        {mode === 'dark' ? (
+          <StaticSnowBackground height={60} width={188} numDots={40} dotRadius={0.8} />
+        ) : null}
+
+        <NextLink href='/' passHref style={{ width: '100%', textDecoration: 'none' }}>
           <Link
             onClick={() => {
               trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
               window.localStorage.removeItem('SORT')
             }}
+            style={{ textDecoration: 'none' }}
+            _hover={{ textDecoration: 'none' }}
           >
-            <Image
-              src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
-              height={32}
-              width={156}
-              alt='logo'
-            />
+            <HStack w='full' alignItems='center'>
+              <Image
+                src={mode === 'dark' ? '/snow-logo.png' : '/snow-logo-light.png'}
+                height={46}
+                width={46}
+                alt='logo'
+              />
+              <Text {...headline}>Limitless</Text>
+            </HStack>
           </Link>
         </NextLink>
         {isLogged ? (
@@ -210,11 +228,21 @@ export default function Sidebar() {
                   bg={pageName === 'Portfolio' ? 'grey.100' : 'unset'}
                   rounded='8px'
                 >
-                  <HStack w='full'>
+                  <HStack w='full' gap='0'>
                     <PortfolioIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
+                    <Text fontWeight={500} fontSize='14px' marginLeft='8px'>
                       Portfolio
                     </Text>
+                    {hasWinningPosition ? (
+                      <Flex
+                        bg='red.500'
+                        h='8px'
+                        w='8px'
+                        borderRadius='10px'
+                        marginLeft='3px'
+                        alignSelf='start'
+                      />
+                    ) : null}
                   </HStack>
                 </Link>
               </NextLink>

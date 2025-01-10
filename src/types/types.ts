@@ -71,6 +71,9 @@ export interface Market {
   }
   openInterest: string
   openInterestFormatted: string
+  metadata: {
+    isBannered: boolean
+  }
 }
 
 export interface MarketGroup {
@@ -140,7 +143,13 @@ export enum Sort {
   NEWEST = 'Newest',
   ENDING_SOON = 'Ending Soon',
   HIGHEST_LIQUIDITY = 'High Liquidity',
+  HIGHEST_VALUE = 'High Value',
   HIGHEST_VOLUME = 'High Volume',
+}
+
+export enum SortStorageName {
+  SORT = 'SORT',
+  SORT_DAILY = 'SORT_DAILY',
 }
 
 export enum LeaderboardSort {
@@ -317,11 +326,25 @@ export interface ColorScheme {
   background: {
     90: string
   }
+  text: {
+    100: string
+  }
   skeleton: {
     dark: string
     highLight: string
     tradeSkeleton: string
     tradeSkeletonBackground: string
+    widgetYes: string
+    widgetBgYes: string
+    widgetNo: string
+    widgetBgNo: string
+    widgetGrey: string
+    widgetBgGrey: string
+  }
+  draftCard: {
+    bg: string
+    border: string
+    selectedBg: string
   }
 }
 
@@ -352,11 +375,26 @@ export interface CommentResponse {
   totalPages: number
 }
 
+export interface Like {
+  createdAt: string
+  id: number
+  user: Profile
+}
+
 export interface CommentType {
   id: string
   createdAt: string
   content: string
   author: Profile
+  likes: Like[]
+}
+
+export interface LikePost {
+  message: string
+}
+
+export interface LikesGet {
+  likes: number
 }
 
 export type APIError = AxiosError<{ message: string; statusCode: number }>

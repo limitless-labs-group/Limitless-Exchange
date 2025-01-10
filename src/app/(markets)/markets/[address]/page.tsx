@@ -30,6 +30,7 @@ import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import CommentTab from '@/components/common/markets/comment-tab'
+import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
@@ -51,6 +52,7 @@ import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
+import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
@@ -80,6 +82,35 @@ import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 import { defineOpenInterestOverVolume } from '@/utils/market'
 
+const tokens = [
+  'AAVE',
+  'AERO',
+  'ALGO',
+  'APE',
+  'ATOM',
+  'APT',
+  'AVAX',
+  'DOT',
+  'EIGEN',
+  'ENS',
+  'FTM',
+  'HBAR',
+  'ICP',
+  'INJ',
+  'JUP',
+  'LDO',
+  'LINK',
+  'NEAR',
+  'ONDO',
+  'OP',
+  'PYTH',
+  'RENDER',
+  'SUI',
+  'WLD',
+  'ZK',
+  'ZRO',
+]
+
 const MarketPage = ({ params }: { params: { address: Address } }) => {
   const [isShareMenuOpen, setShareMenuOpen] = useState(false)
   const [outcomeIndex, setOutcomeIndex] = useState(0)
@@ -96,6 +127,8 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
   const { positions: allMarketsPositions } = useHistory()
+
+  const isLumy = market?.category === 'Lumy'
 
   const positions = useMemo(
     () =>
@@ -132,11 +165,17 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
           </VStack>
         </Paper>
       ) : (
-        <Paper bg='blue.500' borderRadius='8px' overflowX='hidden' p='8px' w='424px'>
+        <Paper
+          bg={'var(--chakra-colors-grey-100)'}
+          borderRadius='8px'
+          overflowX='hidden'
+          p='8px'
+          w='424px'
+        >
           <HStack
             w={'240px'}
             mx='auto'
-            bg='rgba(255, 255, 255, 0.20)'
+            bg='grey.200'
             borderRadius='8px'
             py='2px'
             px={isMobile ? '4px' : '2px'}
@@ -147,10 +186,10 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
               flex='1'
               py='2px'
               borderRadius='8px'
-              bg={strategy === 'Buy' ? 'white' : 'unset'}
-              color={strategy === 'Buy' ? 'black' : 'white'}
+              bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
+              color='grey.800'
               _hover={{
-                backgroundColor: strategy === 'Buy' ? 'white' : 'rgba(255, 255, 255, 0.30)',
+                backgroundColor: strategy === 'Buy' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
               }}
               onClick={() => {
                 trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
@@ -169,10 +208,10 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
               flex='1'
               borderRadius='8px'
               py='2px'
-              bg={strategy === 'Sell' ? 'white' : 'unset'}
-              color={strategy === 'Sell' ? 'black' : 'white'}
+              bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
+              color='grey.800'
               _hover={{
-                backgroundColor: strategy === 'Sell' ? 'white' : 'rgba(255, 255, 255, 0.30)',
+                backgroundColor: strategy === 'Sell' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
               }}
               _disabled={{
                 opacity: '50%',
@@ -328,6 +367,75 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     router,
   ])
 
+  const isLivePriceSupportedMarket =
+    isLumy &&
+    tokens
+      .map((token) => `Will ${token}`)
+      .some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
+
+  const chartTabs = [
+    {
+      title: 'Predictions',
+      icon: <PredictionsIcon width={16} height={16} />,
+      analyticEvent: ClickEvent.PredictionChartOpened,
+    },
+    {
+      title: 'Assets price',
+      icon: <CandlestickIcon width={16} height={16} />,
+      analyticEvent: ClickEvent.AssetPriceChartOpened,
+    },
+  ]
+
+  const handleChartTabClicked = (event: ClickEvent) =>
+    trackClicked(event, {
+      marketAddress: market?.address,
+      marketType: marketGroup ? 'group' : 'single',
+      marketTags: market?.tags,
+      platform: isMobile ? 'mobile' : 'desktop',
+    })
+
+  const chartsTabPanels = useMemo(
+    () => [
+      <MarketPriceChart key={uuidv4()} />,
+      <MarketAssetPriceChart
+        key={uuidv4()}
+        id={tokens.filter((token) => market?.title.includes(token))[0]}
+      />,
+    ],
+    [market?.title]
+  )
+
+  const marketChartContent = useMemo(() => {
+    if (isLivePriceSupportedMarket) {
+      return (
+        <Tabs position='relative' variant='common' mt='20px'>
+          <TabList>
+            {chartTabs.map((tab) => (
+              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.analyticEvent)}>
+                <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+                  {tab.icon}
+                  <>{tab.title}</>
+                </HStack>
+              </Tab>
+            ))}
+          </TabList>
+          <TabIndicator
+            mt='-2px'
+            height='2px'
+            bg='grey.800'
+            transitionDuration='200ms !important'
+          />
+          <TabPanels>
+            {chartsTabPanels.map((panel, index) => (
+              <TabPanel key={index}>{panel}</TabPanel>
+            ))}
+          </TabPanels>
+        </Tabs>
+      )
+    }
+    return <MarketPriceChart />
+  }, [])
+
   const tabs = [
     {
       title: 'Resolution',
@@ -421,7 +529,12 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
         <>Market not found</>
       ) : (
         <>
-          <HStack gap='40px' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
+          <HStack
+            gap='40px'
+            w={isMobile ? 'full' : 'unset'}
+            alignItems='flex-start'
+            mb={isMobile ? '84px' : 0}
+          >
             <Box w={isMobile ? 'full' : '664px'}>
               <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>
                 <HStack justifyContent='space-between' mb='24px'>
@@ -619,7 +732,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                     <Skeleton height={290} />
                   </Box>
                 ) : (
-                  <MarketPriceChart />
+                  marketChartContent
                 )}
               </Box>
               {fetchMarketLoading ? (

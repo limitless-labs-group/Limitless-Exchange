@@ -42,7 +42,7 @@ export const chakraTheme = ChakraTheme({
       },
       body: {
         overflowX: 'hidden',
-        userSelect: 'none',
+        userSelect: 'text',
         color: 'grey.800',
         background: 'grey.50',
         fontSize: '14px',
