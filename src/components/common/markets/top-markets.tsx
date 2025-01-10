@@ -12,7 +12,7 @@ interface TopMarketsProps {
 }
 
 export default function TopMarkets({ markets, isLoading }: TopMarketsProps) {
-  const desktopCards = markets.map((market) => (
+  const desktopCards = markets?.map((market) => (
     <BigBanner market={market} key={market.address} markets={markets} />
   ))
 

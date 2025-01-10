@@ -105,8 +105,10 @@ export async function getPrices(data: { address: `0x${string}`; decimals: number
   )
   const result = data.map((market: { address: `0x${string}`; decimals: number }) => {
     return {
-      market: market.address,
-      ...(markets.get(market.address) as OddsData),
+      ...market,
+      ...(markets.get(market.address)
+        ? (markets.get(market.address) as OddsData)
+        : { prices: [50, 50] }),
     }
   })
 
