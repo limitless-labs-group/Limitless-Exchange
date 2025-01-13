@@ -13,6 +13,7 @@ const useCheckSession = () => {
 export const useUserSession = ({ client, account, smartWallet }: IUseLogin) => {
   const checkSession = useCheckSession()
   const { mutateAsync: loginUser } = useLogin()
+  const axiosPrivate = useAxiosPrivateClient()
 
   return useQuery({
     queryKey: ['user-session'],
@@ -20,10 +21,11 @@ export const useUserSession = ({ client, account, smartWallet }: IUseLogin) => {
       if (client === 'etherspot' && !smartWallet) {
         return
       }
-      const status = await checkSession()
-      if (status === 401) {
-        return loginUser({ client, account, smartWallet })
-      }
+      await axiosPrivate.get('/auth/verify-auth')
+      // const status = await checkSession()
+      // if (status === 401) {
+      //   return loginUser({ client, account, smartWallet })
+      // }
     },
     staleTime: Infinity,
     gcTime: Infinity,

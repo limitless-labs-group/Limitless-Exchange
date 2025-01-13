@@ -1,12 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import axios, { AxiosResponse } from 'axios'
+import axios from 'axios'
 import { PropsWithChildren, createContext, useContext } from 'react'
 import { Token } from '@/types'
-import { ProfileActionType } from '@/types/profiles'
 
 interface ILimitlessApi {
   supportedTokens?: Token[]
-  getSigningMessage: (purpose: ProfileActionType) => Promise<AxiosResponse<string>>
 }
 
 export const limitlessApi = axios.create({
@@ -26,11 +24,7 @@ export const LimitlessApiProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const getSigningMessage = async (purpose: ProfileActionType) => {
-    return limitlessApi.get(`/profiles/signing-message/${purpose}`)
-  }
-
-  const contextProviderValue: ILimitlessApi = { supportedTokens, getSigningMessage }
+  const contextProviderValue: ILimitlessApi = { supportedTokens }
 
   return (
     <LimitlessApiContext.Provider value={contextProviderValue}>
