@@ -238,6 +238,7 @@ export default function BuyButton({
   }
 
   const handleActionIntention = async () => {
+    debugger
     if (!walletAddress) {
       return
     }
@@ -277,6 +278,7 @@ export default function BuyButton({
   }
 
   const handleApprove = async () => {
+    debugger
     try {
       setStatus('unlocking')
       const amountBI = parseUnits(amount, decimals || 18)
