@@ -594,6 +594,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const { mutateAsync: approveContractBuy, isPending: isLoadingApproveBuy } = useMutation({
     mutationFn: async () => {
+      debugger
       if (!market) {
         return
       }
