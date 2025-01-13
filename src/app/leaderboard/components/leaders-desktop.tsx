@@ -31,7 +31,9 @@ export default function LeadersDesktop({ data }: LeadersProps) {
         <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
           <Avatar account={data?.[0].account || '0x'} />
           <Text {...controlsMedium} fontSize='16px'>
-            {truncateEthAddress(data?.[0].account)}
+            {data?.[0].displayName
+              ? cutUsername(data[0].displayName, 17)
+              : truncateEthAddress(data?.[0].account)}
           </Text>
         </HStack>
         <LeaderboardFirst />
@@ -40,7 +42,9 @@ export default function LeadersDesktop({ data }: LeadersProps) {
         <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
           <Avatar account={data?.[2].account || '0x'} />
           <Text {...controlsMedium} fontSize='16px'>
-            {truncateEthAddress(data?.[2].account || '0x')}
+            {data?.[2].displayName
+              ? cutUsername(data[2].displayName, 17)
+              : truncateEthAddress(data?.[2].account)}
           </Text>
         </HStack>
         <LeaderboardThird />
