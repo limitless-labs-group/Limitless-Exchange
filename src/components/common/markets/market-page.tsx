@@ -53,7 +53,7 @@ import {
   OpenEvent,
   StrategyChangedMetadata,
   useAmplitude,
-  useHistory,
+  usePosition,
   useTradingService,
 } from '@/services'
 import { useMarket } from '@/services/MarketsService'
@@ -117,7 +117,7 @@ export default function MarketPage() {
   const pathname = usePathname()
 
   const { trackChanged, trackClicked, trackOpened } = useAmplitude()
-  const { positions: allMarketsPositions } = useHistory()
+  const { data: allMarketsPositions } = usePosition()
 
   // Todo change creator name
 

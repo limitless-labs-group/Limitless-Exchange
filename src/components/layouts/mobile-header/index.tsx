@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { isAddress } from 'viem'
 import Avatar from '@/components/common/avatar'
@@ -27,7 +27,7 @@ import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
 import useClient from '@/hooks/use-client'
-import { useThemeProvider } from '@/providers'
+import { usePriceOracle, useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
@@ -41,7 +41,8 @@ import {
   useAmplitude,
   useBalanceQuery,
   useBalanceService,
-  useHistory,
+  useLimitlessApi,
+  usePosition,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
@@ -49,7 +50,9 @@ import { NumberUtil, truncateEthAddress } from '@/utils'
 
 export default function MobileHeader() {
   const { overallBalanceUsd } = useBalanceService()
-  const { balanceInvested } = useHistory()
+  const { data: positions } = usePosition()
+  const { supportedTokens } = useLimitlessApi()
+  const { convertAssetAmountToUsd } = usePriceOracle()
   const router = useRouter()
   const { disconnectFromPlatform, profileData, profileLoading, displayName, account } = useAccount()
   const { balanceOfSmartWallet } = useBalanceQuery()
@@ -59,6 +62,21 @@ export default function MobileHeader() {
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
+
+  const balanceInvested = useMemo(() => {
+    let _balanceInvested = 0
+    positions?.forEach((position) => {
+      let positionUsdAmount = 0
+      const token = supportedTokens?.find(
+        (token) => token.symbol === position.market.collateral?.symbol
+      )
+      if (!!token) {
+        positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, position.collateralAmount)
+      }
+      _balanceInvested += positionUsdAmount
+    })
+    return NumberUtil.toFixed(_balanceInvested, 2)
+  }, [positions, supportedTokens])
 
   const handleNavigateToPortfolioPage = () => {
     onToggleUserMenu()
