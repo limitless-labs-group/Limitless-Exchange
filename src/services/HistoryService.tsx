@@ -79,14 +79,13 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 }
 
 export const usePosition = () => {
-  const { account: walletAddress } = useAccount()
+  const { isLogged } = useClient()
   const privateClient = useAxiosPrivateClient()
 
   return useQuery({
-    queryKey: ['positions'],
+    queryKey: ['positions', isLogged],
     queryFn: async () => {
-      console.log(walletAddress)
-      if (!walletAddress) {
+      if (!isLogged) {
         return []
       }
       try {
@@ -97,8 +96,8 @@ export const usePosition = () => {
         return []
       }
     },
-    enabled: !!walletAddress,
-    refetchInterval: !!walletAddress ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
+    enabled: !!isLogged,
+    refetchInterval: !!isLogged ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
   })
 }
 
