@@ -7,13 +7,14 @@ import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Address } from '@/types'
 
 export const usePosition = () => {
+  const { profileData } = useAccount()
   const { isLogged } = useClient()
   const privateClient = useAxiosPrivateClient()
 
   return useQuery({
-    queryKey: ['positions', isLogged],
+    queryKey: ['positions', profileData?.id],
     queryFn: async () => {
-      if (!isLogged) {
+      if (!profileData) {
         return []
       }
       try {
@@ -24,8 +25,8 @@ export const usePosition = () => {
         return []
       }
     },
-    enabled: !!isLogged,
-    refetchInterval: !!isLogged ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
+    enabled: !!profileData?.id && !!isLogged,
+    refetchInterval: !!profileData?.id ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
   })
 }
 
