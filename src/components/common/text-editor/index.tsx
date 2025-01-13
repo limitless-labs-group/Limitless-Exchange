@@ -11,6 +11,8 @@ export type TextEditorProps = Readonly<{
   readOnly?: boolean
   onChange?: (value: string) => void
   style?: React.CSSProperties
+  className?: string
+  onBlur?: () => Promise<void> | undefined
 }>
 
 const linkify = (text: string) => {
@@ -41,8 +43,13 @@ const linkify = (text: string) => {
 }
 
 const isFormattedText = (text: string): boolean => {
-  const htmlTagRegex = /<\/?[a-z][\s\S]*>/i
-  return htmlTagRegex.test(text)
+  // Check for common HTML tags, including self-closing tags and tags with attributes
+  const htmlTagRegex = /<(?:\/)?(?:p|div|span|a|strong|em|ul|ol|li|br|img|h[1-6])\b[^>]*>/i
+
+  // Check for HTML entities
+  const htmlEntityRegex = /&[a-z]+;|&#\d+;/i
+
+  return htmlTagRegex.test(text) || htmlEntityRegex.test(text)
 }
 
 export default function TextEditor({
@@ -50,6 +57,8 @@ export default function TextEditor({
   readOnly = false,
   onChange,
   style,
+  className,
+  onBlur,
 }: TextEditorProps) {
   const isHtml = isFormattedText(value)
 
@@ -63,7 +72,19 @@ export default function TextEditor({
     }
     return value
   }
+  const getClassNames = (className?: string, readOnly?: boolean): string => {
+    const classes: string[] = []
 
+    if (className) {
+      classes.push(className)
+    }
+
+    if (readOnly) {
+      classes.push('read-only')
+    }
+
+    return classes.join(' ')
+  }
   return (
     <Box
       className={readOnly ? 'read-only' : ''}
@@ -73,10 +94,15 @@ export default function TextEditor({
       <ReactQuill
         theme={readOnly ? undefined : 'snow'}
         value={getFormattedValue(value)}
-        readOnly={readOnly}
+        className={getClassNames(className, readOnly)}
         onChange={onChange}
         modules={{ toolbar: !readOnly }} // Disable toolbar in read mode
         style={style}
+        onBlur={async () => {
+          if (onBlur) {
+            await onBlur()
+          }
+        }}
       />
     </Box>
   )
