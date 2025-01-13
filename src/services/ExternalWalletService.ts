@@ -82,7 +82,9 @@ export const useExternalWalletService = () => {
     value: bigint
   ): Promise<string> => {
     debugger
+    console.log('approveContractEOA')
     await checkAndSwitchChainIfNeeded()
+    console.log('chain switched')
     let txHash = ''
     await writeContractAsync(
       {

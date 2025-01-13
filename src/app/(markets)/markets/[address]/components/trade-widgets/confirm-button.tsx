@@ -48,6 +48,8 @@ export default function ConfirmButton({
   const { client } = useWeb3Service()
 
   const handleClick = async () => {
+    debugger
+    console.log('confirm button handleClick')
     if (status === 'unlock') {
       await onApprove()
     }
