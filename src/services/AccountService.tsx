@@ -279,22 +279,22 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     smartWallet: smartAccountClient?.account?.address,
   })
 
-  const signout = useCallback(async () => {
-    try {
-      await logout()
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['positions'] }),
-        queryClient.invalidateQueries({ queryKey: ['history'] }),
-        queryClient.invalidateQueries({ queryKey: ['profiles'] }),
-        queryClient.invalidateQueries({ queryKey: ['balance'] }),
-        queryClient.invalidateQueries({ queryKey: ['ethBalance'] }),
-        queryClient.invalidateQueries({ queryKey: ['createdMarkets'] }),
-      ])
-      router.push('/')
-    } catch (error) {
-      console.error('Logout failed:', error)
-    }
-  }, [])
+  // const signout = useCallback(async () => {
+  //   try {
+  //     await logout()
+  //     await Promise.all([
+  //       queryClient.invalidateQueries({ queryKey: ['positions'] }),
+  //       queryClient.invalidateQueries({ queryKey: ['history'] }),
+  //       queryClient.invalidateQueries({ queryKey: ['profiles'] }),
+  //       queryClient.invalidateQueries({ queryKey: ['balance'] }),
+  //       queryClient.invalidateQueries({ queryKey: ['ethBalance'] }),
+  //       queryClient.invalidateQueries({ queryKey: ['createdMarkets'] }),
+  //     ])
+  //     router.push('/')
+  //   } catch (error) {
+  //     console.error('Logout failed:', error)
+  //   }
+  // }, [])
 
   console.log(web3Client)
 
@@ -384,17 +384,17 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     })()
   }, [authenticated, walletClient, publicClient, web3Client, smartAccountClient])
 
-  useEffect(() => {
-    if (isAccountConnected && !isInitialLoad.current) {
-      if (previousAddressRef.current && previousAddressRef.current !== address) {
-        signout().catch(console.error)
-      }
-    }
-
-    previousAddressRef.current = address
-
-    isInitialLoad.current = false
-  }, [address, isAccountConnected, logout, signout])
+  // useEffect(() => {
+  //   if (isAccountConnected && !isInitialLoad.current) {
+  //     if (previousAddressRef.current && previousAddressRef.current !== address) {
+  //       signout().catch(console.error)
+  //     }
+  //   }
+  //
+  //   previousAddressRef.current = address
+  //
+  //   isInitialLoad.current = false
+  // }, [address, isAccountConnected, logout, signout])
 
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
