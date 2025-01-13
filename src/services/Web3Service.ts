@@ -84,7 +84,6 @@ export function useWeb3Service(): Web3Service {
     minOutcomeTokensToBuy: bigint,
     collateralContract: Address
   ) => {
-    debugger
     if (web3Client === 'etherspot') {
       return privyService.buyOutcomeTokens(
         fixedProductMarketMakerAddress,
