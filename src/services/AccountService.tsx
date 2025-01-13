@@ -111,9 +111,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const userMenuLoading = useMemo(() => {
     if (authenticated) {
-      if (web3Client === 'etherspot' && !smartAccountClient) {
-        return true
-      }
       return profileData === undefined || profileLoading
     }
     return false
