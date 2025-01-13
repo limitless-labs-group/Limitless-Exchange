@@ -111,10 +111,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const userMenuLoading = useMemo(() => {
     if (authenticated) {
+      if (!user?.wallet?.address) {
+        return true
+      }
       return profileData === undefined || profileLoading
     }
     return false
-  }, [authenticated, profileData, profileLoading])
+  }, [authenticated, profileData, profileLoading, user?.wallet?.address])
 
   const onBlockUser = useMutation({
     mutationKey: ['block-user', user?.wallet?.address],
