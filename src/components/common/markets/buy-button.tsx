@@ -238,8 +238,6 @@ export default function BuyButton({
   }
 
   const handleActionIntention = async () => {
-    console.log(`handleActionIntention`)
-    debugger
     if (!walletAddress) {
       return
     }
@@ -265,8 +263,6 @@ export default function BuyButton({
       source: analyticsSource,
     })
     if (client === 'eoa') {
-      debugger
-      console.log(`checkAllowance`)
       const allowance = await checkAllowance(market.address, market.collateralToken.address)
       const amountBI = parseUnits(amount, decimals || 18)
       if (amountBI > allowance) {
@@ -281,12 +277,9 @@ export default function BuyButton({
   }
 
   const handleApprove = async () => {
-    debugger
-    console.log('handleApprove')
     try {
       setStatus('unlocking')
       const amountBI = parseUnits(amount, decimals || 18)
-      console.log('approveContract start')
       await approveContract(market.address, market.collateralToken.address, amountBI)
       trackClicked(ClickEvent.ConfirmCapClicked, {
         address: market?.address,

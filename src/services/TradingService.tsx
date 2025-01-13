@@ -535,7 +535,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       outcomeTokenId: number
       slippage: string
     }) => {
-      debugger
       if (!account || !market || isInvalidCollateralAmount) {
         return
       }
@@ -594,7 +593,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const { mutateAsync: approveContractBuy, isPending: isLoadingApproveBuy } = useMutation({
     mutationFn: async () => {
-      debugger
       if (!market) {
         return
       }

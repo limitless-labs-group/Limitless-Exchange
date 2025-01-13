@@ -27,6 +27,9 @@ export const useLogin = () => {
   return useMutation({
     mutationKey: ['login'],
     mutationFn: async ({ client, account, smartWallet }: IUseLogin): Promise<Profile> => {
+      console.log(client)
+      console.log(account)
+      console.log(smartWallet)
       const { data: loginSigningMessage } = await getSigningMsg()
 
       if (!loginSigningMessage) throw new Error('Failed to get signing message')

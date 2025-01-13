@@ -33,8 +33,6 @@ const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boo
     [positions, selectedFilterTokens, userMarkets]
   )
 
-  console.log(positions)
-
   const positionsForPrices = useMemo(() => {
     if (!positionsFiltered) return []
     return positionsFiltered

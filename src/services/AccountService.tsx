@@ -91,14 +91,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { isLogged } = useClient()
   const web3Client = user?.wallet?.connectorType === 'injected' ? 'eoa' : 'etherspot'
   const { trackSignUp } = useAmplitude()
-  const { wallets } = useWallets()
-  const { data: walletClient, refetch: refetchWalletClient } = useWalletClient()
+  const { data: walletClient } = useWalletClient()
 
-  const { address, isConnected: isAccountConnected } = useWagmiAccount()
   const toast = useToast()
   const router = useRouter()
-  const previousAddressRef = useRef<Address>()
-  const isInitialLoad = useRef(true)
 
   /**
    * USER INFO / METADATA
@@ -122,8 +118,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     }
     return false
   }, [isLogged, profileData, profileLoading, web3Client, smartAccountClient])
-
-  console.log(smartAccountClient)
 
   const onBlockUser = useMutation({
     mutationKey: ['block-user', user?.wallet?.address],
@@ -228,24 +222,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  // const embeddedWallet = useMemo(
-  //   () => wallets.find((wallet) => wallet.walletClientType === 'privy'),
-  //   [wallets]
-  // )
-
-  // const setAndRefetchWalletClient = async (embeddedWallet: ConnectedWallet) => {
-  //   await setActiveWallet(embeddedWallet)
-  //   refetchWalletClient()
-  // }
-  //
-  // const { setActiveWallet } = useSetActiveWallet()
-  //
-  // useEffect(() => {
-  //   if (embeddedWallet) {
-  //     setAndRefetchWalletClient(embeddedWallet)
-  //   }
-  // }, [embeddedWallet])
-
   /**
    * FARCASTER
    */
@@ -278,25 +254,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     account: user?.wallet?.address as Address | undefined,
     smartWallet: smartAccountClient?.account?.address,
   })
-
-  // const signout = useCallback(async () => {
-  //   try {
-  //     await logout()
-  //     await Promise.all([
-  //       queryClient.invalidateQueries({ queryKey: ['positions'] }),
-  //       queryClient.invalidateQueries({ queryKey: ['history'] }),
-  //       queryClient.invalidateQueries({ queryKey: ['profiles'] }),
-  //       queryClient.invalidateQueries({ queryKey: ['balance'] }),
-  //       queryClient.invalidateQueries({ queryKey: ['ethBalance'] }),
-  //       queryClient.invalidateQueries({ queryKey: ['createdMarkets'] }),
-  //     ])
-  //     router.push('/')
-  //   } catch (error) {
-  //     console.error('Logout failed:', error)
-  //   }
-  // }, [])
-
-  console.log(web3Client)
 
   const displayName = useMemo(() => {
     if (profileData?.displayName) {
@@ -342,10 +299,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       }
     }
   }, [profileLoading, profileData, user, web3Client, smartAccountClient, authenticated])
-
-  console.log(`authenticated ${authenticated}`)
-  console.log(walletClient)
-  console.log(web3Client)
 
   useEffect(() => {
     ;(async () => {
