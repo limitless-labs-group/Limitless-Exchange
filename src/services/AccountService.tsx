@@ -114,7 +114,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       return profileData === undefined || profileLoading
     }
     return false
-  }, [authenticated, profileData, profileLoading, web3Client, smartAccountClient])
+  }, [authenticated, profileData, profileLoading])
 
   const onBlockUser = useMutation({
     mutationKey: ['block-user', user?.wallet?.address],
