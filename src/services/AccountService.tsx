@@ -111,13 +111,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const userMenuLoading = useMemo(() => {
     if (authenticated) {
-      if (web3Client === 'etherspot' && !smartAccountClient) {
-        return true
-      }
       return profileData === undefined || profileLoading
     }
     return false
-  }, [authenticated, profileData, profileLoading, web3Client, smartAccountClient])
+  }, [authenticated, profileData, profileLoading])
 
   const onBlockUser = useMutation({
     mutationKey: ['block-user', user?.wallet?.address],
