@@ -71,6 +71,9 @@ export interface Market {
   }
   openInterest: string
   openInterestFormatted: string
+  metadata: {
+    isBannered: boolean
+  }
 }
 
 export interface MarketGroup {
@@ -140,6 +143,7 @@ export enum Sort {
   NEWEST = 'Newest',
   ENDING_SOON = 'Ending Soon',
   HIGHEST_LIQUIDITY = 'High Liquidity',
+  HIGHEST_VALUE = 'High Value',
   HIGHEST_VOLUME = 'High Volume',
 }
 

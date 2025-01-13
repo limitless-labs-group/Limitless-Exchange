@@ -200,9 +200,13 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
               </Box>
             )}
             <HStack gap='4px'>
-              <Box {...paragraphRegular}>💧 </Box>
               <Text {...paragraphRegular} color='transparent.700'>
-                Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
+                Value{' '}
+                {NumberUtil.convertWithDenomination(
+                  Number(market.openInterestFormatted || 0) +
+                    Number(market.liquidityFormatted || 0),
+                  6
+                )}{' '}
                 {market.collateralToken.symbol}
               </Text>
             </HStack>

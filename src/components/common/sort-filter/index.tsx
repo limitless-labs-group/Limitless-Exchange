@@ -11,7 +11,7 @@ type SortFilterProps = {
   storageName: SortStorageName
 }
 
-const sortOptions = [Sort.ENDING_SOON, Sort.HIGHEST_VOLUME, Sort.HIGHEST_LIQUIDITY, Sort.NEWEST]
+const sortOptions = [Sort.ENDING_SOON, Sort.HIGHEST_VALUE, Sort.HIGHEST_VOLUME, Sort.NEWEST]
 
 export default function SortFilter({ onChange, storageName }: SortFilterProps) {
   const [selectedSortFilter, setSelectedSortFilter] = useState<Sort>(
@@ -62,6 +62,7 @@ export default function SortFilter({ onChange, storageName }: SortFilterProps) {
             h={isMobile ? '28px' : '20px'}
             whiteSpace='nowrap'
             {...paragraphMedium}
+            fontSize={isMobile ? '13px' : 'unset'}
             color={'grey.800'}
             p={'2px 12px 2px 12px'}
             marginInlineStart='0px !important'

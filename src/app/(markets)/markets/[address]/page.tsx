@@ -529,7 +529,12 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
         <>Market not found</>
       ) : (
         <>
-          <HStack gap='40px' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
+          <HStack
+            gap='40px'
+            w={isMobile ? 'full' : 'unset'}
+            alignItems='flex-start'
+            mb={isMobile ? '84px' : 0}
+          >
             <Box w={isMobile ? 'full' : '664px'}>
               <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>
                 <HStack justifyContent='space-between' mb='24px'>
@@ -691,32 +696,18 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       </Box>
                     ) : (
                       <HStack gap='4px'>
-                        {defineOpenInterestOverVolume(
-                          market.openInterestFormatted,
-                          market.liquidityFormatted
-                        ).showOpenInterest ? (
-                          <>
-                            <UniqueTraders color='grey.50' />
-                            <Text {...paragraphRegular} color='grey.500'>
-                              Value{' '}
-                              {NumberUtil.convertWithDenomination(
-                                +market.openInterestFormatted + +market.liquidityFormatted,
-                                6
-                              )}{' '}
-                              {market.collateralToken.symbol}
-                            </Text>
-                            <OpenInterestTooltip iconColor='grey.500' />
-                          </>
-                        ) : (
-                          <>
-                            <Box {...paragraphRegular}>💧 </Box>
-                            <Text {...paragraphRegular} color='grey.500'>
-                              Liquidity{' '}
-                              {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
-                              {market.collateralToken.symbol}
-                            </Text>
-                          </>
-                        )}
+                        <>
+                          <UniqueTraders color='grey.50' />
+                          <Text {...paragraphRegular} color='grey.500'>
+                            Value{' '}
+                            {NumberUtil.convertWithDenomination(
+                              +market.openInterestFormatted + +market.liquidityFormatted,
+                              6
+                            )}{' '}
+                            {market.collateralToken.symbol}
+                          </Text>
+                          <OpenInterestTooltip iconColor='grey.500' />
+                        </>
                       </HStack>
                     )}
                   </HStack>

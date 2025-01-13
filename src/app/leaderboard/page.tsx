@@ -25,7 +25,7 @@ import TablePagination from '@/components/common/table-pagination'
 import Leaders from '@/app/leaderboard/components/leaders'
 import { MainLayout } from '@/components'
 import { useDateRanges } from '@/hooks/use-date-range'
-import { useLeaderboard, useTopThreeLeaders } from '@/hooks/use-leaderboard'
+import { LeaderboardEntity, useLeaderboard, useTopThreeLeaders } from '@/hooks/use-leaderboard'
 import WreathsBronzeIcon from '@/resources/icons/wreaths_bronze.svg'
 import WreathsGoldIcon from '@/resources/icons/wreaths_gold.svg'
 import WreathsSilverIcon from '@/resources/icons/wreaths_silver.svg'
@@ -39,6 +39,7 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { LeaderboardSort } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
+import { cutUsername } from '@/utils/string'
 
 const sortOptions = [
   // LeaderboardSort.DAILY,
@@ -123,6 +124,13 @@ export default function LeaderboardPage() {
     setCurrentPage(1)
   }
 
+  const getUserDisplayName = (data: LeaderboardEntity) => {
+    if (data.displayName) {
+      return isMobile ? cutUsername(data.displayName, 25) : data.displayName
+    }
+    return isMobile ? truncateEthAddress(data.account) : data.account
+  }
+
   const renderTable = useMemo(() => {
     if (!leaderboardStats?.data.data.length) {
       return (
@@ -145,7 +153,7 @@ export default function LeaderboardPage() {
               </Td>
               <Td>
                 <HStack gap='4px'>
-                  <Avatar account={data.account} />
+                  <Avatar account={data.account} avatarUrl={data.pfpUrl} />
                   <NextLink
                     href={`https://basescan.org/address/${data.account}`}
                     target='_blank'
@@ -153,7 +161,7 @@ export default function LeaderboardPage() {
                     passHref
                   >
                     <Link variant='textLinkSecondary' {...paragraphRegular} isExternal>
-                      {isMobile ? truncateEthAddress(data.account) : data.account}
+                      {getUserDisplayName(data)}
                     </Link>
                   </NextLink>
                 </HStack>
