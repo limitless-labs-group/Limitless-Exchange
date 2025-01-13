@@ -1,4 +1,4 @@
-import { usePrivy, useWallets } from '@privy-io/react-auth'
+import { usePrivy } from '@privy-io/react-auth'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import { UserInfo } from '@web3auth/base'
 import Cookies from 'js-cookie'
@@ -23,17 +23,15 @@ import React, {
   useMemo,
   useState,
   useEffect,
-  useRef,
 } from 'react'
 import { getAddress } from 'viem'
-import { http, useAccount as useWagmiAccount, useDisconnect, useWalletClient } from 'wagmi'
+import { http, useDisconnect, useWalletClient } from 'wagmi'
 import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
 import { useUserSession } from '@/hooks/profiles/use-session'
-import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
 import { useAmplitude } from '@/services'
 import { Address, APIError, UpdateProfileData } from '@/types'
@@ -88,7 +86,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const privateClient = useAxiosPrivateClient()
   const { mutateAsync: login } = useLogin()
   const { disconnect: disconnectWagmi } = useDisconnect()
-  const { isLogged } = useClient()
   const web3Client = user?.wallet?.connectorType === 'injected' ? 'eoa' : 'etherspot'
   const { trackSignUp } = useAmplitude()
   const { data: walletClient } = useWalletClient()
@@ -113,11 +110,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   })
 
   const userMenuLoading = useMemo(() => {
-    if (isLogged) {
+    if (authenticated) {
+      if (web3Client === 'etherspot' && !smartAccountClient) {
+        return true
+      }
       return profileData === undefined || profileLoading
     }
     return false
-  }, [isLogged, profileData, profileLoading, web3Client, smartAccountClient])
+  }, [authenticated, profileData, profileLoading, web3Client, smartAccountClient])
 
   const onBlockUser = useMutation({
     mutationKey: ['block-user', user?.wallet?.address],
