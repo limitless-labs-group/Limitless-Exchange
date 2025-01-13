@@ -68,7 +68,7 @@ import {
   ShareClickedMetadata,
   StrategyChangedMetadata,
   useAmplitude,
-  useHistory,
+  usePosition,
   useTradingService,
 } from '@/services'
 import { useMarket, useWinningIndex } from '@/services/MarketsService'
@@ -126,7 +126,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   const { setMarket, resetQuotes, strategy, setStrategy, marketGroup, status } = useTradingService()
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
-  const { positions: allMarketsPositions } = useHistory()
+  const { data: allMarketsPositions } = usePosition()
 
   const isLumy = market?.category === 'Lumy'
 

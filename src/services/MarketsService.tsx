@@ -7,7 +7,7 @@ import { Address, formatUnits, getContract, parseUnits } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { POLLING_INTERVAL } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
-import { publicClient } from '@/providers'
+import { publicClient } from '@/providers/Privy'
 import { Category, Market, MarketsResponse, OddsData } from '@/types'
 import { getPrices } from '@/utils/market'
 

@@ -2,15 +2,15 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash } from 'viem'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
+import useClient from '@/hooks/use-client'
 import { usePriceOracle } from '@/providers'
+import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useLimitlessApi } from '@/services/LimitlessApi'
 import { Address } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface IHistoryService {
-  positions: HistoryPosition[] | undefined
   balanceInvested: string
   balanceToWin: string
   tradesAndPositionsLoading: boolean
@@ -24,6 +24,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   const { convertAssetAmountToUsd } = usePriceOracle()
   const { supportedTokens } = useLimitlessApi()
   const { data: positions, isPending: isPositionsLoading } = usePosition()
+
+  console.log(positions)
 
   /**
    * BALANCES
@@ -64,7 +66,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   const tradesAndPositionsLoading = isPositionsLoading
 
   const contextProviderValue: IHistoryService = {
-    positions,
     balanceInvested,
     balanceToWin,
     tradesAndPositionsLoading,
@@ -78,13 +79,13 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 }
 
 export const usePosition = () => {
-  const walletAddress = useWalletAddress()
+  const { isLogged } = useClient()
   const privateClient = useAxiosPrivateClient()
 
   return useQuery({
-    queryKey: ['positions'],
+    queryKey: ['positions', isLogged],
     queryFn: async () => {
-      if (!walletAddress) {
+      if (!isLogged) {
         return []
       }
       try {
@@ -95,8 +96,8 @@ export const usePosition = () => {
         return []
       }
     },
-    enabled: !!walletAddress,
-    refetchInterval: !!walletAddress ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
+    enabled: !!isLogged,
+    refetchInterval: !!isLogged ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
   })
 }
 
@@ -121,12 +122,15 @@ export const usePortfolioHistory = (page: number) => {
 
 export const useInfinityHistory = () => {
   const privateClient = useAxiosPrivateClient()
-  const walletAddress = useWalletAddress()
+  const { checkIsLogged } = useClient()
+  const { profileData } = useAccount()
   return useInfiniteQuery<History[], Error>({
     queryKey: ['history-infinity'],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      if (!walletAddress) {
+      const isLogged = checkIsLogged()
+
+      if (!isLogged) {
         return []
       }
 
@@ -149,7 +153,7 @@ export const useInfinityHistory = () => {
     },
     refetchOnWindowFocus: false,
     keepPreviousData: true,
-    enabled: !!walletAddress,
+    enabled: !!profileData?.id,
   })
 }
 

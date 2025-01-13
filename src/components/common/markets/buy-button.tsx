@@ -23,10 +23,9 @@ import TradeWidgetSkeleton, {
 } from '@/components/common/skeleton/trade-widget-skeleton'
 import BlockedTradeTemplate from '@/app/(markets)/markets/[address]/components/trade-widgets/blocked-trade-template'
 import ConfirmButton from '@/app/(markets)/markets/[address]/components/trade-widgets/confirm-button'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import { ClickEvent, TradeQuotes, useAmplitude, useTradingService } from '@/services'
+import { ClickEvent, TradeQuotes, useAccount, useAmplitude, useTradingService } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketStatus } from '@/types'
@@ -50,6 +49,7 @@ interface ActionButtonProps {
   quotesLoading: boolean
 }
 
+// @ts-ignore
 const MotionBox = motion(Box)
 
 export type ButtonStatus =
@@ -91,7 +91,7 @@ export default function BuyButton({
   const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
   const { marketFee, collateralAmount, marketGroup } = useTradingService()
-  const walletAddress = useWalletAddress()
+  const { account: walletAddress } = useAccount()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
   const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
@@ -337,7 +337,7 @@ export default function BuyButton({
   useEffect(() => {
     const returnToInitial = async () => {
       await sleep(2)
-      await setStatus('initial')
+      setStatus('initial')
       resetForm()
     }
     if (status === 'success') {
