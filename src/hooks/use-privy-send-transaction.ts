@@ -29,34 +29,10 @@ export default function usePrivySendTransaction() {
     data: `0x${string}`,
     value?: bigint
   ) => {
-    // const contract = getContract({
-    //   address: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
-    //   abi: erc20Abi,
-    //   client: bundlerClient,
-    // })
-    // const data = encodeFunctionData({
-    //   abi: erc20Abi,
-    //   functionName: 'approve',
-    //   args: ['0xf5cF421Fba306BbAb8005262755D0c94758FdFb5', maxUint256],
-    // })
-    // const allowance = await contract.read.allowance([smartAccountClient.account?.address as Address, '0xf5cF421Fba306BbAb8005262755D0c94758FdFb5'])
-    // console.log(allowance)
     const nonce = await smartAccountClient?.account?.getNonce()
-    // const operation = await smartAccountClient.prepareUserOperationRequest({
-    //     userOperation: {
-    //         callData: data,
-    //     },
-    //     account: smartAccountClient.account
-    // })
-    //
-    // console.log(operation)
 
     const txHash = await smartAccountClient?.sendTransaction({
       // @ts-ignore
-      // account: smartAccountClient.account,
-      // to: zeroAddress,
-      // data: "0x",
-      // value: BigInt(0)
       from: smartAccountClient.account?.address,
       to: contract.address as Address,
       data,
@@ -64,28 +40,6 @@ export default function usePrivySendTransaction() {
       nonce: nonce ? Number(nonce) : undefined,
     })
     return txHash as string
-    // const preHash = await bundlerClient.getUserOperationByHash({
-    //   hash: '0x8c37e409316fb6e7a6f3bc999e1af1798414c16915583bbddb9a4dcd31a14c2e'
-    // })
-    // console.log(preHash)
-    // const anotherHash = await bundlerClient.getUserOperationReceipt({
-    //   hash: '0x8c37e409316fb6e7a6f3bc999e1af1798414c16915583bbddb9a4dcd31a14c2e'
-    // })
-    // console.log(anotherHash)
-    // // const thirdHash = await bundlerClient.sendUserOperation({
-    // //     userOperation: {
-    // //         sender: smartAccountClient.account as  any,
-    // //         callData: data,
-    // //         nonce: BigInt(nonce ? nonce: 1)
-    // //     }
-    // // })
-    // const finalHash = await bundlerClient.waitForUserOperationReceipt({
-    //   hash: txHash,
-    //   timeout: 20000000
-    // })
-    // console.log(finalHash)
-    // onSendTransaction(txHash)
-    // setLoading(false)
   }
 
   const approveCollateralIfNeeded = async (

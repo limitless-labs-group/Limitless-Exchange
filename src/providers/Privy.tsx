@@ -33,10 +33,8 @@ export default function PrivyAuthProvider({ children }: PropsWithChildren) {
     // Create embedded wallets for users who don't have a wallet
     embeddedWallets: {
       createOnLogin: 'users-without-wallets',
-      noPromptOnSignature: true,
       showWalletUIs: false,
     },
-    externalWallets: {},
     defaultChain: defaultChain,
     supportedChains: [baseSepolia, base],
     loginMethods: ['email', 'wallet', 'google', 'farcaster', 'discord'],

@@ -35,10 +35,15 @@ const useSetupAxiosInstance = () => {
         const { data: signingMessage } = await axiosInstance.get(`/auth/signing-message`)
         if (!signingMessage) throw new Error('Failed to get signing message')
 
-        const signature =
-          client === 'eoa'
-            ? await signMessageAsync({ message: signingMessage })
-            : await signMessage(signingMessage, undefined, user.wallet.address)
+        let signature = ''
+        if (client === 'eoa') {
+          signature = await signMessageAsync({ message: signingMessage })
+        } else {
+          const { signature: smartWalletSignature } = await signMessage({
+            message: signingMessage,
+          })
+          signature = smartWalletSignature
+        }
 
         const headers = {
           'content-type': 'application/json',
