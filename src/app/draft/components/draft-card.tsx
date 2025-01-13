@@ -1,5 +1,5 @@
 import { Box, HStack, Link, Text, Image as ChakraImage, Checkbox, Stack } from '@chakra-ui/react'
-import React from 'react'
+import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
 import TextEditor from '@/components/common/text-editor'
@@ -39,6 +39,8 @@ export const DraftMarketCard = ({
   onToggle,
   onClick,
 }: DraftMarketSingleCardProps) => {
+  const [hover, setHover] = useState(false)
+
   return (
     <Paper
       w={'full'}
@@ -50,6 +52,8 @@ export const DraftMarketCard = ({
       border={`3px solid ${isChecked ? 'var(--chakra-colors-draftCard-border)' : 'transparent'}`}
       bg={` ${isChecked ? 'var(--chakra-colors-draftCard-bg)' : 'var(--chakra-colors-grey-100)'}`}
       position='relative'
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
     >
       <HStack align='start' spacing={4}>
         <Checkbox
@@ -90,7 +94,11 @@ export const DraftMarketCard = ({
 
             <HStack alignItems='flex-start'>
               <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
-                <TextEditor value={market?.description ?? ''} readOnly />
+                <TextEditor
+                  className={`${hover ? 'draft hover' : 'draft'}`}
+                  value={market?.description ?? ''}
+                  readOnly
+                />
               </Text>
             </HStack>
 

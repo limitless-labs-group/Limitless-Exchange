@@ -66,12 +66,14 @@ export interface IOgImageGenerator {
   category: string
   onBlobGenerated: (blob: Blob) => void
   generateBlob: boolean
+  setReady?: (param: boolean) => void
 }
 export const OgImageGenerator = ({
   title,
   category,
   generateBlob,
   onBlobGenerated,
+  setReady,
 }: IOgImageGenerator) => {
   const theme = useTheme()
   const canvasRef = useRef<HTMLDivElement>(null)
@@ -81,8 +83,11 @@ export const OgImageGenerator = ({
   const handleGenerateBlob = async () => {
     if (!canvasRef.current) return
     try {
-      const componentWidth = canvasRef.current.offsetWidth
-      const componentHeight = canvasRef.current.offsetHeight
+      if (setReady) {
+        setReady(false)
+      }
+      const componentWidth = canvasRef?.current.offsetWidth
+      const componentHeight = canvasRef?.current.offsetHeight
       const scale = 2110 / componentWidth // calculate the scale factor
       const canvas = await html2canvas(canvasRef.current, {
         useCORS: true,
@@ -113,6 +118,9 @@ export const OgImageGenerator = ({
         'image/png',
         1.0
       )
+      if (setReady) {
+        setReady(true)
+      }
     } catch (error) {
       console.error(error)
     }
