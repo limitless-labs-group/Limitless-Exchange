@@ -8,7 +8,6 @@ import {
   AccountProvider,
   AmplitudeProvider,
   BalanceServiceProvider,
-  HistoryServiceProvider,
   LimitlessApiProvider,
   TradingServiceProvider,
   CommentServiceProvider,
