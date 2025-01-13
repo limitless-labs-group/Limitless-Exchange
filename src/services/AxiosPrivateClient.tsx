@@ -3,12 +3,14 @@ import axios, { AxiosInstance } from 'axios'
 import React, { createContext, useContext } from 'react'
 import { getAddress, toHex } from 'viem'
 import { useSignMessage } from 'wagmi'
+import useRefetchAfterLogin from '@/hooks/use-refetch-after-login'
 import { useAccount } from '@/services/AccountService'
 
 const useSetupAxiosInstance = () => {
   const { signMessage, user } = usePrivy()
   const { signMessageAsync } = useSignMessage()
   const { smartAccountClient } = useAccount()
+  const { refetchAll } = useRefetchAfterLogin()
 
   //avoid triggering signing message pop-up several times, when the few private requests will come simultaneously
   let signingPromise: Promise<void> | null = null
@@ -62,6 +64,7 @@ const useSetupAxiosInstance = () => {
           },
           { headers, withCredentials: true }
         )
+        await refetchAll()
       } catch (error) {
         throw error
       } finally {
