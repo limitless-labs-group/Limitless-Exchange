@@ -2,7 +2,7 @@ import { Button, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
 import '@/app/style.css'
-import { useHistory } from '@/services'
+import { usePosition } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
@@ -13,7 +13,7 @@ interface MobileTradeButtonProps {
 export function MobileTradeButton({ market }: MobileTradeButtonProps) {
   // const { redeem: claim, status } = useTradingService()
   // const { trackClicked } = useAmplitude()
-  const { positions } = useHistory()
+  const { data: positions } = usePosition()
   const router = useRouter()
   const positionToClaim = useMemo(
     () =>

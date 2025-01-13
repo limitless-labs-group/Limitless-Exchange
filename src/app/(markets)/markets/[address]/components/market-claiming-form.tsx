@@ -2,7 +2,7 @@ import { Text, Button, Box } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import Paper from '@/components/common/paper'
-import { useHistory } from '@/services'
+import { usePosition } from '@/services'
 import { Market } from '@/types'
 
 interface MarketClaimingFormProps {
@@ -12,7 +12,7 @@ interface MarketClaimingFormProps {
 export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }) => {
   // const { status } = useTradingService()
   // const { trackClicked } = useAmplitude()
-  const { positions } = useHistory()
+  const { data: positions } = usePosition()
   const router = useRouter()
   const positionToClaim = useMemo(
     () =>

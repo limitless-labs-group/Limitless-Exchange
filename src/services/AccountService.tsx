@@ -329,7 +329,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         onCreateProfile()
         return
       }
-      refetchSession()
+      // refetchSession()
     }
     if (!profileLoading && user?.wallet?.address) {
       const isLogged = Cookies.get('logged-in-to-limitless')

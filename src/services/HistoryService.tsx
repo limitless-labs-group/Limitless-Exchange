@@ -11,7 +11,6 @@ import { Address } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface IHistoryService {
-  positions: HistoryPosition[] | undefined
   balanceInvested: string
   balanceToWin: string
   tradesAndPositionsLoading: boolean
@@ -25,6 +24,8 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   const { convertAssetAmountToUsd } = usePriceOracle()
   const { supportedTokens } = useLimitlessApi()
   const { data: positions, isPending: isPositionsLoading } = usePosition()
+
+  console.log(positions)
 
   /**
    * BALANCES
@@ -65,7 +66,6 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   const tradesAndPositionsLoading = isPositionsLoading
 
   const contextProviderValue: IHistoryService = {
-    positions,
     balanceInvested,
     balanceToWin,
     tradesAndPositionsLoading,

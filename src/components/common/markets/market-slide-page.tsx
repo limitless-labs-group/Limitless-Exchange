@@ -42,7 +42,7 @@ import {
   ClickEvent,
   StrategyChangedMetadata,
   useAmplitude,
-  useHistory,
+  usePosition,
   useTradingService,
 } from '@/services'
 import { useMarket } from '@/services/MarketsService'
@@ -88,7 +88,7 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
   const pathname = usePathname()
 
   const { trackChanged, trackClicked } = useAmplitude()
-  const { positions: allMarketsPositions } = useHistory()
+  const { data: allMarketsPositions } = usePosition()
 
   // Todo change creator name
 
