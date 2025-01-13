@@ -535,6 +535,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       outcomeTokenId: number
       slippage: string
     }) => {
+      debugger
       if (!account || !market || isInvalidCollateralAmount) {
         return
       }

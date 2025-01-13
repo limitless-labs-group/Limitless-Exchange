@@ -169,6 +169,7 @@ export const useExternalWalletService = () => {
     outcomeIndex: number,
     minOutcomeTokensToBuy: bigint
   ) => {
+    debugger
     await checkAndSwitchChainIfNeeded()
     let txHash = ''
     await writeContractAsync(
