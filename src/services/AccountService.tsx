@@ -1,5 +1,4 @@
-import { ConnectedWallet, usePrivy, useWallets } from '@privy-io/react-auth'
-import { useSetActiveWallet } from '@privy-io/wagmi'
+import { usePrivy, useWallets } from '@privy-io/react-auth'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import { UserInfo } from '@web3auth/base'
 import Cookies from 'js-cookie'
@@ -119,13 +118,12 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const userMenuLoading = useMemo(() => {
     if (isLogged) {
-      if (web3Client === 'etherspot' && !smartAccountClient) {
-        return true
-      }
       return profileData === undefined || profileLoading
     }
     return false
   }, [isLogged, profileData, profileLoading, web3Client, smartAccountClient])
+
+  console.log(smartAccountClient)
 
   const onBlockUser = useMutation({
     mutationKey: ['block-user', user?.wallet?.address],
@@ -230,23 +228,23 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const embeddedWallet = useMemo(
-    () => wallets.find((wallet) => wallet.walletClientType === 'privy'),
-    [wallets]
-  )
+  // const embeddedWallet = useMemo(
+  //   () => wallets.find((wallet) => wallet.walletClientType === 'privy'),
+  //   [wallets]
+  // )
 
-  const setAndRefetchWalletClient = async (embeddedWallet: ConnectedWallet) => {
-    await setActiveWallet(embeddedWallet)
-    refetchWalletClient()
-  }
-
-  const { setActiveWallet } = useSetActiveWallet()
-
-  useEffect(() => {
-    if (embeddedWallet) {
-      setAndRefetchWalletClient(embeddedWallet)
-    }
-  }, [embeddedWallet])
+  // const setAndRefetchWalletClient = async (embeddedWallet: ConnectedWallet) => {
+  //   await setActiveWallet(embeddedWallet)
+  //   refetchWalletClient()
+  // }
+  //
+  // const { setActiveWallet } = useSetActiveWallet()
+  //
+  // useEffect(() => {
+  //   if (embeddedWallet) {
+  //     setAndRefetchWalletClient(embeddedWallet)
+  //   }
+  // }, [embeddedWallet])
 
   /**
    * FARCASTER
@@ -298,6 +296,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     }
   }, [])
 
+  console.log(web3Client)
+
   const displayName = useMemo(() => {
     if (profileData?.displayName) {
       return profileData.displayName
@@ -342,6 +342,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       }
     }
   }, [profileLoading, profileData, user, web3Client, smartAccountClient, authenticated])
+
+  console.log(`authenticated ${authenticated}`)
+  console.log(walletClient)
+  console.log(web3Client)
 
   useEffect(() => {
     ;(async () => {

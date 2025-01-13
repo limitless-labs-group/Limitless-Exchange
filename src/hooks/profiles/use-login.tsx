@@ -30,10 +30,15 @@ export const useLogin = () => {
       const { data: loginSigningMessage } = await getSigningMsg()
 
       if (!loginSigningMessage) throw new Error('Failed to get signing message')
-      const signature =
-        client === 'eoa'
-          ? await signMessageAsync({ message: loginSigningMessage })
-          : await signMessage(loginSigningMessage)
+      let signature = ''
+      if (client === 'eoa') {
+        signature = await signMessageAsync({ message: loginSigningMessage })
+      } else {
+        const { signature: smartWalletSignature } = await signMessage({
+          message: loginSigningMessage,
+        })
+        signature = smartWalletSignature
+      }
 
       const headers = {
         'x-account': getAddress(account as Address),
