@@ -90,6 +90,7 @@ export default function ShareMenu() {
           </HStack>
         </MenuItem>
         <MenuItem>
+          {/*// @ts-ignore*/}
           <CopyToClipboard
             text={marketURI}
             onCopy={() => {

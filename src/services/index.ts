@@ -1,5 +1,4 @@
 export * from './LimitlessApi'
-export * from './Etherspot'
 export * from './Amplitude'
 export * from './AccountService'
 export * from './BalanceService'
