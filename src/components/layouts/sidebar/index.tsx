@@ -445,32 +445,32 @@ export default function Sidebar() {
         {/*    </HStack>*/}
         {/*  </Link>*/}
         {/*</NextLink>*/}
-        <NextLink
-          href='https://limitlesslabs.notion.site/Limitless-Creators-101-b529a4a72cd4406cacb55f27395c9b56'
-          target='_blank'
-          rel='noopener'
-          passHref
-          style={{ width: '100%' }}
-        >
-          <Link
-            isExternal
-            onClick={() => {
-              trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
-                page: pageName,
-              })
-            }}
-            variant='transparent'
-            w='full'
-            rounded='8px'
-          >
-            <HStack w='full'>
-              <SquarePlusIcon width={16} height={16} />
-              <Text fontWeight={500} fontSize='14px'>
-                Suggest market
-              </Text>
-            </HStack>
-          </Link>
-        </NextLink>
+        {/*<NextLink*/}
+        {/*  href='https://limitlesslabs.notion.site/Limitless-Creators-101-b529a4a72cd4406cacb55f27395c9b56'*/}
+        {/*  target='_blank'*/}
+        {/*  rel='noopener'*/}
+        {/*  passHref*/}
+        {/*  style={{ width: '100%' }}*/}
+        {/*>*/}
+        {/*  <Link*/}
+        {/*    isExternal*/}
+        {/*    onClick={() => {*/}
+        {/*      trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {*/}
+        {/*        page: pageName,*/}
+        {/*      })*/}
+        {/*    }}*/}
+        {/*    variant='transparent'*/}
+        {/*    w='full'*/}
+        {/*    rounded='8px'*/}
+        {/*  >*/}
+        {/*    <HStack w='full'>*/}
+        {/*      <SquarePlusIcon width={16} height={16} />*/}
+        {/*      <Text fontWeight={500} fontSize='14px'>*/}
+        {/*        Suggest market*/}
+        {/*      </Text>*/}
+        {/*    </HStack>*/}
+        {/*  </Link>*/}
+        {/*</NextLink>*/}
         <Spacer />
         {totalVolume && (
           <NextLink
