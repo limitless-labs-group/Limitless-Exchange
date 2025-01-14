@@ -81,9 +81,30 @@ export default function TextEditor({
 
   //need for keeping both options (plain text and html) for transition period
   const getFormattedValue = (value: string): string => {
+    if (!value) return ''
+
     if (readOnly) {
       if (isHtml) {
-        return value
+        const div = document.createElement('div')
+        div.innerHTML = DOMPurify.sanitize(value)
+
+        const walkTextNodes = (node: Node) => {
+          if (node.nodeType === Node.TEXT_NODE) {
+            const newText = linkify(node.textContent || '')
+            if (newText !== node.textContent) {
+              const span = document.createElement('span')
+              span.innerHTML = newText
+              node.parentNode?.replaceChild(span, node)
+            }
+          } else {
+            if (node.nodeName !== 'A') {
+              node.childNodes.forEach(walkTextNodes)
+            }
+          }
+        }
+
+        walkTextNodes(div)
+        return div.innerHTML
       }
       return linkify(value)
     }
