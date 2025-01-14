@@ -41,8 +41,32 @@ const linkify = (text: string) => {
 }
 
 const isFormattedText = (text: string): boolean => {
-  const htmlTagRegex = /<\/?[a-z][\s\S]*>/i
-  return htmlTagRegex.test(text)
+  const containsHtmlTags = [
+    // Opening or closing HTML tags with attributes
+    /<[a-z][\s\S]*>/i,
+    // Self-closing tags
+    /<[a-z]+[^>]*\/>/i,
+    // HTML entities
+    /&(?:#\d+|\w+);/,
+    // Specific Quill-generated tags
+    /<(p|div|span|a|strong|em|u|s|ul|ol|li|br|img|h[1-6]|blockquote|pre|code)\b/i,
+    // Style attributes
+    /style=["'][^"']*["']/i,
+    // Class attributes
+    /class=["'][^"']*["']/i,
+  ].some((regex) => regex.test(text))
+
+  // Additional checks for plain text
+  const isPlainText = text === strip(text)
+
+  return containsHtmlTags || !isPlainText
+}
+
+// Helper function to strip HTML
+const strip = (html: string): string => {
+  const tmp = document.createElement('div')
+  tmp.innerHTML = html
+  return tmp.textContent || tmp.innerText || ''
 }
 
 export default function TextEditor({
