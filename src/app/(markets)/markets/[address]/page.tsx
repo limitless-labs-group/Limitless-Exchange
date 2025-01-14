@@ -696,32 +696,18 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       </Box>
                     ) : (
                       <HStack gap='4px'>
-                        {defineOpenInterestOverVolume(
-                          market.openInterestFormatted,
-                          market.liquidityFormatted
-                        ).showOpenInterest ? (
-                          <>
-                            <UniqueTraders color='grey.50' />
-                            <Text {...paragraphRegular} color='grey.500'>
-                              Value{' '}
-                              {NumberUtil.convertWithDenomination(
-                                +market.openInterestFormatted + +market.liquidityFormatted,
-                                6
-                              )}{' '}
-                              {market.collateralToken.symbol}
-                            </Text>
-                            <OpenInterestTooltip iconColor='grey.500' />
-                          </>
-                        ) : (
-                          <>
-                            <Box {...paragraphRegular}>💧 </Box>
-                            <Text {...paragraphRegular} color='grey.500'>
-                              Liquidity{' '}
-                              {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
-                              {market.collateralToken.symbol}
-                            </Text>
-                          </>
-                        )}
+                        <>
+                          <UniqueTraders color='grey.50' />
+                          <Text {...paragraphRegular} color='grey.500'>
+                            Value{' '}
+                            {NumberUtil.convertWithDenomination(
+                              +market.openInterestFormatted + +market.liquidityFormatted,
+                              6
+                            )}{' '}
+                            {market.collateralToken.symbol}
+                          </Text>
+                          <OpenInterestTooltip iconColor='grey.500' />
+                        </>
                       </HStack>
                     )}
                   </HStack>
