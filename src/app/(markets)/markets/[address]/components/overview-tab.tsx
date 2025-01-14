@@ -1,12 +1,12 @@
 import { Box, HStack, Link, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { isMobile } from 'react-device-detect'
+import TextEditor from '@/components/common/text-editor'
 import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components/market-group-positions'
 import { MarketPositions } from '@/app/(markets)/markets/[address]/components/market-positions'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import { paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup, MarketStatus } from '@/types'
-import { parseTextWithLinks } from '@/utils/string'
 
 interface MarketOverviewTabProps {
   market?: Market
@@ -49,9 +49,7 @@ function MarketOverviewTab({ market }: MarketOverviewTabProps) {
           )}
         </Box>
       </HStack>
-      <Text {...paragraphRegular} userSelect='text' whiteSpace='pre-wrap'>
-        {parseTextWithLinks(market?.description || '')}
-      </Text>
+      <TextEditor value={market?.description ?? ''} readOnly={true} />
     </>
   )
 }
