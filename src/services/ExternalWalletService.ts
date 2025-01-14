@@ -81,7 +81,6 @@ export const useExternalWalletService = () => {
     contractAddress: Address,
     value: bigint
   ): Promise<string> => {
-    debugger
     await checkAndSwitchChainIfNeeded()
     let txHash = ''
     await writeContractAsync(
@@ -170,7 +169,6 @@ export const useExternalWalletService = () => {
     outcomeIndex: number,
     minOutcomeTokensToBuy: bigint
   ) => {
-    debugger
     await checkAndSwitchChainIfNeeded()
     let txHash = ''
     await writeContractAsync(
@@ -243,7 +241,6 @@ export const useExternalWalletService = () => {
   }
 
   const checkAndSwitchChainIfNeeded = async () => {
-    debugger
     if (chainId !== defaultChain.id) {
       await switchChain(configureChainsConfig, { chainId: defaultChain.id })
     }

@@ -1,4 +1,4 @@
-import { usePrivy, useWallets } from '@privy-io/react-auth'
+import { usePrivy } from '@privy-io/react-auth'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import { UserInfo } from '@web3auth/base'
 import Cookies from 'js-cookie'
@@ -23,10 +23,9 @@ import React, {
   useMemo,
   useState,
   useEffect,
-  useRef,
 } from 'react'
 import { getAddress } from 'viem'
-import { http, useAccount as useWagmiAccount, useDisconnect, useWalletClient } from 'wagmi'
+import { http, useDisconnect, useWalletClient } from 'wagmi'
 import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { defaultChain } from '@/constants'
@@ -82,23 +81,19 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [smartAccountClient, setSmartAccountClient] =
     useState<SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null>(null)
   const queryClient = useQueryClient()
-  const { logout: disconnect, authenticated, user } = usePrivy()
+  const { logout: disconnect, authenticated, user, isModalOpen } = usePrivy()
   const pathname = usePathname()
   const accountRoutes = ['/portfolio', '/create-market']
   const privateClient = useAxiosPrivateClient()
   const { mutateAsync: login } = useLogin()
   const { disconnect: disconnectWagmi } = useDisconnect()
-  const { isLogged } = useClient()
   const web3Client = user?.wallet?.connectorType === 'injected' ? 'eoa' : 'etherspot'
   const { trackSignUp } = useAmplitude()
-  const { wallets } = useWallets()
-  const { data: walletClient, refetch: refetchWalletClient } = useWalletClient()
+  const { data: walletClient } = useWalletClient()
+  const { isLogged } = useClient()
 
-  const { address, isConnected: isAccountConnected } = useWagmiAccount()
   const toast = useToast()
   const router = useRouter()
-  const previousAddressRef = useRef<Address>()
-  const isInitialLoad = useRef(true)
 
   /**
    * USER INFO / METADATA
@@ -117,13 +112,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   })
 
   const userMenuLoading = useMemo(() => {
-    if (isLogged) {
+    if (isLogged || authenticated) {
+      if (web3Client === 'etherspot' && !smartAccountClient) {
+        return true
+      }
       return profileData === undefined || profileLoading
     }
     return false
-  }, [isLogged, profileData, profileLoading, web3Client, smartAccountClient])
-
-  console.log(smartAccountClient)
+  }, [profileData, profileLoading, web3Client, smartAccountClient, authenticated])
 
   const onBlockUser = useMutation({
     mutationKey: ['block-user', user?.wallet?.address],
@@ -228,24 +224,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  // const embeddedWallet = useMemo(
-  //   () => wallets.find((wallet) => wallet.walletClientType === 'privy'),
-  //   [wallets]
-  // )
-
-  // const setAndRefetchWalletClient = async (embeddedWallet: ConnectedWallet) => {
-  //   await setActiveWallet(embeddedWallet)
-  //   refetchWalletClient()
-  // }
-  //
-  // const { setActiveWallet } = useSetActiveWallet()
-  //
-  // useEffect(() => {
-  //   if (embeddedWallet) {
-  //     setAndRefetchWalletClient(embeddedWallet)
-  //   }
-  // }, [embeddedWallet])
-
   /**
    * FARCASTER
    */
@@ -278,25 +256,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     account: user?.wallet?.address as Address | undefined,
     smartWallet: smartAccountClient?.account?.address,
   })
-
-  const signout = useCallback(async () => {
-    try {
-      await logout()
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['positions'] }),
-        queryClient.invalidateQueries({ queryKey: ['history'] }),
-        queryClient.invalidateQueries({ queryKey: ['profiles'] }),
-        queryClient.invalidateQueries({ queryKey: ['balance'] }),
-        queryClient.invalidateQueries({ queryKey: ['ethBalance'] }),
-        queryClient.invalidateQueries({ queryKey: ['createdMarkets'] }),
-      ])
-      router.push('/')
-    } catch (error) {
-      console.error('Logout failed:', error)
-    }
-  }, [])
-
-  console.log(web3Client)
 
   const displayName = useMemo(() => {
     if (profileData?.displayName) {
@@ -343,10 +302,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     }
   }, [profileLoading, profileData, user, web3Client, smartAccountClient, authenticated])
 
-  console.log(`authenticated ${authenticated}`)
-  console.log(walletClient)
-  console.log(web3Client)
-
   useEffect(() => {
     ;(async () => {
       if (
@@ -384,17 +339,17 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     })()
   }, [authenticated, walletClient, publicClient, web3Client, smartAccountClient])
 
-  useEffect(() => {
-    if (isAccountConnected && !isInitialLoad.current) {
-      if (previousAddressRef.current && previousAddressRef.current !== address) {
-        signout().catch(console.error)
-      }
-    }
-
-    previousAddressRef.current = address
-
-    isInitialLoad.current = false
-  }, [address, isAccountConnected, logout, signout])
+  // useEffect(() => {
+  //   if (isAccountConnected && !isInitialLoad.current) {
+  //     if (previousAddressRef.current && previousAddressRef.current !== address) {
+  //       signout().catch(console.error)
+  //     }
+  //   }
+  //
+  //   previousAddressRef.current = address
+  //
+  //   isInitialLoad.current = false
+  // }, [address, isAccountConnected, logout, signout])
 
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
@@ -423,7 +378,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     })
     setSmartAccountClient(null)
     Cookies.remove('logged-in-to-limitless')
-  }, [])
+  }, [pathname])
 
   const contextProviderValue: IAccountContext = {
     isLoggedIn: authenticated,

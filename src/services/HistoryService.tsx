@@ -1,91 +1,20 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
-import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash } from 'viem'
 import useClient from '@/hooks/use-client'
-import { usePriceOracle } from '@/providers'
 import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import { useLimitlessApi } from '@/services/LimitlessApi'
 import { Address } from '@/types'
-import { NumberUtil } from '@/utils'
-
-interface IHistoryService {
-  balanceInvested: string
-  balanceToWin: string
-  tradesAndPositionsLoading: boolean
-}
-
-const HistoryServiceContext = createContext({} as IHistoryService)
-
-export const useHistory = () => useContext(HistoryServiceContext)
-
-export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
-  const { convertAssetAmountToUsd } = usePriceOracle()
-  const { supportedTokens } = useLimitlessApi()
-  const { data: positions, isPending: isPositionsLoading } = usePosition()
-
-  console.log(positions)
-
-  /**
-   * BALANCES
-   */
-  const balanceInvested = useMemo(() => {
-    let _balanceInvested = 0
-    positions?.forEach((position) => {
-      let positionUsdAmount = 0
-      const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
-      )
-      if (!!token) {
-        positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, position.collateralAmount)
-      }
-      _balanceInvested += positionUsdAmount
-    })
-    return NumberUtil.toFixed(_balanceInvested, 2)
-  }, [positions])
-
-  const balanceToWin = useMemo(() => {
-    let _balanceToWin = 0
-    positions?.forEach((position) => {
-      let positionOutcomeUsdAmount = 0
-      const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
-      )
-      if (!!token) {
-        positionOutcomeUsdAmount = convertAssetAmountToUsd(
-          token.priceOracleId,
-          position.outcomeTokenAmount
-        )
-      }
-      _balanceToWin += positionOutcomeUsdAmount
-    })
-    return NumberUtil.toFixed(_balanceToWin, 2)
-  }, [positions])
-
-  const tradesAndPositionsLoading = isPositionsLoading
-
-  const contextProviderValue: IHistoryService = {
-    balanceInvested,
-    balanceToWin,
-    tradesAndPositionsLoading,
-  }
-
-  return (
-    <HistoryServiceContext.Provider value={contextProviderValue}>
-      {children}
-    </HistoryServiceContext.Provider>
-  )
-}
 
 export const usePosition = () => {
+  const { profileData } = useAccount()
   const { isLogged } = useClient()
   const privateClient = useAxiosPrivateClient()
 
   return useQuery({
-    queryKey: ['positions', isLogged],
+    queryKey: ['positions', profileData?.id],
     queryFn: async () => {
-      if (!isLogged) {
+      if (!profileData) {
         return []
       }
       try {
@@ -96,8 +25,8 @@ export const usePosition = () => {
         return []
       }
     },
-    enabled: !!isLogged,
-    refetchInterval: !!isLogged ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
+    enabled: !!profileData?.id && !!isLogged,
+    refetchInterval: !!profileData?.id ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
   })
 }
 
