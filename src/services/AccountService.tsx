@@ -32,6 +32,7 @@ import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
 import { useUserSession } from '@/hooks/profiles/use-session'
+import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
 import { useAmplitude } from '@/services'
 import { Address, APIError, UpdateProfileData } from '@/types'
@@ -80,7 +81,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [smartAccountClient, setSmartAccountClient] =
     useState<SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null>(null)
   const queryClient = useQueryClient()
-  const { logout: disconnect, authenticated, user } = usePrivy()
+  const { logout: disconnect, authenticated, user, isModalOpen } = usePrivy()
   const pathname = usePathname()
   const accountRoutes = ['/portfolio', '/create-market']
   const privateClient = useAxiosPrivateClient()
@@ -89,6 +90,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const web3Client = user?.wallet?.connectorType === 'injected' ? 'eoa' : 'etherspot'
   const { trackSignUp } = useAmplitude()
   const { data: walletClient } = useWalletClient()
+  const { isLogged } = useClient()
 
   const toast = useToast()
   const router = useRouter()
@@ -110,14 +112,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   })
 
   const userMenuLoading = useMemo(() => {
-    if (authenticated) {
-      if (!user?.wallet?.address) {
+    if (isLogged || authenticated) {
+      if (web3Client === 'etherspot' && !smartAccountClient) {
         return true
       }
       return profileData === undefined || profileLoading
     }
     return false
-  }, [authenticated, profileData, profileLoading, user?.wallet?.address])
+  }, [profileData, profileLoading, web3Client, smartAccountClient, authenticated])
 
   const onBlockUser = useMutation({
     mutationKey: ['block-user', user?.wallet?.address],

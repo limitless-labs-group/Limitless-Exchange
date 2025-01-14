@@ -62,8 +62,15 @@ import { NumberUtil } from '@/utils'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
-  const { disconnectFromPlatform, displayName, profileData, profileLoading, account, web3Client } =
-    useAccount()
+  const {
+    disconnectFromPlatform,
+    displayName,
+    profileData,
+    profileLoading,
+    account,
+    web3Client,
+    isLoggedIn,
+  } = useAccount()
   const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { balanceOfSmartWallet } = useBalanceQuery()
@@ -207,7 +214,7 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        {isLogged ? (
+        {isLogged || isLoggedIn ? (
           <>
             <VStack mt='16px' w='full' gap='8px'>
               {walletTypeActionButton}
