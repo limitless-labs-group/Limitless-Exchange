@@ -7,10 +7,6 @@ import {
   HStack,
   Heading,
   Link,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Tab,
   TabIndicator,
   TabList,
@@ -21,14 +17,13 @@ import {
 } from '@chakra-ui/react'
 import { Image as ChakraImage } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
-import CopyToClipboard from 'react-copy-to-clipboard'
+import { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import MobileDrawer from '@/components/common/drawer'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import CommentTab from '@/components/common/markets/comment-tab'
-import { Toast } from '@/components/common/toast'
+import ShareMenu from '@/components/common/markets/share-menu'
 import {
   MarketClaimingForm,
   MarketMetadata,
@@ -37,25 +32,14 @@ import {
 } from '@/app/(markets)/markets/[address]/components'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import { MainLayout } from '@/components'
-import { useToast } from '@/hooks'
 import useMarketGroup from '@/hooks/use-market-group'
-import WarpcastIcon from '@/resources/icons/Farcaster.svg'
-import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
-import CopyIcon from '@/resources/icons/link-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
-import ShareIcon from '@/resources/icons/share-icon.svg'
-import {
-  ClickEvent,
-  createMarketShareUrls,
-  ShareClickedMetadata,
-  useAmplitude,
-  useTradingService,
-} from '@/services'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { useWinningIndex } from '@/services/MarketsService'
-import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { h1Regular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
 export default function MarketGroupPage({ params }: { params: { slug: string } }) {
@@ -64,13 +48,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
   const { trackClicked } = useAmplitude()
   const router = useRouter()
   const { market, setMarket, resetQuotes } = useTradingService()
-  const [isShareMenuOpen, setShareMenuOpen] = useState(false)
-
-  const { tweetURI, castURI } = createMarketShareUrls(
-    market,
-    market?.prices,
-    marketGroup?.creator.name
-  )
   const { data: winningIndex } = useWinningIndex(market?.address as string)
 
   const resolved = winningIndex === 0 || winningIndex === 1
@@ -98,11 +75,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     }
     return null
   }, [market, marketGroup])
-
-  const toast = useToast()
-  const marketURI = marketGroup
-    ? `${process.env.NEXT_PUBLIC_FRAME_URL}/market-group/${marketGroup.slug}`
-    : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.address}`
 
   const mobileTradeButton = useMemo(() => {
     return market?.expired ? (
@@ -161,22 +133,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     ]
   }, [market, winningIndex, resolved, marketGroup])
 
-  const parseTextWithLinks = (text: string) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g
-    const parts = text.split(urlRegex)
-
-    return parts.map((part, index) => {
-      if (urlRegex.test(part)) {
-        return (
-          <Link key={index} href={part} color='teal.500' isExternal>
-            {part}
-          </Link>
-        )
-      }
-      return part
-    })
-  }
-
   useEffect(() => {
     if (marketGroup) {
       setMarket(marketGroup.markets[0])
@@ -214,76 +170,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                   <ArrowLeftIcon width={16} height={16} />
                   Back
                 </Button>
-                <Menu isOpen={isShareMenuOpen} onClose={() => setShareMenuOpen(false)}>
-                  <MenuButton
-                    onClick={() => {
-                      trackClicked(ClickEvent.ShareMenuClicked, {
-                        address: market?.address || '0x',
-                        marketType: 'group',
-                      })
-                      setShareMenuOpen(true)
-                    }}
-                  >
-                    <HStack gap='4px'>
-                      <ShareIcon width={16} height={16} />
-                      <Text {...paragraphMedium}>Share</Text>
-                    </HStack>
-                  </MenuButton>
-                  <MenuList borderRadius='8px' w={isMobile ? '160px' : '122px'} zIndex={2}>
-                    <MenuItem
-                      onClick={() => {
-                        trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
-                          type: 'Farcaster',
-                          address: market?.address,
-                          marketType: 'group',
-                        })
-                        window.open(castURI, '_blank', 'noopener')
-                      }}
-                    >
-                      <HStack gap='4px'>
-                        <WarpcastIcon />
-                        <Text whiteSpace='nowrap' {...paragraphMedium}>
-                          On Warpcast
-                        </Text>
-                      </HStack>
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
-                          type: 'X/Twitter',
-                          address: market?.address,
-                          marketType: 'group',
-                        })
-                        window.open(tweetURI, '_blank', 'noopener')
-                      }}
-                    >
-                      <HStack gap='4px'>
-                        <TwitterIcon />
-                        <Text {...paragraphMedium}>On X</Text>
-                      </HStack>
-                    </MenuItem>
-                    <MenuItem>
-                      <CopyToClipboard
-                        text={marketURI}
-                        onCopy={() => {
-                          trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
-                            type: 'Copy Link',
-                            address: market?.address,
-                            marketType: 'single',
-                          })
-                          const id = toast({
-                            render: () => <Toast title={'Copied'} id={id} />,
-                          })
-                        }}
-                      >
-                        <HStack gap='4px' w='full'>
-                          <CopyIcon width={16} height={16} />
-                          <Text {...paragraphMedium}>Copy Link</Text>
-                        </HStack>
-                      </CopyToClipboard>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
+                <ShareMenu />
               </HStack>
               <Box>
                 <Heading {...h1Regular} userSelect='text'>
