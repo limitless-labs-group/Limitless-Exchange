@@ -367,6 +367,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData?.bio])
 
   const disconnectFromPlatform = useCallback(async () => {
+    debugger
     if (accountRoutes.includes(pathname)) {
       router.push('/')
     }
@@ -378,7 +379,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     })
     setSmartAccountClient(null)
     Cookies.remove('logged-in-to-limitless')
-  }, [])
+  }, [pathname])
 
   const contextProviderValue: IAccountContext = {
     isLoggedIn: authenticated,
