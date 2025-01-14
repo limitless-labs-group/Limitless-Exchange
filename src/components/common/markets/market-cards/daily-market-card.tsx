@@ -11,17 +11,10 @@ import { MarketCardLink } from './market-card-link'
 import { useCalculateNoReturn, useCalculateYesReturn } from '@/hooks/use-calculate-return'
 import { useMarketFeed } from '@/hooks/use-market-feed'
 import CloseIcon from '@/resources/icons/close-icon.svg'
-import TooltipIcon from '@/resources/icons/tooltip-icon.svg'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
-import {
-  captionMedium,
-  paragraphBold,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
+import { paragraphBold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
-import { defineOpenInterestOverVolume } from '@/utils/market'
 
 interface DailyMarketCardProps {
   market: Market
@@ -76,14 +69,14 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
     return null
   }, [marketFeedData])
 
-  const isLumy = market?.category === 'Lumy'
+  // const isLumy = market?.category === 'Lumy'
 
   const { trackClicked } = useAmplitude()
 
-  const handleLumyButtonClicked = (e: SyntheticEvent) => {
-    e.stopPropagation()
-    router.push('/lumy')
-  }
+  // const handleLumyButtonClicked = (e: SyntheticEvent) => {
+  //   e.stopPropagation()
+  //   router.push('/lumy')
+  // }
 
   const onClickJoinPrediction = () => {
     trackClicked(ClickEvent.JoinPredictionClicked, {
@@ -123,18 +116,19 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
   const content = (
     <Box
       w='full'
-      bg={
-        isLumy
-          ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'
-          : hovered
-          ? 'grey.300'
-          : 'grey.100'
-      }
+      bg={hovered ? 'grey.300' : 'grey.100'}
+      // bg={
+      //   isLumy
+      //     ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'
+      //     : hovered
+      //     ? 'grey.300'
+      //     : 'grey.100'
+      // }
       rounded='12px'
       p='2px'
-      _hover={{
-        ...(!isLumy ? { bg: 'grey.300' } : {}),
-      }}
+      // _hover={{
+      //   ...(!isLumy ? { bg: 'grey.300' } : {}),
+      // }}
       onMouseEnter={() => {
         setHovered(true)
       }}
@@ -236,27 +230,27 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
             </HStack>
           </Box>
         </VStack>
-        {isLumy && (
-          <Box
-            position='absolute'
-            top={0}
-            left='calc(50% - 30px)'
-            py='2px'
-            px='4px'
-            borderBottomLeftRadius='4px'
-            borderBottomRightRadius='2px'
-            bg={'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}
-            onClick={handleLumyButtonClicked}
-            className='lumy-button'
-          >
-            <HStack gap='8px' color='grey.white'>
-              <Text {...captionMedium} color='grey.white'>
-                LUMY AI
-              </Text>
-              <TooltipIcon width={16} height={16} />
-            </HStack>
-          </Box>
-        )}
+        {/*{isLumy && (*/}
+        {/*  <Box*/}
+        {/*    position='absolute'*/}
+        {/*    top={0}*/}
+        {/*    left='calc(50% - 30px)'*/}
+        {/*    py='2px'*/}
+        {/*    px='4px'*/}
+        {/*    borderBottomLeftRadius='4px'*/}
+        {/*    borderBottomRightRadius='2px'*/}
+        {/*    bg={'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}*/}
+        {/*    onClick={handleLumyButtonClicked}*/}
+        {/*    className='lumy-button'*/}
+        {/*  >*/}
+        {/*    <HStack gap='8px' color='grey.white'>*/}
+        {/*      <Text {...captionMedium} color='grey.white'>*/}
+        {/*        LUMY AI*/}
+        {/*      </Text>*/}
+        {/*      <TooltipIcon width={16} height={16} />*/}
+        {/*    </HStack>*/}
+        {/*  </Box>*/}
+        {/*)}*/}
         {estimateOpened && (
           <Box bg='grey.200' p='16px' mt='16px' borderRadius='12px'>
             <HStack w='full' justifyContent='space-between' color='grey.500'>

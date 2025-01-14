@@ -11,14 +11,8 @@ import { DailyMarketCardProps } from './daily-market-card-mobile'
 import { useCalculateNoReturn, useCalculateYesReturn } from '@/hooks/use-calculate-return'
 import { useMarketFeed } from '@/hooks/use-market-feed'
 import CloseIcon from '@/resources/icons/close-icon.svg'
-import TooltipIcon from '@/resources/icons/tooltip-icon.svg'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
-import {
-  captionMedium,
-  h3Bold,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
+import { h3Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
 export const DailyCardTrigger = React.memo(
@@ -71,14 +65,14 @@ export const DailyCardTrigger = React.memo(
       return null
     }, [marketFeedData])
 
-    const isLumy = market.category === 'Lumy'
+    // const isLumy = market.category === 'Lumy'
 
     const { trackClicked } = useAmplitude()
 
-    const handleLumyButtonClicked = (e: SyntheticEvent) => {
-      e.stopPropagation()
-      router.push('/lumy')
-    }
+    // const handleLumyButtonClicked = (e: SyntheticEvent) => {
+    //   e.stopPropagation()
+    //   router.push('/lumy')
+    // }
 
     const handleMarketPageOpened = () => {
       trackClicked(ClickEvent.MediumMarketBannerClicked, {
@@ -100,14 +94,15 @@ export const DailyCardTrigger = React.memo(
     return (
       <Box
         w='full'
-        bg={
-          isLumy ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)' : 'grey.100'
-        }
+        bg='grey.100'
+        // bg={
+        //   isLumy ? 'linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)' : 'grey.100'
+        // }
         rounded='12px'
         p='2px'
-        _hover={{
-          ...(!isLumy ? { bg: 'grey.300' } : {}),
-        }}
+        // _hover={{
+        //   ...(!isLumy ? { bg: 'grey.300' } : {}),
+        // }}
         onClick={handleMarketPageOpened}
       >
         <Paper
@@ -117,28 +112,28 @@ export const DailyCardTrigger = React.memo(
           cursor='pointer'
           p='14px'
         >
-          {isLumy && (
-            <Box
-              top={0}
-              marginLeft='calc(50% - 40px)'
-              py='2px'
-              px='4px'
-              borderBottomLeftRadius='4px'
-              borderBottomRightRadius='2px'
-              bg={'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}
-              onClick={handleLumyButtonClicked}
-              className='lumy-button'
-              w='fit-content'
-              marginTop='-14px'
-            >
-              <HStack gap='8px' color='grey.white'>
-                <Text {...captionMedium} color='grey.white'>
-                  LUMY AI
-                </Text>
-                <TooltipIcon width={16} height={16} />
-              </HStack>
-            </Box>
-          )}
+          {/*{isLumy && (*/}
+          {/*  <Box*/}
+          {/*    top={0}*/}
+          {/*    marginLeft='calc(50% - 40px)'*/}
+          {/*    py='2px'*/}
+          {/*    px='4px'*/}
+          {/*    borderBottomLeftRadius='4px'*/}
+          {/*    borderBottomRightRadius='2px'*/}
+          {/*    bg={'linear-gradient(90deg, #FF444F -14%, #FF7A30 100%)'}*/}
+          {/*    onClick={handleLumyButtonClicked}*/}
+          {/*    className='lumy-button'*/}
+          {/*    w='fit-content'*/}
+          {/*    marginTop='-14px'*/}
+          {/*  >*/}
+          {/*    <HStack gap='8px' color='grey.white'>*/}
+          {/*      <Text {...captionMedium} color='grey.white'>*/}
+          {/*        LUMY AI*/}
+          {/*      </Text>*/}
+          {/*      <TooltipIcon width={16} height={16} />*/}
+          {/*    </HStack>*/}
+          {/*  </Box>*/}
+          {/*)}*/}
           <VStack w='full' gap='56px' mt='8px'>
             <Box w='full'>
               <DailyMarketTimer
