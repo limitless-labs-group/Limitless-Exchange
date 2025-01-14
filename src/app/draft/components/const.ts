@@ -28,9 +28,9 @@ export const tokenLimits: TokenLimits = {
     step: 10000,
   },
   WETH: {
-    min: 0.1,
+    min: 0.05,
     max: 5,
-    step: 0.1,
+    step: 0.05,
   },
   USDC: {
     min: 100,
