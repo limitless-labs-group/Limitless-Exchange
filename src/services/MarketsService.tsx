@@ -195,7 +195,6 @@ export function useBanneredMarkets(topic: Category | null) {
 
       return response.map((market) => ({
         ...market,
-        //@ts-ignore
         ...(result.find((r) => r.address === market.address) || { prices: [50, 50] }),
       }))
     },
