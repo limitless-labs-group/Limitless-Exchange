@@ -378,7 +378,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     })
     setSmartAccountClient(null)
     Cookies.remove('logged-in-to-limitless')
-  }, [])
+  }, [pathname])
 
   const contextProviderValue: IAccountContext = {
     isLoggedIn: authenticated,
