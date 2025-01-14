@@ -24,6 +24,7 @@ import {
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
+import CopyToClipboard from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
@@ -38,6 +39,7 @@ import { UniqueTraders } from '@/components/common/markets/unique-traders'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
 import Skeleton from '@/components/common/skeleton'
+import { Toast } from '@/components/common/toast'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
 import {
@@ -48,12 +50,14 @@ import {
   SellForm,
 } from './components'
 import { MainLayout } from '@/components'
+import { useToast } from '@/hooks'
 import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import CopyIcon from '@/resources/icons/link-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
@@ -80,7 +84,6 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
-import { defineOpenInterestOverVolume } from '@/utils/market'
 
 const tokens = [
   'AAVE',
@@ -127,6 +130,12 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
   const { positions: allMarketsPositions } = useHistory()
+
+  const toast = useToast()
+
+  const marketURI = marketGroup
+    ? `${process.env.NEXT_PUBLIC_FRAME_URL}/market-group/${marketGroup.slug}`
+    : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.address}`
 
   const isLumy = market?.category === 'Lumy'
 
@@ -578,7 +587,9 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                       >
                         <HStack gap='4px'>
                           <WarpcastIcon />
-                          <Text {...paragraphMedium}>On Warpcast</Text>
+                          <Text whiteSpace='nowrap' {...paragraphMedium}>
+                            On Warpcast
+                          </Text>
                         </HStack>
                       </MenuItem>
                       <MenuItem
@@ -595,6 +606,26 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                           <TwitterIcon width={'16px'} />
                           <Text {...paragraphMedium}>On X</Text>
                         </HStack>
+                      </MenuItem>
+                      <MenuItem>
+                        <CopyToClipboard
+                          text={marketURI}
+                          onCopy={() => {
+                            trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
+                              type: 'Copy Link',
+                              address: market?.address,
+                              marketType: 'single',
+                            })
+                            const id = toast({
+                              render: () => <Toast title={'Copied'} id={id} />,
+                            })
+                          }}
+                        >
+                          <HStack gap='4px' w='full'>
+                            <CopyIcon width={16} height={16} />
+                            <Text {...paragraphMedium}>Copy Link</Text>
+                          </HStack>
+                        </CopyToClipboard>
                       </MenuItem>
                     </MenuList>
                   </Menu>

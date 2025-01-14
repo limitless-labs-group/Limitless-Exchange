@@ -20,14 +20,15 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { Image as ChakraImage } from '@chakra-ui/react'
-import BigNumber from 'bignumber.js'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
+import CopyToClipboard from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import MobileDrawer from '@/components/common/drawer'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import CommentTab from '@/components/common/markets/comment-tab'
+import { Toast } from '@/components/common/toast'
 import {
   MarketClaimingForm,
   MarketMetadata,
@@ -36,11 +37,13 @@ import {
 } from '@/app/(markets)/markets/[address]/components'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import { MainLayout } from '@/components'
+import { useToast } from '@/hooks'
 import useMarketGroup from '@/hooks/use-market-group'
 import WarpcastIcon from '@/resources/icons/Farcaster.svg'
 import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
+import CopyIcon from '@/resources/icons/link-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import ShareIcon from '@/resources/icons/share-icon.svg'
@@ -81,16 +84,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     return router.push('/')
   }
 
-  const volume =
-    marketGroup?.markets.reduce((a, b) => {
-      return new BigNumber(a).plus(new BigNumber(b.volumeFormatted)).toString()
-    }, '0') || '0'
-
-  const liquidity =
-    marketGroup?.markets.reduce((a, b) => {
-      return new BigNumber(a).plus(new BigNumber(b.liquidityFormatted)).toString()
-    }, '0') || '0'
-
   const marketActionForm = useMemo(() => {
     if (market) {
       return market.expired ? (
@@ -105,6 +98,11 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     }
     return null
   }, [market, marketGroup])
+
+  const toast = useToast()
+  const marketURI = marketGroup
+    ? `${process.env.NEXT_PUBLIC_FRAME_URL}/market-group/${marketGroup.slug}`
+    : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.address}`
 
   const mobileTradeButton = useMemo(() => {
     return market?.expired ? (
@@ -244,7 +242,9 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                     >
                       <HStack gap='4px'>
                         <WarpcastIcon />
-                        <Text {...paragraphMedium}>On Warpcast</Text>
+                        <Text whiteSpace='nowrap' {...paragraphMedium}>
+                          On Warpcast
+                        </Text>
                       </HStack>
                     </MenuItem>
                     <MenuItem
@@ -261,6 +261,26 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                         <TwitterIcon />
                         <Text {...paragraphMedium}>On X</Text>
                       </HStack>
+                    </MenuItem>
+                    <MenuItem>
+                      <CopyToClipboard
+                        text={marketURI}
+                        onCopy={() => {
+                          trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
+                            type: 'Copy Link',
+                            address: market?.address,
+                            marketType: 'single',
+                          })
+                          const id = toast({
+                            render: () => <Toast title={'Copied'} id={id} />,
+                          })
+                        }}
+                      >
+                        <HStack gap='4px' w='full'>
+                          <CopyIcon width={16} height={16} />
+                          <Text {...paragraphMedium}>Copy Link</Text>
+                        </HStack>
+                      </CopyToClipboard>
                     </MenuItem>
                   </MenuList>
                 </Menu>
