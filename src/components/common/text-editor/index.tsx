@@ -1,6 +1,7 @@
 'use client'
 
 import { Box } from '@chakra-ui/react'
+import DOMPurify from 'dompurify'
 import dynamic from 'next/dynamic'
 import 'react-quill/dist/quill.snow.css'
 
@@ -41,8 +42,33 @@ const linkify = (text: string) => {
 }
 
 const isFormattedText = (text: string): boolean => {
-  const htmlTagRegex = /<\/?[a-z][\s\S]*>/i
-  return htmlTagRegex.test(text)
+  if (!text || typeof text !== 'string') return false
+  const htmlPatterns = [
+    /<[a-z][\s\S]*?>/i, // General HTML tags
+    /&(?:#\d+|\w+);/, // HTML entities
+    /<(p|div|span|a|strong|em|u|s|ul|ol|li|br|img|h[1-6]|blockquote|pre|code)\b/i, // Quill-related tags
+  ]
+
+  // Check if text matches any of the patterns
+  const containsHtmlTags = htmlPatterns.some((regex) => regex.test(text))
+
+  // Check if stripping HTML produces a different result
+  const strippedText = stripHTML(text)
+  const isPlainText = strippedText === text
+
+  // Determine if the text is formatted
+  return containsHtmlTags || !isPlainText
+}
+
+// Helper function to strip HTML
+const stripHTML = (html: string): string => {
+  const tmp = document.createElement('div')
+  try {
+    tmp.innerHTML = DOMPurify.sanitize(html) // Sanitize input for safety
+    return tmp.textContent || tmp.innerText || ''
+  } finally {
+    tmp.remove()
+  }
 }
 
 export default function TextEditor({
