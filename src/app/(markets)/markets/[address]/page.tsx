@@ -7,10 +7,6 @@ import {
   HStack,
   Image as ChakraImage,
   Link,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Tab,
   TabIndicator,
   TabList,
@@ -34,6 +30,7 @@ import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
+import ShareMenu from '@/components/common/markets/share-menu'
 import { UniqueTraders } from '@/components/common/markets/unique-traders'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
@@ -48,8 +45,6 @@ import {
   SellForm,
 } from './components'
 import { MainLayout } from '@/components'
-import WarpcastIcon from '@/resources/icons/Farcaster.svg'
-import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
@@ -59,19 +54,16 @@ import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
-import ShareIcon from '@/resources/icons/share-icon.svg'
 import {
   ChangeEvent,
   ClickEvent,
-  createMarketShareUrls,
   OpenEvent,
-  ShareClickedMetadata,
   StrategyChangedMetadata,
   useAmplitude,
   useHistory,
   useTradingService,
 } from '@/services'
-import { useMarket, useWinningIndex } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
 import {
   controlsMedium,
   h1Regular,
@@ -80,7 +72,6 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
-import { defineOpenInterestOverVolume } from '@/utils/market'
 
 const tokens = [
   'AAVE',
@@ -112,22 +103,17 @@ const tokens = [
 ]
 
 const MarketPage = ({ params }: { params: { address: Address } }) => {
-  const [isShareMenuOpen, setShareMenuOpen] = useState(false)
   const [outcomeIndex, setOutcomeIndex] = useState(0)
   /**
    * ANALYTICS
    */
   const { trackClicked, trackOpened, trackChanged } = useAmplitude()
-  const { data: winningIndex } = useWinningIndex(params.address)
-  const resolved = winningIndex === 0 || winningIndex === 1
   const router = useRouter()
   const { data: market, isLoading: fetchMarketLoading } = useMarket(params.address)
-  const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
   const { setMarket, resetQuotes, strategy, setStrategy, marketGroup, status } = useTradingService()
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
   const { positions: allMarketsPositions } = useHistory()
-
   const isLumy = market?.category === 'Lumy'
 
   const positions = useMemo(
@@ -550,54 +536,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                     <ArrowLeftIcon width={16} height={16} />
                     Back
                   </Button>
-                  <Menu isOpen={isShareMenuOpen} onClose={() => setShareMenuOpen(false)}>
-                    <MenuButton
-                      onClick={() => {
-                        trackClicked(ClickEvent.ShareMenuClicked, {
-                          address: market?.address || '0x',
-                          marketType: 'single',
-                        })
-                        setShareMenuOpen(true)
-                      }}
-                    >
-                      <HStack gap='4px'>
-                        <ShareIcon width={16} height={16} />
-                        <Text {...paragraphMedium}>Share</Text>
-                      </HStack>
-                    </MenuButton>
-                    <MenuList borderRadius='8px' w={isMobile ? '160px' : '122px'} zIndex={2}>
-                      <MenuItem
-                        onClick={() => {
-                          trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
-                            type: 'Farcaster',
-                            address: market?.address,
-                            marketType: 'single',
-                          })
-                          window.open(castURI, '_blank', 'noopener')
-                        }}
-                      >
-                        <HStack gap='4px'>
-                          <WarpcastIcon />
-                          <Text {...paragraphMedium}>On Warpcast</Text>
-                        </HStack>
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
-                            type: 'X/Twitter',
-                            address: market?.address,
-                            marketType: 'single',
-                          })
-                          window.open(tweetURI, '_blank', 'noopener')
-                        }}
-                      >
-                        <HStack gap='4px'>
-                          <TwitterIcon width={'16px'} />
-                          <Text {...paragraphMedium}>On X</Text>
-                        </HStack>
-                      </MenuItem>
-                    </MenuList>
-                  </Menu>
+                  <ShareMenu />
                 </HStack>
                 <HStack w='full' justifyContent='space-between' flexWrap='wrap' gap='4px'>
                   {!market ? (
