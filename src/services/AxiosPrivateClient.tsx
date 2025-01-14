@@ -1,7 +1,7 @@
 import { usePrivy } from '@privy-io/react-auth'
 import axios, { AxiosInstance } from 'axios'
 import React, { createContext, useContext } from 'react'
-import { getAddress, toHex } from 'viem'
+import { Address, getAddress, toHex } from 'viem'
 import { useSignMessage } from 'wagmi'
 import useRefetchAfterLogin from '@/hooks/use-refetch-after-login'
 import { useAccount } from '@/services/AccountService'
@@ -39,7 +39,9 @@ const useSetupAxiosInstance = () => {
 
         let signature = ''
         if (client === 'eoa') {
-          signature = await signMessageAsync({ message: signingMessage })
+          signature = await signMessageAsync({
+            message: signingMessage,
+          })
         } else {
           const { signature: smartWalletSignature } = await signMessage({
             message: signingMessage,
