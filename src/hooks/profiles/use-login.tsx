@@ -57,11 +57,11 @@ export const useLogin = () => {
         }
       )
       Cookies.set('logged-in-to-limitless', 'true')
+      await refetchAll()
       return res.data as Profile
     },
     onSuccess: (updatedData, variables) => {
       queryClient.setQueryData(['profiles', { account: variables.account }], updatedData)
-      refetchAll()
     },
     // onError: () => {
     //   const id = toast({ render: () => <Toast id={id} title='Failed to register profile' /> })

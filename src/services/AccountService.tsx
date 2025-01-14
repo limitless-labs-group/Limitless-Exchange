@@ -371,6 +371,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     queryClient.removeQueries({
       queryKey: ['profiles'],
     })
+    queryClient.removeQueries({
+      queryKey: ['positions'],
+    })
     setSmartAccountClient(null)
     Cookies.remove('logged-in-to-limitless')
   }, [pathname])
