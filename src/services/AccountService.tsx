@@ -1,13 +1,12 @@
-import { usePrivy } from '@privy-io/react-auth'
+import { usePrivy, useWallets } from '@privy-io/react-auth'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
-import { UserInfo } from '@web3auth/base'
 import Cookies from 'js-cookie'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   createSmartAccountClient,
   ENTRYPOINT_ADDRESS_V06,
+  providerToSmartAccountSigner,
   SmartAccountClient,
-  walletClientToSmartAccountSigner,
 } from 'permissionless'
 import { signerToSafeSmartAccount } from 'permissionless/accounts'
 import {
@@ -25,7 +24,7 @@ import React, {
   useEffect,
 } from 'react'
 import { getAddress } from 'viem'
-import { http, useDisconnect, useWalletClient } from 'wagmi'
+import { http, useDisconnect } from 'wagmi'
 import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { defaultChain } from '@/constants'
@@ -41,7 +40,6 @@ import { Profile } from '@/types/profiles'
 export interface IAccountContext {
   isLoggedIn: boolean
   account: Address | undefined
-  userInfo: Partial<UserInfo> | undefined
   // farcasterInfo: FarcasterUserData | undefined
   disconnectFromPlatform: () => void
   displayName?: string
@@ -81,7 +79,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [smartAccountClient, setSmartAccountClient] =
     useState<SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null>(null)
   const queryClient = useQueryClient()
-  const { logout: disconnect, authenticated, user, isModalOpen } = usePrivy()
+  const { logout: disconnect, authenticated, user } = usePrivy()
   const pathname = usePathname()
   const accountRoutes = ['/portfolio', '/create-market']
   const privateClient = useAxiosPrivateClient()
@@ -89,18 +87,11 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { disconnect: disconnectWagmi } = useDisconnect()
   const web3Client = user?.wallet?.connectorType === 'embedded' ? 'etherspot' : 'eoa'
   const { trackSignUp } = useAmplitude()
-  const { data: walletClient } = useWalletClient()
+  const { wallets } = useWallets()
   const { isLogged } = useClient()
-
-  console.log(user)
 
   const toast = useToast()
   const router = useRouter()
-
-  /**
-   * USER INFO / METADATA
-   */
-  const [userInfo, setUserInfo] = useState<Partial<UserInfo> | undefined>()
 
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ['profiles', { account: user?.wallet?.address }],
@@ -263,14 +254,11 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     if (profileData?.displayName) {
       return profileData.displayName
     }
-    if (userInfo?.name) {
-      return userInfo.name
-    }
     if (web3Client === 'etherspot' && smartAccountClient?.account?.address) {
       return smartAccountClient.account.address
     }
     return user?.wallet?.address as Address | undefined
-  }, [profileData, userInfo, web3Client, user?.wallet?.address, smartAccountClient])
+  }, [profileData, web3Client, user?.wallet?.address, smartAccountClient])
 
   const account = useMemo(() => {
     if (web3Client === 'etherspot') {
@@ -308,38 +296,43 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     ;(async () => {
       if (
         authenticated &&
-        walletClient &&
         publicClient &&
         web3Client === 'etherspot' &&
-        !smartAccountClient
+        !smartAccountClient &&
+        wallets.length
       ) {
-        const customSigner = walletClientToSmartAccountSigner(walletClient)
+        const embeddedWallet = wallets.find((wallet) => wallet.walletClientType === 'privy')
+        if (embeddedWallet) {
+          const provider = await embeddedWallet.getEthereumProvider()
+          //@ts-ignore
+          const customSigner = await providerToSmartAccountSigner(provider)
 
-        const safeSmartAccountClient = await signerToSafeSmartAccount(publicClient, {
-          entryPoint: ENTRYPOINT_ADDRESS_V06,
-          signer: customSigner,
-          safeVersion: '1.4.1',
-          saltNonce: BigInt(0),
-        })
+          const safeSmartAccountClient = await signerToSafeSmartAccount(publicClient, {
+            entryPoint: ENTRYPOINT_ADDRESS_V06,
+            signer: customSigner,
+            safeVersion: '1.4.1',
+            saltNonce: BigInt(0),
+          })
 
-        const smartAccountClient = createSmartAccountClient({
-          account: safeSmartAccountClient,
-          entryPoint: ENTRYPOINT_ADDRESS_V06,
-          chain: defaultChain,
-          bundlerTransport: http(pimlicoRpcUrl, {
-            timeout: 30_000,
-          }),
-          middleware: {
-            gasPrice: async () => (await bundlerClient.getUserOperationGasPrice()).fast,
-            sponsorUserOperation: pimlicoPaymaster.sponsorUserOperation,
-          },
-        })
+          const smartAccountClient = createSmartAccountClient({
+            account: safeSmartAccountClient,
+            entryPoint: ENTRYPOINT_ADDRESS_V06,
+            chain: defaultChain,
+            bundlerTransport: http(pimlicoRpcUrl, {
+              timeout: 30_000,
+            }),
+            middleware: {
+              gasPrice: async () => (await bundlerClient.getUserOperationGasPrice()).fast,
+              sponsorUserOperation: pimlicoPaymaster.sponsorUserOperation,
+            },
+          })
 
-        // @ts-ignore
-        setSmartAccountClient(smartAccountClient)
+          // @ts-ignore
+          setSmartAccountClient(smartAccountClient)
+        }
       }
     })()
-  }, [authenticated, walletClient, publicClient, web3Client, smartAccountClient])
+  }, [authenticated, publicClient, web3Client, smartAccountClient, wallets])
 
   // useEffect(() => {
   //   if (isAccountConnected && !isInitialLoad.current) {
@@ -385,7 +378,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const contextProviderValue: IAccountContext = {
     isLoggedIn: authenticated,
     account,
-    userInfo,
     displayName,
     displayUsername,
     bio,
