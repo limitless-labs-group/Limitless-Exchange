@@ -39,13 +39,13 @@ export default function MobileNavigation() {
       isActive: pageName === 'Feed',
       amplitudeOption: 'Feed' as ProfileBurgerMenuClickedOption,
     },
-    {
-      title: 'AI Agent',
-      icon: <AiAgentIcon />,
-      link: '/lumy',
-      isActive: pageName === 'Lumy',
-      amplitudeOption: 'Lumy' as ProfileBurgerMenuClickedOption,
-    },
+    // {
+    //   title: 'AI Agent',
+    //   icon: <AiAgentIcon />,
+    //   link: '/lumy',
+    //   isActive: pageName === 'Lumy',
+    //   amplitudeOption: 'Lumy' as ProfileBurgerMenuClickedOption,
+    // },
   ]
 
   return (
