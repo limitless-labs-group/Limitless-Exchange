@@ -26,7 +26,7 @@ const AmplitudeContext = createContext<IAmplitudeContext>({} as IAmplitudeContex
 export const useAmplitude = () => useContext(AmplitudeContext)
 
 export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
-  const { account: walletAddress, userInfo } = useAccount()
+  const { account: walletAddress } = useAccount()
 
   useEffect(() => {
     init(AMPLITUDE_API_KEY, undefined, {
@@ -70,7 +70,6 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         },
         user_properties: {
           account: walletAddress,
-          ...userInfo,
           walletAddress,
         },
       }).promise
