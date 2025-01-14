@@ -1,10 +1,11 @@
 'use client'
 
-import { Box, HStack } from '@chakra-ui/react'
+import { Box, HStack, Text } from '@chakra-ui/react'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
 import { getAddress } from 'viem'
-import AllMarkets from '@/components/common/markets/all-markets'
+import Loader from '@/components/common/loader'
 import DailyMarketsSection from '@/components/common/markets/daily-markets'
 import TopMarkets from '@/components/common/markets/top-markets'
 import { MainLayout } from '@/components'
@@ -19,13 +20,13 @@ import {
   useCategories,
   useTradingService,
 } from '@/services'
-import { useDailyMarkets, useMarket, useMarkets } from '@/services/MarketsService'
+import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Category, Market, MarketGroup, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
 const MainPage = () => {
   const searchParams = useSearchParams()
-  const [page, setPage] = useState(1)
   const { data: categories } = useCategories()
   const { onCloseMarketPage, onOpenMarketPage } = useTradingService()
   /**
@@ -78,61 +79,19 @@ const MainPage = () => {
     return Sort.BASE
   })
 
-  const [selectedSortDaily, setSelectedSortDaily] = useState<Sort>(() => {
-    if (typeof window !== 'undefined') {
-      return (window.localStorage.getItem(SortStorageName.SORT_DAILY) as Sort) ?? Sort.BASE
-    }
-    return Sort.BASE
-  })
-
   const handleSelectSort = (options: Sort, name: SortStorageName) => {
     window.localStorage.setItem(name, options)
-    if (name === SortStorageName.SORT) {
-      setSelectedSort(options)
-      return
-    }
-    setSelectedSortDaily(options)
+    setSelectedSort(options)
   }
+
+  const { data: banneredMarkets, isFetching: isBanneredLoading } =
+    useBanneredMarkets(categoryEntity)
 
   const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
   const { convertTokenAmountToUsd } = usePriceOracle()
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     useMarkets(categoryEntity)
-
-  const { data: dailyMarkets, isLoading: isLoadingDailyMarkets } = useDailyMarkets(categoryEntity)
-
-  const banneredMarkets =
-    dailyMarkets?.data.markets.filter((market) => market.metadata?.isBannered) ?? []
-
-  const topMarkets =
-    dailyMarkets?.data.markets
-      // @ts-ignore
-      .filter((market) => !market.slug)
-      .sort((a, b) => {
-        // @ts-ignore
-        const volumeA = a?.slug
-          ? // @ts-ignore
-            a.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
-          : // @ts-ignore
-            +a.volumeFormatted
-        // @ts-ignore
-        const volumeB = b?.slug
-          ? // @ts-ignore
-            b.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
-          : // @ts-ignore
-            +b.volumeFormatted
-
-        return (
-          convertTokenAmountToUsd(b.collateralToken.symbol, volumeB) -
-          convertTokenAmountToUsd(a.collateralToken.symbol, volumeA)
-        )
-      })
-      .slice(0, 3) || []
-
-  const dataLength = data?.pages.reduce((counter, page) => {
-    return counter + page.data.markets.length
-  }, 0)
 
   const markets: (Market | MarketGroup)[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
@@ -163,11 +122,6 @@ const MainPage = () => {
     return sortMarkets(filteredAllMarkets, selectedSort, convertTokenAmountToUsd)
   }, [filteredAllMarkets, selectedSort, convertTokenAmountToUsd])
 
-  const sortedDailyMarkets = useMemo(() => {
-    if (!dailyMarkets?.data.markets) return []
-    return sortMarkets(dailyMarkets.data.markets, selectedSortDaily, convertTokenAmountToUsd)
-  }, [dailyMarkets?.data.markets, selectedSortDaily, convertTokenAmountToUsd])
-
   useEffect(() => {
     return () => {
       onCloseMarketPage()
@@ -184,33 +138,32 @@ const MainPage = () => {
       >
         <Box w={isMobile ? 'full' : '664px'}>
           <>
-            <TopMarkets
-              markets={banneredMarkets.length > 0 ? banneredMarkets : (topMarkets as Market[])}
-              isLoading={isLoadingDailyMarkets}
-            />
-            <DailyMarketsSection
-              markets={sortedDailyMarkets}
-              handleSelectSort={handleSelectSort}
-              isLoading={isLoadingDailyMarkets}
-              totalAmount={dailyMarkets?.data.totalAmount}
-            />
-            {/* <AllMarkets */}
-            {/*   markets={sortedAllMarkets} */}
-            {/*   handleSelectSort={handleSelectSort} */}
-            {/*   totalAmount={data?.pages?.[0].data.totalAmount} */}
-            {/*   isLoading={isFetching && !isFetchingNextPage} */}
-            {/* /> */}
+            <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
+            <InfiniteScroll
+              className='scroll'
+              dataLength={sortedAllMarkets?.length ?? 0}
+              next={fetchNextPage}
+              hasMore={hasNextPage}
+              style={{ width: '100%' }}
+              loader={
+                sortedAllMarkets.length > 0 ? (
+                  <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+                    <Loader />
+                    <Text {...paragraphRegular}>Loading more markets</Text>
+                  </HStack>
+                ) : null
+              }
+            >
+              <DailyMarketsSection
+                markets={sortedAllMarkets as Market[]}
+                handleSelectSort={handleSelectSort}
+                totalAmount={data?.pages?.[0].data.totalAmount}
+                isLoading={isFetching && !isFetchingNextPage}
+              />
+            </InfiniteScroll>
           </>
-          {/*{isFetching && !isFetchingNextPage ? (*/}
-          {/*  <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>*/}
-          {/*    <Spinner />*/}
-          {/*  </HStack>*/}
-          {/*) : (*/}
-          {/*  */}
-          {/*)}*/}
         </Box>
       </HStack>
-      {/*{dailyMarkets && <DrawerCarousel markets={dailyMarkets.markets as unknown as Market[]} />}*/}
     </MainLayout>
   )
 }
