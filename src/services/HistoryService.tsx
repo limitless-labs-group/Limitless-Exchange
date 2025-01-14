@@ -27,6 +27,7 @@ export const usePosition = () => {
     },
     enabled: !!profileData?.id && !!isLogged,
     refetchInterval: !!profileData?.id ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
+    staleTime: Infinity,
   })
 }
 
