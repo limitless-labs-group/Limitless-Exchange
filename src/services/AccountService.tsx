@@ -87,10 +87,12 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const privateClient = useAxiosPrivateClient()
   const { mutateAsync: login } = useLogin()
   const { disconnect: disconnectWagmi } = useDisconnect()
-  const web3Client = user?.wallet?.connectorType === 'injected' ? 'eoa' : 'etherspot'
+  const web3Client = user?.wallet?.connectorType === 'embedded' ? 'etherspot' : 'eoa'
   const { trackSignUp } = useAmplitude()
   const { data: walletClient } = useWalletClient()
   const { isLogged } = useClient()
+
+  console.log(user)
 
   const toast = useToast()
   const router = useRouter()
