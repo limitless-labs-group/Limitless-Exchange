@@ -157,13 +157,6 @@ const MainPage = () => {
                   </HStack>
                 ) : null
               }
-              endMessage={
-                sortedAllMarkets.length >= totalAmount ? (
-                  <Text textAlign='center' {...paragraphRegular} my='24px' color='gray.500'>
-                    No more markets to load
-                  </Text>
-                ) : null
-              }
             >
               <DailyMarketsSection
                 markets={sortedAllMarkets as Market[]}
