@@ -367,7 +367,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData?.bio])
 
   const disconnectFromPlatform = useCallback(async () => {
-    debugger
     if (accountRoutes.includes(pathname)) {
       router.push('/')
     }
