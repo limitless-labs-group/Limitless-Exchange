@@ -32,7 +32,7 @@ const app = new Frog<{
     // Therefore, all the routes must have `/:address` path parameter.
     // See how `initialState` is used: https://www.youtube.com/watch?v=jFhe-WLm0C8&t=1s
 
-    const addressOfMarket = getAddress(c.req.param('address'))
+    const addressOfMarket = getAddress(c.req.param('address') as string)
 
     const marketData = await fetch(`${apiUrl}/markets/${addressOfMarket}`, {
       method: 'GET',
