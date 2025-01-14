@@ -1,7 +1,7 @@
 import { usePrivy } from '@privy-io/react-auth'
 import axios, { AxiosInstance } from 'axios'
 import React, { createContext, useContext } from 'react'
-import { Address, getAddress, toHex } from 'viem'
+import { getAddress, toHex } from 'viem'
 import { useSignMessage } from 'wagmi'
 import useRefetchAfterLogin from '@/hooks/use-refetch-after-login'
 import { useAccount } from '@/services/AccountService'
@@ -28,7 +28,7 @@ const useSetupAxiosInstance = () => {
       try {
         if (!user?.wallet?.address) throw new Error('Failed to get account')
 
-        const client = user.wallet.connectorType === 'injected' ? 'eoa' : 'etherspot'
+        const client = user.wallet.connectorType === 'embedded' ? 'etherspot' : 'eoa'
 
         if (client === 'etherspot' && !smartAccountClient) {
           return
