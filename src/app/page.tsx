@@ -93,6 +93,8 @@ const MainPage = () => {
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     useMarkets(categoryEntity)
 
+  const totalAmount = useMemo(() => data?.pages[0]?.data.totalAmount ?? 0, [data?.pages])
+
   const markets: (Market | MarketGroup)[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages, category])
@@ -138,7 +140,9 @@ const MainPage = () => {
       >
         <Box w={isMobile ? 'full' : '664px'}>
           <>
-            <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
+            {banneredMarkets && banneredMarkets.length > 0 ? (
+              <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
+            ) : null}
             <InfiniteScroll
               className='scroll'
               dataLength={sortedAllMarkets?.length ?? 0}
@@ -146,11 +150,18 @@ const MainPage = () => {
               hasMore={hasNextPage}
               style={{ width: '100%' }}
               loader={
-                sortedAllMarkets.length > 0 ? (
+                sortedAllMarkets.length > 0 && sortedAllMarkets.length < totalAmount ? (
                   <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
                     <Loader />
                     <Text {...paragraphRegular}>Loading more markets</Text>
                   </HStack>
+                ) : null
+              }
+              endMessage={
+                sortedAllMarkets.length >= totalAmount ? (
+                  <Text textAlign='center' {...paragraphRegular} my='24px' color='gray.500'>
+                    No more markets to load
+                  </Text>
                 ) : null
               }
             >
