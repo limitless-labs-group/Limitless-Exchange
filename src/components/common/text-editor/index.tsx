@@ -1,6 +1,7 @@
 'use client'
 
 import { Box } from '@chakra-ui/react'
+import DOMPurify from 'dompurify'
 import dynamic from 'next/dynamic'
 import 'react-quill/dist/quill.snow.css'
 
@@ -45,7 +46,7 @@ const isFormattedText = (text: string): boolean => {
     // Opening or closing HTML tags with attributes
     /<[a-z][\s\S]*>/i,
     // Self-closing tags
-    /<[a-z]+[^>]*\/>/i,
+    /<[a-z]+(?:[^>'"]*|'[^']*'|"[^"]*")*\/>/i,
     // HTML entities
     /&(?:#\d+|\w+);/,
     // Specific Quill-generated tags
@@ -64,9 +65,19 @@ const isFormattedText = (text: string): boolean => {
 
 // Helper function to strip HTML
 const strip = (html: string): string => {
+  if (!html || typeof html !== 'string') return ''
+
   const tmp = document.createElement('div')
-  tmp.innerHTML = html
-  return tmp.textContent || tmp.innerText || ''
+  try {
+    tmp.innerHTML = DOMPurify.sanitize(html)
+    const text = tmp.textContent || tmp.innerText || ''
+    return text
+  } catch (error) {
+    console.error('Error stripping HTML:', error)
+    return html
+  } finally {
+    tmp.remove()
+  }
 }
 
 export default function TextEditor({
