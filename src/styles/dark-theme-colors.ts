@@ -109,7 +109,7 @@ export const darkThemeColors: ColorScheme = {
     200: '#6666F5',
     300: '#4D4DF3',
     400: '#3333F1',
-    500: '#0000EE',
+    500: '#0079FF',
     600: '#0000EE',
     700: '#0000EE',
     800: '#0000EE',

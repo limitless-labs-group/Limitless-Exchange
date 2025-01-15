@@ -109,7 +109,7 @@ export const lightThemeColors: ColorScheme = {
     200: '#91BBFF',
     300: '#407CFF',
     400: '#1755F3',
-    500: '#0000EE',
+    500: '#0079FF',
     600: '#0024A6',
     700: '#001780',
     800: '#000D59',

@@ -23,6 +23,7 @@ import WrapModal from '@/components/common/modals/wrap-modal'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
 import StaticSnowBackground from '@/components/common/static-snow'
+import UpgradeWalletContainer from '@/components/common/upgrade-wallet-container'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
@@ -254,7 +255,7 @@ export default function MobileHeader() {
                       <VStack my='24px' gap='8px'>
                         <Button
                           variant='transparent'
-                          px={0}
+                          px='4px'
                           w='full'
                           onClick={handleNavigateToPortfolioPage}
                         >
@@ -278,43 +279,45 @@ export default function MobileHeader() {
                         </Button>
 
                         {client !== 'eoa' ? (
-                          <MobileDrawer
-                            trigger={
-                              <Box
-                                w='full'
-                                mt='8px'
-                                px={0}
-                                onClick={() => {
-                                  trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
-                                    option: 'Wallet',
-                                    platform: 'mobile',
-                                  })
-                                  onToggleUserMenu()
-                                }}
-                              >
-                                <HStack justifyContent='space-between' w='full'>
-                                  <HStack color='grey.500' gap='4px'>
-                                    <WalletIcon width={16} height={16} />
-                                    <Text fontWeight={500} fontSize='16px'>
-                                      Wallet
-                                    </Text>
-                                  </HStack>
+                          <UpgradeWalletContainer>
+                            <MobileDrawer
+                              trigger={
+                                <Box
+                                  w='full'
+                                  mt='8px'
+                                  px='4px'
+                                  onClick={() => {
+                                    trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+                                      option: 'Wallet',
+                                      platform: 'mobile',
+                                    })
+                                    onToggleUserMenu()
+                                  }}
+                                >
+                                  <HStack justifyContent='space-between' w='full'>
+                                    <HStack color='grey.500' gap='4px'>
+                                      <WalletIcon width={16} height={16} />
+                                      <Text fontWeight={500} fontSize='16px'>
+                                        Wallet
+                                      </Text>
+                                    </HStack>
 
-                                  <HStack gap='8px'>
-                                    <Text fontWeight={500} fontSize='16px'>
-                                      {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-                                    </Text>
-                                    <Box color='grey.800'>
-                                      <ArrowRightIcon width={16} height={16} />
-                                    </Box>
+                                    <HStack gap='8px'>
+                                      <Text fontWeight={500} fontSize='16px'>
+                                        {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+                                      </Text>
+                                      <Box color='grey.800'>
+                                        <ArrowRightIcon width={16} height={16} />
+                                      </Box>
+                                    </HStack>
                                   </HStack>
-                                </HStack>
-                              </Box>
-                            }
-                            variant='common'
-                          >
-                            <WalletPage onClose={() => console.log('ok')} />
-                          </MobileDrawer>
+                                </Box>
+                              }
+                              variant='common'
+                            >
+                              <WalletPage onClose={() => console.log('ok')} />
+                            </MobileDrawer>
+                          </UpgradeWalletContainer>
                         ) : (
                           <MobileDrawer
                             trigger={
