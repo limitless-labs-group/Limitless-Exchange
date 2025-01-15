@@ -90,18 +90,12 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { trackSignUp } = useAmplitude()
   const { wallets } = useWallets()
   const { isLogged } = useClient()
-  const { setActiveWallet } = useSetActiveWallet()
+  const { data: walletClient } = useWalletClient()
 
-  useEffect(() => {
-    if (web3Client === 'eoa') {
-      if (user?.wallet?.address) {
-        const wallet = wallets.find(
-          (wallet) => wallet.walletClientType === user.wallet?.walletClientType
-        )
-        wallet && setActiveWallet(wallet)
-      }
-    }
-  }, [web3Client, user, wallets])
+  console.log(wallets)
+  console.log(walletClient)
+  console.log(user)
+  console.log(web3Client)
 
   const toast = useToast()
   const router = useRouter()
