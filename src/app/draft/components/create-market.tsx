@@ -198,13 +198,18 @@ export const CreateMarket: FC = () => {
     mutationFn: async () => {
       setOgImageError(null)
       try {
-        await new Promise((resolve) => {
+        await new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            clearInterval(checkReady)
+            reject(new Error('Readiness check timed out'))
+          }, 5000)
           const checkReady = setInterval(() => {
             if (isReady) {
               clearInterval(checkReady)
+              clearTimeout(timeout)
               resolve(true)
             }
-          }, 100)
+          }, 50)
         })
 
         return Promise.resolve()
