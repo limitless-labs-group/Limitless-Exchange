@@ -191,32 +191,25 @@ export const CreateMarket: FC = () => {
 
       return () => clearTimeout(timer)
     }
-  }, [formData.title, formData.description, autoGenerateOg])
+  }, [formData.title, autoGenerateOg])
 
   const { mutateAsync: generateOgImage, isPending: isGeneratingOgImage } = useMutation({
     mutationKey: ['generate-og-image'],
     mutationFn: async () => {
       setOgImageError(null)
-      try {
-        await new Promise((resolve, reject) => {
-          const timeout = setTimeout(() => {
-            clearInterval(checkReady)
-            reject(new Error('Readiness check timed out'))
-          }, 5000)
-          const checkReady = setInterval(() => {
-            if (isReady) {
-              clearInterval(checkReady)
-              clearTimeout(timeout)
-              resolve(true)
-            }
-          }, 50)
-        })
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(console.log('OG image generation timed out'))
+        }, 5000)
 
-        return Promise.resolve()
-      } catch (error) {
-        console.error('OG image generation failed:', error)
-        throw error
-      }
+        const checkReady = setInterval(() => {
+          if (isReady) {
+            clearInterval(checkReady)
+            clearTimeout(timeout)
+            resolve(true)
+          }
+        }, 50)
+      })
     },
     onError: (error) => {
       console.error('OG image generation error:', error)
@@ -377,6 +370,11 @@ export const CreateMarket: FC = () => {
     e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
   }
 
+  const getPlainTextLength = (html: string | undefined): number => {
+    if (!html) return 0
+    return html.replace(/<[^>]*>/g, '').trim().length
+  }
+
   const handleBlobGenerated = (blob: Blob | null) => {
     try {
       if (!blob) {
@@ -470,13 +468,13 @@ export const CreateMarket: FC = () => {
                   value={formData.description}
                   readOnly={false}
                   onChange={(e) => {
-                    if (e.length <= 1500) {
+                    if (getPlainTextLength(e) <= 1500) {
                       handleChange('description', e)
                     }
                   }}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                  {formData.description?.length}/1500 characters
+                  {getPlainTextLength(formData.description)}/1500 characters
                 </FormHelperText>
               </FormField>
 
@@ -557,7 +555,7 @@ export const CreateMarket: FC = () => {
                     <AccordionButton>
                       <Box flex='1' textAlign='left'>
                         OG Preview (Click to Expand/Collapse)
-                        {ogImageError && (
+                        {!formData.ogLogo && ogImageError && (
                           <Box as='span' color='red.500' ml={2} fontSize='sm'>
                             (Generation failed)
                           </Box>
@@ -671,6 +669,7 @@ export const CreateMarket: FC = () => {
                   <Box width='full'>
                     <CreatableSelect
                       isMulti
+                      closeMenuOnSelect={false}
                       onCreateOption={handleTagCreation}
                       //@ts-ignore
                       onChange={(option) => handleChange('tag', option)}
