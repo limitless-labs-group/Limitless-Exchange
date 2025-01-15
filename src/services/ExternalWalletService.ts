@@ -81,7 +81,9 @@ export const useExternalWalletService = () => {
     contractAddress: Address,
     value: bigint
   ): Promise<string> => {
+    console.log('approveContractEOA')
     await checkAndSwitchChainIfNeeded()
+    console.log('checked chain switched')
     let txHash = ''
     await writeContractAsync(
       {
@@ -92,6 +94,7 @@ export const useExternalWalletService = () => {
       },
       {
         onSuccess: (data) => {
+          console.log(data)
           txHash = data
         },
         onError: (data) => console.log(data),
