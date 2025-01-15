@@ -12,6 +12,7 @@ export type TextEditorProps = Readonly<{
   readOnly?: boolean
   onChange?: (value: string) => void
   style?: React.CSSProperties
+  className?: string
 }>
 
 const linkify = (text: string) => {
@@ -76,6 +77,7 @@ export default function TextEditor({
   readOnly = false,
   onChange,
   style,
+  className,
 }: TextEditorProps) {
   const isHtml = isFormattedText(value)
 
@@ -111,6 +113,20 @@ export default function TextEditor({
     return value
   }
 
+  const getClassNames = (className?: string, readOnly?: boolean): string => {
+    const classes: string[] = []
+
+    if (className) {
+      classes.push(className)
+    }
+
+    if (readOnly) {
+      classes.push('read-only')
+    }
+
+    return classes.join(' ')
+  }
+
   return (
     <Box
       className={readOnly ? 'read-only' : ''}
@@ -118,7 +134,7 @@ export default function TextEditor({
       zIndex={1}
     >
       <ReactQuill
-        theme={readOnly ? undefined : 'snow'}
+        className={getClassNames(className, readOnly)}
         value={getFormattedValue(value)}
         readOnly={readOnly}
         onChange={onChange}

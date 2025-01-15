@@ -86,6 +86,7 @@ export const CreateMarket: FC = () => {
 
   useEffect(() => {
     if (editMarket) {
+      setAutoGenerateOg(true)
       setFormData((prevFormData) => ({
         ...prevFormData,
         title: editMarket.title || '',
@@ -109,7 +110,6 @@ export const CreateMarket: FC = () => {
         creatorId: editMarket.creator?.id || defaultCreatorId,
         categoryId: editMarket.category?.id || defaultCategoryId,
       }))
-      generateOgImage().then(() => console.log('Og image generated'))
     }
   }, [editMarket])
 
@@ -174,11 +174,53 @@ export const CreateMarket: FC = () => {
 
   const { data: categories } = useCategories()
   const [ogImageError, setOgImageError] = useState<string | null>(null)
+  const [autoGenerateOg, setAutoGenerateOg] = useState<boolean>(true)
+  const [isReady, setIsReady] = useState<boolean>(false)
+
+  useEffect(() => {
+    setIsReady(true)
+    if (autoGenerateOg && formData.title && formData.description) {
+      const timer = setTimeout(() => {
+        generateOgImage()
+          .then(() => console.log('Initial OG image generated successfully'))
+          .catch(() => {
+            showToast('Failed to generate initial OG image. Please try regenerating.')
+            setOgImageError('Failed to generate initial OG image. Please try regenerating.')
+          })
+      }, 500) // Add a small delay to ensure form data is stable
+
+      return () => clearTimeout(timer)
+    }
+  }, [formData.title, formData.description, autoGenerateOg])
+
   const { mutateAsync: generateOgImage, isPending: isGeneratingOgImage } = useMutation({
     mutationKey: ['generate-og-image'],
-    mutationFn: async () => new Promise((resolve) => setTimeout(resolve, 1_000)),
-    onError: () => {
-      setOgImageError('Failed to generate OG image')
+    mutationFn: async () => {
+      setOgImageError(null)
+      try {
+        await new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            clearInterval(checkReady)
+            reject(new Error('Readiness check timed out'))
+          }, 5000)
+          const checkReady = setInterval(() => {
+            if (isReady) {
+              clearInterval(checkReady)
+              clearTimeout(timeout)
+              resolve(true)
+            }
+          }, 50)
+        })
+
+        return Promise.resolve()
+      } catch (error) {
+        console.error('OG image generation failed:', error)
+        throw error
+      }
+    },
+    onError: (error) => {
+      console.error('OG image generation error:', error)
+      setOgImageError('Failed to generate OG image. Please try again.')
     },
   })
 
@@ -194,12 +236,13 @@ export const CreateMarket: FC = () => {
   }
 
   const prepareData = async () => {
-    try {
-      await generateOgImage()
+    await generateOgImage()
 
+    try {
       const { title, description, creatorId, ogLogo, tag } = formData
 
       const missingFields: string[] = []
+
       if (!title) missingFields.push('Title')
       if (!description) missingFields.push('Description')
       if (!creatorId) missingFields.push('Creator')
@@ -255,8 +298,6 @@ export const CreateMarket: FC = () => {
       if (formData.tag.length) {
         marketFormData.set('tagIds', formData.tag.map((t) => t.id).join(','))
       }
-
-      showToast('Request for market creation has been registered successfully.')
 
       return marketFormData
     } catch (e) {}
@@ -336,16 +377,66 @@ export const CreateMarket: FC = () => {
     e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
   }
 
+  const handleBlobGenerated = (blob: Blob | null) => {
+    try {
+      if (!blob) {
+        const errorMessage = 'Failed to generate OG image: No blob received'
+        showToast(errorMessage)
+        setOgImageError(errorMessage)
+        return
+      }
+      if (!blob.type.startsWith('image/')) {
+        const errorMessage = 'Failed to generate OG image: Invalid image type'
+        showToast(errorMessage)
+        setOgImageError(errorMessage)
+        return
+      }
+
+      const _ogLogo = new File([blob], 'og.png', {
+        type: blob.type,
+        lastModified: Date.now(),
+      })
+
+      if (!_ogLogo.size) {
+        const errorMessage = 'Failed to generate OG image: Empty file'
+        showToast(errorMessage)
+        setOgImageError(errorMessage)
+        return
+      }
+
+      if (_ogLogo.size > 1024 * 1024) {
+        const errorMessage = 'Failed to generate OG image: File too large'
+        showToast('Failed to generate OG image: File too large')
+        setOgImageError(errorMessage)
+        return
+      }
+
+      setOgImageError(null)
+      handleChange('ogLogo', _ogLogo)
+    } catch (error) {
+      const errorMessage = 'Failed to generate OG image: ' + (error as Error).message
+      showToast(errorMessage)
+      setOgImageError(errorMessage)
+    }
+  }
+
   const submit = async () => {
     if (marketId) {
       await updateMarket()
+
       return
     }
     await draftMarket()
   }
 
+  const getButtonText = () => {
+    if (!isReady && !editMarket) return 'OG is not ready..'
+    if (marketId) return 'Save'
+    return 'Draft'
+  }
+
   return (
-    <Flex justifyContent={'center'}>
+    <Flex justifyContent='center'>
       <VStack w='full' spacing={4}>
         <FormControl>
           <HStack
@@ -357,76 +448,6 @@ export const CreateMarket: FC = () => {
             alignItems='flex-start'
           >
             <VStack w='full' flex='1.2'>
-              <Accordion allowToggle>
-                <AccordionItem>
-                  <h2>
-                    <AccordionButton>
-                      <Box flex='1' textAlign='left'>
-                        OG Preview (Click to Expand)
-                        {ogImageError && (
-                          <Box as='span' color='red.500' ml={2} fontSize='sm'>
-                            (Generation failed)
-                          </Box>
-                        )}
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pb={4}>
-                    <Button
-                      size='sm'
-                      colorScheme='blue'
-                      onClick={async () => {
-                        setOgImageError(null)
-                        await generateOgImage()
-                      }}
-                      mb={4}
-                      isLoading={isGeneratingOgImage}
-                    >
-                      Regenerate OG Image
-                    </Button>
-                    <Box pointerEvents='none'>
-                      <HStack h='280px' w='600px'>
-                        <OgImageGenerator
-                          title={formData.title}
-                          category={
-                            categories?.find((category) => category.id === +formData.categoryId)
-                              ?.name ?? 'Unknown'
-                          }
-                          onBlobGenerated={(blob) => {
-                            try {
-                              if (!blob) {
-                                setOgImageError('Failed to generate OG image: No blob received')
-                                return
-                              }
-
-                              const _ogLogo = new File([blob], 'og.png', {
-                                type: blob.type,
-                                lastModified: Date.now(),
-                              })
-
-                              if (!_ogLogo.size) {
-                                setOgImageError('Failed to generate OG image: Empty file')
-                                return
-                              }
-
-                              setOgImageError(null)
-                              handleChange('ogLogo', _ogLogo)
-                            } catch (error) {
-                              console.error('OG image generation error:', error)
-                              setOgImageError(
-                                'Failed to generate OG image: ' + (error as Error).message
-                              )
-                            }
-                          }}
-                          generateBlob={isGeneratingOgImage}
-                        />
-                      </HStack>
-                    </Box>
-                  </AccordionPanel>
-                </AccordionItem>
-              </Accordion>
-
               <FormField label='Title'>
                 <Textarea
                   resize='none'
@@ -437,7 +458,7 @@ export const CreateMarket: FC = () => {
                   value={formData.title}
                   onChange={(e) => handleChange('title', e.target.value)}
                   maxLength={70}
-                  onBlur={() => generateOgImage()}
+                  onBlur={() => autoGenerateOg && generateOgImage()}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                   {formData.title?.length}/70 characters
@@ -530,6 +551,62 @@ export const CreateMarket: FC = () => {
                   </Slider>
                 </HStack>
               </FormField>
+              <Accordion mt='20px' allowToggle defaultIndex={[0]}>
+                <AccordionItem>
+                  <>
+                    <AccordionButton>
+                      <Box flex='1' textAlign='left'>
+                        OG Preview (Click to Expand/Collapse)
+                        {ogImageError && (
+                          <Box as='span' color='red.500' ml={2} fontSize='sm'>
+                            (Generation failed)
+                          </Box>
+                        )}
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                    <AccordionPanel pb={4} position='relative'>
+                      <Box>
+                        <HStack mb={4} width='full' justifyContent='space-between'>
+                          <Button
+                            size='sm'
+                            colorScheme='blue'
+                            onClick={async () => {
+                              setOgImageError(null)
+                              await generateOgImage()
+                            }}
+                            isLoading={!isReady}
+                          >
+                            Regenerate OG Image
+                          </Button>
+                          <Checkbox
+                            isChecked={autoGenerateOg}
+                            onChange={(e) => setAutoGenerateOg(e.target.checked)}
+                          >
+                            Auto-generate
+                          </Checkbox>
+                        </HStack>
+                        <Box pointerEvents='none'>
+                          <HStack h='280px' w='600px'>
+                            <OgImageGenerator
+                              title={formData.title}
+                              setReady={(isReady) => {
+                                setIsReady(isReady)
+                              }}
+                              category={
+                                categories?.find((category) => category.id === +formData.categoryId)
+                                  ?.name ?? 'Unknown'
+                              }
+                              onBlobGenerated={(blob) => handleBlobGenerated(blob)}
+                              generateBlob={isGeneratingOgImage}
+                            />
+                          </HStack>
+                        </Box>
+                      </Box>
+                    </AccordionPanel>
+                  </>
+                </AccordionItem>
+              </Accordion>
             </VStack>
 
             <VStack w={'full'} flex='0.8'>
@@ -573,9 +650,11 @@ export const CreateMarket: FC = () => {
                 <HStack>
                   <Select
                     value={formData.categoryId}
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       handleChange('categoryId', e.target.value)
-                      generateOgImage()
+                      if (autoGenerateOg) {
+                        await generateOgImage()
+                      }
                     }}
                   >
                     {categories?.map((category: Category) => (
@@ -684,8 +763,14 @@ export const CreateMarket: FC = () => {
                     <Spinner />
                   </Flex>
                 ) : (
-                  <Button colorScheme='green' w='full' height='52px' onClick={submit}>
-                    {marketId ? 'Save' : 'Draft'}
+                  <Button
+                    colorScheme='green'
+                    w='full'
+                    height='52px'
+                    onClick={submit}
+                    isDisabled={!isReady && !editMarket}
+                  >
+                    {getButtonText()}
                   </Button>
                 )}
               </ButtonGroup>
