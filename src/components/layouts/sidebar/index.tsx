@@ -26,6 +26,7 @@ import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
 import StaticSnowBackground from '@/components/common/static-snow'
+import UpgradeWalletContainer from '@/components/common/upgrade-wallet-container'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
@@ -128,24 +129,26 @@ export default function Sidebar() {
       )
     }
     return web3Client !== 'eoa' ? (
-      <Button
-        variant='transparent'
-        onClick={() => {
-          trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
-            option: 'Wallet',
-          })
-          handleOpenWalletPage()
-        }}
-        w='full'
-        bg={isOpenWalletPage ? 'grey.100' : 'unset'}
-      >
-        <HStack w='full'>
-          <WalletIcon width={16} height={16} />
-          <Text fontWeight={500} fontSize='14px'>
-            {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-          </Text>
-        </HStack>
-      </Button>
+      <UpgradeWalletContainer>
+        <Button
+          variant='transparent'
+          onClick={() => {
+            trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+              option: 'Wallet',
+            })
+            handleOpenWalletPage()
+          }}
+          w='full'
+          bg={isOpenWalletPage ? 'grey.100' : 'unset'}
+        >
+          <HStack w='full'>
+            <WalletIcon width={16} height={16} />
+            <Text fontWeight={500} fontSize='14px'>
+              {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+            </Text>
+          </HStack>
+        </Button>
+      </UpgradeWalletContainer>
     ) : (
       <Button
         variant='transparent'

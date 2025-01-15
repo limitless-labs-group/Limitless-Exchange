@@ -21,6 +21,16 @@ const transparent = defineStyle({
       }),
 })
 
+const blueLink = defineStyle({
+  ...commonButtonProps,
+  textDecoration: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  background: 'blue.500',
+  px: '8px',
+  gap: '8px',
+})
+
 const textLink = defineStyle({
   ...paragraphMedium,
   textDecoration: 'none',
@@ -58,5 +68,5 @@ const textLinkSecondary = defineStyle({
 })
 
 export const linkTheme = defineStyleConfig({
-  variants: { transparent, textLink, textLinkSecondary },
+  variants: { transparent, textLink, textLinkSecondary, blueLink },
 })
