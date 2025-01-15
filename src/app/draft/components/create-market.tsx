@@ -179,12 +179,11 @@ export const CreateMarket: FC = () => {
 
   useEffect(() => {
     setIsReady(true)
-    if (autoGenerateOg && formData.title && formData.description) {
+    if (autoGenerateOg && formData.title) {
       const timer = setTimeout(() => {
         generateOgImage()
           .then(() => console.log('Initial OG image generated successfully'))
           .catch(() => {
-            showToast('Failed to generate initial OG image. Please try regenerating.')
             setOgImageError('Failed to generate initial OG image. Please try regenerating.')
           })
       }, 500) // Add a small delay to ensure form data is stable
@@ -372,7 +371,12 @@ export const CreateMarket: FC = () => {
 
   const getPlainTextLength = (html: string | undefined): number => {
     if (!html) return 0
-    return html.replace(/<[^>]*>/g, '').trim().length
+    return html
+      .replace(
+        /(<(p|div|span|a|strong|em|u|s|ul|ol|li|br|img|h[1-6]|blockquote|pre|code)[^>]*>|<\/[^>]*>|&(?:#\d+|\w+);)/gi,
+        ''
+      )
+      .trim().length
   }
 
   const handleBlobGenerated = (blob: Blob | null) => {
