@@ -1,4 +1,5 @@
 import { usePrivy, useWallets } from '@privy-io/react-auth'
+import { useSetActiveWallet } from '@privy-io/wagmi'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 import { usePathname, useRouter } from 'next/navigation'
@@ -24,7 +25,7 @@ import React, {
   useEffect,
 } from 'react'
 import { getAddress } from 'viem'
-import { http, useDisconnect } from 'wagmi'
+import { http, useDisconnect, useWalletClient } from 'wagmi'
 import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { defaultChain } from '@/constants'
@@ -89,6 +90,18 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { trackSignUp } = useAmplitude()
   const { wallets } = useWallets()
   const { isLogged } = useClient()
+  const { setActiveWallet } = useSetActiveWallet()
+
+  useEffect(() => {
+    if (web3Client === 'eoa') {
+      if (user?.wallet?.address) {
+        const wallet = wallets.find(
+          (wallet) => wallet.walletClientType === user.wallet?.walletClientType
+        )
+        wallet && setActiveWallet(wallet)
+      }
+    }
+  }, [web3Client, user, wallets])
 
   const toast = useToast()
   const router = useRouter()
