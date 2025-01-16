@@ -1,14 +1,12 @@
-import { awaitExpression } from '@babel/types'
-import { usePrivy, useWallets } from '@privy-io/react-auth'
-import { useSetActiveWallet } from '@privy-io/wagmi'
+import { usePrivy } from '@privy-io/react-auth'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   createSmartAccountClient,
   ENTRYPOINT_ADDRESS_V06,
-  providerToSmartAccountSigner,
   SmartAccountClient,
+  walletClientToSmartAccountSigner,
 } from 'permissionless'
 import { signerToSafeSmartAccount } from 'permissionless/accounts'
 import {
@@ -59,8 +57,6 @@ export interface IAccountContext {
   onUnblockUser: UseMutationResult<void, Error, { account: Address }>
   web3Client: 'eoa' | 'etherspot'
   smartAccountClient: SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null
-  interfaceLoading: boolean
-  signMessageSmartWallet: (message: string) => Promise<string>
 }
 
 const pimlicoRpcUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
@@ -82,7 +78,6 @@ export const useAccount = () => useContext(AccountContext)
 export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [smartAccountClient, setSmartAccountClient] =
     useState<SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null>(null)
-  const [interfaceLoading, setInterfaceLoading] = useState(true)
   const queryClient = useQueryClient()
   const { logout: disconnect, authenticated, user } = usePrivy()
   const pathname = usePathname()
@@ -90,41 +85,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const privateClient = useAxiosPrivateClient()
   const { mutateAsync: login } = useLogin()
   const { disconnect: disconnectWagmi } = useDisconnect()
-  const web3Client = user?.wallet?.connectorType === 'embedded' ? 'etherspot' : 'eoa'
+  const web3Client = user?.wallet?.walletClientType === 'privy' ? 'etherspot' : 'eoa'
   const { trackSignUp } = useAmplitude()
-  const { wallets } = useWallets()
-  const { isLogged } = useClient()
   const { data: walletClient } = useWalletClient()
-  const axiosPrivate = useAxiosPrivateClient()
-
-  const checkSession = async () => {
-    await axiosPrivate.get('/auth/verify-auth')
-  }
-
-  const signMessageSmartWallet = async (message: string) => {
-    return (await smartAccountClient?.signMessage({
-      message,
-      account: smartAccountClient?.account?.address as Address,
-    })) as string
-  }
-
-  useEffect(() => {
-    if (!walletClient) {
-      return
-    }
-    if (web3Client === 'etherspot' && smartAccountClient) {
-      debugger
-      checkSession()
-    }
-    if (web3Client === 'eoa' && walletClient) {
-      checkSession()
-    }
-  }, [smartAccountClient, walletClient, web3Client])
-
-  console.log(wallets)
-  console.log(walletClient)
-  console.log(user)
-  console.log(web3Client)
+  const { isLogged } = useClient()
 
   const toast = useToast()
   const router = useRouter()
@@ -168,6 +132,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       })
     },
   })
+
+  console.log(smartAccountClient)
+  console.log(walletClient)
+  console.log(user)
 
   const onUnblockUser = useMutation({
     mutationKey: ['unblock-user', user?.wallet?.address],
@@ -286,6 +254,17 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     smartWallet: smartAccountClient?.account?.address,
   })
 
+  useEffect(() => {
+    if (isLogged) {
+      if (web3Client === 'etherspot' && smartAccountClient) {
+        refetchSession()
+      }
+      if (web3Client == 'eoa' && walletClient) {
+        refetchSession()
+      }
+    }
+  }, [refetchSession, smartAccountClient, walletClient, web3Client, isLogged])
+
   const displayName = useMemo(() => {
     if (profileData?.displayName) {
       return profileData.displayName
@@ -314,7 +293,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         onCreateProfile()
         return
       }
-      // refetchSession()
     }
     if (!profileLoading && user?.wallet?.address) {
       const isLogged = Cookies.get('logged-in-to-limitless')
@@ -332,55 +310,38 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     ;(async () => {
       if (
         authenticated &&
+        walletClient &&
         publicClient &&
         web3Client === 'etherspot' &&
-        !smartAccountClient &&
-        wallets.length
+        !smartAccountClient
       ) {
-        const embeddedWallet = wallets.find((wallet) => wallet.walletClientType === 'privy')
-        if (embeddedWallet) {
-          const provider = await embeddedWallet.getEthereumProvider()
-          //@ts-ignore
-          const customSigner = await providerToSmartAccountSigner(provider)
+        const customSigner = walletClientToSmartAccountSigner(walletClient)
 
-          const safeSmartAccountClient = await signerToSafeSmartAccount(publicClient, {
-            entryPoint: ENTRYPOINT_ADDRESS_V06,
-            signer: customSigner,
-            safeVersion: '1.4.1',
-            saltNonce: BigInt(0),
-          })
+        const safeSmartAccountClient = await signerToSafeSmartAccount(publicClient, {
+          entryPoint: ENTRYPOINT_ADDRESS_V06,
+          signer: customSigner,
+          safeVersion: '1.4.1',
+          saltNonce: BigInt(0),
+        })
 
-          const smartAccountClient = createSmartAccountClient({
-            account: safeSmartAccountClient,
-            entryPoint: ENTRYPOINT_ADDRESS_V06,
-            chain: defaultChain,
-            bundlerTransport: http(pimlicoRpcUrl, {
-              timeout: 30_000,
-            }),
-            middleware: {
-              gasPrice: async () => (await bundlerClient.getUserOperationGasPrice()).fast,
-              sponsorUserOperation: pimlicoPaymaster.sponsorUserOperation,
-            },
-          })
+        const smartAccountClient = createSmartAccountClient({
+          account: safeSmartAccountClient,
+          entryPoint: ENTRYPOINT_ADDRESS_V06,
+          chain: defaultChain,
+          bundlerTransport: http(pimlicoRpcUrl, {
+            timeout: 30_000,
+          }),
+          middleware: {
+            gasPrice: async () => (await bundlerClient.getUserOperationGasPrice()).fast,
+            sponsorUserOperation: pimlicoPaymaster.sponsorUserOperation,
+          },
+        })
 
-          // @ts-ignore
-          setSmartAccountClient(smartAccountClient)
-        }
+        // @ts-ignore
+        setSmartAccountClient(smartAccountClient)
       }
     })()
-  }, [authenticated, publicClient, web3Client, smartAccountClient, wallets])
-
-  // useEffect(() => {
-  //   if (isAccountConnected && !isInitialLoad.current) {
-  //     if (previousAddressRef.current && previousAddressRef.current !== address) {
-  //       signout().catch(console.error)
-  //     }
-  //   }
-  //
-  //   previousAddressRef.current = address
-  //
-  //   isInitialLoad.current = false
-  // }, [address, isAccountConnected, logout, signout])
+  }, [authenticated, walletClient, publicClient, web3Client, smartAccountClient])
 
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
@@ -398,6 +359,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData?.bio])
 
   const disconnectFromPlatform = useCallback(async () => {
+    Cookies.remove('logged-in-to-limitless')
     if (accountRoutes.includes(pathname)) {
       router.push('/')
     }
@@ -407,11 +369,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     queryClient.removeQueries({
       queryKey: ['profiles'],
     })
-    queryClient.removeQueries({
-      queryKey: ['positions'],
-    })
     setSmartAccountClient(null)
-    Cookies.remove('logged-in-to-limitless')
   }, [pathname])
 
   const contextProviderValue: IAccountContext = {
@@ -428,8 +386,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     onUnblockUser,
     web3Client,
     smartAccountClient,
-    interfaceLoading,
-    signMessageSmartWallet,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>

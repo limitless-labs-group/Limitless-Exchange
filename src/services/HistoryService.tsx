@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
+import { useMemo } from 'react'
 import { Hash } from 'viem'
 import useClient from '@/hooks/use-client'
 import { useAccount } from '@/services/AccountService'
@@ -7,9 +8,16 @@ import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Address } from '@/types'
 
 export const usePosition = () => {
-  const { profileData, interfaceLoading } = useAccount()
+  const { profileData, web3Client, smartAccountClient } = useAccount()
   const { isLogged } = useClient()
   const privateClient = useAxiosPrivateClient()
+
+  const enabled = useMemo(() => {
+    if (web3Client === 'etherspot' && smartAccountClient) {
+      return true
+    }
+    return !!profileData?.id && !!isLogged
+  }, [isLogged, profileData?.id, smartAccountClient, web3Client])
 
   return useQuery({
     queryKey: ['positions', profileData?.id],
@@ -25,9 +33,8 @@ export const usePosition = () => {
         return []
       }
     },
-    enabled: false,
+    enabled,
     refetchInterval: !!profileData?.id ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
-    staleTime: Infinity,
   })
 }
 
@@ -79,7 +86,7 @@ export const useInfinityHistory = () => {
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       // @ts-ignore
-      return lastPage.data?.data?.length === 30 ? lastPage.next : null
+      return lastPage.data.data.length === 30 ? lastPage.next : null
     },
     refetchOnWindowFocus: false,
     keepPreviousData: true,
