@@ -8,7 +8,7 @@ export const LoginButton = () => {
 
   return (
     <Button
-      onClick={() => {
+      onClick={async () => {
         login()
         trackSignIn(SignInEvent.SignIn)
       }}

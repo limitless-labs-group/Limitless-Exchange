@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useWalletClient } from 'wagmi'
 import { IUseLogin, useLogin } from './use-login'
 import useClient from '@/hooks/use-client'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
@@ -7,6 +8,7 @@ export const useUserSession = ({ client, account, smartWallet }: IUseLogin) => {
   const { mutateAsync: loginUser } = useLogin()
   const axiosPrivate = useAxiosPrivateClient()
   const { isLogged } = useClient()
+  const { data: walletClient } = useWalletClient()
 
   return useQuery({
     queryKey: ['user-session'],
@@ -25,6 +27,6 @@ export const useUserSession = ({ client, account, smartWallet }: IUseLogin) => {
     },
     staleTime: Infinity,
     gcTime: Infinity,
-    enabled: !!isLogged,
+    enabled: !!isLogged && !!walletClient,
   })
 }
