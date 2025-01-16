@@ -127,7 +127,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const { data: conditionalTokensAddress, refetch: getConditionalTokensAddress } =
     useConditionalTokensAddr({
-      marketAddr: !market ? undefined : getAddress(market.address),
+      marketAddr: !market?.address ? undefined : getAddress(market.address),
     })
   useEffect(() => {
     getConditionalTokensAddress()
@@ -160,7 +160,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const fixedProductMarketMakerContract = useMemo(
     () =>
-      market
+      market?.address
         ? getContract({
             address: market.address,
             abi: fixedProductMarketMakerABI,

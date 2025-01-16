@@ -113,8 +113,10 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   ])
 
   useEffect(() => {
-    checkSplitAllowance()
-  }, [])
+    if (market) {
+      checkSplitAllowance()
+    }
+  }, [market])
 
   const modalContent = (
     <Box>
