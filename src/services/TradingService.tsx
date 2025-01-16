@@ -580,13 +580,13 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         await queryClient.refetchQueries({
           queryKey: ['market', market.address],
         })
-        await refetchHistory()
       })
 
       sleep(5).then(async () => {
         await refetchSubgraph()
       })
 
+      await refetchHistory()
       return receipt
     },
   })
@@ -694,7 +694,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       setCollateralAmount('')
 
-      await refetchHistory()
       await refetchChain()
 
       const successId = toast({
@@ -719,6 +718,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         await refetchSubgraph()
       })
 
+      await refetchHistory()
       return receipt
     },
   })
@@ -768,7 +768,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      await refetchHistory()
       await refetchChain()
 
       const id = toast({
@@ -784,6 +783,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       // TODO: redesign subgraph refetch logic
       sleep(10).then(() => refetchSubgraph())
 
+      await refetchHistory()
       return receipt
     },
   })
