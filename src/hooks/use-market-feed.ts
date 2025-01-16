@@ -37,8 +37,7 @@ export function useMarketFeed(marketAddress?: string) {
       return client.get(`/markets/${marketAddress}/get-feed-events`)
     },
     refetchInterval: pathname === '/' ? 10000 : false,
-    // enabled: !!marketAddress,
-    enabled: false,
+    enabled: !!marketAddress,
   }) as UseQueryResult<AxiosResponse<MarketFeedData[]>>
 }
 
