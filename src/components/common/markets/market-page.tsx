@@ -97,6 +97,7 @@ const tokens = [
 
 export default function MarketPage() {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
+  const [activeTabIndex, setActiveTabIndex] = useState(0)
 
   const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
 
@@ -198,11 +199,13 @@ export default function MarketPage() {
     },
   ]
 
-  const tabPanels = [
-    <MarketPageOverviewTab key={uuidv4()} />,
-    <MarketActivityTab key={uuidv4()} />,
-    <CommentTab key={uuidv4()} />,
-  ]
+  const tabPanels = useMemo(() => {
+    return [
+      <MarketPageOverviewTab key={uuidv4()} />,
+      <MarketActivityTab key={uuidv4()} isActive={activeTabIndex === 1} />,
+      <CommentTab key={uuidv4()} />,
+    ]
+  }, [activeTabIndex])
 
   const removeMarketQuery = () => {
     const params = new URLSearchParams(searchParams.toString())
@@ -294,6 +297,7 @@ export default function MarketPage() {
       p={isMobile ? '12px' : '16px'}
       pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
+      id='side-menu-scroll-container'
       backdropFilter='blur(7.5px)'
       zIndex='200'
     >
@@ -625,7 +629,7 @@ export default function MarketPage() {
         <MarketPriceChart />
       )}
 
-      <Tabs position='relative' variant='common'>
+      <Tabs position='relative' variant='common' onChange={(index) => setActiveTabIndex(index)}>
         <TabList>
           {tabs.map((tab) => (
             <Tab key={tab.title}>
