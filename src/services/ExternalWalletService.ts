@@ -1,6 +1,6 @@
-import { switchChain } from '@wagmi/core'
+import { usePrivy } from '@privy-io/react-auth'
+import { getWalletClient } from '@wagmi/core'
 import { Address, encodeFunctionData, erc20Abi, getContract } from 'viem'
-import { useWalletClient } from 'wagmi'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
@@ -12,7 +12,7 @@ export const useExternalWalletService = () => {
   const { account } = useAccount()
   const { supportedTokens } = useLimitlessApi()
   const { chainId } = useWagmiAccount()
-  const { data: walletClient } = useWalletClient()
+  const { user } = usePrivy()
 
   const collateralTokenAddress = supportedTokens ? supportedTokens[0].address : '0x'
 
@@ -22,7 +22,10 @@ export const useExternalWalletService = () => {
       abi: wethABI,
       functionName: 'deposit',
     })
-    const receipt = await walletClient?.sendTransaction({
+    const client = await getWalletClient(configureChainsConfig, {
+      account: user?.wallet?.address as Address,
+    })
+    const receipt = await client.sendTransaction({
       to: collateralTokenAddress,
       data,
       value,
@@ -38,7 +41,10 @@ export const useExternalWalletService = () => {
       functionName: 'withdraw',
       args: [value],
     })
-    const receipt = await walletClient?.sendTransaction({
+    const client = await getWalletClient(configureChainsConfig, {
+      account: user?.wallet?.address as Address,
+    })
+    const receipt = await client.sendTransaction({
       to: collateralTokenAddress,
       data,
     })
@@ -77,7 +83,10 @@ export const useExternalWalletService = () => {
       args: [spender, value],
       functionName: 'approve',
     })
-    const receipt = await walletClient?.sendTransaction({
+    const client = await getWalletClient(configureChainsConfig, {
+      account: user?.wallet?.address as Address,
+    })
+    const receipt = await client.sendTransaction({
       to: contractAddress,
       data,
     })
@@ -91,7 +100,10 @@ export const useExternalWalletService = () => {
       functionName: 'setApprovalForAll',
       args: [spender, true],
     })
-    const receipt = await walletClient?.sendTransaction({
+    const client = await getWalletClient(configureChainsConfig, {
+      account: user?.wallet?.address as Address,
+    })
+    const receipt = await client.sendTransaction({
       to: contractAddress,
       data,
     })
@@ -100,7 +112,10 @@ export const useExternalWalletService = () => {
 
   const transferEthers = async (to: Address, value: bigint) => {
     await checkAndSwitchChainIfNeeded()
-    const receipt = await walletClient?.sendTransaction({
+    const client = await getWalletClient(configureChainsConfig, {
+      account: user?.wallet?.address as Address,
+    })
+    const receipt = await client.sendTransaction({
       to,
       value,
     })
@@ -114,7 +129,10 @@ export const useExternalWalletService = () => {
       functionName: 'transfer',
       args: [to, value],
     })
-    const receipt = await walletClient?.sendTransaction({
+    const client = await getWalletClient(configureChainsConfig, {
+      account: user?.wallet?.address as Address,
+    })
+    const receipt = await client.sendTransaction({
       to: token,
       data,
     })
@@ -133,7 +151,10 @@ export const useExternalWalletService = () => {
       functionName: 'buy',
       args: [collateralAmount, outcomeIndex, minOutcomeTokensToBuy],
     })
-    const receipt = await walletClient?.sendTransaction({
+    const client = await getWalletClient(configureChainsConfig, {
+      account: user?.wallet?.address as Address,
+    })
+    const receipt = await client.sendTransaction({
       to: fixedProductMarketMakerAddress,
       data,
     })
@@ -152,7 +173,10 @@ export const useExternalWalletService = () => {
       functionName: 'sell',
       args: [collateralAmount, outcomeIndex, maxOutcomeTokensToSell],
     })
-    const receipt = await walletClient?.sendTransaction({
+    const client = await getWalletClient(configureChainsConfig, {
+      account: user?.wallet?.address as Address,
+    })
+    const receipt = await client.sendTransaction({
       to: fixedProductMarketMakerAddress,
       data,
     })
@@ -172,7 +196,10 @@ export const useExternalWalletService = () => {
       functionName: 'redeemPositions',
       args: [collateralAddress, parentCollectionId, marketConditionId, indexSets],
     })
-    const receipt = await walletClient?.sendTransaction({
+    const client = await getWalletClient(configureChainsConfig, {
+      account: user?.wallet?.address as Address,
+    })
+    const receipt = await client.sendTransaction({
       to: conditionalTokensAddress,
       data,
     })
@@ -181,7 +208,10 @@ export const useExternalWalletService = () => {
 
   const checkAndSwitchChainIfNeeded = async () => {
     if (chainId !== defaultChain.id) {
-      await walletClient?.switchChain({
+      const client = await getWalletClient(configureChainsConfig, {
+        account: user?.wallet?.address as Address,
+      })
+      await client.switchChain({
         id: defaultChain.id,
       })
     }

@@ -288,6 +288,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     if (web3Client === 'etherspot' && !smartAccountClient) {
       return
     }
+    if (!walletClient) {
+      return
+    }
     if (!profileLoading && user?.wallet?.address) {
       if (profileData === null && authenticated) {
         onCreateProfile()
@@ -304,7 +307,15 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         })
       }
     }
-  }, [profileLoading, profileData, user, web3Client, smartAccountClient, authenticated])
+  }, [
+    profileLoading,
+    profileData,
+    user,
+    web3Client,
+    smartAccountClient,
+    authenticated,
+    walletClient,
+  ])
 
   useEffect(() => {
     ;(async () => {
