@@ -53,9 +53,9 @@ export default function TradingWidgetAdvanced() {
     approveAllowanceForAll,
     checkAllowanceForAll,
   } = useWeb3Service()
-  const { data: conditionalTokensAddress } = useConditionalTokensAddr({
-    marketAddr: !market ? undefined : getAddress(market.address),
-  })
+  // const { data: conditionalTokensAddress } = useConditionalTokensAddr({
+  //   marketAddr: !market ? undefined : getAddress(market.address),
+  // })
   const { positions: allMarketsPositions } = useHistory()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { data: orderBook } = useOrderBook(market?.slug)
@@ -154,7 +154,7 @@ export default function TradingWidgetAdvanced() {
       if (market) {
         await approveAllowanceForAll(
           process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-          conditionalTokensAddress as Address
+          process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
         )
       }
     },
@@ -251,7 +251,7 @@ export default function TradingWidgetAdvanced() {
     )
     const isApprovedNFT = await checkAllowanceForAll(
       process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-      conditionalTokensAddress as Address
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
     )
     setAllowance(allowance)
     setIsApprovedForSell(isApprovedNFT)
@@ -367,10 +367,10 @@ export default function TradingWidgetAdvanced() {
   ])
 
   useEffect(() => {
-    if (market && conditionalTokensAddress && account) {
+    if (market && account) {
       checkMarketAllowance()
     }
-  }, [market, conditionalTokensAddress, account])
+  }, [market, account])
 
   return (
     <>
