@@ -18,7 +18,6 @@ export default function Template({ children }: PropsWithChildren) {
     if (!currentUsersVersion) {
       localStorage.clear()
       localStorage.setItem(LOCAL_STORAGE_VERSION_NAME, currentAppVersion)
-      disconnectFromPlatform()
       return
     }
     if (currentAppVersion !== currentUsersVersion) {

@@ -1,16 +1,32 @@
 import { usePrivy } from '@privy-io/react-auth'
 import axios, { AxiosInstance } from 'axios'
+import {
+  createSmartAccountClient,
+  ENTRYPOINT_ADDRESS_V06,
+  walletClientToSmartAccountSigner,
+} from 'permissionless'
+import { signerToSafeSmartAccount } from 'permissionless/accounts'
+import { createPimlicoPaymasterClient } from 'permissionless/clients/pimlico'
 import React, { createContext, useContext } from 'react'
 import { getAddress, toHex } from 'viem'
-import { useSignMessage } from 'wagmi'
+import { http, useSignMessage, useWalletClient } from 'wagmi'
+import { defaultChain } from '@/constants'
 import useRefetchAfterLogin from '@/hooks/use-refetch-after-login'
-import { useAccount } from '@/services/AccountService'
+import { publicClient } from '@/providers/Privy'
+import { bundlerClient } from '@/services/AccountService'
+
+const pimlicoRpcUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
+
+const pimlicoPaymaster = createPimlicoPaymasterClient({
+  transport: http(pimlicoRpcUrl),
+  entryPoint: ENTRYPOINT_ADDRESS_V06,
+})
 
 const useSetupAxiosInstance = () => {
   const { signMessage, user } = usePrivy()
   const { signMessageAsync } = useSignMessage()
-  const { smartAccountClient } = useAccount()
   const { refetchAll } = useRefetchAfterLogin()
+  const { data: walletClient } = useWalletClient()
 
   //avoid triggering signing message pop-up several times, when the few private requests will come simultaneously
   let signingPromise: Promise<void> | null = null
@@ -28,25 +44,47 @@ const useSetupAxiosInstance = () => {
       try {
         if (!user?.wallet?.address) throw new Error('Failed to get account')
 
-        const client = user.wallet.connectorType === 'embedded' ? 'etherspot' : 'eoa'
-
-        if (client === 'etherspot' && !smartAccountClient) {
-          return
-        }
+        const client = user.wallet.connectorType === 'injected' ? 'eoa' : 'etherspot'
 
         const { data: signingMessage } = await axiosInstance.get(`/auth/signing-message`)
         if (!signingMessage) throw new Error('Failed to get signing message')
 
         let signature = ''
+
+        let smartAccountAddress = ''
+
         if (client === 'eoa') {
-          signature = await signMessageAsync({
-            message: signingMessage,
+          signature = await signMessageAsync({ message: signingMessage })
+        }
+
+        if (client === 'etherspot' && walletClient) {
+          const customSigner = walletClientToSmartAccountSigner(walletClient)
+
+          const safeSmartAccountClient = await signerToSafeSmartAccount(publicClient, {
+            entryPoint: ENTRYPOINT_ADDRESS_V06,
+            signer: customSigner,
+            safeVersion: '1.4.1',
+            saltNonce: BigInt(0),
           })
-        } else {
+
+          const smartAccountClient = createSmartAccountClient({
+            account: safeSmartAccountClient,
+            entryPoint: ENTRYPOINT_ADDRESS_V06,
+            chain: defaultChain,
+            bundlerTransport: http(pimlicoRpcUrl, {
+              timeout: 30_000,
+            }),
+            middleware: {
+              gasPrice: async () => (await bundlerClient.getUserOperationGasPrice()).fast,
+              sponsorUserOperation: pimlicoPaymaster.sponsorUserOperation,
+            },
+          })
+
           const { signature: smartWalletSignature } = await signMessage({
             message: signingMessage,
           })
           signature = smartWalletSignature
+          smartAccountAddress = smartAccountClient.account.address
         }
 
         const headers = {
@@ -60,9 +98,7 @@ const useSetupAxiosInstance = () => {
           '/auth/login',
           {
             client,
-            ...(client === 'etherspot'
-              ? { smartWallet: smartAccountClient?.account?.address }
-              : {}),
+            ...(client === 'etherspot' ? { smartWallet: smartAccountAddress } : {}),
           },
           { headers, withCredentials: true }
         )
@@ -77,41 +113,41 @@ const useSetupAxiosInstance = () => {
     return signingPromise
   }
 
-  axiosInstance.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-      const originalRequest = error.config
-
-      if (error.response?.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true
-
-        return new Promise((resolve, reject) => {
-          requestQueue.push(async () => axiosInstance(originalRequest).then(resolve).catch(reject))
-          if (!signingPromise) {
-            handleSigningProcess()
-              .then(() => {
-                const requests = [...requestQueue]
-                requestQueue.length = 0
-                Promise.allSettled(requests.map((req) => req())).then((results) => {
-                  results.forEach((result, index) => {
-                    if (result.status === 'rejected') {
-                      console.error(`Request ${index} failed:`, result.reason)
-                    }
-                  })
-                })
-              })
-              .catch(() => {
-                console.error('Signing process failed:', error)
-
-                requestQueue.length = 0
-              })
-          }
-        })
-      }
-
-      return Promise.reject(error)
-    }
-  )
+  // axiosInstance.interceptors.response.use(
+  //   (response) => response,
+  //   async (error) => {
+  //     const originalRequest = error.config
+  //
+  //     if (error.response?.status === 401 && !originalRequest._retry) {
+  //       originalRequest._retry = true
+  //
+  //       return new Promise((resolve, reject) => {
+  //         requestQueue.push(async () => axiosInstance(originalRequest).then(resolve).catch(reject))
+  //         if (!signingPromise) {
+  //           handleSigningProcess()
+  //             .then(() => {
+  //               const requests = [...requestQueue]
+  //               requestQueue.length = 0
+  //               Promise.allSettled(requests.map((req) => req())).then((results) => {
+  //                 results.forEach((result, index) => {
+  //                   if (result.status === 'rejected') {
+  //                     console.error(`Request ${index} failed:`, result.reason)
+  //                   }
+  //                 })
+  //               })
+  //             })
+  //             .catch(() => {
+  //               console.error('Signing process failed:', error)
+  //
+  //               requestQueue.length = 0
+  //             })
+  //         }
+  //       })
+  //     }
+  //
+  //     return Promise.reject(error)
+  //   }
+  // )
 
   return axiosInstance
 }

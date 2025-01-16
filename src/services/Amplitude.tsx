@@ -2,10 +2,6 @@
 
 import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
 import * as sessionReplay from '@amplitude/session-replay-browser'
-import {
-  CUSTOM_LOGIN_PROVIDER_TYPE,
-  LOGIN_PROVIDER_TYPE,
-} from '@toruslabs/openlogin-utils/dist/types/interfaces'
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
 import { PageName } from '@/hooks/use-page-name'
 import { useAccount } from '@/services'
@@ -403,10 +399,6 @@ export interface UIModeMetadata {
   mode: string
 }
 
-export interface SignInW3AClickedMetadata {
-  option: LOGIN_PROVIDER_TYPE | CUSTOM_LOGIN_PROVIDER_TYPE | undefined
-}
-
 export interface MediumBannerClicked {
   bannerPosition: number
   bannerPaginationPage: number
@@ -436,7 +428,6 @@ export type ClickedEventMetadata =
   | StrokeMetadata
   | TopUpMetadata
   | UIModeMetadata
-  | SignInW3AClickedMetadata
   | MarketChangeInGroupData
   | FeeAndReturnTradingDetailsClicked
   | MediumBannerClicked
