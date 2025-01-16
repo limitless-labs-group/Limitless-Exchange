@@ -9,8 +9,9 @@ import { useAccount } from '@/services/AccountService'
 const useSetupAxiosInstance = () => {
   const { signMessage, user } = usePrivy()
   const { signMessageAsync } = useSignMessage()
-  const { smartAccountClient } = useAccount()
+  const { signMessageSmartWallet } = useAccount()
   const { refetchAll } = useRefetchAfterLogin()
+  const { smartAccountClient } = useAccount()
 
   //avoid triggering signing message pop-up several times, when the few private requests will come simultaneously
   let signingPromise: Promise<void> | null = null
@@ -26,13 +27,10 @@ const useSetupAxiosInstance = () => {
 
     signingPromise = (async () => {
       try {
+        debugger
         if (!user?.wallet?.address) throw new Error('Failed to get account')
 
         const client = user.wallet.connectorType === 'embedded' ? 'etherspot' : 'eoa'
-
-        if (client === 'etherspot' && !smartAccountClient) {
-          return
-        }
 
         const { data: signingMessage } = await axiosInstance.get(`/auth/signing-message`)
         if (!signingMessage) throw new Error('Failed to get signing message')
@@ -43,10 +41,7 @@ const useSetupAxiosInstance = () => {
             message: signingMessage,
           })
         } else {
-          const { signature: smartWalletSignature } = await signMessage({
-            message: signingMessage,
-          })
-          signature = smartWalletSignature
+          signature = await signMessageSmartWallet(signingMessage)
         }
 
         const headers = {

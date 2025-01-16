@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { IUseLogin, useLogin } from './use-login'
+import { useAccount } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 
 const useCheckSession = () => {
@@ -11,13 +12,16 @@ const useCheckSession = () => {
 }
 
 export const useUserSession = ({ client, account, smartWallet }: IUseLogin) => {
-  const checkSession = useCheckSession()
+  // const checkSession = useCheckSession()
   const { mutateAsync: loginUser } = useLogin()
   const axiosPrivate = useAxiosPrivateClient()
+  const { interfaceLoading } = useAccount()
 
   return useQuery({
     queryKey: ['user-session'],
     queryFn: async () => {
+      debugger
+      console.log(interfaceLoading)
       if (client === 'etherspot' && !smartWallet) {
         return
       }
@@ -29,5 +33,6 @@ export const useUserSession = ({ client, account, smartWallet }: IUseLogin) => {
     },
     staleTime: Infinity,
     gcTime: Infinity,
+    enabled: false,
   })
 }

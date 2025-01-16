@@ -1,3 +1,4 @@
+import { awaitExpression } from '@babel/types'
 import { usePrivy, useWallets } from '@privy-io/react-auth'
 import { useSetActiveWallet } from '@privy-io/wagmi'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -58,6 +59,8 @@ export interface IAccountContext {
   onUnblockUser: UseMutationResult<void, Error, { account: Address }>
   web3Client: 'eoa' | 'etherspot'
   smartAccountClient: SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null
+  interfaceLoading: boolean
+  signMessageSmartWallet: (message: string) => Promise<string>
 }
 
 const pimlicoRpcUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
@@ -79,6 +82,7 @@ export const useAccount = () => useContext(AccountContext)
 export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [smartAccountClient, setSmartAccountClient] =
     useState<SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null>(null)
+  const [interfaceLoading, setInterfaceLoading] = useState(true)
   const queryClient = useQueryClient()
   const { logout: disconnect, authenticated, user } = usePrivy()
   const pathname = usePathname()
@@ -91,6 +95,31 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { wallets } = useWallets()
   const { isLogged } = useClient()
   const { data: walletClient } = useWalletClient()
+  const axiosPrivate = useAxiosPrivateClient()
+
+  const checkSession = async () => {
+    await axiosPrivate.get('/auth/verify-auth')
+  }
+
+  const signMessageSmartWallet = async (message: string) => {
+    return (await smartAccountClient?.signMessage({
+      message,
+      account: smartAccountClient?.account?.address as Address,
+    })) as string
+  }
+
+  useEffect(() => {
+    if (!walletClient) {
+      return
+    }
+    if (web3Client === 'etherspot' && smartAccountClient) {
+      debugger
+      checkSession()
+    }
+    if (web3Client === 'eoa' && walletClient) {
+      checkSession()
+    }
+  }, [smartAccountClient, walletClient, web3Client])
 
   console.log(wallets)
   console.log(walletClient)
@@ -399,6 +428,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     onUnblockUser,
     web3Client,
     smartAccountClient,
+    interfaceLoading,
+    signMessageSmartWallet,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>

@@ -7,7 +7,7 @@ import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Address } from '@/types'
 
 export const usePosition = () => {
-  const { profileData } = useAccount()
+  const { profileData, interfaceLoading } = useAccount()
   const { isLogged } = useClient()
   const privateClient = useAxiosPrivateClient()
 
@@ -25,7 +25,7 @@ export const usePosition = () => {
         return []
       }
     },
-    enabled: !!profileData?.id && !!isLogged,
+    enabled: false,
     refetchInterval: !!profileData?.id ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
     staleTime: Infinity,
   })
