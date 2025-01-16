@@ -140,9 +140,7 @@ const MainPage = () => {
       >
         <Box w={isMobile ? 'full' : '664px'}>
           <>
-            {banneredMarkets && banneredMarkets.length > 0 ? (
-              <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
-            ) : null}
+            <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
             <InfiniteScroll
               className='scroll'
               dataLength={sortedAllMarkets?.length ?? 0}

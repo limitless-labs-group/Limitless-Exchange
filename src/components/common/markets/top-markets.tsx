@@ -12,7 +12,7 @@ interface TopMarketsProps {
 }
 
 export default function TopMarkets({ markets, isLoading }: TopMarketsProps) {
-  if (isLoading) {
+  if (isLoading || !markets) {
     return (
       <Box
         position='relative'
