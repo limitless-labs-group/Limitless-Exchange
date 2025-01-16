@@ -29,6 +29,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { toZonedTime } from 'date-fns-tz'
+import { htmlToText } from 'html-to-text'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
@@ -371,12 +372,14 @@ export const CreateMarket: FC = () => {
 
   const getPlainTextLength = (html: string | undefined): number => {
     if (!html) return 0
-    return html
-      .replace(
-        /(<(p|div|span|a|strong|em|u|s|ul|ol|li|br|img|h[1-6]|blockquote|pre|code)[^>]*>|<\/[^>]*>|&(?:#\d+|\w+);)/gi,
-        ''
-      )
-      .trim().length
+    return htmlToText(html, {
+      wordwrap: false,
+      preserveNewlines: true,
+      selectors: [
+        { selector: 'a', options: { ignoreHref: true } },
+        { selector: 'img', format: 'skip' },
+      ],
+    }).length
   }
 
   const handleBlobGenerated = (blob: Blob | null) => {
