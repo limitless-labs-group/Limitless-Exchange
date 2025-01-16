@@ -11,7 +11,7 @@ import { publicClient } from '@/providers'
 import { Category, Market, MarketsResponse, OddsData } from '@/types'
 import { getPrices } from '@/utils/market'
 
-const LIMIT_PER_PAGE = 10
+const LIMIT_PER_PAGE = 50
 
 /**
  * Fetches and manages paginated active market data using the `useInfiniteQuery` hook.
