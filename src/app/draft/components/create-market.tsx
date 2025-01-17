@@ -20,6 +20,13 @@ import {
   Spinner,
   Textarea,
   VStack,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Text,
+  Switch,
 } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
@@ -35,6 +42,7 @@ import TimezoneSelect, {
   ITimezoneOption,
   useTimezoneSelect,
 } from 'react-timezone-select'
+import TextEditor from '@/components/common/text-editor'
 import { Toast } from '@/components/common/toast'
 import {
   defaultFormData,
@@ -62,6 +70,7 @@ export const CreateMarket: FC = () => {
   const [formData, setFormData] = useState<IFormData>(defaultFormData)
   const [isCreating, setIsCreating] = useState<boolean>(false)
   const { supportedTokens } = useLimitlessApi()
+  const [createClobMarket, setCreateClobMarket] = useState<boolean>(false)
   const toast = useToast()
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -77,6 +86,12 @@ export const CreateMarket: FC = () => {
     },
     enabled: !!marketId,
   })
+
+  console.log(editMarket)
+
+  const handleSwitchClicked = () => {
+    setCreateClobMarket(!createClobMarket)
+  }
 
   useEffect(() => {
     if (editMarket) {
@@ -103,6 +118,7 @@ export const CreateMarket: FC = () => {
         categoryId: editMarket.category?.id || defaultCategoryId,
       }))
       generateOgImage().then(() => console.log('Og image generated'))
+      setCreateClobMarket(!!editMarket.type)
     }
   }, [editMarket])
 
@@ -208,8 +224,10 @@ export const CreateMarket: FC = () => {
     marketFormData?.set('title', formData.title)
     marketFormData?.set('description', formData.description)
     marketFormData?.set('tokenId', formData.token.id.toString())
-    marketFormData?.set('liquidity', formData.liquidity?.toString() || '')
-    marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
+    if (!createClobMarket) {
+      marketFormData?.set('liquidity', formData.liquidity?.toString() || '')
+      marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
+    }
     marketFormData?.set('marketFee', formData.marketFee.toString())
     marketFormData?.set('deadline', zonedTime.toString())
 
@@ -238,15 +256,17 @@ export const CreateMarket: FC = () => {
     const data = await prepareData()
     if (!data) return
     setIsCreating(true)
+    const url = createClobMarket ? '/markets/clob/drafts' : '/markets/drafts'
     privateClient
-      .post(`/markets/drafts`, data, {
+      .post(url, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
       .then((res) => {
         showToast(`Market is drafted`)
-        router.push('/draft?tab=queue')
+        const redirectUrl = createClobMarket ? 'queue-clob' : 'queue-amm'
+        router.push(`/draft?tab=${redirectUrl}`)
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
@@ -303,6 +323,14 @@ export const CreateMarket: FC = () => {
     <Flex justifyContent={'center'}>
       <VStack w='full' spacing={4}>
         <FormControl>
+          <Box>
+            <Text>Market type</Text>
+            <HStack gap='4px' my='12px'>
+              <Text>AMM (old)</Text>
+              <Switch id='isChecked' isChecked={createClobMarket} onChange={handleSwitchClicked} />
+              <Text>CLOB (new)</Text>
+            </HStack>
+          </Box>
           <HStack
             w='full'
             maxW='1200px'
@@ -312,30 +340,42 @@ export const CreateMarket: FC = () => {
             alignItems='flex-start'
           >
             <VStack w='full' flex='1.2'>
-              <Box position='absolute' opacity={0} pointerEvents='none'>
-                <FormField label='OG Preview is still here, but hidden (required to create an image)'>
-                  <HStack position='absolute' zIndex={-1} h='280px' w='600px'>
-                    <OgImageGenerator
-                      title={formData.title}
-                      category={
-                        categories?.find((category) => category.id === +formData.categoryId)
-                          ?.name ?? 'Unknown'
-                      }
-                      onBlobGenerated={(blob) => {
-                        console.log('Blob generated', blob)
-                        const _ogLogo = new File([blob], 'og.png', {
-                          type: blob.type,
-                          lastModified: Date.now(),
-                        })
-                        console.log('Blob transformed to File', _ogLogo)
+              <Accordion allowToggle>
+                <AccordionItem>
+                  <h2>
+                    <AccordionButton>
+                      <Box flex='1' textAlign='left'>
+                        OG Preview (Click to Expand)
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4}>
+                    <Box pointerEvents='none'>
+                      <HStack h='280px' w='600px'>
+                        <OgImageGenerator
+                          title={formData.title}
+                          category={
+                            categories?.find((category) => category.id === +formData.categoryId)
+                              ?.name ?? 'Unknown'
+                          }
+                          onBlobGenerated={(blob) => {
+                            console.log('Blob generated', blob)
+                            const _ogLogo = new File([blob], 'og.png', {
+                              type: blob.type,
+                              lastModified: Date.now(),
+                            })
+                            console.log('Blob transformed to File', _ogLogo)
 
-                        handleChange('ogLogo', _ogLogo)
-                      }}
-                      generateBlob={isGeneratingOgImage}
-                    />
-                  </HStack>
-                </FormField>
-              </Box>
+                            handleChange('ogLogo', _ogLogo)
+                          }}
+                          generateBlob={isGeneratingOgImage}
+                        />
+                      </HStack>
+                    </Box>
+                  </AccordionPanel>
+                </AccordionItem>
+              </Accordion>
 
               <FormField label='Title'>
                 <Textarea
@@ -355,16 +395,14 @@ export const CreateMarket: FC = () => {
               </FormField>
 
               <FormField label='Description'>
-                <Textarea
-                  resize='none'
-                  rows={7}
-                  overflow='hidden'
-                  height='auto'
-                  onInput={resizeTextareaHeight}
-                  maxLength={1500}
+                <TextEditor
                   value={formData.description}
-                  onChange={(e) => handleChange('description', e.target.value)}
-                  onBlur={() => generateOgImage()}
+                  readOnly={false}
+                  onChange={(e) => {
+                    if (e.length <= 1500) {
+                      handleChange('description', e)
+                    }
+                  }}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                   {formData.description?.length}/1500 characters
@@ -383,65 +421,77 @@ export const CreateMarket: FC = () => {
                 </HStack>
               </FormField>
 
-              <FormField label={`${formData.token.symbol} Liquidity`}>
-                <HStack>
-                  <NumberInput
-                    maxW='120px'
-                    mr='2rem'
-                    value={formData.liquidity}
-                    onChange={(value) => handleChange('liquidity', Number(value))}
-                    min={tokenLimits[formData.token.symbol]?.min}
-                    max={tokenLimits[formData.token.symbol]?.max}
-                    step={tokenLimits[formData.token.symbol]?.step}
-                  >
-                    <NumberInputField w={'120px'} />
-                  </NumberInput>
-                  <Slider
-                    flex='1'
-                    focusThumbOnChange={false}
-                    value={formData.liquidity}
-                    onChange={(value) => handleChange('liquidity', value)}
-                    min={tokenLimits[formData.token.symbol]?.min}
-                    max={tokenLimits[formData.token.symbol]?.max}
-                    step={tokenLimits[formData.token.symbol]?.step}
-                  >
-                    <SliderTrack bg='var(--chakra-colors-greyTransparent-600)'>
-                      <SliderFilledTrack bg='var(--chakra-colors-text-100)' />
-                    </SliderTrack>
-                    <SliderThumb bg='var(--chakra-colors-text-100)' fontSize='sm' boxSize='24px' />
-                  </Slider>
-                </HStack>
-              </FormField>
+              {!createClobMarket && (
+                <>
+                  <FormField label={`${formData.token.symbol} Liquidity`}>
+                    <HStack>
+                      <NumberInput
+                        maxW='120px'
+                        mr='2rem'
+                        value={formData.liquidity}
+                        onChange={(value) => handleChange('liquidity', Number(value))}
+                        min={tokenLimits[formData.token.symbol]?.min}
+                        max={tokenLimits[formData.token.symbol]?.max}
+                        step={tokenLimits[formData.token.symbol]?.step}
+                      >
+                        <NumberInputField w={'120px'} />
+                      </NumberInput>
+                      <Slider
+                        flex='1'
+                        focusThumbOnChange={false}
+                        value={formData.liquidity}
+                        onChange={(value) => handleChange('liquidity', value)}
+                        min={tokenLimits[formData.token.symbol]?.min}
+                        max={tokenLimits[formData.token.symbol]?.max}
+                        step={tokenLimits[formData.token.symbol]?.step}
+                      >
+                        <SliderTrack bg='var(--chakra-colors-greyTransparent-600)'>
+                          <SliderFilledTrack bg='var(--chakra-colors-text-100)' />
+                        </SliderTrack>
+                        <SliderThumb
+                          bg='var(--chakra-colors-text-100)'
+                          fontSize='sm'
+                          boxSize='24px'
+                        />
+                      </Slider>
+                    </HStack>
+                  </FormField>
 
-              <FormField label='Starting YES Probability'>
-                <HStack>
-                  <NumberInput
-                    maxW='120px'
-                    mr='2rem'
-                    value={formData.probability}
-                    onChange={(value) => handleChange('probability', Number(value))}
-                    min={1}
-                    max={99}
-                    step={1}
-                  >
-                    <NumberInputField w={'120px'} />
-                  </NumberInput>
-                  <Slider
-                    flex='1'
-                    focusThumbOnChange={false}
-                    value={formData.probability}
-                    onChange={(value) => handleChange('probability', value)}
-                    min={1}
-                    max={99}
-                    step={1}
-                  >
-                    <SliderTrack bg='var(--chakra-colors-greyTransparent-600)'>
-                      <SliderFilledTrack bg='var(--chakra-colors-text-100)' />
-                    </SliderTrack>
-                    <SliderThumb bg='var(--chakra-colors-text-100)' fontSize='sm' boxSize='24px' />
-                  </Slider>
-                </HStack>
-              </FormField>
+                  <FormField label='Starting YES Probability'>
+                    <HStack>
+                      <NumberInput
+                        maxW='120px'
+                        mr='2rem'
+                        value={formData.probability}
+                        onChange={(value) => handleChange('probability', Number(value))}
+                        min={1}
+                        max={99}
+                        step={1}
+                      >
+                        <NumberInputField w={'120px'} />
+                      </NumberInput>
+                      <Slider
+                        flex='1'
+                        focusThumbOnChange={false}
+                        value={formData.probability}
+                        onChange={(value) => handleChange('probability', value)}
+                        min={1}
+                        max={99}
+                        step={1}
+                      >
+                        <SliderTrack bg='var(--chakra-colors-greyTransparent-600)'>
+                          <SliderFilledTrack bg='var(--chakra-colors-text-100)' />
+                        </SliderTrack>
+                        <SliderThumb
+                          bg='var(--chakra-colors-text-100)'
+                          fontSize='sm'
+                          boxSize='24px'
+                        />
+                      </Slider>
+                    </HStack>
+                  </FormField>
+                </>
+              )}
             </VStack>
 
             <VStack w={'full'} flex='0.8'>

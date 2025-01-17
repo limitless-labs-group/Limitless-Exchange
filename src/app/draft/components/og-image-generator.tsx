@@ -96,6 +96,7 @@ export const OgImageGenerator = ({
       })
 
       const imageDataUrl = canvas.toDataURL('image/png', 1.0)
+      console.log(imageDataUrl)
       setImage(imageDataUrl)
       canvas.toBlob(
         async (blob) => {

@@ -73,6 +73,12 @@ interface ITradingServiceContext {
   markets?: Market[]
   setMarkets: (markets: Market[]) => void
   sellBalanceLoading: boolean
+  splitSharesMutation: UseMutationResult<
+    void,
+    Error,
+    { amount: string; decimals: number; contractAddress: `0x${string}`; conditionId: string },
+    unknown
+  >
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -108,12 +114,12 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setMarket(null)
     setMarketGroup(null)
     // @ts-ignore
-    if (market.slug) {
-      setMarketGroup(market as MarketGroup)
-      setMarket((market as MarketGroup).markets[0])
-      !isMobile && setMarketPageOpened(true)
-      return
-    }
+    // if (market.slug) {
+    //   setMarketGroup(market as MarketGroup)
+    //   setMarket((market as MarketGroup).markets[0])
+    //   !isMobile && setMarketPageOpened(true)
+    //   return
+    // }
     setMarket(market as Market)
     setMarketGroup(null)
     !isMobile && setMarketPageOpened(true)
@@ -121,7 +127,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const { data: conditionalTokensAddress, refetch: getConditionalTokensAddress } =
     useConditionalTokensAddr({
-      marketAddr: !market ? undefined : getAddress(market.address),
+      marketAddr: !market?.address ? undefined : getAddress(market.address),
     })
   useEffect(() => {
     getConditionalTokensAddress()
@@ -154,7 +160,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const fixedProductMarketMakerContract = useMemo(
     () =>
-      market
+      market?.address
         ? getContract({
             address: market.address,
             abi: fixedProductMarketMakerABI,
@@ -517,6 +523,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     checkAllowanceForAll,
     approveAllowanceForAll,
     redeemPositions,
+    splitShares,
   } = useWeb3Service()
   const { mutateAsync: buy, isPending: isLoadingBuy } = useMutation({
     mutationFn: async ({
@@ -776,6 +783,28 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
+  const splitSharesMutation = useMutation({
+    mutationFn: async ({
+      amount,
+      decimals,
+      conditionId,
+      contractAddress,
+    }: {
+      amount: string
+      decimals: number
+      contractAddress: Address
+      conditionId: string
+    }) => {
+      try {
+        const value = parseUnits(amount, decimals)
+        await splitShares(contractAddress, conditionId, value)
+      } catch (e) {
+        // @ts-ignore
+        throw new Error(e)
+      }
+    },
+  })
+
   const trade = useCallback(
     // (outcomeTokenId: number) => buy(outcomeTokenId),
     (outcomeTokenId: number, slippage: string) =>
@@ -838,6 +867,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     markets,
     setMarkets,
     sellBalanceLoading,
+    splitSharesMutation,
   }
 
   return (

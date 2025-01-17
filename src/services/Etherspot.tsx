@@ -415,6 +415,31 @@ class Etherspot {
     return transactionReceipt?.transactionHash
   }
 
+  async splitPositions(collateralAddress: Address, conditionId: string, amount: bigint) {
+    await this.approveCollateralIfNeeded(
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+      amount,
+      collateralAddress
+    )
+    const data = encodeFunctionData({
+      abi: conditionalTokensABI,
+      functionName: 'splitPosition',
+      args: [
+        collateralAddress,
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+        conditionId,
+        [1, 2],
+        amount,
+      ],
+    })
+    const opHash = await this.batchAndSendUserOp(
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as string,
+      data
+    )
+    const transactionReceipt = await this.waitForTransaction(opHash)
+    return transactionReceipt?.transactionHash
+  }
+
   async destroy() {
     await this.primeSdk.destroy()
   }

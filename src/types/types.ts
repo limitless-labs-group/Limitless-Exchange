@@ -64,6 +64,7 @@ export interface Market {
   volumeFormatted: string
   winningOutcomeIndex: number | null
   prices: number[]
+  slug: string
   group?: {
     id: number
     slug: string
@@ -72,6 +73,10 @@ export interface Market {
   openInterest: string
   openInterestFormatted: string
   priorityIndex: number
+  tokens: {
+    yes: string
+    no: string
+  }
 }
 
 export type UserCreatedMarket = {
@@ -410,6 +415,7 @@ export interface ColorScheme {
   draftCard: {
     bg: string
     border: string
+    selectedBg: string
   }
 }
 
@@ -440,11 +446,31 @@ export interface CommentResponse {
   totalPages: number
 }
 
+export interface Like {
+  createdAt: string
+  id: number
+  user: Profile
+}
+
 export interface CommentType {
   id: string
   createdAt: string
   content: string
   author: Profile
+  likes: Like[]
+}
+
+export interface LikePost {
+  message: string
+}
+
+export interface LikesGet {
+  likes: number
 }
 
 export type APIError = AxiosError<{ message: string; statusCode: number }>
+
+export enum MarketOrderType {
+  LIMIT = 'limit',
+  MARKET = 'market',
+}
