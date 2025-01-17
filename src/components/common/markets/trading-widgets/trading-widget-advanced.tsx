@@ -24,20 +24,19 @@ import Paper from '@/components/common/paper'
 import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
 import { useOrderBook } from '@/hooks/use-order-book'
+import SettingsIcon from '@/resources/icons/setting-icon.svg'
 import {
   ChangeEvent,
   StrategyChangedMetadata,
   useAccount,
   useAmplitude,
   useBalanceQuery,
-  useHistory,
   useTradingService,
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useWeb3Service } from '@/services/Web3Service'
 import { controlsMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
-import { uppercaseFirstLetter } from '@/utils/string'
 
 export default function TradingWidgetAdvanced() {
   const { trackChanged } = useAmplitude()
@@ -76,7 +75,6 @@ export default function TradingWidgetAdvanced() {
   const [allowance, setAllowance] = useState<bigint>(0n)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
 
-  const { isOpen: isLimitMenuOpened, onToggle: onToggleLimitMenu } = useDisclosure()
   const { isOpen: moreMenuOpened, onToggle: onToggleMoreMenu } = useDisclosure()
   const { isOpen: splitSharesModalOpened, onToggle: onToggleSplitSharesModal } = useDisclosure()
 
@@ -213,6 +211,11 @@ export default function TradingWidgetAdvanced() {
         queryKey: ['user-orders', market?.slug],
       }),
   })
+
+  const handleOrderTypeChanged = (order: MarketOrderType) => {
+    setOrderType(order)
+    setSharesAmount('')
+  }
 
   const placeLimitOrderMutation = useMutation({
     mutationKey: ['limit-order', market?.address, price],
@@ -391,20 +394,26 @@ export default function TradingWidgetAdvanced() {
   return (
     <>
       <HStack w='full' justifyContent='center'>
-        <Button>Market</Button>
-        <Button>Limit Order</Button>
+        <Button
+          bg={orderType === MarketOrderType.MARKET ? 'grey.100' : 'unset'}
+          h='32px'
+          borderBottomRadius={0}
+          onClick={() => handleOrderTypeChanged(MarketOrderType.MARKET)}
+        >
+          Market
+        </Button>
+        <Button
+          onClick={() => handleOrderTypeChanged(MarketOrderType.LIMIT)}
+          bg={orderType === MarketOrderType.LIMIT ? 'grey.100' : 'unset'}
+          h='32px'
+          borderBottomRadius={0}
+        >
+          Limit Order
+        </Button>
       </HStack>
       <Paper bg='grey.100' borderRadius='8px' p='8px' position='relative'>
-        <HStack w='full' justifyContent='space-between' gap={12} mb='16px'>
-          <HStack
-            w={'240px'}
-            mx='auto'
-            bg='grey.200'
-            borderRadius='8px'
-            py='2px'
-            px={'2px'}
-            flex={1}
-          >
+        <HStack w='full' justifyContent='center' mb='16px' pl='16px'>
+          <HStack w={'236px'} mx='auto' bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
             <Button
               h={isMobile ? '28px' : '20px'}
               flex='1'
@@ -454,31 +463,7 @@ export default function TradingWidgetAdvanced() {
               </Text>
             </Button>
           </HStack>
-          <Menu isOpen={isLimitMenuOpened} onClose={onToggleLimitMenu} variant='outlined'>
-            <MenuButton w='full' onClick={onToggleLimitMenu} flex={1}>
-              <Text fontWeight={500}>{uppercaseFirstLetter(orderType)}</Text>
-            </MenuButton>
-            <MenuList
-              borderRadius='8px'
-              w={isMobile ? 'calc(100vw - 32px)' : '200px'}
-              maxH={isMobile ? 'unset' : '104px'}
-              overflowY={isMobile ? 'unset' : 'auto'}
-            >
-              {[MarketOrderType.LIMIT, MarketOrderType.MARKET].map((orderType) => (
-                <MenuItem
-                  onClick={() => {
-                    setOrderType(orderType)
-                    setSharesAmount('')
-                  }}
-                  key={orderType}
-                >
-                  <HStack gap='4px'>
-                    <Text fontWeight={500}>{uppercaseFirstLetter(orderType)}</Text>
-                  </HStack>
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
+          <SettingsIcon width={16} height={16} />
         </HStack>
         <Divider mb='8px' bg='grey.300' borderColor='grey.300' />
         <HStack w='full' justifyContent='space-between'>
