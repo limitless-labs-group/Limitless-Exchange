@@ -136,7 +136,10 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
     },
   ]
 
-  const tabPanels = [<MarketPageOverviewTab key={uuidv4()} />, <MarketActivityTab key={uuidv4()} />]
+  const tabPanels = [
+    <MarketPageOverviewTab key={uuidv4()} />,
+    <MarketActivityTab key={uuidv4()} isActive />,
+  ]
 
   const removeMarketQuery = () => {
     const params = new URLSearchParams(searchParams.toString())
