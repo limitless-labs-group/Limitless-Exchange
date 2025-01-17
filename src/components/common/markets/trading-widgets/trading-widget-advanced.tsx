@@ -21,6 +21,7 @@ import { Address, formatUnits, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import SplitSharesModal from '@/components/common/modals/split-shares-modal'
 import Paper from '@/components/common/paper'
+import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
 import { useOrderBook } from '@/hooks/use-order-book'
 import {
@@ -42,6 +43,7 @@ export default function TradingWidgetAdvanced() {
   const { trackChanged } = useAmplitude()
   const { strategy, setStrategy, market } = useTradingService()
   const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
+  const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
   const privateClient = useAxiosPrivateClient()
   const { profileData, account } = useAccount()
   const queryClient = useQueryClient()
@@ -53,10 +55,11 @@ export default function TradingWidgetAdvanced() {
     approveAllowanceForAll,
     checkAllowanceForAll,
   } = useWeb3Service()
+
+  console.log(sharesOwned)
   // const { data: conditionalTokensAddress } = useConditionalTokensAddr({
   //   marketAddr: !market ? undefined : getAddress(market.address),
   // })
-  const { positions: allMarketsPositions } = useHistory()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { data: orderBook } = useOrderBook(market?.slug)
   // const { data: ownedShares } = useClobMarketShares(account, [
@@ -72,14 +75,6 @@ export default function TradingWidgetAdvanced() {
   const [sharesAmount, setSharesAmount] = useState('')
   const [allowance, setAllowance] = useState<bigint>(0n)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
-
-  const positions = useMemo(
-    () =>
-      allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
-      ),
-    [allMarketsPositions, market]
-  )
 
   const { isOpen: isLimitMenuOpened, onToggle: onToggleLimitMenu } = useDisclosure()
   const { isOpen: moreMenuOpened, onToggle: onToggleMoreMenu } = useDisclosure()
@@ -395,6 +390,10 @@ export default function TradingWidgetAdvanced() {
 
   return (
     <>
+      <HStack w='full' justifyContent='center'>
+        <Button>Market</Button>
+        <Button>Limit Order</Button>
+      </HStack>
       <Paper bg='grey.100' borderRadius='8px' p='8px' position='relative'>
         <HStack w='full' justifyContent='space-between' gap={12} mb='16px'>
           <HStack
