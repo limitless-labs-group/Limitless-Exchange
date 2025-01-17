@@ -67,7 +67,7 @@ export function useMarketPriceHistory(market: Market | null) {
   return useQuery({
     queryKey: ['prices', market?.address],
     queryFn: async () => {
-      if (market?.slug) {
+      if (market?.tradeType === 'clob') {
         const response: AxiosResponse<{ price: number; timestamp: number }[]> =
           await limitlessApi.get(`/markets/${market.slug}/historical-price`)
         return response.data.map((item) => {

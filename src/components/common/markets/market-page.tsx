@@ -12,60 +12,37 @@ import {
   TabPanels,
   Tabs,
   Text,
-  useDisclosure,
-  VStack,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
+import React, { LegacyRef, useEffect, useMemo, useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
-import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
 import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/trading-widget-advanced'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
-import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
-import {
-  LoadingForm,
-  MarketPriceChart,
-  SellForm,
-} from '@/app/(markets)/markets/[address]/components'
+import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import CommentTab from './comment-tab'
 import { UniqueTraders } from './unique-traders'
-import useMarketActivity from '@/hooks/use-market-activity'
 import useMarketGroup from '@/hooks/use-market-group'
-import { useMarketOrders } from '@/hooks/use-market-orders'
-import { useOrderBook } from '@/hooks/use-order-book'
+import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import ExpandIcon from '@/resources/icons/expand-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
-import {
-  ChangeEvent,
-  ClickEvent,
-  OpenEvent,
-  StrategyChangedMetadata,
-  useAmplitude,
-  useHistory,
-  useTradingService,
-} from '@/services'
+import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
-import {
-  controlsMedium,
-  h2Bold,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
+import { h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 import { defineOpenInterestOverVolume } from '@/utils/market'
 
@@ -102,6 +79,10 @@ export default function MarketPage() {
     setMarketGroup,
     refetchMarkets,
   } = useTradingService()
+
+  const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
+
+  console.log(lockedBalance)
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -182,7 +163,7 @@ export default function MarketPage() {
     if (market?.expired) {
       return <MarketClosedWidget handleCloseMarketPageClicked={handleCloseMarketPageClicked} />
     }
-    return market?.slug ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
+    return market?.tradeType === 'clob' ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
   }, [market])
 
   const tabs = [
@@ -301,7 +282,7 @@ export default function MarketPage() {
               <CloseIcon width={16} height={16} />
               Close
             </Button>
-            <NextLink href={`/markets/${market?.address}`}>
+            <NextLink href={`/markets/${market?.slug}`}>
               <Button variant='grey' onClick={handleFullPageClicked}>
                 <ExpandIcon width={16} height={16} />
                 Full page

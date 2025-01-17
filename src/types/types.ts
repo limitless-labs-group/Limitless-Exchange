@@ -77,6 +77,8 @@ export interface Market {
     yes: string
     no: string
   }
+  marketType: 'single' | 'group'
+  tradeType: 'clob' | 'amm'
 }
 
 export type UserCreatedMarket = {

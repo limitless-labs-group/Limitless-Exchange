@@ -17,31 +17,32 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Address, getAddress, parseUnits } from 'viem'
+import { Address, formatUnits, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import SplitSharesModal from '@/components/common/modals/split-shares-modal'
 import Paper from '@/components/common/paper'
 import useClobMarketShares from '@/hooks/use-clob-market-shares'
-import { useConditionalTokensAddr } from '@/hooks/use-conditional-tokens-addr'
+import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
 import { useOrderBook } from '@/hooks/use-order-book'
+import SettingsIcon from '@/resources/icons/setting-icon.svg'
 import {
   ChangeEvent,
   StrategyChangedMetadata,
   useAccount,
   useAmplitude,
   useBalanceQuery,
-  useHistory,
   useTradingService,
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useWeb3Service } from '@/services/Web3Service'
 import { controlsMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
-import { uppercaseFirstLetter } from '@/utils/string'
 
 export default function TradingWidgetAdvanced() {
   const { trackChanged } = useAmplitude()
   const { strategy, setStrategy, market } = useTradingService()
+  const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
+  const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
   const privateClient = useAxiosPrivateClient()
   const { profileData, account } = useAccount()
   const queryClient = useQueryClient()
@@ -53,10 +54,11 @@ export default function TradingWidgetAdvanced() {
     approveAllowanceForAll,
     checkAllowanceForAll,
   } = useWeb3Service()
+
+  console.log(sharesOwned)
   // const { data: conditionalTokensAddress } = useConditionalTokensAddr({
   //   marketAddr: !market ? undefined : getAddress(market.address),
   // })
-  const { positions: allMarketsPositions } = useHistory()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { data: orderBook } = useOrderBook(market?.slug)
   // const { data: ownedShares } = useClobMarketShares(account, [
@@ -73,15 +75,6 @@ export default function TradingWidgetAdvanced() {
   const [allowance, setAllowance] = useState<bigint>(0n)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
 
-  const positions = useMemo(
-    () =>
-      allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
-      ),
-    [allMarketsPositions, market]
-  )
-
-  const { isOpen: isLimitMenuOpened, onToggle: onToggleLimitMenu } = useDisclosure()
   const { isOpen: moreMenuOpened, onToggle: onToggleMoreMenu } = useDisclosure()
   const { isOpen: splitSharesModalOpened, onToggle: onToggleSplitSharesModal } = useDisclosure()
 
@@ -131,6 +124,23 @@ export default function TradingWidgetAdvanced() {
     }
     return ''
   }, [balanceOfSmartWallet, strategy, market])
+
+  const isBalanceNotEnough = useMemo(() => {
+    if (orderType === MarketOrderType.LIMIT) {
+      const amount = new BigNumber(price || '0').dividedBy(100).multipliedBy(sharesAmount)
+      console.log(amount.toString())
+      const lockedBalanceFormatted = formatUnits(
+        BigInt(lockedBalance),
+        market?.collateralToken.decimals || 6
+      )
+      console.log(lockedBalanceFormatted)
+      const balanceLeft = new BigNumber(balance).minus(lockedBalanceFormatted)
+      console.log(balanceLeft.toString())
+      return amount.isGreaterThan(balanceLeft)
+    }
+  }, [balance, lockedBalance, market?.collateralToken.decimals, orderType, price, sharesAmount])
+
+  console.log(isBalanceNotEnough)
 
   const approveMutation = useMutation({
     mutationKey: ['approve', market?.address],
@@ -202,6 +212,11 @@ export default function TradingWidgetAdvanced() {
       }),
   })
 
+  const handleOrderTypeChanged = (order: MarketOrderType) => {
+    setOrderType(order)
+    setSharesAmount('')
+  }
+
   const placeLimitOrderMutation = useMutation({
     mutationKey: ['limit-order', market?.address, price],
     mutationFn: async () => {
@@ -238,10 +253,14 @@ export default function TradingWidgetAdvanced() {
         return privateClient.post('/orders', data)
       }
     },
-    onSuccess: async () =>
-      queryClient.refetchQueries({
+    onSuccess: async () => {
+      await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
-      }),
+      })
+      await queryClient.refetchQueries({
+        queryKey: ['locked-balance', market?.slug],
+      })
+    },
   })
 
   const checkMarketAllowance = async () => {
@@ -325,7 +344,7 @@ export default function TradingWidgetAdvanced() {
             w='full'
             mt='24px'
             onClick={isApprovalNeeded ? onApprove : onClickBuy}
-            isDisabled={!+sharesPrice || !isSharePriceValid}
+            isDisabled={!+sharesPrice || !isSharePriceValid || isBalanceNotEnough}
             onReset={async () => {
               approveMutation.reset()
               await checkMarketAllowance()
@@ -374,17 +393,27 @@ export default function TradingWidgetAdvanced() {
 
   return (
     <>
+      <HStack w='full' justifyContent='center'>
+        <Button
+          bg={orderType === MarketOrderType.MARKET ? 'grey.100' : 'unset'}
+          h='32px'
+          borderBottomRadius={0}
+          onClick={() => handleOrderTypeChanged(MarketOrderType.MARKET)}
+        >
+          Market
+        </Button>
+        <Button
+          onClick={() => handleOrderTypeChanged(MarketOrderType.LIMIT)}
+          bg={orderType === MarketOrderType.LIMIT ? 'grey.100' : 'unset'}
+          h='32px'
+          borderBottomRadius={0}
+        >
+          Limit Order
+        </Button>
+      </HStack>
       <Paper bg='grey.100' borderRadius='8px' p='8px' position='relative'>
-        <HStack w='full' justifyContent='space-between' gap={12} mb='16px'>
-          <HStack
-            w={'240px'}
-            mx='auto'
-            bg='grey.200'
-            borderRadius='8px'
-            py='2px'
-            px={'2px'}
-            flex={1}
-          >
+        <HStack w='full' justifyContent='center' mb='16px' pl='16px'>
+          <HStack w={'236px'} mx='auto' bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
             <Button
               h={isMobile ? '28px' : '20px'}
               flex='1'
@@ -434,31 +463,7 @@ export default function TradingWidgetAdvanced() {
               </Text>
             </Button>
           </HStack>
-          <Menu isOpen={isLimitMenuOpened} onClose={onToggleLimitMenu} variant='outlined'>
-            <MenuButton w='full' onClick={onToggleLimitMenu} flex={1}>
-              <Text fontWeight={500}>{uppercaseFirstLetter(orderType)}</Text>
-            </MenuButton>
-            <MenuList
-              borderRadius='8px'
-              w={isMobile ? 'calc(100vw - 32px)' : '200px'}
-              maxH={isMobile ? 'unset' : '104px'}
-              overflowY={isMobile ? 'unset' : 'auto'}
-            >
-              {[MarketOrderType.LIMIT, MarketOrderType.MARKET].map((orderType) => (
-                <MenuItem
-                  onClick={() => {
-                    setOrderType(orderType)
-                    setSharesAmount('')
-                  }}
-                  key={orderType}
-                >
-                  <HStack gap='4px'>
-                    <Text fontWeight={500}>{uppercaseFirstLetter(orderType)}</Text>
-                  </HStack>
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
+          <SettingsIcon width={16} height={16} />
         </HStack>
         <Divider mb='8px' bg='grey.300' borderColor='grey.300' />
         <HStack w='full' justifyContent='space-between'>
@@ -566,6 +571,11 @@ export default function TradingWidgetAdvanced() {
           </>
         )}
         {actionButton}
+        {isBalanceNotEnough && (
+          <Text my='8px' color='red.500'>
+            Not enough funds
+          </Text>
+        )}
         <Menu isOpen={moreMenuOpened} onClose={onToggleMoreMenu} variant='outlined'>
           <MenuButton w='full' onClick={onToggleMoreMenu} flex={1} mt='24px'>
             <Text fontWeight={500}>More</Text>
