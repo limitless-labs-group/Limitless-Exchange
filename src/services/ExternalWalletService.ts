@@ -82,9 +82,11 @@ export const useExternalWalletService = () => {
       args: [spender, value],
       functionName: 'approve',
     })
+    console.log(data)
     const client = await getWalletClient(configureChainsConfig, {
       account: user?.wallet?.address as Address,
     })
+    console.log(client)
     const receipt = await client.sendTransaction({
       to: contractAddress,
       data,
