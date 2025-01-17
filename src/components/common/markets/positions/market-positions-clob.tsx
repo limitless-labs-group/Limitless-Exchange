@@ -25,6 +25,9 @@ export default function MarketPositionsClob() {
     await queryClient.refetchQueries({
       queryKey: ['user-orders', market?.slug],
     })
+    await queryClient.refetchQueries({
+      queryKey: ['locked-balance', market?.slug],
+    })
   }
 
   const getOutcome = (order: ClobPosition) => {

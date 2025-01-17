@@ -17,12 +17,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Address, getAddress, parseUnits } from 'viem'
+import { Address, formatUnits, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import SplitSharesModal from '@/components/common/modals/split-shares-modal'
 import Paper from '@/components/common/paper'
-import useClobMarketShares from '@/hooks/use-clob-market-shares'
-import { useConditionalTokensAddr } from '@/hooks/use-conditional-tokens-addr'
+import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
 import { useOrderBook } from '@/hooks/use-order-book'
 import {
   ChangeEvent,
@@ -42,6 +41,7 @@ import { uppercaseFirstLetter } from '@/utils/string'
 export default function TradingWidgetAdvanced() {
   const { trackChanged } = useAmplitude()
   const { strategy, setStrategy, market } = useTradingService()
+  const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
   const privateClient = useAxiosPrivateClient()
   const { profileData, account } = useAccount()
   const queryClient = useQueryClient()
@@ -131,6 +131,23 @@ export default function TradingWidgetAdvanced() {
     }
     return ''
   }, [balanceOfSmartWallet, strategy, market])
+
+  const isBalanceNotEnough = useMemo(() => {
+    if (orderType === MarketOrderType.LIMIT) {
+      const amount = new BigNumber(price || '0').dividedBy(100).multipliedBy(sharesAmount)
+      console.log(amount.toString())
+      const lockedBalanceFormatted = formatUnits(
+        BigInt(lockedBalance),
+        market?.collateralToken.decimals || 6
+      )
+      console.log(lockedBalanceFormatted)
+      const balanceLeft = new BigNumber(balance).minus(lockedBalanceFormatted)
+      console.log(balanceLeft.toString())
+      return amount.isGreaterThan(balanceLeft)
+    }
+  }, [balance, lockedBalance, market?.collateralToken.decimals, orderType, price, sharesAmount])
+
+  console.log(isBalanceNotEnough)
 
   const approveMutation = useMutation({
     mutationKey: ['approve', market?.address],
@@ -238,10 +255,14 @@ export default function TradingWidgetAdvanced() {
         return privateClient.post('/orders', data)
       }
     },
-    onSuccess: async () =>
-      queryClient.refetchQueries({
+    onSuccess: async () => {
+      await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
-      }),
+      })
+      await queryClient.refetchQueries({
+        queryKey: ['locked-balance', market?.slug],
+      })
+    },
   })
 
   const checkMarketAllowance = async () => {
@@ -325,7 +346,7 @@ export default function TradingWidgetAdvanced() {
             w='full'
             mt='24px'
             onClick={isApprovalNeeded ? onApprove : onClickBuy}
-            isDisabled={!+sharesPrice || !isSharePriceValid}
+            isDisabled={!+sharesPrice || !isSharePriceValid || isBalanceNotEnough}
             onReset={async () => {
               approveMutation.reset()
               await checkMarketAllowance()
@@ -566,6 +587,11 @@ export default function TradingWidgetAdvanced() {
           </>
         )}
         {actionButton}
+        {isBalanceNotEnough && (
+          <Text my='8px' color='red.500'>
+            Not enough funds
+          </Text>
+        )}
         <Menu isOpen={moreMenuOpened} onClose={onToggleMoreMenu} variant='outlined'>
           <MenuButton w='full' onClick={onToggleMoreMenu} flex={1} mt='24px'>
             <Text fontWeight={500}>More</Text>
