@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { getWalletClient } from '@wagmi/core'
 import Cookies from 'js-cookie'
 import { Address, getAddress, toHex } from 'viem'
+import { useWalletClient } from 'wagmi'
 import useRefetchAfterLogin from '@/hooks/use-refetch-after-login'
 import { configureChainsConfig } from '@/providers/Privy'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
@@ -19,6 +20,7 @@ export const useLogin = () => {
   const { refetchAll } = useRefetchAfterLogin()
   const axiosInstance = useAxiosPrivateClient()
   const queryClient = useQueryClient()
+  const { refetch: refetchWalletClient } = useWalletClient()
 
   const getSigningMsg = async () => {
     return axiosInstance.get(`/auth/signing-message`)
@@ -57,6 +59,7 @@ export const useLogin = () => {
         }
       )
       Cookies.set('logged-in-to-limitless', 'true')
+      await refetchWalletClient()
       await refetchAll()
       return res.data as Profile
     },
