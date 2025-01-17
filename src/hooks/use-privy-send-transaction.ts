@@ -213,5 +213,6 @@ export default function usePrivySendTransaction() {
     redeemPositions,
     transferEthers,
     transferErc20,
+    sendTransaction,
   }
 }

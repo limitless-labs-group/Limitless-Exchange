@@ -1,10 +1,11 @@
-import { usePrivy } from '@privy-io/react-auth'
+import { usePrivy, useWallets } from '@privy-io/react-auth'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   createSmartAccountClient,
   ENTRYPOINT_ADDRESS_V06,
+  providerToSmartAccountSigner,
   SmartAccountClient,
   walletClientToSmartAccountSigner,
 } from 'permissionless'
@@ -88,6 +89,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const web3Client = user?.wallet?.walletClientType === 'privy' ? 'etherspot' : 'eoa'
   const { trackSignUp } = useAmplitude()
   const { data: walletClient } = useWalletClient()
+  const { wallets, ready: walletsReady } = useWallets()
   const { isLogged } = useClient()
 
   const toast = useToast()
@@ -103,6 +105,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
     enabled: !!user?.wallet?.address,
   })
+
+  console.log(wallets)
 
   const userMenuLoading = useMemo(() => {
     if (isLogged || authenticated) {
@@ -321,12 +325,16 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     ;(async () => {
       if (
         authenticated &&
-        walletClient &&
-        publicClient &&
+        wallets.length &&
+        walletsReady &&
         web3Client === 'etherspot' &&
         !smartAccountClient
       ) {
-        const customSigner = walletClientToSmartAccountSigner(walletClient)
+        const embeddedWallet = wallets.find((wallet) => wallet.walletClientType === 'privy')
+        const provider = await embeddedWallet?.getEthereumProvider()
+        //@ts-ignore
+        const customSigner = await providerToSmartAccountSigner(provider)
+        // const customSigner = walletClientToSmartAccountSigner(walletClient)
 
         const safeSmartAccountClient = await signerToSafeSmartAccount(publicClient, {
           entryPoint: ENTRYPOINT_ADDRESS_V06,
@@ -352,7 +360,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         setSmartAccountClient(smartAccountClient)
       }
     })()
-  }, [authenticated, walletClient, publicClient, web3Client, smartAccountClient])
+  }, [authenticated, wallets, publicClient, web3Client, smartAccountClient, walletsReady])
 
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
