@@ -13,13 +13,11 @@ export default function usePrivySendTransaction() {
   const wethToken = supportedTokens?.find((token) => token.name == 'weth')
 
   const transferEthers = async (to: Address, value: bigint) => {
-    const nonce = await smartAccountClient?.account?.getNonce()
     const txHash = await smartAccountClient?.sendTransaction({
       account: smartAccountClient.account?.address as Address,
       chain: defaultChain,
       to,
       value,
-      nonce: nonce ? Number(nonce) : undefined,
     })
     return txHash as string
   }
@@ -29,15 +27,12 @@ export default function usePrivySendTransaction() {
     data: `0x${string}`,
     value?: bigint
   ) => {
-    const nonce = await smartAccountClient?.account?.getNonce()
-
     const txHash = await smartAccountClient?.sendTransaction({
       // @ts-ignore
       from: smartAccountClient.account?.address,
       to: contract.address as Address,
       data,
       value,
-      nonce: nonce ? Number(nonce) : undefined,
     })
     return txHash as string
   }
