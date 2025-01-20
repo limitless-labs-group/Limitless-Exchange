@@ -207,17 +207,13 @@ export const useExternalWalletService = () => {
   }
 
   const checkAndSwitchChainIfNeeded = async () => {
-    console.log(chainId)
-    console.log(defaultChain.id)
-    if (chainId !== defaultChain.id) {
-      const client = await getWalletClient(configureChainsConfig, {
-        account: user?.wallet?.address as Address,
-      })
-      console.log(client)
-      await client.switchChain({
-        id: defaultChain.id,
-      })
-    }
+    const client = await getWalletClient(configureChainsConfig, {
+      account: user?.wallet?.address as Address,
+    })
+    console.log(client)
+    await client.switchChain({
+      id: defaultChain.id,
+    })
   }
 
   const checkLumyAccountBalance = async () => {
