@@ -280,7 +280,6 @@ export default function BuyButton({
     try {
       setStatus('unlocking')
       const amountBI = parseUnits(amount, decimals || 18)
-      console.log('approve start')
       await approveContract(market.address, market.collateralToken.address, amountBI)
       trackClicked(ClickEvent.ConfirmCapClicked, {
         address: market?.address,
