@@ -106,8 +106,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     enabled: !!user?.wallet?.address,
   })
 
-  console.log(wallets)
-
   const userMenuLoading = useMemo(() => {
     if (isLogged || authenticated) {
       if (web3Client === 'etherspot' && !smartAccountClient) {
@@ -136,10 +134,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       })
     },
   })
-
-  console.log(smartAccountClient)
-  console.log(walletClient)
-  console.log(user)
 
   const onUnblockUser = useMutation({
     mutationKey: ['unblock-user', user?.wallet?.address],
