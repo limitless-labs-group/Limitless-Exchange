@@ -12,22 +12,21 @@ import {
   MenuList,
   Text,
   useDisclosure,
+  VStack,
 } from '@chakra-ui/react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import ClobLimitTradeForm from '@/components/common/markets/clob-widget/clob-limit-trade-form'
 import ClobMarketTradeForm from '@/components/common/markets/clob-widget/clob-market-trade-form'
-import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
-import { ClobWidgetProvider } from '@/components/common/markets/clob-widget/context'
+import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import OutcomeButtonsClob from '@/components/common/markets/outcome-buttons/outcome-buttons-clob'
 import SplitSharesModal from '@/components/common/modals/split-shares-modal'
 import Paper from '@/components/common/paper'
 import useClobMarketShares from '@/hooks/use-clob-market-shares'
-import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
 import { useOrderBook } from '@/hooks/use-order-book'
 import SettingsIcon from '@/resources/icons/setting-icon.svg'
 import {
@@ -35,34 +34,40 @@ import {
   StrategyChangedMetadata,
   useAccount,
   useAmplitude,
-  useBalanceQuery,
   useTradingService,
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useWeb3Service } from '@/services/Web3Service'
+import { controlsMedium, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 
-export default function TradingWidgetAdvanced() {
-  const { strategy, market } = useTradingService()
-  const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
-  const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
+export default function ClobWidget() {
+  const { trackChanged } = useAmplitude()
+  const { strategy, setStrategy, market } = useTradingService()
+
   const privateClient = useAxiosPrivateClient()
   const { profileData, account } = useAccount()
   const queryClient = useQueryClient()
-  const {
-    checkAllowance,
-    approveContract,
-    placeLimitOrder,
-    placeMarketOrder,
-    approveAllowanceForAll,
-    checkAllowanceForAll,
-  } = useWeb3Service()
+  const { approveContract, placeLimitOrder, placeMarketOrder, approveAllowanceForAll } =
+    useWeb3Service()
 
-  console.log(sharesOwned)
+  const {
+    isBalanceNotEnough,
+    orderType,
+    setOrderType,
+    outcome,
+    setOutcome,
+    price,
+    setPrice,
+    sharesAmount,
+    setSharesAmount,
+    allowance,
+    isApprovedForSell,
+    checkMarketAllowance,
+  } = useClobWidget()
   // const { data: conditionalTokensAddress } = useConditionalTokensAddr({
   //   marketAddr: !market ? undefined : getAddress(market.address),
   // })
-  const { balanceOfSmartWallet } = useBalanceQuery()
   const { data: orderBook } = useOrderBook(market?.slug)
   // const { data: ownedShares } = useClobMarketShares(account, [
   //   market?.tokens.yes as string,
@@ -71,12 +76,8 @@ export default function TradingWidgetAdvanced() {
   //
   // console.log(ownedShares)
 
-  const [orderType, setOrderType] = useState<MarketOrderType>(MarketOrderType.MARKET)
-  const [outcome, setOutcome] = useState(0)
-  const [price, setPrice] = useState('')
-  const [sharesAmount, setSharesAmount] = useState('')
-  const [allowance, setAllowance] = useState<bigint>(0n)
-  const [isApprovedForSell, setIsApprovedForSell] = useState(false)
+  const { isOpen: moreMenuOpened, onToggle: onToggleMoreMenu } = useDisclosure()
+  const { isOpen: splitSharesModalOpened, onToggle: onToggleSplitSharesModal } = useDisclosure()
 
   const sharesPrice = useMemo(() => {
     if (orderType === MarketOrderType.LIMIT) {
@@ -113,45 +114,6 @@ export default function TradingWidgetAdvanced() {
       noPrice: 0,
     }
   }, [strategy, orderBook])
-
-  const balance = useMemo(() => {
-    if (balanceOfSmartWallet) {
-      return (
-        balanceOfSmartWallet.find(
-          (balanceItem) => balanceItem.contractAddress === market?.collateralToken.address
-        )?.formatted || ''
-      )
-    }
-    return ''
-  }, [balanceOfSmartWallet, strategy, market])
-
-  const isBalanceNotEnough = useMemo(() => {
-    if (orderType === MarketOrderType.LIMIT) {
-      const amount = new BigNumber(price || '0').dividedBy(100).multipliedBy(sharesAmount)
-      console.log(amount.toString())
-      const lockedBalanceFormatted = formatUnits(
-        BigInt(lockedBalance),
-        market?.collateralToken.decimals || 6
-      )
-      console.log(lockedBalanceFormatted)
-      const balanceLeft = new BigNumber(balance).minus(lockedBalanceFormatted)
-      console.log(balanceLeft.toString())
-      return amount.isGreaterThan(balanceLeft)
-    }
-    if (orderType === MarketOrderType.MARKET) {
-      if (strategy === 'Buy') {
-        return new BigNumber(price).isGreaterThan(balance)
-      }
-    }
-  }, [
-    balance,
-    lockedBalance,
-    market?.collateralToken.decimals,
-    orderType,
-    price,
-    sharesAmount,
-    strategy,
-  ])
 
   console.log(isBalanceNotEnough)
 
@@ -276,19 +238,6 @@ export default function TradingWidgetAdvanced() {
     },
   })
 
-  const checkMarketAllowance = async () => {
-    const allowance = await checkAllowance(
-      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-      market?.collateralToken.address as Address
-    )
-    const isApprovedNFT = await checkAllowanceForAll(
-      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
-    )
-    setAllowance(allowance)
-    setIsApprovedForSell(isApprovedNFT)
-  }
-
   const onApprove = async () => {
     await approveMutation.mutateAsync()
   }
@@ -343,63 +292,177 @@ export default function TradingWidgetAdvanced() {
     return true
   }, [orderType, price])
 
-  const actionButton = useMemo(() => {
-    if (strategy === 'Buy') {
-      if (!!+sharesPrice && market) {
-        const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
-          parseUnits(sharesPrice, market.collateralToken.decimals).toString()
-        )
-        return (
-          <ButtonWithStates
-            status={approveMutation.status}
-            variant='contained'
-            w='full'
-            mt='24px'
-            onClick={isApprovalNeeded ? onApprove : onClickBuy}
-            isDisabled={!+sharesPrice || !isSharePriceValid || isBalanceNotEnough}
-            onReset={async () => {
-              approveMutation.reset()
-              await checkMarketAllowance()
-            }}
-          >
-            {isApprovalNeeded ? 'Approve' : strategy}
-          </ButtonWithStates>
-        )
-      }
-    }
-    if (!!+sharesPrice && market) {
-      return (
-        <ButtonWithStates
-          status={approveForSellMutation.status}
-          variant='contained'
-          w='full'
-          mt='24px'
-          onClick={!isApprovedForSell ? onApproveSell : onClickBuy}
-          isDisabled={!+sharesPrice || !isSharePriceValid}
-          onReset={async () => {
-            approveForSellMutation.reset()
-            await checkMarketAllowance()
-          }}
-        >
-          {!isApprovedForSell ? 'Approve Sell' : strategy}
-        </ButtonWithStates>
-      )
-    }
-
-    return <Box mt='24px' />
-  }, [
-    allowance,
-    market,
-    sharesPrice,
-    strategy,
-    approveMutation.status,
-    isApprovedForSell,
-    isSharePriceValid,
-  ])
+  // const actionButton = useMemo(() => {
+  //   if (strategy === 'Buy') {
+  //     if (!!+sharesPrice && market) {
+  //       const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
+  //         parseUnits(sharesPrice, market.collateralToken.decimals).toString()
+  //       )
+  //       return (
+  //         <ButtonWithStates
+  //           status={approveMutation.status}
+  //           variant='contained'
+  //           w='full'
+  //           mt='24px'
+  //           onClick={isApprovalNeeded ? onApprove : onClickBuy}
+  //           isDisabled={!+sharesPrice || !isSharePriceValid || isBalanceNotEnough}
+  //           onReset={async () => {
+  //             approveMutation.reset()
+  //             await checkMarketAllowance()
+  //           }}
+  //         >
+  //           {isApprovalNeeded ? 'Approve' : strategy}
+  //         </ButtonWithStates>
+  //       )
+  //     }
+  //   }
+  //   if (!!+sharesPrice && market) {
+  //     return (
+  //       <ButtonWithStates
+  //         status={approveForSellMutation.status}
+  //         variant='contained'
+  //         w='full'
+  //         mt='24px'
+  //         onClick={!isApprovedForSell ? onApproveSell : onClickBuy}
+  //         isDisabled={!+sharesPrice || !isSharePriceValid}
+  //         onReset={async () => {
+  //           approveForSellMutation.reset()
+  //           await checkMarketAllowance()
+  //         }}
+  //       >
+  //         {!isApprovedForSell ? 'Approve Sell' : strategy}
+  //       </ButtonWithStates>
+  //     )
+  //   }
+  //
+  //   return <Box mt='24px' />
+  // }, [
+  //   allowance,
+  //   market,
+  //   sharesPrice,
+  //   strategy,
+  //   approveMutation.status,
+  //   isApprovedForSell,
+  //   isSharePriceValid,
+  // ])
 
   return (
-    <ClobWidgetProvider>
-      <ClobWidget />
-    </ClobWidgetProvider>
+    <>
+      <HStack w='full' justifyContent='center'>
+        <Button
+          bg={orderType === MarketOrderType.MARKET ? 'grey.100' : 'unset'}
+          h='32px'
+          borderBottomRadius={0}
+          onClick={() => handleOrderTypeChanged(MarketOrderType.MARKET)}
+        >
+          Market
+        </Button>
+        <Button
+          onClick={() => handleOrderTypeChanged(MarketOrderType.LIMIT)}
+          bg={orderType === MarketOrderType.LIMIT ? 'grey.100' : 'unset'}
+          h='32px'
+          borderBottomRadius={0}
+        >
+          Limit Order
+        </Button>
+      </HStack>
+      <Paper bg='grey.100' borderRadius='8px' p='8px' position='relative'>
+        <HStack w='full' justifyContent='center' mb='16px' pl='16px'>
+          <HStack w={'236px'} mx='auto' bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
+            <Button
+              h={isMobile ? '28px' : '20px'}
+              flex='1'
+              py='2px'
+              borderRadius='6px'
+              bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
+              color='grey.800'
+              _hover={{
+                backgroundColor: strategy === 'Buy' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
+              }}
+              onClick={() => {
+                trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
+                  type: 'Buy selected',
+                  marketAddress: market?.address as Address,
+                })
+                setStrategy('Buy')
+              }}
+            >
+              <Text {...controlsMedium} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
+                Buy
+              </Text>
+            </Button>
+            <Button
+              h={isMobile ? '28px' : '20px'}
+              flex='1'
+              borderRadius='6px'
+              py='2px'
+              bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
+              color='grey.800'
+              _hover={{
+                backgroundColor: strategy === 'Sell' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
+              }}
+              _disabled={{
+                opacity: '50%',
+                pointerEvents: 'none',
+              }}
+              onClick={() => {
+                trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
+                  type: 'Sell selected',
+                  marketAddress: market?.address as Address,
+                })
+                setStrategy('Sell')
+              }}
+            >
+              <Text {...controlsMedium} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
+                Sell
+              </Text>
+            </Button>
+          </HStack>
+          <SettingsIcon width={16} height={16} />
+        </HStack>
+        <OutcomeButtonsClob outcome={outcome} setOutcome={setOutcome} />
+        {orderType === MarketOrderType.MARKET ? <ClobMarketTradeForm /> : <ClobLimitTradeForm />}
+        {orderType === MarketOrderType.LIMIT && (
+          <>
+            <Text {...paragraphMedium} mb='8px'>
+              Shares
+            </Text>
+            <InputGroup>
+              <Input
+                type='number'
+                placeholder='0'
+                value={sharesAmount}
+                onChange={(e) => setSharesAmount(e.target.value)}
+                onWheel={(e) => e.stopPropagation()}
+                variant='grey'
+              />
+            </InputGroup>
+          </>
+        )}
+        {isBalanceNotEnough && (
+          <Text my='8px' color='red.500'>
+            Not enough funds
+          </Text>
+        )}
+        {/*<Menu isOpen={moreMenuOpened} onClose={onToggleMoreMenu} variant='outlined'>*/}
+        {/*  <MenuButton w='full' onClick={onToggleMoreMenu} flex={1} mt='24px'>*/}
+        {/*    <Text fontWeight={500}>More</Text>*/}
+        {/*  </MenuButton>*/}
+        {/*  <MenuList*/}
+        {/*    borderRadius='8px'*/}
+        {/*    w={isMobile ? 'calc(100vw - 32px)' : '200px'}*/}
+        {/*    maxH={isMobile ? 'unset' : '104px'}*/}
+        {/*    overflowY={isMobile ? 'unset' : 'auto'}*/}
+        {/*  >*/}
+        {/*    <MenuItem onClick={onToggleSplitSharesModal}>*/}
+        {/*      <HStack gap='4px'>*/}
+        {/*        <Text fontWeight={500}>Split shares</Text>*/}
+        {/*      </HStack>*/}
+        {/*    </MenuItem>*/}
+        {/*  </MenuList>*/}
+        {/*</Menu>*/}
+      </Paper>
+      {/*<SplitSharesModal isOpen={splitSharesModalOpened} onClose={onToggleSplitSharesModal} />*/}
+    </>
   )
 }
