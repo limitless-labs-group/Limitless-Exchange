@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import Loader from '@/components/common/loader'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
 
+// @ts-ignore
 const MotionBox = motion(Box)
 
 type ButtonWithStatesProps = ButtonProps & {

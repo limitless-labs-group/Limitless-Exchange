@@ -13,10 +13,20 @@ import { css } from '@emotion/react'
 import { useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import debounce from 'lodash.debounce'
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import React, {
+  Dispatch,
+  SetStateAction,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { isMobile } from 'react-device-detect'
 import BuyButton from '@/components/common/markets/buy-button'
-import TradeWidgetSkeleton from '@/components/common/skeleton/trade-widget-skeleton'
+import TradeWidgetSkeleton, {
+  SkeletonType,
+} from '@/components/common/skeleton/trade-widget-skeleton'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import InfiniteIcon from '@/resources/icons/infinite-icon.svg'
 import {
@@ -163,6 +173,24 @@ export default function MarketPageBuyForm({
 
   const toggleShowSlippageDetails = () => setShowSlippageDetails(!showSlippageDetails)
 
+  const renderButtonContent = (title: number) => {
+    if (title === 100) {
+      if (isMobile) {
+        return 'MAX'
+      }
+      return `MAX: ${
+        balanceLoading ? (
+          <Box w='90px'>
+            <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
+          </Box>
+        ) : (
+          NumberUtil.formatThousands(balance, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
+        )
+      } ${market?.collateralToken.symbol}`
+    }
+    return `${title}%`
+  }
+
   useEffect(() => {
     if (+collateralAmount) {
       setQuotesLoading(true)
@@ -181,34 +209,45 @@ export default function MarketPageBuyForm({
 
   return (
     <>
-      <Flex justifyContent='space-between'>
-        <Text {...paragraphMedium} color='white'>
-          Balance
-        </Text>
+      <Flex justifyContent='space-between' alignItems='center'>
+        <Flex gap='4px'>
+          <StepBadge content={'1'} />
+          <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'}>
+            Enter amount
+          </Text>
+        </Flex>
         {balanceLoading ? (
           <Box w='90px'>
-            <TradeWidgetSkeleton height={20} />
+            <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
           </Box>
         ) : (
-          <Text {...paragraphMedium} color='white'>
-            {NumberUtil.formatThousands(balance, market?.collateralToken.symbol === 'USDC' ? 1 : 6)}{' '}
-            {market?.collateralToken.symbol}
-          </Text>
+          <Flex gap='12px'>
+            {[10, 25, 50, 100].map((title: number) => (
+              <Button
+                {...paragraphRegular}
+                p='0'
+                borderRadius='0'
+                minW='unset'
+                h='auto'
+                variant='plain'
+                key={title}
+                flex={1}
+                onClick={() => handlePercentButtonClicked(title)}
+                color='grey.500'
+                borderBottom='1px dotted'
+                borderColor='rgba(132, 132, 132, 0.5)'
+                _hover={{
+                  borderColor: 'var(--chakra-colors-text-100)',
+                  color: 'var(--chakra-colors-text-100)',
+                }}
+                disabled={balanceLoading}
+              >
+                {renderButtonContent(title)}
+              </Button>
+            ))}
+          </Flex>
         )}
       </Flex>
-      <HStack w='full' gap='4px' mt='4px'>
-        {[10, 25, 50, 100].map((title) => (
-          <Button
-            variant='transparentLight'
-            key={title}
-            flex={1}
-            onClick={() => handlePercentButtonClicked(title)}
-            color='white'
-          >
-            {title === 100 ? 'MAX' : `${title}%`}
-          </Button>
-        ))}
-      </HStack>
       <Stack
         w={'full'}
         borderRadius='8px'
@@ -218,22 +257,26 @@ export default function MarketPageBuyForm({
       >
         <InputGroup>
           <Input
+            h='32px'
             variant='outlined'
             value={displayAmount}
             onChange={(e) => handleInputValueChange(e.target.value)}
             placeholder='0'
             css={css`
-              caret-color: white;
+              caret-color: var(--chakra-colors-text-100);
+              border-color: var(--chakra-colors-greyTransparent-200);
+              color: var(--chakra-colors-text-100);
             `}
+            _focus={{
+              borderColor: 'var(--chakra-colors-greyTransparent-200)',
+            }}
+            _placeholder={{
+              color: 'var(--chakra-colors-text-100)',
+            }}
             type='number'
           />
-          <InputRightElement
-            h='16px'
-            top={isMobile ? '8px' : '4px'}
-            right={isMobile ? '8px' : '4px'}
-            w='fit'
-          >
-            <Text {...paragraphMedium} color='white'>
+          <InputRightElement h='16px' top='8px' right={isMobile ? '8px' : '12px'} w='fit'>
+            <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'}>
               {market?.collateralToken.symbol}
             </Text>
           </InputRightElement>
@@ -246,13 +289,13 @@ export default function MarketPageBuyForm({
         cursor='pointer'
         onClick={toggleShowSlippageDetails}
       >
-        <Text {...paragraphRegular} color='white'>
+        <Text {...paragraphRegular} color={'var(--chakra-colors-text-100)'}>
           Slippage Tolerance {slippage === '100' ? 'Infinite' : !slippage ? '0%' : `${slippage}%`}
         </Text>
         <Box
           transform={`rotate(${showSlippageDetails ? '180deg' : 0})`}
           transition='0.5s'
-          color='white'
+          color={'var(--chakra-colors-text-100)'}
         >
           <ChevronDownIcon width='16px' height='16px' />
         </Box>
@@ -266,8 +309,16 @@ export default function MarketPageBuyForm({
               onChange={(e) => handleSlippageChange(e.target.value)}
               placeholder='0'
               css={css`
-                caret-color: white;
+                caret-color: var(--chakra-colors-text-100);
+                border-color: var(--chakra-colors-greyTransparent-200);
+                color: var(--chakra-colors-text-100);
               `}
+              _focus={{
+                borderColor: 'var(--chakra-colors-greyTransparent-200)',
+              }}
+              _placeholder={{
+                color: 'var(--chakra-colors-text-100)',
+              }}
               type='number'
             />
             <InputRightElement
@@ -276,7 +327,7 @@ export default function MarketPageBuyForm({
               right={isMobile ? '8px' : '4px'}
               w='fit'
             >
-              <Text {...paragraphMedium} color='white'>
+              <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'}>
                 %
               </Text>
             </InputRightElement>
@@ -284,10 +335,14 @@ export default function MarketPageBuyForm({
           {[1, 5, 7, 100].map((title) => (
             <Button
               variant='transparentLight'
+              bg='var(--chakra-colors-greyTransparent-200)'
+              _hover={{
+                bg: 'var(--chakra-colors-greyTransparent-600)',
+              }}
               key={title}
               flex={1}
               onClick={() => handleSlippageClicked(title)}
-              color='white'
+              color={'var(--chakra-colors-text-100)'}
               py='2px'
               h={isMobile ? '32px' : '24px'}
             >
@@ -296,9 +351,18 @@ export default function MarketPageBuyForm({
           ))}
         </HStack>
       )}
+      <HStack w='full' justifyContent='start' mt='24px'>
+        <Flex gap='4px' alignItems='center'>
+          <StepBadge content={'2'} />
+          <Text {...paragraphRegular} color={'var(--chakra-colors-text-100)'}>
+            Select outcome
+          </Text>
+        </Flex>
+      </HStack>
+
       {market && (
         <>
-          <Box mt='12px' />
+          <Box mt='8px' />
           <BuyButton
             onClick={async () => {
               setOutcomeIndex(0)
@@ -345,3 +409,27 @@ export default function MarketPageBuyForm({
     </>
   )
 }
+
+type StepBadgeProps = {
+  content: string
+}
+
+const StepBadge = memo(({ content }: StepBadgeProps) => {
+  return (
+    <Flex
+      borderRadius='999px'
+      w='16px'
+      h='16px'
+      bg={'var(--chakra-colors-grey-800)'}
+      alignItems='center'
+      justifyContent='center'
+      fontSize='12px'
+      fontWeight='700'
+      color='grey.100'
+    >
+      {content}
+    </Flex>
+  )
+})
+
+StepBadge.displayName = 'StepBadge'

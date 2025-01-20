@@ -1,28 +1,32 @@
 import { useQuery } from '@tanstack/react-query'
+import { useWalletClient } from 'wagmi'
 import { IUseLogin, useLogin } from './use-login'
+import useClient from '@/hooks/use-client'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 
-const useCheckSession = () => {
-  const axiosPrivate = useAxiosPrivateClient()
-  return async () => {
-    const response = await axiosPrivate.get('/auth/verify-auth')
-    return response.status
-  }
-}
-
-export const useUserSession = ({ client, account }: IUseLogin) => {
-  const checkSession = useCheckSession()
+export const useUserSession = ({ client, account, smartWallet }: IUseLogin) => {
   const { mutateAsync: loginUser } = useLogin()
+  const axiosPrivate = useAxiosPrivateClient()
+  const { isLogged } = useClient()
+  const { data: walletClient } = useWalletClient()
 
   return useQuery({
     queryKey: ['user-session'],
     queryFn: async () => {
-      const status = await checkSession()
-      if (status === 401) {
-        return loginUser({ client, account })
+      if (client === 'etherspot' && !smartWallet) {
+        return
+      }
+      try {
+        await axiosPrivate.get('/auth/verify-auth')
+      } catch (e) {
+        // @ts-ignore
+        if (e.status === 401) {
+          await loginUser({ client, account, smartWallet })
+        }
       }
     },
     staleTime: Infinity,
     gcTime: Infinity,
+    enabled: !!isLogged && !!walletClient,
   })
 }

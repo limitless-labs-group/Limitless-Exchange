@@ -225,7 +225,7 @@ export function ProfileForm() {
                 <InputLeftElement
                   h='16px'
                   w='unset'
-                  top={isMobile ? '32px' : '28px'}
+                  top={isMobile ? '32px' : '24px'}
                   left={isMobile ? '12px' : '8px'}
                   color='grey.500'
                 >
@@ -256,7 +256,7 @@ export function ProfileForm() {
               <InputLeftElement
                 h='16px'
                 w='unset'
-                top={isMobile ? '32px' : '28px'}
+                top={isMobile ? '28px' : '24px'}
                 left={isMobile ? '12px' : '8px'}
                 color='grey.500'
               >
@@ -290,7 +290,7 @@ export function ProfileForm() {
               <InputLeftElement
                 h='16px'
                 w='unset'
-                top={isMobile ? '35px' : '30px'}
+                top={isMobile ? '29px' : '24px'}
                 left={isMobile ? '12px' : '8px'}
                 color='grey.500'
               >

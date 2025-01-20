@@ -14,6 +14,7 @@ import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/font
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { cutUsername } from '@/utils/string'
 
+// @ts-ignore
 const MotionBox = motion(Box)
 
 export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps) => {
@@ -186,8 +187,11 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
                     gap='8px'
                     key={feedMessage.bodyHash}
                   >
-                    <HStack gap='4px' alignItems='flex-start'>
-                      <Avatar account={feedMessage?.user?.account ?? ''} />
+                    <HStack gap='4px' alignItems='end'>
+                      <Avatar
+                        account={feedMessage?.user?.account ?? ''}
+                        avatarUrl={feedMessage?.user?.imageURI}
+                      />
                       <Text {...paragraphMedium} color='white' mt='-2px'>
                         {fetMarketFeedTitle(feedMessage)}
                       </Text>
@@ -197,9 +201,13 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
               </Box>
             )}
             <HStack gap='4px'>
-              <Box {...paragraphRegular}>💧 </Box>
               <Text {...paragraphRegular} color='transparent.700'>
-                Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
+                Value{' '}
+                {NumberUtil.convertWithDenomination(
+                  Number(market.openInterestFormatted || 0) +
+                    Number(market.liquidityFormatted || 0),
+                  6
+                )}{' '}
                 {market.collateralToken.symbol}
               </Text>
             </HStack>

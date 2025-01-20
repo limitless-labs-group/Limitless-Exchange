@@ -58,7 +58,7 @@ const History = () => {
     []
   )
   //@ts-ignore
-  const historyFlat = historyData?.pages.flatMap((page) => page.data.data)
+  const historyFlat = historyData?.pages.flatMap((page) => page.data?.data)
   if (isHistoryLoading) {
     return (
       <>
@@ -99,7 +99,7 @@ const History = () => {
     >
       <TableContainerWrapper>
         {historyFlat.map((item) =>
-          'strategy' in item ? (
+          item.strategy ? (
             <PortfolioHistoryTradeItem
               key={(item as HistoryTrade).transactionHash}
               trade={item as HistoryTrade}

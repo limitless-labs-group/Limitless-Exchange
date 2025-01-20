@@ -111,7 +111,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
       marketTags: market.tags,
       marketCategory: market.category,
     })
-    setEstimateOpened(true)
+    setEstimateOpened(!estimateOpened)
   }
 
   const onCloseEstimateClicked = (e: SyntheticEvent) => {
@@ -198,52 +198,39 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
               </HStack>
               <HStack gap='4px'>
                 <HStack gap='4px'>
-                  {defineOpenInterestOverVolume(
-                    market.openInterestFormatted,
-                    market.liquidityFormatted
-                  ).showOpenInterest ? (
-                    <>
-                      <HStack gap={0}>
-                        {uniqueUsersTrades?.map(({ user }, index) => (
-                          <Avatar
-                            account={user.account || ''}
-                            avatarUrl={user.imageURI}
-                            key={index}
-                            borderColor='grey.100'
-                            zIndex={100 + index}
-                            border='2px solid'
-                            color='grey.100 !important'
-                            showBorder
-                            bg='grey.100'
-                            size='20px'
-                            style={{
-                              border: '2px solid',
-                              marginLeft: index > 0 ? '-6px' : 0,
-                            }}
-                          />
-                        ))}
-                      </HStack>
-                      <Text {...paragraphRegular} color='grey.500'>
-                        Value
-                      </Text>
-                      <Text {...paragraphRegular} color='grey.500'>
-                        {NumberUtil.convertWithDenomination(
-                          +market.openInterestFormatted + +market.liquidityFormatted,
-                          6
-                        )}{' '}
-                        {market.collateralToken.symbol}
-                      </Text>
-                      <OpenInterestTooltip iconColor='grey.500' />
-                    </>
-                  ) : (
-                    <>
-                      <Box {...paragraphRegular}>💧 </Box>
-                      <Text {...paragraphRegular} color='grey.500'>
-                        Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
-                        {market.collateralToken.symbol}
-                      </Text>
-                    </>
-                  )}
+                  <>
+                    <HStack gap={0}>
+                      {uniqueUsersTrades?.map(({ user }, index) => (
+                        <Avatar
+                          account={user.account || ''}
+                          avatarUrl={user.imageURI}
+                          key={index}
+                          borderColor='grey.100'
+                          zIndex={100 + index}
+                          border='2px solid'
+                          color='grey.100 !important'
+                          showBorder
+                          bg='grey.100'
+                          size='20px'
+                          style={{
+                            border: '2px solid',
+                            marginLeft: index > 0 ? '-6px' : 0,
+                          }}
+                        />
+                      ))}
+                    </HStack>
+                    <Text {...paragraphRegular} color='grey.500'>
+                      Value
+                    </Text>
+                    <Text {...paragraphRegular} color='grey.500'>
+                      {NumberUtil.convertWithDenomination(
+                        +market.openInterestFormatted + +market.liquidityFormatted,
+                        6
+                      )}{' '}
+                      {market.collateralToken.symbol}
+                    </Text>
+                    <OpenInterestTooltip iconColor='grey.500' />
+                  </>
                 </HStack>
               </HStack>
             </HStack>
@@ -326,9 +313,5 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
     </Box>
   )
 
-  return isLumy ? (
-    content
-  ) : (
-    <MarketCardLink marketAddress={market?.address}>{content}</MarketCardLink>
-  )
+  return <MarketCardLink marketAddress={market?.address}>{content}</MarketCardLink>
 }

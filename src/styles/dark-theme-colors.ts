@@ -109,7 +109,7 @@ export const darkThemeColors: ColorScheme = {
     200: '#6666F5',
     300: '#4D4DF3',
     400: '#3333F1',
-    500: '#0000EE',
+    500: '#0079FF',
     600: '#0000EE',
     700: '#0000EE',
     800: '#0000EE',
@@ -155,10 +155,24 @@ export const darkThemeColors: ColorScheme = {
   background: {
     90: 'rgba(28, 28, 28, 0.9)',
   },
+  text: {
+    100: 'white',
+  },
   skeleton: {
     dark: '#232222',
     highLight: '#2E2E2E',
     tradeSkeleton: '#5151FF',
-    tradeSkeletonBackground: '#4D4DF3',
+    tradeSkeletonBackground: '#71717a',
+    widgetYes: '#16a34a',
+    widgetBgYes: '#4ade80',
+    widgetNo: '#dc2626',
+    widgetBgNo: '#f87171',
+    widgetGrey: '#71717a',
+    widgetBgGrey: '#52525b',
+  },
+  draftCard: {
+    bg: '#042713',
+    border: '#124a28',
+    selectedBg: '#18181b',
   },
 }

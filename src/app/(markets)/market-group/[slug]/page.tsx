@@ -195,7 +195,12 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
         <>Market group not found</>
       ) : (
         <>
-          <HStack gap='40px' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
+          <HStack
+            gap='40px'
+            w={isMobile ? 'full' : 'unset'}
+            alignItems='flex-start'
+            mb={isMobile ? '84px' : 0}
+          >
             <Box w={isMobile ? 'full' : '664px'}>
               <Divider orientation='horizontal' h='3px' />
               <HStack justifyContent='space-between' mt='10px' mb='24px'>

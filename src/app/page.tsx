@@ -1,10 +1,11 @@
 'use client'
 
-import { Box, HStack } from '@chakra-ui/react'
+import { Box, HStack, Text } from '@chakra-ui/react'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
 import { getAddress } from 'viem'
-import AllMarkets from '@/components/common/markets/all-markets'
+import Loader from '@/components/common/loader'
 import DailyMarketsSection from '@/components/common/markets/daily-markets'
 import TopMarkets from '@/components/common/markets/top-markets'
 import { MainLayout } from '@/components'
@@ -19,12 +20,13 @@ import {
   useCategories,
   useTradingService,
 } from '@/services'
-import { useDailyMarkets, useMarket, useMarkets } from '@/services/MarketsService'
-import { Category, Market, MarketGroup, Sort } from '@/types'
+import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Category, Market, MarketGroup, Sort, SortStorageName } from '@/types'
+import { sortMarkets } from '@/utils/market-sorting'
 
 const MainPage = () => {
   const searchParams = useSearchParams()
-  const [page, setPage] = useState(1)
   const { data: categories } = useCategories()
   const { onCloseMarketPage, onOpenMarketPage } = useTradingService()
   /**
@@ -70,13 +72,20 @@ const MainPage = () => {
    */
   const isMobile = useIsMobile()
 
-  const [selectedSort, setSelectedSort] = useState<Sort>(
-    (window.localStorage.getItem('SORT') as Sort) ?? Sort.BASE
-  )
-  const handleSelectSort = (options: Sort) => {
-    window.localStorage.setItem('SORT', options)
+  const [selectedSort, setSelectedSort] = useState<Sort>(() => {
+    if (typeof window !== 'undefined') {
+      return (window.localStorage.getItem(SortStorageName.SORT) as Sort) ?? Sort.BASE
+    }
+    return Sort.BASE
+  })
+
+  const handleSelectSort = (options: Sort, name: SortStorageName) => {
+    window.localStorage.setItem(name, options)
     setSelectedSort(options)
   }
+
+  const { data: banneredMarkets, isFetching: isBanneredLoading } =
+    useBanneredMarkets(categoryEntity)
 
   const { selectedFilterTokens, selectedCategory } = useTokenFilter()
 
@@ -84,43 +93,14 @@ const MainPage = () => {
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     useMarkets(categoryEntity)
 
-  const { data: dailyMarkets, isLoading: isLoadingDailyMarkets } = useDailyMarkets(categoryEntity)
-
-  const topMarkets =
-    dailyMarkets?.data.markets
-      // @ts-ignore
-      .filter((market) => !market.slug)
-      .sort((a, b) => {
-        // @ts-ignore
-        const volumeA = a?.slug
-          ? // @ts-ignore
-            a.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
-          : // @ts-ignore
-            +a.volumeFormatted
-        // @ts-ignore
-        const volumeB = b?.slug
-          ? // @ts-ignore
-            b.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
-          : // @ts-ignore
-            +b.volumeFormatted
-
-        return (
-          convertTokenAmountToUsd(b.collateralToken.symbol, volumeB) -
-          convertTokenAmountToUsd(a.collateralToken.symbol, volumeA)
-        )
-      })
-      .slice(0, 3) || []
-
-  const dataLength = data?.pages.reduce((counter, page) => {
-    return counter + page.data.markets.length
-  }, 0)
-
   const markets: (Market | MarketGroup)[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages, category])
 
   const filteredAllMarkets = useMemo(() => {
-    const tokenFilteredMarkets = markets?.filter((market) =>
+    if (!markets) return []
+
+    const tokenFilteredMarkets = markets.filter((market) =>
       selectedFilterTokens.length > 0
         ? selectedFilterTokens.some(
             (filterToken) =>
@@ -136,64 +116,11 @@ const MainPage = () => {
     }
 
     return tokenFilteredMarkets
-  }, [markets, selectedFilterTokens, selectedCategory])
+  }, [markets])
 
-  const sortedMarkets = useMemo(() => {
-    if (!filteredAllMarkets) return []
-    switch (selectedSort) {
-      case Sort.NEWEST:
-        return [...filteredAllMarkets].sort((a, b) => {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        })
-      case Sort.HIGHEST_VOLUME:
-        return [...filteredAllMarkets].sort((a, b) => {
-          // @ts-ignore
-          const volumeA = a?.slug
-            ? // @ts-ignore
-              a.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
-            : // @ts-ignore
-              +a.volumeFormatted
-          // @ts-ignore
-          const volumeB = b?.slug
-            ? // @ts-ignore
-              b.markets.reduce((a, b) => a + +b.volumeFormatted, 0)
-            : // @ts-ignore
-              +b.volumeFormatted
-
-          return (
-            convertTokenAmountToUsd(b.collateralToken.symbol, volumeB) -
-            convertTokenAmountToUsd(a.collateralToken.symbol, volumeA)
-          )
-        })
-      case Sort.HIGHEST_LIQUIDITY:
-        return [...filteredAllMarkets].sort((a, b) => {
-          // @ts-ignore
-          const liquidityA = a?.slug
-            ? // @ts-ignore
-              a.markets.reduce((a, b) => a + +b.liquidityFormatted, 0)
-            : // @ts-ignore
-              +a.liquidityFormatted
-          // @ts-ignore
-          const liquidityB = b?.slug
-            ? // @ts-ignore
-              b.markets.reduce((a, b) => a + +b.liquidityFormatted, 0)
-            : // @ts-ignore
-              +b.liquidityFormatted
-
-          return (
-            convertTokenAmountToUsd(b.collateralToken.symbol, liquidityB) -
-            convertTokenAmountToUsd(a.collateralToken.symbol, liquidityA)
-          )
-        })
-      case Sort.ENDING_SOON:
-        return [...filteredAllMarkets].sort(
-          (a, b) =>
-            new Date(a.expirationTimestamp).getTime() - new Date(b.expirationTimestamp).getTime()
-        )
-      default:
-        return filteredAllMarkets
-    }
-  }, [markets, filteredAllMarkets, selectedSort])
+  const sortedAllMarkets = useMemo(() => {
+    return sortMarkets(filteredAllMarkets, selectedSort, convertTokenAmountToUsd)
+  }, [filteredAllMarkets, selectedSort, convertTokenAmountToUsd])
 
   useEffect(() => {
     return () => {
@@ -211,29 +138,32 @@ const MainPage = () => {
       >
         <Box w={isMobile ? 'full' : '664px'}>
           <>
-            <TopMarkets markets={topMarkets as Market[]} isLoading={isLoadingDailyMarkets} />
-            <DailyMarketsSection
-              markets={dailyMarkets?.data.markets}
-              isLoading={isLoadingDailyMarkets}
-              totalAmount={dailyMarkets?.data.totalAmount}
-            />
-            <AllMarkets
-              markets={sortedMarkets}
-              handleSelectSort={handleSelectSort}
-              totalAmount={data?.pages?.[0].data.totalAmount}
-              isLoading={isFetching && !isFetchingNextPage}
-            />
+            <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
+            <InfiniteScroll
+              className='scroll'
+              dataLength={sortedAllMarkets?.length ?? 0}
+              next={fetchNextPage}
+              hasMore={hasNextPage}
+              style={{ width: '100%' }}
+              loader={
+                sortedAllMarkets.length > 0 ? (
+                  <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+                    <Loader />
+                    <Text {...paragraphRegular}>Loading more markets</Text>
+                  </HStack>
+                ) : null
+              }
+            >
+              <DailyMarketsSection
+                markets={sortedAllMarkets as Market[]}
+                handleSelectSort={handleSelectSort}
+                totalAmount={data?.pages?.[0].data.totalAmount}
+                isLoading={isFetching && !isFetchingNextPage}
+              />
+            </InfiniteScroll>
           </>
-          {/*{isFetching && !isFetchingNextPage ? (*/}
-          {/*  <HStack w={'full'} justifyContent={'center'} alignItems={'center'}>*/}
-          {/*    <Spinner />*/}
-          {/*  </HStack>*/}
-          {/*) : (*/}
-          {/*  */}
-          {/*)}*/}
         </Box>
       </HStack>
-      {/*{dailyMarkets && <DrawerCarousel markets={dailyMarkets.markets as unknown as Market[]} />}*/}
     </MainLayout>
   )
 }

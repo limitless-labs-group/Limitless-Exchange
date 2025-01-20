@@ -4,13 +4,13 @@ import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import Skeleton from '@/components/common/skeleton'
 import PortfolioPositionCard from '@/app/portfolio/components/PortfolioPositionCard'
-import { useHistory } from '@/services'
+import { usePosition } from '@/services'
 import { usePrices } from '@/services/MarketsService'
 import { useUsersMarkets } from '@/services/UsersMarketsService'
 import { Token } from '@/types'
 
 const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boolean }) => {
-  const { positions, tradesAndPositionsLoading } = useHistory()
+  const { data: positions, isLoading: tradesAndPositionsLoading } = usePosition()
   const { data: userMarkets } = useUsersMarkets()
 
   /**
@@ -57,7 +57,7 @@ const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boo
       </Stack>
     )
   }
-  const getPrices = (id: string) => prices?.find((price) => price.market === id)
+  const getPrices = (id: string) => prices?.find((price) => price.address === id)
 
   return (
     <>

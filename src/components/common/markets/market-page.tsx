@@ -53,7 +53,7 @@ import {
   OpenEvent,
   StrategyChangedMetadata,
   useAmplitude,
-  useHistory,
+  usePosition,
   useTradingService,
 } from '@/services'
 import { useMarket } from '@/services/MarketsService'
@@ -68,21 +68,31 @@ import { defineOpenInterestOverVolume } from '@/utils/market'
 
 const tokens = [
   'AAVE',
+  'AERO',
+  'ALGO',
   'APE',
   'ATOM',
   'APT',
-  'BRETT',
-  'BTC',
-  'DOGE',
+  'AVAX',
+  'DOT',
   'EIGEN',
   'ENS',
-  'ETH',
-  'FLOKI',
+  'FTM',
+  'HBAR',
+  'ICP',
+  'INJ',
+  'JUP',
+  'LDO',
+  'LINK',
+  'NEAR',
+  'ONDO',
+  'OP',
+  'PYTH',
   'RENDER',
-  'SOL',
   'SUI',
-  'ZRO',
+  'WLD',
   'ZK',
+  'ZRO',
 ]
 
 export default function MarketPage() {
@@ -107,7 +117,7 @@ export default function MarketPage() {
   const pathname = usePathname()
 
   const { trackChanged, trackClicked, trackOpened } = useAmplitude()
-  const { positions: allMarketsPositions } = useHistory()
+  const { data: allMarketsPositions } = usePosition()
 
   // Todo change creator name
 
@@ -145,24 +155,9 @@ export default function MarketPage() {
 
   const isLivePriceSupportedMarket =
     isLumy &&
-    [
-      'Will AAVE',
-      'Will APE',
-      'Will ATOM',
-      'Will APT',
-      'Will BRETT',
-      'Will BTC',
-      'Will DOGE',
-      'Will EIGEN',
-      'Will ENS',
-      'Will ETH',
-      'Will FLOKI',
-      'Will RENDER',
-      'Will SOL',
-      'Will SUI',
-      'Will ZRO',
-      'Will ZK',
-    ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
+    tokens
+      .map((token) => `Will ${token}`)
+      .some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = [
     {
@@ -246,8 +241,12 @@ export default function MarketPage() {
     setStrategy('Buy')
   }, [])
 
+  const trackedMarketsRef = useRef(new Set<string>())
+
   useEffect(() => {
-    if (market) {
+    //avoid triggering amplitude call twice
+    if (market?.address && !trackedMarketsRef.current.has(market.address)) {
+      trackedMarketsRef.current.add(market.address)
       trackOpened(OpenEvent.SidebarMarketOpened, {
         marketAddress: market.address,
         marketTags: market.tags,
@@ -296,6 +295,7 @@ export default function MarketPage() {
       pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
       backdropFilter='blur(7.5px)'
+      zIndex='200'
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
@@ -361,6 +361,7 @@ export default function MarketPage() {
         <ProgressBar variant='market' value={market ? market.prices[0] : 50} />
         <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
+            <VolumeIcon width={16} height={16} />
             <Text {...paragraphRegular} color='grey.500'>
               Volume
             </Text>
@@ -369,33 +370,20 @@ export default function MarketPage() {
               {market?.collateralToken.symbol}
             </Text>
           </HStack>
-          {defineOpenInterestOverVolume(
-            market?.openInterestFormatted || '0',
-            market?.liquidityFormatted || '0'
-          ).showOpenInterest ? (
-            <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
-              <UniqueTraders color='grey.50' />
-              <Text {...paragraphRegular} color='grey.500'>
-                Value
-              </Text>
-              <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(
-                  market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
-                  6
-                )}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
-              <OpenInterestTooltip iconColor='grey.500' />
-            </HStack>
-          ) : (
-            <HStack gap='4px' w={isMobile ? 'full' : 'unset'} justifyContent='unset'>
-              <Box {...paragraphRegular}>💧 </Box>
-              <Text {...paragraphRegular} color='grey.500'>
-                Liquidity {NumberUtil.convertWithDenomination(market?.liquidityFormatted, 6)}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
-            </HStack>
-          )}
+          <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
+            <UniqueTraders color='grey.50' />
+            <Text {...paragraphRegular} color='grey.500'>
+              Value
+            </Text>
+            <Text {...paragraphRegular} color='grey.500'>
+              {NumberUtil.convertWithDenomination(
+                market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
+                6
+              )}{' '}
+              {market?.collateralToken.symbol}
+            </Text>
+            <OpenInterestTooltip iconColor='grey.500' />
+          </HStack>
         </HStack>
         <Divider my={isMobile ? '24px' : '16px'} />
       </Box>
@@ -420,25 +408,31 @@ export default function MarketPage() {
           </VStack>
         </Paper>
       ) : (
-        <Paper bg='blue.500' borderRadius='8px' overflowX='hidden' p='8px'>
+        <Paper
+          bg={'var(--chakra-colors-grey-100)'}
+          borderRadius='8px'
+          overflowX='hidden'
+          p='8px'
+          position='relative'
+        >
           <HStack
             w={'240px'}
             mx='auto'
-            bg='rgba(255, 255, 255, 0.20)'
+            bg='grey.200'
             borderRadius='8px'
             py='2px'
-            px={isMobile ? '4px' : '2px'}
+            px={'2px'}
             mb={isMobile ? '16px' : '24px'}
           >
             <Button
               h={isMobile ? '28px' : '20px'}
               flex='1'
               py='2px'
-              borderRadius='8px'
-              bg={strategy === 'Buy' ? 'white' : 'unset'}
-              color={strategy === 'Buy' ? 'black' : 'white'}
+              borderRadius='6px'
+              bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
+              color='grey.800'
               _hover={{
-                backgroundColor: strategy === 'Buy' ? 'white' : 'rgba(255, 255, 255, 0.30)',
+                backgroundColor: strategy === 'Buy' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
               }}
               onClick={() => {
                 trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
@@ -455,12 +449,12 @@ export default function MarketPage() {
             <Button
               h={isMobile ? '28px' : '20px'}
               flex='1'
-              borderRadius='8px'
+              borderRadius='6px'
               py='2px'
-              bg={strategy === 'Sell' ? 'white' : 'unset'}
-              color={strategy === 'Sell' ? 'black' : 'white'}
+              bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
+              color='grey.800'
               _hover={{
-                backgroundColor: strategy === 'Sell' ? 'white' : 'rgba(255, 255, 255, 0.30)',
+                backgroundColor: strategy === 'Sell' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
               }}
               _disabled={{
                 opacity: '50%',

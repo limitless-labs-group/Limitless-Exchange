@@ -1,51 +1,28 @@
-import { QueryObserverResult, useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
-import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Hash } from 'viem'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import { usePriceOracle } from '@/providers'
+import useClient from '@/hooks/use-client'
+import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import { useLimitlessApi } from '@/services/LimitlessApi'
 import { Address } from '@/types'
-import { NumberUtil } from '@/utils'
 
-interface IHistoryService {
-  positions: HistoryPosition[] | undefined
-  getPositions: () => Promise<QueryObserverResult<HistoryPosition[], Error>>
-  balanceInvested: string
-  balanceToWin: string
-  tradesAndPositionsLoading: boolean
-}
-
-const HistoryServiceContext = createContext({} as IHistoryService)
-
-export const useHistory = () => useContext(HistoryServiceContext)
-
-export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
-  /**
-   * ACCOUNT
-   */
-  const walletAddress = useWalletAddress()
+export const usePosition = () => {
+  const { profileData, web3Client, smartAccountClient } = useAccount()
+  const { isLogged } = useClient()
   const privateClient = useAxiosPrivateClient()
 
-  /**
-   * UTILS
-   */
-  const { convertAssetAmountToUsd } = usePriceOracle()
-  const { supportedTokens } = useLimitlessApi()
+  const enabled = useMemo(() => {
+    if (web3Client === 'etherspot' && smartAccountClient) {
+      return true
+    }
+    return !!profileData?.id && !!isLogged
+  }, [isLogged, profileData?.id, smartAccountClient, web3Client])
 
-  /**
-   * QUERIES
-   */
-
-  const {
-    data: positions,
-    refetch: getPositions,
-    isLoading: positionsLoading,
-  } = useQuery({
-    queryKey: ['positions'],
+  return useQuery({
+    queryKey: ['positions', profileData?.id],
     queryFn: async () => {
-      if (!walletAddress) {
+      if (!profileData) {
         return []
       }
       try {
@@ -56,60 +33,9 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
         return []
       }
     },
-    enabled: !!walletAddress,
+    enabled,
+    refetchInterval: !!profileData?.id ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
   })
-
-  /**
-   * BALANCES
-   */
-  const balanceInvested = useMemo(() => {
-    let _balanceInvested = 0
-    positions?.forEach((position) => {
-      let positionUsdAmount = 0
-      const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
-      )
-      if (!!token) {
-        positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, position.collateralAmount)
-      }
-      _balanceInvested += positionUsdAmount
-    })
-    return NumberUtil.toFixed(_balanceInvested, 2)
-  }, [positions])
-
-  const balanceToWin = useMemo(() => {
-    let _balanceToWin = 0
-    positions?.forEach((position) => {
-      let positionOutcomeUsdAmount = 0
-      const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
-      )
-      if (!!token) {
-        positionOutcomeUsdAmount = convertAssetAmountToUsd(
-          token.priceOracleId,
-          position.outcomeTokenAmount
-        )
-      }
-      _balanceToWin += positionOutcomeUsdAmount
-    })
-    return NumberUtil.toFixed(_balanceToWin, 2)
-  }, [positions])
-
-  const tradesAndPositionsLoading = positionsLoading
-
-  const contextProviderValue: IHistoryService = {
-    positions,
-    getPositions,
-    balanceInvested,
-    balanceToWin,
-    tradesAndPositionsLoading,
-  }
-
-  return (
-    <HistoryServiceContext.Provider value={contextProviderValue}>
-      {children}
-    </HistoryServiceContext.Provider>
-  )
 }
 
 export const usePortfolioHistory = (page: number) => {
@@ -133,12 +59,15 @@ export const usePortfolioHistory = (page: number) => {
 
 export const useInfinityHistory = () => {
   const privateClient = useAxiosPrivateClient()
-  const walletAddress = useWalletAddress()
+  const { checkIsLogged } = useClient()
+  const { profileData } = useAccount()
   return useInfiniteQuery<History[], Error>({
     queryKey: ['history-infinity'],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      if (!walletAddress) {
+      const isLogged = checkIsLogged()
+
+      if (!isLogged) {
         return []
       }
 
@@ -161,7 +90,7 @@ export const useInfinityHistory = () => {
     },
     refetchOnWindowFocus: false,
     keepPreviousData: true,
-    enabled: !!walletAddress,
+    enabled: !!profileData?.id,
   })
 }
 

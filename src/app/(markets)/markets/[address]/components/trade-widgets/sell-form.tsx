@@ -24,7 +24,9 @@ import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useSt
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
-import TradeWidgetSkeleton from '@/components/common/skeleton/trade-widget-skeleton'
+import TradeWidgetSkeleton, {
+  SkeletonType,
+} from '@/components/common/skeleton/trade-widget-skeleton'
 import { Toast } from '@/components/common/toast'
 import { useToast } from '@/hooks'
 import { useToken } from '@/hooks/use-token'
@@ -41,7 +43,7 @@ import {
   TradeQuotes,
   useAmplitude,
   useBalanceService,
-  useHistory,
+  usePosition,
   useTradingService,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -106,7 +108,7 @@ export function SellForm({
 
   const { client } = useWeb3Service()
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
-  const { positions: allMarketsPositions } = useHistory()
+  const { data: allMarketsPositions } = usePosition()
   const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
 
   const positions = useMemo(
@@ -263,7 +265,7 @@ export function SellForm({
     if (!token) {
       return (
         <Box w='80px'>
-          <TradeWidgetSkeleton height={20} />
+          <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
         </Box>
       )
     }
@@ -278,7 +280,7 @@ export function SellForm({
     if (!token) {
       return (
         <Box w='80px'>
-          <TradeWidgetSkeleton height={20} />
+          <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
         </Box>
       )
     }
@@ -443,15 +445,15 @@ export function SellForm({
                 <Box
                   transform={`rotate(${isOpenSelectMarketMenu ? '180deg' : 0})`}
                   transition='0.5s'
-                  color='white'
+                  color='var(--chakra-colors-text-100)'
                 >
                   <ChevronDownIcon width='16px' height='16px' />
                 </Box>
               }
             >
-              <HStack gap='8px' color='white'>
+              <HStack gap='8px' color='var(--chakra-colors-text-100)'>
                 <PredictionsIcon />
-                <Text {...paragraphMedium} color='white'>
+                <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
                   {market?.proxyTitle ?? market?.title}
                 </Text>
               </HStack>
@@ -477,10 +479,10 @@ export function SellForm({
                 >
                   <HStack mb='8px' w='full'>
                     <HStack justifyContent='space-between' w='full' alignItems='flex-start'>
-                      <Text {...paragraphMedium} color='white'>
+                      <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
                         {market?.proxyTitle ?? market?.title}
                       </Text>
-                      <Text {...paragraphMedium} color='white'>
+                      <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
                         {NumberUtil.formatThousands(getTotalContractsAmount(market.address), 6)}{' '}
                         Contracts
                       </Text>
@@ -497,7 +499,7 @@ export function SellForm({
           <VStack mt={marketGroup ? 0 : '24px'}>
             {positionsYes && (
               <Button
-                bg={outcomeChoice === 'yes' ? 'white' : 'rgba(255, 255, 255, 0.2)'}
+                bg={outcomeChoice === 'yes' ? 'white' : 'green.500'}
                 px='12px'
                 py='8px'
                 w='full'
@@ -521,7 +523,7 @@ export function SellForm({
                 }}
                 borderRadius='8px'
                 _hover={{
-                  backgroundColor: outcomeChoice === 'yes' ? 'white' : 'transparent.300',
+                  backgroundColor: outcomeChoice === 'yes' ? 'white' : 'green.300',
                 }}
                 gap={isMobile ? '16px' : '8px'}
               >
@@ -543,7 +545,7 @@ export function SellForm({
                     <HStack w={'full'}>
                       <Text
                         {...paragraphMedium}
-                        color='white'
+                        color='var(--chakra-colors-text-100)'
                         textAlign={'left'}
                         whiteSpace='normal'
                       >
@@ -615,7 +617,7 @@ export function SellForm({
             )}
             {positionsNo && (
               <Button
-                bg={outcomeChoice === 'no' ? 'white' : 'rgba(255, 255, 255, 0.2)'}
+                bg={outcomeChoice === 'no' ? 'white' : 'red.500'}
                 px='12px'
                 py='8px'
                 w='full'
@@ -639,7 +641,7 @@ export function SellForm({
                 }}
                 borderRadius='8px'
                 _hover={{
-                  backgroundColor: outcomeChoice === 'no' ? 'white' : 'transparent.300',
+                  backgroundColor: outcomeChoice === 'no' ? 'white' : 'red.300',
                 }}
                 gap={isMobile ? '16px' : '8px'}
               >
@@ -661,7 +663,7 @@ export function SellForm({
                     <HStack w={'full'}>
                       <Text
                         {...paragraphMedium}
-                        color='white'
+                        color='var(--chakra-colors-text-100)'
                         textAlign={'left'}
                         whiteSpace='normal'
                       >
@@ -732,15 +734,15 @@ export function SellForm({
           {outcomeChoice && (
             <Box mt='24px'>
               <Flex justifyContent='space-between'>
-                <Text {...paragraphMedium} color='white'>
+                <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
                   Balance
                 </Text>
                 {sellBalanceLoading ? (
                   <Box w='120px'>
-                    <TradeWidgetSkeleton height={20} />
+                    <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
                   </Box>
                 ) : (
-                  <Text {...paragraphMedium} color='white'>
+                  <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
                     {NumberUtil.formatThousands(balance, 6)} {token?.symbol}
                   </Text>
                 )}
@@ -757,20 +759,20 @@ export function SellForm({
                 h={isMobile ? '40px' : '8px'}
                 py={isMobile ? '0px !important' : '4px'}
               >
-                <SliderTrack bg='rgba(255, 255, 255, 0.2)'>
-                  <SliderFilledTrack bg='white' />
+                <SliderTrack bg='var(--chakra-colors-greyTransparent-600)'>
+                  <SliderFilledTrack bg='var(--chakra-colors-text-100)' />
                 </SliderTrack>
-                <SliderThumb bg='white' />
+                <SliderThumb bg='var(--chakra-colors-text-100)' />
               </Slider>
               <Stack w={'full'} mt={isMobile ? 0 : '8px'} gap='4px'>
                 <HStack justifyContent='space-between'>
-                  <Text {...paragraphMedium} color='white'>
+                  <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
                     Enter amount
                   </Text>
                   {isExceedsBalance && (
-                    <HStack color='white' gap='4px'>
+                    <HStack color='var(--chakra-colors-text-100)' gap='4px'>
                       <InfoIcon width='16px' height='16px' />
-                      <Text {...paragraphMedium} color='white'>
+                      <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
                         Not enough funds
                       </Text>
                     </HStack>
@@ -783,8 +785,16 @@ export function SellForm({
                     onChange={(e) => handleInputValueChange(e.target.value)}
                     placeholder='0'
                     css={css`
-                      caret-color: white;
+                      caret-color: var(--chakra-colors-text-100);
+                      border-color: var(--chakra-colors-greyTransparent-200);
+                      color: var(--chakra-colors-text-100);
                     `}
+                    _focus={{
+                      borderColor: 'var(--chakra-colors-greyTransparent-200)',
+                    }}
+                    _placeholder={{
+                      color: 'var(--chakra-colors-text-100)',
+                    }}
                     type='number'
                   />
                   <InputRightElement
@@ -793,7 +803,7 @@ export function SellForm({
                     right={isMobile ? '8px' : '4px'}
                     w='fit'
                   >
-                    <Text {...paragraphMedium} color='white'>
+                    <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
                       {market?.collateralToken.symbol}
                     </Text>
                   </InputRightElement>
@@ -860,16 +870,19 @@ export function SellForm({
               <VStack my='24px' gap={isMobile ? '8px' : '4px'} w='full'>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='white'>
+                    <Text {...paragraphRegular} color='var(--chakra-colors-text-100)'>
                       Price impact
                     </Text>
                   </HStack>
                   {quotesLoading ? (
                     <Box w='40px'>
-                      <TradeWidgetSkeleton height={20} />
+                      <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
                     </Box>
                   ) : (
-                    <Text {...paragraphRegular} color='white'>{`${NumberUtil.toFixed(
+                    <Text
+                      {...paragraphRegular}
+                      color='var(--chakra-colors-text-100)'
+                    >{`${NumberUtil.toFixed(
                       outcomeChoice == 'yes' ? quoteYes?.priceImpact : quoteNo?.priceImpact,
                       2
                     )}%`}</Text>
@@ -877,16 +890,16 @@ export function SellForm({
                 </HStack>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='white'>
+                    <Text {...paragraphRegular} color='var(--chakra-colors-text-100)'>
                       ROI
                     </Text>
                   </HStack>
                   {quotesLoading ? (
                     <Box w='60px'>
-                      <TradeWidgetSkeleton height={20} />
+                      <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
                     </Box>
                   ) : (
-                    <Text {...paragraphRegular} color='white'>
+                    <Text {...paragraphRegular} color='var(--chakra-colors-text-100)'>
                       {NumberUtil.toFixed(outcomeChoice == 'yes' ? quoteYes?.roi : quoteNo?.roi, 2)}
                       %
                     </Text>
@@ -894,16 +907,16 @@ export function SellForm({
                 </HStack>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='white'>
+                    <Text {...paragraphRegular} color='var(--chakra-colors-text-100)'>
                       Total
                     </Text>
                   </HStack>
                   {quotesLoading ? (
                     <Box w='120px'>
-                      <TradeWidgetSkeleton height={20} />
+                      <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
                     </Box>
                   ) : (
-                    <Text {...paragraphRegular} color='white'>
+                    <Text {...paragraphRegular} color='var(--chakra-colors-text-100)'>
                       {NumberUtil.toFixed(displayAmount, 6)} {token?.symbol}
                     </Text>
                   )}

@@ -4,33 +4,31 @@ import {
   ButtonGroup,
   Divider,
   HStack,
-  Skeleton,
   Slide,
   Spacer,
-  StackItem,
   Text,
   useDisclosure,
-  useTheme,
   VStack,
 } from '@chakra-ui/react'
-import { rgba } from 'color2k'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { isAddress } from 'viem'
-import { useAccount as useWagmiAccount } from 'wagmi'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import Loader from '@/components/common/loader'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
+import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
+import StaticSnowBackground from '@/components/common/static-snow'
+import UpgradeWalletContainer from '@/components/common/upgrade-wallet-container'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import { useThemeProvider } from '@/providers'
+import useClient from '@/hooks/use-client'
+import { usePriceOracle, useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
@@ -42,37 +40,44 @@ import {
   CreateMarketClickedMetadata,
   useAccount,
   useAmplitude,
+  useBalanceQuery,
   useBalanceService,
-  useEtherspot,
-  useHistory,
+  useLimitlessApi,
+  usePosition,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
 export default function MobileHeader() {
-  const { isConnected, isConnecting } = useWagmiAccount()
   const { overallBalanceUsd } = useBalanceService()
-  const account = useWalletAddress()
-  const { balanceInvested } = useHistory()
+  const { data: positions } = usePosition()
+  const { supportedTokens } = useLimitlessApi()
+  const { convertAssetAmountToUsd } = usePriceOracle()
   const router = useRouter()
-  const { disconnectFromPlatform, profileData, profileLoading, displayName } = useAccount()
-  const { isLoadingSmartWalletAddress } = useEtherspot()
+  const { disconnectFromPlatform, profileData, profileLoading, displayName, account } = useAccount()
+  const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
+  const { isLogged } = useClient()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
 
-  const userMenuLoading = useMemo(() => {
-    if (isConnecting) {
-      return true
-    }
-    if (isConnected) {
-      return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
-    }
-    return false
-  }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
-
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
+
+  const balanceInvested = useMemo(() => {
+    let _balanceInvested = 0
+    positions?.forEach((position) => {
+      let positionUsdAmount = 0
+      const token = supportedTokens?.find(
+        (token) => token.symbol === position.market.collateral?.symbol
+      )
+      if (!!token) {
+        positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, position.collateralAmount)
+      }
+      _balanceInvested += positionUsdAmount
+    })
+    return NumberUtil.toFixed(_balanceInvested, 2)
+  }, [positions, supportedTokens])
 
   const handleNavigateToPortfolioPage = () => {
     onToggleUserMenu()
@@ -95,16 +100,31 @@ export default function MobileHeader() {
         marginTop='20px'
       >
         <HStack justifyContent='space-between' alignItems='center'>
+          {mode === 'dark' ? (
+            <StaticSnowBackground height={85} width={500} numDots={60} dotRadius={1} />
+          ) : null}
           <Box onClick={() => router.push('/')}>
-            <Image
-              src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
-              height={32}
-              width={156}
-              alt='calendar'
-            />
+            <HStack w='full' alignItems='center'>
+              <Image
+                src={mode === 'dark' ? '/snow-logo.png' : '/snow-logo-light.png'}
+                height={46}
+                width={46}
+                alt='logo'
+              />
+              <Text {...headline} _hover={{ textDecoration: 'none' }}>
+                Limitless
+              </Text>
+            </HStack>
+
+            {/* <Image */}
+            {/*   src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'} */}
+            {/*   height={32} */}
+            {/*   width={156} */}
+            {/*   alt='calendar' */}
+            {/* /> */}
           </Box>
           <HStack gap='4px'>
-            {isConnected ? (
+            {isLogged ? (
               <>
                 <Button
                   variant='transparent'
@@ -116,11 +136,19 @@ export default function MobileHeader() {
                     onToggleUserMenu()
                   }}
                 >
-                  <Text fontWeight={500} fontSize='16px'>
-                    {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-                  </Text>
-                  {userMenuLoading ? (
-                    <Skeleton variant='common' w='24px' h='24px' />
+                  {!balanceOfSmartWallet ? (
+                    <Box w='100px'>
+                      <Skeleton height={24} />
+                    </Box>
+                  ) : (
+                    <Text fontWeight={500} fontSize='16px'>
+                      {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+                    </Text>
+                  )}
+                  {profileLoading ? (
+                    <Box w='24px'>
+                      <Skeleton height={24} />
+                    </Box>
                   ) : (
                     <Avatar account={account as string} avatarUrl={profileData?.pfpUrl} />
                   )}
@@ -153,7 +181,7 @@ export default function MobileHeader() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Box w='full'>
-                      {userMenuLoading ? (
+                      {profileLoading ? (
                         <Button h='24px' px='8px' w='full'>
                           <Loader />
                         </Button>
@@ -168,24 +196,21 @@ export default function MobileHeader() {
                                 onToggleUserMenu()
                               }}
                             >
-                              <StackItem display='flex' justifyContent='center' alignItems='center'>
+                              <HStack gap='4px'>
                                 <Avatar
                                   account={account as string}
                                   avatarUrl={profileData?.pfpUrl}
                                 />
-                                <Box mx='4px' />
                                 <Text {...paragraphMedium} className={'amp-mask'}>
                                   {isAddress(displayName || '')
                                     ? truncateEthAddress(displayName)
                                     : displayName}
                                 </Text>
-                              </StackItem>
+                              </HStack>
 
-                              <StackItem>
-                                <Box color='grey.800'>
-                                  <ArrowRightIcon width={16} height={16} />
-                                </Box>
-                              </StackItem>
+                              <Box color='grey.800'>
+                                <ArrowRightIcon width={16} height={16} />
+                              </Box>
                             </HStack>
                           }
                           variant='common'
@@ -230,7 +255,7 @@ export default function MobileHeader() {
                       <VStack my='24px' gap='8px'>
                         <Button
                           variant='transparent'
-                          px={0}
+                          px='4px'
                           w='full'
                           onClick={handleNavigateToPortfolioPage}
                         >
@@ -254,43 +279,45 @@ export default function MobileHeader() {
                         </Button>
 
                         {client !== 'eoa' ? (
-                          <MobileDrawer
-                            trigger={
-                              <Box
-                                w='full'
-                                mt='8px'
-                                px={0}
-                                onClick={() => {
-                                  trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
-                                    option: 'Wallet',
-                                    platform: 'mobile',
-                                  })
-                                  onToggleUserMenu()
-                                }}
-                              >
-                                <HStack justifyContent='space-between' w='full'>
-                                  <HStack color='grey.500' gap='4px'>
-                                    <WalletIcon width={16} height={16} />
-                                    <Text fontWeight={500} fontSize='16px'>
-                                      Wallet
-                                    </Text>
-                                  </HStack>
+                          <UpgradeWalletContainer>
+                            <MobileDrawer
+                              trigger={
+                                <Box
+                                  w='full'
+                                  mt='8px'
+                                  px='4px'
+                                  onClick={() => {
+                                    trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+                                      option: 'Wallet',
+                                      platform: 'mobile',
+                                    })
+                                    onToggleUserMenu()
+                                  }}
+                                >
+                                  <HStack justifyContent='space-between' w='full'>
+                                    <HStack color='grey.500' gap='4px'>
+                                      <WalletIcon width={16} height={16} />
+                                      <Text fontWeight={500} fontSize='16px'>
+                                        Wallet
+                                      </Text>
+                                    </HStack>
 
-                                  <HStack gap='8px'>
-                                    <Text fontWeight={500} fontSize='16px'>
-                                      {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-                                    </Text>
-                                    <Box color='grey.800'>
-                                      <ArrowRightIcon width={16} height={16} />
-                                    </Box>
+                                    <HStack gap='8px'>
+                                      <Text fontWeight={500} fontSize='16px'>
+                                        {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+                                      </Text>
+                                      <Box color='grey.800'>
+                                        <ArrowRightIcon width={16} height={16} />
+                                      </Box>
+                                    </HStack>
                                   </HStack>
-                                </HStack>
-                              </Box>
-                            }
-                            variant='common'
-                          >
-                            <WalletPage onClose={() => console.log('ok')} />
-                          </MobileDrawer>
+                                </Box>
+                              }
+                              variant='common'
+                            >
+                              <WalletPage onClose={() => console.log('ok')} />
+                            </MobileDrawer>
+                          </UpgradeWalletContainer>
                         ) : (
                           <MobileDrawer
                             trigger={

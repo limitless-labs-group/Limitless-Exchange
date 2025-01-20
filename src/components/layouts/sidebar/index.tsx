@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Divider,
+  Flex,
   HStack,
   Link,
   Menu,
@@ -14,11 +15,11 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import '@rainbow-me/rainbowkit/styles.css'
+import { usePrivy } from '@privy-io/react-auth'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useCallback, useMemo } from 'react'
-import { useAccount as useWagmiAccount } from 'wagmi'
+import { Address, encodeFunctionData, getContract, maxUint256 } from 'viem'
 import Avatar from '@/components/common/avatar'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
@@ -26,13 +27,21 @@ import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
+import StaticSnowBackground from '@/components/common/static-snow'
+import { Toast } from '@/components/common/toast'
+import UpgradeWalletContainer from '@/components/common/upgrade-wallet-container'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
+import { wethABI } from '@/contracts'
+import { erc20Abi } from '@/contracts/generated'
+import { useToast } from '@/hooks'
+import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
+import usePrivySendTransaction from '@/hooks/use-privy-send-transaction'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useThemeProvider } from '@/providers'
+import { publicClient } from '@/providers/Privy'
 import AiAgentIcon from '@/resources/icons/ai-agent-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import LogoutIcon from '@/resources/icons/log-out-icon.svg'
@@ -55,35 +64,41 @@ import {
   useAmplitude,
   useBalanceQuery,
   useBalanceService,
-  useEtherspot,
+  usePosition,
 } from '@/services'
-import { useWeb3Service } from '@/services/Web3Service'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular, headline } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
 export default function Sidebar() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
-  const { disconnectFromPlatform, displayName, profileData, profileLoading } = useAccount()
+  const {
+    disconnectFromPlatform,
+    displayName,
+    profileData,
+    profileLoading,
+    account,
+    web3Client,
+    isLoggedIn,
+    smartAccountClient,
+  } = useAccount()
   const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
-  const account = useWalletAddress()
-  const { isConnected, isConnecting } = useWagmiAccount()
-  const { client } = useWeb3Service()
-  const { isLoadingSmartWalletAddress } = useEtherspot()
   const { data: totalVolume } = useTotalTradingVolume()
+  const { isLogged } = useClient()
+  const { sendTransaction } = usePrivySendTransaction()
+  const toast = useToast()
+  const { signMessage } = usePrivy()
+
+  // console.log(`account ${account}`)
+  const { data: positions } = usePosition()
 
   const pageName = usePageName()
-  const userMenuLoading = useMemo(() => {
-    if (isConnecting) {
-      return true
-    }
-    if (isConnected) {
-      return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
-    }
-    return false //#fix for dev env
-  }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
+
+  const hasWinningPosition = useMemo(() => {
+    return positions?.some((position) => position.market.closed)
+  }, [positions])
 
   const {
     isOpen: isOpenWalletPage,
@@ -105,9 +120,9 @@ export default function Sidebar() {
   const { isOpen: isOpenProfile, onToggle: onToggleProfile } = useDisclosure()
 
   const handleOpenWalletPage = useCallback(() => {
-    if (client === 'eoa') return
+    if (web3Client === 'eoa') return
     onToggleWalletPage()
-  }, [client])
+  }, [web3Client])
   const handleOpenWrapModal = useCallback(() => onOpenWrapModal(), [])
   const handleOpenProfile = () => {
     onCloseWalletPage()
@@ -115,34 +130,66 @@ export default function Sidebar() {
     onToggleProfile()
   }
 
+  const handleTestApproveClicked = async () => {
+    const contract = getContract({
+      address: '0xD7788FfC73C9AE39CE24dfc1098b375792dD42Ac',
+      abi: erc20Abi,
+      client: publicClient,
+    })
+    const spender = '0x4045F81Ce65AF0D34FFe4C0CF9929B4f8a668228'
+    const data = encodeFunctionData({
+      abi: erc20Abi,
+      functionName: 'approve',
+      args: [spender, maxUint256],
+    })
+    const hash = await sendTransaction(contract, data)
+    toast({
+      render: () => <Toast title={`Approved successfully`} id={1} />,
+    })
+    return hash
+  }
+
+  const handleSignMessage = async () => {
+    const { signature: smartWalletSignature } = await signMessage({
+      message: 'Test message',
+    })
+    toast({
+      render: () => <Toast title={`Message signed successfully`} id={1} />,
+    })
+    return smartWalletSignature
+  }
+
   const walletTypeActionButton = useMemo(() => {
-    const smartWalletBalanceLoading = (client !== 'eoa' && balanceLoading) || !balanceOfSmartWallet
-    if (userMenuLoading || smartWalletBalanceLoading) {
+    const smartWalletBalanceLoading =
+      (web3Client !== 'eoa' && balanceLoading) || !balanceOfSmartWallet
+    if (profileLoading || smartWalletBalanceLoading) {
       return (
         <Box w='full'>
           <Skeleton height={24} />
         </Box>
       )
     }
-    return client !== 'eoa' ? (
-      <Button
-        variant='transparent'
-        onClick={() => {
-          trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
-            option: 'Wallet',
-          })
-          handleOpenWalletPage()
-        }}
-        w='full'
-        bg={isOpenWalletPage ? 'grey.100' : 'unset'}
-      >
-        <HStack w='full'>
-          <WalletIcon width={16} height={16} />
-          <Text fontWeight={500} fontSize='14px'>
-            {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-          </Text>
-        </HStack>
-      </Button>
+    return web3Client !== 'eoa' ? (
+      <UpgradeWalletContainer>
+        <Button
+          variant='transparent'
+          onClick={() => {
+            trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+              option: 'Wallet',
+            })
+            handleOpenWalletPage()
+          }}
+          w='full'
+          bg={isOpenWalletPage ? 'grey.100' : 'unset'}
+        >
+          <HStack w='full'>
+            <WalletIcon width={16} height={16} />
+            <Text fontWeight={500} fontSize='14px'>
+              {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+            </Text>
+          </HStack>
+        </Button>
+      </UpgradeWalletContainer>
     ) : (
       <Button
         variant='transparent'
@@ -161,12 +208,12 @@ export default function Sidebar() {
       </Button>
     )
   }, [
-    client,
-    isOpenWalletPage,
-    overallBalanceUsd,
-    userMenuLoading,
+    web3Client,
     balanceLoading,
     balanceOfSmartWallet,
+    profileLoading,
+    isOpenWalletPage,
+    overallBalanceUsd,
   ])
 
   const volumeArray = totalVolume
@@ -187,23 +234,31 @@ export default function Sidebar() {
         pos='fixed'
         overflowY='auto'
       >
-        <NextLink href='/' passHref>
+        {mode === 'dark' ? (
+          <StaticSnowBackground height={60} width={188} numDots={40} dotRadius={0.8} />
+        ) : null}
+
+        <NextLink href='/' passHref style={{ width: '100%', textDecoration: 'none' }}>
           <Link
             onClick={() => {
               trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
               window.localStorage.removeItem('SORT')
             }}
+            style={{ textDecoration: 'none' }}
+            _hover={{ textDecoration: 'none' }}
           >
-            <Image
-              src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
-              height={32}
-              width={156}
-              alt='logo'
-            />
+            <HStack w='full' alignItems='center'>
+              <Image
+                src={mode === 'dark' ? '/snow-logo.png' : '/snow-logo-light.png'}
+                height={46}
+                width={46}
+                alt='logo'
+              />
+              <Text {...headline}>Limitless</Text>
+            </HStack>
           </Link>
         </NextLink>
-
-        {isConnected ? (
+        {isLogged || isLoggedIn ? (
           <>
             <VStack mt='16px' w='full' gap='8px'>
               {walletTypeActionButton}
@@ -223,17 +278,27 @@ export default function Sidebar() {
                   bg={pageName === 'Portfolio' ? 'grey.100' : 'unset'}
                   rounded='8px'
                 >
-                  <HStack w='full'>
+                  <HStack w='full' gap='0'>
                     <PortfolioIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
+                    <Text fontWeight={500} fontSize='14px' marginLeft='8px'>
                       Portfolio
                     </Text>
+                    {hasWinningPosition ? (
+                      <Flex
+                        bg='red.500'
+                        h='8px'
+                        w='8px'
+                        borderRadius='10px'
+                        marginLeft='3px'
+                        alignSelf='start'
+                      />
+                    ) : null}
                   </HStack>
                 </Link>
               </NextLink>
 
               <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
-                {userMenuLoading ? (
+                {profileLoading ? (
                   <Box w='full'>
                     <Skeleton height={24} />
                   </Box>
@@ -332,6 +397,7 @@ export default function Sidebar() {
             <LoginButton />
           </Box>
         )}
+
         <Divider my='12px' />
         <NextLink href='/' passHref style={{ width: '100%' }}>
           <Link
@@ -445,6 +511,16 @@ export default function Sidebar() {
           </Link>
         </NextLink>
         <Spacer />
+        {!!smartAccountClient && (
+          <>
+            <Button variant='contained' onClick={handleTestApproveClicked}>
+              Approve
+            </Button>
+            <Button variant='contained' onClick={handleSignMessage}>
+              Sign message
+            </Button>
+          </>
+        )}
         {totalVolume && (
           <NextLink
             href='https://dune.com/limitless_exchange/limitless'

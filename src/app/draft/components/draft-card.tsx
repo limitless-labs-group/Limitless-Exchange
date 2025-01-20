@@ -2,6 +2,7 @@ import { Box, HStack, Link, Text, Image as ChakraImage, Checkbox, Stack } from '
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
+import TextEditor from '@/components/common/text-editor'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Category, Creator, DraftMetadata, Token } from '@/types'
@@ -26,16 +27,10 @@ interface DraftMarketSingleCardProps {
   onClick?: () => void
 }
 
-const defaultColors = {
+const colors = {
   main: 'var(--chakra-colors-grey-800)',
   secondary: 'var(--chakra-colors-grey-500)',
   chartBg: 'var(--chakra-colors-grey-300)',
-}
-
-const hoverColors = {
-  main: 'var(--chakra-colors-white)',
-  secondary: 'var(--chakra-colors-transparent-700)',
-  chartBg: 'var(--chakra-colors-transparent-300)',
 }
 
 export const DraftMarketCard = ({
@@ -44,26 +39,21 @@ export const DraftMarketCard = ({
   onToggle,
   onClick,
 }: DraftMarketSingleCardProps) => {
-  const [colors, setColors] = useState(defaultColors)
+  const [hover, setHover] = useState(false)
 
   return (
     <Paper
       w={'full'}
+      id={String(market.id)}
+      scrollMarginTop='50px'
       justifyContent={'space-between'}
       cursor='pointer'
-      _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
-      border={`3px solid ${isChecked ? 'var(--chakra-colors-blue-500)' : 'transparent'}`}
+      _hover={{ ...(!isMobile ? { bg: 'var(--chakra-colors-grey-200)' } : {}) }}
+      border={`3px solid ${isChecked ? 'var(--chakra-colors-draftCard-border)' : 'transparent'}`}
+      bg={` ${isChecked ? 'var(--chakra-colors-draftCard-bg)' : 'var(--chakra-colors-grey-100)'}`}
       position='relative'
-      onMouseEnter={() => {
-        if (!isMobile) {
-          setColors(hoverColors)
-        }
-      }}
-      onMouseLeave={() => {
-        if (!isMobile) {
-          setColors(defaultColors)
-        }
-      }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
     >
       <HStack align='start' spacing={4}>
         <Checkbox
@@ -104,7 +94,11 @@ export const DraftMarketCard = ({
 
             <HStack alignItems='flex-start'>
               <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
-                {market.description}
+                <TextEditor
+                  className={`${hover ? 'draft hover' : 'draft'}`}
+                  value={market?.description ?? ''}
+                  readOnly
+                />
               </Text>
             </HStack>
 

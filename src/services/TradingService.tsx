@@ -21,8 +21,8 @@ import {
   getConditionalTokenAddress,
   useConditionalTokensAddr,
 } from '@/hooks/use-conditional-tokens-addr'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import { publicClient } from '@/providers'
+import { publicClient } from '@/providers/Privy'
+import { useAccount } from '@/services/AccountService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { Market, MarketGroup, RedeemParams } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
@@ -87,7 +87,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * SERVICES
    */
   const queryClient = useQueryClient()
-  const account = useWalletAddress()
+  const { account } = useAccount()
 
   /**
    * OPTIONS
@@ -126,6 +126,15 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     getConditionalTokensAddress()
   }, [market])
+
+  const refetchHistory = async () => {
+    await queryClient.refetchQueries({
+      queryKey: ['positions'],
+    })
+    await queryClient.invalidateQueries({
+      queryKey: ['history'],
+    })
+  }
 
   // TODO: refactor
   const refetchChain = async () => {
@@ -571,6 +580,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         await queryClient.refetchQueries({
           queryKey: ['market', market.address],
         })
+        await refetchHistory()
       })
 
       sleep(5).then(async () => {
@@ -684,6 +694,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       setCollateralAmount('')
 
+      await refetchHistory()
       await refetchChain()
 
       const successId = toast({
@@ -757,6 +768,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
+      await refetchHistory()
       await refetchChain()
 
       const id = toast({

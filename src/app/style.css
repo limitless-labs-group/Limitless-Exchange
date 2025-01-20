@@ -20,6 +20,89 @@
   overflow: unset !important;
 }
 
+.read-only .ql-container.ql-snow {
+  border: none !important;
+}
+
+.read-only .ql-container {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  border-radius: 0;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px !important;
+}
+
+.ql-editor {
+  min-height: 150px;
+  background: var(--chakra-colors-grey-50) !important;
+  font-size: 16px;
+}
+
+.draft .ql-editor {
+  background: var(--chakra-colors-grey-100) !important;
+  min-height: unset;
+  font-size: 16px;
+}
+
+.draft.hover .ql-editor {
+  background: var(--chakra-colors-grey-200) !important;
+}
+
+.read-only .ql-editor {
+  padding: 0 !important;
+  font-size: 14px;
+  z-index: 10;
+}
+
+.ql-container {
+  border-bottom-left-radius: 5px !important;
+  border-bottom-right-radius: 5px !important;
+}
+
+.ql-toolbar {
+  border-top-left-radius: 5px !important;
+  border-top-right-radius: 5px !important;
+}
+
+.ql-tooltip {
+  position: absolute !important;
+  z-index: 1000 !important;
+  top: -50px !important;
+  left: 0 !important;
+}
+
+.ql-snow .ql-tooltip {
+  background: var(--chakra-colors-grey-50) !important;
+  color: var(--chakra-colors-grey-800) !important;
+}
+
+.ql-snow a {
+  color: var(--chakra-colors-grey-800) !important;
+}
+
+.read-only .ql-tooltip {
+  z-index: 1000;
+}
+
 * {
   outline: none;
+}
+
+body {
+  --privy-border-radius-sm: 4px;
+  --privy-border-radius-md: 8px;
+  --privy-border-radius-lg: 12px;
+  --privy-border-radius-full: 100%;
+  --privy-color-background: var(--chakra-colors-grey-100);
+  --privy-color-background-2: var(--chakra-colors-grey-300);
+  --privy-color-background-3: var(--chakra-colors-grey-400);
+  --privy-color-foreground: var(--chakra-colors-grey-800);
+  --privy-color-foreground-2: var(--chakra-colors-grey-800);
+  --privy-color-foreground-3: var(--chakra-colors-grey-500);
+  --privy-color-foreground-4: var(--chakra-colors-grey-300);
+  --privy-color-accent: var(--chakra-colors-blue-500);
+  --privy-color-success: var(--chakra-colors-green-500);
+  --privy-color-error: var(--chakra-colors-red-500);
+  --privy-color-accent-dark: var(--chakra-colors-blue-500);
 }
