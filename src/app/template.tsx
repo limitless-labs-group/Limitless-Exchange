@@ -28,5 +28,13 @@ export default function Template({ children }: PropsWithChildren) {
     }
   }, [currentAppVersion])
 
+  useEffect(() => {
+    //@ts-ignore
+    window.Intercom('boot', {
+      api_base: 'https://api-iam.intercom.io',
+      APP_ID: process.env.NEXT_PUBLIC_INTERCOM_APP_ID,
+    })
+  }, [])
+
   return <div>{children}</div>
 }
