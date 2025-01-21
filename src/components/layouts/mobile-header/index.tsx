@@ -10,7 +10,6 @@ import {
   StackItem,
   Text,
   useDisclosure,
-  useTheme,
   VStack,
 } from '@chakra-ui/react'
 import Image from 'next/image'
@@ -87,7 +86,6 @@ export default function MobileHeader() {
     <>
       <Box
         p='16px'
-        pb='52px'
         w='100vw'
         bg={`linear-gradient(180deg, var(--chakra-colors-grey-50) 0%, ${
           mode === 'light' ? 'rgba(255, 255, 255, 0)' : 'rgba(0, 0, 0, 0)'

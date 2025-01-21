@@ -1,28 +1,34 @@
 'use client'
 
-import { Box, HStack, Text } from '@chakra-ui/react'
+import { Link, Box, HStack, Text } from '@chakra-ui/react'
+import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { getAddress } from 'viem'
 import Loader from '@/components/common/loader'
 import DailyMarketsSection from '@/components/common/markets/daily-markets'
+import { MarketCategoryHeader } from '@/components/common/markets/market-category-header'
+import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import TopMarkets from '@/components/common/markets/top-markets'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useIsMobile } from '@/hooks'
 import useMarketGroup from '@/hooks/use-market-group'
+import usePageName from '@/hooks/use-page-name'
 import { usePriceOracle } from '@/providers'
+import GridIcon from '@/resources/icons/sidebar/Markets.svg'
 import {
+  ClickEvent,
   OpenEvent,
   PageOpenedMetadata,
+  ProfileBurgerMenuClickedMetadata,
   useAmplitude,
   useCategories,
   useTradingService,
 } from '@/services'
 import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Category, Market, MarketGroup, Sort, SortStorageName } from '@/types'
+import { Market, MarketGroup, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
 const MainPage = () => {
@@ -32,12 +38,14 @@ const MainPage = () => {
   /**
    * ANALYTICS
    */
-  const { trackOpened } = useAmplitude()
+  const { trackClicked, trackOpened } = useAmplitude()
   const category = searchParams.get('category')
   const market = searchParams.get('market')
   const slug = searchParams.get('slug')
   const { data: marketData } = useMarket(market ?? undefined)
   const { data: marketGroupData } = useMarketGroup(slug ?? undefined)
+
+  const pageName = usePageName()
 
   useEffect(() => {
     if (marketData) {
@@ -87,7 +95,7 @@ const MainPage = () => {
   const { data: banneredMarkets, isFetching: isBanneredLoading } =
     useBanneredMarkets(categoryEntity)
 
-  const { selectedFilterTokens, selectedCategory } = useTokenFilter()
+  const { selectedCategory, handleCategory } = useTokenFilter()
 
   const { convertTokenAmountToUsd } = usePriceOracle()
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
@@ -101,24 +109,13 @@ const MainPage = () => {
 
   const filteredAllMarkets = useMemo(() => {
     if (!markets) return []
-
-    const tokenFilteredMarkets = markets.filter((market) =>
-      selectedFilterTokens.length > 0
-        ? selectedFilterTokens.some(
-            (filterToken) =>
-              getAddress(filterToken.address) === getAddress(market.collateralToken.address)
-          )
-        : true
-    )
-
+    if (!selectedCategory) return markets
     if (selectedCategory) {
-      return tokenFilteredMarkets.filter(
-        (market) => (market.category as Category).name === selectedCategory?.name
-      )
+      return markets.filter((market) => market.category === selectedCategory?.name)
     }
 
-    return tokenFilteredMarkets
-  }, [markets])
+    return markets
+  }, [markets, selectedCategory])
 
   const sortedAllMarkets = useMemo(() => {
     return sortMarkets(filteredAllMarkets, selectedSort, convertTokenAmountToUsd)
@@ -140,15 +137,65 @@ const MainPage = () => {
       >
         <Box w={isMobile ? 'full' : '664px'}>
           <>
-            <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
+            {isMobile ? (
+              <HStack
+                gap='8px'
+                px='8px'
+                overflowX='auto'
+                css={{
+                  '&::-webkit-scrollbar': {
+                    display: 'none',
+                  },
+                  scrollbarWidth: 'none',
+                  '-ms-overflow-style': 'none',
+                }}
+                minW='100%'
+              >
+                <NextLink href='/' passHref style={{ width: '100%' }}>
+                  <Link
+                    onClick={() => {
+                      trackClicked<ProfileBurgerMenuClickedMetadata>(
+                        ClickEvent.ProfileBurgerMenuClicked,
+                        {
+                          option: 'Markets',
+                        }
+                      )
+                      handleCategory(undefined)
+                    }}
+                    variant='transparent'
+                    w='full'
+                    h='24px'
+                    textDecoration='none'
+                    bg={pageName === 'Explore Markets' && !selectedCategory ? 'grey.100' : 'unset'}
+                    rounded='8px'
+                  >
+                    <HStack w='full' whiteSpace='nowrap'>
+                      <GridIcon width={16} height={16} />
+                      <Text fontWeight={500} fontSize='14px'>
+                        All markets
+                      </Text>
+                    </HStack>
+                  </Link>
+                </NextLink>
+
+                <CategoryItems />
+              </HStack>
+            ) : null}
+
+            {selectedCategory ? (
+              <MarketCategoryHeader name={selectedCategory.name} />
+            ) : (
+              <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
+            )}
+
             <InfiniteScroll
               className='scroll'
-              dataLength={sortedAllMarkets?.length ?? 0}
+              dataLength={markets?.length ?? 0}
               next={fetchNextPage}
               hasMore={hasNextPage}
               style={{ width: '100%' }}
               loader={
-                sortedAllMarkets.length > 0 && sortedAllMarkets.length < totalAmount ? (
+                markets.length > 0 && markets.length < totalAmount ? (
                   <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
                     <Loader />
                     <Text {...paragraphRegular}>Loading more markets</Text>
@@ -159,7 +206,7 @@ const MainPage = () => {
               <DailyMarketsSection
                 markets={sortedAllMarkets as Market[]}
                 handleSelectSort={handleSelectSort}
-                totalAmount={data?.pages?.[0].data.totalAmount}
+                totalAmount={filteredAllMarkets?.length ?? ''}
                 isLoading={isFetching && !isFetchingNextPage}
               />
             </InfiniteScroll>

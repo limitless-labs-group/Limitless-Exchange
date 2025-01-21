@@ -138,6 +138,8 @@ export default function MobileDrawer({
       right: 0,
       zIndex: 99999,
       outline: 'none',
+      height: '95vh',
+      touchAction: 'none',
     }),
     [bgColor]
   )
@@ -148,6 +150,10 @@ export default function MobileDrawer({
       maxHeight: 'calc(100dvh - 68px)',
       overflowY: 'auto',
       paddingBottom: `${keyboardHeight}px`,
+      WebkitOverflowScrolling: 'touch',
+      position: 'relative',
+      zIndex: 1,
+      touchAction: 'pan-y',
     }),
     [keyboardHeight]
   )

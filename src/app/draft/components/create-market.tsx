@@ -614,7 +614,7 @@ export const CreateMarket: FC = () => {
               </Accordion>
             </VStack>
 
-            <VStack w={'full'} flex='0.8'>
+            <VStack w={'full'} flex='0.8' h='full'>
               <FormField label='Market Fee'>
                 <HStack>
                   <Checkbox
