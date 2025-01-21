@@ -1,6 +1,5 @@
 import { Text, HStack } from '@chakra-ui/react'
 import React, { ReactNode } from 'react'
-import { isMobile } from 'react-device-detect'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import Finance from '@/resources/icons/sidebar/finance.svg'
 import Games from '@/resources/icons/sidebar/games.svg'
@@ -17,15 +16,16 @@ export interface SideItemProps {
   onClick: () => void
 }
 
+//ids and names come from api /categories
 export const MARKET_CATEGORIES = {
   CRYPTO: { id: 2, name: 'Crypto', description: '', icon: <Games width={16} height={16} /> },
   FINANCICALS: {
-    id: 6,
+    id: 8,
     name: 'Financials',
     description: '',
     icon: <Finance width={16} height={16} />,
   },
-  WEATHER: { id: 6, name: 'Weather', description: '', icon: <Weather width={16} height={16} /> },
+  WEATHER: { id: 9, name: 'Weather', description: '', icon: <Weather width={16} height={16} /> },
   SPORTS: { id: 1, name: 'Sports', description: '', icon: <Sport width={16} height={16} /> },
   OTHER: { id: 5, name: 'Other', description: '', icon: <Games width={16} height={16} /> },
 } as const

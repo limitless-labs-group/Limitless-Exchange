@@ -1,6 +1,5 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react'
-import { useMemo } from 'react'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { categories } from '@/components/common/markets/sidebar-item'
 import { h1Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
