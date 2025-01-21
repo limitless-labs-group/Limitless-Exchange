@@ -151,7 +151,7 @@ const MainPage = () => {
                 }}
                 minW='100%'
               >
-                <NextLink href='/' passHref style={{ width: '100%' }}>
+                <NextLink href='/' passHref style={{ width: isMobile ? 'fit-content' : '100%' }}>
                   <Link
                     onClick={() => {
                       trackClicked<ProfileBurgerMenuClickedMetadata>(

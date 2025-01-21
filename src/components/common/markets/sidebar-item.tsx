@@ -2,6 +2,7 @@ import { Text, HStack } from '@chakra-ui/react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import React, { ReactNode, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import Crypto from '@/resources/icons/sidebar/crypto.svg'
 import Finance from '@/resources/icons/sidebar/finance.svg'
@@ -47,6 +48,7 @@ export const SideItem = ({ isActive, onClick, icon, children }: SideItemProps) =
       bg={isActive ? 'grey.100' : 'unset'}
       px={'8px'}
       cursor='pointer'
+      whiteSpace='nowrap'
     >
       {React.cloneElement(icon as React.ReactElement, {
         style: {
@@ -96,7 +98,11 @@ export const CategoryItems = () => {
 
   return categoriesWithMarkets.map((c) => {
     return (
-      <Link key={c.name} href={`/?${createQueryString()}`} style={{ width: '100%' }}>
+      <Link
+        key={c.name}
+        href={`/?${createQueryString()}`}
+        style={{ width: isMobile ? 'fit-content' : '100%' }}
+      >
         <SideItem
           isActive={selectedCategory?.name === c.name}
           icon={c.icon}
