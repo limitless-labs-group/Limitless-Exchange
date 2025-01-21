@@ -74,6 +74,7 @@ export const useExternalWalletService = () => {
     contractAddress: Address,
     value: bigint
   ): Promise<string> => {
+    debugger
     await checkAndSwitchChainIfNeeded()
     const data = encodeFunctionData({
       abi: spender === collateralTokenAddress ? wethABI : erc20Abi,
@@ -204,6 +205,7 @@ export const useExternalWalletService = () => {
   }
 
   const checkAndSwitchChainIfNeeded = async () => {
+    debugger
     const client = await getWalletClient(configureChainsConfig, {
       account: user?.wallet?.address as Address,
     })

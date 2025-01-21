@@ -35,6 +35,7 @@
     "@etherspot/prime-sdk": "^1.8.0",
     "@fvictorio/newton-raphson-method": "^1.0.5",
     "@hookform/resolvers": "^3.9.0",
+    "@intercom/messenger-js-sdk": "^0.0.14",
     "@next/bundle-analyzer": "^14.2.3",
     "@privy-io/react-auth": "^2.0.1",
     "@privy-io/wagmi": "^1.0.1",
