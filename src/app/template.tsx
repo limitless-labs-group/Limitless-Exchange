@@ -1,5 +1,6 @@
 'use client'
 
+import Intercom from '@intercom/messenger-js-sdk'
 import { PropsWithChildren, useEffect } from 'react'
 import { LOCAL_STORAGE_VERSION_NAME } from '@/constants/application'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
@@ -11,6 +12,10 @@ export default function Template({ children }: PropsWithChildren) {
   useTotalTradingVolume()
 
   const currentAppVersion = packageInfo.version
+
+  Intercom({
+    app_id: process.env.NEXT_PUBLIC_INTERCOM_APP_ID as string,
+  })
 
   useEffect(() => {
     const currentUsersVersion = localStorage.getItem(LOCAL_STORAGE_VERSION_NAME)
@@ -27,14 +32,6 @@ export default function Template({ children }: PropsWithChildren) {
       return
     }
   }, [currentAppVersion])
-
-  useEffect(() => {
-    //@ts-ignore
-    window.Intercom('boot', {
-      api_base: 'https://api-iam.intercom.io',
-      APP_ID: process.env.NEXT_PUBLIC_INTERCOM_APP_ID,
-    })
-  }, [])
 
   return <div>{children}</div>
 }
