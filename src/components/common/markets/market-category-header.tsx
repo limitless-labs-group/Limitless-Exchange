@@ -37,7 +37,7 @@ export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name }) =>
       width='inherit'
       px={isMobile ? '16px' : 'unset'}
     >
-      <HStack gap='4px'>
+      <HStack gap='8px'>
         <Box>{category.icon}</Box>
         <Text {...h1Bold}>{category.name}</Text>
       </HStack>

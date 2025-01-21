@@ -1,5 +1,6 @@
 import { Text, HStack } from '@chakra-ui/react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import React, { ReactNode } from 'react'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import Crypto from '@/resources/icons/sidebar/crypto.svg'
@@ -59,9 +60,16 @@ export const SideItem = ({ isActive, onClick, icon, children }: SideItemProps) =
 
 export const CategoryItems = () => {
   const { selectedCategory, handleCategory } = useTokenFilter()
+  const searchParams = useSearchParams()
+
+  const createQueryString = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    return params.toString()
+  }
+
   return categories.map((c) => {
     return (
-      <Link key={c.name} href='/' passHref style={{ width: '100%' }}>
+      <Link key={c.name} href={`/?${createQueryString()}`} style={{ width: '100%' }}>
         <SideItem
           isActive={selectedCategory?.name === c.name}
           icon={c.icon}
