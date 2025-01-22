@@ -14,30 +14,20 @@ interface MarketProgressBarProps {
 }
 
 export const MarketProgressBar = ({ value }: MarketProgressBarProps) => {
-  const getProgressData = useMemo(
-    () => (value: number) => {
-      return (
-        PROGRESS_THRESHOLDS.find((threshold) => value <= threshold.max) ??
-        PROGRESS_THRESHOLDS[PROGRESS_THRESHOLDS.length - 1]
-      )
-    },
-    []
-  )
-
-  const getVariant = useMemo(
-    () => (value: number) => getProgressData(value).variant,
-    [getProgressData]
-  )
-
-  const getProgressColor = useMemo(
-    () => (value: number) => getProgressData(value).color,
-    [getProgressData]
-  )
+  const progressData = useMemo(() => {
+    const threshold =
+      PROGRESS_THRESHOLDS.find((t) => value <= t.max) ??
+      PROGRESS_THRESHOLDS[PROGRESS_THRESHOLDS.length - 1]
+    return {
+      variant: threshold.variant,
+      color: threshold.color,
+    }
+  }, [value])
 
   return (
     <Box>
       <HStack w='full' justifyContent='space-between' mb='4px'>
-        <Text {...paragraphMedium} color={getProgressColor(value)}>
+        <Text {...paragraphMedium} color={progressData.color}>
           Yes {Number(value.toFixed(2)).toString()}%
         </Text>
         <Text {...paragraphMedium} color='grey.500'>
@@ -45,7 +35,7 @@ export const MarketProgressBar = ({ value }: MarketProgressBarProps) => {
         </Text>
       </HStack>
 
-      <ProgressBar variant={getVariant(value)} size='xs' value={value} />
+      <ProgressBar variant={progressData.variant} size='xs' value={value} />
     </Box>
   )
 }
