@@ -25,8 +25,12 @@ export default function MarketsSection({
     <Box mt={isMobile ? '48px' : '24px'} mb={isMobile ? '36px' : 0}>
       <Box px={isMobile ? '16px' : 0}>
         <Divider orientation='horizontal' borderColor='grey.100' />
-        <Flex justifyContent='space-between' flexDirection={isMobile ? 'column' : 'row'}>
-          <Text {...headlineRegular} mt={isMobile ? '8px' : '4px'}>
+        <Flex
+          alignItems='center'
+          justifyContent='space-between'
+          flexDirection={isMobile ? 'column' : 'row'}
+        >
+          <Text {...headlineRegular} mt={isMobile ? '8px' : '0px'}>
             All Markets {isLoading ? '' : `(${totalAmount})`}
           </Text>
           <SortFilter onChange={handleSelectSort} storageName={SortStorageName.SORT} />

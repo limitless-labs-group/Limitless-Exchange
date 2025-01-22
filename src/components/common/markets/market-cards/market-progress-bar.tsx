@@ -1,4 +1,4 @@
-import { Box, HStack, Text } from '@chakra-ui/react'
+import { Box, Flex, HStack, Text } from '@chakra-ui/react'
 import React, { useMemo } from 'react'
 import ProgressBar from '@/components/common/progress-bar'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
@@ -24,15 +24,26 @@ export const MarketProgressBar = ({ value }: MarketProgressBarProps) => {
     }
   }, [value])
 
+  const yes = useMemo(() => Number(value.toFixed(2)), [value])
+  const no = useMemo(() => Number((100 - value).toFixed(2)), [value])
+
   return (
     <Box>
-      <HStack w='full' justifyContent='space-between' mb='4px'>
-        <Text {...paragraphMedium} color={progressData.color}>
-          Yes {Number(value.toFixed(2)).toString()}%
-        </Text>
-        <Text {...paragraphMedium} color='grey.500'>
-          No {Number((100 - value).toFixed(2)).toString()}%
-        </Text>
+      <HStack w='full' mb='4px' justifyContent='space-between'>
+        {yes > 0 && (
+          <Flex w='full' justifyContent='start'>
+            <Text {...paragraphMedium} color={progressData.color}>
+              Yes {yes}%
+            </Text>
+          </Flex>
+        )}
+        {no > 0 && (
+          <Flex textAlign='left' w='full' justifyContent='end'>
+            <Text {...paragraphMedium} color='grey.500'>
+              No {no}%
+            </Text>
+          </Flex>
+        )}
       </HStack>
 
       <ProgressBar variant={progressData.variant} size='xs' value={value} />
