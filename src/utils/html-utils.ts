@@ -19,13 +19,23 @@ export const linkify = (text: string): string => {
       return false
     }
   }
-  return text.replace(urlRegex, (url) =>
-    isValidUrl(url)
-      ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(
-          url
-        )}</a>`
+  return text.replace(urlRegex, (url) => {
+    let lastIndex = url.length - 1
+    const punctuationChars = new Set(['.', ',', '!', '?', ';', ':'])
+
+    while (lastIndex >= 0 && punctuationChars.has(url[lastIndex])) {
+      lastIndex--
+    }
+
+    const cleanUrl = url.substring(0, lastIndex + 1)
+    const trailingPunctuation = url.substring(lastIndex + 1)
+
+    return isValidUrl(cleanUrl)
+      ? `<a href="${escapeHtml(cleanUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(
+          cleanUrl
+        )}</a>${trailingPunctuation}`
       : url
-  )
+  })
 }
 
 export const stripHTML = (html: string): string => {
