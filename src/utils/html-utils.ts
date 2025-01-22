@@ -20,8 +20,15 @@ export const linkify = (text: string): string => {
     }
   }
   return text.replace(urlRegex, (url) => {
-    const cleanUrl = url.replace(/[.,!?;:]+([\s]|$)/, '$1')
-    const trailingPunctuation = url.slice(cleanUrl.length)
+    let lastIndex = url.length - 1
+    const punctuationChars = new Set(['.', ',', '!', '?', ';', ':'])
+
+    while (lastIndex >= 0 && punctuationChars.has(url[lastIndex])) {
+      lastIndex--
+    }
+
+    const cleanUrl = url.substring(0, lastIndex + 1)
+    const trailingPunctuation = url.substring(lastIndex + 1)
 
     return isValidUrl(cleanUrl)
       ? `<a href="${escapeHtml(cleanUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(
