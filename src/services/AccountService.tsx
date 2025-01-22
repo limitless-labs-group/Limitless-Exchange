@@ -88,7 +88,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { disconnect: disconnectWagmi } = useDisconnect()
   const web3Client = user?.wallet?.walletClientType === 'privy' ? 'etherspot' : 'eoa'
   const { trackSignUp } = useAmplitude()
-  const { data: walletClient } = useWalletClient()
+  const { data: walletClient, refetch: refetchWalletClient } = useWalletClient()
   const { wallets, ready: walletsReady } = useWallets()
   const { isLogged } = useClient()
 
