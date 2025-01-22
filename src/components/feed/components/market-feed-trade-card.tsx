@@ -75,9 +75,15 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
       title={eventTitle}
     >
       {isMobile ? (
-        <MobileDrawer trigger={content} variant='black'>
-          <MarketPage />
-        </MobileDrawer>
+        <Box
+          onClick={(e) => {
+            e.stopPropagation()
+          }}
+        >
+          <MobileDrawer trigger={content} variant='black'>
+            <MarketPage />
+          </MobileDrawer>
+        </Box>
       ) : (
         content
       )}

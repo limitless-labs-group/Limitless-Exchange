@@ -22,6 +22,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import Avatar from '@/components/common/avatar'
 import { LoginButton } from '@/components/common/login-button'
+import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
@@ -31,11 +32,11 @@ import StaticSnowBackground from '@/components/common/static-snow'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
+import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import usePageName from '@/hooks/use-page-name'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useThemeProvider } from '@/providers'
-import AiAgentIcon from '@/resources/icons/ai-agent-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import LogoutIcon from '@/resources/icons/log-out-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
@@ -45,12 +46,10 @@ import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
-import SquarePlusIcon from '@/resources/icons/sidebar/suggest_market.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import UserIcon from '@/resources/icons/user-icon.svg'
 import {
   ClickEvent,
-  CreateMarketClickedMetadata,
   LogoClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
   useAccount,
@@ -77,6 +76,7 @@ export default function Sidebar() {
   const { isLoadingSmartWalletAddress } = useEtherspot()
   const { data: totalVolume } = useTotalTradingVolume()
   const { data: positions } = usePosition()
+  const { selectedCategory, handleCategory } = useTokenFilter()
 
   const pageName = usePageName()
   const userMenuLoading = useMemo(() => {
@@ -360,26 +360,6 @@ export default function Sidebar() {
           </Box>
         )}
         <Divider my='12px' />
-        <NextLink href='/' passHref style={{ width: '100%' }}>
-          <Link
-            onClick={() => {
-              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
-                option: 'Markets',
-              })
-            }}
-            variant='transparent'
-            w='full'
-            bg={pageName === 'Explore Markets' ? 'grey.100' : 'unset'}
-            rounded='8px'
-          >
-            <HStack w='full'>
-              <GridIcon width={16} height={16} />
-              <Text fontWeight={500} fontSize='14px'>
-                Markets
-              </Text>
-            </HStack>
-          </Link>
-        </NextLink>
         <NextLink href='/leaderboard' passHref style={{ width: '100%' }}>
           <Link
             onClick={() => {
@@ -420,57 +400,33 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        {/*<NextLink href='/lumy' passHref style={{ width: '100%' }}>*/}
-        {/*  <Link*/}
-        {/*    onClick={() => {*/}
-        {/*      trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {*/}
-        {/*        option: 'Lumy',*/}
-        {/*      })*/}
-        {/*    }}*/}
-        {/*    variant='transparent'*/}
-        {/*    w='full'*/}
-        {/*    bg={pageName === 'Home' ? 'grey.100' : 'unset'}*/}
-        {/*    rounded='8px'*/}
-        {/*  >*/}
-        {/*    <HStack w='full'>*/}
-        {/*      <AiAgentIcon />*/}
-        {/*      <Text*/}
-        {/*        fontWeight={500}*/}
-        {/*        fontSize='14px'*/}
-        {/*        bgGradient='linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'*/}
-        {/*        bgClip='text'*/}
-        {/*      >*/}
-        {/*        AI Agent*/}
-        {/*      </Text>*/}
-        {/*    </HStack>*/}
-        {/*  </Link>*/}
-        {/*</NextLink>*/}
-        {/*<NextLink*/}
-        {/*  href='https://limitlesslabs.notion.site/Limitless-Creators-101-b529a4a72cd4406cacb55f27395c9b56'*/}
-        {/*  target='_blank'*/}
-        {/*  rel='noopener'*/}
-        {/*  passHref*/}
-        {/*  style={{ width: '100%' }}*/}
-        {/*>*/}
-        {/*  <Link*/}
-        {/*    isExternal*/}
-        {/*    onClick={() => {*/}
-        {/*      trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {*/}
-        {/*        page: pageName,*/}
-        {/*      })*/}
-        {/*    }}*/}
-        {/*    variant='transparent'*/}
-        {/*    w='full'*/}
-        {/*    rounded='8px'*/}
-        {/*  >*/}
-        {/*    <HStack w='full'>*/}
-        {/*      <SquarePlusIcon width={16} height={16} />*/}
-        {/*      <Text fontWeight={500} fontSize='14px'>*/}
-        {/*        Suggest market*/}
-        {/*      </Text>*/}
-        {/*    </HStack>*/}
-        {/*  </Link>*/}
-        {/*</NextLink>*/}
+
+        <Divider my='12px' />
+
+        <NextLink href='/' passHref style={{ width: '100%' }}>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Markets',
+              })
+              handleCategory(undefined)
+            }}
+            variant='transparent'
+            w='full'
+            bg={pageName === 'Explore Markets' && !selectedCategory ? 'grey.100' : 'unset'}
+            rounded='8px'
+          >
+            <HStack w='full'>
+              <GridIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                All markets
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
+
+        <CategoryItems />
+
         <Spacer />
         {totalVolume && (
           <NextLink
