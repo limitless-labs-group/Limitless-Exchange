@@ -1,11 +1,9 @@
 import { usePrivy } from '@privy-io/react-auth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { getWalletClient } from '@wagmi/core'
 import Cookies from 'js-cookie'
 import { Address, getAddress, toHex } from 'viem'
-import { useWalletClient } from 'wagmi'
+import { useSignMessage, useWalletClient } from 'wagmi'
 import useRefetchAfterLogin from '@/hooks/use-refetch-after-login'
-import { configureChainsConfig } from '@/providers/Privy'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Profile } from '@/types/profiles'
 
@@ -16,11 +14,12 @@ export interface IUseLogin {
 }
 
 export const useLogin = () => {
-  const { signMessage, user } = usePrivy()
+  const { signMessage } = usePrivy()
   const { refetchAll } = useRefetchAfterLogin()
   const axiosInstance = useAxiosPrivateClient()
   const queryClient = useQueryClient()
   const { refetch: refetchWalletClient } = useWalletClient()
+  const { signMessageAsync } = useSignMessage()
 
   const getSigningMsg = async () => {
     return axiosInstance.get(`/auth/signing-message`)
@@ -34,10 +33,7 @@ export const useLogin = () => {
       if (!loginSigningMessage) throw new Error('Failed to get signing message')
       let signature = ''
       if (client === 'eoa') {
-        const client = await getWalletClient(configureChainsConfig, {
-          account: user?.wallet?.address as Address,
-        })
-        signature = await client.signMessage({ message: loginSigningMessage })
+        signature = await signMessageAsync({ message: loginSigningMessage })
       } else {
         const { signature: smartWalletSignature } = await signMessage({
           message: loginSigningMessage,
