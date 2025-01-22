@@ -1,6 +1,6 @@
 import { EIP712TypedData } from '@polymarket/order-utils'
 import { switchChain } from '@wagmi/core'
-import { Address, encodeFunctionData, erc20Abi, getContract, maxUint256 } from 'viem'
+import { Address, encodeFunctionData, erc20Abi, getContract } from 'viem'
 import { useAccount, useSendTransaction, useSignTypedData, useWriteContract } from 'wagmi'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
@@ -89,7 +89,7 @@ export const useExternalWalletService = () => {
     await writeContractAsync(
       {
         abi: spender === collateralTokenAddress ? wethABI : erc20Abi,
-        args: [spender, maxUint256],
+        args: [spender, value],
         address: contractAddress,
         functionName: 'approve',
       },

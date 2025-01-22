@@ -33,7 +33,6 @@ import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import CommentTab from './comment-tab'
 import { UniqueTraders } from './unique-traders'
 import useMarketGroup from '@/hooks/use-market-group'
-import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
@@ -72,25 +71,17 @@ export default function MarketPage() {
     setMarket,
     onCloseMarketPage,
     market,
-    strategy,
     setStrategy,
-    status,
     marketGroup,
     setMarketGroup,
     refetchMarkets,
   } = useTradingService()
 
-  const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
-
-  console.log(lockedBalance)
-
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const { trackChanged, trackClicked, trackOpened } = useAmplitude()
-
-  // Todo change creator name
+  const { trackClicked, trackOpened } = useAmplitude()
 
   const marketAddress = useMemo(() => market?.address, [market])
   const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])

@@ -213,12 +213,12 @@ export interface AccountMetadata {
 export type StrategyChangedType = 'Buy selected' | 'Sell selected'
 export interface StrategyChangedMetadata {
   type: StrategyChangedType
-  marketAddress: Address
+  marketAddress: string
 }
 
 export interface OutcomeChangedMetadata {
   choice: OutcomeChangedChoice
-  marketAddress: Address
+  marketAddress: string
 }
 
 export type OutcomeChangedChoice = 'Yes' | 'No'
@@ -226,7 +226,7 @@ export type WalletType = 'eoa' | 'etherspot'
 export interface TradeClickedMetadata {
   outcome: OutcomeChangedChoice
   walletType: WalletType
-  marketAddress: Address
+  marketAddress: string
   marketType?: 'group' | 'single'
 }
 
@@ -281,7 +281,7 @@ interface FeeAndReturnTradingDetailsClicked {
   from: 'percentage' | 'numbers'
   to: 'percentage' | 'numbers'
   platform: 'desktop' | 'mobile'
-  marketAddress: Address
+  marketAddress: string
 }
 
 export type ModalOpenedModal = 'Profile Settings'
@@ -295,20 +295,20 @@ export type PageOpenedPage =
   | 'Home'
 export interface PageOpenedMetadata {
   page: PageOpenedPage
-  marketAddress?: Address
+  marketAddress?: string
   category?: string
   [key: string]: any
 }
 
 export interface SidebarMarketOpenedMetadata {
-  marketAddress?: Address
+  marketAddress?: string
   category?: Category | string
   marketTags?: string[]
   marketType: 'single' | 'group'
 }
 
 interface FullPageClickedMetaData {
-  marketAddress?: Address
+  marketAddress?: string
   marketType?: 'group' | 'single'
   marketTags?: string[]
 }

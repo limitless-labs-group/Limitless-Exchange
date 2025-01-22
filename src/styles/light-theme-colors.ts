@@ -109,7 +109,7 @@ export const lightThemeColors: ColorScheme = {
     200: '#91BBFF',
     300: '#407CFF',
     400: '#1755F3',
-    500: '#0000EE',
+    500: '#0079FF',
     600: '#0024A6',
     700: '#001780',
     800: '#000D59',
@@ -155,6 +155,12 @@ export const lightThemeColors: ColorScheme = {
   background: {
     80: 'rgba(255, 255, 255, 0.8)',
     90: 'rgba(255, 255, 255, 0.9)',
+  },
+  greenTransparent: {
+    100: 'rgba(15, 197, 145, 0.15)',
+  },
+  redTransparent: {
+    100: 'rgba(255, 55, 86, 0.15)',
   },
   text: {
     100: '#1C1C1C',
