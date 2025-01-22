@@ -154,7 +154,10 @@ export default function ClobMarketTradeForm() {
       let remainingAmount = +price
 
       for (const entry of targetSide) {
-        const contractsAvailable = +formatUnits(BigInt(entry.size), market.collateralToken.decimals)
+        const contractsAvailable = +formatUnits(
+          BigInt(entry.size.toFixed()),
+          market.collateralToken.decimals
+        )
         const contractsToBuy = Math.min(remainingAmount / entry.price, contractsAvailable)
 
         totalContracts += contractsToBuy
@@ -188,7 +191,10 @@ export default function ClobMarketTradeForm() {
       let remainingContracts = +price
 
       for (const entry of targetSide) {
-        const contractsAvailable = +formatUnits(BigInt(entry.size), market.collateralToken.decimals)
+        const contractsAvailable = +formatUnits(
+          BigInt(entry.size.toFixed()),
+          market.collateralToken.decimals
+        )
         const contractsToSell = Math.min(remainingContracts, contractsAvailable)
 
         totalContractsSold += contractsToSell
