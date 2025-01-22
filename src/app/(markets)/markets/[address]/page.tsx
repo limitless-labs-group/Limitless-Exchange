@@ -34,7 +34,6 @@ import OpenInterestTooltip from '@/components/common/markets/open-interest-toolt
 import ShareMenu from '@/components/common/markets/share-menu'
 import { UniqueTraders } from '@/components/common/markets/unique-traders'
 import Paper from '@/components/common/paper'
-import ProgressBar from '@/components/common/progress-bar'
 import Skeleton from '@/components/common/skeleton'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'

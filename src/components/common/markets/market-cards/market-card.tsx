@@ -1,6 +1,6 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Avatar from '@/components/common/avatar'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
@@ -8,6 +8,7 @@ import Paper from '@/components/common/paper'
 import { MarketCardLink } from './market-card-link'
 import { MarketProgressBar } from './market-progress-bar'
 import { useMarketFeed } from '@/hooks/use-market-feed'
+import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
@@ -40,21 +41,7 @@ export const MarketCard = ({ market, analyticParams }: DailyMarketCardProps) => 
     onOpenMarketPage(market)
   }
 
-  const uniqueUsersTrades = useMemo(() => {
-    if (marketFeedData?.data.length) {
-      const uniqueUsers = new Map()
-
-      for (const event of marketFeedData.data) {
-        if (!uniqueUsers.has(event.user?.account)) {
-          uniqueUsers.set(event.user?.account, event)
-        }
-        if (uniqueUsers.size >= 3) break
-      }
-
-      return Array.from(uniqueUsers.values())
-    }
-    return null
-  }, [marketFeedData])
+  const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
 
   const { trackClicked } = useAmplitude()
 
@@ -112,7 +99,7 @@ export const MarketCard = ({ market, analyticParams }: DailyMarketCardProps) => 
                         <Avatar
                           account={user.account || ''}
                           avatarUrl={user.imageURI}
-                          key={index}
+                          key={user.account}
                           borderColor='grey.100'
                           zIndex={100 + index}
                           border='2px solid'

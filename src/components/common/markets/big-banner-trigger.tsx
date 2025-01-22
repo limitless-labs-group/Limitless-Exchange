@@ -2,13 +2,14 @@ import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { ethers } from 'ethers'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import ProgressBar from '@/components/common/progress-bar'
 import { BigBannerProps } from './big-banner'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
+import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -76,21 +77,7 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
     }
   }
 
-  const uniqueUsersTrades = useMemo(() => {
-    if (marketFeedData?.data.length) {
-      const uniqueUsers = new Map()
-
-      for (const event of marketFeedData.data) {
-        if (!uniqueUsers.has(event.user?.account)) {
-          uniqueUsers.set(event.user?.account, event)
-        }
-        if (uniqueUsers.size >= 3) break
-      }
-
-      return Array.from(uniqueUsers.values())
-    }
-    return null
-  }, [marketFeedData])
+  const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
 
   return (
     <VStack

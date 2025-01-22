@@ -29,7 +29,6 @@ import MarketPageOverviewTab from '@/components/common/markets/market-page-overv
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
 import Paper from '@/components/common/paper'
-import ProgressBar from '@/components/common/progress-bar'
 import {
   LoadingForm,
   MarketPriceChart,
@@ -65,7 +64,6 @@ import {
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
-import { defineOpenInterestOverVolume } from '@/utils/market'
 
 const tokens = [
   'AAVE',
