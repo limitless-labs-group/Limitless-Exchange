@@ -20,7 +20,7 @@ export const linkify = (text: string): string => {
     }
   }
   return text.replace(urlRegex, (url) => {
-    const cleanUrl = url.replace(/[.,!?;:]+(?=\s|$)/, '')
+    const cleanUrl = url.replace(/[.,!?;:]+([\s]|$)/, '$1')
     const trailingPunctuation = url.slice(cleanUrl.length)
 
     return isValidUrl(cleanUrl)
