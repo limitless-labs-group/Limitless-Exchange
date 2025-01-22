@@ -236,6 +236,8 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     }
   }, [market, account])
 
+  console.log(orderBook)
+
   return (
     <ClobWidgetContext.Provider
       value={{
