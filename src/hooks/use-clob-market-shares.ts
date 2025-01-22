@@ -7,7 +7,7 @@ import { useAccount } from '@/services'
 export default function useClobMarketShares(slug?: string, tokens?: { yes: string; no: string }) {
   const { account } = useAccount()
   return useQuery({
-    queryKey: ['market-shares', slug, tokens],
+    queryKey: ['market-shares', slug, tokens, account],
     queryFn: async () => {
       if (tokens && slug) {
         const contract = getContract({

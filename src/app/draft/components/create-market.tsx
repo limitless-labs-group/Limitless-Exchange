@@ -87,8 +87,6 @@ export const CreateMarket: FC = () => {
     enabled: !!marketId,
   })
 
-  console.log(editMarket)
-
   const handleSwitchClicked = () => {
     setCreateClobMarket(!createClobMarket)
   }

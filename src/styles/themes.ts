@@ -14,6 +14,7 @@ import { radioTheme } from '@/styles/radio'
 import { selectTheme } from '@/styles/select'
 import { skeletonTheme } from '@/styles/skeleton'
 import { sliderTheme } from '@/styles/slider'
+import { stepperTheme } from '@/styles/stepper'
 import { tableTheme } from '@/styles/table'
 import { tabsTheme } from '@/styles/tabs'
 import { textAreaTheme } from '@/styles/text-area'
@@ -315,6 +316,7 @@ export const chakraTheme = ChakraTheme({
     },
     Slider: sliderTheme,
     Select: selectTheme,
+    Stepper: stepperTheme,
     Progress: {
       baseStyle: {
         track: {

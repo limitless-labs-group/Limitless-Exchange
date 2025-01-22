@@ -9,8 +9,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react'
-import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -20,15 +19,9 @@ import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
+import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import { useOrderBook } from '@/hooks/use-order-book'
-import {
-  ClickEvent,
-  useAccount,
-  useAmplitude,
-  useBalanceService,
-  useTradingService,
-} from '@/services'
-import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import { ClickEvent, useAmplitude, useBalanceService, useTradingService } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -38,11 +31,23 @@ export default function ClobMarketTradeForm() {
   const { trackClicked } = useAmplitude()
   const { market, strategy } = useTradingService()
   const { data: orderBook } = useOrderBook(market?.slug)
-  const { placeMarketOrder } = useWeb3Service()
-  const { profileData } = useAccount()
   const queryClient = useQueryClient()
-  const { setPrice, price, outcome, balance } = useClobWidget()
-  const privateClient = useAxiosPrivateClient()
+  const {
+    setPrice,
+    price,
+    outcome,
+    balance,
+    placeMarketOrderMutation,
+    allowance,
+    isApprovedForSell,
+    onToggleTradeStepper,
+    sharesPrice,
+  } = useClobWidget()
+  const { client } = useWeb3Service()
+  const { data: sharesOwned, isLoading: ownedSharesLoading } = useClobMarketShares(
+    market?.slug,
+    market?.tokens
+  )
 
   const handlePercentButtonClicked = (value: number) => {
     trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
@@ -51,12 +56,33 @@ export default function ClobMarketTradeForm() {
       marketType: market?.marketType,
       marketTags: market?.tags,
     })
-    if (value == 100) {
-      setPrice(NumberUtil.toFixed(balance, market?.collateralToken.symbol === 'USDC' ? 1 : 6))
+    if (strategy === 'Buy') {
+      if (value == 100) {
+        setPrice(NumberUtil.toFixed(balance, market?.collateralToken.symbol === 'USDC' ? 1 : 6))
+        return
+      }
+      const amountByPercent = (Number(balance) * value) / 100
+      setPrice(
+        NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
+      )
       return
     }
-    const amountByPercent = (Number(balance) * value) / 100
+    const sharesAmount = outcome
+      ? NumberUtil.formatThousands(
+          formatUnits(sharesOwned?.[1] || 0n, market?.collateralToken.decimals || 6),
+          6
+        )
+      : NumberUtil.formatThousands(
+          formatUnits(sharesOwned?.[0] || 0n, market?.collateralToken.decimals || 6),
+          6
+        )
+    if (value === 100) {
+      setPrice(sharesAmount)
+      return
+    }
+    const amountByPercent = (Number(sharesAmount) * value) / 100
     setPrice(NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6))
+    return
   }
 
   const handleInputValueChange = (value: string) => {
@@ -77,15 +103,32 @@ export default function ClobMarketTradeForm() {
       if (isMobile) {
         return 'MAX'
       }
+      let balanceToShow = ''
+      if (strategy === 'Buy') {
+        balanceToShow = NumberUtil.formatThousands(
+          balance,
+          market?.collateralToken.symbol === 'USDC' ? 1 : 6
+        )
+      } else {
+        balanceToShow = outcome
+          ? NumberUtil.formatThousands(
+              formatUnits(sharesOwned?.[1] || 0n, market?.collateralToken.decimals || 6),
+              6
+            )
+          : NumberUtil.formatThousands(
+              formatUnits(sharesOwned?.[0] || 0n, market?.collateralToken.decimals || 6),
+              6
+            )
+      }
       return `MAX: ${
-        balanceLoading ? (
+        balanceLoading || ownedSharesLoading ? (
           <Box w='90px'>
             <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
           </Box>
         ) : (
-          NumberUtil.formatThousands(balance, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
+          balanceToShow
         )
-      } ${market?.collateralToken.symbol}`
+      } ${strategy === 'Buy' ? market?.collateralToken.symbol : ''}`
     }
     return `${title}%`
   }
@@ -100,38 +143,69 @@ export default function ClobMarketTradeForm() {
       }
     }
     if (strategy === 'Buy') {
-      let remainingAmount = +price
+      const targetSide = !outcome
+        ? orderBook.asks
+        : orderBook.asks.map((a) => ({ ...a, price: 1 - a.price }))
+
+      targetSide.sort((a, b) => a.price - b.price)
+
       let totalContracts = 0
       let totalCost = 0
-      let totalProfit = 0
+      let remainingAmount = +price
 
-      const targetArray = outcome ? orderBook.bids : orderBook.asks
+      for (const entry of targetSide) {
+        const contractsAvailable = +formatUnits(BigInt(entry.size), market.collateralToken.decimals)
+        const contractsToBuy = Math.min(remainingAmount / entry.price, contractsAvailable)
 
-      for (const entry of targetArray) {
-        const contractPrice = entry.price
-        const maxContractsForSize = +formatUnits(
-          BigInt(entry.size),
-          market.collateralToken.decimals
-        )
-        const affordableContracts = Math.min(remainingAmount / contractPrice, maxContractsForSize)
+        totalContracts += contractsToBuy
+        totalCost += contractsToBuy * entry.price
 
-        totalContracts += affordableContracts
-        remainingAmount -= affordableContracts * contractPrice
-        totalCost += affordableContracts * contractPrice
-        totalProfit += new BigNumber(affordableContracts)
-          .multipliedBy(new BigNumber(1).minus(new BigNumber(contractPrice)))
-          .toNumber()
+        remainingAmount -= contractsToBuy * entry.price
 
         if (remainingAmount <= 0) break
       }
 
       const averagePrice = totalContracts > 0 ? totalCost / totalContracts : 0
+      const totalProfit = totalContracts * (1 - averagePrice)
 
       return {
-        contracts: totalContracts,
-        avgPrice: averagePrice,
-        payout: totalContracts,
-        profit: totalProfit,
+        contracts: isNaN(totalContracts) ? 0 : totalContracts,
+        avgPrice: isNaN(averagePrice) ? 0 : averagePrice,
+        payout: isNaN(totalContracts) ? 0 : totalContracts,
+        profit: isNaN(totalProfit) ? 0 : totalProfit,
+      }
+    }
+
+    if (strategy === 'Sell') {
+      const targetSide = !outcome
+        ? orderBook.bids
+        : orderBook.bids.map((b) => ({ ...b, price: 1 - b.price })).reverse()
+
+      targetSide.sort((a, b) => b.price - a.price)
+
+      let totalContractsSold = 0
+      let totalAmountReceived = 0
+      let remainingContracts = +price
+
+      for (const entry of targetSide) {
+        const contractsAvailable = +formatUnits(BigInt(entry.size), market.collateralToken.decimals)
+        const contractsToSell = Math.min(remainingContracts, contractsAvailable)
+
+        totalContractsSold += contractsToSell
+        totalAmountReceived += contractsToSell * entry.price
+
+        remainingContracts -= contractsToSell
+
+        if (remainingContracts <= 0) break
+      }
+
+      const averagePrice = totalContractsSold > 0 ? totalAmountReceived / totalContractsSold : 0
+
+      return {
+        contracts: isNaN(totalContractsSold) ? 0 : totalContractsSold,
+        avgPrice: isNaN(averagePrice) ? 0 : averagePrice,
+        payout: isNaN(totalAmountReceived) ? 0 : totalAmountReceived,
+        profit: 0,
       }
     }
     return {
@@ -142,68 +216,39 @@ export default function ClobMarketTradeForm() {
     }
   }, [market, orderBook, outcome, price, strategy])
 
-  const { yesPrice, noPrice } = useMemo(() => {
-    if (orderBook) {
-      if (strategy === 'Buy') {
-        const yesPrice = orderBook?.asks.sort((a, b) => a.price - b.price)[0]?.price * 100
-        const noPrice = (1 - orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price) * 100
-        return {
-          yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(),
-          noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(),
-        }
-      }
-      const yesPrice = orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price * 100
-      const noPrice = (1 - orderBook?.asks.sort((a, b) => b.price - a.price)[0]?.price) * 100
-      return {
-        yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(),
-        noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(),
-      }
-    }
-    return {
-      yesPrice: 0,
-      noPrice: 0,
-    }
-  }, [strategy, orderBook])
+  const onResetMutation = async () => {
+    await queryClient.refetchQueries({
+      queryKey: ['user-orders', market?.slug],
+    })
+    await queryClient.refetchQueries({
+      queryKey: ['market-shares', market?.slug],
+    })
+    await queryClient.refetchQueries({
+      queryKey: ['order-book', market?.slug],
+    })
+    placeMarketOrderMutation.reset()
+  }
 
-  const placeMarketOrderMutation = useMutation({
-    mutationKey: ['market-order', market?.address, price],
-    mutationFn: async () => {
-      if (market) {
-        const tokenId = outcome === 1 ? market.tokens.no : market.tokens.yes
-        const side = strategy === 'Buy' ? 0 : 1
-        const signedOrder = await placeMarketOrder(
-          tokenId,
-          market.collateralToken.decimals,
-          outcome === 0 ? yesPrice.toString() : noPrice.toString(),
-          side,
-          price
-        )
-        const data = {
-          order: {
-            ...signedOrder,
-            salt: +signedOrder.salt,
-            price: undefined,
-            makerAmount: +parseUnits(price, market.collateralToken.decimals).toString(),
-            takerAmount: +signedOrder.takerAmount,
-            nonce: +signedOrder.nonce,
-            feeRateBps: +signedOrder.feeRateBps,
-          },
-          ownerId: profileData?.id,
-          orderType: 'FOK',
-          marketSlug: market.slug,
-        }
-        return privateClient.post('/orders', data)
+  const handleSubmitButtonClicked = async () => {
+    if (client === 'etherspot') {
+      await placeMarketOrderMutation.mutateAsync()
+    }
+    if (strategy === 'Buy') {
+      const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
+        parseUnits(sharesPrice, market?.collateralToken.decimals || 6).toString()
+      )
+      if (isApprovalNeeded) {
+        onToggleTradeStepper()
+        return
       }
-    },
-    onSuccess: async () => {
-      await queryClient.refetchQueries({
-        queryKey: ['user-orders', market?.slug],
-      })
-      setPrice('')
-    },
-  })
-
-  console.log(orderCalculations)
+      await placeMarketOrderMutation.mutateAsync()
+    }
+    if (!isApprovedForSell) {
+      onToggleTradeStepper()
+      return
+    }
+    await placeMarketOrderMutation.mutateAsync()
+  }
 
   return (
     <>
@@ -243,7 +288,7 @@ export default function ClobMarketTradeForm() {
           </Flex>
         )}
       </Flex>
-      <InputGroup display='block' mt={isMobile ? '16px' : '24px'}>
+      <InputGroup display='block' mt='8px'>
         <Input
           value={price}
           onChange={(e) => handleInputValueChange(e.target.value)}
@@ -264,25 +309,31 @@ export default function ClobMarketTradeForm() {
         </InputRightElement>
       </InputGroup>
       <VStack w='full' gap='8px' my='24px'>
-        <HStack w='full' justifyContent='space-between'>
-          <Text {...paragraphMedium} color='grey.500'>
-            Contracts
-          </Text>
-          <Text {...paragraphMedium} color={!orderCalculations.contracts ? 'grey.500' : 'grey.800'}>
-            {NumberUtil.toFixed(orderCalculations.contracts, 6)}
-          </Text>
-        </HStack>
+        {strategy === 'Buy' && (
+          <HStack w='full' justifyContent='space-between'>
+            <Text {...paragraphMedium} color='grey.500'>
+              Contracts
+            </Text>
+            <Text
+              {...paragraphMedium}
+              color={!orderCalculations.contracts ? 'grey.500' : 'grey.800'}
+            >
+              {NumberUtil.toFixed(orderCalculations.contracts, 6)}
+            </Text>
+          </HStack>
+        )}
         <HStack w='full' justifyContent='space-between'>
           <Text {...paragraphMedium} color='grey.500'>
             Avg. price
           </Text>
           <Text {...paragraphMedium} color={!orderCalculations.avgPrice ? 'grey.500' : 'grey.800'}>
-            {NumberUtil.convertWithDenomination(orderCalculations.avgPrice * 100, 6)}¢
+            {NumberUtil.convertWithDenomination(orderCalculations.avgPrice, 6)}{' '}
+            {market?.collateralToken.symbol}
           </Text>
         </HStack>
         <HStack w='full' justifyContent='space-between'>
           <Text {...paragraphMedium} color='grey.500'>
-            Payout if {outcome ? 'No' : 'Yes'} wins
+            {strategy === 'Buy' ? `Payout if ${outcome ? 'No' : 'Yes'} wins` : 'Total'}
           </Text>
           <Text {...paragraphMedium} color={!orderCalculations.payout ? 'grey.500' : 'grey.800'}>
             {NumberUtil.toFixed(orderCalculations.payout, 2)} USDC{' '}
@@ -297,17 +348,18 @@ export default function ClobMarketTradeForm() {
       <ClobTradeButton
         status={placeMarketOrderMutation.status}
         isDisabled={!price}
-        onClick={() => placeMarketOrderMutation.mutateAsync()}
-        successText={`Bought ${NumberUtil.convertWithDenomination(
-          orderCalculations.contracts
+        onClick={handleSubmitButtonClicked}
+        successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(
+          orderCalculations.contracts,
+          6
         )} contracts`}
-        onReset={async () => placeMarketOrderMutation.reset()}
+        onReset={onResetMutation}
       >
         {strategy} {outcome ? 'No' : 'Yes'}
       </ClobTradeButton>
       {!price && (
         <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
-          Enter amount to buy
+          Enter amount to {strategy === 'Buy' ? 'buy' : 'sell'}
         </Text>
       )}
     </>
