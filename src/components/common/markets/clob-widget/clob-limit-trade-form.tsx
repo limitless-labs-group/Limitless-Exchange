@@ -239,7 +239,6 @@ export default function ClobLimitTradeForm() {
       <NumberInputWithButtons
         id='contractsAmount'
         min={1}
-        max={99}
         step={1}
         placeHolderText='Eg. 32'
         value={sharesAmount}
