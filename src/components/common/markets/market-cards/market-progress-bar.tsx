@@ -11,9 +11,10 @@ const PROGRESS_THRESHOLDS = [
 
 interface MarketProgressBarProps {
   value: number
+  isClosed?: boolean
 }
 
-export const MarketProgressBar = ({ value }: MarketProgressBarProps) => {
+export const MarketProgressBar = ({ isClosed = false, value }: MarketProgressBarProps) => {
   const progressData = useMemo(() => {
     const threshold =
       PROGRESS_THRESHOLDS.find((t) => value <= t.max) ??
@@ -30,20 +31,20 @@ export const MarketProgressBar = ({ value }: MarketProgressBarProps) => {
   return (
     <Box>
       <HStack w='full' mb='4px' justifyContent='space-between'>
-        {yes > 0 && (
+        {yes > 0 && isClosed ? (
           <Flex w='full' justifyContent='start'>
             <Text {...paragraphMedium} color={progressData.color}>
               Yes {yes}%
             </Text>
           </Flex>
-        )}
-        {no > 0 && (
+        ) : null}
+        {no > 0 && isClosed ? (
           <Flex textAlign='left' w='full' justifyContent='end'>
             <Text {...paragraphMedium} color='grey.500'>
               No {no}%
             </Text>
           </Flex>
-        )}
+        ) : null}
       </HStack>
 
       <ProgressBar variant={progressData.variant} size='xs' value={value} />
