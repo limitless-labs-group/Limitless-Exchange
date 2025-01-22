@@ -63,6 +63,7 @@ import {
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 const tokens = [
@@ -353,7 +354,7 @@ export default function MarketPage() {
         {isMobile && <ShareMenu />}
       </HStack>
       <Box w='full' mt={isMobile ? '56px' : '24px'}>
-        <MarketProgressBar value={market ? market.prices[0] : 50} />
+        <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
         <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
             <VolumeIcon width={16} height={16} />

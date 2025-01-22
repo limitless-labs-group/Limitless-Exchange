@@ -594,7 +594,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                     <Skeleton height={16} />
                   </Box>
                 ) : (
-                  <MarketProgressBar value={market.prices[0]} />
+                  <MarketProgressBar isClosed={market.expired} value={market.prices[0]} />
                 )}
                 <Box mt='12px'>
                   <HStack w='full' justifyContent='space-between' flexWrap='wrap'>

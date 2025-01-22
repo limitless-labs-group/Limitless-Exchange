@@ -2,7 +2,7 @@ import { Box, HStack, Text, TextProps } from '@chakra-ui/react'
 import React, { useEffect, useState, useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 type DailyMarketTimerProps = TextProps & {
   deadline: number
@@ -10,6 +10,7 @@ type DailyMarketTimerProps = TextProps & {
   showDays?: boolean
   topMarket?: boolean
   deadlineText: string
+  hideText?: boolean
 }
 
 const formatTime = ({
@@ -34,6 +35,7 @@ export default function DailyMarketTimer({
   deadlineText,
   showDays = true,
   topMarket = false,
+  hideText = false,
   ...props
 }: DailyMarketTimerProps) {
   const calculateTimeRemaining = useCallback(() => {
@@ -73,9 +75,11 @@ export default function DailyMarketTimer({
   const deadlineLeftInPercent = 100 - ((deadline - new Date().getTime()) / 86400000) * 100
 
   return (
-    <HStack gap='8px'>
+    <HStack gap={!hideText ? '8px' : 'unset'}>
       <Text {...paragraphRegular} color={color || 'grey.500'}>
-        Ends {new Date(deadline).getTime() - new Date().getTime() > 86400000 ? 'on' : 'in'}
+        {!hideText
+          ? `Ends ${new Date(deadline).getTime() - new Date().getTime() > 86400000 ? 'on' : 'in'}`
+          : null}
       </Text>
       {new Date(deadline).getTime() - new Date().getTime() > 86400000 ? (
         <HStack gap={isMobile ? '8px' : '4px'} color={color} {...props}>
