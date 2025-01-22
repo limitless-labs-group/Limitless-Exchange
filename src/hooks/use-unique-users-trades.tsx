@@ -8,8 +8,9 @@ export function useUniqueUsersTrades(marketFeedData: AxiosResponse<MarketFeedDat
       const uniqueUsers = new Map()
 
       for (const event of marketFeedData.data) {
-        if (!uniqueUsers.has(event.user?.account)) {
-          uniqueUsers.set(event.user?.account, event)
+        const userAccount = event.user?.account
+        if (userAccount && !uniqueUsers.has(userAccount)) {
+          uniqueUsers.set(userAccount, event)
         }
         if (uniqueUsers.size >= 3) break
       }
