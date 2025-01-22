@@ -1,4 +1,4 @@
-import { Box, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import Avatar from '@/components/common/avatar'
@@ -15,11 +15,12 @@ import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface DailyMarketCardProps {
+  variant?: 'grid'
   market: Market
   analyticParams: { bannerPosition: number; bannerPaginationPage: number }
 }
 
-export const MarketCard = ({ market, analyticParams }: DailyMarketCardProps) => {
+export const MarketCard = ({ variant, market, analyticParams }: DailyMarketCardProps) => {
   const [hovered, setHovered] = useState(false)
   const { onOpenMarketPage, market: selectedMarket } = useTradingService()
   const router = useRouter()
@@ -54,6 +55,8 @@ export const MarketCard = ({ market, analyticParams }: DailyMarketCardProps) => 
     }
   }, [selectedMarket, market])
 
+  const isGrid = variant === 'grid'
+
   const content = (
     <Box
       w='full'
@@ -61,6 +64,8 @@ export const MarketCard = ({ market, analyticParams }: DailyMarketCardProps) => 
       rounded='12px'
       border='2px solid var(--chakra-colors-grey-100)'
       p='2px'
+      minH={isGrid ? '164px' : '144px'}
+      h='full'
       onMouseEnter={() => {
         setHovered(true)
       }}
@@ -73,16 +78,16 @@ export const MarketCard = ({ market, analyticParams }: DailyMarketCardProps) => 
         onClickRedirectToMarket(event)
       }}
     >
-      <Paper flex={1} w={'100%'} position='relative' cursor='pointer' p='14px' bg='unset'>
-        <VStack w='full' gap='16px'>
-          <Box w='full'>
-            <Text {...headline} mt='12px' mb='32px'>
+      <Paper flex={1} w='full' h='full' position='relative' cursor='pointer' p='14px' bg='unset'>
+        <VStack w='full' h='full' gap='16px' justifyContent='space-between'>
+          <Flex w='full'>
+            <Text {...headline} mt='12px'>
               {market.title}
             </Text>
-            <MarketProgressBar value={market.prices[0]} />
-          </Box>
+          </Flex>
           <Box w='full'>
-            <HStack w='full' justifyContent='space-between'>
+            <MarketProgressBar isClosed={market.expired} value={market.prices[0]} />
+            <HStack w='full' mt='16px' justifyContent='space-between'>
               <Box w='full'>
                 <DailyMarketTimer
                   deadline={market.expirationTimestamp}
