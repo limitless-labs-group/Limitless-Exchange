@@ -38,10 +38,10 @@ export const MarketProgressBar = ({ value }: MarketProgressBarProps) => {
     <Box>
       <HStack w='full' justifyContent='space-between' mb='4px'>
         <Text {...paragraphMedium} color={getProgressColor(value)}>
-          Yes {value}%
+          Yes {Number(value.toFixed(2)).toString()}%
         </Text>
         <Text {...paragraphMedium} color='grey.500'>
-          No {100 - value}%
+          No {Number((100 - value).toFixed(2)).toString()}%
         </Text>
       </HStack>
 
