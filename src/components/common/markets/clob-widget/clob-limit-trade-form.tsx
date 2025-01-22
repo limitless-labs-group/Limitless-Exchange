@@ -30,6 +30,7 @@ export default function ClobLimitTradeForm() {
     sharesPrice,
     isApprovedForSell,
     onToggleTradeStepper,
+    isBalanceNotEnough,
   } = useClobWidget()
   const { trackClicked } = useAmplitude()
   const { market, strategy } = useTradingService()
@@ -243,6 +244,7 @@ export default function ClobLimitTradeForm() {
         placeHolderText='Eg. 32'
         value={sharesAmount}
         onChange={setSharesAmount}
+        isInvalid={isBalanceNotEnough}
       />
       <VStack w='full' gap='8px' my='24px'>
         {strategy === 'Buy' ? (
@@ -291,7 +293,7 @@ export default function ClobLimitTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
-        isDisabled={!price || !sharesAmount}
+        isDisabled={!price || !sharesAmount || isBalanceNotEnough}
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}

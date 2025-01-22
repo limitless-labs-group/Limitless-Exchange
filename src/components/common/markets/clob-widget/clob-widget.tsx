@@ -11,7 +11,7 @@ import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import SettingsIcon from '@/resources/icons/setting-icon.svg'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
-import { controlsMedium } from '@/styles/fonts/fonts.styles'
+import { controlsMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 
 export default function ClobWidget() {
@@ -118,7 +118,7 @@ export default function ClobWidget() {
           <OutcomeButtonsClob />
           {orderType === MarketOrderType.MARKET ? <ClobMarketTradeForm /> : <ClobLimitTradeForm />}
           {isBalanceNotEnough && (
-            <Text my='8px' color='red.500'>
+            <Text my='8px' {...paragraphRegular} color='grey.500' textAlign={'center'}>
               Not enough funds
             </Text>
           )}

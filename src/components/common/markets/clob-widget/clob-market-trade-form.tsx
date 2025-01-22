@@ -42,6 +42,7 @@ export default function ClobMarketTradeForm() {
     isApprovedForSell,
     onToggleTradeStepper,
     sharesPrice,
+    isBalanceNotEnough,
   } = useClobWidget()
   const { client } = useWeb3Service()
   const { data: sharesOwned, isLoading: ownedSharesLoading } = useClobMarketShares(
@@ -307,6 +308,7 @@ export default function ClobMarketTradeForm() {
           px='12px'
           py='8px'
           h='32px'
+          isInvalid={isBalanceNotEnough}
         />
         <InputRightElement h='16px' top='8px' right={isMobile ? '8px' : '12px'} w='fit'>
           <Text {...paragraphMedium} color={'grey.500'}>
@@ -353,7 +355,7 @@ export default function ClobMarketTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeMarketOrderMutation.status}
-        isDisabled={!price}
+        isDisabled={!price || isBalanceNotEnough}
         onClick={handleSubmitButtonClicked}
         successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(
           orderCalculations.contracts,

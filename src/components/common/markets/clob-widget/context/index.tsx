@@ -11,6 +11,7 @@ import React, {
   useEffect,
 } from 'react'
 import { Address, formatUnits, parseUnits } from 'viem'
+import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
 import { useOrderBook } from '@/hooks/use-order-book'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
@@ -80,6 +81,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const privateClient = useAxiosPrivateClient()
   const { profileData } = useAccount()
   const { placeLimitOrder, placeMarketOrder } = useWeb3Service()
+  const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
 
   const checkMarketAllowance = async () => {
     const allowance = await checkAllowance(
@@ -107,26 +109,35 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
 
   const isBalanceNotEnough = useMemo(() => {
     if (orderType === MarketOrderType.LIMIT) {
-      const amount = new BigNumber(price || '0').dividedBy(100).multipliedBy(sharesAmount)
-      const lockedBalanceFormatted = formatUnits(
-        BigInt(lockedBalance.toFixed()),
-        market?.collateralToken.decimals || 6
-      )
-      const balanceLeft = new BigNumber(balance).minus(lockedBalanceFormatted)
-      return amount.isGreaterThan(balanceLeft)
+      if (strategy === 'Buy') {
+        const amount = new BigNumber(price || '0').dividedBy(100).multipliedBy(sharesAmount)
+        const lockedBalanceFormatted = formatUnits(
+          BigInt(lockedBalance.toFixed()),
+          market?.collateralToken.decimals || 6
+        )
+        const balanceLeft = new BigNumber(balance).minus(lockedBalanceFormatted)
+        return amount.isGreaterThan(balanceLeft)
+      }
+      const shares = sharesOwned?.[outcome]
+      return new BigNumber(shares?.toString() || '0').isLessThan(sharesAmount)
     }
     if (orderType === MarketOrderType.MARKET) {
       if (strategy === 'Buy') {
         return new BigNumber(price).isGreaterThan(balance)
       }
+      const shares = sharesOwned?.[outcome]
+      return new BigNumber(shares?.toString() || '0').isLessThan(sharesAmount)
     }
+    return false
   }, [
     balance,
     lockedBalance,
     market?.collateralToken.decimals,
     orderType,
+    outcome,
     price,
     sharesAmount,
+    sharesOwned,
     strategy,
   ])
 

@@ -20,7 +20,7 @@ export default function NumberInputWithButtons({
   ...wrapperProps
 }: NumberInputWithButtonsProps) {
   return (
-    <NumberInput {...wrapperProps}>
+    <NumberInput {...wrapperProps} errorBorderColor='red.500'>
       <NumberInputField id={id} placeholder={placeHolderText} />
       <NumberIncrementStepper
         position='absolute'
