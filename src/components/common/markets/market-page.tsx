@@ -36,6 +36,7 @@ import {
   SellForm,
 } from '@/app/(markets)/markets/[address]/components'
 import CommentTab from './comment-tab'
+import { MarketProgressBar } from './market-cards/market-progress-bar'
 import { UniqueTraders } from './unique-traders'
 import useMarketGroup from '@/hooks/use-market-group'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
@@ -354,15 +355,7 @@ export default function MarketPage() {
         {isMobile && <ShareMenu />}
       </HStack>
       <Box w='full' mt={isMobile ? '56px' : '24px'}>
-        <HStack w='full' justifyContent='space-between' mb='4px'>
-          <Text {...paragraphMedium} color='#0FC591'>
-            Yes {market?.prices[0]}%
-          </Text>
-          <Text {...paragraphMedium} color='#FF3756'>
-            No {market?.prices[1]}%
-          </Text>
-        </HStack>
-        <ProgressBar variant='market' value={market ? market.prices[0] : 50} />
+        <MarketProgressBar value={market ? market.prices[0] : 50} />
         <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
             <VolumeIcon width={16} height={16} />

@@ -6,8 +6,8 @@ import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
-import DailyMarketsSection from '@/components/common/markets/daily-markets'
 import { MarketCategoryHeader } from '@/components/common/markets/market-category-header'
+import MarketsSection from '@/components/common/markets/markets-section'
 import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import TopMarkets from '@/components/common/markets/top-markets'
 import { MainLayout } from '@/components'
@@ -203,7 +203,7 @@ const MainPage = () => {
                 ) : null
               }
             >
-              <DailyMarketsSection
+              <MarketsSection
                 markets={sortedAllMarkets as Market[]}
                 handleSelectSort={handleSelectSort}
                 totalAmount={filteredAllMarkets?.length ?? ''}

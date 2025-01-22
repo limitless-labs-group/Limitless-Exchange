@@ -28,6 +28,7 @@ import MarketActivityTab from '@/components/common/markets/activity-tab'
 import CommentTab from '@/components/common/markets/comment-tab'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import { MarketProgressBar } from '@/components/common/markets/market-cards/market-progress-bar'
 import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
@@ -590,30 +591,11 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                   )}
                 </Box>
                 {!market ? (
-                  <HStack w='full' justifyContent='space-between'>
-                    <Box w='80px'>
-                      <Skeleton height={20} />
-                    </Box>
-                    <Box w='80px'>
-                      <Skeleton height={20} />
-                    </Box>
-                  </HStack>
-                ) : (
-                  <HStack w='full' justifyContent='space-between' mb='4px'>
-                    <Text {...paragraphMedium} color='#0FC591'>
-                      Yes {market.prices[0]}%
-                    </Text>
-                    <Text {...paragraphMedium} color='#FF3756'>
-                      No {market.prices[1]}%
-                    </Text>
-                  </HStack>
-                )}
-                {!market ? (
                   <Box mt='4px'>
                     <Skeleton height={16} />
                   </Box>
                 ) : (
-                  <ProgressBar variant='market' value={market.prices[0]} />
+                  <MarketProgressBar value={market.prices[0]} />
                 )}
                 <Box mt='12px'>
                   <HStack w='full' justifyContent='space-between' flexWrap='wrap'>

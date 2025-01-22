@@ -324,6 +324,26 @@ export const chakraTheme = ChakraTheme({
             bg: 'transparent.200',
           },
         },
+        ...['green', 'yellow', 'red'].reduce(
+          (acc, variant) => ({
+            ...acc,
+            [variant]: {
+              filledTrack: {
+                bg: {
+                  green: 'var(--chakra-colors-green-500)',
+                  yellow: 'var(--chakra-colors-orange-500)',
+                  red: 'var(--chakra-colors-red-500)',
+                }[variant],
+                height: '4px',
+              },
+              track: {
+                bg: 'var(--chakra-colors-grey-200)',
+                height: '4px',
+              },
+            },
+          }),
+          {}
+        ),
         market: {
           filledTrack: {
             bg: '#0FC591',

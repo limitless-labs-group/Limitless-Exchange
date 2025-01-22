@@ -1,9 +1,9 @@
 import { Box, Divider, Flex, Text, VStack } from '@chakra-ui/react'
 import React from 'react'
 import { isMobile } from 'react-device-detect'
-import DailyMarketCard from '@/components/common/markets/market-cards/daily-market-card'
-import DailyMarketCardMobile from '@/components/common/markets/market-cards/daily-market-card-mobile'
+import MarketCardMobile from '@/components/common/markets/market-cards/market-card-mobile'
 import Skeleton from '@/components/common/skeleton'
+import { MarketCard } from './market-cards/market-card'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import { Market, Sort, SortStorageName } from '@/types'
 import SortFilter from '../sort-filter'
@@ -15,7 +15,7 @@ interface DailyMarketsSectionProps {
   isLoading: boolean
 }
 
-export default function DailyMarketsSection({
+export default function MarketsSection({
   markets,
   handleSelectSort,
   totalAmount = 1,
@@ -37,14 +37,14 @@ export default function DailyMarketsSection({
           ? [...Array(3)].map((index) => <Skeleton height={200} key={index} />)
           : markets?.map((market, index) => {
               return isMobile ? (
-                <DailyMarketCardMobile
+                <MarketCardMobile
                   key={index}
                   market={market}
                   analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
                   markets={markets}
                 />
               ) : (
-                <DailyMarketCard
+                <MarketCard
                   key={index}
                   market={market}
                   analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
