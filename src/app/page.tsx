@@ -151,7 +151,14 @@ const MainPage = () => {
                 }}
                 minW='100%'
               >
-                <NextLink href='/' passHref style={{ width: isMobile ? 'fit-content' : '100%' }}>
+                <NextLink
+                  href='/'
+                  passHref
+                  style={{
+                    width: isMobile ? 'fit-content' : '100%',
+                    textDecoration: 'none',
+                  }}
+                >
                   <Link
                     onClick={() => {
                       trackClicked<ProfileBurgerMenuClickedMetadata>(
@@ -166,6 +173,8 @@ const MainPage = () => {
                     w='full'
                     h='24px'
                     textDecoration='none'
+                    _active={{ textDecoration: 'none' }}
+                    _hover={{ textDecoration: 'none' }}
                     bg={pageName === 'Explore Markets' && !selectedCategory ? 'grey.100' : 'unset'}
                     rounded='8px'
                   >
