@@ -101,7 +101,6 @@ export const LUMY_TOKENS = [
   'AERO',
   'ALGO',
   'APE',
-  'ATOM',
   'APT',
   'ATOM',
   'AVAX',

@@ -123,7 +123,7 @@ export default function MarketPage() {
 
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
-  const isLumy = market?.tags.includes('Lumy')
+  const isLumy = market?.tags?.includes('Lumy')
 
   const isLivePriceSupportedMarket =
     isLumy && LUMY_TOKENS.some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
