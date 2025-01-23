@@ -63,33 +63,45 @@ import {
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
-import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 const tokens = [
+  'AAPL',
   'AAVE',
   'AERO',
   'ALGO',
   'APE',
   'ATOM',
   'APT',
+  'ATOM',
   'AVAX',
+  'COIN',
   'DOT',
   'EIGEN',
   'ENS',
+  'EUR/USD',
   'FTM',
+  'GBP/USD',
+  'GLD',
+  'GOOG',
   'HBAR',
   'ICP',
   'INJ',
   'JUP',
   'LDO',
   'LINK',
+  'META',
+  'MSTR',
   'NEAR',
+  'NVDA',
   'ONDO',
   'OP',
   'PYTH',
+  'QQQ',
   'RENDER',
   'SUI',
+  'TSLA',
+  'USD/CNH',
   'WLD',
   'ZK',
   'ZRO',
@@ -155,10 +167,7 @@ export default function MarketPage() {
   const isLumy = market?.tags.includes('Lumy')
 
   const isLivePriceSupportedMarket =
-    isLumy &&
-    tokens
-      .map((token) => `Will ${token}`)
-      .some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
+    isLumy && tokens.some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = [
     {

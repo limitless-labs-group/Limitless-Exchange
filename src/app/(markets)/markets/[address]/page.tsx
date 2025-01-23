@@ -354,10 +354,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   ])
 
   const isLivePriceSupportedMarket =
-    isLumy &&
-    tokens
-      .map((token) => `Will ${token}`)
-      .some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
+    isLumy && tokens.some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = [
     {

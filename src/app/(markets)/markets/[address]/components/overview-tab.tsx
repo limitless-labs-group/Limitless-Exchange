@@ -25,7 +25,7 @@ function MarketOverviewTab({ market }: MarketOverviewTabProps) {
         flexDirection={isMobile ? 'column' : 'row'}
       >
         <Box w={isMobile ? 'full' : 'fit-content'}>
-          {market?.category !== 'Lumy' ? (
+          {market?.tags.includes('Lumy') ? (
             <Box whiteSpace='pre-wrap'>
               <NextLink
                 href='https://www.notion.so/limitlesslabs/Limitless-Docs-0e59399dd44b492f8d494050969a1567?pvs=4#5dd6f962c66044eaa00e28d2c61b92bb'
