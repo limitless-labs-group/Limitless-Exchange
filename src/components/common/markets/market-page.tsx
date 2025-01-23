@@ -152,7 +152,7 @@ export default function MarketPage() {
 
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
-  const isLumy = market?.category === 'Lumy'
+  const isLumy = market?.tags.includes('Lumy')
 
   const isLivePriceSupportedMarket =
     isLumy &&

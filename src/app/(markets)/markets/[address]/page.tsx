@@ -114,7 +114,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
   const { positions: allMarketsPositions } = useHistory()
-  const isLumy = market?.category === 'Lumy'
+  const isLumy = market?.tags.includes('Lumy')
 
   const positions = useMemo(
     () =>
