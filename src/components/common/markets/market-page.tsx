@@ -83,7 +83,7 @@ export default function MarketPage() {
 
   const { trackClicked, trackOpened } = useAmplitude()
 
-  const marketAddress = useMemo(() => market?.address, [market])
+  const marketAddress = useMemo(() => market?.slug, [market])
   const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
 
   const { data: updatedMarket } = useMarket(marketAddress, !!market)

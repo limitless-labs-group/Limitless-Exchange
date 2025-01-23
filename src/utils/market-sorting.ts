@@ -3,16 +3,16 @@ import { Market, MarketGroup, Sort } from '../types'
 type MarketOrGroup = Market | MarketGroup
 
 const getVolumeForMarket = (market: MarketOrGroup): number => {
-  if ('slug' in market && market.slug) {
-    return (market as MarketGroup).markets.reduce((acc, m) => acc + Number(m.volumeFormatted), 0)
-  }
+  // if ('slug' in market && market.slug) {
+  //   return (market as MarketGroup).markets.reduce((acc, m) => acc + Number(m.volumeFormatted), 0)
+  // }
   return Number((market as Market).volumeFormatted)
 }
 
 const getLiquidityForMarket = (market: MarketOrGroup): number => {
-  if ('slug' in market && market.slug) {
-    return (market as MarketGroup).markets.reduce((acc, m) => acc + Number(m.liquidityFormatted), 0)
-  }
+  // if ('slug' in market && market.slug) {
+  //   return (market as MarketGroup).markets.reduce((acc, m) => acc + Number(m.liquidityFormatted), 0)
+  // }
   return Number((market as Market).liquidityFormatted)
 }
 

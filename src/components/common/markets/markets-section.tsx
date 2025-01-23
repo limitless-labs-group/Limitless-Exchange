@@ -42,14 +42,14 @@ export default function MarketsSection({
           : markets?.map((market, index) => {
               return isMobile ? (
                 <MarketCardMobile
-                  key={market.address}
+                  key={market.slug}
                   market={market}
                   analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
                   markets={markets}
                 />
               ) : (
                 <MarketCard
-                  key={market.address}
+                  key={market.slug}
                   market={market}
                   analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
                 />

@@ -100,11 +100,11 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
     [allMarketsPositions, market]
   )
 
-  const marketAddress = useMemo(() => selectedMarket?.address, [selectedMarket])
+  const marketAddress = useMemo(() => selectedMarket?.slug, [selectedMarket])
   const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
 
   const { data: updatedMarket } = useMarket(
-    marketAddress as Address,
+    marketAddress,
     selectedMarket?.address === market.address
   )
   const { data: updatedMarketGroup } = useMarketGroup(marketGroupSlug, !!marketGroup)

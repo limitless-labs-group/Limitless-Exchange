@@ -18,7 +18,7 @@ type MyMarketCardProps = {
 }
 
 export default function MyMarketCard({ market }: MyMarketCardProps) {
-  const { data: fullMarket } = useMarket(market.address as Address)
+  const { data: fullMarket } = useMarket(market.slug as Address)
   const { onOpenMarketPage } = useTradingService()
   const { trackClicked } = useAmplitude()
   const statusText = useMemo(() => {

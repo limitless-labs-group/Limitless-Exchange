@@ -135,6 +135,7 @@ export type UserCreatedMarket = {
   }
   category: Category
   marketsGroup: null
+  slug: string
 }
 
 export enum SortStorageName {
