@@ -85,7 +85,13 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     if (market?.expired) {
       return <MarketClosedWidget handleCloseMarketPageClicked={() => router.push('/')} />
     }
-    return market?.tradeType === 'clob' ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
+    return market?.tradeType === 'clob' ? (
+      <Box w='404px'>
+        <TradingWidgetAdvanced />
+      </Box>
+    ) : (
+      <TradingWidgetSimple />
+    )
   }, [market, fetchMarketLoading])
 
   const tabs = [
@@ -134,7 +140,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
             onClick={() => {
               trackClicked(ClickEvent.TradeButtonClicked, {
                 platform: 'mobile',
-                address: market?.address,
+                address: market?.slug,
               })
             }}
           >
@@ -169,7 +175,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   useEffect(() => {
     if (market) {
       trackOpened(OpenEvent.MarketPageOpened, {
-        marketAddress: market.address,
+        marketAddress: market.slug,
         page: 'Market Page',
       })
     }
@@ -189,7 +195,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                     variant='grey'
                     onClick={() => {
                       trackClicked(ClickEvent.BackClicked, {
-                        address: market?.address || '0x',
+                        address: market?.slug || '0x',
                       })
                       handleBackClicked()
                     }}
@@ -201,7 +207,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                     <MenuButton
                       onClick={() => {
                         trackClicked(ClickEvent.ShareMenuClicked, {
-                          address: market?.address || '0x',
+                          address: market?.slug || '0x',
                           marketType: 'single',
                         })
                         setShareMenuOpen(true)
@@ -217,7 +223,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                         onClick={() => {
                           trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                             type: 'Farcaster',
-                            address: market?.address,
+                            address: market?.slug as Address,
                             marketType: 'single',
                           })
                           window.open(castURI, '_blank', 'noopener')
@@ -232,7 +238,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                         onClick={() => {
                           trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                             type: 'X/Twitter',
-                            address: market?.address,
+                            address: market?.slug,
                             marketType: 'single',
                           })
                           window.open(tweetURI, '_blank', 'noopener')

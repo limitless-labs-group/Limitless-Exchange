@@ -22,7 +22,7 @@ export default function MarketGroupPositions({
     () =>
       allMarketsPositions?.filter((position) =>
         marketGroup.markets.some(
-          (market) => position.market.id.toLowerCase() === market?.address.toLowerCase()
+          (market) => position.market.id.toLowerCase() === market?.address?.toLowerCase()
         )
       ),
     [allMarketsPositions, marketGroup.markets]
@@ -30,13 +30,13 @@ export default function MarketGroupPositions({
 
   const getMarketPrices = (address: Address) => {
     return marketGroup.markets.find(
-      (market) => market.address.toLowerCase() === address.toLowerCase()
+      (market) => market.address?.toLowerCase() === address.toLowerCase()
     )?.prices
   }
 
   const getMarketTitle = (address: Address) => {
     return marketGroup.markets.find(
-      (market) => market.address.toLowerCase() === address.toLowerCase()
+      (market) => market.address?.toLowerCase() === address.toLowerCase()
     )?.title
   }
 

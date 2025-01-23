@@ -29,7 +29,7 @@ export default function TradingWidgetSimple() {
   const positions = useMemo(
     () =>
       allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
+        (position) => position.market.id.toLowerCase() === market?.address?.toLowerCase()
       ),
     [allMarketsPositions, market]
   )

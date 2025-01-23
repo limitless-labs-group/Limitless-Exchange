@@ -2,6 +2,7 @@ import { HStack, Text, VStack } from '@chakra-ui/react'
 import debounce from 'lodash.debounce'
 import { useCallback } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import { Address } from 'viem'
 import Loader from '@/components/common/loader'
 import Paper from '@/components/common/paper'
 import TradeActivityTabItem from '@/app/(markets)/markets/[address]/components/trade-activity-tab-item'
@@ -12,7 +13,11 @@ import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 export default function ActivityAmm() {
   const { market } = useTradingService()
-  const { data: activityData, fetchNextPage, hasNextPage } = useMarketInfinityFeed(market?.address)
+  const {
+    data: activityData,
+    fetchNextPage,
+    hasNextPage,
+  } = useMarketInfinityFeed(market?.address as Address)
 
   const getNextPage = useCallback(
     debounce(async () => fetchNextPage(), 1000),

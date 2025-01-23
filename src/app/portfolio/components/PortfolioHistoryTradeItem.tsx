@@ -45,7 +45,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
           onOpenMarketPage(fetchedMarket)
           trackClicked(ClickEvent.PortfolioMarketClicked, {
             marketCategory: fetchedMarket.category,
-            marketAddress: fetchedMarket.address,
+            marketAddress: fetchedMarket.slug,
             marketType: 'single',
             marketTags: fetchedMarket.tags,
             type: 'History',
@@ -55,7 +55,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
         onOpenMarketPage(market)
         trackClicked(ClickEvent.PortfolioMarketClicked, {
           marketCategory: market.category,
-          marketAddress: market.address,
+          marketAddress: market.slug,
           marketType: 'single',
           marketTags: market.tags,
           type: 'History',

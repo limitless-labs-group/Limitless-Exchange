@@ -1,5 +1,6 @@
 import React from 'react'
 import { isMobile } from 'react-device-detect'
+import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
 import { BigBannerTrigger } from './big-banner-trigger'
@@ -17,7 +18,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
 
   return isMobile ? (
     <MobileDrawer
-      id={market.address}
+      id={market.address as Address}
       trigger={<BigBannerTrigger market={market} markets={markets} />}
       variant='black'
       onClose={onCloseMarketPage}
@@ -25,7 +26,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
       <MarketPage />
     </MobileDrawer>
   ) : (
-    <MarketCardLink marketAddress={market.address}>
+    <MarketCardLink marketAddress={market.address as Address}>
       {<BigBannerTrigger market={market} markets={markets} />}
     </MarketCardLink>
   )

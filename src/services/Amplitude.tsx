@@ -206,8 +206,8 @@ export enum AuthenticationEvent {
 
 export interface AccountMetadata {
   email?: string
-  web3WalletAddress?: Address
-  smartWalletAddress?: Address
+  web3WalletAddress?: string
+  smartWalletAddress?: string
 }
 
 export type StrategyChangedType = 'Buy selected' | 'Sell selected'
@@ -231,7 +231,7 @@ export interface TradeClickedMetadata {
 }
 
 export interface ClickedApproveMetadata {
-  address: Address
+  address: string
 }
 
 export interface ClickedWithdrawMetadata {
@@ -269,7 +269,7 @@ export interface PricePresetClickedMetadata {
 export type ShareClickedType = 'Copy Link' | 'X/Twitter' | 'Farcaster'
 export interface ShareClickedMetadata {
   type: ShareClickedType
-  address?: Address
+  address?: string
   marketType: 'group' | 'single'
 }
 

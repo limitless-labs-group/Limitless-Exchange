@@ -19,7 +19,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
     () =>
       positions?.filter(
         (position) =>
-          position.market.id.toLowerCase() === market?.address.toLowerCase() &&
+          position.market.id.toLowerCase() === market?.address?.toLowerCase() &&
           position.outcomeIndex === market.winningOutcomeIndex &&
           market.expired
       )?.[0],
@@ -31,7 +31,7 @@ export function MobileTradeButton({ market }: MobileTradeButtonProps) {
   const hasPositions = useMemo(() => {
     const position = positions?.filter(
       (position) =>
-        market?.expired && position.market.id.toLowerCase() === market?.address.toLowerCase()
+        market?.expired && position.market.id.toLowerCase() === market?.address?.toLowerCase()
     )
     if (position?.length) {
       return position
