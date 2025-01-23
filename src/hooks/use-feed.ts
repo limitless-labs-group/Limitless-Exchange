@@ -17,7 +17,7 @@ export function useFeed() {
       const response: AxiosResponse<FeedResponse> = await client.get('/feed', {
         params: {
           page: pageParam,
-          limit: 10,
+          limit: 15,
         },
       })
       // const marketsWithStatusUpdate = response.data.data.filter((market) =>
