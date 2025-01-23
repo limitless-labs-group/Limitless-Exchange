@@ -37,6 +37,7 @@ import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
+import { LUMY_TOKENS } from '@/app/draft/components'
 import {
   LoadingForm,
   MarketPriceChart,
@@ -73,35 +74,6 @@ import {
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
-const tokens = [
-  'AAVE',
-  'AERO',
-  'ALGO',
-  'APE',
-  'ATOM',
-  'APT',
-  'AVAX',
-  'DOT',
-  'EIGEN',
-  'ENS',
-  'FTM',
-  'HBAR',
-  'ICP',
-  'INJ',
-  'JUP',
-  'LDO',
-  'LINK',
-  'NEAR',
-  'ONDO',
-  'OP',
-  'PYTH',
-  'RENDER',
-  'SUI',
-  'WLD',
-  'ZK',
-  'ZRO',
-]
-
 const MarketPage = ({ params }: { params: { address: Address } }) => {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
   /**
@@ -114,7 +86,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
   const { positions: allMarketsPositions } = useHistory()
-  const isLumy = market?.category === 'Lumy'
+  const isLumy = market?.tags?.includes('Lumy')
 
   const positions = useMemo(
     () =>
@@ -354,10 +326,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   ])
 
   const isLivePriceSupportedMarket =
-    isLumy &&
-    tokens
-      .map((token) => `Will ${token}`)
-      .some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
+    isLumy && LUMY_TOKENS.some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = [
     {
@@ -385,7 +354,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       <MarketPriceChart key={uuidv4()} />,
       <MarketAssetPriceChart
         key={uuidv4()}
-        id={tokens.filter((token) => market?.title.includes(token))[0]}
+        id={LUMY_TOKENS.filter((token) => market?.title.includes(token))[0]}
       />,
     ],
     [market?.title]

@@ -34,6 +34,7 @@ import {
   MarketPriceChart,
   SellForm,
 } from '@/app/(markets)/markets/[address]/components'
+import { LUMY_TOKENS } from '@/app/draft/components'
 import CommentTab from './comment-tab'
 import { MarketProgressBar } from './market-cards/market-progress-bar'
 import { UniqueTraders } from './unique-traders'
@@ -63,37 +64,7 @@ import {
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
-import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
-
-const tokens = [
-  'AAVE',
-  'AERO',
-  'ALGO',
-  'APE',
-  'ATOM',
-  'APT',
-  'AVAX',
-  'DOT',
-  'EIGEN',
-  'ENS',
-  'FTM',
-  'HBAR',
-  'ICP',
-  'INJ',
-  'JUP',
-  'LDO',
-  'LINK',
-  'NEAR',
-  'ONDO',
-  'OP',
-  'PYTH',
-  'RENDER',
-  'SUI',
-  'WLD',
-  'ZK',
-  'ZRO',
-]
 
 export default function MarketPage() {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
@@ -152,13 +123,10 @@ export default function MarketPage() {
 
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
-  const isLumy = market?.category === 'Lumy'
+  const isLumy = market?.tags?.includes('Lumy')
 
   const isLivePriceSupportedMarket =
-    isLumy &&
-    tokens
-      .map((token) => `Will ${token}`)
-      .some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
+    isLumy && LUMY_TOKENS.some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = [
     {
@@ -178,7 +146,7 @@ export default function MarketPage() {
       <MarketPriceChart key={uuidv4()} />,
       <MarketAssetPriceChart
         key={uuidv4()}
-        id={tokens.filter((token) => market?.title.includes(token))[0]}
+        id={LUMY_TOKENS.filter((token) => market?.title.includes(token))[0]}
       />,
     ],
     [market?.title]
