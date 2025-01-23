@@ -239,6 +239,7 @@ export default function ClobMarketTradeForm() {
   const handleSubmitButtonClicked = async () => {
     if (client === 'etherspot') {
       await placeMarketOrderMutation.mutateAsync()
+      return
     }
     if (strategy === 'Buy') {
       const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
@@ -249,12 +250,14 @@ export default function ClobMarketTradeForm() {
         return
       }
       await placeMarketOrderMutation.mutateAsync()
+      return
     }
     if (!isApprovedForSell) {
       onToggleTradeStepper()
       return
     }
     await placeMarketOrderMutation.mutateAsync()
+    return
   }
 
   return (
