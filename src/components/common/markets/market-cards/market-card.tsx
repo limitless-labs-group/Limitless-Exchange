@@ -66,7 +66,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
 
   const isGrid = variant === 'grid'
   const isSpeedometer = variant === 'speedometer'
-  const isHideTimeText = isGrid || isSpeedometer
+  const isShortCard = isGrid || isSpeedometer
 
   const content = (
     <Box
@@ -108,7 +108,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
             <HStack w='full' mt='16px' justifyContent='space-between'>
               <Box w='full'>
                 <DailyMarketTimer
-                  hideText={isHideTimeText}
+                  hideText={isShortCard}
                   deadline={market.expirationTimestamp}
                   deadlineText={market.expirationDate}
                   {...paragraphRegular}
@@ -118,7 +118,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
               <HStack gap='4px'>
                 <HStack gap='4px'>
                   <>
-                    {!isGrid ? (
+                    {!isShortCard ? (
                       <HStack gap={0}>
                         {uniqueUsersTrades?.map(({ user }, index) => (
                           <Avatar

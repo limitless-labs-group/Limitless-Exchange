@@ -74,8 +74,7 @@ export default function MarketsSection({
         <Box mt='24px'>
           <VStack gap={4} w='full'>
             {!isLoading &&
-              markets &&
-              markets.map((market, index) => {
+              markets?.map((market, index) => {
                 const position = index + 1
                 const cyclePosition = index % 12
                 // First 2 cards - straight column
