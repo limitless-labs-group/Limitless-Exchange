@@ -1,6 +1,6 @@
-import { usePrivy } from '@privy-io/react-auth'
-import { getWalletClient } from '@wagmi/core'
+import { switchChain } from '@wagmi/core'
 import { Address, encodeFunctionData, erc20Abi, getContract } from 'viem'
+import { useSendTransaction, useWriteContract } from 'wagmi'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
@@ -10,44 +10,51 @@ import { useLimitlessApi } from '@/services/LimitlessApi'
 
 export const useExternalWalletService = () => {
   const { account } = useAccount()
+  const { writeContractAsync } = useWriteContract()
+  const { sendTransactionAsync } = useSendTransaction()
   const { supportedTokens } = useLimitlessApi()
   const { chainId } = useWagmiAccount()
-  const { user } = usePrivy()
 
   const collateralTokenAddress = supportedTokens ? supportedTokens[0].address : '0x'
 
   const wrapEth = async (value: bigint) => {
     await checkAndSwitchChainIfNeeded()
-    const data = encodeFunctionData({
-      abi: wethABI,
-      functionName: 'deposit',
-    })
-    const client = await getWalletClient(configureChainsConfig, {
-      account: user?.wallet?.address as Address,
-    })
-    const receipt = await client.sendTransaction({
-      to: collateralTokenAddress,
-      data,
-      value,
-    })
-    return receipt as string
+    let txHash = ''
+    await writeContractAsync(
+      {
+        abi: wethABI,
+        address: collateralTokenAddress,
+        functionName: 'deposit',
+        value,
+      },
+      {
+        onSuccess: (data) => {
+          txHash = data
+        },
+        onError: (data) => console.log(data),
+      }
+    )
+    return txHash
   }
 
   const unwrapEth = async (value: bigint) => {
     await checkAndSwitchChainIfNeeded()
-    const data = encodeFunctionData({
-      abi: wethABI,
-      functionName: 'withdraw',
-      args: [value],
-    })
-    const client = await getWalletClient(configureChainsConfig, {
-      account: user?.wallet?.address as Address,
-    })
-    const receipt = await client.sendTransaction({
-      to: collateralTokenAddress,
-      data,
-    })
-    return receipt
+    let txHash = ''
+    await writeContractAsync(
+      {
+        abi: wethABI,
+        address: collateralTokenAddress,
+        functionName: 'withdraw',
+        args: [value],
+      },
+      {
+        onSuccess: (data) => {
+          txHash = data
+        },
+        onError: (data) => console.log(data),
+      }
+    )
+    return txHash
   }
 
   const checkAllowanceEOA = async (spender: Address, contractAddress: Address): Promise<bigint> => {
@@ -74,67 +81,89 @@ export const useExternalWalletService = () => {
     contractAddress: Address,
     value: bigint
   ): Promise<string> => {
-    debugger
+    console.log('approveContractEOA')
     await checkAndSwitchChainIfNeeded()
-    const data = encodeFunctionData({
-      abi: spender === collateralTokenAddress ? wethABI : erc20Abi,
-      args: [spender, value],
-      functionName: 'approve',
-    })
-    const client = await getWalletClient(configureChainsConfig, {
-      account: user?.wallet?.address as Address,
-    })
-    const receipt = await client.sendTransaction({
-      to: contractAddress,
-      data,
-    })
-    return receipt as string
+    console.log('checked chain switched')
+    let txHash = ''
+    await writeContractAsync(
+      {
+        abi: spender === collateralTokenAddress ? wethABI : erc20Abi,
+        args: [spender, value],
+        address: contractAddress,
+        functionName: 'approve',
+      },
+      {
+        onSuccess: (data) => {
+          console.log(data)
+          txHash = data
+        },
+        onError: (data) => console.log(data),
+      }
+    )
+    return txHash
   }
 
   const approveContractForAllEOA = async (spender: Address, contractAddress: Address) => {
     await checkAndSwitchChainIfNeeded()
-    const data = encodeFunctionData({
-      abi: conditionalTokensABI,
-      functionName: 'setApprovalForAll',
-      args: [spender, true],
-    })
-    const client = await getWalletClient(configureChainsConfig, {
-      account: user?.wallet?.address as Address,
-    })
-    const receipt = await client.sendTransaction({
-      to: contractAddress,
-      data,
-    })
-    return receipt
+    let txHash = ''
+    await writeContractAsync(
+      {
+        abi: conditionalTokensABI,
+        address: contractAddress,
+        functionName: 'setApprovalForAll',
+        args: [spender, true],
+      },
+      {
+        onSuccess: (data) => {
+          txHash = data
+        },
+        onError: (data) => console.log(data),
+      }
+    )
+    return txHash
   }
 
   const transferEthers = async (to: Address, value: bigint) => {
     await checkAndSwitchChainIfNeeded()
-    const client = await getWalletClient(configureChainsConfig, {
-      account: user?.wallet?.address as Address,
-    })
-    const receipt = await client.sendTransaction({
-      to,
-      value,
-    })
-    return receipt
-  }
-
-  const transferErc20 = async (token: Address, to: Address, value: bigint) => {
-    await checkAndSwitchChainIfNeeded()
+    let txHash = ''
     const data = encodeFunctionData({
       abi: wethABI,
       functionName: 'transfer',
       args: [to, value],
     })
-    const client = await getWalletClient(configureChainsConfig, {
-      account: user?.wallet?.address as Address,
-    })
-    const receipt = await client.sendTransaction({
-      to: token,
-      data,
-    })
-    return receipt
+    await sendTransactionAsync(
+      {
+        data,
+        to,
+      },
+      {
+        onSuccess: (data) => {
+          txHash = data
+        },
+        onError: (data) => console.log(data),
+      }
+    )
+    return txHash
+  }
+
+  const transferErc20 = async (token: Address, to: Address, value: bigint) => {
+    await checkAndSwitchChainIfNeeded()
+    let txHash = ''
+    await writeContractAsync(
+      {
+        abi: wethABI,
+        address: token,
+        functionName: 'transfer',
+        args: [to, value],
+      },
+      {
+        onSuccess: (data) => {
+          txHash = data
+        },
+        onError: (data) => console.log(data),
+      }
+    )
+    return txHash
   }
 
   const buyOutcomeTokens = async (
@@ -144,19 +173,22 @@ export const useExternalWalletService = () => {
     minOutcomeTokensToBuy: bigint
   ) => {
     await checkAndSwitchChainIfNeeded()
-    const data = encodeFunctionData({
-      abi: fixedProductMarketMakerABI,
-      functionName: 'buy',
-      args: [collateralAmount, outcomeIndex, minOutcomeTokensToBuy],
-    })
-    const client = await getWalletClient(configureChainsConfig, {
-      account: user?.wallet?.address as Address,
-    })
-    const receipt = await client.sendTransaction({
-      to: fixedProductMarketMakerAddress,
-      data,
-    })
-    return receipt
+    let txHash = ''
+    await writeContractAsync(
+      {
+        abi: fixedProductMarketMakerABI,
+        address: fixedProductMarketMakerAddress,
+        functionName: 'buy',
+        args: [collateralAmount, outcomeIndex, minOutcomeTokensToBuy],
+      },
+      {
+        onSuccess: (data) => {
+          txHash = data
+        },
+        onError: (data) => console.log(data),
+      }
+    )
+    return txHash
   }
 
   const sellOutcomeTokens = async (
@@ -166,19 +198,23 @@ export const useExternalWalletService = () => {
     maxOutcomeTokensToSell: bigint
   ) => {
     await checkAndSwitchChainIfNeeded()
-    const data = encodeFunctionData({
-      abi: fixedProductMarketMakerABI,
-      functionName: 'sell',
-      args: [collateralAmount, outcomeIndex, maxOutcomeTokensToSell],
-    })
-    const client = await getWalletClient(configureChainsConfig, {
-      account: user?.wallet?.address as Address,
-    })
-    const receipt = await client.sendTransaction({
-      to: fixedProductMarketMakerAddress,
-      data,
-    })
-    return receipt
+    let txHash = ''
+    console.log('sellOutcomeTokens', outcomeIndex, maxOutcomeTokensToSell)
+    await writeContractAsync(
+      {
+        abi: fixedProductMarketMakerABI,
+        address: fixedProductMarketMakerAddress,
+        functionName: 'sell',
+        args: [collateralAmount, outcomeIndex, maxOutcomeTokensToSell],
+      },
+      {
+        onSuccess: (data) => {
+          txHash = data
+        },
+        onError: (data) => console.log(data),
+      }
+    )
+    return txHash
   }
 
   const redeemPositions = async (
@@ -189,30 +225,28 @@ export const useExternalWalletService = () => {
     indexSets: number[]
   ) => {
     await checkAndSwitchChainIfNeeded()
-    const data = encodeFunctionData({
-      abi: conditionalTokensABI,
-      functionName: 'redeemPositions',
-      args: [collateralAddress, parentCollectionId, marketConditionId, indexSets],
-    })
-    const client = await getWalletClient(configureChainsConfig, {
-      account: user?.wallet?.address as Address,
-    })
-    const receipt = await client.sendTransaction({
-      to: conditionalTokensAddress,
-      data,
-    })
-    return receipt
+    let txHash = ''
+    await writeContractAsync(
+      {
+        abi: conditionalTokensABI,
+        functionName: 'redeemPositions',
+        address: conditionalTokensAddress,
+        args: [collateralAddress, parentCollectionId, marketConditionId, indexSets],
+      },
+      {
+        onSuccess: (data) => {
+          txHash = data
+        },
+        onError: (data) => console.log(data),
+      }
+    )
+    return txHash
   }
 
   const checkAndSwitchChainIfNeeded = async () => {
-    debugger
-    const client = await getWalletClient(configureChainsConfig, {
-      account: user?.wallet?.address as Address,
-    })
-    console.log(client)
-    await client.switchChain({
-      id: defaultChain.id,
-    })
+    if (chainId !== defaultChain.id) {
+      await switchChain(configureChainsConfig, { chainId: defaultChain.id })
+    }
   }
 
   const checkLumyAccountBalance = async () => {
