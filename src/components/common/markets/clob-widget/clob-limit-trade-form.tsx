@@ -196,6 +196,7 @@ export default function ClobLimitTradeForm() {
   const handleSubmitButtonClicked = async () => {
     if (client === 'etherspot') {
       await placeLimitOrderMutation.mutateAsync()
+      return
     }
     if (strategy === 'Buy') {
       const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
@@ -206,6 +207,7 @@ export default function ClobLimitTradeForm() {
         return
       }
       await placeLimitOrderMutation.mutateAsync()
+      return
     }
     if (!isApprovedForSell) {
       onToggleTradeStepper()
