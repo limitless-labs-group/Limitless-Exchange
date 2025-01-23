@@ -18,7 +18,7 @@ export const useLogin = () => {
   const { refetchAll } = useRefetchAfterLogin()
   const axiosInstance = useAxiosPrivateClient()
   const queryClient = useQueryClient()
-  const { refetch: refetchWalletClient } = useWalletClient()
+  // const { refetch: refetchWalletClient } = useWalletClient()
   const { signMessageAsync } = useSignMessage()
 
   const getSigningMsg = async () => {
@@ -55,7 +55,7 @@ export const useLogin = () => {
         }
       )
       Cookies.set('logged-in-to-limitless', 'true')
-      await refetchWalletClient()
+      // await refetchWalletClient()
       await refetchAll()
       return res.data as Profile
     },
