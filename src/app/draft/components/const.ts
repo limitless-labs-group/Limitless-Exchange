@@ -130,7 +130,7 @@ export const LUMY_TOKENS = [
   'S',
   'SUI',
   'TSLA',
-  'USD/CNH',
+  'CNH/USD',
   'WLD',
   'ZK',
   'ZRO',
