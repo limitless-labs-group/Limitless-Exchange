@@ -121,7 +121,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
             onClick={() => {
               trackClicked(ClickEvent.TradeButtonClicked, {
                 platform: 'mobile',
-                address: market?.address,
+                address: market?.slug,
               })
             }}
           >
@@ -203,7 +203,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                   variant='grey'
                   onClick={() => {
                     trackClicked(ClickEvent.BackClicked, {
-                      address: market?.address || '0x',
+                      address: market?.slug || '0x',
                     })
                     handleBackClicked()
                   }}
@@ -215,7 +215,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                   <MenuButton
                     onClick={() => {
                       trackClicked(ClickEvent.ShareMenuClicked, {
-                        address: market?.address || '0x',
+                        address: market?.slug || '0x',
                         marketType: 'group',
                       })
                       setShareMenuOpen(true)
@@ -231,7 +231,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                       onClick={() => {
                         trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                           type: 'Farcaster',
-                          address: market?.address,
+                          address: market?.slug as string,
                           marketType: 'group',
                         })
                         window.open(castURI, '_blank', 'noopener')
@@ -246,7 +246,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                       onClick={() => {
                         trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                           type: 'X/Twitter',
-                          address: market?.address,
+                          address: market?.slug,
                           marketType: 'group',
                         })
                         window.open(tweetURI, '_blank', 'noopener')

@@ -127,7 +127,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
           onOpenMarketPage(fetchedMarket)
           trackClicked(ClickEvent.PortfolioMarketClicked, {
             marketCategory: fetchedMarket.category,
-            marketAddress: fetchedMarket.address,
+            marketAddress: fetchedMarket.slug,
             marketType: 'single',
             marketTags: fetchedMarket.tags,
             type: 'Portolio',
@@ -137,7 +137,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
         onOpenMarketPage(oneMarket)
         trackClicked(ClickEvent.PortfolioMarketClicked, {
           marketCategory: oneMarket.category,
-          marketAddress: oneMarket.address,
+          marketAddress: oneMarket.slug,
           marketType: 'single',
           marketTags: oneMarket.tags,
           type: 'Portolio',

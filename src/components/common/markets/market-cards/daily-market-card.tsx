@@ -1,6 +1,7 @@
 import { Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { SyntheticEvent, useEffect, useMemo, useState } from 'react'
+import { Address } from 'viem'
 import Avatar from '@/components/common/avatar'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
@@ -36,11 +37,11 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
   const { data: marketFeedData } = useMarketFeed(market?.address || '')
 
   const { data: yesReturn, isLoading: yesLoading } = useCalculateYesReturn(
-    market?.address,
+    market?.address as Address,
     estimateOpened
   )
   const { data: noReturn, isLoading: noLoading } = useCalculateNoReturn(
-    market?.address,
+    market?.address as Address,
     estimateOpened
   )
 
@@ -52,7 +53,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
     router.push(`?market=${market.address}`, { scroll: false })
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
       marketCategory: market.category,
-      marketAddress: market.address,
+      marketAddress: market.slug,
       marketType: 'single',
       marketTags: market.tags,
       ...analyticParams,
@@ -87,7 +88,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
 
   const onClickJoinPrediction = () => {
     trackClicked(ClickEvent.JoinPredictionClicked, {
-      marketAddress: market.address,
+      marketAddress: market.slug,
       marketTags: market.tags,
       marketType: 'single',
     })
@@ -106,7 +107,7 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
     e.preventDefault()
     e.stopPropagation()
     trackClicked(ClickEvent.EstimateEarningClicked, {
-      marketAddress: market.address,
+      marketAddress: market.slug,
       marketType: 'single',
       marketTags: market.tags,
       marketCategory: market.category,
@@ -326,9 +327,5 @@ export default function DailyMarketCard({ market, analyticParams }: DailyMarketC
     </Box>
   )
 
-  return isLumy ? (
-    content
-  ) : (
-    <MarketCardLink marketAddress={market?.address}>{content}</MarketCardLink>
-  )
+  return isLumy ? content : <MarketCardLink marketAddress={market?.slug}>{content}</MarketCardLink>
 }

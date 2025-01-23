@@ -1,6 +1,7 @@
 import { Box, Divider, HStack, Text } from '@chakra-ui/react'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
+import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPage from '@/components/common/markets/market-page'
@@ -17,7 +18,7 @@ type MyMarketCardProps = {
 }
 
 export default function MyMarketCard({ market }: MyMarketCardProps) {
-  const { data: fullMarket } = useMarket(market.address)
+  const { data: fullMarket } = useMarket(market.address as Address)
   const { onOpenMarketPage } = useTradingService()
   const { trackClicked } = useAmplitude()
   const statusText = useMemo(() => {
@@ -61,8 +62,7 @@ export default function MyMarketCard({ market }: MyMarketCardProps) {
     if (fullMarket) {
       onOpenMarketPage(fullMarket)
       trackClicked(ClickEvent.UserMarketClicked, {
-        marketCategory: fullMarket.category,
-        marketAddress: fullMarket.address,
+        marketAddress: fullMarket.slug,
         marketType: 'single',
         marketTags: fullMarket.tags,
         type: 'User Market',

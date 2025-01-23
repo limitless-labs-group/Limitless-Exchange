@@ -1,12 +1,12 @@
 import { Progress, ProgressProps } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 
-export default function ProgressBar({ ...props }: ProgressProps) {
+export default function ProgressBar({ size, ...props }: ProgressProps) {
   return (
     <Progress
+      size={size}
       {...props}
       sx={{
-        height: '16px',
         '& > div:first-of-type': {
           borderRadius: 0,
         },

@@ -26,7 +26,7 @@ export type MarketFeedData = {
   bodyHash: string
 }
 
-export function useMarketFeed(marketAddress?: string) {
+export function useMarketFeed(marketAddress?: string | null) {
   const pathname = usePathname()
   const { isConnected } = useWagmiAccount()
   const privateClient = useAxiosPrivateClient()

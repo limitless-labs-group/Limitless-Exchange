@@ -7,11 +7,15 @@ import Skeleton from '@/components/common/skeleton'
 import { Market } from '@/types'
 
 interface TopMarketsProps {
-  markets: Market[]
+  markets?: Market[]
   isLoading: boolean
 }
 
 export default function TopMarkets({ markets, isLoading }: TopMarketsProps) {
+  if (!markets) {
+    return null
+  }
+
   const desktopCards = markets.map((market) => (
     <BigBanner market={market} key={market.address} markets={markets} />
   ))

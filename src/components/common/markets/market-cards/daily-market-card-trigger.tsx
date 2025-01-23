@@ -2,6 +2,7 @@ import { Box, Button, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { SyntheticEvent, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { Address } from 'viem'
 import Avatar from '@/components/common/avatar'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import Paper from '@/components/common/paper'
@@ -26,13 +27,13 @@ export const DailyCardTrigger = React.memo(
     const [estimateOpened, setEstimateOpened] = useState(false)
     const { onOpenMarketPage, setMarkets } = useTradingService()
     const router = useRouter()
-    const { data: marketFeedData } = useMarketFeed(market.address)
+    const { data: marketFeedData } = useMarketFeed(market.address as Address)
     const { data: yesReturn, isLoading: yesLoading } = useCalculateYesReturn(
-      market.address,
+      market.address as Address,
       estimateOpened
     )
     const { data: noReturn, isLoading: noLoading } = useCalculateNoReturn(
-      market.address,
+      market.address as Address,
       estimateOpened
     )
 
@@ -91,7 +92,7 @@ export const DailyCardTrigger = React.memo(
 
     const onClickJoinPrediction = () => {
       trackClicked(ClickEvent.JoinPredictionClicked, {
-        marketAddress: market.address,
+        marketAddress: market.slug,
         marketTags: market.tags,
         marketType: 'single',
       })

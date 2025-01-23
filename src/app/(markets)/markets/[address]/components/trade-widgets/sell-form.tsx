@@ -114,7 +114,7 @@ export function SellForm({
   const positions = useMemo(
     () =>
       allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
+        (position) => position.market.id.toLowerCase() === market?.address?.toLowerCase()
       ),
     [allMarketsPositions, market]
   )
@@ -317,7 +317,7 @@ export function SellForm({
 
   const handleApproveClicked = async () => {
     trackClicked(ClickEvent.SellApproveClicked, {
-      address: market?.address,
+      marketAddress: market?.slug,
       // @ts-ignore
       outcome: outcomeChoice === 'yes' ? 'Yes' : 'No',
       walletType: 'eoa',
@@ -483,7 +483,10 @@ export function SellForm({
                         {market?.proxyTitle ?? market?.title}
                       </Text>
                       <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
-                        {NumberUtil.formatThousands(getTotalContractsAmount(market.address), 6)}{' '}
+                        {NumberUtil.formatThousands(
+                          getTotalContractsAmount(market.address as Address),
+                          6
+                        )}{' '}
                         Contracts
                       </Text>
                     </HStack>

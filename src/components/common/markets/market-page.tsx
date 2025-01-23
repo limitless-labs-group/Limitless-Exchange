@@ -197,7 +197,7 @@ export default function MarketPage() {
 
   const handleFullPageClicked = () => {
     trackClicked(ClickEvent.FullPageClicked, {
-      marketAddress: market?.address,
+      marketAddress: market?.slug,
       marketType: 'single',
       marketTags: market?.tags,
     })
@@ -218,7 +218,7 @@ export default function MarketPage() {
   useEffect(() => {
     if (market) {
       trackOpened(OpenEvent.SidebarMarketOpened, {
-        marketAddress: market.address,
+        marketAddress: market.slug,
         marketTags: market.tags,
         marketType: 'single',
         category: market.category,
