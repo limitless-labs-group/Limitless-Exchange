@@ -85,7 +85,13 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     if (market?.expired) {
       return <MarketClosedWidget handleCloseMarketPageClicked={() => router.push('/')} />
     }
-    return market?.tradeType === 'clob' ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
+    return market?.tradeType === 'clob' ? (
+      <Box w='404px'>
+        <TradingWidgetAdvanced />
+      </Box>
+    ) : (
+      <TradingWidgetSimple />
+    )
   }, [market, fetchMarketLoading])
 
   const tabs = [
