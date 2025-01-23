@@ -92,6 +92,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { wallets, ready: walletsReady } = useWallets()
   const { isLogged } = useClient()
 
+  console.log(walletClient)
+  console.log(user)
+  console.log(authenticated)
+
   const toast = useToast()
   const router = useRouter()
 
