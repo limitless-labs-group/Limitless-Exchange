@@ -31,7 +31,7 @@ export const MarketCard = ({ variant, market, analyticParams }: DailyMarketCardP
       return
     }
     e.preventDefault()
-    router.push(`?market=${market.address}`, { scroll: false })
+    router.push(`?market=${market.slug}`, { scroll: false })
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
       marketCategory: market.category,
       marketAddress: market.slug,
@@ -47,7 +47,7 @@ export const MarketCard = ({ variant, market, analyticParams }: DailyMarketCardP
   const { trackClicked } = useAmplitude()
 
   useEffect(() => {
-    if (selectedMarket && selectedMarket.address !== market.address) {
+    if (selectedMarket && selectedMarket.slug !== market.slug) {
       setHovered(false)
     }
     if (!selectedMarket && hovered) {
@@ -70,7 +70,7 @@ export const MarketCard = ({ variant, market, analyticParams }: DailyMarketCardP
         setHovered(true)
       }}
       onMouseLeave={() => {
-        if (selectedMarket?.address !== market.address) {
+        if (selectedMarket?.slug !== market.slug) {
           setHovered(false)
         }
       }}
@@ -140,9 +140,5 @@ export const MarketCard = ({ variant, market, analyticParams }: DailyMarketCardP
     </Box>
   )
 
-  return market.address ? (
-    <MarketCardLink marketAddress={market.address}>{content}</MarketCardLink>
-  ) : (
-    content
-  )
+  return <MarketCardLink marketAddress={market.slug}>{content}</MarketCardLink>
 }

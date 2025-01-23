@@ -286,10 +286,10 @@ export function useMarket(address?: string | null, isPolling = false, enabled = 
       )
       const marketRes = response.data as Market
 
-      let prices = [50, 50]
+      let prices
 
       //TODO remove this hot-fix
-      if (marketRes.expired) {
+      if (marketRes.expired || !marketRes.address) {
         if (marketRes?.winningOutcomeIndex === 0) {
           prices = [100, 0]
         } else if (marketRes?.winningOutcomeIndex === 1) {
@@ -300,7 +300,7 @@ export function useMarket(address?: string | null, isPolling = false, enabled = 
       } else {
         const buyPrices = await getMarketOutcomeBuyPrice(
           marketRes.collateralToken.decimals,
-          marketRes.address as Address
+          marketRes.address
         )
 
         const sum = buyPrices[0] + buyPrices[1]
