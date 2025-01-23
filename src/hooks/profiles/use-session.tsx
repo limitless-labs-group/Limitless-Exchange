@@ -8,7 +8,7 @@ export const useUserSession = ({ client, account, smartWallet }: IUseLogin) => {
   const { mutateAsync: loginUser } = useLogin()
   const axiosPrivate = useAxiosPrivateClient()
   const { isLogged } = useClient()
-  const { data: walletClient, refetch: refetchWalletClient } = useWalletClient()
+  const { data: walletClient } = useWalletClient()
 
   return useQuery({
     queryKey: ['user-session'],
@@ -18,7 +18,7 @@ export const useUserSession = ({ client, account, smartWallet }: IUseLogin) => {
       }
       try {
         await axiosPrivate.get('/auth/verify-auth')
-        await refetchWalletClient()
+        // await refetchWalletClient()
       } catch (e) {
         // @ts-ignore
         if (e.status === 401) {
