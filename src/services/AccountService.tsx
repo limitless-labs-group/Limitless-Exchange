@@ -293,6 +293,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     if (!walletClient) {
       return
     }
+    if (!walletsReady) {
+      return
+    }
     if (!profileLoading && user?.wallet?.address) {
       if (profileData === null && authenticated) {
         onCreateProfile()
@@ -317,6 +320,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     smartAccountClient,
     authenticated,
     walletClient,
+    walletsReady,
   ])
 
   useEffect(() => {
