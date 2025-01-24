@@ -226,7 +226,6 @@ const MainPage = () => {
               <MarketsSection
                 markets={sortedAllMarkets as Market[]}
                 handleSelectSort={handleSelectSort}
-                totalAmount={filteredAllMarkets?.length ?? ''}
                 isLoading={isFetching && !isFetchingNextPage}
               />
             </InfiniteScroll>

@@ -23,6 +23,7 @@ export default function OpenInterestTooltip({ iconColor }: { iconColor: string }
       label={
         'Market value shows how much money is currently active in this market, representing all the predictions made so far'
       }
+      openDelay={500}
       placement='top-end'
       {...paragraphMedium}
       color='grey.800'
