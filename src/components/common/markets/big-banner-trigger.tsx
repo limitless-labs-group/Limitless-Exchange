@@ -162,11 +162,6 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
               <Box>
                 <AnimatePresence>
                   <MotionBox
-                    initial={{ y: -48, opacity: 0 }}
-                    animate={{ y: -8, opacity: 1 }}
-                    exit={{ y: -8, opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                    position='absolute'
                     width='100%'
                     display='flex'
                     alignItems='center'
