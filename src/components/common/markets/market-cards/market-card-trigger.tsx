@@ -1,17 +1,19 @@
-import { Box, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, Divider, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import Paper from '@/components/common/paper'
+import { MIN_CARD_HEIGHT } from './market-card'
 import { MarketCardProps } from './market-card-mobile'
 import { MarketProgressBar } from './market-progress-bar'
+import { SpeedometerProgress } from './speedometer-progress'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 import OpenInterestTooltip from '../open-interest-tooltip'
 
 export const MarketCardTrigger = React.memo(
-  ({ market, markets, analyticParams }: MarketCardProps) => {
+  ({ market, variant = 'row', markets, analyticParams }: MarketCardProps) => {
     const { onOpenMarketPage, setMarkets } = useTradingService()
     const router = useRouter()
 
@@ -26,21 +28,36 @@ export const MarketCardTrigger = React.memo(
       setMarkets(markets)
     }
 
+    const isSpeedometer = variant === 'speedometer'
+
     return (
       <Box
         w='full'
         rounded='12px'
         border='2px solid var(--chakra-colors-grey-100)'
         p='2px'
+        minH={MIN_CARD_HEIGHT[variant]}
+        h='full'
         onClick={handleMarketPageOpened}
       >
         <Paper flex={1} w={'100%'} position='relative' cursor='pointer' p='14px' bg='unset'>
-          <VStack w='full' gap='16px'>
-            <Box w='full'>
-              <Text {...headline} textAlign='start' mt='12px' mb='32px'>
+          <VStack w='full' gap='16px' justifyContent='space-between'>
+            <Flex w='full' justifyContent='space-between'>
+              <Text {...headline} fontSize='16px' textAlign='start' mt='12px'>
                 {market.title}
               </Text>
-              <MarketProgressBar isClosed={market.expired} value={market.prices[0]} />
+              {isSpeedometer ? (
+                <Box w='56px' h='28px'>
+                  <SpeedometerProgress value={Number(market.prices[0].toFixed(1))} />
+                </Box>
+              ) : null}
+            </Flex>
+            <Box w='full'>
+              {isSpeedometer ? (
+                <Divider />
+              ) : (
+                <MarketProgressBar isClosed={market.expired} value={market.prices[0]} />
+              )}
             </Box>
             <Box w='full'>
               <HStack w='full' justifyContent='space-between'>
