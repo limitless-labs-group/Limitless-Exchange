@@ -27,7 +27,6 @@ export default function useMarketActivity(slug?: string) {
     },
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {
-      console.log(lastPage)
       // @ts-ignore
       return lastPage?.data.totalPages < lastPage.next ? null : lastPage.next
     },

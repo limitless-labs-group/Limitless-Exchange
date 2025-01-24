@@ -37,6 +37,7 @@ import TradingWidgetSimple from '@/components/common/markets/trading-widgets/tra
 import { UniqueTraders } from '@/components/common/markets/unique-traders'
 import ProgressBar from '@/components/common/progress-bar'
 import Skeleton from '@/components/common/skeleton'
+import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
 import ClobTabs from '@/app/(markets)/markets/[address]/components/clob/clob-tabs'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
@@ -390,6 +391,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                 ) : (
                   charts
                 )}
+                {market?.tradeType === 'clob' && <ClobPositions />}
               </Box>
               {fetchMarketLoading ? (
                 <Box px={isMobile ? '16px' : 0}>
