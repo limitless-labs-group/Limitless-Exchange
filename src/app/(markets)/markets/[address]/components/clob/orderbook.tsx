@@ -15,6 +15,7 @@ import React, { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits } from 'viem'
 import Skeleton from '@/components/common/skeleton'
+import { useMarketOrders } from '@/hooks/use-market-orders'
 import { Order, useOrderBook } from '@/hooks/use-order-book'
 import {
   ChangeEvent,
@@ -36,6 +37,10 @@ export default function Orderbook() {
   const { trackChanged } = useAmplitude()
   const { market } = useTradingService()
   const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
+
+  const { data: userOrders } = useMarketOrders(market?.slug)
+
+  console.log(userOrders)
 
   function calculatePercent(array: Order[]) {
     const totalSize = array.reduce((sum, item) => sum + item.size, 0) // Total size of the array

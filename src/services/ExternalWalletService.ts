@@ -84,7 +84,9 @@ export const useExternalWalletService = () => {
     contractAddress: Address,
     value: bigint
   ): Promise<string> => {
+    console.log('checking chain')
     await checkAndSwitchChainIfNeeded()
+    console.log('network switched')
     let txHash = ''
     await writeContractAsync(
       {
@@ -299,6 +301,8 @@ export const useExternalWalletService = () => {
   }
 
   const checkAndSwitchChainIfNeeded = async () => {
+    console.log(chainId)
+    console.log(defaultChain.id)
     if (chainId !== defaultChain.id) {
       await switchChain(wagmiConfig, { chainId: defaultChain.id })
     }

@@ -7,6 +7,7 @@ import {
   LOGIN_PROVIDER_TYPE,
 } from '@toruslabs/openlogin-utils/dist/types/interfaces'
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
+import { ClobPositionType } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { PageName } from '@/hooks/use-page-name'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useAccount } from '@/services'
@@ -129,6 +130,7 @@ export enum ChangeEvent {
   LeaderboardViewChanged = 'Leaderboard View Changed',
   LeaderboardPageChanged = 'Leaderboard Page Changed',
   OrderBookSideChanged = 'Orderbook Side Changed',
+  ClobPositionsTabChanged = 'Clob Positions Tab Changed',
 }
 
 export enum ClickEvent {
@@ -213,7 +215,14 @@ export interface AccountMetadata {
 
 export type OrderBookSideChangedType = 'Yes selected' | 'No selected'
 
+export type ClobPositionsTabChanges = ClobPositionType
+
 export type StrategyChangedType = 'Buy selected' | 'Sell selected'
+
+export interface ClobPositionsTabChangesMetadata {
+  type: ClobPositionsTabChanges
+  marketAddress: string
+}
 
 export interface OrderBookSideChangedMetadata {
   type: OrderBookSideChangedType
@@ -433,6 +442,7 @@ export type ChangedEventMetadata =
   | LeaderboardViewChangedMetadata
   | LeaderboardPageChangedMetadata
   | OrderBookSideChangedMetadata
+  | ClobPositionsTabChangesMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
   | PricePresetClickedMetadata
