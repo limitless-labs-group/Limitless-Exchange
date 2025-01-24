@@ -1,26 +1,14 @@
-import {
-  Box,
-  Button,
-  HStack,
-  Table,
-  TableContainer,
-  Tbody,
-  Text,
-  Th,
-  Thead,
-  Tr,
-} from '@chakra-ui/react'
+import { Box, Button, HStack, Table, TableContainer, Text, Th, Thead, Tr } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import React, { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Address, formatUnits } from 'viem'
+import { formatUnits } from 'viem'
 import Skeleton from '@/components/common/skeleton'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import { Order, useOrderBook } from '@/hooks/use-order-book'
 import {
   ChangeEvent,
   OrderBookSideChangedMetadata,
-  StrategyChangedMetadata,
   useAmplitude,
   useTradingService,
 } from '@/services'
