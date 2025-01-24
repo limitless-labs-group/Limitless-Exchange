@@ -78,7 +78,7 @@ export default function Sidebar() {
   const { data: totalVolume } = useTotalTradingVolume()
   const { data: positions } = usePosition()
   const { selectedCategory, handleCategory } = useTokenFilter()
-  const { data } = useMarkets(null)
+  const { data, isLoading } = useMarkets(null)
 
   const markets: (Market | MarketGroup)[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
@@ -421,7 +421,7 @@ export default function Sidebar() {
             <HStack w='full'>
               <GridIcon width={16} height={16} />
               <Text fontWeight={500} fontSize='14px'>
-                {`All markets (${markets.length})`}
+                {`All markets ${isLoading ? '' : `(${markets?.length})`} `}
               </Text>
             </HStack>
           </Link>
