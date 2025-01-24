@@ -3,7 +3,10 @@ import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
 import TextEditor from '@/components/common/text-editor'
+import CategoryIcon from '@/resources/icons/category.svg'
+import FeeIcon from '@/resources/icons/fee.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import DeadlineIcon from '@/resources/icons/sun-watch.svg'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Category, Creator, DraftMetadata, Token } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -121,7 +124,6 @@ export const DraftMarketCard = ({
 
             <HStack justifyContent='space-between' alignItems='flex-end' flexDirection={'row'}>
               <HStack gap={'16px'} flexDirection={'row'} w='full'>
-                {/* Liquidity */}
                 <HStack w={'unset'} justifyContent={'unset'}>
                   <HStack color={colors.secondary} gap='4px'>
                     <LiquidityIcon width={16} height={16} />
@@ -138,7 +140,7 @@ export const DraftMarketCard = ({
 
                 <HStack w={'unset'} justifyContent={'unset'}>
                   <HStack color={colors.secondary} gap='4px'>
-                    <LiquidityIcon width={16} height={16} />
+                    <DeadlineIcon width={16} height={16} />
                     <Text {...paragraphMedium} color={colors.secondary}>
                       Deadline
                     </Text>
@@ -161,13 +163,24 @@ export const DraftMarketCard = ({
 
                 <HStack w={'unset'} justifyContent={'unset'}>
                   <HStack color={colors.secondary} gap='4px'>
-                    <LiquidityIcon width={16} height={16} />
+                    <FeeIcon width={16} height={16} />
                     <Text {...paragraphMedium} color={colors.secondary}>
                       Market Fee
                     </Text>
                   </HStack>
                   <Text {...paragraphRegular} color={colors.main}>
                     {market.draftMetadata.fee}%
+                  </Text>
+                </HStack>
+                <HStack w={'unset'} justifyContent={'unset'}>
+                  <HStack color={colors.secondary} gap='4px'>
+                    <CategoryIcon width={16} height={16} />
+                    <Text {...paragraphMedium} color={colors.secondary}>
+                      Category
+                    </Text>
+                  </HStack>
+                  <Text {...paragraphRegular} color={colors.main}>
+                    {market.category.name}
                   </Text>
                 </HStack>
               </HStack>

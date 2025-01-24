@@ -11,14 +11,12 @@ import SortFilter from '../sort-filter'
 interface DailyMarketsSectionProps {
   markets?: Market[]
   handleSelectSort: (option: Sort, name: SortStorageName) => void
-  totalAmount?: number
   isLoading: boolean
 }
 
 export default function MarketsSection({
   markets,
   handleSelectSort,
-  totalAmount = 1,
   isLoading,
 }: DailyMarketsSectionProps) {
   return (
@@ -31,7 +29,7 @@ export default function MarketsSection({
           flexDirection={isMobile ? 'column' : 'row'}
         >
           <Text {...headlineRegular} mt={isMobile ? '8px' : '0px'}>
-            All Markets {isLoading ? '' : `(${totalAmount})`}
+            All Markets
           </Text>
           <SortFilter onChange={handleSelectSort} storageName={SortStorageName.SORT} />
         </Flex>

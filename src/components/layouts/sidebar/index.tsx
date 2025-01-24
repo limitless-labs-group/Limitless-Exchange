@@ -28,7 +28,6 @@ import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
-import StaticSnowBackground from '@/components/common/static-snow'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
@@ -59,8 +58,10 @@ import {
   useEtherspot,
   usePosition,
 } from '@/services'
+import { useMarkets } from '@/services/MarketsService'
 import { useWeb3Service } from '@/services/Web3Service'
-import { paragraphMedium, paragraphRegular, headline } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market, MarketGroup } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function Sidebar() {
@@ -77,6 +78,11 @@ export default function Sidebar() {
   const { data: totalVolume } = useTotalTradingVolume()
   const { data: positions } = usePosition()
   const { selectedCategory, handleCategory } = useTokenFilter()
+  const { data, isLoading } = useMarkets(null)
+
+  const markets: (Market | MarketGroup)[] = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data.markets) || []
+  }, [data?.pages])
 
   const pageName = usePageName()
   const userMenuLoading = useMemo(() => {
@@ -415,7 +421,7 @@ export default function Sidebar() {
             <HStack w='full'>
               <GridIcon width={16} height={16} />
               <Text fontWeight={500} fontSize='14px'>
-                All markets
+                {`All markets ${isLoading ? '' : `(${markets?.length})`} `}
               </Text>
             </HStack>
           </Link>
