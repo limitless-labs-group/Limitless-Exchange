@@ -24,10 +24,10 @@ import Loader from '@/components/common/loader'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import SocialsFooter from '@/components/common/socials-footer'
-import StaticSnowBackground from '@/components/common/static-snow'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
+import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
@@ -46,7 +46,7 @@ import {
   useHistory,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
-import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
 export default function MobileHeader() {
@@ -72,6 +72,7 @@ export default function MobileHeader() {
   }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
+  const { handleCategory } = useTokenFilter()
 
   const handleNavigateToPortfolioPage = () => {
     onToggleUserMenu()
@@ -93,28 +94,20 @@ export default function MobileHeader() {
         marginTop='20px'
       >
         <HStack justifyContent='space-between' alignItems='center'>
-          {mode === 'dark' ? (
-            <StaticSnowBackground height={85} width={500} numDots={60} dotRadius={1} />
-          ) : null}
-          <Box onClick={() => router.push('/')}>
+          <Box
+            onClick={() => {
+              handleCategory(undefined)
+              router.push('/')
+            }}
+          >
             <HStack w='full' alignItems='center'>
               <Image
-                src={mode === 'dark' ? '/snow-logo.png' : '/snow-logo-light.png'}
-                height={46}
-                width={46}
-                alt='logo'
+                src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+                height={32}
+                width={156}
+                alt='calendar'
               />
-              <Text {...headline} _hover={{ textDecoration: 'none' }}>
-                Limitless
-              </Text>
             </HStack>
-
-            {/* <Image */}
-            {/*   src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'} */}
-            {/*   height={32} */}
-            {/*   width={156} */}
-            {/*   alt='calendar' */}
-            {/* /> */}
           </Box>
           <HStack gap='4px'>
             {isConnected ? (

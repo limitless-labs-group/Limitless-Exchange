@@ -195,27 +195,23 @@ export default function Sidebar() {
         pos='fixed'
         overflowY='auto'
       >
-        {mode === 'dark' ? (
-          <StaticSnowBackground height={60} width={188} numDots={40} dotRadius={0.8} />
-        ) : null}
-
         <NextLink href='/' passHref style={{ width: '100%', textDecoration: 'none' }}>
           <Link
             onClick={() => {
               trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
               window.localStorage.removeItem('SORT')
+              handleCategory(undefined)
             }}
             style={{ textDecoration: 'none' }}
             _hover={{ textDecoration: 'none' }}
           >
             <HStack w='full' alignItems='center'>
               <Image
-                src={mode === 'dark' ? '/snow-logo.png' : '/snow-logo-light.png'}
-                height={46}
-                width={46}
+                src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+                height={32}
+                width={156}
                 alt='logo'
               />
-              <Text {...headline}>Limitless</Text>
             </HStack>
           </Link>
         </NextLink>

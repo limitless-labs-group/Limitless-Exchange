@@ -92,14 +92,25 @@ const MainPage = () => {
     setSelectedSort(options)
   }
 
-  const { data: banneredMarkets, isFetching: isBanneredLoading } =
-    useBanneredMarkets(categoryEntity)
+  const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
 
   const { selectedCategory, handleCategory } = useTokenFilter()
 
+  useEffect(() => {
+    if (category && categories) {
+      const categoryFromUrl = categories.find(
+        (c) => c.name.toLowerCase() === category.toLowerCase()
+      )
+      if (categoryFromUrl) {
+        handleCategory(categoryFromUrl)
+      }
+    }
+  }, [category, categories])
+
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
-    useMarkets(categoryEntity)
+
+  // pass categoryEntity to useMarket to make call with category
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useMarkets(null)
 
   const totalAmount = useMemo(() => data?.pages[0]?.data.totalAmount ?? 0, [data?.pages])
 
