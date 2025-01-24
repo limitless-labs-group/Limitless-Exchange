@@ -4,8 +4,8 @@ import ProgressBar from '@/components/common/progress-bar'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const PROGRESS_THRESHOLDS = [
-  { max: 15, variant: 'red', color: 'var(--chakra-colors-red-500)' },
-  { max: 35, variant: 'yellow', color: 'var(--chakra-colors-orange-500)' },
+  { max: 25, variant: 'red', color: 'var(--chakra-colors-red-500)' },
+  { max: 50, variant: 'yellow', color: 'var(--chakra-colors-orange-500)' },
   { max: 100, variant: 'green', color: 'var(--chakra-colors-green-500)' },
 ] as const
 

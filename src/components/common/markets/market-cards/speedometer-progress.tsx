@@ -20,8 +20,8 @@ export const SpeedometerProgress: React.FC<SpeedometerProps> = ({ value, size = 
   const theme = useTheme()
 
   const getColor = () => {
-    if (value < 15) return theme.colors.red[500]
-    if (value < 50) return theme.colors.orange[500]
+    if (value <= 25) return theme.colors.red[500]
+    if (value <= 50) return theme.colors.orange[500]
     return theme.colors.green[500]
   }
 
