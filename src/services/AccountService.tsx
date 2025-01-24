@@ -258,6 +258,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (isLogged) {
+      if (!walletsReady) {
+        return
+      }
       if (web3Client === 'etherspot' && smartAccountClient) {
         refetchSession()
       }
@@ -265,7 +268,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         refetchSession()
       }
     }
-  }, [refetchSession, smartAccountClient, walletClient, web3Client, isLogged])
+  }, [refetchSession, smartAccountClient, walletClient, web3Client, isLogged, walletsReady])
 
   const displayName = useMemo(() => {
     if (profileData?.displayName) {
