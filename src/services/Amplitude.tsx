@@ -128,6 +128,7 @@ export enum ChangeEvent {
   ProfileSettingsChanged = 'Profile Settings Changed',
   LeaderboardViewChanged = 'Leaderboard View Changed',
   LeaderboardPageChanged = 'Leaderboard Page Changed',
+  OrderBookSideChanged = 'Orderbook Side Changed',
 }
 
 export enum ClickEvent {
@@ -210,7 +211,15 @@ export interface AccountMetadata {
   smartWalletAddress?: string
 }
 
+export type OrderBookSideChangedType = 'Yes selected' | 'No selected'
+
 export type StrategyChangedType = 'Buy selected' | 'Sell selected'
+
+export interface OrderBookSideChangedMetadata {
+  type: OrderBookSideChangedType
+  marketAddress: string
+}
+
 export interface StrategyChangedMetadata {
   type: StrategyChangedType
   marketAddress: string
@@ -423,6 +432,7 @@ export type ChangedEventMetadata =
   | ProfileSettingsChangedMetadata
   | LeaderboardViewChangedMetadata
   | LeaderboardPageChangedMetadata
+  | OrderBookSideChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
   | PricePresetClickedMetadata

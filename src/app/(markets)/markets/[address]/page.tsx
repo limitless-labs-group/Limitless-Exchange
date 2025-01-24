@@ -37,6 +37,7 @@ import TradingWidgetSimple from '@/components/common/markets/trading-widgets/tra
 import { UniqueTraders } from '@/components/common/markets/unique-traders'
 import ProgressBar from '@/components/common/progress-bar'
 import Skeleton from '@/components/common/skeleton'
+import ClobTabs from '@/app/(markets)/markets/[address]/components/clob/clob-tabs'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
 import { MarketPriceChart, MarketTradingForm, MobileTradeButton } from './components'
@@ -162,6 +163,8 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     return router.push('/')
   }
 
+  const charts = market?.tradeType === 'clob' ? <ClobTabs /> : <MarketPriceChart />
+
   useEffect(() => {
     if (market) {
       setMarket(market)
@@ -188,7 +191,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       ) : (
         <>
           <HStack gap='40px' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
-            <Box w={isMobile ? 'full' : '664px'}>
+            <Box w={isMobile ? 'full' : '716px'}>
               <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>
                 <HStack justifyContent='space-between' mb='24px'>
                   <Button
@@ -385,7 +388,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                     <Skeleton height={290} />
                   </Box>
                 ) : (
-                  <MarketPriceChart />
+                  charts
                 )}
               </Box>
               {fetchMarketLoading ? (

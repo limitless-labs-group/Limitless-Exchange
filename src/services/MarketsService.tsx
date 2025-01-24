@@ -26,8 +26,6 @@ export function useMarkets(topic: Category | null) {
         },
       })
 
-      console.log(response.data.flatMap((market) => market))
-
       // const marketDataForMultiCall = response.data.flatMap((market) => {
       //   // @ts-ignore
       //   if (!market.address) {

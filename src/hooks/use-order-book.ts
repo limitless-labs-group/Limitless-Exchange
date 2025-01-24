@@ -3,14 +3,13 @@ import { AxiosResponse } from 'axios'
 import { limitlessApi } from '@/services'
 
 export interface OrderBook {
-  bids: {
-    price: number
-    size: number
-  }[]
-  asks: {
-    price: number
-    size: number
-  }[]
+  bids: Order[]
+  asks: Order[]
+}
+
+export interface Order {
+  price: number
+  size: number
 }
 
 export function useOrderBook(slug?: string) {
