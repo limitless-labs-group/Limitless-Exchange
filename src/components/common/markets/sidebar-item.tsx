@@ -52,10 +52,10 @@ export const SideItem = ({ isActive, onClick, icon, children }: SideItemProps) =
     >
       {React.cloneElement(icon as React.ReactElement, {
         style: {
-          color: isActive ? 'var(--chakra-colors-grey-600)' : 'var(--chakra-colors-grey-500)',
+          color: isActive ? 'var(--chakra-colors-grey-800)' : 'var(--chakra-colors-grey-700)',
         },
       })}
-      <Text {...paragraphMedium} fontWeight={500} color={isActive ? 'grey.600' : 'grey.500'}>
+      <Text {...paragraphMedium} fontWeight={500} color={isActive ? 'grey.800' : 'grey.700'}>
         {children}
       </Text>
     </HStack>
@@ -85,8 +85,9 @@ export const CategoryItems = () => {
     return counts
   }, [markets])
 
-  const createQueryString = () => {
+  const createQueryString = (categoryName: string) => {
     const params = new URLSearchParams(searchParams.toString())
+    params.set('category', categoryName.toLowerCase())
     return params.toString()
   }
 
@@ -100,7 +101,7 @@ export const CategoryItems = () => {
     return (
       <Link
         key={c.name}
-        href={`/?${createQueryString()}`}
+        href={`/?${createQueryString(c.name)}`}
         style={{ width: isMobile ? 'fit-content' : '100%' }}
       >
         <SideItem
