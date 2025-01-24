@@ -20,8 +20,8 @@ export const SpeedometerProgress: React.FC<SpeedometerProps> = ({ value, size = 
   const theme = useTheme()
 
   const getColor = () => {
-    if (value < 35) return theme.colors.red[500]
-    if (value < 50) return theme.colors.orange[500]
+    if (value <= 25) return theme.colors.red[500]
+    if (value <= 50) return theme.colors.orange[500]
     return theme.colors.green[500]
   }
 
@@ -44,7 +44,7 @@ export const SpeedometerProgress: React.FC<SpeedometerProps> = ({ value, size = 
             diameter - strokeWidth
           },${diameter / 2}`}
           fill='none'
-          stroke={theme.colors.grey[500]}
+          stroke={theme.colors.grey[300]}
           strokeWidth={strokeWidth}
           strokeLinecap='round'
         />
@@ -66,7 +66,7 @@ export const SpeedometerProgress: React.FC<SpeedometerProps> = ({ value, size = 
         fontSize={`${fontSize}px`}
         lineHeight={`${fontSize}px`}
         fontWeight='bold'
-        color='white'
+        color={getColor()}
       >
         {value}%
       </Text>
