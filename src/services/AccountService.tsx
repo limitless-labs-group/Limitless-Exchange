@@ -25,7 +25,7 @@ import React, {
   useEffect,
 } from 'react'
 import { getAddress } from 'viem'
-import { http, useDisconnect, useWalletClient } from 'wagmi'
+import { http, useWalletClient } from 'wagmi'
 import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { defaultChain } from '@/constants'
@@ -85,7 +85,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const accountRoutes = ['/portfolio', '/create-market']
   const privateClient = useAxiosPrivateClient()
   const { mutateAsync: login } = useLogin()
-  const { disconnect: disconnectWagmi } = useDisconnect()
+  // const { disconnect: disconnectWagmi } = useDisconnect()
   const web3Client = user?.wallet?.walletClientType === 'privy' ? 'etherspot' : 'eoa'
   const { trackSignUp } = useAmplitude()
   const { data: walletClient } = useWalletClient()
@@ -386,7 +386,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     }
     await logout()
     await disconnect()
-    disconnectWagmi()
     queryClient.removeQueries({
       queryKey: ['profiles'],
     })
