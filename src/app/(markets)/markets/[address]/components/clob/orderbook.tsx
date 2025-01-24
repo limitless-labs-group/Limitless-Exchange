@@ -64,20 +64,20 @@ export default function Orderbook() {
         asks: [],
       }
     }
-    if (!orderbookSide) {
-      return {
-        bids: calculatePercent(orderbook.bids),
-        asks: calculatePercent(orderbook.asks.reverse()),
-      }
-    }
-    const bids = orderbook.asks.map((ask) => ({
-      ...ask,
-      price: +(1 - ask.price).toFixed(2),
-    }))
-    const asks = orderbook.bids.map((bid) => ({
-      ...bid,
-      price: +(1 - bid.price).toFixed(2),
-    }))
+
+    const bids = orderbookSide
+      ? orderbook.asks.map((ask) => ({
+          ...ask,
+          price: +(1 - ask.price).toFixed(2),
+        }))
+      : orderbook.bids
+
+    const asks = orderbookSide
+      ? orderbook.bids.map((bid) => ({
+          ...bid,
+          price: +(1 - bid.price).toFixed(2),
+        }))
+      : orderbook.asks.reverse()
     return {
       bids: calculatePercent(bids),
       asks: calculatePercent(asks.reverse()),

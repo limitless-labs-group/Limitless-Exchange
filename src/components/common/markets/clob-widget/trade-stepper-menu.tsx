@@ -54,16 +54,19 @@ export default function TradeStepperMenu() {
     if (strategy === 'Buy') {
       return orderType === MarketOrderType.MARKET
         ? `You’re buying ${outcomeToken} shares for ${NumberUtil.formatThousands(
-            price
+            price,
+            2
           )} ${collateral}`
         : `You’re buying ${outcomeToken} ${outcomePrice}% for ${NumberUtil.formatThousands(
-            totalPrice
+            totalPrice,
+            2
           )} ${collateral}`
     }
     return orderType === MarketOrderType.MARKET
       ? `You’re selling ${outcomeToken} shares for market price`
       : `You’re selling ${outcomeToken} ${outcomePrice}% for ${NumberUtil.formatThousands(
-          totalPrice
+          totalPrice,
+          2
         )} ${collateral}`
   }, [
     noPrice,
@@ -86,10 +89,10 @@ export default function TradeStepperMenu() {
     const totalPrice = new BigNumber(price).multipliedBy(sharesAmount).dividedBy(100).toString()
     if (strategy === 'Buy') {
       return orderType === MarketOrderType.MARKET
-        ? `Sign transaction for ${NumberUtil.formatThousands(price)} USDC`
-        : `Sign transaction for ${NumberUtil.formatThousands(totalPrice)} USDC`
+        ? `Sign transaction for ${NumberUtil.formatThousands(price, 2)} USDC`
+        : `Sign transaction for ${NumberUtil.formatThousands(totalPrice, 2)} USDC`
     }
-    return `Sign transaction for sell ${NumberUtil.formatThousands(sharesAmount)} shares`
+    return `Sign transaction for sell ${NumberUtil.formatThousands(sharesAmount, 6)} shares`
   }, [orderType, price, sharesAmount, strategy])
 
   const approveBuyMutation = useMutation({
