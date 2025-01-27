@@ -14,7 +14,12 @@ interface TopMarketsProps {
 export default function TopMarkets({ markets, isLoading }: TopMarketsProps) {
   if (isLoading || !markets) {
     return (
-      <Box position='relative' mt={'16px'} px={isMobile ? '16px' : 0} w='inherit'>
+      <Box
+        position='relative'
+        mt={'16px'}
+        px={isMobile ? '16px' : 0}
+        w={isMobile ? 'inherit' : '664px'}
+      >
         <Skeleton height={isMobile ? 224 : 338} />
       </Box>
     )
@@ -25,7 +30,12 @@ export default function TopMarkets({ markets, isLoading }: TopMarketsProps) {
   ))
 
   return (
-    <Box position='relative' mt={isMobile ? '12px' : '16px'} px={isMobile ? '16px' : 0} w='inherit'>
+    <Box
+      position='relative'
+      mt={isMobile ? '12px' : '16px'}
+      px={isMobile ? '16px' : 0}
+      w={isMobile ? 'inherit' : '664px'}
+    >
       <CarouselDesktop slides={desktopCards} />
     </Box>
   )

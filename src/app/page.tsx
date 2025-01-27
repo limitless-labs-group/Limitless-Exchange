@@ -1,6 +1,6 @@
 'use client'
 
-import { Link, Box, HStack, Text } from '@chakra-ui/react'
+import { Link, HStack, Text, VStack } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
@@ -140,13 +140,8 @@ const MainPage = () => {
 
   return (
     <MainLayout layoutPadding={'0px'}>
-      <HStack
-        className='w-full'
-        alignItems='flex-start'
-        w={isMobile ? 'full' : 'calc(100vw - 690px)'}
-        justifyContent='center'
-      >
-        <Box w={isMobile ? 'full' : '664px'}>
+      <HStack className='w-full' alignItems='flex-start' w='full' justifyContent='center'>
+        <VStack w='full' justifyContent='center'>
           <>
             {isMobile ? (
               <HStack
@@ -213,7 +208,7 @@ const MainPage = () => {
               dataLength={markets?.length ?? 0}
               next={fetchNextPage}
               hasMore={hasNextPage}
-              style={{ width: '100%' }}
+              style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
               loader={
                 markets.length > 0 && markets.length < totalAmount ? (
                   <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
@@ -230,7 +225,7 @@ const MainPage = () => {
               />
             </InfiniteScroll>
           </>
-        </Box>
+        </VStack>
       </HStack>
     </MainLayout>
   )
