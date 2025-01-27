@@ -1,6 +1,7 @@
 import { Button, HStack, Text } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import ClobOrdersTable from '@/components/common/markets/clob-widget/clob-orders-table'
 import { ClobPositionType } from '@/app/(markets)/markets/[address]/components/clob/types'
 import {
   ChangeEvent,
@@ -14,6 +15,7 @@ export default function ClobOrdersTab() {
   const { market } = useTradingService()
   const { trackChanged } = useAmplitude()
   const [positionsTab, setPositonsTab] = useState<ClobPositionType>(ClobPositionType.ALL)
+
   return (
     <>
       <HStack w='full' justifyContent='space-between'>
@@ -50,6 +52,7 @@ export default function ClobOrdersTab() {
         </HStack>
         <Button variant='grey'>Cancel all</Button>
       </HStack>
+      <ClobOrdersTable />
     </>
   )
 }

@@ -37,6 +37,7 @@ const baseStyle = definePartsStyle({
       '&[data-is-numeric=true]': {
         textAlign: 'start',
       },
+      bg: 'grey.50',
     },
   },
   tbody: {
@@ -107,6 +108,12 @@ const noPaddingsOnSides = definePartsStyle({
       padding: isMobile ? '12px' : '7.5px 8px',
       '&[data-is-numeric=true]': {
         textAlign: 'start',
+      },
+      '&:first-child': {
+        paddingLeft: 0,
+      },
+      '&:last-child': {
+        paddingRight: 0,
       },
     },
   },
