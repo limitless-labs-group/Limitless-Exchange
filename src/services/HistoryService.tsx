@@ -117,16 +117,12 @@ export const usePortfolioHistory = (page: number) => {
   return useQuery({
     queryKey: ['history', page],
     queryFn: async (): Promise<AxiosResponse<History>> => {
-      return privateClient.get<History>(
-        '/portfolio/history',
-
-        {
-          params: {
-            page: page,
-            limit: 10,
-          },
-        }
-      )
+      return privateClient.get<History>('/portfolio/history', {
+        params: {
+          page: page,
+          limit: 10,
+        },
+      })
     },
   })
 }

@@ -26,10 +26,6 @@ export default function Orderbook() {
   const { market } = useTradingService()
   const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
 
-  const { data: userOrders } = useMarketOrders(market?.slug)
-
-  console.log(userOrders)
-
   function calculatePercent(array: Order[]) {
     const totalSize = array.reduce((sum, item) => sum + item.size, 0) // Total size of the array
 
