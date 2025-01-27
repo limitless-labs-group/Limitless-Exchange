@@ -40,7 +40,7 @@ export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name }) =>
     >
       <ImageBanner categoryName={category.name} />
       <Flex w='full' alignItems='center' justifyContent='center'>
-        <HStack gap='8px' w='664px'>
+        <HStack gap='8px' w={isMobile ? 'full' : '664px'}>
           <Box>{category.icon}</Box>
           <Text {...h1Bold}>{category.name}</Text>
         </HStack>
