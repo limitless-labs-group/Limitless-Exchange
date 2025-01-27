@@ -91,7 +91,7 @@ export default function MarketsSection({
                   if (isGridStart) {
                     const gridCards = markets.slice(index, index + 4)
                     return (
-                      <Flex key={`grid-${index}`} flexWrap='wrap' gap={4} w='full'>
+                      <Flex key={`grid-${market.address}`} flexWrap='wrap' gap={4} w='full'>
                         {gridCards.map((gridMarket, gridIndex) => (
                           <Box
                             key={gridMarket.address}
@@ -151,7 +151,12 @@ export default function MarketsSection({
                     if (speedometerCards.length === 2) {
                       // Two markets - show as 1x2 speedometer grid
                       return (
-                        <Flex key={`speedometer-${index}`} flexWrap='wrap' gap={4} w='full'>
+                        <Flex
+                          key={`speedometer-${market.address}`}
+                          flexWrap='wrap'
+                          gap={4}
+                          w='full'
+                        >
                           {speedometerCards.map((speedometerMarket, gridIndex) => (
                             <Box
                               key={speedometerMarket.address}
@@ -175,7 +180,7 @@ export default function MarketsSection({
                     if (speedometerCards.length === 3) {
                       // Three markets - show as 1x2 speedometer grid + 1 row
                       return (
-                        <VStack gap={4} w='full' key='index'>
+                        <VStack gap={4} w='full' key={`speedometer-group-${market.address}`}>
                           <Flex flexWrap='wrap' gap={4} w='full'>
                             {speedometerCards.slice(0, 2).map((speedometerMarket, gridIndex) => (
                               <Box
@@ -210,7 +215,7 @@ export default function MarketsSection({
 
                     // Four markets - show as 2x2 speedometer grid
                     return (
-                      <Flex key={`speedometer-${index}`} flexWrap='wrap' gap={4} w='full'>
+                      <Flex key={`speedometer-${market.address}`} flexWrap='wrap' gap={4} w='full'>
                         {speedometerCards.map((speedometerMarket, gridIndex) => (
                           <Box
                             key={speedometerMarket.address}
