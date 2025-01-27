@@ -51,7 +51,6 @@ export default function MarketsSection({
                     />
                   )
                 }
-
                 // Next 4 cards in cycle - speedometer cards
                 if (cyclePosition >= 6 && cyclePosition < 10) {
                   return (
@@ -64,7 +63,6 @@ export default function MarketsSection({
                     />
                   )
                 }
-
                 return null
               })}
         </VStack>
@@ -133,6 +131,84 @@ export default function MarketsSection({
                   const isSpeedometerStart = cyclePosition === 8
                   if (isSpeedometerStart) {
                     const speedometerCards = markets.slice(index, index + 4)
+
+                    if (speedometerCards.length === 1) {
+                      // Single market - show as row
+                      return (
+                        <Box key={speedometerCards[0].address} w='full'>
+                          <MarketCard
+                            variant='row'
+                            market={speedometerCards[0]}
+                            analyticParams={{
+                              bannerPosition: position,
+                              bannerPaginationPage: 1,
+                            }}
+                          />
+                        </Box>
+                      )
+                    }
+
+                    if (speedometerCards.length === 2) {
+                      // Two markets - show as 1x2 speedometer grid
+                      return (
+                        <Flex key={`speedometer-${index}`} flexWrap='wrap' gap={4} w='full'>
+                          {speedometerCards.map((speedometerMarket, gridIndex) => (
+                            <Box
+                              key={speedometerMarket.address}
+                              flex='1 1 calc(50% - 8px)'
+                              minW='calc(50% - 8px)'
+                            >
+                              <MarketCard
+                                variant='speedometer'
+                                market={speedometerMarket}
+                                analyticParams={{
+                                  bannerPosition: position + gridIndex,
+                                  bannerPaginationPage: 1,
+                                }}
+                              />
+                            </Box>
+                          ))}
+                        </Flex>
+                      )
+                    }
+
+                    if (speedometerCards.length === 3) {
+                      // Three markets - show as 1x2 speedometer grid + 1 row
+                      return (
+                        <VStack gap={4} w='full' key='index'>
+                          <Flex flexWrap='wrap' gap={4} w='full'>
+                            {speedometerCards.slice(0, 2).map((speedometerMarket, gridIndex) => (
+                              <Box
+                                key={speedometerMarket.address}
+                                flex='1 1 calc(50% - 8px)'
+                                minW='calc(50% - 8px)'
+                              >
+                                <MarketCard
+                                  variant='speedometer'
+                                  market={speedometerMarket}
+                                  analyticParams={{
+                                    bannerPosition: position + gridIndex,
+                                    bannerPaginationPage: 1,
+                                  }}
+                                />
+                              </Box>
+                            ))}
+                          </Flex>
+                          <Box w='full'>
+                            <MarketCard
+                              variant='row'
+                              market={speedometerCards[2]}
+                              analyticParams={{
+                                bannerPosition: position + 2,
+                                bannerPaginationPage: 1,
+                              }}
+                            />
+                          </Box>
+                        </VStack>
+                      )
+                    }
+
+                    // Four markets - show as 2x2 speedometer grid
                     return (
                       <Flex key={`speedometer-${index}`} flexWrap='wrap' gap={4} w='full'>
                         {speedometerCards.map((speedometerMarket, gridIndex) => (
