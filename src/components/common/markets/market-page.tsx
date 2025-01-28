@@ -400,7 +400,11 @@ export default function MarketPage() {
         <MarketPriceChart />
       )}
 
-      {market?.tradeType === 'clob' ? <ClobPositions /> : <MarketPositionsAmm />}
+      {market?.tradeType === 'clob' ? (
+        <ClobPositions marketType='sidebar' />
+      ) : (
+        <MarketPositionsAmm />
+      )}
 
       <Tabs position='relative' variant='common'>
         <TabList>

@@ -15,7 +15,11 @@ import {
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { controlsMedium, h3Regular } from '@/styles/fonts/fonts.styles'
 
-export default function ClobOrdersTab() {
+interface ClobOrdersTabProps {
+  marketType?: string
+}
+
+export default function ClobOrdersTab({ marketType }: ClobOrdersTabProps) {
   const { market } = useTradingService()
   const { trackChanged } = useAmplitude()
   const [positionsTab, setPositonsTab] = useState<ClobPositionType>(ClobPositionType.ALL)
@@ -89,7 +93,7 @@ export default function ClobOrdersTab() {
           </ButtonWithStates>
         )}
       </HStack>
-      <ClobOrdersTable />
+      <ClobOrdersTable marketType={marketType} />
     </>
   )
 }
