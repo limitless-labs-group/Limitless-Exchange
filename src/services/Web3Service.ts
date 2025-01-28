@@ -70,6 +70,11 @@ type Web3Service = {
     conditionId: string,
     amount: bigint
   ) => Promise<string | undefined>
+  mergeShares: (
+    collateralToken: Address,
+    conditionId: string,
+    amount: bigint
+  ) => Promise<string | undefined>
 }
 
 export function useWeb3Service(): Web3Service {
@@ -285,6 +290,13 @@ export function useWeb3Service(): Web3Service {
     return externalWalletService.splitPositions(collateralAddress, conditionId, amount)
   }
 
+  const mergeShares = async (collateralToken: Address, conditionId: string, amount: bigint) => {
+    if (client === 'etherspot') {
+      return etherspot?.mergePositions(collateralToken, conditionId, amount)
+    }
+    return externalWalletService.mergePositions(collateralToken, conditionId, amount)
+  }
+
   const checkAllowance = async (contractAddress: Address, spender: Address) =>
     externalWalletService.checkAllowanceEOA(contractAddress, spender)
 
@@ -314,5 +326,6 @@ export function useWeb3Service(): Web3Service {
     placeLimitOrder,
     placeMarketOrder,
     splitShares,
+    mergeShares,
   }
 }

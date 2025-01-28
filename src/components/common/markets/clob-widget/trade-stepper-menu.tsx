@@ -201,7 +201,7 @@ export default function TradeStepperMenu() {
   return (
     <Paper position='absolute' bottom={0} rounded='8px' zIndex={100} w='full' p='16px' pt='8px'>
       <HStack w='full' justifyContent='center'>
-        <Button variant='transparentGreyText' color='grey.500' onClick={onToggleTradeStepper}>
+        <Button variant='transparentGreyText' onClick={onToggleTradeStepper}>
           <CloseIcon width={16} height={16} />
           Close
         </Button>

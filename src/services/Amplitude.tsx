@@ -181,6 +181,7 @@ export enum ClickEvent {
   NextMarketClick = 'Next Market Click',
   PreviousMarketClick = 'Previous Market Click',
   TradingWidgetPricePrecetChosen = 'Trading Widget Price Preset Chosen',
+  SplitSharesAmountPercentClicked = 'Split Shares Amount Percent Clicked',
   FullPageClicked = 'Full Page Clicked',
   JoinPredictionClicked = 'Join Prediction Clicked',
   EstimateEarningClicked = 'Estimate Earnings Clicked',

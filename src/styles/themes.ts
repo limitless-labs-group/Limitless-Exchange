@@ -282,8 +282,14 @@ export const chakraTheme = ChakraTheme({
           bg: 'unset',
           px: '16px',
           height: 'unset',
-          color: 'grey.300',
+          color: 'grey.500',
           alignItems: 'center',
+          _hover: {
+            color: 'grey.800',
+          },
+          _disabled: {
+            opacity: 0.5,
+          },
         },
       },
     },
