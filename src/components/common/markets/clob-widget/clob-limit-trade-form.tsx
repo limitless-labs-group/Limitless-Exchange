@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { formatUnits, parseUnits } from 'viem'
+import { Address, formatUnits, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import NumberInputWithButtons from '@/components/common/number-input-with-buttons'
@@ -16,6 +16,7 @@ import {
   useAccount,
   useAmplitude,
   useBalanceService,
+  useEtherspot,
   useTradingService,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -43,6 +44,7 @@ export default function ClobLimitTradeForm() {
   const { market, strategy } = useTradingService()
   const queryClient = useQueryClient()
   const { client } = useWeb3Service()
+  const { etherspot } = useEtherspot()
   const { data: sharesOwned, isLoading: ownedSharesLoading } = useClobMarketShares(
     market?.slug,
     market?.tokens
@@ -202,6 +204,10 @@ export default function ClobLimitTradeForm() {
 
   const handleSubmitButtonClicked = async () => {
     if (client === 'etherspot') {
+      await etherspot?.approveConditionalIfNeeded(
+        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+        process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address
+      )
       await placeLimitOrderMutation.mutateAsync()
       return
     }

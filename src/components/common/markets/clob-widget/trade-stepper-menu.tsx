@@ -98,8 +98,6 @@ export default function TradeStepperMenu() {
     mutationKey: ['approve', market?.address],
     mutationFn: async () => {
       if (market) {
-        console.log(market)
-        console.log('starting approve')
         await approveContract(
           process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
           market.collateralToken.address,
