@@ -28,7 +28,11 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
     [allMarkets, trade.market.id]
   )
 
-  const { data: market, refetch: refetchMarket } = useMarket(trade.market?.id, false, false)
+  const { data: market, refetch: refetchMarket } = useMarket(
+    trade.market?.id || trade.market.slug,
+    false,
+    false
+  )
   const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
     targetMarket?.group?.slug,
     false,

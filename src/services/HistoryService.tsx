@@ -188,6 +188,7 @@ export type HistoryMarket = {
   }
   expirationDate: string
   title: string
+  slug: string | null
 }
 
 export type HistoryRedeem = {

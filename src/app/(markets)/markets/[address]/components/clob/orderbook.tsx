@@ -4,7 +4,6 @@ import React, { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import Skeleton from '@/components/common/skeleton'
-import { useMarketOrders } from '@/hooks/use-market-orders'
 import { Order, useOrderBook } from '@/hooks/use-order-book'
 import {
   ChangeEvent,
@@ -50,17 +49,21 @@ export default function Orderbook() {
     }
 
     const bids = orderbookSide
-      ? orderbook.asks.map((ask) => ({
-          ...ask,
-          price: +(1 - ask.price).toFixed(2),
-        }))
+      ? orderbook.asks.map((ask) => {
+          return {
+            ...ask,
+            price: +new BigNumber(1).minus(new BigNumber(ask.price)).toFixed(2),
+          }
+        })
       : orderbook.bids
 
     const asks = orderbookSide
-      ? orderbook.bids.map((bid) => ({
-          ...bid,
-          price: +(1 - bid.price).toFixed(2),
-        }))
+      ? orderbook.bids.map((bid) => {
+          return {
+            ...bid,
+            price: +new BigNumber(1).minus(new BigNumber(bid.price)).toFixed(2),
+          }
+        })
       : orderbook.asks.reverse()
     return {
       bids: calculatePercent(bids),
@@ -83,7 +86,13 @@ export default function Orderbook() {
     if (!orderBookData.asks.length || !orderBookData.bids.length) {
       return '0'
     }
-    return (Math.abs(orderBookData.asks[0].price - orderBookData.bids[0].price) * 100).toFixed(0)
+    return (
+      Math.abs(
+        new BigNumber(orderBookData.asks[0].price)
+          .minus(new BigNumber(orderBookData.bids[0].price))
+          .toNumber()
+      ) * 100
+    ).toFixed(0)
   }, [orderBookData])
 
   return (
@@ -172,7 +181,8 @@ export default function Orderbook() {
                   </Box>
                   <HStack w='88px' h='full' justifyContent='flex-end' pr='8px'>
                     <Text {...paragraphRegular} color='red.500'>
-                      {NumberUtil.toFixed(item.price * 100, 0)}¢
+                      {NumberUtil.toFixed(new BigNumber(item.price).multipliedBy(100).toFixed(), 0)}
+                      ¢
                     </Text>
                   </HStack>
                   <HStack w='136px' h='full' justifyContent='flex-end' pr='8px'>
@@ -245,7 +255,11 @@ export default function Orderbook() {
                   </Box>
                   <HStack w='88px' h='full' justifyContent='flex-end' pr='8px'>
                     <Text {...paragraphRegular} color='green.500'>
-                      {NumberUtil.toFixed(item.price * 100, 0)}¢
+                      {NumberUtil.toFixed(
+                        new BigNumber(item.price).multipliedBy(new BigNumber(100)).toFixed(),
+                        0
+                      )}
+                      ¢
                     </Text>
                   </HStack>
                   <HStack w='136px' h='full' justifyContent='flex-end' pr='8px'>
