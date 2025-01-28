@@ -109,10 +109,6 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       title: 'Opinions',
       icon: <OpinionIcon width={16} height={16} />,
     },
-    {
-      title: 'Portfolio',
-      icon: <PortfolioIcon width={16} height={16} />,
-    },
   ]
 
   const tabPanels = useMemo(() => {
@@ -120,8 +116,19 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       <MarketOverviewTab market={market} key={uuidv4()} />,
       <MarketActivityTab key={uuidv4()} />,
       <CommentTab key={uuidv4()} />,
-      <PortfolioTab key={uuidv4()} />,
     ]
+  }, [market])
+
+  useEffect(() => {
+    if (market) {
+      if (market.tradeType === 'amm') {
+        tabs.push({
+          title: 'Portfolio',
+          icon: <PortfolioIcon width={16} height={16} />,
+        })
+        tabPanels.push(<PortfolioTab key={uuidv4()} />)
+      }
+    }
   }, [market])
 
   const mobileTradeButton = useMemo(() => {
@@ -426,7 +433,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
             {!isMobile && tradingWidget}
           </HStack>
           {isMobile && (
-            <Box position='fixed' bottom='76px' w='calc(100% - 32px)' left='16px'>
+            <Box position='fixed' bottom='76px' w='calc(100% - 32px)' left='16px' zIndex={99999}>
               {mobileTradeButton}
             </Box>
           )}

@@ -20,10 +20,7 @@ export const MarketPositions = ({
   const { positions: allMarketsPositions } = useHistory()
 
   const positions = useMemo(
-    () =>
-      allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address?.toLowerCase()
-      ),
+    () => allMarketsPositions?.filter((position) => position.market.slug === market?.slug),
     [allMarketsPositions, market]
   )
 
