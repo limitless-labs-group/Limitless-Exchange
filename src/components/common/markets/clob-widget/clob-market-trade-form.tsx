@@ -21,7 +21,13 @@ import TradeWidgetSkeleton, {
 } from '@/components/common/skeleton/trade-widget-skeleton'
 import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import { useOrderBook } from '@/hooks/use-order-book'
-import { ClickEvent, useAmplitude, useBalanceService, useTradingService } from '@/services'
+import {
+  ClickEvent,
+  useAccount,
+  useAmplitude,
+  useBalanceService,
+  useTradingService,
+} from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -32,6 +38,7 @@ export default function ClobMarketTradeForm() {
   const { market, strategy } = useTradingService()
   const { data: orderBook } = useOrderBook(market?.slug)
   const queryClient = useQueryClient()
+  const { account } = useAccount()
   const {
     setPrice,
     price,
@@ -358,7 +365,7 @@ export default function ClobMarketTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeMarketOrderMutation.status}
-        isDisabled={!price || isBalanceNotEnough}
+        isDisabled={!price || isBalanceNotEnough || !account}
         onClick={handleSubmitButtonClicked}
         successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(
           orderCalculations.contracts,

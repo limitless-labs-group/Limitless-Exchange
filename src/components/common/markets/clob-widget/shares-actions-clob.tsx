@@ -5,26 +5,27 @@ import Paper from '@/components/common/paper'
 import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import MergeIcon from '@/resources/icons/merge-icon.svg'
 import SplitIcon from '@/resources/icons/split-icon.svg'
-import { useTradingService } from '@/services'
+import { useAccount, useTradingService } from '@/services'
 
 export default function SharesActionsClob() {
   const { isOpen: splitModalOpened, onToggle: onToggleSplitModal } = useDisclosure()
   const { isOpen: mergeModalOpened, onToggle: onToggleMergeModal } = useDisclosure()
   const { market } = useTradingService()
   const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
+  const { account } = useAccount()
 
   return (
     <>
       <Paper w='full' mt='16px'>
         <HStack w='full' gap='24px' justifyContent='center'>
-          <Button variant='transparentGreyText' onClick={onToggleSplitModal}>
+          <Button variant='transparentGreyText' onClick={onToggleSplitModal} isDisabled={!account}>
             <SplitIcon />
             Split Contracts
           </Button>
           <Button
             variant='transparentGreyText'
             onClick={onToggleMergeModal}
-            isDisabled={sharesOwned?.[0] === 0n || sharesOwned?.[1] === 0n}
+            isDisabled={sharesOwned?.[0] === 0n || sharesOwned?.[1] === 0n || !account}
           >
             <MergeIcon />
             Merge Contracts
