@@ -11,7 +11,13 @@ import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
 import useClobMarketShares from '@/hooks/use-clob-market-shares'
-import { ClickEvent, useAmplitude, useBalanceService, useTradingService } from '@/services'
+import {
+  ClickEvent,
+  useAccount,
+  useAmplitude,
+  useBalanceService,
+  useTradingService,
+} from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -33,6 +39,7 @@ export default function ClobLimitTradeForm() {
     isBalanceNotEnough,
   } = useClobWidget()
   const { trackClicked } = useAmplitude()
+  const { account } = useAccount()
   const { market, strategy } = useTradingService()
   const queryClient = useQueryClient()
   const { client } = useWeb3Service()
@@ -295,7 +302,7 @@ export default function ClobLimitTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
-        isDisabled={!price || !sharesAmount || isBalanceNotEnough}
+        isDisabled={!price || !sharesAmount || isBalanceNotEnough || !account}
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}

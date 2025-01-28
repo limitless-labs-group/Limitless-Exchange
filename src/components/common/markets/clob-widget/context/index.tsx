@@ -112,7 +112,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
       if (strategy === 'Buy') {
         const amount = new BigNumber(price || '0').dividedBy(100).multipliedBy(sharesAmount)
         const lockedBalanceFormatted = formatUnits(
-          BigInt(lockedBalance.toFixed()),
+          BigInt(lockedBalance?.toFixed() || '0'),
           market?.collateralToken.decimals || 6
         )
         const balanceLeft = new BigNumber(balance).minus(lockedBalanceFormatted)

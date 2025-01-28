@@ -15,7 +15,7 @@ import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
-import { Address, parseUnits } from 'viem'
+import { Address, maxUint256 } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import Paper from '@/components/common/paper'
@@ -40,7 +40,6 @@ export default function TradeStepperMenu() {
     checkMarketAllowance,
     placeMarketOrderMutation,
     placeLimitOrderMutation,
-    sharesPrice,
   } = useClobWidget()
   const { strategy, market } = useTradingService()
   const { approveContract, approveAllowanceForAll } = useWeb3Service()
@@ -104,7 +103,7 @@ export default function TradeStepperMenu() {
         await approveContract(
           process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
           market.collateralToken.address,
-          parseUnits(sharesPrice, market.collateralToken.decimals)
+          maxUint256
         )
       }
     },
