@@ -30,14 +30,7 @@ export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name }) =>
   }, [name])
 
   return category ? (
-    <VStack
-      alignItems='start'
-      gap='16px'
-      justifyContent='center'
-      mb='30px'
-      width='inherit'
-      px={isMobile ? '16px' : 'unset'}
-    >
+    <VStack alignItems='start' gap='16px' justifyContent='center' mb='30px' width='inherit'>
       <ImageBanner categoryName={category.name} />
       <Flex w='full' alignItems='center' justifyContent='center'>
         <HStack gap='8px' w={isMobile ? 'full' : '664px'}>
