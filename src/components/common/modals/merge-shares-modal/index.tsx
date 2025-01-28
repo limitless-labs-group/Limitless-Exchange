@@ -59,7 +59,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
 
   const checkMergeAllowance = async () => {
     const isApproved = await checkAllowanceForAll(
-      market?.collateralToken.address as Address,
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
       process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
     )
     setIsApproved(isApproved)
@@ -98,7 +98,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   const approveContractMutation = useMutation({
     mutationFn: async () => {
       await approveAllowanceForAll(
-        market?.collateralToken.address as Address,
+        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
         process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
       )
       await sleep(3)
