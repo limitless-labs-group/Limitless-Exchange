@@ -1,20 +1,47 @@
 import { Button, HStack, Text } from '@chakra-ui/react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import ButtonWithStates from '@/components/common/button-with-states'
 import ClobOrdersTable from '@/components/common/markets/clob-widget/clob-orders-table'
 import { ClobPositionType } from '@/app/(markets)/markets/[address]/components/clob/types'
+import { useMarketOrders } from '@/hooks/use-market-orders'
 import {
   ChangeEvent,
   ClobPositionsTabChangesMetadata,
   useAmplitude,
   useTradingService,
 } from '@/services'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { controlsMedium, h3Regular } from '@/styles/fonts/fonts.styles'
 
 export default function ClobOrdersTab() {
   const { market } = useTradingService()
   const { trackChanged } = useAmplitude()
   const [positionsTab, setPositonsTab] = useState<ClobPositionType>(ClobPositionType.ALL)
+  const { data: userOrders } = useMarketOrders(market?.slug)
+  const privateClient = useAxiosPrivateClient()
+  const queryClient = useQueryClient()
+
+  const cancelAllOrdersMutation = useMutation({
+    mutationKey: ['cancel-all-orders', market?.slug],
+    mutationFn: async () => {
+      await privateClient.delete(`/orders/all/${market?.slug}`)
+    },
+  })
+
+  const onResetMutation = async () => {
+    await queryClient.refetchQueries({
+      queryKey: ['user-orders', market?.slug],
+    })
+    await queryClient.refetchQueries({
+      queryKey: ['market-shares', market?.slug],
+    })
+    await queryClient.refetchQueries({
+      queryKey: ['order-book', market?.slug],
+    })
+    cancelAllOrdersMutation.reset()
+  }
 
   return (
     <>
@@ -50,7 +77,17 @@ export default function ClobOrdersTab() {
             </Button>
           </HStack>
         </HStack>
-        <Button variant='grey'>Cancel all</Button>
+        {Boolean(userOrders?.length) && (
+          <ButtonWithStates
+            onReset={onResetMutation}
+            status={cancelAllOrdersMutation.status}
+            onClick={() => cancelAllOrdersMutation.mutateAsync()}
+            variant='grey'
+            w='82px'
+          >
+            Cancel all
+          </ButtonWithStates>
+        )}
       </HStack>
       <ClobOrdersTable />
     </>
