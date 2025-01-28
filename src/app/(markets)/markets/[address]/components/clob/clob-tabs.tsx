@@ -1,5 +1,5 @@
 import { HStack, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
