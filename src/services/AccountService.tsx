@@ -1,4 +1,5 @@
 import { usePrivy, useWallets } from '@privy-io/react-auth'
+import { useSetActiveWallet } from '@privy-io/wagmi'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 import { usePathname, useRouter } from 'next/navigation'
@@ -58,6 +59,8 @@ export interface IAccountContext {
   onUnblockUser: UseMutationResult<void, Error, { account: Address }>
   web3Client: 'eoa' | 'etherspot'
   smartAccountClient: SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null
+  isLogged: boolean
+  setIsLogged: (val: boolean) => void
 }
 
 const pimlicoRpcUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
@@ -79,22 +82,26 @@ export const useAccount = () => useContext(AccountContext)
 export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [smartAccountClient, setSmartAccountClient] =
     useState<SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null>(null)
+  const [isLogged, setIsLogged] = useState(false)
   const queryClient = useQueryClient()
   const { logout: disconnect, authenticated, user } = usePrivy()
   const pathname = usePathname()
   const accountRoutes = ['/portfolio', '/create-market']
   const privateClient = useAxiosPrivateClient()
   const { mutateAsync: login } = useLogin()
+  const { setActiveWallet } = useSetActiveWallet()
   // const { disconnect: disconnectWagmi } = useDisconnect()
   const web3Client = user?.wallet?.walletClientType === 'privy' ? 'etherspot' : 'eoa'
   const { trackSignUp } = useAmplitude()
   const { data: walletClient } = useWalletClient()
   const { wallets, ready: walletsReady } = useWallets()
-  const { isLogged } = useClient()
+  // const { isLogged } = useClient()
 
   console.log(walletClient)
+  console.log(wallets)
   console.log(user)
-  console.log(authenticated)
+  // console.log(user)
+  // console.log(authenticated)
 
   const toast = useToast()
   const router = useRouter()
@@ -107,7 +114,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       )
       return res.data
     },
-    enabled: !!user?.wallet?.address,
+    enabled: isLogged,
   })
 
   const userMenuLoading = useMemo(() => {
@@ -257,6 +264,18 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   })
 
   useEffect(() => {
+    if (walletsReady && !isLogged) {
+      const connectedWallet = wallets.find(
+        (wallet) => wallet.connectorType === user?.wallet?.connectorType
+      )
+      if (connectedWallet) {
+        setActiveWallet(connectedWallet)
+        setIsLogged(true)
+      }
+    }
+  }, [isLogged, user?.wallet?.connectorType, wallets, walletsReady])
+
+  useEffect(() => {
     if (isLogged) {
       if (!walletsReady) {
         return
@@ -281,55 +300,58 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData, web3Client, user?.wallet?.address, smartAccountClient])
 
   const account = useMemo(() => {
+    if (!isLogged) {
+      return
+    }
     if (web3Client === 'etherspot') {
       if (smartAccountClient) {
         return smartAccountClient.account?.address
       }
     }
     return user?.wallet?.address as Address | undefined
-  }, [smartAccountClient, user, web3Client])
+  }, [smartAccountClient, user, web3Client, isLogged])
 
-  useEffect(() => {
-    if (web3Client === 'etherspot' && !smartAccountClient) {
-      return
-    }
-    if (!walletClient) {
-      return
-    }
-    if (!walletsReady) {
-      return
-    }
-    if (!profileLoading && user?.wallet?.address) {
-      if (profileData === null && authenticated) {
-        onCreateProfile()
-        return
-      }
-    }
-    if (!profileLoading && user?.wallet?.address) {
-      const isLogged = Cookies.get('logged-in-to-limitless')
-      if (!isLogged) {
-        login({
-          client: web3Client,
-          account: user.wallet.address as Address,
-          smartWallet: smartAccountClient?.account?.address,
-        })
-      }
-    }
-  }, [
-    profileLoading,
-    profileData,
-    user,
-    web3Client,
-    smartAccountClient,
-    authenticated,
-    walletClient,
-    walletsReady,
-  ])
+  // useEffect(() => {
+  //   if (web3Client === 'etherspot' && !smartAccountClient) {
+  //     return
+  //   }
+  //   if (!walletClient) {
+  //     return
+  //   }
+  //   if (!walletsReady) {
+  //     return
+  //   }
+  //   if (!profileLoading && user?.wallet?.address) {
+  //     if (profileData === null && authenticated) {
+  //       onCreateProfile()
+  //       return
+  //     }
+  //   }
+  //   if (!profileLoading && user?.wallet?.address) {
+  //     const isLogged = Cookies.get('logged-in-to-limitless')
+  //     if (!isLogged) {
+  //       login({
+  //         client: web3Client,
+  //         account: user.wallet.address as Address,
+  //         smartWallet: smartAccountClient?.account?.address,
+  //       })
+  //     }
+  //   }
+  // }, [
+  //   profileLoading,
+  //   profileData,
+  //   user,
+  //   web3Client,
+  //   smartAccountClient,
+  //   authenticated,
+  //   walletClient,
+  //   walletsReady,
+  // ])
 
   useEffect(() => {
     ;(async () => {
       if (
-        authenticated &&
+        isLogged &&
         wallets.length &&
         walletsReady &&
         web3Client === 'etherspot' &&
@@ -365,7 +387,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         setSmartAccountClient(smartAccountClient)
       }
     })()
-  }, [authenticated, wallets, publicClient, web3Client, smartAccountClient, walletsReady])
+  }, [isLogged, wallets, publicClient, web3Client, smartAccountClient, walletsReady])
 
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
@@ -409,6 +431,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     onUnblockUser,
     web3Client,
     smartAccountClient,
+    isLogged,
+    setIsLogged,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>

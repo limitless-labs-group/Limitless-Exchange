@@ -37,7 +37,7 @@
     "@hookform/resolvers": "^3.9.0",
     "@intercom/messenger-js-sdk": "^0.0.14",
     "@next/bundle-analyzer": "^14.2.3",
-    "@privy-io/react-auth": "^2.0.1",
+    "@privy-io/react-auth": "^2.0.9",
     "@privy-io/wagmi": "^1.0.1",
     "@pythnetwork/price-service-client": "^1.9.0",
     "@svgr/webpack": "^8.1.0",
