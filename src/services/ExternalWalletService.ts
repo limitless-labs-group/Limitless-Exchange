@@ -276,6 +276,7 @@ export const useExternalWalletService = () => {
     conditionId: string,
     amount: bigint
   ) => {
+    await checkAndSwitchChainIfNeeded()
     let txHash = ''
     await writeContractAsync(
       {
@@ -284,6 +285,32 @@ export const useExternalWalletService = () => {
         address: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
         args: [
           collateralAddress,
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+          conditionId,
+          [1, 2],
+          amount,
+        ],
+      },
+      {
+        onSuccess: (data) => {
+          txHash = data
+        },
+        onError: (data) => console.log(data),
+      }
+    )
+    return txHash
+  }
+
+  const mergePositions = async (collateralToken: Address, conditionId: string, amount: bigint) => {
+    await checkAndSwitchChainIfNeeded()
+    let txHash = ''
+    await writeContractAsync(
+      {
+        abi: conditionalTokensABI,
+        functionName: 'mergePositions',
+        address: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+        args: [
+          collateralToken,
           '0x0000000000000000000000000000000000000000000000000000000000000000',
           conditionId,
           [1, 2],
@@ -318,6 +345,7 @@ export const useExternalWalletService = () => {
   }
 
   const signTypedData = async (typedData: EIP712TypedData) => {
+    await checkAndSwitchChainIfNeeded()
     return signTypedDataAsync(typedData)
   }
 
@@ -337,5 +365,6 @@ export const useExternalWalletService = () => {
     checkLumyAccountBalance,
     signTypedData,
     splitPositions,
+    mergePositions,
   }
 }

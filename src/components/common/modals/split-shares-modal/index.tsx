@@ -1,14 +1,35 @@
-import { Box, HStack, Input, InputGroup, InputRightElement, Text } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Text,
+} from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
+import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import { Modal } from '@/components/common/modals/modal'
-import { useBalanceQuery, useTradingService } from '@/services'
+import TradeWidgetSkeleton, {
+  SkeletonType,
+} from '@/components/common/skeleton/trade-widget-skeleton'
+import {
+  ClickEvent,
+  useAccount,
+  useAmplitude,
+  useBalanceQuery,
+  useBalanceService,
+  useTradingService,
+} from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphBold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { NumberUtil } from '@/utils'
 
 interface SplitSharesModalProps {
   isOpen: boolean
@@ -19,8 +40,13 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   const [displayAmount, setDisplayAmount] = useState('')
   const [allowance, setAllowance] = useState<bigint>(0n)
   const { balanceOfSmartWallet } = useBalanceQuery()
-  const { splitSharesMutation, market } = useTradingService()
-  const { checkAllowance, client, approveContract } = useWeb3Service()
+  const { market } = useTradingService()
+  const { checkAllowance, client, approveContract, splitShares } = useWeb3Service()
+  const { trackClicked } = useAmplitude()
+  const { balance } = useClobWidget()
+  const { balanceLoading } = useBalanceService()
+  const { account } = useAccount()
+  const queryClient = useQueryClient()
 
   const usdcBalance =
     balanceOfSmartWallet?.find((balanceItem) => balanceItem.symbol === 'USDC')?.formatted || '0.00'
@@ -52,6 +78,54 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
     setAllowance(allowance)
   }
 
+  const onResetAfterSplit = async () => {
+    await checkSplitAllowance()
+    await queryClient.refetchQueries({
+      queryKey: ['market-shares', market?.slug, market?.tokens],
+    })
+    splitSharesMutation.reset()
+  }
+
+  const handlePercentButtonClicked = (value: number) => {
+    trackClicked(ClickEvent.SplitSharesAmountPercentClicked, {
+      amount: value,
+      marketAddress: market?.slug,
+      marketType: market?.marketType,
+      marketTags: market?.tags,
+    })
+    if (value === 100) {
+      setDisplayAmount(balance)
+      return
+    }
+    const amountByPercent = (Number(balance) * value) / 100
+    setDisplayAmount(
+      NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
+    )
+    return
+  }
+
+  const splitSharesMutation = useMutation({
+    mutationFn: async ({
+      amount,
+      decimals,
+      conditionId,
+      contractAddress,
+    }: {
+      amount: string
+      decimals: number
+      contractAddress: Address
+      conditionId: string
+    }) => {
+      try {
+        const value = parseUnits(amount, decimals)
+        await splitShares(contractAddress, conditionId, value)
+      } catch (e) {
+        // @ts-ignore
+        throw new Error(e)
+      }
+    },
+  })
+
   const approveContractMutation = useMutation({
     mutationFn: async () => {
       await approveContract(
@@ -73,8 +147,9 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
           isDisabled={!+displayAmount || isExceedsBalance}
           onClick={handleSplitClicked}
           status={splitSharesMutation.status}
+          onReset={onResetAfterSplit}
         >
-          Split shares
+          Split
         </ButtonWithStates>
       )
     }
@@ -98,8 +173,9 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
         isDisabled={!+displayAmount || isExceedsBalance}
         onClick={handleSplitClicked}
         status={splitSharesMutation.status}
+        onReset={onResetAfterSplit}
       >
-        Split shares
+        Split
       </ButtonWithStates>
     )
   }, [
@@ -110,28 +186,80 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
     isExceedsBalance,
     market?.collateralToken.decimals,
     splitSharesMutation.status,
+    onResetAfterSplit,
   ])
 
+  const renderButtonContent = (title: number) => {
+    if (title === 100) {
+      if (isMobile) {
+        return 'MAX'
+      }
+      const balanceToShow = NumberUtil.formatThousands(
+        balance,
+        market?.collateralToken.symbol === 'USDC' ? 1 : 6
+      )
+      return `MAX: ${
+        balanceLoading ? (
+          <Box w='90px'>
+            <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
+          </Box>
+        ) : (
+          balanceToShow
+        )
+      }`
+    }
+    return `${title}%`
+  }
+
+  const showBalanceWithButtons = useMemo(() => {
+    return (
+      <Flex gap='12px'>
+        {[10, 25, 50, 100].map((title: number) => (
+          <Button
+            {...paragraphRegular}
+            p='0'
+            borderRadius='0'
+            minW='unset'
+            h='auto'
+            variant='plain'
+            key={title}
+            flex={1}
+            onClick={() => handlePercentButtonClicked(title)}
+            color='grey.500'
+            borderBottom='1px dotted'
+            borderColor='rgba(132, 132, 132, 0.5)'
+            _hover={{
+              borderColor: 'var(--chakra-colors-text-100)',
+              color: 'var(--chakra-colors-text-100)',
+            }}
+            disabled={balanceLoading}
+          >
+            {renderButtonContent(title)}
+          </Button>
+        ))}
+      </Flex>
+    )
+  }, [balanceLoading, balance])
+
   useEffect(() => {
-    if (market) {
+    if (market && account) {
       checkSplitAllowance()
     }
-  }, [market])
+  }, [market, account])
 
   const modalContent = (
     <Box>
-      <Text {...paragraphRegular} mt='12px'>
-        Split a USDC into a share of Yes and No. You can do this to save cost by getting both and
-        just selling the other side.
+      <Text {...paragraphBold} mt='24px'>
+        Turn your USDC into an equal number of &quot;Yes&quot; and &quot;No&quot; Contracts.
+      </Text>
+      <Text {...paragraphRegular} mt='8px'>
+        This lets you reduce costs by holding both sides of the position—sell the side you don’t
+        want.
       </Text>
       <InputGroup display='block' mt='16px'>
-        <HStack justifyContent='space-between' mb='4px'>
-          <Text {...paragraphMedium}>Amount</Text>
-          {isExceedsBalance && (
-            <Text {...paragraphMedium} color='red.500'>
-              Invalid amount
-            </Text>
-          )}
+        <HStack justifyContent='space-between' mb='8px'>
+          <Text {...paragraphMedium}>Enter Amount</Text>
+          {showBalanceWithButtons}
         </HStack>
         <Input
           isInvalid={isExceedsBalance}
@@ -144,7 +272,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
         />
         <InputRightElement
           h='16px'
-          top={isMobile ? '28px' : '24px'}
+          top={isMobile ? '32px' : '32px'}
           right={isMobile ? '12px' : '8px'}
           justifyContent='flex-end'
         >
@@ -174,7 +302,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   return isMobile ? (
     modalContent
   ) : (
-    <Modal isOpen={isOpen} onClose={onClose} title='Split shares' h={'unset'} mt={'auto'}>
+    <Modal isOpen={isOpen} onClose={onClose} title='Split Contracts' h={'unset'} mt={'auto'}>
       {modalContent}
     </Modal>
   )

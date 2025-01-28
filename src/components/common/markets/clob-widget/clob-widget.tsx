@@ -5,6 +5,7 @@ import { Address } from 'viem'
 import ClobLimitTradeForm from '@/components/common/markets/clob-widget/clob-limit-trade-form'
 import ClobMarketTradeForm from '@/components/common/markets/clob-widget/clob-market-trade-form'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
+import SharesActionsClob from '@/components/common/markets/clob-widget/shares-actions-clob'
 import TradeStepperMenu from '@/components/common/markets/clob-widget/trade-stepper-menu'
 import OutcomeButtonsClob from '@/components/common/markets/outcome-buttons/outcome-buttons-clob'
 import { Overlay } from '@/components/common/overlay'
@@ -125,7 +126,7 @@ export default function ClobWidget() {
         </Paper>
       </Box>
 
-      {/*<SplitSharesModal isOpen={splitSharesModalOpened} onClose={onToggleSplitSharesModal} />*/}
+      <SharesActionsClob />
     </Box>
   )
 }
