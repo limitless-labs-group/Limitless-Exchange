@@ -236,27 +236,27 @@ export default function Sidebar() {
                 </Link>
               </NextLink>
 
-              <Button
-                variant='transparent'
-                onClick={() => {
-                  trackClicked<ProfileBurgerMenuClickedMetadata>(
-                    ClickEvent.ProfileBurgerMenuClicked,
-                    {
-                      option: 'My Markets',
-                    }
-                  )
-                  onToggleMyMarkets()
-                }}
-                w='full'
-                bg={isOpenMyMarkets ? 'grey.100' : 'unset'}
-              >
-                <HStack w='full'>
-                  <MyMarketsIcon width={16} height={16} />
-                  <Text fontWeight={500} fontSize='14px'>
-                    My Markets
-                  </Text>
-                </HStack>
-              </Button>
+              {/*<Button*/}
+              {/*  variant='transparent'*/}
+              {/*  onClick={() => {*/}
+              {/*    trackClicked<ProfileBurgerMenuClickedMetadata>(*/}
+              {/*      ClickEvent.ProfileBurgerMenuClicked,*/}
+              {/*      {*/}
+              {/*        option: 'My Markets',*/}
+              {/*      }*/}
+              {/*    )*/}
+              {/*    onToggleMyMarkets()*/}
+              {/*  }}*/}
+              {/*  w='full'*/}
+              {/*  bg={isOpenMyMarkets ? 'grey.100' : 'unset'}*/}
+              {/*>*/}
+              {/*  <HStack w='full'>*/}
+              {/*    <MyMarketsIcon width={16} height={16} />*/}
+              {/*    <Text fontWeight={500} fontSize='14px'>*/}
+              {/*      My Markets*/}
+              {/*    </Text>*/}
+              {/*  </HStack>*/}
+              {/*</Button>*/}
 
               <NextLink href='/create-market' passHref style={{ width: '100%' }}>
                 <Link
@@ -523,42 +523,42 @@ export default function Sidebar() {
       >
         <WalletPage onClose={onToggleWalletPage} />
       </Slide>
-      <Slide
-        direction='left'
-        in={isOpenProfile}
-        style={{
-          zIndex: 100,
-          marginTop: '20px',
-          marginLeft: '197px',
-          transition: '0.1s',
-        }}
-        onClick={() => {
-          trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
-            page: pageName,
-          })
-          onToggleProfile()
-        }}
-      >
-        <Profile isOpen={isOpenProfile} />
-      </Slide>
-      <Slide
-        direction='left'
-        in={isOpenMyMarkets}
-        style={{
-          zIndex: 100,
-          marginTop: '20px',
-          marginLeft: '197px',
-          transition: '0.1s',
-        }}
-        onClick={() => {
-          trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
-            page: pageName,
-          })
-          onToggleMyMarkets()
-        }}
-      >
-        <MyMarkets />
-      </Slide>
+      {/*<Slide*/}
+      {/*  direction='left'*/}
+      {/*  in={isOpenProfile}*/}
+      {/*  style={{*/}
+      {/*    zIndex: 100,*/}
+      {/*    marginTop: '20px',*/}
+      {/*    marginLeft: '197px',*/}
+      {/*    transition: '0.1s',*/}
+      {/*  }}*/}
+      {/*  onClick={() => {*/}
+      {/*    trackClicked(ClickEvent.ProfileBurgerMenuClicked, {*/}
+      {/*      page: pageName,*/}
+      {/*    })*/}
+      {/*    onToggleProfile()*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  <Profile isOpen={isOpenProfile} />*/}
+      {/*</Slide>*/}
+      {/*<Slide*/}
+      {/*  direction='left'*/}
+      {/*  in={isOpenMyMarkets}*/}
+      {/*  style={{*/}
+      {/*    zIndex: 100,*/}
+      {/*    marginTop: '20px',*/}
+      {/*    marginLeft: '197px',*/}
+      {/*    transition: '0.1s',*/}
+      {/*  }}*/}
+      {/*  onClick={() => {*/}
+      {/*    trackClicked(ClickEvent.ProfileBurgerMenuClicked, {*/}
+      {/*      page: pageName,*/}
+      {/*    })*/}
+      {/*    onToggleMyMarkets()*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  <MyMarkets />*/}
+      {/*</Slide>*/}
 
       {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}
 

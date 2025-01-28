@@ -22,5 +22,6 @@ export function useOrderBook(slug?: string) {
       return response.data
     },
     enabled: !!slug,
+    refetchInterval: 5000,
   })
 }
