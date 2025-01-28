@@ -23,7 +23,11 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
 
-export default function ClobOrdersTable() {
+interface ClobOrdersTableProps {
+  marketType?: string
+}
+
+export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
   const { market } = useTradingService()
   const { account } = useAccount()
   const { data: userOrders, isLoading: userOrdersLoading } = useMarketOrders(market?.slug)
@@ -74,15 +78,15 @@ export default function ClobOrdersTable() {
         <Table variant={'noPaddingsOnSides'}>
           <Thead position='sticky' top='0' zIndex={1}>
             <Tr>
-              <Th minW='92px'>Action</Th>
-              <Th minW='100px'>Outcome</Th>
-              <Th isNumeric minW='80px'>
+              <Th minW={marketType ? '80px' : '92px'}>Action</Th>
+              <Th minW={marketType ? '88px' : '100px'}>Outcome</Th>
+              <Th isNumeric minW={marketType ? '68px' : '80px'}>
                 Price
               </Th>
-              <Th isNumeric minW='108px'>
+              <Th isNumeric minW={marketType ? '96px' : '108px'}>
                 Contracts
               </Th>
-              <Th minW='138px' isNumeric>
+              <Th minW={marketType ? '126px' : '138px'} isNumeric>
                 Filled
               </Th>
               {/*<Th isNumeric minW='104px'>*/}

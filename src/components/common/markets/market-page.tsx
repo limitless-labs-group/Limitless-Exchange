@@ -24,12 +24,14 @@ import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
+import MarketPositionsAmm from '@/components/common/markets/positions/market-positions-amm'
 import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
 import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/trading-widget-advanced'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import ProgressBar from '@/components/common/progress-bar'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
+import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
 import CommentTab from './comment-tab'
 import { UniqueTraders } from './unique-traders'
 import useMarketGroup from '@/hooks/use-market-group'
@@ -39,6 +41,7 @@ import CloseIcon from '@/resources/icons/close-icon.svg'
 import ExpandIcon from '@/resources/icons/expand-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
+import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -159,8 +162,8 @@ export default function MarketPage() {
 
   const tabs = [
     {
-      title: 'Overview',
-      icon: <PredictionsIcon width={16} height={16} />,
+      title: 'Resolution',
+      icon: <ResolutionIcon width={16} height={16} />,
     },
     {
       title: 'Activity',
@@ -395,6 +398,12 @@ export default function MarketPage() {
         </Tabs>
       ) : (
         <MarketPriceChart />
+      )}
+
+      {market?.tradeType === 'clob' ? (
+        <ClobPositions marketType='sidebar' />
+      ) : (
+        <MarketPositionsAmm />
       )}
 
       <Tabs position='relative' variant='common'>

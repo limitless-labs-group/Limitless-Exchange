@@ -6,7 +6,11 @@ import ClobOrdersTab from '@/app/(markets)/markets/[address]/components/clob/clo
 import SandClockIcon from '@/resources/icons/sand-clock.svg'
 import { useTradingService } from '@/services'
 
-export default function ClobPositions() {
+interface ClobPositionsProps {
+  marketType?: string
+}
+
+export default function ClobPositions({ marketType }: ClobPositionsProps) {
   const { market } = useTradingService()
 
   const tabs = [
@@ -23,7 +27,7 @@ export default function ClobPositions() {
   const tabPanels = useMemo(() => {
     return [
       // <ClobPortfolioTab key={uuidv4()} />,
-      <ClobOrdersTab key={uuidv4()} />,
+      <ClobOrdersTab key={uuidv4()} marketType={marketType} />,
     ]
   }, [market])
 
