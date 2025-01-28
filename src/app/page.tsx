@@ -145,7 +145,7 @@ const MainPage = () => {
           <>
             {isMobile ? (
               <HStack
-                gap='8px'
+                gap='0px'
                 px='8px'
                 pb='8px'
                 overflowX='auto'
