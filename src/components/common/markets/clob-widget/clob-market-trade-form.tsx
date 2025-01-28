@@ -13,7 +13,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { formatUnits, parseUnits } from 'viem'
+import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import TradeWidgetSkeleton, {
@@ -26,6 +26,7 @@ import {
   useAccount,
   useAmplitude,
   useBalanceService,
+  useEtherspot,
   useTradingService,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -39,6 +40,7 @@ export default function ClobMarketTradeForm() {
   const { data: orderBook } = useOrderBook(market?.slug)
   const queryClient = useQueryClient()
   const { account } = useAccount()
+  const { etherspot } = useEtherspot()
   const {
     setPrice,
     price,
@@ -245,6 +247,11 @@ export default function ClobMarketTradeForm() {
 
   const handleSubmitButtonClicked = async () => {
     if (client === 'etherspot') {
+      await etherspot?.approveCollateralIfNeeded(
+        process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+        maxUint256,
+        market?.collateralToken.address as Address
+      )
       await placeMarketOrderMutation.mutateAsync()
       return
     }
