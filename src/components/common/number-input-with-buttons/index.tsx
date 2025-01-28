@@ -6,6 +6,7 @@ import {
   NumberInputProps,
 } from '@chakra-ui/react'
 import React from 'react'
+import { isMobile } from 'react-device-detect'
 import MinusIcon from '@/resources/icons/minus-icon.svg'
 import PlusIcon from '@/resources/icons/plus-icon.svg'
 
@@ -36,7 +37,7 @@ export default function NumberInputWithButtons({
       <NumberDecrementStepper
         position='absolute'
         right='44px'
-        top='6px'
+        top={isMobile ? '8px' : '6px'}
         zIndex={100}
         w='16px'
         h='16px'

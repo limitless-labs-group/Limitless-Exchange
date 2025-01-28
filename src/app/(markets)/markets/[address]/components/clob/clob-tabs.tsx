@@ -27,7 +27,7 @@ export default function ClobTabs() {
   }, [market])
 
   return (
-    <Tabs position='relative' variant='common' mx={isMobile ? '16px' : 0} mb='24px'>
+    <Tabs position='relative' variant='common' mb='24px'>
       <TabList>
         {tabs.map((tab) => (
           <Tab key={tab.title}>

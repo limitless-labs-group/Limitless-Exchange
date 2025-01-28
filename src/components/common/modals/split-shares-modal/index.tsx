@@ -272,7 +272,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
         />
         <InputRightElement
           h='16px'
-          top={isMobile ? '32px' : '32px'}
+          top={isMobile ? '36px' : '32px'}
           right={isMobile ? '12px' : '8px'}
           justifyContent='flex-end'
         >

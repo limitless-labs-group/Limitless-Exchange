@@ -1,4 +1,6 @@
-import { Button, HStack, useDisclosure } from '@chakra-ui/react'
+import { Box, Button, HStack, useDisclosure } from '@chakra-ui/react'
+import { isMobile } from 'react-device-detect'
+import MobileDrawer from '@/components/common/drawer'
 import MergeSharesModal from '@/components/common/modals/merge-shares-modal'
 import SplitSharesModal from '@/components/common/modals/split-shares-modal'
 import Paper from '@/components/common/paper'
@@ -13,27 +15,50 @@ export default function SharesActionsClob() {
   const { market } = useTradingService()
   const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
   const { account } = useAccount()
+  const splitButton = (
+    <Button variant='transparentGreyText' onClick={onToggleSplitModal} isDisabled={!account}>
+      <SplitIcon />
+      Split Contracts
+    </Button>
+  )
+
+  const mergeButton = (
+    <Button
+      variant='transparentGreyText'
+      onClick={onToggleMergeModal}
+      isDisabled={sharesOwned?.[0] === 0n || sharesOwned?.[1] === 0n || !account}
+    >
+      <MergeIcon />
+      Merge Contracts
+    </Button>
+  )
 
   return (
     <>
       <Paper w='full' mt='16px'>
         <HStack w='full' gap='24px' justifyContent='center'>
-          <Button variant='transparentGreyText' onClick={onToggleSplitModal} isDisabled={!account}>
-            <SplitIcon />
-            Split Contracts
-          </Button>
-          <Button
-            variant='transparentGreyText'
-            onClick={onToggleMergeModal}
-            isDisabled={sharesOwned?.[0] === 0n || sharesOwned?.[1] === 0n || !account}
-          >
-            <MergeIcon />
-            Merge Contracts
-          </Button>
+          {isMobile ? (
+            <MobileDrawer trigger={splitButton} variant='black'>
+              <Box p='16px'>
+                <SplitSharesModal isOpen={splitModalOpened} onClose={onToggleSplitModal} />
+              </Box>
+            </MobileDrawer>
+          ) : (
+            splitButton
+          )}
+          {isMobile ? (
+            <MobileDrawer trigger={mergeButton} variant='black'>
+              <Box p='16px'>
+                <MergeSharesModal isOpen={mergeModalOpened} onClose={onToggleMergeModal} />
+              </Box>
+            </MobileDrawer>
+          ) : (
+            mergeButton
+          )}
         </HStack>
       </Paper>
-      <SplitSharesModal isOpen={splitModalOpened} onClose={onToggleSplitModal} />
-      <MergeSharesModal isOpen={mergeModalOpened} onClose={onToggleMergeModal} />
+      {!isMobile && <SplitSharesModal isOpen={splitModalOpened} onClose={onToggleSplitModal} />}
+      {!isMobile && <MergeSharesModal isOpen={mergeModalOpened} onClose={onToggleMergeModal} />}
     </>
   )
 }
