@@ -55,7 +55,8 @@ export default function MobileNavigation() {
       bottom={0}
       borderTop='1px solid'
       borderColor='grey.200'
-      py='8px'
+      pt='15px'
+      pb='25px'
       bg='grey.50'
       display='flex'
       zIndex={200}

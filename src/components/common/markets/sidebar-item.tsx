@@ -9,6 +9,7 @@ import Finance from '@/resources/icons/sidebar/finance.svg'
 import Others from '@/resources/icons/sidebar/others.svg'
 import Sport from '@/resources/icons/sidebar/sport.svg'
 import Weather from '@/resources/icons/sidebar/weather.svg'
+// Remove image imports and use string paths instead
 import { useMarkets } from '@/services/MarketsService'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup } from '@/types'
@@ -22,16 +23,41 @@ export interface SideItemProps {
 
 //ids and names come from api /categories
 export const MARKET_CATEGORIES = {
-  CRYPTO: { id: 2, name: 'Crypto', description: '', icon: <Crypto width={16} height={16} /> },
+  CRYPTO: {
+    id: 2,
+    name: 'Crypto',
+    description: '',
+    icon: <Crypto width={16} height={16} />,
+    bannerImage: '/assets/images/banners/crypto.png',
+  },
   FINANCICALS: {
     id: 8,
     name: 'Financials',
     description: '',
     icon: <Finance width={16} height={16} />,
+    bannerImage: '/assets/images/banners/financials.png',
   },
-  WEATHER: { id: 9, name: 'Weather', description: '', icon: <Weather width={16} height={16} /> },
-  SPORTS: { id: 1, name: 'Sports', description: '', icon: <Sport width={16} height={16} /> },
-  OTHER: { id: 5, name: 'Other', description: '', icon: <Others width={16} height={16} /> },
+  WEATHER: {
+    id: 9,
+    name: 'Weather',
+    description: '',
+    icon: <Weather width={16} height={16} />,
+    bannerImage: '/assets/images/banners/weather.png',
+  },
+  SPORTS: {
+    id: 1,
+    name: 'Sports',
+    description: '',
+    icon: <Sport width={16} height={16} />,
+    bannerImage: '/assets/images/banners/sports.png',
+  },
+  OTHER: {
+    id: 5,
+    name: 'Other',
+    description: '',
+    icon: <Others width={16} height={16} />,
+    bannerImage: '',
+  },
 } as const
 
 export type MarketCategory = (typeof MARKET_CATEGORIES)[keyof typeof MARKET_CATEGORIES]

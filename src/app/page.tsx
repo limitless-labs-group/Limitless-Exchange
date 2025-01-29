@@ -1,6 +1,6 @@
 'use client'
 
-import { Link, Box, HStack, Text } from '@chakra-ui/react'
+import { Link, HStack, Text, VStack, Box } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
@@ -27,7 +27,7 @@ import {
   useTradingService,
 } from '@/services'
 import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
@@ -140,18 +140,14 @@ const MainPage = () => {
 
   return (
     <MainLayout layoutPadding={'0px'}>
-      <HStack
-        className='w-full'
-        alignItems='flex-start'
-        w={isMobile ? 'full' : 'calc(100vw - 690px)'}
-        justifyContent='center'
-      >
-        <Box w={isMobile ? 'full' : '664px'}>
+      <HStack className='w-full' alignItems='flex-start' w='full' justifyContent='center'>
+        <VStack w='full' justifyContent='center'>
           <>
             {isMobile ? (
               <HStack
-                gap='8px'
+                gap='0px'
                 px='8px'
+                pb='8px'
                 overflowX='auto'
                 css={{
                   '&::-webkit-scrollbar': {
@@ -161,6 +157,7 @@ const MainPage = () => {
                   '-ms-overflow-style': 'none',
                 }}
                 minW='100%'
+                w='full'
               >
                 <NextLink
                   href='/'
@@ -191,8 +188,8 @@ const MainPage = () => {
                   >
                     <HStack w='full' whiteSpace='nowrap'>
                       <GridIcon width={16} height={16} />
-                      <Text fontWeight={500} fontSize='14px'>
-                        All markets
+                      <Text {...paragraphMedium} fontWeight={500}>
+                        {`All markets ${isFetching ? '' : `(${totalAmount})`} `}
                       </Text>
                     </HStack>
                   </Link>
@@ -203,7 +200,20 @@ const MainPage = () => {
             ) : null}
 
             {selectedCategory ? (
-              <MarketCategoryHeader name={selectedCategory.name} />
+              <Box
+                w='full'
+                overflowX='scroll'
+                css={{
+                  '&::-webkit-scrollbar': {
+                    display: 'none',
+                  },
+                  scrollbarWidth: 'none',
+                  '-ms-overflow-style': 'none',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
+                <MarketCategoryHeader name={selectedCategory.name} />
+              </Box>
             ) : (
               <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
             )}
@@ -213,7 +223,7 @@ const MainPage = () => {
               dataLength={markets?.length ?? 0}
               next={fetchNextPage}
               hasMore={hasNextPage}
-              style={{ width: '100%' }}
+              style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
               loader={
                 markets.length > 0 && markets.length < totalAmount ? (
                   <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
@@ -230,7 +240,7 @@ const MainPage = () => {
               />
             </InfiniteScroll>
           </>
-        </Box>
+        </VStack>
       </HStack>
     </MainLayout>
   )

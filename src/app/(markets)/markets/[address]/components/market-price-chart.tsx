@@ -49,7 +49,7 @@ export const MarketPriceChart = () => {
       height: 230,
       backgroundColor: colors.grey['100'],
       marginLeft: isMobile ? 75 : 50,
-      marginRight: 0,
+      marginRight: isMobile ? 10 : 5,
     },
     title: {
       text: undefined,
