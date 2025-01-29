@@ -17,12 +17,10 @@ import {
 } from '@chakra-ui/react'
 import { useLogin as usePrivyLogin, usePrivy, useWallets } from '@privy-io/react-auth'
 import { useSetActiveWallet } from '@privy-io/wagmi'
-import { useQueryClient } from '@tanstack/react-query'
-import { getWalletClient } from '@wagmi/core'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useCallback, useMemo } from 'react'
-import { Address, encodeFunctionData, getAddress, getContract, maxUint256 } from 'viem'
+import { Address, encodeFunctionData, getContract, maxUint256 } from 'viem'
 import Avatar from '@/components/common/avatar'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
@@ -36,11 +34,9 @@ import UpgradeWalletContainer from '@/components/common/upgrade-wallet-container
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
-import { wethABI } from '@/contracts'
 import { erc20Abi } from '@/contracts/generated'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles'
-import { useUserSession } from '@/hooks/profiles/use-session'
 import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
 import usePrivySendTransaction from '@/hooks/use-privy-send-transaction'
@@ -72,7 +68,6 @@ import {
   useBalanceService,
   usePosition,
 } from '@/services'
-import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { paragraphMedium, paragraphRegular, headline } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
@@ -87,11 +82,10 @@ export default function Sidebar() {
     web3Client,
     isLoggedIn,
     smartAccountClient,
-    setIsLogged,
+    loginToPlatform,
   } = useAccount()
   const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
-  const queryClient = useQueryClient()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
   const { data: totalVolume } = useTotalTradingVolume()
@@ -99,35 +93,6 @@ export default function Sidebar() {
   const { sendTransaction } = usePrivySendTransaction()
   const toast = useToast()
   const { signMessage } = usePrivy()
-  const { trackSignIn } = useAmplitude()
-  const { setActiveWallet } = useSetActiveWallet()
-  const { wallets } = useWallets()
-  const { mutateAsync: login } = useLogin()
-  const axiosPrivateClient = useAxiosPrivateClient()
-  const { login: privyLogin } = usePrivyLogin({
-    onComplete: async ({ user, wasAlreadyAuthenticated }) => {
-      const connectedWallet = wallets.find(
-        (wallet) => wallet.connectorType === user.wallet?.connectorType
-      )
-      if (connectedWallet && !wasAlreadyAuthenticated) {
-        await setActiveWallet(connectedWallet)
-        await login({
-          client: 'eoa',
-          account: connectedWallet.address as Address,
-        })
-        // const profile = await axiosPrivateClient.get(
-        //   `/profiles/${getAddress(user?.wallet?.address as string)}`
-        // )
-        // queryClient.setQueryData(['profiles', { account: user?.wallet?.address }], profile.data)
-        trackSignIn(SignInEvent.SignIn)
-        setIsLogged(true)
-        return
-      }
-    },
-    onError: (error) => {
-      console.log(error)
-    },
-  })
 
   // console.log(`account ${account}`)
   const { data: positions } = usePosition()
@@ -432,7 +397,7 @@ export default function Sidebar() {
           </>
         ) : (
           <Box mt='16px' w='full'>
-            <LoginButton login={privyLogin} />
+            <LoginButton login={loginToPlatform} />
           </Box>
         )}
 
