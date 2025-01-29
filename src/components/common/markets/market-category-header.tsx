@@ -1,8 +1,7 @@
-import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { Image, Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { categories } from '@/components/common/markets/sidebar-item'
-import { ImageBanner } from './image-banner'
 import { h1Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 export interface MarketCategoryProps {
@@ -12,6 +11,7 @@ export interface MarketCategoryProps {
 const style = {
   width: '24px',
   height: '24px',
+  color: 'var(--chakra-colors-grey-50)',
 }
 
 export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name }) => {
@@ -26,15 +26,42 @@ export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name }) =>
       name: foundCategory.name,
       icon: React.cloneElement(foundCategory.icon, { style }),
       description: foundCategory.description ?? '',
+      bannerImage: foundCategory.bannerImage,
     }
   }, [name])
 
   return category ? (
-    <VStack alignItems='start' gap='16px' justifyContent='center' mb='30px' width='inherit'>
-      <ImageBanner categoryName={category.name} />
-      <Flex w='full' alignItems='center' justifyContent='center'>
+    <VStack alignItems='start' gap='16px' justifyContent='center' width='inherit'>
+      {category.bannerImage ? (
+        <Box w='full' h={isMobile ? '142px' : '460px'} position='relative' overflow='hidden'>
+          <Image
+            src={category.bannerImage}
+            alt={`${category} category banner`}
+            objectFit='cover'
+            w='full'
+            h='full'
+          />
+        </Box>
+      ) : null}
+
+      <Flex
+        w='full'
+        alignItems='center'
+        justifyContent='center'
+        px='16px'
+        my={isMobile ? '20px' : '32px'}
+      >
         <HStack gap='8px' w={isMobile ? 'full' : '664px'}>
-          <Box>{category.icon}</Box>
+          <Flex
+            h='32px'
+            w='32px'
+            alignItems='center'
+            justifyContent='center'
+            bg='grey.800'
+            rounded='32px'
+          >
+            {category.icon}
+          </Flex>
           <Text {...h1Bold}>{category.name}</Text>
         </HStack>
       </Flex>
