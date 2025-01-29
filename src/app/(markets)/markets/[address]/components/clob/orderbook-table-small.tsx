@@ -25,7 +25,6 @@ export default function OrderBookTableSmall({
   orderbookSide,
   setOrderbookSide,
   spread,
-  calculateTotalContractsPrice,
   lastPrice,
 }: OrderBookData) {
   const { market } = useTradingService()
@@ -122,8 +121,7 @@ export default function OrderBookTableSmall({
                 </Box>
                 <Box w='45%' textAlign='right'>
                   <Text {...paragraphRegular}>
-                    {calculateTotalContractsPrice(item.size, item.price)}{' '}
-                    {market?.collateralToken.symbol}
+                    {NumberUtil.toFixed(item.cumulativePrice, 6)} {market?.collateralToken.symbol}
                   </Text>
                 </Box>
               </HStack>
@@ -200,8 +198,7 @@ export default function OrderBookTableSmall({
                 </Box>
                 <Box w='45%' textAlign='right'>
                   <Text {...paragraphRegular}>
-                    {calculateTotalContractsPrice(item.size, item.price)}{' '}
-                    {market?.collateralToken.symbol}
+                    {NumberUtil.toFixed(item.cumulativePrice, 6)} {market?.collateralToken.symbol}
                   </Text>
                 </Box>
               </HStack>
