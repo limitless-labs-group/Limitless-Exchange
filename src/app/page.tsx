@@ -189,7 +189,7 @@ const MainPage = () => {
                     <HStack w='full' whiteSpace='nowrap'>
                       <GridIcon width={16} height={16} />
                       <Text {...paragraphMedium} fontWeight={500}>
-                        All markets
+                        {`All markets ${isFetching ? '' : `(${totalAmount})`} `}
                       </Text>
                     </HStack>
                   </Link>
