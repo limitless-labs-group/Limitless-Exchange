@@ -41,6 +41,34 @@ export function useMarketFeed(marketAddress?: string | null) {
   }) as UseQueryResult<AxiosResponse<MarketFeedData[]>>
 }
 
+export function useMarketClobInfinityFeed(marketSlug?: string) {
+  const { isConnected } = useWagmiAccount()
+  const privateClient = useAxiosPrivateClient()
+  return useInfiniteQuery<MarketFeedData[], Error>({
+    queryKey: ['market-page-clob-feed', marketSlug],
+    // @ts-ignore
+    queryFn: async ({ pageParam = 1 }) => {
+      const client = isConnected ? privateClient : limitlessApi
+      const baseUrl = `/markets/${marketSlug}/events`
+      const response: AxiosResponse<MarketFeedData[]> = await client.get(baseUrl, {
+        params: {
+          page: pageParam,
+          limit: 10,
+        },
+      })
+      return { data: response.data, next: (pageParam as number) + 1 }
+    },
+    initialPageParam: 1, //default page number
+    getNextPageParam: (lastPage) => {
+      // @ts-ignore
+      return lastPage.data.length === 10 ? lastPage.next : null
+    },
+    refetchOnWindowFocus: false,
+    keepPreviousData: true,
+    enabled: !!marketSlug,
+  })
+}
+
 export function useMarketInfinityFeed(marketAddress?: string) {
   const { isConnected } = useWagmiAccount()
   const privateClient = useAxiosPrivateClient()

@@ -5,7 +5,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import ActivityClobItem from '@/components/common/markets/activity/activity-clob-item'
 import Paper from '@/components/common/paper'
-import useMarketActivity from '@/hooks/use-market-activity'
+import { useMarketClobInfinityFeed } from '@/hooks/use-market-feed'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import { useTradingService } from '@/services'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -13,7 +13,7 @@ import { ClobTradeEvent } from '@/types/orders'
 
 export default function ActivityClob() {
   const { market } = useTradingService()
-  const { data: activityData, fetchNextPage, hasNextPage } = useMarketActivity(market?.slug)
+  const { data: activityData, fetchNextPage, hasNextPage } = useMarketClobInfinityFeed(market?.slug)
 
   // @ts-ignore
   const activity = activityData?.pages.flatMap((page) => page.data.events)
