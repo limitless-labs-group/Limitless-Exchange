@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
 import { formatUnits } from 'viem'
 import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
@@ -15,11 +16,12 @@ export default function ActivityClobItem({ data }: ActivityClobItemProps) {
   const title = useMemo(() => {
     const title = data.side === 0 ? 'Bought' : 'Sold'
     const outcome = market?.tokens.yes === data.tokenId ? 'Yes' : 'No'
+    const contracts = formatUnits(BigInt(data.matchedSize), market?.collateralToken.decimals || 6)
     return `${title} ${NumberUtil.toFixed(
       formatUnits(BigInt(data.matchedSize), market?.collateralToken.decimals || 6),
       6
     )} contracts ${outcome} for ${NumberUtil.toFixed(
-      Math.abs(+formatUnits(BigInt(data.makerAmount), market?.collateralToken.decimals || 6)),
+      Math.abs(new BigNumber(contracts).multipliedBy(data.price).toNumber()),
       market?.collateralToken.symbol === 'USDC' ? 2 : 6
     )} ${market?.collateralToken.symbol} in total.`
   }, [market, data])
