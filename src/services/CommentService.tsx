@@ -70,7 +70,7 @@ export const CommentServiceProvider = ({ children }: PropsWithChildren) => {
 
 export const useCommentService = () => useContext(CommentServiceContext)
 
-export const useMarketInfinityComments = (marketAddress?: string) => {
+export const useMarketInfinityComments = (marketAddress?: string | null) => {
   const { isConnected } = useWagmiAccount()
   const privateClient = useAxiosPrivateClient()
   const {

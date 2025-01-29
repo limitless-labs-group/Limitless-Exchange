@@ -91,7 +91,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
             onClick={() => {
               trackClicked(ClickEvent.TradeButtonClicked, {
                 platform: 'mobile',
-                address: market?.address,
+                address: market?.slug,
               })
             }}
           >
@@ -162,7 +162,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                   variant='grey'
                   onClick={() => {
                     trackClicked(ClickEvent.BackClicked, {
-                      address: market?.address || '0x',
+                      address: market?.slug || '0x',
                     })
                     handleBackClicked()
                   }}

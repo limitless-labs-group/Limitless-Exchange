@@ -12,8 +12,6 @@ import {
   TabPanels,
   Tabs,
   Text,
-  useDisclosure,
-  VStack,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -24,16 +22,15 @@ import { Address } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
-import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
+import MarketPositionsAmm from '@/components/common/markets/positions/market-positions-amm'
 import ShareMenu from '@/components/common/markets/share-menu'
-import Paper from '@/components/common/paper'
-import {
-  LoadingForm,
-  MarketPriceChart,
-  SellForm,
-} from '@/app/(markets)/markets/[address]/components'
+import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
+import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/trading-widget-advanced'
+import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
+import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
+import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
 import { LUMY_TOKENS } from '@/app/draft/components'
 import CommentTab from './comment-tab'
 import { MarketProgressBar } from './market-cards/market-progress-bar'
@@ -41,33 +38,18 @@ import { UniqueTraders } from './unique-traders'
 import useMarketGroup from '@/hooks/use-market-group'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import ExpandIcon from '@/resources/icons/expand-icon.svg'
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
+import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import {
-  ChangeEvent,
-  ClickEvent,
-  OpenEvent,
-  StrategyChangedMetadata,
-  useAmplitude,
-  useHistory,
-  useTradingService,
-} from '@/services'
+import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
-import {
-  controlsMedium,
-  h2Bold,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
+import { h2Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
 export default function MarketPage() {
-  const [outcomeIndex, setOutcomeIndex] = useState(0)
   const [activeTabIndex, setActiveTabIndex] = useState(0)
 
   const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
@@ -76,9 +58,7 @@ export default function MarketPage() {
     setMarket,
     onCloseMarketPage,
     market,
-    strategy,
     setStrategy,
-    status,
     marketGroup,
     setMarketGroup,
     refetchMarkets,
@@ -88,20 +68,9 @@ export default function MarketPage() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const { trackChanged, trackClicked, trackOpened } = useAmplitude()
-  const { positions: allMarketsPositions } = useHistory()
+  const { trackClicked, trackOpened } = useAmplitude()
 
-  // Todo change creator name
-
-  const positions = useMemo(
-    () =>
-      allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
-      ),
-    [allMarketsPositions, market]
-  )
-
-  const marketAddress = useMemo(() => market?.address, [market])
+  const marketAddress = useMemo(() => market?.slug, [market])
   const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
 
   const { data: updatedMarket } = useMarket(marketAddress, !!market)
@@ -120,8 +89,6 @@ export default function MarketPage() {
       refetchMarkets()
     }
   }, [updatedMarketGroup])
-
-  const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
   const isLumy = market?.tags?.includes('Lumy')
 
@@ -152,10 +119,17 @@ export default function MarketPage() {
     [market?.title]
   )
 
+  const tradingWidget = useMemo(() => {
+    if (market?.expired) {
+      return <MarketClosedWidget handleCloseMarketPageClicked={handleCloseMarketPageClicked} />
+    }
+    return market?.tradeType === 'clob' ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
+  }, [market])
+
   const tabs = [
     {
-      title: 'Overview',
-      icon: <PredictionsIcon width={16} height={16} />,
+      title: 'Resolution',
+      icon: <ResolutionIcon width={16} height={16} />,
     },
     {
       title: 'Activity',
@@ -194,7 +168,7 @@ export default function MarketPage() {
 
   const handleFullPageClicked = () => {
     trackClicked(ClickEvent.FullPageClicked, {
-      marketAddress: market?.address,
+      marketAddress: market?.slug,
       marketType: 'single',
       marketTags: market?.tags,
     })
@@ -219,7 +193,7 @@ export default function MarketPage() {
     if (market?.address && !trackedMarketsRef.current.has(market.address)) {
       trackedMarketsRef.current.add(market.address)
       trackOpened(OpenEvent.SidebarMarketOpened, {
-        marketAddress: market.address,
+        marketAddress: market.slug,
         marketTags: market.tags,
         marketType: 'single',
         category: market.category,
@@ -276,7 +250,7 @@ export default function MarketPage() {
               <CloseIcon width={16} height={16} />
               Close
             </Button>
-            <NextLink href={`/markets/${market?.address}`}>
+            <NextLink href={`/markets/${market?.slug}`}>
               <Button variant='grey' onClick={handleFullPageClicked}>
                 <ExpandIcon width={16} height={16} />
                 Full page
@@ -351,216 +325,7 @@ export default function MarketPage() {
         </HStack>
         <Divider my={isMobile ? '24px' : '16px'} />
       </Box>
-      {market?.expired ? (
-        <Paper h={'120px'}>
-          {/*<Paper h={isMobile ? '348px' : '332px'}>*/}
-          <VStack h='full' justifyContent='space-between' alignItems='flex-start'>
-            <Text {...paragraphMedium} color='grey.800'>
-              Market is closed
-            </Text>
-            <Button
-              variant='white'
-              onClick={() => {
-                if (!isMobile) {
-                  handleCloseMarketPageClicked()
-                }
-                router.push('/')
-              }}
-            >
-              Explore Opened Markets
-            </Button>
-          </VStack>
-        </Paper>
-      ) : (
-        <Paper
-          bg={'var(--chakra-colors-grey-100)'}
-          borderRadius='8px'
-          overflowX='hidden'
-          p='8px'
-          position='relative'
-        >
-          <HStack
-            w={'240px'}
-            mx='auto'
-            bg='grey.200'
-            borderRadius='8px'
-            py='2px'
-            px={'2px'}
-            mb={isMobile ? '16px' : '24px'}
-          >
-            <Button
-              h={isMobile ? '28px' : '20px'}
-              flex='1'
-              py='2px'
-              borderRadius='6px'
-              bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
-              color='grey.800'
-              _hover={{
-                backgroundColor: strategy === 'Buy' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
-              }}
-              onClick={() => {
-                trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
-                  type: 'Buy selected',
-                  marketAddress: market?.address as Address,
-                })
-                setStrategy('Buy')
-              }}
-            >
-              <Text {...controlsMedium} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
-                Buy
-              </Text>
-            </Button>
-            <Button
-              h={isMobile ? '28px' : '20px'}
-              flex='1'
-              borderRadius='6px'
-              py='2px'
-              bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
-              color='grey.800'
-              _hover={{
-                backgroundColor: strategy === 'Sell' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
-              }}
-              _disabled={{
-                opacity: '50%',
-                pointerEvents: 'none',
-              }}
-              onClick={() => {
-                trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
-                  type: 'Sell selected',
-                  marketAddress: market?.address as Address,
-                })
-                setStrategy('Sell')
-              }}
-              isDisabled={!positions?.length}
-            >
-              <Text {...controlsMedium} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
-                Sell
-              </Text>
-            </Button>
-          </HStack>
-          {marketGroup?.markets.length && (
-            <>
-              <Box mx={isMobile ? '16px' : 0}>
-                <Button
-                  variant='transparentLight'
-                  w='full'
-                  justifyContent='space-between'
-                  mb={isOpenSelectMarketMenu ? '8px' : isMobile ? '24px' : '32px'}
-                  onClick={onToggleSelectMarketMenu}
-                  rightIcon={
-                    <Box
-                      transform={`rotate(${isOpenSelectMarketMenu ? '180deg' : 0})`}
-                      transition='0.5s'
-                      color='white'
-                    >
-                      <ChevronDownIcon width='16px' height='16px' />
-                    </Box>
-                  }
-                >
-                  <HStack gap='8px' color='white'>
-                    <PredictionsIcon />
-                    <Text {...paragraphMedium} color='white'>
-                      {market?.title}
-                    </Text>
-                  </HStack>
-                </Button>
-              </Box>
-              {isOpenSelectMarketMenu && (
-                <VStack
-                  gap={isMobile ? '16px' : '8px'}
-                  mb={isMobile ? '16px' : '8px'}
-                  mx={isMobile ? '16px' : 0}
-                >
-                  {marketGroup?.markets.map((market) => (
-                    <Button
-                      key={market.address}
-                      onClick={() => {
-                        setMarket(market)
-                        onToggleSelectMarketMenu()
-                      }}
-                      flexDirection='column'
-                      variant='transparentLight'
-                      w='full'
-                    >
-                      <HStack mb='8px' w='full'>
-                        <HStack justifyContent='space-between' w='full' alignItems='flex-start'>
-                          <Text {...paragraphMedium} color='white'>
-                            {market.title}
-                          </Text>
-                          <HStack gap='4px'>
-                            <Text {...paragraphMedium} color='white'>
-                              {market.prices[0]}%
-                            </Text>
-                            <Box
-                              w='16px'
-                              h='16px'
-                              display='flex'
-                              alignItems='center'
-                              justifyContent='center'
-                            >
-                              <Box
-                                h='100%'
-                                w='100%'
-                                borderRadius='100%'
-                                bg={`conic-gradient(white 0% ${
-                                  market.prices[0]
-                                }%, var(--chakra-colors-transparent-300) ${
-                                  market.prices[0] < 1 ? 1 : market.prices[0]
-                                }% 100%)`}
-                              />
-                            </Box>
-                          </HStack>
-                        </HStack>
-                      </HStack>
-                      <HStack
-                        gap={isMobile ? '8px' : '16px'}
-                        flexDirection={isMobile ? 'column' : 'row'}
-                        w='full'
-                      >
-                        <HStack
-                          w={isMobile ? '100%' : 'unset'}
-                          justifyContent={isMobile ? 'space-between' : 'unset'}
-                          color='white'
-                        >
-                          <LiquidityIcon width={16} height={16} />
-                          <Text {...paragraphRegular} color='white'>
-                            {NumberUtil.formatThousands(market.liquidityFormatted, 6)}{' '}
-                            {market.collateralToken.symbol}
-                          </Text>
-                        </HStack>
-                        <HStack
-                          w={isMobile ? '100%' : 'unset'}
-                          justifyContent={isMobile ? 'space-between' : 'unset'}
-                          color='white'
-                        >
-                          <VolumeIcon width={16} height={16} />
-                          <Text {...paragraphRegular} color='white'>
-                            {NumberUtil.formatThousands(market.volumeFormatted, 6)}{' '}
-                            {market.collateralToken.symbol}
-                          </Text>
-                        </HStack>
-                      </HStack>
-                    </Button>
-                  ))}
-                </VStack>
-              )}
-            </>
-          )}
-          {strategy === 'Buy' && (
-            <MarketPageBuyForm
-              setOutcomeIndex={setOutcomeIndex}
-              marketList={marketGroup?.markets}
-            />
-          )}
-          {strategy === 'Sell' ? (
-            status === 'Loading' ? (
-              <LoadingForm outcomeIndex={outcomeIndex} />
-            ) : (
-              <SellForm setOutcomeIndex={setOutcomeIndex} />
-            )
-          ) : null}
-        </Paper>
-      )}
+      {tradingWidget}
       {isLivePriceSupportedMarket ? (
         <Tabs position='relative' variant='common' mt='20px'>
           <TabList>
@@ -587,6 +352,12 @@ export default function MarketPage() {
         </Tabs>
       ) : (
         <MarketPriceChart />
+      )}
+
+      {market?.tradeType === 'clob' ? (
+        <ClobPositions marketType='sidebar' />
+      ) : (
+        <MarketPositionsAmm />
       )}
 
       <Tabs position='relative' variant='common' onChange={(index) => setActiveTabIndex(index)}>

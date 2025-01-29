@@ -72,8 +72,8 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
-  const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
-  const { isConnected, isConnecting } = useWagmiAccount()
+  const { convertAssetAmountToUsd } = usePriceOracle()
+  const { isConnected } = useWagmiAccount()
   const { profileData, profileLoading } = useAccount()
   const { isLoadingSmartWalletAddress } = useEtherspot()
   const { balanceOfSmartWallet, refetchbalanceOfSmartWallet, balanceOfSmartWalletLoading } =

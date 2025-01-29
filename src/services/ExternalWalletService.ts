@@ -1,6 +1,7 @@
+import { EIP712TypedData } from '@polymarket/order-utils'
 import { switchChain } from '@wagmi/core'
 import { Address, encodeFunctionData, erc20Abi, getContract } from 'viem'
-import { useAccount, useSendTransaction, useWriteContract } from 'wagmi'
+import { useAccount, useSendTransaction, useSignTypedData, useWriteContract } from 'wagmi'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
 import { contractABI } from '@/contracts/utils'
@@ -12,6 +13,7 @@ export const useExternalWalletService = () => {
   const account = useWalletAddress()
   const { writeContractAsync } = useWriteContract()
   const { sendTransactionAsync } = useSendTransaction()
+  const { signTypedDataAsync } = useSignTypedData()
   const { supportedTokens } = useLimitlessApi()
   const { chainId } = useAccount()
 
@@ -68,10 +70,11 @@ export const useExternalWalletService = () => {
 
   const checkAllowanceForAllEOA = async (spender: Address, contractAddress: Address) => {
     const contract = getContract({
-      address: contractAddress,
+      address: contractAddress, // conditional
       abi: conditionalTokensABI,
       client: publicClient,
     })
+    // spender - CTF exchange
     const isApprovedForAll = await contract.read.isApprovedForAll([account as Address, spender])
     return isApprovedForAll as boolean
   }
@@ -81,7 +84,9 @@ export const useExternalWalletService = () => {
     contractAddress: Address,
     value: bigint
   ): Promise<string> => {
+    console.log('checking chain')
     await checkAndSwitchChainIfNeeded()
+    console.log('network switched')
     let txHash = ''
     await writeContractAsync(
       {
@@ -266,7 +271,65 @@ export const useExternalWalletService = () => {
     return txHash
   }
 
+  const splitPositions = async (
+    collateralAddress: Address,
+    conditionId: string,
+    amount: bigint
+  ) => {
+    await checkAndSwitchChainIfNeeded()
+    let txHash = ''
+    await writeContractAsync(
+      {
+        abi: conditionalTokensABI,
+        functionName: 'splitPosition',
+        address: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+        args: [
+          collateralAddress,
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+          conditionId,
+          [1, 2],
+          amount,
+        ],
+      },
+      {
+        onSuccess: (data) => {
+          txHash = data
+        },
+        onError: (data) => console.log(data),
+      }
+    )
+    return txHash
+  }
+
+  const mergePositions = async (collateralToken: Address, conditionId: string, amount: bigint) => {
+    await checkAndSwitchChainIfNeeded()
+    let txHash = ''
+    await writeContractAsync(
+      {
+        abi: conditionalTokensABI,
+        functionName: 'mergePositions',
+        address: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+        args: [
+          collateralToken,
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+          conditionId,
+          [1, 2],
+          amount,
+        ],
+      },
+      {
+        onSuccess: (data) => {
+          txHash = data
+        },
+        onError: (data) => console.log(data),
+      }
+    )
+    return txHash
+  }
+
   const checkAndSwitchChainIfNeeded = async () => {
+    console.log(chainId)
+    console.log(defaultChain.id)
     if (chainId !== defaultChain.id) {
       await switchChain(wagmiConfig, { chainId: defaultChain.id })
     }
@@ -279,6 +342,11 @@ export const useExternalWalletService = () => {
       client: publicClient,
     })
     return contract.read.balanceOf(['0x6bb3d8A69656d1865708242223190a29D3a7E3c7'])
+  }
+
+  const signTypedData = async (typedData: EIP712TypedData) => {
+    await checkAndSwitchChainIfNeeded()
+    return signTypedDataAsync(typedData)
   }
 
   return {
@@ -295,5 +363,8 @@ export const useExternalWalletService = () => {
     approveContractForAllEOA,
     redeemPositions,
     checkLumyAccountBalance,
+    signTypedData,
+    splitPositions,
+    mergePositions,
   }
 }

@@ -23,7 +23,7 @@ export const MarketCardTrigger = React.memo(
       trackClicked(ClickEvent.MediumMarketBannerClicked, {
         ...analyticParams,
       })
-      router.push(`?market=${market.address}`, { scroll: false })
+      router.push(`?market=${market.slug}`, { scroll: false })
       onOpenMarketPage(market)
       setMarkets(markets)
     }

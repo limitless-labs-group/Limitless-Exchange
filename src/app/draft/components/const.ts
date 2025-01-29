@@ -79,6 +79,7 @@ export const defaultFormData = {
   categoryId: defaultCategoryId,
   ogLogo: undefined,
   isBannered: false,
+  txHash: '',
 }
 
 export const selectStyles = {

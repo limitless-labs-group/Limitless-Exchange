@@ -261,6 +261,48 @@ export default function Sidebar() {
                 </Link>
               </NextLink>
 
+              {/*<Button*/}
+              {/*  variant='transparent'*/}
+              {/*  onClick={() => {*/}
+              {/*    trackClicked<ProfileBurgerMenuClickedMetadata>(*/}
+              {/*      ClickEvent.ProfileBurgerMenuClicked,*/}
+              {/*      {*/}
+              {/*        option: 'My Markets',*/}
+              {/*      }*/}
+              {/*    )*/}
+              {/*    onToggleMyMarkets()*/}
+              {/*  }}*/}
+              {/*  w='full'*/}
+              {/*  bg={isOpenMyMarkets ? 'grey.100' : 'unset'}*/}
+              {/*>*/}
+              {/*  <HStack w='full'>*/}
+              {/*    <MyMarketsIcon width={16} height={16} />*/}
+              {/*    <Text fontWeight={500} fontSize='14px'>*/}
+              {/*      My Markets*/}
+              {/*    </Text>*/}
+              {/*  </HStack>*/}
+              {/*</Button>*/}
+
+              {/*<NextLink href='/create-market' passHref style={{ width: '100%' }}>*/}
+              {/*  <Link*/}
+              {/*    onClick={() => {*/}
+              {/*      trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {*/}
+              {/*        page: pageName,*/}
+              {/*      })*/}
+              {/*    }}*/}
+              {/*    variant='transparent'*/}
+              {/*    w='full'*/}
+              {/*    rounded='8px'*/}
+              {/*  >*/}
+              {/*    <HStack w='full'>*/}
+              {/*      <SquarePlusIcon width={16} height={16} />*/}
+              {/*      <Text fontWeight={500} fontSize='14px'>*/}
+              {/*        Create market*/}
+              {/*      </Text>*/}
+              {/*    </HStack>*/}
+              {/*  </Link>*/}
+              {/*</NextLink>*/}
+
               <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
                 {userMenuLoading ? (
                   <Box w='full'>

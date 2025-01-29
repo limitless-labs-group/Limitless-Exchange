@@ -27,7 +27,8 @@ import {
   useTradingService,
 } from '@/services'
 import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
@@ -66,14 +67,6 @@ const MainPage = () => {
 
     trackOpened(OpenEvent.PageOpened, analyticData)
   }, [])
-
-  const categoryEntity = useMemo(() => {
-    return (
-      categories?.find(
-        (categoryEntity) => categoryEntity.name.toLowerCase() === category?.toLowerCase()
-      ) || null
-    )
-  }, [categories, category])
 
   /**
    * UI

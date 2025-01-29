@@ -13,19 +13,12 @@ import { getPrices } from '@/utils/market'
 
 const LIMIT_PER_PAGE = 50
 
-/**
- * Fetches and manages paginated active market data using the `useInfiniteQuery` hook.
- * Active market is FUNDED market and not hidden only
- *
- * @returns {(MarketGroupCardResponse | MarketSingleCardResponse)[]} which represents pages of markets
- */
 export function useMarkets(topic: Category | null) {
   return useInfiniteQuery({
     queryKey: ['markets', topic],
     queryFn: async ({ pageParam = 1 }) => {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`
       const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
-
       const { data: response }: AxiosResponse<MarketsResponse> = await axios.get(marketBaseUrl, {
         params: {
           page: pageParam,
@@ -33,23 +26,30 @@ export function useMarkets(topic: Category | null) {
         },
       })
 
-      const marketDataForMultiCall = response.data.flatMap((market) => {
-        // @ts-ignore
-        if (!market.slug) {
-          return {
-            // @ts-ignore
-            address: market.address,
-            decimals: market.collateralToken.decimals,
-          }
-        }
-        // @ts-ignore
-        return market.markets.map((marketInGroup) => {
-          return {
-            address: marketInGroup.address,
-            decimals: market.collateralToken.decimals,
-          }
-        })
-      }) as { address: string; decimals: number }[]
+      // const marketDataForMultiCall = response.data.flatMap((market) => {
+      //   // @ts-ignore
+      //   if (!market.address) {
+      //     return {
+      //       // @ts-ignore
+      //       address: market.address,
+      //       decimals: market.collateralToken.decimals,
+      //     }
+      //   }
+      //   // @ts-ignore
+      //   return market.markets.map((marketInGroup) => {
+      //     return {
+      //       address: marketInGroup.address,
+      //       decimals: market.collateralToken.decimals,
+      //     }
+      //   })
+      // }) as { address: string; decimals: number }[]
+
+      const marketDataForMultiCall = response.data
+        .filter((market) => !!market.address)
+        .map((market) => ({
+          address: market.address as Address,
+          decimals: market.collateralToken.decimals,
+        }))
 
       const contractCallContext = marketDataForMultiCall.map(
         (market: { address: string; decimals: number }) => {
@@ -87,74 +87,76 @@ export function useMarkets(topic: Category | null) {
 
       const results = await multicall.call(contractCallContext)
 
-      const _markets: Map<Address, OddsData> = marketDataForMultiCall.reduce(
-        (acc, market: { address: string; decimals: number }) => {
-          const marketAddress = market.address
-          const result = results.results[marketAddress].callsReturnContext
-          const collateralDecimals = market.decimals
-          const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
+      const _markets: Map<Address, OddsData> = response.data.reduce((acc, market: Market) => {
+        if (!market.address) {
+          return acc
+        }
+        const marketAddress = market.address
+        const result = results.results[marketAddress].callsReturnContext
+        const collateralDecimals = market.collateralToken.decimals
+        const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
 
-          if (result[0].returnValues.length) {
-            const outcomeTokenBuyAmountYesBI = BigInt(result[0].returnValues?.[0].hex)
-            const outcomeTokenBuyAmountNoBI = BigInt(result[1].returnValues?.[0].hex)
+        if (result[0].returnValues.length) {
+          const outcomeTokenBuyAmountYesBI = BigInt(result[0].returnValues?.[0].hex)
+          const outcomeTokenBuyAmountNoBI = BigInt(result[1].returnValues?.[0].hex)
 
-            const outcomeTokenBuyAmountYes = formatUnits(
-              outcomeTokenBuyAmountYesBI,
-              collateralDecimals
-            )
-            const outcomeTokenBuyAmountNo = formatUnits(
-              outcomeTokenBuyAmountNoBI,
-              collateralDecimals
-            )
+          const outcomeTokenBuyAmountYes = formatUnits(
+            outcomeTokenBuyAmountYesBI,
+            collateralDecimals
+          )
+          const outcomeTokenBuyAmountNo = formatUnits(outcomeTokenBuyAmountNoBI, collateralDecimals)
 
-            const outcomeTokenBuyPriceYes =
-              Number(collateralAmount) / Number(outcomeTokenBuyAmountYes)
-            const outcomeTokenBuyPriceNo =
-              Number(collateralAmount) / Number(outcomeTokenBuyAmountNo)
+          const outcomeTokenBuyPriceYes =
+            Number(collateralAmount) / Number(outcomeTokenBuyAmountYes)
+          const outcomeTokenBuyPriceNo = Number(collateralAmount) / Number(outcomeTokenBuyAmountNo)
 
-            const buySum = outcomeTokenBuyPriceYes + outcomeTokenBuyPriceNo
-            const outcomeTokensBuyPercentYes = +((outcomeTokenBuyPriceYes / buySum) * 100).toFixed(
-              1
-            )
-            const outcomeTokensBuyPercentNo = +((outcomeTokenBuyPriceNo / buySum) * 100).toFixed(1)
+          const buySum = outcomeTokenBuyPriceYes + outcomeTokenBuyPriceNo
+          const outcomeTokensBuyPercentYes = +((outcomeTokenBuyPriceYes / buySum) * 100).toFixed(1)
+          const outcomeTokensBuyPercentNo = +((outcomeTokenBuyPriceNo / buySum) * 100).toFixed(1)
 
-            acc.set(marketAddress as Address, {
-              prices: [outcomeTokensBuyPercentYes, outcomeTokensBuyPercentNo],
-            })
-
-            return acc
-          }
+          acc.set(marketAddress as Address, {
+            prices: [outcomeTokensBuyPercentYes, outcomeTokensBuyPercentNo],
+          })
 
           return acc
-        },
-        new Map<Address, OddsData>()
-      )
+        }
+
+        return acc
+      }, new Map<Address, OddsData>())
 
       const result = response.data.map((market) => {
-        // @ts-ignore
-        if (!market.slug) {
-          return {
-            ...market,
-            // @ts-ignore
-            ...(_markets.get(market.address)
-              ? // @ts-ignore
-                (_markets.get(market.address) as OddsData)
-              : { prices: [50, 50] }),
-          }
-        }
         return {
           ...market,
           // @ts-ignore
-          markets: market.markets
-            .map((marketInGroup: Market) => ({
-              ...marketInGroup,
-              // @ts-ignore
-              ...(_markets.get(marketInGroup.address)
-                ? (_markets.get(marketInGroup.address) as OddsData)
-                : { prices: [50, 50] }),
-            }))
-            .sort((a: Market, b: Market) => b.prices[0] - a.prices[0]),
+          ...(_markets.get(market.address)
+            ? // @ts-ignore
+              (_markets.get(market.address) as OddsData)
+            : { prices: [50, 50] }),
         }
+        // @ts-ignore
+        // if (!market.slug) {
+        //   return {
+        //     ...market,
+        //     // @ts-ignore
+        //     ...(_markets.get(market.address)
+        //       ? // @ts-ignore
+        //         (_markets.get(market.address) as OddsData)
+        //       : { prices: [50, 50] }),
+        //   }
+        // }
+        // return {
+        //   ...market,
+        //   // @ts-ignore
+        //   markets: market.markets
+        //     .map((marketInGroup: Market) => ({
+        //       ...marketInGroup,
+        //       // @ts-ignore
+        //       ...(_markets.get(marketInGroup.address)
+        //         ? (_markets.get(marketInGroup.address) as OddsData)
+        //         : { prices: [50, 50] }),
+        //     }))
+        //     .sort((a: Market, b: Market) => b.prices[0] - a.prices[0]),
+        // }
       })
 
       return {
@@ -249,7 +251,7 @@ export function useMarketByConditionId(conditionId: string, enabled = true) {
       } else {
         const buyPrices = await getMarketOutcomeBuyPrice(
           marketRes.collateralToken.decimals,
-          marketRes.address
+          marketRes.address as Address
         )
 
         const sum = buyPrices[0] + buyPrices[1]
@@ -272,7 +274,7 @@ export function useMarketByConditionId(conditionId: string, enabled = true) {
   return { market, isLoading, refetchMarket }
 }
 
-export function useMarket(address?: string, isPolling = false, enabled = true) {
+export function useMarket(address?: string | null, isPolling = false, enabled = true) {
   return useQuery({
     queryKey: ['market', address],
     queryFn: async () => {
@@ -281,10 +283,10 @@ export function useMarket(address?: string, isPolling = false, enabled = true) {
       )
       const marketRes = response.data as Market
 
-      let prices = [50, 50]
+      let prices
 
       //TODO remove this hot-fix
-      if (marketRes.expired) {
+      if (marketRes.expired || !marketRes.address) {
         if (marketRes?.winningOutcomeIndex === 0) {
           prices = [100, 0]
         } else if (marketRes?.winningOutcomeIndex === 1) {

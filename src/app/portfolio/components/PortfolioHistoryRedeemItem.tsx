@@ -44,8 +44,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
         if (fetchedMarket) {
           onOpenMarketPage(fetchedMarket)
           trackClicked(ClickEvent.PortfolioMarketClicked, {
-            marketCategory: fetchedMarket.category,
-            marketAddress: fetchedMarket.address,
+            marketAddress: fetchedMarket.slug,
             marketType: 'single',
             marketTags: fetchedMarket.tags,
             type: 'History',
@@ -54,8 +53,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
       } else {
         onOpenMarketPage(market)
         trackClicked(ClickEvent.PortfolioMarketClicked, {
-          marketCategory: market.category,
-          marketAddress: market.address,
+          marketAddress: market.slug,
           marketType: 'single',
           marketTags: market.tags,
           type: 'History',

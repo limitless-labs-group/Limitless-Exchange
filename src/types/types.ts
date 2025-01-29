@@ -20,7 +20,7 @@ export type Category = {
 }
 
 export type MarketsResponse = {
-  data: (Market | MarketGroup)[]
+  data: Market[]
   totalMarketsCount: number
 }
 
@@ -39,7 +39,7 @@ export type DraftMetadata = {
 }
 
 export interface Market {
-  address: Address
+  address: Address | null
   category: Category | string
   collateralToken: {
     address: Address
@@ -64,6 +64,7 @@ export interface Market {
   volumeFormatted: string
   winningOutcomeIndex: number | null
   prices: number[]
+  slug: string
   group?: {
     id: number
     slug: string
@@ -74,6 +75,86 @@ export interface Market {
   metadata: {
     isBannered: boolean
   }
+  priorityIndex: number
+  tokens: {
+    yes: string
+    no: string
+  }
+  marketType: 'single' | 'group'
+  tradeType: 'clob' | 'amm'
+}
+
+export interface UserMarket {
+  title: string
+  description: string
+  expirationTimestamp: number
+  expirationDate: string
+  status: MarketStatus
+  openInterestFormatted: string
+  liquidityFormatted: string
+  collateralToken: {
+    address: string
+    decimals: number
+    symbol: string
+  }
+  initialProbability?: number
+}
+
+export type UserCreatedMarket = {
+  id: number
+  address: null | string
+  title: string
+  proxyTitle: null
+  description: string
+  questionId: string
+  conditionId: null
+  outcomeSlotCount: 2
+  winningIndex: null
+  payoutNumerators: null
+  status: MarketStatus
+  ogUrl: string
+  imageUrl: null | string
+  deadline: string
+  hidden: boolean
+  txHash: null | string
+  resolutionTxHash: null | string
+  draftMetadata: {
+    fee: number
+    liquidity: number
+    initialProbability: number
+  }
+  priorityIndex: number
+  token: Token
+  creator: {
+    id: number
+    account: Address
+    username: Address
+    displayName: Address
+    bio: string
+    client: string
+    pfpUrl: null | string
+    smartWallet: null | string
+    isCreator: boolean
+    isAdmin: boolean
+    socialUrl: null | string
+  }
+  tags: [
+    {
+      createdAt: string
+      id: number
+      name: string
+    }
+  ]
+  oracle: {
+    createdAt: string
+    id: number
+    name: string
+    address: string
+    imageUrl: string
+  }
+  category: Category
+  marketsGroup: null
+  slug: string
 }
 
 export interface MarketGroup {
@@ -163,6 +244,7 @@ export enum MarketStatus {
   RESOLVED = 'RESOLVED',
   FUNDED = 'FUNDED',
   LOCKED = 'LOCKED',
+  PENDING = 'DRAFTED',
 }
 
 export type GetCoingeckoPricesResponse = Record<MarketTokensIds, CoingeckoPriceEntity>
@@ -324,7 +406,14 @@ export interface ColorScheme {
     200: string
   }
   background: {
+    80: string
     90: string
+  }
+  greenTransparent: {
+    100: string
+  }
+  redTransparent: {
+    100: string
   }
   text: {
     100: string
@@ -398,3 +487,8 @@ export interface LikesGet {
 }
 
 export type APIError = AxiosError<{ message: string; statusCode: number }>
+
+export enum MarketOrderType {
+  LIMIT = 'limit',
+  MARKET = 'market',
+}

@@ -41,11 +41,11 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
     }
     e.preventDefault()
     const searchParams = new URLSearchParams(window.location.search)
-    searchParams.set('market', market.address)
+    searchParams.set('market', market.slug)
     router.push(`?${searchParams.toString()}`, { scroll: false })
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
       marketCategory: market.category,
-      marketAddress: market.address,
+      marketAddress: market.slug,
       marketType: 'single',
       marketTags: market.tags,
       ...analyticParams,
@@ -58,7 +58,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
   const { trackClicked } = useAmplitude()
 
   useEffect(() => {
-    if (selectedMarket && selectedMarket.address !== market.address) {
+    if (selectedMarket && selectedMarket.slug !== market.slug) {
       setHovered(false)
     }
     if (!selectedMarket && hovered) {
@@ -83,7 +83,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
         setHovered(true)
       }}
       onMouseLeave={() => {
-        if (selectedMarket?.address !== market.address) {
+        if (selectedMarket?.slug !== market.slug) {
           setHovered(false)
         }
       }}
@@ -163,5 +163,5 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
     </Box>
   )
 
-  return <MarketCardLink marketAddress={market?.address}>{content}</MarketCardLink>
+  return <MarketCardLink marketAddress={market?.slug}>{content}</MarketCardLink>
 }

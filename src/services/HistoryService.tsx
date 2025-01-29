@@ -105,16 +105,12 @@ export const usePortfolioHistory = (page: number) => {
   return useQuery({
     queryKey: ['history', page],
     queryFn: async (): Promise<AxiosResponse<History>> => {
-      return privateClient.get<History>(
-        '/portfolio/history',
-
-        {
-          params: {
-            page: page,
-            limit: 10,
-          },
-        }
-      )
+      return privateClient.get<History>('/portfolio/history', {
+        params: {
+          page: page,
+          limit: 10,
+        },
+      })
     },
   })
 }
@@ -180,6 +176,7 @@ export type HistoryMarket = {
   }
   expirationDate: string
   title: string
+  slug: string | null
 }
 
 export type HistoryRedeem = {

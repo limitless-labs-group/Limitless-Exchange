@@ -254,6 +254,12 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         queryClient.invalidateQueries({ queryKey: ['balance'] }),
         queryClient.invalidateQueries({ queryKey: ['ethBalance'] }),
         queryClient.invalidateQueries({ queryKey: ['createdMarkets'] }),
+        queryClient.invalidateQueries({
+          queryKey: ['user-orders'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['locked-balance'],
+        }),
       ])
       router.push('/')
     } catch (error) {

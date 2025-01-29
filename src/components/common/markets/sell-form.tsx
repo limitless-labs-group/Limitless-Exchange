@@ -93,7 +93,7 @@ export function SellForm({
   const positions = useMemo(
     () =>
       allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
+        (position) => position.market.id.toLowerCase() === market?.address?.toLowerCase()
       ),
     [allMarketsPositions, market]
   )
@@ -297,7 +297,7 @@ export function SellForm({
 
   const handleApproveClicked = async () => {
     trackClicked(ClickEvent.SellApproveClicked, {
-      address: market?.address,
+      marketAddress: market?.slug as string,
       strategy: 'Buy',
       outcome: outcomeChoice === 'yes' ? 'Yes' : 'No',
       walletType: 'eoa',
@@ -434,7 +434,10 @@ export function SellForm({
                         {market.title}
                       </Text>
                       <Text {...paragraphMedium} color='white'>
-                        {NumberUtil.formatThousands(getTotalContractsAmount(market.address), 6)}{' '}
+                        {NumberUtil.formatThousands(
+                          getTotalContractsAmount(market.address as Address),
+                          6
+                        )}{' '}
                         Contracts
                       </Text>
                     </HStack>
@@ -464,7 +467,7 @@ export function SellForm({
                   }
                   trackClicked<TradeClickedMetadata>(ClickEvent.SellClicked, {
                     outcome: 'Yes',
-                    marketAddress: market.address,
+                    marketAddress: market.slug,
                     walletType: client,
                     ...(analyticParams ? analyticParams : {}),
                   })
@@ -582,7 +585,7 @@ export function SellForm({
                   }
                   trackClicked<TradeClickedMetadata>(ClickEvent.SellClicked, {
                     outcome: 'No',
-                    marketAddress: market.address,
+                    marketAddress: market.slug,
                     walletType: client,
                     ...(analyticParams ? analyticParams : {}),
                   })

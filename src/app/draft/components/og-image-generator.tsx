@@ -13,7 +13,7 @@ import {
 import html2canvas from 'html2canvas'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-interface IOgImageGeneratorOptions {
+export interface IOgImageGeneratorOptions {
   px: number | string
   p: number | string
   height: number | string
@@ -107,6 +107,7 @@ export const OgImageGenerator = ({
       })
 
       const imageDataUrl = canvas.toDataURL('image/png', 1.0)
+      console.log(imageDataUrl)
       setImage(imageDataUrl)
       canvas.toBlob(
         async (blob) => {
