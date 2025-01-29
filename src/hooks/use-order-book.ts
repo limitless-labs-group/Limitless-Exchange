@@ -5,6 +5,8 @@ import { limitlessApi } from '@/services'
 export interface OrderBook {
   bids: Order[]
   asks: Order[]
+  lastTradePrice: string
+  tokenId: string
 }
 
 export interface Order {

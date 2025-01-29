@@ -13,4 +13,5 @@ export interface OrderBookData {
   setOrderbookSide: (val: number) => void
   spread: string
   calculateTotalContractsPrice: (size: number, price: number) => string
+  lastPrice: string
 }

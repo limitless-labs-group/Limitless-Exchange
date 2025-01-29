@@ -26,6 +26,7 @@ export default function OrderbookTableLarge({
   setOrderbookSide,
   spread,
   calculateTotalContractsPrice,
+  lastPrice,
 }: OrderBookData) {
   const { market } = useTradingService()
   const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
@@ -168,7 +169,7 @@ export default function OrderbookTableLarge({
         >
           <Box flex={1} pl='8px'>
             <Text {...paragraphRegular} color={orderbookSide ? 'red.500' : 'green.500'}>
-              {orderbookSide ? 'NO' : 'YES'}
+              {orderbookSide ? 'NO' : 'YES'} {lastPrice}¢
             </Text>
           </Box>
           <Box flex={1}>
