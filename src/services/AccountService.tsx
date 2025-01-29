@@ -1,4 +1,10 @@
-import { usePrivy, useWallets } from '@privy-io/react-auth'
+import {
+  ConnectedWallet,
+  useLogin as usePrivyLogin,
+  usePrivy,
+  useWallets,
+} from '@privy-io/react-auth'
+import { useSetActiveWallet } from '@privy-io/wagmi'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 import { usePathname, useRouter } from 'next/navigation'
@@ -7,7 +13,6 @@ import {
   ENTRYPOINT_ADDRESS_V06,
   providerToSmartAccountSigner,
   SmartAccountClient,
-  walletClientToSmartAccountSigner,
 } from 'permissionless'
 import { signerToSafeSmartAccount } from 'permissionless/accounts'
 import {
@@ -32,9 +37,8 @@ import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
 import { useUserSession } from '@/hooks/profiles/use-session'
-import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
-import { useAmplitude } from '@/services'
+import { SignInEvent, useAmplitude } from '@/services'
 import { Address, APIError, UpdateProfileData } from '@/types'
 import { Profile } from '@/types/profiles'
 
@@ -58,6 +62,9 @@ export interface IAccountContext {
   onUnblockUser: UseMutationResult<void, Error, { account: Address }>
   web3Client: 'eoa' | 'etherspot'
   smartAccountClient: SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null
+  isLogged: boolean
+  setIsLogged: (val: boolean) => void
+  loginToPlatform: () => void
 }
 
 const pimlicoRpcUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
@@ -79,22 +86,27 @@ export const useAccount = () => useContext(AccountContext)
 export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [smartAccountClient, setSmartAccountClient] =
     useState<SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null>(null)
+  const [isLogged, setIsLogged] = useState(false)
   const queryClient = useQueryClient()
   const { logout: disconnect, authenticated, user } = usePrivy()
   const pathname = usePathname()
   const accountRoutes = ['/portfolio', '/create-market']
   const privateClient = useAxiosPrivateClient()
   const { mutateAsync: login } = useLogin()
+  const { setActiveWallet } = useSetActiveWallet()
   // const { disconnect: disconnectWagmi } = useDisconnect()
   const web3Client = user?.wallet?.walletClientType === 'privy' ? 'etherspot' : 'eoa'
   const { trackSignUp } = useAmplitude()
   const { data: walletClient } = useWalletClient()
   const { wallets, ready: walletsReady } = useWallets()
-  const { isLogged } = useClient()
+  const { trackSignIn } = useAmplitude()
+  // const { isLogged } = useClient()
 
   console.log(walletClient)
+  console.log(wallets)
   console.log(user)
-  console.log(authenticated)
+  // console.log(user)
+  // console.log(authenticated)
 
   const toast = useToast()
   const router = useRouter()
@@ -107,7 +119,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       )
       return res.data
     },
-    enabled: !!user?.wallet?.address,
+    enabled: isLogged,
   })
 
   const userMenuLoading = useMemo(() => {
@@ -256,19 +268,60 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     smartWallet: smartAccountClient?.account?.address,
   })
 
-  useEffect(() => {
-    if (isLogged) {
-      if (!walletsReady) {
+  const { login: loginToPlatform } = usePrivyLogin({
+    onComplete: async ({ user, wasAlreadyAuthenticated }) => {
+      const connectedWallet = wallets.find(
+        (wallet) => wallet.connectorType === user.wallet?.connectorType
+      )
+      if (connectedWallet && !wasAlreadyAuthenticated) {
+        await setActiveWallet(connectedWallet)
+        if (connectedWallet.connectorType === 'embedded') {
+          const client = await getSmartAccountClient(connectedWallet)
+          //@ts-ignore
+          setSmartAccountClient(client)
+          await login({
+            client: 'etherspot',
+            account: connectedWallet.address as Address,
+            smartWallet: client.account?.address,
+          })
+          return
+        }
+        await login({
+          client: 'eoa',
+          account: connectedWallet.address as Address,
+        })
+        trackSignIn(SignInEvent.SignIn)
+        setIsLogged(true)
         return
       }
+    },
+    onError: (error) => {
+      console.log(error)
+    },
+  })
+
+  useEffect(() => {
+    if (walletsReady && !isLogged) {
+      const connectedWallet = wallets.find(
+        (wallet) => wallet.connectorType === user?.wallet?.connectorType
+      )
+      if (connectedWallet) {
+        setActiveWallet(connectedWallet)
+        setIsLogged(true)
+      }
+    }
+  }, [isLogged, user?.wallet?.connectorType, wallets, walletsReady])
+
+  useEffect(() => {
+    if (isLogged && walletsReady) {
       if (web3Client === 'etherspot' && smartAccountClient) {
         refetchSession()
       }
-      if (web3Client == 'eoa' && walletClient) {
-        refetchSession()
-      }
+      // if (web3Client === 'eoa') {
+      //   refetchSession()
+      // }
     }
-  }, [refetchSession, smartAccountClient, walletClient, web3Client, isLogged, walletsReady])
+  }, [refetchSession, smartAccountClient, web3Client, isLogged, walletsReady])
 
   const displayName = useMemo(() => {
     if (profileData?.displayName) {
@@ -281,38 +334,29 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData, web3Client, user?.wallet?.address, smartAccountClient])
 
   const account = useMemo(() => {
+    if (!isLogged) {
+      return
+    }
     if (web3Client === 'etherspot') {
       if (smartAccountClient) {
         return smartAccountClient.account?.address
       }
     }
     return user?.wallet?.address as Address | undefined
-  }, [smartAccountClient, user, web3Client])
+  }, [smartAccountClient, user, web3Client, isLogged])
 
   useEffect(() => {
+    if (!isLogged) {
+      return
+    }
     if (web3Client === 'etherspot' && !smartAccountClient) {
-      return
-    }
-    if (!walletClient) {
-      return
-    }
-    if (!walletsReady) {
       return
     }
     if (!profileLoading && user?.wallet?.address) {
       if (profileData === null && authenticated) {
+        debugger
         onCreateProfile()
         return
-      }
-    }
-    if (!profileLoading && user?.wallet?.address) {
-      const isLogged = Cookies.get('logged-in-to-limitless')
-      if (!isLogged) {
-        login({
-          client: web3Client,
-          account: user.wallet.address as Address,
-          smartWallet: smartAccountClient?.account?.address,
-        })
       }
     }
   }, [
@@ -324,48 +368,58 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     authenticated,
     walletClient,
     walletsReady,
+    isLogged,
   ])
+
+  const getSmartAccountClient = async (wallet: ConnectedWallet) => {
+    const provider = await wallet.getEthereumProvider()
+    //@ts-ignore
+    const customSigner = await providerToSmartAccountSigner(provider)
+    // const customSigner = walletClientToSmartAccountSigner(walletClient)
+
+    const safeSmartAccountClient = await signerToSafeSmartAccount(publicClient, {
+      entryPoint: ENTRYPOINT_ADDRESS_V06,
+      signer: customSigner,
+      safeVersion: '1.4.1',
+      saltNonce: BigInt(0),
+    })
+
+    return createSmartAccountClient({
+      account: safeSmartAccountClient,
+      entryPoint: ENTRYPOINT_ADDRESS_V06,
+      chain: defaultChain,
+      bundlerTransport: http(pimlicoRpcUrl, {
+        timeout: 30_000,
+      }),
+      middleware: {
+        gasPrice: async () => (await bundlerClient.getUserOperationGasPrice()).fast,
+        sponsorUserOperation: pimlicoPaymaster.sponsorUserOperation,
+      },
+    })
+  }
+
+  const getAndStoreSmartAccountClient = async (wallet: ConnectedWallet) => {
+    const smartAccountClient = await getSmartAccountClient(wallet)
+    //@ts-ignore
+    setSmartAccountClient(smartAccountClient)
+  }
 
   useEffect(() => {
     ;(async () => {
       if (
-        authenticated &&
+        isLogged &&
         wallets.length &&
         walletsReady &&
         web3Client === 'etherspot' &&
         !smartAccountClient
       ) {
         const embeddedWallet = wallets.find((wallet) => wallet.walletClientType === 'privy')
-        const provider = await embeddedWallet?.getEthereumProvider()
-        //@ts-ignore
-        const customSigner = await providerToSmartAccountSigner(provider)
-        // const customSigner = walletClientToSmartAccountSigner(walletClient)
-
-        const safeSmartAccountClient = await signerToSafeSmartAccount(publicClient, {
-          entryPoint: ENTRYPOINT_ADDRESS_V06,
-          signer: customSigner,
-          safeVersion: '1.4.1',
-          saltNonce: BigInt(0),
-        })
-
-        const smartAccountClient = createSmartAccountClient({
-          account: safeSmartAccountClient,
-          entryPoint: ENTRYPOINT_ADDRESS_V06,
-          chain: defaultChain,
-          bundlerTransport: http(pimlicoRpcUrl, {
-            timeout: 30_000,
-          }),
-          middleware: {
-            gasPrice: async () => (await bundlerClient.getUserOperationGasPrice()).fast,
-            sponsorUserOperation: pimlicoPaymaster.sponsorUserOperation,
-          },
-        })
-
-        // @ts-ignore
-        setSmartAccountClient(smartAccountClient)
+        if (embeddedWallet) {
+          getAndStoreSmartAccountClient(embeddedWallet)
+        }
       }
     })()
-  }, [authenticated, wallets, publicClient, web3Client, smartAccountClient, walletsReady])
+  }, [isLogged, wallets, publicClient, web3Client, smartAccountClient, walletsReady])
 
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
@@ -393,6 +447,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       queryKey: ['profiles'],
     })
     setSmartAccountClient(null)
+    setIsLogged(false)
   }, [pathname])
 
   const contextProviderValue: IAccountContext = {
@@ -409,6 +464,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     onUnblockUser,
     web3Client,
     smartAccountClient,
+    isLogged,
+    setIsLogged,
+    loginToPlatform,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>

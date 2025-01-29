@@ -10,6 +10,8 @@ export const useUserSession = ({ client, account, smartWallet }: IUseLogin) => {
   const { isLogged } = useClient()
   const { data: walletClient } = useWalletClient()
 
+  console.log(walletClient)
+
   return useQuery({
     queryKey: ['user-session'],
     queryFn: async () => {

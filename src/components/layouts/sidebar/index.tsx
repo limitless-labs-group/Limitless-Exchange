@@ -15,7 +15,8 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { usePrivy } from '@privy-io/react-auth'
+import { useLogin as usePrivyLogin, usePrivy, useWallets } from '@privy-io/react-auth'
+import { useSetActiveWallet } from '@privy-io/wagmi'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useCallback, useMemo } from 'react'
@@ -33,9 +34,9 @@ import UpgradeWalletContainer from '@/components/common/upgrade-wallet-container
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
-import { wethABI } from '@/contracts'
 import { erc20Abi } from '@/contracts/generated'
 import { useToast } from '@/hooks'
+import { useLogin } from '@/hooks/profiles'
 import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
 import usePrivySendTransaction from '@/hooks/use-privy-send-transaction'
@@ -60,6 +61,7 @@ import {
   CreateMarketClickedMetadata,
   LogoClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
+  SignInEvent,
   useAccount,
   useAmplitude,
   useBalanceQuery,
@@ -80,6 +82,7 @@ export default function Sidebar() {
     web3Client,
     isLoggedIn,
     smartAccountClient,
+    loginToPlatform,
   } = useAccount()
   const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
@@ -394,7 +397,7 @@ export default function Sidebar() {
           </>
         ) : (
           <Box mt='16px' w='full'>
-            <LoginButton />
+            <LoginButton login={loginToPlatform} />
           </Box>
         )}
 
