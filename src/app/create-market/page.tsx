@@ -36,13 +36,11 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { isMobile } from 'react-device-detect'
 import { MultiValue } from 'react-select'
-import CreatableSelect from 'react-select/creatable'
 import TimezoneSelect, {
   allTimezones,
   ITimezoneOption,
   useTimezoneSelect,
 } from 'react-timezone-select'
-import { formatUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import Paper from '@/components/common/paper'
 import { Toast } from '@/components/common/toast'
@@ -65,12 +63,7 @@ import BaseWhiteIcon from '@/resources/icons/base-icon-white.svg'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
 import { ClickEvent, useAmplitude, useCategories, useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import {
-  captionRegular,
-  h1Bold,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
+import { captionRegular, h1Bold, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Category } from '@/types'
 import { Token, Tag, TagOption, IFormData } from '@/types/draft'
 import { truncateEthAddress } from '@/utils'

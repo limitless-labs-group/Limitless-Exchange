@@ -1,6 +1,6 @@
 'use client'
 
-import { Link, Box, HStack, Text } from '@chakra-ui/react'
+import { Link, HStack, Text, VStack, Box } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
@@ -27,6 +27,7 @@ import {
   useTradingService,
 } from '@/services'
 import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
@@ -67,14 +68,6 @@ const MainPage = () => {
     trackOpened(OpenEvent.PageOpened, analyticData)
   }, [])
 
-  const categoryEntity = useMemo(() => {
-    return (
-      categories?.find(
-        (categoryEntity) => categoryEntity.name.toLowerCase() === category?.toLowerCase()
-      ) || null
-    )
-  }, [categories, category])
-
   /**
    * UI
    */
@@ -92,14 +85,25 @@ const MainPage = () => {
     setSelectedSort(options)
   }
 
-  const { data: banneredMarkets, isFetching: isBanneredLoading } =
-    useBanneredMarkets(categoryEntity)
+  const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
 
   const { selectedCategory, handleCategory } = useTokenFilter()
 
+  useEffect(() => {
+    if (category && categories) {
+      const categoryFromUrl = categories.find(
+        (c) => c.name.toLowerCase() === category.toLowerCase()
+      )
+      if (categoryFromUrl) {
+        handleCategory(categoryFromUrl)
+      }
+    }
+  }, [category, categories])
+
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
-    useMarkets(categoryEntity)
+
+  // pass categoryEntity to useMarket to make call with category
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useMarkets(null)
 
   const totalAmount = useMemo(() => data?.pages[0]?.data.totalAmount ?? 0, [data?.pages])
 
@@ -129,18 +133,14 @@ const MainPage = () => {
 
   return (
     <MainLayout layoutPadding={'0px'}>
-      <HStack
-        className='w-full'
-        alignItems='flex-start'
-        w={isMobile ? 'full' : 'calc(100vw - 690px)'}
-        justifyContent='center'
-      >
-        <Box w={isMobile ? 'full' : '664px'}>
+      <HStack className='w-full' alignItems='flex-start' w='full' justifyContent='center'>
+        <VStack w='full' justifyContent='center'>
           <>
             {isMobile ? (
               <HStack
-                gap='8px'
+                gap='0px'
                 px='8px'
+                pb='8px'
                 overflowX='auto'
                 css={{
                   '&::-webkit-scrollbar': {
@@ -150,8 +150,16 @@ const MainPage = () => {
                   '-ms-overflow-style': 'none',
                 }}
                 minW='100%'
+                w='full'
               >
-                <NextLink href='/' passHref style={{ width: isMobile ? 'fit-content' : '100%' }}>
+                <NextLink
+                  href='/'
+                  passHref
+                  style={{
+                    width: isMobile ? 'fit-content' : '100%',
+                    textDecoration: 'none',
+                  }}
+                >
                   <Link
                     onClick={() => {
                       trackClicked<ProfileBurgerMenuClickedMetadata>(
@@ -166,13 +174,15 @@ const MainPage = () => {
                     w='full'
                     h='24px'
                     textDecoration='none'
+                    _active={{ textDecoration: 'none' }}
+                    _hover={{ textDecoration: 'none' }}
                     bg={pageName === 'Explore Markets' && !selectedCategory ? 'grey.100' : 'unset'}
                     rounded='8px'
                   >
                     <HStack w='full' whiteSpace='nowrap'>
                       <GridIcon width={16} height={16} />
-                      <Text fontWeight={500} fontSize='14px'>
-                        All markets
+                      <Text {...paragraphMedium} fontWeight={500}>
+                        {`All markets ${isFetching ? '' : `(${totalAmount})`} `}
                       </Text>
                     </HStack>
                   </Link>
@@ -183,7 +193,20 @@ const MainPage = () => {
             ) : null}
 
             {selectedCategory ? (
-              <MarketCategoryHeader name={selectedCategory.name} />
+              <Box
+                w='full'
+                overflowX='scroll'
+                css={{
+                  '&::-webkit-scrollbar': {
+                    display: 'none',
+                  },
+                  scrollbarWidth: 'none',
+                  '-ms-overflow-style': 'none',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
+                <MarketCategoryHeader name={selectedCategory.name} />
+              </Box>
             ) : (
               <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
             )}
@@ -193,7 +216,7 @@ const MainPage = () => {
               dataLength={markets?.length ?? 0}
               next={fetchNextPage}
               hasMore={hasNextPage}
-              style={{ width: '100%' }}
+              style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
               loader={
                 markets.length > 0 && markets.length < totalAmount ? (
                   <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
@@ -206,12 +229,11 @@ const MainPage = () => {
               <MarketsSection
                 markets={sortedAllMarkets as Market[]}
                 handleSelectSort={handleSelectSort}
-                totalAmount={filteredAllMarkets?.length ?? ''}
                 isLoading={isFetching && !isFetchingNextPage}
               />
             </InfiniteScroll>
           </>
-        </Box>
+        </VStack>
       </HStack>
     </MainLayout>
   )

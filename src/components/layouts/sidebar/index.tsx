@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Divider,
+  Flex,
   HStack,
   Link,
   Menu,
@@ -21,8 +22,8 @@ import React, { useCallback, useMemo } from 'react'
 import { useAccount as useWagmiAccount } from 'wagmi'
 import Avatar from '@/components/common/avatar'
 import { LoginButton } from '@/components/common/login-button'
+import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import WrapModal from '@/components/common/modals/wrap-modal'
-import MyMarkets from '@/components/common/my-markets'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
@@ -30,11 +31,11 @@ import SocialsFooter from '@/components/common/socials-footer'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
+import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import usePageName from '@/hooks/use-page-name'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useThemeProvider } from '@/providers'
-import AiAgentIcon from '@/resources/icons/ai-agent-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import LogoutIcon from '@/resources/icons/log-out-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
@@ -44,13 +45,10 @@ import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
-import MyMarketsIcon from '@/resources/icons/sidebar/my-markets.svg'
-import SquarePlusIcon from '@/resources/icons/sidebar/suggest_market.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import UserIcon from '@/resources/icons/user-icon.svg'
 import {
   ClickEvent,
-  CreateMarketClickedMetadata,
   LogoClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
   useAccount,
@@ -58,9 +56,12 @@ import {
   useBalanceQuery,
   useBalanceService,
   useEtherspot,
+  usePosition,
 } from '@/services'
+import { useMarkets } from '@/services/MarketsService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market, MarketGroup } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function Sidebar() {
@@ -75,6 +76,13 @@ export default function Sidebar() {
   const { client } = useWeb3Service()
   const { isLoadingSmartWalletAddress } = useEtherspot()
   const { data: totalVolume } = useTotalTradingVolume()
+  const { data: positions } = usePosition()
+  const { selectedCategory, handleCategory } = useTokenFilter()
+  const { data, isLoading } = useMarkets(null)
+
+  const markets: (Market | MarketGroup)[] = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data.markets) || []
+  }, [data?.pages])
 
   const pageName = usePageName()
   const userMenuLoading = useMemo(() => {
@@ -86,6 +94,10 @@ export default function Sidebar() {
     }
     return false //#fix for dev env
   }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
+
+  const hasWinningPosition = useMemo(() => {
+    return positions?.some((position) => position.market.closed)
+  }, [positions])
 
   const {
     isOpen: isOpenWalletPage,
@@ -105,8 +117,6 @@ export default function Sidebar() {
   } = useDisclosure()
 
   const { isOpen: isOpenProfile, onToggle: onToggleProfile } = useDisclosure()
-
-  const { isOpen: isOpenMyMarkets, onToggle: onToggleMyMarkets } = useDisclosure()
 
   const handleOpenWalletPage = useCallback(() => {
     if (client === 'eoa') return
@@ -191,19 +201,24 @@ export default function Sidebar() {
         pos='fixed'
         overflowY='auto'
       >
-        <NextLink href='/' passHref>
+        <NextLink href='/' passHref style={{ width: '100%', textDecoration: 'none' }}>
           <Link
             onClick={() => {
               trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
               window.localStorage.removeItem('SORT')
+              handleCategory(undefined)
             }}
+            style={{ textDecoration: 'none' }}
+            _hover={{ textDecoration: 'none' }}
           >
-            <Image
-              src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
-              height={32}
-              width={156}
-              alt='logo'
-            />
+            <HStack w='full' alignItems='center'>
+              <Image
+                src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+                height={32}
+                width={156}
+                alt='logo'
+              />
+            </HStack>
           </Link>
         </NextLink>
 
@@ -227,11 +242,21 @@ export default function Sidebar() {
                   bg={pageName === 'Portfolio' ? 'grey.100' : 'unset'}
                   rounded='8px'
                 >
-                  <HStack w='full'>
+                  <HStack w='full' gap='0'>
                     <PortfolioIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
+                    <Text fontWeight={500} fontSize='14px' marginLeft='8px'>
                       Portfolio
                     </Text>
+                    {hasWinningPosition ? (
+                      <Flex
+                        bg='red.500'
+                        h='8px'
+                        w='8px'
+                        borderRadius='10px'
+                        marginLeft='3px'
+                        alignSelf='start'
+                      />
+                    ) : null}
                   </HStack>
                 </Link>
               </NextLink>
@@ -258,25 +283,25 @@ export default function Sidebar() {
               {/*  </HStack>*/}
               {/*</Button>*/}
 
-              <NextLink href='/create-market' passHref style={{ width: '100%' }}>
-                <Link
-                  onClick={() => {
-                    trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
-                      page: pageName,
-                    })
-                  }}
-                  variant='transparent'
-                  w='full'
-                  rounded='8px'
-                >
-                  <HStack w='full'>
-                    <SquarePlusIcon width={16} height={16} />
-                    <Text fontWeight={500} fontSize='14px'>
-                      Create market
-                    </Text>
-                  </HStack>
-                </Link>
-              </NextLink>
+              {/*<NextLink href='/create-market' passHref style={{ width: '100%' }}>*/}
+              {/*  <Link*/}
+              {/*    onClick={() => {*/}
+              {/*      trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {*/}
+              {/*        page: pageName,*/}
+              {/*      })*/}
+              {/*    }}*/}
+              {/*    variant='transparent'*/}
+              {/*    w='full'*/}
+              {/*    rounded='8px'*/}
+              {/*  >*/}
+              {/*    <HStack w='full'>*/}
+              {/*      <SquarePlusIcon width={16} height={16} />*/}
+              {/*      <Text fontWeight={500} fontSize='14px'>*/}
+              {/*        Create market*/}
+              {/*      </Text>*/}
+              {/*    </HStack>*/}
+              {/*  </Link>*/}
+              {/*</NextLink>*/}
 
               <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
                 {userMenuLoading ? (
@@ -315,7 +340,7 @@ export default function Sidebar() {
                   </MenuButton>
                 )}
 
-                <MenuList borderRadius='8px' w='182px' zIndex={2}>
+                <MenuList borderRadius='8px' w='180px' zIndex={2}>
                   <HStack gap='4px' mb='4px'>
                     <Button
                       variant={mode === 'dark' ? 'transparent' : 'black'}
@@ -379,26 +404,6 @@ export default function Sidebar() {
           </Box>
         )}
         <Divider my='12px' />
-        <NextLink href='/' passHref style={{ width: '100%' }}>
-          <Link
-            onClick={() => {
-              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
-                option: 'Markets',
-              })
-            }}
-            variant='transparent'
-            w='full'
-            bg={pageName === 'Explore Markets' ? 'grey.100' : 'unset'}
-            rounded='8px'
-          >
-            <HStack w='full'>
-              <GridIcon width={16} height={16} />
-              <Text fontWeight={500} fontSize='14px'>
-                Markets
-              </Text>
-            </HStack>
-          </Link>
-        </NextLink>
         <NextLink href='/leaderboard' passHref style={{ width: '100%' }}>
           <Link
             onClick={() => {
@@ -439,31 +444,33 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        <NextLink href='/lumy' passHref style={{ width: '100%' }}>
+
+        <Divider my='12px' />
+
+        <NextLink href='/' passHref style={{ width: '100%' }}>
           <Link
             onClick={() => {
               trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
-                option: 'Lumy',
+                option: 'Markets',
               })
+              handleCategory(undefined)
             }}
             variant='transparent'
             w='full'
-            bg={pageName === 'Home' ? 'grey.100' : 'unset'}
+            bg={pageName === 'Explore Markets' && !selectedCategory ? 'grey.100' : 'unset'}
             rounded='8px'
           >
             <HStack w='full'>
-              <AiAgentIcon />
-              <Text
-                fontWeight={500}
-                fontSize='14px'
-                bgGradient='linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'
-                bgClip='text'
-              >
-                AI Agent
+              <GridIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                {`All markets ${isLoading ? '' : `(${markets?.length})`} `}
               </Text>
             </HStack>
           </Link>
         </NextLink>
+
+        <CategoryItems />
+
         <Spacer />
         {totalVolume && (
           <NextLink
@@ -490,21 +497,20 @@ export default function Sidebar() {
         <Divider />
         <SocialsFooter />
       </VStack>
-      {isOpenWalletPage ||
-        (isOpenMyMarkets && (
-          <Box
-            position='fixed'
-            top={0}
-            left={0}
-            bottom={0}
-            w='full'
-            zIndex={100}
-            bg='rgba(0, 0, 0, 0.3)'
-            mt='20px'
-            ml='188px'
-            animation='fadeIn 0.5s'
-          ></Box>
-        ))}
+      {isOpenWalletPage && (
+        <Box
+          position='fixed'
+          top={0}
+          left={0}
+          bottom={0}
+          w='full'
+          zIndex={100}
+          bg='rgba(0, 0, 0, 0.3)'
+          mt='20px'
+          ml='188px'
+          animation='fadeIn 0.5s'
+        ></Box>
+      )}
       <Slide
         direction='left'
         in={isOpenWalletPage}
@@ -523,42 +529,24 @@ export default function Sidebar() {
       >
         <WalletPage onClose={onToggleWalletPage} />
       </Slide>
-      {/*<Slide*/}
-      {/*  direction='left'*/}
-      {/*  in={isOpenProfile}*/}
-      {/*  style={{*/}
-      {/*    zIndex: 100,*/}
-      {/*    marginTop: '20px',*/}
-      {/*    marginLeft: '197px',*/}
-      {/*    transition: '0.1s',*/}
-      {/*  }}*/}
-      {/*  onClick={() => {*/}
-      {/*    trackClicked(ClickEvent.ProfileBurgerMenuClicked, {*/}
-      {/*      page: pageName,*/}
-      {/*    })*/}
-      {/*    onToggleProfile()*/}
-      {/*  }}*/}
-      {/*>*/}
-      {/*  <Profile isOpen={isOpenProfile} />*/}
-      {/*</Slide>*/}
-      {/*<Slide*/}
-      {/*  direction='left'*/}
-      {/*  in={isOpenMyMarkets}*/}
-      {/*  style={{*/}
-      {/*    zIndex: 100,*/}
-      {/*    marginTop: '20px',*/}
-      {/*    marginLeft: '197px',*/}
-      {/*    transition: '0.1s',*/}
-      {/*  }}*/}
-      {/*  onClick={() => {*/}
-      {/*    trackClicked(ClickEvent.ProfileBurgerMenuClicked, {*/}
-      {/*      page: pageName,*/}
-      {/*    })*/}
-      {/*    onToggleMyMarkets()*/}
-      {/*  }}*/}
-      {/*>*/}
-      {/*  <MyMarkets />*/}
-      {/*</Slide>*/}
+      <Slide
+        direction='left'
+        in={isOpenProfile}
+        style={{
+          zIndex: 100,
+          marginTop: '20px',
+          marginLeft: '197px',
+          transition: '0.1s',
+        }}
+        onClick={() => {
+          trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+            page: pageName,
+          })
+          onToggleProfile()
+        }}
+      >
+        <Profile isOpen={isOpenProfile} />
+      </Slide>
 
       {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}
 

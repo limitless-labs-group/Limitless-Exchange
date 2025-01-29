@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import React, { LegacyRef, useEffect, useMemo, useRef } from 'react'
+import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
@@ -29,10 +29,11 @@ import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
 import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/trading-widget-advanced'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
-import ProgressBar from '@/components/common/progress-bar'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
+import { LUMY_TOKENS } from '@/app/draft/components'
 import CommentTab from './comment-tab'
+import { MarketProgressBar } from './market-cards/market-progress-bar'
 import { UniqueTraders } from './unique-traders'
 import useMarketGroup from '@/hooks/use-market-group'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
@@ -42,32 +43,15 @@ import ExpandIcon from '@/resources/icons/expand-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
+import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
-import { h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { h2Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
-import { defineOpenInterestOverVolume } from '@/utils/market'
-
-const tokens = [
-  'AAVE',
-  'APE',
-  'ATOM',
-  'APT',
-  'BRETT',
-  'BTC',
-  'DOGE',
-  'EIGEN',
-  'ENS',
-  'ETH',
-  'FLOKI',
-  'RENDER',
-  'SOL',
-  'SUI',
-  'ZRO',
-  'ZK',
-]
 
 export default function MarketPage() {
+  const [activeTabIndex, setActiveTabIndex] = useState(0)
+
   const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
 
   const {
@@ -106,28 +90,10 @@ export default function MarketPage() {
     }
   }, [updatedMarketGroup])
 
-  const isLumy = market?.category === 'Lumy'
+  const isLumy = market?.tags?.includes('Lumy')
 
   const isLivePriceSupportedMarket =
-    isLumy &&
-    [
-      'Will AAVE',
-      'Will APE',
-      'Will ATOM',
-      'Will APT',
-      'Will BRETT',
-      'Will BTC',
-      'Will DOGE',
-      'Will EIGEN',
-      'Will ENS',
-      'Will ETH',
-      'Will FLOKI',
-      'Will RENDER',
-      'Will SOL',
-      'Will SUI',
-      'Will ZRO',
-      'Will ZK',
-    ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
+    isLumy && LUMY_TOKENS.some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = [
     {
@@ -147,7 +113,7 @@ export default function MarketPage() {
       <MarketPriceChart key={uuidv4()} />,
       <MarketAssetPriceChart
         key={uuidv4()}
-        id={tokens.filter((token) => market?.title.includes(token))[0]}
+        id={LUMY_TOKENS.filter((token) => market?.title.includes(token))[0]}
       />,
     ],
     [market?.title]
@@ -175,11 +141,13 @@ export default function MarketPage() {
     },
   ]
 
-  const tabPanels = [
-    <MarketPageOverviewTab key={uuidv4()} />,
-    <MarketActivityTab key={uuidv4()} />,
-    <CommentTab key={uuidv4()} />,
-  ]
+  const tabPanels = useMemo(() => {
+    return [
+      <MarketPageOverviewTab key={uuidv4()} />,
+      <MarketActivityTab key={uuidv4()} isActive={activeTabIndex === 1} />,
+      <CommentTab key={uuidv4()} />,
+    ]
+  }, [activeTabIndex])
 
   const removeMarketQuery = () => {
     const params = new URLSearchParams(searchParams.toString())
@@ -218,8 +186,12 @@ export default function MarketPage() {
     setStrategy('Buy')
   }, [])
 
+  const trackedMarketsRef = useRef(new Set<string>())
+
   useEffect(() => {
-    if (market) {
+    //avoid triggering amplitude call twice
+    if (market?.address && !trackedMarketsRef.current.has(market.address)) {
+      trackedMarketsRef.current.add(market.address)
       trackOpened(OpenEvent.SidebarMarketOpened, {
         marketAddress: market.slug,
         marketTags: market.tags,
@@ -267,7 +239,9 @@ export default function MarketPage() {
       p={isMobile ? '12px' : '16px'}
       pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
+      id='side-menu-scroll-container'
       backdropFilter='blur(7.5px)'
+      zIndex='200'
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
@@ -322,17 +296,10 @@ export default function MarketPage() {
         {isMobile && <ShareMenu />}
       </HStack>
       <Box w='full' mt={isMobile ? '56px' : '24px'}>
-        <HStack w='full' justifyContent='space-between' mb='4px'>
-          <Text {...paragraphMedium} color='#0FC591'>
-            Yes {market?.prices[0]}%
-          </Text>
-          <Text {...paragraphMedium} color='#FF3756'>
-            No {market?.prices[1]}%
-          </Text>
-        </HStack>
-        <ProgressBar variant='market' value={market ? market.prices[0] : 50} />
+        <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
         <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
+            <VolumeIcon width={16} height={16} />
             <Text {...paragraphRegular} color='grey.500'>
               Volume
             </Text>
@@ -341,33 +308,20 @@ export default function MarketPage() {
               {market?.collateralToken.symbol}
             </Text>
           </HStack>
-          {defineOpenInterestOverVolume(
-            market?.openInterestFormatted || '0',
-            market?.liquidityFormatted || '0'
-          ).showOpenInterest ? (
-            <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
-              <UniqueTraders color='grey.50' />
-              <Text {...paragraphRegular} color='grey.500'>
-                Value
-              </Text>
-              <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(
-                  market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
-                  6
-                )}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
-              <OpenInterestTooltip iconColor='grey.500' />
-            </HStack>
-          ) : (
-            <HStack gap='4px' w={isMobile ? 'full' : 'unset'} justifyContent='unset'>
-              <Box {...paragraphRegular}>💧 </Box>
-              <Text {...paragraphRegular} color='grey.500'>
-                Liquidity {NumberUtil.convertWithDenomination(market?.liquidityFormatted, 6)}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
-            </HStack>
-          )}
+          <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
+            <UniqueTraders color='grey.50' />
+            <Text {...paragraphRegular} color='grey.500'>
+              Value
+            </Text>
+            <Text {...paragraphRegular} color='grey.500'>
+              {NumberUtil.convertWithDenomination(
+                market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
+                6
+              )}{' '}
+              {market?.collateralToken.symbol}
+            </Text>
+            <OpenInterestTooltip iconColor='grey.500' />
+          </HStack>
         </HStack>
         <Divider my={isMobile ? '24px' : '16px'} />
       </Box>
@@ -406,7 +360,7 @@ export default function MarketPage() {
         <MarketPositionsAmm />
       )}
 
-      <Tabs position='relative' variant='common'>
+      <Tabs position='relative' variant='common' onChange={(index) => setActiveTabIndex(index)}>
         <TabList>
           {tabs.map((tab) => (
             <Tab key={tab.title}>

@@ -2,6 +2,7 @@ import axios from 'axios'
 import { getFrameMetadata } from 'frog/next'
 import { Metadata } from 'next'
 import { Market } from '@/types'
+import { convertHtmlToText } from '@/utils/html-utils'
 
 type Props = {
   params: { address: string }
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: market?.proxyTitle ?? market?.title ?? 'Noname market',
       openGraph: {
         title: market?.proxyTitle ?? market?.title ?? 'Noname market',
-        description: market?.description,
+        description: convertHtmlToText(market?.description),
         images: [`${market?.ogImageURI}`],
       },
       //@ts-ignore

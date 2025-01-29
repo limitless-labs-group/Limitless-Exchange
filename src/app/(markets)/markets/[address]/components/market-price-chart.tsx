@@ -9,6 +9,7 @@ import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import { useMarketPriceHistory } from '@/hooks/use-market-price-history'
 import { useThemeProvider } from '@/providers'
+import LimitlessLogo from '@/resources/icons/limitless-logo.svg'
 import { useTradingService } from '@/services'
 import { useWinningIndex } from '@/services/MarketsService'
 import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
@@ -17,7 +18,6 @@ const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
 export const MarketPriceChart = () => {
   const { colors } = useThemeProvider()
-  const [yesChance, setYesChance] = useState('')
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%b %e, %Y %I:%M %p', Date.now()) ?? ''
   )
@@ -32,147 +32,141 @@ export const MarketPriceChart = () => {
 
   const getMaxChartTimestamp = (data?: number[][]) => {
     if (market) {
-      // Todo revert this back before going to prod
-      // if (new Date().getTime() > market.expirationTimestamp) {
-      //   return market.expirationTimestamp + 1200000
-      // }
+      if (new Date().getTime() > market.expirationTimestamp) {
+        return market.expirationTimestamp + 1200000
+      }
       return data ? data[data.length - 1]?.[0] : new Date().getTime()
     }
     return new Date().getTime()
   }
 
   // Function to generate chart options
-  const getChartOptions = (data: number[][] | undefined): Highcharts.Options => {
-    return {
-      chart: {
-        zooming: {
-          type: 'x',
+  const getChartOptions = (data: number[][] | undefined): Highcharts.Options => ({
+    chart: {
+      zooming: {
+        type: 'x',
+      },
+      height: 230,
+      backgroundColor: colors.grey['100'],
+      marginLeft: isMobile ? 75 : 50,
+      marginRight: isMobile ? 10 : 5,
+    },
+    title: {
+      text: undefined,
+    },
+    xAxis: {
+      type: 'datetime',
+      ordinal: false,
+      tickPosition: 'outside',
+      lineColor: colors.grey['200'],
+      tickColor: colors.grey['200'],
+      tickLength: 0,
+      max: getMaxChartTimestamp(data),
+      labels: {
+        step: 0,
+        rotation: 0,
+        align: 'center',
+        style: {
+          fontFamily: 'Inter',
+          fontSize: isMobile ? '14px' : '12px',
+          color: colors.grey['400'],
         },
-        height: 230,
-        backgroundColor: colors.grey['100'],
-        marginLeft: isMobile ? 60 : 50,
-        marginRight: 0,
-      },
-      title: {
-        text: undefined,
-      },
-      xAxis: {
-        type: 'datetime',
-        ordinal: false,
-        tickPosition: 'outside',
-        lineColor: colors.grey['200'],
-        tickColor: colors.grey['200'],
-        tickLength: 0,
-        max: getMaxChartTimestamp(data),
-        labels: {
-          step: 0,
-          rotation: 0,
-          align: 'center',
-          style: {
-            fontFamily: 'Inter',
-            fontSize: isMobile ? '14px' : '12px',
-            color: colors.grey['400'],
-          },
-          formatter: function () {
-            return Highcharts.dateFormat('%b %e', Number(this.value))
-          },
-        },
-      },
-      yAxis: {
-        visible: true,
-        min: 0,
-        max: 100,
-        tickInterval: 25,
-        title: {
-          text: 'Percentage (%)',
-          style: {
-            color: colors.grey['600'],
-          },
-        },
-        labels: {
-          format: '{value}%',
-          style: {
-            fontFamily: 'Inter',
-            fontSize: isMobile ? '14px' : '12px',
-            color: colors.grey['400'],
-          },
-        },
-        gridLineColor: colors.grey['200'],
-        lineWidth: 1,
-        lineColor: colors.grey['200'],
-        tickWidth: 1,
-        tickColor: colors.grey['200'],
-      },
-      legend: {
-        enabled: false,
-      },
-      credits: {
-        enabled: false,
-      },
-      tooltip: {
-        shared: true,
         formatter: function () {
-          return `YES: <b>${Number(this.y).toFixed(2)}%</b>`
+          return Highcharts.dateFormat('%b %e', Number(this.value))
         },
       },
-      plotOptions: {
-        series: {
-          lineWidth: 4,
-          marker: {
-            enabled: false,
-          },
-          point: {
-            events: {
-              mouseOver: function () {
-                //@ts-ignore
-                setYesDate(Highcharts.dateFormat('%B %e, %Y %I:%M %p', Number(this.x)))
-                //@ts-ignore
-                setYesChance(this.y.toFixed(2))
-              },
-            },
-          },
-        },
-        area: {
-          fillColor: {
-            linearGradient: {
-              x1: 0,
-              y1: 0,
-              x2: 0,
-              y2: 1,
-            },
-            stops: [
-              //@ts-ignore
-              [0, Highcharts.color('#0FC591').setOpacity(0.3).get('rgba')],
-              //@ts-ignore
-              [1, Highcharts.color('#0FC591').setOpacity(0).get('rgba')],
-            ],
-            brighten: 0.2,
-          },
-          marker: {
-            radius: 2,
-          },
-          lineWidth: 1,
-          states: {
-            hover: {
-              lineWidth: 1,
-            },
-          },
-          threshold: null,
+    },
+    yAxis: {
+      visible: true,
+      min: 0,
+      max: 100,
+      tickInterval: 25,
+      title: {
+        text: 'Percentage (%)',
+        style: {
+          color: colors.grey['600'],
         },
       },
-      series: [
-        {
-          type: 'area',
-          name: 'Price',
-          data: data,
-          turboThreshold: 2000,
-          boostThreshold: 2000,
-          color: '#0FC591',
-          lineWidth: 2,
+      labels: {
+        format: '{value}%',
+        style: {
+          fontFamily: 'Inter',
+          fontSize: isMobile ? '14px' : '12px',
+          color: colors.grey['400'],
         },
-      ],
-    }
-  }
+      },
+      gridLineColor: colors.grey['200'],
+      lineWidth: 1,
+      lineColor: colors.grey['200'],
+      tickWidth: 1,
+      tickColor: colors.grey['200'],
+    },
+    legend: {
+      enabled: false,
+    },
+    credits: {
+      enabled: false,
+    },
+    tooltip: {
+      shared: true,
+      formatter: function () {
+        return `YES: <b>${Number(this.y).toFixed(2)}%</b>`
+      },
+    },
+    plotOptions: {
+      series: {
+        lineWidth: 4,
+        marker: {
+          enabled: false,
+        },
+        point: {
+          events: {
+            mouseOver: function (this: Highcharts.Point) {
+              setYesDate(Highcharts.dateFormat('%B %e, %Y %I:%M %p', this.x as number))
+            },
+          },
+        },
+      },
+      area: {
+        fillColor: {
+          linearGradient: {
+            x1: 0,
+            y1: 0,
+            x2: 0,
+            y2: 1,
+          },
+          stops: [
+            //@ts-ignore
+            [0, Highcharts.color('#0FC591').setOpacity(0.3).get('rgba')],
+            //@ts-ignore
+            [1, Highcharts.color('#0FC591').setOpacity(0).get('rgba')],
+          ],
+          brighten: 0.2,
+        },
+        marker: {
+          radius: 2,
+        },
+        lineWidth: 1,
+        states: {
+          hover: {
+            lineWidth: 1,
+          },
+        },
+        threshold: null,
+      },
+    },
+    series: [
+      {
+        type: 'area',
+        name: 'Price',
+        data: data,
+        turboThreshold: 2000,
+        boostThreshold: 2000,
+        color: '#0FC591',
+        lineWidth: 2,
+      },
+    ],
+  })
 
   // React Query to fetch the price data
   const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(market)
@@ -276,24 +270,31 @@ export const MarketPriceChart = () => {
       {/*    /!*<ChevronDownIcon width={16} height={16} />*!/*/}
       {/*  </HStack>*/}
       {/*)}*/}
-      <Box px='8px'>
-        <HStack>
-          <VStack gap={-1} alignItems={'flex-start'}>
-            <Text fontSize='sm' color='grey.500'>
-              {yesDate}
+      <HStack px='8px' justifyContent='space-between'>
+        <VStack alignItems='start'>
+          <HStack>
+            <VStack gap={-1} alignItems={'flex-start'}>
+              <Text fontSize='sm' color='grey.500'>
+                {yesDate}
+              </Text>
+            </VStack>
+          </HStack>
+          <HStack gap={'4px'} mt='4px' mb='4px'>
+            <Text {...(isMobile ? paragraphMedium : headline)} color='grey.800'>
+              {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%
             </Text>
-          </VStack>
-        </HStack>
-        <HStack gap={'4px'} mt='4px'>
-          <Text {...(isMobile ? paragraphMedium : headline)} color='grey.800'>
-            {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%
+            <Text {...(isMobile ? paragraphMedium : headline)} color='grey.800'>
+              Yes
+            </Text>
+          </HStack>
+        </VStack>
+        <HStack gap='4px'>
+          <LimitlessLogo color={'var(--chakra-colors-grey-300)'} />
+          <Text {...headline} color={'var(--chakra-colors-grey-300)'}>
+            Limitless
           </Text>
-          <Text {...(isMobile ? paragraphMedium : headline)} color='grey.800'>
-            Yes
-          </Text>
-          {/*<ChevronDownIcon width={16} height={16} />*/}
         </HStack>
-      </Box>
+      </HStack>
       <HighchartsReact highcharts={Highcharts} options={getChartOptions(chartData)} />
     </Paper>
   )

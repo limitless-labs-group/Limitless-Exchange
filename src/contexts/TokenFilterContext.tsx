@@ -1,4 +1,3 @@
-// src/contexts/TokenFilterContext.tsx
 import React, { createContext, useContext, useState, ReactNode, FC } from 'react'
 import { Category, Token } from '@/types'
 

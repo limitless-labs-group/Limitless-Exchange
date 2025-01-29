@@ -2,13 +2,14 @@ import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
 import { ethers } from 'ethers'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import ProgressBar from '@/components/common/progress-bar'
 import { BigBannerProps } from './big-banner'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
+import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -75,21 +76,7 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
     }
   }
 
-  const uniqueUsersTrades = useMemo(() => {
-    if (marketFeedData?.data.length) {
-      const uniqueUsers = new Map()
-
-      for (const event of marketFeedData.data) {
-        if (!uniqueUsers.has(event.user?.account)) {
-          uniqueUsers.set(event.user?.account, event)
-        }
-        if (uniqueUsers.size >= 3) break
-      }
-
-      return Array.from(uniqueUsers.values())
-    }
-    return null
-  }, [marketFeedData])
+  const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
 
   return (
     <VStack
@@ -174,19 +161,17 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
               <Box>
                 <AnimatePresence>
                   <MotionBox
-                    initial={{ y: -48, opacity: 0 }}
-                    animate={{ y: -8, opacity: 1 }}
-                    exit={{ y: -8, opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                    position='absolute'
                     width='100%'
                     display='flex'
                     alignItems='center'
                     gap='8px'
                     key={feedMessage.bodyHash}
                   >
-                    <HStack gap='4px' alignItems='flex-start'>
-                      <Avatar account={feedMessage?.user?.account ?? ''} />
+                    <HStack gap='4px' alignItems='end'>
+                      <Avatar
+                        account={feedMessage?.user?.account ?? ''}
+                        avatarUrl={feedMessage?.user?.imageURI}
+                      />
                       <Text {...paragraphMedium} color='white' mt='-2px'>
                         {fetMarketFeedTitle(feedMessage)}
                       </Text>
@@ -196,9 +181,13 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
               </Box>
             )}
             <HStack gap='4px'>
-              <Box {...paragraphRegular}>💧 </Box>
               <Text {...paragraphRegular} color='transparent.700'>
-                Liquidity {NumberUtil.convertWithDenomination(market.liquidityFormatted, 6)}{' '}
+                Value{' '}
+                {NumberUtil.convertWithDenomination(
+                  Number(market.openInterestFormatted || 0) +
+                    Number(market.liquidityFormatted || 0),
+                  6
+                )}{' '}
                 {market.collateralToken.symbol}
               </Text>
             </HStack>

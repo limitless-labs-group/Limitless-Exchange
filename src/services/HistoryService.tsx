@@ -1,4 +1,4 @@
-import { QueryObserverResult, useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import { Hash } from 'viem'
@@ -11,7 +11,6 @@ import { NumberUtil } from '@/utils'
 
 interface IHistoryService {
   positions: HistoryPosition[] | undefined
-  getPositions: () => Promise<QueryObserverResult<HistoryPosition[], Error>>
   balanceInvested: string
   balanceToWin: string
   tradesAndPositionsLoading: boolean
@@ -22,42 +21,9 @@ const HistoryServiceContext = createContext({} as IHistoryService)
 export const useHistory = () => useContext(HistoryServiceContext)
 
 export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
-  /**
-   * ACCOUNT
-   */
-  const walletAddress = useWalletAddress()
-  const privateClient = useAxiosPrivateClient()
-
-  /**
-   * UTILS
-   */
   const { convertAssetAmountToUsd } = usePriceOracle()
   const { supportedTokens } = useLimitlessApi()
-
-  /**
-   * QUERIES
-   */
-
-  const {
-    data: positions,
-    refetch: getPositions,
-    isLoading: positionsLoading,
-  } = useQuery({
-    queryKey: ['positions'],
-    queryFn: async () => {
-      if (!walletAddress) {
-        return []
-      }
-      try {
-        const response = await privateClient.get<HistoryPosition[]>(`/portfolio/positions`)
-        return response.data
-      } catch (error) {
-        console.error('Error fetching positions:', error)
-        return []
-      }
-    },
-    enabled: !!walletAddress,
-  })
+  const { data: positions, isPending: isPositionsLoading } = usePosition()
 
   /**
    * BALANCES
@@ -95,11 +61,10 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     return NumberUtil.toFixed(_balanceToWin, 2)
   }, [positions])
 
-  const tradesAndPositionsLoading = positionsLoading
+  const tradesAndPositionsLoading = isPositionsLoading
 
   const contextProviderValue: IHistoryService = {
     positions,
-    getPositions,
     balanceInvested,
     balanceToWin,
     tradesAndPositionsLoading,
@@ -110,6 +75,29 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
       {children}
     </HistoryServiceContext.Provider>
   )
+}
+
+export const usePosition = () => {
+  const walletAddress = useWalletAddress()
+  const privateClient = useAxiosPrivateClient()
+
+  return useQuery({
+    queryKey: ['positions'],
+    queryFn: async () => {
+      if (!walletAddress) {
+        return []
+      }
+      try {
+        const response = await privateClient.get<HistoryPosition[]>(`/portfolio/positions`)
+        return response.data
+      } catch (error) {
+        console.error('Error fetching positions:', error)
+        return []
+      }
+    },
+    enabled: !!walletAddress,
+    refetchInterval: !!walletAddress ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
+  })
 }
 
 export const usePortfolioHistory = (page: number) => {

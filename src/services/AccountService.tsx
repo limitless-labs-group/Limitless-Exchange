@@ -1,6 +1,6 @@
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import { UserInfo } from '@web3auth/base'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import React, {
   PropsWithChildren,
   createContext,
@@ -56,6 +56,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const queryClient = useQueryClient()
   const { disconnect, isPending: disconnectPending } = useDisconnect()
   const { client } = useWeb3Service()
+  const pathname = usePathname()
+  const accountRoutes = ['/portfolio', '/create-market']
   const privateClient = useAxiosPrivateClient()
   /**
    * WEB3AUTH
@@ -242,7 +244,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const { refetch: refetchSession } = useUserSession({ client, account })
 
-  const signout = async () => {
+  const signout = useCallback(async () => {
     try {
       await logout()
       await Promise.all([
@@ -263,7 +265,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     } catch (error) {
       console.error('Logout failed:', error)
     }
-  }
+  }, [])
 
   const displayName = useMemo(() => {
     if (profileData?.displayName) {
@@ -323,6 +325,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   console.log(web3Auth)
 
   const disconnectFromPlatform = useCallback(async () => {
+    if (accountRoutes.includes(pathname)) {
+      router.push('/')
+    }
     disconnect()
     await logout()
     await web3Auth.logout()

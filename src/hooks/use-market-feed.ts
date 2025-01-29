@@ -69,7 +69,7 @@ export function useMarketClobInfinityFeed(marketSlug?: string) {
   })
 }
 
-export function useMarketInfinityFeed(marketAddress?: string) {
+export function useMarketInfinityFeed(marketAddress?: string | null, isActive = false) {
   const { isConnected } = useWagmiAccount()
   const privateClient = useAxiosPrivateClient()
   return useInfiniteQuery<MarketFeedData[], Error>({
@@ -92,7 +92,7 @@ export function useMarketInfinityFeed(marketAddress?: string) {
       return lastPage.data.length === 10 ? lastPage.next : null
     },
     refetchOnWindowFocus: false,
-    keepPreviousData: true,
-    enabled: !!marketAddress,
+    placeholderData: (placeholder) => placeholder,
+    enabled: !!marketAddress && isActive,
   })
 }

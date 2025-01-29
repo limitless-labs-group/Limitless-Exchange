@@ -11,7 +11,11 @@ export default function MarketPageOverviewTab() {
   return (
     <>
       <Box w={isMobile ? 'full' : 'fit-content'} mt='16px' pb={isMobile ? '64px' : 0}>
-        {market?.category !== 'Lumy' ? (
+        {market?.tags.includes('Lumy') ? (
+          <Link variant='textLinkSecondary' {...paragraphRegular} isExternal color='grey.500'>
+            Resolution is decentralised
+          </Link>
+        ) : (
           <>
             <NextLink
               href='https://www.notion.so/limitlesslabs/Limitless-Docs-0e59399dd44b492f8d494050969a1567?pvs=4#5dd6f962c66044eaa00e28d2c61b92bb'
@@ -28,10 +32,6 @@ export default function MarketPageOverviewTab() {
               and made by the Limitless team
             </Text>
           </>
-        ) : (
-          <Link variant='textLinkSecondary' {...paragraphRegular} isExternal color='grey.500'>
-            Resolution is decentralised
-          </Link>
         )}
 
         <Text mt='16px' {...paragraphRegular}>
