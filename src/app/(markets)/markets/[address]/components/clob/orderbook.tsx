@@ -52,7 +52,7 @@ export default function Orderbook() {
             price: +new BigNumber(1).minus(new BigNumber(bid.price)).toFixed(2),
           }
         })
-      : orderbook.asks.reverse()
+      : orderbook.asks
     return {
       bids: calculatePercent(bids),
       asks: calculatePercent(asks.reverse()),
@@ -76,7 +76,7 @@ export default function Orderbook() {
     }
     return (
       Math.abs(
-        new BigNumber(orderBookData.asks[0].price)
+        new BigNumber(orderBookData.asks.reverse()[0].price)
           .minus(new BigNumber(orderBookData.bids[0].price))
           .toNumber()
       ) * 100
