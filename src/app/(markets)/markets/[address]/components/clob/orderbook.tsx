@@ -84,7 +84,13 @@ export default function Orderbook() {
   }, [orderBookData])
 
   return isMobile ? (
-    <OrderBookTableSmall />
+    <OrderBookTableSmall
+      setOrderbookSide={setOrderbookSide}
+      orderbookSide={orderbookSide}
+      calculateTotalContractsPrice={calculateTotalContractsPrice}
+      orderBookData={orderBookData}
+      spread={spread}
+    />
   ) : (
     <OrderbookTableLarge
       setOrderbookSide={setOrderbookSide}
