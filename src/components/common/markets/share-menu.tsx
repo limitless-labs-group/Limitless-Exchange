@@ -71,7 +71,9 @@ export default function ShareMenu() {
         >
           <HStack gap='4px' w='full'>
             <WarpcastIcon width={16} height={16} />
-            <Text {...paragraphMedium}>On Warpcast</Text>
+            <Text whiteSpace='nowrap' {...paragraphMedium}>
+              On Warpcast
+            </Text>
           </HStack>
         </MenuItem>
         <MenuItem

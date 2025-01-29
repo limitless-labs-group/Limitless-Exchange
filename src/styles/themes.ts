@@ -42,7 +42,7 @@ export const chakraTheme = ChakraTheme({
       },
       body: {
         overflowX: 'hidden',
-        userSelect: 'none',
+        userSelect: 'text',
         color: 'grey.800',
         background: 'grey.50',
         fontSize: '14px',
@@ -322,6 +322,36 @@ export const chakraTheme = ChakraTheme({
           },
           track: {
             bg: 'transparent.200',
+          },
+        },
+        green: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-green-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-grey-200)',
+            height: '4px',
+          },
+        },
+        yellow: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-orange-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-grey-200)',
+            height: '4px',
+          },
+        },
+        red: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-red-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-grey-200)',
+            height: '4px',
           },
         },
         market: {

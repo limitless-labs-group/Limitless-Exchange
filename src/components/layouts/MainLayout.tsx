@@ -42,7 +42,12 @@ export const MainLayout = ({
         <HeaderMarquee />
         {isMobile && <MobileHeader />}
       </Box>
-      <Box mt='20px' mb={isMobile ? '60px' : 0} pt={isMobile && pathname !== '/lumy' ? '88px' : 0}>
+      <Box
+        mt='20px'
+        mb={isMobile ? '60px' : 0}
+        pt={isMobile && pathname !== '/lumy' ? '88px' : 0}
+        overflow='hidden'
+      >
         <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
           {!isMobile && <Sidebar />}
           {isLoading ? (
@@ -50,9 +55,9 @@ export const MainLayout = ({
               <Spinner />
             </Flex>
           ) : (
-            <Box ml={isMobile ? 0 : '200px'} p={layoutPadding} w='full'>
+            <Flex ml={isMobile ? 0 : '0'} p={layoutPadding} w='full' justifyContent='center'>
               {children}
-            </Box>
+            </Flex>
           )}
         </HStack>
       </Box>

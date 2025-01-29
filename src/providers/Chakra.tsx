@@ -35,10 +35,11 @@ export const ThemeProvider = ({
 }: PropsWithChildren<Record<string, unknown>>) => {
   const colorModeManager =
     typeof cookies === 'string' ? cookieStorageManagerSSR(cookies) : localStorageManager
+
   const [colors, setColors] = useState<ColorScheme>(
-    colorModeManager.get() === 'light' ? lightThemeColors : darkThemeColors
+    colorModeManager.get() === 'dark' ? darkThemeColors : lightThemeColors
   )
-  const [mode, setMode] = useState(colorModeManager.get() ? colorModeManager.get() : 'dark')
+  const [mode, setMode] = useState<ColorMode>(colorModeManager.get() || 'light')
 
   const themeWithColors = {
     ...chakraTheme,
@@ -64,7 +65,9 @@ export const ThemeProvider = ({
   }
 
   useEffect(() => {
-    localStorageManager.set(mode as ColorMode)
+    if (!colorModeManager.get()) {
+      colorModeManager.set('light')
+    }
   }, [])
 
   return (

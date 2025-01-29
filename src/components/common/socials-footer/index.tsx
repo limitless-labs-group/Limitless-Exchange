@@ -11,7 +11,7 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const LINKS = {
   X: 'https://x.com/trylimitless',
-  DISCORD: 'https://discord.gg/UbT37DR5Vd',
+  DISCORD: 'https://discord.gg/y79BeDVXEM',
   FARCASTER: 'https://warpcast.com/~/channel/limitless',
   DOCS: 'https://www.notion.so/limitlesslabs/Limitless-Exchange-Docs-0e59399dd44b492f8d494050969a1567?pvs=4',
 }

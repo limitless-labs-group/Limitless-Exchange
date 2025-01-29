@@ -10,7 +10,6 @@ import { formatUnits } from 'viem'
 import Paper from '@/components/common/paper'
 import { MainLayout } from '@/components'
 import { useLumyBalance } from '@/hooks/use-lumy-balance'
-import { useThemeProvider } from '@/providers'
 import ArrowExternalIcon from '@/resources/icons/arrow-external.svg'
 import BaseWhiteIcon from '@/resources/icons/base-icon-white.svg'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
@@ -27,20 +26,16 @@ export default function LumyPage() {
 
   const { trackClicked } = useAmplitude()
 
-  const { mode } = useThemeProvider()
-
-  console.log(mode)
-
   const { data } = useLumyBalance()
 
   const rules = [
     {
       title: 'Kickstart a Market',
-      description: 'Send Lumy $ to start a new game. $100 is the minimum for a new market. ',
+      description: 'Send Lumy $ to start a new game. $250 is the minimum for a new market. ',
     },
     {
       title: 'Market Growth',
-      description: 'Every time Lumy’s balance reaches $100, a new market launches automatically.',
+      description: 'Every time Lumy’s balance reaches $250, a new market launches automatically.',
     },
     {
       title: 'Scale Open Interest',
@@ -146,7 +141,7 @@ export default function LumyPage() {
                 Raise to start a market
               </Text>
               <Text {...paragraphMedium} color='white' mt='4px'>
-                {data ? (+formatUnits(data, 6)).toFixed(0) : 0}/100 USDC
+                {data ? (+formatUnits(data, 6)).toFixed(0) : 0}/250 USDC
               </Text>
               <HStack w='full' justifyContent='space-between' alignItems='flex-end'>
                 <Box mt='16px'>

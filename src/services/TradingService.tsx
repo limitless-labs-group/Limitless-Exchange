@@ -127,6 +127,15 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     getConditionalTokensAddress()
   }, [market])
 
+  const refetchHistory = async () => {
+    await queryClient.refetchQueries({
+      queryKey: ['positions'],
+    })
+    await queryClient.invalidateQueries({
+      queryKey: ['history'],
+    })
+  }
+
   // TODO: refactor
   const refetchChain = async () => {
     await queryClient.invalidateQueries({
@@ -577,6 +586,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         await refetchSubgraph()
       })
 
+      await refetchHistory()
       return receipt
     },
   })
@@ -708,6 +718,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         await refetchSubgraph()
       })
 
+      await refetchHistory()
       return receipt
     },
   })
@@ -772,6 +783,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       // TODO: redesign subgraph refetch logic
       sleep(10).then(() => refetchSubgraph())
 
+      await refetchHistory()
       return receipt
     },
   })

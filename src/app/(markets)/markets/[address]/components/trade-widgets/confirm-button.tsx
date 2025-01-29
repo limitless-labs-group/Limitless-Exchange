@@ -114,15 +114,26 @@ export default function ConfirmButton({
     )
   }, [status, isHovered, tokenTicker])
 
+  const colors = {
+    Yes: {
+      main: 'green.500',
+      hover: 'green.300',
+    },
+    No: {
+      main: 'red.500',
+      hover: 'red.300',
+    },
+  }
+
   return (
     <HStack>
       <Button
         {...commonButtonProps}
-        bg='rgba(255, 255, 255, 0.2)'
+        bg={colors[outcome].main}
         w={isMobile ? '144px' : '124px'}
         h={showFullInfo ? '118px' : '66px'}
         _hover={{
-          backgroundColor: 'transparent.300',
+          backgroundColor: colors[outcome].hover,
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -141,11 +152,11 @@ export default function ConfirmButton({
       </Button>
       <Button
         {...commonButtonProps}
-        bg='rgba(255, 255, 255, 0.2)'
+        bg={colors[outcome].main}
         w={isMobile ? '144px' : '124px'}
         h={showFullInfo ? '118px' : '66px'}
         _hover={{
-          backgroundColor: 'transparent.300',
+          backgroundColor: colors[outcome].hover,
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}

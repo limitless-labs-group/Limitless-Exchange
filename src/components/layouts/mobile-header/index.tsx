@@ -10,10 +10,8 @@ import {
   StackItem,
   Text,
   useDisclosure,
-  useTheme,
   VStack,
 } from '@chakra-ui/react'
-import { rgba } from 'color2k'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
@@ -29,6 +27,7 @@ import SocialsFooter from '@/components/common/socials-footer'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
+import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
@@ -73,6 +72,7 @@ export default function MobileHeader() {
   }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
+  const { handleCategory } = useTokenFilter()
 
   const handleNavigateToPortfolioPage = () => {
     onToggleUserMenu()
@@ -87,7 +87,6 @@ export default function MobileHeader() {
     <>
       <Box
         p='16px'
-        pb='52px'
         w='100vw'
         bg={`linear-gradient(180deg, var(--chakra-colors-grey-50) 0%, ${
           mode === 'light' ? 'rgba(255, 255, 255, 0)' : 'rgba(0, 0, 0, 0)'
@@ -95,13 +94,20 @@ export default function MobileHeader() {
         marginTop='20px'
       >
         <HStack justifyContent='space-between' alignItems='center'>
-          <Box onClick={() => router.push('/')}>
-            <Image
-              src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
-              height={32}
-              width={156}
-              alt='calendar'
-            />
+          <Box
+            onClick={() => {
+              handleCategory(undefined)
+              router.push('/')
+            }}
+          >
+            <HStack w='full' alignItems='center'>
+              <Image
+                src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+                height={32}
+                width={156}
+                alt='calendar'
+              />
+            </HStack>
           </Box>
           <HStack gap='4px'>
             {isConnected ? (

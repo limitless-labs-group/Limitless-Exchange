@@ -11,7 +11,7 @@ import { publicClient } from '@/providers'
 import { Category, Market, MarketsResponse, OddsData } from '@/types'
 import { getPrices } from '@/utils/market'
 
-const LIMIT_PER_PAGE = 10
+const LIMIT_PER_PAGE = 50
 
 /**
  * Fetches and manages paginated active market data using the `useInfiniteQuery` hook.
@@ -171,117 +171,32 @@ export function useMarkets(topic: Category | null) {
       return lastPage.data.length < LIMIT_PER_PAGE ? null : lastPage.next
     },
     refetchOnWindowFocus: false,
+    placeholderData: (previousData) => previousData,
   })
 }
 
-export function useDailyMarkets(topic: Category | null) {
+export function useBanneredMarkets(topic: Category | null) {
   return useQuery({
-    queryKey: ['daily-markets', topic],
+    queryKey: ['bannered-markets', topic],
     queryFn: async () => {
-      const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/daily`
+      const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/bannered`
       const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
 
-      const { data: response }: AxiosResponse<{ data: Market[]; totalMarketsCount: number }> =
-        await axios.get(marketBaseUrl, {
-          params: {
-            limit: 50,
-          },
-        })
+      const { data: response }: AxiosResponse<Market[]> = await axios.get(marketBaseUrl)
 
-      // @ts-ignore
-      const dailyMarkets = response.data.filter((market) => !market.slug)
-
-      const marketDataForMultiCall = dailyMarkets.map((market) => {
+      const marketDataForMultiCall = response?.map((market) => {
         return {
-          // @ts-ignore
           address: market.address,
           decimals: market.collateralToken.decimals,
         }
-      }) as { address: string; decimals: number }[]
+      }) as { address: `0x${string}`; decimals: number }[]
 
-      const contractCallContext = marketDataForMultiCall.map(
-        (market: { address: string; decimals: number }) => {
-          const collateralDecimals = market.decimals
-          const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
-          const collateralAmountBI = parseUnits(collateralAmount, collateralDecimals)
+      const result = await getPrices(marketDataForMultiCall)
 
-          return {
-            reference: market.address,
-            contractAddress: market.address,
-            abi: fixedProductMarketMakerABI,
-            calls: [
-              {
-                reference: 'calcBuyAmountYes',
-                methodName: 'calcBuyAmount',
-                methodParameters: [collateralAmountBI.toString(), 0],
-              },
-              {
-                reference: 'calcBuyAmountNo',
-                methodName: 'calcBuyAmount',
-                methodParameters: [collateralAmountBI.toString(), 1],
-              },
-            ],
-          }
-        }
-      )
-
-      const multicall = new Multicall({
-        ethersProvider: new ethers.providers.JsonRpcProvider(
-          defaultChain.rpcUrls.default.http.toString()
-        ),
-        multicallCustomContractAddress: defaultChain.contracts.multicall3.address,
-        tryAggregate: true,
-      })
-
-      const results = await multicall.call(contractCallContext)
-
-      const _markets: Map<Address, OddsData> = marketDataForMultiCall.reduce(
-        (acc, market: { address: string; decimals: number }) => {
-          const marketAddress = market.address
-          const result = results.results[marketAddress].callsReturnContext
-          const collateralDecimals = market.decimals
-          const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
-
-          const outcomeTokenBuyAmountYesBI = BigInt(result[0].returnValues[0].hex)
-          const outcomeTokenBuyAmountNoBI = BigInt(result[1].returnValues[0].hex)
-
-          const outcomeTokenBuyAmountYes = formatUnits(
-            outcomeTokenBuyAmountYesBI,
-            collateralDecimals
-          )
-          const outcomeTokenBuyAmountNo = formatUnits(outcomeTokenBuyAmountNoBI, collateralDecimals)
-
-          const outcomeTokenBuyPriceYes =
-            Number(collateralAmount) / Number(outcomeTokenBuyAmountYes)
-          const outcomeTokenBuyPriceNo = Number(collateralAmount) / Number(outcomeTokenBuyAmountNo)
-
-          const buySum = outcomeTokenBuyPriceYes + outcomeTokenBuyPriceNo
-          const outcomeTokensBuyPercentYes = +((outcomeTokenBuyPriceYes / buySum) * 100).toFixed(1)
-          const outcomeTokensBuyPercentNo = +((outcomeTokenBuyPriceNo / buySum) * 100).toFixed(1)
-
-          acc.set(marketAddress as Address, {
-            prices: [outcomeTokensBuyPercentYes, outcomeTokensBuyPercentNo],
-          })
-
-          return acc
-        },
-        new Map<Address, OddsData>()
-      )
-
-      const result = dailyMarkets.map((market) => {
-        return {
-          ...market,
-          // @ts-ignore
-          ...(_markets.get(market.address) as OddsData),
-        }
-      })
-
-      return {
-        data: {
-          markets: result,
-          totalAmount: response.totalMarketsCount,
-        },
-      }
+      return response.map((market) => ({
+        ...market,
+        ...(result.find((r) => r.address === market.address) || { prices: [50, 50] }),
+      }))
     },
     refetchOnWindowFocus: false,
   })

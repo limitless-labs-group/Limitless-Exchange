@@ -7,10 +7,6 @@ import {
   HStack,
   Heading,
   Link,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Tab,
   TabIndicator,
   TabList,
@@ -20,14 +16,14 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { Image as ChakraImage } from '@chakra-ui/react'
-import BigNumber from 'bignumber.js'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import MobileDrawer from '@/components/common/drawer'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import CommentTab from '@/components/common/markets/comment-tab'
+import ShareMenu from '@/components/common/markets/share-menu'
 import {
   MarketClaimingForm,
   MarketMetadata,
@@ -37,22 +33,13 @@ import {
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import { MainLayout } from '@/components'
 import useMarketGroup from '@/hooks/use-market-group'
-import WarpcastIcon from '@/resources/icons/Farcaster.svg'
-import TwitterIcon from '@/resources/icons/X.svg'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
-import ShareIcon from '@/resources/icons/share-icon.svg'
-import {
-  ClickEvent,
-  createMarketShareUrls,
-  ShareClickedMetadata,
-  useAmplitude,
-  useTradingService,
-} from '@/services'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { useWinningIndex } from '@/services/MarketsService'
-import { h1Regular, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { h1Regular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
 export default function MarketGroupPage({ params }: { params: { slug: string } }) {
@@ -61,13 +48,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
   const { trackClicked } = useAmplitude()
   const router = useRouter()
   const { market, setMarket, resetQuotes } = useTradingService()
-  const [isShareMenuOpen, setShareMenuOpen] = useState(false)
-
-  const { tweetURI, castURI } = createMarketShareUrls(
-    market,
-    market?.prices,
-    marketGroup?.creator.name
-  )
   const { data: winningIndex } = useWinningIndex(market?.address as string)
 
   const resolved = winningIndex === 0 || winningIndex === 1
@@ -80,16 +60,6 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     }
     return router.push('/')
   }
-
-  const volume =
-    marketGroup?.markets.reduce((a, b) => {
-      return new BigNumber(a).plus(new BigNumber(b.volumeFormatted)).toString()
-    }, '0') || '0'
-
-  const liquidity =
-    marketGroup?.markets.reduce((a, b) => {
-      return new BigNumber(a).plus(new BigNumber(b.liquidityFormatted)).toString()
-    }, '0') || '0'
 
   const marketActionForm = useMemo(() => {
     if (market) {
@@ -158,26 +128,10 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
   const tabPanels = useMemo(() => {
     return [
       <MarketOverviewTab market={market as Market} key={uuidv4()} marketGroup={marketGroup} />,
-      <MarketActivityTab key={uuidv4()} />,
+      <MarketActivityTab key={uuidv4()} isActive />,
       <CommentTab key={uuidv4()} />,
     ]
   }, [market, winningIndex, resolved, marketGroup])
-
-  const parseTextWithLinks = (text: string) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g
-    const parts = text.split(urlRegex)
-
-    return parts.map((part, index) => {
-      if (urlRegex.test(part)) {
-        return (
-          <Link key={index} href={part} color='teal.500' isExternal>
-            {part}
-          </Link>
-        )
-      }
-      return part
-    })
-  }
 
   useEffect(() => {
     if (marketGroup) {
@@ -195,7 +149,12 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
         <>Market group not found</>
       ) : (
         <>
-          <HStack gap='40px' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
+          <HStack
+            gap='40px'
+            w={isMobile ? 'full' : 'unset'}
+            alignItems='flex-start'
+            mb={isMobile ? '84px' : 0}
+          >
             <Box w={isMobile ? 'full' : '664px'}>
               <Divider orientation='horizontal' h='3px' />
               <HStack justifyContent='space-between' mt='10px' mb='24px'>
@@ -211,54 +170,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                   <ArrowLeftIcon width={16} height={16} />
                   Back
                 </Button>
-                <Menu isOpen={isShareMenuOpen} onClose={() => setShareMenuOpen(false)}>
-                  <MenuButton
-                    onClick={() => {
-                      trackClicked(ClickEvent.ShareMenuClicked, {
-                        address: market?.address || '0x',
-                        marketType: 'group',
-                      })
-                      setShareMenuOpen(true)
-                    }}
-                  >
-                    <HStack gap='4px'>
-                      <ShareIcon width={16} height={16} />
-                      <Text {...paragraphMedium}>Share</Text>
-                    </HStack>
-                  </MenuButton>
-                  <MenuList borderRadius='8px' w={isMobile ? '160px' : '122px'} zIndex={2}>
-                    <MenuItem
-                      onClick={() => {
-                        trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
-                          type: 'Farcaster',
-                          address: market?.address,
-                          marketType: 'group',
-                        })
-                        window.open(castURI, '_blank', 'noopener')
-                      }}
-                    >
-                      <HStack gap='4px'>
-                        <WarpcastIcon />
-                        <Text {...paragraphMedium}>On Warpcast</Text>
-                      </HStack>
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
-                          type: 'X/Twitter',
-                          address: market?.address,
-                          marketType: 'group',
-                        })
-                        window.open(tweetURI, '_blank', 'noopener')
-                      }}
-                    >
-                      <HStack gap='4px'>
-                        <TwitterIcon />
-                        <Text {...paragraphMedium}>On X</Text>
-                      </HStack>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
+                <ShareMenu />
               </HStack>
               <Box>
                 <Heading {...h1Regular} userSelect='text'>

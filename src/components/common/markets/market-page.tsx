@@ -29,13 +29,14 @@ import MarketPageOverviewTab from '@/components/common/markets/market-page-overv
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
 import Paper from '@/components/common/paper'
-import ProgressBar from '@/components/common/progress-bar'
 import {
   LoadingForm,
   MarketPriceChart,
   SellForm,
 } from '@/app/(markets)/markets/[address]/components'
+import { LUMY_TOKENS } from '@/app/draft/components'
 import CommentTab from './comment-tab'
+import { MarketProgressBar } from './market-cards/market-progress-bar'
 import { UniqueTraders } from './unique-traders'
 import useMarketGroup from '@/hooks/use-market-group'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
@@ -64,29 +65,10 @@ import {
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
-import { defineOpenInterestOverVolume } from '@/utils/market'
-
-const tokens = [
-  'AAVE',
-  'APE',
-  'ATOM',
-  'APT',
-  'BRETT',
-  'BTC',
-  'DOGE',
-  'EIGEN',
-  'ENS',
-  'ETH',
-  'FLOKI',
-  'RENDER',
-  'SOL',
-  'SUI',
-  'ZRO',
-  'ZK',
-]
 
 export default function MarketPage() {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
+  const [activeTabIndex, setActiveTabIndex] = useState(0)
 
   const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
 
@@ -141,28 +123,10 @@ export default function MarketPage() {
 
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
-  const isLumy = market?.category === 'Lumy'
+  const isLumy = market?.tags?.includes('Lumy')
 
   const isLivePriceSupportedMarket =
-    isLumy &&
-    [
-      'Will AAVE',
-      'Will APE',
-      'Will ATOM',
-      'Will APT',
-      'Will BRETT',
-      'Will BTC',
-      'Will DOGE',
-      'Will EIGEN',
-      'Will ENS',
-      'Will ETH',
-      'Will FLOKI',
-      'Will RENDER',
-      'Will SOL',
-      'Will SUI',
-      'Will ZRO',
-      'Will ZK',
-    ].some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
+    isLumy && LUMY_TOKENS.some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = [
     {
@@ -182,7 +146,7 @@ export default function MarketPage() {
       <MarketPriceChart key={uuidv4()} />,
       <MarketAssetPriceChart
         key={uuidv4()}
-        id={tokens.filter((token) => market?.title.includes(token))[0]}
+        id={LUMY_TOKENS.filter((token) => market?.title.includes(token))[0]}
       />,
     ],
     [market?.title]
@@ -203,11 +167,13 @@ export default function MarketPage() {
     },
   ]
 
-  const tabPanels = [
-    <MarketPageOverviewTab key={uuidv4()} />,
-    <MarketActivityTab key={uuidv4()} />,
-    <CommentTab key={uuidv4()} />,
-  ]
+  const tabPanels = useMemo(() => {
+    return [
+      <MarketPageOverviewTab key={uuidv4()} />,
+      <MarketActivityTab key={uuidv4()} isActive={activeTabIndex === 1} />,
+      <CommentTab key={uuidv4()} />,
+    ]
+  }, [activeTabIndex])
 
   const removeMarketQuery = () => {
     const params = new URLSearchParams(searchParams.toString())
@@ -246,8 +212,12 @@ export default function MarketPage() {
     setStrategy('Buy')
   }, [])
 
+  const trackedMarketsRef = useRef(new Set<string>())
+
   useEffect(() => {
-    if (market) {
+    //avoid triggering amplitude call twice
+    if (market?.address && !trackedMarketsRef.current.has(market.address)) {
+      trackedMarketsRef.current.add(market.address)
       trackOpened(OpenEvent.SidebarMarketOpened, {
         marketAddress: market.address,
         marketTags: market.tags,
@@ -295,7 +265,9 @@ export default function MarketPage() {
       p={isMobile ? '12px' : '16px'}
       pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
+      id='side-menu-scroll-container'
       backdropFilter='blur(7.5px)'
+      zIndex='200'
     >
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
@@ -350,17 +322,10 @@ export default function MarketPage() {
         {isMobile && <ShareMenu />}
       </HStack>
       <Box w='full' mt={isMobile ? '56px' : '24px'}>
-        <HStack w='full' justifyContent='space-between' mb='4px'>
-          <Text {...paragraphMedium} color='#0FC591'>
-            Yes {market?.prices[0]}%
-          </Text>
-          <Text {...paragraphMedium} color='#FF3756'>
-            No {market?.prices[1]}%
-          </Text>
-        </HStack>
-        <ProgressBar variant='market' value={market ? market.prices[0] : 50} />
+        <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
         <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
+            <VolumeIcon width={16} height={16} />
             <Text {...paragraphRegular} color='grey.500'>
               Volume
             </Text>
@@ -369,33 +334,20 @@ export default function MarketPage() {
               {market?.collateralToken.symbol}
             </Text>
           </HStack>
-          {defineOpenInterestOverVolume(
-            market?.openInterestFormatted || '0',
-            market?.liquidityFormatted || '0'
-          ).showOpenInterest ? (
-            <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
-              <UniqueTraders color='grey.50' />
-              <Text {...paragraphRegular} color='grey.500'>
-                Value
-              </Text>
-              <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(
-                  market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
-                  6
-                )}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
-              <OpenInterestTooltip iconColor='grey.500' />
-            </HStack>
-          ) : (
-            <HStack gap='4px' w={isMobile ? 'full' : 'unset'} justifyContent='unset'>
-              <Box {...paragraphRegular}>💧 </Box>
-              <Text {...paragraphRegular} color='grey.500'>
-                Liquidity {NumberUtil.convertWithDenomination(market?.liquidityFormatted, 6)}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
-            </HStack>
-          )}
+          <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
+            <UniqueTraders color='grey.50' />
+            <Text {...paragraphRegular} color='grey.500'>
+              Value
+            </Text>
+            <Text {...paragraphRegular} color='grey.500'>
+              {NumberUtil.convertWithDenomination(
+                market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
+                6
+              )}{' '}
+              {market?.collateralToken.symbol}
+            </Text>
+            <OpenInterestTooltip iconColor='grey.500' />
+          </HStack>
         </HStack>
         <Divider my={isMobile ? '24px' : '16px'} />
       </Box>
@@ -420,25 +372,31 @@ export default function MarketPage() {
           </VStack>
         </Paper>
       ) : (
-        <Paper bg='blue.500' borderRadius='8px' overflowX='hidden' p='8px'>
+        <Paper
+          bg={'var(--chakra-colors-grey-100)'}
+          borderRadius='8px'
+          overflowX='hidden'
+          p='8px'
+          position='relative'
+        >
           <HStack
             w={'240px'}
             mx='auto'
-            bg='rgba(255, 255, 255, 0.20)'
+            bg='grey.200'
             borderRadius='8px'
             py='2px'
-            px={isMobile ? '4px' : '2px'}
+            px={'2px'}
             mb={isMobile ? '16px' : '24px'}
           >
             <Button
               h={isMobile ? '28px' : '20px'}
               flex='1'
               py='2px'
-              borderRadius='8px'
-              bg={strategy === 'Buy' ? 'white' : 'unset'}
-              color={strategy === 'Buy' ? 'black' : 'white'}
+              borderRadius='6px'
+              bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
+              color='grey.800'
               _hover={{
-                backgroundColor: strategy === 'Buy' ? 'white' : 'rgba(255, 255, 255, 0.30)',
+                backgroundColor: strategy === 'Buy' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
               }}
               onClick={() => {
                 trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
@@ -455,12 +413,12 @@ export default function MarketPage() {
             <Button
               h={isMobile ? '28px' : '20px'}
               flex='1'
-              borderRadius='8px'
+              borderRadius='6px'
               py='2px'
-              bg={strategy === 'Sell' ? 'white' : 'unset'}
-              color={strategy === 'Sell' ? 'black' : 'white'}
+              bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
+              color='grey.800'
               _hover={{
-                backgroundColor: strategy === 'Sell' ? 'white' : 'rgba(255, 255, 255, 0.30)',
+                backgroundColor: strategy === 'Sell' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
               }}
               _disabled={{
                 opacity: '50%',
@@ -631,7 +589,7 @@ export default function MarketPage() {
         <MarketPriceChart />
       )}
 
-      <Tabs position='relative' variant='common'>
+      <Tabs position='relative' variant='common' onChange={(index) => setActiveTabIndex(index)}>
         <TabList>
           {tabs.map((tab) => (
             <Tab key={tab.title}>

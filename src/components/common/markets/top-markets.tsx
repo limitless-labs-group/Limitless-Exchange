@@ -12,17 +12,31 @@ interface TopMarketsProps {
 }
 
 export default function TopMarkets({ markets, isLoading }: TopMarketsProps) {
+  if (isLoading || !markets) {
+    return (
+      <Box
+        position='relative'
+        mt={'16px'}
+        px={isMobile ? '16px' : 0}
+        w={isMobile ? 'inherit' : '664px'}
+      >
+        <Skeleton height={isMobile ? 224 : 338} />
+      </Box>
+    )
+  }
+
   const desktopCards = markets.map((market) => (
     <BigBanner market={market} key={market.address} markets={markets} />
   ))
 
   return (
-    <Box position='relative' mt={isMobile ? '12px' : '16px'} px={isMobile ? '16px' : 0} w='inherit'>
-      {isLoading ? (
-        <Skeleton height={isMobile ? 224 : 338} />
-      ) : (
-        <CarouselDesktop slides={desktopCards} />
-      )}
+    <Box
+      position='relative'
+      mt={isMobile ? '12px' : '16px'}
+      px={isMobile ? '16px' : 0}
+      w={isMobile ? 'inherit' : '664px'}
+    >
+      <CarouselDesktop slides={desktopCards} />
     </Box>
   )
 }
