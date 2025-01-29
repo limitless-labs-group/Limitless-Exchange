@@ -4,6 +4,7 @@ import React from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import Skeleton from '@/components/common/skeleton'
+import { OrderBookData } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { useOrderBook } from '@/hooks/use-order-book'
 import {
   ChangeEvent,
@@ -19,24 +20,14 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
-interface OrderbookTableLargeProps {
-  orderBookData: {
-    bids: { percent: string; cumulativePercent: string; price: number; size: number }[]
-    asks: { percent: string; cumulativePercent: string; price: number; size: number }[]
-  }
-  orderbookSide: number
-  setOrderbookSide: (val: number) => void
-  spread: string
-  calculateTotalContractsPrice: (size: number, price: number) => string
-}
-
 export default function OrderbookTableLarge({
   orderBookData,
   orderbookSide,
   setOrderbookSide,
   spread,
   calculateTotalContractsPrice,
-}: OrderbookTableLargeProps) {
+  lastPrice,
+}: OrderBookData) {
   const { market } = useTradingService()
   const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
   const { trackChanged } = useAmplitude()
@@ -118,7 +109,7 @@ export default function OrderbookTableLarge({
         <Skeleton height={108} />
       ) : (
         <Box position='relative'>
-          <Box maxH='108px' minH='36px' overflow='auto' position='relative'>
+          <Box maxH='162px' minH='36px' overflow='auto' position='relative'>
             <>
               {orderBookData.asks.map((item, index) => (
                 <HStack gap={0} key={index} h='36px'>
@@ -178,7 +169,7 @@ export default function OrderbookTableLarge({
         >
           <Box flex={1} pl='8px'>
             <Text {...paragraphRegular} color={orderbookSide ? 'red.500' : 'green.500'}>
-              {orderbookSide ? 'NO' : 'YES'}
+              {orderbookSide ? 'NO' : 'YES'} {lastPrice}¢
             </Text>
           </Box>
           <Box flex={1}>
@@ -192,7 +183,7 @@ export default function OrderbookTableLarge({
         <Skeleton height={108} />
       ) : (
         <Box position='relative'>
-          <Box maxH='108px' minH='36px' overflow='auto' position='relative'>
+          <Box maxH='162px' minH='36px' overflow='auto' position='relative'>
             <>
               {orderBookData.bids.map((item, index) => (
                 <HStack gap={0} key={index} h='36px'>

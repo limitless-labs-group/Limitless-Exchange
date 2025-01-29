@@ -105,6 +105,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   }
 
   const onOpenMarketPage = (market: Market | MarketGroup) => {
+    console.log('we are here')
     setMarket(null)
     setMarketGroup(null)
     // @ts-ignore

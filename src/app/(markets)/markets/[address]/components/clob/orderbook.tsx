@@ -83,8 +83,30 @@ export default function Orderbook() {
     ).toFixed(0)
   }, [orderBookData])
 
+  const lastPrice = useMemo(() => {
+    if (orderbook && market) {
+      const tradedToken = orderbook.tokenId === market.tokens.yes ? 'yes' : 'no'
+      if (!orderbookSide) {
+        return tradedToken === 'yes'
+          ? new BigNumber(orderbook.lastTradePrice).multipliedBy(100).toString()
+          : new BigNumber(1).minus(orderbook.lastTradePrice).multipliedBy(100).toString()
+      }
+      return tradedToken === 'no'
+        ? new BigNumber(orderbook.lastTradePrice).multipliedBy(100).toString()
+        : new BigNumber(1).minus(orderbook.lastTradePrice).multipliedBy(100).toString()
+    }
+    return ''
+  }, [orderbook, market, orderbookSide])
+
   return isMobile ? (
-    <OrderBookTableSmall />
+    <OrderBookTableSmall
+      setOrderbookSide={setOrderbookSide}
+      orderbookSide={orderbookSide}
+      calculateTotalContractsPrice={calculateTotalContractsPrice}
+      orderBookData={orderBookData}
+      spread={spread}
+      lastPrice={lastPrice}
+    />
   ) : (
     <OrderbookTableLarge
       setOrderbookSide={setOrderbookSide}
@@ -92,6 +114,7 @@ export default function Orderbook() {
       calculateTotalContractsPrice={calculateTotalContractsPrice}
       orderBookData={orderBookData}
       spread={spread}
+      lastPrice={lastPrice}
     />
   )
 }
