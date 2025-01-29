@@ -80,7 +80,6 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
     setMarketGroup,
     refetchMarkets,
     market: selectedMarket,
-    onOpenMarketPage,
   } = useTradingService()
 
   const router = useRouter()

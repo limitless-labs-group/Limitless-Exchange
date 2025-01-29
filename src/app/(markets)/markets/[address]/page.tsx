@@ -37,6 +37,7 @@ import { UniqueTraders } from '@/components/common/markets/unique-traders'
 import Skeleton from '@/components/common/skeleton'
 import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
 import ClobTabs from '@/app/(markets)/markets/[address]/components/clob/clob-tabs'
+import MarketMobileTradeForm from '@/app/(markets)/markets/[address]/components/clob/market-mobile-trade-form'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
 import { LUMY_TOKENS } from '@/app/draft/components'
@@ -212,9 +213,13 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
           </Button>
         }
         title={(market?.proxyTitle ?? market?.title) || ''}
-        variant='blue'
+        variant='black'
       >
-        <MarketTradingForm market={market as Market} />
+        {market?.tradeType === 'clob' ? (
+          <MarketMobileTradeForm />
+        ) : (
+          <MarketTradingForm market={market as Market} />
+        )}
       </MobileDrawer>
     )
   }, [market, fetchMarketLoading])
@@ -414,7 +419,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
               {!isMobile && tradingWidget}
             </HStack>
             {isMobile && (
-              <Box position='fixed' bottom='76px' w='calc(100% - 32px)' left='16px' zIndex={99999}>
+              <Box position='fixed' bottom='88px' w='calc(100% - 32px)' left='16px' zIndex={99999}>
                 {mobileTradeButton}
               </Box>
             )}
