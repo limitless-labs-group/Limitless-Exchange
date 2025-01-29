@@ -203,4 +203,7 @@ export type HistoryPosition = {
   outcomeTokenAmount?: string
   collateralAmount?: string // collateral amount invested
   latestTrade?: HistoryTrade
+  outcomeTokenAmounts?: (string | number)[]
+  outcomeTokenPrice?: string
+  strategy?: 'Buy' | 'Sell'
 }
