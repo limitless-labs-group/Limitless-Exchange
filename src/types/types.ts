@@ -20,7 +20,7 @@ export type Category = {
 }
 
 export type MarketsResponse = {
-  data: (Market | MarketGroup)[]
+  data: Market[]
   totalMarketsCount: number
 }
 
@@ -39,7 +39,7 @@ export type DraftMetadata = {
 }
 
 export interface Market {
-  address: Address
+  address: Address | null
   category: Category | string
   collateralToken: {
     address: Address
@@ -77,6 +77,8 @@ export interface Market {
     yes: string
     no: string
   }
+  marketType: 'single' | 'group'
+  tradeType: 'clob' | 'amm'
 }
 
 export type UserCreatedMarket = {
@@ -133,6 +135,12 @@ export type UserCreatedMarket = {
   }
   category: Category
   marketsGroup: null
+  slug: string
+}
+
+export enum SortStorageName {
+  SORT = 'SORT',
+  SORT_DAILY = 'SORT_DAILY',
 }
 
 export interface UserMarket {
@@ -218,6 +226,7 @@ export enum Sort {
   NEWEST = 'Newest',
   ENDING_SOON = 'Ending Soon',
   HIGHEST_LIQUIDITY = 'High Liquidity',
+  HIGHEST_VALUE = 'High Value',
   HIGHEST_VOLUME = 'High Volume',
 }
 
@@ -396,6 +405,12 @@ export interface ColorScheme {
   background: {
     80: string
     90: string
+  }
+  greenTransparent: {
+    100: string
+  }
+  redTransparent: {
+    100: string
   }
   text: {
     100: string

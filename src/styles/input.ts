@@ -26,6 +26,9 @@ const outlined = definePartsStyle({
     _placeholder: {
       color: 'transparent.700',
     },
+    _invalid: {
+      boxShadow: 'unset',
+    },
   },
   element: {
     h: '24px',

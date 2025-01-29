@@ -440,6 +440,30 @@ class Etherspot {
     return transactionReceipt?.transactionHash
   }
 
+  async mergePositions(collateralToken: Address, conditionId: string, amount: bigint) {
+    await this.approveConditionalIfNeeded(
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address
+    )
+    const data = encodeFunctionData({
+      abi: conditionalTokensABI,
+      functionName: 'mergePositions',
+      args: [
+        collateralToken,
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+        conditionId,
+        [1, 2],
+        amount,
+      ],
+    })
+    const opHash = await this.batchAndSendUserOp(
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as string,
+      data
+    )
+    const transactionReceipt = await this.waitForTransaction(opHash)
+    return transactionReceipt?.transactionHash
+  }
+
   async destroy() {
     await this.primeSdk.destroy()
   }

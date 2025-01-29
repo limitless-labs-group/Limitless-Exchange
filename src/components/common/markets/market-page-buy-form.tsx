@@ -110,7 +110,7 @@ export default function MarketPageBuyForm({
   const handlePercentButtonClicked = (value: number) => {
     trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
       amount: value,
-      marketAddress: market?.address,
+      marketAddress: market?.slug,
       marketType: marketList ? 'group' : 'single',
       marketTags: market?.tags,
     })

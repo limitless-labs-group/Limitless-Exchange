@@ -18,7 +18,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
     () =>
       positions?.filter(
         (position) =>
-          position.market.id.toLowerCase() === market?.address.toLowerCase() &&
+          position.market.id.toLowerCase() === market?.address?.toLowerCase() &&
           position.outcomeIndex === market.winningOutcomeIndex &&
           market.expired
       )?.[0],
@@ -28,7 +28,7 @@ export const MarketClaimingForm: React.FC<MarketClaimingFormProps> = ({ market }
   const hasPositions = useMemo(() => {
     return positions?.filter(
       (position) =>
-        market?.expired && position.market.id.toLowerCase() === market?.address.toLowerCase()
+        market?.expired && position.market.id.toLowerCase() === market?.address?.toLowerCase()
     )
   }, [market?.address, market?.expired, positions])
 

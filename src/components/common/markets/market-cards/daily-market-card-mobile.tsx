@@ -1,4 +1,5 @@
 import React from 'react'
+import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
 import { DailyCardTrigger } from './daily-market-card-trigger'
@@ -20,7 +21,7 @@ export default function DailyMarketCardMobile({
 
   return (
     <MobileDrawer
-      id={market.address}
+      id={market.address as Address}
       trigger={
         <DailyCardTrigger market={market} markets={markets} analyticParams={analyticParams} />
       }

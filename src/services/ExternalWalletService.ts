@@ -1,6 +1,6 @@
 import { EIP712TypedData } from '@polymarket/order-utils'
 import { switchChain } from '@wagmi/core'
-import { Address, encodeFunctionData, erc20Abi, getContract, maxUint256 } from 'viem'
+import { Address, encodeFunctionData, erc20Abi, getContract } from 'viem'
 import { useAccount, useSendTransaction, useSignTypedData, useWriteContract } from 'wagmi'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
@@ -84,12 +84,14 @@ export const useExternalWalletService = () => {
     contractAddress: Address,
     value: bigint
   ): Promise<string> => {
+    console.log('checking chain')
     await checkAndSwitchChainIfNeeded()
+    console.log('network switched')
     let txHash = ''
     await writeContractAsync(
       {
         abi: spender === collateralTokenAddress ? wethABI : erc20Abi,
-        args: [spender, maxUint256],
+        args: [spender, value],
         address: contractAddress,
         functionName: 'approve',
       },
@@ -274,6 +276,7 @@ export const useExternalWalletService = () => {
     conditionId: string,
     amount: bigint
   ) => {
+    await checkAndSwitchChainIfNeeded()
     let txHash = ''
     await writeContractAsync(
       {
@@ -298,7 +301,35 @@ export const useExternalWalletService = () => {
     return txHash
   }
 
+  const mergePositions = async (collateralToken: Address, conditionId: string, amount: bigint) => {
+    await checkAndSwitchChainIfNeeded()
+    let txHash = ''
+    await writeContractAsync(
+      {
+        abi: conditionalTokensABI,
+        functionName: 'mergePositions',
+        address: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+        args: [
+          collateralToken,
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+          conditionId,
+          [1, 2],
+          amount,
+        ],
+      },
+      {
+        onSuccess: (data) => {
+          txHash = data
+        },
+        onError: (data) => console.log(data),
+      }
+    )
+    return txHash
+  }
+
   const checkAndSwitchChainIfNeeded = async () => {
+    console.log(chainId)
+    console.log(defaultChain.id)
     if (chainId !== defaultChain.id) {
       await switchChain(wagmiConfig, { chainId: defaultChain.id })
     }
@@ -314,6 +345,7 @@ export const useExternalWalletService = () => {
   }
 
   const signTypedData = async (typedData: EIP712TypedData) => {
+    await checkAndSwitchChainIfNeeded()
     return signTypedDataAsync(typedData)
   }
 
@@ -333,5 +365,6 @@ export const useExternalWalletService = () => {
     checkLumyAccountBalance,
     signTypedData,
     splitPositions,
+    mergePositions,
   }
 }

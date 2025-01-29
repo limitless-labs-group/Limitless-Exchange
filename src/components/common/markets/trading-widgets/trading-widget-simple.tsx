@@ -27,10 +27,7 @@ export default function TradingWidgetSimple() {
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
   const positions = useMemo(
-    () =>
-      allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
-      ),
+    () => allMarketsPositions?.filter((position) => position.market.slug === market?.slug),
     [allMarketsPositions, market]
   )
 

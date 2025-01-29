@@ -14,6 +14,7 @@ import { radioTheme } from '@/styles/radio'
 import { selectTheme } from '@/styles/select'
 import { skeletonTheme } from '@/styles/skeleton'
 import { sliderTheme } from '@/styles/slider'
+import { stepperTheme } from '@/styles/stepper'
 import { tableTheme } from '@/styles/table'
 import { tabsTheme } from '@/styles/tabs'
 import { textAreaTheme } from '@/styles/text-area'
@@ -281,8 +282,14 @@ export const chakraTheme = ChakraTheme({
           bg: 'unset',
           px: '16px',
           height: 'unset',
-          color: 'grey.300',
+          color: 'grey.500',
           alignItems: 'center',
+          _hover: {
+            color: 'grey.800',
+          },
+          _disabled: {
+            opacity: 0.5,
+          },
         },
       },
     },
@@ -315,6 +322,7 @@ export const chakraTheme = ChakraTheme({
     },
     Slider: sliderTheme,
     Select: selectTheme,
+    Stepper: stepperTheme,
     Progress: {
       baseStyle: {
         track: {
@@ -328,6 +336,36 @@ export const chakraTheme = ChakraTheme({
           },
           track: {
             bg: 'transparent.200',
+          },
+        },
+        green: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-green-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-grey-200)',
+            height: '4px',
+          },
+        },
+        yellow: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-orange-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-grey-200)',
+            height: '4px',
+          },
+        },
+        red: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-red-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-grey-200)',
+            height: '4px',
           },
         },
         market: {

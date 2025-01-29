@@ -73,12 +73,6 @@ interface ITradingServiceContext {
   markets?: Market[]
   setMarkets: (markets: Market[]) => void
   sellBalanceLoading: boolean
-  splitSharesMutation: UseMutationResult<
-    void,
-    Error,
-    { amount: string; decimals: number; contractAddress: `0x${string}`; conditionId: string },
-    unknown
-  >
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -247,11 +241,11 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     )
     setBalanceOfOutcomeTokenNo(balanceOfOutcomeTokenCroppedNo)
 
-    const holdingsYes = await getCTBalance(market.address, 0)
+    const holdingsYes = await getCTBalance(market.address as Address, 0)
     const otherHoldingsYes: bigint[] = []
     for (let index = 0; index < 2; index++) {
       if (index != 0) {
-        const balance = await getCTBalance(market.address, index)
+        const balance = await getCTBalance(market.address as Address, index)
         otherHoldingsYes.push(balance)
       }
     }
@@ -277,11 +271,11 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
     setBalanceOfCollateralToSellYes(_balanceOfCollateralToSellYes)
 
-    const holdingsNo = await getCTBalance(market.address, 1)
+    const holdingsNo = await getCTBalance(market.address as Address, 1)
     const otherHoldingsNo: bigint[] = []
     for (let index = 0; index < 2; index++) {
       if (index != 1) {
-        const balance = await getCTBalance(market.address, index)
+        const balance = await getCTBalance(market.address as Address, index)
         otherHoldingsNo.push(balance)
       }
     }
@@ -366,7 +360,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     outcomeTokensBuyPrice: outcomeTokensBuyPriceCurrent,
     outcomeTokensSellPrice: outcomeTokensSellPriceCurrent,
   } = useMarketData({
-    marketAddress: market?.address,
+    marketAddress: market?.address as Address,
     collateralToken: market?.collateralToken,
   })
 
@@ -523,7 +517,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     checkAllowanceForAll,
     approveAllowanceForAll,
     redeemPositions,
-    splitShares,
   } = useWeb3Service()
   const { mutateAsync: buy, isPending: isLoadingBuy } = useMutation({
     mutationFn: async ({
@@ -548,7 +541,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         : outcomeTokenAmount
 
       const receipt = await buyOutcomeTokens(
-        market.address,
+        market.address as Address,
         collateralAmountBI,
         outcomeTokenId,
         parseUnits(minOutcomeTokensToBuy, market?.collateralToken?.decimals || 18),
@@ -597,7 +590,11 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         render: () => <Toast title={'Processing approve transaction...'} id={id} />,
       })
       try {
-        await approveContract(market.address, market.collateralToken.address, collateralAmountBI)
+        await approveContract(
+          market.address as Address,
+          market.collateralToken.address,
+          collateralAmountBI
+        )
         await sleep(3)
         const id = toast({
           render: () => <Toast title={`Successfully approved. Proceed with buy now.`} id={id} />,
@@ -621,7 +618,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
         render: () => <Toast title={'Processing approve transaction...'} id={id} />,
       })
       try {
-        await approveAllowanceForAll(market.address, conditionalTokensAddress!)
+        await approveAllowanceForAll(market.address as Address, conditionalTokensAddress!)
         await sleep(3)
         const id = toast({
           render: () => <Toast title={`Successfully approved. Proceed with sell now.`} id={id} />,
@@ -662,7 +659,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
       const receipt = await sellOutcomeTokens(
         conditionalTokensAddress,
-        market.address,
+        market.address as Address,
         collateralAmountBI,
         // amount,
         outcomeTokenId,
@@ -783,28 +780,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const splitSharesMutation = useMutation({
-    mutationFn: async ({
-      amount,
-      decimals,
-      conditionId,
-      contractAddress,
-    }: {
-      amount: string
-      decimals: number
-      contractAddress: Address
-      conditionId: string
-    }) => {
-      try {
-        const value = parseUnits(amount, decimals)
-        await splitShares(contractAddress, conditionId, value)
-      } catch (e) {
-        // @ts-ignore
-        throw new Error(e)
-      }
-    },
-  })
-
   const trade = useCallback(
     // (outcomeTokenId: number) => buy(outcomeTokenId),
     (outcomeTokenId: number, slippage: string) =>
@@ -867,7 +842,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     markets,
     setMarkets,
     sellBalanceLoading,
-    splitSharesMutation,
   }
 
   return (

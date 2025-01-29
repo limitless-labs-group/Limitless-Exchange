@@ -12,60 +12,39 @@ import {
   TabPanels,
   Tabs,
   Text,
-  useDisclosure,
-  VStack,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
+import React, { LegacyRef, useEffect, useMemo, useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
-import MarketPageBuyForm from '@/components/common/markets/market-page-buy-form'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
+import MarketPositionsAmm from '@/components/common/markets/positions/market-positions-amm'
 import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
 import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/trading-widget-advanced'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
-import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
-import {
-  LoadingForm,
-  MarketPriceChart,
-  SellForm,
-} from '@/app/(markets)/markets/[address]/components'
+import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
+import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
 import CommentTab from './comment-tab'
 import { UniqueTraders } from './unique-traders'
-import useMarketActivity from '@/hooks/use-market-activity'
 import useMarketGroup from '@/hooks/use-market-group'
-import { useMarketOrders } from '@/hooks/use-market-orders'
-import { useOrderBook } from '@/hooks/use-order-book'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import ExpandIcon from '@/resources/icons/expand-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
-import {
-  ChangeEvent,
-  ClickEvent,
-  OpenEvent,
-  StrategyChangedMetadata,
-  useAmplitude,
-  useHistory,
-  useTradingService,
-} from '@/services'
+import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
+import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
-import {
-  controlsMedium,
-  h2Bold,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
+import { h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 import { defineOpenInterestOverVolume } from '@/utils/market'
 
@@ -95,9 +74,7 @@ export default function MarketPage() {
     setMarket,
     onCloseMarketPage,
     market,
-    strategy,
     setStrategy,
-    status,
     marketGroup,
     setMarketGroup,
     refetchMarkets,
@@ -107,11 +84,9 @@ export default function MarketPage() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const { trackChanged, trackClicked, trackOpened } = useAmplitude()
+  const { trackClicked, trackOpened } = useAmplitude()
 
-  // Todo change creator name
-
-  const marketAddress = useMemo(() => market?.address, [market])
+  const marketAddress = useMemo(() => market?.slug, [market])
   const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
 
   const { data: updatedMarket } = useMarket(marketAddress, !!market)
@@ -182,13 +157,13 @@ export default function MarketPage() {
     if (market?.expired) {
       return <MarketClosedWidget handleCloseMarketPageClicked={handleCloseMarketPageClicked} />
     }
-    return market?.slug ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
+    return market?.tradeType === 'clob' ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
   }, [market])
 
   const tabs = [
     {
-      title: 'Overview',
-      icon: <PredictionsIcon width={16} height={16} />,
+      title: 'Resolution',
+      icon: <ResolutionIcon width={16} height={16} />,
     },
     {
       title: 'Activity',
@@ -225,7 +200,7 @@ export default function MarketPage() {
 
   const handleFullPageClicked = () => {
     trackClicked(ClickEvent.FullPageClicked, {
-      marketAddress: market?.address,
+      marketAddress: market?.slug,
       marketType: 'single',
       marketTags: market?.tags,
     })
@@ -246,7 +221,7 @@ export default function MarketPage() {
   useEffect(() => {
     if (market) {
       trackOpened(OpenEvent.SidebarMarketOpened, {
-        marketAddress: market.address,
+        marketAddress: market.slug,
         marketTags: market.tags,
         marketType: 'single',
         category: market.category,
@@ -301,7 +276,7 @@ export default function MarketPage() {
               <CloseIcon width={16} height={16} />
               Close
             </Button>
-            <NextLink href={`/markets/${market?.address}`}>
+            <NextLink href={`/markets/${market?.slug}`}>
               <Button variant='grey' onClick={handleFullPageClicked}>
                 <ExpandIcon width={16} height={16} />
                 Full page
@@ -423,6 +398,12 @@ export default function MarketPage() {
         </Tabs>
       ) : (
         <MarketPriceChart />
+      )}
+
+      {market?.tradeType === 'clob' ? (
+        <ClobPositions marketType='sidebar' />
+      ) : (
+        <MarketPositionsAmm />
       )}
 
       <Tabs position='relative' variant='common'>

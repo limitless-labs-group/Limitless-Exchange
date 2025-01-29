@@ -95,12 +95,12 @@ export default function MarketSlidePage({ market }: MarketSlidePageProps) {
   const positions = useMemo(
     () =>
       allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
+        (position) => position.market.id.toLowerCase() === market?.address?.toLowerCase()
       ),
     [allMarketsPositions, market]
   )
 
-  const marketAddress = useMemo(() => selectedMarket?.address, [selectedMarket])
+  const marketAddress = useMemo(() => selectedMarket?.slug, [selectedMarket])
   const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
 
   const { data: updatedMarket } = useMarket(

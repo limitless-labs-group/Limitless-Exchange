@@ -4,5 +4,5 @@ import { useTradingService } from '@/services'
 
 export default function MarketActivityTab() {
   const { market } = useTradingService()
-  return market?.slug ? <ActivityClob /> : <ActivityAmm />
+  return market?.tradeType === 'clob' ? <ActivityClob /> : <ActivityAmm />
 }
