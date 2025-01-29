@@ -99,8 +99,7 @@ export const RecentMarkets = () => {
       <Box
         position='fixed'
         right='24px'
-        top='10%'
-        transform='translateY(-50%)'
+        top='80px'
         maxWidth='350px'
         w='full'
         display={selectedMarket.length > 0 ? 'block' : 'none'}
