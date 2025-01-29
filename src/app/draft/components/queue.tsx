@@ -98,18 +98,16 @@ export const DraftMarketsQueue = () => {
             />
           )
         })}
-        {isCreating ? (
-          <Box width='full' display='flex' justifyContent='center' alignItems='center'>
-            <Spinner />
-          </Box>
-        ) : (
-          <Box style={{ width: '100%', position: 'sticky', bottom: 40 }}>
-            <SelectedMarkets market={selectedMarket} />
-            <Button colorScheme='green' mt='16px' w={'full'} onClick={createMarketsBatch}>
-              Create Markets Batch
-            </Button>
-          </Box>
-        )}
+        <Button
+          colorScheme='green'
+          mt='16px'
+          w={'full'}
+          onClick={createMarketsBatch}
+          style={{ position: 'sticky', bottom: 40 }}
+          isDisabled={isCreating}
+        >
+          {isCreating ? <Spinner /> : 'Create Markets Batch'}
+        </Button>
       </VStack>
     </Flex>
   )

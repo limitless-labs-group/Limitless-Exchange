@@ -114,6 +114,7 @@ export const useMarketInfinityComments = (marketAddress?: string | null) => {
 export const useLikeComment = (id: number) => {
   const { isConnected } = useWagmiAccount()
   const privateClient = useAxiosPrivateClient()
+  const queryClient = useQueryClient()
   return useMutation({
     mutationKey: ['like-comment', id],
     mutationFn: async (): Promise<LikePost> => {
@@ -122,12 +123,16 @@ export const useLikeComment = (id: number) => {
       const res = await privateClient.post(`/comments/${id}/like`)
       return res.data
     },
+    onSuccess: () => {
+      queryClient.refetchQueries({ queryKey: ['likes', id] })
+    },
   })
 }
 
 export const useUnlikeComment = (id: number) => {
   const { isConnected } = useWagmiAccount()
   const privateClient = useAxiosPrivateClient()
+  const queryClient = useQueryClient()
   return useMutation({
     mutationKey: ['unlike-comment', id],
     mutationFn: async (): Promise<LikePost> => {
@@ -135,6 +140,9 @@ export const useUnlikeComment = (id: number) => {
 
       const res = await privateClient.post(`/comments/${id}/unlike`)
       return res.data
+    },
+    onSuccess: () => {
+      queryClient.refetchQueries({ queryKey: ['likes', id] })
     },
   })
 }

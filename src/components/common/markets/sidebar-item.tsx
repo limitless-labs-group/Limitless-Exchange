@@ -9,6 +9,7 @@ import Finance from '@/resources/icons/sidebar/finance.svg'
 import Others from '@/resources/icons/sidebar/others.svg'
 import Sport from '@/resources/icons/sidebar/sport.svg'
 import Weather from '@/resources/icons/sidebar/weather.svg'
+// Remove image imports and use string paths instead
 import { useMarkets } from '@/services/MarketsService'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup } from '@/types'
@@ -22,16 +23,41 @@ export interface SideItemProps {
 
 //ids and names come from api /categories
 export const MARKET_CATEGORIES = {
-  CRYPTO: { id: 2, name: 'Crypto', description: '', icon: <Crypto width={16} height={16} /> },
+  CRYPTO: {
+    id: 2,
+    name: 'Crypto',
+    description: '',
+    icon: <Crypto width={16} height={16} />,
+    bannerImage: '/assets/images/banners/crypto.png',
+  },
   FINANCICALS: {
     id: 8,
     name: 'Financials',
     description: '',
     icon: <Finance width={16} height={16} />,
+    bannerImage: '/assets/images/banners/financials.png',
   },
-  WEATHER: { id: 9, name: 'Weather', description: '', icon: <Weather width={16} height={16} /> },
-  SPORTS: { id: 1, name: 'Sports', description: '', icon: <Sport width={16} height={16} /> },
-  OTHER: { id: 5, name: 'Other', description: '', icon: <Others width={16} height={16} /> },
+  WEATHER: {
+    id: 9,
+    name: 'Weather',
+    description: '',
+    icon: <Weather width={16} height={16} />,
+    bannerImage: '/assets/images/banners/weather.png',
+  },
+  SPORTS: {
+    id: 1,
+    name: 'Sports',
+    description: '',
+    icon: <Sport width={16} height={16} />,
+    bannerImage: '/assets/images/banners/sports.png',
+  },
+  OTHER: {
+    id: 5,
+    name: 'Other',
+    description: '',
+    icon: <Others width={16} height={16} />,
+    bannerImage: '',
+  },
 } as const
 
 export type MarketCategory = (typeof MARKET_CATEGORIES)[keyof typeof MARKET_CATEGORIES]
@@ -52,10 +78,10 @@ export const SideItem = ({ isActive, onClick, icon, children }: SideItemProps) =
     >
       {React.cloneElement(icon as React.ReactElement, {
         style: {
-          color: isActive ? 'var(--chakra-colors-grey-600)' : 'var(--chakra-colors-grey-500)',
+          color: isActive ? 'var(--chakra-colors-grey-800)' : 'var(--chakra-colors-grey-700)',
         },
       })}
-      <Text {...paragraphMedium} fontWeight={500} color={isActive ? 'grey.600' : 'grey.500'}>
+      <Text {...paragraphMedium} fontWeight={500} color={isActive ? 'grey.800' : 'grey.700'}>
         {children}
       </Text>
     </HStack>
@@ -85,8 +111,9 @@ export const CategoryItems = () => {
     return counts
   }, [markets])
 
-  const createQueryString = () => {
+  const createQueryString = (categoryName: string) => {
     const params = new URLSearchParams(searchParams.toString())
+    params.set('category', categoryName.toLowerCase())
     return params.toString()
   }
 
@@ -100,7 +127,7 @@ export const CategoryItems = () => {
     return (
       <Link
         key={c.name}
-        href={`/?${createQueryString()}`}
+        href={`/?${createQueryString(c.name)}`}
         style={{ width: isMobile ? 'fit-content' : '100%' }}
       >
         <SideItem

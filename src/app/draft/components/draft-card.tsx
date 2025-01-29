@@ -1,9 +1,12 @@
 import { Box, HStack, Link, Text, Image as ChakraImage, Checkbox, Stack } from '@chakra-ui/react'
-import React from 'react'
+import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
 import TextEditor from '@/components/common/text-editor'
+import CategoryIcon from '@/resources/icons/category.svg'
+import FeeIcon from '@/resources/icons/fee.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
+import DeadlineIcon from '@/resources/icons/sun-watch.svg'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Category, Creator, DraftMetadata, Token } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -39,6 +42,7 @@ export const DraftMarketCard = ({
   onToggle,
   onClick,
 }: DraftMarketSingleCardProps) => {
+  const [hover, setHover] = useState(false)
   return (
     <Paper
       w={'full'}
@@ -50,6 +54,8 @@ export const DraftMarketCard = ({
       border={`3px solid ${isChecked ? 'var(--chakra-colors-draftCard-border)' : 'transparent'}`}
       bg={` ${isChecked ? 'var(--chakra-colors-draftCard-bg)' : 'var(--chakra-colors-grey-100)'}`}
       position='relative'
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
     >
       <HStack align='start' spacing={4}>
         <Checkbox
@@ -93,7 +99,11 @@ export const DraftMarketCard = ({
 
             <HStack alignItems='flex-start'>
               <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
-                <TextEditor value={market?.description ?? ''} readOnly />
+                <TextEditor
+                  value={market?.description ?? ''}
+                  readOnly
+                  className={`${hover ? 'draft hover' : 'draft'}`}
+                />
               </Text>
             </HStack>
 
@@ -117,7 +127,6 @@ export const DraftMarketCard = ({
 
             <HStack justifyContent='space-between' alignItems='flex-end' flexDirection={'row'}>
               <HStack gap={'16px'} flexDirection={'row'} w='full'>
-                {/* Liquidity */}
                 {market.draftMetadata.liquidity && (
                   <HStack w={'unset'} justifyContent={'unset'}>
                     <HStack color={colors.secondary} gap='4px'>
@@ -136,7 +145,7 @@ export const DraftMarketCard = ({
 
                 <HStack w={'unset'} justifyContent={'unset'}>
                   <HStack color={colors.secondary} gap='4px'>
-                    <LiquidityIcon width={16} height={16} />
+                    <DeadlineIcon width={16} height={16} />
                     <Text {...paragraphMedium} color={colors.secondary}>
                       Deadline
                     </Text>
@@ -159,13 +168,24 @@ export const DraftMarketCard = ({
 
                 <HStack w={'unset'} justifyContent={'unset'}>
                   <HStack color={colors.secondary} gap='4px'>
-                    <LiquidityIcon width={16} height={16} />
+                    <FeeIcon width={16} height={16} />
                     <Text {...paragraphMedium} color={colors.secondary}>
                       Market Fee
                     </Text>
                   </HStack>
                   <Text {...paragraphRegular} color={colors.main}>
                     {market.draftMetadata.fee}%
+                  </Text>
+                </HStack>
+                <HStack w={'unset'} justifyContent={'unset'}>
+                  <HStack color={colors.secondary} gap='4px'>
+                    <CategoryIcon width={16} height={16} />
+                    <Text {...paragraphMedium} color={colors.secondary}>
+                      Category
+                    </Text>
+                  </HStack>
+                  <Text {...paragraphRegular} color={colors.main}>
+                    {market.category.name}
                   </Text>
                 </HStack>
               </HStack>

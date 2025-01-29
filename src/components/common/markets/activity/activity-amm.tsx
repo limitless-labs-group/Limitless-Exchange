@@ -1,8 +1,7 @@
-import { HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import debounce from 'lodash.debounce'
 import { useCallback } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { Address } from 'viem'
 import Loader from '@/components/common/loader'
 import Paper from '@/components/common/paper'
 import TradeActivityTabItem from '@/app/(markets)/markets/[address]/components/trade-activity-tab-item'
@@ -11,13 +10,17 @@ import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import { useTradingService } from '@/services'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
-export default function ActivityAmm() {
+interface MarketActivityTabProps {
+  isActive: boolean
+}
+
+export default function ActivityAmm({ isActive }: MarketActivityTabProps) {
   const { market } = useTradingService()
   const {
     data: activityData,
     fetchNextPage,
     hasNextPage,
-  } = useMarketInfinityFeed(market?.address as Address)
+  } = useMarketInfinityFeed(market?.address, isActive)
 
   const getNextPage = useCallback(
     debounce(async () => fetchNextPage(), 1000),
@@ -32,6 +35,8 @@ export default function ActivityAmm() {
       dataLength={activity?.length ?? 0}
       next={getNextPage}
       hasMore={hasNextPage}
+      scrollableTarget='side-menu-scroll-container'
+      scrollThreshold='100%'
       loader={
         <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
           <Loader />
@@ -39,9 +44,11 @@ export default function ActivityAmm() {
         </HStack>
       }
     >
-      {activity.map((activityItem) => (
-        <TradeActivityTabItem tradeItem={activityItem} key={activityItem.bodyHash} />
-      ))}
+      <Box mb='30px'>
+        {activity.map((activityItem) => (
+          <TradeActivityTabItem tradeItem={activityItem} key={activityItem.bodyHash} />
+        ))}
+      </Box>
     </InfiniteScroll>
   ) : (
     <VStack w='full' mt='24px'>

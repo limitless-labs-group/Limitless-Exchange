@@ -61,7 +61,7 @@ const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boo
       </Stack>
     )
   }
-  const getPrices = (id: string) => prices?.find((price) => price.market === id)
+  const getPrices = (id: string) => prices?.find((price) => price.address === id)
 
   return (
     <>

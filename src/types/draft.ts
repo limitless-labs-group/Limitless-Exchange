@@ -12,13 +12,14 @@ export interface IFormData {
     id: number
   }
   description: string
-  liquidity?: number
+  liquidity: number
   probability: number
   marketFee: number
   tag: TagOption[]
   creatorId: string
   categoryId: string
   ogLogo: File | undefined
+  isBannered: boolean
   txHash: string
 }
 

@@ -22,7 +22,7 @@ import { NumberUtil } from '@/utils'
 export interface IPortfolioPositionCard {
   position: HistoryPosition
   prices?: {
-    market: `0x${string}`
+    address: `0x${string}`
     prices: number[]
   }
 }
