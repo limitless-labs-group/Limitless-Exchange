@@ -6,12 +6,23 @@ export enum ClobPositionType {
 
 export interface OrderBookData {
   orderBookData: {
-    bids: { percent: string; cumulativePercent: string; price: number; size: number }[]
-    asks: { percent: string; cumulativePercent: string; price: number; size: number }[]
+    bids: {
+      percent: string
+      cumulativePercent: string
+      cumulativePrice: string
+      price: number
+      size: number
+    }[]
+    asks: {
+      percent: string
+      cumulativePercent: string
+      cumulativePrice: string
+      price: number
+      size: number
+    }[]
   }
   orderbookSide: number
   setOrderbookSide: (val: number) => void
   spread: string
-  calculateTotalContractsPrice: (size: number, price: number) => string
   lastPrice: string
 }
