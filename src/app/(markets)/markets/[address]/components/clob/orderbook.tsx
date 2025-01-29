@@ -15,15 +15,22 @@ export default function Orderbook() {
 
   function calculatePercent(array: Order[]) {
     const totalSize = array.reduce((sum, item) => sum + item.size, 0) // Total size of the array
+    let cumulativePrice = 0
 
     let cumulativePercent = 0 // Track cumulative percentage
     return array.map((item) => {
       const percent = (item.size / totalSize) * 100 // Percent value
       cumulativePercent += percent // Update cumulative percentage
+      cumulativePrice += new BigNumber(
+        formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6)
+      )
+        .multipliedBy(item.price)
+        .toNumber()
       return {
         ...item,
         percent: percent.toFixed(2), // Percent relative to total
         cumulativePercent: cumulativePercent.toFixed(2), // Cumulative percent
+        cumulativePrice: cumulativePrice.toFixed(2),
       }
     })
   }
@@ -59,13 +66,12 @@ export default function Orderbook() {
     }
   }, [orderbook, orderbookSide])
 
-  const calculateTotalContractsPrice = (size: number, price: number) => {
-    const contractsFormatted = formatUnits(BigInt(size), market?.collateralToken.decimals || 6)
-    return NumberUtil.convertWithDenomination(
-      new BigNumber(contractsFormatted).multipliedBy(new BigNumber(price)).toString(),
-      6
-    )
-  }
+  // const calculateTotalContractsPrice = (total: number) => {
+  //   return NumberUtil.convertWithDenomination(
+  //     total,
+  //     6
+  //   )
+  // }
 
   const spread = useMemo(() => {
     if (!orderBookData) {
@@ -102,7 +108,6 @@ export default function Orderbook() {
     <OrderBookTableSmall
       setOrderbookSide={setOrderbookSide}
       orderbookSide={orderbookSide}
-      calculateTotalContractsPrice={calculateTotalContractsPrice}
       orderBookData={orderBookData}
       spread={spread}
       lastPrice={lastPrice}
@@ -111,7 +116,6 @@ export default function Orderbook() {
     <OrderbookTableLarge
       setOrderbookSide={setOrderbookSide}
       orderbookSide={orderbookSide}
-      calculateTotalContractsPrice={calculateTotalContractsPrice}
       orderBookData={orderBookData}
       spread={spread}
       lastPrice={lastPrice}
