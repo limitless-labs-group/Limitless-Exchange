@@ -66,7 +66,7 @@ export const RecentMarkets = () => {
   }
 
   return (
-    <Flex justifyContent={'center'}>
+    <Flex justifyContent={'center'} position='relative'>
       <VStack w='868px' spacing={4}>
         {recentMarkets?.map((market: DraftMarket) => {
           return (
@@ -84,7 +84,6 @@ export const RecentMarkets = () => {
           </Box>
         ) : (
           <Box style={{ width: '100%', position: 'sticky', bottom: 40 }}>
-            <SelectedMarkets market={selectedMarket} />
             <Button
               colorScheme='green'
               mt='16px'
@@ -97,6 +96,17 @@ export const RecentMarkets = () => {
           </Box>
         )}
       </VStack>
+      <Box
+        position='fixed'
+        right='24px'
+        top='10%'
+        transform='translateY(-50%)'
+        maxWidth='350px'
+        w='full'
+        display={selectedMarket.length > 0 ? 'block' : 'none'}
+      >
+        <SelectedMarkets market={selectedMarket} />
+      </Box>
     </Flex>
   )
 }

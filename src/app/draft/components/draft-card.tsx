@@ -99,7 +99,7 @@ export const DraftMarketCard = ({
                 <TextEditor
                   value={market?.description ?? ''}
                   readOnly
-                  className={`${hover ? 'draft hover' : 'draft'}`}
+                  className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
                 />
               </Text>
             </HStack>
