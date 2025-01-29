@@ -1,12 +1,10 @@
-import { Box, Text } from '@chakra-ui/react'
-import BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
+import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
 import { useTradingService } from '@/services'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { FeedEventType } from '@/types'
 import { ClobTradeEvent } from '@/types/orders'
-import { NumberUtil, timeSinceCreation } from '@/utils'
+import { NumberUtil } from '@/utils'
 
 interface ActivityClobItemProps {
   data: ClobTradeEvent
@@ -14,38 +12,32 @@ interface ActivityClobItemProps {
 
 export default function ActivityClobItem({ data }: ActivityClobItemProps) {
   const { market } = useTradingService()
-  const timePassed = timeSinceCreation(new Date(data.createdAt).getTime() / 1000)
-  const text = useMemo(() => {
-    const shares = NumberUtil.convertWithDenomination(
-      formatUnits(BigInt(data.matchedSize), market?.collateralToken.decimals || 6).toString(),
-      market?.collateralToken.decimals || 6,
-      market?.collateralToken.symbol
-    )
-    const totalOrderPrice = new BigNumber(shares).multipliedBy(data.price).toString()
-    return `${shares} shares were bought for ¢${data.price * 100} for ${totalOrderPrice} ${
-      market?.collateralToken.symbol
-    } in total.`
-  }, [
-    data.matchedSize,
-    data.price,
-    market?.collateralToken.decimals,
-    market?.collateralToken.symbol,
-  ])
+  const title = useMemo(() => {
+    const title = data.side === 0 ? 'Bought' : 'Sold'
+    const outcome = market?.tokens.yes === data.tokenId ? 'Yes' : 'No'
+    return `${title} ${NumberUtil.toFixed(
+      formatUnits(BigInt(data.matchedSize), market?.collateralToken.decimals || 6),
+      6
+    )} contracts ${outcome} for ${NumberUtil.toFixed(
+      Math.abs(+formatUnits(BigInt(data.makerAmount), market?.collateralToken.decimals || 6)),
+      market?.collateralToken.symbol === 'USDC' ? 2 : 6
+    )} ${market?.collateralToken.symbol} in total.`
+  }, [market, data])
+
+  const user = {
+    name: data.profile.displayName,
+    imageURI: data.profile.pfpUrl || '',
+    link: data.profile.socialUrl || '',
+    account: data.profile.account,
+  }
 
   return (
-    <Box
-      py={isMobile ? '12px' : '8px'}
-      borderTop='unset'
-      sx={{
-        '&:not(:last-child)': { borderBottom: '1px solid', borderColor: 'grey.300' },
-      }}
-      borderColor='grey.300'
-      w='full'
-    >
-      <Text {...paragraphRegular} color='grey.500' mb='8px'>
-        {timePassed}
-      </Text>
-      <Text {...paragraphMedium}>{text}</Text>
-    </Box>
+    <MarketFeedCardContainer
+      user={user}
+      eventType={FeedEventType.NewTrade}
+      timestamp={new Date(data.createdAt).getTime() / 1000}
+      title={title}
+      isActivityTab={true}
+    />
   )
 }
