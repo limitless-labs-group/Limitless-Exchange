@@ -4,6 +4,7 @@ import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import Skeleton from '@/components/common/skeleton'
 import PortfolioPositionCard from '@/app/portfolio/components/PortfolioPositionCard'
+import PortfolioPositionCardClob from '@/app/portfolio/components/PortfolioPositionCardClob'
 import { useHistory } from '@/services'
 import { usePrices } from '@/services/MarketsService'
 import { useUsersMarkets } from '@/services/UsersMarketsService'
@@ -35,7 +36,8 @@ const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boo
 
   const positionsForPrices = useMemo(() => {
     if (!positionsFiltered) return []
-    return positionsFiltered
+    const ammPositions = positionsFiltered.filter((position) => !position.outcomeTokenAmounts)
+    return ammPositions
       .map((position) => ({
         address: position.market.id,
         decimals: position.market.collateral?.symbol === 'USDT' ? 6 : 8,
@@ -45,6 +47,8 @@ const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boo
           item.address !== undefined && item.decimals !== undefined
       )
   }, [positionsFiltered])
+
+  console.log(positionsForPrices)
 
   const { data: prices } = usePrices(positionsForPrices)
 
@@ -69,7 +73,9 @@ const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boo
       ) : (
         <Stack gap={{ sm: 2, md: 2 }}>
           {positionsFiltered?.map((position) => {
-            return (
+            return position.outcomeTokenAmounts ? (
+              <PortfolioPositionCardClob position={position} key={uuidv4()} />
+            ) : (
               <PortfolioPositionCard
                 key={uuidv4()}
                 position={position}
