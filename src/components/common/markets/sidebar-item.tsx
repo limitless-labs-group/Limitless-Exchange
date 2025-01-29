@@ -7,6 +7,7 @@ import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import Crypto from '@/resources/icons/sidebar/crypto.svg'
 import Finance from '@/resources/icons/sidebar/finance.svg'
 import Others from '@/resources/icons/sidebar/others.svg'
+import Pop from '@/resources/icons/sidebar/pop.svg'
 import Sport from '@/resources/icons/sidebar/sport.svg'
 import Weather from '@/resources/icons/sidebar/weather.svg'
 // Remove image imports and use string paths instead
@@ -50,6 +51,13 @@ export const MARKET_CATEGORIES = {
     description: '',
     icon: <Sport width={16} height={16} />,
     bannerImage: '/assets/images/banners/sports.png',
+  },
+  POP: {
+    id: 1,
+    name: 'Pop',
+    description: '',
+    icon: <Pop width={16} height={16} />,
+    bannerImage: '/assets/images/banners/pop.png',
   },
   OTHER: {
     id: 5,
