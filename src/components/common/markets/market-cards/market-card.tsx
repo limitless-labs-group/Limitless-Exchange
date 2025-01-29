@@ -143,16 +143,18 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
                       </HStack>
                     ) : null}
                     <Text {...paragraphRegular} color='grey.500'>
-                      Value
+                      {market.tradeType === 'clob' ? 'Volume' : 'Value'}
                     </Text>
                     <Text {...paragraphRegular} color='grey.500' whiteSpace='nowrap'>
                       {NumberUtil.convertWithDenomination(
-                        +market.openInterestFormatted + +market.liquidityFormatted,
+                        market.tradeType === 'clob'
+                          ? market.volumeFormatted
+                          : +market.openInterestFormatted + +market.liquidityFormatted,
                         6
                       )}{' '}
                       {market.collateralToken.symbol}
                     </Text>
-                    <OpenInterestTooltip iconColor='grey.500' />
+                    {market.tradeType !== 'clob' && <OpenInterestTooltip iconColor='grey.500' />}
                   </>
                 </HStack>
               </HStack>
