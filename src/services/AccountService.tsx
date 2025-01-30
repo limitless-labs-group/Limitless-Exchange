@@ -102,9 +102,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { trackSignIn } = useAmplitude()
   // const { isLogged } = useClient()
 
-  console.log(walletClient)
-  console.log(wallets)
-  console.log(user)
+  // console.log(walletClient)
+  // console.log(wallets)
+  // console.log(user)
   // console.log(user)
   // console.log(authenticated)
 
@@ -270,6 +270,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const { login: loginToPlatform } = usePrivyLogin({
     onComplete: async ({ user, wasAlreadyAuthenticated }) => {
+      console.log(wallets)
+      console.log(user)
       const connectedWallet = wallets.find(
         (wallet) => wallet.connectorType === user.wallet?.connectorType
       )
@@ -302,13 +304,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (walletsReady && !isLogged) {
-      const connectedWallet = wallets.find(
-        (wallet) => wallet.connectorType === user?.wallet?.connectorType
-      )
-      if (connectedWallet) {
-        setActiveWallet(connectedWallet)
-        setIsLogged(true)
-      }
+      setIsLogged(true)
     }
   }, [isLogged, user?.wallet?.connectorType, wallets, walletsReady])
 
