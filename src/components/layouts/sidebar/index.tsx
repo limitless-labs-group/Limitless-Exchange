@@ -15,12 +15,11 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { useLogin as usePrivyLogin, usePrivy, useWallets } from '@privy-io/react-auth'
-import { useSetActiveWallet } from '@privy-io/wagmi'
+import { usePrivy } from '@privy-io/react-auth'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useCallback, useMemo } from 'react'
-import { Address, encodeFunctionData, getContract, maxUint256 } from 'viem'
+import { encodeFunctionData, getContract, maxUint256 } from 'viem'
 import Avatar from '@/components/common/avatar'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
