@@ -1,3 +1,5 @@
+import { usePrivy, useWallets } from '@privy-io/react-auth'
+import { useSetActiveWallet } from '@privy-io/wagmi'
 import usePrivySendTransaction from '@/hooks/use-privy-send-transaction'
 import { useAccount } from '@/services/AccountService'
 import { useExternalWalletService } from '@/services/ExternalWalletService'
@@ -46,13 +48,27 @@ type Web3Service = {
 export function useWeb3Service(): Web3Service {
   const externalWalletService = useExternalWalletService()
   const privyService = usePrivySendTransaction()
+  const { setActiveWallet } = useSetActiveWallet()
+  const { wallets } = useWallets()
+  const { user } = usePrivy()
 
   const { web3Client } = useAccount()
+
+  const getAndSetActiveWallet = async () => {
+    const connectedWallet = wallets.find(
+      (wallet) => wallet.connectorType === user?.wallet?.connectorType
+    )
+    if (connectedWallet) {
+      console.log(connectedWallet)
+      await setActiveWallet(connectedWallet)
+    }
+  }
 
   const wrapEth = async (value: bigint) => {
     if (web3Client === 'etherspot') {
       return privyService.wrapEth(value)
     }
+    await getAndSetActiveWallet()
     return externalWalletService.wrapEth(value)
   }
 
@@ -60,6 +76,7 @@ export function useWeb3Service(): Web3Service {
     if (web3Client === 'etherspot') {
       return privyService.unwrapEth(value)
     }
+    await getAndSetActiveWallet()
     return externalWalletService.unwrapEth(value)
   }
 
@@ -67,6 +84,7 @@ export function useWeb3Service(): Web3Service {
     if (web3Client === 'etherspot') {
       return privyService.transferEthers(to, value)
     }
+    await getAndSetActiveWallet()
     return externalWalletService.transferEthers(to, value)
   }
 
@@ -74,6 +92,7 @@ export function useWeb3Service(): Web3Service {
     if (web3Client === 'etherspot') {
       return privyService.transferErc20(token, to, value)
     }
+    await getAndSetActiveWallet()
     return externalWalletService.transferErc20(token, to, value)
   }
 
@@ -93,6 +112,7 @@ export function useWeb3Service(): Web3Service {
         collateralContract
       )
     }
+    await getAndSetActiveWallet()
     return externalWalletService.buyOutcomeTokens(
       fixedProductMarketMakerAddress,
       collateralAmount,
@@ -117,6 +137,7 @@ export function useWeb3Service(): Web3Service {
         maxOutcomeTokensToSell
       )
     }
+    await getAndSetActiveWallet()
     return externalWalletService.sellOutcomeTokens(
       fixedProductMarketMakerAddress,
       collateralAmount,
@@ -141,6 +162,7 @@ export function useWeb3Service(): Web3Service {
         indexSets
       )
     }
+    await getAndSetActiveWallet()
     return externalWalletService.redeemPositions(
       conditionalTokensAddress,
       collateralAddress,
@@ -156,11 +178,15 @@ export function useWeb3Service(): Web3Service {
   const checkAllowanceForAll = async (contractAddress: Address, spender: Address) =>
     externalWalletService.checkAllowanceForAllEOA(contractAddress, spender)
 
-  const approveContract = async (contractAddress: Address, spender: Address, value: bigint) =>
-    externalWalletService.approveContractEOA(contractAddress, spender, value)
+  const approveContract = async (contractAddress: Address, spender: Address, value: bigint) => {
+    await getAndSetActiveWallet()
+    return externalWalletService.approveContractEOA(contractAddress, spender, value)
+  }
 
-  const approveAllowanceForAll = async (contractAddress: Address, spender: Address) =>
-    externalWalletService.approveContractForAllEOA(contractAddress, spender)
+  const approveAllowanceForAll = async (contractAddress: Address, spender: Address) => {
+    await getAndSetActiveWallet()
+    return externalWalletService.approveContractForAllEOA(contractAddress, spender)
+  }
 
   return {
     wrapEth,
