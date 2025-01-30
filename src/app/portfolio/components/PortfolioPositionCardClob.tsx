@@ -265,7 +265,7 @@ const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps)
               color={cardColors.secondary}
               w={isMobile ? 'unset' : '120px'}
               flex={isMobile ? 1 : 'unset'}
-              textAlign={isMobile ? 'left' : 'unset'}
+              textAlign={isMobile ? 'left' : 'center'}
             >
               Contracts
             </Text>
