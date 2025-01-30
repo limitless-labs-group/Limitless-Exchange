@@ -1,4 +1,4 @@
-import { Box, HStack, Input, InputGroup, InputRightElement, Text } from '@chakra-ui/react'
+import { Box, Button, HStack, Input, InputGroup, InputRightElement, Text } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -174,9 +174,24 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
       <InputGroup display='block' mt='16px'>
         <HStack justifyContent='space-between' mb='8px'>
           <Text {...paragraphMedium}>Enter Amount</Text>
-          <Text {...paragraphRegular} color='grey.500'>
+          <Button
+            {...paragraphRegular}
+            p='0'
+            borderRadius='0'
+            minW='unset'
+            h='auto'
+            variant='plain'
+            onClick={() => setDisplayAmount(sharesAvailableBalance)}
+            color='grey.500'
+            borderBottom='1px dotted'
+            borderColor='rgba(132, 132, 132, 0.5)'
+            _hover={{
+              borderColor: 'var(--chakra-colors-text-100)',
+              color: 'var(--chakra-colors-text-100)',
+            }}
+          >
             Available: {sharesAvailableBalance}
-          </Text>
+          </Button>
         </HStack>
         <Input
           isInvalid={isExceedsBalance}

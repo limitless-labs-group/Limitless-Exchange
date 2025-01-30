@@ -119,14 +119,20 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         return amount.isGreaterThan(balanceLeft)
       }
       const shares = sharesOwned?.[outcome]
-      return new BigNumber(shares?.toString() || '0').isLessThan(sharesAmount)
+      const sharesFormatted = shares
+        ? formatUnits(shares, market?.collateralToken.decimals || 6)
+        : '0'
+      return new BigNumber(sharesFormatted).isLessThan(sharesAmount)
     }
     if (orderType === MarketOrderType.MARKET) {
       if (strategy === 'Buy') {
         return new BigNumber(price).isGreaterThan(balance)
       }
       const shares = sharesOwned?.[outcome]
-      return new BigNumber(shares?.toString() || '0').isLessThan(sharesAmount)
+      const sharesFormatted = shares
+        ? formatUnits(shares, market?.collateralToken.decimals || 6)
+        : '0'
+      return new BigNumber(sharesFormatted).isLessThan(price)
     }
     return false
   }, [

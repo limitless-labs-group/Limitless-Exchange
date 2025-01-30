@@ -6,11 +6,11 @@ import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { usePriceOracle } from '@/providers'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useLimitlessApi } from '@/services/LimitlessApi'
-import { Address } from '@/types'
+import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface IHistoryService {
-  positions: HistoryPosition[] | undefined
+  positions: (HistoryPositionWithType | ClobPositionWithType)[] | undefined
   balanceInvested: string
   balanceToWin: string
   tradesAndPositionsLoading: boolean
@@ -29,8 +29,14 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * BALANCES
    */
   const balanceInvested = useMemo(() => {
+    const ammPositions = positions?.filter(
+      (position) => position.type === 'amm'
+    ) as HistoryPositionWithType[]
+    const clobPositions = positions?.filter(
+      (position) => position.type === 'clob'
+    ) as ClobPositionWithType[]
     let _balanceInvested = 0
-    positions?.forEach((position) => {
+    ammPositions?.forEach((position) => {
       let positionUsdAmount = 0
       const token = supportedTokens?.find(
         (token) => token.symbol === position.market.collateral?.symbol
@@ -45,7 +51,13 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 
   const balanceToWin = useMemo(() => {
     let _balanceToWin = 0
-    positions?.forEach((position) => {
+    const ammPositions = positions?.filter(
+      (position) => position.type === 'amm'
+    ) as HistoryPositionWithType[]
+    const clobPositions = positions?.filter(
+      (position) => position.type === 'clob'
+    ) as ClobPositionWithType[]
+    ammPositions?.forEach((position) => {
       let positionOutcomeUsdAmount = 0
       const token = supportedTokens?.find(
         (token) => token.symbol === position.market.collateral?.symbol
@@ -88,8 +100,13 @@ export const usePosition = () => {
         return []
       }
       try {
-        const response = await privateClient.get<HistoryPosition[]>(`/portfolio/positions`)
-        return response.data
+        const response = await privateClient.get<PositionsResponse>(`/portfolio/positions`)
+        return [
+          ...response.data.amm.map((position) => ({ ...position, type: 'amm' })),
+          ...response.data.clob.map((position) => ({ ...position, type: 'clob' })),
+        ] as (HistoryPositionWithType | ClobPositionWithType)[]
+
+        // return response.data
       } catch (error) {
         console.error('Error fetching positions:', error)
         return []
@@ -206,4 +223,32 @@ export type HistoryPosition = {
   outcomeTokenAmounts?: (string | number)[]
   outcomeTokenPrice?: string
   strategy?: 'Buy' | 'Sell'
+}
+
+type PositionsResponse = {
+  amm: HistoryPositionWithType[]
+  clob: ClobPositionWithType[]
+}
+
+export type ClobPosition = {
+  latestTrade: {
+    tradeId: string
+    marketId: string
+    ownerId: number
+    createdAt: string
+    role: string
+  }[]
+  market: Market
+  tokensBalance: {
+    yes: string
+    no: string
+  }
+}
+
+export type HistoryPositionWithType = HistoryPosition & {
+  type: 'amm'
+}
+
+export type ClobPositionWithType = ClobPosition & {
+  type: 'clob'
 }

@@ -25,10 +25,9 @@ import MarketActivityTab from '@/components/common/markets/activity-tab'
 import CommentTab from '@/components/common/markets/comment-tab'
 import ShareMenu from '@/components/common/markets/share-menu'
 import {
-  MarketClaimingForm,
   MarketMetadata,
   MarketTradingForm,
-  MobileTradeButton,
+  MarketClosedButton,
 } from '@/app/(markets)/markets/[address]/components'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import { MainLayout } from '@/components'
@@ -62,23 +61,23 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
   }
 
   const marketActionForm = useMemo(() => {
-    if (market) {
-      return market.expired ? (
-        <MarketClaimingForm market={market} />
-      ) : (
-        <MarketTradingForm
-          market={market}
-          setSelectedMarket={setMarket}
-          marketGroup={marketGroup}
-        />
-      )
-    }
+    // if (market) {
+    //   return market.expired ? (
+    //     <MarketClaimingForm market={market} />
+    //   ) : (
+    //     <MarketTradingForm
+    //       market={market}
+    //       setSelectedMarket={setMarket}
+    //       marketGroup={marketGroup}
+    //     />
+    //   )
+    // }
     return null
   }, [market, marketGroup])
 
   const mobileTradeButton = useMemo(() => {
     return market?.expired ? (
-      <MobileTradeButton market={market} />
+      <MarketClosedButton />
     ) : (
       <MobileDrawer
         trigger={
