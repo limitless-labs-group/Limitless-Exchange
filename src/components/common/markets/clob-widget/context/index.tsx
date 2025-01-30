@@ -32,7 +32,7 @@ export const useClobWidget = (): ClobWidgetContextType => {
 
 interface ClobWidgetContextType {
   balance: string
-  isBalanceNotEnough?: boolean
+  isBalanceNotEnough: boolean
   orderType: MarketOrderType
   setOrderType: (val: MarketOrderType) => void
   sharesAmount: string
@@ -112,16 +112,24 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
       if (strategy === 'Buy') {
         const amount = new BigNumber(price || '0').dividedBy(100).multipliedBy(sharesAmount)
         const lockedBalanceFormatted = formatUnits(
-          BigInt(lockedBalance?.toFixed() || '0'),
+          BigInt(lockedBalance?.collateral.balance.toFixed() || '0'),
           market?.collateralToken.decimals || 6
         )
         const balanceLeft = new BigNumber(balance).minus(lockedBalanceFormatted)
         return amount.isGreaterThan(balanceLeft)
       }
       const shares = sharesOwned?.[outcome]
-      const sharesFormatted = shares
-        ? formatUnits(shares, market?.collateralToken.decimals || 6)
-        : '0'
+      const sharesFormatted =
+        shares && lockedBalance
+          ? formatUnits(
+              BigInt(
+                new BigNumber(shares.toString())
+                  .minus(lockedBalance[outcome ? 'no' : 'yes'])
+                  .toNumber()
+              ),
+              market?.collateralToken.decimals || 6
+            )
+          : '0'
       return new BigNumber(sharesFormatted).isLessThan(sharesAmount)
     }
     if (orderType === MarketOrderType.MARKET) {
@@ -129,9 +137,17 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         return new BigNumber(price).isGreaterThan(balance)
       }
       const shares = sharesOwned?.[outcome]
-      const sharesFormatted = shares
-        ? formatUnits(shares, market?.collateralToken.decimals || 6)
-        : '0'
+      const sharesFormatted =
+        shares && lockedBalance
+          ? formatUnits(
+              BigInt(
+                new BigNumber(shares.toString())
+                  .minus(lockedBalance[outcome ? 'no' : 'yes'])
+                  .toNumber()
+              ),
+              market?.collateralToken.decimals || 6
+            )
+          : '0'
       return new BigNumber(sharesFormatted).isLessThan(price)
     }
     return false
