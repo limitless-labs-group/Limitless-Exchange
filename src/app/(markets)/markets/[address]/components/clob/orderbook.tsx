@@ -12,14 +12,48 @@ export default function Orderbook() {
   const { market } = useTradingService()
   const { data: orderbook } = useOrderBook(market?.slug)
 
+  function calculatePercentReverse(array: Order[]) {
+    const totalSum = array.reduce(
+      (sum, bid) =>
+        sum +
+        new BigNumber(formatUnits(BigInt(bid.size), market?.collateralToken.decimals || 6))
+          .multipliedBy(bid.price)
+          .toNumber(),
+      0
+    )
+
+    let cumulativeSum = 0
+    const processedBids = array
+      .slice()
+      .reverse()
+      .map((order) => {
+        const bidSum = new BigNumber(
+          formatUnits(BigInt(order.size), market?.collateralToken.decimals || 6)
+        )
+          .multipliedBy(order.price)
+          .toNumber()
+        cumulativeSum += bidSum
+        const cumulativePercent = (cumulativeSum / totalSum) * 100
+
+        return {
+          ...order,
+          cumulativePercent: cumulativePercent.toFixed(2),
+          percent: cumulativePercent.toFixed(2),
+          cumulativePrice: cumulativeSum.toFixed(2),
+        }
+      })
+      .reverse()
+    return processedBids
+  }
+
   function calculatePercent(array: Order[]) {
-    const totalSize = array.reduce((sum, item) => sum + item.size, 0) // Total size of the array
+    const totalSize = array.reduce((sum, item) => sum + item.size, 0)
     let cumulativePrice = 0
 
-    let cumulativePercent = 0 // Track cumulative percentage
+    let cumulativePercent = 0
     return array.map((item) => {
-      const percent = (item.size / totalSize) * 100 // Percent value
-      cumulativePercent += percent // Update cumulative percentage
+      const percent = (item.size / totalSize) * 100
+      cumulativePercent += percent
       cumulativePrice += new BigNumber(
         formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6)
       )
@@ -27,8 +61,8 @@ export default function Orderbook() {
         .toNumber()
       return {
         ...item,
-        percent: percent.toFixed(2), // Percent relative to total
-        cumulativePercent: cumulativePercent.toFixed(2), // Cumulative percent
+        percent: percent.toFixed(2),
+        cumulativePercent: cumulativePercent.toFixed(2),
         cumulativePrice: cumulativePrice.toFixed(2),
       }
     })
@@ -65,16 +99,9 @@ export default function Orderbook() {
       : orderbook.asks.sort((a, b) => b.price - a.price)
     return {
       bids: calculatePercent(bids),
-      asks: calculatePercent(asks),
+      asks: calculatePercentReverse(asks),
     }
   }, [orderbook, orderbookSide])
-
-  // const calculateTotalContractsPrice = (total: number) => {
-  //   return NumberUtil.convertWithDenomination(
-  //     total,
-  //     6
-  //   )
-  // }
 
   const spread = useMemo(() => {
     if (!orderBookData) {
