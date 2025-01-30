@@ -246,16 +246,16 @@ export default function ClobMarketTradeForm() {
   }
 
   const handleSubmitButtonClicked = async () => {
-    if (client === 'etherspot') {
-      await etherspot?.approveCollateralIfNeeded(
-        process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-        maxUint256,
-        market?.collateralToken.address as Address
-      )
-      await placeMarketOrderMutation.mutateAsync()
-      return
-    }
     if (strategy === 'Buy') {
+      if (client === 'etherspot') {
+        await etherspot?.approveCollateralIfNeeded(
+          process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+          maxUint256,
+          market?.collateralToken.address as Address
+        )
+        await placeMarketOrderMutation.mutateAsync()
+        return
+      }
       const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
         parseUnits(sharesPrice, market?.collateralToken.decimals || 6).toString()
       )
@@ -263,6 +263,14 @@ export default function ClobMarketTradeForm() {
         onToggleTradeStepper()
         return
       }
+      await placeMarketOrderMutation.mutateAsync()
+      return
+    }
+    if (client === 'etherspot') {
+      await etherspot?.approveConditionalIfNeeded(
+        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+        process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address
+      )
       await placeMarketOrderMutation.mutateAsync()
       return
     }

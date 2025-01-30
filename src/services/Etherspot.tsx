@@ -418,7 +418,7 @@ class Etherspot {
   async splitPositions(collateralAddress: Address, conditionId: string, amount: bigint) {
     await this.approveCollateralIfNeeded(
       process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
-      amount,
+      maxUint256,
       collateralAddress
     )
     const data = encodeFunctionData({

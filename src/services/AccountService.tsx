@@ -260,6 +260,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         queryClient.invalidateQueries({
           queryKey: ['locked-balance'],
         }),
+        queryClient.invalidateQueries({
+          queryKey: ['positions'],
+        }),
       ])
       router.push('/')
     } catch (error) {

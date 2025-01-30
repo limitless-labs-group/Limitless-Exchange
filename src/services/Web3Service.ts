@@ -1,6 +1,6 @@
 import { SignedOrder } from '@polymarket/order-utils'
 import BigNumber from 'bignumber.js'
-import { parseUnits } from 'viem'
+import { maxUint256, parseUnits } from 'viem'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useEtherspot } from '@/services/Etherspot'
 import { useExternalWalletService } from '@/services/ExternalWalletService'
