@@ -10,13 +10,11 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { useLogin as usePrivyLogin, useWallets } from '@privy-io/react-auth'
-import { useSetActiveWallet } from '@privy-io/wagmi'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { Address, isAddress } from 'viem'
+import { isAddress } from 'viem'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import Loader from '@/components/common/loader'
@@ -29,7 +27,6 @@ import UpgradeWalletContainer from '@/components/common/upgrade-wallet-container
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
-import { useLogin } from '@/hooks/profiles'
 import useClient from '@/hooks/use-client'
 import { usePriceOracle, useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
@@ -41,7 +38,6 @@ import SunIcon from '@/resources/icons/sun-icon.svg'
 import {
   ClickEvent,
   CreateMarketClickedMetadata,
-  SignInEvent,
   useAccount,
   useAmplitude,
   useBalanceQuery,
@@ -59,44 +55,21 @@ export default function MobileHeader() {
   const { supportedTokens } = useLimitlessApi()
   const { convertAssetAmountToUsd } = usePriceOracle()
   const router = useRouter()
-  const { disconnectFromPlatform, profileData, profileLoading, displayName, account, setIsLogged } =
-    useAccount()
+  const {
+    disconnectFromPlatform,
+    profileData,
+    profileLoading,
+    displayName,
+    account,
+    loginToPlatform,
+  } = useAccount()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
   const { isLogged } = useClient()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
-  const { trackSignIn } = useAmplitude()
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
-  const { setActiveWallet } = useSetActiveWallet()
-  const { wallets } = useWallets()
-  const { mutateAsync: login } = useLogin()
-
-  const { login: privyLogin } = usePrivyLogin({
-    onComplete: async ({ user, wasAlreadyAuthenticated }) => {
-      const connectedWallet = wallets.find(
-        (wallet) => wallet.connectorType === user.wallet?.connectorType
-      )
-      if (connectedWallet && !wasAlreadyAuthenticated) {
-        await setActiveWallet(connectedWallet)
-        await login({
-          client: 'eoa',
-          account: connectedWallet.address as Address,
-        })
-        // const profile = await axiosPrivateClient.get(
-        //   `/profiles/${getAddress(user?.wallet?.address as string)}`
-        // )
-        // queryClient.setQueryData(['profiles', { account: user?.wallet?.address }], profile.data)
-        trackSignIn(SignInEvent.SignIn)
-        setIsLogged(true)
-        return
-      }
-    },
-    onError: (error) => {
-      console.log(error)
-    },
-  })
 
   const balanceInvested = useMemo(() => {
     let _balanceInvested = 0
@@ -451,7 +424,7 @@ export default function MobileHeader() {
                 </Slide>
               </>
             ) : (
-              <LoginButton login={privyLogin} />
+              <LoginButton login={loginToPlatform} />
             )}
           </HStack>
         </HStack>
