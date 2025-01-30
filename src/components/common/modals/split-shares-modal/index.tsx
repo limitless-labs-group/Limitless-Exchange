@@ -12,7 +12,7 @@ import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Address, parseUnits } from 'viem'
+import { Address, maxUint256, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import { Modal } from '@/components/common/modals/modal'
@@ -131,7 +131,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
       await approveContract(
         process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
         market?.collateralToken.address as Address,
-        parseUnits(displayAmount, market?.collateralToken.decimals || 6)
+        maxUint256
       )
       await sleep(3)
       await checkSplitAllowance()
