@@ -92,16 +92,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const accountRoutes = ['/portfolio', '/create-market']
   const privateClient = useAxiosPrivateClient()
   const { mutateAsync: login } = useLogin()
-  // const { disconnect: disconnectWagmi } = useDisconnect()
   const web3Client = user?.wallet?.walletClientType === 'privy' ? 'etherspot' : 'eoa'
   const { trackSignUp } = useAmplitude()
-  // const { data: walletClient } = useWalletClient()
   const { wallets, ready: walletsReady } = useWallets()
   const { isLogged } = useClient()
-
-  // console.log(walletClient)
-  console.log(user)
-  console.log(authenticated)
 
   const walletClient = web3Client === 'etherspot' ? smartAccountClient : web3Wallet
 
@@ -185,7 +179,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     const provider = await wallet.getEthereumProvider()
     //@ts-ignore
     const customSigner = await providerToSmartAccountSigner(provider)
-    // const customSigner = walletClientToSmartAccountSigner(walletClient)
 
     const safeSmartAccountClient = await signerToSafeSmartAccount(publicClient, {
       entryPoint: ENTRYPOINT_ADDRESS_V06,

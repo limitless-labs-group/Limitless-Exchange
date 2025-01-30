@@ -57,7 +57,6 @@
     "embla-carousel-autoplay": "^8.3.0",
     "embla-carousel-react": "^8.3.0",
     "ethereum-multicall": "^2.25.0",
-    "ethers": "5.7.2",
     "framer-motion": "^11.3.8",
     "frog": "^0.15.7",
     "graphql": "^16.8.1",
