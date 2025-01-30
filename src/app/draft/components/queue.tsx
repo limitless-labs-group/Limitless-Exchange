@@ -102,7 +102,7 @@ export const DraftMarketsQueue = () => {
           mt='16px'
           w={'full'}
           onClick={createMarketsBatch}
-          style={{ position: 'sticky', bottom: 40 }}
+          style={{ width: '100%', maxWidth: '868px', position: 'fixed', bottom: 20 }}
           isDisabled={isCreating}
         >
           {isCreating ? <Spinner /> : 'Create Markets Batch'}
