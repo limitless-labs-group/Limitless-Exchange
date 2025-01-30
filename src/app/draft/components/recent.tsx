@@ -83,7 +83,7 @@ export const RecentMarkets = () => {
             <Spinner />
           </Box>
         ) : (
-          <Box style={{ width: '100%', position: 'sticky', bottom: 40 }}>
+          <Box style={{ width: '100%', maxWidth: '868px', position: 'fixed', bottom: 20 }}>
             <Button
               colorScheme='green'
               mt='16px'
