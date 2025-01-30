@@ -76,7 +76,7 @@ const CreateOwnMarketPage = () => {
   return (
     <MainLayout>
       <Tabs
-        height='100vh'
+        height='100%'
         w='full'
         maxWidth='1000px'
         position='relative'
