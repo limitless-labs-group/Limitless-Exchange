@@ -151,18 +151,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  useEffect(() => {
-    if (walletsReady && !walletClient) {
-      const connectedPrivyWallet = wallets.find(
-        (wallet) => wallet.connectorType === user?.wallet?.connectorType
-      )
-      console.log(`connected wallet already ${connectedPrivyWallet}`)
-      if (connectedPrivyWallet) {
-        setActiveWallet(connectedPrivyWallet)
-      }
-    }
-  }, [user?.wallet?.connectorType, walletClient, wallets, walletsReady])
-
   const onUnblockUser = useMutation({
     mutationKey: ['unblock-user', user?.wallet?.address],
     mutationFn: async (data: { account: Address }) => {
