@@ -1,11 +1,10 @@
-import { Box, Divider, HStack, Icon, Stack, Text, VStack } from '@chakra-ui/react'
+import { Box, Divider, HStack, Icon, Text } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
-import Skeleton from '@/components/common/skeleton'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
@@ -52,7 +51,6 @@ const StatusIcon = ({ isClosed, color }: { isClosed: boolean | undefined; color:
 
 const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps) => {
   const [colors, setColors] = useState(unhoveredColors)
-  const [isLoadingRedeem, setIsLoadingRedeem] = useState(false)
 
   const { trackClicked } = useAmplitude()
   const { redeem, onOpenMarketPage, setMarket, setMarketGroup } = useTradingService()
@@ -205,7 +203,7 @@ const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps)
       main: colors.main,
       secondary: colors.secondary,
     }
-  }, [position, colors])
+  }, [marketClosed, colors.main, colors.secondary])
 
   const deadline = new Intl.DateTimeFormat('en-GB', {
     day: '2-digit',
@@ -265,14 +263,14 @@ const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps)
             <Text
               {...paragraphMedium}
               color={cardColors.secondary}
-              w={isMobile ? 'unset' : '66px'}
+              w={isMobile ? 'unset' : '120px'}
               flex={isMobile ? 1 : 'unset'}
-              textAlign={isMobile ? 'left' : 'unset'}
+              textAlign={isMobile ? 'left' : 'center'}
             >
               Contracts
             </Text>
           </HStack>
-          {+position.tokensBalance.yes && (
+          {Boolean(+position.tokensBalance.yes) && (
             <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
               <Text
                 {...paragraphRegular}
@@ -286,7 +284,7 @@ const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps)
               <Text
                 {...paragraphRegular}
                 color={cardColors.main}
-                w={isMobile ? 'unset' : '66px'}
+                w={isMobile ? 'unset' : '120px'}
                 flex={isMobile ? 1 : 'unset'}
                 textAlign={isMobile ? 'left' : 'center'}
               >
@@ -300,7 +298,7 @@ const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps)
               </Text>
             </HStack>
           )}
-          {+position.tokensBalance.no && (
+          {Boolean(+position.tokensBalance.no) && (
             <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
               <Text
                 {...paragraphRegular}
@@ -314,7 +312,7 @@ const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps)
               <Text
                 {...paragraphRegular}
                 color={cardColors.main}
-                w={isMobile ? 'unset' : '66px'}
+                w={isMobile ? 'unset' : '120px'}
                 flex={isMobile ? 1 : 'unset'}
                 textAlign={isMobile ? 'left' : 'center'}
               >
