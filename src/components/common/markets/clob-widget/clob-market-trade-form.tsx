@@ -98,7 +98,7 @@ export default function ClobMarketTradeForm() {
   const handleInputValueChange = (value: string) => {
     if (market?.collateralToken.symbol === 'USDC') {
       const decimals = value.split('.')[1]
-      if (decimals && decimals.length > 1) {
+      if (decimals && decimals.length > 2) {
         return
       }
       setPrice(value)
@@ -168,18 +168,28 @@ export default function ClobMarketTradeForm() {
           BigInt(entry.size.toFixed()),
           market.collateralToken.decimals
         )
-        const contractsToBuy = Math.min(remainingAmount / entry.price, contractsAvailable)
+        const contractsToBuy = Math.min(
+          new BigNumber(remainingAmount).dividedBy(new BigNumber(entry.price)).toNumber(),
+          contractsAvailable
+        )
 
-        totalContracts += contractsToBuy
-        totalCost += contractsToBuy * entry.price
+        totalContracts = new BigNumber(totalContracts).plus(contractsToBuy).toNumber()
+        totalCost = new BigNumber(totalCost)
+          .plus(new BigNumber(contractsToBuy).multipliedBy(new BigNumber(entry.price)))
+          .toNumber()
 
-        remainingAmount -= contractsToBuy * entry.price
+        remainingAmount = new BigNumber(remainingAmount)
+          .minus(new BigNumber(contractsToBuy).multipliedBy(new BigNumber(entry.price)))
+          .toNumber()
 
         if (remainingAmount <= 0) break
       }
 
-      const averagePrice = totalContracts > 0 ? totalCost / totalContracts : 0
-      const totalProfit = totalContracts * (1 - averagePrice)
+      const averagePrice =
+        totalContracts > 0 ? new BigNumber(totalCost).dividedBy(totalContracts).toNumber() : 0
+      const totalProfit = new BigNumber(totalContracts)
+        .multipliedBy(new BigNumber(1).minus(new BigNumber(averagePrice)))
+        .toNumber()
 
       return {
         contracts: isNaN(totalContracts) ? 0 : totalContracts,
@@ -207,15 +217,26 @@ export default function ClobMarketTradeForm() {
         )
         const contractsToSell = Math.min(remainingContracts, contractsAvailable)
 
-        totalContractsSold += contractsToSell
-        totalAmountReceived += contractsToSell * entry.price
+        totalContractsSold = new BigNumber(totalContractsSold)
+          .plus(new BigNumber(contractsToSell))
+          .toNumber()
+        totalAmountReceived = new BigNumber(totalAmountReceived)
+          .plus(new BigNumber(contractsToSell).multipliedBy(new BigNumber(entry.price)))
+          .toNumber()
 
-        remainingContracts -= contractsToSell
+        remainingContracts = new BigNumber(remainingContracts)
+          .minus(new BigNumber(contractsToSell))
+          .toNumber()
 
         if (remainingContracts <= 0) break
       }
 
-      const averagePrice = totalContractsSold > 0 ? totalAmountReceived / totalContractsSold : 0
+      const averagePrice =
+        totalContractsSold > 0
+          ? new BigNumber(totalAmountReceived)
+              .dividedBy(new BigNumber(totalContractsSold))
+              .toNumber()
+          : 0
 
       return {
         contracts: isNaN(totalContractsSold) ? 0 : totalContractsSold,
