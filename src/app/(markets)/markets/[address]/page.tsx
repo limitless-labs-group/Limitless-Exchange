@@ -41,7 +41,7 @@ import MarketMobileTradeForm from '@/app/(markets)/markets/[address]/components/
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
 import { LUMY_TOKENS } from '@/app/draft/components'
-import { MarketPriceChart, MarketTradingForm, MobileTradeButton } from './components'
+import { MarketPriceChart, MarketTradingForm, MarketClosedButton } from './components'
 import { MainLayout } from '@/components'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
@@ -192,7 +192,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       return
     }
     return market?.expired ? (
-      <MobileTradeButton market={market} />
+      <MarketClosedButton />
     ) : (
       <MobileDrawer
         trigger={

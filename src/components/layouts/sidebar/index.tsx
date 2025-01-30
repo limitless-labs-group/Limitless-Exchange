@@ -61,7 +61,7 @@ import {
 import { useMarkets } from '@/services/MarketsService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup } from '@/types'
+import { Market, MarketGroup, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function Sidebar() {
@@ -96,7 +96,12 @@ export default function Sidebar() {
   }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
 
   const hasWinningPosition = useMemo(() => {
-    return positions?.some((position) => position.market.closed)
+    return positions?.some((position) => {
+      if (position.type === 'amm') {
+        return position.market.closed
+      }
+      return position.market.status === MarketStatus.RESOLVED
+    })
   }, [positions])
 
   const {

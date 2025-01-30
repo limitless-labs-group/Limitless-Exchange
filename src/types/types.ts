@@ -49,6 +49,7 @@ export interface Market {
   conditionId: string
   createdAt: string
   creator: Creator
+  deadline: string
   description: string
   expirationDate: string
   expirationTimestamp: number
