@@ -5,7 +5,6 @@ import {
   useQuery,
 } from '@tanstack/react-query'
 import { Multicall } from 'ethereum-multicall'
-import { ethers } from 'ethers'
 import { usePathname } from 'next/navigation'
 import {
   createContext,
@@ -68,7 +67,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
   const { convertAssetAmountToUsd } = usePriceOracle()
-  const { profileData, profileLoading, account, isLogged } = useAccount()
+  const { profileData, profileLoading, account } = useAccount()
   const { balanceOfSmartWallet, refetchbalanceOfSmartWallet, balanceOfSmartWalletLoading } =
     useBalanceQuery()
 
@@ -77,11 +76,11 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const { supportedTokens } = useLimitlessApi()
 
   const userMenuLoading = useMemo(() => {
-    if (isLogged) {
+    if (account) {
       return profileData === undefined || profileLoading
     }
     return false
-  }, [isLogged, profileLoading, profileData])
+  }, [account, profileLoading, profileData])
 
   const balanceLoading = userMenuLoading || balanceOfSmartWalletLoading
 
@@ -269,9 +268,10 @@ export const useBalanceQuery = () => {
       }
 
       const multicall = new Multicall({
-        ethersProvider: new ethers.providers.JsonRpcProvider(
-          defaultChain.rpcUrls.default.http.toString()
-        ),
+        // ethersProvider: new ethers.providers.JsonRpcProvider(
+        //   defaultChain.rpcUrls.default.http.toString()
+        // ),
+        nodeUrl: defaultChain.rpcUrls.default.http.toString(),
         tryAggregate: true,
         multicallCustomContractAddress: defaultChain.contracts.multicall3.address,
       })

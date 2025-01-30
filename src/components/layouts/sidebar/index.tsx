@@ -15,6 +15,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
+import { ERC20_ABI } from '@lifi/sdk'
 import { usePrivy } from '@privy-io/react-auth'
 import Image from 'next/image'
 import NextLink from 'next/link'
@@ -33,12 +34,9 @@ import UpgradeWalletContainer from '@/components/common/upgrade-wallet-container
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
-import { erc20Abi } from '@/contracts/generated'
 import { useToast } from '@/hooks'
-import { useLogin } from '@/hooks/profiles'
-import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
-import usePrivySendTransaction from '@/hooks/use-privy-send-transaction'
+import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { useThemeProvider } from '@/providers'
 import { publicClient } from '@/providers/Privy'
@@ -60,7 +58,6 @@ import {
   CreateMarketClickedMetadata,
   LogoClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
-  SignInEvent,
   useAccount,
   useAmplitude,
   useBalanceQuery,
@@ -79,8 +76,8 @@ export default function Sidebar() {
     profileLoading,
     account,
     web3Client,
-    isLogged,
     smartAccountClient,
+    isLoggedIn,
     loginToPlatform,
   } = useAccount()
   const { overallBalanceUsd, balanceLoading } = useBalanceService()
@@ -134,12 +131,12 @@ export default function Sidebar() {
   const handleTestApproveClicked = async () => {
     const contract = getContract({
       address: '0xD7788FfC73C9AE39CE24dfc1098b375792dD42Ac',
-      abi: erc20Abi,
+      abi: ERC20_ABI,
       client: publicClient,
     })
     const spender = '0x4045F81Ce65AF0D34FFe4C0CF9929B4f8a668228'
     const data = encodeFunctionData({
-      abi: erc20Abi,
+      abi: ERC20_ABI,
       functionName: 'approve',
       args: [spender, maxUint256],
     })
@@ -259,7 +256,7 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        {isLogged ? (
+        {isLoggedIn ? (
           <>
             <VStack mt='16px' w='full' gap='8px'>
               {walletTypeActionButton}

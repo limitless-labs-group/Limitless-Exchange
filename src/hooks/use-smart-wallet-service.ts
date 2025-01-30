@@ -1,11 +1,11 @@
+import { ERC20_ABI } from '@lifi/sdk'
 import { Address, encodeFunctionData, getContract, maxUint256 } from 'viem'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
-import { erc20Abi } from '@/contracts/generated'
 import { publicClient } from '@/providers/Privy'
 import { useAccount, useLimitlessApi } from '@/services'
 
-export default function usePrivySendTransaction() {
+export default function useSmartWalletService() {
   const { account } = useAccount()
   const { supportedTokens } = useLimitlessApi()
   const { smartAccountClient } = useAccount()
@@ -44,13 +44,13 @@ export default function usePrivySendTransaction() {
   ) => {
     const contract = getContract({
       address: collateralContract,
-      abi: erc20Abi,
+      abi: ERC20_ABI,
       client: publicClient,
     })
     const allowance = (await contract.read.allowance([account as Address, spender])) as bigint
     if (allowance < amount) {
       const data = encodeFunctionData({
-        abi: spender.toLowerCase() === wethToken?.address.toLowerCase() ? wethABI : erc20Abi,
+        abi: spender.toLowerCase() === wethToken?.address.toLowerCase() ? wethABI : ERC20_ABI,
         functionName: 'approve',
         args: [spender, maxUint256],
       })
@@ -188,11 +188,11 @@ export default function usePrivySendTransaction() {
   const transferErc20 = async (token: Address, to: Address, value: bigint) => {
     const contract = getContract({
       address: token,
-      abi: erc20Abi,
+      abi: ERC20_ABI,
       client: publicClient,
     })
     const data = encodeFunctionData({
-      abi: erc20Abi,
+      abi: ERC20_ABI,
       functionName: 'transfer',
       args: [to, value],
     })

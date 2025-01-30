@@ -27,12 +27,12 @@ export type MarketFeedData = {
 
 export function useMarketFeed(marketAddress?: string) {
   const pathname = usePathname()
-  const { isLogged } = useAccount()
+  const { isLoggedIn } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useQuery<AxiosResponse<MarketFeedData[]>>({
     queryKey: ['market-feed', marketAddress],
     queryFn: async () => {
-      const client = isLogged ? privateClient : limitlessApi
+      const client = isLoggedIn ? privateClient : limitlessApi
       return client.get(`/markets/${marketAddress}/get-feed-events`)
     },
     refetchInterval: pathname === '/' ? 10000 : false,
@@ -41,13 +41,13 @@ export function useMarketFeed(marketAddress?: string) {
 }
 
 export function useMarketInfinityFeed(marketAddress?: string) {
-  const { isLogged } = useAccount()
+  const { isLoggedIn } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useInfiniteQuery<MarketFeedData[], Error>({
     queryKey: ['market-page-feed', marketAddress],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      const client = isLogged ? privateClient : limitlessApi
+      const client = isLoggedIn ? privateClient : limitlessApi
       const baseUrl = `/markets/${marketAddress}/get-feed-events`
       const response: AxiosResponse<MarketFeedData[]> = await client.get(baseUrl, {
         params: {
