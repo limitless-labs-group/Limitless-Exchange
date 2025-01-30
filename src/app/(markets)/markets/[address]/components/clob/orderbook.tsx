@@ -43,25 +43,29 @@ export default function Orderbook() {
     }
 
     const bids = orderbookSide
-      ? orderbook.asks.map((ask) => {
-          return {
-            ...ask,
-            price: +new BigNumber(1).minus(new BigNumber(ask.price)).toFixed(2),
-          }
-        })
-      : orderbook.bids
+      ? orderbook.asks
+          .map((ask) => {
+            return {
+              ...ask,
+              price: +new BigNumber(1).minus(new BigNumber(ask.price)).toFixed(2),
+            }
+          })
+          .sort((a, b) => a.price - b.price)
+      : orderbook.bids.sort((a, b) => a.price - b.price)
 
     const asks = orderbookSide
-      ? orderbook.bids.map((bid) => {
-          return {
-            ...bid,
-            price: +new BigNumber(1).minus(new BigNumber(bid.price)).toFixed(2),
-          }
-        })
-      : orderbook.asks
+      ? orderbook.bids
+          .map((bid) => {
+            return {
+              ...bid,
+              price: +new BigNumber(1).minus(new BigNumber(bid.price)).toFixed(2),
+            }
+          })
+          .sort((a, b) => b.price - a.price)
+      : orderbook.asks.sort((a, b) => b.price - a.price)
     return {
       bids: calculatePercent(bids),
-      asks: calculatePercent(asks).reverse(),
+      asks: calculatePercent(asks),
     }
   }, [orderbook, orderbookSide])
 
