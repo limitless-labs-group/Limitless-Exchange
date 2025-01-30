@@ -1,10 +1,10 @@
 import {
   ConnectedWallet,
-  useLogin as usePrivyLogin,
   usePrivy,
   useWallets,
+  useLogin as usePrivyLogin,
+  LoginModalOptions,
 } from '@privy-io/react-auth'
-import { useSetActiveWallet } from '@privy-io/wagmi'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 import { usePathname, useRouter } from 'next/navigation'
@@ -29,16 +29,16 @@ import React, {
   useState,
   useEffect,
 } from 'react'
-import { getAddress } from 'viem'
-import { http, useWalletClient } from 'wagmi'
+import { createWalletClient, getAddress, WalletClient, http, custom } from 'viem'
 import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
 import { useUserSession } from '@/hooks/profiles/use-session'
+import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
-import { SignInEvent, useAmplitude } from '@/services'
+import { useAmplitude } from '@/services'
 import { Address, APIError, UpdateProfileData } from '@/types'
 import { Profile } from '@/types/profiles'
 
@@ -62,9 +62,8 @@ export interface IAccountContext {
   onUnblockUser: UseMutationResult<void, Error, { account: Address }>
   web3Client: 'eoa' | 'etherspot'
   smartAccountClient: SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null
-  isLogged: boolean
-  setIsLogged: (val: boolean) => void
-  loginToPlatform: () => void
+  web3Wallet: WalletClient | null
+  loginToPlatform: (options?: LoginModalOptions | React.MouseEvent<any, any>) => void
 }
 
 const pimlicoRpcUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
@@ -86,27 +85,25 @@ export const useAccount = () => useContext(AccountContext)
 export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [smartAccountClient, setSmartAccountClient] =
     useState<SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null>(null)
-  const [isLogged, setIsLogged] = useState(false)
+  const [web3Wallet, setWeb3Wallet] = useState<WalletClient | null>(null)
   const queryClient = useQueryClient()
   const { logout: disconnect, authenticated, user } = usePrivy()
   const pathname = usePathname()
   const accountRoutes = ['/portfolio', '/create-market']
   const privateClient = useAxiosPrivateClient()
   const { mutateAsync: login } = useLogin()
-  const { setActiveWallet } = useSetActiveWallet()
   // const { disconnect: disconnectWagmi } = useDisconnect()
   const web3Client = user?.wallet?.walletClientType === 'privy' ? 'etherspot' : 'eoa'
   const { trackSignUp } = useAmplitude()
-  const { data: walletClient } = useWalletClient()
+  // const { data: walletClient } = useWalletClient()
   const { wallets, ready: walletsReady } = useWallets()
-  const { trackSignIn } = useAmplitude()
-  // const { isLogged } = useClient()
+  const { isLogged } = useClient()
 
-  console.log(`wallet client ${walletClient}`)
-  console.log(`wallets ${wallets}`)
-  console.log(`user ${user}`)
-  // console.log(user)
-  // console.log(authenticated)
+  // console.log(walletClient)
+  console.log(user)
+  console.log(authenticated)
+
+  const walletClient = web3Client === 'etherspot' ? smartAccountClient : web3Wallet
 
   const toast = useToast()
   const router = useRouter()
@@ -119,8 +116,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       )
       return res.data
     },
-    enabled: isLogged,
+    enabled: !!user?.wallet?.address,
   })
+
+  console.log(web3Wallet)
 
   const userMenuLoading = useMemo(() => {
     if (isLogged || authenticated) {
@@ -176,10 +175,78 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         client: web3Client,
         account: user.wallet.address as Address,
         smartWallet: smartAccountClient?.account?.address,
+        web3Wallet,
       })
       trackSignUp()
     }
   }
+
+  const getSmartAccountClient = async (wallet: ConnectedWallet) => {
+    const provider = await wallet.getEthereumProvider()
+    //@ts-ignore
+    const customSigner = await providerToSmartAccountSigner(provider)
+    // const customSigner = walletClientToSmartAccountSigner(walletClient)
+
+    const safeSmartAccountClient = await signerToSafeSmartAccount(publicClient, {
+      entryPoint: ENTRYPOINT_ADDRESS_V06,
+      signer: customSigner,
+      safeVersion: '1.4.1',
+      saltNonce: BigInt(0),
+    })
+
+    return createSmartAccountClient({
+      account: safeSmartAccountClient,
+      entryPoint: ENTRYPOINT_ADDRESS_V06,
+      chain: defaultChain,
+      bundlerTransport: http(pimlicoRpcUrl, {
+        timeout: 30_000,
+      }),
+      middleware: {
+        gasPrice: async () => (await bundlerClient.getUserOperationGasPrice()).fast,
+        sponsorUserOperation: pimlicoPaymaster.sponsorUserOperation,
+      },
+    })
+  }
+
+  const { login: loginToPlatform } = usePrivyLogin({
+    onComplete: async ({ user, wasAlreadyAuthenticated }) => {
+      const connectedWallet = wallets.find(
+        (wallet) => wallet.connectorType === user.wallet?.connectorType
+      )
+      if (connectedWallet && !wasAlreadyAuthenticated) {
+        const provider = await connectedWallet.getEthereumProvider()
+        const walletClient = createWalletClient({
+          chain: defaultChain,
+          transport: custom(provider),
+          account: connectedWallet.address as Address,
+        })
+        setWeb3Wallet(walletClient)
+        if (connectedWallet.connectorType === 'embedded') {
+          const client = await getSmartAccountClient(connectedWallet)
+          //@ts-ignore
+          setSmartAccountClient(client)
+          await login({
+            client: 'etherspot',
+            account: connectedWallet.address as Address,
+            smartWallet: client.account?.address,
+            web3Wallet: walletClient,
+          })
+          return
+        }
+        await login({
+          client: 'eoa',
+          account: connectedWallet.address as Address,
+          web3Wallet: walletClient,
+        })
+        // trackSignIn(SignInEvent.SignIn)
+        // setIsLogged(true)
+        return
+      }
+    },
+    onError: (error) => {
+      console.log(error)
+    },
+  })
 
   const updateProfileMutation = useMutation<
     Profile | undefined,
@@ -255,6 +322,32 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   //   enabled: userInfo?.typeOfLogin === 'farcaster',
   // })
 
+  console.log(wallets)
+
+  const getWallet = async (): Promise<WalletClient | undefined> => {
+    const wallet = wallets.find(
+      (wallet) => wallet.walletClientType === user?.wallet?.walletClientType
+    )
+    console.log(wallet)
+    if (wallet) {
+      const provider = await wallet.getEthereumProvider()
+      const walletClient = createWalletClient({
+        chain: defaultChain,
+        transport: custom(provider),
+        account: wallet.address as Address,
+      })
+      setWeb3Wallet(walletClient)
+      return
+    }
+    return
+  }
+
+  useEffect(() => {
+    if (walletsReady) {
+      getWallet()
+    }
+  }, [walletsReady])
+
   const { mutateAsync: logout } = useMutation({
     mutationKey: ['logout'],
     mutationFn: async () => {
@@ -266,45 +359,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     client: web3Client,
     account: user?.wallet?.address as Address | undefined,
     smartWallet: smartAccountClient?.account?.address,
+    web3Wallet,
   })
-
-  const { login: loginToPlatform } = usePrivyLogin({
-    onComplete: async ({ user, wasAlreadyAuthenticated }) => {
-      const connectedWallet = wallets.find(
-        (wallet) => wallet.connectorType === user.wallet?.connectorType
-      )
-      if (connectedWallet && !wasAlreadyAuthenticated) {
-        await setActiveWallet(connectedWallet)
-        if (connectedWallet.connectorType === 'embedded') {
-          const client = await getSmartAccountClient(connectedWallet)
-          //@ts-ignore
-          setSmartAccountClient(client)
-          await login({
-            client: 'etherspot',
-            account: connectedWallet.address as Address,
-            smartWallet: client.account?.address,
-          })
-          return
-        }
-        await login({
-          client: 'eoa',
-          account: connectedWallet.address as Address,
-        })
-        trackSignIn(SignInEvent.SignIn)
-        setIsLogged(true)
-        return
-      }
-    },
-    onError: (error) => {
-      console.log(error)
-    },
-  })
-
-  useEffect(() => {
-    if (walletsReady && !isLogged) {
-      setIsLogged(true)
-    }
-  }, [isLogged, user?.wallet?.connectorType, wallets, walletsReady])
 
   useEffect(() => {
     if (isLogged && walletsReady) {
@@ -328,16 +384,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData, web3Client, user?.wallet?.address, smartAccountClient])
 
   const account = useMemo(() => {
-    if (!isLogged) {
-      return
-    }
     if (web3Client === 'etherspot') {
       if (smartAccountClient) {
         return smartAccountClient.account?.address
       }
     }
     return user?.wallet?.address as Address | undefined
-  }, [smartAccountClient, user, web3Client, isLogged])
+  }, [smartAccountClient, user, web3Client])
 
   useEffect(() => {
     if (!isLogged) {
@@ -364,33 +417,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     isLogged,
   ])
 
-  const getSmartAccountClient = async (wallet: ConnectedWallet) => {
-    const provider = await wallet.getEthereumProvider()
-    //@ts-ignore
-    const customSigner = await providerToSmartAccountSigner(provider)
-    // const customSigner = walletClientToSmartAccountSigner(walletClient)
-
-    const safeSmartAccountClient = await signerToSafeSmartAccount(publicClient, {
-      entryPoint: ENTRYPOINT_ADDRESS_V06,
-      signer: customSigner,
-      safeVersion: '1.4.1',
-      saltNonce: BigInt(0),
-    })
-
-    return createSmartAccountClient({
-      account: safeSmartAccountClient,
-      entryPoint: ENTRYPOINT_ADDRESS_V06,
-      chain: defaultChain,
-      bundlerTransport: http(pimlicoRpcUrl, {
-        timeout: 30_000,
-      }),
-      middleware: {
-        gasPrice: async () => (await bundlerClient.getUserOperationGasPrice()).fast,
-        sponsorUserOperation: pimlicoPaymaster.sponsorUserOperation,
-      },
-    })
-  }
-
   const getAndStoreSmartAccountClient = async (wallet: ConnectedWallet) => {
     const smartAccountClient = await getSmartAccountClient(wallet)
     //@ts-ignore
@@ -400,19 +426,20 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     ;(async () => {
       if (
-        isLogged &&
+        authenticated &&
         wallets.length &&
         walletsReady &&
         web3Client === 'etherspot' &&
         !smartAccountClient
       ) {
         const embeddedWallet = wallets.find((wallet) => wallet.walletClientType === 'privy')
+
         if (embeddedWallet) {
           getAndStoreSmartAccountClient(embeddedWallet)
         }
       }
     })()
-  }, [isLogged, wallets, publicClient, web3Client, smartAccountClient, walletsReady])
+  }, [authenticated, wallets, publicClient, web3Client, smartAccountClient, walletsReady])
 
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
@@ -440,7 +467,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       queryKey: ['profiles'],
     })
     setSmartAccountClient(null)
-    setIsLogged(false)
+    setWeb3Wallet(null)
   }, [pathname])
 
   const contextProviderValue: IAccountContext = {
@@ -457,8 +484,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     onUnblockUser,
     web3Client,
     smartAccountClient,
-    isLogged,
-    setIsLogged,
+    web3Wallet,
     loginToPlatform,
   }
 

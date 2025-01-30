@@ -71,7 +71,7 @@ export const CommentServiceProvider = ({ children }: PropsWithChildren) => {
 export const useCommentService = () => useContext(CommentServiceContext)
 
 export const useMarketInfinityComments = (marketAddress?: string) => {
-  const { isLogged } = useAccount()
+  const { isLoggedIn } = useAccount()
   const privateClient = useAxiosPrivateClient()
   const {
     data: comments,
@@ -81,7 +81,7 @@ export const useMarketInfinityComments = (marketAddress?: string) => {
     queryKey: ['market-comments', marketAddress],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      const client = isLogged ? privateClient : limitlessApi
+      const client = isLoggedIn ? privateClient : limitlessApi
       const response: AxiosResponse<Comment[]> = await client.get(
         `/comments/markets/${marketAddress}`,
         {
@@ -112,12 +112,12 @@ export const useMarketInfinityComments = (marketAddress?: string) => {
 }
 
 export const useLikeComment = (id: number) => {
-  const { isLogged } = useAccount()
+  const { isLoggedIn } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useMutation({
     mutationKey: ['like-comment', id],
     mutationFn: async (): Promise<LikePost> => {
-      if (!isLogged) throw new Error('Login to like comments')
+      if (!isLoggedIn) throw new Error('Login to like comments')
 
       const res = await privateClient.post(`/comments/${id}/like`)
       return res.data
@@ -126,12 +126,12 @@ export const useLikeComment = (id: number) => {
 }
 
 export const useUnlikeComment = (id: number) => {
-  const { isLogged } = useAccount()
+  const { isLoggedIn } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useMutation({
     mutationKey: ['unlike-comment', id],
     mutationFn: async (): Promise<LikePost> => {
-      if (!isLogged) throw new Error('Login to unlike comments')
+      if (!isLoggedIn) throw new Error('Login to unlike comments')
 
       const res = await privateClient.post(`/comments/${id}/unlike`)
       return res.data

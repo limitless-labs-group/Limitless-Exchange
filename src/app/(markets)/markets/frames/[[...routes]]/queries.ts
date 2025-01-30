@@ -1,5 +1,4 @@
-import { Address, createPublicClient, formatUnits, getContract, parseUnits } from 'viem'
-import { http } from 'wagmi'
+import { Address, createPublicClient, formatUnits, getContract, http, parseUnits } from 'viem'
 import { defaultChain } from '@/constants'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { TradeQuotes } from '@/services'

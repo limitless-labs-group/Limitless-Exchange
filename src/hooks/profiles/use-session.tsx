@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { IUseLogin, useLogin } from './use-login'
-import { useAccount } from '@/services'
+import useClient from '@/hooks/use-client'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 
-export const useUserSession = ({ client, account, smartWallet }: IUseLogin) => {
+export const useUserSession = ({ client, account, smartWallet, web3Wallet }: IUseLogin) => {
   const { mutateAsync: loginUser } = useLogin()
   const axiosPrivate = useAxiosPrivateClient()
-  const { isLogged } = useAccount()
+  const { isLogged } = useClient()
 
   return useQuery({
     queryKey: ['user-session'],
@@ -20,12 +20,12 @@ export const useUserSession = ({ client, account, smartWallet }: IUseLogin) => {
       } catch (e) {
         // @ts-ignore
         if (e.status === 401) {
-          await loginUser({ client, account, smartWallet })
+          await loginUser({ client, account, smartWallet, web3Wallet })
         }
       }
     },
     staleTime: Infinity,
     gcTime: Infinity,
-    enabled: isLogged,
+    enabled: !!isLogged && !!account && (!!smartWallet || !!web3Wallet),
   })
 }

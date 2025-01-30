@@ -28,7 +28,7 @@ export default function MarketFeedCardContainer({
 }: PropsWithChildren<MarketFeedCardContainer>) {
   const [messageBlocked, setMessageBlocked] = useState(false)
   const timePassed = timeSinceCreation(timestamp)
-  const { isLogged } = useAccount()
+  const { isLoggedIn } = useAccount()
   const isCommentFeed = useMemo(
     () => eventType === FeedEventType.Comment || eventType === FeedEventType.CommentLike,
     [eventType]
@@ -102,7 +102,7 @@ export default function MarketFeedCardContainer({
             {timePassed}
           </Text>
         </HStack>
-        {eventType === FeedEventType.NewTrade && isLogged ? (
+        {eventType === FeedEventType.NewTrade && isLoggedIn ? (
           <UserContextMenu
             userAccount={user.account}
             username={user.name}
