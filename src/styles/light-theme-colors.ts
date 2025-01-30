@@ -155,6 +155,7 @@ export const lightThemeColors: ColorScheme = {
   background: {
     90: 'rgba(255, 255, 255, 0.9)',
     95: 'rgba(255, 255, 255, 0.95)',
+    97: 'rgba(255, 255, 255, 0.97)',
   },
   text: {
     100: '#1C1C1C',

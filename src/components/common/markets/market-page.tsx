@@ -253,7 +253,7 @@ export default function MarketPage() {
 
   return (
     <Box
-      bg='var(--chakra-colors-background-95)'
+      bg='var(--chakra-colors-background-97)'
       borderLeft={isMobile ? 'unset' : '1px solid'}
       borderColor='grey.100'
       w={isMobile ? 'full' : '488px'}
