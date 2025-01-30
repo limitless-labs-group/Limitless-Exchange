@@ -1,10 +1,3 @@
-import { Flex, HStack, Text, VStack } from '@chakra-ui/react'
-import { useMemo } from 'react'
-import { Address } from 'viem'
-import { PositionCard } from '@/app/(markets)/markets/[address]/components'
-import ChartIcon from '@/resources/icons/chart-icon.svg'
-import { useHistory } from '@/services'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketGroup } from '@/types'
 
 interface MarketGroupPositionsProps {
