@@ -171,7 +171,7 @@ export default function ClobLimitTradeForm() {
     if (strategy === 'Buy') {
       return {
         total: total,
-        payout: +sharesAmount,
+        payout: new BigNumber(sharesAmount).toNumber(),
         profit: new BigNumber(sharesAmount).minus(new BigNumber(total)).toNumber(),
       }
     }
