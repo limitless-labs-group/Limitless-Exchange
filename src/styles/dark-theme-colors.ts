@@ -154,6 +154,7 @@ export const darkThemeColors: ColorScheme = {
   },
   background: {
     90: 'rgba(28, 28, 28, 0.9)',
+    95: 'rgba(28, 28, 28, 0.95)',
   },
   text: {
     100: 'white',

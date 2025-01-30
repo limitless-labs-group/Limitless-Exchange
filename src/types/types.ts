@@ -325,6 +325,7 @@ export interface ColorScheme {
   }
   background: {
     90: string
+    95: string
   }
   text: {
     100: string

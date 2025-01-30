@@ -253,7 +253,7 @@ export default function MarketPage() {
 
   return (
     <Box
-      bg='background.90'
+      bg='var(--chakra-colors-background-95)'
       borderLeft={isMobile ? 'unset' : '1px solid'}
       borderColor='grey.100'
       w={isMobile ? 'full' : '488px'}
@@ -266,6 +266,7 @@ export default function MarketPage() {
       pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
       id='side-menu-scroll-container'
+      boxShadow='-4px 0px 8px 0px rgba(0, 0, 0, 0.05)'
       backdropFilter='blur(7.5px)'
       zIndex='200'
     >
@@ -324,7 +325,7 @@ export default function MarketPage() {
       <Box w='full' mt={isMobile ? '56px' : '24px'}>
         <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
         <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
-          <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
+          <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
             <VolumeIcon width={16} height={16} />
             <Text {...paragraphRegular} color='grey.500'>
               Volume
