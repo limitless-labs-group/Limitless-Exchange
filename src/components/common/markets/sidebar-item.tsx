@@ -54,7 +54,7 @@ export const MARKET_CATEGORIES = {
   },
   POP: {
     id: 1,
-    name: 'Pop',
+    name: 'Pop Culture',
     description: '',
     icon: <Pop width={16} height={16} />,
     bannerImage: '/assets/images/banners/pop.png',
