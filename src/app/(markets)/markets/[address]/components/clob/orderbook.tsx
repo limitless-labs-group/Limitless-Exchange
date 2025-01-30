@@ -6,7 +6,6 @@ import OrderbookTableLarge from '@/app/(markets)/markets/[address]/components/cl
 import OrderBookTableSmall from '@/app/(markets)/markets/[address]/components/clob/orderbook-table-small'
 import { Order, useOrderBook } from '@/hooks/use-order-book'
 import { useTradingService } from '@/services'
-import { NumberUtil } from '@/utils'
 
 export default function Orderbook() {
   const [orderbookSide, setOrderbookSide] = useState(0)
