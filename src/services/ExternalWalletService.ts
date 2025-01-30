@@ -328,11 +328,7 @@ export const useExternalWalletService = () => {
   }
 
   const checkAndSwitchChainIfNeeded = async () => {
-    console.log(chainId)
-    console.log(defaultChain.id)
-    if (chainId !== defaultChain.id) {
-      await switchChain(wagmiConfig, { chainId: defaultChain.id })
-    }
+    await switchChain(wagmiConfig, { chainId: defaultChain.id })
   }
 
   const checkLumyAccountBalance = async () => {
