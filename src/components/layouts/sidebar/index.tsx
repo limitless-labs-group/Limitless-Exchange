@@ -79,7 +79,7 @@ export default function Sidebar() {
     profileLoading,
     account,
     web3Client,
-    isLoggedIn,
+    isLogged,
     smartAccountClient,
     loginToPlatform,
   } = useAccount()
@@ -88,7 +88,6 @@ export default function Sidebar() {
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
   const { data: totalVolume } = useTotalTradingVolume()
-  const { isLogged } = useClient()
   const { sendTransaction } = usePrivySendTransaction()
   const toast = useToast()
   const { signMessage } = usePrivy()
@@ -260,7 +259,7 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        {isLogged || isLoggedIn ? (
+        {isLogged ? (
           <>
             <VStack mt='16px' w='full' gap='8px'>
               {walletTypeActionButton}
