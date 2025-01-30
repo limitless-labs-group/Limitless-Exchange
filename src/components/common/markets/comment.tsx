@@ -18,7 +18,7 @@ export type CommentProps = {
 export default function Comment({ comment, isReply }: CommentProps) {
   const time = useTimeAgo(comment.createdAt)
   const name = comment.author.displayName ?? comment.author?.username
-  const { account, isLoggedIn } = useAccount()
+  const { account, isLogged } = useAccount()
   const [messageBlocked, setMessageBlocked] = useState(false)
   const { mutateAsync: like, isPending: isLikeLoading } = useLikeComment(Number(comment.id))
   const { mutateAsync: unlike, isPending: isUnlikeLoading } = useUnlikeComment(Number(comment.id))
@@ -31,7 +31,7 @@ export default function Comment({ comment, isReply }: CommentProps) {
   const [likes, setLikes] = useState(comment?.likes?.length ?? 0)
 
   const handleLike = async () => {
-    if (!isLoggedIn) {
+    if (!isLogged) {
       const id = toast({
         render: () => <Toast title={'Login to like a post'} id={id} />,
         position: 'top-right',
@@ -71,7 +71,7 @@ export default function Comment({ comment, isReply }: CommentProps) {
             {time}
           </Text>
         </HStack>
-        {isLoggedIn && (
+        {isLogged && (
           <UserContextMenu
             username={comment.author?.displayName}
             userAccount={comment.author?.account}
