@@ -1,42 +1,32 @@
 import { Flex, Stack, Text } from '@chakra-ui/react'
-import { memo, useMemo, useState } from 'react'
+import { memo, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import Skeleton from '@/components/common/skeleton'
 import PortfolioPositionCard from '@/app/portfolio/components/PortfolioPositionCard'
 import PortfolioPositionCardClob from '@/app/portfolio/components/PortfolioPositionCardClob'
-import { useHistory } from '@/services'
+import { HistoryPositionWithType, useHistory } from '@/services'
 import { usePrices } from '@/services/MarketsService'
-import { useUsersMarkets } from '@/services/UsersMarketsService'
-import { Token } from '@/types'
+import { MarketStatus } from '@/types'
 
 const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boolean }) => {
   const { positions, tradesAndPositionsLoading } = useHistory()
-  const { data: userMarkets } = useUsersMarkets()
 
-  /**
-   * FILTERING
-   */
-  const [selectedFilterTokens, setSelectedFilterTokens] = useState<Token[]>([])
-  const handleSelectFilterTokens = (tokens: Token[]) => setSelectedFilterTokens(tokens)
-
-  const positionsFiltered = useMemo(
-    () =>
-      positions
-        ?.sort((a, b) => (a.market.closed === b.market.closed ? 0 : a.market.closed ? -1 : 1))
-        ?.filter((position) =>
-          selectedFilterTokens.length > 0
-            ? selectedFilterTokens.some(
-                (filterToken) => filterToken.symbol == position.market.collateral?.symbol
-              )
-            : true
-        ),
-    [positions, selectedFilterTokens, userMarkets]
-  )
+  const positionsFiltered = useMemo(() => {
+    return positions?.sort((a, b) => {
+      const isClosedA =
+        a.type === 'amm' ? a.market.closed : a.market.status === MarketStatus.RESOLVED
+      const isClosedB =
+        b.type === 'amm' ? b.market.closed : b.market.status === MarketStatus.RESOLVED
+      return isClosedA === isClosedB ? 0 : isClosedA ? -1 : 1
+    })
+  }, [positions])
 
   const positionsForPrices = useMemo(() => {
     if (!positionsFiltered) return []
-    const ammPositions = positionsFiltered.filter((position) => !position.outcomeTokenAmounts)
+    const ammPositions = positionsFiltered.filter(
+      (position) => position.type === 'amm'
+    ) as HistoryPositionWithType[]
     return ammPositions
       .map((position) => ({
         address: position.market.id,
@@ -73,7 +63,7 @@ const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boo
       ) : (
         <Stack gap={{ sm: 2, md: 2 }}>
           {positionsFiltered?.map((position) => {
-            return position.outcomeTokenAmounts ? (
+            return position.type === 'clob' ? (
               <PortfolioPositionCardClob position={position} key={uuidv4()} />
             ) : (
               <PortfolioPositionCard

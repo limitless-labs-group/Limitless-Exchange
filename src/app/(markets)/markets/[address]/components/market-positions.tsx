@@ -2,7 +2,7 @@ import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { PositionCard } from '@/app/(markets)/markets/[address]/components'
 import ChartIcon from '@/resources/icons/chart-icon.svg'
-import { useHistory } from '@/services'
+import { HistoryPositionWithType, useHistory } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
@@ -20,7 +20,10 @@ export const MarketPositions = ({
   const { positions: allMarketsPositions } = useHistory()
 
   const positions = useMemo(
-    () => allMarketsPositions?.filter((position) => position.market.slug === market?.slug),
+    () =>
+      allMarketsPositions?.filter(
+        (position) => position.type === 'amm' && position.market.slug === market?.slug
+      ) as HistoryPositionWithType[],
     [allMarketsPositions, market]
   )
 

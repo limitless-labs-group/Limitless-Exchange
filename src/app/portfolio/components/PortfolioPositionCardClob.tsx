@@ -1,25 +1,23 @@
-import { HStack, Stack, Text, Box, Icon, VStack, Button, Divider } from '@chakra-ui/react'
-import { SyntheticEvent, useMemo, useState } from 'react'
+import { Box, Divider, HStack, Icon, Stack, Text, VStack } from '@chakra-ui/react'
+import { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Address } from 'viem'
+import { formatUnits } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
-import Loader from '@/components/common/loader'
 import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
-import useMarketGroup from '@/hooks/use-market-group'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ClosedIcon from '@/resources/icons/close-rounded-icon.svg'
-import WinIcon from '@/resources/icons/win-icon.svg'
-import { ClickEvent, HistoryPosition, useAmplitude, useTradingService } from '@/services'
-import { useAllMarkets, useMarket } from '@/services/MarketsService'
+import { ClickEvent, ClobPositionWithType, useAmplitude, useTradingService } from '@/services'
+import { useMarket } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export interface PortfolioPositionCardClobProps {
-  position: HistoryPosition
+  position: ClobPositionWithType
 }
 
 const unhoveredColors = {
@@ -59,26 +57,22 @@ const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps)
   const { trackClicked } = useAmplitude()
   const { redeem, onOpenMarketPage, setMarket, setMarketGroup } = useTradingService()
 
+  const marketClosed = position.market.status === MarketStatus.RESOLVED
+
   console.log(position)
 
-  /**
-   * MARKET DATA
-   */
-
-  const allMarkets = useAllMarkets()
-
-  const targetMarket = allMarkets.find((market) => market.address === position.market.id)
-
-  const contractsAmount = `${position.outcomeTokenAmount} ${
-    position.outcomeTokenAmounts?.[0] ? 'Yes' : 'No'
-  } contracts`
-
-  const contractsColor = useMemo(() => {
-    if (colors.contracts) {
-      return colors.contracts
-    }
-    return position.outcomeTokenAmounts?.[0] ? 'green.500' : 'red.500'
-  }, [colors.contracts, position.outcomeTokenAmounts])
+  // const targetMarket = allMarkets.find((market) => market.address === position.market.id)
+  //
+  // const contractsAmount = `${position.outcomeTokenAmount} ${
+  //   position.outcomeTokenAmounts?.[0] ? 'Yes' : 'No'
+  // } contracts`
+  //
+  // const contractsColor = useMemo(() => {
+  //   if (colors.contracts) {
+  //     return colors.contracts
+  //   }
+  //   return position.outcomeTokenAmounts?.[0] ? 'green.500' : 'red.500'
+  // }, [colors.contracts, position.outcomeTokenAmounts])
 
   // const contractPrice = new BigNumber(prices?.prices?.[position.outcomeIndex] ?? 1)
   //   .dividedBy(100)
@@ -115,95 +109,93 @@ const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps)
   //   )
   // }, [contractPrice, colors.main])
 
-  const getOutcomeNotation = () => {
-    const outcomeTokenId = position.outcomeIndex ?? 0
-    const defaultOutcomes = ['Yes', 'No']
-
-    return defaultOutcomes[outcomeTokenId]
-  }
+  // const getOutcomeNotation = () => {
+  //   const outcomeTokenId = position.outcomeIndex ?? 0
+  //   const defaultOutcomes = ['Yes', 'No']
+  //
+  //   return defaultOutcomes[outcomeTokenId]
+  // }
 
   const { data: oneMarket, refetch: refetchMarket } = useMarket(position.market.slug, false, false)
-  const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
-    targetMarket?.group?.slug,
-    false,
-    false
-  )
+  // const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
+  //   targetMarket?.group?.slug,
+  //   false,
+  //   false
+  // )
 
   const handleOpenMarketPage = async () => {
-    if (position.market?.id) {
-      if (!oneMarket) {
-        const { data: fetchedMarket } = await refetchMarket()
-        if (fetchedMarket) {
-          onOpenMarketPage(fetchedMarket)
-          trackClicked(ClickEvent.PortfolioMarketClicked, {
-            marketCategory: fetchedMarket.category,
-            marketAddress: fetchedMarket.slug,
-            marketType: 'single',
-            marketTags: fetchedMarket.tags,
-            type: 'Portolio',
-          })
-        }
-      } else {
-        onOpenMarketPage(oneMarket)
+    if (!oneMarket) {
+      const { data: fetchedMarket } = await refetchMarket()
+      if (fetchedMarket) {
+        onOpenMarketPage(fetchedMarket)
         trackClicked(ClickEvent.PortfolioMarketClicked, {
-          marketCategory: oneMarket.category,
-          marketAddress: oneMarket.slug,
+          marketCategory: fetchedMarket.category,
+          marketAddress: fetchedMarket.slug,
           marketType: 'single',
-          marketTags: oneMarket.tags,
+          marketTags: fetchedMarket.tags,
           type: 'Portolio',
         })
       }
+    } else {
+      onOpenMarketPage(oneMarket)
+      trackClicked(ClickEvent.PortfolioMarketClicked, {
+        marketCategory: oneMarket.category,
+        marketAddress: oneMarket.slug,
+        marketType: 'single',
+        marketTags: oneMarket.tags,
+        type: 'Portolio',
+      })
     }
 
-    if (targetMarket?.group?.slug) {
-      if (!marketGroup) {
-        const { data: fetchedMarketGroup } = await refetchMarketGroup()
-        if (fetchedMarketGroup) {
-          onOpenMarketPage(fetchedMarketGroup)
-        }
-      } else {
-        onOpenMarketPage(marketGroup)
-      }
-    }
+    // if (targetMarket?.group?.slug) {
+    //   if (!marketGroup) {
+    //     const { data: fetchedMarketGroup } = await refetchMarketGroup()
+    //     if (fetchedMarketGroup) {
+    //       onOpenMarketPage(fetchedMarketGroup)
+    //     }
+    //   } else {
+    //     onOpenMarketPage(marketGroup)
+    //   }
+    // }
   }
 
-  const ClaimButton = () => {
-    return (
-      <Button
-        variant='white'
-        onClick={async (e: SyntheticEvent) => {
-          e.stopPropagation()
-          setIsLoadingRedeem(true)
-          trackClicked(ClickEvent.ClaimRewardOnPortfolioClicked, {
-            platform: isMobile ? 'mobile' : 'desktop',
-          })
-          await redeem({
-            conditionId: position.market.condition_id as Address,
-            collateralAddress: position.market.collateral?.id as Address,
-            marketAddress: position.market.id,
-            outcomeIndex: position.latestTrade?.outcomeIndex as number,
-          })
-          setIsLoadingRedeem(false)
-        }}
-        minW='162px'
-      >
-        {isLoadingRedeem ? (
-          <Loader />
-        ) : (
-          <>
-            <Icon as={WinIcon} color={'black'} />
-            Claim{' '}
-            {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 6)} ${
-              position.market.collateral?.symbol
-            }`}
-          </>
-        )}
-      </Button>
-    )
-  }
+  // const ClaimButton = () => {
+  //   return (
+  //     <Button
+  //       variant='white'
+  //       onClick={async (e: SyntheticEvent) => {
+  //         e.stopPropagation()
+  //         setIsLoadingRedeem(true)
+  //         trackClicked(ClickEvent.ClaimRewardOnPortfolioClicked, {
+  //           platform: isMobile ? 'mobile' : 'desktop',
+  //         })
+  //         await redeem({
+  //           conditionId: position.market.condition_id as Address,
+  //           collateralAddress: position.market.collateral?.id as Address,
+  //           marketAddress: position.market.id,
+  //           outcomeIndex: position.latestTrade?.outcomeIndex as number,
+  //         })
+  //         setIsLoadingRedeem(false)
+  //       }}
+  //       minW='162px'
+  //     >
+  //       {isLoadingRedeem ? (
+  //         <Loader />
+  //       ) : (
+  //         <>
+  //           <Icon as={WinIcon} color={'black'} />
+  //           Claim{' '}
+  //           {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 6)} ${
+  //             position.market.collateral?.symbol
+  //           }`}
+  //         </>
+  //       )}
+  //     </Button>
+  //   )
+  // }
 
   const cardColors = useMemo(() => {
-    if (position.market.closed) {
+    if (marketClosed) {
       return {
         main: 'white',
         secondary: isMobile ? 'white' : 'transparent.700',
@@ -215,97 +207,148 @@ const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps)
     }
   }, [position, colors])
 
+  const deadline = new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(position.market.deadline))
+
+  const content = (
+    <Paper
+      onClick={handleOpenMarketPage}
+      w={'full'}
+      _hover={{
+        bg: marketClosed ? 'green.600' : 'blue.500',
+      }}
+      onMouseEnter={() => setColors(hoverColors)}
+      onMouseLeave={() => setColors(unhoveredColors)}
+      bg={marketClosed ? 'green.500' : 'grey.200'}
+      borderRadius='8px'
+      cursor='pointer'
+    >
+      <HStack w='full' justifyContent='space-between'>
+        <Text {...paragraphMedium} color={cardColors.main}>
+          {position.market.title}
+        </Text>
+        {isMobile && (
+          <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
+        )}
+      </HStack>
+      {isMobile && (
+        <>
+          <HStack color={cardColors.secondary} mt='8px'>
+            <HStack gap={1}>
+              {<StatusIcon isClosed={marketClosed} color={cardColors.secondary} />}
+            </HStack>
+            <HStack gap={1} color={cardColors.secondary}>
+              <CalendarIcon width={'16px'} height={'16px'} />
+              <Text {...paragraphMedium} color={cardColors.secondary}>
+                {deadline}
+              </Text>
+            </HStack>
+          </HStack>
+          <Divider w={'full'} h={'1px'} mb={'10px'} mt={'10px'} />
+        </>
+      )}
+      <HStack w='full' justifyContent='space-between' alignItems='flex-end' mt='16px'>
+        <Box w={isMobile ? 'full' : 'unset'}>
+          <HStack gap='12px' w={isMobile ? 'full' : 'unset'}>
+            <Text
+              {...paragraphMedium}
+              color={cardColors.secondary}
+              w={isMobile ? 'unset' : '60px'}
+              flex={isMobile ? 1 : 'unset'}
+              textAlign={isMobile ? 'left' : 'unset'}
+            >
+              Position
+            </Text>
+            <Text
+              {...paragraphMedium}
+              color={cardColors.secondary}
+              w={isMobile ? 'unset' : '66px'}
+              flex={isMobile ? 1 : 'unset'}
+              textAlign={isMobile ? 'left' : 'unset'}
+            >
+              Contracts
+            </Text>
+          </HStack>
+          {+position.tokensBalance.yes && (
+            <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
+              <Text
+                {...paragraphRegular}
+                color={cardColors.main}
+                w={isMobile ? 'unset' : '60px'}
+                flex={isMobile ? 1 : 'unset'}
+                textAlign={isMobile ? 'left' : 'unset'}
+              >
+                Yes
+              </Text>
+              <Text
+                {...paragraphRegular}
+                color={cardColors.main}
+                w={isMobile ? 'unset' : '66px'}
+                flex={isMobile ? 1 : 'unset'}
+                textAlign={isMobile ? 'left' : 'center'}
+              >
+                {`${NumberUtil.toFixed(
+                  formatUnits(
+                    BigInt(position.tokensBalance.yes),
+                    position.market.collateralToken.decimals
+                  ),
+                  6
+                )}`}
+              </Text>
+            </HStack>
+          )}
+          {+position.tokensBalance.no && (
+            <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
+              <Text
+                {...paragraphRegular}
+                color={cardColors.main}
+                w={isMobile ? 'unset' : '60px'}
+                flex={isMobile ? 1 : 'unset'}
+                textAlign={isMobile ? 'left' : 'unset'}
+              >
+                No
+              </Text>
+              <Text
+                {...paragraphRegular}
+                color={cardColors.main}
+                w={isMobile ? 'unset' : '66px'}
+                flex={isMobile ? 1 : 'unset'}
+                textAlign={isMobile ? 'left' : 'center'}
+              >
+                {`${NumberUtil.toFixed(
+                  formatUnits(
+                    BigInt(position.tokensBalance.no),
+                    position.market.collateralToken.decimals
+                  ),
+                  6
+                )}`}
+              </Text>
+            </HStack>
+          )}
+        </Box>
+        {!isMobile && (
+          <HStack color={cardColors.secondary} mt='8px'>
+            <HStack gap={1}>
+              {<StatusIcon isClosed={marketClosed} color={cardColors.secondary} />}
+            </HStack>
+            <HStack gap={1} color={cardColors.secondary}>
+              <CalendarIcon width={'16px'} height={'16px'} />
+              <Text {...paragraphMedium} color={cardColors.secondary}>
+                {deadline}
+              </Text>
+            </HStack>
+          </HStack>
+        )}
+      </HStack>
+    </Paper>
+  )
+
   return isMobile ? (
     <MobileDrawer
-      trigger={
-        <Paper
-          onClick={handleOpenMarketPage}
-          w={'full'}
-          bg={position.market?.closed ? 'green.500' : 'grey.200'}
-          p={'16px'}
-          borderRadius='8px'
-        >
-          <Stack spacing={'8px'}>
-            <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
-              <Text {...paragraphMedium} color={cardColors.main}>
-                {position.market.title}
-              </Text>
-              <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
-            </HStack>
-            <HStack>
-              {position.market?.closed ? (
-                <Text {...paragraphMedium} color={cardColors.main}>
-                  {`Won ${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
-                    position.market.collateral?.symbol
-                  }`}
-                </Text>
-              ) : (
-                <HStack>
-                  <Text {...paragraphMedium} color={contractsColor}>
-                    {contractsAmount}
-                  </Text>
-                  {/*{!position ? (*/}
-                  {/*  <Skeleton height={20} />*/}
-                  {/*) : (*/}
-                  {/*  <Text fontSize={'16px'} lineHeight={'20px'} fontWeight={500}>*/}
-                  {/*    {`${NumberUtil.toFixed(*/}
-                  {/*      new BigNumber(position.outcomeTokenAmount || '1')*/}
-                  {/*        .multipliedBy(*/}
-                  {/*          new BigNumber(prices?.prices?.[position.outcomeIndex] || 1).dividedBy(*/}
-                  {/*            100*/}
-                  {/*          )*/}
-                  {/*        )*/}
-                  {/*        .toString(),*/}
-                  {/*      6*/}
-                  {/*    )} ${position.market?.collateral?.symbol}`}*/}
-                  {/*  </Text>*/}
-                  {/*)}*/}
-                  {/*<Box gap={0} fontSize={'16px'} fontWeight={500}>*/}
-                  {/*  {contractPriceChanged}*/}
-                  {/*</Box>*/}
-                </HStack>
-              )}
-            </HStack>
-            <HStack color={cardColors.secondary}>
-              <HStack gap={1}>
-                {<StatusIcon isClosed={position?.market?.closed} color={cardColors.secondary} />}
-              </HStack>
-              <HStack gap={1} color={cardColors.secondary}>
-                <CalendarIcon width={'16px'} height={'16px'} />
-                <Text {...paragraphMedium} color={cardColors.secondary}>
-                  {position?.market.expirationDate}
-                </Text>
-              </HStack>
-            </HStack>
-            <HStack>{position.market?.closed && <ClaimButton />}</HStack>
-          </Stack>
-
-          <Divider w={'full'} h={'1px'} mb={'10px'} mt={'10px'} />
-
-          <Stack w={'full'}>
-            <HStack alignItems={'start'} gap={0} justifyContent={'space-between'}>
-              <Text {...paragraphMedium} color={cardColors.secondary}>
-                Position
-              </Text>
-              <Text color={cardColors.main} fontWeight={400} lineHeight={'20px'} fontSize={'16px'}>
-                {getOutcomeNotation()}
-              </Text>
-            </HStack>
-          </Stack>
-          <Stack w={'full'} mt={'8px'}>
-            <HStack alignItems={'start'} gap={0} justifyContent={'space-between'}>
-              <Text {...paragraphMedium} color={cardColors.secondary}>
-                Invested
-              </Text>
-              <Text color={cardColors.main} lineHeight={'20px'} fontWeight={400} fontSize={'16px'}>
-                {`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
-                  position.market?.collateral?.symbol
-                }`}
-              </Text>
-            </HStack>
-          </Stack>
-        </Paper>
-      }
+      trigger={content}
       variant='black'
       onClose={() => {
         setMarket(null)
@@ -315,108 +358,7 @@ const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps)
       <MarketPage />
     </MobileDrawer>
   ) : (
-    <Paper
-      w={'full'}
-      bg={position.market?.closed ? 'green.500' : 'grey.200'}
-      _hover={{
-        bg: position.market?.closed ? 'green.600' : 'blue.500',
-      }}
-      cursor='pointer'
-      onMouseEnter={() => setColors(hoverColors)}
-      onMouseLeave={() => setColors(unhoveredColors)}
-      onClick={handleOpenMarketPage}
-      borderRadius='8px'
-    >
-      <Stack direction='row'>
-        <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
-          <Box>
-            <Text {...paragraphMedium} color={cardColors.main}>
-              {position.market.title}
-            </Text>
-          </Box>
-
-          <HStack>
-            {position.market?.closed ? (
-              <ClaimButton />
-            ) : (
-              <>
-                <Text {...paragraphMedium} color={contractsColor}>
-                  {contractsAmount}
-                </Text>
-                {/*{!position ? (*/}
-                {/*  <Box w='120px'>*/}
-                {/*    <Skeleton height={20} />*/}
-                {/*  </Box>*/}
-                {/*) : (*/}
-                {/*  <>*/}
-                {/*    <Text {...paragraphMedium} color={cardColors.main}>*/}
-                {/*      {`${NumberUtil.toFixed(*/}
-                {/*        new BigNumber(position.outcomeTokenAmount || '1')*/}
-                {/*          .multipliedBy(*/}
-                {/*            new BigNumber(prices?.prices?.[position.outcomeIndex] || 1).dividedBy(*/}
-                {/*              100*/}
-                {/*            )*/}
-                {/*          )*/}
-                {/*          .toString(),*/}
-                {/*        position.market.collateral?.symbol === 'USDC' ? 2 : 6*/}
-                {/*      )} ${position.market?.collateral?.symbol}`}*/}
-                {/*    </Text>*/}
-                {/*    <Box gap={0}>{contractPriceChanged}</Box>*/}
-                {/*  </>*/}
-                {/*)}*/}
-              </>
-            )}
-          </HStack>
-        </HStack>
-      </Stack>
-
-      <Stack direction='row' w={'full'} justifyContent={'space-between'} mt={'12px'}>
-        <HStack w={'full'}>
-          <VStack alignItems={'start'} gap={1}>
-            <Text {...paragraphMedium} color={cardColors.secondary}>
-              Position
-            </Text>
-            <Text {...paragraphRegular} color={cardColors.main}>
-              {getOutcomeNotation()}
-            </Text>
-          </VStack>
-
-          <VStack alignItems={'start'} gap={1} ml={'24px'}>
-            <Text {...paragraphMedium} color={cardColors.secondary}>
-              Invested
-            </Text>
-            <Text {...paragraphRegular} color={cardColors.main}>
-              {!position ? (
-                <Box w='68px'>
-                  <Skeleton height={20} />
-                </Box>
-              ) : (
-                `${NumberUtil.toFixed(
-                  position.collateralAmount,
-                  position.market?.collateral?.symbol === 'USDC' ? 2 : 6
-                )} ${position.market?.collateral?.symbol}`
-              )}
-            </Text>
-          </VStack>
-        </HStack>
-
-        <HStack w={'full'} justifyContent={'flex-end'} alignItems={'flex-end'}>
-          <HStack gap={1} color={cardColors.secondary}>
-            {<StatusIcon isClosed={position.market?.closed} color={cardColors.secondary} />}
-          </HStack>
-          <HStack gap={1} color={cardColors.secondary}>
-            <CalendarIcon width={'16px'} height={'16px'} />
-            <Text {...paragraphMedium} color={cardColors.secondary}>
-              {new Date(position.market?.expirationDate).toLocaleDateString(undefined, {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-              })}
-            </Text>
-          </HStack>
-        </HStack>
-      </Stack>
-    </Paper>
+    content
   )
 }
 
