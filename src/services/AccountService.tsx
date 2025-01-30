@@ -102,9 +102,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { trackSignIn } = useAmplitude()
   // const { isLogged } = useClient()
 
-  // console.log(walletClient)
-  // console.log(wallets)
-  // console.log(user)
+  console.log(`wallet client ${walletClient}`)
+  console.log(`wallets ${wallets}`)
+  console.log(`user ${user}`)
   // console.log(user)
   // console.log(authenticated)
 
@@ -150,6 +150,18 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       })
     },
   })
+
+  useEffect(() => {
+    if (walletsReady && !walletClient) {
+      const connectedPrivyWallet = wallets.find(
+        (wallet) => wallet.connectorType === user?.wallet?.connectorType
+      )
+      console.log(`connected wallet already ${connectedPrivyWallet}`)
+      if (connectedPrivyWallet) {
+        setActiveWallet(connectedPrivyWallet)
+      }
+    }
+  }, [user?.wallet?.connectorType, walletClient, wallets, walletsReady])
 
   const onUnblockUser = useMutation({
     mutationKey: ['unblock-user', user?.wallet?.address],
@@ -270,8 +282,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const { login: loginToPlatform } = usePrivyLogin({
     onComplete: async ({ user, wasAlreadyAuthenticated }) => {
-      console.log(wallets)
-      console.log(user)
       const connectedWallet = wallets.find(
         (wallet) => wallet.connectorType === user.wallet?.connectorType
       )
@@ -350,7 +360,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     }
     if (!profileLoading && user?.wallet?.address) {
       if (profileData === null && authenticated) {
-        debugger
         onCreateProfile()
         return
       }
