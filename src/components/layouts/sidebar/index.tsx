@@ -15,12 +15,9 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { ERC20_ABI } from '@lifi/sdk'
-import { usePrivy } from '@privy-io/react-auth'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useCallback, useMemo } from 'react'
-import { encodeFunctionData, getContract, maxUint256 } from 'viem'
 import Avatar from '@/components/common/avatar'
 import { LoginButton } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
@@ -29,17 +26,13 @@ import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
 import StaticSnowBackground from '@/components/common/static-snow'
-import { Toast } from '@/components/common/toast'
 import UpgradeWalletContainer from '@/components/common/upgrade-wallet-container'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
-import { useToast } from '@/hooks'
 import usePageName from '@/hooks/use-page-name'
-import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { useThemeProvider } from '@/providers'
-import { publicClient } from '@/providers/Privy'
 import AiAgentIcon from '@/resources/icons/ai-agent-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import LogoutIcon from '@/resources/icons/log-out-icon.svg'
@@ -76,7 +69,6 @@ export default function Sidebar() {
     profileLoading,
     account,
     web3Client,
-    smartAccountClient,
     isLoggedIn,
     loginToPlatform,
   } = useAccount()
@@ -85,11 +77,7 @@ export default function Sidebar() {
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
   const { data: totalVolume } = useTotalTradingVolume()
-  const { sendTransaction } = usePrivySendTransaction()
-  const toast = useToast()
-  const { signMessage } = usePrivy()
 
-  // console.log(`account ${account}`)
   const { data: positions } = usePosition()
 
   const pageName = usePageName()
@@ -126,35 +114,6 @@ export default function Sidebar() {
     onCloseWalletPage()
     onCloseAuthMenu()
     onToggleProfile()
-  }
-
-  const handleTestApproveClicked = async () => {
-    const contract = getContract({
-      address: '0xD7788FfC73C9AE39CE24dfc1098b375792dD42Ac',
-      abi: ERC20_ABI,
-      client: publicClient,
-    })
-    const spender = '0x4045F81Ce65AF0D34FFe4C0CF9929B4f8a668228'
-    const data = encodeFunctionData({
-      abi: ERC20_ABI,
-      functionName: 'approve',
-      args: [spender, maxUint256],
-    })
-    const hash = await sendTransaction(contract, data)
-    toast({
-      render: () => <Toast title={`Approved successfully`} id={1} />,
-    })
-    return hash
-  }
-
-  const handleSignMessage = async () => {
-    const { signature: smartWalletSignature } = await signMessage({
-      message: 'Test message',
-    })
-    toast({
-      render: () => <Toast title={`Message signed successfully`} id={1} />,
-    })
-    return smartWalletSignature
   }
 
   const walletTypeActionButton = useMemo(() => {
@@ -509,16 +468,6 @@ export default function Sidebar() {
           </Link>
         </NextLink>
         <Spacer />
-        {!!smartAccountClient && (
-          <>
-            <Button variant='contained' onClick={handleTestApproveClicked}>
-              Approve
-            </Button>
-            <Button variant='contained' onClick={handleSignMessage}>
-              Sign message
-            </Button>
-          </>
-        )}
         {totalVolume && (
           <NextLink
             href='https://dune.com/limitless_exchange/limitless'
