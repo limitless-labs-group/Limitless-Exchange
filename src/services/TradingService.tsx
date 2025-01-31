@@ -747,8 +747,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       marketAddress,
       collateralAddress,
       conditionId,
+      type,
     }: RedeemParams) => {
-      const conditionalTokenAddress = await getConditionalTokenAddress(getAddress(marketAddress))
+      const conditionalTokenAddress =
+        type === 'amm' ? await getConditionalTokenAddress(getAddress(marketAddress)) : marketAddress
 
       const receipt = await redeemPositions(
         conditionalTokenAddress,
