@@ -11,6 +11,8 @@ interface MarketOverviewTabProps {
 }
 
 function MarketOverviewTab({ market }: MarketOverviewTabProps) {
+  const url =
+    'https://www.notion.so/limitlesslabs/Limitless-Docs-0e59399dd44b492f8d494050969a1567?pvs=4#5dd6f962c66044eaa00e28d2c61b92bb'
   return (
     <>
       <HStack
@@ -23,17 +25,18 @@ function MarketOverviewTab({ market }: MarketOverviewTabProps) {
       >
         <Box w={isMobile ? 'full' : 'fit-content'}>
           {market?.tags?.includes('Lumy') ? (
-            <Link variant='textLinkSecondary' {...paragraphRegular} isExternal color='grey.500'>
+            <Link
+              href={url}
+              variant='textLinkSecondary'
+              {...paragraphRegular}
+              isExternal
+              color='grey.500'
+            >
               Resolution is decentralised
             </Link>
           ) : (
             <Box whiteSpace='pre-wrap'>
-              <NextLink
-                href='https://www.notion.so/limitlesslabs/Limitless-Docs-0e59399dd44b492f8d494050969a1567?pvs=4#5dd6f962c66044eaa00e28d2c61b92bb'
-                target='_blank'
-                rel='noopener'
-                passHref
-              >
+              <NextLink href={url} target='_blank' rel='noopener' passHref>
                 <Link variant='textLinkSecondary' {...paragraphRegular} isExternal color='grey.500'>
                   Resolution is centralised
                 </Link>
