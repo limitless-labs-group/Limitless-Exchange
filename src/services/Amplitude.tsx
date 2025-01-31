@@ -11,7 +11,7 @@ import { ClobPositionType } from '@/app/(markets)/markets/[address]/components/c
 import { PageName } from '@/hooks/use-page-name'
 import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useAccount } from '@/services'
-import { Address, Category, LeaderboardSort, MarketGroup } from '@/types'
+import { Category, LeaderboardSort, MarketGroup } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 

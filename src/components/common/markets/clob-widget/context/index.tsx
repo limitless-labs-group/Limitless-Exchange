@@ -1,6 +1,6 @@
 import { useDisclosure } from '@chakra-ui/react'
 import { useMutation, UseMutationResult } from '@tanstack/react-query'
-import { AxiosResponse } from 'axios'
+import { AxiosError, AxiosResponse } from 'axios'
 import BigNumber from 'bignumber.js'
 import React, {
   createContext,
@@ -11,6 +11,8 @@ import React, {
   useEffect,
 } from 'react'
 import { Address, formatUnits, parseUnits } from 'viem'
+import { Toast } from '@/components/common/toast'
+import { useToast } from '@/hooks'
 import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
 import { useOrderBook } from '@/hooks/use-order-book'
@@ -61,6 +63,10 @@ interface ClobWidgetContextType {
     unknown
   >
   sharesPrice: string
+  sharesAvailable: {
+    yes: bigint
+    no: bigint
+  }
 }
 
 export function ClobWidgetProvider({ children }: PropsWithChildren) {
@@ -71,7 +77,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const [allowance, setAllowance] = useState<bigint>(0n)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
   const account = useWalletAddress()
-
+  const toast = useToast()
   const { market, strategy } = useTradingService()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
@@ -107,6 +113,25 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     return ''
   }, [balanceOfSmartWallet, strategy, market])
 
+  const sharesAvailable = useMemo(() => {
+    if (sharesOwned && lockedBalance) {
+      return {
+        yes: BigInt(
+          new BigNumber(sharesOwned[0].toString())
+            .minus(new BigNumber(lockedBalance.yes))
+            .toString()
+        ),
+        no: BigInt(
+          new BigNumber(sharesOwned[1].toString()).minus(new BigNumber(lockedBalance.no)).toString()
+        ),
+      }
+    }
+    return {
+      yes: 0n,
+      no: 0n,
+    }
+  }, [lockedBalance, sharesOwned])
+
   const isBalanceNotEnough = useMemo(() => {
     if (orderType === MarketOrderType.LIMIT) {
       if (strategy === 'Buy') {
@@ -118,48 +143,32 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         const balanceLeft = new BigNumber(balance).minus(lockedBalanceFormatted)
         return amount.isGreaterThan(balanceLeft)
       }
-      const shares = sharesOwned?.[outcome]
-      const sharesFormatted =
-        shares && lockedBalance
-          ? formatUnits(
-              BigInt(
-                new BigNumber(shares.toString())
-                  .minus(lockedBalance[outcome ? 'no' : 'yes'])
-                  .toNumber()
-              ),
-              market?.collateralToken.decimals || 6
-            )
-          : '0'
+      const sharesFormatted = formatUnits(
+        sharesAvailable[outcome ? 'no' : 'yes'],
+        market?.collateralToken.decimals || 6
+      )
       return new BigNumber(sharesFormatted).isLessThan(sharesAmount)
     }
     if (orderType === MarketOrderType.MARKET) {
       if (strategy === 'Buy') {
         return new BigNumber(price).isGreaterThan(balance)
       }
-      const shares = sharesOwned?.[outcome]
-      const sharesFormatted =
-        shares && lockedBalance
-          ? formatUnits(
-              BigInt(
-                new BigNumber(shares.toString())
-                  .minus(lockedBalance[outcome ? 'no' : 'yes'])
-                  .toNumber()
-              ),
-              market?.collateralToken.decimals || 6
-            )
-          : '0'
+      const sharesFormatted = formatUnits(
+        sharesAvailable[outcome ? 'no' : 'yes'],
+        market?.collateralToken.decimals || 6
+      )
       return new BigNumber(sharesFormatted).isLessThan(price)
     }
     return false
   }, [
     balance,
-    lockedBalance,
+    lockedBalance?.collateral.balance,
     market?.collateralToken.decimals,
     orderType,
     outcome,
     price,
     sharesAmount,
-    sharesOwned,
+    sharesAvailable,
     strategy,
   ])
 
@@ -229,6 +238,11 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         return privateClient.post('/orders', data)
       }
     },
+    onError: (error: AxiosError<{ message: string }>) => {
+      const id = toast({
+        render: () => <Toast title={error.response?.data.message || ''} id={id} />,
+      })
+    },
   })
 
   const placeMarketOrderMutation = useMutation({
@@ -261,6 +275,11 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         return privateClient.post('/orders', data)
       }
     },
+    onError: (error: AxiosError<{ message: string }>) => {
+      const id = toast({
+        render: () => <Toast title={error.response?.data.message || ''} id={id} />,
+      })
+    },
   })
 
   useEffect(() => {
@@ -292,6 +311,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         placeLimitOrderMutation,
         placeMarketOrderMutation,
         sharesPrice,
+        sharesAvailable,
       }}
     >
       {children}

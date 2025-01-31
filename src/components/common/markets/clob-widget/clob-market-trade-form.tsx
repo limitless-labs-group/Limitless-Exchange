@@ -19,7 +19,6 @@ import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
-import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import { useOrderBook } from '@/hooks/use-order-book'
 import {
   ClickEvent,
@@ -52,12 +51,9 @@ export default function ClobMarketTradeForm() {
     onToggleTradeStepper,
     sharesPrice,
     isBalanceNotEnough,
+    sharesAvailable,
   } = useClobWidget()
   const { client } = useWeb3Service()
-  const { data: sharesOwned, isLoading: ownedSharesLoading } = useClobMarketShares(
-    market?.slug,
-    market?.tokens
-  )
 
   const handlePercentButtonClicked = (value: number) => {
     trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
@@ -79,11 +75,11 @@ export default function ClobMarketTradeForm() {
     }
     const sharesAmount = outcome
       ? NumberUtil.formatThousands(
-          formatUnits(sharesOwned?.[1] || 0n, market?.collateralToken.decimals || 6),
+          formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
           6
         )
       : NumberUtil.formatThousands(
-          formatUnits(sharesOwned?.[0] || 0n, market?.collateralToken.decimals || 6),
+          formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
           6
         )
     if (value === 100) {
@@ -122,16 +118,16 @@ export default function ClobMarketTradeForm() {
       } else {
         balanceToShow = outcome
           ? NumberUtil.formatThousands(
-              formatUnits(sharesOwned?.[1] || 0n, market?.collateralToken.decimals || 6),
+              formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
               6
             )
           : NumberUtil.formatThousands(
-              formatUnits(sharesOwned?.[0] || 0n, market?.collateralToken.decimals || 6),
+              formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
               6
             )
       }
       return `MAX: ${
-        balanceLoading || ownedSharesLoading ? (
+        balanceLoading ? (
           <Box w='90px'>
             <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
           </Box>

@@ -1,7 +1,6 @@
 import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
 import { formatUnits } from 'viem'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
-import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -9,8 +8,7 @@ import { NumberUtil } from '@/utils'
 export default function OutcomeButtonsClob() {
   const { strategy, market } = useTradingService()
   const { trackChanged } = useAmplitude()
-  const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
-  const { outcome, setOutcome, setPrice, yesPrice, noPrice } = useClobWidget()
+  const { outcome, setOutcome, setPrice, yesPrice, noPrice, sharesAvailable } = useClobWidget()
 
   const getShares = (sharesAmount?: bigint) => {
     if (!sharesAmount) {
@@ -79,7 +77,7 @@ export default function OutcomeButtonsClob() {
               Yes {yesPrice}¢
             </Text>
             <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
-              {NumberUtil.toFixed(getShares(sharesOwned?.[0]), 6)} Contracts
+              {NumberUtil.toFixed(getShares(sharesAvailable['yes']), 6)} Contracts
             </Text>
           </VStack>
         </Button>
@@ -98,7 +96,7 @@ export default function OutcomeButtonsClob() {
               No {noPrice}¢
             </Text>
             <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
-              {NumberUtil.toFixed(getShares(sharesOwned?.[1]), 6)} Contracts
+              {NumberUtil.toFixed(getShares(sharesAvailable['no']), 6)} Contracts
             </Text>
           </VStack>
         </Button>
