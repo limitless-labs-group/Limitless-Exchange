@@ -10,6 +10,7 @@ import {
   MenuList,
   Slide,
   Spacer,
+  StackProps,
   Text,
   useColorMode,
   useDisclosure,
@@ -187,20 +188,26 @@ export default function Sidebar() {
     ? `$${NumberUtil.formatThousands(totalVolume.toFixed(0), 0)}`.split('')
     : []
 
+  // temp hack to use fixe sidebar but keep same size in dom
+  const commonSidebarStyles = useMemo(() => {
+    return {
+      borderRight: '1px solid',
+      borderColor: 'grey.100',
+      minW: '188px',
+      zIndex: 200,
+      bg: 'grey.50',
+      top: 0,
+      left: 0,
+      overflowY: 'auto',
+      alignSelf: 'flex-start',
+      padding: '36px 8px 0 8px',
+    } as StackProps
+  }, [])
+
   return (
     <>
-      <VStack
-        padding='16px 8px'
-        borderRight='1px solid'
-        borderColor='grey.100'
-        h='full'
-        minW={'188px'}
-        minH={'100vh'}
-        zIndex={200}
-        bg='grey.50'
-        pos='fixed'
-        overflowY='auto'
-      >
+      <VStack {...commonSidebarStyles} h='full' minH='100vh' position='sticky' />
+      <VStack {...commonSidebarStyles} height='100vh' width='188px' position='fixed'>
         <NextLink href='/' passHref style={{ width: '100%', textDecoration: 'none' }}>
           <Link
             onClick={() => {

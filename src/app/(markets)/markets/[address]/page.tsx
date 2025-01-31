@@ -128,7 +128,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
           borderRadius='8px'
           overflowX='hidden'
           p='8px'
-          w='424px'
+          w={{ base: '350px', xl: '400px', xxl: '442px' }}
         >
           <HStack
             w={'240px'}
@@ -490,7 +490,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
             alignItems='flex-start'
             mb={isMobile ? '84px' : 0}
           >
-            <Box w={isMobile ? 'full' : '664px'}>
+            <Box maxW='664px' w={{ base: '400px', xl: '600px', xxl: '664px' }}>
               <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>
                 <HStack justifyContent='space-between' mb='24px'>
                   <Button
