@@ -489,6 +489,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
             w={isMobile ? 'full' : 'unset'}
             alignItems='flex-start'
             mb={isMobile ? '84px' : 0}
+            ml='188px'
           >
             <Box maxW='664px' w={{ base: '400px', xl: '600px', xxl: '664px' }}>
               <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>

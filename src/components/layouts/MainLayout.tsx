@@ -55,10 +55,8 @@ export const MainLayout = ({
               <Spinner />
             </Flex>
           ) : (
-            <Flex as='main' flex='1' p={layoutPadding} justify='center' align='start'>
-              <Box w='full' maxW='1200px'>
-                {children}
-              </Box>
+            <Flex ml={isMobile ? 0 : '0'} p={layoutPadding} w='full' justifyContent='center'>
+              {children}
             </Flex>
           )}
         </HStack>
