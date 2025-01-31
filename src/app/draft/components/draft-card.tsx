@@ -74,17 +74,19 @@ export const DraftMarketCard = ({
               <Text {...paragraphMedium} color={colors.main}>
                 {market.title}
               </Text>
-              <HStack
-                gap={1}
-                color={colors.main}
-                onClick={onClick}
-                cursor='pointer'
-                _hover={{ textDecoration: 'underline' }}
-              >
-                <Text {...paragraphMedium} color={colors.main}>
-                  Edit
-                </Text>
-              </HStack>
+              {onClick ? (
+                <HStack
+                  gap={1}
+                  color={colors.main}
+                  onClick={onClick}
+                  cursor='pointer'
+                  _hover={{ textDecoration: 'underline' }}
+                >
+                  <Text {...paragraphMedium} color={colors.main}>
+                    Edit
+                  </Text>
+                </HStack>
+              ) : null}
             </HStack>
 
             <HStack alignItems='flex-start'>
