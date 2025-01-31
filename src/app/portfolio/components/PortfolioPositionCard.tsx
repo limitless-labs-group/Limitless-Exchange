@@ -1,10 +1,10 @@
-import { HStack, Stack, Text, Box, Icon, VStack, Button, Divider } from '@chakra-ui/react'
+import { HStack, Stack, Text, Box, Icon, VStack, Divider } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import { SyntheticEvent, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
-import Loader from '@/components/common/loader'
+import ClaimButton from '@/components/common/markets/claim-button'
 import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
@@ -13,7 +13,6 @@ import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ClosedIcon from '@/resources/icons/close-rounded-icon.svg'
-import WinIcon from '@/resources/icons/win-icon.svg'
 import { ClickEvent, HistoryPosition, useAmplitude, useTradingService } from '@/services'
 import { useAllMarkets, useMarket } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -57,14 +56,9 @@ const StatusIcon = ({ isClosed, color }: { isClosed: boolean | undefined; color:
 
 const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => {
   const [colors, setColors] = useState(unhoveredColors)
-  const [isLoadingRedeem, setIsLoadingRedeem] = useState(false)
 
   const { trackClicked } = useAmplitude()
-  const { redeem, onOpenMarketPage, setMarket, setMarketGroup } = useTradingService()
-
-  /**
-   * MARKET DATA
-   */
+  const { onOpenMarketPage, setMarket, setMarketGroup } = useTradingService()
 
   const allMarkets = useAllMarkets()
 
@@ -157,41 +151,6 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
     }
   }
 
-  const ClaimButton = () => {
-    return (
-      <Button
-        variant='white'
-        onClick={async (e: SyntheticEvent) => {
-          e.stopPropagation()
-          setIsLoadingRedeem(true)
-          trackClicked(ClickEvent.ClaimRewardOnPortfolioClicked, {
-            platform: isMobile ? 'mobile' : 'desktop',
-          })
-          await redeem({
-            conditionId: position.market.condition_id as Address,
-            collateralAddress: position.market.collateral?.id as Address,
-            marketAddress: position.market.id,
-            outcomeIndex: position.latestTrade?.outcomeIndex as number,
-          })
-          setIsLoadingRedeem(false)
-        }}
-        minW='162px'
-      >
-        {isLoadingRedeem ? (
-          <Loader />
-        ) : (
-          <>
-            <Icon as={WinIcon} color={'black'} />
-            Claim{' '}
-            {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 6)} ${
-              position.market.collateral?.symbol
-            }`}
-          </>
-        )}
-      </Button>
-    )
-  }
-
   const cardColors = useMemo(() => {
     if (position.market.closed) {
       return {
@@ -264,7 +223,19 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
                 </Text>
               </HStack>
             </HStack>
-            <HStack>{position.market?.closed && <ClaimButton />}</HStack>
+            <HStack>
+              {position.market?.closed && (
+                <ClaimButton
+                  conditionId={position.market.condition_id as Address}
+                  collateralAddress={position.market.collateral?.id as Address}
+                  marketAddress={position.market.id}
+                  outcomeIndex={position.latestTrade?.outcomeIndex as number}
+                  marketType='amm'
+                  amountToClaim={position.outcomeTokenAmount as string}
+                  symbol={position.market.collateral?.symbol as string}
+                />
+              )}
+            </HStack>
           </Stack>
 
           <Divider w={'full'} h={'1px'} mb={'10px'} mt={'10px'} />
@@ -324,7 +295,15 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
 
           <HStack>
             {position.market?.closed ? (
-              <ClaimButton />
+              <ClaimButton
+                conditionId={position.market.condition_id as Address}
+                collateralAddress={position.market.collateral?.id as Address}
+                marketAddress={position.market.id}
+                outcomeIndex={position.latestTrade?.outcomeIndex as number}
+                marketType='amm'
+                amountToClaim={position.outcomeTokenAmount as string}
+                symbol={position.market.collateral?.symbol as string}
+              />
             ) : (
               <>
                 {!position || !prices ? (

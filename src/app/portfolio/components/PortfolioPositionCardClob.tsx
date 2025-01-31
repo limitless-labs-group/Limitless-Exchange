@@ -1,8 +1,9 @@
 import { Box, Divider, HStack, Icon, Text } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { formatUnits } from 'viem'
+import { Address, formatUnits } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
+import ClaimButton from '@/components/common/markets/claim-button'
 import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
@@ -53,11 +54,9 @@ const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps)
   const [colors, setColors] = useState(unhoveredColors)
 
   const { trackClicked } = useAmplitude()
-  const { redeem, onOpenMarketPage, setMarket, setMarketGroup } = useTradingService()
+  const { onOpenMarketPage, setMarket, setMarketGroup } = useTradingService()
 
   const marketClosed = position.market.status === MarketStatus.RESOLVED
-
-  console.log(position)
 
   // const targetMarket = allMarkets.find((market) => market.address === position.market.id)
   //
@@ -157,41 +156,6 @@ const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps)
     // }
   }
 
-  // const ClaimButton = () => {
-  //   return (
-  //     <Button
-  //       variant='white'
-  //       onClick={async (e: SyntheticEvent) => {
-  //         e.stopPropagation()
-  //         setIsLoadingRedeem(true)
-  //         trackClicked(ClickEvent.ClaimRewardOnPortfolioClicked, {
-  //           platform: isMobile ? 'mobile' : 'desktop',
-  //         })
-  //         await redeem({
-  //           conditionId: position.market.condition_id as Address,
-  //           collateralAddress: position.market.collateral?.id as Address,
-  //           marketAddress: position.market.id,
-  //           outcomeIndex: position.latestTrade?.outcomeIndex as number,
-  //         })
-  //         setIsLoadingRedeem(false)
-  //       }}
-  //       minW='162px'
-  //     >
-  //       {isLoadingRedeem ? (
-  //         <Loader />
-  //       ) : (
-  //         <>
-  //           <Icon as={WinIcon} color={'black'} />
-  //           Claim{' '}
-  //           {`${NumberUtil.formatThousands(position.outcomeTokenAmount, 6)} ${
-  //             position.market.collateral?.symbol
-  //           }`}
-  //         </>
-  //       )}
-  //     </Button>
-  //   )
-  // }
-
   const cardColors = useMemo(() => {
     if (marketClosed) {
       return {
@@ -231,6 +195,21 @@ const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps)
         {isMobile && (
           <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
         )}
+        {!isMobile && marketClosed && (
+          <ClaimButton
+            slug={position.market.slug}
+            conditionId={position.market.conditionId as Address}
+            collateralAddress={position.market.collateralToken.address}
+            marketAddress={process.env.NEXT_PUBLIC_CTF_CONTRACT as Address}
+            outcomeIndex={position.market.winningOutcomeIndex as number}
+            marketType='clob'
+            amountToClaim={formatUnits(
+              BigInt(position.tokensBalance[position.market.winningOutcomeIndex ? 'no' : 'yes']),
+              position.market.collateralToken.decimals
+            )}
+            symbol={position.market.collateralToken.symbol}
+          />
+        )}
       </HStack>
       {isMobile && (
         <>
@@ -245,6 +224,22 @@ const PortfolioPositionCardClob = ({ position }: PortfolioPositionCardClobProps)
               </Text>
             </HStack>
           </HStack>
+          {marketClosed && (
+            <ClaimButton
+              slug={position.market.slug}
+              conditionId={position.market.conditionId as Address}
+              collateralAddress={position.market.collateralToken.address}
+              marketAddress={process.env.NEXT_PUBLIC_CTF_CONTRACT as Address}
+              outcomeIndex={position.market.winningOutcomeIndex as number}
+              marketType='clob'
+              amountToClaim={formatUnits(
+                BigInt(position.tokensBalance[position.market.winningOutcomeIndex ? 'no' : 'yes']),
+                position.market.collateralToken.decimals
+              )}
+              symbol={position.market.collateralToken.symbol}
+              mt='12px'
+            />
+          )}
           <Divider w={'full'} h={'1px'} mb={'10px'} mt={'10px'} />
         </>
       )}
