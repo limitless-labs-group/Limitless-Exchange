@@ -25,15 +25,11 @@ function MarketOverviewTab({ market }: MarketOverviewTabProps) {
       >
         <Box w={isMobile ? 'full' : 'fit-content'}>
           {market?.tags?.includes('Lumy') ? (
-            <Link
-              href={url}
-              variant='textLinkSecondary'
-              {...paragraphRegular}
-              isExternal
-              color='grey.500'
-            >
-              Resolution is decentralised
-            </Link>
+            <NextLink href={url} target='_blank' rel='noopener' passHref>
+              <Link variant='textLinkSecondary' {...paragraphRegular} isExternal color='grey.500'>
+                Resolution is decentralised
+              </Link>
+            </NextLink>
           ) : (
             <Box whiteSpace='pre-wrap'>
               <NextLink href={url} target='_blank' rel='noopener' passHref>
