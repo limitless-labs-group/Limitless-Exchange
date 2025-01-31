@@ -443,6 +443,7 @@ export interface RedeemParams {
   marketAddress: Address
   collateralAddress: Address
   conditionId: Address
+  type: 'amm' | 'clob'
 }
 
 export interface UpdateProfileData {

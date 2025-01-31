@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import OrderbookTableLarge from '@/app/(markets)/markets/[address]/components/clob/orderbook-table-large'
@@ -68,7 +68,7 @@ export default function Orderbook() {
     })
   }
 
-  const orderBookData = useMemo(() => {
+  const getOrderBookData = useCallback(() => {
     if (!orderbook) {
       return {
         bids: [],
@@ -104,20 +104,20 @@ export default function Orderbook() {
   }, [orderbook, orderbookSide])
 
   const spread = useMemo(() => {
-    if (!orderBookData) {
+    if (!getOrderBookData()) {
       return '0'
     }
-    if (!orderBookData.asks.length || !orderBookData.bids.length) {
+    if (!getOrderBookData().asks.length || !getOrderBookData().bids.length) {
       return '0'
     }
     return (
       Math.abs(
-        new BigNumber(orderBookData.asks.reverse()[0].price)
-          .minus(new BigNumber(orderBookData.bids[0].price))
+        new BigNumber(getOrderBookData().asks.reverse()[0].price)
+          .minus(new BigNumber(getOrderBookData().bids[0].price))
           .toNumber()
       ) * 100
     ).toFixed(0)
-  }, [orderBookData])
+  }, [getOrderBookData])
 
   const lastPrice = useMemo(() => {
     if (orderbook && market) {
@@ -138,7 +138,7 @@ export default function Orderbook() {
     <OrderBookTableSmall
       setOrderbookSide={setOrderbookSide}
       orderbookSide={orderbookSide}
-      orderBookData={orderBookData}
+      orderBookData={getOrderBookData()}
       spread={spread}
       lastPrice={lastPrice}
     />
@@ -146,7 +146,7 @@ export default function Orderbook() {
     <OrderbookTableLarge
       setOrderbookSide={setOrderbookSide}
       orderbookSide={orderbookSide}
-      orderBookData={orderBookData}
+      orderBookData={getOrderBookData()}
       spread={spread}
       lastPrice={lastPrice}
     />
