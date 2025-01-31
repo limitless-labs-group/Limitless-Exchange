@@ -110,7 +110,7 @@ export default function Orderbook() {
     if (!getOrderBookData().asks.length || !getOrderBookData().bids.length) {
       return '0'
     }
-    return (
+    return new BigNumber(
       Math.abs(
         new BigNumber(getOrderBookData().asks.reverse()[0].price)
           .minus(new BigNumber(getOrderBookData().bids[0].price))
