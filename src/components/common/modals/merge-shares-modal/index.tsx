@@ -6,8 +6,8 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
+import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import { Modal } from '@/components/common/modals/modal'
-import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import { useAccount, useTradingService } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphBold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -23,19 +23,19 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   const { market } = useTradingService()
   const { checkAllowanceForAll, client, approveAllowanceForAll, mergeShares } = useWeb3Service()
   const { account } = useAccount()
-  const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
+  const { sharesAvailable } = useClobWidget()
   const queryClient = useQueryClient()
 
   const sharesAvailableBalance = useMemo(() => {
-    if (!sharesOwned) {
+    if (!sharesAvailable) {
       return '0'
     }
-    return new BigNumber(sharesOwned[0].toString()).isGreaterThanOrEqualTo(
-      new BigNumber(sharesOwned[1].toString())
+    return new BigNumber(sharesAvailable['yes'].toString()).isGreaterThanOrEqualTo(
+      new BigNumber(sharesAvailable['no'].toString())
     )
-      ? formatUnits(sharesOwned[1], market?.collateralToken.decimals || 6)
-      : formatUnits(sharesOwned[0], market?.collateralToken.decimals || 6)
-  }, [sharesOwned, market?.collateralToken.decimals])
+      ? formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6)
+      : formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6)
+  }, [sharesAvailable, market?.collateralToken.decimals])
 
   const isExceedsBalance = useMemo(() => {
     if (+displayAmount && sharesAvailableBalance) {

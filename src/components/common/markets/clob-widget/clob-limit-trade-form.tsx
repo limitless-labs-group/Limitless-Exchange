@@ -10,7 +10,6 @@ import NumberInputWithButtons from '@/components/common/number-input-with-button
 import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
-import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import {
   ClickEvent,
   useAccount,
@@ -38,6 +37,7 @@ export default function ClobLimitTradeForm() {
     isApprovedForSell,
     onToggleTradeStepper,
     isBalanceNotEnough,
+    sharesAvailable,
   } = useClobWidget()
   const { trackClicked } = useAmplitude()
   const { account } = useAccount()
@@ -45,10 +45,6 @@ export default function ClobLimitTradeForm() {
   const queryClient = useQueryClient()
   const { client } = useWeb3Service()
   const { etherspot } = useEtherspot()
-  const { data: sharesOwned, isLoading: ownedSharesLoading } = useClobMarketShares(
-    market?.slug,
-    market?.tokens
-  )
 
   const handlePercentButtonClicked = (value: number) => {
     trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
@@ -59,11 +55,11 @@ export default function ClobLimitTradeForm() {
     })
     const sharesAmount = outcome
       ? NumberUtil.formatThousands(
-          formatUnits(sharesOwned?.[1] || 0n, market?.collateralToken.decimals || 6),
+          formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
           6
         )
       : NumberUtil.formatThousands(
-          formatUnits(sharesOwned?.[0] || 0n, market?.collateralToken.decimals || 6),
+          formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
           6
         )
     if (value === 100) {
@@ -84,22 +80,14 @@ export default function ClobLimitTradeForm() {
       }
       const balanceToShow = outcome
         ? NumberUtil.formatThousands(
-            formatUnits(sharesOwned?.[1] || 0n, market?.collateralToken.decimals || 6),
+            formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
             6
           )
         : NumberUtil.formatThousands(
-            formatUnits(sharesOwned?.[0] || 0n, market?.collateralToken.decimals || 6),
+            formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
             6
           )
-      return `MAX: ${
-        ownedSharesLoading ? (
-          <Box w='90px'>
-            <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
-          </Box>
-        ) : (
-          balanceToShow
-        )
-      }`
+      return `MAX: ${balanceToShow}`
     }
     return `${title}%`
   }
@@ -121,13 +109,13 @@ export default function ClobLimitTradeForm() {
 
   const showSellBalance = useMemo(() => {
     if (strategy === 'Sell') {
-      if (ownedSharesLoading) {
-        return (
-          <Box w='90'>
-            <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
-          </Box>
-        )
-      }
+      // if (ownedSharesLoading) {
+      //   return (
+      //     <Box w='90'>
+      //       <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
+      //     </Box>
+      //   )
+      // }
 
       return (
         <Flex gap='12px'>
@@ -157,7 +145,7 @@ export default function ClobLimitTradeForm() {
         </Flex>
       )
     }
-  }, [balanceLoading, ownedSharesLoading, strategy])
+  }, [balanceLoading, strategy])
 
   const orderCalculations = useMemo(() => {
     if (!price || !sharesAmount) {
