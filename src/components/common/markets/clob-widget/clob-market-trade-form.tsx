@@ -160,7 +160,6 @@ export default function ClobMarketTradeForm() {
       let remainingAmount = +price
 
       for (const entry of targetSide) {
-        debugger
         const contractsAvailable = +formatUnits(
           BigInt(entry.size.toFixed()),
           market.collateralToken.decimals
