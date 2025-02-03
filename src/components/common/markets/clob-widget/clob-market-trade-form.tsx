@@ -20,12 +20,12 @@ import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
 import { useOrderBook } from '@/hooks/use-order-book'
+import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import {
   ClickEvent,
   useAccount,
   useAmplitude,
   useBalanceService,
-  useEtherspot,
   useTradingService,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -39,7 +39,6 @@ export default function ClobMarketTradeForm() {
   const { data: orderBook } = useOrderBook(market?.slug)
   const queryClient = useQueryClient()
   const { account } = useAccount()
-  const { etherspot } = useEtherspot()
   const {
     setPrice,
     price,
@@ -54,6 +53,7 @@ export default function ClobMarketTradeForm() {
     sharesAvailable,
   } = useClobWidget()
   const { client } = useWeb3Service()
+  const privyService = usePrivySendTransaction()
 
   const handlePercentButtonClicked = (value: number) => {
     trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
@@ -200,8 +200,6 @@ export default function ClobMarketTradeForm() {
         ? orderBook.bids
         : orderBook.asks.map((b) => ({ ...b, price: 1 - b.price }))
 
-      console.log(targetSide)
-
       targetSide.sort((a, b) => b.price - a.price)
 
       let totalContractsSold = 0
@@ -267,7 +265,7 @@ export default function ClobMarketTradeForm() {
   const handleSubmitButtonClicked = async () => {
     if (strategy === 'Buy') {
       if (client === 'etherspot') {
-        await etherspot?.approveCollateralIfNeeded(
+        await privyService.approveCollateralIfNeeded(
           process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
           maxUint256,
           market?.collateralToken.address as Address
@@ -286,7 +284,7 @@ export default function ClobMarketTradeForm() {
       return
     }
     if (client === 'etherspot') {
-      await etherspot?.approveConditionalIfNeeded(
+      await privyService.approveConditionalIfNeeded(
         process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
         process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address
       )

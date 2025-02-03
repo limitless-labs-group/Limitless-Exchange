@@ -20,7 +20,7 @@ const baseStyle = definePartsStyle({
   },
   th: {
     '&[data-is-numeric=true]': {},
-    fontFamily: 'Inter',
+    fontFamily: 'Inter, sans-serif',
   },
   td: {
     '&[data-is-numeric=true]': {
@@ -73,7 +73,7 @@ const noPaddingsOnSides = definePartsStyle({
   },
   th: {
     '&[data-is-numeric=true]': {},
-    fontFamily: 'Inter',
+    fontFamily: 'Inter, sans-serif',
   },
   td: {
     '&[data-is-numeric=true]': {

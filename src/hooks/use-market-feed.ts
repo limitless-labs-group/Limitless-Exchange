@@ -2,8 +2,7 @@ import { useInfiniteQuery, useQuery, UseQueryResult } from '@tanstack/react-quer
 import { AxiosResponse } from 'axios'
 import { usePathname } from 'next/navigation'
 import { Address } from 'viem'
-import { useAccount as useWagmiAccount } from 'wagmi'
-import { limitlessApi } from '@/services'
+import { limitlessApi, useAccount } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { FeedEventUser } from '@/types'
 
@@ -28,12 +27,12 @@ export type MarketFeedData = {
 
 export function useMarketFeed(marketAddress?: string | null) {
   const pathname = usePathname()
-  const { isConnected } = useWagmiAccount()
+  const { isLoggedIn } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useQuery<AxiosResponse<MarketFeedData[]>>({
     queryKey: ['market-feed', marketAddress],
     queryFn: async () => {
-      const client = isConnected ? privateClient : limitlessApi
+      const client = isLoggedIn ? privateClient : limitlessApi
       return client.get(`/markets/${marketAddress}/get-feed-events`)
     },
     refetchInterval: pathname === '/' ? 10000 : false,
@@ -42,13 +41,13 @@ export function useMarketFeed(marketAddress?: string | null) {
 }
 
 export function useMarketClobInfinityFeed(marketSlug?: string) {
-  const { isConnected } = useWagmiAccount()
+  const { isLoggedIn } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useInfiniteQuery<MarketFeedData[], Error>({
     queryKey: ['market-page-clob-feed', marketSlug],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      const client = isConnected ? privateClient : limitlessApi
+      const client = isLoggedIn ? privateClient : limitlessApi
       const baseUrl = `/markets/${marketSlug}/events`
       const response: AxiosResponse<MarketFeedData[]> = await client.get(baseUrl, {
         params: {
@@ -70,13 +69,13 @@ export function useMarketClobInfinityFeed(marketSlug?: string) {
 }
 
 export function useMarketInfinityFeed(marketAddress?: string | null, isActive = false) {
-  const { isConnected } = useWagmiAccount()
+  const { isLoggedIn } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useInfiniteQuery<MarketFeedData[], Error>({
     queryKey: ['market-page-feed', marketAddress],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      const client = isConnected ? privateClient : limitlessApi
+      const client = isLoggedIn ? privateClient : limitlessApi
       const baseUrl = `/markets/${marketAddress}/get-feed-events`
       const response: AxiosResponse<MarketFeedData[]> = await client.get(baseUrl, {
         params: {

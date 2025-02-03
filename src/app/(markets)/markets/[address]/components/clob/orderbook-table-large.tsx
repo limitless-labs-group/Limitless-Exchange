@@ -167,9 +167,11 @@ export default function OrderbookTableLarge({
           py='8px'
         >
           <Box flex={1} pl='8px'>
-            <Text {...paragraphRegular} color={orderbookSide ? 'red.500' : 'green.500'}>
-              {orderbookSide ? 'NO' : 'YES'} {lastPrice}¢
-            </Text>
+            {lastPrice && (
+              <Text {...paragraphRegular} color={orderbookSide ? 'red.500' : 'green.500'}>
+                {orderbookSide ? 'NO' : 'YES'} {lastPrice}¢
+              </Text>
+            )}
           </Box>
           <Box flex={1}>
             <Text {...paragraphRegular} color='grey.500'>

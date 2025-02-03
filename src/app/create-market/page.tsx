@@ -114,17 +114,6 @@ const CreateOwnMarketPage = () => {
     enabled: !!marketId,
   })
 
-  const { data: tagOptions } = useQuery({
-    queryKey: ['tagOptions'],
-    queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`)
-
-      return response.data.map((tag: { id: string; name: string }) =>
-        createOption(tag.id, tag.name)
-      ) as TagOption[]
-    },
-  })
-
   useEffect(() => {
     if (editMarket) {
       setFormData((prevFormData) => ({
@@ -648,6 +637,7 @@ const CreateOwnMarketPage = () => {
                       Address
                     </Text>
                     <HStack gap='4px'>
+                      {/*// @ts-ignore*/}
                       <CopyToClipboard
                         text={draftMarketAddress[defaultChain.id]}
                         onCopy={onClickCopy}

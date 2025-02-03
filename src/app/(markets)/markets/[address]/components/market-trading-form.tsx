@@ -13,7 +13,7 @@ import {
   ChangeEvent,
   useAmplitude,
   useTradingService,
-  useHistory,
+  usePosition,
 } from '@/services'
 import { controlsMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup } from '@/types'
@@ -39,7 +39,7 @@ export const MarketTradingForm = ({
    */
   const { trackChanged } = useAmplitude()
 
-  const { positions: allMarketsPositions } = useHistory()
+  const { data: allMarketsPositions } = usePosition()
 
   /**
    * TRADING SERVICE

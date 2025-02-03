@@ -2,10 +2,18 @@ import { Flex, HStack, StackProps, Text, Box, VStack, Stack } from '@chakra-ui/r
 import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import Skeleton from '@/components/common/skeleton'
+import { usePriceOracle } from '@/providers'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
-import { useBalanceQuery, useBalanceService, useHistory } from '@/services'
+import {
+  ClobPositionWithType,
+  HistoryPositionWithType,
+  useBalanceQuery,
+  useBalanceService,
+  useLimitlessApi,
+  usePosition,
+} from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
@@ -63,14 +71,62 @@ const StatBox = ({
 
 export const PortfolioStats = ({ ...props }: StackProps) => {
   const { overallBalanceUsd, balanceLoading } = useBalanceService()
+  const { convertAssetAmountToUsd } = usePriceOracle()
+  const { supportedTokens } = useLimitlessApi()
   const { balanceOfSmartWallet } = useBalanceQuery()
-  const { balanceInvested, balanceToWin, tradesAndPositionsLoading, positions } = useHistory()
+  const { data: positions, isLoading: positionsLoading } = usePosition()
+
+  const balanceInvested = useMemo(() => {
+    const ammPositions = positions?.filter(
+      (position) => position.type === 'amm'
+    ) as HistoryPositionWithType[]
+    const clobPositions = positions?.filter(
+      (position) => position.type === 'clob'
+    ) as ClobPositionWithType[]
+    let _balanceInvested = 0
+    ammPositions?.forEach((position) => {
+      let positionUsdAmount = 0
+      const token = supportedTokens?.find(
+        (token) => token.symbol === position.market.collateral?.symbol
+      )
+      if (!!token) {
+        positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, position.collateralAmount)
+      }
+      _balanceInvested += positionUsdAmount
+    })
+    return NumberUtil.toFixed(_balanceInvested, 2)
+  }, [positions])
+
+  const balanceToWin = useMemo(() => {
+    const ammPositions = positions?.filter(
+      (position) => position.type === 'amm'
+    ) as HistoryPositionWithType[]
+    const clobPositions = positions?.filter(
+      (position) => position.type === 'clob'
+    ) as ClobPositionWithType[]
+    let _balanceToWin = 0
+    ammPositions?.forEach((position) => {
+      let positionOutcomeUsdAmount = 0
+      const token = supportedTokens?.find(
+        (token) => token.symbol === position.market.collateral?.symbol
+      )
+      if (!!token) {
+        positionOutcomeUsdAmount = convertAssetAmountToUsd(
+          token.priceOracleId,
+          position.outcomeTokenAmount
+        )
+      }
+      _balanceToWin += positionOutcomeUsdAmount
+    })
+    return NumberUtil.toFixed(_balanceToWin, 2)
+  }, [positions, supportedTokens])
+
   const stats = [
     {
       title: 'Portfolio',
       icon: <PortfolioIcon width={16} height={16} />,
       value:
-        tradesAndPositionsLoading || !positions ? (
+        positionsLoading || !positions ? (
           <Skeleton height={20} />
         ) : (
           `${NumberUtil.formatThousands(balanceInvested, 2)} USD`
@@ -82,7 +138,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
       title: 'To win',
       icon: <CalendarIcon width={16} height={16} />,
       value:
-        tradesAndPositionsLoading || !positions ? (
+        positionsLoading || !positions ? (
           <Skeleton height={20} />
         ) : (
           `${NumberUtil.formatThousands(balanceToWin, 2)} USD`

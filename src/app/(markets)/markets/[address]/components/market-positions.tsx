@@ -2,7 +2,8 @@ import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { PositionCard } from '@/app/(markets)/markets/[address]/components'
 import ChartIcon from '@/resources/icons/chart-icon.svg'
-import { HistoryPositionWithType, useHistory } from '@/services'
+import { HistoryPositionWithType } from '@/services'
+import { usePosition } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
@@ -17,7 +18,7 @@ export const MarketPositions = ({
   isSideMarketPage,
   showPortfolioIcon = true,
 }: MarketPositionsProps) => {
-  const { positions: allMarketsPositions } = useHistory()
+  const { data: allMarketsPositions } = usePosition()
 
   const positions = useMemo(
     () =>

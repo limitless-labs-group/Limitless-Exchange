@@ -5,12 +5,13 @@ import { v4 as uuidv4 } from 'uuid'
 import Skeleton from '@/components/common/skeleton'
 import PortfolioPositionCard from '@/app/portfolio/components/PortfolioPositionCard'
 import PortfolioPositionCardClob from '@/app/portfolio/components/PortfolioPositionCardClob'
-import { HistoryPositionWithType, useHistory } from '@/services'
+import PortfolioPositionCardClobRedirect from '@/app/portfolio/components/PortfolioPositionCardClobRedirect'
+import { HistoryPositionWithType, usePosition } from '@/services'
 import { usePrices } from '@/services/MarketsService'
 import { MarketStatus } from '@/types'
 
 const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boolean }) => {
-  const { positions, tradesAndPositionsLoading } = useHistory()
+  const { data: positions, isLoading: tradesAndPositionsLoading } = usePosition()
 
   const positionsFiltered = useMemo(() => {
     return positions?.sort((a, b) => {
@@ -38,8 +39,6 @@ const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boo
       )
   }, [positionsFiltered])
 
-  console.log(positionsForPrices)
-
   const { data: prices } = usePrices(positionsForPrices)
 
   if (userMenuLoading || !positionsFiltered || tradesAndPositionsLoading) {
@@ -64,7 +63,7 @@ const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boo
         <Stack gap={{ sm: 2, md: 2 }}>
           {positionsFiltered?.map((position) => {
             return position.type === 'clob' ? (
-              <PortfolioPositionCardClob position={position} key={uuidv4()} />
+              <PortfolioPositionCardClobRedirect position={position} key={uuidv4()} />
             ) : (
               <PortfolioPositionCard
                 key={uuidv4()}

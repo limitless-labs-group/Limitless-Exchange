@@ -1,4 +1,3 @@
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Metadata } from 'next'
@@ -33,7 +32,7 @@ const RootLayout = ({ children }: PropsWithChildren) => {
           {children}
           <Analytics />
           <SpeedInsights />
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/*<ReactQueryDevtools initialIsOpen={false} />*/}
         </Providers>
       </body>
     </html>
