@@ -232,14 +232,13 @@ export const CreateMarket: FC = () => {
     await generateOgImage()
 
     try {
-      const { title, description, creatorId, ogLogo, tag } = formData
+      const { title, description, creatorId, ogLogo } = formData
 
       const missingFields: string[] = []
 
       if (!title) missingFields.push('Title')
       if (!description) missingFields.push('Description')
       if (!creatorId) missingFields.push('Creator')
-      if (!tag) missingFields.push('Tag')
 
       if (!ogLogo) {
         if (ogImageError) {
