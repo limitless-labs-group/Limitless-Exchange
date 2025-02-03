@@ -25,7 +25,6 @@ export default function OrderbookTableLarge({
   orderbookSide,
   setOrderbookSide,
   spread,
-  // calculateTotalContractsPrice,
   lastPrice,
 }: OrderBookData) {
   const { market } = useTradingService()
