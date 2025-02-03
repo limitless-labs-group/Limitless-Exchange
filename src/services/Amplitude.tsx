@@ -2,14 +2,9 @@
 
 import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
 import * as sessionReplay from '@amplitude/session-replay-browser'
-import {
-  CUSTOM_LOGIN_PROVIDER_TYPE,
-  LOGIN_PROVIDER_TYPE,
-} from '@toruslabs/openlogin-utils/dist/types/interfaces'
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
 import { ClobPositionType } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { PageName } from '@/hooks/use-page-name'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useAccount } from '@/services'
 import { Category, LeaderboardSort, MarketGroup } from '@/types'
 
@@ -28,8 +23,7 @@ const AmplitudeContext = createContext<IAmplitudeContext>({} as IAmplitudeContex
 export const useAmplitude = () => useContext(AmplitudeContext)
 
 export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
-  const { account, userInfo } = useAccount()
-  const walletAddress = useWalletAddress()
+  const { account: walletAddress } = useAccount()
 
   useEffect(() => {
     init(AMPLITUDE_API_KEY, undefined, {
@@ -72,13 +66,12 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
           ...(urlParams.get('utm_content') ? { utm_content: urlParams.get('utm_content') } : {}),
         },
         user_properties: {
-          account,
-          ...userInfo,
+          account: walletAddress,
           walletAddress,
         },
       }).promise
     },
-    [account, walletAddress]
+    [walletAddress]
   )
 
   const trackSignUp = async () => {
@@ -189,6 +182,7 @@ export enum ClickEvent {
   BlockedUserClicked = 'Blocked User Clicked',
   UndoBlockingUser = 'Undo Blocking User',
   UserMarketClicked = 'User Market Clicked',
+  UpgradeWalletClicked = 'Upgrade Wallet Clicked',
 }
 
 export enum SignInEvent {
@@ -426,10 +420,6 @@ export interface UIModeMetadata {
   mode: string
 }
 
-export interface SignInW3AClickedMetadata {
-  option: LOGIN_PROVIDER_TYPE | CUSTOM_LOGIN_PROVIDER_TYPE | undefined
-}
-
 export interface MediumBannerClicked {
   bannerPosition: number
   bannerPaginationPage: number
@@ -461,7 +451,6 @@ export type ClickedEventMetadata =
   | StrokeMetadata
   | TopUpMetadata
   | UIModeMetadata
-  | SignInW3AClickedMetadata
   | MarketChangeInGroupData
   | FeeAndReturnTradingDetailsClicked
   | MediumBannerClicked

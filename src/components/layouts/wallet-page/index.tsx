@@ -9,13 +9,13 @@ import Paper from '@/components/common/paper'
 import Withdraw from '@/components/layouts/wallet-page/components/withdraw'
 import { WithdrawModal } from '@/components/layouts/wallet-page/components/withdraw-modal'
 import usePageName from '@/hooks/use-page-name'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { usePriceOracle } from '@/providers'
 import BaseIcon from '@/resources/crypto/base.svg'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import {
   ClickEvent,
+  useAccount,
   useAmplitude,
   useBalanceQuery,
   useBalanceService,
@@ -33,7 +33,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
   const { overallBalanceUsd } = useBalanceService()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { supportedTokens } = useLimitlessApi()
-  const address = useWalletAddress()
+  const { account: address } = useAccount()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
   const pageName = usePageName()
   const {
@@ -131,6 +131,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
         <Text {...paragraphMedium} color='white'>
           Address
         </Text>
+        {/*// @ts-ignore*/}
         <CopyToClipboard text={address as string} onCopy={onClickCopy}>
           <HStack gap='4px' color='white' cursor='pointer'>
             <Text {...paragraphRegular} color='white'>

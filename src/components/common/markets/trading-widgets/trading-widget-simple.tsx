@@ -13,7 +13,7 @@ import {
   ChangeEvent,
   StrategyChangedMetadata,
   useAmplitude,
-  useHistory,
+  usePosition,
   useTradingService,
 } from '@/services'
 import { controlsMedium, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -23,7 +23,7 @@ export default function TradingWidgetSimple() {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
   const { strategy, setStrategy, market, marketGroup, setMarket, status } = useTradingService()
   const { trackChanged } = useAmplitude()
-  const { positions: allMarketsPositions } = useHistory()
+  const { data: allMarketsPositions } = usePosition()
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
 
   const positions = useMemo(

@@ -18,27 +18,22 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { erc20Abi, formatEther, formatUnits, parseEther, parseUnits } from 'viem'
+import { erc20Abi, formatEther, formatUnits, parseUnits } from 'viem'
 import { getBalance } from 'viem/actions'
-import { useAccount as useWagmiAccount } from 'wagmi'
 import { Toast } from '@/components/common/toast'
 import { ToastWithdraw } from '@/components/common/toast-withdraw'
 import { defaultChain } from '@/constants'
 import { wethABI } from '@/contracts'
 import { useToast } from '@/hooks'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { usePriceOracle } from '@/providers'
-import { publicClient } from '@/providers'
-import { useAccount, useEtherspot, useLimitlessApi } from '@/services'
+import { publicClient } from '@/providers/Privy'
+import { useAccount, useLimitlessApi } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { Address, GetBalanceResult, MarketTokensIds, Token } from '@/types'
 import { Logger, NumberUtil } from '@/utils'
 
 interface IBalanceService {
   overallBalanceUsd: string
-
-  mint: (params: { address: Address; newToken?: boolean }) => void
-  isLoadingMint: boolean
 
   amount: string
   setAmount: (amount: string) => void
@@ -73,44 +68,30 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
   const { convertAssetAmountToUsd } = usePriceOracle()
-  const { isConnected } = useWagmiAccount()
-  const { profileData, profileLoading } = useAccount()
-  const { isLoadingSmartWalletAddress } = useEtherspot()
+  const { profileData, profileLoading, account } = useAccount()
   const { balanceOfSmartWallet, refetchbalanceOfSmartWallet, balanceOfSmartWalletLoading } =
     useBalanceQuery()
 
-  /**
-   * Etherspot
-   */
-  // Todo rework
-  const { whitelist, etherspot } = useEtherspot()
-
-  const walletAddress = useWalletAddress()
-
-  const { mintErc20, transferErc20, unwrapEth, transferEthers, wrapEth } = useWeb3Service()
+  const { transferErc20, unwrapEth, transferEthers, wrapEth } = useWeb3Service()
 
   const { supportedTokens } = useLimitlessApi()
 
-  /**
-   * Weth balance
-   */
-
   const userMenuLoading = useMemo(() => {
-    if (isConnected) {
-      return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
+    if (account) {
+      return profileData === undefined || profileLoading
     }
     return false
-  }, [isConnected, profileLoading, isLoadingSmartWalletAddress, profileData])
+  }, [account, profileLoading, profileData])
 
   const balanceLoading = userMenuLoading || balanceOfSmartWalletLoading
 
   const { data: ethBalance } = useQuery({
-    queryKey: ['ethBalance', walletAddress],
+    queryKey: ['ethBalance', account],
     queryFn: async () => {
-      if (!walletAddress || !!etherspot) {
+      if (!account) {
         return
       }
-      const eth = await getBalance(publicClient, { address: walletAddress })
+      const eth = await getBalance(publicClient, { address: account })
       return formatEther(eth)
     },
   })
@@ -133,44 +114,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     setUnwrap(false)
   }, [pathname])
 
-  useQuery({
-    queryKey: ['autoWrapEth', walletAddress, unwrap],
-    queryFn: async () => {
-      if (!walletAddress || unwrap || !etherspot) {
-        return
-      }
-
-      const eth = await getBalance(publicClient, { address: walletAddress })
-      const ethFormatted = formatEther(eth)
-      log.info('ETH balance:', ethFormatted)
-
-      const gasFee = defaultChain.testnet ? 0.01 : 0 // there's no paymaster on testnet so it's required to left some eth for gas
-
-      if (Number(ethFormatted) > gasFee) {
-        if (!defaultChain.testnet && etherspot) {
-          await whitelist() // TODO: refactor the logic of whitelisting
-        }
-
-        const id = toast({
-          render: () => <Toast title={'Wrapping ETH...'} id={id} />,
-        })
-
-        const txHash = await etherspot.wrapEth(eth - parseEther(gasFee.toString()))
-
-        setUnwrap(true)
-
-        if (!txHash) {
-          // TODO: show toast?
-          log.error('autoWrapEth')
-        } else {
-          log.success('autoWrapEth', txHash)
-        }
-      }
-    },
-    enabled: !!walletAddress && !unwrap,
-    refetchInterval: pathname.includes('wallet') && 10000, // polling on wallet page only
-  })
-
   const wrapMutation = useMutation({
     mutationFn: async (amount: string) => {
       await wrapEth(parseUnits(amount, 18))
@@ -183,29 +126,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  /**
-   * Mint mocked erc20
-   */
-  const { mutate: mint, isPending: isLoadingMint } = useMutation({
-    mutationFn: async (params: { address: Address; newToken?: boolean }) => {
-      const id = toast({
-        render: () => <Toast title={'Processing transaction...'} id={id} />,
-      })
-      const token = supportedTokens?.find((token) => token.address === params.address)
-      await mintErc20(
-        params.address,
-        parseUnits('1', token?.decimals || 18),
-        walletAddress || '0x',
-        params.newToken
-      )
-      const toastId = toast({
-        render: () => <Toast title={'Confirmed. Updating balance...'} id={toastId} />,
-      })
-      await refetchbalanceOfSmartWallet()
-    },
-  })
-
-  // Amount to be withdrawn
   const [amount, setAmount] = useState<string>('')
   const [token, setToken] = useState<Token | null>(supportedTokens ? supportedTokens[0] : null)
   const amountBI = useMemo(() => parseUnits(amount ?? '0', token?.decimals || 18), [amount])
@@ -296,21 +216,19 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
    * UI STATUS
    */
   const status: BalanceServiceStatus = useMemo(() => {
-    if (isLoadingMint || isLoadingWithdraw) {
+    if (isLoadingWithdraw) {
       return 'Loading'
     }
     if (isInvalidAmount) {
       return 'InvalidAmount'
     }
     return 'ReadyToFund'
-  }, [isInvalidAmount, isLoadingMint, isLoadingWithdraw])
+  }, [isInvalidAmount, isLoadingWithdraw])
 
   return (
     <BalanceService.Provider
       value={{
         overallBalanceUsd,
-        mint,
-        isLoadingMint,
         amount,
         setAmount,
         unwrap,
@@ -330,21 +248,12 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   )
 }
 
-/**
- * Weth balance
- */
 export const useBalanceQuery = () => {
   const toast = useToast()
   const log = new Logger(BalanceServiceProvider.name)
   const { marketTokensPrices } = usePriceOracle()
 
-  /**
-   * Etherspot
-   */
-  // Todo rework
-  const { whitelist, etherspot } = useEtherspot()
-
-  const walletAddress = useWalletAddress()
+  const { account } = useAccount()
 
   const { supportedTokens } = useLimitlessApi()
 
@@ -353,9 +262,9 @@ export const useBalanceQuery = () => {
     refetch,
     isLoading: balanceOfSmartWalletLoading,
   } = useQuery({
-    queryKey: ['balance', walletAddress],
+    queryKey: ['balance', account],
     queryFn: async () => {
-      if (!walletAddress && !supportedTokens) {
+      if (!account && !supportedTokens) {
         return
       }
 
@@ -372,9 +281,7 @@ export const useBalanceQuery = () => {
         reference: token.address,
         contractAddress: token.address,
         abi: token.priceOracleId === MarketTokensIds.WETH ? wethABI : erc20Abi,
-        calls: [
-          { reference: 'balance', methodName: 'balanceOf', methodParameters: [walletAddress] },
-        ],
+        calls: [{ reference: 'balance', methodName: 'balanceOf', methodParameters: [account] }],
       }))
       let balanceResult: GetBalanceResult[]
 
@@ -421,7 +328,7 @@ export const useBalanceQuery = () => {
         })
       }
 
-      log.success('ON_BALANCE_SUCC', walletAddress, balanceResult)
+      log.success('ON_BALANCE_SUCC', account, balanceResult)
 
       balanceResult.forEach((balance) => {
         if (!!balanceOfSmartWallet) {
@@ -429,7 +336,6 @@ export const useBalanceQuery = () => {
             return currentBalanceEntity.id === balance.id
           })
           if (currentBalance && balance.value > currentBalance.value) {
-            !defaultChain.testnet && etherspot && whitelist()
             const depositAmount = formatUnits(
               balance.value - currentBalance.value,
               currentBalance.decimals
@@ -451,7 +357,7 @@ export const useBalanceQuery = () => {
 
       return balanceResult
     },
-    enabled: !!walletAddress && !!supportedTokens,
+    enabled: !!account && !!supportedTokens,
     refetchInterval: 10000,
   })
   const refetchbalanceOfSmartWallet = useCallback(() => refetch(), [])

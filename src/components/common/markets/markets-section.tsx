@@ -44,7 +44,7 @@ export default function MarketsSection({
                 if (cyclePosition < 6) {
                   return (
                     <MarketCardMobile
-                      key={market.address}
+                      key={market.slug || market.address}
                       market={market}
                       analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
                       markets={markets}

@@ -11,6 +11,7 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
+import { uuidv4 } from '@walletconnect/utils'
 import BigNumber from 'bignumber.js'
 import React from 'react'
 import { formatUnits } from 'viem'
@@ -135,8 +136,8 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
       </TableContainer>
       {userOrdersLoading && (
         <VStack w='full' gap='15px'>
-          {[...Array(3)].map((index) => (
-            <Skeleton height={24} key={index} />
+          {[...Array(3)].map(() => (
+            <Skeleton height={24} key={uuidv4()} />
           ))}
         </VStack>
       )}

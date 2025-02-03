@@ -1,12 +1,12 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import axios, { AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import { createContext, PropsWithChildren, useContext, useMemo } from 'react'
-import { useAccount as useWagmiAccount } from 'wagmi'
 import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { useToast } from '@/hooks'
+import { useAccount } from '@/services/AccountService'
 import { limitlessApi } from '@/services/LimitlessApi'
-import { CommentPost, LikePost, LikesGet } from '@/types'
+import { CommentPost, LikePost } from '@/types'
 
 export interface IUseCreateComment {
   content: string
@@ -71,7 +71,7 @@ export const CommentServiceProvider = ({ children }: PropsWithChildren) => {
 export const useCommentService = () => useContext(CommentServiceContext)
 
 export const useMarketInfinityComments = (marketAddress?: string | null) => {
-  const { isConnected } = useWagmiAccount()
+  const { isLoggedIn } = useAccount()
   const privateClient = useAxiosPrivateClient()
   const {
     data: comments,
@@ -81,7 +81,7 @@ export const useMarketInfinityComments = (marketAddress?: string | null) => {
     queryKey: ['market-comments', marketAddress],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      const client = isConnected ? privateClient : limitlessApi
+      const client = isLoggedIn ? privateClient : limitlessApi
       const response: AxiosResponse<Comment[]> = await client.get(
         `/comments/markets/${marketAddress}`,
         {
@@ -112,13 +112,13 @@ export const useMarketInfinityComments = (marketAddress?: string | null) => {
 }
 
 export const useLikeComment = (id: number) => {
-  const { isConnected } = useWagmiAccount()
+  const { isLoggedIn } = useAccount()
   const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()
   return useMutation({
     mutationKey: ['like-comment', id],
     mutationFn: async (): Promise<LikePost> => {
-      if (!isConnected) throw new Error('Login to like comments')
+      if (!isLoggedIn) throw new Error('Login to like comments')
 
       const res = await privateClient.post(`/comments/${id}/like`)
       return res.data
@@ -130,13 +130,13 @@ export const useLikeComment = (id: number) => {
 }
 
 export const useUnlikeComment = (id: number) => {
-  const { isConnected } = useWagmiAccount()
+  const { isLoggedIn } = useAccount()
   const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()
   return useMutation({
     mutationKey: ['unlike-comment', id],
     mutationFn: async (): Promise<LikePost> => {
-      if (!isConnected) throw new Error('Login to unlike comments')
+      if (!isLoggedIn) throw new Error('Login to unlike comments')
 
       const res = await privateClient.post(`/comments/${id}/unlike`)
       return res.data

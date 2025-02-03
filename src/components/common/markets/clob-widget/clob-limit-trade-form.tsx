@@ -10,12 +10,12 @@ import NumberInputWithButtons from '@/components/common/number-input-with-button
 import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
+import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import {
   ClickEvent,
   useAccount,
   useAmplitude,
   useBalanceService,
-  useEtherspot,
   useTradingService,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -44,7 +44,7 @@ export default function ClobLimitTradeForm() {
   const { market, strategy } = useTradingService()
   const queryClient = useQueryClient()
   const { client } = useWeb3Service()
-  const { etherspot } = useEtherspot()
+  const privyService = usePrivySendTransaction()
 
   const handlePercentButtonClicked = (value: number) => {
     trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
@@ -193,7 +193,7 @@ export default function ClobLimitTradeForm() {
   const handleSubmitButtonClicked = async () => {
     if (strategy === 'Buy') {
       if (client === 'etherspot') {
-        await etherspot?.approveCollateralIfNeeded(
+        await privyService.approveCollateralIfNeeded(
           process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
           maxUint256,
           market?.collateralToken.address as Address
@@ -212,7 +212,7 @@ export default function ClobLimitTradeForm() {
       return
     }
     if (client === 'etherspot') {
-      await etherspot?.approveConditionalIfNeeded(
+      await privyService.approveConditionalIfNeeded(
         process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
         process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address
       )

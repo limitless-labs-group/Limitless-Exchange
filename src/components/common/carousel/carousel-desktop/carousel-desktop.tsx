@@ -24,7 +24,7 @@ export default function CarouselDesktop({ slides, options }: PropType) {
     <section className='embla' dir='ltr'>
       <div className='embla__viewport' ref={emblaRef}>
         <div className='embla__container'>
-          {slides.map((slide, index) => (
+          {slides?.map((slide, index) => (
             <div className='embla__slide' key={index}>
               <div className='embla__slide__number'>{slide}</div>
             </div>

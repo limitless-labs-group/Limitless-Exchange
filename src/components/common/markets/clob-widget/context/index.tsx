@@ -16,7 +16,6 @@ import { useToast } from '@/hooks'
 import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
 import { useOrderBook } from '@/hooks/use-order-book'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { useAccount, useBalanceQuery, useTradingService } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -76,7 +75,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const [price, setPrice] = useState('')
   const [allowance, setAllowance] = useState<bigint>(0n)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
-  const account = useWalletAddress()
+  const { account } = useAccount()
   const toast = useToast()
   const { market, strategy } = useTradingService()
   const { balanceOfSmartWallet } = useBalanceQuery()

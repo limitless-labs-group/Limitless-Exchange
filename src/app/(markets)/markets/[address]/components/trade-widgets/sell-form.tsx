@@ -22,7 +22,6 @@ import BigNumber from 'bignumber.js'
 import debounce from 'lodash.debounce'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Address } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import TradeWidgetSkeleton, {
   SkeletonType,
@@ -44,7 +43,7 @@ import {
   TradeQuotes,
   useAmplitude,
   useBalanceService,
-  useHistory,
+  usePosition,
   useTradingService,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -109,7 +108,7 @@ export function SellForm({
 
   const { client } = useWeb3Service()
   const { isOpen: isOpenSelectMarketMenu, onToggle: onToggleSelectMarketMenu } = useDisclosure()
-  const { positions: allMarketsPositions } = useHistory()
+  const { data: allMarketsPositions } = usePosition()
   const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
 
   const positions = useMemo(

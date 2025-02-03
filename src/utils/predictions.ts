@@ -1,6 +1,6 @@
 import { Address, formatUnits, getContract, parseUnits } from 'viem'
 import { fixedProductMarketMakerABI } from '@/contracts'
-import { publicClient } from '@/providers'
+import { publicClient } from '@/providers/Privy'
 
 export const calculateYesPotentialReturn = async (address: Address) => {
   let outcomeTokenAmountBI = 0n

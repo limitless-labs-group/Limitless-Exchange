@@ -120,6 +120,9 @@ export default function Orderbook() {
   }, [getOrderBookData])
 
   const lastPrice = useMemo(() => {
+    if (!orderbook?.lastTradePrice) {
+      return ''
+    }
     if (orderbook && market) {
       const tradedToken = orderbook.tokenId === market.tokens.yes ? 'yes' : 'no'
       if (!orderbookSide) {
