@@ -7,7 +7,11 @@ import OrderBookTableSmall from '@/app/(markets)/markets/[address]/components/cl
 import { Order, useOrderBook } from '@/hooks/use-order-book'
 import { useTradingService } from '@/services'
 
-export default function Orderbook() {
+interface OrderBookProps {
+  variant?: 'small' | 'large'
+}
+
+export default function Orderbook({ variant }: OrderBookProps) {
   const [orderbookSide, setOrderbookSide] = useState(0)
   const { market } = useTradingService()
   const { data: orderbook } = useOrderBook(market?.slug)
@@ -137,7 +141,7 @@ export default function Orderbook() {
     return ''
   }, [orderbook, market, orderbookSide])
 
-  return isMobile ? (
+  return isMobile || variant === 'small' ? (
     <OrderBookTableSmall
       setOrderbookSide={setOrderbookSide}
       orderbookSide={orderbookSide}

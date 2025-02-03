@@ -71,8 +71,8 @@ export default function Sidebar() {
     account,
     web3Client,
     loginToPlatform,
+    isLoggedIn,
   } = useAccount()
-  const { isLogged } = useClient()
   const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { balanceOfSmartWallet } = useBalanceQuery()
@@ -223,7 +223,7 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        {isLogged ? (
+        {isLoggedIn ? (
           <>
             <VStack mt='16px' w='full' gap='8px'>
               {walletTypeActionButton}

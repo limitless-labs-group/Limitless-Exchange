@@ -170,6 +170,7 @@ export enum ClickEvent {
   FeedMarketClicked = 'Feed Market Clicked',
   PortfolioMarketClicked = 'PortfolioMarketClicked',
   PredictionChartOpened = 'Prediction Chart Opened',
+  OrderBookOpened = 'Order book Opened',
   AssetPriceChartOpened = 'Asset Price Chart Opened',
   NextMarketClick = 'Next Market Click',
   PreviousMarketClick = 'Previous Market Click',

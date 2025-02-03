@@ -381,6 +381,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           queryKey: ['positions'],
         }),
       ])
+      queryClient.removeQueries({
+        queryKey: ['profiles'],
+      })
       router.push('/')
     } catch (error) {
       console.error('Logout failed:', error)
@@ -475,17 +478,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     if (accountRoutes.includes(pathname)) {
       router.push('/')
     }
-    await signout()
     await disconnect()
-    queryClient.removeQueries({
-      queryKey: ['profiles'],
-    })
+    await signout()
     setSmartAccountClient(null)
     setWeb3Wallet(null)
   }, [pathname])
 
   const contextProviderValue: IAccountContext = {
-    isLoggedIn: authenticated,
+    isLoggedIn: authenticated || !!isLogged,
     account,
     displayName,
     displayUsername,
