@@ -267,10 +267,10 @@ export default function ClobMarketTradeForm() {
 
   const noOrdersOnDesiredToken = useMemo(() => {
     if (!outcome) {
-      return !Boolean(orderBook?.bids.length)
+      return !Boolean(orderBook?.asks.length)
     }
     if (outcome) {
-      return !Boolean(orderBook?.asks.length)
+      return !Boolean(orderBook?.bids.length)
     }
     return false
   }, [orderBook, outcome])
