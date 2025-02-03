@@ -265,6 +265,16 @@ export default function ClobMarketTradeForm() {
     placeMarketOrderMutation.reset()
   }
 
+  const noOrdersOnDesiredToken = useMemo(() => {
+    if (!outcome) {
+      return !Boolean(orderBook?.asks.length)
+    }
+    if (outcome) {
+      return !Boolean(orderBook?.bids.length)
+    }
+    return false
+  }, [orderBook, outcome])
+
   const handleSubmitButtonClicked = async () => {
     if (strategy === 'Buy') {
       if (client === 'etherspot') {
@@ -400,7 +410,7 @@ export default function ClobMarketTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeMarketOrderMutation.status}
-        isDisabled={!price || isBalanceNotEnough || !account}
+        isDisabled={!price || isBalanceNotEnough || !account || noOrdersOnDesiredToken}
         onClick={handleSubmitButtonClicked}
         successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(
           orderCalculations.contracts,
