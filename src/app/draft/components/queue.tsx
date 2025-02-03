@@ -85,7 +85,7 @@ export const DraftMarketsQueue = () => {
 
   return (
     <Flex justifyContent={'center'}>
-      <VStack w='868px' spacing={4}>
+      <VStack w='868px' spacing={4} mb='66px'>
         {draftMarkets?.map((market: DraftMarket) => {
           return (
             <DraftMarketCard
