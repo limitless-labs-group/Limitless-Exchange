@@ -67,7 +67,7 @@ export const RecentMarkets = () => {
 
   return (
     <Flex justifyContent={'center'} position='relative'>
-      <VStack w='868px' spacing={4}>
+      <VStack w='868px' spacing={4} mb='66px'>
         {recentMarkets?.map((market: DraftMarket) => {
           return (
             <DraftMarketCard
