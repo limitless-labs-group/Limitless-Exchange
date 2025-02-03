@@ -62,13 +62,17 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
     setDisplayAmount(value)
   }
 
-  const handleSplitClicked = async () =>
-    splitSharesMutation.mutateAsync({
+  const handleSplitClicked = async () => {
+    await splitSharesMutation.mutateAsync({
       amount: displayAmount,
       decimals: market?.collateralToken.decimals || 6,
       conditionId: market?.conditionId as string,
       contractAddress: market?.collateralToken.address as Address,
     })
+    await queryClient.refetchQueries({
+      queryKey: ['market-shares', market?.slug],
+    })
+  }
 
   const checkSplitAllowance = async () => {
     const allowance = await checkAllowance(
