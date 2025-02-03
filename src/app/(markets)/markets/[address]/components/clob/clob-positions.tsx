@@ -3,6 +3,8 @@ import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import ClobOrdersTab from '@/app/(markets)/markets/[address]/components/clob/clob-orders-tab'
+import ClobPortfolio from '@/app/(markets)/markets/[address]/components/clob/clob-portfolio'
+import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import SandClockIcon from '@/resources/icons/sand-clock.svg'
 import { useTradingService } from '@/services'
 
@@ -14,10 +16,10 @@ export default function ClobPositions({ marketType }: ClobPositionsProps) {
   const { market } = useTradingService()
 
   const tabs = [
-    // {
-    //   title: 'Portfolio',
-    //   icon: <PortfolioIcon width='16px' height='16px' />,
-    // },
+    {
+      title: 'Portfolio',
+      icon: <PortfolioIcon width='16px' height='16px' />,
+    },
     {
       title: 'Open Orders',
       icon: <SandClockIcon width={16} height={16} />,
@@ -26,7 +28,7 @@ export default function ClobPositions({ marketType }: ClobPositionsProps) {
 
   const tabPanels = useMemo(() => {
     return [
-      // <ClobPortfolioTab key={uuidv4()} />,
+      <ClobPortfolio key={uuidv4()} />,
       <ClobOrdersTab key={uuidv4()} marketType={marketType} />,
     ]
   }, [market])

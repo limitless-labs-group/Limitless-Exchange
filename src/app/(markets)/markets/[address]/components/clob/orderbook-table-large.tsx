@@ -25,7 +25,6 @@ export default function OrderbookTableLarge({
   orderbookSide,
   setOrderbookSide,
   spread,
-  // calculateTotalContractsPrice,
   lastPrice,
 }: OrderBookData) {
   const { market } = useTradingService()
@@ -124,7 +123,7 @@ export default function OrderbookTableLarge({
                   </HStack>
                   <HStack w='136px' h='full' justifyContent='flex-end' pr='8px'>
                     <Text {...paragraphRegular}>
-                      {NumberUtil.convertWithDenomination(
+                      {NumberUtil.toFixed(
                         formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6),
                         6
                       )}
@@ -167,9 +166,11 @@ export default function OrderbookTableLarge({
           py='8px'
         >
           <Box flex={1} pl='8px'>
-            <Text {...paragraphRegular} color={orderbookSide ? 'red.500' : 'green.500'}>
-              {orderbookSide ? 'NO' : 'YES'} {lastPrice}¢
-            </Text>
+            {lastPrice && (
+              <Text {...paragraphRegular} color={orderbookSide ? 'red.500' : 'green.500'}>
+                {orderbookSide ? 'NO' : 'YES'} {lastPrice}¢
+              </Text>
+            )}
           </Box>
           <Box flex={1}>
             <Text {...paragraphRegular} color='grey.500'>
@@ -200,7 +201,7 @@ export default function OrderbookTableLarge({
                   </HStack>
                   <HStack w='136px' h='full' justifyContent='flex-end' pr='8px'>
                     <Text {...paragraphRegular}>
-                      {NumberUtil.convertWithDenomination(
+                      {NumberUtil.toFixed(
                         formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6),
                         6
                       )}

@@ -58,7 +58,7 @@ const History = () => {
     []
   )
   //@ts-ignore
-  const historyFlat = historyData?.pages.flatMap((page) => page.data.data)
+  const historyFlat = historyData?.pages.flatMap((page) => page.data?.data)
   if (isHistoryLoading) {
     return (
       <>

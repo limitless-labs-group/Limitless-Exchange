@@ -1,9 +1,8 @@
 import { HStack, Text, VStack, useTheme, useToast } from '@chakra-ui/react'
 import { memo, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { useAccount } from 'wagmi'
 import { useTimeAgo } from '@/hooks/use-time-ago'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { useAccount } from '@/services'
 import { useLikeComment, useUnlikeComment } from '@/services/CommentService'
 import { captionMedium, captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { CommentType } from '@/types'
@@ -19,8 +18,7 @@ export type CommentProps = {
 export default function Comment({ comment, isReply }: CommentProps) {
   const time = useTimeAgo(comment.createdAt)
   const name = comment.author.displayName ?? comment.author?.username
-  const account = useWalletAddress()
-  const { isConnected } = useAccount()
+  const { account, isLoggedIn } = useAccount()
   const [messageBlocked, setMessageBlocked] = useState(false)
   const { mutateAsync: like, isPending: isLikeLoading } = useLikeComment(Number(comment.id))
   const { mutateAsync: unlike, isPending: isUnlikeLoading } = useUnlikeComment(Number(comment.id))
@@ -33,7 +31,7 @@ export default function Comment({ comment, isReply }: CommentProps) {
   const [likes, setLikes] = useState(comment?.likes?.length ?? 0)
 
   const handleLike = async () => {
-    if (!isConnected) {
+    if (!isLoggedIn) {
       const id = toast({
         render: () => <Toast title={'Login to like a post'} id={id} />,
         position: 'top-right',
@@ -73,7 +71,7 @@ export default function Comment({ comment, isReply }: CommentProps) {
             {time}
           </Text>
         </HStack>
-        {isConnected && (
+        {isLoggedIn && (
           <UserContextMenu
             username={comment.author?.displayName}
             userAccount={comment.author?.account}

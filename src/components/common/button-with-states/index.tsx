@@ -6,6 +6,7 @@ import Loader from '@/components/common/loader'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 
+// @ts-ignore
 const MotionBox = motion(Box)
 
 export type ButtonWithStatesProps = ButtonProps & {

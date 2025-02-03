@@ -44,7 +44,7 @@ export default function MarketsSection({
                 if (cyclePosition < 6) {
                   return (
                     <MarketCardMobile
-                      key={market.address}
+                      key={market.slug || market.address}
                       market={market}
                       analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
                       markets={markets}
@@ -55,7 +55,7 @@ export default function MarketsSection({
                 if (cyclePosition >= 6 && cyclePosition < 10) {
                   return (
                     <MarketCardMobile
-                      key={market.address}
+                      key={market.slug || market.address}
                       market={market}
                       variant='speedometer'
                       analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
@@ -76,7 +76,7 @@ export default function MarketsSection({
                 // First 2 cards - straight column
                 if (cyclePosition < 2) {
                   return (
-                    <Box key={market.address} w='full'>
+                    <Box key={market.slug || market.address} w='full'>
                       <MarketCard
                         market={market}
                         analyticParams={{ bannerPosition: position, bannerPaginationPage: 1 }}
@@ -91,10 +91,15 @@ export default function MarketsSection({
                   if (isGridStart) {
                     const gridCards = markets.slice(index, index + 4)
                     return (
-                      <Flex key={`grid-${market.address}`} flexWrap='wrap' gap={4} w='full'>
+                      <Flex
+                        key={`grid-${market.slug || market.address}`}
+                        flexWrap='wrap'
+                        gap={4}
+                        w='full'
+                      >
                         {gridCards.map((gridMarket, gridIndex) => (
                           <Box
-                            key={gridMarket.address}
+                            key={gridMarket.slug || gridMarket.address}
                             flex='1 1 calc(50% - 8px)'
                             minW='calc(50% - 8px)'
                           >
@@ -117,7 +122,7 @@ export default function MarketsSection({
                 // Next 2 cards - straight column
                 if (cyclePosition >= 6 && cyclePosition < 8) {
                   return (
-                    <Box key={market.address} w='full'>
+                    <Box key={market.slug || market.address} w='full'>
                       <MarketCard
                         market={market}
                         analyticParams={{ bannerPosition: position, bannerPaginationPage: 1 }}
@@ -135,7 +140,7 @@ export default function MarketsSection({
                     if (speedometerCards.length === 1) {
                       // Single market - show as row
                       return (
-                        <Box key={speedometerCards[0].address} w='full'>
+                        <Box key={speedometerCards[0].slug || speedometerCards[0].address} w='full'>
                           <MarketCard
                             variant='row'
                             market={speedometerCards[0]}
@@ -152,14 +157,14 @@ export default function MarketsSection({
                       // Two markets - show as 1x2 speedometer grid
                       return (
                         <Flex
-                          key={`speedometer-${market.address}`}
+                          key={`speedometer-${market.slug || market.address}`}
                           flexWrap='wrap'
                           gap={4}
                           w='full'
                         >
                           {speedometerCards.map((speedometerMarket, gridIndex) => (
                             <Box
-                              key={speedometerMarket.address}
+                              key={speedometerMarket.slug || speedometerMarket.address}
                               flex='1 1 calc(50% - 8px)'
                               minW='calc(50% - 8px)'
                             >
@@ -180,11 +185,15 @@ export default function MarketsSection({
                     if (speedometerCards.length === 3) {
                       // Three markets - show as 1x2 speedometer grid + 1 row
                       return (
-                        <VStack gap={4} w='full' key={`speedometer-group-${market.address}`}>
+                        <VStack
+                          gap={4}
+                          w='full'
+                          key={`speedometer-group-${market.slug || market.address}`}
+                        >
                           <Flex flexWrap='wrap' gap={4} w='full'>
                             {speedometerCards.slice(0, 2).map((speedometerMarket, gridIndex) => (
                               <Box
-                                key={speedometerMarket.address}
+                                key={speedometerMarket.slug || speedometerMarket.address}
                                 flex='1 1 calc(50% - 8px)'
                                 minW='calc(50% - 8px)'
                               >
@@ -215,10 +224,15 @@ export default function MarketsSection({
 
                     // Four markets - show as 2x2 speedometer grid
                     return (
-                      <Flex key={`speedometer-${market.address}`} flexWrap='wrap' gap={4} w='full'>
+                      <Flex
+                        key={`speedometer-${market.slug || market.address}`}
+                        flexWrap='wrap'
+                        gap={4}
+                        w='full'
+                      >
                         {speedometerCards.map((speedometerMarket, gridIndex) => (
                           <Box
-                            key={speedometerMarket.address}
+                            key={speedometerMarket.slug || speedometerMarket.address}
                             flex='1 1 calc(50% - 8px)'
                             minW='calc(50% - 8px)'
                           >

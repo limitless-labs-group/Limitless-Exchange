@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Address, getContract } from 'viem'
 import { conditionalTokensABI } from '@/contracts'
-import { publicClient } from '@/providers'
+import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services'
 
 export default function useClobMarketShares(slug?: string, tokens?: { yes: string; no: string }) {

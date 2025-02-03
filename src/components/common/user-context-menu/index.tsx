@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import usePageName from '@/hooks/use-page-name'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
 import BlockUserIcon from '@/resources/icons/block-user.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import OkIcon from '@/resources/icons/ok-icon.svg'
@@ -30,7 +29,7 @@ export const UserContextMenu = ({
 
   const { trackClicked } = useAmplitude()
 
-  const wallet = useWalletAddress()
+  const { account: wallet } = useAccount()
 
   const { onBlockUser } = useAccount()
 

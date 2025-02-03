@@ -47,6 +47,7 @@ interface ActionButtonProps {
   analyticParams?: { quickBetSource: string; source: string }
 }
 
+// @ts-ignore
 const MotionBox = motion(Box)
 
 export type ButtonStatus =

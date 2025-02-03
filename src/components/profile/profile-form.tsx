@@ -19,7 +19,6 @@ import ButtonWithStates from '@/components/common/button-with-states'
 import { Toast } from '@/components/common/toast'
 import { ProfileFields, profileValidationSchema } from '@/components'
 import { useToast } from '@/hooks'
-import ImageIcon from '@/resources/icons/add-image-icon.svg'
 import EmailIcon from '@/resources/icons/email-icon.svg'
 import NotebookIcon from '@/resources/icons/notebook-icon.svg'
 import PenIcon from '@/resources/icons/pen-icon.svg'
@@ -256,7 +255,7 @@ export function ProfileForm() {
               <InputLeftElement
                 h='16px'
                 w='unset'
-                top={isMobile ? '32px' : '24px'}
+                top={isMobile ? '28px' : '24px'}
                 left={isMobile ? '12px' : '8px'}
                 color='grey.500'
               >
@@ -290,7 +289,7 @@ export function ProfileForm() {
               <InputLeftElement
                 h='16px'
                 w='unset'
-                top={isMobile ? '35px' : '25px'}
+                top={isMobile ? '29px' : '24px'}
                 left={isMobile ? '12px' : '8px'}
                 color='grey.500'
               >

@@ -31,6 +31,7 @@ import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/t
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
+import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
 import { LUMY_TOKENS } from '@/app/draft/components'
 import CommentTab from './comment-tab'
 import { MarketProgressBar } from './market-cards/market-progress-bar'
@@ -41,6 +42,7 @@ import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import ExpandIcon from '@/resources/icons/expand-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
+import OrderbookIcon from '@/resources/icons/orderbook.svg'
 import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
@@ -95,29 +97,46 @@ export default function MarketPage() {
   const isLivePriceSupportedMarket =
     isLumy && LUMY_TOKENS.some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
-  const chartTabs = [
-    {
+  const chartTabs = useMemo(() => {
+    const tabs = []
+    if (market?.tradeType === 'clob') {
+      tabs.push({
+        title: 'Orderbook',
+        icon: <OrderbookIcon width='16px' height='16px' />,
+        analyticEvent: ClickEvent.OrderBookOpened,
+      })
+    }
+    tabs.push({
       title: 'Predictions',
       icon: <PredictionsIcon width={16} height={16} />,
       analyticEvent: ClickEvent.PredictionChartOpened,
-    },
-    {
-      title: 'Assets price',
-      icon: <CandlestickIcon width={16} height={16} />,
-      analyticEvent: ClickEvent.AssetPriceChartOpened,
-    },
-  ]
+    })
+    if (isLivePriceSupportedMarket) {
+      tabs.push({
+        title: 'Assets price',
+        icon: <CandlestickIcon width={16} height={16} />,
+        analyticEvent: ClickEvent.AssetPriceChartOpened,
+      })
+    }
+    return tabs
+  }, [isLivePriceSupportedMarket, market?.tradeType])
 
-  const chartsTabPanels = useMemo(
-    () => [
-      <MarketPriceChart key={uuidv4()} />,
-      <MarketAssetPriceChart
-        key={uuidv4()}
-        id={LUMY_TOKENS.filter((token) => market?.title.includes(token))[0]}
-      />,
-    ],
-    [market?.title]
-  )
+  const chartsTabPanels = useMemo(() => {
+    const tabPanels = []
+    if (market?.tradeType === 'clob') {
+      tabPanels.push(<Orderbook key={uuidv4()} variant='small' />)
+    }
+    tabPanels.push(<MarketPriceChart key={uuidv4()} />)
+    if (isLivePriceSupportedMarket) {
+      tabPanels.push(
+        <MarketAssetPriceChart
+          key={uuidv4()}
+          id={LUMY_TOKENS.filter((token) => market?.title.includes(token))[0]}
+        />
+      )
+    }
+    return tabPanels
+  }, [isLivePriceSupportedMarket, market?.title, market?.tradeType])
 
   const tradingWidget = useMemo(() => {
     if (market?.expired) {
@@ -326,33 +345,24 @@ export default function MarketPage() {
         <Divider my={isMobile ? '24px' : '16px'} />
       </Box>
       {tradingWidget}
-      {isLivePriceSupportedMarket ? (
-        <Tabs position='relative' variant='common' mt='20px'>
-          <TabList>
-            {chartTabs.map((tab) => (
-              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.analyticEvent)}>
-                <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
-                  {tab.icon}
-                  <>{tab.title}</>
-                </HStack>
-              </Tab>
-            ))}
-          </TabList>
-          <TabIndicator
-            mt='-2px'
-            height='2px'
-            bg='grey.800'
-            transitionDuration='200ms !important'
-          />
-          <TabPanels>
-            {chartsTabPanels.map((panel, index) => (
-              <TabPanel key={index}>{panel}</TabPanel>
-            ))}
-          </TabPanels>
-        </Tabs>
-      ) : (
-        <MarketPriceChart />
-      )}
+      <Tabs position='relative' variant='common' my='20px'>
+        <TabList>
+          {chartTabs.map((tab) => (
+            <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.analyticEvent)}>
+              <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+                {tab.icon}
+                <>{tab.title}</>
+              </HStack>
+            </Tab>
+          ))}
+        </TabList>
+        <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
+        <TabPanels>
+          {chartsTabPanels.map((panel, index) => (
+            <TabPanel key={index}>{panel}</TabPanel>
+          ))}
+        </TabPanels>
+      </Tabs>
 
       {market?.tradeType === 'clob' ? (
         <ClobPositions marketType='sidebar' />

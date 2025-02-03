@@ -15,6 +15,7 @@ import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/font
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { cutUsername } from '@/utils/string'
 
+// @ts-ignore
 const MotionBox = motion(Box)
 
 export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps) => {

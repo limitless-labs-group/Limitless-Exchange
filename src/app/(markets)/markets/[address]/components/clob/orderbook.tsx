@@ -7,7 +7,11 @@ import OrderBookTableSmall from '@/app/(markets)/markets/[address]/components/cl
 import { Order, useOrderBook } from '@/hooks/use-order-book'
 import { useTradingService } from '@/services'
 
-export default function Orderbook() {
+interface OrderBookProps {
+  variant?: 'small' | 'large'
+}
+
+export default function Orderbook({ variant }: OrderBookProps) {
   const [orderbookSide, setOrderbookSide] = useState(0)
   const { market } = useTradingService()
   const { data: orderbook } = useOrderBook(market?.slug)
@@ -110,16 +114,17 @@ export default function Orderbook() {
     if (!getOrderBookData().asks.length || !getOrderBookData().bids.length) {
       return '0'
     }
-    return new BigNumber(
-      Math.abs(
-        new BigNumber(getOrderBookData().asks.reverse()[0].price)
-          .minus(new BigNumber(getOrderBookData().bids[0].price))
-          .toNumber()
-      ) * 100
-    ).toFixed(0)
+    return new BigNumber(getOrderBookData().asks.reverse()[0].price)
+      .minus(new BigNumber(getOrderBookData().bids[0].price))
+      .multipliedBy(100)
+      .abs()
+      .toFixed()
   }, [getOrderBookData])
 
   const lastPrice = useMemo(() => {
+    if (!orderbook?.lastTradePrice) {
+      return ''
+    }
     if (orderbook && market) {
       const tradedToken = orderbook.tokenId === market.tokens.yes ? 'yes' : 'no'
       if (!orderbookSide) {
@@ -134,7 +139,7 @@ export default function Orderbook() {
     return ''
   }, [orderbook, market, orderbookSide])
 
-  return isMobile ? (
+  return isMobile || variant === 'small' ? (
     <OrderBookTableSmall
       setOrderbookSide={setOrderbookSide}
       orderbookSide={orderbookSide}
