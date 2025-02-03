@@ -10,7 +10,6 @@ import {
   MenuList,
   Slide,
   Spacer,
-  StackProps,
   Text,
   useColorMode,
   useDisclosure,

@@ -489,7 +489,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
             w={isMobile ? 'full' : 'unset'}
             alignItems='flex-start'
             mb={isMobile ? '84px' : 0}
-            ml='188px'
+            ml={!isMobile ? '188px' : 'unset'}
           >
             <Box maxW='664px' w={{ base: '400px', xl: '600px', xxl: '664px' }}>
               <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>
@@ -644,7 +644,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
             {!isMobile && marketActionForm}
           </HStack>
           {isMobile && (
-            <Box position='fixed' bottom='76px' w='calc(100% - 32px)' left='16px'>
+            <Box position='fixed' bottom='86px' w='calc(100% - 32px)' left='16px'>
               {mobileTradeButton}
             </Box>
           )}
