@@ -114,13 +114,11 @@ export default function Orderbook({ variant }: OrderBookProps) {
     if (!getOrderBookData().asks.length || !getOrderBookData().bids.length) {
       return '0'
     }
-    return new BigNumber(
-      Math.abs(
-        new BigNumber(getOrderBookData().asks.reverse()[0].price)
-          .minus(new BigNumber(getOrderBookData().bids[0].price))
-          .toNumber()
-      ) * 100
-    ).toFixed(0)
+    return new BigNumber(getOrderBookData().asks.reverse()[0].price)
+      .minus(new BigNumber(getOrderBookData().bids[0].price))
+      .multipliedBy(100)
+      .abs()
+      .toFixed()
   }, [getOrderBookData])
 
   const lastPrice = useMemo(() => {

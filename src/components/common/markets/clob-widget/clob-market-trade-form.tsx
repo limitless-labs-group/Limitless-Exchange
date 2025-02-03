@@ -151,7 +151,7 @@ export default function ClobMarketTradeForm() {
     if (strategy === 'Buy') {
       const targetSide = !outcome
         ? orderBook.asks
-        : orderBook.asks.map((a) => ({ ...a, price: 1 - a.price }))
+        : orderBook.asks.map((a) => ({ ...a, price: new BigNumber(1).minus(a.price).toNumber() }))
 
       targetSide.sort((a, b) => a.price - b.price)
 
@@ -160,6 +160,7 @@ export default function ClobMarketTradeForm() {
       let remainingAmount = +price
 
       for (const entry of targetSide) {
+        debugger
         const contractsAvailable = +formatUnits(
           BigInt(entry.size.toFixed()),
           market.collateralToken.decimals
@@ -198,7 +199,7 @@ export default function ClobMarketTradeForm() {
     if (strategy === 'Sell') {
       const targetSide = !outcome
         ? orderBook.bids
-        : orderBook.asks.map((b) => ({ ...b, price: 1 - b.price }))
+        : orderBook.asks.map((b) => ({ ...b, price: new BigNumber(1).minus(b.price).toNumber() }))
 
       targetSide.sort((a, b) => b.price - a.price)
 
