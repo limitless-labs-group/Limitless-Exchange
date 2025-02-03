@@ -55,6 +55,9 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
       conditionId: market?.conditionId as string,
       contractAddress: market?.collateralToken.address as Address,
     })
+    await queryClient.refetchQueries({
+      queryKey: ['market-shares', market?.slug],
+    })
   }
 
   const checkMergeAllowance = async () => {

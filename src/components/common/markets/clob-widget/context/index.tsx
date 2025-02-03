@@ -75,7 +75,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const [price, setPrice] = useState('')
   const [allowance, setAllowance] = useState<bigint>(0n)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
-  const { account } = useAccount()
+  const { web3Wallet } = useAccount()
   const toast = useToast()
   const { market, strategy } = useTradingService()
   const { balanceOfSmartWallet } = useBalanceQuery()
@@ -282,10 +282,10 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
   })
 
   useEffect(() => {
-    if (account && market) {
+    if (web3Wallet && market) {
       checkMarketAllowance()
     }
-  }, [market, account])
+  }, [market, web3Wallet])
 
   return (
     <ClobWidgetContext.Provider

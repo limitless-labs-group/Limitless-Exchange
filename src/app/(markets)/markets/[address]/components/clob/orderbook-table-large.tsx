@@ -124,7 +124,7 @@ export default function OrderbookTableLarge({
                   </HStack>
                   <HStack w='136px' h='full' justifyContent='flex-end' pr='8px'>
                     <Text {...paragraphRegular}>
-                      {NumberUtil.convertWithDenomination(
+                      {NumberUtil.toFixed(
                         formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6),
                         6
                       )}
@@ -202,7 +202,7 @@ export default function OrderbookTableLarge({
                   </HStack>
                   <HStack w='136px' h='full' justifyContent='flex-end' pr='8px'>
                     <Text {...paragraphRegular}>
-                      {NumberUtil.convertWithDenomination(
+                      {NumberUtil.toFixed(
                         formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6),
                         6
                       )}

@@ -259,6 +259,9 @@ export default function ClobMarketTradeForm() {
     await queryClient.refetchQueries({
       queryKey: ['order-book', market?.slug],
     })
+    await queryClient.refetchQueries({
+      queryKey: ['market-shares', market?.slug],
+    })
     placeMarketOrderMutation.reset()
   }
 
