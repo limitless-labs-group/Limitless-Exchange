@@ -74,7 +74,7 @@ export const defaultFormData = {
   liquidity: tokenLimits[defaultTokenSymbol].default ?? tokenLimits[defaultTokenSymbol].min,
   probability: defaultProbability,
   marketFee: defaultMarketFee,
-  tag: [],
+  tag: [{ id: '149', label: 'Daily', value: 'Daily' }],
   creatorId: defaultCreatorId,
   categoryId: defaultCategoryId,
   ogLogo: undefined,
