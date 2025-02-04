@@ -311,6 +311,17 @@ export default function ClobMarketTradeForm() {
     return
   }
 
+  const maxOrderAmountLessThanInput = useMemo(() => {
+    if (strategy === 'Buy') {
+      return new BigNumber(price).isGreaterThan(
+        new BigNumber(orderCalculations.contracts).multipliedBy(
+          new BigNumber(orderCalculations.avgPrice)
+        )
+      )
+    }
+    return false
+  }, [orderCalculations.avgPrice, orderCalculations.contracts, price, strategy])
+
   return (
     <>
       <Flex justifyContent='space-between' alignItems='center'>
@@ -409,7 +420,13 @@ export default function ClobMarketTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeMarketOrderMutation.status}
-        isDisabled={!price || isBalanceNotEnough || !account || noOrdersOnDesiredToken}
+        isDisabled={
+          !price ||
+          isBalanceNotEnough ||
+          !account ||
+          noOrdersOnDesiredToken ||
+          maxOrderAmountLessThanInput
+        }
         onClick={handleSubmitButtonClicked}
         successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(
           orderCalculations.contracts,
@@ -422,6 +439,11 @@ export default function ClobMarketTradeForm() {
       {!price && (
         <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
           Enter amount to {strategy === 'Buy' ? 'buy' : 'sell'}
+        </Text>
+      )}
+      {maxOrderAmountLessThanInput && (
+        <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
+          Amount exceeds order book size
         </Text>
       )}
     </>
