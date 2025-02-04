@@ -38,7 +38,7 @@ export default function ClobMarketTradeForm() {
   const { market, strategy, clobOutcome: outcome } = useTradingService()
   const { data: orderBook } = useOrderBook(market?.slug)
   const queryClient = useQueryClient()
-  const { account } = useAccount()
+  const { web3Wallet } = useAccount()
   const {
     setPrice,
     price,
@@ -434,9 +434,10 @@ export default function ClobMarketTradeForm() {
         isDisabled={
           !price ||
           isBalanceNotEnough ||
-          !account ||
+          !web3Wallet ||
           noOrdersOnDesiredToken ||
-          maxOrderAmountLessThanInput
+          maxOrderAmountLessThanInput ||
+          market?.expired
         }
         onClick={handleSubmitButtonClicked}
         successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(

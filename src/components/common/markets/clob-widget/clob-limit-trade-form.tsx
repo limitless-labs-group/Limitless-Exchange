@@ -39,7 +39,7 @@ export default function ClobLimitTradeForm() {
     sharesAvailable,
   } = useClobWidget()
   const { trackClicked } = useAmplitude()
-  const { account } = useAccount()
+  const { web3Wallet } = useAccount()
   const { market, strategy, clobOutcome: outcome } = useTradingService()
   const queryClient = useQueryClient()
   const { client } = useWeb3Service()
@@ -304,7 +304,7 @@ export default function ClobLimitTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
-        isDisabled={!price || !sharesAmount || isBalanceNotEnough || !account}
+        isDisabled={!price || !sharesAmount || isBalanceNotEnough || !web3Wallet || market?.expired}
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}
