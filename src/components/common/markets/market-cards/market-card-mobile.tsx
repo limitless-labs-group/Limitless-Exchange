@@ -24,7 +24,7 @@ export default function MarketCardMobile({
 
   return (
     <MobileDrawer
-      id={market.address as Address}
+      id={market.slug}
       trigger={
         <MarketCardTrigger
           variant={variant}
