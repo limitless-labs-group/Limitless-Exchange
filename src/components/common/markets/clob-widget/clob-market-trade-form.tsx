@@ -312,15 +312,23 @@ export default function ClobMarketTradeForm() {
   }
 
   const maxOrderAmountLessThanInput = useMemo(() => {
-    if (strategy === 'Buy') {
-      return new BigNumber(price).isGreaterThan(
-        new BigNumber(orderCalculations.contracts).multipliedBy(
-          new BigNumber(orderCalculations.avgPrice)
-        )
-      )
+    if (strategy === 'Buy' && orderBook) {
+      const targetSide = !outcome
+        ? orderBook.asks
+        : orderBook.bids.map((a) => ({ ...a, price: new BigNumber(1).minus(a.price).toNumber() }))
+      const totalAmount = targetSide.reduce((sum, acc) => {
+        return new BigNumber(sum)
+          .plus(
+            new BigNumber(acc.price).multipliedBy(
+              new BigNumber(formatUnits(BigInt(acc.size), market?.collateralToken.decimals || 6))
+            )
+          )
+          .toNumber()
+      }, 0)
+      return new BigNumber(price).isGreaterThan(new BigNumber(totalAmount))
     }
     return false
-  }, [orderCalculations.avgPrice, orderCalculations.contracts, price, strategy])
+  }, [price, strategy, orderBook, outcome, market])
 
   return (
     <>
