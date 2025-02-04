@@ -315,7 +315,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const getWallet = async (): Promise<WalletClient | undefined> => {
     const wallet = wallets.find(
-      (wallet) => wallet.walletClientType === user?.wallet?.walletClientType
+      (wallet) =>
+        user?.wallet?.walletClientType?.includes(wallet.walletClientType) ||
+        user?.wallet?.walletClientType === wallet.walletClientType
     )
     if (wallet) {
       const provider = await wallet.getEthereumProvider()
