@@ -184,9 +184,6 @@ export default function ClobLimitTradeForm() {
       queryKey: ['user-orders', market?.slug],
     })
     await queryClient.refetchQueries({
-      queryKey: ['market-shares', market?.slug],
-    })
-    await queryClient.refetchQueries({
       queryKey: ['order-book', market?.slug],
     })
     placeLimitOrderMutation.reset()
