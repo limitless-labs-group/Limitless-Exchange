@@ -139,13 +139,6 @@ export default function MarketPage() {
     return tabPanels
   }, [isLivePriceSupportedMarket, market?.title, market?.tradeType])
 
-  const tradingWidget = useMemo(() => {
-    if (market?.expired) {
-      return <MarketClosedWidget handleCloseMarketPageClicked={handleCloseMarketPageClicked} />
-    }
-    return market?.tradeType === 'clob' ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
-  }, [market])
-
   const tabs = [
     {
       title: 'Resolution',
@@ -207,6 +200,13 @@ export default function MarketPage() {
   }, [])
 
   const trackedMarketsRef = useRef(new Set<string>())
+
+  const tradingWidget = useMemo(() => {
+    if (market?.expired) {
+      return <MarketClosedWidget handleCloseMarketPageClicked={handleCloseMarketPageClicked} />
+    }
+    return market?.tradeType === 'clob' ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
+  }, [market])
 
   useEffect(() => {
     //avoid triggering amplitude call twice
