@@ -45,7 +45,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   const { trackClicked } = useAmplitude()
   const { balance } = useClobWidget()
   const { balanceLoading } = useBalanceService()
-  const { account } = useAccount()
+  const { web3Wallet } = useAccount()
   const queryClient = useQueryClient()
 
   const usdcBalance =
@@ -246,10 +246,10 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   }, [balanceLoading, balance])
 
   useEffect(() => {
-    if (market && account) {
+    if (market && web3Wallet) {
       checkSplitAllowance()
     }
-  }, [market, account])
+  }, [market, web3Wallet])
 
   const modalContent = (
     <Box>
