@@ -164,7 +164,10 @@ export default function ClobMarketTradeForm() {
           market.collateralToken.decimals
         )
         const contractsToBuy = Math.min(
-          new BigNumber(remainingAmount).dividedBy(new BigNumber(entry.price)).toNumber(),
+          new BigNumber(remainingAmount)
+            .dividedBy(new BigNumber(entry.price))
+            .decimalPlaces(6)
+            .toNumber(),
           contractsAvailable
         )
 
