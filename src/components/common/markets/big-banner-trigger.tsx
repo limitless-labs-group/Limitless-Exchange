@@ -181,17 +181,19 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
                 </AnimatePresence>
               </Box>
             )}
-            <HStack gap='4px'>
-              <Text {...paragraphRegular} color='transparent.700'>
-                Value{' '}
-                {NumberUtil.convertWithDenomination(
-                  Number(market.openInterestFormatted || 0) +
-                    Number(market.liquidityFormatted || 0),
-                  6
-                )}{' '}
-                {market.collateralToken.symbol}
-              </Text>
-            </HStack>
+            {market.tradeType === 'amm' && (
+              <HStack gap='4px'>
+                <Text {...paragraphRegular} color='transparent.700'>
+                  Value{' '}
+                  {NumberUtil.convertWithDenomination(
+                    Number(market.openInterestFormatted || 0) +
+                      Number(market.liquidityFormatted || 0),
+                    6
+                  )}{' '}
+                  {market.collateralToken.symbol}
+                </Text>
+              </HStack>
+            )}
           </HStack>
         )}
       </Box>
