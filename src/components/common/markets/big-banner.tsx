@@ -18,7 +18,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
 
   return isMobile ? (
     <MobileDrawer
-      id={market.address as Address}
+      id={market.slug}
       trigger={<BigBannerTrigger market={market} markets={markets} />}
       variant='black'
       onClose={onCloseMarketPage}
