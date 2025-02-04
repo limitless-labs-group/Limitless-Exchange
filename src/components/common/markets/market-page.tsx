@@ -250,8 +250,6 @@ export default function MarketPage() {
     setActiveChartTabIndex(0)
   }, [market])
 
-  console.log(activeChartTabIndex)
-
   return (
     <Box
       bg='background.90'

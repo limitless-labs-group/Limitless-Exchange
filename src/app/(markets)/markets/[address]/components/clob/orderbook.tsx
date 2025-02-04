@@ -41,9 +41,9 @@ export default function Orderbook({ variant }: OrderBookProps) {
 
         return {
           ...order,
-          cumulativePercent: cumulativePercent.toFixed(2),
-          percent: cumulativePercent.toFixed(2),
-          cumulativePrice: cumulativeSum.toFixed(2),
+          cumulativePercent: cumulativePercent.toFixed(6),
+          percent: cumulativePercent.toFixed(6),
+          cumulativePrice: cumulativeSum.toFixed(6),
         }
       })
       .reverse()
@@ -66,8 +66,8 @@ export default function Orderbook({ variant }: OrderBookProps) {
       return {
         ...item,
         percent: percent.toFixed(2),
-        cumulativePercent: cumulativePercent.toFixed(2),
-        cumulativePrice: cumulativePrice.toFixed(2),
+        cumulativePercent: cumulativePercent.toFixed(6),
+        cumulativePrice: cumulativePrice.toFixed(6),
       }
     })
   }
