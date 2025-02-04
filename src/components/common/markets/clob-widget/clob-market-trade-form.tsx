@@ -35,14 +35,13 @@ import { NumberUtil } from '@/utils'
 export default function ClobMarketTradeForm() {
   const { balanceLoading } = useBalanceService()
   const { trackClicked } = useAmplitude()
-  const { market, strategy } = useTradingService()
+  const { market, strategy, clobOutcome: outcome } = useTradingService()
   const { data: orderBook } = useOrderBook(market?.slug)
   const queryClient = useQueryClient()
   const { account } = useAccount()
   const {
     setPrice,
     price,
-    outcome,
     balance,
     placeMarketOrderMutation,
     allowance,

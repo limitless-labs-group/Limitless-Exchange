@@ -26,7 +26,6 @@ export default function ClobLimitTradeForm() {
   const { balanceLoading } = useBalanceService()
   const {
     balance,
-    outcome,
     setPrice,
     price,
     sharesAmount,
@@ -41,7 +40,7 @@ export default function ClobLimitTradeForm() {
   } = useClobWidget()
   const { trackClicked } = useAmplitude()
   const { account } = useAccount()
-  const { market, strategy } = useTradingService()
+  const { market, strategy, clobOutcome: outcome } = useTradingService()
   const queryClient = useQueryClient()
   const { client } = useWeb3Service()
   const privyService = usePrivySendTransaction()

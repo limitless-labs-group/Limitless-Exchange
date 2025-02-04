@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import OrderbookTableLarge from '@/app/(markets)/markets/[address]/components/clob/orderbook-table-large'
@@ -12,7 +12,7 @@ interface OrderBookProps {
 }
 
 export default function Orderbook({ variant }: OrderBookProps) {
-  const [orderbookSide, setOrderbookSide] = useState(0)
+  const { clobOutcome: outcome } = useTradingService()
   const { market } = useTradingService()
   const { data: orderbook } = useOrderBook(market?.slug)
 
@@ -80,7 +80,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
       }
     }
 
-    const bids = orderbookSide
+    const bids = outcome
       ? orderbook.asks
           .map((ask) => {
             return {
@@ -91,7 +91,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
           .sort((a, b) => a.price - b.price)
       : orderbook.bids.sort((a, b) => a.price - b.price)
 
-    const asks = orderbookSide
+    const asks = outcome
       ? orderbook.bids
           .map((bid) => {
             return {
@@ -105,7 +105,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
       bids: calculatePercent(bids),
       asks: calculatePercentReverse(asks),
     }
-  }, [orderbook, orderbookSide])
+  }, [orderbook, outcome])
 
   const spread = useMemo(() => {
     if (!getOrderBookData()) {
@@ -127,7 +127,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
     }
     if (orderbook && market) {
       const tradedToken = orderbook.tokenId === market.tokens.yes ? 'yes' : 'no'
-      if (!orderbookSide) {
+      if (!outcome) {
         return tradedToken === 'yes'
           ? new BigNumber(orderbook.lastTradePrice).multipliedBy(100).toString()
           : new BigNumber(1).minus(orderbook.lastTradePrice).multipliedBy(100).toString()
@@ -137,23 +137,11 @@ export default function Orderbook({ variant }: OrderBookProps) {
         : new BigNumber(1).minus(orderbook.lastTradePrice).multipliedBy(100).toString()
     }
     return ''
-  }, [orderbook, market, orderbookSide])
+  }, [orderbook, market, outcome])
 
   return isMobile || variant === 'small' ? (
-    <OrderBookTableSmall
-      setOrderbookSide={setOrderbookSide}
-      orderbookSide={orderbookSide}
-      orderBookData={getOrderBookData()}
-      spread={spread}
-      lastPrice={lastPrice}
-    />
+    <OrderBookTableSmall orderBookData={getOrderBookData()} spread={spread} lastPrice={lastPrice} />
   ) : (
-    <OrderbookTableLarge
-      setOrderbookSide={setOrderbookSide}
-      orderbookSide={orderbookSide}
-      orderBookData={getOrderBookData()}
-      spread={spread}
-      lastPrice={lastPrice}
-    />
+    <OrderbookTableLarge orderBookData={getOrderBookData()} spread={spread} lastPrice={lastPrice} />
   )
 }
