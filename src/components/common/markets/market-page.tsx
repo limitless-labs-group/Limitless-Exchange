@@ -52,7 +52,7 @@ import { h2Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
 export default function MarketPage() {
-  const [, setActiveChartTabIndex] = useState(0)
+  const [activeChartTabIndex, setActiveChartTabIndex] = useState(0)
   const [activeActionsTabIndex, setActiveActionsTabIndex] = useState(0)
 
   const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
@@ -250,6 +250,8 @@ export default function MarketPage() {
     setActiveChartTabIndex(0)
   }, [market])
 
+  console.log(activeChartTabIndex)
+
   return (
     <Box
       bg='background.90'
@@ -356,6 +358,7 @@ export default function MarketPage() {
         variant='common'
         my='20px'
         onChange={(index) => setActiveChartTabIndex(index)}
+        index={activeChartTabIndex}
       >
         <TabList>
           {chartTabs.map((tab) => (
@@ -385,6 +388,7 @@ export default function MarketPage() {
         position='relative'
         variant='common'
         onChange={(index) => setActiveActionsTabIndex(index)}
+        index={activeActionsTabIndex}
       >
         <TabList>
           {tabs.map((tab) => (
