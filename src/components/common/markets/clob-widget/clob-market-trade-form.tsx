@@ -151,7 +151,7 @@ export default function ClobMarketTradeForm() {
     if (strategy === 'Buy') {
       const targetSide = !outcome
         ? orderBook.asks
-        : orderBook.asks.map((a) => ({ ...a, price: new BigNumber(1).minus(a.price).toNumber() }))
+        : orderBook.bids.map((a) => ({ ...a, price: new BigNumber(1).minus(a.price).toNumber() }))
 
       targetSide.sort((a, b) => a.price - b.price)
 
