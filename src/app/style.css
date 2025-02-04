@@ -20,6 +20,10 @@
   overflow: unset !important;
 }
 
+.infinite-scroll-component__outerdiv {
+  width: fit-content !important;
+}
+
 .read-only .ql-container.ql-snow {
   border: none !important;
 }
