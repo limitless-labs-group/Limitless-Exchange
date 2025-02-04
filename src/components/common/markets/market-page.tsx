@@ -52,7 +52,8 @@ import { h2Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
 export default function MarketPage() {
-  const [activeTabIndex, setActiveTabIndex] = useState(0)
+  const [, setActiveChartTabIndex] = useState(0)
+  const [activeActionsTabIndex, setActiveActionsTabIndex] = useState(0)
 
   const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
 
@@ -163,10 +164,10 @@ export default function MarketPage() {
   const tabPanels = useMemo(() => {
     return [
       <MarketPageOverviewTab key={uuidv4()} />,
-      <MarketActivityTab key={uuidv4()} isActive={activeTabIndex === 1} />,
+      <MarketActivityTab key={uuidv4()} isActive={activeActionsTabIndex === 1} />,
       <CommentTab key={uuidv4()} />,
     ]
-  }, [activeTabIndex])
+  }, [activeActionsTabIndex])
 
   const removeMarketQuery = () => {
     const params = new URLSearchParams(searchParams.toString())
@@ -243,6 +244,11 @@ export default function MarketPage() {
       document.body.style.overflow = '' // Clean up on unmount
     }
   }, [])
+
+  useEffect(() => {
+    setActiveActionsTabIndex(0)
+    setActiveChartTabIndex(0)
+  }, [market])
 
   return (
     <Box
@@ -345,7 +351,12 @@ export default function MarketPage() {
         <Divider my={isMobile ? '24px' : '16px'} />
       </Box>
       {tradingWidget}
-      <Tabs position='relative' variant='common' my='20px'>
+      <Tabs
+        position='relative'
+        variant='common'
+        my='20px'
+        onChange={(index) => setActiveChartTabIndex(index)}
+      >
         <TabList>
           {chartTabs.map((tab) => (
             <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.analyticEvent)}>
@@ -370,7 +381,11 @@ export default function MarketPage() {
         <MarketPositionsAmm />
       )}
 
-      <Tabs position='relative' variant='common' onChange={(index) => setActiveTabIndex(index)}>
+      <Tabs
+        position='relative'
+        variant='common'
+        onChange={(index) => setActiveActionsTabIndex(index)}
+      >
         <TabList>
           {tabs.map((tab) => (
             <Tab key={tab.title}>
