@@ -486,6 +486,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     setWeb3Wallet(null)
   }, [pathname])
 
+  useEffect(() => {
+    if (walletsReady) {
+      if (wallets.length === 0 && authenticated) {
+        disconnectFromPlatform()
+      }
+    }
+  }, [disconnectFromPlatform, wallets.length, walletsReady, authenticated])
+
   const contextProviderValue: IAccountContext = {
     isLoggedIn: authenticated || !!isLogged,
     account,
