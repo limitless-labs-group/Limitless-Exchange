@@ -436,8 +436,7 @@ export default function ClobMarketTradeForm() {
           isBalanceNotEnough ||
           !web3Wallet ||
           noOrdersOnDesiredToken ||
-          maxOrderAmountLessThanInput ||
-          market?.expired
+          maxOrderAmountLessThanInput
         }
         onClick={handleSubmitButtonClicked}
         successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(

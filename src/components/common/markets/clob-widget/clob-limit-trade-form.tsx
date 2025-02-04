@@ -304,7 +304,7 @@ export default function ClobLimitTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
-        isDisabled={!price || !sharesAmount || isBalanceNotEnough || !web3Wallet || market?.expired}
+        isDisabled={!price || !sharesAmount || isBalanceNotEnough || !web3Wallet}
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}
