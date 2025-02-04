@@ -65,7 +65,7 @@ const flattenPriceData = (data: YesBuyChartData[]): number[][] => {
 
 export function useMarketPriceHistory(market: Market | null) {
   return useQuery({
-    queryKey: ['prices', market?.address],
+    queryKey: ['prices', market?.slug],
     queryFn: async () => {
       if (market?.tradeType === 'clob') {
         const response: AxiosResponse<{ price: number; timestamp: number }[]> =
