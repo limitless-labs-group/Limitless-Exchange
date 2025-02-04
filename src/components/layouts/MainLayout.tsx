@@ -71,7 +71,7 @@ export const MainLayout = ({
         </HStack>
       </Box>
       {isMobile && <MobileNavigation />}
-      {marketPageOpened && pathname !== `/markets/${market?.slug}` && <MarketPage />}
+      {marketPageOpened && pathname !== `/markets/${market?.address}` && <MarketPage />}
     </Box>
   )
 }
