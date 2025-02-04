@@ -178,6 +178,9 @@ export default function ClobLimitTradeForm() {
 
   const onResetMutation = async () => {
     await queryClient.refetchQueries({
+      queryKey: ['market-shares', market?.slug],
+    })
+    await queryClient.refetchQueries({
       queryKey: ['user-orders', market?.slug],
     })
     await queryClient.refetchQueries({
@@ -185,9 +188,6 @@ export default function ClobLimitTradeForm() {
     })
     await queryClient.refetchQueries({
       queryKey: ['order-book', market?.slug],
-    })
-    await queryClient.refetchQueries({
-      queryKey: ['market-shares', market?.slug],
     })
     placeLimitOrderMutation.reset()
   }
