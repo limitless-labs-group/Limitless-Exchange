@@ -20,14 +20,8 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
-export default function OrderbookTableLarge({
-  orderBookData,
-  orderbookSide,
-  setOrderbookSide,
-  spread,
-  lastPrice,
-}: OrderBookData) {
-  const { market } = useTradingService()
+export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }: OrderBookData) {
+  const { market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
   const { trackChanged } = useAmplitude()
 
@@ -41,20 +35,20 @@ export default function OrderbookTableLarge({
             flex='1'
             py='2px'
             borderRadius='6px'
-            bg={!orderbookSide ? 'grey.50' : 'unset'}
+            bg={!outcome ? 'grey.50' : 'unset'}
             color='grey.800'
             _hover={{
-              backgroundColor: !orderbookSide ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
+              backgroundColor: !outcome ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
             }}
             onClick={() => {
               trackChanged<OrderBookSideChangedMetadata>(ChangeEvent.OrderBookSideChanged, {
                 type: 'Yes selected',
                 marketAddress: market?.slug as string,
               })
-              setOrderbookSide(0)
+              setOutcome(0)
             }}
           >
-            <Text {...controlsMedium} color={!orderbookSide ? 'font' : 'fontLight'}>
+            <Text {...controlsMedium} color={!outcome ? 'font' : 'fontLight'}>
               YES
             </Text>
           </Button>
@@ -63,10 +57,10 @@ export default function OrderbookTableLarge({
             flex='1'
             borderRadius='6px'
             py='2px'
-            bg={orderbookSide ? 'grey.50' : 'unset'}
+            bg={outcome ? 'grey.50' : 'unset'}
             color='grey.800'
             _hover={{
-              backgroundColor: orderbookSide ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
+              backgroundColor: outcome ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
             }}
             _disabled={{
               opacity: '50%',
@@ -77,10 +71,10 @@ export default function OrderbookTableLarge({
                 type: 'No selected',
                 marketAddress: market?.slug as string,
               })
-              setOrderbookSide(1)
+              setOutcome(1)
             }}
           >
-            <Text {...controlsMedium} color={orderbookSide ? 'font' : 'fontLight'}>
+            <Text {...controlsMedium} color={outcome ? 'font' : 'fontLight'}>
               NO
             </Text>
           </Button>
@@ -167,8 +161,8 @@ export default function OrderbookTableLarge({
         >
           <Box flex={1} pl='8px'>
             {lastPrice && (
-              <Text {...paragraphRegular} color={orderbookSide ? 'red.500' : 'green.500'}>
-                {orderbookSide ? 'NO' : 'YES'} {lastPrice}¢
+              <Text {...paragraphRegular} color={outcome ? 'red.500' : 'green.500'}>
+                {outcome ? 'NO' : 'YES'} {lastPrice}¢
               </Text>
             )}
           </Box>

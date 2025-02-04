@@ -73,6 +73,8 @@ interface ITradingServiceContext {
   markets?: Market[]
   setMarkets: (markets: Market[]) => void
   sellBalanceLoading: boolean
+  clobOutcome: number
+  setClobOutcome: (val: number) => void
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -98,6 +100,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
   const [marketFee, setMarketFee] = useState(0)
   const [marketPageOpened, setMarketPageOpened] = useState(false)
+  // Todo adjust it to amm markets with refactored sell widget
+  const [clobOutcome, setClobOutcome] = useState(0)
 
   const onCloseMarketPage = () => {
     setMarketPageOpened(false)
@@ -116,6 +120,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     // }
     setMarket(market as Market)
     setMarketGroup(null)
+    setClobOutcome(0)
     !isMobile && setMarketPageOpened(true)
   }
 
@@ -856,6 +861,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     markets,
     setMarkets,
     sellBalanceLoading,
+    clobOutcome,
+    setClobOutcome,
   }
 
   return (

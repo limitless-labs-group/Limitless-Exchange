@@ -21,8 +21,6 @@ export interface OrderBookData {
       size: number
     }[]
   }
-  orderbookSide: number
-  setOrderbookSide: (val: number) => void
   spread: string
   lastPrice: string
 }

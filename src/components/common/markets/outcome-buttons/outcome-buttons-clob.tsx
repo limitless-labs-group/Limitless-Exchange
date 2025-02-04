@@ -6,9 +6,9 @@ import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
 export default function OutcomeButtonsClob() {
-  const { strategy, market } = useTradingService()
+  const { strategy, market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { trackChanged } = useAmplitude()
-  const { outcome, setOutcome, setPrice, yesPrice, noPrice, sharesAvailable } = useClobWidget()
+  const { setPrice, yesPrice, noPrice, sharesAvailable } = useClobWidget()
 
   const getShares = (sharesAmount?: bigint) => {
     if (!sharesAmount) {
