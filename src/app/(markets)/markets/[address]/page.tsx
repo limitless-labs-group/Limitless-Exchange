@@ -82,7 +82,9 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
         <TradingWidgetAdvanced />
       </Box>
     ) : (
-      <TradingWidgetSimple />
+      <Box w='404px'>
+        <TradingWidgetSimple />
+      </Box>
     )
   }, [market, fetchMarketLoading])
 
@@ -264,166 +266,162 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
           mb={isMobile ? '84px' : 0}
         >
           <Box w={isMobile ? 'full' : '716px'}>
-            <HStack gap='40px' alignItems='flex-start' mb={isMobile ? '84px' : 0}>
-              <Box w={isMobile ? 'full' : '716px'}>
-                <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>
-                  <HStack justifyContent='space-between' mb='24px'>
-                    <Button
-                      variant='grey'
-                      onClick={() => {
-                        trackClicked(ClickEvent.BackClicked, {
-                          address: market?.slug || '0x',
-                        })
-                        handleBackClicked()
-                      }}
-                    >
-                      <ArrowLeftIcon width={16} height={16} />
-                      Back
-                    </Button>
-                    <ShareMenu />
-                  </HStack>
-                  <HStack w='full' justifyContent='space-between' flexWrap='wrap' gap='4px'>
-                    {!market ? (
-                      <Box w='160px'>
-                        <Skeleton height={20} />
-                      </Box>
-                    ) : (
-                      <DailyMarketTimer
-                        deadline={market.expirationTimestamp}
-                        deadlineText={market.expirationDate}
-                        color='grey.500'
-                      />
-                    )}
-                    {!market ? (
-                      <Box w='136px'>
-                        <Skeleton height={20} />
-                      </Box>
-                    ) : (
-                      <HStack gap='4px'>
-                        <Text {...paragraphRegular} color='grey.500'>
-                          Created by
-                        </Text>
-                        <ChakraImage
-                          width={6}
-                          height={6}
-                          src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
-                          alt='creator'
-                          borderRadius={'2px'}
-                        />
-                        <Link href={market?.creator.link}>
-                          <Text color='grey.500'>{market?.creator.name}</Text>
-                        </Link>
-                      </HStack>
-                    )}
-                  </HStack>
-                  <Box mb='24px'>
-                    {fetchMarketLoading ? (
-                      <VStack w='full' gap='12px' mt='8px'>
-                        <Skeleton height={38} />
-                        <Skeleton height={38} />
-                      </VStack>
-                    ) : (
-                      <Heading
-                        {...(isMobile ? { ...h1Regular } : {})}
-                        fontSize='32px'
-                        userSelect='text'
-                        fontWeight={700}
-                      >
-                        {(market?.proxyTitle ?? market?.title) || ''}
-                      </Heading>
-                    )}
-                  </Box>
-                  {!market ? (
-                    <Box mt='4px'>
-                      <Skeleton height={16} />
-                    </Box>
-                  ) : (
-                    <MarketProgressBar isClosed={market.expired} value={market.prices[0]} />
-                  )}
-                  <Box mt='12px'>
-                    <HStack w='full' justifyContent='space-between' flexWrap='wrap'>
-                      {!market ? (
-                        <Box w='120px'>
-                          <Skeleton height={20} />
-                        </Box>
-                      ) : (
-                        <HStack gap='4px'>
-                          <Text {...paragraphRegular} color='grey.500'>
-                            Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
-                            {market.collateralToken.symbol}
-                          </Text>
-                        </HStack>
-                      )}
-                      {!market ? (
-                        <Box w='120px'>
-                          <Skeleton height={20} />
-                        </Box>
-                      ) : (
-                        <HStack gap='4px'>
-                          <>
-                            <UniqueTraders color='grey.50' />
-                            <Text {...paragraphRegular} color='grey.500'>
-                              Value{' '}
-                              {NumberUtil.convertWithDenomination(
-                                +market.openInterestFormatted + +market.liquidityFormatted,
-                                6
-                              )}{' '}
-                              {market.collateralToken.symbol}
-                            </Text>
-                            <OpenInterestTooltip iconColor='grey.500' />
-                          </>
-                        </HStack>
-                      )}
-                    </HStack>
-                  </Box>
-                  <Divider my='16px' />
-                  {!market ? (
-                    <Box my='16px'>
-                      <Skeleton height={290} />
-                    </Box>
-                  ) : (
-                    charts
-                  )}
-                  {market?.tradeType === 'clob' && <ClobPositions />}
-                </Box>
-                {fetchMarketLoading ? (
-                  <Box px={isMobile ? '16px' : 0}>
-                    <Skeleton height={120} />
+            <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>
+              <HStack justifyContent='space-between' mb='24px'>
+                <Button
+                  variant='grey'
+                  onClick={() => {
+                    trackClicked(ClickEvent.BackClicked, {
+                      address: market?.slug || '0x',
+                    })
+                    handleBackClicked()
+                  }}
+                >
+                  <ArrowLeftIcon width={16} height={16} />
+                  Back
+                </Button>
+                <ShareMenu />
+              </HStack>
+              <HStack w='full' justifyContent='space-between' flexWrap='wrap' gap='4px'>
+                {!market ? (
+                  <Box w='160px'>
+                    <Skeleton height={20} />
                   </Box>
                 ) : (
-                  <Tabs position='relative' variant='common' mx={isMobile ? '16px' : 0}>
-                    <TabList>
-                      {tabs.map((tab) => (
-                        <Tab key={tab.title}>
-                          <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
-                            {tab.icon}
-                            <>{tab.title}</>
-                          </HStack>
-                        </Tab>
-                      ))}
-                    </TabList>
-                    <TabIndicator
-                      mt='-2px'
-                      height='2px'
-                      bg='grey.800'
-                      transitionDuration='200ms !important'
+                  <DailyMarketTimer
+                    deadline={market.expirationTimestamp}
+                    deadlineText={market.expirationDate}
+                    color='grey.500'
+                  />
+                )}
+                {!market ? (
+                  <Box w='136px'>
+                    <Skeleton height={20} />
+                  </Box>
+                ) : (
+                  <HStack gap='4px'>
+                    <Text {...paragraphRegular} color='grey.500'>
+                      Created by
+                    </Text>
+                    <ChakraImage
+                      width={6}
+                      height={6}
+                      src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+                      alt='creator'
+                      borderRadius={'2px'}
                     />
-                    <TabPanels>
-                      {tabPanels.map((panel, index) => (
-                        <TabPanel key={index}>{panel}</TabPanel>
-                      ))}
-                    </TabPanels>
-                  </Tabs>
+                    <Link href={market?.creator.link}>
+                      <Text color='grey.500'>{market?.creator.name}</Text>
+                    </Link>
+                  </HStack>
+                )}
+              </HStack>
+              <Box mb='24px'>
+                {fetchMarketLoading ? (
+                  <VStack w='full' gap='12px' mt='8px'>
+                    <Skeleton height={38} />
+                    <Skeleton height={38} />
+                  </VStack>
+                ) : (
+                  <Heading
+                    {...(isMobile ? { ...h1Regular } : {})}
+                    fontSize='32px'
+                    userSelect='text'
+                    fontWeight={700}
+                  >
+                    {(market?.proxyTitle ?? market?.title) || ''}
+                  </Heading>
                 )}
               </Box>
-              {!isMobile && tradingWidget}
-            </HStack>
-            {isMobile && (
-              <Box position='fixed' bottom='88px' w='calc(100% - 32px)' left='16px' zIndex={99999}>
-                {mobileTradeButton}
+              {!market ? (
+                <Box mt='4px'>
+                  <Skeleton height={16} />
+                </Box>
+              ) : (
+                <MarketProgressBar isClosed={market.expired} value={market.prices[0]} />
+              )}
+              <Box mt='12px'>
+                <HStack w='full' justifyContent='space-between' flexWrap='wrap'>
+                  {!market ? (
+                    <Box w='120px'>
+                      <Skeleton height={20} />
+                    </Box>
+                  ) : (
+                    <HStack gap='4px'>
+                      <Text {...paragraphRegular} color='grey.500'>
+                        Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
+                        {market.collateralToken.symbol}
+                      </Text>
+                    </HStack>
+                  )}
+                  {!market ? (
+                    <Box w='120px'>
+                      <Skeleton height={20} />
+                    </Box>
+                  ) : (
+                    <HStack gap='4px'>
+                      <>
+                        <UniqueTraders color='grey.50' />
+                        <Text {...paragraphRegular} color='grey.500'>
+                          Value{' '}
+                          {NumberUtil.convertWithDenomination(
+                            +market.openInterestFormatted + +market.liquidityFormatted,
+                            6
+                          )}{' '}
+                          {market.collateralToken.symbol}
+                        </Text>
+                        <OpenInterestTooltip iconColor='grey.500' />
+                      </>
+                    </HStack>
+                  )}
+                </HStack>
               </Box>
+              <Divider my='16px' />
+              {!market ? (
+                <Box my='16px'>
+                  <Skeleton height={290} />
+                </Box>
+              ) : (
+                charts
+              )}
+              {market?.tradeType === 'clob' && <ClobPositions />}
+            </Box>
+            {fetchMarketLoading ? (
+              <Box px={isMobile ? '16px' : 0}>
+                <Skeleton height={120} />
+              </Box>
+            ) : (
+              <Tabs position='relative' variant='common' mx={isMobile ? '16px' : 0}>
+                <TabList>
+                  {tabs.map((tab) => (
+                    <Tab key={tab.title}>
+                      <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+                        {tab.icon}
+                        <>{tab.title}</>
+                      </HStack>
+                    </Tab>
+                  ))}
+                </TabList>
+                <TabIndicator
+                  mt='-2px'
+                  height='2px'
+                  bg='grey.800'
+                  transitionDuration='200ms !important'
+                />
+                <TabPanels>
+                  {tabPanels.map((panel, index) => (
+                    <TabPanel key={index}>{panel}</TabPanel>
+                  ))}
+                </TabPanels>
+              </Tabs>
             )}
           </Box>
+          {!isMobile && tradingWidget}
+          {isMobile && (
+            <Box position='fixed' bottom='88px' w='calc(100% - 32px)' left='16px' zIndex={99999}>
+              {mobileTradeButton}
+            </Box>
+          )}
         </HStack>
       )}
     </MainLayout>
