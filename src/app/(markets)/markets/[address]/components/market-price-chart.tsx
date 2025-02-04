@@ -61,7 +61,7 @@ export const MarketPriceChart = () => {
       lineColor: colors.grey['200'],
       tickColor: colors.grey['200'],
       tickLength: 0,
-      max: getMaxChartTimestamp(data),
+      // max: getMaxChartTimestamp(data),
       labels: {
         step: 0,
         rotation: 0,
@@ -208,6 +208,10 @@ export const MarketPriceChart = () => {
     return data
   }, [prices, winningIndex, resolved])
 
+  const marketActivePrice = useMemo(() => {
+    return market?.tradeType === 'clob' ? chartData.at(-1)?.[1] : outcomeTokensPercent?.[0]
+  }, [chartData, market?.tradeType, outcomeTokensPercent])
+
   return !prices ? (
     <Box my='16px'>
       <Skeleton height={290} />
@@ -281,7 +285,7 @@ export const MarketPriceChart = () => {
           </HStack>
           <HStack gap={'4px'} mt='4px' mb='4px'>
             <Text {...(isMobile ? paragraphMedium : headline)} color='grey.800'>
-              {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%
+              {!resolved ? marketActivePrice : winningIndex === 0 ? 100 : 0}%
             </Text>
             <Text {...(isMobile ? paragraphMedium : headline)} color='grey.800'>
               Yes
