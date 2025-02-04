@@ -33,6 +33,7 @@ export default function ClobWidget() {
     setOrderType(order)
     setSharesAmount('')
     setPrice('')
+    tradeStepperOpen && onToggleTradeStepper()
   }
 
   return (
