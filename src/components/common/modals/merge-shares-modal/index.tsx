@@ -22,7 +22,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   const [isApproved, setIsApproved] = useState<boolean>(false)
   const { market } = useTradingService()
   const { checkAllowanceForAll, client, approveAllowanceForAll, mergeShares } = useWeb3Service()
-  const { account } = useAccount()
+  const { web3Wallet } = useAccount()
   const { sharesAvailable } = useClobWidget()
   const queryClient = useQueryClient()
 
@@ -161,10 +161,10 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   ])
 
   useEffect(() => {
-    if (market && account) {
+    if (market && web3Wallet) {
       checkMergeAllowance()
     }
-  }, [market, account])
+  }, [market, web3Wallet])
 
   const modalContent = (
     <Box>
