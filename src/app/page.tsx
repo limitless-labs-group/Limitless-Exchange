@@ -27,8 +27,7 @@ import {
   useTradingService,
 } from '@/services'
 import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
@@ -216,7 +215,7 @@ const MainPage = () => {
               dataLength={markets?.length ?? 0}
               next={fetchNextPage}
               hasMore={hasNextPage}
-              style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+              // style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
               loader={
                 markets.length > 0 && markets.length < totalAmount ? (
                   <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
