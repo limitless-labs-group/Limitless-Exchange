@@ -20,7 +20,12 @@ export default function MarketsSection({
   isLoading,
 }: DailyMarketsSectionProps) {
   return (
-    <Box mt='24px' mb={isMobile ? '36px' : '40px'} w='664px' justifyContent='center'>
+    <Box
+      mt='24px'
+      mb={isMobile ? '36px' : '40px'}
+      w={isMobile ? 'full' : '664px'}
+      justifyContent='center'
+    >
       <Box px={isMobile ? '16px' : 0}>
         <Divider orientation='horizontal' borderColor='grey.100' />
         <Flex
