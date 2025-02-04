@@ -362,15 +362,19 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
                     <HStack gap='4px'>
                       <>
                         <UniqueTraders color='grey.50' />
-                        <Text {...paragraphRegular} color='grey.500'>
-                          Value{' '}
-                          {NumberUtil.convertWithDenomination(
-                            +market.openInterestFormatted + +market.liquidityFormatted,
-                            6
-                          )}{' '}
-                          {market.collateralToken.symbol}
-                        </Text>
-                        <OpenInterestTooltip iconColor='grey.500' />
+                        {market.tradeType === 'amm' && (
+                          <>
+                            <Text {...paragraphRegular} color='grey.500'>
+                              Value{' '}
+                              {NumberUtil.convertWithDenomination(
+                                +market.openInterestFormatted + +market.liquidityFormatted,
+                                6
+                              )}{' '}
+                              {market.collateralToken.symbol}
+                            </Text>
+                            <OpenInterestTooltip iconColor='grey.500' />
+                          </>
+                        )}
                       </>
                     </HStack>
                   )}
