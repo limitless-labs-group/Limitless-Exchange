@@ -42,8 +42,6 @@ interface ClobWidgetContextType {
   setPrice: (val: string) => void
   allowance: bigint
   isApprovedForSell: boolean
-  outcome: number
-  setOutcome: (val: number) => void
   checkMarketAllowance: () => Promise<void>
   tradeStepperOpen: boolean
   onToggleTradeStepper: () => void
@@ -70,14 +68,13 @@ interface ClobWidgetContextType {
 
 export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const [orderType, setOrderType] = useState(MarketOrderType.MARKET)
-  const [outcome, setOutcome] = useState(0)
   const [sharesAmount, setSharesAmount] = useState('')
   const [price, setPrice] = useState('')
   const [allowance, setAllowance] = useState<bigint>(0n)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
   const { web3Wallet } = useAccount()
   const toast = useToast()
-  const { market, strategy } = useTradingService()
+  const { market, strategy, clobOutcome: outcome } = useTradingService()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
   const { data: orderBook } = useOrderBook(market?.slug)
@@ -300,8 +297,6 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         setSharesAmount,
         allowance,
         isApprovedForSell,
-        outcome,
-        setOutcome,
         checkMarketAllowance,
         tradeStepperOpen,
         onToggleTradeStepper,

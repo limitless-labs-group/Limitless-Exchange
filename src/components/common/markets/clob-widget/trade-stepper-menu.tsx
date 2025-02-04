@@ -31,7 +31,6 @@ import { NumberUtil } from '@/utils'
 export default function TradeStepperMenu() {
   const {
     onToggleTradeStepper,
-    outcome,
     orderType,
     yesPrice,
     noPrice,
@@ -41,7 +40,7 @@ export default function TradeStepperMenu() {
     placeMarketOrderMutation,
     placeLimitOrderMutation,
   } = useClobWidget()
-  const { strategy, market } = useTradingService()
+  const { strategy, market, clobOutcome: outcome } = useTradingService()
   const { approveContract, approveAllowanceForAll } = useWeb3Service()
   const queryClient = useQueryClient()
 
