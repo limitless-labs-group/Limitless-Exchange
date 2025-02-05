@@ -206,7 +206,7 @@ export default function useSmartWalletService() {
     amount: bigint
   ) => {
     await approveCollateralIfNeeded(
-      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
       maxUint256,
       collateralAddress as Address
     )
@@ -232,8 +232,8 @@ export default function useSmartWalletService() {
 
   const mergePositions = async (collateralToken: Address, conditionId: string, amount: bigint) => {
     await approveConditionalIfNeeded(
-      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
-      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address
+      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
     )
     const contract = getContract({
       address: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
