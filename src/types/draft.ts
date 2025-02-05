@@ -95,9 +95,9 @@ export interface DraftMarketResponse {
     name: string
     priority: null | number
   }
-  type?: 'clob'
+  type?: 'clob' | 'amm'
   draftMetadata: {
     fee: number
-    type?: 'clob'
+    type?: 'clob' | 'amm'
   }
 }

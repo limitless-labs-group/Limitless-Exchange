@@ -22,7 +22,9 @@ export const DraftMarketsQueue = () => {
     queryFn: async () => {
       const response = await privateClient.get(`/markets/drafts`)
 
-      return response.data.filter((market: DraftMarketResponse) => !market.type)
+      return response.data.filter(
+        (market: DraftMarketResponse) => !market.type || market?.type === 'amm'
+      )
     },
   })
 
