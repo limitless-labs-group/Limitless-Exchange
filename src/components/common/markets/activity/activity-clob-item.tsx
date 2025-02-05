@@ -30,7 +30,7 @@ export default function ActivityClobItem({ data }: ActivityClobItemProps) {
     name: data.profile.displayName,
     imageURI: data.profile.pfpUrl || '',
     link: data.profile.socialUrl || '',
-    account: data.profile.account,
+    account: data.profile.smartWallet || data.profile.account,
   }
 
   return (
