@@ -298,8 +298,8 @@ export function useMarket(address?: string | null, isPolling = false, enabled = 
       } else {
         if (marketRes.tradeType === 'clob') {
           prices = [
-            new BigNumber(marketRes.prices[0]).multipliedBy(100).toNumber(),
-            new BigNumber(marketRes.prices[1]).multipliedBy(100).toNumber(),
+            new BigNumber(marketRes.prices[0]).toNumber(),
+            new BigNumber(marketRes.prices[1]).toNumber(),
           ]
         } else {
           const buyPrices = await getMarketOutcomeBuyPrice(
