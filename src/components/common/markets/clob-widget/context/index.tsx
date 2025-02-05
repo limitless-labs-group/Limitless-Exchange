@@ -10,12 +10,13 @@ import React, {
   PropsWithChildren,
   useEffect,
 } from 'react'
-import { Address, formatUnits, parseUnits } from 'viem'
+import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import { Toast } from '@/components/common/toast'
 import { useToast } from '@/hooks'
 import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
 import { useOrderBook } from '@/hooks/use-order-book'
+import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import { useAccount, useBalanceQuery, useTradingService } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -72,7 +73,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const [price, setPrice] = useState('')
   const [allowance, setAllowance] = useState<bigint>(0n)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
-  const { web3Wallet } = useAccount()
+  const { web3Wallet, web3Client } = useAccount()
   const toast = useToast()
   const { market, strategy, clobOutcome: outcome } = useTradingService()
   const { balanceOfSmartWallet } = useBalanceQuery()
@@ -84,6 +85,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const { profileData } = useAccount()
   const { placeLimitOrder, placeMarketOrder } = useWeb3Service()
   const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
+  const privyService = usePrivySendTransaction()
 
   const checkMarketAllowance = async () => {
     const allowance = await checkAllowance(
@@ -208,6 +210,20 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     mutationKey: ['limit-order', market?.address, price],
     mutationFn: async () => {
       if (market) {
+        if (web3Client === 'etherspot') {
+          if (outcome) {
+            await privyService.approveConditionalIfNeeded(
+              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address
+            )
+          } else {
+            await privyService.approveCollateralIfNeeded(
+              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              maxUint256,
+              market?.collateralToken.address as Address
+            )
+          }
+        }
         const tokenId = outcome === 1 ? market.tokens.no : market.tokens.yes
         const side = strategy === 'Buy' ? 0 : 1
         const signedOrder = await placeLimitOrder(
@@ -245,6 +261,20 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     mutationKey: ['market-order', market?.address, price],
     mutationFn: async () => {
       if (market) {
+        if (web3Client === 'etherspot') {
+          if (outcome) {
+            await privyService.approveConditionalIfNeeded(
+              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address
+            )
+          } else {
+            await privyService.approveCollateralIfNeeded(
+              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              maxUint256,
+              market?.collateralToken.address as Address
+            )
+          }
+        }
         const tokenId = outcome === 1 ? market.tokens.no : market.tokens.yes
         const side = strategy === 'Buy' ? 0 : 1
         const signedOrder = await placeMarketOrder(
