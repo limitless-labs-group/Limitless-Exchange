@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
+import BigNumber from 'bignumber.js'
 import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
 import { useMemo } from 'react'
@@ -286,7 +287,7 @@ export function useMarket(address?: string | null, isPolling = false, enabled = 
       let prices
 
       //TODO remove this hot-fix
-      if (marketRes.expired || !marketRes.address) {
+      if (marketRes.expired) {
         if (marketRes?.winningOutcomeIndex === 0) {
           prices = [100, 0]
         } else if (marketRes?.winningOutcomeIndex === 1) {
@@ -295,15 +296,22 @@ export function useMarket(address?: string | null, isPolling = false, enabled = 
           prices = [50, 50]
         }
       } else {
-        const buyPrices = await getMarketOutcomeBuyPrice(
-          marketRes.collateralToken.decimals,
-          marketRes.address
-        )
+        if (marketRes.tradeType === 'clob') {
+          prices = [
+            new BigNumber(marketRes.prices[0]).multipliedBy(100).toNumber(),
+            new BigNumber(marketRes.prices[1]).multipliedBy(100).toNumber(),
+          ]
+        } else {
+          const buyPrices = await getMarketOutcomeBuyPrice(
+            marketRes.collateralToken.decimals,
+            marketRes.address as Address
+          )
 
-        const sum = buyPrices[0] + buyPrices[1]
-        const outcomeTokensPercentYes = +((buyPrices[0] / sum) * 100).toFixed(1)
-        const outcomeTokensPercentNo = +((buyPrices[1] / sum) * 100).toFixed(1)
-        prices = [outcomeTokensPercentYes, outcomeTokensPercentNo]
+          const sum = buyPrices[0] + buyPrices[1]
+          const outcomeTokensPercentYes = +((buyPrices[0] / sum) * 100).toFixed(1)
+          const outcomeTokensPercentNo = +((buyPrices[1] / sum) * 100).toFixed(1)
+          prices = [outcomeTokensPercentYes, outcomeTokensPercentNo]
+        }
       }
 
       return {

@@ -181,7 +181,8 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         }
       }
       const yesPrice = orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price * 100
-      const noPrice = (1 - orderBook?.asks.sort((a, b) => b.price - a.price)[0]?.price) * 100
+      const noPrice =
+        (1 - orderBook?.asks.sort((a, b) => b.price - a.price).reverse()[0]?.price) * 100
       return {
         yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(),
         noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(),
