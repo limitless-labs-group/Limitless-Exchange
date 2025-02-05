@@ -45,12 +45,12 @@ export function useMarkets(topic: Category | null) {
       //   })
       // }) as { address: string; decimals: number }[]
 
-      const marketDataForMultiCall = response.data
-        .filter((market) => !!market.address)
-        .map((market) => ({
-          address: market.address as Address,
-          decimals: market.collateralToken.decimals,
-        }))
+      const ammMarkets = response.data.filter((market) => market.tradeType === 'amm')
+
+      const marketDataForMultiCall = ammMarkets.map((market) => ({
+        address: market.address as Address,
+        decimals: market.collateralToken.decimals,
+      }))
 
       const contractCallContext = marketDataForMultiCall.map(
         (market: { address: string; decimals: number }) => {
@@ -88,12 +88,9 @@ export function useMarkets(topic: Category | null) {
 
       const results = await multicall.call(contractCallContext)
 
-      const _markets: Map<Address, OddsData> = response.data.reduce((acc, market: Market) => {
-        if (!market.address) {
-          return acc
-        }
+      const _markets: Map<Address, OddsData> = ammMarkets.reduce((acc, market: Market) => {
         const marketAddress = market.address
-        const result = results.results[marketAddress].callsReturnContext
+        const result = results.results[marketAddress as Address].callsReturnContext
         const collateralDecimals = market.collateralToken.decimals
         const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
 
@@ -128,11 +125,13 @@ export function useMarkets(topic: Category | null) {
       const result = response.data.map((market) => {
         return {
           ...market,
-          // @ts-ignore
-          ...(_markets.get(market.address)
-            ? // @ts-ignore
-              (_markets.get(market.address) as OddsData)
-            : { prices: [50, 50] }),
+          prices:
+            market.tradeType === 'amm'
+              ? _markets.get(market.address as Address)?.prices || [50, 50]
+              : [
+                  new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
+                  new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
+                ],
         }
         // @ts-ignore
         // if (!market.slug) {
@@ -298,8 +297,8 @@ export function useMarket(address?: string | null, isPolling = false, enabled = 
       } else {
         if (marketRes.tradeType === 'clob') {
           prices = [
-            new BigNumber(marketRes.prices[0]).toNumber(),
-            new BigNumber(marketRes.prices[1]).toNumber(),
+            new BigNumber(marketRes.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
+            new BigNumber(marketRes.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
           ]
         } else {
           const buyPrices = await getMarketOutcomeBuyPrice(
