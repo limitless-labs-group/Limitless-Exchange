@@ -149,11 +149,11 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
           py='8px'
         >
           <Box flex={1} pl='8px'>
-            {lastPrice && (
-              <Text {...paragraphRegular} color={outcome ? 'red.500' : 'green.500'}>
-                {outcome ? 'NO' : 'YES'} {lastPrice}¢
-              </Text>
-            )}
+            {/*{lastPrice && (*/}
+            {/*  <Text {...paragraphRegular} color={outcome ? 'red.500' : 'green.500'}>*/}
+            {/*    {outcome ? 'NO' : 'YES'} {lastPrice}¢*/}
+            {/*  </Text>*/}
+            {/*)}*/}
           </Box>
           <Box flex={1}>
             <Text {...paragraphRegular} color='grey.500'>
