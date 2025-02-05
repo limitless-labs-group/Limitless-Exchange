@@ -1,11 +1,24 @@
-import { Box, Button, HStack, Table, TableContainer, Text, Th, Thead, Tr } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  HStack,
+  Table,
+  TableContainer,
+  Text,
+  Th,
+  Thead,
+  Tr,
+  useOutsideClick,
+} from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import React from 'react'
+import React, { LegacyRef, MutableRefObject, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
+import { checkPriceIsInRange } from '@/components/common/markets/clob-widget/utils'
 import Skeleton from '@/components/common/skeleton'
 import { OrderBookData } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { useOrderBook } from '@/hooks/use-order-book'
+import GemIcon from '@/resources/icons/gem-icon.svg'
 import {
   ChangeEvent,
   OrderBookSideChangedMetadata,
@@ -16,6 +29,7 @@ import {
   captionMedium,
   controlsMedium,
   h3Regular,
+  paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -24,61 +38,110 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
   const { market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
   const { trackChanged } = useAmplitude()
+  const ref = useRef<HTMLElement>()
+
+  const [rewardsButtonClicked, setRewardButtonClicked] = useState(false)
+  const [rewardButtonHovered, setRewardButtonHovered] = useState(false)
+
+  useOutsideClick({
+    ref: ref as MutableRefObject<HTMLElement>,
+    handler: () => {
+      setRewardButtonClicked(false)
+    },
+  })
+
+  const orderBookPriceRange = orderbook
+    ? [
+        new BigNumber(orderbook.adjustedMidpoint)
+          .minus(new BigNumber(orderbook.maxSpread))
+          .multipliedBy(100)
+          .decimalPlaces(0)
+          .toNumber(),
+        new BigNumber(orderbook.adjustedMidpoint)
+          .plus(new BigNumber(orderbook.maxSpread))
+          .multipliedBy(100)
+          .decimalPlaces(0)
+          .toNumber(),
+      ]
+    : [50, 50]
+
+  const highLightRewardsCells = rewardsButtonClicked || rewardButtonHovered
 
   return (
     <>
       <HStack w='full' justifyContent='space-between' mb='14px'>
         <Text {...h3Regular}>Order book</Text>
-        <HStack w={'152px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
-          <Button
-            h={isMobile ? '28px' : '20px'}
-            flex='1'
-            py='2px'
-            borderRadius='6px'
-            bg={!outcome ? 'grey.50' : 'unset'}
-            color='grey.800'
-            _hover={{
-              backgroundColor: !outcome ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
-            }}
-            onClick={() => {
-              trackChanged<OrderBookSideChangedMetadata>(ChangeEvent.OrderBookSideChanged, {
-                type: 'Yes selected',
-                marketAddress: market?.slug as string,
-              })
-              setOutcome(0)
-            }}
-          >
-            <Text {...controlsMedium} color={!outcome ? 'font' : 'fontLight'}>
-              YES
-            </Text>
-          </Button>
-          <Button
-            h={isMobile ? '28px' : '20px'}
-            flex='1'
-            borderRadius='6px'
-            py='2px'
-            bg={outcome ? 'grey.50' : 'unset'}
-            color='grey.800'
-            _hover={{
-              backgroundColor: outcome ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
-            }}
-            _disabled={{
-              opacity: '50%',
-              pointerEvents: 'none',
-            }}
-            onClick={() => {
-              trackChanged<OrderBookSideChangedMetadata>(ChangeEvent.OrderBookSideChanged, {
-                type: 'No selected',
-                marketAddress: market?.slug as string,
-              })
-              setOutcome(1)
-            }}
-          >
-            <Text {...controlsMedium} color={outcome ? 'font' : 'fontLight'}>
-              NO
-            </Text>
-          </Button>
-        </HStack>
+        {market?.isRewardable && (
+          <HStack gap='16px'>
+            <HStack
+              gap='4px'
+              borderRadius='8px'
+              py='4px'
+              px='8px'
+              bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
+              cursor='pointer'
+              onClick={() => setRewardButtonClicked(!rewardsButtonClicked)}
+              onMouseEnter={() => setRewardButtonHovered(true)}
+              onMouseLeave={() => setRewardButtonHovered(false)}
+              ref={ref as LegacyRef<HTMLDivElement>}
+            >
+              <GemIcon />
+              <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
+                Earn Rewards
+              </Text>
+            </HStack>
+            <HStack w={'152px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
+              <Button
+                h={isMobile ? '28px' : '20px'}
+                flex='1'
+                py='2px'
+                borderRadius='6px'
+                bg={!outcome ? 'grey.50' : 'unset'}
+                color='grey.800'
+                _hover={{
+                  backgroundColor: !outcome ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
+                }}
+                onClick={() => {
+                  trackChanged<OrderBookSideChangedMetadata>(ChangeEvent.OrderBookSideChanged, {
+                    type: 'Yes selected',
+                    marketAddress: market?.slug as string,
+                  })
+                  setOutcome(0)
+                }}
+              >
+                <Text {...controlsMedium} color={!outcome ? 'font' : 'fontLight'}>
+                  YES
+                </Text>
+              </Button>
+              <Button
+                h={isMobile ? '28px' : '20px'}
+                flex='1'
+                borderRadius='6px'
+                py='2px'
+                bg={outcome ? 'grey.50' : 'unset'}
+                color='grey.800'
+                _hover={{
+                  backgroundColor: outcome ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
+                }}
+                _disabled={{
+                  opacity: '50%',
+                  pointerEvents: 'none',
+                }}
+                onClick={() => {
+                  trackChanged<OrderBookSideChangedMetadata>(ChangeEvent.OrderBookSideChanged, {
+                    type: 'No selected',
+                    marketAddress: market?.slug as string,
+                  })
+                  setOutcome(1)
+                }}
+              >
+                <Text {...controlsMedium} color={outcome ? 'font' : 'fontLight'}>
+                  NO
+                </Text>
+              </Button>
+            </HStack>
+          </HStack>
+        )}
       </HStack>
       <TableContainer overflow={'auto'}>
         <Table variant={'noPaddingsOnSides'}>
@@ -105,11 +168,22 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
           <Box maxH='162px' minH='36px' overflow='auto' position='relative'>
             <>
               {orderBookData.asks.map((item, index) => (
-                <HStack gap={0} key={index} h='36px'>
+                <HStack
+                  gap={0}
+                  key={index}
+                  h='36px'
+                  bg={
+                    highLightRewardsCells && checkPriceIsInRange(item.price, orderBookPriceRange)
+                      ? 'blueTransparent.100'
+                      : 'unset'
+                  }
+                >
                   <Box w='348px' h='full'>
                     <Box w={`${item.cumulativePercent}%`} bg='red.500' opacity={0.1} h='full' />
                   </Box>
-                  <HStack w='88px' h='full' justifyContent='flex-end' pr='8px'>
+                  <HStack w='88px' h='full' justifyContent='flex-end' pr='8px' gap='4px'>
+                    {checkPriceIsInRange(item.price, orderBookPriceRange) &&
+                      market?.isRewardable && <GemIcon />}
                     <Text {...paragraphRegular} color='red.500'>
                       {NumberUtil.toFixed(new BigNumber(item.price).multipliedBy(100).toFixed(), 0)}
                       ¢
@@ -180,16 +254,24 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
           <Box maxH='162px' minH='36px' overflow='auto' position='relative'>
             <>
               {orderBookData.bids.map((item, index) => (
-                <HStack gap={0} key={index} h='36px'>
+                <HStack
+                  gap={0}
+                  key={index}
+                  h='36px'
+                  bg={
+                    highLightRewardsCells && checkPriceIsInRange(item.price, orderBookPriceRange)
+                      ? 'blueTransparent.100'
+                      : 'unset'
+                  }
+                >
                   <Box w='348px' h='full'>
                     <Box w={`${item.cumulativePercent}%`} bg='green.500' opacity={0.1} h='full' />
                   </Box>
-                  <HStack w='88px' h='full' justifyContent='flex-end' pr='8px'>
-                    <Text {...paragraphRegular} color='green.500'>
-                      {NumberUtil.toFixed(
-                        new BigNumber(item.price).multipliedBy(new BigNumber(100)).toFixed(),
-                        0
-                      )}
+                  <HStack w='88px' h='full' justifyContent='flex-end' pr='8px' gap='4px'>
+                    {checkPriceIsInRange(item.price, orderBookPriceRange) &&
+                      market?.isRewardable && <GemIcon />}
+                    <Text {...paragraphRegular} color='red.500'>
+                      {NumberUtil.toFixed(new BigNumber(item.price).multipliedBy(100).toFixed(), 0)}
                       ¢
                     </Text>
                   </HStack>

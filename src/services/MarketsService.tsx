@@ -8,7 +8,9 @@ import { Address, formatUnits, getContract, parseUnits } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { POLLING_INTERVAL } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
+import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Category, Market, MarketsResponse, OddsData } from '@/types'
 import { getPrices } from '@/utils/market'
 
@@ -45,123 +47,145 @@ export function useMarkets(topic: Category | null) {
       //   })
       // }) as { address: string; decimals: number }[]
 
-      const ammMarkets = response.data.filter((market) => market.tradeType === 'amm')
+      if (response.data.some((makret) => makret.tradeType === 'amm')) {
+        const ammMarkets = response.data.filter((market) => market.tradeType === 'amm')
 
-      const marketDataForMultiCall = ammMarkets.map((market) => ({
-        address: market.address as Address,
-        decimals: market.collateralToken.decimals,
-      }))
+        const marketDataForMultiCall = ammMarkets.map((market) => ({
+          address: market.address as Address,
+          decimals: market.collateralToken.decimals,
+        }))
 
-      const contractCallContext = marketDataForMultiCall.map(
-        (market: { address: string; decimals: number }) => {
-          const collateralDecimals = market.decimals
-          const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
-          const collateralAmountBI = parseUnits(collateralAmount, collateralDecimals)
+        const contractCallContext = marketDataForMultiCall.map(
+          (market: { address: string; decimals: number }) => {
+            const collateralDecimals = market.decimals
+            const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
+            const collateralAmountBI = parseUnits(collateralAmount, collateralDecimals)
 
-          return {
-            reference: market.address,
-            contractAddress: market.address,
-            abi: fixedProductMarketMakerABI,
-            calls: [
-              {
-                reference: 'calcBuyAmountYes',
-                methodName: 'calcBuyAmount',
-                methodParameters: [collateralAmountBI.toString(), 0],
-              },
-              {
-                reference: 'calcBuyAmountNo',
-                methodName: 'calcBuyAmount',
-                methodParameters: [collateralAmountBI.toString(), 1],
-              },
-            ],
+            return {
+              reference: market.address,
+              contractAddress: market.address,
+              abi: fixedProductMarketMakerABI,
+              calls: [
+                {
+                  reference: 'calcBuyAmountYes',
+                  methodName: 'calcBuyAmount',
+                  methodParameters: [collateralAmountBI.toString(), 0],
+                },
+                {
+                  reference: 'calcBuyAmountNo',
+                  methodName: 'calcBuyAmount',
+                  methodParameters: [collateralAmountBI.toString(), 1],
+                },
+              ],
+            }
           }
-        }
-      )
+        )
 
-      const multicall = new Multicall({
-        ethersProvider: new ethers.providers.JsonRpcProvider(
-          defaultChain.rpcUrls.default.http.toString()
-        ),
-        multicallCustomContractAddress: defaultChain.contracts.multicall3.address,
-        tryAggregate: true,
-      })
+        const multicall = new Multicall({
+          ethersProvider: new ethers.providers.JsonRpcProvider(
+            defaultChain.rpcUrls.default.http.toString()
+          ),
+          multicallCustomContractAddress: defaultChain.contracts.multicall3.address,
+          tryAggregate: true,
+        })
 
-      const results = await multicall.call(contractCallContext)
+        const results = await multicall.call(contractCallContext)
 
-      const _markets: Map<Address, OddsData> = ammMarkets.reduce((acc, market: Market) => {
-        const marketAddress = market.address
-        const result = results.results[marketAddress as Address].callsReturnContext
-        const collateralDecimals = market.collateralToken.decimals
-        const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
+        const _markets: Map<Address, OddsData> = ammMarkets.reduce((acc, market: Market) => {
+          const marketAddress = market.address
+          const result = results.results[marketAddress as Address].callsReturnContext
+          const collateralDecimals = market.collateralToken.decimals
+          const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
 
-        if (result[0].returnValues.length) {
-          const outcomeTokenBuyAmountYesBI = BigInt(result[0].returnValues?.[0].hex)
-          const outcomeTokenBuyAmountNoBI = BigInt(result[1].returnValues?.[0].hex)
+          if (result[0].returnValues.length) {
+            const outcomeTokenBuyAmountYesBI = BigInt(result[0].returnValues?.[0].hex)
+            const outcomeTokenBuyAmountNoBI = BigInt(result[1].returnValues?.[0].hex)
 
-          const outcomeTokenBuyAmountYes = formatUnits(
-            outcomeTokenBuyAmountYesBI,
-            collateralDecimals
-          )
-          const outcomeTokenBuyAmountNo = formatUnits(outcomeTokenBuyAmountNoBI, collateralDecimals)
+            const outcomeTokenBuyAmountYes = formatUnits(
+              outcomeTokenBuyAmountYesBI,
+              collateralDecimals
+            )
+            const outcomeTokenBuyAmountNo = formatUnits(
+              outcomeTokenBuyAmountNoBI,
+              collateralDecimals
+            )
 
-          const outcomeTokenBuyPriceYes =
-            Number(collateralAmount) / Number(outcomeTokenBuyAmountYes)
-          const outcomeTokenBuyPriceNo = Number(collateralAmount) / Number(outcomeTokenBuyAmountNo)
+            const outcomeTokenBuyPriceYes =
+              Number(collateralAmount) / Number(outcomeTokenBuyAmountYes)
+            const outcomeTokenBuyPriceNo =
+              Number(collateralAmount) / Number(outcomeTokenBuyAmountNo)
 
-          const buySum = outcomeTokenBuyPriceYes + outcomeTokenBuyPriceNo
-          const outcomeTokensBuyPercentYes = +((outcomeTokenBuyPriceYes / buySum) * 100).toFixed(1)
-          const outcomeTokensBuyPercentNo = +((outcomeTokenBuyPriceNo / buySum) * 100).toFixed(1)
+            const buySum = outcomeTokenBuyPriceYes + outcomeTokenBuyPriceNo
+            const outcomeTokensBuyPercentYes = +((outcomeTokenBuyPriceYes / buySum) * 100).toFixed(
+              1
+            )
+            const outcomeTokensBuyPercentNo = +((outcomeTokenBuyPriceNo / buySum) * 100).toFixed(1)
 
-          acc.set(marketAddress as Address, {
-            prices: [outcomeTokensBuyPercentYes, outcomeTokensBuyPercentNo],
-          })
+            acc.set(marketAddress as Address, {
+              prices: [outcomeTokensBuyPercentYes, outcomeTokensBuyPercentNo],
+            })
+
+            return acc
+          }
 
           return acc
-        }
+        }, new Map<Address, OddsData>())
 
-        return acc
-      }, new Map<Address, OddsData>())
+        const result = response.data.map((market) => {
+          return {
+            ...market,
+            prices:
+              market.tradeType === 'amm'
+                ? _markets.get(market.address as Address)?.prices || [50, 50]
+                : [
+                    new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
+                    new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
+                  ],
+          }
+          // @ts-ignore
+          // if (!market.slug) {
+          //   return {
+          //     ...market,
+          //     // @ts-ignore
+          //     ...(_markets.get(market.address)
+          //       ? // @ts-ignore
+          //         (_markets.get(market.address) as OddsData)
+          //       : { prices: [50, 50] }),
+          //   }
+          // }
+          // return {
+          //   ...market,
+          //   // @ts-ignore
+          //   markets: market.markets
+          //     .map((marketInGroup: Market) => ({
+          //       ...marketInGroup,
+          //       // @ts-ignore
+          //       ...(_markets.get(marketInGroup.address)
+          //         ? (_markets.get(marketInGroup.address) as OddsData)
+          //         : { prices: [50, 50] }),
+          //     }))
+          //     .sort((a: Market, b: Market) => b.prices[0] - a.prices[0]),
+          // }
+        })
 
-      const result = response.data.map((market) => {
         return {
-          ...market,
-          prices:
-            market.tradeType === 'amm'
-              ? _markets.get(market.address as Address)?.prices || [50, 50]
-              : [
-                  new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-                  new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
-                ],
+          data: {
+            markets: result,
+            totalAmount: response.totalMarketsCount,
+          },
+          next: (pageParam as number) + 1,
         }
-        // @ts-ignore
-        // if (!market.slug) {
-        //   return {
-        //     ...market,
-        //     // @ts-ignore
-        //     ...(_markets.get(market.address)
-        //       ? // @ts-ignore
-        //         (_markets.get(market.address) as OddsData)
-        //       : { prices: [50, 50] }),
-        //   }
-        // }
-        // return {
-        //   ...market,
-        //   // @ts-ignore
-        //   markets: market.markets
-        //     .map((marketInGroup: Market) => ({
-        //       ...marketInGroup,
-        //       // @ts-ignore
-        //       ...(_markets.get(marketInGroup.address)
-        //         ? (_markets.get(marketInGroup.address) as OddsData)
-        //         : { prices: [50, 50] }),
-        //     }))
-        //     .sort((a: Market, b: Market) => b.prices[0] - a.prices[0]),
-        // }
-      })
+      }
 
       return {
         data: {
-          markets: result,
+          markets: response.data.map((market) => ({
+            ...market,
+            prices: [
+              new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
+              new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
+            ],
+          })),
           totalAmount: response.totalMarketsCount,
         },
         next: (pageParam as number) + 1,
@@ -385,3 +409,13 @@ export const useWinningIndex = (marketAddr: string) =>
       return result
     },
   })
+
+export const useMarketRewards = (slug?: string) => {
+  const { isLogged } = useClient()
+  const privateClient = useAxiosPrivateClient()
+  return useQuery({
+    queryKey: ['reward-distribution', slug],
+    queryFn: async () => privateClient.get(`/reward-distribution/unpaid-rewards?market=${slug}`),
+    enabled: !!slug && !!isLogged,
+  })
+}
