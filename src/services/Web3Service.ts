@@ -1,4 +1,5 @@
 import { SignedOrder } from '@polymarket/order-utils'
+import { usePrivy } from '@privy-io/react-auth'
 import BigNumber from 'bignumber.js'
 import { parseUnits } from 'viem'
 import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
@@ -76,6 +77,7 @@ export function useWeb3Service(): Web3Service {
   const privyService = usePrivySendTransaction()
 
   const { web3Client, account: walletAddress } = useAccount()
+  const { user } = usePrivy()
 
   const wrapEth = async (value: bigint) => {
     if (web3Client === 'etherspot') {
@@ -189,7 +191,10 @@ export function useWeb3Service(): Web3Service {
     const orderData = {
       salt: Math.round(Math.random() * Date.now()) + '',
       maker: walletAddress as Address,
-      signer: walletAddress as Address,
+      signer:
+        web3Client === 'etherspot'
+          ? (user?.wallet?.address as Address)
+          : (walletAddress as Address),
       taker: '0x0000000000000000000000000000000000000000',
       tokenId,
       makerAmount:
@@ -231,8 +236,11 @@ export function useWeb3Service(): Web3Service {
     const convertedPrice = new BigNumber(price).dividedBy(100).toString()
     const orderData = {
       salt: Math.round(Math.random() * Date.now()) + '',
-      maker: '0x83AB77b0c07E15A7c1918CdF1812d455f53AF550',
-      signer: '0xc47B2415Ed2Cc9a26Dc3C9B632C3E78eE5F9c44a',
+      maker: walletAddress as Address,
+      signer:
+        web3Client === 'etherspot'
+          ? (user?.wallet?.address as Address)
+          : (walletAddress as Address),
       taker: '0x0000000000000000000000000000000000000000',
       tokenId,
       makerAmount: parseUnits(amount, decimals).toString(), // amount in $ put in order
