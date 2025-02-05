@@ -9,18 +9,22 @@ import {
   Tr,
   VStack,
   Text,
+  HStack,
 } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import BigNumber from 'bignumber.js'
 import React from 'react'
 import { formatUnits } from 'viem'
+import { checkPriceIsInRange } from '@/components/common/markets/clob-widget/utils'
 import Skeleton from '@/components/common/skeleton'
 import { useMarketOrders } from '@/hooks/use-market-orders'
+import { useOrderBook } from '@/hooks/use-order-book'
 import CloseIcon from '@/resources/icons/close-icon.svg'
+import GemIcon from '@/resources/icons/gem-icon.svg'
 import { useAccount, useTradingService } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
 
@@ -34,9 +38,25 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
   const { data: userOrders, isLoading: userOrdersLoading } = useMarketOrders(market?.slug)
   const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()
+  const { data: orderBook } = useOrderBook(market?.slug)
   const getOrderOutcome = (order: ClobPosition) => {
     return order.token === market?.tokens.yes ? 'Yes' : 'No'
   }
+
+  const orderBookPriceRange = orderBook
+    ? [
+        new BigNumber(orderBook.adjustedMidpoint)
+          .minus(new BigNumber(orderBook.maxSpread))
+          .multipliedBy(100)
+          .decimalPlaces(0)
+          .toNumber(),
+        new BigNumber(orderBook.adjustedMidpoint)
+          .plus(new BigNumber(orderBook.maxSpread))
+          .multipliedBy(100)
+          .decimalPlaces(0)
+          .toNumber(),
+      ]
+    : [50, 50]
 
   const getContractSizeFormatted = (contracts: string) => {
     return NumberUtil.formatThousands(
@@ -73,6 +93,7 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
       2
     )
   }
+
   return (
     <>
       <TableContainer overflowY={'auto'} my='16px' maxH='178px'>
@@ -102,7 +123,13 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
           <Tbody>
             {userOrders?.map((order) => (
               <Tr key={order.id}>
-                <Td pl={0}> {order.side === 'BUY' ? 'Buy' : 'Sell'}</Td>
+                <Td pl={0}>
+                  <HStack gap='4px'>
+                    {checkPriceIsInRange(+order.price, orderBookPriceRange) &&
+                      market?.isRewardable && <GemIcon />}
+                    <Text {...paragraphRegular}>{order.side === 'BUY' ? 'Buy' : 'Sell'}</Text>
+                  </HStack>
+                </Td>
                 <Td>{getOrderOutcome(order)}</Td>
                 <Td textAlign='end'>{NumberUtil.toFixed(+order.price * 100)}¢</Td>
                 <Td textAlign='end'>{getContractSizeFormatted(order.originalSize)}</Td>

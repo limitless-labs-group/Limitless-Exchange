@@ -83,6 +83,7 @@ export interface Market {
   }
   marketType: 'single' | 'group'
   tradeType: 'clob' | 'amm'
+  isRewardable: boolean
 }
 
 export interface UserMarket {
@@ -414,6 +415,9 @@ export interface ColorScheme {
     100: string
   }
   redTransparent: {
+    100: string
+  }
+  blueTransparent: {
     100: string
   }
   text: {

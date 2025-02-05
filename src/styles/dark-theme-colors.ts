@@ -162,6 +162,9 @@ export const darkThemeColors: ColorScheme = {
   redTransparent: {
     100: 'rgba(255, 55, 86, 0.15)',
   },
+  blueTransparent: {
+    100: 'rgba(0, 121, 255, 0.10)',
+  },
   text: {
     100: 'white',
   },

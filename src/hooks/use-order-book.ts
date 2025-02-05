@@ -7,6 +7,8 @@ export interface OrderBook {
   asks: Order[]
   lastTradePrice: string
   tokenId: string
+  adjustedMidpoint: number
+  maxSpread: string
 }
 
 export interface Order {
