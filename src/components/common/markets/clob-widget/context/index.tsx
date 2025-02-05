@@ -211,10 +211,10 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     mutationFn: async () => {
       if (market) {
         if (web3Client === 'etherspot') {
-          if (outcome) {
+          if (strategy === 'Sell') {
             await privyService.approveConditionalIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address
+              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
             )
           } else {
             await privyService.approveCollateralIfNeeded(
@@ -262,10 +262,10 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     mutationFn: async () => {
       if (market) {
         if (web3Client === 'etherspot') {
-          if (outcome) {
+          if (strategy === 'Sell') {
             await privyService.approveConditionalIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address
+              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
             )
           } else {
             await privyService.approveCollateralIfNeeded(
