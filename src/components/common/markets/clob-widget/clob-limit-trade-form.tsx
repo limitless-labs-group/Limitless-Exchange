@@ -3,14 +3,13 @@ import { useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
+import { formatUnits, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import NumberInputWithButtons from '@/components/common/number-input-with-buttons'
 import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
-import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import {
   ClickEvent,
   useAccount,
@@ -43,7 +42,6 @@ export default function ClobLimitTradeForm() {
   const { market, strategy, clobOutcome: outcome } = useTradingService()
   const queryClient = useQueryClient()
   const { client } = useWeb3Service()
-  const privyService = usePrivySendTransaction()
 
   const handlePercentButtonClicked = (value: number) => {
     trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
@@ -108,14 +106,6 @@ export default function ClobLimitTradeForm() {
 
   const showSellBalance = useMemo(() => {
     if (strategy === 'Sell') {
-      // if (ownedSharesLoading) {
-      //   return (
-      //     <Box w='90'>
-      //       <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
-      //     </Box>
-      //   )
-      // }
-
       return (
         <Flex gap='12px'>
           {[10, 25, 50, 100].map((title: number) => (
@@ -191,34 +181,17 @@ export default function ClobLimitTradeForm() {
 
   const handleSubmitButtonClicked = async () => {
     if (strategy === 'Buy') {
-      if (client === 'etherspot') {
-        await privyService.approveCollateralIfNeeded(
-          process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-          maxUint256,
-          market?.collateralToken.address as Address
-        )
-        await placeLimitOrderMutation.mutateAsync()
-        return
-      }
       const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
         parseUnits(sharesPrice, market?.collateralToken.decimals || 6).toString()
       )
-      if (isApprovalNeeded) {
+      if (isApprovalNeeded && client === 'eoa') {
         onToggleTradeStepper()
         return
       }
       await placeLimitOrderMutation.mutateAsync()
       return
     }
-    if (client === 'etherspot') {
-      await privyService.approveConditionalIfNeeded(
-        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
-        process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address
-      )
-      await placeLimitOrderMutation.mutateAsync()
-      return
-    }
-    if (!isApprovedForSell) {
+    if (!isApprovedForSell && client === 'eoa') {
       onToggleTradeStepper()
       return
     }

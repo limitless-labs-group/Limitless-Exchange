@@ -407,6 +407,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       if (smartAccountClient) {
         return smartAccountClient.account?.address
       }
+      return
     }
     return user?.wallet?.address as Address | undefined
   }, [smartAccountClient, user, web3Client])
