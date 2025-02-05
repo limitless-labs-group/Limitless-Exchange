@@ -170,7 +170,7 @@ export const useInfinityHistory = () => {
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       // @ts-ignore
-      return lastPage.data.data.length === 30 ? lastPage.next : null
+      return lastPage.data?.data?.length === 30 ? lastPage.next : null
     },
     refetchOnWindowFocus: false,
     keepPreviousData: true,

@@ -137,6 +137,7 @@ export enum ClickEvent {
   ShareItemClicked = 'Share Item Clicked',
   ChangeMarketInGroupClicked = 'Change Market In Group Clicked',
   ProfileBurgerMenuClicked = 'Profile Burger Menu Clicked',
+  BuyCryptoClicked = 'Buy Crypto Clicked',
   SignOutClicked = 'Sign Out',
   TradeButtonClicked = 'Trade Button Clicked',
   ConfirmTransactionClicked = 'Confirm Transaction Clicked',
