@@ -91,7 +91,7 @@ export default function ClobMarketTradeForm() {
   const handleInputValueChange = (value: string) => {
     if (market?.collateralToken.symbol === 'USDC') {
       const decimals = value.split('.')[1]
-      if (decimals && decimals.length > 2) {
+      if (decimals && decimals.length > 6) {
         return
       }
       setPrice(value)
