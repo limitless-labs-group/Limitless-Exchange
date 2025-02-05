@@ -151,7 +151,7 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
           <Box flex={1} pl='8px'>
             {lastPrice && (
               <Text {...paragraphRegular} color={outcome ? 'red.500' : 'green.500'}>
-                {outcome ? 'NO' : 'YES'} {lastPrice}¢
+                Last: {outcome ? 'NO' : 'YES'} {lastPrice}¢
               </Text>
             )}
           </Box>
