@@ -268,14 +268,24 @@ export default function ClobMarketTradeForm() {
   }
 
   const noOrdersOnDesiredToken = useMemo(() => {
-    if (!outcome) {
-      return !Boolean(orderBook?.asks.length)
+    if (strategy === 'Buy') {
+      if (!outcome) {
+        return !Boolean(orderBook?.asks.length)
+      }
+      if (outcome) {
+        return !Boolean(orderBook?.bids.length)
+      }
     }
-    if (outcome) {
-      return !Boolean(orderBook?.bids.length)
+    if (strategy === 'Sell') {
+      if (!outcome) {
+        return !Boolean(orderBook?.bids.length)
+      }
+      if (outcome) {
+        return !Boolean(orderBook?.asks.length)
+      }
     }
     return false
-  }, [orderBook, outcome])
+  }, [orderBook, outcome, strategy])
 
   const handleSubmitButtonClicked = async () => {
     if (strategy === 'Buy') {
