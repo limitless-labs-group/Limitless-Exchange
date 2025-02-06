@@ -167,17 +167,12 @@ export default function Sidebar() {
           </Button>
         </UpgradeWalletContainer>
         <Button
-          variant='transparent'
+          variant='contained'
           onClick={handleBuyCryptoClicked}
           w='full'
           // bg={isOpenWalletPage ? 'grey.100' : 'unset'}
         >
-          <HStack w='full'>
-            <WalletIcon width={16} height={16} />
-            <Text fontWeight={500} fontSize='14px'>
-              Buy Crypto
-            </Text>
-          </HStack>
+          Deposit
         </Button>
       </>
     ) : (

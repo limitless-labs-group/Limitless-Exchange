@@ -22,19 +22,13 @@ export default function UpgradeWalletContainer({ children }: PropsWithChildren) 
     <VStack
       w='full'
       border='2px solid'
-      borderColor='blue.500'
+      borderColor='grey.200'
       borderRadius='8px'
       gap='10px'
       pt='4px'
     >
       {children}
-      <Button
-        variant='contained'
-        rounded='0px'
-        onClick={handleUpgradeClicked}
-        w='full'
-        _hover={{ bg: 'blue.500' }}
-      >
+      <Button variant='transparentGray' rounded='0px' onClick={handleUpgradeClicked} w='full'>
         Upgrade wallet
       </Button>
     </VStack>

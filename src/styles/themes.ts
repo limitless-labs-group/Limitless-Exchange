@@ -267,7 +267,7 @@ export const chakraTheme = ChakraTheme({
         transparentGray: {
           ...commonButtonProps,
           ...paragraphRegular,
-          color: 'grey.500',
+          color: 'grey.900',
           bg: 'grey.200',
           borderRadius: '8px',
           py: '2px',
