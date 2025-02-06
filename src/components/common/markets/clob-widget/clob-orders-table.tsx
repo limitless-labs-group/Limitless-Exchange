@@ -132,7 +132,7 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
                 </Td>
                 <Td>{getOrderOutcome(order)}</Td>
                 <Td textAlign='end'>
-                  {new BigNumber(order.price).multipliedBy(100).decimalPlaces(0).toNumber()}¢
+                  {new BigNumber(order.price).multipliedBy(100).decimalPlaces(1).toNumber()}¢
                 </Td>
                 <Td textAlign='end'>{getContractSizeFormatted(order.originalSize)}</Td>
                 <Td textAlign='end'>
