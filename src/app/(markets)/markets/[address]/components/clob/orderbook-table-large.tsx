@@ -45,7 +45,7 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
   const { data: userOrders } = useMarketOrders(market?.slug)
   const { trackChanged } = useAmplitude()
   const ref = useRef<HTMLElement>()
-  const { data: marketRewards } = useMarketRewards(market?.slug)
+  const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
 
   console.log(marketRewards)
 

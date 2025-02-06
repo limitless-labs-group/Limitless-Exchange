@@ -411,13 +411,13 @@ export const useWinningIndex = (marketAddr: string) =>
     },
   })
 
-export const useMarketRewards = (slug?: string) => {
+export const useMarketRewards = (slug?: string, isRewardable?: boolean) => {
   const { isLogged } = useClient()
   const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useQuery({
     queryKey: ['reward-distribution', slug, web3Wallet?.account?.address],
     queryFn: async () => privateClient.get(`/reward-distribution/unpaid-rewards?market=${slug}`),
-    enabled: !!slug && !!isLogged && !!web3Wallet?.account?.address,
+    enabled: !!slug && !!isLogged && !!web3Wallet?.account?.address && !!isRewardable,
   })
 }
