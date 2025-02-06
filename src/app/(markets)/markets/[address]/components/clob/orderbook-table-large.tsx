@@ -47,8 +47,6 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
   const ref = useRef<HTMLElement>()
   const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
 
-  console.log(orderBookData)
-
   const [rewardsButtonClicked, setRewardButtonClicked] = useState(false)
   const [rewardButtonHovered, setRewardButtonHovered] = useState(false)
 
@@ -61,12 +59,20 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
 
   const orderBookPriceRange = orderbook
     ? [
-        new BigNumber(orderbook.adjustedMidpoint)
+        new BigNumber(
+          outcome
+            ? new BigNumber(1).minus(orderbook.adjustedMidpoint).toString()
+            : orderbook.adjustedMidpoint
+        )
           .minus(new BigNumber(orderbook.maxSpread))
           .multipliedBy(100)
           .decimalPlaces(0)
           .toNumber(),
-        new BigNumber(orderbook.adjustedMidpoint)
+        new BigNumber(
+          outcome
+            ? new BigNumber(1).minus(orderbook.adjustedMidpoint).toString()
+            : orderbook.adjustedMidpoint
+        )
           .plus(new BigNumber(orderbook.maxSpread))
           .multipliedBy(100)
           .decimalPlaces(0)
@@ -96,7 +102,11 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
             >
               <GemIcon />
               <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
-                Earn Rewards
+                {marketRewards && Boolean(marketRewards?.length)
+                  ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
+                      market.collateralToken.symbol
+                    }`
+                  : 'Earn Rewards'}
               </Text>
             </HStack>
           )}
@@ -191,7 +201,7 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
                     <Box w={`${item.cumulativePercent}%`} bg='red.500' opacity={0.1} h='full' />
                   </Box>
                   <HStack w='88px' h='full' justifyContent='flex-end' pr='8px' gap='4px'>
-                    {checkIfUserHasOrdersAtThisPrice(+item.price, userOrders) &&
+                    {checkIfUserHasOrdersAtThisPrice(item.price, userOrders, outcome) &&
                       checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                       market?.isRewardable && <GemIcon />}
                     <Text {...paragraphRegular} color='red.500'>
@@ -277,7 +287,7 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
                     <Box w={`${item.cumulativePercent}%`} bg='green.500' opacity={0.1} h='full' />
                   </Box>
                   <HStack w='88px' h='full' justifyContent='flex-end' pr='8px' gap='4px'>
-                    {checkIfUserHasOrdersAtThisPrice(+item.price, userOrders) &&
+                    {checkIfUserHasOrdersAtThisPrice(item.price, userOrders, outcome) &&
                       checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                       market?.isRewardable && <GemIcon />}
                     <Text {...paragraphRegular} color='red.500'>
