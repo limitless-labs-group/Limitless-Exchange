@@ -80,8 +80,8 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
     <>
       <HStack w='full' justifyContent='space-between' mb='14px'>
         <Text {...h3Regular}>Order book</Text>
-        {market?.isRewardable && (
-          <HStack gap='16px'>
+        <HStack gap='16px'>
+          {market?.isRewardable && (
             <HStack
               gap='4px'
               borderRadius='8px'
@@ -99,58 +99,58 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
                 Earn Rewards
               </Text>
             </HStack>
-            <HStack w={'152px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
-              <Button
-                h={isMobile ? '28px' : '20px'}
-                flex='1'
-                py='2px'
-                borderRadius='6px'
-                bg={!outcome ? 'grey.50' : 'unset'}
-                color='grey.800'
-                _hover={{
-                  backgroundColor: !outcome ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
-                }}
-                onClick={() => {
-                  trackChanged<OrderBookSideChangedMetadata>(ChangeEvent.OrderBookSideChanged, {
-                    type: 'Yes selected',
-                    marketAddress: market?.slug as string,
-                  })
-                  setOutcome(0)
-                }}
-              >
-                <Text {...controlsMedium} color={!outcome ? 'font' : 'fontLight'}>
-                  YES
-                </Text>
-              </Button>
-              <Button
-                h={isMobile ? '28px' : '20px'}
-                flex='1'
-                borderRadius='6px'
-                py='2px'
-                bg={outcome ? 'grey.50' : 'unset'}
-                color='grey.800'
-                _hover={{
-                  backgroundColor: outcome ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
-                }}
-                _disabled={{
-                  opacity: '50%',
-                  pointerEvents: 'none',
-                }}
-                onClick={() => {
-                  trackChanged<OrderBookSideChangedMetadata>(ChangeEvent.OrderBookSideChanged, {
-                    type: 'No selected',
-                    marketAddress: market?.slug as string,
-                  })
-                  setOutcome(1)
-                }}
-              >
-                <Text {...controlsMedium} color={outcome ? 'font' : 'fontLight'}>
-                  NO
-                </Text>
-              </Button>
-            </HStack>
+          )}
+          <HStack w={'152px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
+            <Button
+              h={isMobile ? '28px' : '20px'}
+              flex='1'
+              py='2px'
+              borderRadius='6px'
+              bg={!outcome ? 'grey.50' : 'unset'}
+              color='grey.800'
+              _hover={{
+                backgroundColor: !outcome ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
+              }}
+              onClick={() => {
+                trackChanged<OrderBookSideChangedMetadata>(ChangeEvent.OrderBookSideChanged, {
+                  type: 'Yes selected',
+                  marketAddress: market?.slug as string,
+                })
+                setOutcome(0)
+              }}
+            >
+              <Text {...controlsMedium} color={!outcome ? 'font' : 'fontLight'}>
+                YES
+              </Text>
+            </Button>
+            <Button
+              h={isMobile ? '28px' : '20px'}
+              flex='1'
+              borderRadius='6px'
+              py='2px'
+              bg={outcome ? 'grey.50' : 'unset'}
+              color='grey.800'
+              _hover={{
+                backgroundColor: outcome ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
+              }}
+              _disabled={{
+                opacity: '50%',
+                pointerEvents: 'none',
+              }}
+              onClick={() => {
+                trackChanged<OrderBookSideChangedMetadata>(ChangeEvent.OrderBookSideChanged, {
+                  type: 'No selected',
+                  marketAddress: market?.slug as string,
+                })
+                setOutcome(1)
+              }}
+            >
+              <Text {...controlsMedium} color={outcome ? 'font' : 'fontLight'}>
+                NO
+              </Text>
+            </Button>
           </HStack>
-        )}
+        </HStack>
       </HStack>
       <TableContainer overflow={'auto'}>
         <Table variant={'noPaddingsOnSides'}>
