@@ -198,6 +198,14 @@ export default function ClobLimitTradeForm() {
     await placeLimitOrderMutation.mutateAsync()
   }
 
+  const handleSetLimitPrice = (val: string) => {
+    const decimals = val.split('.')[1]
+    if (decimals && decimals.length > 1) {
+      return
+    }
+    setPrice(val)
+  }
+
   return (
     <>
       <Flex justifyContent='space-between' alignItems='center' mb='8px'>
@@ -213,7 +221,7 @@ export default function ClobLimitTradeForm() {
         max={99}
         step={1}
         value={price}
-        onChange={setPrice}
+        onChange={handleSetLimitPrice}
       />
       <Flex justifyContent='space-between' alignItems='center' mt='16px' mb='8px'>
         <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'}>

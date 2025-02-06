@@ -47,7 +47,7 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
   const ref = useRef<HTMLElement>()
   const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
 
-  console.log(marketRewards)
+  console.log(orderBookData)
 
   const [rewardsButtonClicked, setRewardButtonClicked] = useState(false)
   const [rewardButtonHovered, setRewardButtonHovered] = useState(false)
@@ -195,8 +195,7 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
                       checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                       market?.isRewardable && <GemIcon />}
                     <Text {...paragraphRegular} color='red.500'>
-                      {NumberUtil.toFixed(new BigNumber(item.price).multipliedBy(100).toFixed(), 0)}
-                      ¢
+                      {new BigNumber(item.price).multipliedBy(100).decimalPlaces(1).toFixed()}¢
                     </Text>
                   </HStack>
                   <HStack w='136px' h='full' justifyContent='flex-end' pr='8px'>
@@ -282,8 +281,7 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
                       checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                       market?.isRewardable && <GemIcon />}
                     <Text {...paragraphRegular} color='red.500'>
-                      {NumberUtil.toFixed(new BigNumber(item.price).multipliedBy(100).toFixed(), 0)}
-                      ¢
+                      {new BigNumber(item.price).multipliedBy(100).decimalPlaces(1).toFixed()}¢
                     </Text>
                   </HStack>
                   <HStack w='136px' h='full' justifyContent='flex-end' pr='8px'>
