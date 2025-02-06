@@ -507,7 +507,11 @@ export const CreateMarket: FC = () => {
 
               <FormField label='Token'>
                 <HStack>
-                  <Select value={formData.token.id} onChange={handleTokenSelect}>
+                  <Select
+                    value={formData.token.id}
+                    onChange={handleTokenSelect}
+                    disabled={createClobMarket}
+                  >
                     {supportedTokens?.map((token: Token) => (
                       <option key={token.id} value={token.id} data-name={token.symbol}>
                         {token.symbol}
