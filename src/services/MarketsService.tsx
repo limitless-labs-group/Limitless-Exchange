@@ -10,6 +10,7 @@ import { POLLING_INTERVAL } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
+import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Category, Market, MarketsResponse, OddsData } from '@/types'
 import { getPrices } from '@/utils/market'
@@ -410,12 +411,13 @@ export const useWinningIndex = (marketAddr: string) =>
     },
   })
 
-export const useMarketRewards = (slug?: string) => {
+export const useMarketRewards = (slug?: string, isRewardable?: boolean) => {
   const { isLogged } = useClient()
+  const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useQuery({
-    queryKey: ['reward-distribution', slug],
+    queryKey: ['reward-distribution', slug, web3Wallet?.account?.address],
     queryFn: async () => privateClient.get(`/reward-distribution/unpaid-rewards?market=${slug}`),
-    enabled: !!slug && !!isLogged,
+    enabled: !!slug && !!isLogged && !!web3Wallet?.account?.address && !!isRewardable,
   })
 }
