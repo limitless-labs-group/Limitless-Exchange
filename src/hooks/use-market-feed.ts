@@ -52,7 +52,7 @@ export function useMarketClobInfinityFeed(marketSlug?: string) {
       const response: AxiosResponse<MarketFeedData[]> = await client.get(baseUrl, {
         params: {
           page: pageParam,
-          limit: 10,
+          limit: 30,
         },
       })
       return { data: response.data, next: (pageParam as number) + 1 }

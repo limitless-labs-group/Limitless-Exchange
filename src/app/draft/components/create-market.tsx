@@ -248,7 +248,7 @@ export const CreateMarket: FC = () => {
       if (!title) missingFields.push('Title')
       if (!description) missingFields.push('Description')
       if (!creatorId) missingFields.push('Creator')
-      if (!tag) missingFields.push('Tag')
+      if (tag.length === 0) missingFields.push('Tag')
 
       if (!ogLogo) {
         if (ogImageError) {

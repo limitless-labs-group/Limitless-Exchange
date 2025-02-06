@@ -274,6 +274,9 @@ export default function MarketPageBuyForm({
               color: 'var(--chakra-colors-text-100)',
             }}
             type='number'
+            inputMode='decimal'
+            pattern='[0-9]*'
+            min='0'
           />
           <InputRightElement h='16px' top='8px' right={isMobile ? '8px' : '12px'} w='fit'>
             <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'}>
@@ -320,6 +323,9 @@ export default function MarketPageBuyForm({
                 color: 'var(--chakra-colors-text-100)',
               }}
               type='number'
+              inputMode='decimal'
+              pattern='[0-9]*'
+              min='0'
             />
             <InputRightElement
               h='16px'
