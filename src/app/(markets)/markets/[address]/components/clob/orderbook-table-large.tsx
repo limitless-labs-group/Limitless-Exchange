@@ -14,9 +14,13 @@ import BigNumber from 'bignumber.js'
 import React, { LegacyRef, MutableRefObject, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
-import { checkPriceIsInRange } from '@/components/common/markets/clob-widget/utils'
+import {
+  checkIfUserHasOrdersAtThisPrice,
+  checkPriceIsInRange,
+} from '@/components/common/markets/clob-widget/utils'
 import Skeleton from '@/components/common/skeleton'
 import { OrderBookData } from '@/app/(markets)/markets/[address]/components/clob/types'
+import { useMarketOrders } from '@/hooks/use-market-orders'
 import { useOrderBook } from '@/hooks/use-order-book'
 import GemIcon from '@/resources/icons/gem-icon.svg'
 import {
@@ -25,6 +29,7 @@ import {
   useAmplitude,
   useTradingService,
 } from '@/services'
+import { useMarketRewards } from '@/services/MarketsService'
 import {
   captionMedium,
   controlsMedium,
@@ -37,8 +42,12 @@ import { NumberUtil } from '@/utils'
 export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }: OrderBookData) {
   const { market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
+  const { data: userOrders } = useMarketOrders(market?.slug)
   const { trackChanged } = useAmplitude()
   const ref = useRef<HTMLElement>()
+  const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
+
+  console.log(marketRewards)
 
   const [rewardsButtonClicked, setRewardButtonClicked] = useState(false)
   const [rewardButtonHovered, setRewardButtonHovered] = useState(false)
@@ -182,7 +191,8 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
                     <Box w={`${item.cumulativePercent}%`} bg='red.500' opacity={0.1} h='full' />
                   </Box>
                   <HStack w='88px' h='full' justifyContent='flex-end' pr='8px' gap='4px'>
-                    {checkPriceIsInRange(item.price, orderBookPriceRange) &&
+                    {checkIfUserHasOrdersAtThisPrice(+item.price, userOrders) &&
+                      checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                       market?.isRewardable && <GemIcon />}
                     <Text {...paragraphRegular} color='red.500'>
                       {NumberUtil.toFixed(new BigNumber(item.price).multipliedBy(100).toFixed(), 0)}
@@ -268,7 +278,8 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
                     <Box w={`${item.cumulativePercent}%`} bg='green.500' opacity={0.1} h='full' />
                   </Box>
                   <HStack w='88px' h='full' justifyContent='flex-end' pr='8px' gap='4px'>
-                    {checkPriceIsInRange(item.price, orderBookPriceRange) &&
+                    {checkIfUserHasOrdersAtThisPrice(+item.price, userOrders) &&
+                      checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                       market?.isRewardable && <GemIcon />}
                     <Text {...paragraphRegular} color='red.500'>
                       {NumberUtil.toFixed(new BigNumber(item.price).multipliedBy(100).toFixed(), 0)}
