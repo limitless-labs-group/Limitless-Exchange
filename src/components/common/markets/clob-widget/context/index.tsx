@@ -117,10 +117,20 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         yes: BigInt(
           new BigNumber(sharesOwned[0].toString())
             .minus(new BigNumber(lockedBalance.yes))
-            .toString()
+            .isNegative()
+            ? '0'
+            : new BigNumber(sharesOwned[0].toString())
+                .minus(new BigNumber(lockedBalance.yes))
+                .toString()
         ),
         no: BigInt(
-          new BigNumber(sharesOwned[1].toString()).minus(new BigNumber(lockedBalance.no)).toString()
+          new BigNumber(sharesOwned[1].toString())
+            .minus(new BigNumber(lockedBalance.no))
+            .isNegative()
+            ? '0'
+            : new BigNumber(sharesOwned[1].toString())
+                .minus(new BigNumber(lockedBalance.no))
+                .toString()
         ),
       }
     }
