@@ -219,7 +219,7 @@ export default function ClobLimitTradeForm() {
         placeHolderText='Eg. 85¢'
         min={1}
         max={99}
-        step={0.1}
+        step={1}
         value={price}
         onChange={handleSetLimitPrice}
       />
