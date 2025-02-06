@@ -10,6 +10,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
+import { useFundWallet } from '@privy-io/react-auth'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
@@ -39,6 +40,7 @@ import {
   ClickEvent,
   ClobPositionWithType,
   HistoryPositionWithType,
+  ProfileBurgerMenuClickedMetadata,
   useAccount,
   useAmplitude,
   useBalanceQuery,
@@ -69,6 +71,7 @@ export default function MobileHeader() {
   const { client } = useWeb3Service()
   const { isLogged } = useClient()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
+  const { fundWallet } = useFundWallet()
 
   const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
   const { handleCategory } = useTokenFilter()
@@ -107,6 +110,11 @@ export default function MobileHeader() {
   const handleNavigateToCreateMarketPage = () => {
     onToggleUserMenu()
     router.push('/create-market')
+  }
+
+  const handleBuyCryptoClicked = async () => {
+    trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.BuyCryptoClicked)
+    await fundWallet(account as string)
   }
 
   return (
@@ -291,45 +299,56 @@ export default function MobileHeader() {
                         </Button>
 
                         {client !== 'eoa' ? (
-                          <UpgradeWalletContainer>
-                            <MobileDrawer
-                              trigger={
-                                <Box
-                                  w='full'
-                                  mt='8px'
-                                  px='4px'
-                                  onClick={() => {
-                                    trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
-                                      option: 'Wallet',
-                                      platform: 'mobile',
-                                    })
-                                    onToggleUserMenu()
-                                  }}
-                                >
-                                  <HStack justifyContent='space-between' w='full'>
-                                    <HStack color='grey.500' gap='4px'>
-                                      <WalletIcon width={16} height={16} />
-                                      <Text fontWeight={500} fontSize='16px'>
-                                        Wallet
-                                      </Text>
-                                    </HStack>
+                          <>
+                            <UpgradeWalletContainer>
+                              <MobileDrawer
+                                trigger={
+                                  <Box
+                                    w='full'
+                                    mt='8px'
+                                    px='4px'
+                                    onClick={() => {
+                                      trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+                                        option: 'Wallet',
+                                        platform: 'mobile',
+                                      })
+                                      onToggleUserMenu()
+                                    }}
+                                  >
+                                    <HStack justifyContent='space-between' w='full'>
+                                      <HStack color='grey.500' gap='4px'>
+                                        <WalletIcon width={16} height={16} />
+                                        <Text fontWeight={500} fontSize='16px'>
+                                          Wallet
+                                        </Text>
+                                      </HStack>
 
-                                    <HStack gap='8px'>
-                                      <Text fontWeight={500} fontSize='16px'>
-                                        {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-                                      </Text>
-                                      <Box color='grey.800'>
-                                        <ArrowRightIcon width={16} height={16} />
-                                      </Box>
+                                      <HStack gap='8px'>
+                                        <Text fontWeight={500} fontSize='16px'>
+                                          {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+                                        </Text>
+                                        <Box color='grey.800'>
+                                          <ArrowRightIcon width={16} height={16} />
+                                        </Box>
+                                      </HStack>
                                     </HStack>
-                                  </HStack>
-                                </Box>
-                              }
-                              variant='common'
+                                  </Box>
+                                }
+                                variant='common'
+                              >
+                                <WalletPage onClose={() => console.log('ok')} />
+                              </MobileDrawer>
+                            </UpgradeWalletContainer>
+                            <Button
+                              variant='contained'
+                              onClick={handleBuyCryptoClicked}
+                              w='full'
+                              mt='12px'
+                              // bg={isOpenWalletPage ? 'grey.100' : 'unset'}
                             >
-                              <WalletPage onClose={() => console.log('ok')} />
-                            </MobileDrawer>
-                          </UpgradeWalletContainer>
+                              Deposit
+                            </Button>
+                          </>
                         ) : (
                           <MobileDrawer
                             trigger={
@@ -418,29 +437,6 @@ export default function MobileHeader() {
                         {/*  <MyMarkets />*/}
                         {/*</MobileDrawer>*/}
                       </VStack>
-
-                      {client !== 'eoa' && (
-                        <MobileDrawer
-                          trigger={
-                            <Button
-                              variant='contained'
-                              w='full'
-                              h='32px'
-                              onClick={() => {
-                                trackClicked(ClickEvent.TopUpClicked, {
-                                  platform: 'mobile',
-                                })
-                                onToggleUserMenu()
-                              }}
-                            >
-                              Top Up
-                            </Button>
-                          }
-                          variant='common'
-                        >
-                          <WalletPage onClose={() => console.log('ok')} />
-                        </MobileDrawer>
-                      )}
                     </Box>
 
                     <Spacer />

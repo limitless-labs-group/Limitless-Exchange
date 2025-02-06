@@ -15,6 +15,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
+import { useFundWallet } from '@privy-io/react-auth'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useCallback, useMemo } from 'react'
@@ -31,7 +32,6 @@ import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { useThemeProvider } from '@/providers'
@@ -82,6 +82,7 @@ export default function Sidebar() {
   const { data: positions } = usePosition()
   const { selectedCategory, handleCategory } = useTokenFilter()
   const { data, isLoading } = useMarkets(null)
+  const { fundWallet } = useFundWallet()
 
   const markets: (Market | MarketGroup)[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
@@ -128,6 +129,11 @@ export default function Sidebar() {
     onToggleProfile()
   }
 
+  const handleBuyCryptoClicked = async () => {
+    trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.BuyCryptoClicked)
+    await fundWallet(account as string)
+  }
+
   const walletTypeActionButton = useMemo(() => {
     const smartWalletBalanceLoading =
       (web3Client !== 'eoa' && balanceLoading) || !balanceOfSmartWallet
@@ -139,26 +145,36 @@ export default function Sidebar() {
       )
     }
     return web3Client !== 'eoa' ? (
-      <UpgradeWalletContainer>
+      <>
+        <UpgradeWalletContainer>
+          <Button
+            variant='transparent'
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Wallet',
+              })
+              handleOpenWalletPage()
+            }}
+            w='full'
+            bg={isOpenWalletPage ? 'grey.100' : 'unset'}
+          >
+            <HStack w='full'>
+              <WalletIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+              </Text>
+            </HStack>
+          </Button>
+        </UpgradeWalletContainer>
         <Button
-          variant='transparent'
-          onClick={() => {
-            trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
-              option: 'Wallet',
-            })
-            handleOpenWalletPage()
-          }}
+          variant='contained'
+          onClick={handleBuyCryptoClicked}
           w='full'
-          bg={isOpenWalletPage ? 'grey.100' : 'unset'}
+          // bg={isOpenWalletPage ? 'grey.100' : 'unset'}
         >
-          <HStack w='full'>
-            <WalletIcon width={16} height={16} />
-            <Text fontWeight={500} fontSize='14px'>
-              {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-            </Text>
-          </HStack>
+          Deposit
         </Button>
-      </UpgradeWalletContainer>
+      </>
     ) : (
       <Button
         variant='transparent'

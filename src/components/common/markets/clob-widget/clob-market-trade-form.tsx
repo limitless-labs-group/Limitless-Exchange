@@ -13,14 +13,13 @@ import { useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
+import { formatUnits, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
 import { useOrderBook } from '@/hooks/use-order-book'
-import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import {
   ClickEvent,
   useAccount,
@@ -52,7 +51,6 @@ export default function ClobMarketTradeForm() {
     sharesAvailable,
   } = useClobWidget()
   const { client } = useWeb3Service()
-  const privyService = usePrivySendTransaction()
 
   const handlePercentButtonClicked = (value: number) => {
     trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
@@ -93,7 +91,7 @@ export default function ClobMarketTradeForm() {
   const handleInputValueChange = (value: string) => {
     if (market?.collateralToken.symbol === 'USDC') {
       const decimals = value.split('.')[1]
-      if (decimals && decimals.length > 2) {
+      if (decimals && decimals.length > 6) {
         return
       }
       setPrice(value)
@@ -268,45 +266,38 @@ export default function ClobMarketTradeForm() {
   }
 
   const noOrdersOnDesiredToken = useMemo(() => {
-    if (!outcome) {
-      return !Boolean(orderBook?.asks.length)
+    if (strategy === 'Buy') {
+      if (!outcome) {
+        return !Boolean(orderBook?.asks.length)
+      }
+      if (outcome) {
+        return !Boolean(orderBook?.bids.length)
+      }
     }
-    if (outcome) {
-      return !Boolean(orderBook?.bids.length)
+    if (strategy === 'Sell') {
+      if (!outcome) {
+        return !Boolean(orderBook?.bids.length)
+      }
+      if (outcome) {
+        return !Boolean(orderBook?.asks.length)
+      }
     }
     return false
-  }, [orderBook, outcome])
+  }, [orderBook, outcome, strategy])
 
   const handleSubmitButtonClicked = async () => {
     if (strategy === 'Buy') {
-      if (client === 'etherspot') {
-        await privyService.approveCollateralIfNeeded(
-          process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-          maxUint256,
-          market?.collateralToken.address as Address
-        )
-        await placeMarketOrderMutation.mutateAsync()
-        return
-      }
       const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
         parseUnits(sharesPrice, market?.collateralToken.decimals || 6).toString()
       )
-      if (isApprovalNeeded) {
+      if (isApprovalNeeded && client === 'eoa') {
         onToggleTradeStepper()
         return
       }
       await placeMarketOrderMutation.mutateAsync()
       return
     }
-    if (client === 'etherspot') {
-      await privyService.approveConditionalIfNeeded(
-        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
-        process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address
-      )
-      await placeMarketOrderMutation.mutateAsync()
-      return
-    }
-    if (!isApprovedForSell) {
+    if (!isApprovedForSell && client === 'eoa') {
       onToggleTradeStepper()
       return
     }

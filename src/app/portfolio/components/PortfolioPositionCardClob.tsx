@@ -151,35 +151,36 @@ const PortfolioPositionCardClob = ({
               Contracts
             </Text>
           </HStack>
-          {Boolean(+positionData.tokensBalance.yes) && (
-            <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
-              <Text
-                {...paragraphRegular}
-                color={cardColors.main}
-                w={isMobile ? 'unset' : '60px'}
-                flex={isMobile ? 1 : 'unset'}
-                textAlign={isMobile ? 'left' : 'unset'}
-              >
-                Yes
-              </Text>
-              <Text
-                {...paragraphRegular}
-                color={cardColors.main}
-                w={isMobile ? 'unset' : '120px'}
-                flex={isMobile ? 1 : 'unset'}
-                textAlign={isMobile ? 'left' : 'center'}
-              >
-                {`${NumberUtil.toFixed(
-                  formatUnits(
-                    BigInt(positionData.tokensBalance.yes),
-                    positionData.market.collateralToken.decimals
-                  ),
-                  6
-                )}`}
-              </Text>
-            </HStack>
-          )}
-          {Boolean(+positionData.tokensBalance.no) && (
+          {Boolean(+positionData.tokensBalance.yes) &&
+            positionData.market.winningOutcomeIndex !== 1 && (
+              <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
+                <Text
+                  {...paragraphRegular}
+                  color={cardColors.main}
+                  w={isMobile ? 'unset' : '60px'}
+                  flex={isMobile ? 1 : 'unset'}
+                  textAlign={isMobile ? 'left' : 'unset'}
+                >
+                  Yes
+                </Text>
+                <Text
+                  {...paragraphRegular}
+                  color={cardColors.main}
+                  w={isMobile ? 'unset' : '120px'}
+                  flex={isMobile ? 1 : 'unset'}
+                  textAlign={isMobile ? 'left' : 'center'}
+                >
+                  {`${NumberUtil.toFixed(
+                    formatUnits(
+                      BigInt(positionData.tokensBalance.yes),
+                      positionData.market.collateralToken.decimals
+                    ),
+                    6
+                  )}`}
+                </Text>
+              </HStack>
+            )}
+          {Boolean(+positionData.tokensBalance.no) && !positionData.market.winningOutcomeIndex && (
             <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
               <Text
                 {...paragraphRegular}

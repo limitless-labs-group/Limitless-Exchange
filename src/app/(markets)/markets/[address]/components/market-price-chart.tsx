@@ -209,7 +209,9 @@ export const MarketPriceChart = () => {
   }, [prices, winningIndex, resolved])
 
   const marketActivePrice = useMemo(() => {
-    return market?.tradeType === 'clob' ? chartData.at(-1)?.[1] : outcomeTokensPercent?.[0]
+    return market?.tradeType === 'clob'
+      ? chartData.at(-1)?.[1].toFixed(0)
+      : outcomeTokensPercent?.[0]
   }, [chartData, market?.tradeType, outcomeTokensPercent])
 
   return !prices ? (

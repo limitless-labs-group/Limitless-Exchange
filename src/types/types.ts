@@ -83,6 +83,7 @@ export interface Market {
   }
   marketType: 'single' | 'group'
   tradeType: 'clob' | 'amm'
+  isRewardable: boolean
 }
 
 export interface UserMarket {
@@ -416,6 +417,9 @@ export interface ColorScheme {
   redTransparent: {
     100: string
   }
+  blueTransparent: {
+    100: string
+  }
   text: {
     100: string
   }
@@ -493,4 +497,12 @@ export type APIError = AxiosError<{ message: string; statusCode: number }>
 export enum MarketOrderType {
   LIMIT = 'limit',
   MARKET = 'market',
+}
+
+export interface MarketRewardsResponse {
+  marketId: string
+  marketSlug: string
+  totalUnpaidReward: string
+  unpaidRecords: string
+  userId: string
 }
