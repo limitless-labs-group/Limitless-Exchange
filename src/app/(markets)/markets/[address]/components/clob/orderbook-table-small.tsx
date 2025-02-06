@@ -175,7 +175,7 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
                     checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                     market?.isRewardable && <GemIcon />}
                   <Text {...paragraphRegular} color='red.500' textAlign='right'>
-                    {NumberUtil.toFixed(new BigNumber(item.price).multipliedBy(100).toFixed(), 0)}¢
+                    {new BigNumber(item.price).multipliedBy(100).decimalPlaces(1).toFixed()}¢
                   </Text>
                 </HStack>
                 <Box w='30%'>
@@ -268,7 +268,7 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
                     checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                     market?.isRewardable && <GemIcon />}
                   <Text {...paragraphRegular} color='red.500' textAlign='right'>
-                    {NumberUtil.toFixed(new BigNumber(item.price).multipliedBy(100).toFixed(), 0)}¢
+                    {new BigNumber(item.price).multipliedBy(100).decimalPlaces(1).toFixed()}¢
                   </Text>
                 </HStack>
                 <Box w='30%'>

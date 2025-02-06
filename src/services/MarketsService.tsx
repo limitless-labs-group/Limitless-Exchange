@@ -419,5 +419,6 @@ export const useMarketRewards = (slug?: string, isRewardable?: boolean) => {
     queryKey: ['reward-distribution', slug, web3Wallet?.account?.address],
     queryFn: async () => privateClient.get(`/reward-distribution/unpaid-rewards?market=${slug}`),
     enabled: !!slug && !!isLogged && !!web3Wallet?.account?.address && !!isRewardable,
+    refetchInterval: 60000,
   })
 }
