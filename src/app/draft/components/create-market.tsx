@@ -25,10 +25,13 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
+  Text,
+  Switch,
 } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { toZonedTime } from 'date-fns-tz'
+import { htmlToText } from 'html-to-text'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { FC, useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
@@ -68,6 +71,7 @@ export const CreateMarket: FC = () => {
   const [formData, setFormData] = useState<IFormData>(defaultFormData)
   const [isCreating, setIsCreating] = useState<boolean>(false)
   const { supportedTokens } = useLimitlessApi()
+  const [createClobMarket, setCreateClobMarket] = useState<boolean>(false)
   const toast = useToast()
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -84,8 +88,13 @@ export const CreateMarket: FC = () => {
     enabled: !!marketId,
   })
 
+  const handleSwitchClicked = () => {
+    setCreateClobMarket(!createClobMarket)
+  }
+
   useEffect(() => {
     if (editMarket) {
+      setAutoGenerateOg(true)
       setFormData((prevFormData) => ({
         ...prevFormData,
         title: editMarket.title || '',
@@ -109,7 +118,8 @@ export const CreateMarket: FC = () => {
         creatorId: editMarket.creator?.id || defaultCreatorId,
         categoryId: editMarket.category?.id || defaultCategoryId,
       }))
-      generateOgImage().then(() => console.log('Og image generated'))
+      generateOgImage().then(() => console.log('Og image generated')),
+        setCreateClobMarket(!!editMarket.type)
     }
   }, [editMarket])
 
@@ -174,11 +184,45 @@ export const CreateMarket: FC = () => {
 
   const { data: categories } = useCategories()
   const [ogImageError, setOgImageError] = useState<string | null>(null)
+  const [autoGenerateOg, setAutoGenerateOg] = useState<boolean>(true)
+  const [isReady, setIsReady] = useState<boolean>(false)
+
+  useEffect(() => {
+    setIsReady(true)
+    if (autoGenerateOg && formData.title) {
+      const timer = setTimeout(() => {
+        generateOgImage()
+          .then(() => console.log('Initial OG image generated successfully'))
+          .catch(() => {
+            setOgImageError('Failed to generate initial OG image. Please try regenerating.')
+          })
+      }, 500) // Add a small delay to ensure form data is stable
+
+      return () => clearTimeout(timer)
+    }
+  }, [formData.title, autoGenerateOg])
+
   const { mutateAsync: generateOgImage, isPending: isGeneratingOgImage } = useMutation({
     mutationKey: ['generate-og-image'],
-    mutationFn: async () => new Promise((resolve) => setTimeout(resolve, 1_000)),
-    onError: () => {
-      setOgImageError('Failed to generate OG image')
+    mutationFn: async () => {
+      setOgImageError(null)
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(console.log('OG image generation timed out'))
+        }, 5000)
+
+        const checkReady = setInterval(() => {
+          if (isReady) {
+            clearInterval(checkReady)
+            clearTimeout(timeout)
+            resolve(true)
+          }
+        }, 50)
+      })
+    },
+    onError: (error) => {
+      console.error('OG image generation error:', error)
+      setOgImageError('Failed to generate OG image. Please try again.')
     },
   })
 
@@ -194,16 +238,17 @@ export const CreateMarket: FC = () => {
   }
 
   const prepareData = async () => {
-    try {
-      await generateOgImage()
+    await generateOgImage()
 
+    try {
       const { title, description, creatorId, ogLogo, tag } = formData
 
       const missingFields: string[] = []
+
       if (!title) missingFields.push('Title')
       if (!description) missingFields.push('Description')
       if (!creatorId) missingFields.push('Creator')
-      if (!tag) missingFields.push('Tag')
+      if (tag.length === 0) missingFields.push('Tag')
 
       if (!ogLogo) {
         if (ogImageError) {
@@ -234,8 +279,10 @@ export const CreateMarket: FC = () => {
       marketFormData?.set('title', formData.title)
       marketFormData?.set('description', formData.description)
       marketFormData?.set('tokenId', formData.token.id.toString())
-      marketFormData?.set('liquidity', formData.liquidity.toString())
-      marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
+      if (!createClobMarket) {
+        marketFormData?.set('liquidity', formData.liquidity?.toString() || '')
+        marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
+      }
       marketFormData?.set('marketFee', formData.marketFee.toString())
       marketFormData?.set('deadline', zonedTime.toString())
       marketFormData?.set('isBannered', formData.isBannered.toString())
@@ -256,8 +303,6 @@ export const CreateMarket: FC = () => {
         marketFormData.set('tagIds', formData.tag.map((t) => t.id).join(','))
       }
 
-      showToast('Request for market creation has been registered successfully.')
-
       return marketFormData
     } catch (e) {}
   }
@@ -266,32 +311,33 @@ export const CreateMarket: FC = () => {
     const data = await prepareData()
     if (!data) return
     setIsCreating(true)
+    const marketData = {
+      title: data.get('title'),
+      description: data.get('description'),
+      tokenId: Number(data.get('tokenId')),
+      ...(createClobMarket ? {} : { liquidity: Number(data.get('liquidity')) }),
+      ...(createClobMarket
+        ? {}
+        : { initialYesProbability: Number(data.get('initialYesProbability')) }),
+      marketFee: Number(data.get('marketFee')),
+      deadline: Number(data.get('deadline')),
+      isBannered: data.get('isBannered') === 'true',
+      creatorId: data.get('creatorId'),
+      categoryId: data.get('categoryId'),
+      ogFile: data.get('ogFile'),
+      tagIds: data.get('tagIds'),
+    }
+    const url = createClobMarket ? '/markets/clob/drafts' : '/markets/drafts'
     privateClient
-      .post(
-        `/markets/drafts`,
-        {
-          title: data.get('title'),
-          description: data.get('description'),
-          tokenId: Number(data.get('tokenId')),
-          liquidity: Number(data.get('liquidity')),
-          initialYesProbability: Number(data.get('initialYesProbability')),
-          marketFee: Number(data.get('marketFee')),
-          deadline: Number(data.get('deadline')),
-          isBannered: data.get('isBannered') === 'true',
-          creatorId: data.get('creatorId'),
-          categoryId: data.get('categoryId'),
-          ogFile: data.get('ogFile'),
-          tagIds: data.get('tagIds'),
+      .post(url, marketData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
         },
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      )
+      })
       .then((res) => {
         showToast(`Market is drafted`)
-        router.push('/draft?tab=queue')
+        const redirectUrl = createClobMarket ? 'queue-clob' : 'queue-amm'
+        router.push(`/draft?tab=${redirectUrl}`)
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
@@ -336,18 +382,88 @@ export const CreateMarket: FC = () => {
     e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
   }
 
+  const getPlainTextLength = (html: string | undefined): number => {
+    if (!html) return 0
+    return htmlToText(html, {
+      wordwrap: false,
+      preserveNewlines: true,
+      selectors: [
+        { selector: 'a', options: { ignoreHref: true } },
+        { selector: 'img', format: 'skip' },
+      ],
+    }).length
+  }
+
+  const handleBlobGenerated = (blob: Blob | null) => {
+    try {
+      if (!blob) {
+        const errorMessage = 'Failed to generate OG image: No blob received'
+        showToast(errorMessage)
+        setOgImageError(errorMessage)
+        return
+      }
+      if (!blob.type.startsWith('image/')) {
+        const errorMessage = 'Failed to generate OG image: Invalid image type'
+        showToast(errorMessage)
+        setOgImageError(errorMessage)
+        return
+      }
+
+      const _ogLogo = new File([blob], 'og.png', {
+        type: blob.type,
+        lastModified: Date.now(),
+      })
+
+      if (!_ogLogo.size) {
+        const errorMessage = 'Failed to generate OG image: Empty file'
+        showToast(errorMessage)
+        setOgImageError(errorMessage)
+        return
+      }
+
+      if (_ogLogo.size > 1024 * 1024) {
+        const errorMessage = 'Failed to generate OG image: File too large'
+        showToast('Failed to generate OG image: File too large')
+        setOgImageError(errorMessage)
+        return
+      }
+
+      setOgImageError(null)
+      handleChange('ogLogo', _ogLogo)
+    } catch (error) {
+      const errorMessage = 'Failed to generate OG image: ' + (error as Error).message
+      showToast(errorMessage)
+      setOgImageError(errorMessage)
+    }
+  }
+
   const submit = async () => {
     if (marketId) {
       await updateMarket()
+
       return
     }
     await draftMarket()
   }
 
+  const getButtonText = () => {
+    if (!isReady && !editMarket) return 'OG is not ready..'
+    if (marketId) return 'Save'
+    return 'Draft'
+  }
+
   return (
-    <Flex justifyContent={'center'}>
+    <Flex justifyContent='center'>
       <VStack w='full' spacing={4}>
         <FormControl>
+          <Box>
+            <Text>Market type</Text>
+            <HStack gap='4px' my='12px'>
+              <Text>AMM (old)</Text>
+              <Switch id='isChecked' isChecked={createClobMarket} onChange={handleSwitchClicked} />
+              <Text>CLOB (new)</Text>
+            </HStack>
+          </Box>
           <HStack
             w='full'
             maxW='1200px'
@@ -357,76 +473,6 @@ export const CreateMarket: FC = () => {
             alignItems='flex-start'
           >
             <VStack w='full' flex='1.2'>
-              <Accordion allowToggle>
-                <AccordionItem>
-                  <h2>
-                    <AccordionButton>
-                      <Box flex='1' textAlign='left'>
-                        OG Preview (Click to Expand)
-                        {ogImageError && (
-                          <Box as='span' color='red.500' ml={2} fontSize='sm'>
-                            (Generation failed)
-                          </Box>
-                        )}
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pb={4}>
-                    <Button
-                      size='sm'
-                      colorScheme='blue'
-                      onClick={async () => {
-                        setOgImageError(null)
-                        await generateOgImage()
-                      }}
-                      mb={4}
-                      isLoading={isGeneratingOgImage}
-                    >
-                      Regenerate OG Image
-                    </Button>
-                    <Box pointerEvents='none'>
-                      <HStack h='280px' w='600px'>
-                        <OgImageGenerator
-                          title={formData.title}
-                          category={
-                            categories?.find((category) => category.id === +formData.categoryId)
-                              ?.name ?? 'Unknown'
-                          }
-                          onBlobGenerated={(blob) => {
-                            try {
-                              if (!blob) {
-                                setOgImageError('Failed to generate OG image: No blob received')
-                                return
-                              }
-
-                              const _ogLogo = new File([blob], 'og.png', {
-                                type: blob.type,
-                                lastModified: Date.now(),
-                              })
-
-                              if (!_ogLogo.size) {
-                                setOgImageError('Failed to generate OG image: Empty file')
-                                return
-                              }
-
-                              setOgImageError(null)
-                              handleChange('ogLogo', _ogLogo)
-                            } catch (error) {
-                              console.error('OG image generation error:', error)
-                              setOgImageError(
-                                'Failed to generate OG image: ' + (error as Error).message
-                              )
-                            }
-                          }}
-                          generateBlob={isGeneratingOgImage}
-                        />
-                      </HStack>
-                    </Box>
-                  </AccordionPanel>
-                </AccordionItem>
-              </Accordion>
-
               <FormField label='Title'>
                 <Textarea
                   resize='none'
@@ -437,7 +483,7 @@ export const CreateMarket: FC = () => {
                   value={formData.title}
                   onChange={(e) => handleChange('title', e.target.value)}
                   maxLength={70}
-                  onBlur={() => generateOgImage()}
+                  onBlur={() => autoGenerateOg && generateOgImage()}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                   {formData.title?.length}/70 characters
@@ -449,19 +495,23 @@ export const CreateMarket: FC = () => {
                   value={formData.description}
                   readOnly={false}
                   onChange={(e) => {
-                    if (e.length <= 1500) {
+                    if (getPlainTextLength(e) <= 1500) {
                       handleChange('description', e)
                     }
                   }}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                  {formData.description?.length}/1500 characters
+                  {getPlainTextLength(formData.description)}/1500 characters
                 </FormHelperText>
               </FormField>
 
               <FormField label='Token'>
                 <HStack>
-                  <Select value={formData.token.id} onChange={handleTokenSelect}>
+                  <Select
+                    value={formData.token.id}
+                    onChange={handleTokenSelect}
+                    disabled={createClobMarket}
+                  >
                     {supportedTokens?.map((token: Token) => (
                       <option key={token.id} value={token.id} data-name={token.symbol}>
                         {token.symbol}
@@ -471,68 +521,136 @@ export const CreateMarket: FC = () => {
                 </HStack>
               </FormField>
 
-              <FormField label={`${formData.token.symbol} Liquidity`}>
-                <HStack>
-                  <NumberInput
-                    maxW='120px'
-                    mr='2rem'
-                    value={formData.liquidity}
-                    onChange={(value) => handleChange('liquidity', Number(value))}
-                    min={tokenLimits[formData.token.symbol]?.min}
-                    max={tokenLimits[formData.token.symbol]?.max}
-                    step={tokenLimits[formData.token.symbol]?.step}
-                  >
-                    <NumberInputField w={'120px'} />
-                  </NumberInput>
-                  <Slider
-                    flex='1'
-                    focusThumbOnChange={false}
-                    value={formData.liquidity}
-                    onChange={(value) => handleChange('liquidity', value)}
-                    min={tokenLimits[formData.token.symbol]?.min}
-                    max={tokenLimits[formData.token.symbol]?.max}
-                    step={tokenLimits[formData.token.symbol]?.step}
-                  >
-                    <SliderTrack bg='var(--chakra-colors-greyTransparent-600)'>
-                      <SliderFilledTrack bg='var(--chakra-colors-text-100)' />
-                    </SliderTrack>
-                    <SliderThumb bg='var(--chakra-colors-text-100)' fontSize='sm' boxSize='24px' />
-                  </Slider>
-                </HStack>
-              </FormField>
+              {!createClobMarket && (
+                <>
+                  <FormField label={`${formData.token.symbol} Liquidity`}>
+                    <HStack>
+                      <NumberInput
+                        maxW='120px'
+                        mr='2rem'
+                        value={formData.liquidity}
+                        onChange={(value) => handleChange('liquidity', Number(value))}
+                        min={tokenLimits[formData.token.symbol]?.min}
+                        max={tokenLimits[formData.token.symbol]?.max}
+                        step={tokenLimits[formData.token.symbol]?.step}
+                      >
+                        <NumberInputField w={'120px'} />
+                      </NumberInput>
+                      <Slider
+                        flex='1'
+                        focusThumbOnChange={false}
+                        value={formData.liquidity}
+                        onChange={(value) => handleChange('liquidity', value)}
+                        min={tokenLimits[formData.token.symbol]?.min}
+                        max={tokenLimits[formData.token.symbol]?.max}
+                        step={tokenLimits[formData.token.symbol]?.step}
+                      >
+                        <SliderTrack bg='var(--chakra-colors-greyTransparent-600)'>
+                          <SliderFilledTrack bg='var(--chakra-colors-text-100)' />
+                        </SliderTrack>
+                        <SliderThumb
+                          bg='var(--chakra-colors-text-100)'
+                          fontSize='sm'
+                          boxSize='24px'
+                        />
+                      </Slider>
+                    </HStack>
+                  </FormField>
 
-              <FormField label='Starting YES Probability'>
-                <HStack>
-                  <NumberInput
-                    maxW='120px'
-                    mr='2rem'
-                    value={formData.probability}
-                    onChange={(value) => handleChange('probability', Number(value))}
-                    min={1}
-                    max={99}
-                    step={1}
-                  >
-                    <NumberInputField w={'120px'} />
-                  </NumberInput>
-                  <Slider
-                    flex='1'
-                    focusThumbOnChange={false}
-                    value={formData.probability}
-                    onChange={(value) => handleChange('probability', value)}
-                    min={1}
-                    max={99}
-                    step={1}
-                  >
-                    <SliderTrack bg='var(--chakra-colors-greyTransparent-600)'>
-                      <SliderFilledTrack bg='var(--chakra-colors-text-100)' />
-                    </SliderTrack>
-                    <SliderThumb bg='var(--chakra-colors-text-100)' fontSize='sm' boxSize='24px' />
-                  </Slider>
-                </HStack>
-              </FormField>
+                  <FormField label='Starting YES Probability'>
+                    <HStack>
+                      <NumberInput
+                        maxW='120px'
+                        mr='2rem'
+                        value={formData.probability}
+                        onChange={(value) => handleChange('probability', Number(value))}
+                        min={1}
+                        max={99}
+                        step={1}
+                      >
+                        <NumberInputField w={'120px'} />
+                      </NumberInput>
+                      <Slider
+                        flex='1'
+                        focusThumbOnChange={false}
+                        value={formData.probability}
+                        onChange={(value) => handleChange('probability', value)}
+                        min={1}
+                        max={99}
+                        step={1}
+                      >
+                        <SliderTrack bg='var(--chakra-colors-greyTransparent-600)'>
+                          <SliderFilledTrack bg='var(--chakra-colors-text-100)' />
+                        </SliderTrack>
+                        <SliderThumb
+                          bg='var(--chakra-colors-text-100)'
+                          fontSize='sm'
+                          boxSize='24px'
+                        />
+                      </Slider>
+                    </HStack>
+                  </FormField>
+                </>
+              )}
+              <Accordion mt='20px' allowToggle defaultIndex={[0]}>
+                <AccordionItem>
+                  <>
+                    <AccordionButton>
+                      <Box flex='1' textAlign='left'>
+                        OG Preview (Click to Expand/Collapse)
+                        {!formData.ogLogo && ogImageError && (
+                          <Box as='span' color='red.500' ml={2} fontSize='sm'>
+                            (Generation failed)
+                          </Box>
+                        )}
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                    <AccordionPanel pb={4} position='relative'>
+                      <Box>
+                        <HStack mb={4} width='full' justifyContent='space-between'>
+                          <Button
+                            size='sm'
+                            colorScheme='blue'
+                            onClick={async () => {
+                              setOgImageError(null)
+                              await generateOgImage()
+                            }}
+                            isLoading={!isReady}
+                          >
+                            Regenerate OG Image
+                          </Button>
+                          <Checkbox
+                            isChecked={autoGenerateOg}
+                            onChange={(e) => setAutoGenerateOg(e.target.checked)}
+                          >
+                            Auto-generate
+                          </Checkbox>
+                        </HStack>
+                        <Box pointerEvents='none'>
+                          <HStack h='280px' w='600px'>
+                            <OgImageGenerator
+                              title={formData.title}
+                              setReady={(isReady) => {
+                                setIsReady(isReady)
+                              }}
+                              category={
+                                categories?.find((category) => category.id === +formData.categoryId)
+                                  ?.name ?? 'Unknown'
+                              }
+                              onBlobGenerated={(blob) => handleBlobGenerated(blob)}
+                              generateBlob={isGeneratingOgImage}
+                            />
+                          </HStack>
+                        </Box>
+                      </Box>
+                    </AccordionPanel>
+                  </>
+                </AccordionItem>
+              </Accordion>
             </VStack>
 
-            <VStack w={'full'} flex='0.8'>
+            <VStack w={'full'} flex='0.8' h='full'>
               <FormField label='Market Fee'>
                 <HStack>
                   <Checkbox
@@ -573,9 +691,11 @@ export const CreateMarket: FC = () => {
                 <HStack>
                   <Select
                     value={formData.categoryId}
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       handleChange('categoryId', e.target.value)
-                      generateOgImage()
+                      if (autoGenerateOg) {
+                        await generateOgImage()
+                      }
                     }}
                   >
                     {categories?.map((category: Category) => (
@@ -592,6 +712,7 @@ export const CreateMarket: FC = () => {
                   <Box width='full'>
                     <CreatableSelect
                       isMulti
+                      closeMenuOnSelect={false}
                       onCreateOption={handleTagCreation}
                       //@ts-ignore
                       onChange={(option) => handleChange('tag', option)}
@@ -684,8 +805,14 @@ export const CreateMarket: FC = () => {
                     <Spinner />
                   </Flex>
                 ) : (
-                  <Button colorScheme='green' w='full' height='52px' onClick={submit}>
-                    {marketId ? 'Save' : 'Draft'}
+                  <Button
+                    colorScheme='green'
+                    w='full'
+                    height='52px'
+                    onClick={submit}
+                    isDisabled={!isReady && !editMarket}
+                  >
+                    {getButtonText()}
                   </Button>
                 )}
               </ButtonGroup>

@@ -16,17 +16,16 @@ import React, {
   useState,
 } from 'react'
 import { isMobile } from 'react-device-detect'
-import { parseUnits } from 'viem'
+import { Address, parseUnits } from 'viem'
 import Loader from '@/components/common/loader'
 import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
 import BlockedTradeTemplate from '@/app/(markets)/markets/[address]/components/trade-widgets/blocked-trade-template'
 import ConfirmButton from '@/app/(markets)/markets/[address]/components/trade-widgets/confirm-button'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
-import { ClickEvent, TradeQuotes, useAmplitude, useTradingService } from '@/services'
+import { ClickEvent, TradeQuotes, useAccount, useAmplitude, useTradingService } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketStatus } from '@/types'
@@ -50,6 +49,7 @@ interface ActionButtonProps {
   quotesLoading: boolean
 }
 
+// @ts-ignore
 const MotionBox = motion(Box)
 
 export type ButtonStatus =
@@ -91,7 +91,7 @@ export default function BuyButton({
   const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
   const { marketFee, collateralAmount, marketGroup } = useTradingService()
-  const walletAddress = useWalletAddress()
+  const { account: walletAddress } = useAccount()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
   const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
@@ -258,12 +258,15 @@ export default function BuyButton({
     }
     trackClicked(ClickEvent.BuyClicked, {
       outcome: option,
-      marketAddress: market.address,
+      marketAddress: market.slug,
       walletType: client,
       source: analyticsSource,
     })
     if (client === 'eoa') {
-      const allowance = await checkAllowance(market.address, market.collateralToken.address)
+      const allowance = await checkAllowance(
+        market.address as Address,
+        market.collateralToken.address
+      )
       const amountBI = parseUnits(amount, decimals || 18)
       if (amountBI > allowance) {
         setStatus('unlock')
@@ -280,9 +283,9 @@ export default function BuyButton({
     try {
       setStatus('unlocking')
       const amountBI = parseUnits(amount, decimals || 18)
-      await approveContract(market.address, market.collateralToken.address, amountBI)
+      await approveContract(market.address as Address, market.collateralToken.address, amountBI)
       trackClicked(ClickEvent.ConfirmCapClicked, {
-        address: market?.address,
+        address: market?.slug,
         strategy: 'Buy',
         outcome: option,
         walletType: 'eoa',
@@ -337,7 +340,7 @@ export default function BuyButton({
   useEffect(() => {
     const returnToInitial = async () => {
       await sleep(2)
-      await setStatus('initial')
+      setStatus('initial')
       resetForm()
     }
     if (status === 'success') {
@@ -534,7 +537,7 @@ export default function BuyButton({
           analyticParams={{ source: analyticsSource }}
           marketType={marketType}
           outcome={option}
-          marketAddress={market.address}
+          marketAddress={market.address as Address}
         />
       </MotionBox>
     </HStack>

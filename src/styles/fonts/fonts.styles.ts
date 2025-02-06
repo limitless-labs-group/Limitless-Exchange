@@ -49,9 +49,9 @@ export const h2Bold = {
 }
 
 export const h3Regular = {
-  fontSize: isMobile ? '22px' : '20px',
+  fontSize: isMobile ? '22px' : '16px',
   fontStyle: 'normal',
-  fontWeight: isMobile ? 400 : 700,
+  fontWeight: 700,
   lineHeight: '24px',
   color: 'grey.800',
 }

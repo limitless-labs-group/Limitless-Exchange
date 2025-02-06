@@ -1,23 +1,21 @@
 import { Text, VStack } from '@chakra-ui/react'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import MarketGroupPositions from '@/app/(markets)/market-group/[slug]/components/market-group-positions'
 import { MarketPositions } from '@/app/(markets)/markets/[address]/components/market-positions'
-import ActivityIcon from '@/resources/icons/activity-icon.svg'
-import { useHistory, useTradingService } from '@/services'
-import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { usePosition, useTradingService } from '@/services'
+import { headline } from '@/styles/fonts/fonts.styles'
 
 export default function PortfolioTab() {
   const { marketGroup, market } = useTradingService()
-  const { positions: allMarketsPositions } = useHistory()
+  const { data: allMarketsPositions } = usePosition()
 
   const positions = useMemo(
     () =>
-      allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
-      ),
+      allMarketsPositions
+        ?.filter((position) => position.type === 'amm')
+        .filter((position) => position.market.slug === market?.slug),
     [allMarketsPositions, market]
   )
 

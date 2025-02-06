@@ -460,6 +460,8 @@ export function BuyForm({
                     caret-color: white;
                   `}
                   type='number'
+                  inputMode='decimal'
+                  pattern='[0-9]*'
                 />
                 <InputRightElement
                   h='16px'
@@ -503,6 +505,8 @@ export function BuyForm({
                       caret-color: white;
                     `}
                     type='number'
+                    inputMode='decimal'
+                    pattern='[0-9]*'
                   />
                   <InputRightElement
                     h='16px'

@@ -1,16 +1,16 @@
-import { useEtherspot } from '@/services/Etherspot'
+import { SignedOrder } from '@polymarket/order-utils'
+import { usePrivy } from '@privy-io/react-auth'
+import BigNumber from 'bignumber.js'
+import { parseUnits } from 'viem'
+import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
+import { useAccount } from '@/services/AccountService'
 import { useExternalWalletService } from '@/services/ExternalWalletService'
 import { Address } from '@/types'
+import { buildOrderTypedData } from '@/utils/orders'
 
 type Web3Service = {
-  wrapEth: (value: bigint) => Promise<string>
+  wrapEth: (value: bigint) => Promise<string | undefined>
   unwrapEth: (value: bigint) => Promise<string | undefined>
-  mintErc20: (
-    token: Address,
-    value: bigint,
-    smartWalletAddress: Address,
-    newToken?: boolean
-  ) => Promise<string | undefined>
   transferErc20: (token: Address, to: Address, value: bigint) => Promise<string | undefined>
   transferEthers: (to: Address, value: bigint) => Promise<string | undefined>
   buyOutcomeTokens: (
@@ -46,52 +46,63 @@ type Web3Service = {
     marketConditionId: Address,
     indexSets: number[]
   ) => Promise<string | undefined>
+  placeLimitOrder: (
+    tokenId: string,
+    decimals: number,
+    price: string,
+    shares: string,
+    side: number
+  ) => Promise<SignedOrder>
+  placeMarketOrder: (
+    tokenId: string,
+    decimals: number,
+    price: string,
+    side: number,
+    amount: string
+  ) => Promise<SignedOrder>
+  splitShares: (
+    collateralAddress: Address,
+    conditionId: string,
+    amount: bigint
+  ) => Promise<string | undefined>
+  mergeShares: (
+    collateralToken: Address,
+    conditionId: string,
+    amount: bigint
+  ) => Promise<string | undefined>
 }
 
 export function useWeb3Service(): Web3Service {
-  const { etherspot } = useEtherspot()
   const externalWalletService = useExternalWalletService()
+  const privyService = usePrivySendTransaction()
 
-  const client = etherspot ? 'etherspot' : 'eoa'
+  const { web3Client, account: walletAddress } = useAccount()
+  const { user } = usePrivy()
 
   const wrapEth = async (value: bigint) => {
-    if (client === 'etherspot') {
-      const receipt = await etherspot?.wrapEth(value)
-      return receipt?.transactionHash || ''
+    if (web3Client === 'etherspot') {
+      return privyService.wrapEth(value)
     }
     return externalWalletService.wrapEth(value)
   }
 
   const unwrapEth = async (value: bigint) => {
-    if (client === 'etherspot') {
-      const receipt = await etherspot?.unwrapEth(value)
-      return receipt?.transactionHash
+    if (web3Client === 'etherspot') {
+      return privyService.unwrapEth(value)
     }
     return externalWalletService.unwrapEth(value)
   }
 
-  const mintErc20 = async (
-    token: Address,
-    value: bigint,
-    smartWalletAddress: Address,
-    newToken?: boolean
-  ) => {
-    if (client === 'etherspot') {
-      return etherspot?.mintErc20(token, value, smartWalletAddress, newToken)
-    }
-    return externalWalletService.mintErc20(token, value, smartWalletAddress, newToken)
-  }
-
   const transferEthers = async (to: Address, value: bigint) => {
-    if (client === 'etherspot') {
-      return etherspot?.transferEthers(to, value)
+    if (web3Client === 'etherspot') {
+      return privyService.transferEthers(to, value)
     }
     return externalWalletService.transferEthers(to, value)
   }
 
   const transferErc20 = async (token: Address, to: Address, value: bigint) => {
-    if (client === 'etherspot') {
-      return etherspot?.transferErc20(token, to, value)
+    if (web3Client === 'etherspot') {
+      return privyService.transferErc20(token, to, value)
     }
     return externalWalletService.transferErc20(token, to, value)
   }
@@ -103,8 +114,8 @@ export function useWeb3Service(): Web3Service {
     minOutcomeTokensToBuy: bigint,
     collateralContract: Address
   ) => {
-    if (client === 'etherspot') {
-      return etherspot?.buyOutcomeTokens(
+    if (web3Client === 'etherspot') {
+      return privyService.buyOutcomeTokens(
         fixedProductMarketMakerAddress,
         collateralAmount,
         outcomeIndex,
@@ -127,8 +138,8 @@ export function useWeb3Service(): Web3Service {
     outcomeIndex: number,
     maxOutcomeTokensToSell: bigint
   ) => {
-    if (client === 'etherspot') {
-      return etherspot?.sellOutcomeTokens(
+    if (web3Client === 'etherspot') {
+      return privyService.sellOutcomeTokens(
         conditionalTokensAddress,
         fixedProductMarketMakerAddress,
         collateralAmount,
@@ -151,8 +162,8 @@ export function useWeb3Service(): Web3Service {
     marketConditionId: Address,
     indexSets: number[]
   ) => {
-    if (client === 'etherspot') {
-      return etherspot?.redeemPositions(
+    if (web3Client === 'etherspot') {
+      return privyService.redeemPositions(
         conditionalTokensAddress,
         collateralAddress,
         parentCollectionId,
@@ -169,6 +180,110 @@ export function useWeb3Service(): Web3Service {
     )
   }
 
+  const placeLimitOrder = async (
+    tokenId: string,
+    decimals: number,
+    price: string,
+    shares: string,
+    side: number
+  ): Promise<SignedOrder> => {
+    const convertedPrice = new BigNumber(price).dividedBy(100).toString()
+    const orderData = {
+      salt: Math.round(Math.random() * Date.now()) + '',
+      maker: walletAddress as Address,
+      signer:
+        web3Client === 'etherspot'
+          ? (user?.wallet?.address as Address)
+          : (walletAddress as Address),
+      taker: '0x0000000000000000000000000000000000000000',
+      tokenId,
+      makerAmount:
+        side === 0
+          ? parseUnits(
+              new BigNumber(convertedPrice).multipliedBy(new BigNumber(shares)).toString(),
+              decimals
+            ).toString()
+          : parseUnits(shares, decimals).toString(), // limit price * shares with decimals
+      takerAmount:
+        side === 0
+          ? parseUnits(shares, decimals).toString()
+          : parseUnits(
+              new BigNumber(convertedPrice).multipliedBy(new BigNumber(shares)).toString(),
+              decimals
+            ).toString(), // shares * decimals
+      expiration: '0',
+      nonce: '0',
+      feeRateBps: '0',
+      side, // buy 0, sell 1
+      signatureType: web3Client === 'etherspot' ? 2 : 0,
+    }
+    const order = buildOrderTypedData(orderData)
+
+    const signature = await externalWalletService.signTypedData(order)
+    return {
+      ...orderData,
+      signature,
+    }
+  }
+
+  const placeMarketOrder = async (
+    tokenId: string,
+    decimals: number,
+    price: string,
+    side: number,
+    amount: string
+  ) => {
+    const convertedPrice = new BigNumber(price).dividedBy(100).toString()
+    const orderData = {
+      salt: Math.round(Math.random() * Date.now()) + '',
+      maker: walletAddress as Address,
+      signer:
+        web3Client === 'etherspot'
+          ? (user?.wallet?.address as Address)
+          : (walletAddress as Address),
+      taker: '0x0000000000000000000000000000000000000000',
+      tokenId,
+      makerAmount: parseUnits(amount, decimals).toString(), // amount in $ put in order
+      takerAmount: '1',
+      // takerAmount:
+      //   side === 0
+      //     ? parseUnits(
+      //         new BigNumber(amount).dividedBy(new BigNumber(convertedPrice)).toString(),
+      //         decimals
+      //       ).toString()
+      //     : parseUnits(
+      //         new BigNumber(amount).multipliedBy(new BigNumber(convertedPrice)).toString(),
+      //         decimals
+      //       ).toString(), // shares * decimals
+      expiration: '0',
+      nonce: '0',
+      feeRateBps: '0',
+      side, // buy 0, sell 1
+      signatureType: web3Client === 'etherspot' ? 2 : 0,
+    }
+    const order = buildOrderTypedData(orderData)
+
+    const signature = await externalWalletService.signTypedData(order)
+    return {
+      ...orderData,
+      signature,
+    }
+  }
+
+  const splitShares = async (collateralAddress: Address, conditionId: string, amount: bigint) => {
+    if (web3Client === 'etherspot') {
+      return privyService.splitPositions(collateralAddress, conditionId, amount)
+    }
+    return externalWalletService.splitPositions(collateralAddress, conditionId, amount)
+  }
+
+  const mergeShares = async (collateralToken: Address, conditionId: string, amount: bigint) => {
+    if (web3Client === 'etherspot') {
+      return privyService.mergePositions(collateralToken, conditionId, amount)
+    }
+    return externalWalletService.mergePositions(collateralToken, conditionId, amount)
+  }
+
   const checkAllowance = async (contractAddress: Address, spender: Address) =>
     externalWalletService.checkAllowanceEOA(contractAddress, spender)
 
@@ -183,17 +298,20 @@ export function useWeb3Service(): Web3Service {
 
   return {
     wrapEth,
-    mintErc20,
     transferErc20,
     unwrapEth,
     transferEthers,
     buyOutcomeTokens,
     sellOutcomeTokens,
-    client,
+    client: web3Client,
     checkAllowance,
     checkAllowanceForAll,
     approveContract,
     approveAllowanceForAll,
     redeemPositions,
+    placeLimitOrder,
+    placeMarketOrder,
+    splitShares,
+    mergeShares,
   }
 }
