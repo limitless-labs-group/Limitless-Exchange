@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { defaultChain, newSubgraphURI } from '@/constants'
+import { limitlessApi } from '@/services'
+import { Market } from '@/types'
 
 // Define the interface for the chart data
 interface YesBuyChartData {
@@ -61,11 +63,18 @@ const flattenPriceData = (data: YesBuyChartData[]): number[][] => {
   return flattenData
 }
 
-export function useMarketPriceHistory(address?: string) {
+export function useMarketPriceHistory(market: Market | null) {
   return useQuery({
-    queryKey: ['prices', address],
+    queryKey: ['prices', market?.slug],
     queryFn: async () => {
-      const marketId = address
+      if (market?.tradeType === 'clob') {
+        const response: AxiosResponse<{ price: number; timestamp: number }[]> =
+          await limitlessApi.get(`/markets/${market.slug}/historical-price`)
+        return response.data.map((item) => {
+          return [item.timestamp, item.price * 100]
+        })
+      }
+      const marketId = market?.address
       const query = `query prices {
           AutomatedMarketMakerPricing(where: { market_id: { _ilike: "${marketId}" } }) {
             yesBuyChartData
@@ -82,6 +91,6 @@ export function useMarketPriceHistory(address?: string) {
       )
     },
     staleTime: Infinity,
-    enabled: !!address,
+    enabled: !!market,
   })
 }

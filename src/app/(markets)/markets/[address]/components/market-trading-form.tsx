@@ -13,7 +13,7 @@ import {
   ChangeEvent,
   useAmplitude,
   useTradingService,
-  useHistory,
+  usePosition,
 } from '@/services'
 import { controlsMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup } from '@/types'
@@ -39,7 +39,7 @@ export const MarketTradingForm = ({
    */
   const { trackChanged } = useAmplitude()
 
-  const { positions: allMarketsPositions } = useHistory()
+  const { data: allMarketsPositions } = usePosition()
 
   /**
    * TRADING SERVICE
@@ -54,7 +54,7 @@ export const MarketTradingForm = ({
   const positions = useMemo(
     () =>
       allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
+        (position) => position.market.slug?.toLowerCase() === market?.slug?.toLowerCase()
       ),
     [allMarketsPositions, market]
   )
@@ -75,7 +75,7 @@ export const MarketTradingForm = ({
 
   return (
     <Paper
-      bg='blue.500'
+      bg='grey.50'
       w={isMobile ? 'full' : '312px'}
       p={isMobile ? 0 : '8px'}
       h={isMobile ? '100dvh' : 'unset'}

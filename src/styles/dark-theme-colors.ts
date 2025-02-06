@@ -109,7 +109,7 @@ export const darkThemeColors: ColorScheme = {
     200: '#6666F5',
     300: '#4D4DF3',
     400: '#3333F1',
-    500: '#0000EE',
+    500: '#0079FF',
     600: '#0000EE',
     700: '#0000EE',
     800: '#0000EE',
@@ -153,9 +153,19 @@ export const darkThemeColors: ColorScheme = {
     200: 'rgba(0, 0, 0, 0.2)',
   },
   background: {
+    80: 'rgba(28, 28, 28, 0.8)',
     90: 'rgba(28, 28, 28, 0.9)',
     95: 'rgba(28, 28, 28, 0.95)',
     97: 'rgba(28, 28, 28, 0.97)',
+  },
+  greenTransparent: {
+    100: 'rgba(15, 197, 145, 0.15)',
+  },
+  redTransparent: {
+    100: 'rgba(255, 55, 86, 0.15)',
+  },
+  blueTransparent: {
+    100: 'rgba(0, 121, 255, 0.10)',
   },
   text: {
     100: 'white',

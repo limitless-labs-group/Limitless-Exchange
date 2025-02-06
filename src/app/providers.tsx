@@ -1,24 +1,17 @@
 'use client'
 
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import * as React from 'react'
 import { TokenFilterProvider } from '@/contexts/TokenFilterContext'
-import {
-  QueryProvider,
-  WagmiProvider,
-  Web3AuthProvider,
-  PriceOracleProvider,
-  ThemeProvider,
-} from '@/providers'
-import RainbowProvider from '@/providers/Rainbow'
+import { QueryProvider, PriceOracleProvider, ThemeProvider } from '@/providers'
+import PrivyAuthProvider from '@/providers/Privy'
 import {
   AccountProvider,
   AmplitudeProvider,
   BalanceServiceProvider,
-  EtherspotProvider,
   LimitlessApiProvider,
   TradingServiceProvider,
   CommentServiceProvider,
-  HistoryServiceProvider,
 } from '@/services'
 import { AxiosProvider } from '@/services/AxiosPrivateClient'
 
@@ -30,33 +23,28 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
     mounted && (
       <ThemeProvider>
         <QueryProvider>
-          <WagmiProvider>
-            <RainbowProvider>
-              <Web3AuthProvider>
-                <AmplitudeProvider>
-                  <LimitlessApiProvider>
-                    <EtherspotProvider>
-                      <AxiosProvider>
-                        <AccountProvider>
-                          <PriceOracleProvider>
-                            <BalanceServiceProvider>
-                              <HistoryServiceProvider>
-                                <TokenFilterProvider>
-                                  <CommentServiceProvider>
-                                    <TradingServiceProvider>{children}</TradingServiceProvider>
-                                  </CommentServiceProvider>
-                                </TokenFilterProvider>
-                              </HistoryServiceProvider>
-                            </BalanceServiceProvider>
-                          </PriceOracleProvider>
-                        </AccountProvider>
-                      </AxiosProvider>
-                    </EtherspotProvider>
-                  </LimitlessApiProvider>
-                </AmplitudeProvider>
-              </Web3AuthProvider>
-            </RainbowProvider>
-          </WagmiProvider>
+          <PrivyAuthProvider>
+            <AmplitudeProvider>
+              <LimitlessApiProvider>
+                <AxiosProvider>
+                  <AccountProvider>
+                    <PriceOracleProvider>
+                      <BalanceServiceProvider>
+                        <TokenFilterProvider>
+                          <CommentServiceProvider>
+                            <TradingServiceProvider>
+                              {children}
+                              <ReactQueryDevtools initialIsOpen={false} />
+                            </TradingServiceProvider>
+                          </CommentServiceProvider>
+                        </TokenFilterProvider>
+                      </BalanceServiceProvider>
+                    </PriceOracleProvider>
+                  </AccountProvider>
+                </AxiosProvider>
+              </LimitlessApiProvider>
+            </AmplitudeProvider>
+          </PrivyAuthProvider>
         </QueryProvider>
       </ThemeProvider>
     )

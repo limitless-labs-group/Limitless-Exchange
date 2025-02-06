@@ -1,4 +1,5 @@
 import React from 'react'
+import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
 import { MarketCardLayout } from './market-card'
@@ -23,7 +24,7 @@ export default function MarketCardMobile({
 
   return (
     <MobileDrawer
-      id={market.address}
+      id={market.slug}
       trigger={
         <MarketCardTrigger
           variant={variant}

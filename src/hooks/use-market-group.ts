@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import { ContractCallContext, Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
-import { formatUnits, parseUnits } from 'viem'
+import { Address, formatUnits, parseUnits } from 'viem'
 import { defaultChain } from '@/constants'
 import { POLLING_INTERVAL } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
@@ -35,8 +35,8 @@ export default function useMarketGroup(slug?: string, isPolling = false, enabled
 
       const contractCallContext: ContractCallContext[] = marketGroup.markets?.map((market) => {
         return {
-          reference: market.address,
-          contractAddress: market.address,
+          reference: market.address as Address,
+          contractAddress: market.address as Address,
           abi: fixedProductMarketMakerABI,
           calls: [
             {
@@ -63,7 +63,7 @@ export default function useMarketGroup(slug?: string, isPolling = false, enabled
               prices: market.winningOutcomeIndex ? [0, 100] : [100, 0],
             }
           }
-          const marketAddress = market.address
+          const marketAddress = market.address as Address
           const result = results.results[marketAddress].callsReturnContext
           const outcomeTokenBuyAmountYesBI = BigInt(result[0].returnValues[0].hex)
           const outcomeTokenBuyAmountNoBI = BigInt(result[1].returnValues[0].hex)

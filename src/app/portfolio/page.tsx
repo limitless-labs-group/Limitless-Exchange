@@ -1,9 +1,8 @@
 'use client'
 
-import { Box, Divider, Heading, HStack, Icon, Spacer, Stack, Text } from '@chakra-ui/react'
+import { Box, Divider, Heading, HStack, Spacer, Stack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { useAccount as useWagmiAccount } from 'wagmi'
 import { PortfolioStats, PortfolioPositions, PortfolioHistory } from '@/app/portfolio/components'
 import { TabButton } from './components/tab-button'
 import HistoryIcon from '@/resources/icons/history-icon.svg'
@@ -13,7 +12,6 @@ import {
   PageOpenedMetadata,
   useAccount,
   useAmplitude,
-  useEtherspot,
   useTradingService,
 } from '@/services'
 import { h1Bold } from '@/styles/fonts/fonts.styles'
@@ -23,19 +21,19 @@ const PortfolioPage = () => {
 
   const { trackOpened } = useAmplitude()
   const { onCloseMarketPage } = useTradingService()
-  const { isLoadingSmartWalletAddress } = useEtherspot()
-  const { isConnected, isConnecting } = useWagmiAccount()
   const { profileData, profileLoading } = useAccount()
 
+  const isLoadingSmartWalletAddress = false
+
   const userMenuLoading = useMemo(() => {
-    if (isConnecting) {
+    if (profileLoading) {
       return true
     }
-    if (isConnected) {
+    if (!profileLoading) {
       return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
     }
     return false //#fix for dev env
-  }, [isConnected, profileLoading, isLoadingSmartWalletAddress, isConnecting, profileData])
+  }, [profileLoading, profileLoading, isLoadingSmartWalletAddress, profileData])
 
   useEffect(() => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {

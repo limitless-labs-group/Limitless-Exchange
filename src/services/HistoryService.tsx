@@ -1,16 +1,17 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
-import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
+import { createContext, PropsWithChildren, useContext, useMemo } from 'react'
 import { Hash } from 'viem'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
+import useClient from '@/hooks/use-client'
 import { usePriceOracle } from '@/providers'
+import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useLimitlessApi } from '@/services/LimitlessApi'
-import { Address } from '@/types'
+import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface IHistoryService {
-  positions: HistoryPosition[] | undefined
+  positions: (HistoryPositionWithType | ClobPositionWithType)[] | undefined
   balanceInvested: string
   balanceToWin: string
   tradesAndPositionsLoading: boolean
@@ -29,8 +30,14 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * BALANCES
    */
   const balanceInvested = useMemo(() => {
+    const ammPositions = positions?.filter(
+      (position) => position.type === 'amm'
+    ) as HistoryPositionWithType[]
+    const clobPositions = positions?.filter(
+      (position) => position.type === 'clob'
+    ) as ClobPositionWithType[]
     let _balanceInvested = 0
-    positions?.forEach((position) => {
+    ammPositions?.forEach((position) => {
       let positionUsdAmount = 0
       const token = supportedTokens?.find(
         (token) => token.symbol === position.market.collateral?.symbol
@@ -45,7 +52,13 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 
   const balanceToWin = useMemo(() => {
     let _balanceToWin = 0
-    positions?.forEach((position) => {
+    const ammPositions = positions?.filter(
+      (position) => position.type === 'amm'
+    ) as HistoryPositionWithType[]
+    const clobPositions = positions?.filter(
+      (position) => position.type === 'clob'
+    ) as ClobPositionWithType[]
+    ammPositions?.forEach((position) => {
       let positionOutcomeUsdAmount = 0
       const token = supportedTokens?.find(
         (token) => token.symbol === position.market.collateral?.symbol
@@ -78,25 +91,38 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 }
 
 export const usePosition = () => {
-  const walletAddress = useWalletAddress()
+  const { profileData, web3Client, smartAccountClient } = useAccount()
+  const { isLogged } = useClient()
   const privateClient = useAxiosPrivateClient()
 
+  const enabled = useMemo(() => {
+    if (web3Client === 'etherspot' && smartAccountClient) {
+      return true
+    }
+    return !!profileData?.id && !!isLogged
+  }, [isLogged, profileData?.id, smartAccountClient, web3Client])
+
   return useQuery({
-    queryKey: ['positions'],
+    queryKey: ['positions', profileData?.id],
     queryFn: async () => {
-      if (!walletAddress) {
+      if (!profileData) {
         return []
       }
       try {
-        const response = await privateClient.get<HistoryPosition[]>(`/portfolio/positions`)
-        return response.data
+        const response = await privateClient.get<PositionsResponse>(`/portfolio/positions`)
+        return [
+          ...response.data.amm.map((position) => ({ ...position, type: 'amm' })),
+          ...response.data.clob.map((position) => ({ ...position, type: 'clob' })),
+        ] as (HistoryPositionWithType | ClobPositionWithType)[]
+
+        // return response.data
       } catch (error) {
         console.error('Error fetching positions:', error)
         return []
       }
     },
-    enabled: !!walletAddress,
-    refetchInterval: !!walletAddress ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
+    enabled,
+    refetchInterval: !!profileData?.id ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
   })
 }
 
@@ -105,28 +131,27 @@ export const usePortfolioHistory = (page: number) => {
   return useQuery({
     queryKey: ['history', page],
     queryFn: async (): Promise<AxiosResponse<History>> => {
-      return privateClient.get<History>(
-        '/portfolio/history',
-
-        {
-          params: {
-            page: page,
-            limit: 10,
-          },
-        }
-      )
+      return privateClient.get<History>('/portfolio/history', {
+        params: {
+          page: page,
+          limit: 10,
+        },
+      })
     },
   })
 }
 
 export const useInfinityHistory = () => {
   const privateClient = useAxiosPrivateClient()
-  const walletAddress = useWalletAddress()
+  const { checkIsLogged } = useClient()
+  const { profileData } = useAccount()
   return useInfiniteQuery<History[], Error>({
     queryKey: ['history-infinity'],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      if (!walletAddress) {
+      const isLogged = checkIsLogged()
+
+      if (!isLogged) {
         return []
       }
 
@@ -145,11 +170,11 @@ export const useInfinityHistory = () => {
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       // @ts-ignore
-      return lastPage.data.data.length === 30 ? lastPage.next : null
+      return lastPage.data?.data?.length === 30 ? lastPage.next : null
     },
     refetchOnWindowFocus: false,
     keepPreviousData: true,
-    enabled: !!walletAddress,
+    enabled: !!profileData?.id,
   })
 }
 
@@ -180,6 +205,7 @@ export type HistoryMarket = {
   }
   expirationDate: string
   title: string
+  slug: string | null
 }
 
 export type HistoryRedeem = {
@@ -206,4 +232,35 @@ export type HistoryPosition = {
   outcomeTokenAmount?: string
   collateralAmount?: string // collateral amount invested
   latestTrade?: HistoryTrade
+  outcomeTokenAmounts?: (string | number)[]
+  outcomeTokenPrice?: string
+  strategy?: 'Buy' | 'Sell'
+}
+
+type PositionsResponse = {
+  amm: HistoryPositionWithType[]
+  clob: ClobPositionWithType[]
+}
+
+export type ClobPosition = {
+  latestTrade: {
+    tradeId: string
+    marketId: string
+    ownerId: number
+    createdAt: string
+    role: string
+  }[]
+  market: Market
+  tokensBalance: {
+    yes: string
+    no: string
+  }
+}
+
+export type HistoryPositionWithType = HistoryPosition & {
+  type: 'amm'
+}
+
+export type ClobPositionWithType = ClobPosition & {
+  type: 'clob'
 }

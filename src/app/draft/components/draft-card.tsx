@@ -119,19 +119,21 @@ export const DraftMarketCard = ({
 
             <HStack justifyContent='space-between' alignItems='flex-end' flexDirection={'row'}>
               <HStack gap={'16px'} flexDirection={'row'} w='full'>
-                <HStack w={'unset'} justifyContent={'unset'}>
-                  <HStack color={colors.secondary} gap='4px'>
-                    <LiquidityIcon width={16} height={16} />
-                    <Text {...paragraphMedium} color={colors.secondary}>
-                      Liquidity
+                {market.draftMetadata.liquidity && (
+                  <HStack w={'unset'} justifyContent={'unset'}>
+                    <HStack color={colors.secondary} gap='4px'>
+                      <LiquidityIcon width={16} height={16} />
+                      <Text {...paragraphMedium} color={colors.secondary}>
+                        Liquidity
+                      </Text>
+                    </HStack>
+                    <Text {...paragraphRegular} color={colors.main}>
+                      {NumberUtil.formatThousands(market.draftMetadata.liquidity, 6) +
+                        ' ' +
+                        market.collateralToken.symbol}
                     </Text>
                   </HStack>
-                  <Text {...paragraphRegular} color={colors.main}>
-                    {NumberUtil.formatThousands(market.draftMetadata.liquidity, 6) +
-                      ' ' +
-                      market.collateralToken.symbol}
-                  </Text>
-                </HStack>
+                )}
 
                 <HStack w={'unset'} justifyContent={'unset'}>
                   <HStack color={colors.secondary} gap='4px'>
@@ -179,12 +181,16 @@ export const DraftMarketCard = ({
                   </Text>
                 </HStack>
                 <HStack gap={1} color={colors.main}>
-                  <Text {...paragraphMedium} color={colors.secondary}>
-                    Prob.
-                  </Text>
-                  <Text {...paragraphMedium} color={colors.main}>
-                    {market.draftMetadata.initialProbability * 100}%
-                  </Text>
+                  {market.draftMetadata.initialProbability && (
+                    <>
+                      <Text {...paragraphMedium} color={colors.secondary}>
+                        Prob.
+                      </Text>
+                      <Text {...paragraphMedium} color={colors.main}>
+                        {market.draftMetadata.initialProbability * 100}%
+                      </Text>
+                    </>
+                  )}
                   <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
                     <Box
                       h='100%'

@@ -1,19 +1,8 @@
-import {
-  Box,
-  Divider,
-  HStack,
-  Img,
-  Spacer,
-  StackItem,
-  Text,
-  Tooltip,
-  useTheme,
-  VStack,
-} from '@chakra-ui/react'
+import { Box, Divider, HStack, Img, Spacer, Text, useTheme, VStack } from '@chakra-ui/react'
 import html2canvas from 'html2canvas'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-interface IOgImageGeneratorOptions {
+export interface IOgImageGeneratorOptions {
   px: number | string
   p: number | string
   height: number | string
@@ -66,6 +55,7 @@ export interface IOgImageGenerator {
   category: string
   onBlobGenerated: (blob: Blob) => void
   generateBlob: boolean
+  setReady?: (param: boolean) => void
 }
 export interface IOgImageGenerator {
   title: string
@@ -107,6 +97,7 @@ export const OgImageGenerator = ({
       })
 
       const imageDataUrl = canvas.toDataURL('image/png', 1.0)
+      console.log(imageDataUrl)
       setImage(imageDataUrl)
       canvas.toBlob(
         async (blob) => {
@@ -177,21 +168,21 @@ export const OgImageGenerator = ({
             <Spacer />
 
             <HStack w='full' gap='10px'>
-              <StackItem>
+              <HStack>
                 <Img
                   src='/logo.png'
                   alt='Limitless Logo'
                   width={previewOptions.logo.width}
                   height={previewOptions.logo.height}
                 />
-              </StackItem>
-              <StackItem>
+              </HStack>
+              <HStack>
                 <Box px='8px' py='1px' bg='white' borderRadius='sm'>
                   <Text fontSize={previewOptions.fontSize / 1.5} color={backgroundColor}>
                     /{category}
                   </Text>
                 </Box>
-              </StackItem>
+              </HStack>
             </HStack>
           </VStack>
         </Box>
