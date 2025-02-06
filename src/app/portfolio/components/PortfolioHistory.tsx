@@ -58,7 +58,7 @@ const History = () => {
     []
   )
   //@ts-ignore
-  const historyFlat = historyData?.pages.flatMap((page) => page.data.data)
+  const historyFlat = historyData?.pages.flatMap((page) => page.data?.data)
   if (isHistoryLoading) {
     return (
       <>
@@ -83,6 +83,24 @@ const History = () => {
     )
   }
 
+  const getHistoryItemToRender = (item: HistoryTrade | HistoryRedeem) => {
+    // @ts-ignore
+    if (item.market) {
+      return (
+        <PortfolioHistoryTradeItem
+          key={(item as HistoryTrade).blockTimestamp}
+          trade={item as HistoryTrade}
+        />
+      )
+    }
+    return (
+      <PortfolioHistoryRedeemItem
+        key={(item as HistoryRedeem).blockTimestamp}
+        redeem={item as HistoryRedeem}
+      />
+    )
+  }
+
   return (
     <InfiniteScroll
       className='scroll'
@@ -98,19 +116,7 @@ const History = () => {
       }
     >
       <TableContainerWrapper>
-        {historyFlat.map((item) =>
-          'strategy' in item ? (
-            <PortfolioHistoryTradeItem
-              key={(item as HistoryTrade).transactionHash}
-              trade={item as HistoryTrade}
-            />
-          ) : (
-            <PortfolioHistoryRedeemItem
-              key={(item as HistoryRedeem).transactionHash}
-              redeem={item as HistoryRedeem}
-            />
-          )
-        )}
+        {historyFlat.map((item) => getHistoryItemToRender(item))}
       </TableContainerWrapper>
     </InfiniteScroll>
   )

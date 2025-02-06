@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { defaultChain, newSubgraphURI } from '@/constants'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
+import { useAccount } from '@/services/AccountService'
 
 export type AccountMarketResponse = {
   account_id: string
@@ -19,7 +19,7 @@ export type AccountMarketResponse = {
 }
 
 export function useUsersMarkets() {
-  const address = useWalletAddress()
+  const { account: address } = useAccount()
   return useQuery<AccountMarketResponse[]>({
     queryKey: ['createdMarkets', address],
     queryFn: async () => {

@@ -25,10 +25,9 @@ import MarketActivityTab from '@/components/common/markets/activity-tab'
 import CommentTab from '@/components/common/markets/comment-tab'
 import ShareMenu from '@/components/common/markets/share-menu'
 import {
-  MarketClaimingForm,
   MarketMetadata,
   MarketTradingForm,
-  MobileTradeButton,
+  MarketClosedButton,
 } from '@/app/(markets)/markets/[address]/components'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import { MainLayout } from '@/components'
@@ -62,23 +61,23 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
   }
 
   const marketActionForm = useMemo(() => {
-    if (market) {
-      return market.expired ? (
-        <MarketClaimingForm market={market} />
-      ) : (
-        <MarketTradingForm
-          market={market}
-          setSelectedMarket={setMarket}
-          marketGroup={marketGroup}
-        />
-      )
-    }
+    // if (market) {
+    //   return market.expired ? (
+    //     <MarketClaimingForm market={market} />
+    //   ) : (
+    //     <MarketTradingForm
+    //       market={market}
+    //       setSelectedMarket={setMarket}
+    //       marketGroup={marketGroup}
+    //     />
+    //   )
+    // }
     return null
   }, [market, marketGroup])
 
   const mobileTradeButton = useMemo(() => {
     return market?.expired ? (
-      <MobileTradeButton market={market} />
+      <MarketClosedButton />
     ) : (
       <MobileDrawer
         trigger={
@@ -91,7 +90,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
             onClick={() => {
               trackClicked(ClickEvent.TradeButtonClicked, {
                 platform: 'mobile',
-                address: market?.address,
+                address: market?.slug,
               })
             }}
           >
@@ -162,7 +161,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                   variant='grey'
                   onClick={() => {
                     trackClicked(ClickEvent.BackClicked, {
-                      address: market?.address || '0x',
+                      address: market?.slug || '0x',
                     })
                     handleBackClicked()
                   }}
@@ -230,7 +229,7 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
             {!isMobile && marketActionForm}
           </HStack>
           {isMobile && (
-            <Box position='fixed' bottom='76px' w='calc(100% - 32px)'>
+            <Box position='fixed' bottom='88px' w='calc(100% - 32px)'>
               {mobileTradeButton}
             </Box>
           )}

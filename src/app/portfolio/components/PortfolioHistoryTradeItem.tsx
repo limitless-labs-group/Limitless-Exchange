@@ -1,14 +1,12 @@
 import { HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
-import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
 import { defaultChain } from '@/constants'
-import useMarketGroup from '@/hooks/use-market-group'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import { ClickEvent, HistoryTrade, useAmplitude, useTradingService } from '@/services'
-import { useAllMarkets, useMarket } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
@@ -17,62 +15,55 @@ interface IPortfolioHistoryTradeItem extends TableRowProps {
 }
 
 export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistoryTradeItem) => {
-  /**
-   * MARKET DATA
-   */
-  const allMarkets = useAllMarkets()
-
   const { onOpenMarketPage } = useTradingService()
-  const targetMarket = useMemo(
-    () => allMarkets.find((market) => market.address === trade.market.id),
-    [allMarkets, trade.market.id]
-  )
 
-  const { data: market, refetch: refetchMarket } = useMarket(trade.market?.id, false, false)
-  const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
-    targetMarket?.group?.slug,
+  const { data: market, refetch: refetchMarket } = useMarket(
+    trade.market.slug || trade.market.id,
     false,
     false
   )
+  // const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
+  //   targetMarket?.group?.slug,
+  //   false,
+  //   false
+  // )
 
   const { trackClicked } = useAmplitude()
 
   const handleOpenMarketPage = async () => {
-    if (targetMarket?.address) {
-      if (!market) {
-        const { data: fetchedMarket } = await refetchMarket()
-        if (fetchedMarket) {
-          onOpenMarketPage(fetchedMarket)
-          trackClicked(ClickEvent.PortfolioMarketClicked, {
-            marketCategory: fetchedMarket.category,
-            marketAddress: fetchedMarket.address,
-            marketType: 'single',
-            marketTags: fetchedMarket.tags,
-            type: 'History',
-          })
-        }
-      } else {
-        onOpenMarketPage(market)
+    if (!market) {
+      const { data: fetchedMarket } = await refetchMarket()
+      if (fetchedMarket) {
+        onOpenMarketPage(fetchedMarket)
         trackClicked(ClickEvent.PortfolioMarketClicked, {
-          marketCategory: market.category,
-          marketAddress: market.address,
+          marketCategory: fetchedMarket.category,
+          marketAddress: fetchedMarket.slug,
           marketType: 'single',
-          marketTags: market.tags,
+          marketTags: fetchedMarket.tags,
           type: 'History',
         })
       }
+      return
+    } else {
+      onOpenMarketPage(market)
+      trackClicked(ClickEvent.PortfolioMarketClicked, {
+        marketCategory: market.category,
+        marketAddress: market.slug,
+        marketType: 'single',
+        marketTags: market.tags,
+        type: 'History',
+      })
     }
-
-    if (targetMarket?.group?.slug) {
-      if (!marketGroup) {
-        const { data: fetchedMarketGroup } = await refetchMarketGroup()
-        if (fetchedMarketGroup) {
-          onOpenMarketPage(fetchedMarketGroup)
-        }
-      } else {
-        onOpenMarketPage(marketGroup)
-      }
-    }
+    // if (targetMarket?.group?.slug) {
+    //   if (!marketGroup) {
+    //     const { data: fetchedMarketGroup } = await refetchMarketGroup()
+    //     if (fetchedMarketGroup) {
+    //       onOpenMarketPage(fetchedMarketGroup)
+    //     }
+    //   } else {
+    //     onOpenMarketPage(marketGroup)
+    //   }
+    // }
   }
 
   return (

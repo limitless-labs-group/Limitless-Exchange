@@ -63,7 +63,7 @@ export default function ShareMenu() {
           onClick={() => {
             trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
               type: 'Farcaster',
-              address: market?.address,
+              address: market?.slug,
               marketType: 'single',
             })
             window.open(castURI, '_blank', 'noopener')
@@ -80,7 +80,7 @@ export default function ShareMenu() {
           onClick={() => {
             trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
               type: 'X/Twitter',
-              address: market?.address,
+              address: market?.slug,
               marketType: 'single',
             })
             window.open(tweetURI, '_blank', 'noopener')
@@ -92,12 +92,13 @@ export default function ShareMenu() {
           </HStack>
         </MenuItem>
         <MenuItem>
+          {/*// @ts-ignore*/}
           <CopyToClipboard
             text={marketURI}
             onCopy={() => {
               trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                 type: 'Copy Link',
-                address: market?.address,
+                address: market?.slug,
                 marketType: 'single',
               })
               const id = toast({

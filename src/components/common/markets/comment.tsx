@@ -1,10 +1,9 @@
 import { HStack, Text, VStack, useTheme, useToast } from '@chakra-ui/react'
-import { memo, useEffect, useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { useAccount } from 'wagmi'
 import { useTimeAgo } from '@/hooks/use-time-ago'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import { useLikeComment, useLikes, useUnlikeComment } from '@/services/CommentService'
+import { useAccount } from '@/services'
+import { useLikeComment, useUnlikeComment } from '@/services/CommentService'
 import { captionMedium, captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { CommentType } from '@/types'
 import Avatar from '../avatar'
@@ -19,10 +18,8 @@ export type CommentProps = {
 export default function Comment({ comment, isReply }: CommentProps) {
   const time = useTimeAgo(comment.createdAt)
   const name = comment.author.displayName ?? comment.author?.username
-  const account = useWalletAddress()
-  const { isConnected } = useAccount()
+  const { account, isLoggedIn } = useAccount()
   const [messageBlocked, setMessageBlocked] = useState(false)
-  const { data: likes } = useLikes(Number(comment.id))
   const { mutateAsync: like, isPending: isLikeLoading } = useLikeComment(Number(comment.id))
   const { mutateAsync: unlike, isPending: isUnlikeLoading } = useUnlikeComment(Number(comment.id))
   const toast = useToast()
@@ -30,15 +27,11 @@ export default function Comment({ comment, isReply }: CommentProps) {
     () => comment?.likes?.some((item) => item.user.account === account),
     [comment, account]
   )
-  useEffect(() => {
-    const isLiked = comment?.likes?.some((item) => item.user.account === account)
-    setIsLiked(isLiked)
-  }, [comment, account])
-
   const [isLiked, setIsLiked] = useState(isLikedByAuthor ?? 0)
+  const [likes, setLikes] = useState(comment?.likes?.length ?? 0)
 
   const handleLike = async () => {
-    if (!isConnected) {
+    if (!isLoggedIn) {
       const id = toast({
         render: () => <Toast title={'Login to like a post'} id={id} />,
         position: 'top-right',
@@ -49,10 +42,12 @@ export default function Comment({ comment, isReply }: CommentProps) {
       if (isLiked) {
         await unlike()
         setIsLiked(false)
+        setLikes(likes - 1)
         return
       }
       await like()
       setIsLiked(true)
+      setLikes(likes + 1)
     } catch (error) {
       const id = toast({
         render: () => <Toast title={'Failed to update like'} id={id} />,
@@ -76,7 +71,7 @@ export default function Comment({ comment, isReply }: CommentProps) {
             {time}
           </Text>
         </HStack>
-        {isConnected && (
+        {isLoggedIn && (
           <UserContextMenu
             username={comment.author?.displayName}
             userAccount={comment.author?.account}
@@ -111,9 +106,7 @@ export default function Comment({ comment, isReply }: CommentProps) {
           onClick={handleLike}
         >
           <LikeIcon isLiked={isLiked} />
-          <Text color={isLiked ? 'red.500' : 'grey.500'}>
-            {likes?.likes === 0 ? 'Like' : likes?.likes}
-          </Text>
+          <Text color={isLiked ? 'red.500' : 'grey.500'}>{likes === 0 ? 'Like' : likes}</Text>
         </HStack>
       </HStack>
 

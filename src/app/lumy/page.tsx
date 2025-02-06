@@ -149,6 +149,7 @@ export default function LumyPage() {
                     Address
                   </Text>
                   <HStack gap='4px'>
+                    {/*// @ts-ignore*/}
                     <CopyToClipboard
                       text={'0x6bb3d8A69656d1865708242223190a29D3a7E3c7'}
                       onCopy={onClickCopy}

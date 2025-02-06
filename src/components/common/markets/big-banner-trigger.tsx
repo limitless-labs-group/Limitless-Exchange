@@ -15,12 +15,13 @@ import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/font
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { cutUsername } from '@/utils/string'
 
+// @ts-ignore
 const MotionBox = motion(Box)
 
 export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps) => {
   const [feedMessage, setFeedMessage] = useState<MarketFeedData | null>(null)
   const { onOpenMarketPage, setMarkets } = useTradingService()
-  const { data: marketFeedData } = useMarketFeed(market.address)
+  const { data: marketFeedData } = useMarketFeed(market.address as string)
   const router = useRouter()
   const { trackClicked } = useAmplitude()
 
@@ -33,8 +34,7 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
     }
     router.push(`?market=${market.address}`, { scroll: false })
     trackClicked(ClickEvent.BigBannerClicked, {
-      marketCategory: market.category,
-      marketAddress: market.address,
+      marketAddress: market.slug,
       marketType: 'single',
       marketTags: market.tags,
     })
@@ -181,17 +181,19 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
                 </AnimatePresence>
               </Box>
             )}
-            <HStack gap='4px'>
-              <Text {...paragraphRegular} color='transparent.700'>
-                Value{' '}
-                {NumberUtil.convertWithDenomination(
-                  Number(market.openInterestFormatted || 0) +
-                    Number(market.liquidityFormatted || 0),
-                  6
-                )}{' '}
-                {market.collateralToken.symbol}
-              </Text>
-            </HStack>
+            {market.tradeType === 'amm' && (
+              <HStack gap='4px'>
+                <Text {...paragraphRegular} color='transparent.700'>
+                  Value{' '}
+                  {NumberUtil.convertWithDenomination(
+                    Number(market.openInterestFormatted || 0) +
+                      Number(market.liquidityFormatted || 0),
+                    6
+                  )}{' '}
+                  {market.collateralToken.symbol}
+                </Text>
+              </HStack>
+            )}
           </HStack>
         )}
       </Box>

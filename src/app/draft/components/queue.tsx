@@ -9,6 +9,7 @@ import { DraftMarket, DraftMarketCard } from '@/app/draft/components/draft-card'
 import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import { DraftMarketResponse } from '@/types/draft'
 
 export const DraftMarketsQueue = () => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
@@ -17,11 +18,13 @@ export const DraftMarketsQueue = () => {
 
   const router = useRouter()
   const { data: draftMarkets } = useQuery({
-    queryKey: ['draftMarkets'],
+    queryKey: ['draftMarkets-amm'],
     queryFn: async () => {
       const response = await privateClient.get(`/markets/drafts`)
 
-      return response.data
+      return response.data.filter(
+        (market: DraftMarketResponse) => !market.type || market?.type === 'amm'
+      )
     },
   })
 

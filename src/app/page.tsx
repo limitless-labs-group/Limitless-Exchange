@@ -67,14 +67,6 @@ const MainPage = () => {
     trackOpened(OpenEvent.PageOpened, analyticData)
   }, [])
 
-  const categoryEntity = useMemo(() => {
-    return (
-      categories?.find(
-        (categoryEntity) => categoryEntity.name.toLowerCase() === category?.toLowerCase()
-      ) || null
-    )
-  }, [categories, category])
-
   /**
    * UI
    */
@@ -223,7 +215,7 @@ const MainPage = () => {
               dataLength={markets?.length ?? 0}
               next={fetchNextPage}
               hasMore={hasNextPage}
-              style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+              style={{ width: '100%' }}
               loader={
                 markets.length > 0 && markets.length < totalAmount ? (
                   <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>

@@ -74,14 +74,14 @@ export default function MobileDrawer({
   }
 
   const indexInArray = markets
-    ? markets.findIndex((marketInArray) => selectedMarket?.address === marketInArray.address)
+    ? markets.findIndex((marketInArray) => selectedMarket?.slug === marketInArray.slug)
     : undefined
 
   const onClickPrevious =
     isNumber(indexInArray) && indexInArray > 0 && markets
       ? () => {
           onOpenMarketPage(markets[indexInArray - 1])
-          router.push(`?market=${markets[indexInArray - 1].address}`, { scroll: false })
+          router.push(`?market=${markets[indexInArray - 1].slug}`, { scroll: false })
           trackClicked(ClickEvent.PreviousMarketClick, {
             platform: 'mobile',
           })
@@ -92,7 +92,7 @@ export default function MobileDrawer({
     isNumber(indexInArray) && markets && indexInArray < markets.length - 1
       ? () => {
           onOpenMarketPage(markets[indexInArray + 1])
-          router.push(`?market=${markets[indexInArray + 1].address}`, { scroll: false })
+          router.push(`?market=${markets[indexInArray + 1].slug}`, { scroll: false })
           trackClicked(ClickEvent.NextMarketClick, {
             platform: 'mobile',
           })
