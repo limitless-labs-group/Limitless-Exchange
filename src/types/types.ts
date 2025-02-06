@@ -498,3 +498,11 @@ export enum MarketOrderType {
   LIMIT = 'limit',
   MARKET = 'market',
 }
+
+export interface MarketRewardsResponse {
+  marketId: string
+  marketSlug: string
+  totalUnpaidReward: string
+  unpaidRecords: string
+  userId: string
+}

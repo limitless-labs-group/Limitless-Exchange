@@ -18,6 +18,7 @@ import {
   useAmplitude,
   useTradingService,
 } from '@/services'
+import { useMarketRewards } from '@/services/MarketsService'
 import {
   captionMedium,
   controlsMedium,
@@ -32,6 +33,7 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
   const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
   const { data: userOrders } = useMarketOrders(market?.slug)
   const { trackChanged } = useAmplitude()
+  const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
 
   const ref = useRef<HTMLElement>()
 
@@ -49,12 +51,20 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
 
   const orderBookPriceRange = orderbook
     ? [
-        new BigNumber(orderbook.adjustedMidpoint)
+        new BigNumber(
+          outcome
+            ? new BigNumber(1).minus(orderbook.adjustedMidpoint).toString()
+            : orderbook.adjustedMidpoint
+        )
           .minus(new BigNumber(orderbook.maxSpread))
           .multipliedBy(100)
           .decimalPlaces(0)
           .toNumber(),
-        new BigNumber(orderbook.adjustedMidpoint)
+        new BigNumber(
+          outcome
+            ? new BigNumber(1).minus(orderbook.adjustedMidpoint).toString()
+            : orderbook.adjustedMidpoint
+        )
           .plus(new BigNumber(orderbook.maxSpread))
           .multipliedBy(100)
           .decimalPlaces(0)
@@ -81,7 +91,11 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
           >
             <GemIcon />
             <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
-              Earn Rewards
+              {marketRewards && Boolean(marketRewards?.length)
+                ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
+                    market.collateralToken.symbol
+                  }`
+                : 'Earn Rewards'}
             </Text>
           </HStack>
         )}
@@ -171,7 +185,7 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
                   <Box w={`${+item.cumulativePercent}%`} bg='red.500' opacity={0.1} height='36px' />
                 </Box>
                 <HStack gap='4px' w='25%' justifyContent='flex-end'>
-                  {checkIfUserHasOrdersAtThisPrice(+item.price, userOrders) &&
+                  {checkIfUserHasOrdersAtThisPrice(+item.price, userOrders, outcome) &&
                     checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                     market?.isRewardable && <GemIcon />}
                   <Text {...paragraphRegular} color='red.500' textAlign='right'>
@@ -264,7 +278,7 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
                   />
                 </Box>
                 <HStack gap='4px' w='25%' justifyContent='flex-end'>
-                  {checkIfUserHasOrdersAtThisPrice(+item.price, userOrders) &&
+                  {checkIfUserHasOrdersAtThisPrice(+item.price, userOrders, outcome) &&
                     checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                     market?.isRewardable && <GemIcon />}
                   <Text {...paragraphRegular} color='red.500' textAlign='right'>
