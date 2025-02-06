@@ -83,7 +83,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       </Box>
     ) : (
       <Box w='404px'>
-        <TradingWidgetSimple />
+        <TradingWidgetSimple fullSizePage />
       </Box>
     )
   }, [market, fetchMarketLoading])

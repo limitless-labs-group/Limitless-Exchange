@@ -19,7 +19,11 @@ import {
 import { controlsMedium, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
-export default function TradingWidgetSimple() {
+interface TradingWidgetSimpleProps {
+  fullSizePage?: boolean
+}
+
+export default function TradingWidgetSimple({ fullSizePage = false }: TradingWidgetSimpleProps) {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
   const { strategy, setStrategy, market, marketGroup, setMarket, status } = useTradingService()
   const { trackChanged } = useAmplitude()
@@ -38,6 +42,7 @@ export default function TradingWidgetSimple() {
       overflowX='hidden'
       p='8px'
       position='relative'
+      w={fullSizePage ? { base: '350px', xl: '400px', xxl: '442px' } : {}}
     >
       <HStack
         w={'240px'}
