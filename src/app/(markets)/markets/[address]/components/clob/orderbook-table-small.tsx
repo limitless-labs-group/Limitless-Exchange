@@ -66,23 +66,25 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
     <Box mt='12px'>
       <HStack w='full' justifyContent='space-between'>
         <Text {...h3Regular}>Order book</Text>
-        <HStack
-          gap='4px'
-          borderRadius='8px'
-          py='4px'
-          px='8px'
-          bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
-          cursor='pointer'
-          onClick={() => setRewardButtonClicked(!rewardsButtonClicked)}
-          onMouseEnter={() => setRewardButtonHovered(true)}
-          onMouseLeave={() => setRewardButtonHovered(false)}
-          ref={ref as LegacyRef<HTMLDivElement>}
-        >
-          <GemIcon />
-          <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
-            Earn Rewards
-          </Text>
-        </HStack>
+        {market?.isRewardable && (
+          <HStack
+            gap='4px'
+            borderRadius='8px'
+            py='4px'
+            px='8px'
+            bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
+            cursor='pointer'
+            onClick={() => setRewardButtonClicked(!rewardsButtonClicked)}
+            onMouseEnter={() => setRewardButtonHovered(true)}
+            onMouseLeave={() => setRewardButtonHovered(false)}
+            ref={ref as LegacyRef<HTMLDivElement>}
+          >
+            <GemIcon />
+            <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
+              Earn Rewards
+            </Text>
+          </HStack>
+        )}
       </HStack>
       <HStack w={'240px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'} my='16px'>
         <Button
