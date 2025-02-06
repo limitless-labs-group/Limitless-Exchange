@@ -12,7 +12,7 @@ import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import { Category, Market, MarketsResponse, OddsData } from '@/types'
+import { Category, Market, MarketRewardsResponse, MarketsResponse, OddsData } from '@/types'
 import { getPrices } from '@/utils/market'
 
 const LIMIT_PER_PAGE = 50
@@ -417,7 +417,12 @@ export const useMarketRewards = (slug?: string, isRewardable?: boolean) => {
   const privateClient = useAxiosPrivateClient()
   return useQuery({
     queryKey: ['reward-distribution', slug, web3Wallet?.account?.address],
-    queryFn: async () => privateClient.get(`/reward-distribution/unpaid-rewards?market=${slug}`),
+    queryFn: async () => {
+      const response: AxiosResponse<MarketRewardsResponse[]> = await privateClient.get(
+        `/reward-distribution/unpaid-rewards?market=${slug}`
+      )
+      return response.data
+    },
     enabled: !!slug && !!isLogged && !!web3Wallet?.account?.address && !!isRewardable,
     refetchInterval: 60000,
   })
