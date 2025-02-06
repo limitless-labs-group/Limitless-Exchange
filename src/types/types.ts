@@ -410,6 +410,8 @@ export interface ColorScheme {
   background: {
     80: string
     90: string
+    95: string
+    97: string
   }
   greenTransparent: {
     100: string

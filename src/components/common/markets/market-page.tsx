@@ -252,7 +252,7 @@ export default function MarketPage() {
 
   return (
     <Box
-      bg='background.90'
+      bg='var(--chakra-colors-background-97)'
       borderLeft={isMobile ? 'unset' : '1px solid'}
       borderColor='grey.100'
       w={isMobile ? 'full' : '488px'}
@@ -265,6 +265,7 @@ export default function MarketPage() {
       pt={isMobile ? 0 : '16px'}
       ref={scrollableBlockRef}
       id='side-menu-scroll-container'
+      boxShadow='-4px 0px 8px 0px rgba(0, 0, 0, 0.05)'
       backdropFilter='blur(7.5px)'
       zIndex='200'
     >

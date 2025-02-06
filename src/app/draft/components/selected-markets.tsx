@@ -19,10 +19,21 @@ export const SelectedMarkets = ({ market }: SelectedMarketsProps) => {
       color='grey.800'
       borderRadius='5px'
       border={'2px dashed var(--chakra-colors-draftCard-border)'}
+      maxWidth='350px'
+      width='100%'
     >
       {market?.map((market: SelectedMarkets) => (
-        <ListItem key={market.id}>
-          <Link href={`#${market.id}`}>{market.title}</Link>
+        <ListItem key={market.id} width='100%'>
+          <Link
+            href={`#${market.id}`}
+            display='block'
+            overflow='hidden'
+            textOverflow='ellipsis'
+            whiteSpace='nowrap'
+            width='100%'
+          >
+            {market.title}
+          </Link>
         </ListItem>
       ))}
     </List>

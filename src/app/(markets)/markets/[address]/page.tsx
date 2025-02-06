@@ -83,7 +83,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       </Box>
     ) : (
       <Box w='404px'>
-        <TradingWidgetSimple />
+        <TradingWidgetSimple fullSizePage />
       </Box>
     )
   }, [market, fetchMarketLoading])
@@ -264,6 +264,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
           w={isMobile ? 'full' : 'unset'}
           alignItems='flex-start'
           mb={isMobile ? '84px' : 0}
+          ml={!isMobile ? '188px' : 'unset'}
         >
           <Box w={isMobile ? 'full' : '716px'}>
             <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>
@@ -422,7 +423,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
           </Box>
           {!isMobile && tradingWidget}
           {isMobile && (
-            <Box position='fixed' bottom='88px' w='calc(100% - 32px)' left='16px' zIndex={99999}>
+            <Box position='fixed' bottom='86px' w='calc(100% - 32px)' left='16px' zIndex={99999}>
               {mobileTradeButton}
             </Box>
           )}

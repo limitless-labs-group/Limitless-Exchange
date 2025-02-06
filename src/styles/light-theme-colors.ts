@@ -155,6 +155,8 @@ export const lightThemeColors: ColorScheme = {
   background: {
     80: 'rgba(255, 255, 255, 0.8)',
     90: 'rgba(255, 255, 255, 0.9)',
+    95: 'rgba(255, 255, 255, 0.95)',
+    97: 'rgba(255, 255, 255, 0.97)',
   },
   greenTransparent: {
     100: 'rgba(15, 197, 145, 0.15)',

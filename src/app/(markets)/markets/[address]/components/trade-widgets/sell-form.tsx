@@ -801,6 +801,8 @@ export function SellForm({
                       color: 'var(--chakra-colors-text-100)',
                     }}
                     type='number'
+                    inputMode='decimal'
+                    pattern='[0-9]*'
                   />
                   <InputRightElement
                     h='16px'
