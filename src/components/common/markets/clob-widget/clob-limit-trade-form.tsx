@@ -137,7 +137,7 @@ export default function ClobLimitTradeForm() {
   }, [balanceLoading, strategy])
 
   const orderCalculations = useMemo(() => {
-    if (!price || !sharesAmount) {
+    if (!+price || !+sharesAmount) {
       return {
         total: 0,
         payout: 0,
@@ -261,7 +261,7 @@ export default function ClobLimitTradeForm() {
                 color={!orderCalculations.total ? 'grey.500' : 'grey.800'}
                 userSelect='none'
               >
-                {NumberUtil.toFixed(orderCalculations.total, 2)} {market?.collateralToken.symbol}
+                {NumberUtil.toFixed(orderCalculations.total, 6)} {market?.collateralToken.symbol}
               </Text>
             </HStack>
             <HStack w='full' justifyContent='space-between'>
@@ -273,7 +273,7 @@ export default function ClobLimitTradeForm() {
                 color={!orderCalculations.payout ? 'grey.500' : 'grey.800'}
                 userSelect='none'
               >
-                {NumberUtil.toFixed(orderCalculations.payout, 2)} {market?.collateralToken.symbol}
+                {NumberUtil.toFixed(orderCalculations.payout, 6)} {market?.collateralToken.symbol}
                 {Boolean(orderCalculations.profit) && (
                   <Text color='green.500' as='span' userSelect='none'>
                     {' '}
@@ -294,7 +294,7 @@ export default function ClobLimitTradeForm() {
                 color={!orderCalculations.payout ? 'grey.500' : 'grey.800'}
                 userSelect='none'
               >
-                {NumberUtil.toFixed(orderCalculations.payout, 2)} {market?.collateralToken.symbol}
+                {NumberUtil.toFixed(orderCalculations.payout, 6)} {market?.collateralToken.symbol}
               </Text>
             </HStack>
           </>
@@ -302,7 +302,7 @@ export default function ClobLimitTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
-        isDisabled={!price || !sharesAmount || isBalanceNotEnough || !web3Wallet}
+        isDisabled={!+price || !+sharesAmount || isBalanceNotEnough || !web3Wallet}
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}

@@ -53,21 +53,15 @@ export default function NumberInputWithButtons({
     <InputGroup position='relative'>
       <Input
         variant='grey'
-        inputMode='numeric'
-        type='text'
+        // inputMode='numeric'
+        // type='text'
         {...props}
         autoComplete='off'
-        onChange={(e) =>
-          handleInputChange(
-            e.target.value
-              .replace(/[^0-9,\.]/g, '')
-              .replace(/,/g, '.')
-              .replace(/^0+/, '0')
-              .replace(/^0\d/, (value as string).slice(1))
-          )
-        }
+        onChange={(e) => handleInputChange(e.target.value.replace(/^0+/, '0'))}
         value={value}
-        pattern='[0-9,]*'
+        type='number'
+        inputMode='decimal'
+        pattern='[0-9]*'
       />
       {showIncrements && (
         <>
