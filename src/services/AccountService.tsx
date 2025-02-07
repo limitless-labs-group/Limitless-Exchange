@@ -66,7 +66,7 @@ export interface IAccountContext {
   loginToPlatform: (options?: LoginModalOptions | React.MouseEvent<any, any>) => void
 }
 
-const pimlicoRpcUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
+const pimlicoRpcUrl = `https://api.pimlico.io/v2/${defaultChain.id}/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
 
 const pimlicoPaymaster = createPimlicoPaymasterClient({
   transport: http(pimlicoRpcUrl),
