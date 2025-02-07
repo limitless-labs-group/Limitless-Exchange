@@ -115,11 +115,11 @@ export default function ClobMarketTradeForm() {
       } else {
         balanceToShow = outcome
           ? NumberUtil.formatThousands(
-              formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
+              formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
               6
             )
           : NumberUtil.formatThousands(
-              formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
+              formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
               6
             )
       }
