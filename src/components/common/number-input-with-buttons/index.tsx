@@ -52,7 +52,7 @@ export default function NumberInputWithButtons({
   return (
     <InputGroup position='relative'>
       <Input
-        variant='outlined'
+        variant='grey'
         inputMode='numeric'
         type='number'
         {...props}
