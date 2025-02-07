@@ -9,7 +9,6 @@ import {
   checkPriceIsInRange,
 } from '@/components/common/markets/clob-widget/utils'
 import Skeleton from '@/components/common/skeleton'
-import { Tooltip } from '@/components/common/tooltip'
 import { OrderBookData } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import { useOrderBook } from '@/hooks/use-order-book'

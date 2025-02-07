@@ -21,12 +21,10 @@ import {
   checkPriceIsInRange,
 } from '@/components/common/markets/clob-widget/utils'
 import Skeleton from '@/components/common/skeleton'
-import { Tooltip } from '@/components/common/tooltip'
 import { OrderBookData } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import { useOrderBook } from '@/hooks/use-order-book'
 import GemIcon from '@/resources/icons/gem-icon.svg'
-import QuestionIcon from '@/resources/icons/question-icon.svg'
 import {
   ChangeEvent,
   OrderBookSideChangedMetadata,
