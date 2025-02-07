@@ -218,7 +218,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
   }, [orderType, price, sharesAmount])
 
   const placeLimitOrderMutation = useMutation({
-    mutationKey: ['limit-order', market?.address, price],
+    mutationKey: ['limit-order', market?.slug, price],
     mutationFn: async () => {
       if (market) {
         if (web3Client === 'etherspot') {
@@ -269,7 +269,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
   })
 
   const placeMarketOrderMutation = useMutation({
-    mutationKey: ['market-order', market?.address, price],
+    mutationKey: ['market-order', market?.slug, price],
     mutationFn: async () => {
       if (market) {
         if (web3Client === 'etherspot') {

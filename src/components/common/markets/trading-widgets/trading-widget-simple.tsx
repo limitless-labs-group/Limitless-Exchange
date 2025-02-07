@@ -138,7 +138,7 @@ export default function TradingWidgetSimple({ fullSizePage = false }: TradingWid
             >
               {marketGroup?.markets.map((market) => (
                 <Button
-                  key={market.address}
+                  key={market.slug}
                   onClick={() => {
                     setMarket(market)
                     onToggleSelectMarketMenu()
