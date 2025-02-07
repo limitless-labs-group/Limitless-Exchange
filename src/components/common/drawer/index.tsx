@@ -48,10 +48,7 @@ export default function MobileDrawer({
     if (ref.current) return
     const market = searchParams.get('market')
     const slug = searchParams.get('slug')
-    if ((market === id || slug === id) && drawerRef.current) {
-      console.log(`market ${market}`)
-      console.log(`slug ${slug}`)
-      console.log(`id ${id}`)
+    if (market !== null && id !== null && (market === id || slug === id) && drawerRef.current) {
       drawerRef.current.click()
       ref.current = true
     }
