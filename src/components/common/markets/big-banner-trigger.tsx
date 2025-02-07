@@ -21,7 +21,7 @@ const MotionBox = motion(Box)
 export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps) => {
   const [feedMessage, setFeedMessage] = useState<MarketFeedData | null>(null)
   const { onOpenMarketPage, setMarkets } = useTradingService()
-  const { data: marketFeedData } = useMarketFeed(market.address as string)
+  const { data: marketFeedData } = useMarketFeed(market)
   const router = useRouter()
   const { trackClicked } = useAmplitude()
 

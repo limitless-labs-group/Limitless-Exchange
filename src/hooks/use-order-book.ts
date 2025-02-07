@@ -9,6 +9,7 @@ export interface OrderBook {
   tokenId: string
   adjustedMidpoint: number
   maxSpread: string
+  minSize: string
 }
 
 export interface Order {

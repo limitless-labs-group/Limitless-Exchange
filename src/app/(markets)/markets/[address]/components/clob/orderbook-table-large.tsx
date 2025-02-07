@@ -13,9 +13,9 @@ import {
 import BigNumber from 'bignumber.js'
 import React, { LegacyRef, MutableRefObject, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { formatUnits } from 'viem'
+import { formatUnits, maxUint256 } from 'viem'
 import {
-  checkIfUserHasOrdersAtThisPrice,
+  checkIfOrderIsRewarded,
   checkPriceIsInRange,
 } from '@/components/common/markets/clob-widget/utils'
 import Skeleton from '@/components/common/skeleton'
@@ -81,6 +81,8 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
     : [50, 50]
 
   const highLightRewardsCells = rewardsButtonClicked || rewardButtonHovered
+
+  const minRewardsSize = orderbook?.minSize ? orderbook.minSize : maxUint256.toString()
 
   return (
     <>
@@ -201,7 +203,7 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
                     <Box w={`${item.cumulativePercent}%`} bg='red.500' opacity={0.1} h='full' />
                   </Box>
                   <HStack w='88px' h='full' justifyContent='flex-end' pr='8px' gap='4px'>
-                    {checkIfUserHasOrdersAtThisPrice(item.price, userOrders, outcome) &&
+                    {checkIfOrderIsRewarded(item.price, userOrders, outcome, minRewardsSize) &&
                       checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                       market?.isRewardable && <GemIcon />}
                     <Text {...paragraphRegular} color='red.500'>
@@ -287,7 +289,7 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
                     <Box w={`${item.cumulativePercent}%`} bg='green.500' opacity={0.1} h='full' />
                   </Box>
                   <HStack w='88px' h='full' justifyContent='flex-end' pr='8px' gap='4px'>
-                    {checkIfUserHasOrdersAtThisPrice(item.price, userOrders, outcome) &&
+                    {checkIfOrderIsRewarded(item.price, userOrders, outcome, minRewardsSize) &&
                       checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                       market?.isRewardable && <GemIcon />}
                     <Text {...paragraphRegular} color='red.500'>
