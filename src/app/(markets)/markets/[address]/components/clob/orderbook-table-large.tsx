@@ -23,6 +23,7 @@ import {
 import Skeleton from '@/components/common/skeleton'
 import { OrderBookData } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { useMarketOrders } from '@/hooks/use-market-orders'
+import useMarketRewardsIncentive from '@/hooks/use-market-rewards'
 import { useOrderBook } from '@/hooks/use-order-book'
 import GemIcon from '@/resources/icons/gem-icon.svg'
 import {
@@ -48,6 +49,7 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
   const { trackChanged } = useAmplitude()
   const ref = useRef<HTMLElement>()
   const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
+  const { data: marketRewardsTotal } = useMarketRewardsIncentive(market?.slug, market?.tradeType)
 
   const [rewardsButtonClicked, setRewardButtonClicked] = useState(false)
   const [rewardButtonHovered, setRewardButtonHovered] = useState(false)
@@ -113,7 +115,10 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
       </NextLink>
       <HStack w='full' mt='12px' justifyContent='space-between'>
         <Text {...paragraphMedium}>Reward:</Text>
-        <Text {...paragraphMedium}>200 {market?.collateralToken.symbol}</Text>
+        <Text {...paragraphMedium}>
+          {marketRewardsTotal?.totalRewards ? marketRewardsTotal.totalRewards.toFixed(0) : '0'}{' '}
+          {market?.collateralToken.symbol}
+        </Text>
       </HStack>
       <HStack w='full' mt='4px' justifyContent='space-between'>
         <Text {...paragraphMedium}>Max Spread:</Text>
