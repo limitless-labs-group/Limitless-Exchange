@@ -52,10 +52,8 @@ export default function NumberInputWithButtons({
   return (
     <InputGroup position='relative'>
       <Input
-        variant='grey'
-        // inputMode='numeric'
-        // type='text'
         {...props}
+        variant='grey'
         autoComplete='off'
         onChange={(e) => handleInputChange(e.target.value.replace(/^0+/, '0'))}
         value={value}
