@@ -83,10 +83,12 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   }
 
   const onResetAfterSplit = async () => {
+    await sleep(3)
     await checkSplitAllowance()
     await queryClient.refetchQueries({
       queryKey: ['market-shares', market?.slug, market?.tokens],
     })
+    setDisplayAmount('')
     splitSharesMutation.reset()
   }
 
