@@ -94,7 +94,7 @@ export default function TradeStepperMenu() {
   }, [orderType, price, sharesAmount, strategy])
 
   const approveBuyMutation = useMutation({
-    mutationKey: ['approve', market?.address],
+    mutationKey: ['approve', market?.slug],
     mutationFn: async () => {
       if (market) {
         await approveContract(
@@ -110,7 +110,7 @@ export default function TradeStepperMenu() {
   })
 
   const approveForSellMutation = useMutation({
-    mutationKey: ['approve-nft', market?.address],
+    mutationKey: ['approve-nft', market?.slug],
     mutationFn: async () => {
       if (market) {
         await approveAllowanceForAll(

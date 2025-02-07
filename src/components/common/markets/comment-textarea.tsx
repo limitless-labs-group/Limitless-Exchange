@@ -62,7 +62,7 @@ export default function CommentTextarea() {
       setError('Comment cannot be empty or just whitespace.')
       return
     }
-    await createComment({ content: comment, marketAddress: market?.address as string })
+    await createComment({ content: comment, marketSlug: market?.slug as string })
     setComment('')
   }
 

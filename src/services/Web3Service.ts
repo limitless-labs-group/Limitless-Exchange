@@ -199,17 +199,21 @@ export function useWeb3Service(): Web3Service {
       tokenId,
       makerAmount:
         side === 0
-          ? parseUnits(
-              new BigNumber(convertedPrice).multipliedBy(new BigNumber(shares)).toString(),
-              decimals
+          ? Math.floor(
+              new BigNumber(convertedPrice)
+                .multipliedBy(new BigNumber(shares))
+                .multipliedBy(new BigNumber(10).pow(decimals))
+                .toNumber()
             ).toString()
           : parseUnits(shares, decimals).toString(), // limit price * shares with decimals
       takerAmount:
         side === 0
           ? parseUnits(shares, decimals).toString()
-          : parseUnits(
-              new BigNumber(convertedPrice).multipliedBy(new BigNumber(shares)).toString(),
-              decimals
+          : Math.floor(
+              new BigNumber(convertedPrice)
+                .multipliedBy(new BigNumber(shares))
+                .multipliedBy(new BigNumber(10).pow(decimals))
+                .toNumber()
             ).toString(), // shares * decimals
       expiration: '0',
       nonce: '0',
