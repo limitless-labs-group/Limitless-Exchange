@@ -27,12 +27,14 @@ export default function useSmartWalletService() {
     data: `0x${string}`,
     value?: bigint
   ) => {
+    const nonce = await smartAccountClient?.account?.getNonce()
     const txHash = await smartAccountClient?.sendTransaction({
       // @ts-ignore
       from: smartAccountClient.account?.address,
       to: contract.address as Address,
       data,
       value,
+      nonce: nonce ? +nonce.toString() : undefined,
     })
     return txHash as string
   }
