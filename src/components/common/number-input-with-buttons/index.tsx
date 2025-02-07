@@ -63,6 +63,7 @@ export default function NumberInputWithButtons({
           )
         }
         value={value}
+        pattern='[0-9,]*'
       />
       {showIncrements && (
         <>
