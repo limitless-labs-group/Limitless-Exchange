@@ -21,12 +21,10 @@ import {
   checkPriceIsInRange,
 } from '@/components/common/markets/clob-widget/utils'
 import Skeleton from '@/components/common/skeleton'
-import { Tooltip } from '@/components/common/tooltip'
 import { OrderBookData } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import { useOrderBook } from '@/hooks/use-order-book'
 import GemIcon from '@/resources/icons/gem-icon.svg'
-import QuestionIcon from '@/resources/icons/question-icon.svg'
 import {
   ChangeEvent,
   OrderBookSideChangedMetadata,
@@ -53,11 +51,16 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
 
   const [rewardsButtonClicked, setRewardButtonClicked] = useState(false)
   const [rewardButtonHovered, setRewardButtonHovered] = useState(false)
+  const [linkHovered, setLinkHovered] = useState(false)
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
     handler: () => {
-      setRewardButtonClicked(false)
+      if (!linkHovered) {
+        setRewardButtonClicked(false)
+        return
+      }
+      return
     },
   })
 
@@ -96,7 +99,14 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
       <Text {...paragraphMedium} as='span'>
         Place limit order near the midpoint to get rewarded.{' '}
       </Text>
-      <NextLink href={url} target='_blank' rel='noopener' passHref>
+      <NextLink
+        href={url}
+        target='_blank'
+        rel='noopener'
+        passHref
+        onMouseEnter={() => setLinkHovered(true)}
+        onMouseLeave={() => setLinkHovered(false)}
+      >
         <Link variant='textLinkSecondary' {...paragraphRegular} isExternal color='grey.500'>
           Learn more
         </Link>
@@ -130,13 +140,7 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
         <Text {...h3Regular}>Order book</Text>
         <HStack gap='16px'>
           {market?.isRewardable && (
-            <Tooltip
-              bg='background.90'
-              border='unset'
-              label={tooltipContent}
-              placement='top-end'
-              maxW='260px'
-            >
+            <Box position='relative'>
               <HStack
                 gap='4px'
                 borderRadius='8px'
@@ -158,7 +162,22 @@ export default function OrderbookTableLarge({ orderBookData, spread, lastPrice }
                     : 'Earn Rewards'}
                 </Text>
               </HStack>
-            </Tooltip>
+              {(rewardsButtonClicked || rewardButtonHovered) && (
+                <Box
+                  position='absolute'
+                  bg='background.90'
+                  border='unset'
+                  w='260px'
+                  p='8px'
+                  rounded='8px'
+                  right={0}
+                  h='128px'
+                  zIndex={150}
+                >
+                  {tooltipContent}
+                </Box>
+              )}
+            </Box>
           )}
           <HStack w={'152px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
             <Button
