@@ -105,7 +105,7 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
       <HStack w='full' mt='12px' justifyContent='space-between'>
         <Text {...paragraphMedium}>Reward:</Text>
         <Text {...paragraphMedium}>
-          {marketRewardsTotal?.totalRewards ? marketRewardsTotal.totalRewards.toFixed(0) : '0'}{' '}
+          {marketRewardsTotal?.totalRewards ? marketRewardsTotal.totalRewards.toFixed(0) : '200'}{' '}
           {market?.collateralToken.symbol}
         </Text>
       </HStack>
