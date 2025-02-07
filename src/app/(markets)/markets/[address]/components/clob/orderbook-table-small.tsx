@@ -2,9 +2,9 @@ import { Box, Button, HStack, Text, useOutsideClick } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import React, { LegacyRef, MutableRefObject, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { formatUnits } from 'viem'
+import { formatUnits, maxUint256 } from 'viem'
 import {
-  checkIfUserHasOrdersAtThisPrice,
+  checkIfOrderIsRewarded,
   checkPriceIsInRange,
 } from '@/components/common/markets/clob-widget/utils'
 import Skeleton from '@/components/common/skeleton'
@@ -71,6 +71,8 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
           .toNumber(),
       ]
     : [50, 50]
+
+  const minRewardsSize = orderbook?.minSize ? orderbook.minSize : maxUint256.toString()
 
   return (
     <Box mt='12px'>
@@ -185,7 +187,7 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
                   <Box w={`${+item.cumulativePercent}%`} bg='red.500' opacity={0.1} height='36px' />
                 </Box>
                 <HStack gap='4px' w='25%' justifyContent='flex-end'>
-                  {checkIfUserHasOrdersAtThisPrice(+item.price, userOrders, outcome) &&
+                  {checkIfOrderIsRewarded(item.price, userOrders, outcome, minRewardsSize) &&
                     checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                     market?.isRewardable && <GemIcon />}
                   <Text {...paragraphRegular} color='red.500' textAlign='right'>
@@ -278,7 +280,7 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
                   />
                 </Box>
                 <HStack gap='4px' w='25%' justifyContent='flex-end'>
-                  {checkIfUserHasOrdersAtThisPrice(+item.price, userOrders, outcome) &&
+                  {checkIfOrderIsRewarded(item.price, userOrders, outcome, minRewardsSize) &&
                     checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                     market?.isRewardable && <GemIcon />}
                   <Text {...paragraphRegular} color='red.500' textAlign='right'>
