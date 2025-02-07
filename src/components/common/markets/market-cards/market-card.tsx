@@ -33,7 +33,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
   const [hovered, setHovered] = useState(false)
   const { onOpenMarketPage, market: selectedMarket } = useTradingService()
   const router = useRouter()
-  const { data: marketFeedData } = useMarketFeed(market?.address || '')
+  const { data: marketFeedData } = useMarketFeed(market)
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {

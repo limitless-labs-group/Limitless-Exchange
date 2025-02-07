@@ -106,7 +106,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
 
   const handleChartTabClicked = (event: ClickEvent) =>
     trackClicked(event, {
-      marketAddress: market?.address,
+      marketAddress: market?.slug,
       marketType: market?.marketType,
       marketTags: market?.tags,
       platform: isMobile ? 'mobile' : 'desktop',

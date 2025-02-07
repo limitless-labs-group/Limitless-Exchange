@@ -52,7 +52,7 @@ export const createMarketShareUrls = (
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.address}`
+  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
 
   return {
     tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
