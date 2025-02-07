@@ -134,7 +134,7 @@ export default function ClobLimitTradeForm() {
         </Flex>
       )
     }
-  }, [balanceLoading, strategy])
+  }, [balanceLoading, strategy, renderButtonContent])
 
   const orderCalculations = useMemo(() => {
     if (!price || !sharesAmount) {
