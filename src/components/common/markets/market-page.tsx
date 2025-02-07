@@ -175,7 +175,7 @@ export default function MarketPage() {
     removeMarketQuery()
     onCloseMarketPage()
     trackClicked(ClickEvent.CloseMarketClicked, {
-      marketAddress: market?.address as Address,
+      marketAddress: market?.slug as Address,
     })
   }
 
@@ -189,7 +189,7 @@ export default function MarketPage() {
 
   const handleChartTabClicked = (event: ClickEvent) =>
     trackClicked(event, {
-      marketAddress: market?.address,
+      marketAddress: market?.slug,
       marketType: marketGroup ? 'group' : 'single',
       marketTags: market?.tags,
       platform: isMobile ? 'mobile' : 'desktop',
@@ -210,8 +210,8 @@ export default function MarketPage() {
 
   useEffect(() => {
     //avoid triggering amplitude call twice
-    if (market?.address && !trackedMarketsRef.current.has(market.address)) {
-      trackedMarketsRef.current.add(market.address)
+    if (market?.slug && !trackedMarketsRef.current.has(market.slug)) {
+      trackedMarketsRef.current.add(market.slug)
       trackOpened(OpenEvent.SidebarMarketOpened, {
         marketAddress: market.slug,
         marketTags: market.tags,
@@ -219,7 +219,7 @@ export default function MarketPage() {
         category: market.category,
       })
     }
-  }, [market?.address])
+  }, [market?.slug])
 
   useEffect(() => {
     const handleMouseEnter = () => {

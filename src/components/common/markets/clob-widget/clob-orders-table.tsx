@@ -15,8 +15,11 @@ import { useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import BigNumber from 'bignumber.js'
 import React from 'react'
-import { formatUnits } from 'viem'
-import { checkPriceIsInRange } from '@/components/common/markets/clob-widget/utils'
+import { formatUnits, maxUint256 } from 'viem'
+import {
+  checkIfOrderIsRewarded,
+  checkPriceIsInRange,
+} from '@/components/common/markets/clob-widget/utils'
 import Skeleton from '@/components/common/skeleton'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import { useOrderBook } from '@/hooks/use-order-book'
@@ -40,7 +43,7 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
   const queryClient = useQueryClient()
   const { data: orderBook } = useOrderBook(market?.slug)
   const getOrderOutcome = (order: ClobPosition) => {
-    return order.token === market?.tokens.yes ? 'Yes' : 'No'
+    return order.token === market?.tokens.yes ? 0 : 1
   }
 
   const orderBookPriceRange = orderBook
@@ -97,6 +100,8 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
     )
   }
 
+  const minRewardsSize = orderBook?.minSize ? orderBook.minSize : maxUint256.toString()
+
   return (
     <>
       <TableContainer overflowY={'auto'} my='16px' maxH='178px'>
@@ -129,11 +134,17 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
                 <Td pl={0}>
                   <HStack gap='4px'>
                     {checkPriceIsInRange(+order.price, orderBookPriceRange) &&
+                      checkIfOrderIsRewarded(
+                        +order.price,
+                        [order],
+                        getOrderOutcome(order),
+                        minRewardsSize
+                      ) &&
                       market?.isRewardable && <GemIcon />}
                     <Text {...paragraphRegular}>{order.side === 'BUY' ? 'Buy' : 'Sell'}</Text>
                   </HStack>
                 </Td>
-                <Td>{getOrderOutcome(order)}</Td>
+                <Td>{getOrderOutcome(order) ? 'No' : 'Yes'}</Td>
                 <Td textAlign='end'>
                   {new BigNumber(order.price).multipliedBy(100).decimalPlaces(1).toNumber()}¢
                 </Td>

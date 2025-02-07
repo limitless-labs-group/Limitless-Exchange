@@ -75,7 +75,7 @@ export default function ClobWidget() {
                 onClick={() => {
                   trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
                     type: 'Buy selected',
-                    marketAddress: market?.address as Address,
+                    marketAddress: market?.slug as Address,
                   })
                   setStrategy('Buy')
                   setSharesAmount('')
@@ -103,7 +103,7 @@ export default function ClobWidget() {
                 onClick={() => {
                   trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
                     type: 'Sell selected',
-                    marketAddress: market?.address as Address,
+                    marketAddress: market?.slug as Address,
                   })
                   setStrategy('Sell')
                   setSharesAmount('')
