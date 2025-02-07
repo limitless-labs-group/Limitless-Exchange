@@ -87,7 +87,10 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
   }
 
   const getTotalAmountInOrder = (order: ClobPosition) => {
-    const totalAmountRaw = new BigNumber(order.originalSize).multipliedBy(order.price).toString()
+    const totalAmountRaw = new BigNumber(order.originalSize)
+      .multipliedBy(order.price)
+      .decimalPlaces(0)
+      .toString()
     return NumberUtil.formatThousands(
       formatUnits(BigInt(totalAmountRaw), market?.collateralToken.decimals || 6),
       2
