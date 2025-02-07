@@ -1,5 +1,6 @@
-import { Box, Button, HStack, Text, useOutsideClick } from '@chakra-ui/react'
+import { Box, Button, HStack, Link, Text, useOutsideClick } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
+import NextLink from 'next/link'
 import React, { LegacyRef, MutableRefObject, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits, maxUint256 } from 'viem'
@@ -8,6 +9,7 @@ import {
   checkPriceIsInRange,
 } from '@/components/common/markets/clob-widget/utils'
 import Skeleton from '@/components/common/skeleton'
+import { Tooltip } from '@/components/common/tooltip'
 import { OrderBookData } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import { useOrderBook } from '@/hooks/use-order-book'
@@ -39,6 +41,9 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
 
   const [rewardsButtonClicked, setRewardButtonClicked] = useState(false)
   const [rewardButtonHovered, setRewardButtonHovered] = useState(false)
+
+  const url =
+    'https://limitlesslabs.notion.site/Limitless-Docs-0e59399dd44b492f8d494050969a1567#19304e33c4b9808498d9ea69e68a0cb4'
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
@@ -74,32 +79,73 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
 
   const minRewardsSize = orderbook?.minSize ? orderbook.minSize : maxUint256.toString()
 
+  const tooltipContent = (
+    <Box>
+      <Text {...paragraphMedium} as='span'>
+        Place limit order near the midpoint to get rewarded.{' '}
+      </Text>
+      <NextLink href={url} target='_blank' rel='noopener' passHref>
+        <Link variant='textLinkSecondary' {...paragraphRegular} isExternal color='grey.500'>
+          Learn more
+        </Link>
+      </NextLink>
+      <HStack w='full' mt='12px' justifyContent='space-between'>
+        <Text {...paragraphMedium}>Reward:</Text>
+        <Text {...paragraphMedium}>200 {market?.collateralToken.symbol}</Text>
+      </HStack>
+      <HStack w='full' mt='4px' justifyContent='space-between'>
+        <Text {...paragraphMedium}>Max Spread:</Text>
+        <Text {...paragraphMedium}>
+          &#177;
+          {new BigNumber(orderbook?.maxSpread ? orderbook.maxSpread : '0')
+            .multipliedBy(100)
+            .toString()}
+          ¢
+        </Text>
+      </HStack>
+      <HStack w='full' mt='4px' justifyContent='space-between'>
+        <Text {...paragraphMedium}>Min order size:</Text>
+        <Text {...paragraphMedium}>
+          {formatUnits(BigInt(minRewardsSize), market?.collateralToken.decimals || 6)}
+        </Text>
+      </HStack>
+    </Box>
+  )
+
   return (
     <Box mt='12px'>
       <HStack w='full' justifyContent='space-between'>
         <Text {...h3Regular}>Order book</Text>
         {market?.isRewardable && (
-          <HStack
-            gap='4px'
-            borderRadius='8px'
-            py='4px'
-            px='8px'
-            bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
-            cursor='pointer'
-            onClick={() => setRewardButtonClicked(!rewardsButtonClicked)}
-            onMouseEnter={() => setRewardButtonHovered(true)}
-            onMouseLeave={() => setRewardButtonHovered(false)}
-            ref={ref as LegacyRef<HTMLDivElement>}
+          <Tooltip
+            bg='background.90'
+            border='unset'
+            label={tooltipContent}
+            placement='top-end'
+            maxW='260px'
           >
-            <GemIcon />
-            <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
-              {marketRewards && Boolean(marketRewards?.length)
-                ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
-                    market.collateralToken.symbol
-                  }`
-                : 'Earn Rewards'}
-            </Text>
-          </HStack>
+            <HStack
+              gap='4px'
+              borderRadius='8px'
+              py='4px'
+              px='8px'
+              bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
+              cursor='pointer'
+              onClick={() => setRewardButtonClicked(!rewardsButtonClicked)}
+              onMouseEnter={() => setRewardButtonHovered(true)}
+              onMouseLeave={() => setRewardButtonHovered(false)}
+              ref={ref as LegacyRef<HTMLDivElement>}
+            >
+              <GemIcon />
+              <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
+                {marketRewards && Boolean(marketRewards?.length)
+                  ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
+                      market.collateralToken.symbol
+                    }`
+                  : 'Earn Rewards'}
+              </Text>
+            </HStack>
+          </Tooltip>
         )}
       </HStack>
       <HStack w={'240px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'} my='16px'>
