@@ -4,9 +4,9 @@ import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 
 export default function useClient() {
   const privateClient = useAxiosPrivateClient()
-  const isLogged = Cookies.get('logged-in-to-limitless')
+  const isLogged = Cookies.get('privy-token')
 
-  const checkIsLogged = () => Cookies.get('logged-in-to-limitless')
+  const checkIsLogged = () => Cookies.get('privy-token')
 
   return {
     isLogged,

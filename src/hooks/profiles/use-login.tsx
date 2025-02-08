@@ -64,7 +64,6 @@ export const useLogin = () => {
           headers,
         }
       )
-      Cookies.set('logged-in-to-limitless', 'true')
       // await refetchWalletClient()
       await refetchAll()
       return res.data as Profile

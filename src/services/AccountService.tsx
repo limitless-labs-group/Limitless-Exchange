@@ -353,15 +353,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   })
 
   useEffect(() => {
-    if (isLogged && walletsReady) {
-      if (web3Client === 'etherspot' && smartAccountClient) {
-        refetchSession()
-      }
-      // if (web3Client === 'eoa') {
-      //   refetchSession()
-      // }
-    }
-  }, [refetchSession, smartAccountClient, web3Client, isLogged, walletsReady])
+    refetchSession()
+  }, [])
 
   const signout = useCallback(async () => {
     try {

@@ -117,41 +117,41 @@ const useSetupAxiosInstance = () => {
     return signingPromise
   }
 
-  // axiosInstance.interceptors.response.use(
-  //   (response) => response,
-  //   async (error) => {
-  //     const originalRequest = error.config
-  //
-  //     if (error.response?.status === 401 && !originalRequest._retry) {
-  //       originalRequest._retry = true
-  //
-  //       return new Promise((resolve, reject) => {
-  //         requestQueue.push(async () => axiosInstance(originalRequest).then(resolve).catch(reject))
-  //         if (!signingPromise) {
-  //           handleSigningProcess()
-  //             .then(() => {
-  //               const requests = [...requestQueue]
-  //               requestQueue.length = 0
-  //               Promise.allSettled(requests.map((req) => req())).then((results) => {
-  //                 results.forEach((result, index) => {
-  //                   if (result.status === 'rejected') {
-  //                     console.error(`Request ${index} failed:`, result.reason)
-  //                   }
-  //                 })
-  //               })
-  //             })
-  //             .catch(() => {
-  //               console.error('Signing process failed:', error)
-  //
-  //               requestQueue.length = 0
-  //             })
-  //         }
-  //       })
-  //     }
-  //
-  //     return Promise.reject(error)
-  //   }
-  // )
+  axiosInstance.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const originalRequest = error.config
+
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true
+
+        return new Promise((resolve, reject) => {
+          requestQueue.push(async () => axiosInstance(originalRequest).then(resolve).catch(reject))
+          if (!signingPromise) {
+            handleSigningProcess()
+              .then(() => {
+                const requests = [...requestQueue]
+                requestQueue.length = 0
+                Promise.allSettled(requests.map((req) => req())).then((results) => {
+                  results.forEach((result, index) => {
+                    if (result.status === 'rejected') {
+                      console.error(`Request ${index} failed:`, result.reason)
+                    }
+                  })
+                })
+              })
+              .catch(() => {
+                console.error('Signing process failed:', error)
+
+                requestQueue.length = 0
+              })
+          }
+        })
+      }
+
+      return Promise.reject(error)
+    }
+  )
 
   return axiosInstance
 }
