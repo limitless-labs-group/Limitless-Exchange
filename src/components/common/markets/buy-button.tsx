@@ -16,7 +16,7 @@ import React, {
   useState,
 } from 'react'
 import { isMobile } from 'react-device-detect'
-import { parseUnits } from 'viem'
+import { Address, parseUnits } from 'viem'
 import Loader from '@/components/common/loader'
 import TradeWidgetSkeleton, {
   SkeletonType,
@@ -258,12 +258,15 @@ export default function BuyButton({
     }
     trackClicked(ClickEvent.BuyClicked, {
       outcome: option,
-      marketAddress: market.address,
+      marketAddress: market.slug,
       walletType: client,
       source: analyticsSource,
     })
     if (client === 'eoa') {
-      const allowance = await checkAllowance(market.address, market.collateralToken.address)
+      const allowance = await checkAllowance(
+        market.address as Address,
+        market.collateralToken.address
+      )
       const amountBI = parseUnits(amount, decimals || 18)
       if (amountBI > allowance) {
         setStatus('unlock')
@@ -280,9 +283,9 @@ export default function BuyButton({
     try {
       setStatus('unlocking')
       const amountBI = parseUnits(amount, decimals || 18)
-      await approveContract(market.address, market.collateralToken.address, amountBI)
+      await approveContract(market.address as Address, market.collateralToken.address, amountBI)
       trackClicked(ClickEvent.ConfirmCapClicked, {
-        address: market?.address,
+        address: market?.slug,
         strategy: 'Buy',
         outcome: option,
         walletType: 'eoa',
@@ -534,7 +537,7 @@ export default function BuyButton({
           analyticParams={{ source: analyticsSource }}
           marketType={marketType}
           outcome={option}
-          marketAddress={market.address}
+          marketAddress={market.address as Address}
         />
       </MotionBox>
     </HStack>

@@ -1,5 +1,6 @@
 'use client'
 
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import * as React from 'react'
 import { TokenFilterProvider } from '@/contexts/TokenFilterContext'
 import { QueryProvider, PriceOracleProvider, ThemeProvider } from '@/providers'
@@ -31,7 +32,10 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                       <BalanceServiceProvider>
                         <TokenFilterProvider>
                           <CommentServiceProvider>
-                            <TradingServiceProvider>{children}</TradingServiceProvider>
+                            <TradingServiceProvider>
+                              {children}
+                              <ReactQueryDevtools initialIsOpen={false} />
+                            </TradingServiceProvider>
                           </CommentServiceProvider>
                         </TokenFilterProvider>
                       </BalanceServiceProvider>

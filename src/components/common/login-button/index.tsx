@@ -1,20 +1,13 @@
 import { Button } from '@chakra-ui/react'
-import { usePrivy } from '@privy-io/react-auth'
-import { SignInEvent, useAmplitude } from '@/services'
+import { LoginModalOptions } from '@privy-io/react-auth'
 
-export const LoginButton = () => {
-  const { trackSignIn } = useAmplitude()
-  const { login } = usePrivy()
+interface LoginButtonProps {
+  login: (options?: LoginModalOptions | React.MouseEvent<any, any>) => void
+}
 
+export const LoginButton = ({ login }: LoginButtonProps) => {
   return (
-    <Button
-      onClick={async () => {
-        login()
-        trackSignIn(SignInEvent.SignIn)
-      }}
-      variant='contained'
-      w='full'
-    >
+    <Button onClick={login} variant='contained' w='full'>
       Sign in
     </Button>
   )

@@ -10,6 +10,7 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
+import CloseIcon from '@/resources/icons/close-icon.svg'
 import { h1Regular, headline } from '@/styles/fonts/fonts.styles'
 
 export type IModal = ModalProps &
@@ -43,11 +44,12 @@ export const Modal = ({
             size={'xs'}
             fontSize={13}
             onClick={onClose}
+            minW='32px'
             // transition={'0.2s'}
             // _hover={{ transform: 'scale(1.1)' }}
             // _active={{ transform: 'none' }}
           >
-            ⛌
+            <CloseIcon width={16} height={16} />
           </Button>
         )}
       </ModalHeader>

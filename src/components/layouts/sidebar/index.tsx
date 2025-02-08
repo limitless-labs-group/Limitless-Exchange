@@ -15,34 +15,26 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { usePrivy } from '@privy-io/react-auth'
+import { useFundWallet } from '@privy-io/react-auth'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useCallback, useMemo } from 'react'
-import { Address, encodeFunctionData, getContract, maxUint256 } from 'viem'
 import Avatar from '@/components/common/avatar'
 import { LoginButton } from '@/components/common/login-button'
+import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
-import StaticSnowBackground from '@/components/common/static-snow'
-import { Toast } from '@/components/common/toast'
 import UpgradeWalletContainer from '@/components/common/upgrade-wallet-container'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
-import { wethABI } from '@/contracts'
-import { erc20Abi } from '@/contracts/generated'
-import { useToast } from '@/hooks'
-import useClient from '@/hooks/use-client'
+import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import usePageName from '@/hooks/use-page-name'
-import usePrivySendTransaction from '@/hooks/use-privy-send-transaction'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { useThemeProvider } from '@/providers'
-import { publicClient } from '@/providers/Privy'
-import AiAgentIcon from '@/resources/icons/ai-agent-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import LogoutIcon from '@/resources/icons/log-out-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
@@ -52,12 +44,10 @@ import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
-import SquarePlusIcon from '@/resources/icons/sidebar/suggest_market.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import UserIcon from '@/resources/icons/user-icon.svg'
 import {
   ClickEvent,
-  CreateMarketClickedMetadata,
   LogoClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
   useAccount,
@@ -66,7 +56,9 @@ import {
   useBalanceService,
   usePosition,
 } from '@/services'
-import { paragraphMedium, paragraphRegular, headline } from '@/styles/fonts/fonts.styles'
+import { useMarkets } from '@/services/MarketsService'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market, MarketGroup, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function Sidebar() {
@@ -78,26 +70,33 @@ export default function Sidebar() {
     profileLoading,
     account,
     web3Client,
+    loginToPlatform,
     isLoggedIn,
-    smartAccountClient,
   } = useAccount()
   const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
   const { data: totalVolume } = useTotalTradingVolume()
-  const { isLogged } = useClient()
-  const { sendTransaction } = usePrivySendTransaction()
-  const toast = useToast()
-  const { signMessage } = usePrivy()
 
-  // console.log(`account ${account}`)
   const { data: positions } = usePosition()
+  const { selectedCategory, handleCategory } = useTokenFilter()
+  const { data, isLoading } = useMarkets(null)
+  const { fundWallet } = useFundWallet()
+
+  const markets: (Market | MarketGroup)[] = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data.markets) || []
+  }, [data?.pages])
 
   const pageName = usePageName()
 
   const hasWinningPosition = useMemo(() => {
-    return positions?.some((position) => position.market.closed)
+    return positions?.some((position) => {
+      if (position.type === 'amm') {
+        return position.market.closed
+      }
+      return position.market.status === MarketStatus.RESOLVED
+    })
   }, [positions])
 
   const {
@@ -130,33 +129,9 @@ export default function Sidebar() {
     onToggleProfile()
   }
 
-  const handleTestApproveClicked = async () => {
-    const contract = getContract({
-      address: '0xD7788FfC73C9AE39CE24dfc1098b375792dD42Ac',
-      abi: erc20Abi,
-      client: publicClient,
-    })
-    const spender = '0x4045F81Ce65AF0D34FFe4C0CF9929B4f8a668228'
-    const data = encodeFunctionData({
-      abi: erc20Abi,
-      functionName: 'approve',
-      args: [spender, maxUint256],
-    })
-    const hash = await sendTransaction(contract, data)
-    toast({
-      render: () => <Toast title={`Approved successfully`} id={1} />,
-    })
-    return hash
-  }
-
-  const handleSignMessage = async () => {
-    const { signature: smartWalletSignature } = await signMessage({
-      message: 'Test message',
-    })
-    toast({
-      render: () => <Toast title={`Message signed successfully`} id={1} />,
-    })
-    return smartWalletSignature
+  const handleBuyCryptoClicked = async () => {
+    trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.BuyCryptoClicked)
+    await fundWallet(account as string)
   }
 
   const walletTypeActionButton = useMemo(() => {
@@ -170,26 +145,36 @@ export default function Sidebar() {
       )
     }
     return web3Client !== 'eoa' ? (
-      <UpgradeWalletContainer>
+      <>
+        <UpgradeWalletContainer>
+          <Button
+            variant='transparent'
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Wallet',
+              })
+              handleOpenWalletPage()
+            }}
+            w='full'
+            bg={isOpenWalletPage ? 'grey.100' : 'unset'}
+          >
+            <HStack w='full'>
+              <WalletIcon width={16} height={16} />
+              <Text fontWeight={500} fontSize='14px'>
+                {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+              </Text>
+            </HStack>
+          </Button>
+        </UpgradeWalletContainer>
         <Button
-          variant='transparent'
-          onClick={() => {
-            trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
-              option: 'Wallet',
-            })
-            handleOpenWalletPage()
-          }}
+          variant='contained'
+          onClick={handleBuyCryptoClicked}
           w='full'
-          bg={isOpenWalletPage ? 'grey.100' : 'unset'}
+          // bg={isOpenWalletPage ? 'grey.100' : 'unset'}
         >
-          <HStack w='full'>
-            <WalletIcon width={16} height={16} />
-            <Text fontWeight={500} fontSize='14px'>
-              {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-            </Text>
-          </HStack>
+          Deposit
         </Button>
-      </UpgradeWalletContainer>
+      </>
     ) : (
       <Button
         variant='transparent'
@@ -234,31 +219,27 @@ export default function Sidebar() {
         pos='fixed'
         overflowY='auto'
       >
-        {mode === 'dark' ? (
-          <StaticSnowBackground height={60} width={188} numDots={40} dotRadius={0.8} />
-        ) : null}
-
         <NextLink href='/' passHref style={{ width: '100%', textDecoration: 'none' }}>
           <Link
             onClick={() => {
               trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
               window.localStorage.removeItem('SORT')
+              handleCategory(undefined)
             }}
             style={{ textDecoration: 'none' }}
             _hover={{ textDecoration: 'none' }}
           >
             <HStack w='full' alignItems='center'>
               <Image
-                src={mode === 'dark' ? '/snow-logo.png' : '/snow-logo-light.png'}
-                height={46}
-                width={46}
+                src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+                height={32}
+                width={156}
                 alt='logo'
               />
-              <Text {...headline}>Limitless</Text>
             </HStack>
           </Link>
         </NextLink>
-        {isLogged || isLoggedIn ? (
+        {isLoggedIn ? (
           <>
             <VStack mt='16px' w='full' gap='8px'>
               {walletTypeActionButton}
@@ -296,6 +277,48 @@ export default function Sidebar() {
                   </HStack>
                 </Link>
               </NextLink>
+
+              {/*<Button*/}
+              {/*  variant='transparent'*/}
+              {/*  onClick={() => {*/}
+              {/*    trackClicked<ProfileBurgerMenuClickedMetadata>(*/}
+              {/*      ClickEvent.ProfileBurgerMenuClicked,*/}
+              {/*      {*/}
+              {/*        option: 'My Markets',*/}
+              {/*      }*/}
+              {/*    )*/}
+              {/*    onToggleMyMarkets()*/}
+              {/*  }}*/}
+              {/*  w='full'*/}
+              {/*  bg={isOpenMyMarkets ? 'grey.100' : 'unset'}*/}
+              {/*>*/}
+              {/*  <HStack w='full'>*/}
+              {/*    <MyMarketsIcon width={16} height={16} />*/}
+              {/*    <Text fontWeight={500} fontSize='14px'>*/}
+              {/*      My Markets*/}
+              {/*    </Text>*/}
+              {/*  </HStack>*/}
+              {/*</Button>*/}
+
+              {/*<NextLink href='/create-market' passHref style={{ width: '100%' }}>*/}
+              {/*  <Link*/}
+              {/*    onClick={() => {*/}
+              {/*      trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {*/}
+              {/*        page: pageName,*/}
+              {/*      })*/}
+              {/*    }}*/}
+              {/*    variant='transparent'*/}
+              {/*    w='full'*/}
+              {/*    rounded='8px'*/}
+              {/*  >*/}
+              {/*    <HStack w='full'>*/}
+              {/*      <SquarePlusIcon width={16} height={16} />*/}
+              {/*      <Text fontWeight={500} fontSize='14px'>*/}
+              {/*        Create market*/}
+              {/*      </Text>*/}
+              {/*    </HStack>*/}
+              {/*  </Link>*/}
+              {/*</NextLink>*/}
 
               <Menu isOpen={isOpenAuthMenu} onClose={onToggleAuthMenu} variant='transparent'>
                 {profileLoading ? (
@@ -394,31 +417,11 @@ export default function Sidebar() {
           </>
         ) : (
           <Box mt='16px' w='full'>
-            <LoginButton />
+            <LoginButton login={loginToPlatform} />
           </Box>
         )}
 
         <Divider my='12px' />
-        <NextLink href='/' passHref style={{ width: '100%' }}>
-          <Link
-            onClick={() => {
-              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
-                option: 'Markets',
-              })
-            }}
-            variant='transparent'
-            w='full'
-            bg={pageName === 'Explore Markets' ? 'grey.100' : 'unset'}
-            rounded='8px'
-          >
-            <HStack w='full'>
-              <GridIcon width={16} height={16} />
-              <Text fontWeight={500} fontSize='14px'>
-                Markets
-              </Text>
-            </HStack>
-          </Link>
-        </NextLink>
         <NextLink href='/leaderboard' passHref style={{ width: '100%' }}>
           <Link
             onClick={() => {
@@ -459,68 +462,34 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        <NextLink href='/lumy' passHref style={{ width: '100%' }}>
+
+        <Divider my='12px' />
+
+        <NextLink href='/' passHref style={{ width: '100%' }}>
           <Link
             onClick={() => {
               trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
-                option: 'Lumy',
+                option: 'Markets',
               })
+              handleCategory(undefined)
             }}
             variant='transparent'
             w='full'
-            bg={pageName === 'Home' ? 'grey.100' : 'unset'}
+            bg={pageName === 'Explore Markets' && !selectedCategory ? 'grey.100' : 'unset'}
             rounded='8px'
           >
             <HStack w='full'>
-              <AiAgentIcon />
-              <Text
-                fontWeight={500}
-                fontSize='14px'
-                bgGradient='linear-gradient(90deg, #5F1BEC 0%, #FF3756 27.04%, #FFCB00 99.11%)'
-                bgClip='text'
-              >
-                AI Agent
-              </Text>
-            </HStack>
-          </Link>
-        </NextLink>
-        <NextLink
-          href='https://limitlesslabs.notion.site/Limitless-Creators-101-b529a4a72cd4406cacb55f27395c9b56'
-          target='_blank'
-          rel='noopener'
-          passHref
-          style={{ width: '100%' }}
-        >
-          <Link
-            isExternal
-            onClick={() => {
-              trackClicked<CreateMarketClickedMetadata>(ClickEvent.CreateMarketClicked, {
-                page: pageName,
-              })
-            }}
-            variant='transparent'
-            w='full'
-            rounded='8px'
-          >
-            <HStack w='full'>
-              <SquarePlusIcon width={16} height={16} />
+              <GridIcon width={16} height={16} />
               <Text fontWeight={500} fontSize='14px'>
-                Suggest market
+                {`All markets ${isLoading ? '' : `(${markets?.length})`} `}
               </Text>
             </HStack>
           </Link>
         </NextLink>
+
+        <CategoryItems />
+
         <Spacer />
-        {!!smartAccountClient && (
-          <>
-            <Button variant='contained' onClick={handleTestApproveClicked}>
-              Approve
-            </Button>
-            <Button variant='contained' onClick={handleSignMessage}>
-              Sign message
-            </Button>
-          </>
-        )}
         {totalVolume && (
           <NextLink
             href='https://dune.com/limitless_exchange/limitless'

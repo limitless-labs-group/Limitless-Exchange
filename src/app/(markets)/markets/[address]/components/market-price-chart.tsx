@@ -49,7 +49,7 @@ export const MarketPriceChart = () => {
       height: 230,
       backgroundColor: colors.grey['100'],
       marginLeft: isMobile ? 75 : 50,
-      marginRight: 0,
+      marginRight: isMobile ? 10 : 5,
     },
     title: {
       text: undefined,
@@ -61,13 +61,13 @@ export const MarketPriceChart = () => {
       lineColor: colors.grey['200'],
       tickColor: colors.grey['200'],
       tickLength: 0,
-      max: getMaxChartTimestamp(data),
+      // max: getMaxChartTimestamp(data),
       labels: {
         step: 0,
         rotation: 0,
         align: 'center',
         style: {
-          fontFamily: 'Inter',
+          fontFamily: 'Inter, sans-serif',
           fontSize: isMobile ? '14px' : '12px',
           color: colors.grey['400'],
         },
@@ -90,7 +90,7 @@ export const MarketPriceChart = () => {
       labels: {
         format: '{value}%',
         style: {
-          fontFamily: 'Inter',
+          fontFamily: 'Inter, sans-serif',
           fontSize: isMobile ? '14px' : '12px',
           color: colors.grey['400'],
         },
@@ -169,7 +169,7 @@ export const MarketPriceChart = () => {
   })
 
   // React Query to fetch the price data
-  const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(market?.address)
+  const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(market)
 
   const chartData = useMemo(() => {
     const _prices: number[][] = prices ?? []
@@ -207,6 +207,12 @@ export const MarketPriceChart = () => {
 
     return data
   }, [prices, winningIndex, resolved])
+
+  const marketActivePrice = useMemo(() => {
+    return market?.tradeType === 'clob'
+      ? chartData.at(-1)?.[1].toFixed(0)
+      : outcomeTokensPercent?.[0]
+  }, [chartData, market?.tradeType, outcomeTokensPercent])
 
   return !prices ? (
     <Box my='16px'>
@@ -281,7 +287,7 @@ export const MarketPriceChart = () => {
           </HStack>
           <HStack gap={'4px'} mt='4px' mb='4px'>
             <Text {...(isMobile ? paragraphMedium : headline)} color='grey.800'>
-              {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%
+              {!resolved ? marketActivePrice : winningIndex === 0 ? 100 : 0}%
             </Text>
             <Text {...(isMobile ? paragraphMedium : headline)} color='grey.800'>
               Yes

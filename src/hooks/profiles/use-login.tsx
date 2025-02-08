@@ -1,8 +1,7 @@
 import { usePrivy } from '@privy-io/react-auth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
-import { Address, getAddress, toHex } from 'viem'
-import { useSignMessage, useWalletClient } from 'wagmi'
+import { Address, getAddress, toHex, WalletClient } from 'viem'
 import useRefetchAfterLogin from '@/hooks/use-refetch-after-login'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Profile } from '@/types/profiles'
@@ -11,6 +10,7 @@ export interface IUseLogin {
   account?: Address
   client: 'etherspot' | 'eoa'
   smartWallet?: string
+  web3Wallet: WalletClient | null
 }
 
 export const useLogin = () => {
@@ -19,7 +19,7 @@ export const useLogin = () => {
   const axiosInstance = useAxiosPrivateClient()
   const queryClient = useQueryClient()
   // const { refetch: refetchWalletClient } = useWalletClient()
-  const { signMessageAsync } = useSignMessage()
+  // const { signMessageAsync } = useSignMessage()
 
   const getSigningMsg = async () => {
     return axiosInstance.get(`/auth/signing-message`)
@@ -27,13 +27,23 @@ export const useLogin = () => {
 
   return useMutation({
     mutationKey: ['login'],
-    mutationFn: async ({ client, account, smartWallet }: IUseLogin): Promise<Profile> => {
+    mutationFn: async ({
+      client,
+      account,
+      smartWallet,
+      web3Wallet,
+    }: IUseLogin): Promise<Profile> => {
       const { data: loginSigningMessage } = await getSigningMsg()
 
       if (!loginSigningMessage) throw new Error('Failed to get signing message')
       let signature = ''
       if (client === 'eoa') {
-        signature = await signMessageAsync({ message: loginSigningMessage })
+        if (web3Wallet) {
+          signature = await web3Wallet.signMessage({
+            message: loginSigningMessage,
+            account: web3Wallet.account?.address as Address,
+          })
+        }
       } else {
         const { signature: smartWalletSignature } = await signMessage({
           message: loginSigningMessage,

@@ -6,6 +6,22 @@ import { ClickEvent, useAmplitude } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Sort, SortStorageName } from '@/types'
 
+const mobileStyles = {
+  mt: '16px',
+  mb: '24px',
+  justifyContent: 'start',
+  h: '32px',
+  px: '0',
+} as const
+
+const desktopStyles = {
+  mt: '8px',
+  mb: '8px',
+  justifyContent: 'end',
+  h: '24px',
+  px: 0,
+} as const
+
 type SortFilterProps = {
   onChange: (option: Sort, storageName: SortStorageName) => void
   storageName: SortStorageName
@@ -35,14 +51,11 @@ export default function SortFilter({ onChange, storageName }: SortFilterProps) {
   return (
     <HStack
       spacing={2}
-      mt={isMobile ? '16px' : '8px'}
-      mb={isMobile ? '24px' : '8px'}
       wrap={'wrap'}
       alignItems={'start'}
-      w={'full'}
+      w={'auto'}
       overflowX='auto'
-      h={isMobile ? '32px' : '24px'}
-      px={isMobile ? '16px' : 0}
+      {...(isMobile ? mobileStyles : desktopStyles)}
     >
       <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.100' borderRadius='8px'>
         {sortOptions.map((option) => (

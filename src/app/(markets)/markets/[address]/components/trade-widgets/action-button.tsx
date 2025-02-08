@@ -15,7 +15,7 @@ import {
   useState,
 } from 'react'
 import { isMobile } from 'react-device-detect'
-import { parseUnits } from 'viem'
+import { Address, parseUnits } from 'viem'
 import Loader from '@/components/common/loader'
 import BlockedTradeTemplate from '@/app/(markets)/markets/[address]/components/trade-widgets/blocked-trade-template'
 import ConfirmButton from '@/app/(markets)/markets/[address]/components/trade-widgets/confirm-button'
@@ -189,12 +189,15 @@ export default function ActionButton({
     }
     trackClicked(ClickEvent.BuyClicked, {
       outcome: option,
-      marketAddress: market.address,
+      marketAddress: market.slug,
       walletType: client,
       ...(analyticParams ? analyticParams : {}),
     })
     if (client === 'eoa') {
-      const allowance = await checkAllowance(market.address, market.collateralToken.address)
+      const allowance = await checkAllowance(
+        market.address as Address,
+        market.collateralToken.address
+      )
       const amountBI = parseUnits(amount, decimals || 18)
       if (amountBI > allowance) {
         setStatus('unlock')
@@ -211,9 +214,9 @@ export default function ActionButton({
     try {
       setStatus('unlocking')
       const amountBI = parseUnits(amount, decimals || 18)
-      await approveContract(market.address, market.collateralToken.address, amountBI)
+      await approveContract(market.address as Address, market.collateralToken.address, amountBI)
       trackClicked(ClickEvent.ConfirmCapClicked, {
-        address: market?.address,
+        address: market?.slug as Address,
         strategy: 'Buy',
         outcome: option,
         walletType: 'eoa',
@@ -245,7 +248,7 @@ export default function ActionButton({
       from: showReturnPercent ? 'numbers' : 'percentage',
       to: showReturnPercent ? 'percentage' : 'numbers',
       platform: isMobile ? 'mobile' : 'desktop',
-      marketAddress: market.address,
+      marketAddress: market.slug,
     })
     e.stopPropagation()
     setShowReturnPercent(!showReturnPercent)
@@ -256,7 +259,7 @@ export default function ActionButton({
       from: showFeeInValue ? 'numbers' : 'percentage',
       to: showFeeInValue ? 'percentage' : 'numbers',
       platform: isMobile ? 'mobile' : 'desktop',
-      marketAddress: market.address,
+      marketAddress: market.slug,
     })
     e.stopPropagation()
     setShowFeeInValue(!showFeeInValue)
@@ -431,7 +434,7 @@ export default function ActionButton({
           status={status}
           handleConfirmClicked={() => {
             trackClicked(ClickEvent.ConfirmTransactionClicked, {
-              address: market.address,
+              address: market.slug,
               outcome: option,
               strategy: 'Buy',
               walletType: client,
@@ -446,7 +449,7 @@ export default function ActionButton({
           analyticParams={analyticParams}
           marketType={marketType}
           outcome={option}
-          marketAddress={market.address}
+          marketAddress={market.address as Address}
           showFullInfo={false}
         />
       </MotionBox>

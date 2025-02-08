@@ -2,10 +2,10 @@ import { Box, HStack, Link, Text } from '@chakra-ui/react'
 import { ethers } from 'ethers'
 import { PropsWithChildren, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { useAccount } from 'wagmi'
 import Avatar from '@/components/common/avatar'
 import { UserContextMenu } from '@/components/common/user-context-menu'
 import { defaultChain } from '@/constants'
+import { useAccount } from '@/services'
 import { captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { FeedEventType, FeedEventUser } from '@/types'
 import { timeSinceCreation, truncateEthAddress } from '@/utils'
@@ -28,7 +28,7 @@ export default function MarketFeedCardContainer({
 }: PropsWithChildren<MarketFeedCardContainer>) {
   const [messageBlocked, setMessageBlocked] = useState(false)
   const timePassed = timeSinceCreation(timestamp)
-  const { isConnected } = useAccount()
+  const { isLoggedIn } = useAccount()
   const isCommentFeed = useMemo(
     () => eventType === FeedEventType.Comment || eventType === FeedEventType.CommentLike,
     [eventType]
@@ -102,7 +102,7 @@ export default function MarketFeedCardContainer({
             {timePassed}
           </Text>
         </HStack>
-        {eventType === FeedEventType.NewTrade && isConnected ? (
+        {eventType === FeedEventType.NewTrade && isLoggedIn ? (
           <UserContextMenu
             userAccount={user.account}
             username={user.name}

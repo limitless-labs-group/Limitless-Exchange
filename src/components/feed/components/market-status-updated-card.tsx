@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
-import DailyMarketCard from '@/components/common/markets/market-cards/daily-market-card'
-import DailyMarketCardMobile from '@/components/common/markets/market-cards/daily-market-card-mobile'
+import { MarketCard } from '@/components/common/markets/market-cards/market-card'
+import MarketCardMobile from '@/components/common/markets/market-cards/market-card-mobile'
 import MarketPage from '@/components/common/markets/market-page'
 import Skeleton from '@/components/common/skeleton'
 import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
@@ -32,13 +32,13 @@ export default function MarketStatusUpdatedCard({ data }: MarketStatusUpdatedCar
       return <Skeleton height={isMobile ? 317 : 230} />
     }
     return isMobile ? (
-      <DailyMarketCardMobile
+      <MarketCardMobile
         market={market as Market}
         analyticParams={{ bannerPosition: 0, bannerPaginationPage: 1 }}
         markets={[]}
       />
     ) : (
-      <DailyMarketCard
+      <MarketCard
         market={market as Market}
         analyticParams={{ bannerPosition: 0, bannerPaginationPage: 1 }}
       />

@@ -47,8 +47,7 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
         onClick={() => {
           onOpenMarketPage(market as Market)
           trackClicked(ClickEvent.FeedMarketClicked, {
-            marketCategory: market?.category,
-            marketAddress: market?.address,
+            marketAddress: market?.slug,
             marketType: 'single',
             marketTags: market?.tags,
           })
@@ -75,9 +74,15 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
       title={eventTitle}
     >
       {isMobile ? (
-        <MobileDrawer trigger={content} variant='black'>
-          <MarketPage />
-        </MobileDrawer>
+        <Box
+          onClick={(e) => {
+            e.stopPropagation()
+          }}
+        >
+          <MobileDrawer trigger={content} variant='black'>
+            <MarketPage />
+          </MobileDrawer>
+        </Box>
       ) : (
         content
       )}

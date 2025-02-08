@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Marquee from 'react-fast-marquee'
 import { useThemeProvider } from '@/providers'
 import { ClickEvent, useAmplitude } from '@/services'
-import { captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { captionRegular } from '@/styles/fonts/fonts.styles'
 
 export default function MigrateMarquee() {
   const [pauseMarquee, setPauseMarquee] = useState<boolean>(false)

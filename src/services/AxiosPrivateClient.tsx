@@ -1,19 +1,18 @@
-import { usePrivy } from '@privy-io/react-auth'
+import { usePrivy, useWallets } from '@privy-io/react-auth'
 import axios, { AxiosInstance } from 'axios'
 import {
   createSmartAccountClient,
   ENTRYPOINT_ADDRESS_V06,
-  walletClientToSmartAccountSigner,
+  providerToSmartAccountSigner,
 } from 'permissionless'
 import { signerToSafeSmartAccount } from 'permissionless/accounts'
 import { createPimlicoPaymasterClient } from 'permissionless/clients/pimlico'
 import React, { createContext, useContext } from 'react'
-import { getAddress, toHex } from 'viem'
-import { http, useSignMessage, useWalletClient } from 'wagmi'
+import { getAddress, http, toHex } from 'viem'
 import { defaultChain } from '@/constants'
 import useRefetchAfterLogin from '@/hooks/use-refetch-after-login'
 import { publicClient } from '@/providers/Privy'
-import { bundlerClient } from '@/services/AccountService'
+import { bundlerClient, useAccount } from '@/services/AccountService'
 
 const pimlicoRpcUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
 
@@ -24,9 +23,9 @@ const pimlicoPaymaster = createPimlicoPaymasterClient({
 
 const useSetupAxiosInstance = () => {
   const { signMessage, user } = usePrivy()
-  const { signMessageAsync } = useSignMessage()
   const { refetchAll } = useRefetchAfterLogin()
-  const { data: walletClient } = useWalletClient()
+  const { web3Wallet } = useAccount()
+  const { wallets } = useWallets()
 
   //avoid triggering signing message pop-up several times, when the few private requests will come simultaneously
   let signingPromise: Promise<void> | null = null
@@ -54,11 +53,16 @@ const useSetupAxiosInstance = () => {
         let smartAccountAddress = ''
 
         if (client === 'eoa') {
-          signature = await signMessageAsync({ message: signingMessage })
+          if (web3Wallet) {
+            signature = await web3Wallet.signMessage(signingMessage)
+          }
         }
 
-        if (client === 'etherspot' && walletClient) {
-          const customSigner = walletClientToSmartAccountSigner(walletClient)
+        if (client === 'etherspot') {
+          const embeddedWallet = wallets.find((wallet) => wallet.walletClientType === 'privy')
+          const provider = await embeddedWallet?.getEthereumProvider()
+          //@ts-ignore
+          const customSigner = await providerToSmartAccountSigner(provider)
 
           const safeSmartAccountClient = await signerToSafeSmartAccount(publicClient, {
             entryPoint: ENTRYPOINT_ADDRESS_V06,

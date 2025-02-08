@@ -3,9 +3,10 @@
 import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
 import * as sessionReplay from '@amplitude/session-replay-browser'
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
+import { ClobPositionType } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { PageName } from '@/hooks/use-page-name'
 import { useAccount } from '@/services'
-import { Address, Category, LeaderboardSort, MarketGroup } from '@/types'
+import { Category, LeaderboardSort, MarketGroup } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 
@@ -121,6 +122,8 @@ export enum ChangeEvent {
   ProfileSettingsChanged = 'Profile Settings Changed',
   LeaderboardViewChanged = 'Leaderboard View Changed',
   LeaderboardPageChanged = 'Leaderboard Page Changed',
+  OrderBookSideChanged = 'Orderbook Side Changed',
+  ClobPositionsTabChanged = 'Clob Positions Tab Changed',
 }
 
 export enum ClickEvent {
@@ -134,6 +137,7 @@ export enum ClickEvent {
   ShareItemClicked = 'Share Item Clicked',
   ChangeMarketInGroupClicked = 'Change Market In Group Clicked',
   ProfileBurgerMenuClicked = 'Profile Burger Menu Clicked',
+  BuyCryptoClicked = 'Buy Crypto Clicked',
   SignOutClicked = 'Sign Out',
   TradeButtonClicked = 'Trade Button Clicked',
   ConfirmTransactionClicked = 'Confirm Transaction Clicked',
@@ -167,16 +171,19 @@ export enum ClickEvent {
   FeedMarketClicked = 'Feed Market Clicked',
   PortfolioMarketClicked = 'PortfolioMarketClicked',
   PredictionChartOpened = 'Prediction Chart Opened',
+  OrderBookOpened = 'Order book Opened',
   AssetPriceChartOpened = 'Asset Price Chart Opened',
   NextMarketClick = 'Next Market Click',
   PreviousMarketClick = 'Previous Market Click',
   TradingWidgetPricePrecetChosen = 'Trading Widget Price Preset Chosen',
+  SplitSharesAmountPercentClicked = 'Split Shares Amount Percent Clicked',
   FullPageClicked = 'Full Page Clicked',
   JoinPredictionClicked = 'Join Prediction Clicked',
   EstimateEarningClicked = 'Estimate Earnings Clicked',
   ThreeDotsClicked = 'Three Dots Clicked',
   BlockedUserClicked = 'Blocked User Clicked',
   UndoBlockingUser = 'Undo Blocking User',
+  UserMarketClicked = 'User Market Clicked',
   UpgradeWalletClicked = 'Upgrade Wallet Clicked',
 }
 
@@ -199,19 +206,34 @@ export enum AuthenticationEvent {
 
 export interface AccountMetadata {
   email?: string
-  web3WalletAddress?: Address
-  smartWalletAddress?: Address
+  web3WalletAddress?: string
+  smartWalletAddress?: string
 }
 
+export type OrderBookSideChangedType = 'Yes selected' | 'No selected'
+
+export type ClobPositionsTabChanges = ClobPositionType
+
 export type StrategyChangedType = 'Buy selected' | 'Sell selected'
+
+export interface ClobPositionsTabChangesMetadata {
+  type: ClobPositionsTabChanges
+  marketAddress: string
+}
+
+export interface OrderBookSideChangedMetadata {
+  type: OrderBookSideChangedType
+  marketAddress: string
+}
+
 export interface StrategyChangedMetadata {
   type: StrategyChangedType
-  marketAddress: Address
+  marketAddress: string
 }
 
 export interface OutcomeChangedMetadata {
   choice: OutcomeChangedChoice
-  marketAddress: Address
+  marketAddress: string
 }
 
 export type OutcomeChangedChoice = 'Yes' | 'No'
@@ -219,12 +241,12 @@ export type WalletType = 'eoa' | 'etherspot'
 export interface TradeClickedMetadata {
   outcome: OutcomeChangedChoice
   walletType: WalletType
-  marketAddress: Address
+  marketAddress: string
   marketType?: 'group' | 'single'
 }
 
 export interface ClickedApproveMetadata {
-  address: Address
+  address: string
 }
 
 export interface ClickedWithdrawMetadata {
@@ -262,7 +284,7 @@ export interface PricePresetClickedMetadata {
 export type ShareClickedType = 'Copy Link' | 'X/Twitter' | 'Farcaster'
 export interface ShareClickedMetadata {
   type: ShareClickedType
-  address?: Address
+  address?: string
   marketType: 'group' | 'single'
 }
 
@@ -274,7 +296,7 @@ interface FeeAndReturnTradingDetailsClicked {
   from: 'percentage' | 'numbers'
   to: 'percentage' | 'numbers'
   platform: 'desktop' | 'mobile'
-  marketAddress: Address
+  marketAddress: string
 }
 
 export type ModalOpenedModal = 'Profile Settings'
@@ -288,20 +310,20 @@ export type PageOpenedPage =
   | 'Home'
 export interface PageOpenedMetadata {
   page: PageOpenedPage
-  marketAddress?: Address
+  marketAddress?: string
   category?: string
   [key: string]: any
 }
 
 export interface SidebarMarketOpenedMetadata {
-  marketAddress?: Address
+  marketAddress?: string
   category?: Category | string
   marketTags?: string[]
   marketType: 'single' | 'group'
 }
 
 interface FullPageClickedMetaData {
-  marketAddress?: Address
+  marketAddress?: string
   marketType?: 'group' | 'single'
   marketTags?: string[]
 }
@@ -374,6 +396,7 @@ export type ProfileBurgerMenuClickedOption =
   | 'Markets'
   | 'Lumy'
   | 'Leaderboard'
+  | 'My Markets'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
@@ -411,6 +434,8 @@ export type ChangedEventMetadata =
   | ProfileSettingsChangedMetadata
   | LeaderboardViewChangedMetadata
   | LeaderboardPageChangedMetadata
+  | OrderBookSideChangedMetadata
+  | ClobPositionsTabChangesMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
   | PricePresetClickedMetadata
