@@ -256,6 +256,11 @@ export const useExternalWalletService = () => {
     marketConditionId: Address,
     indexSets: number[]
   ) => {
+    console.log(conditionalTokensAddress)
+    console.log(collateralAddress)
+    console.log(parentCollectionId)
+    console.log(marketConditionId)
+    console.log(indexSets)
     try {
       await checkAndSwitchChainIfNeeded()
       const data = encodeFunctionData({

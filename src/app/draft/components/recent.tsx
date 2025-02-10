@@ -53,7 +53,8 @@ export const RecentMarkets = () => {
         const id = toast({
           render: () => <Toast title={`Markets are duplicated`} id={id} />,
         })
-        router.push('/draft?tab=queue')
+        const type = res.data.type === 'amm' ? 'amm' : 'clob'
+        router.push(`/draft?tab=queue-${type}`)
       })
       .catch((res) => {
         const id = toast({
