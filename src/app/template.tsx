@@ -15,6 +15,7 @@ export default function Template({ children }: PropsWithChildren) {
 
   Intercom({
     app_id: process.env.NEXT_PUBLIC_INTERCOM_APP_ID as string,
+    action_color: '#0079FF',
   })
 
   useEffect(() => {
