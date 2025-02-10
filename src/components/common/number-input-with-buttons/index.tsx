@@ -57,12 +57,12 @@ export default function NumberInputWithButtons({
         autoComplete='off'
         onChange={(e) => {
           console.log(e.target.value)
-          handleInputChange(e.target.value.replace(/^0+/, '0').replace(/,/g, '.'))
+          handleInputChange(e.target.value.replace(/^0+/, '0').replace(',', '.'))
         }}
         value={value}
-        type='number'
+        type='text'
         inputMode='decimal'
-        pattern='[0-9]*'
+        pattern='[0-9,.]*'
       />
       {showIncrements && (
         <>

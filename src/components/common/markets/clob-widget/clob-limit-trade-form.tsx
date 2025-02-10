@@ -199,7 +199,6 @@ export default function ClobLimitTradeForm() {
   }
 
   const handleSetLimitPrice = (val: string) => {
-    debugger
     const decimals = val.split('.')[1] || val.split(',')[1]
     console.log(decimals)
     console.log(val)
