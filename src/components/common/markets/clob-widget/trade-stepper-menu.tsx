@@ -14,7 +14,7 @@ import {
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { Address, maxUint256 } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
@@ -130,7 +130,7 @@ export default function TradeStepperMenu() {
     orderType === MarketOrderType.MARKET ? placeMarketOrderMutation : placeLimitOrderMutation
 
   const onResetApproveMutation = async () => {
-    await sleep(2)
+    await sleep(3)
     await checkMarketAllowance()
     setActiveStep(2)
     approveMutation.reset()
@@ -151,6 +151,9 @@ export default function TradeStepperMenu() {
   }
 
   const onResetTradeMutation = async () => {
+    setActiveStep(3)
+    await sleep(3)
+    tradeMutation.reset()
     await queryClient.refetchQueries({
       queryKey: ['user-orders', market?.slug],
     })
@@ -160,8 +163,6 @@ export default function TradeStepperMenu() {
     await queryClient.refetchQueries({
       queryKey: ['order-book', market?.slug],
     })
-    tradeMutation.reset()
-    setActiveStep(3)
   }
 
   const renderTradeButton = () => {
@@ -189,10 +190,21 @@ export default function TradeStepperMenu() {
     count: steps.length + 1,
   })
 
+  const closeModalWithDelay = async () => {
+    await sleep(5)
+    onToggleTradeStepper()
+  }
+
   const headerText =
     strategy === 'Buy'
       ? 'Just authorize the needed USDC for this trade then sign the transaction to confirm'
       : 'Just authorize permission for sell then sign the transaction to confirm'
+
+  useEffect(() => {
+    if (activeStep === 3) {
+      closeModalWithDelay()
+    }
+  }, [activeStep])
 
   return (
     <Paper position='absolute' bottom={0} rounded='8px' zIndex={100} w='full' p='16px' pt='8px'>
