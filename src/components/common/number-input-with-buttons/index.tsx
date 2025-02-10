@@ -55,7 +55,10 @@ export default function NumberInputWithButtons({
         {...props}
         variant='grey'
         autoComplete='off'
-        onChange={(e) => handleInputChange(e.target.value.replace(/^0+/, '0').replace(/,/g, '.'))}
+        onChange={(e) => {
+          console.log(e.target.value)
+          handleInputChange(e.target.value.replace(/^0+/, '0').replace(/,/g, '.'))
+        }}
         value={value}
         type='number'
         inputMode='decimal'
