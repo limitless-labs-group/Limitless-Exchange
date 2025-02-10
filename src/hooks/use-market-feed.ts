@@ -27,12 +27,12 @@ export type MarketFeedData = {
 
 export function useMarketFeed(market: Market | null) {
   const pathname = usePathname()
-  const { isLoggedIn } = useAccount()
+  const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useQuery<AxiosResponse<MarketFeedData[]>>({
     queryKey: ['market-feed', market?.slug],
     queryFn: async () => {
-      const client = isLoggedIn ? privateClient : limitlessApi
+      const client = web3Wallet ? privateClient : limitlessApi
       const url =
         market?.tradeType === 'clob'
           ? `/markets/${market.slug}/events`
@@ -45,13 +45,13 @@ export function useMarketFeed(market: Market | null) {
 }
 
 export function useMarketClobInfinityFeed(marketSlug?: string) {
-  const { isLoggedIn } = useAccount()
+  const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useInfiniteQuery<MarketFeedData[], Error>({
     queryKey: ['market-page-clob-feed', marketSlug],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      const client = isLoggedIn ? privateClient : limitlessApi
+      const client = web3Wallet ? privateClient : limitlessApi
       const baseUrl = `/markets/${marketSlug}/events`
       const response: AxiosResponse<MarketFeedData[]> = await client.get(baseUrl, {
         params: {
@@ -73,13 +73,13 @@ export function useMarketClobInfinityFeed(marketSlug?: string) {
 }
 
 export function useMarketInfinityFeed(marketAddress?: string | null, isActive = false) {
-  const { isLoggedIn } = useAccount()
+  const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useInfiniteQuery<MarketFeedData[], Error>({
     queryKey: ['market-page-feed', marketAddress],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      const client = isLoggedIn ? privateClient : limitlessApi
+      const client = web3Wallet ? privateClient : limitlessApi
       const baseUrl = `/markets/${marketAddress}/get-feed-events`
       const response: AxiosResponse<MarketFeedData[]> = await client.get(baseUrl, {
         params: {

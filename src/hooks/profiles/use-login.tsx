@@ -1,6 +1,5 @@
 import { usePrivy } from '@privy-io/react-auth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import Cookies from 'js-cookie'
 import { Address, getAddress, toHex, WalletClient } from 'viem'
 import useRefetchAfterLogin from '@/hooks/use-refetch-after-login'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
@@ -18,8 +17,6 @@ export const useLogin = () => {
   const { refetchAll } = useRefetchAfterLogin()
   const axiosInstance = useAxiosPrivateClient()
   const queryClient = useQueryClient()
-  // const { refetch: refetchWalletClient } = useWalletClient()
-  // const { signMessageAsync } = useSignMessage()
 
   const getSigningMsg = async () => {
     return axiosInstance.get(`/auth/signing-message`)
@@ -64,7 +61,7 @@ export const useLogin = () => {
           headers,
         }
       )
-      // await refetchWalletClient()
+      localStorage.setItem('logged-to-limitless', 'true')
       await refetchAll()
       return res.data as Profile
     },
