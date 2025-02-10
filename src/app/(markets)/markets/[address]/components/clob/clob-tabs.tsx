@@ -17,7 +17,7 @@ export default function ClobTabs() {
       icon: <OrderbookIcon width='16px' height='16px' />,
     },
     {
-      title: 'Activity',
+      title: 'Chart',
       icon: <CandlestickIcon width={16} height={16} />,
     },
   ]

@@ -20,6 +20,7 @@ export type DraftMarket = {
   collateralToken: Token
   category: Category
   creator: Creator
+  type: 'amm' | 'clob'
   draftMetadata: DraftMetadata
 }
 
@@ -86,7 +87,20 @@ export const DraftMarketCard = ({
                     Edit
                   </Text>
                 </HStack>
-              ) : null}
+              ) : (
+                <HStack gap={1}>
+                  <Box
+                    px='2'
+                    py='1'
+                    borderRadius='md'
+                    bg={market.type === 'amm' ? 'blue.100' : 'green.200'}
+                  >
+                    <Text {...paragraphMedium} textTransform='uppercase' fontSize='xs'>
+                      {market.type}
+                    </Text>
+                  </Box>
+                </HStack>
+              )}
             </HStack>
 
             <HStack alignItems='flex-start'>
