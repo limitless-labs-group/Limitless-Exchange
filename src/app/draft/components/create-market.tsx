@@ -95,6 +95,7 @@ export const CreateMarket: FC = () => {
   useEffect(() => {
     if (editMarket) {
       setAutoGenerateOg(true)
+      setCreateClobMarket(editMarket.type === 'clob')
       setFormData((prevFormData) => ({
         ...prevFormData,
         title: editMarket.title || '',
@@ -117,9 +118,9 @@ export const CreateMarket: FC = () => {
           })) || [],
         creatorId: editMarket.creator?.id || defaultCreatorId,
         categoryId: editMarket.category?.id || defaultCategoryId,
+        type: editMarket.type,
       }))
-      generateOgImage().then(() => console.log('Og image generated')),
-        setCreateClobMarket(!!editMarket.type)
+      generateOgImage().then(() => console.log('Og image generated'))
     }
   }, [editMarket])
 
@@ -363,7 +364,8 @@ export const CreateMarket: FC = () => {
       })
       .then((res) => {
         showToast(`Market ${marketId} is updated`)
-        router.push('/draft?tab=queue')
+        const type = createClobMarket ? 'clob' : 'amm'
+        router.push(`/draft?tab=queue-${type}`)
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
