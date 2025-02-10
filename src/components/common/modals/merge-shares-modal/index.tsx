@@ -1,4 +1,4 @@
-import { Box, Button, HStack, Input, InputGroup, InputRightElement, Text } from '@chakra-ui/react'
+import { Box, Button, HStack, InputGroup, Text } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -8,6 +8,7 @@ import { Address, formatUnits, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import { Modal } from '@/components/common/modals/modal'
+import NumberInputWithButtons from '@/components/common/number-input-with-buttons'
 import { useAccount, useTradingService } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphBold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -196,23 +197,13 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
             Available: {sharesAvailableBalance}
           </Button>
         </HStack>
-        <Input
-          isInvalid={isExceedsBalance}
-          variant='grey'
-          errorBorderColor='red.500'
+        <NumberInputWithButtons
           value={displayAmount}
-          onChange={(e) => handleAmountChange(e.target.value)}
-          placeholder='0'
-          type='number'
+          isInvalid={isExceedsBalance}
+          handleInputChange={handleAmountChange}
+          showIncrements={false}
+          endAdornment={<Text {...paragraphMedium}>Contracts</Text>}
         />
-        <InputRightElement
-          h='16px'
-          top={isMobile ? '32px' : '32px'}
-          right={isMobile ? '12px' : '8px'}
-          justifyContent='flex-end'
-        >
-          <Text {...paragraphMedium}>Contracts</Text>
-        </InputRightElement>
       </InputGroup>
       <HStack
         mt={isMobile ? '32px' : '24px'}
