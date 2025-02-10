@@ -22,8 +22,8 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
   return (
     mounted && (
       <ThemeProvider>
-        <QueryProvider>
-          <PrivyAuthProvider>
+        <PrivyAuthProvider>
+          <QueryProvider>
             <AmplitudeProvider>
               <LimitlessApiProvider>
                 <AxiosProvider>
@@ -44,8 +44,8 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                 </AxiosProvider>
               </LimitlessApiProvider>
             </AmplitudeProvider>
-          </PrivyAuthProvider>
-        </QueryProvider>
+          </QueryProvider>
+        </PrivyAuthProvider>
       </ThemeProvider>
     )
   )
