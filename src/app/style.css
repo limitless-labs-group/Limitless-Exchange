@@ -210,3 +210,13 @@ body {
   --privy-color-error: var(--chakra-colors-red-500);
   --privy-color-accent-dark: var(--chakra-colors-blue-500);
 }
+
+.intercom-lightweight-app-launcher {
+  bottom: 88px !important;
+  right: 8px !important;
+}
+
+[class^='intercom-with-namespace'] {
+  bottom: 88px !important;
+  right: 8px !important;
+}
