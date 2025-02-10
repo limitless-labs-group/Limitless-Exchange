@@ -5,7 +5,7 @@ import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { ClobPosition } from '@/types/orders'
 
 export function useMarketOrders(slug?: string) {
-  const { profileData } = useAccount()
+  const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useQuery({
     queryKey: ['user-orders', slug],
@@ -15,6 +15,6 @@ export function useMarketOrders(slug?: string) {
       )
       return response.data
     },
-    enabled: !!slug && !!profileData,
+    enabled: !!slug && !!web3Wallet,
   })
 }
