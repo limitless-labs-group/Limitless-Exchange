@@ -6,15 +6,15 @@ import { UserCreatedMarket } from '@/types'
 
 export default function useUserCreatedMarkets() {
   const privateClient = useAxiosPrivateClient()
-  const { account } = useAccount()
+  const { web3Wallet } = useAccount()
   return useQuery({
-    queryKey: ['my-markets', account],
+    queryKey: ['my-markets', web3Wallet?.account?.address],
     queryFn: async () => {
       const result: AxiosResponse<UserCreatedMarket[]> = await privateClient.get(
         `/profiles/my-markets`
       )
       return result.data
     },
-    enabled: !!account,
+    enabled: !!web3Wallet,
   })
 }

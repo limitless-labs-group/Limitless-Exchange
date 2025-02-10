@@ -91,23 +91,13 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 }
 
 export const usePosition = () => {
-  const { profileData, web3Client, smartAccountClient } = useAccount()
+  const { profileData, web3Wallet } = useAccount()
   const { isLogged } = useClient()
   const privateClient = useAxiosPrivateClient()
 
-  const enabled = useMemo(() => {
-    if (web3Client === 'etherspot' && smartAccountClient) {
-      return true
-    }
-    return !!profileData?.id && !!isLogged
-  }, [isLogged, profileData?.id, smartAccountClient, web3Client])
-
   return useQuery({
-    queryKey: ['positions', profileData?.id],
+    queryKey: ['positions', web3Wallet?.account?.address],
     queryFn: async () => {
-      if (!profileData) {
-        return []
-      }
       try {
         const response = await privateClient.get<PositionsResponse>(`/portfolio/positions`)
         return [
@@ -121,7 +111,7 @@ export const usePosition = () => {
         return []
       }
     },
-    enabled,
+    enabled: !!isLogged,
     refetchInterval: !!profileData?.id ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
   })
 }
@@ -143,15 +133,12 @@ export const usePortfolioHistory = (page: number) => {
 
 export const useInfinityHistory = () => {
   const privateClient = useAxiosPrivateClient()
-  const { checkIsLogged } = useClient()
-  const { profileData } = useAccount()
+  const { web3Wallet } = useAccount()
   return useInfiniteQuery<History[], Error>({
     queryKey: ['history-infinity'],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      const isLogged = checkIsLogged()
-
-      if (!isLogged) {
+      if (!web3Wallet) {
         return []
       }
 
@@ -174,7 +161,7 @@ export const useInfinityHistory = () => {
     },
     refetchOnWindowFocus: false,
     keepPreviousData: true,
-    enabled: !!profileData?.id,
+    enabled: !!web3Wallet,
   })
 }
 

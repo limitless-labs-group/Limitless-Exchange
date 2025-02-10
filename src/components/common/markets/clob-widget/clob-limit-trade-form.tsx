@@ -137,7 +137,7 @@ export default function ClobLimitTradeForm() {
   }, [balanceLoading, strategy, renderButtonContent])
 
   const orderCalculations = useMemo(() => {
-    if (!price || !sharesAmount) {
+    if (!+price || !+sharesAmount) {
       return {
         total: 0,
         payout: 0,
@@ -199,11 +199,22 @@ export default function ClobLimitTradeForm() {
   }
 
   const handleSetLimitPrice = (val: string) => {
-    const decimals = val.split('.')[1]
+    const decimals = val.split('.')[1] || val.split(',')[1]
     if (decimals && decimals.length > 1) {
       return
     }
+    if (+val > 100) {
+      return
+    }
     setPrice(val)
+  }
+
+  const handleSetLimitShares = (val: string) => {
+    const decimals = val.split('.')[1] || val.split(',')[1]
+    if (decimals && decimals.length > 6) {
+      return
+    }
+    setSharesAmount(val)
   }
 
   return (
@@ -216,50 +227,55 @@ export default function ClobLimitTradeForm() {
       </Flex>
       <NumberInputWithButtons
         id='limitPrice'
-        placeHolderText='Eg. 85¢'
-        min={1}
-        max={99}
+        placeholder='Eg. 85¢'
+        max={99.9}
         step={1}
         value={price}
-        onChange={handleSetLimitPrice}
+        handleInputChange={handleSetLimitPrice}
+        showIncrements={true}
       />
       <Flex justifyContent='space-between' alignItems='center' mt='16px' mb='8px'>
-        <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'}>
+        <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'} userSelect='none'>
           Contracts
         </Text>
         {showSellBalance}
       </Flex>
       <NumberInputWithButtons
         id='contractsAmount'
-        min={1}
         step={1}
-        placeHolderText='Eg. 32'
+        placeholder='Eg. 32'
         value={sharesAmount}
-        onChange={setSharesAmount}
+        handleInputChange={handleSetLimitShares}
         isInvalid={isBalanceNotEnough}
+        showIncrements={true}
       />
       <VStack w='full' gap='8px' my='24px'>
         {strategy === 'Buy' ? (
           <>
             <HStack w='full' justifyContent='space-between'>
-              <Text {...paragraphMedium} color='grey.500'>
+              <Text {...paragraphMedium} color='grey.500' userSelect='none'>
                 Cost
               </Text>
-              <Text {...paragraphMedium} color={!orderCalculations.total ? 'grey.500' : 'grey.800'}>
-                {NumberUtil.toFixed(orderCalculations.total, 2)} {market?.collateralToken.symbol}
+              <Text
+                {...paragraphMedium}
+                color={!orderCalculations.total ? 'grey.500' : 'grey.800'}
+                userSelect='none'
+              >
+                {NumberUtil.toFixed(orderCalculations.total, 6)} {market?.collateralToken.symbol}
               </Text>
             </HStack>
             <HStack w='full' justifyContent='space-between'>
-              <Text {...paragraphMedium} color='grey.500'>
+              <Text {...paragraphMedium} color='grey.500' userSelect='none'>
                 Payout if {outcome ? 'No' : 'Yes'} wins
               </Text>
               <Text
                 {...paragraphMedium}
                 color={!orderCalculations.payout ? 'grey.500' : 'grey.800'}
+                userSelect='none'
               >
-                {NumberUtil.toFixed(orderCalculations.payout, 2)} {market?.collateralToken.symbol}
+                {NumberUtil.toFixed(orderCalculations.payout, 6)} {market?.collateralToken.symbol}
                 {Boolean(orderCalculations.profit) && (
-                  <Text color='green.500' as='span'>
+                  <Text color='green.500' as='span' userSelect='none'>
                     {' '}
                     (+{NumberUtil.toFixed(orderCalculations.profit, 2)})
                   </Text>
@@ -270,14 +286,15 @@ export default function ClobLimitTradeForm() {
         ) : (
           <>
             <HStack w='full' justifyContent='space-between'>
-              <Text {...paragraphMedium} color='grey.500'>
+              <Text {...paragraphMedium} color='grey.500' userSelect='none'>
                 Profit
               </Text>
               <Text
                 {...paragraphMedium}
                 color={!orderCalculations.payout ? 'grey.500' : 'grey.800'}
+                userSelect='none'
               >
-                {NumberUtil.toFixed(orderCalculations.payout, 2)} {market?.collateralToken.symbol}
+                {NumberUtil.toFixed(orderCalculations.payout, 6)} {market?.collateralToken.symbol}
               </Text>
             </HStack>
           </>
@@ -285,7 +302,7 @@ export default function ClobLimitTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
-        isDisabled={!price || !sharesAmount || isBalanceNotEnough || !web3Wallet}
+        isDisabled={!+price || !+sharesAmount || isBalanceNotEnough || !web3Wallet}
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}
@@ -294,8 +311,8 @@ export default function ClobLimitTradeForm() {
       </ClobTradeButton>
       {(!price || !sharesAmount) && (
         <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
-          Set {!price && 'Limit price'}
-          {!price && !sharesAmount ? ',' : ''} {!sharesAmount && 'Contracts'}
+          Set {!+price && 'Limit price'}
+          {!+price && !+sharesAmount ? ',' : ''} {!+sharesAmount && 'Contracts'}
         </Text>
       )}
     </>

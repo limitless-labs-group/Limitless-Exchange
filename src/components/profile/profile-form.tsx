@@ -224,7 +224,7 @@ export function ProfileForm() {
                 <InputLeftElement
                   h='16px'
                   w='unset'
-                  top={isMobile ? '32px' : '24px'}
+                  top={'28px'}
                   left={isMobile ? '12px' : '8px'}
                   color='grey.500'
                 >
@@ -255,7 +255,7 @@ export function ProfileForm() {
               <InputLeftElement
                 h='16px'
                 w='unset'
-                top={isMobile ? '28px' : '24px'}
+                top={'28px'}
                 left={isMobile ? '12px' : '8px'}
                 color='grey.500'
               >
