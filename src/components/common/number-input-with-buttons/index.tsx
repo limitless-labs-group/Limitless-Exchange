@@ -1,6 +1,6 @@
 import { Box, Input, InputGroup, InputProps, InputRightElement } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import React, { SyntheticEvent } from 'react'
+import React from 'react'
 import { isMobile } from 'react-device-detect'
 import MinusIcon from '@/resources/icons/minus-icon.svg'
 import PlusIcon from '@/resources/icons/plus-icon.svg'
@@ -20,7 +20,7 @@ export default function NumberInputWithButtons({
   step,
   ...props
 }: NumberInputWithButtonsProps) {
-  const handlePlusIconClicked = (e: SyntheticEvent) => {
+  const handlePlusIconClicked = () => {
     if (max) {
       if (+(value as string) + (step as number) > +max) {
         return
@@ -55,11 +55,11 @@ export default function NumberInputWithButtons({
         {...props}
         variant='grey'
         autoComplete='off'
-        onChange={(e) => handleInputChange(e.target.value.replace(/^0+/, '0'))}
+        onChange={(e) => handleInputChange(e.target.value.replace(/^0+/, '0').replace(',', '.'))}
         value={value}
-        type='number'
+        type='text'
         inputMode='decimal'
-        pattern='[0-9]*'
+        pattern='[0-9,.]*'
       />
       {showIncrements && (
         <>

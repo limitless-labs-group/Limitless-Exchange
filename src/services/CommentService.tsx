@@ -71,17 +71,17 @@ export const CommentServiceProvider = ({ children }: PropsWithChildren) => {
 export const useCommentService = () => useContext(CommentServiceContext)
 
 export const useMarketInfinityComments = (marketAddress?: string | null) => {
-  const { isLoggedIn } = useAccount()
+  const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
   const {
     data: comments,
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery<Comment[], Error>({
-    queryKey: ['market-comments', marketAddress],
+    queryKey: ['market-comments', web3Wallet?.account?.address],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      const client = isLoggedIn ? privateClient : limitlessApi
+      const client = web3Wallet ? privateClient : limitlessApi
       const response: AxiosResponse<Comment[]> = await client.get(
         `/comments/markets/${marketAddress}`,
         {
