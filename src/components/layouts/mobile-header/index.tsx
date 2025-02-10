@@ -69,11 +69,15 @@ export default function MobileHeader() {
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
-  const { isLogged } = useClient()
+  const { isLoggedIn } = useAccount()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
   const { fundWallet } = useFundWallet()
 
-  const { isOpen: isOpenUserMenu, onToggle: onToggleUserMenu } = useDisclosure()
+  const {
+    isOpen: isOpenUserMenu,
+    onOpen: onOpenUserMenu,
+    onClose: onCloseUserMenu,
+  } = useDisclosure()
   const { handleCategory } = useTokenFilter()
 
   // Todo move this and other duplicated to a proper service
@@ -99,16 +103,16 @@ export default function MobileHeader() {
   }, [positions])
 
   const handleNavigateToPortfolioPage = () => {
-    onToggleUserMenu()
+    onCloseUserMenu()
     router.push('/portfolio')
   }
 
   const handleOpenWrapModal = () => {
-    onToggleUserMenu()
+    onCloseUserMenu()
   }
 
   const handleNavigateToCreateMarketPage = () => {
-    onToggleUserMenu()
+    onCloseUserMenu()
     router.push('/create-market')
   }
 
@@ -144,7 +148,7 @@ export default function MobileHeader() {
             </HStack>
           </Box>
           <HStack gap='4px'>
-            {isLogged ? (
+            {isLoggedIn ? (
               <>
                 <Button
                   variant='transparent'
@@ -153,7 +157,7 @@ export default function MobileHeader() {
                       platform: 'mobile',
                     })
 
-                    onToggleUserMenu()
+                    onOpenUserMenu()
                   }}
                 >
                   {!balanceOfSmartWallet ? (
@@ -190,7 +194,7 @@ export default function MobileHeader() {
                   direction='right'
                   in={isOpenUserMenu}
                   style={{ zIndex: 100, marginTop: '20px', transition: '0.1s' }}
-                  onClick={onToggleUserMenu}
+                  onClick={onCloseUserMenu}
                 >
                   <VStack
                     ml='40px'
@@ -213,7 +217,7 @@ export default function MobileHeader() {
                               gap='8px'
                               justifyContent='space-between'
                               onClick={() => {
-                                onToggleUserMenu()
+                                onCloseUserMenu()
                               }}
                             >
                               <HStack gap='4px'>
@@ -312,7 +316,7 @@ export default function MobileHeader() {
                                         option: 'Wallet',
                                         platform: 'mobile',
                                       })
-                                      onToggleUserMenu()
+                                      onCloseUserMenu()
                                     }}
                                   >
                                     <HStack justifyContent='space-between' w='full'>
