@@ -78,8 +78,6 @@ export default function ClobWidget() {
                     marketAddress: market?.slug as Address,
                   })
                   setStrategy('Buy')
-                  setSharesAmount('')
-                  setPrice('')
                 }}
               >
                 <Text {...controlsMedium} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
@@ -106,8 +104,6 @@ export default function ClobWidget() {
                     marketAddress: market?.slug as Address,
                   })
                   setStrategy('Sell')
-                  setSharesAmount('')
-                  setPrice('')
                 }}
               >
                 <Text {...controlsMedium} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
