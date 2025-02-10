@@ -207,7 +207,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
         />
         <InputRightElement
           h='16px'
-          top={isMobile ? '32px' : '32px'}
+          top='36px'
           right={isMobile ? '12px' : '8px'}
           justifyContent='flex-end'
         >
