@@ -461,7 +461,6 @@ export const useWinningIndex = (marketAddr: string) =>
   })
 
 export const useMarketRewards = (slug?: string, isRewardable?: boolean) => {
-  const { isLogged } = useClient()
   const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useQuery({
@@ -472,7 +471,7 @@ export const useMarketRewards = (slug?: string, isRewardable?: boolean) => {
       )
       return response.data
     },
-    enabled: !!slug && !!isLogged && !!web3Wallet?.account?.address && !!isRewardable,
+    enabled: !!slug && !!web3Wallet && !!isRewardable,
     refetchInterval: 60000,
   })
 }

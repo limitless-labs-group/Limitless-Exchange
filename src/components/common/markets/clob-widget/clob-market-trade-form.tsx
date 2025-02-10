@@ -1,14 +1,4 @@
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Input,
-  InputGroup,
-  InputRightElement,
-  Text,
-  VStack,
-} from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Spacer, Text, VStack } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
@@ -16,6 +6,7 @@ import { isMobile } from 'react-device-detect'
 import { formatUnits, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
+import NumberInputWithButtons from '@/components/common/number-input-with-buttons'
 import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
@@ -362,27 +353,21 @@ export default function ClobMarketTradeForm() {
           </Flex>
         )}
       </Flex>
-      <InputGroup display='block' mt='8px'>
-        <Input
-          value={price}
-          onChange={(e) => handleInputValueChange(e.target.value)}
-          variant='grey'
-          errorBorderColor='red.500'
-          pl={isMobile ? '32px' : '28px'}
-          id='displayName'
-          autoComplete='off'
-          placeholder='Eg. 5'
-          px='12px'
-          py='8px'
-          h='32px'
-          isInvalid={isBalanceNotEnough}
-        />
-        <InputRightElement h='16px' top='8px' right={isMobile ? '8px' : '12px'} w='fit'>
+      <Spacer mt='8px' />
+      <NumberInputWithButtons
+        id='marketPrice'
+        placeholder='Eg. 85¢'
+        max={99.9}
+        step={1}
+        value={price}
+        handleInputChange={handleInputValueChange}
+        showIncrements={false}
+        endAdornment={
           <Text {...paragraphMedium} color={'grey.500'}>
             {strategy === 'Buy' ? market?.collateralToken.symbol : 'Contracts'}
           </Text>
-        </InputRightElement>
-      </InputGroup>
+        }
+      />
       <VStack w='full' gap='8px' my='24px'>
         {strategy === 'Buy' && (
           <HStack w='full' justifyContent='space-between'>
@@ -411,7 +396,7 @@ export default function ClobMarketTradeForm() {
             {strategy === 'Buy' ? `Payout if ${outcome ? 'No' : 'Yes'} wins` : 'Total'}
           </Text>
           <Text {...paragraphMedium} color={!orderCalculations.payout ? 'grey.500' : 'grey.800'}>
-            {NumberUtil.toFixed(orderCalculations.payout, 2)} USDC{' '}
+            {NumberUtil.toFixed(orderCalculations.payout, 6)} USDC{' '}
             {Boolean(orderCalculations.profit) && (
               <Text color='green.500' as='span'>
                 (+{NumberUtil.toFixed(orderCalculations.profit, 2)})
@@ -423,7 +408,7 @@ export default function ClobMarketTradeForm() {
       <ClobTradeButton
         status={placeMarketOrderMutation.status}
         isDisabled={
-          !price ||
+          !+price ||
           isBalanceNotEnough ||
           !web3Wallet ||
           noOrdersOnDesiredToken ||
@@ -438,7 +423,7 @@ export default function ClobMarketTradeForm() {
       >
         {strategy} {outcome ? 'No' : 'Yes'}
       </ClobTradeButton>
-      {!price && (
+      {!+price && (
         <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
           Enter amount to {strategy === 'Buy' ? 'buy' : 'sell'}
         </Text>
