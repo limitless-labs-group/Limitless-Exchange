@@ -110,18 +110,16 @@ export const DraftMarketsQueueClob = () => {
             <Spinner />
           </Box>
         ) : (
-          <>
-            <Button
-              colorScheme='green'
-              mt='16px'
-              w={'full'}
-              onClick={createMarketsBatch}
-              style={{ width: '100%', maxWidth: '868px', position: 'fixed', bottom: 20 }}
-              isDisabled={isCreating}
-            >
-              {isCreating ? <Spinner /> : 'Create Markets Batch'}
-            </Button>
-          </>
+          <Button
+            colorScheme='green'
+            mt='16px'
+            w={'full'}
+            onClick={createMarketsBatch}
+            style={{ width: '100%', maxWidth: '868px', position: 'fixed', bottom: 20 }}
+            isDisabled={isCreating}
+          >
+            {isCreating ? <Spinner /> : 'Create Markets Batch'}
+          </Button>
         )}
       </VStack>
       <Box
