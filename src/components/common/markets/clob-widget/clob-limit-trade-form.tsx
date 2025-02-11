@@ -123,9 +123,12 @@ export default function ClobLimitTradeForm() {
         return privateClient.post('/orders', data)
       }
     },
-    onError: (error: AxiosError<{ message: string }>) => {
+    onError: async (error: AxiosError<{ message: string }>) => {
       const id = toast({
         render: () => <Toast title={error.response?.data.message || ''} id={id} />,
+      })
+      await queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
       })
     },
   })
