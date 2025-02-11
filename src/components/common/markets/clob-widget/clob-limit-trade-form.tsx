@@ -1,15 +1,20 @@
 import { Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react'
-import { useQueryClient } from '@tanstack/react-query'
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { formatUnits, parseUnits } from 'viem'
+import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import NumberInputWithButtons from '@/components/common/number-input-with-buttons'
 import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
+import { Toast } from '@/components/common/toast'
+import { useToast } from '@/hooks'
+import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import {
   ClickEvent,
   useAccount,
@@ -17,6 +22,7 @@ import {
   useBalanceService,
   useTradingService,
 } from '@/services'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -29,7 +35,6 @@ export default function ClobLimitTradeForm() {
     price,
     sharesAmount,
     setSharesAmount,
-    placeLimitOrderMutation,
     allowance,
     sharesPrice,
     isApprovedForSell,
@@ -41,7 +46,11 @@ export default function ClobLimitTradeForm() {
   const { web3Wallet } = useAccount()
   const { market, strategy, clobOutcome: outcome } = useTradingService()
   const queryClient = useQueryClient()
-  const { client } = useWeb3Service()
+  const { client, placeLimitOrder } = useWeb3Service()
+  const { web3Client, profileData } = useAccount()
+  const privyService = usePrivySendTransaction()
+  const privateClient = useAxiosPrivateClient()
+  const toast = useToast()
 
   const handlePercentButtonClicked = (value: number) => {
     trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
@@ -69,6 +78,57 @@ export default function ClobLimitTradeForm() {
     )
     return
   }
+
+  const placeLimitOrderMutation = useMutation({
+    mutationKey: ['limit-order', market?.slug, price],
+    mutationFn: async () => {
+      if (market) {
+        if (web3Client === 'etherspot') {
+          if (strategy === 'Sell') {
+            await privyService.approveConditionalIfNeeded(
+              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+            )
+          } else {
+            await privyService.approveCollateralIfNeeded(
+              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              maxUint256,
+              market?.collateralToken.address as Address
+            )
+          }
+        }
+        const tokenId = outcome === 1 ? market.tokens.no : market.tokens.yes
+        const side = strategy === 'Buy' ? 0 : 1
+        const signedOrder = await placeLimitOrder(
+          tokenId,
+          market.collateralToken.decimals,
+          price,
+          sharesAmount,
+          side
+        )
+        const data = {
+          order: {
+            ...signedOrder,
+            salt: +signedOrder.salt,
+            price: new BigNumber(price).dividedBy(100).toNumber(),
+            makerAmount: +signedOrder.makerAmount,
+            takerAmount: +signedOrder.takerAmount,
+            nonce: +signedOrder.nonce,
+            feeRateBps: +signedOrder.feeRateBps,
+          },
+          ownerId: profileData?.id,
+          orderType: 'GTC',
+          marketSlug: market.slug,
+        }
+        return privateClient.post('/orders', data)
+      }
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      const id = toast({
+        render: () => <Toast title={error.response?.data.message || ''} id={id} />,
+      })
+    },
+  })
 
   const renderButtonContent = (title: number) => {
     if (title === 100) {
@@ -167,15 +227,24 @@ export default function ClobLimitTradeForm() {
   }, [price, sharesAmount, strategy])
 
   const onResetMutation = async () => {
-    await queryClient.refetchQueries({
-      queryKey: ['market-shares', market?.slug],
-    })
-    await queryClient.refetchQueries({
-      queryKey: ['user-orders', market?.slug],
-    })
-    await queryClient.refetchQueries({
-      queryKey: ['order-book', market?.slug],
-    })
+    await sleep(0.8)
+    await Promise.allSettled([
+      queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['market-shares', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['order-book', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['market-shares', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['locked-balance', market?.slug],
+      }),
+    ])
     placeLimitOrderMutation.reset()
   }
 
