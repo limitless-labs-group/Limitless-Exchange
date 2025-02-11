@@ -268,6 +268,8 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     },
   })
 
+  console.log(placeLimitOrderMutation.status)
+
   const placeMarketOrderMutation = useMutation({
     mutationKey: ['market-order', market?.slug, price],
     mutationFn: async () => {

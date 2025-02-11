@@ -152,8 +152,6 @@ export default function TradeStepperMenu() {
 
   const onResetTradeMutation = async () => {
     setActiveStep(3)
-    await sleep(3)
-    tradeMutation.reset()
     await queryClient.refetchQueries({
       queryKey: ['user-orders', market?.slug],
     })
@@ -192,8 +190,11 @@ export default function TradeStepperMenu() {
 
   const closeModalWithDelay = async () => {
     await sleep(5)
+    tradeMutation.reset()
     onToggleTradeStepper()
   }
+
+  console.log(tradeMutation.status)
 
   const headerText =
     strategy === 'Buy'
