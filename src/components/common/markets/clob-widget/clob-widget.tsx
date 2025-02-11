@@ -17,22 +17,31 @@ import { MarketOrderType } from '@/types'
 
 export default function ClobWidget() {
   const { trackChanged } = useAmplitude()
-  const { strategy, setStrategy, market } = useTradingService()
+  const { clobOutcome: outcome, strategy, setStrategy, market } = useTradingService()
 
   const {
+    setPrice,
+    price,
+    sharesAmount,
+    setSharesAmount,
     isBalanceNotEnough,
     orderType,
     setOrderType,
-    setPrice,
-    setSharesAmount,
     tradeStepperOpen,
     onToggleTradeStepper,
+    yesPrice,
+    noPrice,
   } = useClobWidget()
 
   const handleOrderTypeChanged = (order: MarketOrderType) => {
     setOrderType(order)
-    setSharesAmount('')
-    setPrice('')
+    if (order === MarketOrderType.MARKET) {
+      setPrice(sharesAmount)
+      setSharesAmount('')
+    } else {
+      setPrice(String(outcome ? noPrice : yesPrice))
+      setSharesAmount(price)
+    }
     tradeStepperOpen && onToggleTradeStepper()
   }
 
@@ -78,8 +87,6 @@ export default function ClobWidget() {
                     marketAddress: market?.slug as Address,
                   })
                   setStrategy('Buy')
-                  setSharesAmount('')
-                  setPrice('')
                 }}
               >
                 <Text {...controlsMedium} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
@@ -106,8 +113,6 @@ export default function ClobWidget() {
                     marketAddress: market?.slug as Address,
                   })
                   setStrategy('Sell')
-                  setSharesAmount('')
-                  setPrice('')
                 }}
               >
                 <Text {...controlsMedium} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
