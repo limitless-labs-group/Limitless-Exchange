@@ -307,6 +307,7 @@ export default function ClobMarketTradeForm() {
 
   const onResetMutation = async () => {
     await sleep(0.8)
+    placeMarketOrderMutation.reset()
     await Promise.allSettled([
       queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
@@ -318,14 +319,9 @@ export default function ClobMarketTradeForm() {
         queryKey: ['order-book', market?.slug],
       }),
       queryClient.refetchQueries({
-        queryKey: ['market-shares', market?.slug],
-      }),
-      queryClient.refetchQueries({
         queryKey: ['locked-balance', market?.slug],
       }),
     ])
-
-    placeMarketOrderMutation.reset()
   }
 
   const noOrdersOnDesiredToken = useMemo(() => {
