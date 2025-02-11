@@ -39,6 +39,7 @@ import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
 import { Address, APIError, UpdateProfileData } from '@/types'
 import { Profile } from '@/types/profiles'
+import { LOGGED_IN_TO_LIMITLESS } from '@/utils/consts'
 
 export interface IAccountContext {
   isLoggedIn: boolean
@@ -342,7 +343,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   })
 
   useEffect(() => {
-    const isLogged = localStorage.getItem('logged-to-limitless')
     if (isLogged && web3Client) {
       refetchSession({
         client: web3Client,
@@ -351,7 +351,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         web3Wallet,
       })
     }
-  }, [smartAccountClient?.account?.address, user?.wallet?.address, web3Client, web3Wallet])
+  }, [
+    smartAccountClient?.account?.address,
+    user?.wallet?.address,
+    web3Client,
+    web3Wallet,
+    isLogged,
+  ])
 
   const signout = useCallback(async () => {
     try {
@@ -442,7 +448,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData?.bio])
 
   const disconnectFromPlatform = useCallback(async () => {
-    localStorage.removeItem('logged-to-limitless')
+    localStorage.removeItem(LOGGED_IN_TO_LIMITLESS)
     if (accountRoutes.includes(pathname)) {
       router.push('/')
     }

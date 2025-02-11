@@ -4,6 +4,7 @@ import { Address, getAddress, toHex, WalletClient } from 'viem'
 import useRefetchAfterLogin from '@/hooks/use-refetch-after-login'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Profile } from '@/types/profiles'
+import { LOGGED_IN_TO_LIMITLESS } from '@/utils/consts'
 
 export interface IUseLogin {
   account?: Address
@@ -61,7 +62,7 @@ export const useLogin = () => {
           headers,
         }
       )
-      localStorage.setItem('logged-to-limitless', 'true')
+      localStorage.setItem(LOGGED_IN_TO_LIMITLESS, 'true')
       await refetchAll()
       return res.data as Profile
     },
