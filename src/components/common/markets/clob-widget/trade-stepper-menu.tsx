@@ -70,7 +70,7 @@ export default function TradeStepperMenu() {
     }
     return orderType === MarketOrderType.MARKET
       ? `You’re selling ${outcomeToken} shares for market price`
-      : `You’re selling ${outcomeToken} ${outcomePrice}% for ${NumberUtil.formatThousands(
+      : `You’re selling ${outcomeToken} shares for ${NumberUtil.formatThousands(
           totalPrice,
           2
         )} ${collateral}`
