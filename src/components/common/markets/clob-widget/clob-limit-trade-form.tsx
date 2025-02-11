@@ -220,7 +220,7 @@ export default function ClobLimitTradeForm() {
   return (
     <>
       <Flex justifyContent='space-between' alignItems='center' mb='8px'>
-        <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'}>
+        <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'} lineHeight='20px'>
           Limit price
         </Text>
         {showBuyBalance}
@@ -235,7 +235,12 @@ export default function ClobLimitTradeForm() {
         showIncrements={true}
       />
       <Flex justifyContent='space-between' alignItems='center' mt='16px' mb='8px'>
-        <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'} userSelect='none'>
+        <Text
+          {...paragraphMedium}
+          color={'var(--chakra-colors-text-100)'}
+          userSelect='none'
+          lineHeight='21px'
+        >
           Contracts
         </Text>
         {showSellBalance}
