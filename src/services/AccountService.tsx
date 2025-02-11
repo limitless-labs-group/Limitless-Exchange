@@ -39,6 +39,7 @@ import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
 import { Address, APIError, UpdateProfileData } from '@/types'
 import { Profile } from '@/types/profiles'
+import { LOGGED_IN_TO_LIMITLESS } from '@/utils/consts'
 
 export interface IAccountContext {
   isLoggedIn: boolean
@@ -329,10 +330,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }
 
   useEffect(() => {
-    if (walletsReady) {
+    if (walletsReady && !web3Wallet) {
       getWallet()
     }
-  }, [walletsReady])
+  }, [walletsReady, web3Wallet])
 
   const { mutateAsync: logout } = useMutation({
     mutationKey: ['logout'],
@@ -342,7 +343,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   })
 
   useEffect(() => {
-    const isLogged = localStorage.getItem('logged-to-limitless')
     if (isLogged && web3Client) {
       refetchSession({
         client: web3Client,
@@ -351,7 +351,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         web3Wallet,
       })
     }
-  }, [smartAccountClient?.account?.address, user?.wallet?.address, web3Client, web3Wallet])
+  }, [
+    smartAccountClient?.account?.address,
+    user?.wallet?.address,
+    web3Client,
+    web3Wallet,
+    isLogged,
+  ])
 
   const signout = useCallback(async () => {
     try {
@@ -376,7 +382,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       queryClient.removeQueries({
         queryKey: ['profiles'],
       })
-      router.push('/')
     } catch (error) {
       console.error('Logout failed:', error)
     }
@@ -442,14 +447,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData?.bio])
 
   const disconnectFromPlatform = useCallback(async () => {
-    localStorage.removeItem('logged-to-limitless')
+    localStorage.removeItem(LOGGED_IN_TO_LIMITLESS)
+    setSmartAccountClient(null)
+    setWeb3Wallet(null)
     if (accountRoutes.includes(pathname)) {
       router.push('/')
     }
     await disconnect()
     await signout()
-    setSmartAccountClient(null)
-    setWeb3Wallet(null)
   }, [pathname])
 
   useEffect(() => {
