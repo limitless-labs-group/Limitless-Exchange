@@ -6,53 +6,57 @@ export const checkPriceIsInRange = (price: number, orderBookPriceRange: number[]
   return priceFormatted >= orderBookPriceRange[0] && priceFormatted <= orderBookPriceRange[1]
 }
 
-const getOrderPrice = (price: string, side: 'BUY' | 'SELL', outcome: number) => {
-  if (side === 'BUY') {
-    return outcome ? new BigNumber(1).minus(price).toString() : price
+export const getUserOrdersForPrice = (
+  orderPrice: number,
+  outcome: number,
+  orders?: ClobPosition[],
+  marketTokens?: {
+    yes: string
+    no: string
   }
-  return outcome ? price : new BigNumber(1).minus(price).toString()
+) => {
+  return orders?.filter((order) => {
+    if (!outcome) {
+      if (order.token === marketTokens?.yes) {
+        return new BigNumber(order.price).isEqualTo(orderPrice)
+      }
+      return new BigNumber(1).minus(order.price).isEqualTo(orderPrice)
+    }
+    if (order.token === marketTokens?.yes) {
+      return new BigNumber(1).minus(order.price).isEqualTo(orderPrice)
+    }
+    return new BigNumber(order.price).isEqualTo(orderPrice)
+  })
 }
 
-export const findUserOrderWithPrice = (
+export const hasOrdersForThisOrderBookEntity = (
   orderPrice: number,
-  userOrders: ClobPosition[],
-  outcome: number
-) => {
-  const orderPriceFormatted = orderPrice
-  const userOrdersFormatted = outcome
-    ? userOrders.map((order) => ({
-        ...order,
-        price: getOrderPrice(order.price, order.side, outcome),
-      }))
-    : userOrders
-  return userOrdersFormatted.filter((order) =>
-    new BigNumber(order.price).isEqualTo(new BigNumber(orderPriceFormatted))
-  )
-}
-
-export const checkIfUserHasOrdersAtThisPrice = (
-  orderPrice: number,
-  userOrders: ClobPosition[] | undefined,
-  outcome: number
-) => {
-  if (!userOrders) {
-    return false
+  outcome: number,
+  orders?: ClobPosition[],
+  marketTokens?: {
+    yes: string
+    no: string
   }
-  const hasOrders = findUserOrderWithPrice(orderPrice, userOrders, outcome)
-  return !!hasOrders.length
+) => {
+  const ordersFiltered = getUserOrdersForPrice(orderPrice, outcome, orders, marketTokens)
+  return !!ordersFiltered?.length
 }
 
 export const checkIfOrderIsRewarded = (
   orderPrice: number,
   userOrders: ClobPosition[] | undefined,
   outcome: number,
-  minSize: string
+  minSize: string,
+  marketTokens?: {
+    yes: string
+    no: string
+  }
 ) => {
   if (!userOrders) {
     return false
   }
-  const hasOrders = findUserOrderWithPrice(orderPrice, userOrders, outcome)
-  if (hasOrders.length) {
+  const hasOrders = getUserOrdersForPrice(orderPrice, outcome, userOrders, marketTokens)
+  if (hasOrders?.length) {
     return hasOrders.some((order) =>
       new BigNumber(order.originalSize).isGreaterThanOrEqualTo(minSize)
     )
