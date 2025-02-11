@@ -53,7 +53,13 @@ export const RecentMarkets = () => {
         const id = toast({
           render: () => <Toast title={`Markets are duplicated`} id={id} />,
         })
-        const type = res.data.type === 'amm' ? 'amm' : 'clob'
+
+        const selectedMarketsTypes = recentMarkets
+          .filter((market: DraftMarket) => selectedMarketIds.includes(market.id))
+          .map((market: DraftMarket) => market.type)
+
+        const hasAmm = selectedMarketsTypes.includes('amm')
+        const type = hasAmm ? 'amm' : 'clob'
         router.push(`/draft?tab=queue-${type}`)
       })
       .catch((res) => {
