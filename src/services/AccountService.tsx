@@ -330,10 +330,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }
 
   useEffect(() => {
-    if (walletsReady) {
+    if (walletsReady && !web3Wallet) {
       getWallet()
     }
-  }, [walletsReady])
+  }, [walletsReady, web3Wallet])
 
   const { mutateAsync: logout } = useMutation({
     mutationKey: ['logout'],
@@ -382,7 +382,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       queryClient.removeQueries({
         queryKey: ['profiles'],
       })
-      router.push('/')
     } catch (error) {
       console.error('Logout failed:', error)
     }
@@ -449,13 +448,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const disconnectFromPlatform = useCallback(async () => {
     localStorage.removeItem(LOGGED_IN_TO_LIMITLESS)
+    setSmartAccountClient(null)
+    setWeb3Wallet(null)
     if (accountRoutes.includes(pathname)) {
       router.push('/')
     }
     await disconnect()
     await signout()
-    setSmartAccountClient(null)
-    setWeb3Wallet(null)
   }, [pathname])
 
   useEffect(() => {
