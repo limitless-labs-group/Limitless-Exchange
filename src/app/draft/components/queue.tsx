@@ -87,7 +87,7 @@ export const DraftMarketsQueue = () => {
   }
 
   return (
-    <Flex justifyContent={'center'}>
+    <Flex justifyContent={'center'} position='relative'>
       <VStack w='868px' spacing={4} mb='66px'>
         {draftMarkets?.map((market: DraftMarket) => {
           return (
@@ -111,6 +111,16 @@ export const DraftMarketsQueue = () => {
           {isCreating ? <Spinner /> : 'Create Markets Batch'}
         </Button>
       </VStack>
+      <Box
+        position='fixed'
+        right='24px'
+        top='80px'
+        maxWidth='350px'
+        w='full'
+        display={selectedMarket.length > 0 ? 'block' : 'none'}
+      >
+        <SelectedMarkets market={selectedMarket} />
+      </Box>
     </Flex>
   )
 }

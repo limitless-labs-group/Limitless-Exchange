@@ -1,16 +1,21 @@
 import { Box, Button, Flex, HStack, Spacer, Text, VStack } from '@chakra-ui/react'
-import { useQueryClient } from '@tanstack/react-query'
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { formatUnits, parseUnits } from 'viem'
+import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import NumberInputWithButtons from '@/components/common/number-input-with-buttons'
 import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
+import { Toast } from '@/components/common/toast'
+import { useToast } from '@/hooks'
 import { useOrderBook } from '@/hooks/use-order-book'
+import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import {
   ClickEvent,
   useAccount,
@@ -18,6 +23,7 @@ import {
   useBalanceService,
   useTradingService,
 } from '@/services'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -33,15 +39,74 @@ export default function ClobMarketTradeForm() {
     setPrice,
     price,
     balance,
-    placeMarketOrderMutation,
     allowance,
     isApprovedForSell,
     onToggleTradeStepper,
     sharesPrice,
     isBalanceNotEnough,
     sharesAvailable,
+    yesPrice,
+    noPrice,
   } = useClobWidget()
-  const { client } = useWeb3Service()
+  const { client, placeMarketOrder } = useWeb3Service()
+  const { web3Client, profileData } = useAccount()
+  const privyService = usePrivySendTransaction()
+  const privateClient = useAxiosPrivateClient()
+  const toast = useToast()
+
+  const placeMarketOrderMutation = useMutation({
+    mutationKey: ['market-order', market?.slug, price],
+    mutationFn: async () => {
+      if (market) {
+        if (web3Client === 'etherspot') {
+          if (strategy === 'Sell') {
+            await privyService.approveConditionalIfNeeded(
+              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+            )
+          } else {
+            await privyService.approveCollateralIfNeeded(
+              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              maxUint256,
+              market?.collateralToken.address as Address
+            )
+          }
+        }
+        const tokenId = outcome === 1 ? market.tokens.no : market.tokens.yes
+        const side = strategy === 'Buy' ? 0 : 1
+        const signedOrder = await placeMarketOrder(
+          tokenId,
+          market.collateralToken.decimals,
+          outcome === 0 ? yesPrice.toString() : noPrice.toString(),
+          side,
+          price
+        )
+        const data = {
+          order: {
+            ...signedOrder,
+            salt: +signedOrder.salt,
+            price: undefined,
+            makerAmount: +parseUnits(price, market.collateralToken.decimals).toString(),
+            takerAmount: +signedOrder.takerAmount,
+            nonce: +signedOrder.nonce,
+            feeRateBps: +signedOrder.feeRateBps,
+          },
+          ownerId: profileData?.id,
+          orderType: 'FOK',
+          marketSlug: market.slug,
+        }
+        return privateClient.post('/orders', data)
+      }
+    },
+    onError: async (error: AxiosError<{ message: string }>) => {
+      const id = toast({
+        render: () => <Toast title={error.response?.data.message || ''} id={id} />,
+      })
+      await queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      })
+    },
+  })
 
   const handlePercentButtonClicked = (value: number) => {
     trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
@@ -241,18 +306,25 @@ export default function ClobMarketTradeForm() {
   }, [market, orderBook, outcome, price, strategy])
 
   const onResetMutation = async () => {
-    await queryClient.refetchQueries({
-      queryKey: ['user-orders', market?.slug],
-    })
-    await queryClient.refetchQueries({
-      queryKey: ['market-shares', market?.slug],
-    })
-    await queryClient.refetchQueries({
-      queryKey: ['order-book', market?.slug],
-    })
-    await queryClient.refetchQueries({
-      queryKey: ['market-shares', market?.slug],
-    })
+    await sleep(0.8)
+    await Promise.allSettled([
+      queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['market-shares', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['order-book', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['market-shares', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['locked-balance', market?.slug],
+      }),
+    ])
+
     placeMarketOrderMutation.reset()
   }
 
