@@ -1,4 +1,4 @@
-import { BoxProps, HStack, Icon, Link } from '@chakra-ui/react'
+import { BoxProps, HStack, Icon, Link, Text } from '@chakra-ui/react'
 import { PropsWithChildren } from 'react'
 import { isMobile } from 'react-device-detect'
 import FarcasterIcon from '@/resources/icons/Farcaster.svg'
@@ -6,6 +6,7 @@ import XIcon from '@/resources/icons/X.svg'
 import BookIcon from '@/resources/icons/book-icon.svg'
 import DiscordIcon from '@/resources/icons/discord-icon.svg'
 import { ClickEvent, useAmplitude } from '@/services'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const LINKS = {
   X: 'https://x.com/trylimitless',
@@ -18,6 +19,10 @@ const ICON_PROPS = {
   w: isMobile ? '20px' : '16px',
   h: isMobile ? '20px' : '16px',
   verticalAlign: 'middle',
+}
+
+const ICON_WITHOUT_TEXT_PROPS = {
+  ...ICON_PROPS,
   color: 'grey.500',
   _hover: { color: 'grey.800' },
 }
@@ -45,49 +50,65 @@ export default function SocialsFooter({ ...props }: PropsWithChildren<BoxProps>)
             option: 'docs',
           })
         }}
+        _hover={{
+          textDecoration: 'unset',
+        }}
       >
-        <Icon as={BookIcon} {...ICON_PROPS} />
+        <HStack
+          gap='4px'
+          color='grey.500'
+          _hover={{
+            color: 'grey.800',
+          }}
+        >
+          <Icon as={BookIcon} {...ICON_PROPS} />
+          <Text {...paragraphMedium} color='inherit'>
+            Docs
+          </Text>
+        </HStack>
       </Link>
 
-      <Link
-        href={LINKS.DISCORD}
-        target='_blank'
-        rel='noopener noreferrer'
-        onClick={() => {
-          trackClicked(ClickEvent.LimitlessLinksClicked, {
-            platform: isMobile ? 'mobile' : 'desktop',
-            option: 'discord',
-          })
-        }}
-      >
-        <Icon as={DiscordIcon} {...ICON_PROPS} />
-      </Link>
-      <Link
-        href={LINKS.FARCASTER}
-        target='_blank'
-        rel='noopener noreferrer'
-        onClick={() => {
-          trackClicked(ClickEvent.LimitlessLinksClicked, {
-            platform: isMobile ? 'mobile' : 'desktop',
-            option: 'farcaster',
-          })
-        }}
-      >
-        <Icon as={FarcasterIcon} {...ICON_PROPS} />
-      </Link>
-      <Link
-        href={LINKS.X}
-        target='_blank'
-        rel='noopener noreferrer'
-        onClick={() => {
-          trackClicked(ClickEvent.LimitlessLinksClicked, {
-            platform: isMobile ? 'mobile' : 'desktop',
-            option: 'x',
-          })
-        }}
-      >
-        <Icon as={XIcon} {...ICON_PROPS} />
-      </Link>
+      <HStack gap='8px'>
+        <Link
+          href={LINKS.DISCORD}
+          target='_blank'
+          rel='noopener noreferrer'
+          onClick={() => {
+            trackClicked(ClickEvent.LimitlessLinksClicked, {
+              platform: isMobile ? 'mobile' : 'desktop',
+              option: 'discord',
+            })
+          }}
+        >
+          <Icon as={DiscordIcon} {...ICON_WITHOUT_TEXT_PROPS} />
+        </Link>
+        <Link
+          href={LINKS.FARCASTER}
+          target='_blank'
+          rel='noopener noreferrer'
+          onClick={() => {
+            trackClicked(ClickEvent.LimitlessLinksClicked, {
+              platform: isMobile ? 'mobile' : 'desktop',
+              option: 'farcaster',
+            })
+          }}
+        >
+          <Icon as={FarcasterIcon} {...ICON_WITHOUT_TEXT_PROPS} />
+        </Link>
+        <Link
+          href={LINKS.X}
+          target='_blank'
+          rel='noopener noreferrer'
+          onClick={() => {
+            trackClicked(ClickEvent.LimitlessLinksClicked, {
+              platform: isMobile ? 'mobile' : 'desktop',
+              option: 'x',
+            })
+          }}
+        >
+          <Icon as={XIcon} {...ICON_WITHOUT_TEXT_PROPS} />
+        </Link>
+      </HStack>
     </HStack>
   )
 }
