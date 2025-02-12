@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import React, { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -6,6 +7,7 @@ import OrderbookTableLarge from '@/app/(markets)/markets/[address]/components/cl
 import OrderBookTableSmall from '@/app/(markets)/markets/[address]/components/clob/orderbook-table-small'
 import { Order, useOrderBook } from '@/hooks/use-order-book'
 import { useTradingService } from '@/services'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 
 interface OrderBookProps {
   variant?: 'small' | 'large'
@@ -15,6 +17,8 @@ export default function Orderbook({ variant }: OrderBookProps) {
   const { clobOutcome: outcome } = useTradingService()
   const { market } = useTradingService()
   const { data: orderbook } = useOrderBook(market?.slug)
+  const privateClient = useAxiosPrivateClient()
+  const queryClient = useQueryClient()
 
   function calculatePercentReverse(array: Order[]) {
     const totalSum = array.reduce(
@@ -49,6 +53,28 @@ export default function Orderbook({ variant }: OrderBookProps) {
       .reverse()
     return processedBids
   }
+
+  const deleteBatchOrders = useMutation({
+    mutationKey: ['delete-batch-orders'],
+    mutationFn: async ({ orders }: { orders: string[] }) => {
+      await privateClient.post('/orders/cancel-batch', {
+        orderIds: orders,
+      })
+    },
+    onSuccess: async () => {
+      await Promise.allSettled([
+        queryClient.refetchQueries({
+          queryKey: ['user-orders', market?.slug],
+        }),
+        queryClient.refetchQueries({
+          queryKey: ['order-book', market?.slug],
+        }),
+        queryClient.refetchQueries({
+          queryKey: ['locked-balance', market?.slug],
+        }),
+      ])
+    },
+  })
 
   function calculatePercent(array: Order[]) {
     const totalSize = array.reduce((sum, item) => sum + item.size, 0)
@@ -140,8 +166,18 @@ export default function Orderbook({ variant }: OrderBookProps) {
   }, [orderbook, market, outcome])
 
   return isMobile || variant === 'small' ? (
-    <OrderBookTableSmall orderBookData={getOrderBookData()} spread={spread} lastPrice={lastPrice} />
+    <OrderBookTableSmall
+      orderBookData={getOrderBookData()}
+      spread={spread}
+      lastPrice={lastPrice}
+      deleteBatchOrders={deleteBatchOrders}
+    />
   ) : (
-    <OrderbookTableLarge orderBookData={getOrderBookData()} spread={spread} lastPrice={lastPrice} />
+    <OrderbookTableLarge
+      orderBookData={getOrderBookData()}
+      spread={spread}
+      lastPrice={lastPrice}
+      deleteBatchOrders={deleteBatchOrders}
+    />
   )
 }

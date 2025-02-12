@@ -86,7 +86,7 @@ export const MarketCardTrigger = React.memo(
                             )}{' '}
                         {market.collateralToken.symbol}
                       </Text>
-                      <OpenInterestTooltip iconColor='grey.500' />
+                      {market.tradeType === 'amm' && <OpenInterestTooltip iconColor='grey.500' />}
                     </>
                   </HStack>
                 </HStack>

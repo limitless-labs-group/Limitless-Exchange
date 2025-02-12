@@ -1,3 +1,5 @@
+import { UseMutationResult } from '@tanstack/react-query'
+
 export enum ClobPositionType {
   ALL = 'all',
   PAST = 'past',
@@ -8,6 +10,7 @@ export interface OrderBookData {
   orderBookData: OrderBookDataOrders
   spread: string
   lastPrice: string
+  deleteBatchOrders: UseMutationResult<void, Error, { orders: string[] }, unknown>
 }
 
 export interface OrderBookDataOrders {
