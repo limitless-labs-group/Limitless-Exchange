@@ -18,21 +18,21 @@ export default function Template({ children }: PropsWithChildren) {
     action_color: '#0079FF',
   })
 
-  useEffect(() => {
-    const currentUsersVersion = localStorage.getItem(LOCAL_STORAGE_VERSION_NAME)
-
-    if (!currentUsersVersion) {
-      localStorage.clear()
-      localStorage.setItem(LOCAL_STORAGE_VERSION_NAME, currentAppVersion)
-      return
-    }
-    if (currentAppVersion !== currentUsersVersion) {
-      localStorage.clear()
-      localStorage.setItem(LOCAL_STORAGE_VERSION_NAME, currentAppVersion)
-      disconnectFromPlatform()
-      return
-    }
-  }, [currentAppVersion])
+  // useEffect(() => {
+  //   const currentUsersVersion = localStorage.getItem(LOCAL_STORAGE_VERSION_NAME)
+  //
+  //   if (!currentUsersVersion) {
+  //     localStorage.clear()
+  //     localStorage.setItem(LOCAL_STORAGE_VERSION_NAME, currentAppVersion)
+  //     return
+  //   }
+  //   if (currentAppVersion !== currentUsersVersion) {
+  //     localStorage.clear()
+  //     localStorage.setItem(LOCAL_STORAGE_VERSION_NAME, currentAppVersion)
+  //     disconnectFromPlatform()
+  //     return
+  //   }
+  // }, [currentAppVersion])
 
   return <div>{children}</div>
 }
