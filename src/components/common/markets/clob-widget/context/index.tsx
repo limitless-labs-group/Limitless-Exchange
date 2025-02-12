@@ -1,6 +1,4 @@
 import { useDisclosure } from '@chakra-ui/react'
-import { useMutation, UseMutationResult } from '@tanstack/react-query'
-import { AxiosError, AxiosResponse } from 'axios'
 import BigNumber from 'bignumber.js'
 import React, {
   createContext,
@@ -10,15 +8,11 @@ import React, {
   PropsWithChildren,
   useEffect,
 } from 'react'
-import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
-import { Toast } from '@/components/common/toast'
-import { useToast } from '@/hooks'
+import { Address, formatUnits } from 'viem'
 import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
 import { useOrderBook } from '@/hooks/use-order-book'
-import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import { useAccount, useBalanceQuery, useTradingService } from '@/services'
-import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useWeb3Service } from '@/services/Web3Service'
 import { MarketOrderType } from '@/types'
 
@@ -48,18 +42,6 @@ interface ClobWidgetContextType {
   onToggleTradeStepper: () => void
   yesPrice: number
   noPrice: number
-  placeLimitOrderMutation: UseMutationResult<
-    AxiosResponse<Record<string, unknown>> | undefined,
-    Error,
-    void,
-    unknown
-  >
-  placeMarketOrderMutation: UseMutationResult<
-    AxiosResponse<Record<string, unknown>> | undefined,
-    Error,
-    void,
-    unknown
-  >
   sharesPrice: string
   sharesAvailable: {
     yes: bigint
@@ -73,19 +55,14 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const [price, setPrice] = useState('')
   const [allowance, setAllowance] = useState<bigint>(0n)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
-  const { web3Wallet, web3Client } = useAccount()
-  const toast = useToast()
+  const { web3Wallet } = useAccount()
   const { market, strategy, clobOutcome: outcome } = useTradingService()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
   const { data: orderBook } = useOrderBook(market?.slug)
   const { checkAllowance, checkAllowanceForAll } = useWeb3Service()
   const { isOpen: tradeStepperOpen, onToggle: onToggleTradeStepper } = useDisclosure()
-  const privateClient = useAxiosPrivateClient()
-  const { profileData } = useAccount()
-  const { placeLimitOrder, placeMarketOrder } = useWeb3Service()
   const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
-  const privyService = usePrivySendTransaction()
 
   const checkMarketAllowance = async () => {
     const allowance = await checkAllowance(
@@ -217,108 +194,6 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     return '0'
   }, [orderType, price, sharesAmount])
 
-  const placeLimitOrderMutation = useMutation({
-    mutationKey: ['limit-order', market?.slug, price],
-    mutationFn: async () => {
-      if (market) {
-        if (web3Client === 'etherspot') {
-          if (strategy === 'Sell') {
-            await privyService.approveConditionalIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
-            )
-          } else {
-            await privyService.approveCollateralIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-              maxUint256,
-              market?.collateralToken.address as Address
-            )
-          }
-        }
-        const tokenId = outcome === 1 ? market.tokens.no : market.tokens.yes
-        const side = strategy === 'Buy' ? 0 : 1
-        const signedOrder = await placeLimitOrder(
-          tokenId,
-          market.collateralToken.decimals,
-          price,
-          sharesAmount,
-          side
-        )
-        const data = {
-          order: {
-            ...signedOrder,
-            salt: +signedOrder.salt,
-            price: new BigNumber(price).dividedBy(100).toNumber(),
-            makerAmount: +signedOrder.makerAmount,
-            takerAmount: +signedOrder.takerAmount,
-            nonce: +signedOrder.nonce,
-            feeRateBps: +signedOrder.feeRateBps,
-          },
-          ownerId: profileData?.id,
-          orderType: 'GTC',
-          marketSlug: market.slug,
-        }
-        return privateClient.post('/orders', data)
-      }
-    },
-    onError: (error: AxiosError<{ message: string }>) => {
-      const id = toast({
-        render: () => <Toast title={error.response?.data.message || ''} id={id} />,
-      })
-    },
-  })
-
-  const placeMarketOrderMutation = useMutation({
-    mutationKey: ['market-order', market?.slug, price],
-    mutationFn: async () => {
-      if (market) {
-        if (web3Client === 'etherspot') {
-          if (strategy === 'Sell') {
-            await privyService.approveConditionalIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
-            )
-          } else {
-            await privyService.approveCollateralIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-              maxUint256,
-              market?.collateralToken.address as Address
-            )
-          }
-        }
-        const tokenId = outcome === 1 ? market.tokens.no : market.tokens.yes
-        const side = strategy === 'Buy' ? 0 : 1
-        const signedOrder = await placeMarketOrder(
-          tokenId,
-          market.collateralToken.decimals,
-          outcome === 0 ? yesPrice.toString() : noPrice.toString(),
-          side,
-          price
-        )
-        const data = {
-          order: {
-            ...signedOrder,
-            salt: +signedOrder.salt,
-            price: undefined,
-            makerAmount: +parseUnits(price, market.collateralToken.decimals).toString(),
-            takerAmount: +signedOrder.takerAmount,
-            nonce: +signedOrder.nonce,
-            feeRateBps: +signedOrder.feeRateBps,
-          },
-          ownerId: profileData?.id,
-          orderType: 'FOK',
-          marketSlug: market.slug,
-        }
-        return privateClient.post('/orders', data)
-      }
-    },
-    onError: (error: AxiosError<{ message: string }>) => {
-      const id = toast({
-        render: () => <Toast title={error.response?.data.message || ''} id={id} />,
-      })
-    },
-  })
-
   useEffect(() => {
     if (web3Wallet && market) {
       checkMarketAllowance()
@@ -343,8 +218,6 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         onToggleTradeStepper,
         yesPrice,
         noPrice,
-        placeLimitOrderMutation,
-        placeMarketOrderMutation,
         sharesPrice,
         sharesAvailable,
       }}

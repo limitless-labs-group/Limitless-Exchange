@@ -3,12 +3,13 @@ import { formatUnits } from 'viem'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { MarketOrderType } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function OutcomeButtonsClob() {
   const { strategy, market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { trackChanged } = useAmplitude()
-  const { setPrice, yesPrice, noPrice, sharesAvailable } = useClobWidget()
+  const { orderType, yesPrice, noPrice, setPrice, sharesAvailable } = useClobWidget()
 
   const getShares = (sharesAmount?: bigint) => {
     if (!sharesAmount) {
@@ -23,7 +24,9 @@ export default function OutcomeButtonsClob() {
       marketAddress: market?.slug as string,
     })
     setOutcome(outcome)
-    setPrice('')
+    if (orderType === MarketOrderType.LIMIT) {
+      setPrice(String(outcome ? noPrice : yesPrice))
+    }
   }
 
   if (strategy === 'Buy') {
