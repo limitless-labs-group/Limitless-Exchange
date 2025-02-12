@@ -25,7 +25,7 @@ import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import CompletedStepIcon from '@/resources/icons/completed-icon.svg'
 import LockerIcon from '@/resources/icons/locker-icon.svg'
-import { useAccount, useTradingService } from '@/services'
+import { ClickEvent, useAccount, useAmplitude, useTradingService } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useWeb3Service } from '@/services/Web3Service'
 import { h3Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -50,6 +50,7 @@ export default function TradeStepperMenu() {
   const { placeLimitOrder, placeMarketOrder } = useWeb3Service()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
+  const { trackClicked } = useAmplitude()
 
   const firstStepMessage = useMemo(() => {
     const outcomePrice = outcome ? noPrice : yesPrice
@@ -136,6 +137,15 @@ export default function TradeStepperMenu() {
   const placeMarketOrderMutation = useMutation({
     mutationKey: ['market-order', market?.slug, price],
     mutationFn: async () => {
+      trackClicked(ClickEvent.ConfirmTransactionClicked, {
+        address: market?.slug,
+        outcome: outcome,
+        strategy,
+        walletType: web3Client,
+        marketType: market?.marketType,
+        marketMakerType: 'ClOB',
+        tradingMode: 'market order',
+      })
       if (market) {
         if (web3Client === 'etherspot') {
           if (strategy === 'Sell') {
@@ -190,6 +200,15 @@ export default function TradeStepperMenu() {
   const placeLimitOrderMutation = useMutation({
     mutationKey: ['limit-order', market?.slug, price],
     mutationFn: async () => {
+      trackClicked(ClickEvent.ConfirmTransactionClicked, {
+        address: market?.slug,
+        outcome: outcome,
+        strategy,
+        walletType: web3Client,
+        marketType: market?.marketType,
+        marketMakerType: 'ClOB',
+        tradingMode: 'limit order',
+      })
       if (market) {
         if (web3Client === 'etherspot') {
           if (strategy === 'Sell') {

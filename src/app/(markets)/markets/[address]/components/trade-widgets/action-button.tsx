@@ -438,6 +438,7 @@ export default function ActionButton({
               outcome: option,
               strategy: 'Buy',
               walletType: client,
+              marketMakerType: 'AMM',
               marketType,
               ...(analyticParams ? analyticParams : {}),
             })

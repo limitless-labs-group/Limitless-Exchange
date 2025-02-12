@@ -83,6 +83,15 @@ export default function ClobLimitTradeForm() {
   const placeLimitOrderMutation = useMutation({
     mutationKey: ['limit-order', market?.slug, price],
     mutationFn: async () => {
+      trackClicked(ClickEvent.ConfirmTransactionClicked, {
+        address: market?.slug,
+        outcome: outcome,
+        strategy,
+        walletType: web3Client,
+        marketType: market?.marketType,
+        marketMakerType: 'ClOB',
+        tradingMode: 'limit order',
+      })
       if (market) {
         if (web3Client === 'etherspot') {
           if (strategy === 'Sell') {
