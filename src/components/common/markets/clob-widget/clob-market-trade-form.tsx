@@ -98,9 +98,9 @@ export default function ClobMarketTradeForm() {
         return privateClient.post('/orders', data)
       }
     },
-    onError: async (error: AxiosError<{ message: string }>) => {
+    onError: async () => {
       const id = toast({
-        render: () => <Toast title={error.response?.data.message || ''} id={id} />,
+        render: () => <Toast title={'Oops...Something went wrong'} id={id} />,
       })
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
