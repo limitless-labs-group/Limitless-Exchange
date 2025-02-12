@@ -86,7 +86,7 @@ export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | Marke
         )
       }) as T
 
-    case Sort.LP_REWARD:
+    case Sort.LP_REWARDS:
       return marketsCopy.sort((a, b) => {
         const valueA = getMarketTradeType(a)
         const valueB = getMarketTradeType(b)

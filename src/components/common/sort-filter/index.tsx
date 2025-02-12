@@ -32,7 +32,7 @@ const sortOptions = [
   Sort.HIGHEST_VALUE,
   Sort.HIGHEST_VOLUME,
   Sort.NEWEST,
-  Sort.LP_REWARD,
+  Sort.LP_REWARDS,
 ]
 
 export default function SortFilter({ onChange, storageName }: SortFilterProps) {
@@ -65,7 +65,7 @@ export default function SortFilter({ onChange, storageName }: SortFilterProps) {
     >
       <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.100' borderRadius='8px'>
         {sortOptions
-          .filter((option) => !isMobile || option !== Sort.LP_REWARD)
+          .filter((option) => !isMobile || option !== Sort.LP_REWARDS)
           .map((option) => (
             <Button
               variant='grey'
