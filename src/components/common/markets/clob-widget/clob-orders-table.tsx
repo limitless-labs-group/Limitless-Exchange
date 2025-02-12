@@ -184,7 +184,7 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
           ))}
         </VStack>
       )}
-      {!userOrdersLoading && !userOrders?.length && !!account && (
+      {!userOrdersLoading && !userOrders?.length && (
         <Text {...paragraphMedium} my='16px' textAlign='center'>
           No opened orders.
         </Text>

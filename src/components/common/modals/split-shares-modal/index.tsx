@@ -55,6 +55,9 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   }
 
   const handleSplitClicked = async () => {
+    trackClicked(ClickEvent.SplitSharesConfirmed, {
+      marketAddress: market?.slug,
+    })
     await splitSharesMutation.mutateAsync({
       amount: displayAmount,
       decimals: market?.collateralToken.decimals || 6,

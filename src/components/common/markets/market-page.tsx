@@ -41,12 +41,12 @@ import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import ExpandIcon from '@/resources/icons/expand-icon.svg'
+import LineChartIcon from '@/resources/icons/line-chart-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import OrderbookIcon from '@/resources/icons/orderbook.svg'
-import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
+import { ChangeEvent, ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { h2Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -71,7 +71,7 @@ export default function MarketPage() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const { trackClicked, trackOpened } = useAmplitude()
+  const { trackClicked, trackOpened, trackChanged } = useAmplitude()
 
   const marketAddress = useMemo(() => market?.slug, [market])
   const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
@@ -108,15 +108,13 @@ export default function MarketPage() {
       })
     }
     tabs.push({
-      title: 'Predictions',
-      icon: <PredictionsIcon width={16} height={16} />,
-      analyticEvent: ClickEvent.PredictionChartOpened,
+      title: 'Chart',
+      icon: <LineChartIcon width={16} height={16} />,
     })
     if (isLivePriceSupportedMarket) {
       tabs.push({
         title: 'Assets price',
         icon: <CandlestickIcon width={16} height={16} />,
-        analyticEvent: ClickEvent.AssetPriceChartOpened,
       })
     }
     return tabs
@@ -187,12 +185,11 @@ export default function MarketPage() {
     })
   }
 
-  const handleChartTabClicked = (event: ClickEvent) =>
-    trackClicked(event, {
+  const handleChartTabClicked = (event: string) =>
+    trackChanged(ChangeEvent.ChartTabChanged, {
+      view: event + 'on',
+      marketMarketType: market?.tradeType === 'amm' ? 'AMM' : 'CLOB',
       marketAddress: market?.slug,
-      marketType: marketGroup ? 'group' : 'single',
-      marketTags: market?.tags,
-      platform: isMobile ? 'mobile' : 'desktop',
     })
 
   useEffect(() => {
@@ -217,6 +214,7 @@ export default function MarketPage() {
         marketTags: market.tags,
         marketType: 'single',
         category: market.category,
+        marketMakerType: market.tradeType.toUpperCase(),
       })
     }
   }, [market?.slug])
@@ -363,7 +361,7 @@ export default function MarketPage() {
       >
         <TabList>
           {chartTabs.map((tab) => (
-            <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.analyticEvent)}>
+            <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.title)}>
               <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
                 {tab.icon}
                 <>{tab.title}</>
