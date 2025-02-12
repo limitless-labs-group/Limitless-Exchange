@@ -57,7 +57,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
   const deleteBatchOrders = useMutation({
     mutationKey: ['delete-batch-orders'],
     mutationFn: async ({ orders }: { orders: string[] }) => {
-      await privateClient.post('/orders/batch-cancel', {
+      await privateClient.post('/orders/cancel-batch', {
         orderIds: orders,
       })
     },

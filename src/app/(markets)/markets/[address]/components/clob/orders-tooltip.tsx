@@ -1,9 +1,10 @@
-import { Text, HStack } from '@chakra-ui/react'
+import { Text, HStack, Box, Button } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import { PropsWithChildren } from 'react'
+import { PropsWithChildren, useState } from 'react'
 import { formatUnits } from 'viem'
 import ProgressBar from '@/components/common/progress-bar'
 import { Tooltip } from '@/components/common/tooltip'
+import CloseIcon from '@/resources/icons/close-icon.svg'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
@@ -22,6 +23,7 @@ export default function OrdersTooltip({
   side,
   placement,
 }: PropsWithChildren<OrdersTooltipProps>) {
+  const [hovered, setHovered] = useState(false)
   const totalFilled = orders.reduce((acc, item) => {
     return new BigNumber(acc).plus(item.remainingSize).toString()
   }, '0')
@@ -60,7 +62,16 @@ export default function OrdersTooltip({
       p='8px'
       rounded='8px'
     >
-      {children}
+      <Button
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        p={0}
+        minW='unset'
+        h='unset'
+        color={side === 'bid' ? 'green.500' : 'red.500'}
+      >
+        {hovered ? <CloseIcon width={16} height={16} /> : children}
+      </Button>
     </Tooltip>
   )
 }
