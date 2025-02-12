@@ -46,9 +46,9 @@ import { MainLayout } from '@/components'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
+import LineChartIcon from '@/resources/icons/line-chart-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
@@ -93,8 +93,8 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
 
   const chartTabs = [
     {
-      title: 'Predictions',
-      icon: <PredictionsIcon width={16} height={16} />,
+      title: 'Chart',
+      icon: <LineChartIcon width={16} height={16} />,
       analyticEvent: ClickEvent.PredictionChartOpened,
     },
     {
@@ -266,7 +266,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
           mb={isMobile ? '84px' : 0}
           ml={!isMobile ? '188px' : 'unset'}
         >
-          <Box w={{ sm: 'full', md: '436px', xl: '716px' }}>
+          <Box w={{ sm: 'full', md: 'calc(100vw - 642px)', xl: '716px' }}>
             <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>
               <HStack justifyContent='space-between' mb='24px'>
                 <Button

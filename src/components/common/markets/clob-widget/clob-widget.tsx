@@ -10,7 +10,6 @@ import TradeStepperMenu from '@/components/common/markets/clob-widget/trade-step
 import OutcomeButtonsClob from '@/components/common/markets/outcome-buttons/outcome-buttons-clob'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
-import SettingsIcon from '@/resources/icons/setting-icon.svg'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
 import { controlsMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
@@ -60,7 +59,7 @@ export default function ClobWidget() {
         <Overlay show={tradeStepperOpen} onClose={onToggleTradeStepper} />
         {tradeStepperOpen && <TradeStepperMenu />}
         <Paper bg='grey.100' borderRadius='8px' p='8px' position='relative'>
-          <HStack w='full' justifyContent='center' mb='16px' pl='16px'>
+          <HStack w='full' justifyContent='center' mb='16px'>
             <HStack w={'236px'} mx='auto' bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
               <Button
                 h={isMobile ? '28px' : '20px'}
@@ -115,7 +114,6 @@ export default function ClobWidget() {
                 </Text>
               </Button>
             </HStack>
-            <SettingsIcon width={16} height={16} />
           </HStack>
           <OutcomeButtonsClob />
           {orderType === MarketOrderType.MARKET ? <ClobMarketTradeForm /> : <ClobLimitTradeForm />}
