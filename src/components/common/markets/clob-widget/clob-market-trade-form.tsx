@@ -113,6 +113,8 @@ export default function ClobMarketTradeForm() {
       marketAddress: market?.slug,
       marketType: market?.marketType,
       marketTags: market?.tags,
+      marketMakerType: 'CLOB',
+      assetType: strategy === 'Buy' ? 'money' : 'contracts',
     })
     if (strategy === 'Buy') {
       if (value == 100) {

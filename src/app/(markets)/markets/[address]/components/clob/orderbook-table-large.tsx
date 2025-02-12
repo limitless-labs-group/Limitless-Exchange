@@ -32,6 +32,7 @@ import GemIcon from '@/resources/icons/gem-icon.svg'
 import PartFilledCircleIcon from '@/resources/icons/partially-filled-circle.svg'
 import {
   ChangeEvent,
+  ClickEvent,
   OrderBookSideChangedMetadata,
   useAmplitude,
   useTradingService,
@@ -56,7 +57,7 @@ export default function OrderbookTableLarge({
   const { market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
   const { data: userOrders } = useMarketOrders(market?.slug)
-  const { trackChanged } = useAmplitude()
+  const { trackChanged, trackClicked } = useAmplitude()
   const ref = useRef<HTMLElement>()
   const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
   const { data: marketRewardsTotal } = useMarketRewardsIncentive(market?.slug, market?.tradeType)
@@ -168,6 +169,13 @@ export default function OrderbookTableLarge({
     })
   }
 
+  const handleRewardsClicked = () => {
+    trackClicked(ClickEvent.RewardsButtonClicked, {
+      visible: rewardsButtonClicked ? 'off' : 'on',
+    })
+    setRewardButtonClicked(!rewardsButtonClicked)
+  }
+
   return (
     <>
       <HStack w='full' justifyContent='space-between' mb='14px'>
@@ -182,7 +190,7 @@ export default function OrderbookTableLarge({
                 px='8px'
                 bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
                 cursor='pointer'
-                onClick={() => setRewardButtonClicked(!rewardsButtonClicked)}
+                onClick={handleRewardsClicked}
                 onMouseEnter={() => setRewardButtonHovered(true)}
                 onMouseLeave={() => setRewardButtonHovered(false)}
                 ref={ref as LegacyRef<HTMLDivElement>}

@@ -67,6 +67,7 @@ export default function TradingWidgetSimple({ fullSizePage = false }: TradingWid
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Buy selected',
               marketAddress: market?.address as Address,
+              marketMarketType: 'AMM',
             })
             setStrategy('Buy')
           }}
@@ -93,6 +94,7 @@ export default function TradingWidgetSimple({ fullSizePage = false }: TradingWid
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Sell selected',
               marketAddress: market?.address as Address,
+              marketMarketType: 'AMM',
             })
             setStrategy('Sell')
           }}
