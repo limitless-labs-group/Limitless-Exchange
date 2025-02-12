@@ -344,13 +344,13 @@ export default function OrderbookTableLarge({
                     <Text {...paragraphRegular}>
                       {NumberUtil.toFixed(
                         formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6),
-                        6
+                        2
                       )}
                     </Text>
                   </HStack>
                   <HStack w='144px' h='full' justifyContent='flex-end'>
                     <Text {...paragraphRegular}>
-                      {NumberUtil.toFixed(item.cumulativePrice, 6)} {market?.collateralToken.symbol}
+                      {NumberUtil.toFixed(item.cumulativePrice, 2)} {market?.collateralToken.symbol}
                     </Text>
                   </HStack>
                 </HStack>
@@ -459,13 +459,13 @@ export default function OrderbookTableLarge({
                     <Text {...paragraphRegular}>
                       {NumberUtil.toFixed(
                         formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6),
-                        6
+                        2
                       )}
                     </Text>
                   </HStack>
                   <HStack w='144px' h='full' justifyContent='flex-end'>
                     <Text {...paragraphRegular}>
-                      {NumberUtil.toFixed(item.cumulativePrice, 6)} {market?.collateralToken.symbol}
+                      {NumberUtil.toFixed(item.cumulativePrice, 2)} {market?.collateralToken.symbol}
                     </Text>
                   </HStack>
                 </HStack>
