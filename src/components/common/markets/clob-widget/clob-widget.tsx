@@ -42,6 +42,9 @@ export default function ClobWidget() {
       setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
       setSharesAmount(price)
     }
+    trackChanged(ChangeEvent.ClobWidgetModeChanged, {
+      mode: order === MarketOrderType.MARKET ? 'amm on' : 'clob on',
+    })
     tradeStepperOpen && onToggleTradeStepper()
   }
 
@@ -85,6 +88,7 @@ export default function ClobWidget() {
                   trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
                     type: 'Buy selected',
                     marketAddress: market?.slug as Address,
+                    marketMarketType: 'CLOB',
                   })
                   setStrategy('Buy')
                 }}
@@ -111,6 +115,7 @@ export default function ClobWidget() {
                   trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
                     type: 'Sell selected',
                     marketAddress: market?.slug as Address,
+                    marketMarketType: 'CLOB',
                   })
                   setStrategy('Sell')
                 }}
