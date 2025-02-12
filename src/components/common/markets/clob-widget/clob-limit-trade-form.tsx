@@ -235,9 +235,6 @@ export default function ClobLimitTradeForm() {
     placeLimitOrderMutation.reset()
     await Promise.allSettled([
       queryClient.refetchQueries({
-        queryKey: ['user-orders', market?.slug],
-      }),
-      queryClient.refetchQueries({
         queryKey: ['market-shares', market?.slug],
       }),
       queryClient.refetchQueries({
@@ -247,6 +244,10 @@ export default function ClobLimitTradeForm() {
         queryKey: ['locked-balance', market?.slug],
       }),
     ])
+
+    await queryClient.refetchQueries({
+      queryKey: ['user-orders', market?.slug],
+    })
   }
 
   const handleSubmitButtonClicked = async () => {
