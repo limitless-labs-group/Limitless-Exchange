@@ -6,11 +6,12 @@ import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import OrderbookIcon from '@/resources/icons/orderbook.svg'
-import { useTradingService } from '@/services'
+import { ChangeEvent, useAmplitude, useTradingService } from '@/services'
 
 export default function ClobTabs() {
   const { market } = useTradingService()
   const [isSmallLaptop, setIsSmallLaptop] = useState(false)
+  const { trackChanged } = useAmplitude()
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -48,11 +49,19 @@ export default function ClobTabs() {
     ]
   }, [market, isSmallLaptop])
 
+  const handleTabChanged = (event: string) => {
+    trackChanged(ChangeEvent.ChartTabChanged, {
+      view: event + 'on',
+      marketMarketType: market?.tradeType === 'amm' ? 'AMM' : 'CLOB',
+      marketAddress: market?.slug,
+    })
+  }
+
   return (
     <Tabs position='relative' variant='common' mb='24px'>
       <TabList>
         {tabs.map((tab) => (
-          <Tab key={tab.title}>
+          <Tab key={tab.title} onClick={() => handleTabChanged(tab.title)}>
             <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
               {tab.icon}
               <>{tab.title}</>

@@ -57,6 +57,8 @@ export default function ClobLimitTradeForm() {
       marketAddress: market?.slug,
       marketType: market?.marketType,
       marketTags: market?.tags,
+      marketMakerType: 'CLOB',
+      assetType: 'contracts',
     })
     const sharesAmount = outcome
       ? NumberUtil.formatThousands(
