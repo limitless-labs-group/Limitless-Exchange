@@ -41,9 +41,9 @@ import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import ExpandIcon from '@/resources/icons/expand-icon.svg'
+import LineChartIcon from '@/resources/icons/line-chart-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import OrderbookIcon from '@/resources/icons/orderbook.svg'
-import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
@@ -108,8 +108,8 @@ export default function MarketPage() {
       })
     }
     tabs.push({
-      title: 'Predictions',
-      icon: <PredictionsIcon width={16} height={16} />,
+      title: 'Chart',
+      icon: <LineChartIcon width={16} height={16} />,
       analyticEvent: ClickEvent.PredictionChartOpened,
     })
     if (isLivePriceSupportedMarket) {
