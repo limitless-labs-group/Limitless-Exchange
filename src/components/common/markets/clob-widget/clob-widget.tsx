@@ -39,7 +39,8 @@ export default function ClobWidget() {
       setPrice(sharesAmount)
       setSharesAmount('')
     } else {
-      setPrice(String(outcome ? noPrice : yesPrice))
+      const selectedPrice = outcome ? noPrice : yesPrice
+      setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
       setSharesAmount(price)
     }
     tradeStepperOpen && onToggleTradeStepper()

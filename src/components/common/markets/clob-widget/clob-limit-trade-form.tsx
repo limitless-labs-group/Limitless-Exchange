@@ -1,7 +1,6 @@
 import { Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -123,9 +122,9 @@ export default function ClobLimitTradeForm() {
         return privateClient.post('/orders', data)
       }
     },
-    onError: async (error: AxiosError<{ message: string }>) => {
+    onError: async () => {
       const id = toast({
-        render: () => <Toast title={error.response?.data.message || ''} id={id} />,
+        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
       })
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
