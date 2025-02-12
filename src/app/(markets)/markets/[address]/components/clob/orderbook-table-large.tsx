@@ -325,14 +325,15 @@ export default function OrderbookTableLarge({
                         side='ask'
                         placement='top-end'
                       >
-                        <Box
+                        <HStack
                           cursor='pointer'
                           color='red.500'
+                          h='20px'
                           zIndex={200}
                           onClick={async () => onDeleteBatchOrders(item.price)}
                         >
                           <PartFilledCircleIcon />
-                        </Box>
+                        </HStack>
                       </OrdersTooltip>
                     )}
                     <Text {...paragraphRegular} color='red.500'>
@@ -446,14 +447,15 @@ export default function OrderbookTableLarge({
                         side='bid'
                         placement='top-end'
                       >
-                        <Box
+                        <HStack
                           cursor='pointer'
                           color='green.500'
+                          h='20px'
                           zIndex={200}
                           onClick={async () => onDeleteBatchOrders(item.price)}
                         >
                           <PartFilledCircleIcon />
-                        </Box>
+                        </HStack>
                       </OrdersTooltip>
                     )}
                     <Text {...paragraphRegular} color='green.500'>

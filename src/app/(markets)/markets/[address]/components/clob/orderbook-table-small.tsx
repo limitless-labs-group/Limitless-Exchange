@@ -279,7 +279,7 @@ export default function OrderBookTableSmall({
                 <Box position='absolute' top={0} w='full'>
                   <Box w={`${+item.cumulativePercent}%`} bg='red.500' opacity={0.1} height='36px' />
                 </Box>
-                <HStack gap='4px' w='25%' justifyContent='flex-end'>
+                <HStack gap='4px' w='25%' justifyContent='flex-end' h='20px'>
                   {checkIfOrderIsRewarded(
                     item.price,
                     userOrders,
@@ -408,7 +408,7 @@ export default function OrderBookTableSmall({
                     height='36px'
                   />
                 </Box>
-                <HStack gap='4px' w='25%' justifyContent='flex-end'>
+                <HStack gap='4px' w='25%' justifyContent='flex-end' h='20px'>
                   {checkIfOrderIsRewarded(
                     item.price,
                     userOrders,
