@@ -1,4 +1,4 @@
-import { Text, HStack, Box, Button } from '@chakra-ui/react'
+import { Text, HStack, Button } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import { PropsWithChildren, useState } from 'react'
 import { formatUnits } from 'viem'
@@ -14,6 +14,7 @@ interface OrdersTooltipProps {
   decimals: number
   side: 'bid' | 'ask'
   placement: 'top-end' | 'top-start'
+  onDelete: () => Promise<void>
 }
 
 export default function OrdersTooltip({
@@ -22,6 +23,7 @@ export default function OrdersTooltip({
   children,
   side,
   placement,
+  onDelete,
 }: PropsWithChildren<OrdersTooltipProps>) {
   const [hovered, setHovered] = useState(false)
   const totalFilled = orders.reduce((acc, item) => {
@@ -66,9 +68,11 @@ export default function OrdersTooltip({
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         p={0}
-        minW='unset'
-        h='unset'
+        minW='16px'
+        h='16px'
         color={side === 'bid' ? 'green.500' : 'red.500'}
+        zIndex={200}
+        onClick={onDelete}
       >
         {hovered ? <CloseIcon width={16} height={16} /> : children}
       </Button>

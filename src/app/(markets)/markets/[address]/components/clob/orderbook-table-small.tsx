@@ -307,16 +307,9 @@ export default function OrderBookTableSmall({
                       decimals={market?.collateralToken.decimals || 6}
                       side='ask'
                       placement='top-start'
+                      onDelete={async () => onDeleteBatchOrders(item.price)}
                     >
-                      <Box
-                        cursor='pointer'
-                        color='red.500'
-                        position='relative'
-                        zIndex={200}
-                        onClick={async () => onDeleteBatchOrders(item.price)}
-                      >
-                        <PartFilledCircleIcon />
-                      </Box>
+                      <PartFilledCircleIcon />
                     </OrdersTooltip>
                   )}
                   <Text {...paragraphRegular} color='red.500' textAlign='right'>
@@ -436,16 +429,9 @@ export default function OrderBookTableSmall({
                       decimals={market?.collateralToken.decimals || 6}
                       side='bid'
                       placement='top-start'
+                      onDelete={async () => onDeleteBatchOrders(item.price)}
                     >
-                      <Box
-                        cursor='pointer'
-                        color='green.500'
-                        zIndex={200}
-                        position='relative'
-                        onClick={async () => onDeleteBatchOrders(item.price)}
-                      >
-                        <PartFilledCircleIcon />
-                      </Box>
+                      <PartFilledCircleIcon />
                     </OrdersTooltip>
                   )}
                   <Text {...paragraphRegular} color='green.500' textAlign='right'>
