@@ -1,7 +1,7 @@
 import { Box, Button, HStack, Link, Text, useOutsideClick } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import NextLink from 'next/link'
-import React, { LegacyRef, MutableRefObject, useRef, useState } from 'react'
+import React, { LegacyRef, MutableRefObject, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits, maxUint256 } from 'viem'
 import {
@@ -47,6 +47,7 @@ export default function OrderBookTableSmall({
   const { trackChanged } = useAmplitude()
   const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
   const { data: marketRewardsTotal } = useMarketRewardsIncentive(market?.slug, market?.tradeType)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const ref = useRef<HTMLElement>()
 
@@ -67,6 +68,12 @@ export default function OrderBookTableSmall({
       return
     },
   })
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight
+    }
+  }, [outcome])
 
   const highLightRewardsCells = rewardsButtonClicked || rewardButtonHovered
 
@@ -257,7 +264,7 @@ export default function OrderBookTableSmall({
         </Box>
       </HStack>
       <Box position='relative'>
-        <Box maxH='162px' minH='36px' overflow='auto' position='relative'>
+        <Box maxH='162px' minH='36px' overflow='auto' position='relative' ref={containerRef}>
           {!orderbook || orderBookLoading ? (
             <Box w='full'>
               <Skeleton height={108} />

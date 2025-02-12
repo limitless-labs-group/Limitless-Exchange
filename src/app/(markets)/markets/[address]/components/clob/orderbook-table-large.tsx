@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import NextLink from 'next/link'
-import React, { LegacyRef, MutableRefObject, useRef, useState } from 'react'
+import React, { LegacyRef, MutableRefObject, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits, maxUint256 } from 'viem'
 import {
@@ -64,6 +64,13 @@ export default function OrderbookTableLarge({
   const [rewardsButtonClicked, setRewardButtonClicked] = useState(false)
   const [rewardButtonHovered, setRewardButtonHovered] = useState(false)
   const [linkHovered, setLinkHovered] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight
+    }
+  }, [outcome])
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
@@ -280,7 +287,7 @@ export default function OrderbookTableLarge({
         <Skeleton height={108} />
       ) : (
         <Box position='relative'>
-          <Box maxH='162px' minH='36px' overflow='auto' position='relative'>
+          <Box maxH='162px' minH='36px' overflow='auto' position='relative' ref={containerRef}>
             <>
               {orderBookData.asks.map((item, index) => (
                 <HStack
