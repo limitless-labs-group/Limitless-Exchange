@@ -263,7 +263,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     },
     onError: (error: AxiosError<{ message: string }>) => {
       const id = toast({
-        render: () => <Toast title={error.response?.data.message || ''} id={id} />,
+        render: () => <Toast title={'Oops...Something went wrong'} id={id} />,
       })
     },
   })
@@ -314,7 +314,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     },
     onError: (error: AxiosError<{ message: string }>) => {
       const id = toast({
-        render: () => <Toast title={error.response?.data.message || ''} id={id} />,
+        render: () => <Toast title={'Oops...Something went wrong'} id={id} />,
       })
     },
   })
