@@ -6,7 +6,7 @@ import ClobOrdersTab from '@/app/(markets)/markets/[address]/components/clob/clo
 import ClobPortfolio from '@/app/(markets)/markets/[address]/components/clob/clob-portfolio'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import SandClockIcon from '@/resources/icons/sand-clock.svg'
-import { useTradingService } from '@/services'
+import { ChangeEvent, useAmplitude, useTradingService } from '@/services'
 
 interface ClobPositionsProps {
   marketType?: string
@@ -14,6 +14,7 @@ interface ClobPositionsProps {
 
 export default function ClobPositions({ marketType }: ClobPositionsProps) {
   const { market } = useTradingService()
+  const { trackChanged } = useAmplitude()
 
   const tabs = [
     {
@@ -33,11 +34,18 @@ export default function ClobPositions({ marketType }: ClobPositionsProps) {
     ]
   }, [market])
 
+  const handleTabClicked = (title: string) => {
+    trackChanged(ChangeEvent.ClobPositionsTabChanged, {
+      marketAddress: market?.slug as string,
+      view: title + 'on',
+    })
+  }
+
   return (
     <Tabs position='relative' variant='common' mb='24px'>
       <TabList>
         {tabs.map((tab) => (
-          <Tab key={tab.title}>
+          <Tab key={tab.title} onClick={() => handleTabClicked(tab.title)}>
             <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
               {tab.icon}
               <>{tab.title}</>

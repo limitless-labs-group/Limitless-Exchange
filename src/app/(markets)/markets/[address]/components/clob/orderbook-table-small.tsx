@@ -1,7 +1,7 @@
 import { Box, Button, HStack, Link, Text, useOutsideClick } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import NextLink from 'next/link'
-import React, { LegacyRef, MutableRefObject, useRef, useState } from 'react'
+import React, { LegacyRef, MutableRefObject, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits, maxUint256 } from 'viem'
 import {
@@ -20,6 +20,7 @@ import GemIcon from '@/resources/icons/gem-icon.svg'
 import PartFilledCircleIcon from '@/resources/icons/partially-filled-circle.svg'
 import {
   ChangeEvent,
+  ClickEvent,
   OrderBookSideChangedMetadata,
   useAmplitude,
   useTradingService,
@@ -44,9 +45,10 @@ export default function OrderBookTableSmall({
   const { market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
   const { data: userOrders } = useMarketOrders(market?.slug)
-  const { trackChanged } = useAmplitude()
+  const { trackChanged, trackClicked } = useAmplitude()
   const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
   const { data: marketRewardsTotal } = useMarketRewardsIncentive(market?.slug, market?.tradeType)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const ref = useRef<HTMLElement>()
 
@@ -67,6 +69,19 @@ export default function OrderBookTableSmall({
       return
     },
   })
+
+  const handleRewardsClicked = () => {
+    trackClicked(ClickEvent.RewardsButtonClicked, {
+      visible: rewardsButtonClicked ? 'off' : 'on',
+    })
+    setRewardButtonClicked(!rewardsButtonClicked)
+  }
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight
+    }
+  }, [outcome])
 
   const highLightRewardsCells = rewardsButtonClicked || rewardButtonHovered
 
@@ -163,7 +178,7 @@ export default function OrderBookTableSmall({
               px='8px'
               bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
               cursor='pointer'
-              onClick={() => setRewardButtonClicked(!rewardsButtonClicked)}
+              onClick={handleRewardsClicked}
               onMouseEnter={() => setRewardButtonHovered(true)}
               onMouseLeave={() => setRewardButtonHovered(false)}
               ref={ref as LegacyRef<HTMLDivElement>}
@@ -257,7 +272,7 @@ export default function OrderBookTableSmall({
         </Box>
       </HStack>
       <Box position='relative'>
-        <Box maxH='162px' minH='36px' overflow='auto' position='relative'>
+        <Box maxH='162px' minH='36px' overflow='auto' position='relative' ref={containerRef}>
           {!orderbook || orderBookLoading ? (
             <Box w='full'>
               <Skeleton height={108} />

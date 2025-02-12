@@ -1,7 +1,13 @@
 import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
 import { formatUnits } from 'viem'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
-import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
+import {
+  ChangeEvent,
+  OrderBookSideChangedMetadata,
+  StrategyChangedMetadata,
+  useAmplitude,
+  useTradingService,
+} from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -19,13 +25,14 @@ export default function OutcomeButtonsClob() {
   }
 
   const handleOutcomeChanged = (outcome: number) => {
-    trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
-      type: 'Buy selected',
+    trackChanged<OrderBookSideChangedMetadata>(ChangeEvent.OrderBookSideChanged, {
+      type: outcome ? 'No selected' : 'Yes selected',
       marketAddress: market?.slug as string,
     })
     setOutcome(outcome)
     if (orderType === MarketOrderType.LIMIT) {
-      setPrice(String(outcome ? noPrice : yesPrice))
+      const selectedPrice = outcome ? noPrice : yesPrice
+      setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
     }
   }
 

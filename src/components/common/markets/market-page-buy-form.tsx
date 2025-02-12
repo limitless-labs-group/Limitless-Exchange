@@ -113,6 +113,8 @@ export default function MarketPageBuyForm({
       marketAddress: market?.slug,
       marketType: marketList ? 'group' : 'single',
       marketTags: market?.tags,
+      marketMakerType: 'AMM',
+      assetType: 'money',
     })
     if (value == 100) {
       setDisplayAmount(

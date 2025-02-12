@@ -50,7 +50,7 @@ import LineChartIcon from '@/resources/icons/line-chart-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
-import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
+import { ChangeEvent, ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { h1Regular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
@@ -60,7 +60,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   /**
    * ANALYTICS
    */
-  const { trackClicked, trackOpened } = useAmplitude()
+  const { trackClicked, trackOpened, trackChanged } = useAmplitude()
   const router = useRouter()
   const { data: market, isLoading: fetchMarketLoading } = useMarket(params.address)
   const isLumy = market?.tags?.includes('Lumy')
@@ -95,21 +95,18 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     {
       title: 'Chart',
       icon: <LineChartIcon width={16} height={16} />,
-      analyticEvent: ClickEvent.PredictionChartOpened,
     },
     {
       title: 'Assets price',
       icon: <CandlestickIcon width={16} height={16} />,
-      analyticEvent: ClickEvent.AssetPriceChartOpened,
     },
   ]
 
-  const handleChartTabClicked = (event: ClickEvent) =>
-    trackClicked(event, {
+  const handleChartTabClicked = (event: string) =>
+    trackChanged(ChangeEvent.ChartTabChanged, {
+      view: event + 'on',
+      marketMarketType: market?.tradeType === 'amm' ? 'AMM' : 'CLOB',
       marketAddress: market?.slug,
-      marketType: market?.marketType,
-      marketTags: market?.tags,
-      platform: isMobile ? 'mobile' : 'desktop',
     })
 
   const chartsTabPanels = useMemo(
@@ -129,7 +126,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
         <Tabs position='relative' variant='common' mt='20px'>
           <TabList>
             {chartTabs.map((tab) => (
-              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.analyticEvent)}>
+              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.title)}>
                 <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
                   {tab.icon}
                   <>{tab.title}</>
@@ -250,6 +247,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       trackOpened(OpenEvent.MarketPageOpened, {
         marketAddress: market.slug,
         page: 'Market Page',
+        marketMakerType: market.tradeType.toUpperCase(),
       })
     }
   }, [market])
