@@ -16,7 +16,6 @@ export default function ClobTabs() {
     const checkScreenSize = () => {
       const width = window.innerWidth
 
-      // Define small laptop resolution (Example: < 1366px width)
       if (isDesktop && width >= 1024 && width <= 1366) {
         setIsSmallLaptop(true)
       } else {
