@@ -100,7 +100,7 @@ export default function ClobMarketTradeForm() {
     },
     onError: async () => {
       const id = toast({
-        render: () => <Toast title={'Oops...Something went wrong'} id={id} />,
+        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
       })
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],

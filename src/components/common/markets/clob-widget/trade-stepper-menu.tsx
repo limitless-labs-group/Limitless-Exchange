@@ -180,7 +180,7 @@ export default function TradeStepperMenu() {
     },
     onError: async () => {
       const id = toast({
-        render: () => <Toast title={'Oops...Something went wrong'} id={id} />,
+        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
       })
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
@@ -234,7 +234,7 @@ export default function TradeStepperMenu() {
     },
     onError: async () => {
       const id = toast({
-        render: () => <Toast title={'Oops...Something went wrong'} id={id} />,
+        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
       })
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
