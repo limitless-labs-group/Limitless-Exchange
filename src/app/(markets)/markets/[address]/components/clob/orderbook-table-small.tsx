@@ -7,13 +7,17 @@ import { formatUnits, maxUint256 } from 'viem'
 import {
   checkIfOrderIsRewarded,
   checkPriceIsInRange,
+  getUserOrdersForPrice,
+  hasOrdersForThisOrderBookEntity,
 } from '@/components/common/markets/clob-widget/utils'
 import Skeleton from '@/components/common/skeleton'
+import OrdersTooltip from '@/app/(markets)/markets/[address]/components/clob/orders-tooltip'
 import { OrderBookData } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import useMarketRewardsIncentive from '@/hooks/use-market-rewards'
 import { useOrderBook } from '@/hooks/use-order-book'
 import GemIcon from '@/resources/icons/gem-icon.svg'
+import PartFilledCircleIcon from '@/resources/icons/partially-filled-circle.svg'
 import {
   ChangeEvent,
   OrderBookSideChangedMetadata,
@@ -28,9 +32,15 @@ import {
   paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
+import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
 
-export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }: OrderBookData) {
+export default function OrderBookTableSmall({
+  orderBookData,
+  spread,
+  lastPrice,
+  deleteBatchOrders,
+}: OrderBookData) {
   const { market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
   const { data: userOrders } = useMarketOrders(market?.slug)
@@ -127,6 +137,18 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
       </HStack>
     </Box>
   )
+
+  const onDeleteBatchOrders = async (price: number) => {
+    const orders = getUserOrdersForPrice(
+      price,
+      outcome,
+      userOrders,
+      market?.tokens
+    ) as ClobPosition[]
+    await deleteBatchOrders.mutateAsync({
+      orders: orders.map((order) => order.id),
+    })
+  }
 
   return (
     <Box mt='12px'>
@@ -257,10 +279,39 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
                 <Box position='absolute' top={0} w='full'>
                   <Box w={`${+item.cumulativePercent}%`} bg='red.500' opacity={0.1} height='36px' />
                 </Box>
-                <HStack gap='4px' w='25%' justifyContent='flex-end'>
-                  {checkIfOrderIsRewarded(item.price, userOrders, outcome, minRewardsSize) &&
+                <HStack gap='4px' w='25%' justifyContent='flex-end' h='20px'>
+                  {checkIfOrderIsRewarded(
+                    item.price,
+                    userOrders,
+                    outcome,
+                    minRewardsSize,
+                    market?.tokens
+                  ) &&
                     checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                     market?.isRewardable && <GemIcon />}
+                  {hasOrdersForThisOrderBookEntity(
+                    item.price,
+                    outcome,
+                    userOrders,
+                    market?.tokens
+                  ) && (
+                    <OrdersTooltip
+                      orders={
+                        getUserOrdersForPrice(
+                          item.price,
+                          outcome,
+                          userOrders,
+                          market?.tokens
+                        ) as ClobPosition[]
+                      }
+                      decimals={market?.collateralToken.decimals || 6}
+                      side='ask'
+                      placement='top-start'
+                      onDelete={async () => onDeleteBatchOrders(item.price)}
+                    >
+                      <PartFilledCircleIcon />
+                    </OrdersTooltip>
+                  )}
                   <Text {...paragraphRegular} color='red.500' textAlign='right'>
                     {new BigNumber(item.price).multipliedBy(100).decimalPlaces(1).toFixed()}¢
                   </Text>
@@ -350,11 +401,40 @@ export default function OrderBookTableSmall({ orderBookData, spread, lastPrice }
                     height='36px'
                   />
                 </Box>
-                <HStack gap='4px' w='25%' justifyContent='flex-end'>
-                  {checkIfOrderIsRewarded(item.price, userOrders, outcome, minRewardsSize) &&
+                <HStack gap='4px' w='25%' justifyContent='flex-end' h='20px'>
+                  {checkIfOrderIsRewarded(
+                    item.price,
+                    userOrders,
+                    outcome,
+                    minRewardsSize,
+                    market?.tokens
+                  ) &&
                     checkPriceIsInRange(+item.price, orderBookPriceRange) &&
                     market?.isRewardable && <GemIcon />}
-                  <Text {...paragraphRegular} color='red.500' textAlign='right'>
+                  {hasOrdersForThisOrderBookEntity(
+                    item.price,
+                    outcome,
+                    userOrders,
+                    market?.tokens
+                  ) && (
+                    <OrdersTooltip
+                      orders={
+                        getUserOrdersForPrice(
+                          item.price,
+                          outcome,
+                          userOrders,
+                          market?.tokens
+                        ) as ClobPosition[]
+                      }
+                      decimals={market?.collateralToken.decimals || 6}
+                      side='bid'
+                      placement='top-start'
+                      onDelete={async () => onDeleteBatchOrders(item.price)}
+                    >
+                      <PartFilledCircleIcon />
+                    </OrdersTooltip>
+                  )}
+                  <Text {...paragraphRegular} color='green.500' textAlign='right'>
                     {new BigNumber(item.price).multipliedBy(100).decimalPlaces(1).toFixed()}¢
                   </Text>
                 </HStack>
