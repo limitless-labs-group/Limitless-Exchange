@@ -1,6 +1,6 @@
 import { HStack, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
-import React, { useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
+import React, { useEffect, useMemo, useState } from 'react'
+import { isDesktop, isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
@@ -10,6 +10,24 @@ import { useTradingService } from '@/services'
 
 export default function ClobTabs() {
   const { market } = useTradingService()
+  const [isSmallLaptop, setIsSmallLaptop] = useState(false)
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const width = window.innerWidth
+
+      if (isDesktop && width >= 1024 && width <= 1366) {
+        setIsSmallLaptop(true)
+      } else {
+        setIsSmallLaptop(false)
+      }
+    }
+
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+
+    return () => window.removeEventListener('resize', checkScreenSize)
+  }, [])
 
   const tabs = [
     {
@@ -23,8 +41,11 @@ export default function ClobTabs() {
   ]
 
   const tabPanels = useMemo(() => {
-    return [<Orderbook key={uuidv4()} />, <MarketPriceChart key={uuidv4()} />]
-  }, [market])
+    return [
+      <Orderbook key={uuidv4()} variant={isSmallLaptop ? 'small' : 'large'} />,
+      <MarketPriceChart key={uuidv4()} />,
+    ]
+  }, [market, isSmallLaptop])
 
   return (
     <Tabs position='relative' variant='common' mb='24px'>
