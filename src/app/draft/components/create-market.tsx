@@ -238,6 +238,25 @@ export const CreateMarket: FC = () => {
     ])
   }
 
+  const prepareMarketData = (formData: FormData) => {
+    return {
+      title: formData.get('title'),
+      description: formData.get('description'),
+      tokenId: Number(formData.get('tokenId')),
+      ...(createClobMarket ? {} : { liquidity: Number(formData.get('liquidity')) }),
+      ...(createClobMarket
+        ? {}
+        : { initialYesProbability: Number(formData.get('initialYesProbability')) }),
+      marketFee: Number(formData.get('marketFee')),
+      deadline: Number(formData.get('deadline')),
+      isBannered: formData.get('isBannered') === 'true',
+      creatorId: formData.get('creatorId'),
+      categoryId: formData.get('categoryId'),
+      ogFile: formData.get('ogFile'),
+      tagIds: formData.get('tagIds'),
+    }
+  }
+
   const prepareData = async () => {
     await generateOgImage()
 
@@ -312,22 +331,7 @@ export const CreateMarket: FC = () => {
     const data = await prepareData()
     if (!data) return
     setIsCreating(true)
-    const marketData = {
-      title: data.get('title'),
-      description: data.get('description'),
-      tokenId: Number(data.get('tokenId')),
-      ...(createClobMarket ? {} : { liquidity: Number(data.get('liquidity')) }),
-      ...(createClobMarket
-        ? {}
-        : { initialYesProbability: Number(data.get('initialYesProbability')) }),
-      marketFee: Number(data.get('marketFee')),
-      deadline: Number(data.get('deadline')),
-      isBannered: data.get('isBannered') === 'true',
-      creatorId: data.get('creatorId'),
-      categoryId: data.get('categoryId'),
-      ogFile: data.get('ogFile'),
-      tagIds: data.get('tagIds'),
-    }
+    const marketData = prepareMarketData(data)
     const url = createClobMarket ? '/markets/clob/drafts' : '/markets/drafts'
     privateClient
       .post(url, marketData, {
@@ -356,8 +360,9 @@ export const CreateMarket: FC = () => {
     const data = await prepareData()
     if (!data) return
     setIsCreating(true)
+    const marketData = prepareMarketData(data)
     privateClient
-      .put(`/markets/drafts/${marketId}`, data, {
+      .put(`/markets/drafts/${marketId}`, marketData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
