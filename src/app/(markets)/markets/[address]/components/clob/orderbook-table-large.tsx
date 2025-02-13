@@ -191,7 +191,12 @@ export default function OrderbookTableLarge({
                 bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
                 cursor='pointer'
                 onClick={handleRewardsClicked}
-                onMouseEnter={() => setRewardButtonHovered(true)}
+                onMouseEnter={() => {
+                  const timer = setTimeout(() => {
+                    setRewardButtonHovered(true)
+                  }, 300)
+                  return () => clearTimeout(timer)
+                }}
                 onMouseLeave={() => setRewardButtonHovered(false)}
                 ref={ref as LegacyRef<HTMLDivElement>}
               >
@@ -199,7 +204,7 @@ export default function OrderbookTableLarge({
                 <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
                   {marketRewards && Boolean(marketRewards?.length)
                     ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
-                        market.collateralToken.symbol
+                        market?.collateralToken.symbol
                       }`
                     : 'Earn Rewards'}
                 </Text>
@@ -207,13 +212,15 @@ export default function OrderbookTableLarge({
               {(rewardsButtonClicked || rewardButtonHovered) && (
                 <Box
                   position='absolute'
-                  bg='background.90'
-                  border='unset'
+                  bg='grey.50'
+                  border='1px solid'
+                  borderColor='grey.200'
+                  boxShadow='0px 1px 4px 0px rgba(2, 6, 23, 0.05)'
                   w='260px'
                   p='8px'
                   rounded='8px'
                   right={0}
-                  h='128px'
+                  minH='128px'
                   zIndex={150}
                 >
                   {tooltipContent}
