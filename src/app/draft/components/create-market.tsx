@@ -239,21 +239,35 @@ export const CreateMarket: FC = () => {
   }
 
   const prepareMarketData = (formData: FormData) => {
+    const tokenId = Number(formData.get('tokenId'))
+    const marketFee = Number(formData.get('marketFee'))
+    const deadline = Number(formData.get('deadline'))
+
+    if (isNaN(tokenId) || isNaN(marketFee) || isNaN(deadline)) {
+      throw new Error('Invalid numeric values in form data')
+    }
+
+    const title = formData.get('title')
+    const description = formData.get('description')
+    if (!title || !description) {
+      throw new Error('Missing required fields')
+    }
+
     return {
-      title: formData.get('title'),
-      description: formData.get('description'),
-      tokenId: Number(formData.get('tokenId')),
+      title: title.toString(),
+      description: description.toString(),
+      tokenId,
       ...(createClobMarket ? {} : { liquidity: Number(formData.get('liquidity')) }),
       ...(createClobMarket
         ? {}
         : { initialYesProbability: Number(formData.get('initialYesProbability')) }),
-      marketFee: Number(formData.get('marketFee')),
-      deadline: Number(formData.get('deadline')),
+      marketFee,
+      deadline,
       isBannered: formData.get('isBannered') === 'true',
-      creatorId: formData.get('creatorId'),
-      categoryId: formData.get('categoryId'),
-      ogFile: formData.get('ogFile'),
-      tagIds: formData.get('tagIds'),
+      creatorId: formData.get('creatorId')?.toString() ?? '',
+      categoryId: formData.get('categoryId')?.toString() ?? '',
+      ogFile: formData.get('ogFile') as File | null,
+      tagIds: formData.get('tagIds')?.toString() ?? '',
     }
   }
 
