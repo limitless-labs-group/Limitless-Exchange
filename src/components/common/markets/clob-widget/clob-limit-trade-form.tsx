@@ -133,6 +133,12 @@ export default function ClobLimitTradeForm() {
         return privateClient.post('/orders', data)
       }
     },
+    onSuccess: async () => {
+      await sleep(1)
+      await queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      })
+    },
     onError: async () => {
       const id = toast({
         render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
@@ -244,9 +250,6 @@ export default function ClobLimitTradeForm() {
     placeLimitOrderMutation.reset()
     await Promise.allSettled([
       queryClient.refetchQueries({
-        queryKey: ['user-orders', market?.slug],
-      }),
-      queryClient.refetchQueries({
         queryKey: ['market-shares', market?.slug],
       }),
       queryClient.refetchQueries({
@@ -256,6 +259,10 @@ export default function ClobLimitTradeForm() {
         queryKey: ['locked-balance', market?.slug],
       }),
     ])
+    await sleep(2)
+    await queryClient.refetchQueries({
+      queryKey: ['user-orders', market?.slug],
+    })
   }
 
   const handleSubmitButtonClicked = async () => {
