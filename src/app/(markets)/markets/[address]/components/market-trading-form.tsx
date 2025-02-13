@@ -112,6 +112,7 @@ export const MarketTradingForm = ({
               type: 'Buy selected',
               marketAddress,
               ...(analyticParams ? analyticParams : {}),
+              marketMarketType: 'AMM',
             })
             setStrategy('Buy')
           }}
@@ -139,6 +140,7 @@ export const MarketTradingForm = ({
               type: 'Sell selected',
               marketAddress,
               ...(analyticParams ? analyticParams : {}),
+              marketMarketType: 'AMM',
             })
             setStrategy('Sell')
           }}

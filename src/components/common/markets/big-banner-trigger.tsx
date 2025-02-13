@@ -21,7 +21,7 @@ const MotionBox = motion(Box)
 export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps) => {
   const [feedMessage, setFeedMessage] = useState<MarketFeedData | null>(null)
   const { onOpenMarketPage, setMarkets } = useTradingService()
-  const { data: marketFeedData } = useMarketFeed(market.address as string)
+  const { data: marketFeedData } = useMarketFeed(market)
   const router = useRouter()
   const { trackClicked } = useAmplitude()
 
@@ -32,7 +32,7 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
     if (!isMobile) {
       e.preventDefault()
     }
-    router.push(`?market=${market.address}`, { scroll: false })
+    router.push(`?market=${market.slug}`, { scroll: false })
     trackClicked(ClickEvent.BigBannerClicked, {
       marketAddress: market.slug,
       marketType: 'single',
@@ -181,19 +181,21 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
                 </AnimatePresence>
               </Box>
             )}
-            {market.tradeType === 'amm' && (
+            {
               <HStack gap='4px'>
                 <Text {...paragraphRegular} color='transparent.700'>
-                  Value{' '}
-                  {NumberUtil.convertWithDenomination(
-                    Number(market.openInterestFormatted || 0) +
-                      Number(market.liquidityFormatted || 0),
-                    6
-                  )}{' '}
+                  {market.tradeType === 'amm' ? 'Value' : 'Volume'}{' '}
+                  {market.tradeType === 'amm'
+                    ? NumberUtil.convertWithDenomination(
+                        Number(market.openInterestFormatted || 0) +
+                          Number(market.liquidityFormatted || 0),
+                        6
+                      )
+                    : NumberUtil.convertWithDenomination(Number(market.volumeFormatted), 6)}{' '}
                   {market.collateralToken.symbol}
                 </Text>
               </HStack>
-            )}
+            }
           </HStack>
         )}
       </Box>

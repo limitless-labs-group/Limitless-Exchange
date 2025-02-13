@@ -1,13 +1,4 @@
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Input,
-  InputGroup,
-  InputRightElement,
-  Text,
-} from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, InputGroup, Text } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import React, { useEffect, useMemo, useState } from 'react'
@@ -16,6 +7,7 @@ import { Address, maxUint256, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import { Modal } from '@/components/common/modals/modal'
+import NumberInputWithButtons from '@/components/common/number-input-with-buttons'
 import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
@@ -63,6 +55,9 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   }
 
   const handleSplitClicked = async () => {
+    trackClicked(ClickEvent.SplitSharesConfirmed, {
+      marketAddress: market?.slug,
+    })
     await splitSharesMutation.mutateAsync({
       amount: displayAmount,
       decimals: market?.collateralToken.decimals || 6,
@@ -83,10 +78,12 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   }
 
   const onResetAfterSplit = async () => {
+    await sleep(3)
     await checkSplitAllowance()
     await queryClient.refetchQueries({
       queryKey: ['market-shares', market?.slug, market?.tokens],
     })
+    setDisplayAmount('')
     splitSharesMutation.reset()
   }
 
@@ -265,23 +262,13 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
           <Text {...paragraphMedium}>Enter Amount</Text>
           {showBalanceWithButtons}
         </HStack>
-        <Input
-          isInvalid={isExceedsBalance}
-          variant='grey'
-          errorBorderColor='red.500'
+        <NumberInputWithButtons
           value={displayAmount}
-          onChange={(e) => handleAmountChange(e.target.value)}
-          placeholder='0'
-          type='number'
+          isInvalid={isExceedsBalance}
+          handleInputChange={handleAmountChange}
+          showIncrements={false}
+          endAdornment={<Text {...paragraphMedium}>USDC</Text>}
         />
-        <InputRightElement
-          h='16px'
-          top={isMobile ? '36px' : '32px'}
-          right={isMobile ? '12px' : '8px'}
-          justifyContent='flex-end'
-        >
-          <Text {...paragraphMedium}>USDC</Text>
-        </InputRightElement>
       </InputGroup>
       <HStack
         mt={isMobile ? '32px' : '24px'}

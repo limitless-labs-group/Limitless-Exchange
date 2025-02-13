@@ -1,4 +1,4 @@
-import { Box, Button, HStack, Input, InputGroup, InputRightElement, Text } from '@chakra-ui/react'
+import { Box, Button, HStack, InputGroup, Text } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -8,7 +8,8 @@ import { Address, formatUnits, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import { Modal } from '@/components/common/modals/modal'
-import { useAccount, useTradingService } from '@/services'
+import NumberInputWithButtons from '@/components/common/number-input-with-buttons'
+import { ClickEvent, useAccount, useAmplitude, useTradingService } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphBold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
@@ -25,6 +26,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   const { web3Wallet } = useAccount()
   const { sharesAvailable } = useClobWidget()
   const queryClient = useQueryClient()
+  const { trackClicked } = useAmplitude()
 
   const sharesAvailableBalance = useMemo(() => {
     if (!sharesAvailable) {
@@ -49,6 +51,9 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   }
 
   const handleMergeClicked = async () => {
+    trackClicked(ClickEvent.MergeSharesConfirmed, {
+      marketAddress: market?.slug,
+    })
     await mergeSharesMutation.mutateAsync({
       amount: displayAmount,
       decimals: market?.collateralToken.decimals || 6,
@@ -108,6 +113,13 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
       await checkMergeAllowance()
     },
   })
+
+  const handleMaxClicked = () => {
+    trackClicked(ClickEvent.MergeSharesModalMaxSharesClicked, {
+      marketAddress: market?.slug,
+    })
+    setDisplayAmount(sharesAvailableBalance)
+  }
 
   const actionButton = useMemo(() => {
     if (client === 'etherspot') {
@@ -184,7 +196,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
             minW='unset'
             h='auto'
             variant='plain'
-            onClick={() => setDisplayAmount(sharesAvailableBalance)}
+            onClick={handleMaxClicked}
             color='grey.500'
             borderBottom='1px dotted'
             borderColor='rgba(132, 132, 132, 0.5)'
@@ -196,23 +208,13 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
             Available: {sharesAvailableBalance}
           </Button>
         </HStack>
-        <Input
-          isInvalid={isExceedsBalance}
-          variant='grey'
-          errorBorderColor='red.500'
+        <NumberInputWithButtons
           value={displayAmount}
-          onChange={(e) => handleAmountChange(e.target.value)}
-          placeholder='0'
-          type='number'
+          isInvalid={isExceedsBalance}
+          handleInputChange={handleAmountChange}
+          showIncrements={false}
+          endAdornment={<Text {...paragraphMedium}>Contracts</Text>}
         />
-        <InputRightElement
-          h='16px'
-          top={isMobile ? '32px' : '32px'}
-          right={isMobile ? '12px' : '8px'}
-          justifyContent='flex-end'
-        >
-          <Text {...paragraphMedium}>Contracts</Text>
-        </InputRightElement>
       </InputGroup>
       <HStack
         mt={isMobile ? '32px' : '24px'}

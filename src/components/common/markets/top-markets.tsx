@@ -26,7 +26,7 @@ export default function TopMarkets({ markets, isLoading }: TopMarketsProps) {
   }
 
   const desktopCards = markets?.map((market) => (
-    <BigBanner market={market} key={market.address} markets={markets} />
+    <BigBanner market={market} key={market.slug} markets={markets} />
   ))
 
   return (

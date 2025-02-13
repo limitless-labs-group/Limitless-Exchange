@@ -14,7 +14,7 @@ interface LockedBalanceResponse {
 
 export default function useMarketLockedBalance(slug?: string) {
   const axiosPrivateClient = useAxiosPrivateClient()
-  const { account } = useAccount()
+  const { web3Wallet } = useAccount()
   return useQuery({
     queryKey: ['locked-balance', slug],
     queryFn: async () => {
@@ -24,6 +24,6 @@ export default function useMarketLockedBalance(slug?: string) {
       return response.data
     },
     // Todo change it to other property after it's merged with privy
-    enabled: !!account && !!slug,
+    enabled: !!web3Wallet && !!slug,
   })
 }

@@ -10,29 +10,41 @@ import TradeStepperMenu from '@/components/common/markets/clob-widget/trade-step
 import OutcomeButtonsClob from '@/components/common/markets/outcome-buttons/outcome-buttons-clob'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
-import SettingsIcon from '@/resources/icons/setting-icon.svg'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
 import { controlsMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 
 export default function ClobWidget() {
   const { trackChanged } = useAmplitude()
-  const { strategy, setStrategy, market } = useTradingService()
+  const { clobOutcome: outcome, strategy, setStrategy, market } = useTradingService()
 
   const {
+    setPrice,
+    price,
+    sharesAmount,
+    setSharesAmount,
     isBalanceNotEnough,
     orderType,
     setOrderType,
-    setPrice,
-    setSharesAmount,
     tradeStepperOpen,
     onToggleTradeStepper,
+    yesPrice,
+    noPrice,
   } = useClobWidget()
 
   const handleOrderTypeChanged = (order: MarketOrderType) => {
     setOrderType(order)
-    setSharesAmount('')
-    setPrice('')
+    if (order === MarketOrderType.MARKET) {
+      setPrice(sharesAmount)
+      setSharesAmount('')
+    } else {
+      const selectedPrice = outcome ? noPrice : yesPrice
+      setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
+      setSharesAmount(price)
+    }
+    trackChanged(ChangeEvent.ClobWidgetModeChanged, {
+      mode: order === MarketOrderType.MARKET ? 'amm on' : 'clob on',
+    })
     tradeStepperOpen && onToggleTradeStepper()
   }
 
@@ -60,7 +72,7 @@ export default function ClobWidget() {
         <Overlay show={tradeStepperOpen} onClose={onToggleTradeStepper} />
         {tradeStepperOpen && <TradeStepperMenu />}
         <Paper bg='grey.100' borderRadius='8px' p='8px' position='relative'>
-          <HStack w='full' justifyContent='center' mb='16px' pl='16px'>
+          <HStack w='full' justifyContent='center' mb='16px'>
             <HStack w={'236px'} mx='auto' bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
               <Button
                 h={isMobile ? '28px' : '20px'}
@@ -75,11 +87,10 @@ export default function ClobWidget() {
                 onClick={() => {
                   trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
                     type: 'Buy selected',
-                    marketAddress: market?.address as Address,
+                    marketAddress: market?.slug as Address,
+                    marketMarketType: 'CLOB',
                   })
                   setStrategy('Buy')
-                  setSharesAmount('')
-                  setPrice('')
                 }}
               >
                 <Text {...controlsMedium} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
@@ -103,11 +114,10 @@ export default function ClobWidget() {
                 onClick={() => {
                   trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
                     type: 'Sell selected',
-                    marketAddress: market?.address as Address,
+                    marketAddress: market?.slug as Address,
+                    marketMarketType: 'CLOB',
                   })
                   setStrategy('Sell')
-                  setSharesAmount('')
-                  setPrice('')
                 }}
               >
                 <Text {...controlsMedium} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
@@ -115,7 +125,6 @@ export default function ClobWidget() {
                 </Text>
               </Button>
             </HStack>
-            <SettingsIcon width={16} height={16} />
           </HStack>
           <OutcomeButtonsClob />
           {orderType === MarketOrderType.MARKET ? <ClobMarketTradeForm /> : <ClobLimitTradeForm />}

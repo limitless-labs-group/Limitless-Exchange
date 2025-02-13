@@ -12,7 +12,7 @@ type UniqueTradersProps = {
 export const UniqueTraders = React.memo(({ color }: UniqueTradersProps) => {
   const { market } = useTradingService()
 
-  const { data: marketFeedData } = useMarketFeed(market?.address)
+  const { data: marketFeedData } = useMarketFeed(market)
 
   const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
 

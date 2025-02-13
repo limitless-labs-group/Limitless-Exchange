@@ -31,7 +31,7 @@ export const buildOrderTypedData = (order: Order): EIP712TypedData => {
       Order: ORDER_STRUCTURE,
     },
     domain: {
-      name: PROTOCOL_NAME,
+      name: 'Limitless CTF Exchange',
       version: PROTOCOL_VERSION,
       chainId: defaultChain.id,
       verifyingContract: process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as string,
