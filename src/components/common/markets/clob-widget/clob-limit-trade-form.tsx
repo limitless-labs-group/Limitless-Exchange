@@ -319,6 +319,7 @@ export default function ClobLimitTradeForm() {
         value={price}
         handleInputChange={handleSetLimitPrice}
         showIncrements={true}
+        inputType='number'
       />
       <Flex justifyContent='space-between' alignItems='center' mt='16px' mb='8px'>
         <Text
@@ -339,6 +340,7 @@ export default function ClobLimitTradeForm() {
         handleInputChange={handleSetLimitShares}
         isInvalid={isBalanceNotEnough}
         showIncrements={true}
+        inputType='number'
       />
       <VStack w='full' gap='8px' my='24px'>
         {strategy === 'Buy' ? (

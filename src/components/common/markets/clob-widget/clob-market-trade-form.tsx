@@ -440,6 +440,7 @@ export default function ClobMarketTradeForm() {
         value={price}
         handleInputChange={handleInputValueChange}
         showIncrements={false}
+        inputType='number'
         endAdornment={
           <Text {...paragraphMedium} color={'grey.500'}>
             {strategy === 'Buy' ? market?.collateralToken.symbol : 'Contracts'}
