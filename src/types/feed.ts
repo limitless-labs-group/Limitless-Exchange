@@ -28,6 +28,7 @@ export interface MarketStatusFeedData {
     address: Address
     decimals: number
   }
+  slug: string
   volumeFormatted: string
   liquidityFormatted: string
   prices: number[]

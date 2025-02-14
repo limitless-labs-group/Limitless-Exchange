@@ -20,7 +20,7 @@ export function FeedComment({ data }: FeedNewPostProps) {
         <Text {...paragraphRegular}>{data.data.content}</Text>
         <HStack gap='4px' color='grey.500'>
           <PieChartIcon width={14} height={14} />
-          <Box maxW='calc(100% -30px)' borderBottom='1px solid' borderColor='greyTransparent.200'>
+          <Box maxW='calc(100% - 30px)' borderBottom='1px solid' borderColor='greyTransparent.200'>
             <Text
               {...captionRegular}
               w='full'
