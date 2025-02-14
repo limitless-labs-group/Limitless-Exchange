@@ -163,7 +163,7 @@ export default function ClobLimitTradeForm() {
             formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
             6
           )
-      return `MAX: ${balanceToShow}`
+      return `${balanceToShow}`
     }
     return `${title}%`
   }
@@ -186,7 +186,7 @@ export default function ClobLimitTradeForm() {
   const showSellBalance = useMemo(() => {
     if (strategy === 'Sell') {
       return (
-        <Flex gap='12px'>
+        <Flex gap='8px'>
           {[10, 25, 50, 100].map((title: number) => (
             <Button
               {...paragraphRegular}
@@ -315,7 +315,7 @@ export default function ClobLimitTradeForm() {
         id='limitPrice'
         placeholder='Eg. 85¢'
         max={99.9}
-        step={1}
+        step={0.1}
         value={price}
         handleInputChange={handleSetLimitPrice}
         showIncrements={true}
