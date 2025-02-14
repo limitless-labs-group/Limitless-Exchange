@@ -189,7 +189,7 @@ export default function ClobMarketTradeForm() {
               6
             )
       }
-      return `MAX: ${
+      return `${
         balanceLoading ? (
           <Box w='90px'>
             <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
@@ -404,7 +404,7 @@ export default function ClobMarketTradeForm() {
             <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
           </Box>
         ) : (
-          <Flex gap='12px'>
+          <Flex gap='8px'>
             {[10, 25, 50, 100].map((title: number) => (
               <Button
                 {...paragraphRegular}
