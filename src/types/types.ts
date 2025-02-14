@@ -228,7 +228,7 @@ export enum Sort {
   HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VALUE = 'High Value',
   HIGHEST_VOLUME = 'High Volume',
-  LP_REWARDS = 'LP Rewards',
+  LP_REWARDS = '💎 LP Rewards',
 }
 
 export enum SortStorageName {
