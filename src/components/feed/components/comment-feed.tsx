@@ -18,7 +18,7 @@ export function FeedComment({ data }: FeedNewPostProps) {
     >
       <VStack alignItems='start'>
         <Text {...paragraphRegular}>{data.data.content}</Text>
-        <HStack gap='4px' color='grey.500'>
+        <HStack gap='4px' color='grey.500' w='full'>
           <PieChartIcon width={14} height={14} />
           <Box maxW='calc(100% - 30px)' borderBottom='1px solid' borderColor='greyTransparent.200'>
             <Text
