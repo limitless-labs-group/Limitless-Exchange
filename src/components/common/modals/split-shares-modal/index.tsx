@@ -57,6 +57,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   const handleSplitClicked = async () => {
     trackClicked(ClickEvent.SplitSharesConfirmed, {
       marketAddress: market?.slug,
+      value: displayAmount,
     })
     await splitSharesMutation.mutateAsync({
       amount: displayAmount,

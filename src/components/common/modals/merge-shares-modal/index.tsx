@@ -53,6 +53,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   const handleMergeClicked = async () => {
     trackClicked(ClickEvent.MergeSharesConfirmed, {
       marketAddress: market?.slug,
+      value: displayAmount,
     })
     await mergeSharesMutation.mutateAsync({
       amount: displayAmount,

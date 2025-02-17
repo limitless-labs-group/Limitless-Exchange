@@ -84,6 +84,7 @@ export interface Market {
   marketType: 'single' | 'group'
   tradeType: 'clob' | 'amm'
   isRewardable: boolean
+  markets?: Market[]
 }
 
 export interface UserMarket {
