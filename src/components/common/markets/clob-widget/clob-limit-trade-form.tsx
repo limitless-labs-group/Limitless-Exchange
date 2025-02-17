@@ -1,4 +1,5 @@
 import { Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { isNumber } from '@chakra-ui/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -50,6 +51,11 @@ export default function ClobLimitTradeForm() {
   const privyService = usePrivySendTransaction()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
+
+  const maxSharesAvailable =
+    strategy === 'Sell'
+      ? +formatUnits(sharesAvailable[outcome ? 'no' : 'yes'], market?.collateralToken.decimals || 6)
+      : undefined
 
   const handlePercentButtonClicked = (value: number) => {
     trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
@@ -335,6 +341,7 @@ export default function ClobLimitTradeForm() {
       <NumberInputWithButtons
         id='contractsAmount'
         step={1}
+        max={isNumber(maxSharesAvailable) ? maxSharesAvailable : undefined}
         placeholder='Eg. 32'
         value={sharesAmount}
         handleInputChange={handleSetLimitShares}
