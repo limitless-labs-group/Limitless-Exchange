@@ -267,6 +267,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
           isInvalid={isExceedsBalance}
           handleInputChange={handleAmountChange}
           showIncrements={false}
+          inputType='number'
           endAdornment={<Text {...paragraphMedium}>USDC</Text>}
         />
       </InputGroup>

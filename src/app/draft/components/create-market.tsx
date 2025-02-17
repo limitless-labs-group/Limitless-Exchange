@@ -238,6 +238,39 @@ export const CreateMarket: FC = () => {
     ])
   }
 
+  const prepareMarketData = (formData: FormData) => {
+    const tokenId = Number(formData.get('tokenId'))
+    const marketFee = Number(formData.get('marketFee'))
+    const deadline = Number(formData.get('deadline'))
+
+    if (isNaN(tokenId) || isNaN(marketFee) || isNaN(deadline)) {
+      throw new Error('Invalid numeric values in form data')
+    }
+
+    const title = formData.get('title')
+    const description = formData.get('description')
+    if (!title || !description) {
+      throw new Error('Missing required fields')
+    }
+
+    return {
+      title: title.toString(),
+      description: description.toString(),
+      tokenId,
+      ...(createClobMarket ? {} : { liquidity: Number(formData.get('liquidity')) }),
+      ...(createClobMarket
+        ? {}
+        : { initialYesProbability: Number(formData.get('initialYesProbability')) }),
+      marketFee,
+      deadline,
+      isBannered: formData.get('isBannered') === 'true',
+      creatorId: formData.get('creatorId')?.toString() ?? '',
+      categoryId: formData.get('categoryId')?.toString() ?? '',
+      ogFile: formData.get('ogFile') as File | null,
+      tagIds: formData.get('tagIds')?.toString() ?? '',
+    }
+  }
+
   const prepareData = async () => {
     await generateOgImage()
 
@@ -312,22 +345,7 @@ export const CreateMarket: FC = () => {
     const data = await prepareData()
     if (!data) return
     setIsCreating(true)
-    const marketData = {
-      title: data.get('title'),
-      description: data.get('description'),
-      tokenId: Number(data.get('tokenId')),
-      ...(createClobMarket ? {} : { liquidity: Number(data.get('liquidity')) }),
-      ...(createClobMarket
-        ? {}
-        : { initialYesProbability: Number(data.get('initialYesProbability')) }),
-      marketFee: Number(data.get('marketFee')),
-      deadline: Number(data.get('deadline')),
-      isBannered: data.get('isBannered') === 'true',
-      creatorId: data.get('creatorId'),
-      categoryId: data.get('categoryId'),
-      ogFile: data.get('ogFile'),
-      tagIds: data.get('tagIds'),
-    }
+    const marketData = prepareMarketData(data)
     const url = createClobMarket ? '/markets/clob/drafts' : '/markets/drafts'
     privateClient
       .post(url, marketData, {
@@ -356,8 +374,9 @@ export const CreateMarket: FC = () => {
     const data = await prepareData()
     if (!data) return
     setIsCreating(true)
+    const marketData = prepareMarketData(data)
     privateClient
-      .put(`/markets/drafts/${marketId}`, data, {
+      .put(`/markets/drafts/${marketId}`, marketData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

@@ -133,6 +133,12 @@ export default function ClobLimitTradeForm() {
         return privateClient.post('/orders', data)
       }
     },
+    onSuccess: async () => {
+      await sleep(1)
+      await queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      })
+    },
     onError: async () => {
       const id = toast({
         render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
@@ -244,9 +250,6 @@ export default function ClobLimitTradeForm() {
     placeLimitOrderMutation.reset()
     await Promise.allSettled([
       queryClient.refetchQueries({
-        queryKey: ['user-orders', market?.slug],
-      }),
-      queryClient.refetchQueries({
         queryKey: ['market-shares', market?.slug],
       }),
       queryClient.refetchQueries({
@@ -256,6 +259,10 @@ export default function ClobLimitTradeForm() {
         queryKey: ['locked-balance', market?.slug],
       }),
     ])
+    await sleep(2)
+    await queryClient.refetchQueries({
+      queryKey: ['user-orders', market?.slug],
+    })
   }
 
   const handleSubmitButtonClicked = async () => {
@@ -312,6 +319,7 @@ export default function ClobLimitTradeForm() {
         value={price}
         handleInputChange={handleSetLimitPrice}
         showIncrements={true}
+        inputType='number'
       />
       <Flex justifyContent='space-between' alignItems='center' mt='16px' mb='8px'>
         <Text
@@ -332,6 +340,7 @@ export default function ClobLimitTradeForm() {
         handleInputChange={handleSetLimitShares}
         isInvalid={isBalanceNotEnough}
         showIncrements={true}
+        inputType='number'
       />
       <VStack w='full' gap='8px' my='24px'>
         {strategy === 'Buy' ? (
