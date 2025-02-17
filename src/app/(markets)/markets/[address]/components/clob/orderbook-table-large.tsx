@@ -406,7 +406,7 @@ export default function OrderbookTableLarge({
               </Text>
             )}
           </Box>
-          {!!Number(spread) ? (
+          {Boolean(Number(spread)) ? (
             <Box flex={1}>
               <Text {...paragraphRegular} color='grey.500'>
                 Spread {spread}¢
