@@ -434,7 +434,7 @@ export default function ClobMarketTradeForm() {
       <Spacer mt='8px' />
       <NumberInputWithButtons
         id='marketPrice'
-        placeholder='Eg. 85¢'
+        placeholder='Eg. 85'
         max={99.9}
         step={1}
         value={price}

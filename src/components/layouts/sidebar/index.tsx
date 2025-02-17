@@ -31,6 +31,7 @@ import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
+import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { useThemeProvider } from '@/providers'
@@ -70,8 +71,8 @@ export default function Sidebar() {
     account,
     web3Client,
     loginToPlatform,
-    isLoggedIn,
   } = useAccount()
+  const { isLogged } = useClient()
   const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { balanceOfSmartWallet } = useBalanceQuery()
@@ -236,7 +237,7 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        {isLoggedIn ? (
+        {isLogged ? (
           <>
             <VStack mt='16px' w='full' gap='8px'>
               {walletTypeActionButton}
