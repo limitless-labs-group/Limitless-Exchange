@@ -79,7 +79,7 @@ export default function OrderbookTableLarge({
     if (!market?.isRewardable) {
       setShowRewards(false)
     }
-  }, [market])
+  }, [market?.isRewardable])
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
@@ -189,7 +189,7 @@ export default function OrderbookTableLarge({
       <HStack w='full' justifyContent='space-between' mb='14px'>
         <Text {...h3Regular}>Order book</Text>
         <HStack gap='16px'>
-          {showRewards && (
+          {showRewards ? (
             <Box position='relative'>
               <HStack
                 gap='4px'
@@ -235,7 +235,7 @@ export default function OrderbookTableLarge({
                 </Box>
               )}
             </Box>
-          )}
+          ) : null}
           <HStack w={'152px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
             <Button
               h={isMobile ? '28px' : '20px'}
