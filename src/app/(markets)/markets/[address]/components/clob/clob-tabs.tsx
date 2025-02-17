@@ -4,7 +4,7 @@ import { isDesktop, isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
-import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
+import LineChartIcon from '@/resources/icons/line-chart-icon.svg'
 import OrderbookIcon from '@/resources/icons/orderbook.svg'
 import { ChangeEvent, useAmplitude, useTradingService } from '@/services'
 
@@ -37,7 +37,7 @@ export default function ClobTabs() {
     },
     {
       title: 'Chart',
-      icon: <CandlestickIcon width={16} height={16} />,
+      icon: <LineChartIcon width={16} height={16} />,
     },
   ]
 
