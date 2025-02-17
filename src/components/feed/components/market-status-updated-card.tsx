@@ -25,7 +25,7 @@ export default function MarketStatusUpdatedCard({ data }: MarketStatusUpdatedCar
     }
   }
 
-  const { data: market, isLoading: marketLoading } = useMarket(data.data.address)
+  const { data: market, isLoading: marketLoading } = useMarket(data.data.address ?? data.data.slug)
 
   const content = useMemo(() => {
     if (marketLoading || !market) {
