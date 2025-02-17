@@ -1,4 +1,5 @@
 import { Box, Input, InputGroup, InputProps, InputRightElement } from '@chakra-ui/react'
+import { isNumber } from '@chakra-ui/utils'
 import BigNumber from 'bignumber.js'
 import React from 'react'
 import { isMobile } from 'react-device-detect'
@@ -23,7 +24,7 @@ export default function NumberInputWithButtons({
   ...props
 }: NumberInputWithButtonsProps) {
   const handlePlusIconClicked = () => {
-    if (max) {
+    if (isNumber(max)) {
       if (+(value as string) + (step as number) > +max) {
         return
       }
