@@ -171,8 +171,8 @@ export default function OrderBookTableSmall({
         <Text {...h3Regular}>Order book</Text>
         <Box
           position='relative'
-          opacity={market?.isRewardable ? 1 : 0}
-          pointerEvents={market?.isRewardable ? 'auto' : 'none'}
+          opacity={!market?.isRewardable ? 0 : 1}
+          pointerEvents={!market?.isRewardable ? 'none' : 'auto'}
         >
           <HStack
             gap='4px'
