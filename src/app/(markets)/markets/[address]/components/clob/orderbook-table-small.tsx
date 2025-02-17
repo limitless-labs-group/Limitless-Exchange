@@ -388,11 +388,13 @@ export default function OrderBookTableSmall({
               </Text>
             )}
           </Box>
-          <Box flex={1}>
-            <Text {...paragraphRegular} color='grey.500'>
-              Spread {spread}¢
-            </Text>
-          </Box>
+          {!!Number(spread) ? (
+            <Box flex={1}>
+              <Text {...paragraphRegular} color='grey.500'>
+                Spread {spread}¢
+              </Text>
+            </Box>
+          ) : null}
         </HStack>
       )}
       <Box position='relative'>
