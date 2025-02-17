@@ -9,6 +9,7 @@ type NumberInputWithButtonsProps = InputProps & {
   handleInputChange: (val: string) => void
   showIncrements: boolean
   endAdornment?: JSX.Element
+  inputType?: 'text' | 'number' | 'tel' | 'decimal' | 'numeric'
 }
 
 export default function NumberInputWithButtons({
@@ -16,6 +17,7 @@ export default function NumberInputWithButtons({
   showIncrements,
   endAdornment,
   value,
+  inputType = 'text',
   max,
   step,
   ...props
@@ -57,7 +59,7 @@ export default function NumberInputWithButtons({
         autoComplete='off'
         onChange={(e) => handleInputChange(e.target.value.replace(/^0+/, '0').replace(',', '.'))}
         value={value}
-        type='text'
+        type={inputType}
         inputMode='decimal'
         pattern='[0-9,.]*'
       />

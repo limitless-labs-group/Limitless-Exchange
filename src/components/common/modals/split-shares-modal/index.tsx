@@ -55,6 +55,9 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   }
 
   const handleSplitClicked = async () => {
+    trackClicked(ClickEvent.SplitSharesConfirmed, {
+      marketAddress: market?.slug,
+    })
     await splitSharesMutation.mutateAsync({
       amount: displayAmount,
       decimals: market?.collateralToken.decimals || 6,
@@ -196,7 +199,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
         balance,
         market?.collateralToken.symbol === 'USDC' ? 1 : 6
       )
-      return `MAX: ${
+      return `${
         balanceLoading ? (
           <Box w='90px'>
             <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
@@ -211,7 +214,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
 
   const showBalanceWithButtons = useMemo(() => {
     return (
-      <Flex gap='12px'>
+      <Flex gap='8px'>
         {[10, 25, 50, 100].map((title: number) => (
           <Button
             {...paragraphRegular}
@@ -264,6 +267,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
           isInvalid={isExceedsBalance}
           handleInputChange={handleAmountChange}
           showIncrements={false}
+          inputType='number'
           endAdornment={<Text {...paragraphMedium}>USDC</Text>}
         />
       </InputGroup>

@@ -9,7 +9,7 @@ import ButtonWithStates from '@/components/common/button-with-states'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import { Modal } from '@/components/common/modals/modal'
 import NumberInputWithButtons from '@/components/common/number-input-with-buttons'
-import { useAccount, useTradingService } from '@/services'
+import { ClickEvent, useAccount, useAmplitude, useTradingService } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphBold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
@@ -26,6 +26,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   const { web3Wallet } = useAccount()
   const { sharesAvailable } = useClobWidget()
   const queryClient = useQueryClient()
+  const { trackClicked } = useAmplitude()
 
   const sharesAvailableBalance = useMemo(() => {
     if (!sharesAvailable) {
@@ -50,6 +51,9 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   }
 
   const handleMergeClicked = async () => {
+    trackClicked(ClickEvent.MergeSharesConfirmed, {
+      marketAddress: market?.slug,
+    })
     await mergeSharesMutation.mutateAsync({
       amount: displayAmount,
       decimals: market?.collateralToken.decimals || 6,
@@ -109,6 +113,13 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
       await checkMergeAllowance()
     },
   })
+
+  const handleMaxClicked = () => {
+    trackClicked(ClickEvent.MergeSharesModalMaxSharesClicked, {
+      marketAddress: market?.slug,
+    })
+    setDisplayAmount(sharesAvailableBalance)
+  }
 
   const actionButton = useMemo(() => {
     if (client === 'etherspot') {
@@ -185,7 +196,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
             minW='unset'
             h='auto'
             variant='plain'
-            onClick={() => setDisplayAmount(sharesAvailableBalance)}
+            onClick={handleMaxClicked}
             color='grey.500'
             borderBottom='1px dotted'
             borderColor='rgba(132, 132, 132, 0.5)'
@@ -202,6 +213,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
           isInvalid={isExceedsBalance}
           handleInputChange={handleAmountChange}
           showIncrements={false}
+          inputType='number'
           endAdornment={<Text {...paragraphMedium}>Contracts</Text>}
         />
       </InputGroup>

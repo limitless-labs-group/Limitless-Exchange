@@ -56,6 +56,15 @@ export default function ClobMarketTradeForm() {
   const placeMarketOrderMutation = useMutation({
     mutationKey: ['market-order', market?.slug, price],
     mutationFn: async () => {
+      trackClicked(ClickEvent.ConfirmTransactionClicked, {
+        address: market?.slug,
+        outcome: outcome,
+        strategy,
+        walletType: web3Client,
+        marketType: market?.marketType,
+        marketMakerType: 'ClOB',
+        tradingMode: 'market order',
+      })
       if (market) {
         if (web3Client === 'etherspot') {
           if (strategy === 'Sell') {
@@ -113,6 +122,8 @@ export default function ClobMarketTradeForm() {
       marketAddress: market?.slug,
       marketType: market?.marketType,
       marketTags: market?.tags,
+      marketMakerType: 'CLOB',
+      assetType: strategy === 'Buy' ? 'money' : 'contracts',
     })
     if (strategy === 'Buy') {
       if (value == 100) {
@@ -178,7 +189,7 @@ export default function ClobMarketTradeForm() {
               6
             )
       }
-      return `MAX: ${
+      return `${
         balanceLoading ? (
           <Box w='90px'>
             <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
@@ -393,7 +404,7 @@ export default function ClobMarketTradeForm() {
             <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
           </Box>
         ) : (
-          <Flex gap='12px'>
+          <Flex gap='8px'>
             {[10, 25, 50, 100].map((title: number) => (
               <Button
                 {...paragraphRegular}
@@ -429,6 +440,7 @@ export default function ClobMarketTradeForm() {
         value={price}
         handleInputChange={handleInputValueChange}
         showIncrements={false}
+        inputType='number'
         endAdornment={
           <Text {...paragraphMedium} color={'grey.500'}>
             {strategy === 'Buy' ? market?.collateralToken.symbol : 'Contracts'}

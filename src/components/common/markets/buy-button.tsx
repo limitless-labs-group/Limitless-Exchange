@@ -528,6 +528,7 @@ export default function BuyButton({
               walletType: client,
               marketType,
               source: analyticsSource,
+              marketMakerType: 'AMM',
             })
 
             return handleConfirmClicked()
