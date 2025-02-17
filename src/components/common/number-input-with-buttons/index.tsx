@@ -1,4 +1,5 @@
 import { Box, Input, InputGroup, InputProps, InputRightElement } from '@chakra-ui/react'
+import { isNumber } from '@chakra-ui/utils'
 import BigNumber from 'bignumber.js'
 import React from 'react'
 import { isMobile } from 'react-device-detect'
@@ -9,6 +10,7 @@ type NumberInputWithButtonsProps = InputProps & {
   handleInputChange: (val: string) => void
   showIncrements: boolean
   endAdornment?: JSX.Element
+  inputType?: 'text' | 'number' | 'tel' | 'decimal' | 'numeric'
 }
 
 export default function NumberInputWithButtons({
@@ -16,12 +18,13 @@ export default function NumberInputWithButtons({
   showIncrements,
   endAdornment,
   value,
+  inputType = 'text',
   max,
   step,
   ...props
 }: NumberInputWithButtonsProps) {
   const handlePlusIconClicked = () => {
-    if (max) {
+    if (isNumber(max)) {
       if (+(value as string) + (step as number) > +max) {
         return
       }
@@ -57,7 +60,7 @@ export default function NumberInputWithButtons({
         autoComplete='off'
         onChange={(e) => handleInputChange(e.target.value.replace(/^0+/, '0').replace(',', '.'))}
         value={value}
-        type='text'
+        type={inputType}
         inputMode='decimal'
         pattern='[0-9,.]*'
       />

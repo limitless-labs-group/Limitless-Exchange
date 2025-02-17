@@ -189,7 +189,7 @@ export default function ClobMarketTradeForm() {
               6
             )
       }
-      return `MAX: ${
+      return `${
         balanceLoading ? (
           <Box w='90px'>
             <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
@@ -404,7 +404,7 @@ export default function ClobMarketTradeForm() {
             <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
           </Box>
         ) : (
-          <Flex gap='12px'>
+          <Flex gap='8px'>
             {[10, 25, 50, 100].map((title: number) => (
               <Button
                 {...paragraphRegular}
@@ -434,12 +434,13 @@ export default function ClobMarketTradeForm() {
       <Spacer mt='8px' />
       <NumberInputWithButtons
         id='marketPrice'
-        placeholder='Eg. 85¢'
+        placeholder='Eg. 85'
         max={99.9}
         step={1}
         value={price}
         handleInputChange={handleInputValueChange}
         showIncrements={false}
+        inputType='number'
         endAdornment={
           <Text {...paragraphMedium} color={'grey.500'}>
             {strategy === 'Buy' ? market?.collateralToken.symbol : 'Contracts'}

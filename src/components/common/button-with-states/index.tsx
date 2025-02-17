@@ -61,5 +61,12 @@ export default function ButtonWithStates({
     }
   }, [status])
 
-  return <Button {...props}>{buttonContent}</Button>
+  //avoid chakra's disabled styles
+  const isDisabled = status === 'pending' || status === 'success'
+
+  return (
+    <Button {...props} pointerEvents={isDisabled ? 'none' : 'unset'}>
+      {buttonContent}
+    </Button>
+  )
 }

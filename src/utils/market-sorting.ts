@@ -28,6 +28,10 @@ const getValueForMarket = (market: MarketOrGroup): number => {
   )
 }
 
+const getMarketTradeType = (market: MarketOrGroup): string => {
+  return (market as Market).tradeType
+}
+
 export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | MarketGroup)[]>(
   markets: T,
   sortType: Sort,
@@ -80,6 +84,12 @@ export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | Marke
           convertTokenAmountToUsd(b.collateralToken.symbol, valueB) -
           convertTokenAmountToUsd(a.collateralToken.symbol, valueA)
         )
+      }) as T
+
+    case Sort.LP_REWARDS:
+      return marketsCopy.filter((a) => {
+        const type = getMarketTradeType(a)
+        return type === 'clob'
       }) as T
 
     default:

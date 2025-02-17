@@ -27,7 +27,13 @@ type SortFilterProps = {
   storageName: SortStorageName
 }
 
-const sortOptions = [Sort.ENDING_SOON, Sort.HIGHEST_VALUE, Sort.HIGHEST_VOLUME, Sort.NEWEST]
+const sortOptions = [
+  Sort.ENDING_SOON,
+  Sort.HIGHEST_VALUE,
+  Sort.HIGHEST_VOLUME,
+  Sort.NEWEST,
+  Sort.LP_REWARDS,
+]
 
 export default function SortFilter({ onChange, storageName }: SortFilterProps) {
   const [selectedSortFilter, setSelectedSortFilter] = useState<Sort>(
@@ -58,32 +64,34 @@ export default function SortFilter({ onChange, storageName }: SortFilterProps) {
       {...(isMobile ? mobileStyles : desktopStyles)}
     >
       <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.100' borderRadius='8px'>
-        {sortOptions.map((option) => (
-          <Button
-            variant='grey'
-            key={uuidv4()}
-            bg={option === selectedSortFilter ? 'grey.50' : 'unset'}
-            onClick={() => {
-              trackClicked(ClickEvent.SortClicked, {
-                oldValue: selectedSortFilter,
-                newValue: option,
-              })
-              handleFilterItemClicked(option)
-            }}
-            _hover={{ bg: option === selectedSortFilter ? 'grey.50' : 'grey.400' }}
-            borderRadius='8px'
-            h={isMobile ? '28px' : '20px'}
-            whiteSpace='nowrap'
-            {...paragraphMedium}
-            fontSize={isMobile ? '13px' : 'unset'}
-            color={'grey.800'}
-            p={'2px 12px 2px 12px'}
-            marginInlineStart='0px !important'
-            position={isMobile ? 'unset' : 'relative'}
-          >
-            {option}
-          </Button>
-        ))}
+        {sortOptions
+          .filter((option) => !isMobile || option !== Sort.LP_REWARDS)
+          .map((option) => (
+            <Button
+              variant='grey'
+              key={uuidv4()}
+              bg={option === selectedSortFilter ? 'grey.50' : 'unset'}
+              onClick={() => {
+                trackClicked(ClickEvent.SortClicked, {
+                  oldValue: selectedSortFilter,
+                  newValue: option,
+                })
+                handleFilterItemClicked(option)
+              }}
+              _hover={{ bg: option === selectedSortFilter ? 'grey.50' : 'grey.400' }}
+              borderRadius='8px'
+              h={isMobile ? '28px' : '20px'}
+              whiteSpace='nowrap'
+              {...paragraphMedium}
+              fontSize={isMobile ? '13px' : 'unset'}
+              color={'grey.800'}
+              p={'2px 12px 2px 12px'}
+              marginInlineStart='0px !important'
+              position={isMobile ? 'unset' : 'relative'}
+            >
+              {option}
+            </Button>
+          ))}
       </ButtonGroup>
     </HStack>
   )

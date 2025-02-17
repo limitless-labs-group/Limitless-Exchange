@@ -213,6 +213,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
           isInvalid={isExceedsBalance}
           handleInputChange={handleAmountChange}
           showIncrements={false}
+          inputType='number'
           endAdornment={<Text {...paragraphMedium}>Contracts</Text>}
         />
       </InputGroup>

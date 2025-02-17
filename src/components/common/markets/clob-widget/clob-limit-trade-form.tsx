@@ -1,4 +1,5 @@
 import { Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { isNumber } from '@chakra-ui/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -50,6 +51,11 @@ export default function ClobLimitTradeForm() {
   const privyService = usePrivySendTransaction()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
+
+  const maxSharesAvailable =
+    strategy === 'Sell'
+      ? +formatUnits(sharesAvailable[outcome ? 'no' : 'yes'], market?.collateralToken.decimals || 6)
+      : undefined
 
   const handlePercentButtonClicked = (value: number) => {
     trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
@@ -133,6 +139,12 @@ export default function ClobLimitTradeForm() {
         return privateClient.post('/orders', data)
       }
     },
+    onSuccess: async () => {
+      await sleep(1)
+      await queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      })
+    },
     onError: async () => {
       const id = toast({
         render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
@@ -157,7 +169,7 @@ export default function ClobLimitTradeForm() {
             formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
             6
           )
-      return `MAX: ${balanceToShow}`
+      return `${balanceToShow}`
     }
     return `${title}%`
   }
@@ -180,7 +192,7 @@ export default function ClobLimitTradeForm() {
   const showSellBalance = useMemo(() => {
     if (strategy === 'Sell') {
       return (
-        <Flex gap='12px'>
+        <Flex gap='8px'>
           {[10, 25, 50, 100].map((title: number) => (
             <Button
               {...paragraphRegular}
@@ -244,9 +256,6 @@ export default function ClobLimitTradeForm() {
     placeLimitOrderMutation.reset()
     await Promise.allSettled([
       queryClient.refetchQueries({
-        queryKey: ['user-orders', market?.slug],
-      }),
-      queryClient.refetchQueries({
         queryKey: ['market-shares', market?.slug],
       }),
       queryClient.refetchQueries({
@@ -256,6 +265,10 @@ export default function ClobLimitTradeForm() {
         queryKey: ['locked-balance', market?.slug],
       }),
     ])
+    await sleep(2)
+    await queryClient.refetchQueries({
+      queryKey: ['user-orders', market?.slug],
+    })
   }
 
   const handleSubmitButtonClicked = async () => {
@@ -308,10 +321,11 @@ export default function ClobLimitTradeForm() {
         id='limitPrice'
         placeholder='Eg. 85¢'
         max={99.9}
-        step={1}
+        step={0.1}
         value={price}
         handleInputChange={handleSetLimitPrice}
         showIncrements={true}
+        inputType='number'
       />
       <Flex justifyContent='space-between' alignItems='center' mt='16px' mb='8px'>
         <Text
@@ -327,11 +341,13 @@ export default function ClobLimitTradeForm() {
       <NumberInputWithButtons
         id='contractsAmount'
         step={1}
+        max={isNumber(maxSharesAvailable) ? maxSharesAvailable : undefined}
         placeholder='Eg. 32'
         value={sharesAmount}
         handleInputChange={handleSetLimitShares}
         isInvalid={isBalanceNotEnough}
         showIncrements={true}
+        inputType='number'
       />
       <VStack w='full' gap='8px' my='24px'>
         {strategy === 'Buy' ? (

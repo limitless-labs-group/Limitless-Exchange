@@ -113,6 +113,9 @@ export const MarketPriceChart = () => {
     },
     plotOptions: {
       series: {
+        dataSorting: {
+          enabled: false,
+        },
         lineWidth: 4,
         marker: {
           enabled: false,
