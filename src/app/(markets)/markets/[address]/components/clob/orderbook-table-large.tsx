@@ -406,11 +406,13 @@ export default function OrderbookTableLarge({
               </Text>
             )}
           </Box>
-          <Box flex={1}>
-            <Text {...paragraphRegular} color='grey.500'>
-              Spread {spread}¢
-            </Text>
-          </Box>
+          {Boolean(Number(spread)) ? (
+            <Box flex={1}>
+              <Text {...paragraphRegular} color='grey.500'>
+                Spread {spread}¢
+              </Text>
+            </Box>
+          ) : null}
         </HStack>
       )}
       {!orderbook || orderBookLoading ? (
