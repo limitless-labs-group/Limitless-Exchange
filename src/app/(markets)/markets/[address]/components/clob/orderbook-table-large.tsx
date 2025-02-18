@@ -67,19 +67,11 @@ export default function OrderbookTableLarge({
   const [linkHovered, setLinkHovered] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const [showRewards, setShowRewards] = useState(true)
-
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight
     }
   }, [outcome])
-
-  useEffect(() => {
-    if (!market?.isRewardable) {
-      setShowRewards(false)
-    }
-  }, [market?.isRewardable])
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
@@ -140,7 +132,7 @@ export default function OrderbookTableLarge({
         </Link>
       </NextLink>
       <HStack w='full' mt='12px' justifyContent='space-between'>
-        <Text {...paragraphMedium}>Reward:</Text>
+        <Text {...paragraphMedium}>Daily reward:</Text>
         <Text {...paragraphMedium}>
           {marketRewardsTotal?.totalRewards ? marketRewardsTotal.totalRewards.toFixed(0) : '200'}{' '}
           {market?.collateralToken.symbol}
@@ -189,53 +181,51 @@ export default function OrderbookTableLarge({
       <HStack w='full' justifyContent='space-between' mb='14px'>
         <Text {...h3Regular}>Order book</Text>
         <HStack gap='16px'>
-          {showRewards ? (
-            <Box position='relative'>
-              <HStack
-                gap='4px'
-                borderRadius='8px'
-                py='4px'
-                px='8px'
-                bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
-                cursor='pointer'
-                onClick={handleRewardsClicked}
-                onMouseEnter={() => {
-                  const timer = setTimeout(() => {
-                    setRewardButtonHovered(true)
-                  }, 300)
-                  return () => clearTimeout(timer)
-                }}
-                onMouseLeave={() => setRewardButtonHovered(false)}
-                ref={ref as LegacyRef<HTMLDivElement>}
+          <Box position='relative'>
+            <HStack
+              gap='4px'
+              borderRadius='8px'
+              py='4px'
+              px='8px'
+              bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
+              cursor='pointer'
+              onClick={handleRewardsClicked}
+              onMouseEnter={() => {
+                const timer = setTimeout(() => {
+                  setRewardButtonHovered(true)
+                }, 300)
+                return () => clearTimeout(timer)
+              }}
+              onMouseLeave={() => setRewardButtonHovered(false)}
+              ref={ref as LegacyRef<HTMLDivElement>}
+            >
+              <GemIcon />
+              <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
+                {marketRewards && Boolean(marketRewards?.length)
+                  ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
+                      market?.collateralToken.symbol
+                    }`
+                  : 'Earn Rewards'}
+              </Text>
+            </HStack>
+            {(rewardsButtonClicked || rewardButtonHovered) && (
+              <Box
+                position='absolute'
+                bg='grey.50'
+                border='1px solid'
+                borderColor='grey.200'
+                boxShadow='0px 1px 4px 0px rgba(2, 6, 23, 0.05)'
+                w='260px'
+                p='8px'
+                rounded='8px'
+                right={0}
+                minH='128px'
+                zIndex={150}
               >
-                <GemIcon />
-                <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
-                  {marketRewards && Boolean(marketRewards?.length)
-                    ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
-                        market?.collateralToken.symbol
-                      }`
-                    : 'Earn Rewards'}
-                </Text>
-              </HStack>
-              {(rewardsButtonClicked || rewardButtonHovered) && (
-                <Box
-                  position='absolute'
-                  bg='grey.50'
-                  border='1px solid'
-                  borderColor='grey.200'
-                  boxShadow='0px 1px 4px 0px rgba(2, 6, 23, 0.05)'
-                  w='260px'
-                  p='8px'
-                  rounded='8px'
-                  right={0}
-                  minH='128px'
-                  zIndex={150}
-                >
-                  {tooltipContent}
-                </Box>
-              )}
-            </Box>
-          ) : null}
+                {tooltipContent}
+              </Box>
+            )}
+          </Box>
           <HStack w={'152px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
             <Button
               h={isMobile ? '28px' : '20px'}
