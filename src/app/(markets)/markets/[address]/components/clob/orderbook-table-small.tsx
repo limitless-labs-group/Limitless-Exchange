@@ -209,6 +209,12 @@ export default function OrderBookTableSmall({
               right={0}
               minH='128px'
               zIndex={150}
+              onMouseEnter={() => setRewardButtonHovered(true)}
+              onMouseLeave={() => {
+                if (!linkHovered) {
+                  setRewardButtonHovered(false)
+                }
+              }}
             >
               {tooltipContent}
             </Box>
