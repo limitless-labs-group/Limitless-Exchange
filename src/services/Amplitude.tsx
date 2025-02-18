@@ -125,7 +125,7 @@ export enum ChangeEvent {
   OrderBookSideChanged = 'Orderbook Side Changed',
   ClobPositionsTabChanged = 'Clob Positions Tab Changed',
   ClobWidgetModeChanged = 'Clob Widget Mode Changed',
-  ChartTabChanged = 'Chart Tab Changed',
+  ChartTabChanged = 'Chart View Changed',
   PortfolioClobViewChanged = 'Portfolio/Orders View Changed',
 }
 
