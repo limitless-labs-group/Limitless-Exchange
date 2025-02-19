@@ -1,16 +1,16 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import axios, { AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import { createContext, PropsWithChildren, useContext, useMemo } from 'react'
 import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { useToast } from '@/hooks'
 import { useAccount } from '@/services/AccountService'
 import { limitlessApi } from '@/services/LimitlessApi'
-import { CommentPost, LikePost, LikesGet } from '@/types'
+import { CommentPost, LikePost } from '@/types'
 
 export interface IUseCreateComment {
   content: string
-  marketAddress: string
+  marketSlug: string
 }
 
 export interface ILikeComment {
@@ -37,15 +37,15 @@ export const CommentServiceProvider = ({ children }: PropsWithChildren) => {
     isSuccess: isPostCommentSuccess,
   } = useMutation({
     mutationKey: ['create-comment'],
-    mutationFn: async ({ content, marketAddress }: IUseCreateComment): Promise<CommentPost> => {
+    mutationFn: async ({ content, marketSlug }: IUseCreateComment): Promise<CommentPost> => {
       const res = await privateClient.post(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/comments`, {
         content,
-        marketAddress,
+        marketSlug,
       })
       return res.data
     },
-    onSuccess: (_, { marketAddress }) => {
-      queryClient.invalidateQueries({ queryKey: ['market-comments', marketAddress] })
+    onSuccess: (_, { marketSlug }) => {
+      queryClient.invalidateQueries({ queryKey: ['market-comments', marketSlug] })
     },
     onError: () => {
       const id = toast({
@@ -70,18 +70,18 @@ export const CommentServiceProvider = ({ children }: PropsWithChildren) => {
 
 export const useCommentService = () => useContext(CommentServiceContext)
 
-export const useMarketInfinityComments = (marketAddress?: string) => {
-  const { isLoggedIn } = useAccount()
+export const useMarketInfinityComments = (marketAddress?: string | null) => {
+  const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
   const {
     data: comments,
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery<Comment[], Error>({
-    queryKey: ['market-comments', marketAddress],
+    queryKey: ['market-comments', web3Wallet?.account?.address],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      const client = isLoggedIn ? privateClient : limitlessApi
+      const client = web3Wallet ? privateClient : limitlessApi
       const response: AxiosResponse<Comment[]> = await client.get(
         `/comments/markets/${marketAddress}`,
         {
@@ -114,6 +114,7 @@ export const useMarketInfinityComments = (marketAddress?: string) => {
 export const useLikeComment = (id: number) => {
   const { isLoggedIn } = useAccount()
   const privateClient = useAxiosPrivateClient()
+  const queryClient = useQueryClient()
   return useMutation({
     mutationKey: ['like-comment', id],
     mutationFn: async (): Promise<LikePost> => {
@@ -122,12 +123,16 @@ export const useLikeComment = (id: number) => {
       const res = await privateClient.post(`/comments/${id}/like`)
       return res.data
     },
+    onSuccess: () => {
+      queryClient.refetchQueries({ queryKey: ['likes', id] })
+    },
   })
 }
 
 export const useUnlikeComment = (id: number) => {
   const { isLoggedIn } = useAccount()
   const privateClient = useAxiosPrivateClient()
+  const queryClient = useQueryClient()
   return useMutation({
     mutationKey: ['unlike-comment', id],
     mutationFn: async (): Promise<LikePost> => {
@@ -135,6 +140,9 @@ export const useUnlikeComment = (id: number) => {
 
       const res = await privateClient.post(`/comments/${id}/unlike`)
       return res.data
+    },
+    onSuccess: () => {
+      queryClient.refetchQueries({ queryKey: ['likes', id] })
     },
   })
 }

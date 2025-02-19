@@ -27,12 +27,14 @@ export default function useSmartWalletService() {
     data: `0x${string}`,
     value?: bigint
   ) => {
+    const nonce = await smartAccountClient?.account?.getNonce()
     const txHash = await smartAccountClient?.sendTransaction({
       // @ts-ignore
       from: smartAccountClient.account?.address,
       to: contract.address as Address,
       data,
       value,
+      nonce: nonce ? +nonce.toString() : undefined,
     })
     return txHash as string
   }
@@ -200,6 +202,61 @@ export default function useSmartWalletService() {
     return transactionHash
   }
 
+  const splitPositions = async (
+    collateralAddress: Address,
+    conditionId: string,
+    amount: bigint
+  ) => {
+    await approveCollateralIfNeeded(
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+      maxUint256,
+      collateralAddress as Address
+    )
+    const contract = getContract({
+      address: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+      abi: conditionalTokensABI,
+      client: publicClient,
+    })
+    const data = encodeFunctionData({
+      abi: conditionalTokensABI,
+      functionName: 'splitPosition',
+      args: [
+        collateralAddress,
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+        conditionId,
+        [1, 2],
+        amount,
+      ],
+    })
+    const transactionHash = await sendTransaction(contract, data)
+    return transactionHash
+  }
+
+  const mergePositions = async (collateralToken: Address, conditionId: string, amount: bigint) => {
+    await approveConditionalIfNeeded(
+      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+    )
+    const contract = getContract({
+      address: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+      abi: conditionalTokensABI,
+      client: publicClient,
+    })
+    const data = encodeFunctionData({
+      abi: conditionalTokensABI,
+      functionName: 'mergePositions',
+      args: [
+        collateralToken,
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+        conditionId,
+        [1, 2],
+        amount,
+      ],
+    })
+    const transactionHash = await sendTransaction(contract, data)
+    return transactionHash
+  }
+
   return {
     buyOutcomeTokens,
     wrapEth,
@@ -209,5 +266,9 @@ export default function useSmartWalletService() {
     transferEthers,
     transferErc20,
     sendTransaction,
+    splitPositions,
+    mergePositions,
+    approveCollateralIfNeeded,
+    approveConditionalIfNeeded,
   }
 }

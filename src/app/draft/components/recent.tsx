@@ -53,7 +53,14 @@ export const RecentMarkets = () => {
         const id = toast({
           render: () => <Toast title={`Markets are duplicated`} id={id} />,
         })
-        router.push('/draft?tab=queue')
+
+        const selectedMarketsTypes = recentMarkets
+          .filter((market: DraftMarket) => selectedMarketIds.includes(market.id))
+          .map((market: DraftMarket) => market.type)
+
+        const hasAmm = selectedMarketsTypes.includes('amm')
+        const type = hasAmm ? 'amm' : 'clob'
+        router.push(`/draft?tab=queue-${type}`)
       })
       .catch((res) => {
         const id = toast({
@@ -66,8 +73,8 @@ export const RecentMarkets = () => {
   }
 
   return (
-    <Flex justifyContent={'center'}>
-      <VStack w='868px' spacing={4}>
+    <Flex justifyContent={'center'} position='relative'>
+      <VStack w='868px' spacing={4} mb='66px'>
         {recentMarkets?.map((market: DraftMarket) => {
           return (
             <DraftMarketCard
@@ -83,8 +90,7 @@ export const RecentMarkets = () => {
             <Spinner />
           </Box>
         ) : (
-          <Box style={{ width: '100%', position: 'sticky', bottom: 40 }}>
-            <SelectedMarkets market={selectedMarket} />
+          <Box style={{ width: '100%', maxWidth: '868px', position: 'fixed', bottom: 20 }}>
             <Button
               colorScheme='green'
               mt='16px'
@@ -97,6 +103,16 @@ export const RecentMarkets = () => {
           </Box>
         )}
       </VStack>
+      <Box
+        position='fixed'
+        right='24px'
+        top='80px'
+        maxWidth='350px'
+        w='full'
+        display={selectedMarket.length > 0 ? 'block' : 'none'}
+      >
+        <SelectedMarkets market={selectedMarket} />
+      </Box>
     </Flex>
   )
 }

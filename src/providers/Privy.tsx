@@ -24,6 +24,13 @@ export default function PrivyAuthProvider({ children }: PropsWithChildren) {
       createOnLogin: 'users-without-wallets',
       showWalletUIs: false,
     },
+    fundingMethodConfig: {
+      moonpay: {
+        paymentMethod: 'credit_debit_card',
+        uiConfig: { accentColor: 'var(--chakra-colors-blue-500)', theme: mode },
+        useSandbox: process.env.NEXT_PUBLIC_NETWORK === 'testnet',
+      },
+    },
     defaultChain: defaultChain,
     supportedChains: [baseSepolia, base],
     loginMethods: ['email', 'wallet', 'google', 'farcaster', 'discord'],

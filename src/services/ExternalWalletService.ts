@@ -1,3 +1,5 @@
+import { EIP712TypedData } from '@polymarket/order-utils'
+import { useSignTypedData } from '@privy-io/react-auth'
 import { Address, encodeFunctionData, erc20Abi, getContract } from 'viem'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
@@ -6,6 +8,7 @@ import { useAccount } from '@/services/AccountService'
 import { useLimitlessApi } from '@/services/LimitlessApi'
 
 export const useExternalWalletService = () => {
+  const { signTypedData: signTypedDataAsync } = useSignTypedData()
   const { supportedTokens } = useLimitlessApi()
   const { web3Wallet } = useAccount()
 
@@ -253,6 +256,11 @@ export const useExternalWalletService = () => {
     marketConditionId: Address,
     indexSets: number[]
   ) => {
+    console.log(conditionalTokensAddress)
+    console.log(collateralAddress)
+    console.log(parentCollectionId)
+    console.log(marketConditionId)
+    console.log(indexSets)
     try {
       await checkAndSwitchChainIfNeeded()
       const data = encodeFunctionData({
@@ -276,6 +284,68 @@ export const useExternalWalletService = () => {
     }
   }
 
+  const splitPositions = async (
+    collateralAddress: Address,
+    conditionId: string,
+    amount: bigint
+  ) => {
+    try {
+      await checkAndSwitchChainIfNeeded()
+      const data = encodeFunctionData({
+        abi: conditionalTokensABI,
+        functionName: 'splitPosition',
+        args: [
+          collateralAddress,
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+          conditionId,
+          [1, 2],
+          amount,
+        ],
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        return web3Wallet.sendTransaction({
+          data,
+          to: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+      }
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
+  }
+
+  const mergePositions = async (collateralToken: Address, conditionId: string, amount: bigint) => {
+    try {
+      await checkAndSwitchChainIfNeeded()
+      const data = encodeFunctionData({
+        abi: conditionalTokensABI,
+        functionName: 'mergePositions',
+        args: [
+          collateralToken,
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+          conditionId,
+          [1, 2],
+          amount,
+        ],
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        return web3Wallet.sendTransaction({
+          data,
+          to: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+      }
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
+  }
+
   const checkAndSwitchChainIfNeeded = async () => {
     if (web3Wallet) {
       await web3Wallet.switchChain(defaultChain)
@@ -291,6 +361,12 @@ export const useExternalWalletService = () => {
     return contract.read.balanceOf(['0x6bb3d8A69656d1865708242223190a29D3a7E3c7'])
   }
 
+  const signTypedData = async (typedData: EIP712TypedData) => {
+    await checkAndSwitchChainIfNeeded()
+    // @ts-ignore
+    return web3Wallet?.signTypedData(typedData) as Promise<string>
+  }
+
   return {
     wrapEth,
     unwrapEth,
@@ -304,5 +380,8 @@ export const useExternalWalletService = () => {
     approveContractForAllEOA,
     redeemPositions,
     checkLumyAccountBalance,
+    signTypedData,
+    splitPositions,
+    mergePositions,
   }
 }

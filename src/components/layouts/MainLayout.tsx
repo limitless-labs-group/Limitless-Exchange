@@ -51,7 +51,12 @@ export const MainLayout = ({
 
         {isMobile && <MobileHeader />}
       </Box>
-      <Box mt='20px' mb={isMobile ? '60px' : 0} pt={isMobile && pathname !== '/lumy' ? '88px' : 0}>
+      <Box
+        mt='20px'
+        mb={isMobile ? '60px' : 0}
+        pt={isMobile && pathname !== '/lumy' ? '88px' : 0}
+        overflow='hidden'
+      >
         <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
           {!isMobile && <Sidebar />}
           {isLoading ? (
@@ -66,7 +71,7 @@ export const MainLayout = ({
         </HStack>
       </Box>
       {isMobile && <MobileNavigation />}
-      {marketPageOpened && pathname !== `/markets/${market?.address}` && <MarketPage />}
+      {marketPageOpened && pathname !== `/markets/${market?.slug}` && <MarketPage />}
     </Box>
   )
 }

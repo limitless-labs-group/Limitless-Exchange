@@ -5,6 +5,7 @@ import {
   useQuery,
 } from '@tanstack/react-query'
 import { Multicall } from 'ethereum-multicall'
+import { ethers } from 'ethers'
 import { usePathname } from 'next/navigation'
 import {
   createContext,
@@ -268,10 +269,9 @@ export const useBalanceQuery = () => {
       }
 
       const multicall = new Multicall({
-        // ethersProvider: new ethers.providers.JsonRpcProvider(
-        //   defaultChain.rpcUrls.default.http.toString()
-        // ),
-        nodeUrl: defaultChain.rpcUrls.default.http.toString(),
+        ethersProvider: new ethers.providers.JsonRpcProvider(
+          defaultChain.rpcUrls.default.http.toString()
+        ),
         tryAggregate: true,
         multicallCustomContractAddress: defaultChain.contracts.multicall3.address,
       })

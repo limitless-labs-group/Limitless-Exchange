@@ -2,7 +2,7 @@ import { Address, createPublicClient, formatUnits, getContract, http, parseUnits
 import { defaultChain } from '@/constants'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { TradeQuotes } from '@/services'
-import { Market, Token } from '@/types'
+import { Market } from '@/types'
 
 export function getViemClient() {
   const client = createPublicClient({

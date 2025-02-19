@@ -22,7 +22,6 @@ import BigNumber from 'bignumber.js'
 import debounce from 'lodash.debounce'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Address } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import TradeWidgetSkeleton, {
   SkeletonType,
@@ -39,6 +38,7 @@ import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
 import {
   ClickEvent,
+  HistoryPositionWithType,
   TradeClickedMetadata,
   TradeQuotes,
   useAmplitude,
@@ -114,30 +114,32 @@ export function SellForm({
   const positions = useMemo(
     () =>
       allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
-      ),
+        (position) =>
+          position.type === 'amm' &&
+          position.market.id.toLowerCase() === market?.address?.toLowerCase()
+      ) as HistoryPositionWithType[],
     [allMarketsPositions, market]
   )
 
-  const positionsGroup = useMemo(() => {
-    if (marketGroup) {
-      return allMarketsPositions?.filter((position) =>
-        marketGroup.markets.some((market) => market.address === position.market.id)
-      )
-    }
-  }, [marketGroup, allMarketsPositions])
+  // const positionsGroup = useMemo(() => {
+  //   if (marketGroup) {
+  //     return allMarketsPositions?.filter((position) =>
+  //       marketGroup.markets.some((market) => market.address === position.market.id)
+  //     )
+  //   }
+  // }, [marketGroup, allMarketsPositions])
 
-  const getTotalContractsAmount = (address: Address) => {
-    const positionsForMarket = positionsGroup?.filter(
-      (position) => position.market.id.toLowerCase() === address.toLowerCase()
-    )
-    if (!positionsForMarket) {
-      return '0'
-    }
-    return positionsForMarket.reduce((a, b) => {
-      return new BigNumber(a).plus(new BigNumber(b.outcomeTokenAmount || '0')).toString()
-    }, '0')
-  }
+  // const getTotalContractsAmount = (address: Address) => {
+  //   const positionsForMarket = positionsGroup?.filter(
+  //     (position) => position.market.id.toLowerCase() === address.toLowerCase()
+  //   )
+  //   if (!positionsForMarket) {
+  //     return '0'
+  //   }
+  //   return positionsForMarket.reduce((a, b) => {
+  //     return new BigNumber(a).plus(new BigNumber(b.outcomeTokenAmount || '0')).toString()
+  //   }, '0')
+  // }
 
   /**
    * ANALITYCS
@@ -317,7 +319,7 @@ export function SellForm({
 
   const handleApproveClicked = async () => {
     trackClicked(ClickEvent.SellApproveClicked, {
-      address: market?.address,
+      marketAddress: market?.slug,
       // @ts-ignore
       outcome: outcomeChoice === 'yes' ? 'Yes' : 'No',
       walletType: 'eoa',
@@ -459,39 +461,42 @@ export function SellForm({
               </HStack>
             </Button>
           </Box>
-          {isOpenSelectMarketMenu && (
-            <VStack
-              gap={isMobile ? '16px' : '8px'}
-              mb={isMobile ? '16px' : '8px'}
-              mx={isMobile ? '16px' : 0}
-            >
-              {marketGroup?.markets.map((market) => (
-                <Button
-                  key={market.address}
-                  onClick={() => {
-                    setSelectedMarket && setSelectedMarket(market)
-                    onToggleSelectMarketMenu()
-                    setOutcomeChoice(null)
-                  }}
-                  flexDirection='column'
-                  variant='transparentLight'
-                  w='full'
-                >
-                  <HStack mb='8px' w='full'>
-                    <HStack justifyContent='space-between' w='full' alignItems='flex-start'>
-                      <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
-                        {market?.proxyTitle ?? market?.title}
-                      </Text>
-                      <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
-                        {NumberUtil.formatThousands(getTotalContractsAmount(market.address), 6)}{' '}
-                        Contracts
-                      </Text>
-                    </HStack>
-                  </HStack>
-                </Button>
-              ))}
-            </VStack>
-          )}
+          {/*{isOpenSelectMarketMenu && (*/}
+          {/*  <VStack*/}
+          {/*    gap={isMobile ? '16px' : '8px'}*/}
+          {/*    mb={isMobile ? '16px' : '8px'}*/}
+          {/*    mx={isMobile ? '16px' : 0}*/}
+          {/*  >*/}
+          {/*    {marketGroup?.markets.map((market) => (*/}
+          {/*      <Button*/}
+          {/*        key={market.address}*/}
+          {/*        onClick={() => {*/}
+          {/*          setSelectedMarket && setSelectedMarket(market)*/}
+          {/*          onToggleSelectMarketMenu()*/}
+          {/*          setOutcomeChoice(null)*/}
+          {/*        }}*/}
+          {/*        flexDirection='column'*/}
+          {/*        variant='transparentLight'*/}
+          {/*        w='full'*/}
+          {/*      >*/}
+          {/*        <HStack mb='8px' w='full'>*/}
+          {/*          <HStack justifyContent='space-between' w='full' alignItems='flex-start'>*/}
+          {/*            <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>*/}
+          {/*              {market?.proxyTitle ?? market?.title}*/}
+          {/*            </Text>*/}
+          {/*            <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>*/}
+          {/*              {NumberUtil.formatThousands(*/}
+          {/*                getTotalContractsAmount(market.address as Address),*/}
+          {/*                6*/}
+          {/*              )}{' '}*/}
+          {/*              Contracts*/}
+          {/*            </Text>*/}
+          {/*          </HStack>*/}
+          {/*        </HStack>*/}
+          {/*      </Button>*/}
+          {/*    ))}*/}
+          {/*  </VStack>*/}
+          {/*)}*/}
         </>
       )}
       {!isOpenSelectMarketMenu && (
@@ -796,6 +801,8 @@ export function SellForm({
                       color: 'var(--chakra-colors-text-100)',
                     }}
                     type='number'
+                    inputMode='decimal'
+                    pattern='[0-9]*'
                   />
                   <InputRightElement
                     h='16px'

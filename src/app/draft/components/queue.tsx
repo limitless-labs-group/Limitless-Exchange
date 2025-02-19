@@ -9,6 +9,7 @@ import { DraftMarket, DraftMarketCard } from '@/app/draft/components/draft-card'
 import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import { DraftMarketResponse } from '@/types/draft'
 
 export const DraftMarketsQueue = () => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
@@ -17,11 +18,13 @@ export const DraftMarketsQueue = () => {
 
   const router = useRouter()
   const { data: draftMarkets } = useQuery({
-    queryKey: ['draftMarkets'],
+    queryKey: ['draftMarkets-amm'],
     queryFn: async () => {
       const response = await privateClient.get(`/markets/drafts`)
 
-      return response.data
+      return response.data.filter(
+        (market: DraftMarketResponse) => !market.type || market?.type === 'amm'
+      )
     },
   })
 
@@ -84,8 +87,8 @@ export const DraftMarketsQueue = () => {
   }
 
   return (
-    <Flex justifyContent={'center'}>
-      <VStack w='868px' spacing={4}>
+    <Flex justifyContent={'center'} position='relative'>
+      <VStack w='868px' spacing={4} mb='66px'>
         {draftMarkets?.map((market: DraftMarket) => {
           return (
             <DraftMarketCard
@@ -102,12 +105,22 @@ export const DraftMarketsQueue = () => {
           mt='16px'
           w={'full'}
           onClick={createMarketsBatch}
-          style={{ position: 'sticky', bottom: 40 }}
+          style={{ width: '100%', maxWidth: '868px', position: 'fixed', bottom: 20 }}
           isDisabled={isCreating}
         >
           {isCreating ? <Spinner /> : 'Create Markets Batch'}
         </Button>
       </VStack>
+      <Box
+        position='fixed'
+        right='24px'
+        top='80px'
+        maxWidth='350px'
+        w='full'
+        display={selectedMarket.length > 0 ? 'block' : 'none'}
+      >
+        <SelectedMarkets market={selectedMarket} />
+      </Box>
     </Flex>
   )
 }

@@ -1,7 +1,7 @@
 import { HStack } from '@chakra-ui/react'
-import { useMemo } from 'react'
 import React from 'react'
 import { useMarketFeed } from '@/hooks/use-market-feed'
+import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import { useTradingService } from '@/services'
 import Avatar from '../avatar'
 
@@ -12,23 +12,9 @@ type UniqueTradersProps = {
 export const UniqueTraders = React.memo(({ color }: UniqueTradersProps) => {
   const { market } = useTradingService()
 
-  const { data: marketFeedData } = useMarketFeed(market?.address)
+  const { data: marketFeedData } = useMarketFeed(market)
 
-  const uniqueUsersTrades = useMemo(() => {
-    if (marketFeedData?.data.length) {
-      const uniqueUsers = new Map()
-
-      for (const event of marketFeedData.data) {
-        if (!uniqueUsers.has(event.user?.account)) {
-          uniqueUsers.set(event.user?.account, event)
-        }
-        if (uniqueUsers.size >= 3) break
-      }
-
-      return Array.from(uniqueUsers.values())
-    }
-    return null
-  }, [marketFeedData])
+  const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
 
   return (
     <>

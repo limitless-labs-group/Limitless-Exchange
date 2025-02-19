@@ -6,7 +6,6 @@ import {
   LoginModalOptions,
 } from '@privy-io/react-auth'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
-import Cookies from 'js-cookie'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   createSmartAccountClient,
@@ -35,12 +34,12 @@ import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
-import { useUserSession } from '@/hooks/profiles/use-session'
+import { useRefetchSession } from '@/hooks/profiles/use-session'
 import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
-import { useAmplitude } from '@/services'
 import { Address, APIError, UpdateProfileData } from '@/types'
 import { Profile } from '@/types/profiles'
+import { LOGGED_IN_TO_LIMITLESS } from '@/utils/consts'
 
 export interface IAccountContext {
   isLoggedIn: boolean
@@ -66,7 +65,7 @@ export interface IAccountContext {
   loginToPlatform: (options?: LoginModalOptions | React.MouseEvent<any, any>) => void
 }
 
-const pimlicoRpcUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
+const pimlicoRpcUrl = `https://api.pimlico.io/v2/${defaultChain.id}/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
 
 const pimlicoPaymaster = createPimlicoPaymasterClient({
   transport: http(pimlicoRpcUrl),
@@ -93,11 +92,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const privateClient = useAxiosPrivateClient()
   const { mutateAsync: login } = useLogin()
   const web3Client = user?.wallet?.walletClientType === 'privy' ? 'etherspot' : 'eoa'
-  const { trackSignUp } = useAmplitude()
   const { wallets, ready: walletsReady } = useWallets()
   const { isLogged } = useClient()
-
-  const walletClient = web3Client === 'etherspot' ? smartAccountClient : web3Wallet
+  const { refetchSession } = useRefetchSession()
 
   const toast = useToast()
   const router = useRouter()
@@ -113,8 +110,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     enabled: !!user?.wallet?.address,
   })
 
-  console.log(web3Wallet)
-
   const userMenuLoading = useMemo(() => {
     if (isLogged || authenticated) {
       if (web3Client === 'etherspot' && !smartAccountClient) {
@@ -123,7 +118,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       return profileData === undefined || profileLoading
     }
     return false
-  }, [profileData, profileLoading, web3Client, smartAccountClient, authenticated])
+  }, [isLogged, authenticated, web3Client, smartAccountClient, profileData, profileLoading])
 
   const onBlockUser = useMutation({
     mutationKey: ['block-user', user?.wallet?.address],
@@ -160,20 +155,20 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const onCreateProfile = async () => {
-    if (user?.wallet?.address) {
-      if (web3Client === 'etherspot' && !smartAccountClient) {
-        return
-      }
-      await login({
-        client: web3Client,
-        account: user.wallet.address as Address,
-        smartWallet: smartAccountClient?.account?.address,
-        web3Wallet,
-      })
-      trackSignUp()
-    }
-  }
+  // const onCreateProfile = async () => {
+  //   if (user?.wallet?.address) {
+  //     if (web3Client === 'etherspot' && !smartAccountClient) {
+  //       return
+  //     }
+  //     await login({
+  //       client: web3Client,
+  //       account: user.wallet.address as Address,
+  //       smartWallet: smartAccountClient?.account?.address,
+  //       web3Wallet,
+  //     })
+  //     trackSignUp()
+  //   }
+  // }
 
   const getSmartAccountClient = async (wallet: ConnectedWallet) => {
     const provider = await wallet.getEthereumProvider()
@@ -315,13 +310,12 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   //   enabled: userInfo?.typeOfLogin === 'farcaster',
   // })
 
-  console.log(wallets)
-
   const getWallet = async (): Promise<WalletClient | undefined> => {
     const wallet = wallets.find(
-      (wallet) => wallet.walletClientType === user?.wallet?.walletClientType
+      (wallet) =>
+        user?.wallet?.walletClientType?.includes(wallet.walletClientType) ||
+        user?.wallet?.walletClientType === wallet.walletClientType
     )
-    console.log(wallet)
     if (wallet) {
       const provider = await wallet.getEthereumProvider()
       const walletClient = createWalletClient({
@@ -336,10 +330,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }
 
   useEffect(() => {
-    if (walletsReady) {
+    if (walletsReady && !web3Wallet) {
       getWallet()
     }
-  }, [walletsReady])
+  }, [walletsReady, web3Wallet])
 
   const { mutateAsync: logout } = useMutation({
     mutationKey: ['logout'],
@@ -348,23 +342,50 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const { refetch: refetchSession } = useUserSession({
-    client: web3Client,
-    account: user?.wallet?.address as Address | undefined,
-    smartWallet: smartAccountClient?.account?.address,
-    web3Wallet,
-  })
-
   useEffect(() => {
-    if (isLogged && walletsReady) {
-      if (web3Client === 'etherspot' && smartAccountClient) {
-        refetchSession()
-      }
-      // if (web3Client === 'eoa') {
-      //   refetchSession()
-      // }
+    if (isLogged && web3Client) {
+      refetchSession({
+        client: web3Client,
+        account: user?.wallet?.address as Address | undefined,
+        smartWallet: smartAccountClient?.account?.address,
+        web3Wallet,
+      })
     }
-  }, [refetchSession, smartAccountClient, web3Client, isLogged, walletsReady])
+  }, [
+    smartAccountClient?.account?.address,
+    user?.wallet?.address,
+    web3Client,
+    web3Wallet,
+    isLogged,
+  ])
+
+  const signout = useCallback(async () => {
+    try {
+      await logout()
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['positions'] }),
+        queryClient.invalidateQueries({ queryKey: ['history'] }),
+        queryClient.invalidateQueries({ queryKey: ['profiles'] }),
+        queryClient.invalidateQueries({ queryKey: ['balance'] }),
+        queryClient.invalidateQueries({ queryKey: ['ethBalance'] }),
+        queryClient.invalidateQueries({ queryKey: ['createdMarkets'] }),
+        queryClient.invalidateQueries({
+          queryKey: ['user-orders'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['locked-balance'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['positions'],
+        }),
+      ])
+      queryClient.removeQueries({
+        queryKey: ['profiles'],
+      })
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }, [])
 
   const displayName = useMemo(() => {
     if (profileData?.displayName) {
@@ -381,34 +402,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       if (smartAccountClient) {
         return smartAccountClient.account?.address
       }
+      return
     }
     return user?.wallet?.address as Address | undefined
   }, [smartAccountClient, user, web3Client])
-
-  useEffect(() => {
-    if (!isLogged) {
-      return
-    }
-    if (web3Client === 'etherspot' && !smartAccountClient) {
-      return
-    }
-    if (!profileLoading && user?.wallet?.address) {
-      if (profileData === null && authenticated) {
-        onCreateProfile()
-        return
-      }
-    }
-  }, [
-    profileLoading,
-    profileData,
-    user,
-    web3Client,
-    smartAccountClient,
-    authenticated,
-    walletClient,
-    walletsReady,
-    isLogged,
-  ])
 
   const getAndStoreSmartAccountClient = async (wallet: ConnectedWallet) => {
     const smartAccountClient = await getSmartAccountClient(wallet)
@@ -450,21 +447,18 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData?.bio])
 
   const disconnectFromPlatform = useCallback(async () => {
-    Cookies.remove('logged-in-to-limitless')
+    localStorage.removeItem(LOGGED_IN_TO_LIMITLESS)
+    setSmartAccountClient(null)
+    setWeb3Wallet(null)
     if (accountRoutes.includes(pathname)) {
       router.push('/')
     }
-    await logout()
     await disconnect()
-    queryClient.removeQueries({
-      queryKey: ['profiles'],
-    })
-    setSmartAccountClient(null)
-    setWeb3Wallet(null)
+    await signout()
   }, [pathname])
 
   const contextProviderValue: IAccountContext = {
-    isLoggedIn: authenticated,
+    isLoggedIn: authenticated || !!isLogged,
     account,
     displayName,
     displayUsername,

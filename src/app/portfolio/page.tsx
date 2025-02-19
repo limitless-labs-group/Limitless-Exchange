@@ -48,7 +48,7 @@ const PortfolioPage = () => {
   }, [])
 
   return (
-    <Box w={isMobile ? 'full' : 'calc(100vw - 720px)'}>
+    <Box w={isMobile ? 'full' : 'calc(100vw - 720px)'} maxW='1200px'>
       <Divider orientation='horizontal' h='3px' borderColor='grey.800' bg='grey.800' />
       <Heading {...h1Bold} gap={2}>
         Portfolio Overview

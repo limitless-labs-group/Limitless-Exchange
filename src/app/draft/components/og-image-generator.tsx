@@ -2,7 +2,7 @@ import { Box, Divider, HStack, Img, Spacer, Text, useTheme, VStack } from '@chak
 import html2canvas from 'html2canvas'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-interface IOgImageGeneratorOptions {
+export interface IOgImageGeneratorOptions {
   px: number | string
   p: number | string
   height: number | string
@@ -57,6 +57,13 @@ export interface IOgImageGenerator {
   generateBlob: boolean
   setReady?: (param: boolean) => void
 }
+export interface IOgImageGenerator {
+  title: string
+  category: string
+  onBlobGenerated: (blob: Blob) => void
+  generateBlob: boolean
+  setReady?: (param: boolean) => void
+}
 export const OgImageGenerator = ({
   title,
   category,
@@ -90,6 +97,7 @@ export const OgImageGenerator = ({
       })
 
       const imageDataUrl = canvas.toDataURL('image/png', 1.0)
+      console.log(imageDataUrl)
       setImage(imageDataUrl)
       canvas.toBlob(
         async (blob) => {

@@ -1,0 +1,228 @@
+import { useDisclosure } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  PropsWithChildren,
+  useEffect,
+} from 'react'
+import { Address, formatUnits } from 'viem'
+import useClobMarketShares from '@/hooks/use-clob-market-shares'
+import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
+import { useOrderBook } from '@/hooks/use-order-book'
+import { useAccount, useBalanceQuery, useTradingService } from '@/services'
+import { useWeb3Service } from '@/services/Web3Service'
+import { MarketOrderType } from '@/types'
+
+const ClobWidgetContext = createContext<ClobWidgetContextType | undefined>(undefined)
+
+export const useClobWidget = (): ClobWidgetContextType => {
+  const context = useContext(ClobWidgetContext)
+  if (!context) {
+    throw new Error('useClobWidget must be used within a ClobWidgetProvider')
+  }
+  return context
+}
+
+interface ClobWidgetContextType {
+  balance: string
+  isBalanceNotEnough: boolean
+  orderType: MarketOrderType
+  setOrderType: (val: MarketOrderType) => void
+  sharesAmount: string
+  setSharesAmount: (val: string) => void
+  price: string
+  setPrice: (val: string) => void
+  allowance: bigint
+  isApprovedForSell: boolean
+  checkMarketAllowance: () => Promise<void>
+  tradeStepperOpen: boolean
+  onToggleTradeStepper: () => void
+  yesPrice: number
+  noPrice: number
+  sharesPrice: string
+  sharesAvailable: {
+    yes: bigint
+    no: bigint
+  }
+}
+
+export function ClobWidgetProvider({ children }: PropsWithChildren) {
+  const [orderType, setOrderType] = useState(MarketOrderType.MARKET)
+  const [sharesAmount, setSharesAmount] = useState('')
+  const [price, setPrice] = useState('')
+  const [allowance, setAllowance] = useState<bigint>(0n)
+  const [isApprovedForSell, setIsApprovedForSell] = useState(false)
+  const { web3Wallet } = useAccount()
+  const { market, strategy, clobOutcome: outcome } = useTradingService()
+  const { balanceOfSmartWallet } = useBalanceQuery()
+  const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
+  const { data: orderBook } = useOrderBook(market?.slug)
+  const { checkAllowance, checkAllowanceForAll } = useWeb3Service()
+  const { isOpen: tradeStepperOpen, onToggle: onToggleTradeStepper } = useDisclosure()
+  const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
+
+  const checkMarketAllowance = async () => {
+    const allowance = await checkAllowance(
+      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+      market?.collateralToken.address as Address
+    )
+    const isApprovedNFT = await checkAllowanceForAll(
+      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+    )
+    setAllowance(allowance)
+    setIsApprovedForSell(isApprovedNFT)
+  }
+
+  const balance = useMemo(() => {
+    if (balanceOfSmartWallet) {
+      return (
+        balanceOfSmartWallet.find(
+          (balanceItem) => balanceItem.contractAddress === market?.collateralToken.address
+        )?.formatted || ''
+      )
+    }
+    return ''
+  }, [balanceOfSmartWallet, strategy, market])
+
+  const sharesAvailable = useMemo(() => {
+    if (sharesOwned && lockedBalance) {
+      return {
+        yes: BigInt(
+          new BigNumber(sharesOwned[0].toString())
+            .minus(new BigNumber(lockedBalance.yes))
+            .isNegative()
+            ? '0'
+            : new BigNumber(sharesOwned[0].toString())
+                .minus(new BigNumber(lockedBalance.yes))
+                .toString()
+        ),
+        no: BigInt(
+          new BigNumber(sharesOwned[1].toString())
+            .minus(new BigNumber(lockedBalance.no))
+            .isNegative()
+            ? '0'
+            : new BigNumber(sharesOwned[1].toString())
+                .minus(new BigNumber(lockedBalance.no))
+                .toString()
+        ),
+      }
+    }
+    return {
+      yes: 0n,
+      no: 0n,
+    }
+  }, [lockedBalance, sharesOwned])
+
+  const isBalanceNotEnough = useMemo(() => {
+    if (orderType === MarketOrderType.LIMIT) {
+      if (strategy === 'Buy') {
+        const amount = new BigNumber(price || '0').dividedBy(100).multipliedBy(sharesAmount)
+        const lockedBalanceFormatted = formatUnits(
+          BigInt(lockedBalance?.collateral.balance.toFixed() || '0'),
+          market?.collateralToken.decimals || 6
+        )
+        const balanceLeft = new BigNumber(balance).minus(lockedBalanceFormatted)
+        return amount.isGreaterThan(balanceLeft)
+      }
+      const sharesFormatted = formatUnits(
+        sharesAvailable[outcome ? 'no' : 'yes'],
+        market?.collateralToken.decimals || 6
+      )
+      return new BigNumber(sharesFormatted).isLessThan(sharesAmount)
+    }
+    if (orderType === MarketOrderType.MARKET) {
+      if (strategy === 'Buy') {
+        return new BigNumber(price).isGreaterThan(balance)
+      }
+      const sharesFormatted = formatUnits(
+        sharesAvailable[outcome ? 'no' : 'yes'],
+        market?.collateralToken.decimals || 6
+      )
+      return new BigNumber(sharesFormatted).isLessThan(price)
+    }
+    return false
+  }, [
+    balance,
+    lockedBalance?.collateral.balance,
+    market?.collateralToken.decimals,
+    orderType,
+    outcome,
+    price,
+    sharesAmount,
+    sharesAvailable,
+    strategy,
+  ])
+
+  const { yesPrice, noPrice } = useMemo(() => {
+    if (orderBook) {
+      if (strategy === 'Buy') {
+        const yesPrice = orderBook?.asks.sort((a, b) => a.price - b.price)[0]?.price * 100
+        const noPrice = (1 - orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price) * 100
+        return {
+          yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(),
+          noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(),
+        }
+      }
+      const yesPrice = orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price * 100
+      const noPrice =
+        (1 - orderBook?.asks.sort((a, b) => b.price - a.price).reverse()[0]?.price) * 100
+      return {
+        yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(),
+        noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(),
+      }
+    }
+    return {
+      yesPrice: 0,
+      noPrice: 0,
+    }
+  }, [strategy, orderBook])
+
+  const sharesPrice = useMemo(() => {
+    if (orderType === MarketOrderType.LIMIT) {
+      if (price && sharesAmount) {
+        return new BigNumber(price).dividedBy(100).multipliedBy(sharesAmount).toString()
+      }
+      return '0'
+    }
+    if (price) {
+      return price.toString()
+    }
+    return '0'
+  }, [orderType, price, sharesAmount])
+
+  useEffect(() => {
+    if (web3Wallet && market) {
+      checkMarketAllowance()
+    }
+  }, [market, web3Wallet])
+
+  return (
+    <ClobWidgetContext.Provider
+      value={{
+        balance,
+        orderType,
+        isBalanceNotEnough,
+        setOrderType,
+        price,
+        setPrice,
+        sharesAmount,
+        setSharesAmount,
+        allowance,
+        isApprovedForSell,
+        checkMarketAllowance,
+        tradeStepperOpen,
+        onToggleTradeStepper,
+        yesPrice,
+        noPrice,
+        sharesPrice,
+        sharesAvailable,
+      }}
+    >
+      {children}
+    </ClobWidgetContext.Provider>
+  )
+}

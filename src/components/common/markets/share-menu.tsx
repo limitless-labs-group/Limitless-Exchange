@@ -33,7 +33,7 @@ export default function ShareMenu() {
   const toast = useToast()
   const marketURI = marketGroup
     ? `${process.env.NEXT_PUBLIC_FRAME_URL}/market-group/${marketGroup.slug}`
-    : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.address}`
+    : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
   return (
     <Menu isOpen={isShareMenuOpen} onClose={toggleShareMenu}>
@@ -63,7 +63,7 @@ export default function ShareMenu() {
           onClick={() => {
             trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
               type: 'Farcaster',
-              address: market?.address,
+              address: market?.slug,
               marketType: 'single',
             })
             window.open(castURI, '_blank', 'noopener')
@@ -71,14 +71,16 @@ export default function ShareMenu() {
         >
           <HStack gap='4px' w='full'>
             <WarpcastIcon width={16} height={16} />
-            <Text {...paragraphMedium}>On Warpcast</Text>
+            <Text whiteSpace='nowrap' {...paragraphMedium}>
+              On Warpcast
+            </Text>
           </HStack>
         </MenuItem>
         <MenuItem
           onClick={() => {
             trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
               type: 'X/Twitter',
-              address: market?.address,
+              address: market?.slug,
               marketType: 'single',
             })
             window.open(tweetURI, '_blank', 'noopener')
@@ -96,7 +98,7 @@ export default function ShareMenu() {
             onCopy={() => {
               trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                 type: 'Copy Link',
-                address: market?.address,
+                address: market?.slug,
                 marketType: 'single',
               })
               const id = toast({

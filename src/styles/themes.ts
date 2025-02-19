@@ -9,8 +9,12 @@ import { inputTheme } from '@/styles/input'
 import { linkTheme } from '@/styles/link'
 import { menuTheme } from '@/styles/menu'
 import { modalTheme } from '@/styles/modals'
+import { numberInputTheme } from '@/styles/number-input'
 import { radioTheme } from '@/styles/radio'
+import { selectTheme } from '@/styles/select'
 import { skeletonTheme } from '@/styles/skeleton'
+import { sliderTheme } from '@/styles/slider'
+import { stepperTheme } from '@/styles/stepper'
 import { tableTheme } from '@/styles/table'
 import { tabsTheme } from '@/styles/tabs'
 import { textAreaTheme } from '@/styles/text-area'
@@ -263,7 +267,7 @@ export const chakraTheme = ChakraTheme({
         transparentGray: {
           ...commonButtonProps,
           ...paragraphRegular,
-          color: 'grey.500',
+          color: 'grey.900',
           bg: 'grey.200',
           borderRadius: '8px',
           py: '2px',
@@ -278,8 +282,14 @@ export const chakraTheme = ChakraTheme({
           bg: 'unset',
           px: '16px',
           height: 'unset',
-          color: 'grey.300',
+          color: 'grey.500',
           alignItems: 'center',
+          _hover: {
+            color: 'grey.800',
+          },
+          _disabled: {
+            opacity: 0.5,
+          },
         },
       },
     },
@@ -296,6 +306,7 @@ export const chakraTheme = ChakraTheme({
     Modal: modalTheme,
     Accordion: accordionTheme,
     Input: inputTheme,
+    NumberInput: numberInputTheme,
     Menu: menuTheme,
     Checkbox: checkboxTheme,
     Link: linkTheme,
@@ -309,6 +320,9 @@ export const chakraTheme = ChakraTheme({
         bg: 'grey.100',
       },
     },
+    Slider: sliderTheme,
+    Select: selectTheme,
+    Stepper: stepperTheme,
     Progress: {
       baseStyle: {
         track: {
@@ -324,12 +338,50 @@ export const chakraTheme = ChakraTheme({
             bg: 'transparent.200',
           },
         },
+        green: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-green-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-grey-200)',
+            height: '4px',
+          },
+        },
+        yellow: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-orange-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-grey-200)',
+            height: '4px',
+          },
+        },
+        red: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-red-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-grey-200)',
+            height: '4px',
+          },
+        },
         market: {
           filledTrack: {
             bg: '#0FC591',
           },
           track: {
             bg: '#FF3756',
+          },
+        },
+        draft: {
+          filledTrack: {
+            bg: 'grey.400',
+          },
+          track: {
+            bg: 'grey.200',
           },
         },
       },

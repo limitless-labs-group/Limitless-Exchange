@@ -13,9 +13,9 @@ export default function PortfolioTab() {
 
   const positions = useMemo(
     () =>
-      allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
-      ),
+      allMarketsPositions
+        ?.filter((position) => position.type === 'amm')
+        .filter((position) => position.market.slug === market?.slug),
     [allMarketsPositions, market]
   )
 
