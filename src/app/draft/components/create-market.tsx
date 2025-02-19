@@ -311,11 +311,29 @@ export const CreateMarket: FC = () => {
 
       const missingFields: string[] = []
 
-      if (!title) missingFields.push('Title')
+      if (!title || !title.trim()) missingFields.push('Title')
       if (!description && !isGroup) missingFields.push('Description')
       if (!creatorId) missingFields.push('Creator')
       if (tag.length === 0) missingFields.push('Tag')
-      if (marketInput && marketInput.length < 2) missingFields.push('Market inputs')
+
+      if (isGroup) {
+        if (!markets || markets.length < 2) {
+          missingFields.push('At least 2 markets')
+        } else {
+          const invalidMarkets = markets.filter(
+            (market, index) => !market.title?.trim() || !market.description?.trim()
+          )
+
+          if (invalidMarkets.length > 0) {
+            showToast(
+              `All markets in the group must have both title and description. Please check market${
+                invalidMarkets.length > 1 ? 's' : ''
+              } #${markets.findIndex((m) => !m.title?.trim() || !m.description?.trim()) + 1}`
+            )
+            return
+          }
+        }
+      }
 
       if (!ogLogo) {
         if (ogImageError) {
@@ -551,9 +569,18 @@ export const CreateMarket: FC = () => {
                   height='auto'
                   onInput={resizeTextareaHeight}
                   value={formData.title}
-                  onChange={(e) => handleChange('title', e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    if (value.trim() || value === '') {
+                      handleChange('title', value)
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const trimmedValue = e.target.value.trim()
+                    handleChange('title', trimmedValue)
+                    autoGenerateOg && generateOgImage()
+                  }}
                   maxLength={70}
-                  onBlur={() => autoGenerateOg && generateOgImage()}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                   {formData.title?.length}/70 characters
