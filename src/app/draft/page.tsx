@@ -130,7 +130,7 @@ const CreateOwnMarketPage = () => {
           {tabs.map(({ component: Component, marketType }, index) => (
             <TabPanel key={index}>
               {marketType ? (
-                <Component key={uuidv4()} marketType={(marketType as DraftMarketType) ?? ''} />
+                <Component key={uuidv4()} marketType={marketType ?? ''} />
               ) : (
                 <Component key={uuidv4()} />
               )}
