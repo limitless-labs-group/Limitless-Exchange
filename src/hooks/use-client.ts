@@ -1,4 +1,4 @@
-import { limitlessApi, useAccount } from '@/services'
+import { limitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { LOGGED_IN_TO_LIMITLESS } from '@/utils/consts'
 
