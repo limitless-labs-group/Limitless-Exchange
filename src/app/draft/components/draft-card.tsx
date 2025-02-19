@@ -126,7 +126,7 @@ export const DraftMarketCard = ({
                     .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
                     .map((subMarket: MarketInput, index: number) => (
                       <Text
-                        key={index}
+                        key={market.id ?? index}
                         {...paragraphRegular}
                         color={colors.main}
                         pl={4}
@@ -165,7 +165,7 @@ export const DraftMarketCard = ({
 
             <HStack justifyContent='space-between' alignItems='flex-end' flexDirection={'row'}>
               <HStack gap={'16px'} flexDirection={'row'} w='full'>
-                {market?.draftMetadata?.liquidity && (
+                {market?.draftMetadata?.liquidity ? (
                   <HStack w={'unset'} justifyContent={'unset'}>
                     <HStack color={colors.secondary} gap='4px'>
                       <LiquidityIcon width={16} height={16} />
@@ -179,7 +179,7 @@ export const DraftMarketCard = ({
                         market.collateralToken.symbol}
                     </Text>
                   </HStack>
-                )}
+                ) : null}
 
                 <HStack w={'unset'} justifyContent={'unset'}>
                   <HStack color={colors.secondary} gap='4px'>
@@ -229,7 +229,7 @@ export const DraftMarketCard = ({
                   </Text>
                 </HStack>
                 <HStack gap={1} color={colors.main}>
-                  {market.draftMetadata?.initialProbability && (
+                  {market.draftMetadata?.initialProbability ? (
                     <>
                       <Text {...paragraphMedium} color={colors.secondary}>
                         Prob.
@@ -256,7 +256,7 @@ export const DraftMarketCard = ({
                         />
                       </Box>
                     </>
-                  )}
+                  ) : null}
                 </HStack>
               </HStack>
             </HStack>
