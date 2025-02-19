@@ -416,7 +416,7 @@ export const CreateMarket: FC = () => {
     if (!data) return
     setIsCreating(true)
     const marketData = prepareMarketData(data)
-    const url = `/markets/drafts/${isGroup ? `group/${marketId}` : `${marketId}`}`
+    const url = isGroup ? `/markets/drafts/group/${marketId}` : `/markets/drafts/${marketId}`
     privateClient
       .put(url, marketData, {
         headers: {
@@ -560,29 +560,24 @@ export const CreateMarket: FC = () => {
                 </FormHelperText>
               </FormField>
               {!isGroup ? (
-                <>
-                  <FormField label='Description'>
-                    <TextEditor
-                      value={formData.description}
-                      readOnly={false}
-                      onChange={(e) => {
-                        if (getPlainTextLength(e) <= 1500) {
-                          handleChange('description', e)
-                        }
-                      }}
-                    />
-                    <FormHelperText
-                      textAlign='end'
-                      style={{ fontSize: '10px', color: 'spacegray' }}
-                    >
-                      {getPlainTextLength(formData.description)}/1500 characters
-                    </FormHelperText>
-                  </FormField>
-                </>
+                <FormField label='Description'>
+                  <TextEditor
+                    value={formData.description}
+                    readOnly={false}
+                    onChange={(e) => {
+                      if (getPlainTextLength(e) <= 1500) {
+                        handleChange('description', e)
+                      }
+                    }}
+                  />
+                  <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
+                    {getPlainTextLength(formData.description)}/1500 characters
+                  </FormHelperText>
+                </FormField>
               ) : (
                 <>
                   {markets.map((market, index) => (
-                    <Box key={index} borderWidth={1} p={4} borderRadius='md' width='100%'>
+                    <Box key={market.id} borderWidth={1} p={4} borderRadius='md' width='100%'>
                       <Flex justify='space-between' align='center' mb={2}>
                         <Text fontWeight='bold'>
                           Market #{index + 1} {market.id ? `- id: ${market.id}` : ''}
