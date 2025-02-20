@@ -59,9 +59,10 @@ export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps
 
   const createMarketsBatch = () => {
     setIsCreating(true)
+    const url = marketType === 'clob' ? `/markets/clob/create-batch` : `/markets/create-batch`
     privateClient
       .post(
-        `/markets/create-batch`,
+        url,
         { marketsIds: selectedMarketIds },
         {
           headers: {
