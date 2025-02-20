@@ -59,7 +59,7 @@ export const createMarketShareUrls = (
   const encodedBaseMessage = encodeURI(baseMessage)
 
   return {
-    tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
+    tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage}`,
     //embeds is a param which gives ability to make pre-screen from market as Image/Link
     castURI: `https://warpcast.com/~/compose?text=${encodedBaseMessage}&embeds[]=${marketURI}`,
   }
