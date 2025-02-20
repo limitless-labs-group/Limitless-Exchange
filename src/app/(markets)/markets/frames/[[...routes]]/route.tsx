@@ -102,11 +102,11 @@ app
       image: `/initial/${c.req.param('address')}/img`,
       intents: [
         // eslint-disable-next-line react/jsx-key
-        <TextInput placeholder={`Enter amount ${market.collateralToken.symbol}`} />,
+        // <TextInput placeholder={`Enter amount ${market.collateralToken.symbol}`} />,
         // eslint-disable-next-line react/jsx-key
-        <Button value='buyYes'>Yes</Button>,
+        // <Button value='buyYes'>Yes</Button>,
         // eslint-disable-next-line react/jsx-key
-        <Button value='buyNo'>No</Button>,
+        // <Button value='buyNo'>No</Button>,
         // eslint-disable-next-line react/jsx-key
         <Button.Link href={`https://limitless.exchange/markets/${addressOfMarket}`}>
           Open Limitless
