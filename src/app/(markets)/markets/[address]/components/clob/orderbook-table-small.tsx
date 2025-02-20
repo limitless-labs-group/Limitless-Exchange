@@ -340,13 +340,13 @@ export default function OrderBookTableSmall({
                   <Text {...paragraphRegular} textAlign='right'>
                     {NumberUtil.convertWithDenomination(
                       formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6),
-                      6
+                      2
                     )}
                   </Text>
                 </Box>
                 <Box w='45%' textAlign='right'>
                   <Text {...paragraphRegular}>
-                    {NumberUtil.toFixed(item.cumulativePrice, 6)} {market?.collateralToken.symbol}
+                    {NumberUtil.toFixed(item.cumulativePrice, 2)} {market?.collateralToken.symbol}
                   </Text>
                 </Box>
               </HStack>
@@ -464,13 +464,13 @@ export default function OrderBookTableSmall({
                   <Text {...paragraphRegular} textAlign='right'>
                     {NumberUtil.convertWithDenomination(
                       formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6),
-                      6
+                      2
                     )}
                   </Text>
                 </Box>
                 <Box w='45%' textAlign='right'>
                   <Text {...paragraphRegular}>
-                    {NumberUtil.toFixed(item.cumulativePrice, 6)} {market?.collateralToken.symbol}
+                    {NumberUtil.toFixed(item.cumulativePrice, 2)} {market?.collateralToken.symbol}
                   </Text>
                 </Box>
               </HStack>
