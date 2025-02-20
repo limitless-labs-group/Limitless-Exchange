@@ -32,50 +32,50 @@ const app = new Frog<{
     // Therefore, all the routes must have `/:address` path parameter.
     // See how `initialState` is used: https://www.youtube.com/watch?v=jFhe-WLm0C8&t=1s
 
-    const addressOfMarket = getAddress(c.req.param('address') as string)
+    // const addressOfMarket = getAddress(c.req.param('address') as string)
 
-    const marketData = await fetch(`${apiUrl}/markets/${addressOfMarket}`, {
+    const marketData = await fetch(`${apiUrl}/markets/${c.req.param('address')}`, {
       method: 'GET',
     })
 
     // @NOTE: the type of the `market` here was defined as `Market | null` before. Please check.
     const market: Market = await marketData.json()
+    //
+    // const contract = getContract({
+    //   address: addressOfMarket,
+    //   abi: fixedProductMarketMakerABI,
+    //   client: getViemClient(),
+    // })
+    //
+    // const collateralDecimals = market.collateralToken.decimals
+    // const collateralAmount = collateralDecimals <= 6 ? `0.0001` : `0.0000001`
+    // const collateralAmountBI = parseUnits(collateralAmount, collateralDecimals)
+    // const outcomeTokenAmountYesBI = (await contract.read.calcBuyAmount([
+    //   collateralAmountBI,
+    //   0,
+    // ])) as bigint
+    // const outcomeTokenAmountNoBI = (await contract.read.calcBuyAmount([
+    //   collateralAmountBI,
+    //   1,
+    // ])) as bigint
+    // const outcomeTokenAmountYes = formatUnits(outcomeTokenAmountYesBI, collateralDecimals)
+    // const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, collateralDecimals)
+    // const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
+    // const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
+    // const prices = [outcomeTokenPriceYes, outcomeTokenPriceNo]
+    //
+    // const sum = prices[0] + prices[1]
+    // const outcomeTokensPercentYes = +((prices[0] / sum) * 100).toFixed(1)
+    // const outcomeTokensPercentNo = +((prices[1] / sum) * 100).toFixed(1)
+    //
+    // const pricesFinal = [outcomeTokensPercentYes, outcomeTokensPercentNo]
+    //
+    // const marketFinal = {
+    //   ...market,
+    //   prices: pricesFinal,
+    // }
 
-    const contract = getContract({
-      address: addressOfMarket,
-      abi: fixedProductMarketMakerABI,
-      client: getViemClient(),
-    })
-
-    const collateralDecimals = market.collateralToken.decimals
-    const collateralAmount = collateralDecimals <= 6 ? `0.0001` : `0.0000001`
-    const collateralAmountBI = parseUnits(collateralAmount, collateralDecimals)
-    const outcomeTokenAmountYesBI = (await contract.read.calcBuyAmount([
-      collateralAmountBI,
-      0,
-    ])) as bigint
-    const outcomeTokenAmountNoBI = (await contract.read.calcBuyAmount([
-      collateralAmountBI,
-      1,
-    ])) as bigint
-    const outcomeTokenAmountYes = formatUnits(outcomeTokenAmountYesBI, collateralDecimals)
-    const outcomeTokenAmountNo = formatUnits(outcomeTokenAmountNoBI, collateralDecimals)
-    const outcomeTokenPriceYes = Number(collateralAmount) / Number(outcomeTokenAmountYes)
-    const outcomeTokenPriceNo = Number(collateralAmount) / Number(outcomeTokenAmountNo)
-    const prices = [outcomeTokenPriceYes, outcomeTokenPriceNo]
-
-    const sum = prices[0] + prices[1]
-    const outcomeTokensPercentYes = +((prices[0] / sum) * 100).toFixed(1)
-    const outcomeTokensPercentNo = +((prices[1] / sum) * 100).toFixed(1)
-
-    const pricesFinal = [outcomeTokensPercentYes, outcomeTokensPercentNo]
-
-    const marketFinal = {
-      ...market,
-      prices: pricesFinal,
-    }
-
-    return { market: marketFinal, addressOfMarket }
+    return { market: market, addressOfMarket: c.req.param('address') }
   },
   imageOptions: async () => {
     const localFont = await readFile(path.join(process.cwd(), '/src/resources/Inter.ttf'))
@@ -98,7 +98,7 @@ app
     const { market, addressOfMarket } = c.previousState
     return c.res({
       browserLocation: `https://limitless.exchange/markets/${addressOfMarket}`,
-      action: `/approve/${c.req.param('address')}`,
+      // action: `/approve/${c.req.param('address')}`,
       image: `/initial/${c.req.param('address')}/img`,
       intents: [
         // eslint-disable-next-line react/jsx-key
@@ -122,89 +122,90 @@ app
       headers: {
         'Cache-Control': 'max-age=0',
       },
-      image: (
-        <div
-          style={{
-            color: 'white',
-            display: 'flex',
-            flexDirection: 'column',
-            fontSize: 60,
-            backgroundColor: '#0000EE',
-            height: '100%',
-            padding: '5% 4%',
-            justifyContent: 'space-between',
-            maxWidth: '100%',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '80px',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                color: 'white',
-                fontWeight: 500,
-              }}
-            >
-              {market.title}
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px',
-              }}
-            >
-              <img src='/arrow.svg' alt='logo' style={{ width: '396px', height: '81px' }} />
-              <span>Yes {market.prices[0]}%</span>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <img
-              src='/logo-white-farcaster.svg'
-              alt='logo'
-              style={{ width: '333px', height: '96px' }}
-            />
-            <div style={{ display: 'flex', gap: '40px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <img
-                  src='/liquidity-icon.svg'
-                  alt='liquidity'
-                  style={{ width: '40px', height: '40px' }}
-                />
-                <span
-                  style={{
-                    color: 'white',
-                    fontSize: '40px',
-                  }}
-                >
-                  {NumberUtil.formatThousands(market.liquidityFormatted, 6)}{' '}
-                  {market.collateralToken.symbol}
-                </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <img
-                  src='/calendar-icon.svg'
-                  alt='liquidity'
-                  style={{ width: '40px', height: '40px' }}
-                />
-                <span
-                  style={{
-                    color: 'white',
-                    fontSize: '40px',
-                  }}
-                >
-                  {market.expirationDate}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      ),
+      image: <></>,
+      // image: (
+      //   <div
+      //     style={{
+      //       color: 'white',
+      //       display: 'flex',
+      //       flexDirection: 'column',
+      //       fontSize: 60,
+      //       backgroundColor: '#0000EE',
+      //       height: '100%',
+      //       padding: '5% 4%',
+      //       justifyContent: 'space-between',
+      //       maxWidth: '100%',
+      //     }}
+      //   >
+      //     <div
+      //       style={{
+      //         display: 'flex',
+      //         flexDirection: 'column',
+      //         gap: '80px',
+      //       }}
+      //     >
+      //       <div
+      //         style={{
+      //           display: 'flex',
+      //           color: 'white',
+      //           fontWeight: 500,
+      //         }}
+      //       >
+      //         {market.title}
+      //       </div>
+      //       <div
+      //         style={{
+      //           display: 'flex',
+      //           alignItems: 'center',
+      //           gap: '16px',
+      //         }}
+      //       >
+      //         <img src='/arrow.svg' alt='logo' style={{ width: '396px', height: '81px' }} />
+      //         <span>Yes {market.prices[0]}%</span>
+      //       </div>
+      //     </div>
+      //     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      //       <img
+      //         src='/logo-white-farcaster.svg'
+      //         alt='logo'
+      //         style={{ width: '333px', height: '96px' }}
+      //       />
+      //       <div style={{ display: 'flex', gap: '40px' }}>
+      //         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      //           <img
+      //             src='/liquidity-icon.svg'
+      //             alt='liquidity'
+      //             style={{ width: '40px', height: '40px' }}
+      //           />
+      //           <span
+      //             style={{
+      //               color: 'white',
+      //               fontSize: '40px',
+      //             }}
+      //           >
+      //             {NumberUtil.formatThousands(market.liquidityFormatted, 6)}{' '}
+      //             {market.collateralToken.symbol}
+      //           </span>
+      //         </div>
+      //         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      //           <img
+      //             src='/calendar-icon.svg'
+      //             alt='liquidity'
+      //             style={{ width: '40px', height: '40px' }}
+      //           />
+      //           <span
+      //             style={{
+      //               color: 'white',
+      //               fontSize: '40px',
+      //             }}
+      //           >
+      //             {market.expirationDate}
+      //           </span>
+      //         </div>
+      //       </div>
+      //     </div>
+      //   </div>
+      // ),
     })
   })
 
