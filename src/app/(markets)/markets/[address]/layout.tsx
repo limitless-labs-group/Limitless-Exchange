@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { getFrameMetadata } from 'frog/next'
+import { getFrameMetadata } from 'frog'
 import { Metadata } from 'next'
 import { Market } from '@/types'
 import { convertHtmlToText } from '@/utils/html-utils'
