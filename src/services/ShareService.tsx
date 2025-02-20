@@ -41,14 +41,16 @@ export const createMarketShareUrls = (
   outcomeTokensPercent: number[] | undefined,
   creatorName?: string
 ): ShareURI => {
-  const formatOutcomeTokenPercent = (index: number) =>
-    `${Number(outcomeTokensPercent?.[index] ?? 50).toFixed(2)}%`
+  // const formatOutcomeTokenPercent = (index: number) =>
+  //   `${Number(outcomeTokensPercent?.[index] ?? 50).toFixed(2)}%`
 
-  const baseMessage = `"${
-    market?.proxyTitle ?? market?.title
-  }" by ${creatorName}\n${'Yes'} ${formatOutcomeTokenPercent(0)} | 'No' ${formatOutcomeTokenPercent(
-    1
-  )}\nMake your bet on`
+  // const baseMessage = `"${
+  //   market?.proxyTitle ?? market?.title
+  // }" by ${creatorName}\n${'Yes'} ${formatOutcomeTokenPercent(0)} | 'No' ${formatOutcomeTokenPercent(
+  //   1
+  // )}\nMake your bet on`
+
+  const baseMessage = `"${market?.proxyTitle ?? market?.title}" by ${creatorName}\nMake your bet on`
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
