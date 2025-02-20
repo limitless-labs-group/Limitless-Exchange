@@ -50,11 +50,13 @@ export const createMarketShareUrls = (
   //   1
   // )}\nMake your bet on`
 
-  const baseMessage = `"${market?.proxyTitle ?? market?.title}" by ${creatorName}\nMake your bet on`
+  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
+
+  const baseMessage = `"${
+    market?.proxyTitle ?? market?.title
+  }" by ${creatorName}\nMake your bet on ${marketURI}`
 
   const encodedBaseMessage = encodeURI(baseMessage)
-
-  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
 
   return {
     tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
