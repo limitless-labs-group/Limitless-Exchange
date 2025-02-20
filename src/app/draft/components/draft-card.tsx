@@ -126,7 +126,7 @@ export const DraftMarketCard = ({
                     .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
                     .map((subMarket: MarketInput, index: number) => (
                       <Text
-                        key={market.id ?? index}
+                        key={index}
                         {...paragraphRegular}
                         color={colors.main}
                         pl={4}
