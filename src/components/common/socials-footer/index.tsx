@@ -6,6 +6,7 @@ import XIcon from '@/resources/icons/X.svg'
 import BookIcon from '@/resources/icons/book-icon.svg'
 import DiscordIcon from '@/resources/icons/discord-icon.svg'
 import { ClickEvent, useAmplitude } from '@/services'
+import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const LINKS = {
@@ -29,6 +30,7 @@ const ICON_WITHOUT_TEXT_PROPS = {
 
 export default function SocialsFooter({ ...props }: PropsWithChildren<BoxProps>) {
   const { trackClicked } = useAmplitude()
+  const { pushGA4Event } = useGoogleAnalytics()
 
   return (
     <HStack
@@ -78,6 +80,7 @@ export default function SocialsFooter({ ...props }: PropsWithChildren<BoxProps>)
               platform: isMobile ? 'mobile' : 'desktop',
               option: 'discord',
             })
+            pushGA4Event(GAEvents.SocialDiscord)
           }}
         >
           <Icon as={DiscordIcon} {...ICON_WITHOUT_TEXT_PROPS} />
@@ -91,6 +94,8 @@ export default function SocialsFooter({ ...props }: PropsWithChildren<BoxProps>)
               platform: isMobile ? 'mobile' : 'desktop',
               option: 'farcaster',
             })
+
+            pushGA4Event(GAEvents.SocialWarpcast)
           }}
         >
           <Icon as={FarcasterIcon} {...ICON_WITHOUT_TEXT_PROPS} />
@@ -104,6 +109,8 @@ export default function SocialsFooter({ ...props }: PropsWithChildren<BoxProps>)
               platform: isMobile ? 'mobile' : 'desktop',
               option: 'x',
             })
+
+            pushGA4Event(GAEvents.SocialX)
           }}
         >
           <Icon as={XIcon} {...ICON_WITHOUT_TEXT_PROPS} />
