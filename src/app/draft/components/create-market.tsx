@@ -307,7 +307,7 @@ export const CreateMarket: FC = () => {
     await generateOgImage()
 
     try {
-      const { title, description, creatorId, ogLogo, tag, marketInput } = formData
+      const { title, description, creatorId, ogLogo, tag } = formData
 
       const missingFields: string[] = []
 
@@ -321,7 +321,7 @@ export const CreateMarket: FC = () => {
           missingFields.push('At least 2 markets')
         } else {
           const invalidMarkets = markets.filter(
-            (market, index) => !market.title?.trim() || !market.description?.trim()
+            (market) => !market.title?.trim() || !market.description?.trim()
           )
 
           if (invalidMarkets.length > 0) {
@@ -415,7 +415,7 @@ export const CreateMarket: FC = () => {
       })
       .then((res) => {
         showToast(`Market is drafted`)
-        router.push(`/draft?tab=${marketType}`)
+        router.push(`/draft?tab=queue-${marketType}`)
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
@@ -525,13 +525,32 @@ export const CreateMarket: FC = () => {
     await draftMarket()
   }
 
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const value = e.target.value
+    if (value.trim() || value === '') {
+      handleChange('title', value)
+    }
+  }
+
+  const handleTitleBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+    isUpdateOg?: boolean
+  ) => {
+    const trimmedValue = e.target.value.trim()
+    handleChange('title', trimmedValue)
+    autoGenerateOg && isUpdateOg && generateOgImage()
+  }
+
   const getButtonText = () => {
     if (!isReady && !editMarket) return 'OG is not ready..'
     if (marketId) return 'Save'
     return 'Draft'
   }
 
-  const [markets, setMarkets] = useState<MarketInput[]>([{ title: '', description: '' }])
+  const [markets, setMarkets] = useState<MarketInput[]>([
+    { title: '', description: '' },
+    { title: '', description: '' },
+  ])
 
   const handleInputChange = (index: number, field: string, value: string) => {
     const updatedMarkets = [...markets]
@@ -551,6 +570,7 @@ export const CreateMarket: FC = () => {
           <MarketTypeSelector
             value={marketType ?? 'amm'}
             onChange={(value) => setMarketType(value as DraftMarketType)}
+            isEdit={editMarket}
           />
           <HStack
             w='full'
@@ -569,17 +589,8 @@ export const CreateMarket: FC = () => {
                   height='auto'
                   onInput={resizeTextareaHeight}
                   value={formData.title}
-                  onChange={(e) => {
-                    const value = e.target.value
-                    if (value.trim() || value === '') {
-                      handleChange('title', value)
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const trimmedValue = e.target.value.trim()
-                    handleChange('title', trimmedValue)
-                    autoGenerateOg && generateOgImage()
-                  }}
+                  onChange={(e) => handleTitleChange(e)}
+                  onBlur={(e) => handleTitleBlur(e, true)}
                   maxLength={70}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
@@ -604,21 +615,23 @@ export const CreateMarket: FC = () => {
               ) : (
                 <>
                   {markets.map((market, index) => (
-                    <Box key={market.id} borderWidth={1} p={4} borderRadius='md' width='100%'>
+                    <Box key={index} borderWidth={1} p={4} borderRadius='md' width='100%'>
                       <Flex justify='space-between' align='center' mb={2}>
                         <Text fontWeight='bold'>
                           Market #{index + 1} {market.id ? `- id: ${market.id}` : ''}
                         </Text>
-                        <Box
-                          cursor='pointer'
-                          onClick={() => {
-                            const updatedMarkets = [...markets]
-                            updatedMarkets.splice(index, 1)
-                            setMarkets(updatedMarkets)
-                          }}
-                        >
-                          <CloseIcon color='red' height={24} width={24} />
-                        </Box>
+                        {markets.length > 2 && (
+                          <Box
+                            cursor='pointer'
+                            onClick={() => {
+                              const updatedMarkets = [...markets]
+                              updatedMarkets.splice(index, 1)
+                              setMarkets(updatedMarkets)
+                            }}
+                          >
+                            <CloseIcon color='red' height={24} width={24} />
+                          </Box>
+                        )}
                       </Flex>
                       <FormControl>
                         <FormLabel htmlFor={`market${index}_title`}>Title</FormLabel>
@@ -627,19 +640,31 @@ export const CreateMarket: FC = () => {
                           id={`market${index}_title`}
                           name={`marketsInput[${index}][title]`}
                           value={market.title}
-                          onChange={(e) => handleInputChange(index, 'title', e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            if (value.trim() || value === '') {
+                              handleInputChange(index, 'title', e.target.value)
+                            }
+                          }}
                           placeholder={`Enter market ${index + 1} title`}
+                          maxLength={70}
                           required
                         />
+                        <FormHelperText
+                          textAlign='end'
+                          style={{ fontSize: '10px', color: 'spacegray' }}
+                        >
+                          {getPlainTextLength(markets?.[index].title ?? '')}/70 characters
+                        </FormHelperText>
                       </FormControl>
                       <FormControl mt={4}>
                         <FormLabel htmlFor={`market${index}_description`}>Description</FormLabel>
                         <TextEditor
                           value={market.description}
                           readOnly={false}
-                          onChange={(value) => {
-                            if (getPlainTextLength(value) <= 1500) {
-                              handleInputChange(index, 'description', value)
+                          onChange={(e) => {
+                            if (getPlainTextLength(e) <= 1500) {
+                              handleInputChange(index, 'description', e)
                             }
                           }}
                         />
@@ -647,7 +672,8 @@ export const CreateMarket: FC = () => {
                           textAlign='end'
                           style={{ fontSize: '10px', color: 'spacegray' }}
                         >
-                          {getPlainTextLength(market.description)}/1500 characters
+                          {getPlainTextLength(markets?.[index].description ?? '')}
+                          /1500 characters
                         </FormHelperText>
                       </FormControl>
                     </Box>

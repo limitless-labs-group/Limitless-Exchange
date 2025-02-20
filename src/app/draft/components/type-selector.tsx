@@ -38,11 +38,12 @@ const RadioCard: FC<RadioCardProps> = (props) => {
 interface MarketTypeSelectorProps {
   value: string
   onChange: (value: string) => void
+  isEdit?: boolean
 }
 
 export const options = ['amm', 'clob', 'group'] as const
 
-export const MarketTypeSelector: FC<MarketTypeSelectorProps> = ({ value, onChange }) => {
+export const MarketTypeSelector: FC<MarketTypeSelectorProps> = ({ value, onChange, isEdit }) => {
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: 'marketType',
     defaultValue: value,
@@ -55,10 +56,10 @@ export const MarketTypeSelector: FC<MarketTypeSelectorProps> = ({ value, onChang
     <Box>
       <Text mb={2}>Market type</Text>
       <HStack {...group} spacing={2}>
-        {options.map((option) => {
+        {(isEdit ? options.filter((option) => option === value) : options).map((option) => {
           const radio = getRadioProps({ value: option })
           return (
-            <RadioCard key={option} {...radio}>
+            <RadioCard key={option} {...radio} isDisabled={isEdit}>
               <Text fontSize='10px'>{option}</Text>
             </RadioCard>
           )
