@@ -18,6 +18,7 @@ export type DraftMarketsQueueProps = {
 export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps) => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
   const queryClient = useQueryClient()
+  const toast = useToast()
 
   const privateClient = useAxiosPrivateClient()
 
@@ -56,15 +57,24 @@ export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps
     router.push(`/draft/?market=${marketId}&marketType=${marketType}`)
   }
 
-  const toast = useToast()
+  const getPostData = (marketType: DraftMarketType) => {
+    switch (marketType) {
+      case 'clob':
+        return { url: `/markets/clob/create-batch`, ids: { marketIds: selectedMarketIds } }
+      case 'group':
+        return { url: `/markets/group/create-batch`, ids: { groupIds: selectedMarketIds } }
+      default:
+        return { url: `/markets/create-batch`, ids: { marketIds: selectedMarketIds } }
+    }
+  }
 
   const createMarketsBatch = () => {
     setIsCreating(true)
-    const url = marketType === 'clob' ? `/markets/clob/create-batch` : `/markets/create-batch`
+    const { url, ids } = getPostData(marketType)
     privateClient
       .post(
         url,
-        { marketsIds: selectedMarketIds },
+        { ...ids },
         {
           headers: {
             'Content-Type': 'application/json',
