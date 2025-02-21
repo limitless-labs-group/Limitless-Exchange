@@ -23,6 +23,7 @@ import {
   useTradingService,
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import useGoogleAnalytics, { Purchase } from '@/services/GoogleAnalytics'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -52,6 +53,7 @@ export default function ClobMarketTradeForm() {
   const privyService = usePrivySendTransaction()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
+  const { pushPuchaseEvent } = useGoogleAnalytics()
 
   const placeMarketOrderMutation = useMutation({
     mutationKey: ['market-order', market?.slug, price],
@@ -103,8 +105,49 @@ export default function ClobMarketTradeForm() {
           orderType: 'FOK',
           marketSlug: market.slug,
         }
-        return privateClient.post('/orders', data)
+        const response = await privateClient.post('/orders', data)
+        if (!response?.data) {
+          console.log('Failed to place order')
+          return
+        }
+        return response.data
       }
+    },
+    onSuccess: async (res: { id: string }) => {
+      const validatePurchase = (data: Purchase): boolean => {
+        if (!data.transaction_id || typeof data.transaction_id !== 'string') return false
+        if (typeof data.currency !== 'string') return false
+        if (!Array.isArray(data.items) || data.items.length === 0) return false
+
+        return data.items.every(
+          (item) =>
+            typeof item.item_id === 'string' &&
+            typeof item.item_name === 'string' &&
+            item.item_category === 'Deposit' &&
+            typeof item.quantity === 'string'
+        )
+      }
+
+      const purchase: Purchase = {
+        transaction_id: res.id,
+        value: String(orderCalculations.payout),
+        currency: market?.collateralToken.symbol || 'USDC',
+        items: [
+          {
+            item_id: market?.marketType || '',
+            item_name: outcome ? 'Yes shares' : 'No shares',
+            item_category: 'Deposit',
+            price: String(orderCalculations.avgPrice),
+            quantity: String(price),
+          },
+        ],
+      }
+
+      if (!validatePurchase(purchase)) {
+        console.error('Invalid purchase object:', purchase)
+        return
+      }
+      pushPuchaseEvent(purchase)
     },
     onError: async () => {
       const id = toast({
@@ -514,4 +557,119 @@ export default function ClobMarketTradeForm() {
       )}
     </>
   )
+}
+// {
+//   transaction_id: res.id,
+//   value: '',
+//   currency: res.market.token.name,
+//   items: [
+//     {
+//       item_id: res.market.draftMetadata.type,
+//       item_name: res.side === 0 ? "No shares" ? 'Yes shares',
+//       item_category: 'Deposit',
+//       price: '',
+//       quantity: res.makerAmount/market.token.decimals,
+//     }
+//   ]
+// }
+
+const order = {
+  makerAmount: 10000, //0.01 amount
+  takerAmount: 1,
+  signatureType: 0,
+  salt: 1443672609311,
+  maker: '0x55257A9a03601B0587Ab4752FD42A87c4Bad2e1e',
+  signer: '0x55257A9a03601B0587Ab4752FD42A87c4Bad2e1e',
+  taker: '0x0000000000000000000000000000000000000000',
+  tokenId: '68520924636569036729435566371810702949677811144178366358503944533896399577010',
+  side: 0,
+  nonce: 0,
+  signature:
+    '0x6d1c4ec4971f6a4aa2d25b6cc36c5208760b26faeb017f2d845323b82364d6846bc93d1e726a50c2b9684bdb4c39122641f0a8c25f55834f40c6a1be463727521b',
+  orderType: 'FOK',
+  market: {
+    createdAt: '2025-02-17T17:39:52.603Z',
+    id: 2608,
+    address: null,
+    title: '💎 Ripple above $2.70 on February 21?',
+    proxyTitle: null,
+    description:
+      '<p>This market will resolve to "Yes" if the Binance 1 minute candle for XRPUSDT 21 Feb \'25 12:00 in the ET timezone (noon) has a final “Close” price of 2.70001 or higher. Otherwise, this market will resolve to "No".</p><p><br></p><p>The resolution source for this market is Binance, specifically the XRPUSDT "Close" prices currently available at&nbsp;<a href="https://www.binance.com/en/trade/XRP_USDT" rel="noopener noreferrer" target="_blank">https://www.binance.com/en/trade/XRP_USDT</a>&nbsp;with “1m” and “Candles” selected on the top bar.</p><p><br></p><p>Please note that this market is about the price according to Binance XRPUSDT, not according to other sources or spot markets.</p>',
+    questionId: '0x0ee17c3b135353640ce63a008f268faf39c95017fa56df90219edd10edc9cbc3',
+    conditionId: '0xcc343ad389593f8ec162e4d4e7402f0b7a6637419ce44e61bcf8d1de7bef9f93',
+    outcomeSlotCount: 2,
+    winningIndex: null,
+    payoutNumerators: null,
+    status: 'FUNDED',
+    ogUrl: 'https://storage.googleapis.com/limitless-exchange-prod-424014/markets/2608/og.jpg',
+    imageUrl: null,
+    deadline: '2025-02-21T17:00:00.000Z',
+    hidden: false,
+    txHash: null,
+    resolutionTxHash: null,
+    draftMetadata: {
+      fee: 0,
+      type: 'clob',
+    },
+    slug: 'ripple-above-dollar270-on-february-21-1739815556116',
+    yesPositionId: '68520924636569036729435566371810702949677811144178366358503944533896399577010',
+    noPositionId: '52641025126452605592415938481923444032002020823653638988901711495502408856356',
+    priorityIndex: 0,
+    metadata: {
+      isBannered: false,
+    },
+    category: {
+      id: 2,
+      name: 'Crypto',
+      priority: 7,
+    },
+    creator: {
+      id: 1,
+      account: '0x60e61631d9a585797cDee9f79FafDecf3bd7F64D',
+      username: 'Limitless',
+      displayName: 'Limitless',
+      bio: null,
+      client: 'eoa',
+      pfpUrl: 'https://limitless.exchange/assets/images/logo.svg',
+      smartWallet: null,
+      isCreator: true,
+      isAdmin: false,
+      socialUrl: 'https://x.com/trylimitless',
+    },
+    token: {
+      id: 7,
+      name: 'USDC',
+      symbol: 'USDC',
+      decimals: 6,
+      priceOracleId: 'usd-coin',
+      address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+      logoUrl: 'https://assets.coingecko.com/coins/images/6319/standard/usdc.png?1696506694',
+    },
+    tags: [
+      {
+        createdAt: '2024-08-30T22:11:35.830Z',
+        id: 149,
+        name: 'Daily',
+      },
+    ],
+    marketsGroup: null,
+  },
+  owner: {
+    id: 473,
+    account: '0x55257A9a03601B0587Ab4752FD42A87c4Bad2e1e',
+    username: '0x55257A9a03601B0587Ab4752FD42A87c4Bad2e1e',
+    displayName: '0x55257',
+    bio: '',
+    client: 'eoa',
+    pfpUrl: null,
+    smartWallet: null,
+    isCreator: false,
+    isAdmin: false,
+    socialUrl: null,
+  },
+  expiration: null,
+  feeRateBps: null,
+  price: null,
+  createdAt: '2025-02-21T13:34:52.221Z',
+  id: '93135c67-3930-47c3-9f40-ceaca6b8fa35',
 }

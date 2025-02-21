@@ -32,10 +32,33 @@ const useGoogleAnalytics = () => {
     })
   }
 
-  return { pushEvent, pushGA4Event }
+  const pushPuchaseEvent = (data: Purchase) => {
+    if (!data) return
+    pushEvent({
+      event: 'purchase',
+      ecommerce: data,
+    })
+  }
+
+  return { pushEvent, pushGA4Event, pushPuchaseEvent }
 }
 
 export default useGoogleAnalytics
+
+export interface PurchaseItem {
+  item_id: string
+  item_name: string
+  item_category: 'Deposit'
+  price: string
+  quantity: string
+}
+
+export interface Purchase {
+  transaction_id: string
+  value: string
+  currency: string
+  items: PurchaseItem[]
+}
 
 export enum GAEvents {
   ClickLogin = 'click_login',
@@ -51,6 +74,7 @@ export enum GAEvents {
   ClickHighVolume = 'click_highvolume',
   ClickNewest = 'click_newest',
   ClickLpRewards = 'click_lprewards',
+  ClickBuy = 'click_buy',
   SocialDiscord = 'social_discord',
   SocialWarpcast = 'social_warpcast',
   SocialX = 'social_x',
