@@ -35,6 +35,7 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
+import { calculateDisplayRange } from '@/utils/market'
 
 export default function OrderBookTableSmall({
   orderBookData,
@@ -110,6 +111,8 @@ export default function OrderBookTableSmall({
 
   const minRewardsSize = orderbook?.minSize ? orderbook.minSize : maxUint256.toString()
 
+  const range = calculateDisplayRange(orderbook?.adjustedMidpoint)
+
   const tooltipContent = (
     <Box>
       <Text {...paragraphMedium} as='span'>
@@ -153,30 +156,7 @@ export default function OrderBookTableSmall({
       <HStack w='full' mt='4px' justifyContent='space-between'>
         <Text {...paragraphMedium}>Current range:</Text>
         <Text {...paragraphMedium}>
-          {new BigNumber(orderbook?.adjustedMidpoint || '0')
-            .multipliedBy(100)
-            .minus(5)
-            .decimalPlaces(1)
-            .isNegative()
-            ? '0'
-            : new BigNumber(orderbook?.adjustedMidpoint || '0')
-                .multipliedBy(100)
-                .minus(5)
-                .decimalPlaces(1)
-                .toString()}
-          ¢ -{' '}
-          {new BigNumber(orderbook?.adjustedMidpoint || '0')
-            .multipliedBy(100)
-            .plus(5)
-            .decimalPlaces(1)
-            .isGreaterThan(100)
-            ? '100'
-            : new BigNumber(orderbook?.adjustedMidpoint || '0')
-                .multipliedBy(100)
-                .plus(5)
-                .decimalPlaces(1)
-                .toString()}
-          ¢
+          {range.lower}¢ - {range.upper}¢
         </Text>
       </HStack>
     </Box>
