@@ -24,7 +24,7 @@ const useGoogleAnalytics = () => {
     }
   }
 
-  const pushGA4Event = (event: GAEvents | undefined) => {
+  const pushGA4Event = (event: GAEvents | string | undefined) => {
     if (!event) return
     pushEvent({
       event: 'GA4_event',
