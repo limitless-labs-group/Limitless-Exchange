@@ -160,13 +160,13 @@ export default function OrderbookTableLarge({
           {new BigNumber(orderbook?.adjustedMidpoint || '0')
             .multipliedBy(100)
             .minus(5)
-            .decimalPlaces(0)
+            .decimalPlaces(1)
             .toString()}
           ¢ -{' '}
           {new BigNumber(orderbook?.adjustedMidpoint || '0')
             .multipliedBy(100)
             .plus(5)
-            .decimalPlaces(0)
+            .decimalPlaces(1)
             .toString()}
           ¢
         </Text>
