@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useIsMobile } from '@/hooks'
 import { ClickEvent, useAmplitude } from '@/services'
+import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Sort, SortStorageName } from '@/types'
 
@@ -40,6 +41,7 @@ export default function SortFilter({ onChange, storageName }: SortFilterProps) {
     (window.sessionStorage.getItem(storageName) as Sort) ?? Sort.ENDING_SOON
   )
   const { trackClicked } = useAmplitude()
+  const { pushGA4Event } = useGoogleAnalytics()
 
   const handleFilterItemClicked = (option: Sort) => {
     window.sessionStorage.setItem(storageName, option)
@@ -53,6 +55,23 @@ export default function SortFilter({ onChange, storageName }: SortFilterProps) {
       onChange(selectedSortFilter, storageName)
     }
   }, [selectedSortFilter])
+
+  const getGAEventForSort = (option: Sort): GAEvents | undefined => {
+    switch (option) {
+      case Sort.ENDING_SOON:
+        return GAEvents.ClickEndingSoon
+      case Sort.HIGHEST_VALUE:
+        return GAEvents.ClickHighValue
+      case Sort.HIGHEST_VOLUME:
+        return GAEvents.ClickHighVolume
+      case Sort.NEWEST:
+        return GAEvents.ClickNewest
+      case Sort.LP_REWARDS:
+        return GAEvents.ClickLpRewards
+      default:
+        return
+    }
+  }
 
   return (
     <HStack
@@ -76,6 +95,7 @@ export default function SortFilter({ onChange, storageName }: SortFilterProps) {
                   oldValue: selectedSortFilter,
                   newValue: option,
                 })
+                pushGA4Event(getGAEventForSort(option))
                 handleFilterItemClicked(option)
               }}
               _hover={{ bg: option === selectedSortFilter ? 'grey.50' : 'grey.400' }}

@@ -24,7 +24,58 @@ const useGoogleAnalytics = () => {
     }
   }
 
-  return { pushEvent }
+  const pushGA4Event = (event: GAEvents | string | undefined) => {
+    if (!event) return
+    pushEvent({
+      event: 'GA4_event',
+      event_name: event,
+    })
+  }
+
+  const pushPuchaseEvent = (data: Purchase) => {
+    if (!data) return
+    pushEvent({
+      event: 'purchase',
+      ecommerce: data,
+    })
+  }
+
+  return { pushEvent, pushGA4Event, pushPuchaseEvent }
 }
 
 export default useGoogleAnalytics
+
+export interface PurchaseItem {
+  item_id: string
+  item_name: string
+  item_category: 'Deposit'
+  price: string
+  quantity: string
+}
+
+export interface Purchase {
+  transaction_id: string
+  value: string
+  currency: string
+  items: PurchaseItem[]
+}
+
+export enum GAEvents {
+  ClickLogin = 'click_login',
+  SelectWalletMetamask = 'select_wallet_metamask',
+  SelectWalletCoinbase = 'select_wallet_coinbase',
+  SelectWalletRainbow = 'select_wallet_rainbow',
+  SelectWalletWalletConnect = 'select_wallet_walletconnect',
+  SelectAnyWallet = 'select_any_wallet',
+  WalletConnected = 'wallet_connected',
+  ClickSection = 'click_section',
+  ClickEndingSoon = 'click_endingsoon',
+  ClickHighValue = 'click_highvalue',
+  ClickHighVolume = 'click_highvolume',
+  ClickNewest = 'click_newest',
+  ClickLpRewards = 'click_lprewards',
+  ClickBuy = 'click_buy',
+  SocialDiscord = 'social_discord',
+  SocialWarpcast = 'social_warpcast',
+  SocialX = 'social_x',
+}
