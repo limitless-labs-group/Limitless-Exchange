@@ -157,8 +157,17 @@ export default function OrderbookTableLarge({
       <HStack w='full' mt='4px' justifyContent='space-between'>
         <Text {...paragraphMedium}>Current rewards range:</Text>
         <Text {...paragraphMedium}>
-          {new BigNumber(orderbook?.adjustedMidpoint || '0').multipliedBy(100).minus(5).toString()}¢
-          - {new BigNumber(orderbook?.adjustedMidpoint || '0').multipliedBy(100).plus(5).toString()}
+          {new BigNumber(orderbook?.adjustedMidpoint || '0')
+            .multipliedBy(100)
+            .minus(5)
+            .decimalPlaces(0)
+            .toString()}
+          ¢ -{' '}
+          {new BigNumber(orderbook?.adjustedMidpoint || '0')
+            .multipliedBy(100)
+            .plus(5)
+            .decimalPlaces(0)
+            .toString()}
           ¢
         </Text>
       </HStack>
