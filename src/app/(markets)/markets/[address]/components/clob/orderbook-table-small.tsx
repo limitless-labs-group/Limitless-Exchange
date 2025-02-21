@@ -169,7 +169,13 @@ export default function OrderBookTableSmall({
             .multipliedBy(100)
             .plus(5)
             .decimalPlaces(1)
-            .toString()}
+            .isGreaterThan(100)
+            ? '100'
+            : new BigNumber(orderbook?.adjustedMidpoint || '0')
+                .multipliedBy(100)
+                .plus(5)
+                .decimalPlaces(1)
+                .toString()}
           ¢
         </Text>
       </HStack>
