@@ -60,11 +60,11 @@ export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps
   const getPostData = (marketType: DraftMarketType) => {
     switch (marketType) {
       case 'clob':
-        return { url: `/markets/clob/create-batch`, ids: { marketIds: selectedMarketIds } }
+        return { url: `/markets/clob/create-batch`, ids: { marketsIds: selectedMarketIds } }
       case 'group':
         return { url: `/markets/group/create-batch`, ids: { groupIds: selectedMarketIds } }
       default:
-        return { url: `/markets/create-batch`, ids: { marketIds: selectedMarketIds } }
+        return { url: `/markets/create-batch`, ids: { marketsIds: selectedMarketIds } }
     }
   }
 
