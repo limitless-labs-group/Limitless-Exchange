@@ -157,7 +157,13 @@ export default function OrderBookTableSmall({
             .multipliedBy(100)
             .minus(5)
             .decimalPlaces(1)
-            .toString()}
+            .isNegative()
+            ? '0'
+            : new BigNumber(orderbook?.adjustedMidpoint || '0')
+                .multipliedBy(100)
+                .minus(5)
+                .decimalPlaces(1)
+                .toString()}
           ¢ -{' '}
           {new BigNumber(orderbook?.adjustedMidpoint || '0')
             .multipliedBy(100)
