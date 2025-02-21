@@ -154,6 +154,14 @@ export default function OrderbookTableLarge({
           {formatUnits(BigInt(minRewardsSize), market?.collateralToken.decimals || 6)}
         </Text>
       </HStack>
+      <HStack w='full' mt='4px' justifyContent='space-between'>
+        <Text {...paragraphMedium}>Current rewards range:</Text>
+        <Text {...paragraphMedium}>
+          {new BigNumber(orderbook?.adjustedMidpoint || '0').multipliedBy(100).minus(5).toString()}¢
+          - {new BigNumber(orderbook?.adjustedMidpoint || '0').multipliedBy(100).plus(5).toString()}
+          ¢
+        </Text>
+      </HStack>
     </Box>
   )
 
