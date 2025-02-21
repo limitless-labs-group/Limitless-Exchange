@@ -155,7 +155,7 @@ export default function OrderbookTableLarge({
         </Text>
       </HStack>
       <HStack w='full' mt='4px' justifyContent='space-between'>
-        <Text {...paragraphMedium}>Current rewards range:</Text>
+        <Text {...paragraphMedium}>Current range:</Text>
         <Text {...paragraphMedium}>
           {new BigNumber(orderbook?.adjustedMidpoint || '0')
             .multipliedBy(100)
