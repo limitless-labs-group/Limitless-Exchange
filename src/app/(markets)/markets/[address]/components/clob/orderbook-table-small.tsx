@@ -111,7 +111,7 @@ export default function OrderBookTableSmall({
 
   const minRewardsSize = orderbook?.minSize ? orderbook.minSize : maxUint256.toString()
 
-  const range = calculateDisplayRange(orderbook?.adjustedMidpoint)
+  const range = calculateDisplayRange(orderbook?.adjustedMidpoint, orderbook?.maxSpread)
 
   const tooltipContent = (
     <Box>
