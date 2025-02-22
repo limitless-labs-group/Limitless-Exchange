@@ -57,23 +57,26 @@ export const DraftMarketsQueue = () => {
     setIsCreating(true)
     privateClient
       .post(
-        `/markets/create-batch`,
+        `/markets/create-batch-palmera`,
         { marketsIds: selectedMarketIds },
         {
           headers: {
             'Content-Type': 'application/json',
           },
+          responseType: 'blob',
         }
       )
       .then((res) => {
-        if (res.status === 201) {
-          const newTab = window.open('', '_blank')
-          if (newTab) {
-            newTab.location.href = res.data.multisigTxLink
-          } else {
-            // Fallback if the browser blocks the popup
-            window.location.href = res.data.multisigTxLink
-          }
+        if (res.status === 200) {
+          const blob = new Blob([res.data], { type: 'application/json' })
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = 'batch-resolve-result.json' // Set the downloaded file name
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          window.URL.revokeObjectURL(url) // Clean up memory
         }
       })
       .catch((res) => {
