@@ -75,6 +75,7 @@ export enum GAEvents {
   ClickNewest = 'click_newest',
   ClickLpRewards = 'click_lprewards',
   ClickBuy = 'click_buy',
+  ClickBuyOrder = 'click_buy_order',
   SocialDiscord = 'social_discord',
   SocialWarpcast = 'social_warpcast',
   SocialX = 'social_x',
