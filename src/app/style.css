@@ -24,6 +24,10 @@
   width: fit-content !important;
 }
 
+.feed-container .infinite-scroll-component__outerdiv {
+  width: 100% !important;
+}
+
 .read-only .ql-container.ql-snow {
   border: none !important;
 }
@@ -209,4 +213,16 @@ body {
   --privy-color-success: var(--chakra-colors-green-500);
   --privy-color-error: var(--chakra-colors-red-500);
   --privy-color-accent-dark: var(--chakra-colors-blue-500);
+}
+
+@media (max-width: 1024px) {
+  .intercom-lightweight-app-launcher {
+    bottom: 88px !important;
+    right: 8px !important;
+  }
+
+  [class^='intercom-with-namespace'] {
+    bottom: 88px !important;
+    right: 8px !important;
+  }
 }

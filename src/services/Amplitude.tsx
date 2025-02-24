@@ -124,6 +124,9 @@ export enum ChangeEvent {
   LeaderboardPageChanged = 'Leaderboard Page Changed',
   OrderBookSideChanged = 'Orderbook Side Changed',
   ClobPositionsTabChanged = 'Clob Positions Tab Changed',
+  ClobWidgetModeChanged = 'Clob Widget Mode Changed',
+  ChartTabChanged = 'Chart View Changed',
+  PortfolioClobViewChanged = 'Portfolio/Orders View Changed',
 }
 
 export enum ClickEvent {
@@ -170,9 +173,7 @@ export enum ClickEvent {
   SidebarMarketOpened = 'Sidebar Market Opened',
   FeedMarketClicked = 'Feed Market Clicked',
   PortfolioMarketClicked = 'PortfolioMarketClicked',
-  PredictionChartOpened = 'Prediction Chart Opened',
   OrderBookOpened = 'Order book Opened',
-  AssetPriceChartOpened = 'Asset Price Chart Opened',
   NextMarketClick = 'Next Market Click',
   PreviousMarketClick = 'Previous Market Click',
   TradingWidgetPricePrecetChosen = 'Trading Widget Price Preset Chosen',
@@ -185,6 +186,12 @@ export enum ClickEvent {
   UndoBlockingUser = 'Undo Blocking User',
   UserMarketClicked = 'User Market Clicked',
   UpgradeWalletClicked = 'Upgrade Wallet Clicked',
+  RewardsButtonClicked = 'Rewards Button Clicked',
+  SplitContractsModalClicked = 'Split Contracts Modal Clicked',
+  MergeContractsModalClicked = 'Merge Contracts Modal Clicked',
+  SplitSharesConfirmed = 'Split Contracts Confirmed',
+  MergeSharesConfirmed = 'Merge Contracts Confirmed',
+  MergeSharesModalMaxSharesClicked = 'Merge Contracts Modal Max Button Clicked',
 }
 
 export enum SignInEvent {
@@ -229,6 +236,7 @@ export interface OrderBookSideChangedMetadata {
 export interface StrategyChangedMetadata {
   type: StrategyChangedType
   marketAddress: string
+  marketMarketType: 'AMM' | 'CLOB'
 }
 
 export interface OutcomeChangedMetadata {
@@ -427,6 +435,18 @@ export interface MediumBannerClicked {
   bannerPaginationPage: number
 }
 
+interface RewardsButtonClickedMetadata {
+  visible: 'off' | 'on'
+}
+
+interface ClobWidgetModeChangedMetadata {
+  mode: 'amm on' | 'clob on'
+}
+
+interface ChartTabChangedMetadata {
+  view: string
+}
+
 export type ChangedEventMetadata =
   | StrategyChangedMetadata
   | OutcomeChangedMetadata
@@ -436,6 +456,8 @@ export type ChangedEventMetadata =
   | LeaderboardPageChangedMetadata
   | OrderBookSideChangedMetadata
   | ClobPositionsTabChangesMetadata
+  | ClobWidgetModeChangedMetadata
+  | ChartTabChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
   | PricePresetClickedMetadata
@@ -459,6 +481,7 @@ export type ClickedEventMetadata =
   | CloseMarketMetadata
   | TradingWidgetPriceClickedMetadata
   | FullPageClickedMetaData
+  | RewardsButtonClickedMetadata
 
 export type OpenedEventMetadata =
   | PageOpenedMetadata

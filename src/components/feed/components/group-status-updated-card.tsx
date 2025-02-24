@@ -117,7 +117,7 @@ export default function GroupStatusUpdatedCard({ data }: GroupStatusUpdatedCard)
       </Box>
       <VStack gap={isMobile ? '8px' : '4px'} alignItems='start'>
         {marketGroup?.markets.slice(0, 3).map((market) => (
-          <HStack justifyContent='space-between' key={market.address} w='full'>
+          <HStack justifyContent='space-between' key={market.slug} w='full'>
             <Text {...paragraphMedium} color={colors.main}>
               {market.title}
             </Text>

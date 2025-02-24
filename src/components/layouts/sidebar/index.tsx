@@ -27,11 +27,11 @@ import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
-import UpgradeWalletContainer from '@/components/common/upgrade-wallet-container'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
+import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { useThemeProvider } from '@/providers'
@@ -71,8 +71,8 @@ export default function Sidebar() {
     account,
     web3Client,
     loginToPlatform,
-    isLoggedIn,
   } = useAccount()
+  const { isLoggedToPlatform } = useClient()
   const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { balanceOfSmartWallet } = useBalanceQuery()
@@ -146,26 +146,24 @@ export default function Sidebar() {
     }
     return web3Client !== 'eoa' ? (
       <>
-        <UpgradeWalletContainer>
-          <Button
-            variant='transparent'
-            onClick={() => {
-              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
-                option: 'Wallet',
-              })
-              handleOpenWalletPage()
-            }}
-            w='full'
-            bg={isOpenWalletPage ? 'grey.100' : 'unset'}
-          >
-            <HStack w='full'>
-              <WalletIcon width={16} height={16} />
-              <Text fontWeight={500} fontSize='14px'>
-                {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-              </Text>
-            </HStack>
-          </Button>
-        </UpgradeWalletContainer>
+        <Button
+          variant='transparent'
+          onClick={() => {
+            trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+              option: 'Wallet',
+            })
+            handleOpenWalletPage()
+          }}
+          w='full'
+          bg={isOpenWalletPage ? 'grey.100' : 'unset'}
+        >
+          <HStack w='full'>
+            <WalletIcon width={16} height={16} />
+            <Text fontWeight={500} fontSize='14px'>
+              {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+            </Text>
+          </HStack>
+        </Button>
         <Button
           variant='contained'
           onClick={handleBuyCryptoClicked}
@@ -239,7 +237,7 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        {isLoggedIn ? (
+        {isLoggedToPlatform ? (
           <>
             <VStack mt='16px' w='full' gap='8px'>
               {walletTypeActionButton}

@@ -41,21 +41,25 @@ export const createMarketShareUrls = (
   outcomeTokensPercent: number[] | undefined,
   creatorName?: string
 ): ShareURI => {
-  const formatOutcomeTokenPercent = (index: number) =>
-    `${Number(outcomeTokensPercent?.[index] ?? 50).toFixed(2)}%`
+  // const formatOutcomeTokenPercent = (index: number) =>
+  //   `${Number(outcomeTokensPercent?.[index] ?? 50).toFixed(2)}%`
+
+  // const baseMessage = `"${
+  //   market?.proxyTitle ?? market?.title
+  // }" by ${creatorName}\n${'Yes'} ${formatOutcomeTokenPercent(0)} | 'No' ${formatOutcomeTokenPercent(
+  //   1
+  // )}\nMake your bet on`
+
+  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
 
   const baseMessage = `"${
     market?.proxyTitle ?? market?.title
-  }" by ${creatorName}\n${'Yes'} ${formatOutcomeTokenPercent(0)} | 'No' ${formatOutcomeTokenPercent(
-    1
-  )}\nMake your bet on`
+  }" by ${creatorName}\nMake your bet on ${marketURI}`
 
   const encodedBaseMessage = encodeURI(baseMessage)
 
-  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.address}`
-
   return {
-    tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage} ${marketURI}`,
+    tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage}`,
     //embeds is a param which gives ability to make pre-screen from market as Image/Link
     castURI: `https://warpcast.com/~/compose?text=${encodedBaseMessage}&embeds[]=${marketURI}`,
   }

@@ -39,7 +39,7 @@ interface IBalanceService {
   setAmount: (amount: string) => void
   unwrap: boolean
   setUnwrap: (unwrap: boolean) => void
-  withdraw: UseMutateAsyncFunction<
+  withdrawMutation: UseMutationResult<
     void,
     Error,
     { receiver: string; token: Token; amount: string },
@@ -143,7 +143,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   }, [balanceOfSmartWallet, amountBI, token])
 
   // Mutation
-  const { mutateAsync: withdraw, isPending: isLoadingWithdraw } = useMutation({
+  const withdrawMutation = useMutation({
     mutationFn: async ({
       receiver,
       token,
@@ -200,15 +200,10 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       )
 
       if (!transferReceipt) {
-        // TODO: show error toast
         log.error(`Transfer ${token?.symbol} is unsuccessful`)
         return
       }
       setAmount('')
-
-      const toastId = toast({
-        render: () => <ToastWithdraw transactionHash={transferReceipt} id={toastId} />,
-      })
     },
   })
 
@@ -216,14 +211,11 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
    * UI STATUS
    */
   const status: BalanceServiceStatus = useMemo(() => {
-    if (isLoadingWithdraw) {
-      return 'Loading'
-    }
     if (isInvalidAmount) {
       return 'InvalidAmount'
     }
     return 'ReadyToFund'
-  }, [isInvalidAmount, isLoadingWithdraw])
+  }, [isInvalidAmount])
 
   return (
     <BalanceService.Provider
@@ -233,7 +225,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         setAmount,
         unwrap,
         setUnwrap,
-        withdraw,
+        withdrawMutation,
         setToken,
         token,
         status,

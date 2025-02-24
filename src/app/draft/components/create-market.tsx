@@ -95,6 +95,7 @@ export const CreateMarket: FC = () => {
   useEffect(() => {
     if (editMarket) {
       setAutoGenerateOg(true)
+      setCreateClobMarket(editMarket.type === 'clob')
       setFormData((prevFormData) => ({
         ...prevFormData,
         title: editMarket.title || '',
@@ -117,9 +118,9 @@ export const CreateMarket: FC = () => {
           })) || [],
         creatorId: editMarket.creator?.id || defaultCreatorId,
         categoryId: editMarket.category?.id || defaultCategoryId,
+        type: editMarket.type,
       }))
-      generateOgImage().then(() => console.log('Og image generated')),
-        setCreateClobMarket(!!editMarket.type)
+      generateOgImage().then(() => console.log('Og image generated'))
     }
   }, [editMarket])
 
@@ -237,6 +238,39 @@ export const CreateMarket: FC = () => {
     ])
   }
 
+  const prepareMarketData = (formData: FormData) => {
+    const tokenId = Number(formData.get('tokenId'))
+    const marketFee = Number(formData.get('marketFee'))
+    const deadline = Number(formData.get('deadline'))
+
+    if (isNaN(tokenId) || isNaN(marketFee) || isNaN(deadline)) {
+      throw new Error('Invalid numeric values in form data')
+    }
+
+    const title = formData.get('title')
+    const description = formData.get('description')
+    if (!title || !description) {
+      throw new Error('Missing required fields')
+    }
+
+    return {
+      title: title.toString(),
+      description: description.toString(),
+      tokenId,
+      ...(createClobMarket ? {} : { liquidity: Number(formData.get('liquidity')) }),
+      ...(createClobMarket
+        ? {}
+        : { initialYesProbability: Number(formData.get('initialYesProbability')) }),
+      marketFee,
+      deadline,
+      isBannered: formData.get('isBannered') === 'true',
+      creatorId: formData.get('creatorId')?.toString() ?? '',
+      categoryId: formData.get('categoryId')?.toString() ?? '',
+      ogFile: formData.get('ogFile') as File | null,
+      tagIds: formData.get('tagIds')?.toString() ?? '',
+    }
+  }
+
   const prepareData = async () => {
     await generateOgImage()
 
@@ -311,22 +345,7 @@ export const CreateMarket: FC = () => {
     const data = await prepareData()
     if (!data) return
     setIsCreating(true)
-    const marketData = {
-      title: data.get('title'),
-      description: data.get('description'),
-      tokenId: Number(data.get('tokenId')),
-      ...(createClobMarket ? {} : { liquidity: Number(data.get('liquidity')) }),
-      ...(createClobMarket
-        ? {}
-        : { initialYesProbability: Number(data.get('initialYesProbability')) }),
-      marketFee: Number(data.get('marketFee')),
-      deadline: Number(data.get('deadline')),
-      isBannered: data.get('isBannered') === 'true',
-      creatorId: data.get('creatorId'),
-      categoryId: data.get('categoryId'),
-      ogFile: data.get('ogFile'),
-      tagIds: data.get('tagIds'),
-    }
+    const marketData = prepareMarketData(data)
     const url = createClobMarket ? '/markets/clob/drafts' : '/markets/drafts'
     privateClient
       .post(url, marketData, {
@@ -355,15 +374,17 @@ export const CreateMarket: FC = () => {
     const data = await prepareData()
     if (!data) return
     setIsCreating(true)
+    const marketData = prepareMarketData(data)
     privateClient
-      .put(`/markets/drafts/${marketId}`, data, {
+      .put(`/markets/drafts/${marketId}`, marketData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
       .then((res) => {
         showToast(`Market ${marketId} is updated`)
-        router.push('/draft?tab=queue')
+        const type = createClobMarket ? 'clob' : 'amm'
+        router.push(`/draft?tab=queue-${type}`)
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
@@ -507,7 +528,11 @@ export const CreateMarket: FC = () => {
 
               <FormField label='Token'>
                 <HStack>
-                  <Select value={formData.token.id} onChange={handleTokenSelect}>
+                  <Select
+                    value={formData.token.id}
+                    onChange={handleTokenSelect}
+                    disabled={createClobMarket}
+                  >
                     {supportedTokens?.map((token: Token) => (
                       <option key={token.id} value={token.id} data-name={token.symbol}>
                         {token.symbol}

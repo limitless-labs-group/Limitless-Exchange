@@ -47,9 +47,9 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
   const { trackClicked } = useAmplitude()
   const router = useRouter()
   const { market, setMarket, resetQuotes } = useTradingService()
-  const { data: winningIndex } = useWinningIndex(market?.address as string)
+  // const { data: winningIndex } = useWinningIndex(market?.address as string)
 
-  const resolved = winningIndex === 0 || winningIndex === 1
+  // const resolved = winningIndex === 0 || winningIndex === 1
 
   const isCollateralLoading = false
 
@@ -124,13 +124,13 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
     },
   ]
 
-  const tabPanels = useMemo(() => {
-    return [
-      <MarketOverviewTab market={market as Market} key={uuidv4()} marketGroup={marketGroup} />,
-      <MarketActivityTab key={uuidv4()} isActive />,
-      <CommentTab key={uuidv4()} />,
-    ]
-  }, [market, winningIndex, resolved, marketGroup])
+  // const tabPanels = useMemo(() => {
+  //   return [
+  //     <MarketOverviewTab market={market as Market} key={uuidv4()} marketGroup={marketGroup} />,
+  //     <MarketActivityTab key={uuidv4()} isActive />,
+  //     <CommentTab key={uuidv4()} />,
+  //   ]
+  // }, [market, winningIndex, resolved, marketGroup])
 
   useEffect(() => {
     if (marketGroup) {
@@ -195,12 +195,12 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                   ))}
                 </HStack>
               </HStack>
-              <MarketMetadata
-                market={market ? market : undefined}
-                winningIndex={winningIndex}
-                resolved={resolved}
-                marketLoading={marketGroupLoading}
-              />
+              {/*<MarketMetadata*/}
+              {/*  market={market ? market : undefined}*/}
+              {/*  winningIndex={winningIndex}*/}
+              {/*  resolved={resolved}*/}
+              {/*  marketLoading={marketGroupLoading}*/}
+              {/*/>*/}
               <Box mt={isMobile ? '48px' : '24px'} />
               <Tabs position='relative' variant='common'>
                 <TabList>
@@ -219,11 +219,11 @@ export default function MarketGroupPage({ params }: { params: { slug: string } }
                   bg='grey.800'
                   transitionDuration='200ms !important'
                 />
-                <TabPanels>
-                  {tabPanels.map((panel, index) => (
-                    <TabPanel key={index}>{panel}</TabPanel>
-                  ))}
-                </TabPanels>
+                {/*<TabPanels>*/}
+                {/*  {tabPanels.map((panel, index) => (*/}
+                {/*    <TabPanel key={index}>{panel}</TabPanel>*/}
+                {/*  ))}*/}
+                {/*</TabPanels>*/}
               </Tabs>
             </Box>
             {!isMobile && marketActionForm}

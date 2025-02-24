@@ -14,15 +14,19 @@ import {
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import React, { useMemo } from 'react'
-import { Address, maxUint256 } from 'viem'
+import React, { useEffect, useMemo } from 'react'
+import { Address, maxUint256, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import Paper from '@/components/common/paper'
+import { Toast } from '@/components/common/toast'
+import { useToast } from '@/hooks'
+import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import CompletedStepIcon from '@/resources/icons/completed-icon.svg'
 import LockerIcon from '@/resources/icons/locker-icon.svg'
-import { useTradingService } from '@/services'
+import { ClickEvent, useAccount, useAmplitude, useTradingService } from '@/services'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useWeb3Service } from '@/services/Web3Service'
 import { h3Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
@@ -37,12 +41,16 @@ export default function TradeStepperMenu() {
     price,
     sharesAmount,
     checkMarketAllowance,
-    placeMarketOrderMutation,
-    placeLimitOrderMutation,
   } = useClobWidget()
   const { strategy, market, clobOutcome: outcome } = useTradingService()
   const { approveContract, approveAllowanceForAll } = useWeb3Service()
   const queryClient = useQueryClient()
+  const { web3Client, profileData } = useAccount()
+  const privyService = usePrivySendTransaction()
+  const { placeLimitOrder, placeMarketOrder } = useWeb3Service()
+  const privateClient = useAxiosPrivateClient()
+  const toast = useToast()
+  const { trackClicked } = useAmplitude()
 
   const firstStepMessage = useMemo(() => {
     const outcomePrice = outcome ? noPrice : yesPrice
@@ -62,7 +70,7 @@ export default function TradeStepperMenu() {
     }
     return orderType === MarketOrderType.MARKET
       ? `You’re selling ${outcomeToken} shares for market price`
-      : `You’re selling ${outcomeToken} ${outcomePrice}% for ${NumberUtil.formatThousands(
+      : `You’re selling ${outcomeToken} shares for ${NumberUtil.formatThousands(
           totalPrice,
           2
         )} ${collateral}`
@@ -94,7 +102,7 @@ export default function TradeStepperMenu() {
   }, [orderType, price, sharesAmount, strategy])
 
   const approveBuyMutation = useMutation({
-    mutationKey: ['approve', market?.address],
+    mutationKey: ['approve', market?.slug],
     mutationFn: async () => {
       if (market) {
         await approveContract(
@@ -110,7 +118,7 @@ export default function TradeStepperMenu() {
   })
 
   const approveForSellMutation = useMutation({
-    mutationKey: ['approve-nft', market?.address],
+    mutationKey: ['approve-nft', market?.slug],
     mutationFn: async () => {
       if (market) {
         await approveAllowanceForAll(
@@ -125,6 +133,132 @@ export default function TradeStepperMenu() {
   })
 
   const approveMutation = strategy === 'Buy' ? approveBuyMutation : approveForSellMutation
+
+  const placeMarketOrderMutation = useMutation({
+    mutationKey: ['market-order', market?.slug, price],
+    mutationFn: async () => {
+      trackClicked(ClickEvent.ConfirmTransactionClicked, {
+        address: market?.slug,
+        outcome: outcome,
+        strategy,
+        walletType: web3Client,
+        marketType: market?.marketType,
+        marketMakerType: 'ClOB',
+        tradingMode: 'market order',
+      })
+      if (market) {
+        if (web3Client === 'etherspot') {
+          if (strategy === 'Sell') {
+            await privyService.approveConditionalIfNeeded(
+              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+            )
+          } else {
+            await privyService.approveCollateralIfNeeded(
+              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              maxUint256,
+              market?.collateralToken.address as Address
+            )
+          }
+        }
+        const tokenId = outcome === 1 ? market.tokens.no : market.tokens.yes
+        const side = strategy === 'Buy' ? 0 : 1
+        const signedOrder = await placeMarketOrder(
+          tokenId,
+          market.collateralToken.decimals,
+          outcome === 0 ? yesPrice.toString() : noPrice.toString(),
+          side,
+          price
+        )
+        const data = {
+          order: {
+            ...signedOrder,
+            salt: +signedOrder.salt,
+            price: undefined,
+            makerAmount: +parseUnits(price, market.collateralToken.decimals).toString(),
+            takerAmount: +signedOrder.takerAmount,
+            nonce: +signedOrder.nonce,
+            feeRateBps: +signedOrder.feeRateBps,
+          },
+          ownerId: profileData?.id,
+          orderType: 'FOK',
+          marketSlug: market.slug,
+        }
+        return privateClient.post('/orders', data)
+      }
+    },
+    onError: async () => {
+      const id = toast({
+        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
+      })
+      await queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      })
+    },
+  })
+
+  const placeLimitOrderMutation = useMutation({
+    mutationKey: ['limit-order', market?.slug, price],
+    mutationFn: async () => {
+      trackClicked(ClickEvent.ConfirmTransactionClicked, {
+        address: market?.slug,
+        outcome: outcome,
+        strategy,
+        walletType: web3Client,
+        marketType: market?.marketType,
+        marketMakerType: 'ClOB',
+        tradingMode: 'limit order',
+      })
+      if (market) {
+        if (web3Client === 'etherspot') {
+          if (strategy === 'Sell') {
+            await privyService.approveConditionalIfNeeded(
+              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+            )
+          } else {
+            await privyService.approveCollateralIfNeeded(
+              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              maxUint256,
+              market?.collateralToken.address as Address
+            )
+          }
+        }
+        const tokenId = outcome === 1 ? market.tokens.no : market.tokens.yes
+        const side = strategy === 'Buy' ? 0 : 1
+        const signedOrder = await placeLimitOrder(
+          tokenId,
+          market.collateralToken.decimals,
+          price,
+          sharesAmount,
+          side
+        )
+        const data = {
+          order: {
+            ...signedOrder,
+            salt: +signedOrder.salt,
+            price: new BigNumber(price).dividedBy(100).toNumber(),
+            makerAmount: +signedOrder.makerAmount,
+            takerAmount: +signedOrder.takerAmount,
+            nonce: +signedOrder.nonce,
+            feeRateBps: +signedOrder.feeRateBps,
+          },
+          ownerId: profileData?.id,
+          orderType: 'GTC',
+          marketSlug: market.slug,
+        }
+        return privateClient.post('/orders', data)
+      }
+    },
+    onError: async () => {
+      const id = toast({
+        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
+      })
+      await queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      })
+    },
+  })
 
   const tradeMutation =
     orderType === MarketOrderType.MARKET ? placeMarketOrderMutation : placeLimitOrderMutation
@@ -151,6 +285,8 @@ export default function TradeStepperMenu() {
   }
 
   const onResetTradeMutation = async () => {
+    await sleep(2)
+    setActiveStep(3)
     await queryClient.refetchQueries({
       queryKey: ['user-orders', market?.slug],
     })
@@ -160,8 +296,6 @@ export default function TradeStepperMenu() {
     await queryClient.refetchQueries({
       queryKey: ['order-book', market?.slug],
     })
-    tradeMutation.reset()
-    setActiveStep(3)
   }
 
   const renderTradeButton = () => {
@@ -169,7 +303,10 @@ export default function TradeStepperMenu() {
       <ButtonWithStates
         status={tradeMutation.status}
         variant='contained'
-        onClick={async () => tradeMutation.mutateAsync()}
+        onClick={async () => {
+          await tradeMutation.mutateAsync()
+          await sleep(2)
+        }}
         onReset={onResetTradeMutation}
         w='100px'
       >
@@ -189,10 +326,22 @@ export default function TradeStepperMenu() {
     count: steps.length + 1,
   })
 
+  const closeModalWithDelay = async () => {
+    await sleep(5)
+    tradeMutation.reset()
+    onToggleTradeStepper()
+  }
+
   const headerText =
     strategy === 'Buy'
       ? 'Just authorize the needed USDC for this trade then sign the transaction to confirm'
       : 'Just authorize permission for sell then sign the transaction to confirm'
+
+  useEffect(() => {
+    if (activeStep === 3) {
+      closeModalWithDelay()
+    }
+  }, [activeStep])
 
   return (
     <Paper position='absolute' bottom={0} rounded='8px' zIndex={100} w='full' p='16px' pt='8px'>

@@ -26,7 +26,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
       <MarketPage />
     </MobileDrawer>
   ) : (
-    <MarketCardLink marketAddress={market.address as Address}>
+    <MarketCardLink marketAddress={market.slug as Address}>
       {<BigBannerTrigger market={market} markets={markets} />}
     </MarketCardLink>
   )

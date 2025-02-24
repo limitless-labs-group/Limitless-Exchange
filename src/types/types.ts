@@ -39,6 +39,7 @@ export type DraftMetadata = {
 }
 
 export interface Market {
+  id: number
   address: Address | null
   category: Category | string
   collateralToken: {
@@ -228,6 +229,7 @@ export enum Sort {
   HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VALUE = 'High Value',
   HIGHEST_VOLUME = 'High Volume',
+  LP_REWARDS = '💎 LP Rewards',
 }
 
 export enum SortStorageName {

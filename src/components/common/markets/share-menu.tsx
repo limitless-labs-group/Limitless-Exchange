@@ -33,7 +33,7 @@ export default function ShareMenu() {
   const toast = useToast()
   const marketURI = marketGroup
     ? `${process.env.NEXT_PUBLIC_FRAME_URL}/market-group/${marketGroup.slug}`
-    : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.address}`
+    : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
   return (
     <Menu isOpen={isShareMenuOpen} onClose={toggleShareMenu}>

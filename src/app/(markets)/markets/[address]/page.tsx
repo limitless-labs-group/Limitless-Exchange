@@ -46,11 +46,11 @@ import { MainLayout } from '@/components'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
+import LineChartIcon from '@/resources/icons/line-chart-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
-import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
-import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
+import { ChangeEvent, ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { h1Regular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
@@ -60,7 +60,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   /**
    * ANALYTICS
    */
-  const { trackClicked, trackOpened } = useAmplitude()
+  const { trackClicked, trackOpened, trackChanged } = useAmplitude()
   const router = useRouter()
   const { data: market, isLoading: fetchMarketLoading } = useMarket(params.address)
   const isLumy = market?.tags?.includes('Lumy')
@@ -93,23 +93,20 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
 
   const chartTabs = [
     {
-      title: 'Predictions',
-      icon: <PredictionsIcon width={16} height={16} />,
-      analyticEvent: ClickEvent.PredictionChartOpened,
+      title: 'Chart',
+      icon: <LineChartIcon width={16} height={16} />,
     },
     {
       title: 'Assets price',
       icon: <CandlestickIcon width={16} height={16} />,
-      analyticEvent: ClickEvent.AssetPriceChartOpened,
     },
   ]
 
-  const handleChartTabClicked = (event: ClickEvent) =>
-    trackClicked(event, {
-      marketAddress: market?.address,
-      marketType: market?.marketType,
-      marketTags: market?.tags,
-      platform: isMobile ? 'mobile' : 'desktop',
+  const handleChartTabClicked = (event: string) =>
+    trackChanged(ChangeEvent.ChartTabChanged, {
+      view: event + 'on',
+      marketMarketType: market?.tradeType === 'amm' ? 'AMM' : 'CLOB',
+      marketAddress: market?.slug,
     })
 
   const chartsTabPanels = useMemo(
@@ -117,7 +114,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       <MarketPriceChart key={uuidv4()} />,
       <MarketAssetPriceChart
         key={uuidv4()}
-        id={LUMY_TOKENS.filter((token) => market?.title.includes(token))[0]}
+        id={LUMY_TOKENS.filter((token) => market?.title.includes(`${token} `))[0]}
       />,
     ],
     [market?.title]
@@ -129,7 +126,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
         <Tabs position='relative' variant='common' mt='20px'>
           <TabList>
             {chartTabs.map((tab) => (
-              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.analyticEvent)}>
+              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.title)}>
                 <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
                   {tab.icon}
                   <>{tab.title}</>
@@ -250,6 +247,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
       trackOpened(OpenEvent.MarketPageOpened, {
         marketAddress: market.slug,
         page: 'Market Page',
+        marketMakerType: market.tradeType.toUpperCase(),
       })
     }
   }, [market])
@@ -260,13 +258,13 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
         <>Market not found</>
       ) : (
         <HStack
-          gap='40px'
+          gap={{ md: '12px', xxl: '40px' }}
           w={isMobile ? 'full' : 'unset'}
           alignItems='flex-start'
           mb={isMobile ? '84px' : 0}
           ml={!isMobile ? '188px' : 'unset'}
         >
-          <Box w={isMobile ? 'full' : '716px'}>
+          <Box w={{ sm: 'full', md: 'calc(100vw - 642px)', xxl: '716px' }}>
             <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>
               <HStack justifyContent='space-between' mb='24px'>
                 <Button

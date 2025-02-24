@@ -2,6 +2,7 @@ import { ERC20_ABI } from '@lifi/sdk'
 import { Address, encodeFunctionData, getContract, maxUint256 } from 'viem'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
+import { ERC20ABI } from '@/contracts/abi/ERC20ABI'
 import { publicClient } from '@/providers/Privy'
 import { useAccount, useLimitlessApi } from '@/services'
 
@@ -27,12 +28,14 @@ export default function useSmartWalletService() {
     data: `0x${string}`,
     value?: bigint
   ) => {
+    const nonce = await smartAccountClient?.account?.getNonce()
     const txHash = await smartAccountClient?.sendTransaction({
       // @ts-ignore
       from: smartAccountClient.account?.address,
       to: contract.address as Address,
       data,
       value,
+      nonce: nonce ? +nonce.toString() : undefined,
     })
     return txHash as string
   }
@@ -188,11 +191,11 @@ export default function useSmartWalletService() {
   const transferErc20 = async (token: Address, to: Address, value: bigint) => {
     const contract = getContract({
       address: token,
-      abi: ERC20_ABI,
+      abi: ERC20ABI,
       client: publicClient,
     })
     const data = encodeFunctionData({
-      abi: ERC20_ABI,
+      abi: ERC20ABI,
       functionName: 'transfer',
       args: [to, value],
     })

@@ -2,7 +2,7 @@ import DOMPurify from 'dompurify'
 import { htmlToText } from 'html-to-text'
 
 export const linkify = (text: string): string => {
-  const urlRegex = /(https?:\/\/[^\s]+)/g
+  const urlRegex = /(\()?((https?:\/\/[^\s)]+))/g
   const escapeHtml = (unsafe: string) => {
     return unsafe
       .replace(/&/g, '&amp;')
@@ -19,22 +19,26 @@ export const linkify = (text: string): string => {
       return false
     }
   }
-  return text.replace(urlRegex, (url) => {
-    let lastIndex = url.length - 1
-    const punctuationChars = new Set(['.', ',', '!', '?', ';', ':'])
+  return text.replace(urlRegex, (match, openParen, url, cleanUrl) => {
+    let lastIndex = cleanUrl.length - 1
+    const punctuationChars = new Set(['.', ',', '!', '?', ';', ':', ')'])
 
-    while (lastIndex >= 0 && punctuationChars.has(url[lastIndex])) {
+    while (lastIndex >= 0 && punctuationChars.has(cleanUrl[lastIndex])) {
       lastIndex--
     }
 
-    const cleanUrl = url.substring(0, lastIndex + 1)
-    const trailingPunctuation = url.substring(lastIndex + 1)
+    const finalUrl = cleanUrl.substring(0, lastIndex + 1)
+    const trailingPunctuation = cleanUrl.substring(lastIndex + 1)
 
-    return isValidUrl(cleanUrl)
-      ? `<a href="${escapeHtml(cleanUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(
-          cleanUrl
+    const prefix = openParen || ''
+
+    return isValidUrl(finalUrl)
+      ? `${prefix}<a href="${escapeHtml(
+          finalUrl
+        )}" target="_blank" rel="noopener noreferrer">${escapeHtml(
+          finalUrl
         )}</a>${trailingPunctuation}`
-      : url
+      : match
   })
 }
 

@@ -41,12 +41,12 @@ import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import ExpandIcon from '@/resources/icons/expand-icon.svg'
+import LineChartIcon from '@/resources/icons/line-chart-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import OrderbookIcon from '@/resources/icons/orderbook.svg'
-import PredictionsIcon from '@/resources/icons/predictions-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
+import { ChangeEvent, ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { h2Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -71,7 +71,7 @@ export default function MarketPage() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const { trackClicked, trackOpened } = useAmplitude()
+  const { trackClicked, trackOpened, trackChanged } = useAmplitude()
 
   const marketAddress = useMemo(() => market?.slug, [market])
   const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
@@ -108,15 +108,13 @@ export default function MarketPage() {
       })
     }
     tabs.push({
-      title: 'Predictions',
-      icon: <PredictionsIcon width={16} height={16} />,
-      analyticEvent: ClickEvent.PredictionChartOpened,
+      title: 'Chart',
+      icon: <LineChartIcon width={16} height={16} />,
     })
     if (isLivePriceSupportedMarket) {
       tabs.push({
         title: 'Assets price',
         icon: <CandlestickIcon width={16} height={16} />,
-        analyticEvent: ClickEvent.AssetPriceChartOpened,
       })
     }
     return tabs
@@ -132,7 +130,7 @@ export default function MarketPage() {
       tabPanels.push(
         <MarketAssetPriceChart
           key={uuidv4()}
-          id={LUMY_TOKENS.filter((token) => market?.title.includes(token))[0]}
+          id={LUMY_TOKENS.filter((token) => market?.title.includes(`${token} `))[0]}
         />
       )
     }
@@ -175,7 +173,7 @@ export default function MarketPage() {
     removeMarketQuery()
     onCloseMarketPage()
     trackClicked(ClickEvent.CloseMarketClicked, {
-      marketAddress: market?.address as Address,
+      marketAddress: market?.slug as Address,
     })
   }
 
@@ -187,12 +185,11 @@ export default function MarketPage() {
     })
   }
 
-  const handleChartTabClicked = (event: ClickEvent) =>
-    trackClicked(event, {
-      marketAddress: market?.address,
-      marketType: marketGroup ? 'group' : 'single',
-      marketTags: market?.tags,
-      platform: isMobile ? 'mobile' : 'desktop',
+  const handleChartTabClicked = (event: string) =>
+    trackChanged(ChangeEvent.ChartTabChanged, {
+      view: event + 'on',
+      marketMarketType: market?.tradeType === 'amm' ? 'AMM' : 'CLOB',
+      marketAddress: market?.slug,
     })
 
   useEffect(() => {
@@ -210,16 +207,17 @@ export default function MarketPage() {
 
   useEffect(() => {
     //avoid triggering amplitude call twice
-    if (market?.address && !trackedMarketsRef.current.has(market.address)) {
-      trackedMarketsRef.current.add(market.address)
+    if (market?.slug && !trackedMarketsRef.current.has(market.slug)) {
+      trackedMarketsRef.current.add(market.slug)
       trackOpened(OpenEvent.SidebarMarketOpened, {
         marketAddress: market.slug,
         marketTags: market.tags,
         marketType: 'single',
         category: market.category,
+        marketMakerType: market.tradeType.toUpperCase(),
       })
     }
-  }, [market?.address])
+  }, [market?.slug])
 
   useEffect(() => {
     const handleMouseEnter = () => {
@@ -363,7 +361,7 @@ export default function MarketPage() {
       >
         <TabList>
           {chartTabs.map((tab) => (
-            <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.analyticEvent)}>
+            <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.title)}>
               <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
                 {tab.icon}
                 <>{tab.title}</>

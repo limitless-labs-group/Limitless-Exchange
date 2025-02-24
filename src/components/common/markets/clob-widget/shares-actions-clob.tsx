@@ -7,15 +7,32 @@ import SplitSharesModal from '@/components/common/modals/split-shares-modal'
 import Paper from '@/components/common/paper'
 import MergeIcon from '@/resources/icons/merge-icon.svg'
 import SplitIcon from '@/resources/icons/split-icon.svg'
-import { useAccount } from '@/services'
+import { ClickEvent, useAccount, useAmplitude, useTradingService } from '@/services'
 
 export default function SharesActionsClob() {
   const { isOpen: splitModalOpened, onToggle: onToggleSplitModal } = useDisclosure()
   const { isOpen: mergeModalOpened, onToggle: onToggleMergeModal } = useDisclosure()
   const { sharesAvailable } = useClobWidget()
   const { account } = useAccount()
+  const { trackClicked } = useAmplitude()
+  const { market } = useTradingService()
+
+  const handleSplitClicked = () => {
+    onToggleSplitModal()
+    trackClicked(ClickEvent.SplitContractsModalClicked, {
+      marketAddress: market?.slug,
+    })
+  }
+
+  const handleMergeClicked = () => {
+    onToggleMergeModal()
+    trackClicked(ClickEvent.MergeContractsModalClicked, {
+      marketAddress: market?.slug,
+    })
+  }
+
   const splitButton = (
-    <Button variant='transparentGreyText' onClick={onToggleSplitModal} isDisabled={!account}>
+    <Button variant='transparentGreyText' onClick={handleSplitClicked} isDisabled={!account}>
       <SplitIcon />
       Split Contracts
     </Button>
@@ -24,7 +41,7 @@ export default function SharesActionsClob() {
   const mergeButton = (
     <Button
       variant='transparentGreyText'
-      onClick={onToggleMergeModal}
+      onClick={handleMergeClicked}
       isDisabled={sharesAvailable['yes'] === 0n || sharesAvailable['no'] === 0n || !account}
     >
       <MergeIcon />

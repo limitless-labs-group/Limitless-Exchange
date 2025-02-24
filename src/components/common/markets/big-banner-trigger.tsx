@@ -11,6 +11,7 @@ import { BigBannerProps } from './big-banner'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { cutUsername } from '@/utils/string'
@@ -21,9 +22,10 @@ const MotionBox = motion(Box)
 export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps) => {
   const [feedMessage, setFeedMessage] = useState<MarketFeedData | null>(null)
   const { onOpenMarketPage, setMarkets } = useTradingService()
-  const { data: marketFeedData } = useMarketFeed(market.address as string)
+  const { data: marketFeedData } = useMarketFeed(market)
   const router = useRouter()
   const { trackClicked } = useAmplitude()
+  const { pushGA4Event } = useGoogleAnalytics()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {
@@ -32,12 +34,13 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
     if (!isMobile) {
       e.preventDefault()
     }
-    router.push(`?market=${market.address}`, { scroll: false })
+    router.push(`?market=${market.slug}`, { scroll: false })
     trackClicked(ClickEvent.BigBannerClicked, {
       marketAddress: market.slug,
       marketType: 'single',
       marketTags: market.tags,
     })
+    pushGA4Event(GAEvents.ClickSection)
     onOpenMarketPage(market)
     if (isMobile) {
       setMarkets(markets)
@@ -181,19 +184,21 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
                 </AnimatePresence>
               </Box>
             )}
-            {market.tradeType === 'amm' && (
+            {
               <HStack gap='4px'>
                 <Text {...paragraphRegular} color='transparent.700'>
-                  Value{' '}
-                  {NumberUtil.convertWithDenomination(
-                    Number(market.openInterestFormatted || 0) +
-                      Number(market.liquidityFormatted || 0),
-                    6
-                  )}{' '}
+                  {market.tradeType === 'amm' ? 'Value' : 'Volume'}{' '}
+                  {market.tradeType === 'amm'
+                    ? NumberUtil.convertWithDenomination(
+                        Number(market.openInterestFormatted || 0) +
+                          Number(market.liquidityFormatted || 0),
+                        6
+                      )
+                    : NumberUtil.convertWithDenomination(Number(market.volumeFormatted), 6)}{' '}
                   {market.collateralToken.symbol}
                 </Text>
               </HStack>
-            )}
+            }
           </HStack>
         )}
       </Box>

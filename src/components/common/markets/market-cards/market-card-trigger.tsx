@@ -73,18 +73,20 @@ export const MarketCardTrigger = React.memo(
                 <HStack gap='4px'>
                   <HStack gap='4px'>
                     <>
-                      <HStack gap={0}></HStack>
+                      <HStack gap={0} />
                       <Text {...paragraphRegular} color='grey.500'>
-                        Value
+                        {market.tradeType === 'clob' ? 'Volume' : 'Value'}
                       </Text>
                       <Text {...paragraphRegular} color='grey.500' whiteSpace='nowrap'>
-                        {NumberUtil.convertWithDenomination(
-                          +market.openInterestFormatted + +market.liquidityFormatted,
-                          6
-                        )}{' '}
+                        {market.tradeType === 'clob'
+                          ? NumberUtil.convertWithDenomination(market.volumeFormatted, 6)
+                          : NumberUtil.convertWithDenomination(
+                              +market.openInterestFormatted + +market.liquidityFormatted,
+                              6
+                            )}{' '}
                         {market.collateralToken.symbol}
                       </Text>
-                      <OpenInterestTooltip iconColor='grey.500' />
+                      {market.tradeType === 'amm' && <OpenInterestTooltip iconColor='grey.500' />}
                     </>
                   </HStack>
                 </HStack>
