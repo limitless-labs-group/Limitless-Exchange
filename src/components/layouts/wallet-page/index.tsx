@@ -82,7 +82,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
       }}
     >
       <Box mx='16px'>
-        <Withdraw onClose={() => console.log('ok')} isOpen={true} />
+        <Withdraw isOpen={true} />
       </Box>
     </MobileDrawer>
   ) : (
