@@ -152,7 +152,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
       return ''
     }
     if (orderbook && market) {
-      const tradedToken = orderbook.tokenId === market.tokens.yes ? 'yes' : 'no'
+      const tradedToken = orderbook.tokenId === market.tokens?.yes ? 'yes' : 'no'
       if (!outcome) {
         return tradedToken === 'no'
           ? new BigNumber(orderbook.lastTradePrice).multipliedBy(100).toString()

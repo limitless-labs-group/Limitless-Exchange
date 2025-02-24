@@ -121,6 +121,8 @@ const MainPage = () => {
   }, [markets, selectedCategory])
 
   const sortedAllMarkets = useMemo(() => {
+    console.log(' sortMarkets', sortMarkets)
+
     return sortMarkets(filteredAllMarkets, selectedSort, convertTokenAmountToUsd)
   }, [filteredAllMarkets, selectedSort, convertTokenAmountToUsd])
 

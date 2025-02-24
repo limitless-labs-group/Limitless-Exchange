@@ -15,7 +15,7 @@ export default function ActivityClobItem({ data }: ActivityClobItemProps) {
   const { market } = useTradingService()
   const title = useMemo(() => {
     const title = data.side === 0 ? 'Bought' : 'Sold'
-    const outcome = market?.tokens.yes === data.tokenId ? 'Yes' : 'No'
+    const outcome = market?.tokens?.yes === data.tokenId ? 'Yes' : 'No'
     const totalAmount = formatUnits(BigInt(data.takerAmount), market?.collateralToken.decimals || 6)
     return `${title} ${NumberUtil.toFixed(
       formatUnits(BigInt(data.matchedSize), market?.collateralToken.decimals || 6),
