@@ -291,15 +291,25 @@ export default function OrderbookTableLarge({
         <Table variant={'noPaddingsOnSides'}>
           <Thead>
             <Tr>
-              <Th minW='348px'>Trade</Th>
+              <Th minW='348px'>
+                <Text {...paragraphMedium} color='grey.500'>
+                  Trade
+                </Text>
+              </Th>
               <Th isNumeric minW='88px'>
-                Price
+                <Text {...paragraphMedium} color='grey.500'>
+                  Price
+                </Text>
               </Th>
               <Th isNumeric minW='136px'>
-                Contracts
+                <Text {...paragraphMedium} color='grey.500'>
+                  Contracts
+                </Text>
               </Th>
               <Th isNumeric minW='144px'>
-                Total
+                <Text {...paragraphMedium} color='grey.500'>
+                  Total
+                </Text>
               </Th>
             </Tr>
           </Thead>
@@ -403,7 +413,7 @@ export default function OrderbookTableLarge({
           w='full'
           borderTop='1px solid'
           borderBottom='1px solid'
-          borderColor='grey.500'
+          borderColor='grey.100'
           py='8px'
         >
           <Box flex={1} pl='8px'>

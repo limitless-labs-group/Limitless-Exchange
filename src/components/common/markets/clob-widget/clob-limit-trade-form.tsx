@@ -29,6 +29,8 @@ import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
 export default function ClobLimitTradeForm() {
+  const priceInputRef = React.useRef<HTMLInputElement>(null)
+  const contractsInputRef = React.useRef<HTMLInputElement>(null)
   const { balanceLoading } = useBalanceService()
   const {
     balance,
@@ -321,6 +323,7 @@ export default function ClobLimitTradeForm() {
         {showBuyBalance}
       </Flex>
       <NumberInputWithButtons
+        ref={priceInputRef}
         id='limitPrice'
         placeholder='Eg. 85¢'
         max={99.9}
@@ -342,6 +345,7 @@ export default function ClobLimitTradeForm() {
         {showSellBalance}
       </Flex>
       <NumberInputWithButtons
+        ref={contractsInputRef}
         id='contractsAmount'
         step={1}
         max={isNumber(maxSharesAvailable) ? maxSharesAvailable : undefined}
@@ -413,10 +417,34 @@ export default function ClobLimitTradeForm() {
         Submit {strategy} Order
       </ClobTradeButton>
       {(!price || !sharesAmount) && (
-        <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
-          Set {!+price && 'Limit price'}
-          {!+price && !+sharesAmount ? ',' : ''} {!+sharesAmount && 'Contracts'}
-        </Text>
+        <Flex
+          {...paragraphRegular}
+          mt='8px'
+          color='grey.500'
+          textAlign='center'
+          justifyContent='center'
+        >
+          <Text>Set&nbsp;</Text>
+          <Text
+            borderBottom='1px dotted'
+            borderColor='grey.500'
+            display='inline'
+            cursor='pointer'
+            onClick={() => priceInputRef.current?.focus()}
+          >
+            {!+price && ` Limit price`}
+          </Text>
+          {!+price && !+sharesAmount ? ',' : ''}&nbsp;
+          <Text
+            borderBottom='1px dotted'
+            borderColor='grey.500'
+            display='inline'
+            cursor='pointer'
+            onClick={() => contractsInputRef.current?.focus()}
+          >
+            {!+sharesAmount && `Contracts`}
+          </Text>
+        </Flex>
       )}
     </>
   )

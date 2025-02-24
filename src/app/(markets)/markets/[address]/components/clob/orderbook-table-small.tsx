@@ -385,7 +385,7 @@ export default function OrderBookTableSmall({
           w='full'
           borderTop='1px solid'
           borderBottom='1px solid'
-          borderColor='grey.500'
+          borderColor='grey.100'
           py='8px'
         >
           <Box flex={1} pl='8px'>
@@ -397,7 +397,7 @@ export default function OrderBookTableSmall({
           </Box>
           {Boolean(Number(spread)) ? (
             <Box flex={1}>
-              <Text {...paragraphRegular} color='grey.500'>
+              <Text {...paragraphRegular} color='grey.100'>
                 Spread {spread}¢
               </Text>
             </Box>

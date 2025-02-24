@@ -69,7 +69,7 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
   const tradingWidget = useMemo(() => {
     if (fetchMarketLoading) {
       return (
-        <Box w='312px'>
+        <Box w='404px'>
           <Skeleton height={481} />
         </Box>
       )
