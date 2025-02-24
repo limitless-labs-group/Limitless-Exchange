@@ -47,6 +47,7 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
+import { calculateDisplayRange } from '@/utils/market'
 
 export default function OrderbookTableLarge({
   orderBookData,
@@ -111,6 +112,8 @@ export default function OrderbookTableLarge({
 
   const minRewardsSize = orderbook?.minSize ? orderbook.minSize : maxUint256.toString()
 
+  const range = calculateDisplayRange(orderbook?.adjustedMidpoint)
+
   const url =
     'https://limitlesslabs.notion.site/Limitless-Docs-0e59399dd44b492f8d494050969a1567#19304e33c4b9808498d9ea69e68a0cb4'
 
@@ -152,6 +155,12 @@ export default function OrderbookTableLarge({
         <Text {...paragraphMedium}>Min order size:</Text>
         <Text {...paragraphMedium}>
           {formatUnits(BigInt(minRewardsSize), market?.collateralToken.decimals || 6)}
+        </Text>
+      </HStack>
+      <HStack w='full' mt='4px' justifyContent='space-between'>
+        <Text {...paragraphMedium}>Current range:</Text>
+        <Text {...paragraphMedium}>
+          {range.lower}¢ - {range.upper}¢
         </Text>
       </HStack>
     </Box>

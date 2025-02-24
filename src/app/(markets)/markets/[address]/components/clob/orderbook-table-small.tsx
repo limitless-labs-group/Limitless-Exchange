@@ -35,6 +35,7 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
+import { calculateDisplayRange } from '@/utils/market'
 
 export default function OrderBookTableSmall({
   orderBookData,
@@ -110,6 +111,8 @@ export default function OrderBookTableSmall({
 
   const minRewardsSize = orderbook?.minSize ? orderbook.minSize : maxUint256.toString()
 
+  const range = calculateDisplayRange(orderbook?.adjustedMidpoint, orderbook?.maxSpread)
+
   const tooltipContent = (
     <Box>
       <Text {...paragraphMedium} as='span'>
@@ -148,6 +151,12 @@ export default function OrderBookTableSmall({
         <Text {...paragraphMedium}>Min order size:</Text>
         <Text {...paragraphMedium}>
           {formatUnits(BigInt(minRewardsSize), market?.collateralToken.decimals || 6)}
+        </Text>
+      </HStack>
+      <HStack w='full' mt='4px' justifyContent='space-between'>
+        <Text {...paragraphMedium}>Current range:</Text>
+        <Text {...paragraphMedium}>
+          {range.lower}¢ - {range.upper}¢
         </Text>
       </HStack>
     </Box>
