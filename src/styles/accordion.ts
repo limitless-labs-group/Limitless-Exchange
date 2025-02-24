@@ -26,4 +26,20 @@ const baseStyle = definePartsStyle({
   },
 })
 
-export const accordionTheme = defineMultiStyleConfig({ baseStyle })
+const paper = definePartsStyle({
+  root: {
+    w: 'full',
+  },
+  container: {
+    p: '16px',
+    borderRadius: '12px',
+    border: '3px solid',
+    w: 'full',
+  },
+  // item: {
+  //   border: '3px solid',
+  //   borderColor: 'grey.100',
+  // },
+})
+
+export const accordionTheme = defineMultiStyleConfig({ baseStyle, variants: { paper } })

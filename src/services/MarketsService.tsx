@@ -5,10 +5,10 @@ import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
 import { useMemo } from 'react'
 import { Address, formatUnits, getContract, parseUnits } from 'viem'
+import { mockGroup } from '@/app/mock'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { POLLING_INTERVAL } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
-import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
@@ -130,10 +130,16 @@ export function useMarkets(topic: Category | null) {
           ...market,
           prices:
             market.tradeType === 'amm'
-              ? _markets.get(market.address as Address)?.prices || [50, 50]
+              ? _markets.get(market.address?.toLowerCase() as Address)?.prices || [50, 50]
               : [
-                  new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-                  new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
+                  new BigNumber(market.prices?.[0] || 0.5)
+                    .multipliedBy(100)
+                    .decimalPlaces(0)
+                    .toNumber(),
+                  new BigNumber(market.prices?.[1] || 0.5)
+                    .multipliedBy(100)
+                    .decimalPlaces(0)
+                    .toNumber(),
                 ],
         }
       })
@@ -257,9 +263,6 @@ export function useBanneredMarkets(topic: Category | null) {
       }, new Map<Address, OddsData>())
 
       const result = response.map((market) => {
-        if (market.tradeType === 'amm') {
-          console.log(_markets.get(market.address as Address))
-        }
         return {
           ...market,
           prices:
@@ -371,8 +374,14 @@ export function useMarket(address?: string | null, isPolling = false, enabled = 
       } else {
         if (marketRes.tradeType === 'clob') {
           prices = [
-            new BigNumber(marketRes.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-            new BigNumber(marketRes.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
+            new BigNumber(marketRes.prices?.[0] || 0.5)
+              .multipliedBy(100)
+              .decimalPlaces(0)
+              .toNumber(),
+            new BigNumber(marketRes.prices?.[1] || 0.5)
+              .multipliedBy(100)
+              .decimalPlaces(0)
+              .toNumber(),
           ]
         } else {
           const buyPrices = await getMarketOutcomeBuyPrice(

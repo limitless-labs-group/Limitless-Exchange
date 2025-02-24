@@ -36,7 +36,6 @@ import { LUMY_TOKENS } from '@/app/draft/components'
 import CommentTab from './comment-tab'
 import { MarketProgressBar } from './market-cards/market-progress-bar'
 import { UniqueTraders } from './unique-traders'
-import useMarketGroup from '@/hooks/use-market-group'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
@@ -57,15 +56,8 @@ export default function MarketPage() {
 
   const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
 
-  const {
-    setMarket,
-    onCloseMarketPage,
-    market,
-    setStrategy,
-    marketGroup,
-    setMarketGroup,
-    refetchMarkets,
-  } = useTradingService()
+  const { setMarket, onCloseMarketPage, market, setStrategy, refetchMarkets, setGroupMarket } =
+    useTradingService()
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -74,24 +66,19 @@ export default function MarketPage() {
   const { trackClicked, trackOpened, trackChanged } = useAmplitude()
 
   const marketAddress = useMemo(() => market?.slug, [market])
-  const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
 
   const { data: updatedMarket } = useMarket(marketAddress, !!market)
-  const { data: updatedMarketGroup } = useMarketGroup(marketGroupSlug, !!marketGroup)
 
   useEffect(() => {
     if (updatedMarket) {
-      setMarket(updatedMarket)
+      if (updatedMarket.marketType === 'group') {
+        setGroupMarket(updatedMarket)
+      } else {
+        setMarket(updatedMarket)
+      }
       refetchMarkets()
     }
   }, [updatedMarket])
-
-  useEffect(() => {
-    if (updatedMarketGroup) {
-      setMarketGroup(updatedMarketGroup)
-      refetchMarkets()
-    }
-  }, [updatedMarketGroup])
 
   const isLumy = market?.tags?.includes('Lumy')
 
@@ -169,7 +156,6 @@ export default function MarketPage() {
 
   const handleCloseMarketPageClicked = () => {
     setMarket(null)
-    setMarketGroup(null)
     removeMarketQuery()
     onCloseMarketPage()
     trackClicked(ClickEvent.CloseMarketClicked, {
@@ -310,13 +296,13 @@ export default function MarketPage() {
             alt='creator'
             borderRadius={'2px'}
           />
-          <Link href={market?.creator.link} variant='textLinkSecondary' fontWeight={400}>
+          <Link href={market?.creator.link || ''} variant='textLinkSecondary' fontWeight={400}>
             {market?.creator.name}
           </Link>
         </HStack>
       </HStack>
       <HStack w='full' justifyContent='space-between' alignItems='flex-start'>
-        <Text {...h2Bold}>{marketGroup?.title || market?.proxyTitle || market?.title}</Text>
+        <Text {...h2Bold}>{market?.proxyTitle || market?.title}</Text>
         {isMobile && <ShareMenu />}
       </HStack>
       <Box w='full' mt={isMobile ? '56px' : '24px'}>

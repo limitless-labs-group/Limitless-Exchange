@@ -32,20 +32,24 @@ export default function ClobLimitTradeForm() {
   const { balanceLoading } = useBalanceService()
   const {
     balance,
-    setPrice,
-    price,
-    sharesAmount,
-    setSharesAmount,
     allowance,
     sharesPrice,
     isApprovedForSell,
     onToggleTradeStepper,
     isBalanceNotEnough,
-    sharesAvailable,
   } = useClobWidget()
   const { trackClicked } = useAmplitude()
   const { web3Wallet } = useAccount()
-  const { market, strategy, clobOutcome: outcome } = useTradingService()
+  const {
+    market,
+    strategy,
+    clobOutcome: outcome,
+    setSharesAmount,
+    setPrice,
+    price,
+    sharesAmount,
+    sharesAvailable,
+  } = useTradingService()
   const queryClient = useQueryClient()
   const { client, placeLimitOrder } = useWeb3Service()
   const { web3Client, profileData } = useAccount()
@@ -53,6 +57,10 @@ export default function ClobLimitTradeForm() {
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
   const { pushGA4Event } = useGoogleAnalytics()
+
+  // Todo replace to this logic for better performance
+  // const [price, setPrice] = useState('')
+  // const [sharesAmount, setSharesAmount] = useState('')
 
   const maxSharesAvailable =
     strategy === 'Sell'

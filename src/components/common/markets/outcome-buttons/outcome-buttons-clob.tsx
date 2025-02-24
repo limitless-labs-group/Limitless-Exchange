@@ -13,9 +13,16 @@ import { MarketOrderType } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function OutcomeButtonsClob() {
-  const { strategy, market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
+  const {
+    strategy,
+    market,
+    clobOutcome: outcome,
+    setClobOutcome: setOutcome,
+    setPrice,
+    sharesAvailable,
+  } = useTradingService()
   const { trackChanged } = useAmplitude()
-  const { orderType, yesPrice, noPrice, setPrice, sharesAvailable } = useClobWidget()
+  const { orderType, yesPrice, noPrice } = useClobWidget()
 
   const getShares = (sharesAmount?: bigint) => {
     if (!sharesAmount) {
@@ -49,6 +56,7 @@ export default function OutcomeButtonsClob() {
             bg={!outcome ? 'green.500' : 'greenTransparent.100'}
             onClick={() => handleOutcomeChanged(0)}
             h='64px'
+            borderRadius='8px'
           >
             Yes {yesPrice}¢
           </Button>
@@ -58,6 +66,7 @@ export default function OutcomeButtonsClob() {
             bg={outcome ? 'red.500' : 'redTransparent.100'}
             onClick={() => handleOutcomeChanged(1)}
             h='64px'
+            borderRadius='8px'
           >
             No {noPrice}¢
           </Button>

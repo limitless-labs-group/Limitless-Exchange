@@ -90,7 +90,7 @@ export default function BuyButton({
 
   const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
-  const { marketFee, collateralAmount, marketGroup } = useTradingService()
+  const { marketFee, collateralAmount } = useTradingService()
   const { account: walletAddress } = useAccount()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
@@ -230,7 +230,7 @@ export default function BuyButton({
       mode: showFullInfo ? 'opened' : 'closed',
       marketCategory: market?.category,
       marketAddress: market?.address,
-      marketType: marketGroup ? 'group' : 'single',
+      marketType: market.marketType,
       marketTags: market?.tags,
     })
     e.stopPropagation()

@@ -26,7 +26,7 @@ type PortfolioPositionCardClobRedirectProps = {
 export default function PortfolioPositionCardClobRedirect({
   position,
 }: PortfolioPositionCardClobRedirectProps) {
-  const { setMarket, setMarketGroup } = useTradingService()
+  const { setMarket } = useTradingService()
   const [colors, setColors] = useState(unhoveredColors)
 
   const { trackClicked } = useAmplitude()
@@ -95,7 +95,6 @@ export default function PortfolioPositionCardClobRedirect({
       variant='black'
       onClose={() => {
         setMarket(null)
-        setMarketGroup(null)
       }}
     >
       <MarketPage />
