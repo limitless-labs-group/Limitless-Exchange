@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
-import { MarketCard } from '@/components/common/markets/market-cards/market-card'
+import MarketCard from '@/components/common/markets/market-cards/market-card'
 import MarketCardMobile from '@/components/common/markets/market-cards/market-card-mobile'
 import MarketPage from '@/components/common/markets/market-page'
 import Skeleton from '@/components/common/skeleton'
@@ -41,6 +41,7 @@ export default function MarketStatusUpdatedCard({ data }: MarketStatusUpdatedCar
       <MarketCard
         market={market as Market}
         analyticParams={{ bannerPosition: 0, bannerPaginationPage: 1 }}
+        markets={[]}
       />
     )
   }, [marketLoading, market])

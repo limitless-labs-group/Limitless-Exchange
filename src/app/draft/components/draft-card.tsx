@@ -149,11 +149,11 @@ export const DraftMarketCard = ({
               <ChakraImage
                 width={6}
                 height={6}
-                src={market?.creator.imageUrl ?? '/assets/images/logo.svg'}
+                src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
                 alt='creator'
                 borderRadius={'2px'}
               />
-              <Link href={market?.creator.link} isExternal>
+              <Link href={market?.creator.link || ''} isExternal>
                 <Text color='grey.500'>{market?.creator.name}</Text>
               </Link>
               {market?.tags?.map((tag: any) => (

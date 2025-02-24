@@ -1,5 +1,18 @@
-import { Box, Button, HStack, Text } from '@chakra-ui/react'
-import React from 'react'
+import {
+  Box,
+  Button,
+  HStack,
+  Menu,
+  MenuButton,
+  MenuList,
+  Tab,
+  TabIndicator,
+  TabList,
+  Tabs,
+  Text,
+  useDisclosure,
+} from '@chakra-ui/react'
+import React, { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import ClobLimitTradeForm from '@/components/common/markets/clob-widget/clob-limit-trade-form'
@@ -10,19 +23,27 @@ import TradeStepperMenu from '@/components/common/markets/clob-widget/trade-step
 import OutcomeButtonsClob from '@/components/common/markets/outcome-buttons/outcome-buttons-clob'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
-import { controlsMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { headLineLarge, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 
 export default function ClobWidget() {
   const { trackChanged } = useAmplitude()
-  const { clobOutcome: outcome, strategy, setStrategy, market } = useTradingService()
-
   const {
+    clobOutcome: outcome,
+    setStrategy,
+    market,
+    groupMarket,
+    setSharesAmount,
     setPrice,
     price,
     sharesAmount,
-    setSharesAmount,
+    strategy,
+  } = useTradingService()
+  const { isOpen: orderTypeMenuOpen, onToggle: onToggleOrderTypeMenu } = useDisclosure()
+
+  const {
     isBalanceNotEnough,
     orderType,
     setOrderType,
@@ -45,85 +66,135 @@ export default function ClobWidget() {
     trackChanged(ChangeEvent.ClobWidgetModeChanged, {
       mode: order === MarketOrderType.MARKET ? 'amm on' : 'clob on',
     })
-    tradeStepperOpen && onToggleTradeStepper()
+    onToggleOrderTypeMenu()
   }
+
+  const tabs = [
+    {
+      title: 'Buy',
+    },
+    {
+      title: 'Sell',
+    },
+  ]
+
+  const handleTabChanged = (tab: 'Buy' | 'Sell') => {
+    trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
+      type: `${tab} selected`,
+      marketAddress: market?.slug as Address,
+      marketMarketType: 'CLOB',
+    })
+    setStrategy(tab)
+  }
+
+  useEffect(() => {
+    setStrategy(strategy)
+  }, [strategy])
 
   return (
     <Box>
-      <HStack w='full' justifyContent='center'>
-        <Button
-          bg={orderType === MarketOrderType.MARKET ? 'grey.100' : 'unset'}
-          h='32px'
-          borderBottomRadius={0}
-          onClick={() => handleOrderTypeChanged(MarketOrderType.MARKET)}
-        >
-          Market
-        </Button>
-        <Button
-          onClick={() => handleOrderTypeChanged(MarketOrderType.LIMIT)}
-          bg={orderType === MarketOrderType.LIMIT ? 'grey.100' : 'unset'}
-          h='32px'
-          borderBottomRadius={0}
-        >
-          Limit Order
-        </Button>
-      </HStack>
       <Box position='relative' borderRadius='8px' overflow='hidden'>
         <Overlay show={tradeStepperOpen} onClose={onToggleTradeStepper} />
         {tradeStepperOpen && <TradeStepperMenu />}
         <Paper bg='grey.100' borderRadius='8px' p='8px' position='relative'>
-          <HStack w='full' justifyContent='center' mb='16px'>
-            <HStack w={'236px'} mx='auto' bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
-              <Button
-                h={isMobile ? '28px' : '20px'}
-                flex='1'
-                py='2px'
-                borderRadius='6px'
-                bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
-                color='grey.800'
-                _hover={{
-                  backgroundColor: strategy === 'Buy' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
-                }}
-                onClick={() => {
-                  trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
-                    type: 'Buy selected',
-                    marketAddress: market?.slug as Address,
-                    marketMarketType: 'CLOB',
-                  })
-                  setStrategy('Buy')
-                }}
+          {groupMarket && (
+            <>
+              <Text {...headLineLarge} mb='8px'>
+                {market?.proxyTitle || market?.title}
+              </Text>
+              <Text {...paragraphRegular} color='grey.500' mb='24px'>
+                {groupMarket.proxyTitle || groupMarket.title}
+              </Text>
+            </>
+          )}
+          <HStack w='full' justifyContent='space-between' gap={0} mb='24px'>
+            <Tabs
+              position='relative'
+              variant='common'
+              minW='120px'
+              index={strategy === 'Buy' ? 0 : 1}
+            >
+              <TabList>
+                {tabs.map((tab) => (
+                  <Tab
+                    key={tab.title}
+                    onClick={() => handleTabChanged(tab.title as 'Buy' | 'Sell')}
+                  >
+                    <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+                      <>{tab.title}</>
+                    </HStack>
+                  </Tab>
+                ))}
+              </TabList>
+              <TabIndicator
+                mt='-1px'
+                height='2px'
+                bg='grey.800'
+                transitionDuration='200ms !important'
+              />
+            </Tabs>
+            <HStack
+              w='full'
+              borderBottom='1px solid'
+              borderColor='grey.500'
+              justifyContent='flex-end'
+            >
+              <Menu
+                isOpen={orderTypeMenuOpen}
+                onClose={onToggleOrderTypeMenu}
+                variant='transparent'
               >
-                <Text {...controlsMedium} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
-                  Buy
-                </Text>
-              </Button>
-              <Button
-                h={isMobile ? '28px' : '20px'}
-                flex='1'
-                borderRadius='6px'
-                py='2px'
-                bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
-                color='grey.800'
-                _hover={{
-                  backgroundColor: strategy === 'Sell' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
-                }}
-                _disabled={{
-                  opacity: '50%',
-                  pointerEvents: 'none',
-                }}
-                onClick={() => {
-                  trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
-                    type: 'Sell selected',
-                    marketAddress: market?.slug as Address,
-                    marketMarketType: 'CLOB',
-                  })
-                  setStrategy('Sell')
-                }}
-              >
-                <Text {...controlsMedium} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
-                  Sell
-                </Text>
-              </Button>
+                <MenuButton
+                  as={Button}
+                  onClick={onToggleOrderTypeMenu}
+                  rightIcon={<ChevronDownIcon width='16px' height='16px' />}
+                  h='24px'
+                  px='8px'
+                  w='fit'
+                  _active={{
+                    bg: 'grey.100',
+                  }}
+                  _hover={{
+                    bg: 'grey.100',
+                  }}
+                  gap={0}
+                >
+                  <Text
+                    {...paragraphMedium}
+                    className={'amp-mask'}
+                    whiteSpace='nowrap'
+                    overflow='hidden'
+                    textOverflow='ellipsis'
+                    maxW='112px'
+                  >
+                    {orderType === MarketOrderType.MARKET ? 'Market' : 'Limit'}
+                  </Text>
+                </MenuButton>
+
+                <MenuList
+                  borderRadius='8px'
+                  w='180px'
+                  zIndex={2}
+                  boxShadow='0 1px 2px 0 rgba(0, 0, 0, 0.25)'
+                >
+                  <Button
+                    variant='transparent'
+                    w='full'
+                    onClick={() => handleOrderTypeChanged(MarketOrderType.MARKET)}
+                    justifyContent='flex-start'
+                  >
+                    Market
+                  </Button>
+                  <Button
+                    variant='transparent'
+                    w='full'
+                    justifyContent='flex-start'
+                    onClick={() => handleOrderTypeChanged(MarketOrderType.LIMIT)}
+                  >
+                    Limit
+                  </Button>
+                </MenuList>
+              </Menu>
             </HStack>
           </HStack>
           <OutcomeButtonsClob />

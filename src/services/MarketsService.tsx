@@ -130,7 +130,7 @@ export function useMarkets(topic: Category | null) {
           ...market,
           prices:
             market.tradeType === 'amm'
-              ? _markets.get(market.address as Address)?.prices || [50, 50]
+              ? _markets.get(market.address?.toLowerCase() as Address)?.prices || [50, 50]
               : [
                   new BigNumber(market?.prices?.[0])
                     .multipliedBy(100)
@@ -263,9 +263,6 @@ export function useBanneredMarkets(topic: Category | null) {
       }, new Map<Address, OddsData>())
 
       const result = response.map((market) => {
-        if (market.tradeType === 'amm') {
-          console.log(_markets.get(market.address as Address))
-        }
         return {
           ...market,
           prices:
@@ -383,8 +380,14 @@ export function useMarket(address?: string | null, isPolling = false, enabled = 
       } else {
         if (marketRes.tradeType === 'clob') {
           prices = [
-            new BigNumber(marketRes.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-            new BigNumber(marketRes.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
+            new BigNumber(marketRes.prices?.[0] || 0.5)
+              .multipliedBy(100)
+              .decimalPlaces(0)
+              .toNumber(),
+            new BigNumber(marketRes.prices?.[1] || 0.5)
+              .multipliedBy(100)
+              .decimalPlaces(0)
+              .toNumber(),
           ]
         } else {
           const buyPrices = await getMarketOutcomeBuyPrice(
