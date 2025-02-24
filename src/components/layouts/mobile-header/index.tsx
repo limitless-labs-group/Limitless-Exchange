@@ -68,7 +68,7 @@ export default function MobileHeader() {
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
-  const { isLoggedIn } = useAccount()
+  const { isLoggedToPlatform } = useClient()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
   const { fundWallet } = useFundWallet()
 
@@ -147,7 +147,7 @@ export default function MobileHeader() {
             </HStack>
           </Box>
           <HStack gap='4px'>
-            {isLoggedIn ? (
+            {isLoggedToPlatform ? (
               <>
                 <Button
                   variant='transparent'
