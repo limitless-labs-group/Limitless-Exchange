@@ -35,6 +35,7 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
+import { calculateDisplayRange } from '@/utils/market'
 
 export default function OrderBookTableSmall({
   orderBookData,
@@ -110,6 +111,8 @@ export default function OrderBookTableSmall({
 
   const minRewardsSize = orderbook?.minSize ? orderbook.minSize : maxUint256.toString()
 
+  const range = calculateDisplayRange(orderbook?.adjustedMidpoint, orderbook?.maxSpread)
+
   const tooltipContent = (
     <Box>
       <Text {...paragraphMedium} as='span'>
@@ -128,7 +131,7 @@ export default function OrderBookTableSmall({
         </Link>
       </NextLink>
       <HStack w='full' mt='12px' justifyContent='space-between'>
-        <Text {...paragraphMedium}>Reward:</Text>
+        <Text {...paragraphMedium}>Daily reward:</Text>
         <Text {...paragraphMedium}>
           {marketRewardsTotal?.totalRewards ? marketRewardsTotal.totalRewards.toFixed(0) : '200'}{' '}
           {market?.collateralToken.symbol}
@@ -150,6 +153,12 @@ export default function OrderBookTableSmall({
           {formatUnits(BigInt(minRewardsSize), market?.collateralToken.decimals || 6)}
         </Text>
       </HStack>
+      <HStack w='full' mt='4px' justifyContent='space-between'>
+        <Text {...paragraphMedium}>Current range:</Text>
+        <Text {...paragraphMedium}>
+          {range.lower}¢ - {range.upper}¢
+        </Text>
+      </HStack>
     </Box>
   )
 
@@ -169,53 +178,51 @@ export default function OrderBookTableSmall({
     <Box mt='12px'>
       <HStack w='full' justifyContent='space-between'>
         <Text {...h3Regular}>Order book</Text>
-        {market?.isRewardable && (
-          <Box position='relative'>
-            <HStack
-              gap='4px'
-              borderRadius='8px'
-              py='4px'
-              px='8px'
-              bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
-              cursor='pointer'
-              onClick={handleRewardsClicked}
-              onMouseEnter={() => {
-                const timer = setTimeout(() => {
-                  setRewardButtonHovered(true)
-                }, 300)
-                return () => clearTimeout(timer)
-              }}
-              onMouseLeave={() => setRewardButtonHovered(false)}
-              ref={ref as LegacyRef<HTMLDivElement>}
+        <Box position='relative'>
+          <HStack
+            gap='4px'
+            borderRadius='8px'
+            py='4px'
+            px='8px'
+            bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
+            cursor='pointer'
+            onClick={handleRewardsClicked}
+            onMouseEnter={() => {
+              const timer = setTimeout(() => {
+                setRewardButtonHovered(true)
+              }, 300)
+              return () => clearTimeout(timer)
+            }}
+            onMouseLeave={() => setRewardButtonHovered(false)}
+            ref={ref as LegacyRef<HTMLDivElement>}
+          >
+            <GemIcon />
+            <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
+              {marketRewards && Boolean(marketRewards?.length)
+                ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
+                    market?.collateralToken.symbol
+                  }`
+                : 'Earn Rewards'}
+            </Text>
+          </HStack>
+          {(rewardsButtonClicked || rewardButtonHovered) && (
+            <Box
+              position='absolute'
+              bg='grey.50'
+              border='1px solid'
+              borderColor='grey.200'
+              boxShadow='0px 1px 4px 0px rgba(2, 6, 23, 0.05)'
+              w='260px'
+              p='8px'
+              rounded='8px'
+              right={0}
+              minH='128px'
+              zIndex={150}
             >
-              <GemIcon />
-              <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
-                {marketRewards && Boolean(marketRewards?.length)
-                  ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
-                      market?.collateralToken.symbol
-                    }`
-                  : 'Earn Rewards'}
-              </Text>
-            </HStack>
-            {(rewardsButtonClicked || rewardButtonHovered) && (
-              <Box
-                position='absolute'
-                bg='grey.50'
-                border='1px solid'
-                borderColor='grey.200'
-                boxShadow='0px 1px 4px 0px rgba(2, 6, 23, 0.05)'
-                w='260px'
-                p='8px'
-                rounded='8px'
-                right={0}
-                minH='128px'
-                zIndex={150}
-              >
-                {tooltipContent}
-              </Box>
-            )}
-          </Box>
-        )}
+              {tooltipContent}
+            </Box>
+          )}
+        </Box>
       </HStack>
       <HStack w={'240px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'} my='16px'>
         <Button
@@ -342,13 +349,13 @@ export default function OrderBookTableSmall({
                   <Text {...paragraphRegular} textAlign='right'>
                     {NumberUtil.convertWithDenomination(
                       formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6),
-                      6
+                      2
                     )}
                   </Text>
                 </Box>
                 <Box w='45%' textAlign='right'>
                   <Text {...paragraphRegular}>
-                    {NumberUtil.toFixed(item.cumulativePrice, 6)} {market?.collateralToken.symbol}
+                    {NumberUtil.toFixed(item.cumulativePrice, 2)} {market?.collateralToken.symbol}
                   </Text>
                 </Box>
               </HStack>
@@ -388,11 +395,13 @@ export default function OrderBookTableSmall({
               </Text>
             )}
           </Box>
-          <Box flex={1}>
-            <Text {...paragraphRegular} color='grey.500'>
-              Spread {spread}¢
-            </Text>
-          </Box>
+          {Boolean(Number(spread)) ? (
+            <Box flex={1}>
+              <Text {...paragraphRegular} color='grey.500'>
+                Spread {spread}¢
+              </Text>
+            </Box>
+          ) : null}
         </HStack>
       )}
       <Box position='relative'>
@@ -464,13 +473,13 @@ export default function OrderBookTableSmall({
                   <Text {...paragraphRegular} textAlign='right'>
                     {NumberUtil.convertWithDenomination(
                       formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6),
-                      6
+                      2
                     )}
                   </Text>
                 </Box>
                 <Box w='45%' textAlign='right'>
                   <Text {...paragraphRegular}>
-                    {NumberUtil.toFixed(item.cumulativePrice, 6)} {market?.collateralToken.symbol}
+                    {NumberUtil.toFixed(item.cumulativePrice, 2)} {market?.collateralToken.symbol}
                   </Text>
                 </Box>
               </HStack>

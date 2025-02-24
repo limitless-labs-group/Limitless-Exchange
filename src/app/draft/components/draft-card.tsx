@@ -9,6 +9,7 @@ import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import DeadlineIcon from '@/resources/icons/sun-watch.svg'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Category, Creator, DraftMetadata, Token } from '@/types'
+import { DraftMarketType, MarketInput } from '@/types/draft'
 import { NumberUtil } from '@/utils'
 
 export type DraftMarket = {
@@ -20,8 +21,9 @@ export type DraftMarket = {
   collateralToken: Token
   category: Category
   creator: Creator
-  type: 'amm' | 'clob'
+  type: DraftMarketType
   draftMetadata: DraftMetadata
+  markets?: MarketInput[]
 }
 
 interface DraftMarketSingleCardProps {
@@ -35,6 +37,11 @@ const colors = {
   main: 'var(--chakra-colors-grey-800)',
   secondary: 'var(--chakra-colors-grey-500)',
   chartBg: 'var(--chakra-colors-grey-300)',
+}
+const badgeBg = {
+  amm: 'blue.100',
+  clob: 'green.100',
+  group: 'lime.100',
 }
 
 export const DraftMarketCard = ({
@@ -89,12 +96,7 @@ export const DraftMarketCard = ({
                 </HStack>
               ) : (
                 <HStack gap={1}>
-                  <Box
-                    px='2'
-                    py='1'
-                    borderRadius='md'
-                    bg={market.type === 'amm' ? 'blue.100' : 'green.200'}
-                  >
+                  <Box px='2' py='1' borderRadius='md' bg={badgeBg[market.type]}>
                     <Text {...paragraphMedium} textTransform='uppercase' fontSize='xs'>
                       {market.type}
                     </Text>
@@ -103,15 +105,45 @@ export const DraftMarketCard = ({
               )}
             </HStack>
 
-            <HStack alignItems='flex-start'>
-              <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
-                <TextEditor
-                  value={market?.description ?? ''}
-                  readOnly
-                  className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
-                />
-              </Text>
-            </HStack>
+            {market.description ? (
+              <HStack alignItems='flex-start'>
+                <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
+                  <TextEditor
+                    value={market?.description ?? ''}
+                    readOnly
+                    className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
+                  />
+                </Text>
+              </HStack>
+            ) : null}
+            {market.type === 'group' && market?.markets && market.markets?.length > 0 ? (
+              <Box pl={2} mb={2}>
+                <Text {...paragraphMedium} color={colors.secondary} mb={1}>
+                  Markets in group:
+                </Text>
+                <Stack spacing={1}>
+                  {[...market.markets]
+                    .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
+                    .map((subMarket: MarketInput, index: number) => (
+                      <Text
+                        key={index}
+                        {...paragraphRegular}
+                        color={colors.main}
+                        pl={4}
+                        position='relative'
+                        _before={{
+                          content: '"•"',
+                          position: 'absolute',
+                          left: 1,
+                          color: colors.secondary,
+                        }}
+                      >
+                        {subMarket.title}
+                      </Text>
+                    ))}
+                </Stack>
+              </Box>
+            ) : null}
 
             <HStack gap='8px' flexWrap='wrap'>
               <ChakraImage
@@ -133,7 +165,7 @@ export const DraftMarketCard = ({
 
             <HStack justifyContent='space-between' alignItems='flex-end' flexDirection={'row'}>
               <HStack gap={'16px'} flexDirection={'row'} w='full'>
-                {market.draftMetadata.liquidity && (
+                {market?.draftMetadata?.liquidity ? (
                   <HStack w={'unset'} justifyContent={'unset'}>
                     <HStack color={colors.secondary} gap='4px'>
                       <LiquidityIcon width={16} height={16} />
@@ -147,7 +179,7 @@ export const DraftMarketCard = ({
                         market.collateralToken.symbol}
                     </Text>
                   </HStack>
-                )}
+                ) : null}
 
                 <HStack w={'unset'} justifyContent={'unset'}>
                   <HStack color={colors.secondary} gap='4px'>
@@ -179,9 +211,11 @@ export const DraftMarketCard = ({
                       Fee
                     </Text>
                   </HStack>
-                  <Text {...paragraphRegular} color={colors.main}>
-                    {market.draftMetadata.fee}%
-                  </Text>
+                  {market.draftMetadata?.fee ? (
+                    <Text {...paragraphRegular} color={colors.main}>
+                      {market.draftMetadata.fee}%
+                    </Text>
+                  ) : null}
                 </HStack>
                 <HStack w={'unset'} justifyContent={'unset'}>
                   <HStack color={colors.secondary} gap='4px'>
@@ -195,7 +229,7 @@ export const DraftMarketCard = ({
                   </Text>
                 </HStack>
                 <HStack gap={1} color={colors.main}>
-                  {market.draftMetadata.initialProbability && (
+                  {market.draftMetadata?.initialProbability ? (
                     <>
                       <Text {...paragraphMedium} color={colors.secondary}>
                         Prob.
@@ -203,20 +237,26 @@ export const DraftMarketCard = ({
                       <Text {...paragraphMedium} color={colors.main}>
                         {market.draftMetadata.initialProbability * 100}%
                       </Text>
+                      <Box
+                        w='16px'
+                        h='16px'
+                        display='flex'
+                        alignItems='center'
+                        justifyContent='center'
+                      >
+                        <Box
+                          h='100%'
+                          w='100%'
+                          borderRadius='100%'
+                          bg={`conic-gradient(${colors.main} ${
+                            market.draftMetadata.initialProbability * 100
+                          }% 10%, ${colors.chartBg} ${
+                            market.draftMetadata.initialProbability * 100
+                          }% 100%)`}
+                        />
+                      </Box>
                     </>
-                  )}
-                  <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
-                    <Box
-                      h='100%'
-                      w='100%'
-                      borderRadius='100%'
-                      bg={`conic-gradient(${colors.main} ${
-                        market.draftMetadata.initialProbability * 100
-                      }% 10%, ${colors.chartBg} ${
-                        market.draftMetadata.initialProbability * 100
-                      }% 100%)`}
-                    />
-                  </Box>
+                  ) : null}
                 </HStack>
               </HStack>
             </HStack>

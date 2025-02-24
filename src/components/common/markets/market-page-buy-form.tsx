@@ -178,7 +178,7 @@ export default function MarketPageBuyForm({
       if (isMobile) {
         return 'MAX'
       }
-      return `MAX: ${
+      return `${
         balanceLoading ? (
           <Box w='90px'>
             <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
@@ -221,7 +221,7 @@ export default function MarketPageBuyForm({
             <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
           </Box>
         ) : (
-          <Flex gap='12px'>
+          <Flex gap='8px'>
             {[10, 25, 50, 100].map((title: number) => (
               <Button
                 {...paragraphRegular}

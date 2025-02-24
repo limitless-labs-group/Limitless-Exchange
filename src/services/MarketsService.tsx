@@ -5,10 +5,10 @@ import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
 import { useMemo } from 'react'
 import { Address, formatUnits, getContract, parseUnits } from 'viem'
-import { mockGroup } from '@/app/mock'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { POLLING_INTERVAL } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
+import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
@@ -132,14 +132,14 @@ export function useMarkets(topic: Category | null) {
             market.tradeType === 'amm'
               ? _markets.get(market.address?.toLowerCase() as Address)?.prices || [50, 50]
               : [
-                  new BigNumber(market.prices?.[0] || 0.5)
+                  new BigNumber(market?.prices?.[0])
                     .multipliedBy(100)
                     .decimalPlaces(0)
-                    .toNumber(),
-                  new BigNumber(market.prices?.[1] || 0.5)
+                    .toNumber() ?? 50,
+                  new BigNumber(market?.prices?.[1])
                     .multipliedBy(100)
                     .decimalPlaces(0)
-                    .toNumber(),
+                    .toNumber() ?? 50,
                 ],
         }
       })
@@ -269,8 +269,14 @@ export function useBanneredMarkets(topic: Category | null) {
             market.tradeType === 'amm'
               ? _markets.get(market.address as Address)?.prices || [50, 50]
               : [
-                  new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-                  new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
+                  new BigNumber(market?.prices?.[0])
+                    .multipliedBy(100)
+                    .decimalPlaces(0)
+                    .toNumber() ?? 50,
+                  new BigNumber(market?.prices?.[1])
+                    .multipliedBy(100)
+                    .decimalPlaces(0)
+                    .toNumber() ?? 50,
                 ],
         }
       })

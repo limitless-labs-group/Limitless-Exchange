@@ -38,6 +38,7 @@ export type DraftMetadata = {
 }
 
 export interface Market {
+  id: number
   address: Address | null
   category: Category | string
   collateralToken: {

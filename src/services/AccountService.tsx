@@ -31,6 +31,7 @@ import React, {
 import { createWalletClient, getAddress, WalletClient, http, custom } from 'viem'
 import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
+import useGoogleAnalytics, { GAEvents } from './GoogleAnalytics'
 import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
@@ -95,6 +96,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { wallets, ready: walletsReady } = useWallets()
   const { isLogged } = useClient()
   const { refetchSession } = useRefetchSession()
+  const { pushGA4Event } = useGoogleAnalytics()
 
   const toast = useToast()
   const router = useRouter()
@@ -202,6 +204,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         (wallet) => wallet.connectorType === user.wallet?.connectorType
       )
       if (connectedWallet && !wasAlreadyAuthenticated) {
+        pushGA4Event(`select_wallet_${connectedWallet.walletClientType}`)
+        pushGA4Event(GAEvents.SelectAnyWallet)
         const provider = await connectedWallet.getEthereumProvider()
         const walletClient = createWalletClient({
           chain: defaultChain,
@@ -226,6 +230,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           account: connectedWallet.address as Address,
           web3Wallet: walletClient,
         })
+
+        pushGA4Event(GAEvents.WalletConnected)
         // trackSignIn(SignInEvent.SignIn)
         // setIsLogged(true)
         return

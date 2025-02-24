@@ -23,6 +23,7 @@ import {
   useTradingService,
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -58,6 +59,8 @@ export default function ClobLimitTradeForm() {
   // Todo replace to this logic for better performance
   // const [price, setPrice] = useState('')
   // const [sharesAmount, setSharesAmount] = useState('')
+
+  const { pushGA4Event } = useGoogleAnalytics()
 
   const maxSharesAvailable =
     strategy === 'Sell'
@@ -151,6 +154,7 @@ export default function ClobLimitTradeForm() {
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
       })
+      pushGA4Event(GAEvents.ClickBuyOrder)
     },
     onError: async () => {
       const id = toast({
