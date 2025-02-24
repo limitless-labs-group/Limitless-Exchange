@@ -12,8 +12,6 @@ export default function PortfolioMarketGroup() {
     ?.filter((position) => position.type === 'clob')
     .find((position) => position.market.slug === market?.slug)
 
-  console.log(currentPosition)
-
   return (
     <TableContainer overflow={'auto'} mt='16px' mb='8px' px={isMobile ? '16px' : 0}>
       <Table variant={'simple'}>

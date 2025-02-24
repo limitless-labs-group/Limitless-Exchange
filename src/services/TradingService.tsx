@@ -158,13 +158,16 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const onCloseMarketPage = () => {
     setMarketPageOpened(false)
     setMarkets(undefined)
+    setMarket(null)
+    setGroupMarket(null)
   }
 
   const onOpenMarketPage = (market: Market, outcome?: number, groupIndex?: number) => {
     setMarket(null)
-    setMarket(
-      market.markets && isNumber(groupIndex) ? market.markets[groupIndex] : (market as Market)
-    )
+    setGroupMarket(null)
+    const marketToSet =
+      market.marketType === 'group' ? market.markets?.[groupIndex || 0] || null : market
+    setMarket(marketToSet)
     setClobOutcome(outcome ? outcome : 0)
     if (market.marketType === 'group') {
       setGroupMarket(market)

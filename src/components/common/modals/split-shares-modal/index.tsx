@@ -71,8 +71,12 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   }
 
   const checkSplitAllowance = async () => {
+    const contractAddress =
+      market?.marketType === 'single'
+        ? process.env.NEXT_PUBLIC_CTF_CONTRACT
+        : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
     const allowance = await checkAllowance(
-      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+      contractAddress as Address,
       market?.collateralToken.address as Address
     )
     setAllowance(allowance)
@@ -120,7 +124,12 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
     }) => {
       try {
         const value = parseUnits(amount, decimals)
-        await splitShares(contractAddress, conditionId, value)
+        await splitShares(
+          contractAddress,
+          conditionId,
+          value,
+          market?.marketType === 'single' ? 'common' : 'negrisk'
+        )
       } catch (e) {
         // @ts-ignore
         throw new Error(e)
@@ -130,15 +139,23 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
 
   const approveContractMutation = useMutation({
     mutationFn: async () => {
+      const contractAddress =
+        market?.marketType === 'single'
+          ? process.env.NEXT_PUBLIC_CTF_CONTRACT
+          : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
       await approveContract(
-        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+        contractAddress as Address,
         market?.collateralToken.address as Address,
         maxUint256
       )
-      await sleep(3)
-      await checkSplitAllowance()
     },
   })
+
+  const onResetAfterApprove = async () => {
+    await sleep(3)
+    await checkSplitAllowance()
+    approveContractMutation.reset()
+  }
 
   const actionButton = useMemo(() => {
     if (client === 'etherspot') {
@@ -163,6 +180,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
           isDisabled={!+displayAmount || isExceedsBalance}
           onClick={() => approveContractMutation.mutateAsync()}
           status={approveContractMutation.status}
+          onReset={onResetAfterApprove}
         >
           Approve
         </ButtonWithStates>

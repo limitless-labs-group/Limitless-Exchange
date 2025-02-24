@@ -1,14 +1,13 @@
 import { EIP712TypedData } from '@polymarket/order-utils'
-import { useSignTypedData } from '@privy-io/react-auth'
 import { Address, encodeFunctionData, erc20Abi, getContract } from 'viem'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
+import { negriskAdapterAbi } from '@/contracts/abi/NegriskAdapterAbi'
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useLimitlessApi } from '@/services/LimitlessApi'
 
 export const useExternalWalletService = () => {
-  const { signTypedData: signTypedDataAsync } = useSignTypedData()
   const { supportedTokens } = useLimitlessApi()
   const { web3Wallet } = useAccount()
 
@@ -256,11 +255,6 @@ export const useExternalWalletService = () => {
     marketConditionId: Address,
     indexSets: number[]
   ) => {
-    console.log(conditionalTokensAddress)
-    console.log(collateralAddress)
-    console.log(parentCollectionId)
-    console.log(marketConditionId)
-    console.log(indexSets)
     try {
       await checkAndSwitchChainIfNeeded()
       const data = encodeFunctionData({
@@ -287,12 +281,18 @@ export const useExternalWalletService = () => {
   const splitPositions = async (
     collateralAddress: Address,
     conditionId: string,
-    amount: bigint
+    amount: bigint,
+    type: 'common' | 'negrisk'
   ) => {
     try {
+      const abi = type === 'common' ? conditionalTokensABI : negriskAdapterAbi
+      const contract =
+        type === 'common'
+          ? process.env.NEXT_PUBLIC_CTF_CONTRACT
+          : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
       await checkAndSwitchChainIfNeeded()
       const data = encodeFunctionData({
-        abi: conditionalTokensABI,
+        abi,
         functionName: 'splitPosition',
         args: [
           collateralAddress,
@@ -306,7 +306,7 @@ export const useExternalWalletService = () => {
         const addresses = await web3Wallet.getAddresses()
         return web3Wallet.sendTransaction({
           data,
-          to: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+          to: contract as Address,
           account: addresses[0],
           chain: defaultChain,
         })

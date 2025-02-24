@@ -2,6 +2,7 @@ import { ERC20_ABI } from '@lifi/sdk'
 import { Address, encodeFunctionData, getContract, maxUint256 } from 'viem'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
+import { negriskAdapterAbi } from '@/contracts/abi/NegriskAdapterAbi'
 import { publicClient } from '@/providers/Privy'
 import { useAccount, useLimitlessApi } from '@/services'
 
@@ -205,20 +206,26 @@ export default function useSmartWalletService() {
   const splitPositions = async (
     collateralAddress: Address,
     conditionId: string,
-    amount: bigint
+    amount: bigint,
+    type: 'common' | 'negrisk'
   ) => {
+    const contractAddress =
+      type === 'common'
+        ? process.env.NEXT_PUBLIC_CTF_CONTRACT
+        : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+    const abi = type === 'common' ? conditionalTokensABI : negriskAdapterAbi
     await approveCollateralIfNeeded(
-      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+      contractAddress as Address,
       maxUint256,
       collateralAddress as Address
     )
     const contract = getContract({
-      address: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
-      abi: conditionalTokensABI,
+      address: contractAddress as Address,
+      abi,
       client: publicClient,
     })
     const data = encodeFunctionData({
-      abi: conditionalTokensABI,
+      abi,
       functionName: 'splitPosition',
       args: [
         collateralAddress,

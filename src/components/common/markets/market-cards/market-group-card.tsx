@@ -38,7 +38,6 @@ export const MarketGroupCard = ({
   const isShortCard = variant === 'grid'
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
-    debugger
     if (e.metaKey || e.ctrlKey || e.button === 2) {
       return
     }
