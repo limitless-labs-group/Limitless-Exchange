@@ -325,6 +325,7 @@ export default function ClobLimitTradeForm() {
       <NumberInputWithButtons
         ref={priceInputRef}
         id='limitPrice'
+        symbol='¢'
         placeholder='Eg. 85¢'
         max={99.9}
         step={0.1}

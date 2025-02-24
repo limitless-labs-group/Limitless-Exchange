@@ -10,6 +10,7 @@ type NumberInputWithButtonsProps = InputProps & {
   handleInputChange: (val: string) => void
   showIncrements: boolean
   endAdornment?: JSX.Element
+  symbol?: string
   inputType?: 'text' | 'number' | 'tel' | 'decimal' | 'numeric'
 }
 
@@ -20,6 +21,7 @@ const NumberInputWithButtons = React.forwardRef<HTMLInputElement, NumberInputWit
       showIncrements,
       endAdornment,
       value,
+      symbol,
       inputType = 'text',
       max,
       step,
@@ -70,6 +72,18 @@ const NumberInputWithButtons = React.forwardRef<HTMLInputElement, NumberInputWit
           inputMode='decimal'
           pattern='[0-9,.]*'
         />
+        {value && symbol && (
+          <Box
+            position='absolute'
+            left={`${(value?.toString().length || 0) * 8 + 12}px`}
+            top='53%'
+            transform='translateY(-50%)'
+            pointerEvents='none'
+            zIndex={2}
+          >
+            {symbol}
+          </Box>
+        )}
         {showIncrements && (
           <>
             <Box
