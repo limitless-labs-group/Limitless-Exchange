@@ -424,7 +424,7 @@ export default function ClobLimitTradeForm() {
           textAlign='center'
           justifyContent='center'
         >
-          <Text>Set&nbsp;</Text>
+          <Text>Set</Text>
           <Text
             borderBottom='1px dotted'
             borderColor='grey.500'
@@ -432,9 +432,9 @@ export default function ClobLimitTradeForm() {
             cursor='pointer'
             onClick={() => priceInputRef.current?.focus()}
           >
-            {!+price && ` Limit price`}
+            {!+price && '\u00A0Limit price'}
           </Text>
-          {!+price && !+sharesAmount ? ',' : ''}&nbsp;
+          {!+price && !+sharesAmount ? ',' : ''}
           <Text
             borderBottom='1px dotted'
             borderColor='grey.500'
@@ -442,7 +442,7 @@ export default function ClobLimitTradeForm() {
             cursor='pointer'
             onClick={() => contractsInputRef.current?.focus()}
           >
-            {!+sharesAmount && `Contracts`}
+            {!+sharesAmount && '\u00A0Contracts'}
           </Text>
         </Flex>
       )}
