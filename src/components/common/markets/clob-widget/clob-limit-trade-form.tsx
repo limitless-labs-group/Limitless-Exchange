@@ -1,4 +1,5 @@
 import { Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { isNumber } from '@chakra-ui/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -30,26 +31,38 @@ export default function ClobLimitTradeForm() {
   const { balanceLoading } = useBalanceService()
   const {
     balance,
-    setPrice,
-    price,
-    sharesAmount,
-    setSharesAmount,
     allowance,
     sharesPrice,
     isApprovedForSell,
     onToggleTradeStepper,
     isBalanceNotEnough,
-    sharesAvailable,
   } = useClobWidget()
   const { trackClicked } = useAmplitude()
   const { web3Wallet } = useAccount()
-  const { market, strategy, clobOutcome: outcome } = useTradingService()
+  const {
+    market,
+    strategy,
+    clobOutcome: outcome,
+    setSharesAmount,
+    setPrice,
+    price,
+    sharesAmount,
+    sharesAvailable,
+  } = useTradingService()
   const queryClient = useQueryClient()
   const { client, placeLimitOrder } = useWeb3Service()
   const { web3Client, profileData } = useAccount()
   const privyService = usePrivySendTransaction()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
+  // Todo replace to this logic for better performance
+  // const [price, setPrice] = useState('')
+  // const [sharesAmount, setSharesAmount] = useState('')
+
+  const maxSharesAvailable =
+    strategy === 'Sell'
+      ? +formatUnits(sharesAvailable[outcome ? 'no' : 'yes'], market?.collateralToken.decimals || 6)
+      : undefined
 
   const handlePercentButtonClicked = (value: number) => {
     trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
@@ -163,7 +176,7 @@ export default function ClobLimitTradeForm() {
             formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
             6
           )
-      return `MAX: ${balanceToShow}`
+      return `${balanceToShow}`
     }
     return `${title}%`
   }
@@ -186,7 +199,7 @@ export default function ClobLimitTradeForm() {
   const showSellBalance = useMemo(() => {
     if (strategy === 'Sell') {
       return (
-        <Flex gap='12px'>
+        <Flex gap='8px'>
           {[10, 25, 50, 100].map((title: number) => (
             <Button
               {...paragraphRegular}
@@ -315,7 +328,7 @@ export default function ClobLimitTradeForm() {
         id='limitPrice'
         placeholder='Eg. 85¢'
         max={99.9}
-        step={1}
+        step={0.1}
         value={price}
         handleInputChange={handleSetLimitPrice}
         showIncrements={true}
@@ -335,6 +348,7 @@ export default function ClobLimitTradeForm() {
       <NumberInputWithButtons
         id='contractsAmount'
         step={1}
+        max={isNumber(maxSharesAvailable) ? maxSharesAvailable : undefined}
         placeholder='Eg. 32'
         value={sharesAmount}
         handleInputChange={handleSetLimitShares}

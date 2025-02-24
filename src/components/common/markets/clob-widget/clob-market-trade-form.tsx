@@ -30,20 +30,24 @@ import { NumberUtil } from '@/utils'
 export default function ClobMarketTradeForm() {
   const { balanceLoading } = useBalanceService()
   const { trackClicked } = useAmplitude()
-  const { market, strategy, clobOutcome: outcome } = useTradingService()
+  const {
+    market,
+    strategy,
+    clobOutcome: outcome,
+    setPrice,
+    price,
+    sharesAvailable,
+  } = useTradingService()
   const { data: orderBook } = useOrderBook(market?.slug)
   const queryClient = useQueryClient()
   const { web3Wallet } = useAccount()
   const {
-    setPrice,
-    price,
     balance,
     allowance,
     isApprovedForSell,
     onToggleTradeStepper,
     sharesPrice,
     isBalanceNotEnough,
-    sharesAvailable,
     yesPrice,
     noPrice,
   } = useClobWidget()
@@ -52,6 +56,8 @@ export default function ClobMarketTradeForm() {
   const privyService = usePrivySendTransaction()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
+  // Todo replace to this logic for better performance
+  // const [price, setPrice] = useState('')
 
   const placeMarketOrderMutation = useMutation({
     mutationKey: ['market-order', market?.slug, price],

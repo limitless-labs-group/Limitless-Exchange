@@ -21,10 +21,9 @@ interface MergeSharesModalProps {
 export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalProps) {
   const [displayAmount, setDisplayAmount] = useState('')
   const [isApproved, setIsApproved] = useState<boolean>(false)
-  const { market } = useTradingService()
+  const { market, sharesAvailable } = useTradingService()
   const { checkAllowanceForAll, client, approveAllowanceForAll, mergeShares } = useWeb3Service()
   const { web3Wallet } = useAccount()
-  const { sharesAvailable } = useClobWidget()
   const queryClient = useQueryClient()
   const { trackClicked } = useAmplitude()
 

@@ -45,28 +45,11 @@ const PortfolioPositionCardClob = ({
 }: PortfolioPositionCardClobProps) => {
   const marketClosed = positionData.market.status === MarketStatus.RESOLVED
 
-  // const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
-  //   targetMarket?.group?.slug,
-  //   false,
-  //   false
-  // )
-
-  // if (targetMarket?.group?.slug) {
-  //   if (!marketGroup) {
-  //     const { data: fetchedMarketGroup } = await refetchMarketGroup()
-  //     if (fetchedMarketGroup) {
-  //       onOpenMarketPage(fetchedMarketGroup)
-  //     }
-  //   } else {
-  //     onOpenMarketPage(marketGroup)
-  //   }
-  // }
-
   const deadline = new Intl.DateTimeFormat('en-GB', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
-  }).format(new Date(positionData.market.deadline))
+  }).format(new Date(positionData.market.expirationDate))
 
   return (
     <Paper {...props} w={'full'} borderRadius='8px'>

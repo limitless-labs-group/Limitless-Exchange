@@ -6,7 +6,7 @@ import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup } from '@/types'
 
 interface MarketOverviewTabProps {
-  market?: Market
+  market: Market | null
   marketGroup?: MarketGroup
 }
 
