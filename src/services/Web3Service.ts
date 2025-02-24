@@ -63,7 +63,8 @@ type Web3Service = {
   splitShares: (
     collateralAddress: Address,
     conditionId: string,
-    amount: bigint
+    amount: bigint,
+    type: 'common' | 'negrisk'
   ) => Promise<string | undefined>
   mergeShares: (
     collateralToken: Address,
@@ -274,11 +275,16 @@ export function useWeb3Service(): Web3Service {
     }
   }
 
-  const splitShares = async (collateralAddress: Address, conditionId: string, amount: bigint) => {
+  const splitShares = async (
+    collateralAddress: Address,
+    conditionId: string,
+    amount: bigint,
+    type: 'common' | 'negrisk'
+  ) => {
     if (web3Client === 'etherspot') {
-      return privyService.splitPositions(collateralAddress, conditionId, amount)
+      return privyService.splitPositions(collateralAddress, conditionId, amount, type)
     }
-    return externalWalletService.splitPositions(collateralAddress, conditionId, amount)
+    return externalWalletService.splitPositions(collateralAddress, conditionId, amount, type)
   }
 
   const mergeShares = async (collateralToken: Address, conditionId: string, amount: bigint) => {

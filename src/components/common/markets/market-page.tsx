@@ -306,7 +306,9 @@ export default function MarketPage() {
         {isMobile && <ShareMenu />}
       </HStack>
       <Box w='full' mt={isMobile ? '56px' : '24px'}>
-        <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
+        {market?.marketType === 'single' && (
+          <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
+        )}
         <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
           <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
             <VolumeIcon width={16} height={16} />
