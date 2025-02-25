@@ -49,7 +49,7 @@ const PortfolioPositionCardClob = ({
     day: '2-digit',
     month: 'short',
     year: 'numeric',
-  }).format(new Date(positionData.market.expirationDate))
+  }).format(new Date(positionData.market.deadline))
 
   return (
     <Paper {...props} w={'full'} borderRadius='8px'>
