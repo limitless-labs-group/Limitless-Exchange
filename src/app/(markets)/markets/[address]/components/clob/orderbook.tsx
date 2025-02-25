@@ -122,7 +122,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
           .map((bid) => {
             return {
               ...bid,
-              price: +new BigNumber(1).minus(new BigNumber(bid.price)).toFixed(2),
+              price: +new BigNumber(1).minus(new BigNumber(bid.price)),
             }
           })
           .sort((a, b) => b.price - a.price)
