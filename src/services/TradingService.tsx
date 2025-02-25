@@ -69,7 +69,7 @@ interface ITradingServiceContext {
   marketPageOpened: boolean
   setMarketPageOpened: Dispatch<SetStateAction<boolean>>
   onCloseMarketPage: () => void
-  onOpenMarketPage: (market: Market, outcome?: number, index?: number) => void
+  onOpenMarketPage: (market: Market, outcome?: number, index?: number, source?: string) => void
   refetchMarkets: () => Promise<void>
   markets?: Market[]
   setMarkets: (markets: Market[]) => void

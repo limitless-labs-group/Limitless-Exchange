@@ -48,7 +48,7 @@ export const MarketGroupCard = ({
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
       marketCategory: market.category,
       marketAddress: market.slug,
-      marketType: 'single',
+      marketType: 'group',
       marketTags: market.tags,
       ...analyticParams,
     })

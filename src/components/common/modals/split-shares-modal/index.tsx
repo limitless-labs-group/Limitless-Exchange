@@ -71,10 +71,9 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   }
 
   const checkSplitAllowance = async () => {
-    const contractAddress =
-      market?.marketType === 'single'
-        ? process.env.NEXT_PUBLIC_CTF_CONTRACT
-        : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+    const contractAddress = market?.negRiskMarketId
+      ? process.env.NEXT_PUBLIC_CTF_CONTRACT
+      : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
     const allowance = await checkAllowance(
       contractAddress as Address,
       market?.collateralToken.address as Address

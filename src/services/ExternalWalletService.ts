@@ -317,11 +317,21 @@ export const useExternalWalletService = () => {
     }
   }
 
-  const mergePositions = async (collateralToken: Address, conditionId: string, amount: bigint) => {
+  const mergePositions = async (
+    collateralToken: Address,
+    conditionId: string,
+    amount: bigint,
+    type: 'common' | 'negrisk'
+  ) => {
+    const contractAddress =
+      type === 'common'
+        ? process.env.NEXT_PUBLIC_CTF_CONTRACT
+        : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+    const abi = type === 'common' ? conditionalTokensABI : negriskAdapterAbi
     try {
       await checkAndSwitchChainIfNeeded()
       const data = encodeFunctionData({
-        abi: conditionalTokensABI,
+        abi,
         functionName: 'mergePositions',
         args: [
           collateralToken,
@@ -335,7 +345,7 @@ export const useExternalWalletService = () => {
         const addresses = await web3Wallet.getAddresses()
         return web3Wallet.sendTransaction({
           data,
-          to: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+          to: contractAddress as Address,
           account: addresses[0],
           chain: defaultChain,
         })
