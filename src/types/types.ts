@@ -50,6 +50,7 @@ export interface Market {
   createdAt: string
   creator: Creator
   description: string
+  deadline: string
   expirationDate: string
   expirationTimestamp: number
   expired: boolean
