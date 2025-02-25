@@ -9,17 +9,11 @@ interface MarketGroupRowProps {
   handleOutcomeClicked: (
     e: React.MouseEvent<HTMLButtonElement>,
     marketToSet: Market,
-    outcome: number,
-    index: number
+    outcome: number
   ) => void
-  index: number
 }
 
-export default function MarketGroupRow({
-  market,
-  handleOutcomeClicked,
-  index,
-}: MarketGroupRowProps) {
+export default function MarketGroupRow({ market, handleOutcomeClicked }: MarketGroupRowProps) {
   const [yesHovered, setYesHovered] = useState(false)
   const [noHovered, setNoHovered] = useState(false)
 
@@ -40,7 +34,7 @@ export default function MarketGroupRow({
             bg={yesHovered ? 'green.500' : 'greenTransparent.100'}
             onMouseEnter={() => setYesHovered(true)}
             onMouseLeave={() => setYesHovered(false)}
-            onClick={(e) => handleOutcomeClicked(e, market, 0, index)}
+            onClick={(e) => handleOutcomeClicked(e, market, 0)}
           >
             {yesHovered
               ? `${new BigNumber(market.prices[0]).multipliedBy(100).toFixed(0)}%`
@@ -55,7 +49,7 @@ export default function MarketGroupRow({
             bg={noHovered ? 'red.500' : 'redTransparent.100'}
             onMouseEnter={() => setNoHovered(true)}
             onMouseLeave={() => setNoHovered(false)}
-            onClick={(e) => handleOutcomeClicked(e, market, 1, index)}
+            onClick={(e) => handleOutcomeClicked(e, market, 1)}
           >
             {noHovered ? `${new BigNumber(market.prices[1]).multipliedBy(100).toFixed(0)}%` : 'NO'}
           </Button>
