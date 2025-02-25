@@ -13,7 +13,14 @@ import {
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import NextLink from 'next/link'
-import React, { LegacyRef, MutableRefObject, useEffect, useRef, useState } from 'react'
+import React, {
+  LegacyRef,
+  MutableRefObject,
+  PropsWithChildren,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits, maxUint256 } from 'viem'
 import {
@@ -48,6 +55,14 @@ import {
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
 import { calculateDisplayRange } from '@/utils/market'
+
+export const TableText = ({ children }: PropsWithChildren) => {
+  return (
+    <Text {...paragraphMedium} color='grey.500' letterSpacing='normal'>
+      {children}
+    </Text>
+  )
+}
 
 export default function OrderbookTableLarge({
   orderBookData,
@@ -292,24 +307,16 @@ export default function OrderbookTableLarge({
           <Thead>
             <Tr>
               <Th minW='348px'>
-                <Text {...paragraphMedium} color='grey.500'>
-                  Trade
-                </Text>
+                <TableText>Trade</TableText>
               </Th>
               <Th isNumeric minW='88px'>
-                <Text {...paragraphMedium} color='grey.500'>
-                  Price
-                </Text>
+                <TableText>Price</TableText>
               </Th>
               <Th isNumeric minW='136px'>
-                <Text {...paragraphMedium} color='grey.500'>
-                  Contracts
-                </Text>
+                <TableText>Contracts</TableText>
               </Th>
               <Th isNumeric minW='144px'>
-                <Text {...paragraphMedium} color='grey.500'>
-                  Total
-                </Text>
+                <TableText>Total</TableText>
               </Th>
             </Tr>
           </Thead>

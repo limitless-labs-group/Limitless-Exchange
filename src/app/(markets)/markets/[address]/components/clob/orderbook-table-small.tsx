@@ -13,6 +13,7 @@ import {
 import Skeleton from '@/components/common/skeleton'
 import OrdersTooltip from '@/app/(markets)/markets/[address]/components/clob/orders-tooltip'
 import { OrderBookData } from '@/app/(markets)/markets/[address]/components/clob/types'
+import { TableText } from './orderbook-table-large'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import useMarketRewardsIncentive from '@/hooks/use-market-rewards'
 import { useOrderBook } from '@/hooks/use-order-book'
@@ -275,14 +276,14 @@ export default function OrderBookTableSmall({
         </Button>
       </HStack>
       <HStack gap={0} w='full' borderBottom='1px solid' borderColor='grey.100'>
-        <Box w='25%' {...paragraphRegular} color='grey.500' textAlign='right'>
-          Price
+        <Box w='25%' textAlign='right'>
+          <TableText>Price</TableText>
         </Box>
-        <Box w='30%' {...paragraphRegular} color='grey.500' textAlign='right'>
-          Contracts
+        <Box w='30%' textAlign='right'>
+          <TableText>Contracts</TableText>
         </Box>
-        <Box w='45%' {...paragraphRegular} color='grey.500' textAlign='right'>
-          Total
+        <Box w='45%' textAlign='right'>
+          <TableText>Total</TableText>
         </Box>
       </HStack>
       <Box position='relative'>
