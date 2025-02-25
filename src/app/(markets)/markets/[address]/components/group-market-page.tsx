@@ -32,6 +32,7 @@ import MarketClosedWidget from '@/components/common/markets/trading-widgets/mark
 import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/trading-widget-advanced'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import { UniqueTraders } from '@/components/common/markets/unique-traders'
+import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
 import Skeleton from '@/components/common/skeleton'
 import { Tooltip } from '@/components/common/tooltip'
 import MarketMobileTradeForm from '@/app/(markets)/markets/[address]/components/clob/market-mobile-trade-form'
@@ -166,19 +167,6 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
     return router.push('/')
   }
 
-  const winnerTooltipLabel = (
-    <Box>
-      <Text {...headline} mb='16px'>
-        Winner-Takes-All Market
-      </Text>
-      <VStack gap='8px' alignItems='flex-start'>
-        <Text {...paragraphRegular}>Only one outcome wins.</Text>
-        <Text {...paragraphRegular}>Convert “No” shares into “Yes” shares anytime.</Text>
-        <Text {...paragraphRegular}>Automatically gain coverage for any new outcomes.</Text>
-      </VStack>
-    </Box>
-  )
-
   useEffect(() => {
     if (market) {
       setMarket(market)
@@ -284,28 +272,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                     </Box>
                   ) : (
                     <HStack gap='16px'>
-                      <HStack gap='4px' color='grey.500'>
-                        <TrophyIcon width={16} height={16} />
-                        <Tooltip
-                          label={winnerTooltipLabel}
-                          bg='background.90'
-                          border='unset'
-                          p='8px'
-                          rounded='8px'
-                          w='236px'
-                          placement='bottom-start'
-                        >
-                          <Text
-                            {...paragraphRegular}
-                            color='grey.500'
-                            textDecorationStyle='dotted'
-                            textDecorationLine='underline'
-                            cursor='pointer'
-                          >
-                            Winner-takes-all
-                          </Text>
-                        </Tooltip>
-                      </HStack>
+                      <WinnerTakeAllTooltip />
                       <HStack gap='4px'>
                         <HStack gap={0}>
                           {uniqueUsersTrades?.map(({ user }, index) => (

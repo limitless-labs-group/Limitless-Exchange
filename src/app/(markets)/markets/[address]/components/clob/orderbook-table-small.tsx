@@ -218,6 +218,7 @@ export default function OrderBookTableSmall({
               right={0}
               minH='128px'
               zIndex={150}
+              top='28px'
             >
               {tooltipContent}
             </Box>

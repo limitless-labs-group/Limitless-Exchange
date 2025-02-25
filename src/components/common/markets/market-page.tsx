@@ -1,10 +1,12 @@
 import {
+  Accordion,
   Box,
   Button,
   Divider,
   HStack,
   Image as ChakraImage,
   Link,
+  Spacer,
   Tab,
   TabIndicator,
   TabList,
@@ -12,6 +14,7 @@ import {
   TabPanels,
   Tabs,
   Text,
+  VStack,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -29,9 +32,14 @@ import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
 import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/trading-widget-advanced'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
+import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
+import Skeleton from '@/components/common/skeleton'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
 import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
+import GroupMarketsSection from '@/app/(markets)/markets/[address]/components/group-markets-section'
+import { mockPriceHistories } from '@/app/(markets)/markets/[address]/components/mock-chart-data'
+import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { LUMY_TOKENS } from '@/app/draft/components'
 import CommentTab from './comment-tab'
 import { MarketProgressBar } from './market-cards/market-progress-bar'
@@ -47,7 +55,7 @@ import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { ChangeEvent, ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
-import { h2Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { h2Bold, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
 export default function MarketPage() {
@@ -56,8 +64,15 @@ export default function MarketPage() {
 
   const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
 
-  const { setMarket, onCloseMarketPage, market, setStrategy, refetchMarkets, setGroupMarket } =
-    useTradingService()
+  const {
+    setMarket,
+    onCloseMarketPage,
+    market,
+    setStrategy,
+    refetchMarkets,
+    setGroupMarket,
+    groupMarket,
+  } = useTradingService()
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -234,12 +249,14 @@ export default function MarketPage() {
     setActiveChartTabIndex(0)
   }, [market])
 
+  console.log(groupMarket)
+
   return (
     <Box
       bg='var(--chakra-colors-background-97)'
       borderLeft={isMobile ? 'unset' : '1px solid'}
       borderColor='grey.100'
-      w={isMobile ? 'full' : '488px'}
+      w={isMobile ? 'full' : '520px'}
       position={isMobile ? 'relative' : 'fixed'}
       height={isMobile ? 'calc(100dvh - 21px)' : 'calc(100vh - 21px)'}
       top='20px'
@@ -310,15 +327,18 @@ export default function MarketPage() {
           <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
         )}
         <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
-          <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
-            <VolumeIcon width={16} height={16} />
-            <Text {...paragraphRegular} color='grey.500'>
-              Volume
-            </Text>
-            <Text {...paragraphRegular} color='grey.500'>
-              {NumberUtil.convertWithDenomination(market?.volumeFormatted || '0', 6)}{' '}
-              {market?.collateralToken.symbol}
-            </Text>
+          <HStack gap='12px'>
+            {groupMarket?.negRiskMarketId && <WinnerTakeAllTooltip />}
+            <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
+              <VolumeIcon width={16} height={16} />
+              <Text {...paragraphRegular} color='grey.500'>
+                Volume
+              </Text>
+              <Text {...paragraphRegular} color='grey.500'>
+                {NumberUtil.convertWithDenomination(market?.volumeFormatted || '0', 6)}{' '}
+                {market?.collateralToken.symbol}
+              </Text>
+            </HStack>
           </HStack>
           {market?.tradeType === 'amm' && (
             <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
@@ -337,33 +357,56 @@ export default function MarketPage() {
             </HStack>
           )}
         </HStack>
-        <Divider my={isMobile ? '24px' : '16px'} />
+        <Divider my='24px' />
       </Box>
+      {groupMarket?.negRiskMarketId && (
+        <Box mb='24px'>
+          <PriceChartContainer priceHistories={mockPriceHistories} />
+        </Box>
+      )}
       {tradingWidget}
-      <Tabs
-        position='relative'
-        variant='common'
-        my='20px'
-        onChange={(index) => setActiveChartTabIndex(index)}
-        index={activeChartTabIndex}
-      >
-        <TabList>
-          {chartTabs.map((tab) => (
-            <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.title)}>
-              <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
-                {tab.icon}
-                <>{tab.title}</>
-              </HStack>
-            </Tab>
-          ))}
-        </TabList>
-        <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
-        <TabPanels>
-          {chartsTabPanels.map((panel, index) => (
-            <TabPanel key={index}>{panel}</TabPanel>
-          ))}
-        </TabPanels>
-      </Tabs>
+      {groupMarket?.negRiskMarketId ? (
+        <>
+          <Text {...h2Medium} mt='24px'>
+            Outcomes
+          </Text>
+          <VStack gap='8px' w='full' mb='24px' mt='8px'>
+            <Accordion variant='paper' gap='8px' display='flex' flexDirection='column' allowToggle>
+              <GroupMarketsSection />
+            </Accordion>
+          </VStack>
+        </>
+      ) : (
+        <Tabs
+          position='relative'
+          variant='common'
+          my='20px'
+          onChange={(index) => setActiveChartTabIndex(index)}
+          index={activeChartTabIndex}
+        >
+          <TabList>
+            {chartTabs.map((tab) => (
+              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.title)}>
+                <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+                  {tab.icon}
+                  <>{tab.title}</>
+                </HStack>
+              </Tab>
+            ))}
+          </TabList>
+          <TabIndicator
+            mt='-2px'
+            height='2px'
+            bg='grey.800'
+            transitionDuration='200ms !important'
+          />
+          <TabPanels>
+            {chartsTabPanels.map((panel, index) => (
+              <TabPanel key={index}>{panel}</TabPanel>
+            ))}
+          </TabPanels>
+        </Tabs>
+      )}
 
       {market?.tradeType === 'clob' ? (
         <ClobPositions marketType='sidebar' />

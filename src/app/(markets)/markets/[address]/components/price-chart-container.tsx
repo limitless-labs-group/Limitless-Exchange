@@ -58,6 +58,7 @@ export const PriceChartContainer = ({ priceHistories }: PriceChartContainerProps
               flex='1'
               borderRadius='6px'
               py='2px'
+              px='12px'
               bg={range === selectedRange ? 'grey.50' : 'unset'}
               color='grey.800'
               _hover={{
