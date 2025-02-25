@@ -179,32 +179,34 @@ export default function OrderBookTableSmall({
       <HStack w='full' justifyContent='space-between'>
         <Text {...h3Regular}>Order book</Text>
         <Box position='relative'>
-          <HStack
-            gap='4px'
-            borderRadius='8px'
-            py='4px'
-            px='8px'
-            bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
-            cursor='pointer'
-            onClick={handleRewardsClicked}
-            onMouseEnter={() => {
-              const timer = setTimeout(() => {
-                setRewardButtonHovered(true)
-              }, 300)
-              return () => clearTimeout(timer)
-            }}
-            onMouseLeave={() => setRewardButtonHovered(false)}
-            ref={ref as LegacyRef<HTMLDivElement>}
-          >
-            <GemIcon />
-            <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
-              {marketRewards && Boolean(marketRewards?.length)
-                ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
-                    market?.collateralToken.symbol
-                  }`
-                : 'Earn Rewards'}
-            </Text>
-          </HStack>
+          {market?.isRewardable && (
+            <HStack
+              gap='4px'
+              borderRadius='8px'
+              py='4px'
+              px='8px'
+              bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
+              cursor='pointer'
+              onClick={handleRewardsClicked}
+              onMouseEnter={() => {
+                const timer = setTimeout(() => {
+                  setRewardButtonHovered(true)
+                }, 300)
+                return () => clearTimeout(timer)
+              }}
+              onMouseLeave={() => setRewardButtonHovered(false)}
+              ref={ref as LegacyRef<HTMLDivElement>}
+            >
+              <GemIcon />
+              <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
+                {marketRewards && Boolean(marketRewards?.length)
+                  ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
+                      market?.collateralToken.symbol
+                    }`
+                  : 'Earn Rewards'}
+              </Text>
+            </HStack>
+          )}
           {(rewardsButtonClicked || rewardButtonHovered) && (
             <Box
               position='absolute'
