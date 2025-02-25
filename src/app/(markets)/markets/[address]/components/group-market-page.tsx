@@ -348,7 +348,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                   flexDirection='column'
                   allowToggle
                 >
-                  <GroupMarketsSection />
+                  <GroupMarketsSection mobileView={isMobile} />
                 </Accordion>
               )}
             </VStack>
