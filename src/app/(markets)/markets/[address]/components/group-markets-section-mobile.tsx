@@ -21,11 +21,11 @@ import { Market } from '@/types'
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
 
-export interface GroupMarketSectionProps {
+interface GroupMarketsSectionMobileProps {
   market: Market
 }
 
-export default function GroupMarketSectionDesktop({ market }: GroupMarketSectionProps) {
+export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectionMobileProps) {
   const { setMarket, market: selectedMarket, setClobOutcome, clobOutcome } = useTradingService()
 
   const { data: userOrders } = useMarketOrders(market?.slug)
@@ -111,43 +111,43 @@ export default function GroupMarketSectionDesktop({ market }: GroupMarketSection
               <Text {...h3Medium}>
                 {new BigNumber(market.prices[0]).multipliedBy(100).toFixed(0)}%
               </Text>
-              <Button
-                w='112px'
-                h='32px'
-                bg={
-                  selectedMarket?.slug === market.slug && !clobOutcome
-                    ? 'green.500'
-                    : 'greenTransparent.100'
-                }
-                color={selectedMarket?.slug === market.slug && !clobOutcome ? 'white' : 'green.500'}
-                borderRadius='8px'
-                _hover={{
-                  bg: 'green.500',
-                  color: 'white',
-                }}
-                onClick={() => handleOutcomeClicked(0)}
-              >
-                Yes {NumberUtil.multiply(market.prices[0], 100)}%
-              </Button>
-              <Button
-                w='112px'
-                h='32px'
-                bg={
-                  selectedMarket?.slug === market.slug && !!clobOutcome
-                    ? 'red.500'
-                    : 'redTransparent.100'
-                }
-                color={selectedMarket?.slug === market.slug && !!clobOutcome ? 'white' : 'red.500'}
-                borderRadius='8px'
-                _hover={{
-                  bg: 'red.500',
-                  color: 'white',
-                }}
-                onClick={() => handleOutcomeClicked(1)}
-              >
-                No {NumberUtil.multiply(market.prices[1], 100)}%
-              </Button>
             </HStack>
+            <Button
+              w='112px'
+              h='32px'
+              bg={
+                selectedMarket?.slug === market.slug && !clobOutcome
+                  ? 'green.500'
+                  : 'greenTransparent.100'
+              }
+              color={selectedMarket?.slug === market.slug && !clobOutcome ? 'white' : 'green.500'}
+              borderRadius='8px'
+              _hover={{
+                bg: 'green.500',
+                color: 'white',
+              }}
+              onClick={() => handleOutcomeClicked(0)}
+            >
+              Yes {NumberUtil.multiply(market.prices[0], 100)}%
+            </Button>
+            <Button
+              w='112px'
+              h='32px'
+              bg={
+                selectedMarket?.slug === market.slug && !!clobOutcome
+                  ? 'red.500'
+                  : 'redTransparent.100'
+              }
+              color={selectedMarket?.slug === market.slug && !!clobOutcome ? 'white' : 'red.500'}
+              borderRadius='8px'
+              _hover={{
+                bg: 'red.500',
+                color: 'white',
+              }}
+              onClick={() => handleOutcomeClicked(1)}
+            >
+              No {NumberUtil.multiply(market.prices[1], 100)}%
+            </Button>
           </HStack>
           <AccordionIcon color='grey.500' />
         </HStack>

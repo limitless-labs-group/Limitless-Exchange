@@ -206,6 +206,8 @@ export default function MarketPage() {
     return market?.tradeType === 'clob' ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
   }, [market])
 
+  console.log(groupMarket)
+
   useEffect(() => {
     //avoid triggering amplitude call twice
     if (market?.slug && !trackedMarketsRef.current.has(market.slug)) {
@@ -372,7 +374,7 @@ export default function MarketPage() {
           </Text>
           <VStack gap='8px' w='full' mb='24px' mt='8px'>
             <Accordion variant='paper' gap='8px' display='flex' flexDirection='column' allowToggle>
-              <GroupMarketsSection />
+              <GroupMarketsSection mobileView={true} />
             </Accordion>
           </VStack>
         </>

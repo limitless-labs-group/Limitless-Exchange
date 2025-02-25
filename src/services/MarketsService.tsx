@@ -30,24 +30,6 @@ export function useMarkets(topic: Category | null) {
         },
       })
 
-      // const marketDataForMultiCall = response.data.flatMap((market) => {
-      //   // @ts-ignore
-      //   if (!market.address) {
-      //     return {
-      //       // @ts-ignore
-      //       address: market.address,
-      //       decimals: market.collateralToken.decimals,
-      //     }
-      //   }
-      //   // @ts-ignore
-      //   return market.markets.map((marketInGroup) => {
-      //     return {
-      //       address: marketInGroup.address,
-      //       decimals: market.collateralToken.decimals,
-      //     }
-      //   })
-      // }) as { address: string; decimals: number }[]
-
       const ammMarkets = response.data.filter((market) => market.tradeType === 'amm')
 
       const marketDataForMultiCall = ammMarkets.map((market) => ({
@@ -151,20 +133,6 @@ export function useMarkets(topic: Category | null) {
         },
         next: (pageParam as number) + 1,
       }
-
-      // return {
-      //   data: {
-      //     markets: response.data.map((market) => ({
-      //       ...market,
-      //       prices: [
-      //         new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-      //         new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
-      //       ],
-      //     })),
-      //     totalAmount: response.totalMarketsCount,
-      //   },
-      //   next: (pageParam as number) + 1,
-      // }
     },
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {

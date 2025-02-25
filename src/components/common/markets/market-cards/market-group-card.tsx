@@ -58,8 +58,7 @@ export const MarketGroupCard = ({
   const handleOutcomeClicked = (
     e: React.MouseEvent<HTMLButtonElement>,
     marketToSet: Market,
-    outcome: number,
-    index: number
+    outcome: number
   ) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {
       return
@@ -98,6 +97,7 @@ export const MarketGroupCard = ({
         onClickRedirectToMarket(event)
       }}
       position='relative'
+      overflow='hidden'
     >
       <Text {...headline} p='16px'>
         {market.title}
@@ -109,12 +109,11 @@ export const MarketGroupCard = ({
         gap='8px'
         pt={0}
       >
-        {market.markets?.map((marketInGroup, index) => (
+        {market.markets?.map((marketInGroup) => (
           <MarketGroupRow
             market={marketInGroup}
             key={marketInGroup.slug}
             handleOutcomeClicked={handleOutcomeClicked}
-            index={index}
           />
         ))}
       </VStack>
