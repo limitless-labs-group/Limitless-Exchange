@@ -15,7 +15,7 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { useFundWallet } from '@privy-io/react-auth'
+import { useFundWallet, usePrivy } from '@privy-io/react-auth'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useCallback, useMemo } from 'react'
@@ -36,6 +36,7 @@ import usePageName from '@/hooks/use-page-name'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { useThemeProvider } from '@/providers'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import KeyIcon from '@/resources/icons/key-icon.svg'
 import LogoutIcon from '@/resources/icons/log-out-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 import FeedIcon from '@/resources/icons/sidebar/Feed.svg'
@@ -83,6 +84,7 @@ export default function Sidebar() {
   const { selectedCategory, handleCategory } = useTokenFilter()
   const { data, isLoading } = useMarkets(null)
   const { fundWallet } = useFundWallet()
+  const { exportWallet } = usePrivy()
 
   const markets: (Market | MarketGroup)[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
@@ -397,10 +399,10 @@ export default function Sidebar() {
                     <Button
                       variant='transparent'
                       w='full'
-                      // onClick={handleOpenProfile}
+                      onClick={exportWallet}
                       justifyContent='flex-start'
                     >
-                      <UserIcon width={16} height={16} />
+                      <KeyIcon width={16} height={16} />
                       Show Private Key
                     </Button>
                   )}
