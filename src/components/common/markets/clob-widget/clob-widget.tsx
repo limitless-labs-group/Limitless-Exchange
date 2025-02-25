@@ -175,7 +175,9 @@ export default function ClobWidget() {
                   borderRadius='8px'
                   w='180px'
                   zIndex={2}
-                  boxShadow='0 1px 2px 0 rgba(0, 0, 0, 0.25)'
+                  boxShadow='0px 1px 4px 0px rgba(2, 6, 23, 0.05)'
+                  border='1px solid'
+                  borderColor='grey.200'
                 >
                   <Button
                     variant='transparent'
