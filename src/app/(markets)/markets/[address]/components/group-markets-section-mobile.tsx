@@ -112,69 +112,74 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
                 {new BigNumber(market.prices[0]).multipliedBy(100).toFixed(0)}%
               </Text>
             </HStack>
-            <Button
-              w='112px'
-              h='32px'
-              bg={
-                selectedMarket?.slug === market.slug && !clobOutcome
-                  ? 'green.500'
-                  : 'greenTransparent.100'
-              }
-              color={selectedMarket?.slug === market.slug && !clobOutcome ? 'white' : 'green.500'}
-              borderRadius='8px'
-              _hover={{
-                bg: 'green.500',
-                color: 'white',
-              }}
-              onClick={() => handleOutcomeClicked(0)}
-            >
-              Yes {NumberUtil.multiply(market.prices[0], 100)}%
-            </Button>
-            <Button
-              w='112px'
-              h='32px'
-              bg={
-                selectedMarket?.slug === market.slug && !!clobOutcome
-                  ? 'red.500'
-                  : 'redTransparent.100'
-              }
-              color={selectedMarket?.slug === market.slug && !!clobOutcome ? 'white' : 'red.500'}
-              borderRadius='8px'
-              _hover={{
-                bg: 'red.500',
-                color: 'white',
-              }}
-              onClick={() => handleOutcomeClicked(1)}
-            >
-              No {NumberUtil.multiply(market.prices[1], 100)}%
-            </Button>
           </HStack>
           <AccordionIcon color='grey.500' />
         </HStack>
-        {Boolean(userOrdersWithOutcomes?.length) && (
-          <HStack gap='12px' mt='16px'>
-            <Box bg='grey.100' borderRadius='8px' px='4px' py='2px'>
-              <Text {...paragraphRegular}>{userOrders?.length} Open orders</Text>
-            </Box>
-            {userOrdersWithOutcomes?.map((order) => (
-              <HStack
-                key={order.type}
-                bg={order.type === 'Yes' ? 'greenTransparent.100' : 'redTransparent.100'}
-                borderRadius='8px'
-                px='4px'
-                py='2px'
-              >
-                <Text {...paragraphRegular} color={order.type === 'Yes' ? 'green.500' : 'red.500'}>
-                  {order.type} {order.contracts} Contracts | {order.averagePrice}¢
-                </Text>
-              </HStack>
-            ))}
-          </HStack>
-        )}
+        <HStack w='full' gap='8px' mt='16px' flexWrap='wrap'>
+          {Boolean(userOrdersWithOutcomes?.length) && (
+            <HStack gap='8px' my='16px'>
+              <Box bg='grey.100' borderRadius='8px' px='4px' py='2px'>
+                <Text {...paragraphRegular}>{userOrders?.length} Open orders</Text>
+              </Box>
+              {userOrdersWithOutcomes?.map((order) => (
+                <HStack
+                  key={order.type}
+                  bg={order.type === 'Yes' ? 'greenTransparent.100' : 'redTransparent.100'}
+                  borderRadius='8px'
+                  px='4px'
+                  py='2px'
+                >
+                  <Text
+                    {...paragraphRegular}
+                    color={order.type === 'Yes' ? 'green.500' : 'red.500'}
+                  >
+                    {order.type} {order.contracts} Contracts | {order.averagePrice}¢
+                  </Text>
+                </HStack>
+              ))}
+            </HStack>
+          )}
+        </HStack>
       </AccordionButton>
+      <HStack w='full' gap='8px'>
+        <Button
+          w='full'
+          h='32px'
+          bg={
+            selectedMarket?.slug === market.slug && !clobOutcome
+              ? 'green.500'
+              : 'greenTransparent.100'
+          }
+          color={selectedMarket?.slug === market.slug && !clobOutcome ? 'white' : 'green.500'}
+          borderRadius='8px'
+          _hover={{
+            bg: 'green.500',
+            color: 'white',
+          }}
+          onClick={() => handleOutcomeClicked(0)}
+        >
+          Yes {NumberUtil.multiply(market.prices[0], 100)}%
+        </Button>
+        <Button
+          w='full'
+          h='32px'
+          bg={
+            selectedMarket?.slug === market.slug && !!clobOutcome ? 'red.500' : 'redTransparent.100'
+          }
+          color={selectedMarket?.slug === market.slug && !!clobOutcome ? 'white' : 'red.500'}
+          borderRadius='8px'
+          _hover={{
+            bg: 'red.500',
+            color: 'white',
+          }}
+          onClick={() => handleOutcomeClicked(1)}
+        >
+          No {NumberUtil.multiply(market.prices[1], 100)}%
+        </Button>
+      </HStack>
       <AccordionPanel pb={0}>
         <Box mt='12px'>
-          <GroupMarketSectionTabs />
+          <GroupMarketSectionTabs mobileView={true} />
         </Box>
       </AccordionPanel>
     </AccordionItem>

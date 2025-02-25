@@ -11,7 +11,13 @@ import OrderbookIcon from '@/resources/icons/orderbook.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import SandClockIcon from '@/resources/icons/sand-clock.svg'
 
-export default function GroupMarketSectionTabs() {
+interface GroupMarketSectionTabsProps {
+  mobileView?: boolean
+}
+
+export default function GroupMarketSectionTabs({
+  mobileView = false,
+}: GroupMarketSectionTabsProps) {
   const [isSmallLaptop, setIsSmallLaptop] = useState(false)
 
   useEffect(() => {
@@ -51,7 +57,7 @@ export default function GroupMarketSectionTabs() {
   ]
 
   const tabPanels = [
-    <Orderbook key={uuidv4()} variant={isSmallLaptop ? 'small' : 'large'} />,
+    <Orderbook key={uuidv4()} variant={isSmallLaptop || mobileView ? 'small' : 'large'} />,
     <MarketPriceChart key={uuidv4()} />,
     <ClobOrdersTab key={uuidv4()} />,
     <PortfolioMarketGroup key={uuidv4()} />,

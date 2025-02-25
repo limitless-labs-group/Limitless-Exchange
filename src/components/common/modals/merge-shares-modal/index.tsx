@@ -6,7 +6,6 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
-import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import { Modal } from '@/components/common/modals/modal'
 import NumberInputWithButtons from '@/components/common/number-input-with-buttons'
 import { ClickEvent, useAccount, useAmplitude, useTradingService } from '@/services'
@@ -66,8 +65,13 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   }
 
   const checkMergeAllowance = async () => {
+    // Todo change to market?.negRiskMarketId after it's fixed on BE
+    const operator =
+      market?.marketType === 'single'
+        ? process.env.NEXT_PUBLIC_CTF_CONTRACT
+        : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
     const isApproved = await checkAllowanceForAll(
-      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+      operator as Address,
       process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
     )
     setIsApproved(isApproved)
@@ -95,7 +99,12 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
     }) => {
       try {
         const value = parseUnits(amount, decimals)
-        await mergeShares(contractAddress, conditionId, value)
+        await mergeShares(
+          contractAddress,
+          conditionId,
+          value,
+          market?.marketType === 'single' ? 'common' : 'negrisk'
+        )
       } catch (e) {
         // @ts-ignore
         throw new Error(e)
@@ -105,14 +114,23 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
 
   const approveContractMutation = useMutation({
     mutationFn: async () => {
+      // Todo change to market?.negRiskMarketId after it's fixed on BE
+      const operator =
+        market?.marketType === 'single'
+          ? process.env.NEXT_PUBLIC_CTF_CONTRACT
+          : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
       await approveAllowanceForAll(
-        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+        operator as Address,
         process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
       )
-      await sleep(3)
-      await checkMergeAllowance()
     },
   })
+
+  const onResetAfterApprove = async () => {
+    await sleep(2)
+    await checkMergeAllowance()
+    approveContractMutation.reset()
+  }
 
   const handleMaxClicked = () => {
     trackClicked(ClickEvent.MergeSharesModalMaxSharesClicked, {
@@ -144,6 +162,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
           isDisabled={!+displayAmount || isExceedsBalance}
           onClick={() => approveContractMutation.mutateAsync()}
           status={approveContractMutation.status}
+          onReset={onResetAfterApprove}
         >
           Approve
         </ButtonWithStates>

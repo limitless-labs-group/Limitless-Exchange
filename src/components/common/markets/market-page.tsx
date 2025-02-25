@@ -6,7 +6,6 @@ import {
   HStack,
   Image as ChakraImage,
   Link,
-  Spacer,
   Tab,
   TabIndicator,
   TabList,
@@ -33,7 +32,6 @@ import MarketClosedWidget from '@/components/common/markets/trading-widgets/mark
 import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/trading-widget-advanced'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
-import Skeleton from '@/components/common/skeleton'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
 import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
@@ -80,7 +78,9 @@ export default function MarketPage() {
 
   const { trackClicked, trackOpened, trackChanged } = useAmplitude()
 
-  const marketAddress = useMemo(() => market?.slug, [market])
+  const marketAddress = useMemo(() => {
+    return market?.marketType === 'group' ? groupMarket?.slug : market?.slug
+  }, [market])
 
   const { data: updatedMarket } = useMarket(marketAddress, !!market)
 
