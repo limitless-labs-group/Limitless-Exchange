@@ -393,6 +393,17 @@ export default function Sidebar() {
                     <UserIcon width={16} height={16} />
                     Profile
                   </Button>
+                  {web3Client === 'etherspot' && (
+                    <Button
+                      variant='transparent'
+                      w='full'
+                      // onClick={handleOpenProfile}
+                      justifyContent='flex-start'
+                    >
+                      <UserIcon width={16} height={16} />
+                      Show Private Key
+                    </Button>
+                  )}
                   <Button
                     variant='transparent'
                     w='full'
