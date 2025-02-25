@@ -320,6 +320,11 @@ export default function ClobLimitTradeForm() {
     setSharesAmount(val)
   }
 
+  console.log(`price ${+price}`)
+  console.log(`sharesAmount ${+sharesAmount}`)
+  console.log(`isBalanceNotEnough ${isBalanceNotEnough}`)
+  console.log(`web3Wallet ${web3Wallet}`)
+
   return (
     <>
       <Flex justifyContent='space-between' alignItems='center' mb='8px'>
