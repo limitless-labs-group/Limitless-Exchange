@@ -10,22 +10,34 @@ type NumberInputWithButtonsProps = InputProps & {
   handleInputChange: (val: string) => void
   showIncrements: boolean
   endAdornment?: JSX.Element
+  symbol?: string
   inputType?: 'text' | 'number' | 'tel' | 'decimal' | 'numeric'
 }
 
-export default function NumberInputWithButtons({
-  handleInputChange,
-  showIncrements,
-  endAdornment,
-  value,
-  inputType = 'text',
-  max,
-  step,
-  ...props
-}: NumberInputWithButtonsProps) {
-  const handlePlusIconClicked = () => {
-    if (isNumber(max)) {
-      if (+(value as string) + (step as number) > +max) {
+const NumberInputWithButtons = React.forwardRef<HTMLInputElement, NumberInputWithButtonsProps>(
+  (
+    {
+      handleInputChange,
+      showIncrements,
+      endAdornment,
+      value,
+      symbol,
+      inputType = 'text',
+      max,
+      step,
+
+      ...props
+    }: NumberInputWithButtonsProps,
+    ref
+  ) => {
+    const handlePlusIconClicked = () => {
+      if (isNumber(max)) {
+        if (+(value as string) + (step as number) > +max) {
+          return
+        }
+        handleInputChange(
+          new BigNumber((value as string) || '0').plus(new BigNumber(step as string)).toString()
+        )
         return
       }
       handleInputChange(
@@ -33,95 +45,108 @@ export default function NumberInputWithButtons({
       )
       return
     }
-    handleInputChange(
-      new BigNumber((value as string) || '0').plus(new BigNumber(step as string)).toString()
-    )
-    return
-  }
-  const handleMinusIconClicked = () => {
-    if (!value) {
+    const handleMinusIconClicked = () => {
+      if (!value) {
+        return
+      }
+      if (+value < (step as number)) {
+        handleInputChange('')
+        return
+      }
+      handleInputChange(
+        new BigNumber(value as string).minus(new BigNumber(step as string)).toString()
+      )
       return
     }
-    if (+value < (step as number)) {
-      handleInputChange('')
-      return
-    }
-    handleInputChange(
-      new BigNumber(value as string).minus(new BigNumber(step as string)).toString()
-    )
-    return
-  }
 
-  return (
-    <InputGroup position='relative'>
-      <Input
-        {...props}
-        variant='grey'
-        autoComplete='off'
-        onChange={(e) => handleInputChange(e.target.value.replace(/^0+/, '0').replace(',', '.'))}
-        value={value}
-        type={inputType}
-        inputMode='decimal'
-        pattern='[0-9,.]*'
-      />
-      {showIncrements && (
-        <>
+    return (
+      <InputGroup position='relative'>
+        <Input
+          {...props}
+          ref={ref}
+          variant='grey'
+          autoComplete='off'
+          onChange={(e) => handleInputChange(e.target.value.replace(/^0+/, '0').replace(',', '.'))}
+          value={value}
+          type={inputType}
+          inputMode='decimal'
+          pattern='[0-9,.]*'
+        />
+        {value && symbol && (
           <Box
             position='absolute'
-            right='12px'
-            top='8px'
-            zIndex={100}
-            w='16px'
-            h='16px'
-            cursor='pointer'
-            onClick={handlePlusIconClicked}
+            left={`${(value?.toString().length || 0) * 8 + 12}px`}
+            top='53%'
+            transform='translateY(-50%)'
+            pointerEvents='none'
+            zIndex={2}
           >
-            <PlusIcon />
+            {symbol}
           </Box>
-          <Box
-            position='absolute'
-            right='44px'
-            top='8px'
-            zIndex={100}
-            w='16px'
-            h='16px'
-            cursor='pointer'
-            onClick={handleMinusIconClicked}
-          >
-            <MinusIcon />
-          </Box>
-        </>
-      )}
-      {endAdornment && (
-        <InputRightElement h='16px' top='8px' right={isMobile ? '8px' : '12px'} w='fit'>
-          {endAdornment}
-        </InputRightElement>
-      )}
-    </InputGroup>
-    // <NumberInput {...wrapperProps} errorBorderColor='red.500'>
-    //   <NumberInputField id={id} placeholder={placeHolderText} pattern={undefined} />
-    //   <NumberIncrementStepper
-    //     position='absolute'
-    //     right='12px'
-    //     top='6px'
-    //     zIndex={100}
-    //     w='16px'
-    //     h='16px'
-    //     border='unset'
-    //   >
-    //     <PlusIcon />
-    //   </NumberIncrementStepper>
-    //   <NumberDecrementStepper
-    //     position='absolute'
-    //     right='44px'
-    //     top={isMobile ? '8px' : '6px'}
-    //     zIndex={100}
-    //     w='16px'
-    //     h='16px'
-    //     border='unset'
-    //   >
-    //     <MinusIcon />
-    //   </NumberDecrementStepper>
-    // </NumberInput>
-  )
-}
+        )}
+        {showIncrements && (
+          <>
+            <Box
+              position='absolute'
+              right='12px'
+              top='8px'
+              zIndex={100}
+              w='16px'
+              h='16px'
+              cursor='pointer'
+              onClick={handlePlusIconClicked}
+            >
+              <PlusIcon />
+            </Box>
+            <Box
+              position='absolute'
+              right='44px'
+              top='8px'
+              zIndex={100}
+              w='16px'
+              h='16px'
+              cursor='pointer'
+              onClick={handleMinusIconClicked}
+            >
+              <MinusIcon />
+            </Box>
+          </>
+        )}
+        {endAdornment && (
+          <InputRightElement h='16px' top='8px' right={isMobile ? '8px' : '12px'} w='fit'>
+            {endAdornment}
+          </InputRightElement>
+        )}
+      </InputGroup>
+      // <NumberInput {...wrapperProps} errorBorderColor='red.500'>
+      //   <NumberInputField id={id} placeholder={placeHolderText} pattern={undefined} />
+      //   <NumberIncrementStepper
+      //     position='absolute'
+      //     right='12px'
+      //     top='6px'
+      //     zIndex={100}
+      //     w='16px'
+      //     h='16px'
+      //     border='unset'
+      //   >
+      //     <PlusIcon />
+      //   </NumberIncrementStepper>
+      //   <NumberDecrementStepper
+      //     position='absolute'
+      //     right='44px'
+      //     top={isMobile ? '8px' : '6px'}
+      //     zIndex={100}
+      //     w='16px'
+      //     h='16px'
+      //     border='unset'
+      //   >
+      //     <MinusIcon />
+      //   </NumberDecrementStepper>
+      // </NumberInput>
+    )
+  }
+)
+
+export default NumberInputWithButtons
+
+NumberInputWithButtons.displayName = ' NumberInputWithButtons'
