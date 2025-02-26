@@ -28,16 +28,16 @@ export default function ReviewStep({ positions, onBack, sharesToConvert }: Revie
   const convertMutation = useMutation({
     mutationKey: ['convert-shares', groupMarket?.slug],
     mutationFn: async () => {
-      debugger
       const indexSet =
         groupMarket?.markets
           ?.map((market) =>
             positionsToConvert.some((pos) => pos.market.slug === market.slug) ? '1' : '0'
           )
+          .reverse()
           .join('') || '000'
       await convertShares(
         groupMarket?.negRiskMarketId as string,
-        indexSet,
+        parseInt(indexSet, 2).toString(),
         parseUnits(sharesToConvert, groupMarket?.collateralToken.decimals || 6)
       )
     },

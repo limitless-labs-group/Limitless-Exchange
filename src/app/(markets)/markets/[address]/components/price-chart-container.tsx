@@ -25,11 +25,7 @@ const ChartContainer = () => {
   const { data: priceHistory, isLoading: isLoadingPriceHistory } =
     useNegRiskPriceHistory(marketSlug)
 
-  const fetchedHistory = useMemo(() => {
-    return priceHistory
-  }, [priceHistory])
-
-  if (!fetchedHistory || isLoadingPriceHistory) {
+  if (!priceHistory || isLoadingPriceHistory) {
     return (
       <Box w='full'>
         <Skeleton height={240} />
@@ -54,7 +50,7 @@ const ChartContainer = () => {
     return data.filter((point) => point.timestamp >= ranges[selectedRange])
   }
 
-  const filteredHistories = fetchedHistory?.map((history) => ({
+  const filteredHistories = priceHistory?.map((history) => ({
     ...history,
     prices: getFilteredData(history.prices),
   }))

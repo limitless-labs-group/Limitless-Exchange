@@ -138,6 +138,7 @@ export default function ClobWidget() {
               borderBottom='1px solid'
               borderColor='grey.500'
               justifyContent='flex-end'
+              marginBottom='2px'
             >
               <Menu
                 isOpen={orderTypeMenuOpen}

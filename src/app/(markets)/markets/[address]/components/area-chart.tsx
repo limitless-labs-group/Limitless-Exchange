@@ -40,7 +40,19 @@ export const PriceChart = ({ history }: PriceChartProps) => {
   const seriesColors = [blue500, red500, green500, indigo500, orange500, grey50]
 
   // Prepare data for Chart.js
-  const timestamps = history[0].prices.map((point) => point.timestamp) || []
+  function getUniqueTimestamps() {
+    const timestamps = new Set<number>()
+
+    history.forEach((item) => {
+      item.prices.forEach((price) => {
+        timestamps.add(price.timestamp)
+      })
+    })
+
+    return Array.from(timestamps).sort((a, b) => a - b)
+  }
+
+  const timestamps = getUniqueTimestamps()
 
   const data: ChartData<'line'> = {
     labels: timestamps.map((ts) => format(new Date(ts), 'MMM d')),
