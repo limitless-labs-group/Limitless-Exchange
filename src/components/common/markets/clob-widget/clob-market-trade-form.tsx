@@ -23,7 +23,7 @@ import {
   useTradingService,
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import useGoogleAnalytics, { Purchase } from '@/services/GoogleAnalytics'
+import useGoogleAnalytics, { GAEvents, Purchase } from '@/services/GoogleAnalytics'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -53,7 +53,7 @@ export default function ClobMarketTradeForm() {
   const privyService = usePrivySendTransaction()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
-  const { pushPuchaseEvent } = useGoogleAnalytics()
+  const { pushPuchaseEvent, pushGA4Event } = useGoogleAnalytics()
 
   const placeMarketOrderMutation = useMutation({
     mutationKey: ['market-order', market?.slug, price],
@@ -399,6 +399,7 @@ export default function ClobMarketTradeForm() {
 
   const handleSubmitButtonClicked = async () => {
     if (strategy === 'Buy') {
+      pushGA4Event(GAEvents.ClickBuy)
       const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
         parseUnits(sharesPrice, market?.collateralToken.decimals || 6).toString()
       )
