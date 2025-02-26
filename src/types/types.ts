@@ -55,6 +55,7 @@ export interface Market {
   expirationTimestamp: number
   expired: boolean
   negRiskMarketId?: string
+  negRiskRequestId?: string
   liquidity: string
   liquidityFormatted: string
   ogImageURI: string

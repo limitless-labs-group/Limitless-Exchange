@@ -82,7 +82,7 @@ export default function OrderBookTableSmall({
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight
     }
-  }, [outcome])
+  }, [outcome, market])
 
   const highLightRewardsCells = rewardsButtonClicked || rewardButtonHovered
 

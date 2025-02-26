@@ -36,12 +36,12 @@ import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
 import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
 import GroupMarketsSection from '@/app/(markets)/markets/[address]/components/group-markets-section'
-import { mockPriceHistories } from '@/app/(markets)/markets/[address]/components/mock-chart-data'
 import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { LUMY_TOKENS } from '@/app/draft/components'
 import CommentTab from './comment-tab'
 import { MarketProgressBar } from './market-cards/market-progress-bar'
 import { UniqueTraders } from './unique-traders'
+import { useNegRiskPriceHistory } from '@/hooks/use-market-price-history'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
@@ -206,7 +206,13 @@ export default function MarketPage() {
     return market?.tradeType === 'clob' ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
   }, [market])
 
-  console.log(groupMarket)
+  const chart = useMemo(() => {
+    return groupMarket?.negRiskMarketId ? (
+      <Box mb='24px'>
+        <PriceChartContainer />
+      </Box>
+    ) : null
+  }, [groupMarket?.negRiskMarketId])
 
   useEffect(() => {
     //avoid triggering amplitude call twice
@@ -361,11 +367,7 @@ export default function MarketPage() {
         </HStack>
         <Divider my='24px' />
       </Box>
-      {groupMarket?.negRiskMarketId && (
-        <Box mb='24px'>
-          <PriceChartContainer priceHistories={mockPriceHistories} />
-        </Box>
-      )}
+      {chart}
       {tradingWidget}
       {groupMarket?.negRiskMarketId ? (
         <>

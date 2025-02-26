@@ -15,16 +15,15 @@ import {
 } from 'chart.js'
 import { format } from 'date-fns'
 import { Line } from 'react-chartjs-2'
-import { PriceHistory } from '@/app/(markets)/markets/[address]/components/mock-chart-data'
+import { ClobPriceHistoryResponse } from '@/hooks/use-market-price-history'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
-interface ChartProps {
-  histories: PriceHistory[]
-  height?: number
+interface PriceChartProps {
+  history: ClobPriceHistoryResponse[]
 }
 
-export const PriceChart = ({ histories, height = 240 }: ChartProps) => {
+export const PriceChart = ({ history }: PriceChartProps) => {
   const [blue500, red500, green500, indigo500, grey100, grey300, grey500, orange500, grey50] =
     useToken('colors', [
       'blue.500',
@@ -41,13 +40,13 @@ export const PriceChart = ({ histories, height = 240 }: ChartProps) => {
   const seriesColors = [blue500, red500, green500, indigo500, orange500, grey50]
 
   // Prepare data for Chart.js
-  const timestamps = histories[0]?.data.map((point) => point.timestamp * 1000) || []
+  const timestamps = history[0].prices.map((point) => point.timestamp) || []
 
   const data: ChartData<'line'> = {
     labels: timestamps.map((ts) => format(new Date(ts), 'MMM d')),
-    datasets: histories.map((history, index) => ({
-      label: history.name,
-      data: history.data.map((point) => point.value),
+    datasets: history.map((history, index) => ({
+      label: history.title,
+      data: history.prices.map((data) => +data.price),
       borderColor: seriesColors[index % seriesColors.length],
       backgroundColor: seriesColors[index % seriesColors.length],
       pointRadius: 0,
@@ -232,7 +231,7 @@ export const PriceChart = ({ histories, height = 240 }: ChartProps) => {
   ChartJS.register(verticalLinePlugin)
 
   return (
-    <Box w='full' h={height}>
+    <Box w='full' h={240}>
       <Line data={data} options={options} />
     </Box>
   )

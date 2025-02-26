@@ -328,7 +328,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                 </HStack>
               </Box>
               <Divider my='16px' />
-              <PriceChartContainer priceHistories={mockPriceHistories} />
+              <PriceChartContainer />
             </Box>
             <Text {...h2Medium} mt='24px'>
               Outcomes

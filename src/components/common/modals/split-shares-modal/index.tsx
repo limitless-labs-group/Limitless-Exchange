@@ -71,9 +71,10 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   }
 
   const checkSplitAllowance = async () => {
-    const contractAddress = market?.negRiskMarketId
-      ? process.env.NEXT_PUBLIC_CTF_CONTRACT
-      : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+    const contractAddress = market?.negRiskRequestId
+      ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+      : process.env.NEXT_PUBLIC_CTF_CONTRACT
+
     const allowance = await checkAllowance(
       contractAddress as Address,
       market?.collateralToken.address as Address
@@ -127,7 +128,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
           contractAddress,
           conditionId,
           value,
-          market?.marketType === 'single' ? 'common' : 'negrisk'
+          market?.negRiskRequestId ? 'negrisk' : 'common'
         )
       } catch (e) {
         // @ts-ignore
@@ -138,10 +139,9 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
 
   const approveContractMutation = useMutation({
     mutationFn: async () => {
-      const contractAddress =
-        market?.marketType === 'single'
-          ? process.env.NEXT_PUBLIC_CTF_CONTRACT
-          : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+      const contractAddress = market?.negRiskRequestId
+        ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+        : process.env.NEXT_PUBLIC_CTF_CONTRACT
       await approveContract(
         contractAddress as Address,
         market?.collateralToken.address as Address,
