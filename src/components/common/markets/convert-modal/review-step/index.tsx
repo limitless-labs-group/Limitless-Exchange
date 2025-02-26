@@ -37,7 +37,7 @@ export default function ReviewStep({ positions, onBack, sharesToConvert }: Revie
           .join('') || '000'
       await convertShares(
         groupMarket?.negRiskMarketId as string,
-        `0x${indexSet}`,
+        indexSet,
         parseUnits(sharesToConvert, groupMarket?.collateralToken.decimals || 6)
       )
     },
