@@ -23,6 +23,7 @@ import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import { ClickEvent, TradeQuotes, useAmplitude, useTradingService } from '@/services'
+import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketStatus } from '@/types'
@@ -83,6 +84,7 @@ export default function ActionButton({
    * ANALITYCS
    */
   const { trackClicked } = useAmplitude()
+  const { pushGA4Event } = useGoogleAnalytics()
   const country = Cookies.get('limitless_geo')
 
   const ref = useRef<HTMLElement>()
@@ -433,6 +435,7 @@ export default function ActionButton({
           tokenTicker={market.collateralToken.symbol}
           status={status}
           handleConfirmClicked={() => {
+            pushGA4Event(GAEvents.ClickBuy)
             trackClicked(ClickEvent.ConfirmTransactionClicked, {
               address: market.slug,
               outcome: option,

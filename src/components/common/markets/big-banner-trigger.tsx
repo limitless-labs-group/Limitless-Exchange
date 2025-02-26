@@ -11,6 +11,7 @@ import { BigBannerProps } from './big-banner'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { cutUsername } from '@/utils/string'
@@ -24,6 +25,7 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
   const { data: marketFeedData } = useMarketFeed(market)
   const router = useRouter()
   const { trackClicked } = useAmplitude()
+  const { pushGA4Event } = useGoogleAnalytics()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {
@@ -38,6 +40,7 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
       marketType: 'single',
       marketTags: market.tags,
     })
+    pushGA4Event(GAEvents.ClickSection)
     onOpenMarketPage(market)
     if (isMobile) {
       setMarkets(markets)

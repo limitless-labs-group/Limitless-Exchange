@@ -23,11 +23,14 @@ import {
   useTradingService,
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
 export default function ClobLimitTradeForm() {
+  const priceInputRef = React.useRef<HTMLInputElement>(null)
+  const contractsInputRef = React.useRef<HTMLInputElement>(null)
   const { balanceLoading } = useBalanceService()
   const {
     balance,
@@ -51,6 +54,7 @@ export default function ClobLimitTradeForm() {
   const privyService = usePrivySendTransaction()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
+  const { pushGA4Event } = useGoogleAnalytics()
 
   const maxSharesAvailable =
     strategy === 'Sell'
@@ -144,6 +148,7 @@ export default function ClobLimitTradeForm() {
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
       })
+      pushGA4Event(GAEvents.ClickBuyOrder)
     },
     onError: async () => {
       const id = toast({
@@ -318,7 +323,9 @@ export default function ClobLimitTradeForm() {
         {showBuyBalance}
       </Flex>
       <NumberInputWithButtons
+        ref={priceInputRef}
         id='limitPrice'
+        symbol='¢'
         placeholder='Eg. 85¢'
         max={99.9}
         step={0.1}
@@ -339,6 +346,7 @@ export default function ClobLimitTradeForm() {
         {showSellBalance}
       </Flex>
       <NumberInputWithButtons
+        ref={contractsInputRef}
         id='contractsAmount'
         step={1}
         max={isNumber(maxSharesAvailable) ? maxSharesAvailable : undefined}
@@ -410,10 +418,34 @@ export default function ClobLimitTradeForm() {
         Submit {strategy} Order
       </ClobTradeButton>
       {(!price || !sharesAmount) && (
-        <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
-          Set {!+price && 'Limit price'}
-          {!+price && !+sharesAmount ? ',' : ''} {!+sharesAmount && 'Contracts'}
-        </Text>
+        <Flex
+          {...paragraphRegular}
+          mt='8px'
+          color='grey.500'
+          textAlign='center'
+          justifyContent='center'
+        >
+          <Text>Set</Text>
+          <Text
+            borderBottom='1px dotted'
+            borderColor='grey.500'
+            display='inline'
+            cursor='pointer'
+            onClick={() => priceInputRef.current?.focus()}
+          >
+            {!+price && '\u00A0Limit price'}
+          </Text>
+          {!+price && !+sharesAmount ? ',' : ''}
+          <Text
+            borderBottom='1px dotted'
+            borderColor='grey.500'
+            display='inline'
+            cursor='pointer'
+            onClick={() => contractsInputRef.current?.focus()}
+          >
+            {!+sharesAmount && '\u00A0Contracts'}
+          </Text>
+        </Flex>
       )}
     </>
   )

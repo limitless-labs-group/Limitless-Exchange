@@ -1,10 +1,10 @@
 import { Box, Button, Checkbox, HStack, Input, InputGroup, Stack, Text } from '@chakra-ui/react'
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import BigNumber from 'bignumber.js'
 import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { zeroAddress } from 'viem'
-import Loader from '@/components/common/loader'
-import { IModal } from '@/components/common/modals/modal'
+import ButtonWithStates from '@/components/common/button-with-states'
 import SelectTokenField from '@/components/common/select-token-field'
 import BaseIcon from '@/resources/crypto/base.svg'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
@@ -19,12 +19,14 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Token } from '@/types'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
-type WithdrawProps = Omit<IModal, 'children'>
+type WithdrawProps = {
+  isOpen: boolean
+}
 
-export default function Withdraw({ isOpen, onClose }: WithdrawProps) {
+export default function Withdraw({ isOpen }: WithdrawProps) {
   const [amount, setAmount] = useState('')
   const [address, setAddress] = useState('')
-  const { unwrap, setUnwrap, withdraw, status } = useBalanceService()
+  const { unwrap, setUnwrap, withdrawMutation } = useBalanceService()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { supportedTokens } = useLimitlessApi()
 
@@ -56,6 +58,12 @@ export default function Withdraw({ isOpen, onClose }: WithdrawProps) {
       return
     }
   }, [isOpen])
+
+  const onResetWithdraw = async () => {
+    await sleep(2)
+    setAmount('')
+    withdrawMutation.reset()
+  }
 
   return (
     <>
@@ -111,24 +119,23 @@ export default function Withdraw({ isOpen, onClose }: WithdrawProps) {
         />
       </InputGroup>
       <Stack w={'full'} spacing={4}>
-        <Button
+        <ButtonWithStates
           variant='contained'
-          isLoading={status == 'Loading'}
-          spinner={<Loader />}
-          isDisabled={isSubmitDisabled || status === 'Loading' || !amount}
+          status={withdrawMutation.status}
+          isDisabled={isSubmitDisabled || !amount}
           onClick={async () => {
             trackClicked(ClickEvent.WithdrawConfirmedClicked, {
               coin: selectedToken.symbol,
               amount: amount,
             })
-            await withdraw({ receiver: address, token: selectedToken, amount })
-            onClose()
+            await withdrawMutation.mutateAsync({ receiver: address, token: selectedToken, amount })
           }}
-          w={isMobile ? 'full' : 'fit-content'}
+          w={isMobile ? 'full' : '82px'}
           mt={isMobile ? '32px' : '24px'}
+          onReset={onResetWithdraw}
         >
           Withdraw
-        </Button>
+        </ButtonWithStates>
       </Stack>
     </>
   )
