@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
+import { Address } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { limitlessApi } from '@/services'
 import { Market } from '@/types'
@@ -94,19 +95,19 @@ export function useNegRiskPriceHistory(slug?: string) {
   })
 }
 
-export function useMarketPriceHistory(market: Market | null) {
+export function useMarketPriceHistory(slug?: string, address?: Address | null) {
   return useQuery({
-    queryKey: ['prices', market?.slug],
+    queryKey: ['prices', slug],
     queryFn: async () => {
-      if (market?.tradeType === 'clob') {
+      if (!address) {
         const response: AxiosResponse<ClobPriceHistoryResponse> = await limitlessApi.get(
-          `/markets/${market.slug}/historical-price`
+          `/markets/${slug}/historical-price`
         )
         return response.data.prices.map((item) => {
           return [item.timestamp, +item.price * 100]
         })
       }
-      const marketId = market?.address
+      const marketId = address
       const query = `query prices {
           AutomatedMarketMakerPricing(where: { market_id: { _ilike: "${marketId}" } }) {
             yesBuyChartData
@@ -123,6 +124,7 @@ export function useMarketPriceHistory(market: Market | null) {
       )
     },
     staleTime: Infinity,
-    enabled: !!market,
+    enabled: !!slug,
+    retry: false,
   })
 }
