@@ -150,7 +150,7 @@ export default function MarketsSection({
                       return (
                         <Box key={speedometerCards[0].slug || speedometerCards[0].address} w='full'>
                           <MarketCard
-                            variant='row'
+                            variant='grid'
                             market={speedometerCards[0]}
                             analyticParams={{
                               bannerPosition: position,
@@ -178,7 +178,7 @@ export default function MarketsSection({
                               minW='calc(50% - 8px)'
                             >
                               <MarketCard
-                                variant='speedometer'
+                                variant='grid'
                                 market={speedometerMarket}
                                 analyticParams={{
                                   bannerPosition: position + gridIndex,
@@ -208,7 +208,7 @@ export default function MarketsSection({
                                 minW='calc(50% - 8px)'
                               >
                                 <MarketCard
-                                  variant='speedometer'
+                                  variant='grid'
                                   market={speedometerMarket}
                                   analyticParams={{
                                     bannerPosition: position + gridIndex,
@@ -249,7 +249,7 @@ export default function MarketsSection({
                             minW='calc(50% - 8px)'
                           >
                             <MarketCard
-                              variant='speedometer'
+                              variant='grid'
                               market={speedometerMarket}
                               analyticParams={{
                                 bannerPosition: position + gridIndex,
