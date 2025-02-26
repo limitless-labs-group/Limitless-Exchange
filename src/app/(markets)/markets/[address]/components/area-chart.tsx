@@ -40,28 +40,59 @@ export const PriceChart = ({ history }: PriceChartProps) => {
   const seriesColors = [blue500, red500, green500, indigo500, orange500, grey50]
 
   // Prepare data for Chart.js
-  const timestamps = history[0].prices.map((point) => point.timestamp) || []
+  function getUniqueTimestamps() {
+    const timestamps = new Set<number>()
+
+    history.forEach((item) => {
+      item.prices.forEach((price) => {
+        timestamps.add(price.timestamp)
+      })
+    })
+
+    return Array.from(timestamps).sort((a, b) => a - b)
+  }
+
+  const timestamps = getUniqueTimestamps()
 
   const data: ChartData<'line'> = {
     labels: timestamps.map((ts) => format(new Date(ts), 'MMM d')),
-    datasets: history.map((history, index) => ({
-      label: history.title,
-      data: history.prices.map((data) => +data.price),
-      borderColor: seriesColors[index % seriesColors.length],
-      backgroundColor: seriesColors[index % seriesColors.length],
-      pointRadius: 0,
-      pointHoverRadius: 4,
-      borderWidth: 2,
-      tension: 0.4,
-      segment: {
-        borderColor: (ctx: any) => {
-          if (!ctx.p0.parsed) return
-          if (ctx.p0.parsed.x >= ctx.chart.hoverIndex) {
-            return grey300
+    datasets: history.map((history, index) => {
+      const sortedPrices = [...history.prices].sort((a, b) => a.timestamp - b.timestamp)
+      const firstPrice = sortedPrices[0]?.price || 0
+      const lastPrice = sortedPrices[sortedPrices.length - 1]?.price || firstPrice
+
+      return {
+        label: history.title,
+        data: timestamps.map((ts) => {
+          const pricePoint = history.prices.find((p) => p.timestamp === ts)
+          if (pricePoint) {
+            return +pricePoint.price
           }
+          if (ts <= sortedPrices[0]?.timestamp) {
+            return +firstPrice
+          }
+          if (ts >= sortedPrices[sortedPrices.length - 1]?.timestamp) {
+            return +lastPrice
+          }
+          return null
+        }),
+        borderColor: seriesColors[index % seriesColors.length],
+        backgroundColor: seriesColors[index % seriesColors.length],
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        borderWidth: 2,
+        tension: 0,
+        spanGaps: true,
+        segment: {
+          borderColor: (ctx: any) => {
+            if (!ctx.p0.parsed) return
+            if (ctx.p0.parsed.x >= ctx.chart.hoverIndex) {
+              return grey300
+            }
+          },
         },
-      },
-    })),
+      }
+    }),
   }
 
   const options: ChartOptions<'line'> = {

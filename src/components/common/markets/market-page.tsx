@@ -22,6 +22,7 @@ import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
+import ConvertModal from '@/components/common/markets/convert-modal'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
@@ -438,6 +439,7 @@ export default function MarketPage() {
           ))}
         </TabPanels>
       </Tabs>
+      <ConvertModal />
     </Box>
   )
 }

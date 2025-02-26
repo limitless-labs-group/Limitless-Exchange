@@ -170,7 +170,10 @@ export const MarketPriceChart = () => {
   })
 
   // React Query to fetch the price data
-  const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(market)
+  const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(
+    market?.slug,
+    market?.address
+  )
 
   const chartData = useMemo(() => {
     const _prices: number[][] = prices ?? []
