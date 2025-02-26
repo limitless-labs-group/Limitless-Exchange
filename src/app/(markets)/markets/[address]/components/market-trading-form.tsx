@@ -54,7 +54,7 @@ export const MarketTradingForm = ({
   const positions = useMemo(
     () =>
       allMarketsPositions?.filter(
-        (position) => position.market.id.toLowerCase() === market?.address.toLowerCase()
+        (position) => position.market.slug?.toLowerCase() === market?.slug?.toLowerCase()
       ),
     [allMarketsPositions, market]
   )
@@ -75,7 +75,7 @@ export const MarketTradingForm = ({
 
   return (
     <Paper
-      bg='blue.500'
+      bg='grey.50'
       w={isMobile ? 'full' : '312px'}
       p={isMobile ? 0 : '8px'}
       h={isMobile ? '100dvh' : 'unset'}
@@ -112,6 +112,7 @@ export const MarketTradingForm = ({
               type: 'Buy selected',
               marketAddress,
               ...(analyticParams ? analyticParams : {}),
+              marketMarketType: 'AMM',
             })
             setStrategy('Buy')
           }}
@@ -139,6 +140,7 @@ export const MarketTradingForm = ({
               type: 'Sell selected',
               marketAddress,
               ...(analyticParams ? analyticParams : {}),
+              marketMarketType: 'AMM',
             })
             setStrategy('Sell')
           }}

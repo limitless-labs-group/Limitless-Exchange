@@ -1,13 +1,17 @@
-import { usePrivy } from '@privy-io/react-auth'
+import {
+  ConnectedWallet,
+  usePrivy,
+  useWallets,
+  useLogin as usePrivyLogin,
+  LoginModalOptions,
+} from '@privy-io/react-auth'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
-import { UserInfo } from '@web3auth/base'
-import Cookies from 'js-cookie'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   createSmartAccountClient,
   ENTRYPOINT_ADDRESS_V06,
+  providerToSmartAccountSigner,
   SmartAccountClient,
-  walletClientToSmartAccountSigner,
 } from 'permissionless'
 import { signerToSafeSmartAccount } from 'permissionless/accounts'
 import {
@@ -24,24 +28,22 @@ import React, {
   useState,
   useEffect,
 } from 'react'
-import { getAddress } from 'viem'
-import { http, useDisconnect, useWalletClient } from 'wagmi'
+import { createWalletClient, getAddress, WalletClient, http, custom } from 'viem'
 import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
-import { useUserSession } from '@/hooks/profiles/use-session'
+import { useRefetchSession } from '@/hooks/profiles/use-session'
 import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
-import { useAmplitude } from '@/services'
 import { Address, APIError, UpdateProfileData } from '@/types'
 import { Profile } from '@/types/profiles'
+import { LOGGED_IN_TO_LIMITLESS } from '@/utils/consts'
 
 export interface IAccountContext {
   isLoggedIn: boolean
   account: Address | undefined
-  userInfo: Partial<UserInfo> | undefined
   // farcasterInfo: FarcasterUserData | undefined
   disconnectFromPlatform: () => void
   displayName?: string
@@ -59,9 +61,11 @@ export interface IAccountContext {
   onUnblockUser: UseMutationResult<void, Error, { account: Address }>
   web3Client: 'eoa' | 'etherspot'
   smartAccountClient: SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null
+  web3Wallet: WalletClient | null
+  loginToPlatform: (options?: LoginModalOptions | React.MouseEvent<any, any>) => void
 }
 
-const pimlicoRpcUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
+const pimlicoRpcUrl = `https://api.pimlico.io/v2/${defaultChain.id}/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
 
 const pimlicoPaymaster = createPimlicoPaymasterClient({
   transport: http(pimlicoRpcUrl),
@@ -80,25 +84,20 @@ export const useAccount = () => useContext(AccountContext)
 export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [smartAccountClient, setSmartAccountClient] =
     useState<SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null>(null)
+  const [web3Wallet, setWeb3Wallet] = useState<WalletClient | null>(null)
   const queryClient = useQueryClient()
-  const { logout: disconnect, authenticated, user, isModalOpen } = usePrivy()
+  const { logout: disconnect, authenticated, user } = usePrivy()
   const pathname = usePathname()
   const accountRoutes = ['/portfolio', '/create-market']
   const privateClient = useAxiosPrivateClient()
   const { mutateAsync: login } = useLogin()
-  const { disconnect: disconnectWagmi } = useDisconnect()
-  const web3Client = user?.wallet?.connectorType === 'injected' ? 'eoa' : 'etherspot'
-  const { trackSignUp } = useAmplitude()
-  const { data: walletClient } = useWalletClient()
+  const web3Client = user?.wallet?.walletClientType === 'privy' ? 'etherspot' : 'eoa'
+  const { wallets, ready: walletsReady } = useWallets()
   const { isLogged } = useClient()
+  const { refetchSession } = useRefetchSession()
 
   const toast = useToast()
   const router = useRouter()
-
-  /**
-   * USER INFO / METADATA
-   */
-  const [userInfo, setUserInfo] = useState<Partial<UserInfo> | undefined>()
 
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ['profiles', { account: user?.wallet?.address }],
@@ -119,7 +118,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       return profileData === undefined || profileLoading
     }
     return false
-  }, [profileData, profileLoading, web3Client, smartAccountClient, authenticated])
+  }, [isLogged, authenticated, web3Client, smartAccountClient, profileData, profileLoading])
 
   const onBlockUser = useMutation({
     mutationKey: ['block-user', user?.wallet?.address],
@@ -156,19 +155,86 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const onCreateProfile = async () => {
-    if (user?.wallet?.address) {
-      if (web3Client === 'etherspot' && !smartAccountClient) {
+  // const onCreateProfile = async () => {
+  //   if (user?.wallet?.address) {
+  //     if (web3Client === 'etherspot' && !smartAccountClient) {
+  //       return
+  //     }
+  //     await login({
+  //       client: web3Client,
+  //       account: user.wallet.address as Address,
+  //       smartWallet: smartAccountClient?.account?.address,
+  //       web3Wallet,
+  //     })
+  //     trackSignUp()
+  //   }
+  // }
+
+  const getSmartAccountClient = async (wallet: ConnectedWallet) => {
+    const provider = await wallet.getEthereumProvider()
+    //@ts-ignore
+    const customSigner = await providerToSmartAccountSigner(provider)
+
+    const safeSmartAccountClient = await signerToSafeSmartAccount(publicClient, {
+      entryPoint: ENTRYPOINT_ADDRESS_V06,
+      signer: customSigner,
+      safeVersion: '1.4.1',
+      saltNonce: BigInt(0),
+    })
+
+    return createSmartAccountClient({
+      account: safeSmartAccountClient,
+      entryPoint: ENTRYPOINT_ADDRESS_V06,
+      chain: defaultChain,
+      bundlerTransport: http(pimlicoRpcUrl, {
+        timeout: 30_000,
+      }),
+      middleware: {
+        gasPrice: async () => (await bundlerClient.getUserOperationGasPrice()).fast,
+        sponsorUserOperation: pimlicoPaymaster.sponsorUserOperation,
+      },
+    })
+  }
+
+  const { login: loginToPlatform } = usePrivyLogin({
+    onComplete: async ({ user, wasAlreadyAuthenticated }) => {
+      const connectedWallet = wallets.find(
+        (wallet) => wallet.connectorType === user.wallet?.connectorType
+      )
+      if (connectedWallet && !wasAlreadyAuthenticated) {
+        const provider = await connectedWallet.getEthereumProvider()
+        const walletClient = createWalletClient({
+          chain: defaultChain,
+          transport: custom(provider),
+          account: connectedWallet.address as Address,
+        })
+        setWeb3Wallet(walletClient)
+        if (connectedWallet.connectorType === 'embedded') {
+          const client = await getSmartAccountClient(connectedWallet)
+          //@ts-ignore
+          setSmartAccountClient(client)
+          await login({
+            client: 'etherspot',
+            account: connectedWallet.address as Address,
+            smartWallet: client.account?.address,
+            web3Wallet: walletClient,
+          })
+          return
+        }
+        await login({
+          client: 'eoa',
+          account: connectedWallet.address as Address,
+          web3Wallet: walletClient,
+        })
+        // trackSignIn(SignInEvent.SignIn)
+        // setIsLogged(true)
         return
       }
-      await login({
-        client: web3Client,
-        account: user.wallet.address as Address,
-        smartWallet: smartAccountClient?.account?.address,
-      })
-      trackSignUp()
-    }
-  }
+    },
+    onError: (error) => {
+      console.log(error)
+    },
+  })
 
   const updateProfileMutation = useMutation<
     Profile | undefined,
@@ -244,6 +310,31 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   //   enabled: userInfo?.typeOfLogin === 'farcaster',
   // })
 
+  const getWallet = async (): Promise<WalletClient | undefined> => {
+    const wallet = wallets.find(
+      (wallet) =>
+        user?.wallet?.walletClientType?.includes(wallet.walletClientType) ||
+        user?.wallet?.walletClientType === wallet.walletClientType
+    )
+    if (wallet) {
+      const provider = await wallet.getEthereumProvider()
+      const walletClient = createWalletClient({
+        chain: defaultChain,
+        transport: custom(provider),
+        account: wallet.address as Address,
+      })
+      setWeb3Wallet(walletClient)
+      return
+    }
+    return
+  }
+
+  useEffect(() => {
+    if (walletsReady && !web3Wallet) {
+      getWallet()
+    }
+  }, [walletsReady, web3Wallet])
+
   const { mutateAsync: logout } = useMutation({
     mutationKey: ['logout'],
     mutationFn: async () => {
@@ -251,105 +342,94 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const { refetch: refetchSession } = useUserSession({
-    client: web3Client,
-    account: user?.wallet?.address as Address | undefined,
-    smartWallet: smartAccountClient?.account?.address,
-  })
+  useEffect(() => {
+    if (isLogged && web3Client) {
+      refetchSession({
+        client: web3Client,
+        account: user?.wallet?.address as Address | undefined,
+        smartWallet: smartAccountClient?.account?.address,
+        web3Wallet,
+      })
+    }
+  }, [
+    smartAccountClient?.account?.address,
+    user?.wallet?.address,
+    web3Client,
+    web3Wallet,
+    isLogged,
+  ])
+
+  const signout = useCallback(async () => {
+    try {
+      await logout()
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['positions'] }),
+        queryClient.invalidateQueries({ queryKey: ['history'] }),
+        queryClient.invalidateQueries({ queryKey: ['profiles'] }),
+        queryClient.invalidateQueries({ queryKey: ['balance'] }),
+        queryClient.invalidateQueries({ queryKey: ['ethBalance'] }),
+        queryClient.invalidateQueries({ queryKey: ['createdMarkets'] }),
+        queryClient.invalidateQueries({
+          queryKey: ['user-orders'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['locked-balance'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['positions'],
+        }),
+      ])
+      queryClient.removeQueries({
+        queryKey: ['profiles'],
+      })
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }, [])
 
   const displayName = useMemo(() => {
     if (profileData?.displayName) {
       return profileData.displayName
     }
-    if (userInfo?.name) {
-      return userInfo.name
-    }
     if (web3Client === 'etherspot' && smartAccountClient?.account?.address) {
       return smartAccountClient.account.address
     }
     return user?.wallet?.address as Address | undefined
-  }, [profileData, userInfo, web3Client, user?.wallet?.address, smartAccountClient])
+  }, [profileData, web3Client, user?.wallet?.address, smartAccountClient])
 
   const account = useMemo(() => {
     if (web3Client === 'etherspot') {
       if (smartAccountClient) {
         return smartAccountClient.account?.address
       }
+      return
     }
     return user?.wallet?.address as Address | undefined
   }, [smartAccountClient, user, web3Client])
 
-  useEffect(() => {
-    if (web3Client === 'etherspot' && !smartAccountClient) {
-      return
-    }
-    if (!profileLoading && user?.wallet?.address) {
-      if (profileData === null && authenticated) {
-        onCreateProfile()
-        return
-      }
-      // refetchSession()
-    }
-    if (!profileLoading && user?.wallet?.address) {
-      const isLogged = Cookies.get('logged-in-to-limitless')
-      if (!isLogged) {
-        login({
-          client: web3Client,
-          account: user.wallet.address as Address,
-          smartWallet: smartAccountClient?.account?.address,
-        })
-      }
-    }
-  }, [profileLoading, profileData, user, web3Client, smartAccountClient, authenticated])
+  const getAndStoreSmartAccountClient = async (wallet: ConnectedWallet) => {
+    const smartAccountClient = await getSmartAccountClient(wallet)
+    //@ts-ignore
+    setSmartAccountClient(smartAccountClient)
+  }
 
   useEffect(() => {
     ;(async () => {
       if (
         authenticated &&
-        walletClient &&
-        publicClient &&
+        wallets.length &&
+        walletsReady &&
         web3Client === 'etherspot' &&
         !smartAccountClient
       ) {
-        const customSigner = walletClientToSmartAccountSigner(walletClient)
+        const embeddedWallet = wallets.find((wallet) => wallet.walletClientType === 'privy')
 
-        const safeSmartAccountClient = await signerToSafeSmartAccount(publicClient, {
-          entryPoint: ENTRYPOINT_ADDRESS_V06,
-          signer: customSigner,
-          safeVersion: '1.4.1',
-          saltNonce: BigInt(0),
-        })
-
-        const smartAccountClient = createSmartAccountClient({
-          account: safeSmartAccountClient,
-          entryPoint: ENTRYPOINT_ADDRESS_V06,
-          chain: defaultChain,
-          bundlerTransport: http(pimlicoRpcUrl, {
-            timeout: 30_000,
-          }),
-          middleware: {
-            gasPrice: async () => (await bundlerClient.getUserOperationGasPrice()).fast,
-            sponsorUserOperation: pimlicoPaymaster.sponsorUserOperation,
-          },
-        })
-
-        // @ts-ignore
-        setSmartAccountClient(smartAccountClient)
+        if (embeddedWallet) {
+          getAndStoreSmartAccountClient(embeddedWallet)
+        }
       }
     })()
-  }, [authenticated, walletClient, publicClient, web3Client, smartAccountClient])
-
-  // useEffect(() => {
-  //   if (isAccountConnected && !isInitialLoad.current) {
-  //     if (previousAddressRef.current && previousAddressRef.current !== address) {
-  //       signout().catch(console.error)
-  //     }
-  //   }
-  //
-  //   previousAddressRef.current = address
-  //
-  //   isInitialLoad.current = false
-  // }, [address, isAccountConnected, logout, signout])
+  }, [authenticated, wallets, publicClient, web3Client, smartAccountClient, walletsReady])
 
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
@@ -367,23 +447,19 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }, [profileData?.bio])
 
   const disconnectFromPlatform = useCallback(async () => {
+    localStorage.removeItem(LOGGED_IN_TO_LIMITLESS)
+    setSmartAccountClient(null)
+    setWeb3Wallet(null)
     if (accountRoutes.includes(pathname)) {
       router.push('/')
     }
-    await logout()
     await disconnect()
-    disconnectWagmi()
-    queryClient.removeQueries({
-      queryKey: ['profiles'],
-    })
-    setSmartAccountClient(null)
-    Cookies.remove('logged-in-to-limitless')
+    await signout()
   }, [pathname])
 
   const contextProviderValue: IAccountContext = {
-    isLoggedIn: authenticated,
+    isLoggedIn: authenticated || !!isLogged,
     account,
-    userInfo,
     displayName,
     displayUsername,
     bio,
@@ -395,6 +471,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     onUnblockUser,
     web3Client,
     smartAccountClient,
+    web3Wallet,
+    loginToPlatform,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>

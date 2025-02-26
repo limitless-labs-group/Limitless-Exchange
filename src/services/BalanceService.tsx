@@ -20,7 +20,6 @@ import {
 } from 'react'
 import { erc20Abi, formatEther, formatUnits, parseUnits } from 'viem'
 import { getBalance } from 'viem/actions'
-import { useAccount as useWagmiAccount } from 'wagmi'
 import { Toast } from '@/components/common/toast'
 import { ToastWithdraw } from '@/components/common/toast-withdraw'
 import { defaultChain } from '@/constants'
@@ -69,7 +68,6 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const log = new Logger(BalanceServiceProvider.name)
   const pathname = usePathname()
   const { convertAssetAmountToUsd } = usePriceOracle()
-  const { isConnected } = useWagmiAccount()
   const { profileData, profileLoading, account } = useAccount()
   const { balanceOfSmartWallet, refetchbalanceOfSmartWallet, balanceOfSmartWalletLoading } =
     useBalanceQuery()
@@ -79,11 +77,11 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
   const { supportedTokens } = useLimitlessApi()
 
   const userMenuLoading = useMemo(() => {
-    if (isConnected) {
+    if (account) {
       return profileData === undefined || profileLoading
     }
     return false
-  }, [isConnected, profileLoading, profileData])
+  }, [account, profileLoading, profileData])
 
   const balanceLoading = userMenuLoading || balanceOfSmartWalletLoading
 

@@ -2,14 +2,11 @@
 
 import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
 import * as sessionReplay from '@amplitude/session-replay-browser'
-import {
-  CUSTOM_LOGIN_PROVIDER_TYPE,
-  LOGIN_PROVIDER_TYPE,
-} from '@toruslabs/openlogin-utils/dist/types/interfaces'
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
+import { ClobPositionType } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { PageName } from '@/hooks/use-page-name'
 import { useAccount } from '@/services'
-import { Address, Category, LeaderboardSort, MarketGroup } from '@/types'
+import { Category, LeaderboardSort, MarketGroup } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 
@@ -26,7 +23,7 @@ const AmplitudeContext = createContext<IAmplitudeContext>({} as IAmplitudeContex
 export const useAmplitude = () => useContext(AmplitudeContext)
 
 export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
-  const { account: walletAddress, userInfo } = useAccount()
+  const { account: walletAddress } = useAccount()
 
   useEffect(() => {
     init(AMPLITUDE_API_KEY, undefined, {
@@ -70,7 +67,6 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         },
         user_properties: {
           account: walletAddress,
-          ...userInfo,
           walletAddress,
         },
       }).promise
@@ -126,6 +122,11 @@ export enum ChangeEvent {
   ProfileSettingsChanged = 'Profile Settings Changed',
   LeaderboardViewChanged = 'Leaderboard View Changed',
   LeaderboardPageChanged = 'Leaderboard Page Changed',
+  OrderBookSideChanged = 'Orderbook Side Changed',
+  ClobPositionsTabChanged = 'Clob Positions Tab Changed',
+  ClobWidgetModeChanged = 'Clob Widget Mode Changed',
+  ChartTabChanged = 'Chart View Changed',
+  PortfolioClobViewChanged = 'Portfolio/Orders View Changed',
 }
 
 export enum ClickEvent {
@@ -139,6 +140,7 @@ export enum ClickEvent {
   ShareItemClicked = 'Share Item Clicked',
   ChangeMarketInGroupClicked = 'Change Market In Group Clicked',
   ProfileBurgerMenuClicked = 'Profile Burger Menu Clicked',
+  BuyCryptoClicked = 'Buy Crypto Clicked',
   SignOutClicked = 'Sign Out',
   TradeButtonClicked = 'Trade Button Clicked',
   ConfirmTransactionClicked = 'Confirm Transaction Clicked',
@@ -171,17 +173,25 @@ export enum ClickEvent {
   SidebarMarketOpened = 'Sidebar Market Opened',
   FeedMarketClicked = 'Feed Market Clicked',
   PortfolioMarketClicked = 'PortfolioMarketClicked',
-  PredictionChartOpened = 'Prediction Chart Opened',
-  AssetPriceChartOpened = 'Asset Price Chart Opened',
+  OrderBookOpened = 'Order book Opened',
   NextMarketClick = 'Next Market Click',
   PreviousMarketClick = 'Previous Market Click',
   TradingWidgetPricePrecetChosen = 'Trading Widget Price Preset Chosen',
+  SplitSharesAmountPercentClicked = 'Split Shares Amount Percent Clicked',
   FullPageClicked = 'Full Page Clicked',
   JoinPredictionClicked = 'Join Prediction Clicked',
   EstimateEarningClicked = 'Estimate Earnings Clicked',
   ThreeDotsClicked = 'Three Dots Clicked',
   BlockedUserClicked = 'Blocked User Clicked',
   UndoBlockingUser = 'Undo Blocking User',
+  UserMarketClicked = 'User Market Clicked',
+  UpgradeWalletClicked = 'Upgrade Wallet Clicked',
+  RewardsButtonClicked = 'Rewards Button Clicked',
+  SplitContractsModalClicked = 'Split Contracts Modal Clicked',
+  MergeContractsModalClicked = 'Merge Contracts Modal Clicked',
+  SplitSharesConfirmed = 'Split Contracts Confirmed',
+  MergeSharesConfirmed = 'Merge Contracts Confirmed',
+  MergeSharesModalMaxSharesClicked = 'Merge Contracts Modal Max Button Clicked',
 }
 
 export enum SignInEvent {
@@ -203,19 +213,35 @@ export enum AuthenticationEvent {
 
 export interface AccountMetadata {
   email?: string
-  web3WalletAddress?: Address
-  smartWalletAddress?: Address
+  web3WalletAddress?: string
+  smartWalletAddress?: string
 }
 
+export type OrderBookSideChangedType = 'Yes selected' | 'No selected'
+
+export type ClobPositionsTabChanges = ClobPositionType
+
 export type StrategyChangedType = 'Buy selected' | 'Sell selected'
+
+export interface ClobPositionsTabChangesMetadata {
+  type: ClobPositionsTabChanges
+  marketAddress: string
+}
+
+export interface OrderBookSideChangedMetadata {
+  type: OrderBookSideChangedType
+  marketAddress: string
+}
+
 export interface StrategyChangedMetadata {
   type: StrategyChangedType
-  marketAddress: Address
+  marketAddress: string
+  marketMarketType: 'AMM' | 'CLOB'
 }
 
 export interface OutcomeChangedMetadata {
   choice: OutcomeChangedChoice
-  marketAddress: Address
+  marketAddress: string
 }
 
 export type OutcomeChangedChoice = 'Yes' | 'No'
@@ -223,12 +249,12 @@ export type WalletType = 'eoa' | 'etherspot'
 export interface TradeClickedMetadata {
   outcome: OutcomeChangedChoice
   walletType: WalletType
-  marketAddress: Address
+  marketAddress: string
   marketType?: 'group' | 'single'
 }
 
 export interface ClickedApproveMetadata {
-  address: Address
+  address: string
 }
 
 export interface ClickedWithdrawMetadata {
@@ -266,7 +292,7 @@ export interface PricePresetClickedMetadata {
 export type ShareClickedType = 'Copy Link' | 'X/Twitter' | 'Farcaster'
 export interface ShareClickedMetadata {
   type: ShareClickedType
-  address?: Address
+  address?: string
   marketType: 'group' | 'single'
 }
 
@@ -278,7 +304,7 @@ interface FeeAndReturnTradingDetailsClicked {
   from: 'percentage' | 'numbers'
   to: 'percentage' | 'numbers'
   platform: 'desktop' | 'mobile'
-  marketAddress: Address
+  marketAddress: string
 }
 
 export type ModalOpenedModal = 'Profile Settings'
@@ -292,20 +318,20 @@ export type PageOpenedPage =
   | 'Home'
 export interface PageOpenedMetadata {
   page: PageOpenedPage
-  marketAddress?: Address
+  marketAddress?: string
   category?: string
   [key: string]: any
 }
 
 export interface SidebarMarketOpenedMetadata {
-  marketAddress?: Address
+  marketAddress?: string
   category?: Category | string
   marketTags?: string[]
   marketType: 'single' | 'group'
 }
 
 interface FullPageClickedMetaData {
-  marketAddress?: Address
+  marketAddress?: string
   marketType?: 'group' | 'single'
   marketTags?: string[]
 }
@@ -378,6 +404,7 @@ export type ProfileBurgerMenuClickedOption =
   | 'Markets'
   | 'Lumy'
   | 'Leaderboard'
+  | 'My Markets'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
@@ -403,13 +430,21 @@ export interface UIModeMetadata {
   mode: string
 }
 
-export interface SignInW3AClickedMetadata {
-  option: LOGIN_PROVIDER_TYPE | CUSTOM_LOGIN_PROVIDER_TYPE | undefined
-}
-
 export interface MediumBannerClicked {
   bannerPosition: number
   bannerPaginationPage: number
+}
+
+interface RewardsButtonClickedMetadata {
+  visible: 'off' | 'on'
+}
+
+interface ClobWidgetModeChangedMetadata {
+  mode: 'amm on' | 'clob on'
+}
+
+interface ChartTabChangedMetadata {
+  view: string
 }
 
 export type ChangedEventMetadata =
@@ -419,6 +454,10 @@ export type ChangedEventMetadata =
   | ProfileSettingsChangedMetadata
   | LeaderboardViewChangedMetadata
   | LeaderboardPageChangedMetadata
+  | OrderBookSideChangedMetadata
+  | ClobPositionsTabChangesMetadata
+  | ClobWidgetModeChangedMetadata
+  | ChartTabChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
   | PricePresetClickedMetadata
@@ -436,13 +475,13 @@ export type ClickedEventMetadata =
   | StrokeMetadata
   | TopUpMetadata
   | UIModeMetadata
-  | SignInW3AClickedMetadata
   | MarketChangeInGroupData
   | FeeAndReturnTradingDetailsClicked
   | MediumBannerClicked
   | CloseMarketMetadata
   | TradingWidgetPriceClickedMetadata
   | FullPageClickedMetaData
+  | RewardsButtonClickedMetadata
 
 export type OpenedEventMetadata =
   | PageOpenedMetadata

@@ -6,7 +6,14 @@ import { usePriceOracle } from '@/providers'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
-import { useBalanceQuery, useBalanceService, useLimitlessApi, usePosition } from '@/services'
+import {
+  ClobPositionWithType,
+  HistoryPositionWithType,
+  useBalanceQuery,
+  useBalanceService,
+  useLimitlessApi,
+  usePosition,
+} from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
@@ -70,8 +77,14 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
   const { data: positions, isLoading: positionsLoading } = usePosition()
 
   const balanceInvested = useMemo(() => {
+    const ammPositions = positions?.filter(
+      (position) => position.type === 'amm'
+    ) as HistoryPositionWithType[]
+    const clobPositions = positions?.filter(
+      (position) => position.type === 'clob'
+    ) as ClobPositionWithType[]
     let _balanceInvested = 0
-    positions?.forEach((position) => {
+    ammPositions?.forEach((position) => {
       let positionUsdAmount = 0
       const token = supportedTokens?.find(
         (token) => token.symbol === position.market.collateral?.symbol
@@ -82,11 +95,17 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
       _balanceInvested += positionUsdAmount
     })
     return NumberUtil.toFixed(_balanceInvested, 2)
-  }, [positions, supportedTokens])
+  }, [positions])
 
   const balanceToWin = useMemo(() => {
+    const ammPositions = positions?.filter(
+      (position) => position.type === 'amm'
+    ) as HistoryPositionWithType[]
+    const clobPositions = positions?.filter(
+      (position) => position.type === 'clob'
+    ) as ClobPositionWithType[]
     let _balanceToWin = 0
-    positions?.forEach((position) => {
+    ammPositions?.forEach((position) => {
       let positionOutcomeUsdAmount = 0
       const token = supportedTokens?.find(
         (token) => token.symbol === position.market.collateral?.symbol

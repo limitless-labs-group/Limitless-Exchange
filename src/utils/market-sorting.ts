@@ -3,29 +3,33 @@ import { Market, MarketGroup, Sort } from '../types'
 type MarketOrGroup = Market | MarketGroup
 
 const getVolumeForMarket = (market: MarketOrGroup): number => {
-  if ('slug' in market && market.slug) {
-    return (market as MarketGroup).markets.reduce((acc, m) => acc + Number(m.volumeFormatted), 0)
-  }
+  // if ('slug' in market && market.slug) {
+  //   return (market as MarketGroup).markets.reduce((acc, m) => acc + Number(m.volumeFormatted), 0)
+  // }
   return Number((market as Market).volumeFormatted)
 }
 
 const getLiquidityForMarket = (market: MarketOrGroup): number => {
-  if ('slug' in market && market.slug) {
-    return (market as MarketGroup).markets.reduce((acc, m) => acc + Number(m.liquidityFormatted), 0)
-  }
+  // if ('slug' in market && market.slug) {
+  //   return (market as MarketGroup).markets.reduce((acc, m) => acc + Number(m.liquidityFormatted), 0)
+  // }
   return Number((market as Market).liquidityFormatted)
 }
 
 const getValueForMarket = (market: MarketOrGroup): number => {
-  if ('slug' in market && market.slug) {
-    return market.markets.reduce(
-      (acc, m) => acc + Number(m.liquidityFormatted) + Number(m.openInterestFormatted),
-      0
-    )
-  }
+  // if ('slug' in market && market.slug) {
+  //   return market.markets.reduce(
+  //     (acc, m) => acc + Number(m.liquidityFormatted) + Number(m.openInterestFormatted),
+  //     0
+  //   )
+  // }
   return (
     Number((market as Market).liquidityFormatted) + Number((market as Market).openInterestFormatted)
   )
+}
+
+const getMarketTradeType = (market: MarketOrGroup): string => {
+  return (market as Market).tradeType
 }
 
 export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | MarketGroup)[]>(
@@ -80,6 +84,12 @@ export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | Marke
           convertTokenAmountToUsd(b.collateralToken.symbol, valueB) -
           convertTokenAmountToUsd(a.collateralToken.symbol, valueA)
         )
+      }) as T
+
+    case Sort.LP_REWARDS:
+      return marketsCopy.filter((a) => {
+        const type = getMarketTradeType(a)
+        return type === 'clob'
       }) as T
 
     default:

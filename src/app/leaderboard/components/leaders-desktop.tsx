@@ -14,37 +14,49 @@ interface LeadersProps {
 }
 
 export default function LeadersDesktop({ data }: LeadersProps) {
+  if (!data?.length) return null
+
   return (
     <HStack my='16px' gap='8px' alignItems='flex-end' h='132px'>
-      <Box>
-        <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
-          <Avatar account={data?.[1].account || '0x'} avatarUrl={data?.[1].pfpUrl} />
-          <Text {...controlsMedium} fontSize='16px'>
-            {data?.[1].displayName
-              ? cutUsername(data[1].displayName, 17)
-              : truncateEthAddress(data?.[1].account)}
-          </Text>
-        </HStack>
-        <LeaderboardSecond />
-      </Box>
-      <Box>
-        <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
-          <Avatar account={data?.[0].account || '0x'} />
-          <Text {...controlsMedium} fontSize='16px'>
-            {truncateEthAddress(data?.[0].account)}
-          </Text>
-        </HStack>
-        <LeaderboardFirst />
-      </Box>
-      <Box>
-        <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
-          <Avatar account={data?.[2].account || '0x'} />
-          <Text {...controlsMedium} fontSize='16px'>
-            {truncateEthAddress(data?.[2].account || '0x')}
-          </Text>
-        </HStack>
-        <LeaderboardThird />
-      </Box>
+      {data[1] && (
+        <Box>
+          <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
+            <Avatar account={data[1].account || '0x'} avatarUrl={data[1].pfpUrl} />
+            <Text {...controlsMedium} fontSize='16px'>
+              {data[1].displayName
+                ? cutUsername(data[1].displayName, 17)
+                : truncateEthAddress(data[1].account)}
+            </Text>
+          </HStack>
+          <LeaderboardSecond />
+        </Box>
+      )}
+      {data[0] && (
+        <Box>
+          <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
+            <Avatar account={data[0].account || '0x'} />
+            <Text {...controlsMedium} fontSize='16px'>
+              {data[0].displayName
+                ? cutUsername(data[0].displayName, 17)
+                : truncateEthAddress(data[0].account)}
+            </Text>
+          </HStack>
+          <LeaderboardFirst />
+        </Box>
+      )}
+      {data[2] && (
+        <Box>
+          <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
+            <Avatar account={data[2].account || '0x'} />
+            <Text {...controlsMedium} fontSize='16px'>
+              {data[2].displayName
+                ? cutUsername(data[2].displayName, 17)
+                : truncateEthAddress(data[2].account)}
+            </Text>
+          </HStack>
+          <LeaderboardThird />
+        </Box>
+      )}
     </HStack>
   )
 }

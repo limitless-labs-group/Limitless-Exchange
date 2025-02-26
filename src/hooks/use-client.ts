@@ -1,16 +1,13 @@
-import Cookies from 'js-cookie'
 import { limitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import { LOGGED_IN_TO_LIMITLESS } from '@/utils/consts'
 
 export default function useClient() {
   const privateClient = useAxiosPrivateClient()
-  const isLogged = Cookies.get('logged-in-to-limitless')
-
-  const checkIsLogged = () => Cookies.get('logged-in-to-limitless')
+  const isLogged = localStorage.getItem(LOGGED_IN_TO_LIMITLESS)
 
   return {
     isLogged,
     client: isLogged ? privateClient : limitlessApi,
-    checkIsLogged,
   }
 }

@@ -1,166 +1,194 @@
-import { switchChain } from '@wagmi/core'
+import { EIP712TypedData } from '@polymarket/order-utils'
+import { useSignTypedData } from '@privy-io/react-auth'
 import { Address, encodeFunctionData, erc20Abi, getContract } from 'viem'
-import { useSendTransaction, useWriteContract } from 'wagmi'
-import { useAccount as useWagmiAccount } from 'wagmi'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
-import { configureChainsConfig, publicClient } from '@/providers/Privy'
+import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useLimitlessApi } from '@/services/LimitlessApi'
 
 export const useExternalWalletService = () => {
-  const { account } = useAccount()
-  const { writeContractAsync } = useWriteContract()
-  const { sendTransactionAsync } = useSendTransaction()
+  const { signTypedData: signTypedDataAsync } = useSignTypedData()
   const { supportedTokens } = useLimitlessApi()
-  const { chainId } = useWagmiAccount()
+  const { web3Wallet } = useAccount()
 
   const collateralTokenAddress = supportedTokens ? supportedTokens[0].address : '0x'
 
   const wrapEth = async (value: bigint) => {
-    await checkAndSwitchChainIfNeeded()
-    let txHash = ''
-    await writeContractAsync(
-      {
+    try {
+      await checkAndSwitchChainIfNeeded()
+      const data = encodeFunctionData({
         abi: wethABI,
-        address: collateralTokenAddress,
         functionName: 'deposit',
-        value,
-      },
-      {
-        onSuccess: (data) => {
-          txHash = data
-        },
-        onError: (data) => console.log(data),
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        const hash = await web3Wallet.sendTransaction({
+          data,
+          to: collateralTokenAddress,
+          value,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+        return hash
       }
-    )
-    return txHash
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
   }
 
   const unwrapEth = async (value: bigint) => {
-    await checkAndSwitchChainIfNeeded()
-    let txHash = ''
-    await writeContractAsync(
-      {
+    try {
+      await checkAndSwitchChainIfNeeded()
+      const data = encodeFunctionData({
         abi: wethABI,
-        address: collateralTokenAddress,
         functionName: 'withdraw',
         args: [value],
-      },
-      {
-        onSuccess: (data) => {
-          txHash = data
-        },
-        onError: (data) => console.log(data),
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        const hash = await web3Wallet.sendTransaction({
+          data,
+          to: collateralTokenAddress,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+        return hash
       }
-    )
-    return txHash
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
   }
 
-  const checkAllowanceEOA = async (spender: Address, contractAddress: Address): Promise<bigint> => {
-    const contract = getContract({
-      address: contractAddress,
-      abi: erc20Abi,
-      client: publicClient,
-    })
-    return await contract.read.allowance([account as Address, spender])
+  const checkAllowanceEOA = async (spender: Address, contractAddress: Address) => {
+    try {
+      const contract = getContract({
+        address: contractAddress,
+        abi: erc20Abi,
+        client: publicClient,
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        return await contract.read.allowance([addresses[0], spender])
+      }
+      return 0n
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
   }
 
   const checkAllowanceForAllEOA = async (spender: Address, contractAddress: Address) => {
-    const contract = getContract({
-      address: contractAddress,
-      abi: conditionalTokensABI,
-      client: publicClient,
-    })
-    const isApprovedForAll = await contract.read.isApprovedForAll([account as Address, spender])
-    return isApprovedForAll as boolean
+    try {
+      const contract = getContract({
+        address: contractAddress,
+        abi: conditionalTokensABI,
+        client: publicClient,
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        const isApprovedForAll = await contract.read.isApprovedForAll([addresses[0], spender])
+        return isApprovedForAll as boolean
+      }
+      return false
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
   }
 
-  const approveContractEOA = async (
-    spender: Address,
-    contractAddress: Address,
-    value: bigint
-  ): Promise<string> => {
-    await checkAndSwitchChainIfNeeded()
-    let txHash = ''
-    await writeContractAsync(
-      {
+  const approveContractEOA = async (spender: Address, contractAddress: Address, value: bigint) => {
+    try {
+      await checkAndSwitchChainIfNeeded()
+      const data = encodeFunctionData({
         abi: spender === collateralTokenAddress ? wethABI : erc20Abi,
         args: [spender, value],
-        address: contractAddress,
         functionName: 'approve',
-      },
-      {
-        onSuccess: (data) => {
-          txHash = data
-        },
-        onError: (data) => console.log(data),
+      })
+
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        const hash = await web3Wallet.sendTransaction({
+          data,
+          to: contractAddress,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+        return hash
       }
-    )
-    return txHash
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
   }
 
   const approveContractForAllEOA = async (spender: Address, contractAddress: Address) => {
     await checkAndSwitchChainIfNeeded()
-    let txHash = ''
-    await writeContractAsync(
-      {
+    try {
+      const data = encodeFunctionData({
         abi: conditionalTokensABI,
-        address: contractAddress,
         functionName: 'setApprovalForAll',
         args: [spender, true],
-      },
-      {
-        onSuccess: (data) => {
-          txHash = data
-        },
-        onError: (data) => console.log(data),
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        const hash = await web3Wallet.sendTransaction({
+          data,
+          to: contractAddress,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+        return hash
       }
-    )
-    return txHash
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
   }
 
   const transferEthers = async (to: Address, value: bigint) => {
-    await checkAndSwitchChainIfNeeded()
-    let txHash = ''
-    const data = encodeFunctionData({
-      abi: wethABI,
-      functionName: 'transfer',
-      args: [to, value],
-    })
-    await sendTransactionAsync(
-      {
-        data,
-        to,
-      },
-      {
-        onSuccess: (data) => {
-          txHash = data
-        },
-        onError: (data) => console.log(data),
+    try {
+      await checkAndSwitchChainIfNeeded()
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        const hash = await web3Wallet.sendTransaction({
+          value,
+          to,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+        return hash
       }
-    )
-    return txHash
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
   }
 
   const transferErc20 = async (token: Address, to: Address, value: bigint) => {
-    await checkAndSwitchChainIfNeeded()
-    let txHash = ''
-    await writeContractAsync(
-      {
+    try {
+      await checkAndSwitchChainIfNeeded()
+      const data = encodeFunctionData({
         abi: wethABI,
-        address: token,
         functionName: 'transfer',
         args: [to, value],
-      },
-      {
-        onSuccess: (data) => {
-          txHash = data
-        },
-        onError: (data) => console.log(data),
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        const hash = await web3Wallet.sendTransaction({
+          data,
+          to: token,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+        return hash
       }
-    )
-    return txHash
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
   }
 
   const buyOutcomeTokens = async (
@@ -169,23 +197,27 @@ export const useExternalWalletService = () => {
     outcomeIndex: number,
     minOutcomeTokensToBuy: bigint
   ) => {
-    await checkAndSwitchChainIfNeeded()
-    let txHash = ''
-    await writeContractAsync(
-      {
+    try {
+      await checkAndSwitchChainIfNeeded()
+      const data = encodeFunctionData({
         abi: fixedProductMarketMakerABI,
-        address: fixedProductMarketMakerAddress,
         functionName: 'buy',
         args: [collateralAmount, outcomeIndex, minOutcomeTokensToBuy],
-      },
-      {
-        onSuccess: (data) => {
-          txHash = data
-        },
-        onError: (data) => console.log(data),
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        const hash = await web3Wallet.sendTransaction({
+          to: fixedProductMarketMakerAddress,
+          data,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+        return hash
       }
-    )
-    return txHash
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
   }
 
   const sellOutcomeTokens = async (
@@ -194,24 +226,27 @@ export const useExternalWalletService = () => {
     outcomeIndex: number,
     maxOutcomeTokensToSell: bigint
   ) => {
-    await checkAndSwitchChainIfNeeded()
-    let txHash = ''
-    console.log('sellOutcomeTokens', outcomeIndex, maxOutcomeTokensToSell)
-    await writeContractAsync(
-      {
+    try {
+      await checkAndSwitchChainIfNeeded()
+      const data = encodeFunctionData({
         abi: fixedProductMarketMakerABI,
-        address: fixedProductMarketMakerAddress,
         functionName: 'sell',
         args: [collateralAmount, outcomeIndex, maxOutcomeTokensToSell],
-      },
-      {
-        onSuccess: (data) => {
-          txHash = data
-        },
-        onError: (data) => console.log(data),
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        const hash = await web3Wallet.sendTransaction({
+          data,
+          to: fixedProductMarketMakerAddress,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+        return hash
       }
-    )
-    return txHash
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
   }
 
   const redeemPositions = async (
@@ -221,28 +256,99 @@ export const useExternalWalletService = () => {
     marketConditionId: Address,
     indexSets: number[]
   ) => {
-    await checkAndSwitchChainIfNeeded()
-    let txHash = ''
-    await writeContractAsync(
-      {
+    console.log(conditionalTokensAddress)
+    console.log(collateralAddress)
+    console.log(parentCollectionId)
+    console.log(marketConditionId)
+    console.log(indexSets)
+    try {
+      await checkAndSwitchChainIfNeeded()
+      const data = encodeFunctionData({
         abi: conditionalTokensABI,
         functionName: 'redeemPositions',
-        address: conditionalTokensAddress,
         args: [collateralAddress, parentCollectionId, marketConditionId, indexSets],
-      },
-      {
-        onSuccess: (data) => {
-          txHash = data
-        },
-        onError: (data) => console.log(data),
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        const hash = await web3Wallet.sendTransaction({
+          data,
+          to: conditionalTokensAddress,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+        return hash
       }
-    )
-    return txHash
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
+  }
+
+  const splitPositions = async (
+    collateralAddress: Address,
+    conditionId: string,
+    amount: bigint
+  ) => {
+    try {
+      await checkAndSwitchChainIfNeeded()
+      const data = encodeFunctionData({
+        abi: conditionalTokensABI,
+        functionName: 'splitPosition',
+        args: [
+          collateralAddress,
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+          conditionId,
+          [1, 2],
+          amount,
+        ],
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        return web3Wallet.sendTransaction({
+          data,
+          to: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+      }
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
+  }
+
+  const mergePositions = async (collateralToken: Address, conditionId: string, amount: bigint) => {
+    try {
+      await checkAndSwitchChainIfNeeded()
+      const data = encodeFunctionData({
+        abi: conditionalTokensABI,
+        functionName: 'mergePositions',
+        args: [
+          collateralToken,
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+          conditionId,
+          [1, 2],
+          amount,
+        ],
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        return web3Wallet.sendTransaction({
+          data,
+          to: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+      }
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
   }
 
   const checkAndSwitchChainIfNeeded = async () => {
-    if (chainId !== defaultChain.id) {
-      await switchChain(configureChainsConfig, { chainId: defaultChain.id })
+    if (web3Wallet) {
+      await web3Wallet.switchChain(defaultChain)
     }
   }
 
@@ -253,6 +359,12 @@ export const useExternalWalletService = () => {
       client: publicClient,
     })
     return contract.read.balanceOf(['0x6bb3d8A69656d1865708242223190a29D3a7E3c7'])
+  }
+
+  const signTypedData = async (typedData: EIP712TypedData) => {
+    await checkAndSwitchChainIfNeeded()
+    // @ts-ignore
+    return web3Wallet?.signTypedData(typedData) as Promise<string>
   }
 
   return {
@@ -268,5 +380,8 @@ export const useExternalWalletService = () => {
     approveContractForAllEOA,
     redeemPositions,
     checkLumyAccountBalance,
+    signTypedData,
+    splitPositions,
+    mergePositions,
   }
 }

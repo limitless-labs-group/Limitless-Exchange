@@ -13,7 +13,7 @@ const outlined = definePartsStyle({
     borderRadius: '8px',
     borderColor: 'transparent.200',
     p: '4px 8px',
-    h: isMobile ? '32px' : '24px',
+    h: isMobile ? '24px' : '32px',
     bg: 'unset',
     ...paragraphMedium,
     color: 'white',
@@ -25,6 +25,9 @@ const outlined = definePartsStyle({
     },
     _placeholder: {
       color: 'transparent.700',
+    },
+    _invalid: {
+      boxShadow: 'unset',
     },
   },
   element: {
@@ -39,7 +42,7 @@ const grey = definePartsStyle({
     borderColor: 'grey.300',
     px: isMobile ? '12px' : '8px',
     py: isMobile ? '8px' : '4px',
-    h: isMobile ? '32px' : '24px',
+    h: '32px',
     bg: 'unset',
     ...paragraphMedium,
     color: 'grey.800',

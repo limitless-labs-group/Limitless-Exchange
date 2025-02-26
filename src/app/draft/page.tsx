@@ -15,6 +15,7 @@ import React, { useState, useEffect } from 'react'
 import 'react-datepicker/dist/react-datepicker.css'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
+import { DraftMarketsQueueClob } from '@/app/draft/components/queue-clob'
 import { CreateMarket } from './components/create-market'
 import { DraftMarketsQueue } from './components/queue'
 import { RecentMarkets } from './components/recent'
@@ -58,10 +59,16 @@ const CreateOwnMarketPage = () => {
       param: 'draft',
     },
     {
-      title: 'Queue',
+      title: 'Queue AMM',
       icon: <LoadingIcon width={16} height={16} />,
       component: DraftMarketsQueue,
-      param: 'queue',
+      param: 'queue-amm',
+    },
+    {
+      title: 'Queue CLOB',
+      icon: <LoadingIcon width={16} height={16} />,
+      component: DraftMarketsQueueClob,
+      param: 'queue-clob',
     },
     {
       title: 'Recent',
@@ -76,7 +83,7 @@ const CreateOwnMarketPage = () => {
   return (
     <MainLayout>
       <Tabs
-        height='100vh'
+        height='100%'
         w='full'
         maxWidth='1000px'
         position='relative'

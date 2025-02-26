@@ -12,11 +12,7 @@ import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 export default function Comments() {
   const { market } = useTradingService()
-  const {
-    data: commentsData,
-    fetchNextPage,
-    hasNextPage,
-  } = useMarketInfinityComments(market?.address)
+  const { data: commentsData, fetchNextPage, hasNextPage } = useMarketInfinityComments(market?.slug)
 
   const getNextPage = useCallback(
     debounce(async () => fetchNextPage(), 1000),
