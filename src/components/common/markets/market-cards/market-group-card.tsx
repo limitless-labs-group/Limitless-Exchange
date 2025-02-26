@@ -128,7 +128,7 @@ export const MarketGroupCard = ({
         <DailyMarketTimer
           deadline={market.expirationTimestamp}
           deadlineText={market.expirationDate}
-          color='grey.800'
+          color='grey.500'
           showDays={false}
         />
         <HStack gap='4px'>

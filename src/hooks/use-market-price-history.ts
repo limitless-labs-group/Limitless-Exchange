@@ -63,15 +63,47 @@ const flattenPriceData = (data: YesBuyChartData[]): number[][] => {
   return flattenData
 }
 
+export interface ClobPriceHistoryResponse {
+  title: string
+  prices: {
+    timestamp: number
+    price: number
+  }[]
+}
+
+export function useNegRiskPriceHistory(slug?: string) {
+  return useQuery({
+    queryKey: ['price-history-negrisk', slug],
+    queryFn: async () => {
+      const response: AxiosResponse<ClobPriceHistoryResponse[]> = await limitlessApi.get(
+        `/markets/${slug}/historical-price`
+      )
+      return response.data.map((item) => {
+        return {
+          ...item,
+          prices: item.prices.map((price) => ({
+            timestamp: price.timestamp,
+            price: +price.price * 100,
+          })),
+        }
+      })
+    },
+    staleTime: 1000 * 60 * 5,
+    enabled: Boolean(slug),
+    retry: false,
+  })
+}
+
 export function useMarketPriceHistory(market: Market | null) {
   return useQuery({
     queryKey: ['prices', market?.slug],
     queryFn: async () => {
       if (market?.tradeType === 'clob') {
-        const response: AxiosResponse<{ price: number; timestamp: number }[]> =
-          await limitlessApi.get(`/markets/${market.slug}/historical-price`)
-        return response.data.map((item) => {
-          return [item.timestamp, item.price * 100]
+        const response: AxiosResponse<ClobPriceHistoryResponse> = await limitlessApi.get(
+          `/markets/${market.slug}/historical-price`
+        )
+        return response.data.prices.map((item) => {
+          return [item.timestamp, +item.price * 100]
         })
       }
       const marketId = market?.address

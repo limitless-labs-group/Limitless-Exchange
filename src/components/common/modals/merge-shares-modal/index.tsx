@@ -65,11 +65,9 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   }
 
   const checkMergeAllowance = async () => {
-    // Todo change to market?.negRiskMarketId after it's fixed on BE
-    const operator =
-      market?.marketType === 'single'
-        ? process.env.NEXT_PUBLIC_CTF_CONTRACT
-        : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+    const operator = market?.negRiskRequestId
+      ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+      : process.env.NEXT_PUBLIC_CTF_CONTRACT
     const isApproved = await checkAllowanceForAll(
       operator as Address,
       process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
@@ -103,7 +101,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
           contractAddress,
           conditionId,
           value,
-          market?.marketType === 'single' ? 'common' : 'negrisk'
+          market?.negRiskRequestId ? 'negrisk' : 'common'
         )
       } catch (e) {
         // @ts-ignore
@@ -114,11 +112,9 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
 
   const approveContractMutation = useMutation({
     mutationFn: async () => {
-      // Todo change to market?.negRiskMarketId after it's fixed on BE
-      const operator =
-        market?.marketType === 'single'
-          ? process.env.NEXT_PUBLIC_CTF_CONTRACT
-          : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+      const operator = market?.negRiskRequestId
+        ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+        : process.env.NEXT_PUBLIC_CTF_CONTRACT
       await approveAllowanceForAll(
         operator as Address,
         process.env.NEXT_PUBLIC_CTF_CONTRACT as Address

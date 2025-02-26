@@ -1,43 +1,62 @@
 'use client'
 
 import { Box, HStack, Button, Text, VStack } from '@chakra-ui/react'
-import { useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import Skeleton from '@/components/common/skeleton'
 import { PriceChart } from '@/app/(markets)/markets/[address]/components/area-chart'
-import { PriceHistory } from '@/app/(markets)/markets/[address]/components/mock-chart-data'
+import { useNegRiskPriceHistory } from '@/hooks/use-market-price-history'
 import Logo from '@/resources/icons/limitless-logo.svg'
+import { useTradingService } from '@/services'
 import { controlsMedium, headline } from '@/styles/fonts/fonts.styles'
 
 type TimeRange = '1H' | '6H' | '1D' | '1W' | '1M' | 'ALL'
 
-interface PriceChartContainerProps {
-  priceHistories: PriceHistory[]
-}
-
-export const PriceChartContainer = ({ priceHistories }: PriceChartContainerProps) => {
-  const [selectedRange, setSelectedRange] = useState<TimeRange>('1D')
+const ChartContainer = () => {
+  const [selectedRange, setSelectedRange] = useState<TimeRange>('1H')
   const timeRanges: TimeRange[] = ['1H', '6H', '1D', '1W', '1M', 'ALL']
 
+  const { groupMarket } = useTradingService()
+
+  const marketSlug = useMemo(() => {
+    return groupMarket?.slug
+  }, [groupMarket?.slug])
+
+  const { data: priceHistory, isLoading: isLoadingPriceHistory } =
+    useNegRiskPriceHistory(marketSlug)
+
+  const fetchedHistory = useMemo(() => {
+    return priceHistory
+  }, [priceHistory])
+
+  if (!fetchedHistory || isLoadingPriceHistory) {
+    return (
+      <Box w='full'>
+        <Skeleton height={240} />
+      </Box>
+    )
+  }
+
   // Filter data for all histories based on selected time range
-  const getFilteredData = (data: Array<{ timestamp: number; value: number }>) => {
+  const getFilteredData = (data: Array<{ timestamp: number; price: number }>) => {
     if (!data || data.length === 0) return []
 
-    const now = Date.now() / 1000
+    const now = Date.now()
     const ranges = {
-      '1H': now - 60 * 60,
-      '6H': now - 6 * 60 * 60,
-      '1D': now - 24 * 60 * 60,
-      '1W': now - 7 * 24 * 60 * 60,
-      '1M': now - 30 * 24 * 60 * 60,
+      '1H': now - 60 * 60 * 1000,
+      '6H': now - 6 * 60 * 60 * 1000,
+      '1D': now - 24 * 60 * 60 * 1000,
+      '1W': now - 7 * 24 * 60 * 60 * 1000,
+      '1M': now - 30 * 24 * 60 * 60 * 1000,
       ALL: 0,
     }
 
     return data.filter((point) => point.timestamp >= ranges[selectedRange])
   }
 
-  const filteredHistories = priceHistories.map((history) => ({
+  const filteredHistories = fetchedHistory?.map((history) => ({
     ...history,
-    data: getFilteredData(history.data),
+    prices: getFilteredData(history.prices),
   }))
 
   return (
@@ -88,8 +107,10 @@ export const PriceChartContainer = ({ priceHistories }: PriceChartContainerProps
       </HStack>
 
       <Box borderRadius='12px' bg='grey.50' p='8px'>
-        <PriceChart histories={filteredHistories} />
+        <PriceChart history={filteredHistories} />
       </Box>
     </VStack>
   )
 }
+
+export const PriceChartContainer = memo(ChartContainer)
