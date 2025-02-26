@@ -72,6 +72,11 @@ type Web3Service = {
     amount: bigint,
     type: 'common' | 'negrisk'
   ) => Promise<string | undefined>
+  convertShares: (
+    negRiskRequestId: string,
+    indexSet: string,
+    amount: bigint
+  ) => Promise<string | undefined>
 }
 
 export function useWeb3Service(): Web3Service {
@@ -300,6 +305,13 @@ export function useWeb3Service(): Web3Service {
     return externalWalletService.mergePositions(collateralToken, conditionId, amount, type)
   }
 
+  const convertShares = async (negRiskRequestId: string, indexSet: string, amount: bigint) => {
+    if (web3Client === 'etherspot') {
+      return privyService.convertShares(negRiskRequestId, indexSet, amount)
+    }
+    return externalWalletService.convertShares(negRiskRequestId, indexSet, amount)
+  }
+
   const checkAllowance = async (contractAddress: Address, spender: Address) =>
     externalWalletService.checkAllowanceEOA(contractAddress, spender)
 
@@ -329,5 +341,6 @@ export function useWeb3Service(): Web3Service {
     placeMarketOrder,
     splitShares,
     mergeShares,
+    convertShares,
   }
 }

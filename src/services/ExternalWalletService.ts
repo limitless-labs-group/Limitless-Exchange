@@ -356,6 +356,29 @@ export const useExternalWalletService = () => {
     }
   }
 
+  const convertShares = async (negRiskRequestId: string, indexSet: string, amount: bigint) => {
+    try {
+      await checkAndSwitchChainIfNeeded()
+      const data = encodeFunctionData({
+        abi: negriskAdapterAbi,
+        functionName: 'convertPositions',
+        args: [negRiskRequestId, indexSet, amount],
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        return web3Wallet.sendTransaction({
+          data,
+          to: process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+      }
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
+  }
+
   const checkAndSwitchChainIfNeeded = async () => {
     if (web3Wallet) {
       await web3Wallet.switchChain(defaultChain)
@@ -393,5 +416,6 @@ export const useExternalWalletService = () => {
     signTypedData,
     splitPositions,
     mergePositions,
+    convertShares,
   }
 }

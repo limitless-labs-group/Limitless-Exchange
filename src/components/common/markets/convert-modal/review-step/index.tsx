@@ -1,7 +1,12 @@
 import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
+import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
+import { parseUnits } from 'viem'
+import ButtonWithStates from '@/components/common/button-with-states'
 import { ClobPositionWithTypeAndSelected } from '@/components/common/markets/convert-modal/convert-modal-content'
 import { useTradingService } from '@/services'
+import { useWeb3Service } from '@/services/Web3Service'
 import { captionRegular, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 interface ReviewStepProps {
@@ -11,11 +16,40 @@ interface ReviewStepProps {
 }
 
 export default function ReviewStep({ positions, onBack, sharesToConvert }: ReviewStepProps) {
-  const { groupMarket } = useTradingService()
+  const { groupMarket, market } = useTradingService()
+  const queryClient = useQueryClient()
   const positionsToConvert = positions.filter((pos) => pos.selected)
   const remainMarkets = groupMarket?.markets?.filter(
     (market) => !positionsToConvert.some((pos) => pos.market.slug === market.slug)
   )
+
+  const { convertShares } = useWeb3Service()
+
+  const convertMutation = useMutation({
+    mutationKey: ['convert-shares', groupMarket?.slug],
+    mutationFn: async () => {
+      debugger
+      const indexSet =
+        groupMarket?.markets
+          ?.map((market) =>
+            positionsToConvert.some((pos) => pos.market.slug === market.slug) ? '1' : '0'
+          )
+          .join('') || '000'
+      await convertShares(
+        groupMarket?.negRiskMarketId as string,
+        `0x${indexSet}`,
+        parseUnits(sharesToConvert, groupMarket?.collateralToken.decimals || 6)
+      )
+    },
+  })
+
+  const onResetMutation = async () => {
+    await sleep(2)
+    await queryClient.refetchQueries({
+      queryKey: ['market-shares', market?.slug],
+    })
+    convertMutation.reset()
+  }
 
   const tableHeader = (
     <HStack
@@ -93,7 +127,15 @@ export default function ReviewStep({ positions, onBack, sharesToConvert }: Revie
         <Button variant='outlined' onClick={onBack}>
           Back
         </Button>
-        <Button variant='contained'>Convert</Button>
+        <ButtonWithStates
+          variant='contained'
+          status={convertMutation.status}
+          onReset={onResetMutation}
+          onClick={async () => convertMutation.mutateAsync()}
+          minW='72px'
+        >
+          Convert
+        </ButtonWithStates>
       </HStack>
     </Box>
   )

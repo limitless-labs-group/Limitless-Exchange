@@ -41,7 +41,6 @@ import { LUMY_TOKENS } from '@/app/draft/components'
 import CommentTab from './comment-tab'
 import { MarketProgressBar } from './market-cards/market-progress-bar'
 import { UniqueTraders } from './unique-traders'
-import { useNegRiskPriceHistory } from '@/hooks/use-market-price-history'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
@@ -257,8 +256,6 @@ export default function MarketPage() {
     setActiveChartTabIndex(0)
   }, [market])
 
-  console.log(groupMarket)
-
   return (
     <Box
       bg='var(--chakra-colors-background-97)'
@@ -285,7 +282,7 @@ export default function MarketPage() {
               <CloseIcon width={16} height={16} />
               Close
             </Button>
-            <NextLink href={`/markets/${market?.slug}`}>
+            <NextLink href={`/markets/${groupMarket?.slug || market?.slug}`}>
               <Button variant='grey' onClick={handleFullPageClicked}>
                 <ExpandIcon width={16} height={16} />
                 Full page
