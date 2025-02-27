@@ -76,17 +76,8 @@ interface ITradingServiceContext {
   sellBalanceLoading: boolean
   clobOutcome: number
   setClobOutcome: (val: number) => void
-  sharesAmount: string
-  setSharesAmount: (val: string) => void
-  price: string
-  setPrice: (val: string) => void
-  sharesAvailable: {
-    yes: bigint
-    no: bigint
-  }
   convertModalOpened: boolean
   setConvertModalOpened: (val: boolean) => void
-  lockedBalance?: LockedBalanceResponse
   setGroupMarket: (val: Market | null) => void
   groupMarket: Market | null
 }
@@ -119,41 +110,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * CLOB
    */
   const [clobOutcome, setClobOutcome] = useState(0)
-  const [sharesAmount, setSharesAmount] = useState('')
   const [convertModalOpened, setConvertModalOpened] = useState(false)
-  const [price, setPrice] = useState('')
-
-  const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
-  const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
-
-  const sharesAvailable = useMemo(() => {
-    if (sharesOwned && lockedBalance) {
-      return {
-        yes: BigInt(
-          new BigNumber(sharesOwned[0].toString())
-            .minus(new BigNumber(lockedBalance.yes))
-            .isNegative()
-            ? '0'
-            : new BigNumber(sharesOwned[0].toString())
-                .minus(new BigNumber(lockedBalance.yes))
-                .toString()
-        ),
-        no: BigInt(
-          new BigNumber(sharesOwned[1].toString())
-            .minus(new BigNumber(lockedBalance.no))
-            .isNegative()
-            ? '0'
-            : new BigNumber(sharesOwned[1].toString())
-                .minus(new BigNumber(lockedBalance.no))
-                .toString()
-        ),
-      }
-    }
-    return {
-      yes: 0n,
-      no: 0n,
-    }
-  }, [lockedBalance, sharesOwned])
 
   const onCloseMarketPage = () => {
     setMarketPageOpened(false)
@@ -912,14 +869,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     sellBalanceLoading,
     clobOutcome,
     setClobOutcome,
-    sharesAmount,
-    setSharesAmount,
-    price,
-    setPrice,
     setGroupMarket,
     groupMarket,
-    sharesAvailable,
-    lockedBalance,
     convertModalOpened,
     setConvertModalOpened,
   }

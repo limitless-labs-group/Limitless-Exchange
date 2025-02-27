@@ -33,9 +33,16 @@ import { MarketOrderType } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function TradeStepperMenu() {
-  const { onToggleTradeStepper, orderType, yesPrice, noPrice, checkMarketAllowance } =
-    useClobWidget()
-  const { strategy, market, clobOutcome: outcome, price, sharesAmount } = useTradingService()
+  const {
+    onToggleTradeStepper,
+    orderType,
+    yesPrice,
+    noPrice,
+    checkMarketAllowance,
+    price,
+    sharesAmount,
+  } = useClobWidget()
+  const { strategy, market, clobOutcome: outcome } = useTradingService()
   const { approveContract, approveAllowanceForAll } = useWeb3Service()
   const queryClient = useQueryClient()
   const { web3Client, profileData } = useAccount()

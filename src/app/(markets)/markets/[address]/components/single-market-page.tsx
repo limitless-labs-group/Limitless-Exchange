@@ -23,6 +23,7 @@ import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import MobileDrawer from '@/components/common/drawer'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
+import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
 import CommentTab from '@/components/common/markets/comment-tab'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
@@ -30,7 +31,6 @@ import { MarketProgressBar } from '@/components/common/markets/market-cards/mark
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
-import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/trading-widget-advanced'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import { UniqueTraders } from '@/components/common/markets/unique-traders'
 import Skeleton from '@/components/common/skeleton'
@@ -80,7 +80,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
     }
     return market?.tradeType === 'clob' ? (
       <Box w='404px'>
-        <TradingWidgetAdvanced />
+        <ClobWidget />
       </Box>
     ) : (
       <Box w='404px'>

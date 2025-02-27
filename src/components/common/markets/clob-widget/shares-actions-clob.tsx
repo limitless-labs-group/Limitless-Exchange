@@ -1,6 +1,7 @@
 import { Box, Button, HStack, useDisclosure } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
+import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import MergeSharesModal from '@/components/common/modals/merge-shares-modal'
 import SplitSharesModal from '@/components/common/modals/split-shares-modal'
 import Paper from '@/components/common/paper'
@@ -13,7 +14,8 @@ export default function SharesActionsClob() {
   const { isOpen: mergeModalOpened, onToggle: onToggleMergeModal } = useDisclosure()
   const { account } = useAccount()
   const { trackClicked } = useAmplitude()
-  const { market, sharesAvailable } = useTradingService()
+  const { market } = useTradingService()
+  const { sharesAvailable } = useClobWidget()
 
   const handleSplitClicked = () => {
     onToggleSplitModal()

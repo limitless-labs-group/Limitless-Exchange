@@ -30,17 +30,7 @@ import { MarketOrderType } from '@/types'
 
 export default function ClobWidget() {
   const { trackChanged } = useAmplitude()
-  const {
-    clobOutcome: outcome,
-    setStrategy,
-    market,
-    groupMarket,
-    setSharesAmount,
-    setPrice,
-    price,
-    sharesAmount,
-    strategy,
-  } = useTradingService()
+  const { clobOutcome: outcome, setStrategy, market, groupMarket, strategy } = useTradingService()
   const { isOpen: orderTypeMenuOpen, onToggle: onToggleOrderTypeMenu } = useDisclosure()
 
   const {
@@ -51,6 +41,10 @@ export default function ClobWidget() {
     onToggleTradeStepper,
     yesPrice,
     noPrice,
+    setSharesAmount,
+    setPrice,
+    price,
+    sharesAmount,
   } = useClobWidget()
 
   const handleOrderTypeChanged = (order: MarketOrderType) => {

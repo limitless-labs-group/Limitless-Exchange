@@ -6,6 +6,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
+import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import { Modal } from '@/components/common/modals/modal'
 import NumberInputWithButtons from '@/components/common/number-input-with-buttons'
 import { ClickEvent, useAccount, useAmplitude, useTradingService } from '@/services'
@@ -20,11 +21,12 @@ interface MergeSharesModalProps {
 export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalProps) {
   const [displayAmount, setDisplayAmount] = useState('')
   const [isApproved, setIsApproved] = useState<boolean>(false)
-  const { market, sharesAvailable } = useTradingService()
+  const { market } = useTradingService()
   const { checkAllowanceForAll, client, approveAllowanceForAll, mergeShares } = useWeb3Service()
   const { web3Wallet } = useAccount()
   const queryClient = useQueryClient()
   const { trackClicked } = useAmplitude()
+  const { sharesAvailable } = useClobWidget()
 
   const sharesAvailableBalance = useMemo(() => {
     if (!sharesAvailable) {
