@@ -3,7 +3,7 @@
 import { Text, HStack, VStack, Box } from '@chakra-ui/react'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { memo, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
@@ -15,7 +15,7 @@ import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
-export const MarketPriceChart = () => {
+const PriceChart = () => {
   const { colors } = useThemeProvider()
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%b %e, %Y %I:%M %p', Date.now()) ?? ''
@@ -169,7 +169,6 @@ export const MarketPriceChart = () => {
     ],
   })
 
-  // React Query to fetch the price data
   const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(
     market?.slug,
     market?.address
@@ -312,3 +311,5 @@ export const MarketPriceChart = () => {
     </Paper>
   )
 }
+
+export const MarketPriceChart = memo(PriceChart)

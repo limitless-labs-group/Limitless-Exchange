@@ -3,7 +3,6 @@ import axios, { AxiosResponse } from 'axios'
 import { Address } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { limitlessApi } from '@/services'
-import { Market } from '@/types'
 
 // Define the interface for the chart data
 interface YesBuyChartData {

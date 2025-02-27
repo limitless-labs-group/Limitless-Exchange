@@ -39,15 +39,17 @@ export const PriceChart = ({ history }: PriceChartProps) => {
 
   const seriesColors = [blue500, red500, green500, indigo500, orange500, grey50]
 
-  // Prepare data for Chart.js
   function getUniqueTimestamps() {
     const timestamps = new Set<number>()
+    const now = new Date().getTime()
 
     history.forEach((item) => {
       item.prices.forEach((price) => {
         timestamps.add(price.timestamp)
       })
     })
+
+    timestamps.add(now)
 
     return Array.from(timestamps).sort((a, b) => a - b)
   }
@@ -56,43 +58,64 @@ export const PriceChart = ({ history }: PriceChartProps) => {
 
   const data: ChartData<'line'> = {
     labels: timestamps.map((ts) => format(new Date(ts), 'MMM d')),
-    datasets: history.map((history, index) => {
-      const sortedPrices = [...history.prices].sort((a, b) => a.timestamp - b.timestamp)
-      const firstPrice = sortedPrices[0]?.price || 0
-      const lastPrice = sortedPrices[sortedPrices.length - 1]?.price || firstPrice
+    datasets: history
+      .map((history, index) => {
+        const sortedPrices = [...history.prices].sort((a, b) => a.timestamp - b.timestamp)
 
-      return {
-        label: history.title,
-        data: timestamps.map((ts) => {
-          const pricePoint = history.prices.find((p) => p.timestamp === ts)
-          if (pricePoint) {
-            return +pricePoint.price
+        if (sortedPrices.length === 0) {
+          return {
+            label: history.title,
+            data: [],
+            borderColor: seriesColors[index % seriesColors.length],
+            backgroundColor: seriesColors[index % seriesColors.length],
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            borderWidth: 2,
+            tension: 0,
+            spanGaps: true,
           }
-          if (ts <= sortedPrices[0]?.timestamp) {
-            return +firstPrice
-          }
-          if (ts >= sortedPrices[sortedPrices.length - 1]?.timestamp) {
-            return +lastPrice
-          }
-          return null
-        }),
-        borderColor: seriesColors[index % seriesColors.length],
-        backgroundColor: seriesColors[index % seriesColors.length],
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        borderWidth: 2,
-        tension: 0,
-        spanGaps: true,
-        segment: {
-          borderColor: (ctx: any) => {
-            if (!ctx.p0.parsed) return
-            if (ctx.p0.parsed.x >= ctx.chart.hoverIndex) {
-              return grey300
+        }
+
+        return {
+          label: history.title,
+          data: timestamps.map((ts) => {
+            const exactMatch = history.prices.find((p) => p.timestamp === ts)
+            if (exactMatch) {
+              return +exactMatch.price
             }
+
+            const previousPrices = history.prices.filter((p) => p.timestamp <= ts)
+            if (previousPrices.length > 0) {
+              const mostRecent = previousPrices.reduce((a, b) =>
+                a.timestamp > b.timestamp ? a : b
+              )
+              return +mostRecent.price
+            }
+
+            if (sortedPrices.length > 0) {
+              return +sortedPrices[0].price
+            }
+
+            return null
+          }),
+          borderColor: seriesColors[index % seriesColors.length],
+          backgroundColor: seriesColors[index % seriesColors.length],
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          borderWidth: 2,
+          tension: 0,
+          spanGaps: true,
+          segment: {
+            borderColor: (ctx: any) => {
+              if (!ctx.p0.parsed) return
+              if (ctx.p0.parsed.x >= ctx.chart.hoverIndex) {
+                return grey300
+              }
+            },
           },
-        },
-      }
-    }),
+        }
+      })
+      .filter((dataset) => dataset.data.length > 0), // Remove empty datasets
   }
 
   const options: ChartOptions<'line'> = {
