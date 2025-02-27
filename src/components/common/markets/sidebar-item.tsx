@@ -13,7 +13,7 @@ import Weather from '@/resources/icons/sidebar/weather.svg'
 // Remove image imports and use string paths instead
 import { useMarkets } from '@/services/MarketsService'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup } from '@/types'
+import { Category, Market, MarketGroup } from '@/types'
 
 export interface SideItemProps {
   isActive?: boolean
@@ -110,9 +110,10 @@ export const CategoryItems = () => {
     if (!markets.length) return {}
 
     const counts = markets.reduce((acc, market) => {
-      const categoryName =
-        typeof market.category === 'string' ? market.category : market.category.name
-      acc[categoryName] = (acc[categoryName] || 0) + 1
+      market.categories.forEach((categoryName) => {
+        acc[categoryName] = (acc[categoryName] || 0) + 1
+      })
+
       return acc
     }, {} as Record<string, number>)
 
@@ -139,7 +140,7 @@ export const CategoryItems = () => {
         style={{ width: isMobile ? 'fit-content' : '100%' }}
       >
         <SideItem
-          isActive={selectedCategory?.name === c.name}
+          isActive={selectedCategory?.name.toLowerCase() === c.name.toLowerCase()}
           icon={c.icon}
           onClick={() => {
             handleCategory({

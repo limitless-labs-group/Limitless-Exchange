@@ -37,6 +37,7 @@ import React, { FC, useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { MultiValue } from 'react-select'
+import { default as MultiSelect } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import TimezoneSelect, {
   allTimezones,
@@ -54,13 +55,12 @@ import {
   defaultProbability,
   defaultMarketFee,
   defaultCreatorId,
-  defaultCategoryId,
 } from '@/app/draft/components'
 import { useToast } from '@/hooks'
 import { useCategories, useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Category } from '@/types'
-import { Token, Tag, TagOption, IFormData, Creator } from '@/types/draft'
+import { Token, Tag, IFormData, Creator, SelectOption } from '@/types/draft'
 import { FormField } from '../components/form-field'
 
 export const CreateMarket: FC = () => {
@@ -115,9 +115,15 @@ export const CreateMarket: FC = () => {
             id: tag.id,
             value: tag.name,
             label: tag.name,
-          })) || [],
+          })) ?? [],
         creatorId: editMarket.creator?.id || defaultCreatorId,
-        categoryId: editMarket.category?.id || defaultCategoryId,
+        categories:
+          editMarket.categories.map((cat: Category) => ({
+            id: cat.id,
+            value: cat.name,
+            label: cat.name,
+          })) ?? [],
+
         type: editMarket.type,
       }))
       generateOgImage().then(() => console.log('Og image generated'))
@@ -126,12 +132,12 @@ export const CreateMarket: FC = () => {
 
   const handleChange = <K extends keyof IFormData>(
     field: string,
-    value: IFormData[K] | MultiValue<TagOption>
+    value: IFormData[K] | MultiValue<SelectOption>
   ) => {
     if (field === 'tag' && Array.isArray(value)) {
       setFormData((prevFormData) => ({
         ...prevFormData,
-        [field]: [...value] as TagOption[],
+        [field]: [...value] as SelectOption[],
       }))
     } else {
       setFormData((prevFormData) => ({
@@ -156,7 +162,7 @@ export const CreateMarket: FC = () => {
     })
   }
 
-  const createOption = (id: string, name: string): TagOption => ({
+  const createOption = (id: string, name: string): SelectOption => ({
     id,
     label: name,
     value: name,
@@ -169,7 +175,7 @@ export const CreateMarket: FC = () => {
 
       return response.data.map((tag: { id: string; name: string }) =>
         createOption(tag.id, tag.name)
-      ) as TagOption[]
+      ) as SelectOption[]
     },
   })
 
@@ -185,7 +191,7 @@ export const CreateMarket: FC = () => {
 
   const { data: categories } = useCategories()
   const [ogImageError, setOgImageError] = useState<string | null>(null)
-  const [autoGenerateOg, setAutoGenerateOg] = useState<boolean>(true)
+  const [autoGenerateOg, setAutoGenerateOg] = useState<boolean>(false)
   const [isReady, setIsReady] = useState<boolean>(false)
 
   useEffect(() => {
@@ -232,7 +238,7 @@ export const CreateMarket: FC = () => {
       name: tagToCreate,
     })
 
-    queryClient.setQueryData(['tagOptions'], (oldData: TagOption[]) => [
+    queryClient.setQueryData(['tagOptions'], (oldData: SelectOption[]) => [
       ...oldData,
       createOption(res.data.id, res.data.name),
     ])
@@ -265,7 +271,7 @@ export const CreateMarket: FC = () => {
       deadline,
       isBannered: formData.get('isBannered') === 'true',
       creatorId: formData.get('creatorId')?.toString() ?? '',
-      categoryId: formData.get('categoryId')?.toString() ?? '',
+      categoryIds: formData.get('categoryIds')?.toString() ?? '',
       ogFile: formData.get('ogFile') as File | null,
       tagIds: formData.get('tagIds')?.toString() ?? '',
     }
@@ -325,8 +331,8 @@ export const CreateMarket: FC = () => {
         marketFormData.set('creatorId', formData.creatorId)
       }
 
-      if (formData.categoryId) {
-        marketFormData.set('categoryId', formData.categoryId)
+      if (formData.categories.length) {
+        marketFormData.set('categoryIds', formData.categories.map((c) => c.id).join(','))
       }
 
       if (formData.ogLogo) {
@@ -346,6 +352,8 @@ export const CreateMarket: FC = () => {
     if (!data) return
     setIsCreating(true)
     const marketData = prepareMarketData(data)
+    console.log('data', marketData)
+
     const url = createClobMarket ? '/markets/clob/drafts' : '/markets/drafts'
     privateClient
       .post(url, marketData, {
@@ -375,6 +383,8 @@ export const CreateMarket: FC = () => {
     if (!data) return
     setIsCreating(true)
     const marketData = prepareMarketData(data)
+    console.log('data', marketData)
+
     privateClient
       .put(`/markets/drafts/${marketId}`, marketData, {
         headers: {
@@ -655,10 +665,7 @@ export const CreateMarket: FC = () => {
                               setReady={(isReady) => {
                                 setIsReady(isReady)
                               }}
-                              category={
-                                categories?.find((category) => category.id === +formData.categoryId)
-                                  ?.name ?? 'Unknown'
-                              }
+                              categories={formData.categories ?? []}
                               onBlobGenerated={(blob) => handleBlobGenerated(blob)}
                               generateBlob={isGeneratingOgImage}
                             />
@@ -708,23 +715,55 @@ export const CreateMarket: FC = () => {
                 </HStack>
               </FormField>
 
-              <FormField label='Category'>
-                <HStack>
-                  <Select
-                    value={formData.categoryId}
-                    onChange={async (e) => {
-                      handleChange('categoryId', e.target.value)
-                      if (autoGenerateOg) {
-                        await generateOgImage()
-                      }
-                    }}
-                  >
-                    {categories?.map((category: Category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </Select>
+              <FormField label='Categories'>
+                <HStack w={'full'}>
+                  <Box width='full'>
+                    <MultiSelect
+                      isMulti
+                      closeMenuOnSelect={false}
+                      onChange={(selectedOptions) => {
+                        const typedOptions = selectedOptions
+                        console.log('options', typedOptions)
+
+                        handleChange(
+                          'categories',
+                          typedOptions.map((option) => ({
+                            id: option.id,
+                            label: option.label,
+                            value: option.label,
+                          }))
+                        )
+                        if (autoGenerateOg) {
+                          generateOgImage()
+                        }
+                      }}
+                      value={formData.categories}
+                      options={categories?.map((category) => ({
+                        id: String(category.id),
+                        value: category.name,
+                        label: category.name,
+                      }))}
+                      styles={{
+                        option: (provided, state) => ({
+                          ...provided,
+                          backgroundColor: state.isFocused
+                            ? 'var(--chakra-colors-blue-50)'
+                            : 'var(--chakra-colors-grey-300)',
+                          color: state.isFocused
+                            ? 'var(--chakra-colors-blue-900)'
+                            : 'var(--chakra-colors-grey-900)',
+                        }),
+                        menu: (provided) => ({
+                          ...provided,
+                          ...selectStyles.menu,
+                        }),
+                        control: (provided) => ({
+                          ...provided,
+                          ...selectStyles.control,
+                        }),
+                      }}
+                    />
+                  </Box>
                 </HStack>
               </FormField>
 
