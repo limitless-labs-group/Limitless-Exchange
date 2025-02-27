@@ -122,12 +122,16 @@ export default function MarketPage() {
     return tabs
   }, [isLivePriceSupportedMarket, market?.tradeType])
 
+  const priceChart = useMemo(() => {
+    return <MarketPriceChart key={uuidv4()} />
+  }, [])
+
   const chartsTabPanels = useMemo(() => {
     const tabPanels = []
     if (market?.tradeType === 'clob') {
       tabPanels.push(<Orderbook key={uuidv4()} variant='small' />)
     }
-    tabPanels.push(<MarketPriceChart key={uuidv4()} />)
+    tabPanels.push(priceChart)
     if (isLivePriceSupportedMarket) {
       tabPanels.push(
         <MarketAssetPriceChart
