@@ -22,6 +22,7 @@ import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
+import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
 import ConvertModal from '@/components/common/markets/convert-modal'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
@@ -30,7 +31,6 @@ import OpenInterestTooltip from '@/components/common/markets/open-interest-toolt
 import MarketPositionsAmm from '@/components/common/markets/positions/market-positions-amm'
 import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
-import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/trading-widget-advanced'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
@@ -207,7 +207,7 @@ export default function MarketPage() {
     if (market?.expired) {
       return <MarketClosedWidget handleCloseMarketPageClicked={handleCloseMarketPageClicked} />
     }
-    return market?.tradeType === 'clob' ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
+    return market?.tradeType === 'clob' ? <ClobWidget /> : <TradingWidgetSimple />
   }, [market])
 
   const chart = useMemo(() => {

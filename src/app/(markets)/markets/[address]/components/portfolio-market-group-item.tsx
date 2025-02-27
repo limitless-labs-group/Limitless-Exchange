@@ -14,8 +14,8 @@ export default function PortfolioMarketGroupItem({
   outcome,
   quantity,
 }: PortfolioMarketGroupItemProps) {
-  const { market, strategy, setStrategy, clobOutcome, setClobOutcome, setPrice, sharesAvailable } =
-    useTradingService()
+  const { setPrice, sharesAvailable } = useClobWidget()
+  const { market, strategy, setStrategy, clobOutcome, setClobOutcome } = useTradingService()
 
   const totalShares = formatUnits(BigInt(quantity), market?.collateralToken.decimals || 6)
 

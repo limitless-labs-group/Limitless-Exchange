@@ -23,21 +23,19 @@ import { v4 as uuidv4 } from 'uuid'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
+import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
 import CommentTab from '@/components/common/markets/comment-tab'
 import ConvertModal from '@/components/common/markets/convert-modal'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
-import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/trading-widget-advanced'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import { UniqueTraders } from '@/components/common/markets/unique-traders'
 import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
 import Skeleton from '@/components/common/skeleton'
-import { Tooltip } from '@/components/common/tooltip'
 import MarketMobileTradeForm from '@/app/(markets)/markets/[address]/components/clob/market-mobile-trade-form'
 import GroupMarketsSection from '@/app/(markets)/markets/[address]/components/group-markets-section'
-import { mockPriceHistories } from '@/app/(markets)/markets/[address]/components/mock-chart-data'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
 import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
@@ -50,9 +48,8 @@ import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
-import TrophyIcon from '@/resources/icons/trophy-icon.svg'
 import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
-import { h1Regular, h2Medium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { h1Regular, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
@@ -79,7 +76,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
     }
     return market?.tradeType === 'clob' ? (
       <Box w='404px'>
-        <TradingWidgetAdvanced />
+        <ClobWidget />
       </Box>
     ) : (
       <Box w='404px'>

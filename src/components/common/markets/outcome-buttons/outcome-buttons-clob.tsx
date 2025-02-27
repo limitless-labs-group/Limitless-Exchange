@@ -4,7 +4,6 @@ import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import {
   ChangeEvent,
   OrderBookSideChangedMetadata,
-  StrategyChangedMetadata,
   useAmplitude,
   useTradingService,
 } from '@/services'
@@ -13,16 +12,9 @@ import { MarketOrderType } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function OutcomeButtonsClob() {
-  const {
-    strategy,
-    market,
-    clobOutcome: outcome,
-    setClobOutcome: setOutcome,
-    setPrice,
-    sharesAvailable,
-  } = useTradingService()
+  const { strategy, market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { trackChanged } = useAmplitude()
-  const { orderType, yesPrice, noPrice } = useClobWidget()
+  const { orderType, yesPrice, noPrice, setPrice, sharesAvailable } = useClobWidget()
 
   const getShares = (sharesAmount?: bigint) => {
     if (!sharesAmount) {

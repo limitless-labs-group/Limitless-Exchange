@@ -9,6 +9,8 @@ import React, {
   useEffect,
 } from 'react'
 import { Address, formatUnits } from 'viem'
+import useClobMarketShares from '@/hooks/use-clob-market-shares'
+import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
 import { useOrderBook } from '@/hooks/use-order-book'
 import { useAccount, useBalanceQuery, useTradingService } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -37,6 +39,14 @@ interface ClobWidgetContextType {
   yesPrice: number
   noPrice: number
   sharesPrice: string
+  sharesAmount: string
+  setSharesAmount: (val: string) => void
+  price: string
+  setPrice: (val: string) => void
+  sharesAvailable: {
+    yes: bigint
+    no: bigint
+  }
 }
 
 export function ClobWidgetProvider({ children }: PropsWithChildren) {
@@ -44,16 +54,42 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const [allowance, setAllowance] = useState<bigint>(0n)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
   const { web3Wallet } = useAccount()
-  const {
-    market,
-    strategy,
-    clobOutcome: outcome,
-    sharesAmount,
-    price,
-    sharesAvailable,
-    lockedBalance,
-  } = useTradingService()
+  const { market, strategy, clobOutcome: outcome } = useTradingService()
   const { balanceOfSmartWallet } = useBalanceQuery()
+  const [sharesAmount, setSharesAmount] = useState('')
+  const [price, setPrice] = useState('')
+
+  const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
+  const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
+
+  const sharesAvailable = useMemo(() => {
+    if (sharesOwned && lockedBalance) {
+      return {
+        yes: BigInt(
+          new BigNumber(sharesOwned[0].toString())
+            .minus(new BigNumber(lockedBalance.yes))
+            .isNegative()
+            ? '0'
+            : new BigNumber(sharesOwned[0].toString())
+                .minus(new BigNumber(lockedBalance.yes))
+                .toString()
+        ),
+        no: BigInt(
+          new BigNumber(sharesOwned[1].toString())
+            .minus(new BigNumber(lockedBalance.no))
+            .isNegative()
+            ? '0'
+            : new BigNumber(sharesOwned[1].toString())
+                .minus(new BigNumber(lockedBalance.no))
+                .toString()
+        ),
+      }
+    }
+    return {
+      yes: 0n,
+      no: 0n,
+    }
+  }, [lockedBalance, sharesOwned])
 
   const { data: orderBook } = useOrderBook(market?.slug)
   const { checkAllowance, checkAllowanceForAll } = useWeb3Service()
@@ -181,6 +217,11 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         yesPrice,
         noPrice,
         sharesPrice,
+        price,
+        setPrice,
+        sharesAmount,
+        setSharesAmount,
+        sharesAvailable,
       }}
     >
       {children}
