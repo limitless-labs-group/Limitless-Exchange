@@ -6,7 +6,7 @@ import { useEffect, createContext, PropsWithChildren, useContext, useCallback } 
 import { ClobPositionType } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { PageName } from '@/hooks/use-page-name'
 import { useAccount } from '@/services'
-import { Category, LeaderboardSort, MarketGroup } from '@/types'
+import { Category, LeaderboardSort } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 
@@ -296,10 +296,6 @@ export interface ShareClickedMetadata {
   marketType: 'group' | 'single'
 }
 
-interface MarketChangeInGroupData {
-  marketGroup: MarketGroup
-}
-
 interface FeeAndReturnTradingDetailsClicked {
   from: 'percentage' | 'numbers'
   to: 'percentage' | 'numbers'
@@ -475,7 +471,6 @@ export type ClickedEventMetadata =
   | StrokeMetadata
   | TopUpMetadata
   | UIModeMetadata
-  | MarketChangeInGroupData
   | FeeAndReturnTradingDetailsClicked
   | MediumBannerClicked
   | CloseMarketMetadata

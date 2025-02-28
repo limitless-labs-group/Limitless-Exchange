@@ -1,4 +1,4 @@
-import { HStack, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
+import { HStack, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
 import { isDesktop, isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -47,7 +47,7 @@ export default function GroupMarketSectionTabs({
       icon: <CandlestickIcon width={16} height={16} />,
     },
     {
-      title: 'Open Orders',
+      title: isMobile ? 'Orders' : 'Open Orders',
       icon: <SandClockIcon width={16} height={16} />,
     },
     {
@@ -74,7 +74,7 @@ export default function GroupMarketSectionTabs({
   return (
     <>
       <Tabs position='relative' variant='common'>
-        <TabList>
+        <TabList maxW='100%' overflowX='auto'>
           {tabs.map((tab) => (
             <Tab key={tab.title} onClick={() => handleTabChanged(tab.title)}>
               <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
@@ -84,7 +84,7 @@ export default function GroupMarketSectionTabs({
             </Tab>
           ))}
         </TabList>
-        <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
+        {/*<TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />*/}
         <TabPanels>
           {tabPanels.map((panel, index) => (
             <TabPanel key={index} mt='16px'>

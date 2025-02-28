@@ -19,7 +19,7 @@ export default function WinnerTakeAllTooltip() {
   )
 
   return (
-    <HStack gap='4px' color='grey.500'>
+    <HStack gap='4px' color='grey.500' minW='fit-content'>
       <TrophyIcon width={16} height={16} />
       <Tooltip
         label={winnerTooltipLabel}

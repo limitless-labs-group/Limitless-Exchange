@@ -8,7 +8,6 @@ import {
   Image as ChakraImage,
   Link,
   Tab,
-  TabIndicator,
   TabList,
   TabPanel,
   TabPanels,
@@ -135,12 +134,6 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
               </Tab>
             ))}
           </TabList>
-          <TabIndicator
-            mt='-2px'
-            height='2px'
-            bg='grey.800'
-            transitionDuration='200ms !important'
-          />
           <TabPanels>
             {chartsTabPanels.map((panel, index) => (
               <TabPanel key={index}>{panel}</TabPanel>
@@ -402,12 +395,6 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
                 </Tab>
               ))}
             </TabList>
-            <TabIndicator
-              mt='-2px'
-              height='2px'
-              bg='grey.800'
-              transitionDuration='200ms !important'
-            />
             <TabPanels>
               {tabPanels.map((panel, index) => (
                 <TabPanel key={index}>{panel}</TabPanel>

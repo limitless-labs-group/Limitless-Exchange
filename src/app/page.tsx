@@ -27,7 +27,7 @@ import {
 } from '@/services'
 import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup, Sort, SortStorageName } from '@/types'
+import { Market, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
 const MainPage = () => {
@@ -142,7 +142,7 @@ const MainPage = () => {
             {isMobile ? (
               <HStack
                 gap='0px'
-                px='8px'
+                px='16px'
                 pb='8px'
                 overflowX='auto'
                 css={{

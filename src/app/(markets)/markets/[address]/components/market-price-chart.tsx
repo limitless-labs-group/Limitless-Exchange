@@ -226,62 +226,6 @@ const PriceChart = () => {
     </Box>
   ) : (
     <Paper my='16px' py='8px' px={0} bg='grey.100'>
-      {/*{marketGroup ? (*/}
-      {/*  <Menu isOpen={isMarketListOpen} onClose={onCloseMarketList} variant='transparent'>*/}
-      {/*    <MenuButton*/}
-      {/*      as={Button}*/}
-      {/*      onClick={() => {*/}
-      {/*        trackClicked(ClickEvent.ChangeMarketInGroupClicked, {*/}
-      {/*          marketGroup,*/}
-      {/*        })*/}
-      {/*        onOpenMarketList()*/}
-      {/*      }}*/}
-      {/*      p={0}*/}
-      {/*      h='unset'*/}
-      {/*    >*/}
-      {/*      <HStack gap={isMobile ? '16px' : '8px'} color='green.500'>*/}
-      {/*        <Text {...paragraphMedium} color='green.500'>*/}
-      {/*          {market?.title}*/}
-      {/*        </Text>*/}
-      {/*        <HStack gap={isMobile ? '8px' : '4px'}>*/}
-      {/*          <ThumbsUpIcon width={16} height={16} />*/}
-      {/*          <Text {...paragraphMedium} color='green.500'>*/}
-      {/*            {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}% YES*/}
-      {/*          </Text>*/}
-      {/*          <Box*/}
-      {/*            transform={`rotate(${isMarketListOpen ? '180deg' : 0})`}*/}
-      {/*            transition='0.5s'*/}
-      {/*            color='green.500'*/}
-      {/*          >*/}
-      {/*            <ChevronDownIcon width='16px' height='16px' />*/}
-      {/*          </Box>*/}
-      {/*        </HStack>*/}
-      {/*      </HStack>*/}
-      {/*    </MenuButton>*/}
-      {/*    <MenuList borderRadius='2px' zIndex={2} marginTop='-8px'>*/}
-      {/*      {marketGroup.markets.map((market) => (*/}
-      {/*        <MenuItem*/}
-      {/*          onClick={() => {*/}
-      {/*            setSelectedMarket && setSelectedMarket(market)*/}
-      {/*          }}*/}
-      {/*          key={market.address}*/}
-      {/*        >*/}
-      {/*          {(market?.proxyTitle ?? market?.title)}*/}
-      {/*        </MenuItem>*/}
-      {/*      ))}*/}
-      {/*    </MenuList>*/}
-      {/*  </Menu>*/}
-      {/*) : (*/}
-      {/*  <HStack gap={'4px'}>*/}
-      {/*    <Text {...headline} color='grey.800'>*/}
-      {/*      {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%*/}
-      {/*    </Text>*/}
-      {/*    <Text {...headline} color='grey.800'>*/}
-      {/*      Yes*/}
-      {/*    </Text>*/}
-      {/*    /!*<ChevronDownIcon width={16} height={16} />*!/*/}
-      {/*  </HStack>*/}
-      {/*)}*/}
       <HStack px='8px' justifyContent='space-between'>
         <VStack alignItems='start'>
           <HStack>
