@@ -6,6 +6,7 @@ import {
   Image as ChakraImage,
   Link,
   Tab,
+  TabIndicator,
   TabList,
   TabPanel,
   TabPanels,
@@ -364,6 +365,12 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                     </Tab>
                   ))}
                 </TabList>
+                <TabIndicator
+                  mt='-2px'
+                  height='2px'
+                  bg='grey.800'
+                  transitionDuration='200ms !important'
+                />
                 <TabPanels>
                   {tabPanels.map((panel, index) => (
                     <TabPanel key={index}>{panel}</TabPanel>
