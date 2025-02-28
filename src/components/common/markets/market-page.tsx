@@ -7,6 +7,7 @@ import {
   Image as ChakraImage,
   Link,
   Tab,
+  TabIndicator,
   TabList,
   TabPanel,
   TabPanels,
@@ -103,7 +104,7 @@ export default function MarketPage() {
     const tabs = []
     if (market?.tradeType === 'clob') {
       tabs.push({
-        title: 'Orderbook',
+        title: 'Order book',
         icon: <OrderbookIcon width='16px' height='16px' />,
         analyticEvent: ClickEvent.OrderBookOpened,
       })
@@ -399,6 +400,12 @@ export default function MarketPage() {
               </Tab>
             ))}
           </TabList>
+          <TabIndicator
+            mt='-2px'
+            height='2px'
+            bg='grey.800'
+            transitionDuration='200ms !important'
+          />
           <TabPanels>
             {chartsTabPanels.map((panel, index) => (
               <TabPanel key={index}>{panel}</TabPanel>
@@ -429,6 +436,7 @@ export default function MarketPage() {
             </Tab>
           ))}
         </TabList>
+        <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
         <TabPanels>
           {tabPanels.map((panel, index) => (
             <TabPanel key={index}>{panel}</TabPanel>

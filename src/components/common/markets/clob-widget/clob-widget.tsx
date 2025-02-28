@@ -6,6 +6,7 @@ import {
   MenuButton,
   MenuList,
   Tab,
+  TabIndicator,
   TabList,
   Tabs,
   Text,
@@ -120,13 +121,18 @@ export default function ClobWidget() {
                   </Tab>
                 ))}
               </TabList>
+              <TabIndicator
+                mt='-1px'
+                height='2px'
+                bg='grey.800'
+                transitionDuration='200ms !important'
+              />
             </Tabs>
             <HStack
               w='full'
               borderBottom='1px solid'
               borderColor='grey.500'
               justifyContent='flex-end'
-              marginTop={isMobile ? '8px' : 0}
             >
               <Menu
                 isOpen={orderTypeMenuOpen}

@@ -1,4 +1,4 @@
-import { HStack, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
+import { HStack, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -53,6 +53,7 @@ export default function ClobPositions({ marketType }: ClobPositionsProps) {
           </Tab>
         ))}
       </TabList>
+      <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
       <TabPanels>
         {tabPanels.map((panel, index) => (
           <TabPanel key={index} mt='16px'>

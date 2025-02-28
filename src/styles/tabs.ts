@@ -22,7 +22,7 @@ const common = definePartsStyle(() => {
         borderColor: 'inherit',
         borderBottom: 'none',
       },
-      borderBottom: isMobile ? '1px solid !important' : 'unset',
+      borderBottom: isMobile ? '1px solid' : 'unset',
       borderColor: 'grey.500',
     },
     tablist: {

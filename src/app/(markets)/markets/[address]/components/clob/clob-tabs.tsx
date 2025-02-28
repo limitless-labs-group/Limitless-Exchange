@@ -1,4 +1,4 @@
-import { HStack, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
+import { HStack, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import React, { useEffect, useMemo, useState } from 'react'
 import { isDesktop, isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -32,7 +32,7 @@ export default function ClobTabs() {
 
   const tabs = [
     {
-      title: 'Orderbook',
+      title: 'Order book',
       icon: <OrderbookIcon width='16px' height='16px' />,
     },
     {
@@ -68,6 +68,7 @@ export default function ClobTabs() {
           </Tab>
         ))}
       </TabList>
+      <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
       <TabPanels>
         {tabPanels.map((panel, index) => (
           <TabPanel key={index} mt='16px'>
