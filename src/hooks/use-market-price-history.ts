@@ -79,12 +79,19 @@ export function useNegRiskPriceHistory(slug?: string) {
         `/markets/${slug}/historical-price`
       )
       return response.data.map((item) => {
+        const prices = item.prices.map((price) => ({
+          timestamp: price.timestamp,
+          price: +price.price * 100,
+        }))
+        const lastPriceObject = {
+          timestamp: new Date().getTime(),
+          price: item.prices[item.prices.length - 1]?.price
+            ? +item.prices[item.prices.length - 1].price * 100
+            : 50,
+        }
         return {
           ...item,
-          prices: item.prices.map((price) => ({
-            timestamp: price.timestamp,
-            price: +price.price * 100,
-          })),
+          prices: [...prices, lastPriceObject],
         }
       })
     },
