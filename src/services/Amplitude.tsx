@@ -319,7 +319,7 @@ export type PageOpenedPage =
 export interface PageOpenedMetadata {
   page: PageOpenedPage
   marketAddress?: string
-  category?: string
+  category?: string[]
   [key: string]: any
 }
 

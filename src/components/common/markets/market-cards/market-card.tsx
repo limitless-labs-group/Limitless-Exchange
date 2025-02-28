@@ -44,7 +44,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
     searchParams.set('market', market.slug)
     router.push(`?${searchParams.toString()}`, { scroll: false })
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
-      marketCategory: market.category,
+      marketCategory: market.categories,
       marketAddress: market.slug,
       marketType: 'single',
       marketTags: market.tags,

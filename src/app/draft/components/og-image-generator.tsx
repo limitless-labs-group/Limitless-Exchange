@@ -1,6 +1,7 @@
 import { Box, Divider, HStack, Img, Spacer, Text, useTheme, VStack } from '@chakra-ui/react'
 import html2canvas from 'html2canvas'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { SelectOption } from '@/types/draft'
 
 export interface IOgImageGeneratorOptions {
   px: number | string
@@ -52,21 +53,14 @@ const previewOptions: IOgImageGeneratorOptions = {
 
 export interface IOgImageGenerator {
   title: string
-  category: string
-  onBlobGenerated: (blob: Blob) => void
-  generateBlob: boolean
-  setReady?: (param: boolean) => void
-}
-export interface IOgImageGenerator {
-  title: string
-  category: string
+  categories: SelectOption[]
   onBlobGenerated: (blob: Blob) => void
   generateBlob: boolean
   setReady?: (param: boolean) => void
 }
 export const OgImageGenerator = ({
   title,
-  category,
+  categories,
   generateBlob,
   onBlobGenerated,
   setReady,
@@ -97,7 +91,6 @@ export const OgImageGenerator = ({
       })
 
       const imageDataUrl = canvas.toDataURL('image/png', 1.0)
-      console.log(imageDataUrl)
       setImage(imageDataUrl)
       canvas.toBlob(
         async (blob) => {
@@ -179,7 +172,10 @@ export const OgImageGenerator = ({
               <HStack>
                 <Box px='8px' py='1px' bg='white' borderRadius='sm'>
                   <Text fontSize={previewOptions.fontSize / 1.5} color={backgroundColor}>
-                    /{category}
+                    /{' '}
+                    {categories.length > 0
+                      ? categories.map((cat) => cat.label).join(', ')
+                      : 'Other'}
                   </Text>
                 </Box>
               </HStack>

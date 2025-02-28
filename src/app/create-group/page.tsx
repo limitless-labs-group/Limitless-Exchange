@@ -321,7 +321,7 @@ const CreateOwnMarketPage = () => {
           <FormControl>
             <OgImageGenerator
               title={parsedTemplate.marketsGroupTitle ?? 'Title'}
-              category={parsedTemplate.marketsGroupCategory ?? 'Category'}
+              categories={[]}
               onBlobGenerated={(blob) => {
                 console.log('Blob generated', blob)
                 const _ogLogo = new File([blob], 'og.png', {

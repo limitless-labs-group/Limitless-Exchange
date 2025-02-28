@@ -36,7 +36,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
       if (fetchedMarket) {
         onOpenMarketPage(fetchedMarket)
         trackClicked(ClickEvent.PortfolioMarketClicked, {
-          marketCategory: fetchedMarket.category,
+          marketCategory: fetchedMarket.categories,
           marketAddress: fetchedMarket.slug,
           marketType: 'single',
           marketTags: fetchedMarket.tags,
@@ -47,7 +47,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
     } else {
       onOpenMarketPage(market)
       trackClicked(ClickEvent.PortfolioMarketClicked, {
-        marketCategory: market.category,
+        marketCategory: market.categories,
         marketAddress: market.slug,
         marketType: 'single',
         marketTags: market.tags,

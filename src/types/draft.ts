@@ -15,9 +15,9 @@ export interface IFormData {
   liquidity: number
   probability: number
   marketFee: number
-  tag: TagOption[]
+  tag: SelectOption[]
   creatorId: string
-  categoryId: string
+  categories: SelectOption[]
   ogLogo: File | undefined
   isBannered: boolean
   txHash: string
@@ -34,7 +34,7 @@ export interface TokenLimits {
   [key: string]: TokenLimit
 }
 
-export interface TagOption {
+export interface SelectOption {
   id: string
   label: string
   value: string
@@ -44,6 +44,12 @@ export interface Tag {
   id: string
   name: string
   createdAt: string
+}
+
+export interface DraftCategory {
+  id: number
+  name: string
+  priority: null | number
 }
 
 export interface Creator {
@@ -83,18 +89,8 @@ export interface DraftMarketResponse {
     isAdmin: boolean
     socialUrl: null | string
   }
-  tags: [
-    {
-      createdAt: string
-      id: number
-      name: string
-    }
-  ]
-  category: {
-    id: number
-    name: string
-    priority: null | number
-  }
+  tags: Tag[]
+  categories: DraftCategory[]
   type?: 'clob' | 'amm'
   draftMetadata: {
     fee: number
