@@ -36,10 +36,11 @@ export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name }) =>
         <Box w='full' h={isMobile ? '142px' : '460px'} position='relative' overflow='hidden'>
           <Image
             src={category.bannerImage}
-            alt={`${category} category banner`}
+            alt={`${category.name} category banner`}
             objectFit='cover'
             w='full'
             h='full'
+            loading='eager'
           />
         </Box>
       ) : null}
