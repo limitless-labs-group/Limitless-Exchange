@@ -166,33 +166,8 @@ export type UserCreatedMarket = {
   slug: string
 }
 
-export interface MarketGroup {
-  slug: string
-  hidden: boolean
-  outcomeTokens: string[]
-  title: string
-  ogImageURI: string
-  expirationDate: string
-  expired: boolean
-  expirationTimestamp: number
-  creator: Creator
-}
-
 export interface DraftMarket extends Market {
   draftMetadata: DraftMetadata
-}
-
-export interface MarketGroup {
-  category: Category
-  collateralToken: {
-    symbol: string
-    address: Address
-    decimals: number
-  }
-  tags: string[]
-  createdAt: string
-  status: MarketStatus
-  markets: Market[]
 }
 
 export type GetBalanceResult = {

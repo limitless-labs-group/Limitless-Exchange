@@ -536,7 +536,6 @@ export default function BuyButton({
           onApprove={handleApprove}
           setStatus={setStatus}
           analyticParams={{ source: analyticsSource }}
-          marketType={marketType}
           outcome={option}
           marketAddress={market.address as Address}
         />

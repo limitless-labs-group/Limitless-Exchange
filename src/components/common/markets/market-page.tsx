@@ -7,7 +7,6 @@ import {
   Image as ChakraImage,
   Link,
   Tab,
-  TabIndicator,
   TabList,
   TabPanel,
   TabPanels,
@@ -332,14 +331,14 @@ export default function MarketPage() {
         <Text {...h2Bold}>{market?.proxyTitle || market?.title}</Text>
         {isMobile && <ShareMenu />}
       </HStack>
-      <Box w='full' mt={isMobile ? '56px' : '24px'}>
+      <Box w='full' mt='24px'>
         {market?.marketType === 'single' && (
           <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
         )}
-        <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
-          <HStack gap='12px'>
+        <HStack gap='8px' mt={isMobile ? 0 : '8px'} flexWrap='wrap'>
+          <HStack gap='12px' w='full' justifyContent='space-between'>
             {groupMarket?.negRiskMarketId && <WinnerTakeAllTooltip />}
-            <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
+            <HStack gap='4px' color='grey.500'>
               <VolumeIcon width={16} height={16} />
               <Text {...paragraphRegular} color='grey.500'>
                 Volume
@@ -400,12 +399,6 @@ export default function MarketPage() {
               </Tab>
             ))}
           </TabList>
-          <TabIndicator
-            mt='-2px'
-            height='2px'
-            bg='grey.800'
-            transitionDuration='200ms !important'
-          />
           <TabPanels>
             {chartsTabPanels.map((panel, index) => (
               <TabPanel key={index}>{panel}</TabPanel>
@@ -436,7 +429,6 @@ export default function MarketPage() {
             </Tab>
           ))}
         </TabList>
-        <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
         <TabPanels>
           {tabPanels.map((panel, index) => (
             <TabPanel key={index}>{panel}</TabPanel>

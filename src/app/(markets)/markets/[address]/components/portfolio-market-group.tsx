@@ -1,6 +1,5 @@
 import { Table, TableContainer, Tbody, Th, Thead, Tr } from '@chakra-ui/react'
 import React from 'react'
-import { isMobile } from 'react-device-detect'
 import PortfolioMarketGroupItem from '@/app/(markets)/markets/[address]/components/portfolio-market-group-item'
 import { usePosition, useTradingService } from '@/services'
 
@@ -13,7 +12,7 @@ export default function PortfolioMarketGroup() {
     .find((position) => position.market.slug === market?.slug)
 
   return (
-    <TableContainer overflow={'auto'} mt='16px' mb='8px' px={isMobile ? '16px' : 0}>
+    <TableContainer overflow={'auto'} mt='16px' mb='8px'>
       <Table variant={'simple'}>
         <Thead>
           <Tr>

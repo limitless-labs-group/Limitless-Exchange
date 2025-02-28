@@ -96,7 +96,11 @@ const PortfolioPositionCardClob = ({
               slug={positionData.market.slug}
               conditionId={positionData.market.conditionId as Address}
               collateralAddress={positionData.market.collateralToken.address}
-              marketAddress={process.env.NEXT_PUBLIC_CTF_CONTRACT as Address}
+              marketAddress={
+                positionData.market.negRiskRequestId
+                  ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
+                  : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
+              }
               outcomeIndex={positionData.market.winningOutcomeIndex as number}
               marketType='clob'
               amountToClaim={formatUnits(

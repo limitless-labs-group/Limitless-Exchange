@@ -65,8 +65,20 @@ const ChartContainer = () => {
       borderColor='grey.100'
       gap={0}
     >
-      <HStack mt='20px' justifyContent='space-between' px='16px'>
-        <HStack bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
+      <HStack
+        mt='20px'
+        justifyContent='space-between'
+        px='16px'
+        flexDirection={isMobile ? 'column' : 'row'}
+        alignItems={isMobile ? 'flex-start' : 'center'}
+      >
+        <HStack
+          bg='grey.200'
+          borderRadius='8px'
+          py='2px'
+          px={'2px'}
+          w={isMobile ? 'full' : 'unset'}
+        >
           {timeRanges.map((range) => (
             <Button
               h={isMobile ? '28px' : '20px'}

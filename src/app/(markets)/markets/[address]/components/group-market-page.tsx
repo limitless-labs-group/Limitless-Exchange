@@ -6,7 +6,6 @@ import {
   Image as ChakraImage,
   Link,
   Tab,
-  TabIndicator,
   TabList,
   TabPanel,
   TabPanels,
@@ -145,7 +144,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
             Trade
           </Button>
         }
-        title={(market?.proxyTitle ?? market?.title) || ''}
+        title=''
         variant='black'
       >
         {market?.tradeType === 'clob' ? (
@@ -192,7 +191,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
         mb={isMobile ? '84px' : 0}
         ml={!isMobile ? '188px' : 'unset'}
       >
-        <HStack justifyContent='space-between' mb='24px'>
+        <HStack justifyContent='space-between' mb='24px' px={isMobile ? '16px' : 0}>
           <Button
             variant='grey'
             onClick={() => {
@@ -327,10 +326,10 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
               <Divider my='16px' />
               <PriceChartContainer />
             </Box>
-            <Text {...h2Medium} mt='24px'>
+            <Text {...h2Medium} mt='24px' px={isMobile ? '16px' : 0}>
               Outcomes
             </Text>
-            <VStack gap='8px' w='full' mb='24px' mt='8px'>
+            <VStack gap='8px' w='full' mb='24px' mt='8px' px={isMobile ? '16px' : 0}>
               {fetchMarketLoading ? (
                 [...Array(3)].map((item) => (
                   <Box w='full' key={item}>
@@ -365,12 +364,6 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                     </Tab>
                   ))}
                 </TabList>
-                <TabIndicator
-                  mt='-2px'
-                  height='2px'
-                  bg='grey.800'
-                  transitionDuration='200ms !important'
-                />
                 <TabPanels>
                   {tabPanels.map((panel, index) => (
                     <TabPanel key={index}>{panel}</TabPanel>

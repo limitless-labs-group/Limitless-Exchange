@@ -1,6 +1,7 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import { MarketCardProps } from '@/components/common/markets'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
@@ -41,7 +42,7 @@ export const MarketGroupCard = ({
     if (e.metaKey || e.ctrlKey || e.button === 2) {
       return
     }
-    e.preventDefault()
+    !isMobile && e.preventDefault()
     const searchParams = new URLSearchParams(window.location.search)
     searchParams.set('market', market.slug)
     router.push(`?${searchParams.toString()}`, { scroll: false })
@@ -52,7 +53,8 @@ export const MarketGroupCard = ({
       marketTags: market.tags,
       ...analyticParams,
     })
-    onOpenMarketPage(market)
+
+    !isMobile && onOpenMarketPage(market)
   }
 
   const handleOutcomeClicked = (
@@ -63,8 +65,10 @@ export const MarketGroupCard = ({
     if (e.metaKey || e.ctrlKey || e.button === 2) {
       return
     }
-    e.stopPropagation()
-    e.preventDefault()
+    if (!isMobile) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
     const searchParams = new URLSearchParams(window.location.search)
     searchParams.set('market', market.slug)
     router.push(`?${searchParams.toString()}`, { scroll: false })
@@ -99,7 +103,7 @@ export const MarketGroupCard = ({
       position='relative'
       overflow='hidden'
     >
-      <Text {...headline} p='16px'>
+      <Text {...headline} p='16px' textAlign='left'>
         {market.title}
       </Text>
       <VStack
@@ -170,5 +174,5 @@ export const MarketGroupCard = ({
       </HStack>
     </Box>
   )
-  return <MarketCardLink marketAddress={market.slug}>{content}</MarketCardLink>
+  return isMobile ? content : <MarketCardLink marketAddress={market.slug}>{content}</MarketCardLink>
 }

@@ -1,15 +1,6 @@
 'use client'
 
-import {
-  HStack,
-  Tab,
-  Text,
-  TabIndicator,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-} from '@chakra-ui/react'
+import { HStack, Tab, Text, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useState, useEffect } from 'react'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -125,7 +116,6 @@ const CreateOwnMarketPage = () => {
             </Tab>
           ))}
         </TabList>
-        <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
         <TabPanels mt='30px'>
           {tabs.map(({ component: Component, marketType }, index) => (
             <TabPanel key={index}>

@@ -1,8 +1,8 @@
 import React from 'react'
 import MobileDrawer from '@/components/common/drawer'
+import MarketCardTrigger from '@/components/common/markets/market-cards/market-card-trigger'
 import MarketPage from '@/components/common/markets/market-page'
 import { MarketCardProps } from './market-card'
-import { MarketCardTrigger } from './market-card-trigger'
 import { useTradingService } from '@/services'
 
 export default function MarketCardMobile({
