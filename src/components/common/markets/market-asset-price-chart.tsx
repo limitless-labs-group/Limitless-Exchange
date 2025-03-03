@@ -53,7 +53,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       const preparedData = result.data.map((priceData) => {
         return [new Date(priceData.timestamp).getTime(), +priceData.avg_price.toFixed(6)]
       })
-      console.log(preparedData)
       setPriceData(preparedData)
     } catch (e) {
       console.log(`get price history failed`, e)
@@ -88,8 +87,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
                   setLivePrice(formattedPrice)
                   chart.series[0].addPoint([currentTime, formattedPrice], true, false)
                 }
-              } else {
-                await getHistory()
               }
             } catch (e) {
               console.error('Error processing live data:', e)
@@ -177,6 +174,10 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       } as Highcharts.SeriesLineOptions,
     ],
   }
+
+  useEffect(() => {
+    getHistory()
+  }, [])
 
   return (
     <Paper bg='grey.100' my='20px'>
