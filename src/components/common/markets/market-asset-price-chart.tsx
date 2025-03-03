@@ -53,6 +53,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       const preparedData = result.data.map((priceData) => {
         return [new Date(priceData.timestamp).getTime(), +priceData.avg_price.toFixed(6)]
       })
+      console.log(preparedData)
       setPriceData(preparedData)
     } catch (e) {
       console.log(`get price history failed`, e)
@@ -70,6 +71,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
           subscription = connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
             try {
               const priceEntity = priceFeed.getPriceNoOlderThan(60)
+              console.log(priceEntity)
               if (priceEntity) {
                 const formattedPrice = +formatUnits(
                   BigInt(priceEntity ? priceEntity.price : '1'),
