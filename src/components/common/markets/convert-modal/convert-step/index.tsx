@@ -1,6 +1,6 @@
 import { Box, Button, Flex, HStack, Spacer, Text, VStack } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ClobPositionWithTypeAndSelected } from '@/components/common/markets/convert-modal/convert-modal-content'
 import ConvertPosition from '@/components/common/markets/convert-modal/convert-position'
@@ -76,6 +76,19 @@ export default function ConvertStep({
 
   const isInputInvalid = new BigNumber(sharesToConvert).isGreaterThan(maxShares)
 
+  const showErrors = useMemo(() => {
+    if (!positionsAreNotSelected && !+sharesToConvert) {
+      return 'Enter amount'
+    }
+    if (positionsAreNotSelected && +sharesToConvert) {
+      return 'Select markets to convert'
+    }
+    if (positionsAreNotSelected && !+sharesToConvert) {
+      return 'Enter amount, select markets'
+    }
+    return ''
+  }, [positionsAreNotSelected, sharesToConvert])
+
   return (
     <Box>
       <Text {...paragraphRegular} mt='8px'>
@@ -141,17 +154,9 @@ export default function ConvertStep({
         >
           Review
         </Button>
-        {/*//Todo add errors*/}
-        {/*{positionsAreNotSelected && (*/}
-        {/*  <Text {...paragraphRegular} color='grey.500'>*/}
-        {/*    Select positions to convert*/}
-        {/*  </Text>*/}
-        {/*)}*/}
-        {/*{!+sharesToConvert && (*/}
-        {/*  <Text {...paragraphRegular} color='grey.500'>*/}
-        {/*    Enter amount of shares to convert*/}
-        {/*  </Text>*/}
-        {/*)}*/}
+        <Text {...paragraphRegular} color='grey.500'>
+          {showErrors}
+        </Text>
       </HStack>
     </Box>
   )
