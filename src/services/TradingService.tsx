@@ -24,15 +24,13 @@ import {
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useWeb3Service } from '@/services/Web3Service'
-import { Market, MarketGroup, RedeemParams } from '@/types'
+import { Market, RedeemParams } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
 import { DISCORD_LINK } from '@/utils/consts'
 
 interface ITradingServiceContext {
   market: Market | null
   setMarket: (market: Market | null) => void
-  marketGroup: MarketGroup | null
-  setMarketGroup: (marketGroup: MarketGroup | null) => void
   strategy: 'Buy' | 'Sell'
   setStrategy: (side: 'Buy' | 'Sell') => void
   balanceOfCollateralToSellYes: string
@@ -68,13 +66,17 @@ interface ITradingServiceContext {
   marketPageOpened: boolean
   setMarketPageOpened: Dispatch<SetStateAction<boolean>>
   onCloseMarketPage: () => void
-  onOpenMarketPage: (market: Market | MarketGroup) => void
+  onOpenMarketPage: (market: Market, outcome?: number, index?: number, source?: string) => void
   refetchMarkets: () => Promise<void>
   markets?: Market[]
   setMarkets: (markets: Market[]) => void
   sellBalanceLoading: boolean
   clobOutcome: number
   setClobOutcome: (val: number) => void
+  convertModalOpened: boolean
+  setConvertModalOpened: (val: boolean) => void
+  setGroupMarket: (val: Market | null) => void
+  groupMarket: Market | null
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -95,32 +97,35 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * OPTIONS
    */
   const [market, setMarket] = useState<Market | null>(null)
-  const [marketGroup, setMarketGroup] = useState<MarketGroup | null>(null)
+  const [groupMarket, setGroupMarket] = useState<Market | null>(null)
   const [markets, setMarkets] = useState<Market[] | undefined>()
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
   const [marketFee, setMarketFee] = useState(0)
   const [marketPageOpened, setMarketPageOpened] = useState(false)
-  // Todo adjust it to amm markets with refactored sell widget
+
+  /**
+   * CLOB
+   */
   const [clobOutcome, setClobOutcome] = useState(0)
+  const [convertModalOpened, setConvertModalOpened] = useState(false)
 
   const onCloseMarketPage = () => {
     setMarketPageOpened(false)
     setMarkets(undefined)
+    setMarket(null)
+    setGroupMarket(null)
   }
 
-  const onOpenMarketPage = (market: Market | MarketGroup) => {
+  const onOpenMarketPage = (market: Market, outcome?: number, groupIndex?: number) => {
     setMarket(null)
-    setMarketGroup(null)
-    // @ts-ignore
-    // if (market.slug) {
-    //   setMarketGroup(market as MarketGroup)
-    //   setMarket((market as MarketGroup).markets[0])
-    //   !isMobile && setMarketPageOpened(true)
-    //   return
-    // }
-    setMarket(market as Market)
-    setMarketGroup(null)
-    setClobOutcome(0)
+    setGroupMarket(null)
+    const marketToSet =
+      market.marketType === 'group' ? market.markets?.[groupIndex || 0] || null : market
+    setMarket(marketToSet)
+    setClobOutcome(outcome ? outcome : 0)
+    if (market.marketType === 'group') {
+      setGroupMarket(market)
+    }
     !isMobile && setMarketPageOpened(true)
   }
 
@@ -830,8 +835,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const contextProviderValue: ITradingServiceContext = {
     market,
-    marketGroup,
-    setMarketGroup,
     checkApprovedForSell,
     setMarket,
     strategy,
@@ -863,6 +866,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     sellBalanceLoading,
     clobOutcome,
     setClobOutcome,
+    setGroupMarket,
+    groupMarket,
+    convertModalOpened,
+    setConvertModalOpened,
   }
 
   return (

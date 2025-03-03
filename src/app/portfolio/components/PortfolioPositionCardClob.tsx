@@ -45,23 +45,6 @@ const PortfolioPositionCardClob = ({
 }: PortfolioPositionCardClobProps) => {
   const marketClosed = positionData.market.status === MarketStatus.RESOLVED
 
-  // const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
-  //   targetMarket?.group?.slug,
-  //   false,
-  //   false
-  // )
-
-  // if (targetMarket?.group?.slug) {
-  //   if (!marketGroup) {
-  //     const { data: fetchedMarketGroup } = await refetchMarketGroup()
-  //     if (fetchedMarketGroup) {
-  //       onOpenMarketPage(fetchedMarketGroup)
-  //     }
-  //   } else {
-  //     onOpenMarketPage(marketGroup)
-  //   }
-  // }
-
   const deadline = new Intl.DateTimeFormat('en-GB', {
     day: '2-digit',
     month: 'short',
@@ -113,7 +96,11 @@ const PortfolioPositionCardClob = ({
               slug={positionData.market.slug}
               conditionId={positionData.market.conditionId as Address}
               collateralAddress={positionData.market.collateralToken.address}
-              marketAddress={process.env.NEXT_PUBLIC_CTF_CONTRACT as Address}
+              marketAddress={
+                positionData.market.negRiskRequestId
+                  ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
+                  : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
+              }
               outcomeIndex={positionData.market.winningOutcomeIndex as number}
               marketType='clob'
               amountToClaim={formatUnits(

@@ -58,7 +58,7 @@ import {
 } from '@/services'
 import { useMarkets } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup, MarketStatus } from '@/types'
+import { Market, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function Sidebar() {
@@ -84,7 +84,7 @@ export default function Sidebar() {
   const { data, isLoading } = useMarkets(null)
   const { fundWallet } = useFundWallet()
 
-  const markets: (Market | MarketGroup)[] = useMemo(() => {
+  const markets: Market[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages])
 

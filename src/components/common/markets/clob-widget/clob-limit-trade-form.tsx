@@ -23,6 +23,7 @@ import {
   useTradingService,
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -31,15 +32,15 @@ export default function ClobLimitTradeForm() {
   const { balanceLoading } = useBalanceService()
   const {
     balance,
-    setPrice,
-    price,
-    sharesAmount,
-    setSharesAmount,
     allowance,
     sharesPrice,
     isApprovedForSell,
     onToggleTradeStepper,
     isBalanceNotEnough,
+    setSharesAmount,
+    setPrice,
+    price,
+    sharesAmount,
     sharesAvailable,
   } = useClobWidget()
   const { trackClicked } = useAmplitude()
@@ -51,6 +52,8 @@ export default function ClobLimitTradeForm() {
   const privyService = usePrivySendTransaction()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
+
+  const { pushGA4Event } = useGoogleAnalytics()
 
   const maxSharesAvailable =
     strategy === 'Sell'
@@ -144,6 +147,7 @@ export default function ClobLimitTradeForm() {
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
       })
+      pushGA4Event(GAEvents.ClickBuyOrder)
     },
     onError: async () => {
       const id = toast({
@@ -308,6 +312,11 @@ export default function ClobLimitTradeForm() {
     }
     setSharesAmount(val)
   }
+
+  console.log(`price ${+price}`)
+  console.log(`sharesAmount ${+sharesAmount}`)
+  console.log(`isBalanceNotEnough ${isBalanceNotEnough}`)
+  console.log(`web3Wallet ${web3Wallet}`)
 
   return (
     <>

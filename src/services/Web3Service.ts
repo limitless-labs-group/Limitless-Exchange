@@ -63,11 +63,18 @@ type Web3Service = {
   splitShares: (
     collateralAddress: Address,
     conditionId: string,
-    amount: bigint
+    amount: bigint,
+    type: 'common' | 'negrisk'
   ) => Promise<string | undefined>
   mergeShares: (
     collateralToken: Address,
     conditionId: string,
+    amount: bigint,
+    type: 'common' | 'negrisk'
+  ) => Promise<string | undefined>
+  convertShares: (
+    negRiskRequestId: string,
+    indexSet: string,
     amount: bigint
   ) => Promise<string | undefined>
 }
@@ -274,18 +281,35 @@ export function useWeb3Service(): Web3Service {
     }
   }
 
-  const splitShares = async (collateralAddress: Address, conditionId: string, amount: bigint) => {
+  const splitShares = async (
+    collateralAddress: Address,
+    conditionId: string,
+    amount: bigint,
+    type: 'common' | 'negrisk'
+  ) => {
     if (web3Client === 'etherspot') {
-      return privyService.splitPositions(collateralAddress, conditionId, amount)
+      return privyService.splitPositions(collateralAddress, conditionId, amount, type)
     }
-    return externalWalletService.splitPositions(collateralAddress, conditionId, amount)
+    return externalWalletService.splitPositions(collateralAddress, conditionId, amount, type)
   }
 
-  const mergeShares = async (collateralToken: Address, conditionId: string, amount: bigint) => {
+  const mergeShares = async (
+    collateralToken: Address,
+    conditionId: string,
+    amount: bigint,
+    type: 'common' | 'negrisk'
+  ) => {
     if (web3Client === 'etherspot') {
-      return privyService.mergePositions(collateralToken, conditionId, amount)
+      return privyService.mergePositions(collateralToken, conditionId, amount, type)
     }
-    return externalWalletService.mergePositions(collateralToken, conditionId, amount)
+    return externalWalletService.mergePositions(collateralToken, conditionId, amount, type)
+  }
+
+  const convertShares = async (negRiskRequestId: string, indexSet: string, amount: bigint) => {
+    if (web3Client === 'etherspot') {
+      return privyService.convertShares(negRiskRequestId, indexSet, amount)
+    }
+    return externalWalletService.convertShares(negRiskRequestId, indexSet, amount)
   }
 
   const checkAllowance = async (contractAddress: Address, spender: Address) =>
@@ -317,5 +341,6 @@ export function useWeb3Service(): Web3Service {
     placeMarketOrder,
     splitShares,
     mergeShares,
+    convertShares,
   }
 }

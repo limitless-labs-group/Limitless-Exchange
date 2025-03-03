@@ -38,9 +38,9 @@ export default function TradeStepperMenu() {
     orderType,
     yesPrice,
     noPrice,
+    checkMarketAllowance,
     price,
     sharesAmount,
-    checkMarketAllowance,
   } = useClobWidget()
   const { strategy, market, clobOutcome: outcome } = useTradingService()
   const { approveContract, approveAllowanceForAll } = useWeb3Service()

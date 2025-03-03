@@ -13,7 +13,6 @@ import TopMarkets from '@/components/common/markets/top-markets'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useIsMobile } from '@/hooks'
-import useMarketGroup from '@/hooks/use-market-group'
 import usePageName from '@/hooks/use-page-name'
 import { usePriceOracle } from '@/providers'
 import GridIcon from '@/resources/icons/sidebar/Markets.svg'
@@ -28,35 +27,40 @@ import {
 } from '@/services'
 import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup, Sort, SortStorageName } from '@/types'
+import { Market, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
 const MainPage = () => {
   const searchParams = useSearchParams()
   const { data: categories } = useCategories()
-  const { onCloseMarketPage, onOpenMarketPage } = useTradingService()
+  const {
+    onCloseMarketPage,
+    onOpenMarketPage,
+    market: selectedMarket,
+    groupMarket,
+  } = useTradingService()
   /**
    * ANALYTICS
    */
   const { trackClicked, trackOpened } = useAmplitude()
   const category = searchParams.get('category')
   const market = searchParams.get('market')
-  const slug = searchParams.get('slug')
   const { data: marketData } = useMarket(market ?? undefined)
-  const { data: marketGroupData } = useMarketGroup(slug ?? undefined)
 
   const pageName = usePageName()
 
   useEffect(() => {
     if (marketData) {
-      onOpenMarketPage(marketData)
-
-      return
+      if (marketData.marketType === 'single' && selectedMarket?.slug !== marketData.slug) {
+        onOpenMarketPage(marketData)
+        return
+      }
+      if (marketData.marketType === 'group' && groupMarket?.slug !== marketData.slug) {
+        onOpenMarketPage(marketData)
+        return
+      }
     }
-    if (marketGroupData) {
-      onOpenMarketPage(marketGroupData)
-    }
-  }, [marketData, marketGroupData])
+  }, [marketData])
 
   useEffect(() => {
     const analyticData: PageOpenedMetadata = {
@@ -106,7 +110,7 @@ const MainPage = () => {
 
   const totalAmount = useMemo(() => data?.pages[0]?.data.totalAmount ?? 0, [data?.pages])
 
-  const markets: (Market | MarketGroup)[] = useMemo(() => {
+  const markets: Market[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages, category])
 
@@ -138,7 +142,7 @@ const MainPage = () => {
             {isMobile ? (
               <HStack
                 gap='0px'
-                px='8px'
+                px='16px'
                 pb='8px'
                 overflowX='auto'
                 css={{

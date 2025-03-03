@@ -31,10 +31,6 @@ interface ClobWidgetContextType {
   isBalanceNotEnough: boolean
   orderType: MarketOrderType
   setOrderType: (val: MarketOrderType) => void
-  sharesAmount: string
-  setSharesAmount: (val: string) => void
-  price: string
-  setPrice: (val: string) => void
   allowance: bigint
   isApprovedForSell: boolean
   checkMarketAllowance: () => Promise<void>
@@ -43,6 +39,10 @@ interface ClobWidgetContextType {
   yesPrice: number
   noPrice: number
   sharesPrice: string
+  sharesAmount: string
+  setSharesAmount: (val: string) => void
+  price: string
+  setPrice: (val: string) => void
   sharesAvailable: {
     yes: bigint
     no: bigint
@@ -51,42 +51,16 @@ interface ClobWidgetContextType {
 
 export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const [orderType, setOrderType] = useState(MarketOrderType.MARKET)
-  const [sharesAmount, setSharesAmount] = useState('')
-  const [price, setPrice] = useState('')
   const [allowance, setAllowance] = useState<bigint>(0n)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
   const { web3Wallet } = useAccount()
   const { market, strategy, clobOutcome: outcome } = useTradingService()
   const { balanceOfSmartWallet } = useBalanceQuery()
+  const [sharesAmount, setSharesAmount] = useState('')
+  const [price, setPrice] = useState('')
+
   const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
-  const { data: orderBook } = useOrderBook(market?.slug)
-  const { checkAllowance, checkAllowanceForAll } = useWeb3Service()
-  const { isOpen: tradeStepperOpen, onToggle: onToggleTradeStepper } = useDisclosure()
   const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
-
-  const checkMarketAllowance = async () => {
-    const allowance = await checkAllowance(
-      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-      market?.collateralToken.address as Address
-    )
-    const isApprovedNFT = await checkAllowanceForAll(
-      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
-    )
-    setAllowance(allowance)
-    setIsApprovedForSell(isApprovedNFT)
-  }
-
-  const balance = useMemo(() => {
-    if (balanceOfSmartWallet) {
-      return (
-        balanceOfSmartWallet.find(
-          (balanceItem) => balanceItem.contractAddress === market?.collateralToken.address
-        )?.formatted || ''
-      )
-    }
-    return ''
-  }, [balanceOfSmartWallet, strategy, market])
 
   const sharesAvailable = useMemo(() => {
     if (sharesOwned && lockedBalance) {
@@ -116,6 +90,34 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
       no: 0n,
     }
   }, [lockedBalance, sharesOwned])
+
+  const { data: orderBook } = useOrderBook(market?.slug)
+  const { checkAllowance, checkAllowanceForAll } = useWeb3Service()
+  const { isOpen: tradeStepperOpen, onToggle: onToggleTradeStepper } = useDisclosure()
+
+  const checkMarketAllowance = async () => {
+    const allowance = await checkAllowance(
+      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+      market?.collateralToken.address as Address
+    )
+    const isApprovedNFT = await checkAllowanceForAll(
+      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+    )
+    setAllowance(allowance)
+    setIsApprovedForSell(isApprovedNFT)
+  }
+
+  const balance = useMemo(() => {
+    if (balanceOfSmartWallet) {
+      return (
+        balanceOfSmartWallet.find(
+          (balanceItem) => balanceItem.contractAddress === market?.collateralToken.address
+        )?.formatted || ''
+      )
+    }
+    return ''
+  }, [balanceOfSmartWallet, strategy, market])
 
   const isBalanceNotEnough = useMemo(() => {
     if (orderType === MarketOrderType.LIMIT) {
@@ -207,10 +209,6 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         orderType,
         isBalanceNotEnough,
         setOrderType,
-        price,
-        setPrice,
-        sharesAmount,
-        setSharesAmount,
         allowance,
         isApprovedForSell,
         checkMarketAllowance,
@@ -219,6 +217,10 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         yesPrice,
         noPrice,
         sharesPrice,
+        price,
+        setPrice,
+        sharesAmount,
+        setSharesAmount,
         sharesAvailable,
       }}
     >

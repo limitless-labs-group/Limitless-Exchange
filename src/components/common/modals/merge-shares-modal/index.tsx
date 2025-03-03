@@ -24,9 +24,9 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   const { market } = useTradingService()
   const { checkAllowanceForAll, client, approveAllowanceForAll, mergeShares } = useWeb3Service()
   const { web3Wallet } = useAccount()
-  const { sharesAvailable } = useClobWidget()
   const queryClient = useQueryClient()
   const { trackClicked } = useAmplitude()
+  const { sharesAvailable } = useClobWidget()
 
   const sharesAvailableBalance = useMemo(() => {
     if (!sharesAvailable) {
@@ -53,6 +53,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   const handleMergeClicked = async () => {
     trackClicked(ClickEvent.MergeSharesConfirmed, {
       marketAddress: market?.slug,
+      value: displayAmount,
     })
     await mergeSharesMutation.mutateAsync({
       amount: displayAmount,
@@ -66,8 +67,11 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   }
 
   const checkMergeAllowance = async () => {
+    const operator = market?.negRiskRequestId
+      ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+      : process.env.NEXT_PUBLIC_CTF_CONTRACT
     const isApproved = await checkAllowanceForAll(
-      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+      operator as Address,
       process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
     )
     setIsApproved(isApproved)
@@ -95,7 +99,12 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
     }) => {
       try {
         const value = parseUnits(amount, decimals)
-        await mergeShares(contractAddress, conditionId, value)
+        await mergeShares(
+          contractAddress,
+          conditionId,
+          value,
+          market?.negRiskRequestId ? 'negrisk' : 'common'
+        )
       } catch (e) {
         // @ts-ignore
         throw new Error(e)
@@ -105,14 +114,21 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
 
   const approveContractMutation = useMutation({
     mutationFn: async () => {
+      const operator = market?.negRiskRequestId
+        ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+        : process.env.NEXT_PUBLIC_CTF_CONTRACT
       await approveAllowanceForAll(
-        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+        operator as Address,
         process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
       )
-      await sleep(3)
-      await checkMergeAllowance()
     },
   })
+
+  const onResetAfterApprove = async () => {
+    await sleep(2)
+    await checkMergeAllowance()
+    approveContractMutation.reset()
+  }
 
   const handleMaxClicked = () => {
     trackClicked(ClickEvent.MergeSharesModalMaxSharesClicked, {
@@ -144,6 +160,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
           isDisabled={!+displayAmount || isExceedsBalance}
           onClick={() => approveContractMutation.mutateAsync()}
           status={approveContractMutation.status}
+          onReset={onResetAfterApprove}
         >
           Approve
         </ButtonWithStates>

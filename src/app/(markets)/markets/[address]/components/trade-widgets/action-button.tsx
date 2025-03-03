@@ -37,14 +37,12 @@ interface ActionButtonProps {
   price?: number
   quote?: TradeQuotes | null
   decimals?: number
-  marketType: 'group' | 'single'
   showReturnPercent: boolean
   setShowReturnPercent: Dispatch<SetStateAction<boolean>>
   showFeeInValue: boolean
   setShowFeeInValue: Dispatch<SetStateAction<boolean>>
   isExceedsBalance: boolean
   resetForm: () => void
-  analyticParams?: { quickBetSource: string; source: string }
 }
 
 // @ts-ignore
@@ -68,14 +66,12 @@ export default function ActionButton({
   option,
   amount,
   decimals,
-  marketType,
   showFeeInValue,
   setShowReturnPercent,
   setShowFeeInValue,
   showReturnPercent,
   isExceedsBalance,
   resetForm,
-  analyticParams,
 }: ActionButtonProps) {
   const [marketLocked, setMarketLocked] = useState(false)
   const [tradingBlocked, setTradingBlocked] = useState(false)
@@ -191,7 +187,6 @@ export default function ActionButton({
       outcome: option,
       marketAddress: market.slug,
       walletType: client,
-      ...(analyticParams ? analyticParams : {}),
     })
     if (client === 'eoa') {
       const allowance = await checkAllowance(
@@ -220,7 +215,6 @@ export default function ActionButton({
         strategy: 'Buy',
         outcome: option,
         walletType: 'eoa',
-        ...(analyticParams ? analyticParams : {}),
       })
       await sleep(2)
       setStatus('confirm')
@@ -439,16 +433,12 @@ export default function ActionButton({
               strategy: 'Buy',
               walletType: client,
               marketMakerType: 'AMM',
-              marketType,
-              ...(analyticParams ? analyticParams : {}),
             })
 
             return handleConfirmClicked()
           }}
           onApprove={handleApprove}
           setStatus={setStatus}
-          analyticParams={analyticParams}
-          marketType={marketType}
           outcome={option}
           marketAddress={market.address as Address}
           showFullInfo={false}

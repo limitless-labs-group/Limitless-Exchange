@@ -32,7 +32,7 @@ export default function ClobTabs() {
 
   const tabs = [
     {
-      title: 'Orderbook',
+      title: 'Order book',
       icon: <OrderbookIcon width='16px' height='16px' />,
     },
     {

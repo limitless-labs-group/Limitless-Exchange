@@ -4,7 +4,6 @@ import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import {
   ChangeEvent,
   OrderBookSideChangedMetadata,
-  StrategyChangedMetadata,
   useAmplitude,
   useTradingService,
 } from '@/services'
@@ -49,6 +48,7 @@ export default function OutcomeButtonsClob() {
             bg={!outcome ? 'green.500' : 'greenTransparent.100'}
             onClick={() => handleOutcomeChanged(0)}
             h='64px'
+            borderRadius='8px'
           >
             Yes {yesPrice}¢
           </Button>
@@ -58,6 +58,7 @@ export default function OutcomeButtonsClob() {
             bg={outcome ? 'red.500' : 'redTransparent.100'}
             onClick={() => handleOutcomeChanged(1)}
             h='64px'
+            borderRadius='8px'
           >
             No {noPrice}¢
           </Button>

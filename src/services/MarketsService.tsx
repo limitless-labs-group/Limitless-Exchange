@@ -30,24 +30,6 @@ export function useMarkets(topic: Category | null) {
         },
       })
 
-      // const marketDataForMultiCall = response.data.flatMap((market) => {
-      //   // @ts-ignore
-      //   if (!market.address) {
-      //     return {
-      //       // @ts-ignore
-      //       address: market.address,
-      //       decimals: market.collateralToken.decimals,
-      //     }
-      //   }
-      //   // @ts-ignore
-      //   return market.markets.map((marketInGroup) => {
-      //     return {
-      //       address: marketInGroup.address,
-      //       decimals: market.collateralToken.decimals,
-      //     }
-      //   })
-      // }) as { address: string; decimals: number }[]
-
       const ammMarkets = response.data.filter((market) => market.tradeType === 'amm')
 
       const marketDataForMultiCall = ammMarkets.map((market) => ({
@@ -130,10 +112,16 @@ export function useMarkets(topic: Category | null) {
           ...market,
           prices:
             market.tradeType === 'amm'
-              ? _markets.get(market.address as Address)?.prices || [50, 50]
+              ? _markets.get(market.address?.toLowerCase() as Address)?.prices || [50, 50]
               : [
-                  new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-                  new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
+                  new BigNumber(market?.prices?.[0])
+                    .multipliedBy(100)
+                    .decimalPlaces(0)
+                    .toNumber() ?? 50,
+                  new BigNumber(market?.prices?.[1])
+                    .multipliedBy(100)
+                    .decimalPlaces(0)
+                    .toNumber() ?? 50,
                 ],
         }
       })
@@ -145,20 +133,6 @@ export function useMarkets(topic: Category | null) {
         },
         next: (pageParam as number) + 1,
       }
-
-      // return {
-      //   data: {
-      //     markets: response.data.map((market) => ({
-      //       ...market,
-      //       prices: [
-      //         new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-      //         new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
-      //       ],
-      //     })),
-      //     totalAmount: response.totalMarketsCount,
-      //   },
-      //   next: (pageParam as number) + 1,
-      // }
     },
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {
@@ -257,17 +231,20 @@ export function useBanneredMarkets(topic: Category | null) {
       }, new Map<Address, OddsData>())
 
       const result = response.map((market) => {
-        if (market.tradeType === 'amm') {
-          console.log(_markets.get(market.address as Address))
-        }
         return {
           ...market,
           prices:
             market.tradeType === 'amm'
               ? _markets.get(market.address as Address)?.prices || [50, 50]
               : [
-                  new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-                  new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
+                  new BigNumber(market?.prices?.[0])
+                    .multipliedBy(100)
+                    .decimalPlaces(0)
+                    .toNumber() ?? 50,
+                  new BigNumber(market?.prices?.[1])
+                    .multipliedBy(100)
+                    .decimalPlaces(0)
+                    .toNumber() ?? 50,
                 ],
         }
       })
@@ -371,8 +348,14 @@ export function useMarket(address?: string | null, isPolling = false, enabled = 
       } else {
         if (marketRes.tradeType === 'clob') {
           prices = [
-            new BigNumber(marketRes.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-            new BigNumber(marketRes.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
+            new BigNumber(marketRes.prices?.[0] || 0.5)
+              .multipliedBy(100)
+              .decimalPlaces(0)
+              .toNumber(),
+            new BigNumber(marketRes.prices?.[1] || 0.5)
+              .multipliedBy(100)
+              .decimalPlaces(0)
+              .toNumber(),
           ]
         } else {
           const buyPrices = await getMarketOutcomeBuyPrice(

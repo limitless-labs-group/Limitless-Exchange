@@ -6,7 +6,7 @@ import { useEffect, createContext, PropsWithChildren, useContext, useCallback } 
 import { ClobPositionType } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { PageName } from '@/hooks/use-page-name'
 import { useAccount } from '@/services'
-import { Category, LeaderboardSort, MarketGroup } from '@/types'
+import { Category, LeaderboardSort } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 
@@ -125,7 +125,7 @@ export enum ChangeEvent {
   OrderBookSideChanged = 'Orderbook Side Changed',
   ClobPositionsTabChanged = 'Clob Positions Tab Changed',
   ClobWidgetModeChanged = 'Clob Widget Mode Changed',
-  ChartTabChanged = 'Chart Tab Changed',
+  ChartTabChanged = 'Chart View Changed',
   PortfolioClobViewChanged = 'Portfolio/Orders View Changed',
 }
 
@@ -294,10 +294,6 @@ export interface ShareClickedMetadata {
   type: ShareClickedType
   address?: string
   marketType: 'group' | 'single'
-}
-
-interface MarketChangeInGroupData {
-  marketGroup: MarketGroup
 }
 
 interface FeeAndReturnTradingDetailsClicked {
@@ -475,7 +471,6 @@ export type ClickedEventMetadata =
   | StrokeMetadata
   | TopUpMetadata
   | UIModeMetadata
-  | MarketChangeInGroupData
   | FeeAndReturnTradingDetailsClicked
   | MediumBannerClicked
   | CloseMarketMetadata

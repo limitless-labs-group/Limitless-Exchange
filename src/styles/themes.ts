@@ -44,6 +44,10 @@ export const chakraTheme = ChakraTheme({
       '.infinite-scroll-component__outerdiv': {
         width: '100%',
       },
+      '*:focus': {
+        outline: 'none !important',
+        boxShadow: 'none !important',
+      },
       body: {
         overflowX: 'hidden',
         userSelect: 'text',
@@ -165,11 +169,19 @@ export const chakraTheme = ChakraTheme({
         },
       },
       variants: {
-        outline: {
-          borderWidth: 0,
-          bg: 'grey.100',
-          color: 'black',
-          height: '52px',
+        outlined: {
+          ...commonButtonProps,
+          bg: 'unset',
+          color: 'grey.800',
+          border: '1px solid',
+          borderColor: 'grey.200',
+          _disabled: {
+            color: 'grey.500',
+            bg: 'grey.300',
+          },
+          _hover: {
+            bg: 'grey.100',
+          },
         },
         contained: {
           ...commonButtonProps,
