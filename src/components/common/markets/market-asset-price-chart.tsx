@@ -140,7 +140,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   }
 
   const handleLiveToggle = () => {
-    setTimeRange('1D')
+    setTimeRange('1H')
     setLive(true)
   }
 
