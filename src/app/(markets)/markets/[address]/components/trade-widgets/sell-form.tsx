@@ -126,7 +126,7 @@ export function SellForm({
   const positionsNo = positions?.find((position) => position.outcomeIndex === 1)
 
   useEffect(() => {
-    if (!positionsNo || !positionsYes) {
+    if (!positionsNo && !positionsYes) {
       setStrategy('Buy')
     }
   }, [positionsYes, positionsNo])
