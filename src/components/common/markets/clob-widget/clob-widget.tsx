@@ -11,7 +11,7 @@ import OutcomeButtonsClob from '@/components/common/markets/outcome-buttons/outc
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
-import { PendingTradeData } from '@/services/PendingTradeServise'
+import { PendingTradeData } from '@/services/PendingTradeService'
 import { controlsMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 

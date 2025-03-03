@@ -32,7 +32,7 @@ import { createWalletClient, getAddress, WalletClient, http, custom } from 'viem
 import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import useGoogleAnalytics, { GAEvents } from './GoogleAnalytics'
-import usePendingTrade from './PendingTradeServise'
+import usePendingTrade from './PendingTradeService'
 import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
