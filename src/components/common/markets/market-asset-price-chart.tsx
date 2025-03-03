@@ -43,6 +43,8 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
   const connection = new PriceServiceConnection('https://hermes.pyth.network')
 
+  const chart = chartComponentRef.current?.chart
+
   const getHistory = async () => {
     try {
       const result = await axios.get<HistoricalDataItem[]>(
@@ -79,10 +81,12 @@ function PythLiveChart({ id }: PythLiveChartProps) {
                 ? latestPriceFeedEntity.publishTime * 1000
                 : new Date().getTime()
               setPriceData((prevState) => [...prevState, [currentTime, formattedPrice]])
-              // const chart = chartComponentRef.current?.chart
 
               // if (chart) {
               setPriceData((prevState) => [...prevState, [currentTime, formattedPrice]])
+              if (chart) {
+                chart.redraw()
+              }
               // setLivePrice(formattedPrice)
               // chart.series[0].addPoint([currentTime, formattedPrice], true, false)
               // }
@@ -118,7 +122,8 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       case '1M':
         return priceData
     }
-  }, [priceData, timeRange])
+    chart?.redraw()
+  }, [priceData, timeRange, chart])
 
   console.log(priceData)
   console.log(filteredPriceData)
