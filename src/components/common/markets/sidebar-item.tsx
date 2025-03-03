@@ -10,10 +10,9 @@ import Others from '@/resources/icons/sidebar/others.svg'
 import Pop from '@/resources/icons/sidebar/pop.svg'
 import Sport from '@/resources/icons/sidebar/sport.svg'
 import Weather from '@/resources/icons/sidebar/weather.svg'
-// Remove image imports and use string paths instead
 import { useMarkets } from '@/services/MarketsService'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Category, Market, MarketGroup } from '@/types'
+import { Market, MarketGroup } from '@/types'
 
 export interface SideItemProps {
   isActive?: boolean
@@ -109,13 +108,20 @@ export const CategoryItems = () => {
   const marketsByCategory = useMemo(() => {
     if (!markets.length) return {}
 
-    const counts = markets.reduce((acc, market) => {
-      market.categories.forEach((categoryName) => {
-        acc[categoryName] = (acc[categoryName] || 0) + 1
-      })
+    const counts: Record<string, number> = {}
+    categories.forEach((category) => {
+      counts[category.name] = 0
+    })
 
-      return acc
-    }, {} as Record<string, number>)
+    markets.forEach((market) => {
+      if (market.categories && market.categories.length > 0) {
+        market.categories.forEach((categoryName) => {
+          counts[categoryName] = (counts[categoryName] || 0) + 1
+        })
+      } else {
+        counts[MARKET_CATEGORIES.OTHER.name] = (counts[MARKET_CATEGORIES.OTHER.name] || 0) + 1
+      }
+    })
 
     return counts
   }, [markets])
@@ -131,27 +137,28 @@ export const CategoryItems = () => {
       (category) => marketsByCategory[category.name] && marketsByCategory[category.name] > 0
     )
   }, [marketsByCategory])
-
-  return categoriesWithMarkets.map((c) => {
-    return (
-      <Link
-        key={c.name}
-        href={`/?${createQueryString(c.name)}`}
-        style={{ width: isMobile ? 'fit-content' : '100%' }}
-      >
-        <SideItem
-          isActive={selectedCategory?.name.toLowerCase() === c.name.toLowerCase()}
-          icon={c.icon}
-          onClick={() => {
-            handleCategory({
-              id: c.id,
-              name: c.name,
-            })
-          }}
+  return (
+    <>
+      {categoriesWithMarkets.map((c) => (
+        <Link
+          key={c.name}
+          href={`/?${createQueryString(c.name)}`}
+          style={{ width: isMobile ? 'fit-content' : '100%' }}
         >
-          {c.name} ({marketsByCategory[c.name]})
-        </SideItem>
-      </Link>
-    )
-  })
+          <SideItem
+            isActive={selectedCategory?.name.toLowerCase() === c.name.toLowerCase()}
+            icon={c.icon}
+            onClick={() => {
+              handleCategory({
+                id: c.id,
+                name: c.name,
+              })
+            }}
+          >
+            {c.name} ({marketsByCategory[c.name]})
+          </SideItem>
+        </Link>
+      ))}
+    </>
+  )
 }
