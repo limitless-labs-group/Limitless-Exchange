@@ -172,7 +172,7 @@ export const PRICES_IDS = {
 }
 
 export const CHART_SYMBOLS = {
-  AAPL: 'Stocks.AAPL',
+  AAPL: 'Equity.US.AAPL/USD',
   AAVE: 'Crypto.AAVE/USD',
   AERO: 'Crypto.AERO/USD',
   ALGO: 'Crypto.ALGO/USD',
