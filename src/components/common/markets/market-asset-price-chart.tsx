@@ -36,7 +36,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   const [livePrice, setLivePrice] = useState<number>()
 
   const [timeRange, setTimeRange] = useState('1H') // default time range
-  const [live, setLive] = useState(true) // live state
+  // const [live, setLive] = useState(true) // live state
   const { colors } = useThemeProvider()
 
   const priceId = PRICES_IDS[id as keyof typeof PRICES_IDS]
@@ -63,38 +63,32 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     let subscription: any
 
     const updateDataForTimeRange = async () => {
-      // await getHistory()  //it needs for historical data on live mode (data before live updates)
-
       try {
-        if (live) {
-          subscription = connection.subscribePriceFeedUpdates([priceId], async (priceFeed) => {
-            try {
-              const priceEntity = priceFeed.getPriceNoOlderThan(60)
-              if (priceEntity) {
-                const formattedPrice = +formatUnits(
-                  BigInt(priceEntity ? priceEntity.price : '1'),
-                  Math.abs(priceEntity ? priceEntity.expo : 8)
-                )
+        subscription = connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
+          try {
+            const priceEntity = priceFeed.getPriceNoOlderThan(60)
+            if (priceEntity) {
+              const formattedPrice = +formatUnits(
+                BigInt(priceEntity ? priceEntity.price : '1'),
+                Math.abs(priceEntity ? priceEntity.expo : 8)
+              )
 
-                const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
-                const currentTime = latestPriceFeedEntity
-                  ? latestPriceFeedEntity.publishTime * 1000
-                  : new Date().getTime()
+              const latestPriceFeedEntity = priceFeed.getPriceNoOlderThan(60)
+              const currentTime = latestPriceFeedEntity
+                ? latestPriceFeedEntity.publishTime * 1000
+                : new Date().getTime()
 
-                const chart = chartComponentRef.current?.chart
+              const chart = chartComponentRef.current?.chart
 
-                if (chart) {
-                  setLivePrice(formattedPrice)
-                  chart.series[0].addPoint([currentTime, formattedPrice], true, false)
-                }
+              if (chart) {
+                setLivePrice(formattedPrice)
+                chart.series[0].addPoint([currentTime, formattedPrice], true, false)
               }
-            } catch (e) {
-              console.error('Error processing live data:', e)
             }
-          })
-        } else {
-          await getHistory()
-        }
+          } catch (e) {
+            console.error('Error processing live data:', e)
+          }
+        })
       } catch (e) {
         console.error('Error updating data:', e)
       }
@@ -108,7 +102,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       }
       connection.closeWebSocket()
     }
-  }, [live, timeRange])
+  }, [])
 
   const filteredPriceData = useMemo(() => {
     const dateNow = new Date().getTime() / 1000
@@ -120,7 +114,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       case '1W':
         return priceData.filter((price) => dateNow - 7 * 24 * 60 * 60 * 1000 >= price[0])
       case '1M':
-        return priceData.filter((price) => dateNow - 30 * 7 * 24 * 60 * 60 * 1000 >= price[0])
+        return priceData
     }
   }, [priceData, timeRange])
 
@@ -129,12 +123,12 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
   const handleTimeRangeChange = (range: string) => {
     setTimeRange(range)
-    setLive(false) // switch to historical mode
+    // setLive(false) // switch to historical mode
   }
 
   const handleLiveToggle = () => {
     setTimeRange('1D')
-    setLive(true)
+    // setLive(true)
   }
 
   const options: Options = {
@@ -199,21 +193,21 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   return (
     <Paper bg='grey.100' my='20px'>
       <HStack gap='8px' mb='16px'>
-        <CurrentPriceDisplay priceData={priceData} live={live} livePrice={livePrice} />
+        <CurrentPriceDisplay priceData={priceData} />
         <HStack>
-          <Button
-            variant='transparentGray'
-            onClick={handleLiveToggle}
-            bg={live ? 'grey.300' : 'grey.200'}
-          >
-            Live
-          </Button>
+          {/*<Button*/}
+          {/*  variant='transparentGray'*/}
+          {/*  onClick={handleLiveToggle}*/}
+          {/*  bg={live ? 'grey.300' : 'grey.200'}*/}
+          {/*>*/}
+          {/*  Live*/}
+          {/*</Button>*/}
           {['1H', '1D', '1W', '1M'].map((period) => (
             <Button
               key={period}
               variant='transparentGray'
               onClick={() => handleTimeRangeChange(period)}
-              bg={period === timeRange && !live ? 'grey.300' : 'grey.200'}
+              bg={period === timeRange ? 'grey.300' : 'grey.200'}
             >
               {period}
             </Button>
@@ -227,11 +221,9 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
 interface CurrentPriceDisplayProps {
   priceData: number[][]
-  live: boolean
-  livePrice?: number
 }
 
-const CurrentPriceDisplay = memo(({ priceData, live, livePrice }: CurrentPriceDisplayProps) => {
+const CurrentPriceDisplay = memo(({ priceData }: CurrentPriceDisplayProps) => {
   if (!priceData.length) {
     return (
       <Text {...paragraphRegular} color='grey.800'>
@@ -242,7 +234,7 @@ const CurrentPriceDisplay = memo(({ priceData, live, livePrice }: CurrentPriceDi
     )
   }
 
-  const price = live ? livePrice : priceData[priceData.length - 1][1]
+  const price = priceData[priceData.length - 1][1]
 
   return (
     <Text {...paragraphRegular} color='grey.800'>
