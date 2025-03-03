@@ -33,7 +33,7 @@ interface PythLiveChartProps {
 function PythLiveChart({ id }: PythLiveChartProps) {
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null)
   const [priceData, setPriceData] = useState<number[][]>([])
-  const [livePrice, setLivePrice] = useState<number>()
+  // const [livePrice, setLivePrice] = useState<number>()
 
   const [timeRange, setTimeRange] = useState('1H') // default time range
   // const [live, setLive] = useState(true) // live state
@@ -63,6 +63,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     let subscription: any
 
     const updateDataForTimeRange = async () => {
+      await getHistory()
       try {
         subscription = connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
           try {
@@ -77,13 +78,14 @@ function PythLiveChart({ id }: PythLiveChartProps) {
               const currentTime = latestPriceFeedEntity
                 ? latestPriceFeedEntity.publishTime * 1000
                 : new Date().getTime()
+              setPriceData((prevState) => [...prevState, [currentTime, formattedPrice]])
+              // const chart = chartComponentRef.current?.chart
 
-              const chart = chartComponentRef.current?.chart
-
-              if (chart) {
-                setLivePrice(formattedPrice)
-                chart.series[0].addPoint([currentTime, formattedPrice], true, false)
-              }
+              // if (chart) {
+              setPriceData((prevState) => [...prevState, [currentTime, formattedPrice]])
+              // setLivePrice(formattedPrice)
+              // chart.series[0].addPoint([currentTime, formattedPrice], true, false)
+              // }
             }
           } catch (e) {
             console.error('Error processing live data:', e)
@@ -185,10 +187,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       } as Highcharts.SeriesLineOptions,
     ],
   }
-
-  useEffect(() => {
-    getHistory()
-  }, [])
 
   return (
     <Paper bg='grey.100' my='20px'>
