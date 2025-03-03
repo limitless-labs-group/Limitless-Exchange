@@ -68,10 +68,9 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
       try {
         if (live) {
-          subscription = connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
+          subscription = connection.subscribePriceFeedUpdates([priceId], async (priceFeed) => {
             try {
               const priceEntity = priceFeed.getPriceNoOlderThan(60)
-              console.log(priceEntity)
               if (priceEntity) {
                 const formattedPrice = +formatUnits(
                   BigInt(priceEntity ? priceEntity.price : '1'),
@@ -89,6 +88,8 @@ function PythLiveChart({ id }: PythLiveChartProps) {
                   setLivePrice(formattedPrice)
                   chart.series[0].addPoint([currentTime, formattedPrice], true, false)
                 }
+              } else {
+                await getHistory()
               }
             } catch (e) {
               console.error('Error processing live data:', e)
