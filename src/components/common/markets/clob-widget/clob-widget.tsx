@@ -63,7 +63,7 @@ export default function ClobWidget() {
 
   useEffect(() => {
     handlePendingTradeData()
-  }, [market?.slug])
+  }, [market?.slug, setPrice, setOrderType, setOutcome, setStrategy])
 
   const handleOrderTypeChanged = (order: MarketOrderType) => {
     setOrderType(order)

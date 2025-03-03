@@ -2,7 +2,7 @@ import { Box, Button, Flex, HStack, Spacer, Text, VStack } from '@chakra-ui/reac
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
@@ -553,7 +553,6 @@ export default function ClobMarketTradeForm() {
         )} contracts`}
         onReset={onResetMutation}
       >
-        {/* {strategy} {outcome ? 'No' : 'Yes'} */}
         {getButtonText()}
       </ClobTradeButton>
       {!+price && (
