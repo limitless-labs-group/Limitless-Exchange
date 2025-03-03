@@ -96,12 +96,18 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const { isOpen: tradeStepperOpen, onToggle: onToggleTradeStepper } = useDisclosure()
 
   const checkMarketAllowance = async () => {
+    const contractAddress = market?.negRiskRequestId
+      ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+      : process.env.NEXT_PUBLIC_CTF_CONTRACT
     const allowance = await checkAllowance(
-      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+      contractAddress as Address,
       market?.collateralToken.address as Address
     )
+    const operator = market?.negRiskRequestId
+      ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+      : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
     const isApprovedNFT = await checkAllowanceForAll(
-      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+      operator as Address,
       process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
     )
     setAllowance(allowance)
