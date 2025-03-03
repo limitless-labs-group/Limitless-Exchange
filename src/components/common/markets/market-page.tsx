@@ -82,6 +82,12 @@ export default function MarketPage() {
   useEffect(() => {
     if (updatedMarket) {
       setMarket(updatedMarket)
+
+      const pendingTradeData = localStorage.getItem('pendingTrade')
+      if (pendingTradeData) {
+        const tradeInfo = JSON.parse(pendingTradeData)
+      }
+
       refetchMarkets()
     }
   }, [updatedMarket])

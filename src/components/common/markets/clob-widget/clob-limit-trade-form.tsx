@@ -24,6 +24,7 @@ import {
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
+import { PendingTradeData } from '@/services/PendingTradeServise'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -44,9 +45,10 @@ export default function ClobLimitTradeForm() {
     onToggleTradeStepper,
     isBalanceNotEnough,
     sharesAvailable,
+    orderType,
   } = useClobWidget()
   const { trackClicked } = useAmplitude()
-  const { web3Wallet } = useAccount()
+  const { web3Wallet, loginToPlatform } = useAccount()
   const { market, strategy, clobOutcome: outcome } = useTradingService()
   const queryClient = useQueryClient()
   const { client, placeLimitOrder } = useWeb3Service()
@@ -276,7 +278,28 @@ export default function ClobLimitTradeForm() {
     })
   }
 
+  const shouldSignUp = !web3Wallet && Boolean(price)
   const handleSubmitButtonClicked = async () => {
+    if (shouldSignUp) {
+      const currentUrl = window.location
+
+      const routeInfo: PendingTradeData = {
+        price,
+        sharesAmount,
+        marketSlug: market?.slug ?? '',
+        strategy,
+        outcome,
+        orderType,
+        pathname: currentUrl.pathname,
+        search: currentUrl.search,
+        href: currentUrl.href,
+        queryParams: Object.fromEntries(new URLSearchParams(currentUrl.search)),
+      }
+      localStorage.setItem('pendingTrade', JSON.stringify(routeInfo))
+      await loginToPlatform()
+      return
+    }
+
     if (strategy === 'Buy') {
       const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
         parseUnits(sharesPrice, market?.collateralToken.decimals || 6).toString()
@@ -312,6 +335,13 @@ export default function ClobLimitTradeForm() {
       return
     }
     setSharesAmount(val)
+  }
+
+  const getButtonText = () => {
+    if (shouldSignUp) {
+      return `Sign up to ${strategy}`
+    }
+    return `Submit ${strategy} Order`
   }
 
   return (
@@ -410,12 +440,14 @@ export default function ClobLimitTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
-        isDisabled={!+price || !+sharesAmount || isBalanceNotEnough || !web3Wallet}
+        // isDisabled={!+price || !+sharesAmount || isBalanceNotEnough || !web3Wallet}
+
+        isDisabled={!+price || !+sharesAmount || (web3Wallet ? isBalanceNotEnough : false)}
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}
       >
-        Submit {strategy} Order
+        {getButtonText()}
       </ClobTradeButton>
       {(!price || !sharesAmount) && (
         <Flex
