@@ -4,7 +4,7 @@ import axios from 'axios'
 import Highcharts from 'highcharts'
 import type { Options } from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
-import React, { memo, useEffect, useRef, useState } from 'react'
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import Paper from '@/components/common/paper'
@@ -48,7 +48,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       const result = await axios.get<HistoricalDataItem[]>(
         `https://web-api.pyth.network/history?symbol=${
           CHART_SYMBOLS[id as keyof typeof CHART_SYMBOLS]
-        }&range=${timeRange}&cluster=pythnet`
+        }&range=1M&cluster=pythnet`
       )
       const preparedData = result.data.map((priceData) => {
         return [new Date(priceData.timestamp).getTime(), +priceData.avg_price.toFixed(6)]
@@ -110,6 +110,20 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     }
   }, [live, timeRange])
 
+  const filteredPriceData = useMemo(() => {
+    const dateNow = new Date().getTime() / 1000
+    switch (timeRange) {
+      case '1H':
+        return priceData.filter((price) => dateNow - 60 * 60 * 1000 >= price[0])
+      case '1D':
+        return priceData.filter((price) => dateNow - 24 * 60 * 60 * 1000 >= price[0])
+      case '1W':
+        return priceData.filter((price) => dateNow - 7 * 24 * 60 * 60 * 1000 >= price[0])
+      case '1M':
+        return priceData.filter((price) => dateNow - 30 * 7 * 24 * 60 * 60 * 1000 >= price[0])
+    }
+  }, [priceData, timeRange])
+
   const handleTimeRangeChange = (range: string) => {
     setTimeRange(range)
     setLive(false) // switch to historical mode
@@ -167,7 +181,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     series: [
       {
         type: 'line',
-        data: priceData,
+        data: filteredPriceData,
         color: '#00C7C7',
         name: id,
         lineWidth: 1,
