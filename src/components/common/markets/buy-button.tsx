@@ -93,7 +93,7 @@ export default function BuyButton({
   const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
   const { marketFee, collateralAmount, marketGroup } = useTradingService()
-  const { account: walletAddress } = useAccount()
+  const { account: walletAddress, loginToPlatform } = useAccount()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
   const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
@@ -241,6 +241,7 @@ export default function BuyButton({
 
   const handleActionIntention = async () => {
     if (!walletAddress) {
+      await loginToPlatform()
       return
     }
     if (isExceedsBalance) {
