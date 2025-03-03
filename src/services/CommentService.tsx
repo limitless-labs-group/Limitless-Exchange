@@ -78,7 +78,7 @@ export const useMarketInfinityComments = (marketAddress?: string | null) => {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery<Comment[], Error>({
-    queryKey: ['market-comments', web3Wallet?.account?.address],
+    queryKey: ['market-comments', marketAddress],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
       const client = web3Wallet ? privateClient : limitlessApi

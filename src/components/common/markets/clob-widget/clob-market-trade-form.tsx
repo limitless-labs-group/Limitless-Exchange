@@ -23,7 +23,7 @@ import {
   useTradingService,
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import useGoogleAnalytics, { Purchase } from '@/services/GoogleAnalytics'
+import useGoogleAnalytics, { GAEvents, Purchase } from '@/services/GoogleAnalytics'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -53,7 +53,7 @@ export default function ClobMarketTradeForm() {
   const privyService = usePrivySendTransaction()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
-  const { pushPuchaseEvent } = useGoogleAnalytics()
+  const { pushPuchaseEvent, pushGA4Event } = useGoogleAnalytics()
 
   const placeMarketOrderMutation = useMutation({
     mutationKey: ['market-order', market?.slug, price],
@@ -114,38 +114,19 @@ export default function ClobMarketTradeForm() {
       }
     },
     onSuccess: async (res: { id: string }) => {
-      const validatePurchase = (data: Purchase): boolean => {
-        if (!data.transaction_id || typeof data.transaction_id !== 'string') return false
-        if (typeof data.currency !== 'string') return false
-        if (!Array.isArray(data.items) || data.items.length === 0) return false
-
-        return data.items.every(
-          (item) =>
-            typeof item.item_id === 'string' &&
-            typeof item.item_name === 'string' &&
-            item.item_category === 'Deposit' &&
-            typeof item.quantity === 'string'
-        )
-      }
-
       const purchase: Purchase = {
         transaction_id: res.id,
-        value: String(orderCalculations.payout),
+        value: orderCalculations.payout,
         currency: market?.collateralToken.symbol || 'USDC',
         items: [
           {
             item_id: market?.marketType || '',
-            item_name: outcome ? 'Yes shares' : 'No shares',
-            item_category: 'Deposit',
-            price: String(orderCalculations.avgPrice),
-            quantity: String(price),
+            item_name: outcome ? 'Bet No' : 'Bet Yes',
+            item_category: 'Bet Order',
+            price: orderCalculations.avgPrice,
+            quantity: +price,
           },
         ],
-      }
-
-      if (!validatePurchase(purchase)) {
-        console.error('Invalid purchase object:', purchase)
-        return
       }
       pushPuchaseEvent(purchase)
     },
@@ -399,6 +380,7 @@ export default function ClobMarketTradeForm() {
 
   const handleSubmitButtonClicked = async () => {
     if (strategy === 'Buy') {
+      pushGA4Event(GAEvents.ClickBuy)
       const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
         parseUnits(sharesPrice, market?.collateralToken.decimals || 6).toString()
       )

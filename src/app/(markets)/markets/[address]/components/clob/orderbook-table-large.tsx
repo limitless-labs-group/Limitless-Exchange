@@ -13,7 +13,14 @@ import {
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import NextLink from 'next/link'
-import React, { LegacyRef, MutableRefObject, useEffect, useRef, useState } from 'react'
+import React, {
+  LegacyRef,
+  MutableRefObject,
+  PropsWithChildren,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits, maxUint256 } from 'viem'
 import {
@@ -48,6 +55,14 @@ import {
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
 import { calculateDisplayRange } from '@/utils/market'
+
+export const TableText = ({ children }: PropsWithChildren) => {
+  return (
+    <Text {...paragraphMedium} color='grey.500' letterSpacing='normal'>
+      {children}
+    </Text>
+  )
+}
 
 export default function OrderbookTableLarge({
   orderBookData,
@@ -291,15 +306,17 @@ export default function OrderbookTableLarge({
         <Table variant={'noPaddingsOnSides'}>
           <Thead>
             <Tr>
-              <Th minW='348px'>Trade</Th>
+              <Th minW='348px'>
+                <TableText>Trade</TableText>
+              </Th>
               <Th isNumeric minW='88px'>
-                Price
+                <TableText>Price</TableText>
               </Th>
               <Th isNumeric minW='136px'>
-                Contracts
+                <TableText>Contracts</TableText>
               </Th>
               <Th isNumeric minW='144px'>
-                Total
+                <TableText>Total</TableText>
               </Th>
             </Tr>
           </Thead>
@@ -364,7 +381,7 @@ export default function OrderbookTableLarge({
                   </HStack>
                   <HStack w='136px' h='full' justifyContent='flex-end' pr='8px'>
                     <Text {...paragraphRegular}>
-                      {NumberUtil.toFixed(
+                      {NumberUtil.convertWithDenomination(
                         formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6),
                         2
                       )}
@@ -403,7 +420,7 @@ export default function OrderbookTableLarge({
           w='full'
           borderTop='1px solid'
           borderBottom='1px solid'
-          borderColor='grey.500'
+          borderColor='grey.100'
           py='8px'
         >
           <Box flex={1} pl='8px'>
@@ -481,7 +498,7 @@ export default function OrderbookTableLarge({
                   </HStack>
                   <HStack w='136px' h='full' justifyContent='flex-end' pr='8px'>
                     <Text {...paragraphRegular}>
-                      {NumberUtil.toFixed(
+                      {NumberUtil.convertWithDenomination(
                         formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6),
                         2
                       )}
