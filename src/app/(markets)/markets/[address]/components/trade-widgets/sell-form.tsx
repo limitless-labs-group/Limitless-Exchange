@@ -94,6 +94,7 @@ export function SellForm({
     market,
     resetQuotes,
     sellBalanceLoading,
+    setStrategy,
   } = useTradingService()
   const queryClient = useQueryClient()
   const [sliderValue, setSliderValue] = useState(0)
@@ -120,6 +121,15 @@ export function SellForm({
       ) as HistoryPositionWithType[],
     [allMarketsPositions, market]
   )
+
+  const positionsYes = positions?.find((position) => position.outcomeIndex === 0)
+  const positionsNo = positions?.find((position) => position.outcomeIndex === 1)
+
+  useEffect(() => {
+    if (!positionsNo || !positionsYes) {
+      setStrategy('Buy')
+    }
+  }, [positionsYes, positionsNo])
 
   // const positionsGroup = useMemo(() => {
   //   if (marketGroup) {
@@ -259,9 +269,6 @@ export function SellForm({
     },
     [sliderValue, balance, isZeroBalance]
   )
-
-  const positionsYes = positions?.find((position) => position.outcomeIndex === 0)
-  const positionsNo = positions?.find((position) => position.outcomeIndex === 1)
 
   const perShareYes = useMemo(() => {
     if (!token) {
