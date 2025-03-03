@@ -44,6 +44,10 @@ export const chakraTheme = ChakraTheme({
       '.infinite-scroll-component__outerdiv': {
         width: '100%',
       },
+      '*:focus': {
+        outline: 'none !important',
+        boxShadow: 'none !important',
+      },
       body: {
         overflowX: 'hidden',
         userSelect: 'text',

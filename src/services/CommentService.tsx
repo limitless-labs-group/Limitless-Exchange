@@ -44,8 +44,9 @@ export const CommentServiceProvider = ({ children }: PropsWithChildren) => {
       })
       return res.data
     },
-    onSuccess: (_, { marketSlug }) => {
-      queryClient.invalidateQueries({ queryKey: ['market-comments', marketSlug] })
+    onSuccess: async (_, { marketSlug }) => {
+      console.log(marketSlug)
+      await queryClient.invalidateQueries({ queryKey: ['market-comments', marketSlug] })
     },
     onError: () => {
       const id = toast({
