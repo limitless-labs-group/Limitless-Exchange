@@ -136,7 +136,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
   const handleTimeRangeChange = (range: TypeRange) => {
     setTimeRange(range)
-    setLive(false) // switch to historical mode
+    // setLive(false) // switch to historical mode
   }
 
   const handleLiveToggle = () => {
