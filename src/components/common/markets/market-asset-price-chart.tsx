@@ -124,6 +124,9 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     }
   }, [priceData, timeRange])
 
+  console.log(priceData)
+  console.log(filteredPriceData)
+
   const handleTimeRangeChange = (range: string) => {
     setTimeRange(range)
     setLive(false) // switch to historical mode
