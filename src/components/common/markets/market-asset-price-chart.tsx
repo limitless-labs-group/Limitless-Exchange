@@ -30,12 +30,14 @@ interface PythLiveChartProps {
   id: string
 }
 
+type TypeRange = '1H' | '1D' | '1W' | '1M'
+
 function PythLiveChart({ id }: PythLiveChartProps) {
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null)
   const [priceData, setPriceData] = useState<number[][]>([])
   // const [livePrice, setLivePrice] = useState<number>()
 
-  const [timeRange, setTimeRange] = useState('1H') // default time range
+  const [timeRange, setTimeRange] = useState<TypeRange>('1H') // default time range
   // const [live, setLive] = useState(true) // live state
   const { colors } = useThemeProvider()
 
@@ -110,25 +112,31 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     }
   }, [])
 
-  const filteredPriceData = useMemo(() => {
-    const dateNow = new Date().getTime() / 1000
-    switch (timeRange) {
-      case '1H':
-        return priceData.filter((price) => dateNow - 60 * 60 * 1000 >= price[0])
-      case '1D':
-        return priceData.filter((price) => dateNow - 24 * 60 * 60 * 1000 >= price[0])
-      case '1W':
-        return priceData.filter((price) => dateNow - 7 * 24 * 60 * 60 * 1000 >= price[0])
-      case '1M':
-        return priceData
+  function filterData(data: number[][], timeRange: TypeRange) {
+    const now = new Date()
+
+    const timeDeltas = {
+      '1H': new Date(now.getTime() - 60 * 60 * 1000), // Last 1 hour
+      '1D': new Date(now.getTime() - 24 * 60 * 60 * 1000), // Last 1 day
+      '1W': new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000), // Last 1 week
+      '1M': new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000), // Last 1 month (approximate)
     }
-    chart?.redraw()
+
+    if (!timeDeltas[timeRange]) {
+      throw new Error("Invalid time range. Use '1H', '1D', '1W', or '1M'.")
+    }
+
+    return data.filter((item) => new Date(item[0]) >= timeDeltas[timeRange])
+  }
+
+  const filteredPriceData = useMemo(() => {
+    return filterData(priceData, timeRange)
   }, [priceData, timeRange, chart])
 
   console.log(priceData)
   console.log(filteredPriceData)
 
-  const handleTimeRangeChange = (range: string) => {
+  const handleTimeRangeChange = (range: TypeRange) => {
     setTimeRange(range)
     // setLive(false) // switch to historical mode
   }
@@ -209,7 +217,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
             <Button
               key={period}
               variant='transparentGray'
-              onClick={() => handleTimeRangeChange(period)}
+              onClick={() => handleTimeRangeChange(period as TypeRange)}
               bg={period === timeRange ? 'grey.300' : 'grey.200'}
             >
               {period}
