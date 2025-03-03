@@ -87,7 +87,8 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
                 if (chart) {
                   setLivePrice(formattedPrice)
-                  chart.series[0].addPoint([currentTime, formattedPrice], true, false)
+                  setPriceData((prevState) => [...prevState, [currentTime, formattedPrice]])
+                  // chart.series[0].addPoint([currentTime, formattedPrice], true, false)
                 }
               }
             } catch (e) {
