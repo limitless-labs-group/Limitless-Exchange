@@ -191,7 +191,7 @@ export const CreateMarket: FC = () => {
 
   const { data: categories } = useCategories()
   const [ogImageError, setOgImageError] = useState<string | null>(null)
-  const [autoGenerateOg, setAutoGenerateOg] = useState<boolean>(false)
+  const [autoGenerateOg, setAutoGenerateOg] = useState<boolean>(true)
   const [isReady, setIsReady] = useState<boolean>(false)
 
   useEffect(() => {
@@ -723,8 +723,6 @@ export const CreateMarket: FC = () => {
                       closeMenuOnSelect={false}
                       onChange={(selectedOptions) => {
                         const typedOptions = selectedOptions
-                        console.log('options', typedOptions)
-
                         handleChange(
                           'categories',
                           typedOptions.map((option) => ({
