@@ -51,7 +51,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       const result = await axios.get<HistoricalDataItem[]>(
         `https://web-api.pyth.network/history?symbol=${
           CHART_SYMBOLS[id as keyof typeof CHART_SYMBOLS]
-        }&range=${timeRange}&cluster=pythnet`
+        }&range=1M&cluster=pythnet`
       )
       const preparedData = result.data.map((priceData) => {
         return [new Date(priceData.timestamp).getTime(), +priceData.avg_price.toFixed(6)]
