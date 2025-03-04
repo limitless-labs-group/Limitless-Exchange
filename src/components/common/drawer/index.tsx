@@ -115,7 +115,7 @@ export default function MobileDrawer({
 
   const [keyboardHeight, setKeyboardHeight] = useState(0)
 
-  if (id) {
+  if (selectedMarket) {
     alert(`keyboardHeight, ${keyboardHeight}`)
   }
 
