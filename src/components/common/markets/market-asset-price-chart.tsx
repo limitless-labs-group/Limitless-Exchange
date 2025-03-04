@@ -63,7 +63,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     let subscription: any
 
     const updateDataForTimeRange = async () => {
-      // await getHistory()  //it needs for historical data on live mode (data before live updates)
+      await getHistory() //it needs for historical data on live mode (data before live updates)
 
       try {
         if (live) {
