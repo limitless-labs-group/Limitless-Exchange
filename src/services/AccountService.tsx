@@ -32,6 +32,7 @@ import { createWalletClient, getAddress, WalletClient, http, custom } from 'viem
 import { Toast } from '@/components/common/toast'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import useGoogleAnalytics, { GAEvents } from './GoogleAnalytics'
+import usePendingTrade from './PendingTradeService'
 import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
@@ -97,6 +98,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { isLogged } = useClient()
   const { refetchSession } = useRefetchSession()
   const { pushGA4Event } = useGoogleAnalytics()
+  const { handleRedirect } = usePendingTrade()
 
   const toast = useToast()
   const router = useRouter()
@@ -232,6 +234,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         })
 
         pushGA4Event(GAEvents.WalletConnected)
+        await handleRedirect()
         // trackSignIn(SignInEvent.SignIn)
         // setIsLogged(true)
         return
