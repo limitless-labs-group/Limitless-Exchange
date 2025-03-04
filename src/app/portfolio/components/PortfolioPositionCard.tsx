@@ -120,7 +120,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
         if (fetchedMarket) {
           onOpenMarketPage(fetchedMarket)
           trackClicked(ClickEvent.PortfolioMarketClicked, {
-            marketCategory: fetchedMarket.category,
+            marketCategory: fetchedMarket.categories,
             marketAddress: fetchedMarket.slug,
             marketType: 'single',
             marketTags: fetchedMarket.tags,
@@ -130,7 +130,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
       } else {
         onOpenMarketPage(oneMarket)
         trackClicked(ClickEvent.PortfolioMarketClicked, {
-          marketCategory: oneMarket.category,
+          marketCategory: oneMarket.categories,
           marketAddress: oneMarket.slug,
           marketType: 'single',
           marketTags: oneMarket.tags,

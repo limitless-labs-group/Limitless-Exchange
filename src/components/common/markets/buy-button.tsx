@@ -230,7 +230,7 @@ export default function BuyButton({
   const handleShowFullInfoArrowClicked = (e: SyntheticEvent) => {
     trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
       mode: showFullInfo ? 'opened' : 'closed',
-      marketCategory: market?.category,
+      marketCategory: market?.categories,
       marketAddress: market?.address,
       marketType: marketGroup ? 'group' : 'single',
       marketTags: market?.tags,
