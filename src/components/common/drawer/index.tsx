@@ -115,10 +115,6 @@ export default function MobileDrawer({
 
   const [keyboardHeight, setKeyboardHeight] = useState(0)
 
-  if (selectedMarket) {
-    alert(`keyboardHeight, ${keyboardHeight}`)
-  }
-
   useEffect(() => {
     const handleResize = () => {
       if (window.visualViewport) {
@@ -226,7 +222,9 @@ export default function MobileDrawer({
                       color: titleColor,
                     }}
                   >
-                    <>{title}</>
+                    <>
+                      {title} {keyboardHeight}
+                    </>
                   </Drawer.Title>
                 )}
               </>
