@@ -114,43 +114,33 @@ export default function MobileDrawer({
   const titleColor = variant === 'blue' ? 'white' : 'var(--chakra-colors-grey.800)'
 
   const [keyboardHeight, setKeyboardHeight] = useState(0)
+  const [keyboardVisible, setIsKeyboardVisible] = useState(false)
 
   useEffect(() => {
-    let initialHeight = window.innerHeight
-
-    const handleResize = () => {
-      const currentHeight = window.innerHeight
-      const heightDiff = initialHeight - currentHeight
-
-      // Check if height difference is significant (keyboard opened)
-      if (heightDiff > 150) {
-        // threshold for keyboard height
-        setKeyboardHeight(heightDiff)
-      } else {
-        setKeyboardHeight(0)
-        // Update initial height when keyboard is closed
-        initialHeight = currentHeight
+    const handleFocus = (e: Event) => {
+      const target = e.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        setIsKeyboardVisible(true)
       }
     }
 
-    // Initial setup
-    handleResize()
+    const handleBlur = () => {
+      setIsKeyboardVisible(false)
+    }
 
-    const debouncedHandleResize = debounce(handleResize, 100)
+    // For iOS
+    window.addEventListener('focusin', handleFocus)
+    window.addEventListener('focusout', handleBlur)
 
-    // Listen for both resize and orientationchange events
-    window.addEventListener('resize', debouncedHandleResize)
-    window.addEventListener('orientationchange', () => {
-      // Reset initial height after orientation change
-      setTimeout(() => {
-        initialHeight = window.innerHeight
-        handleResize()
-      }, 100)
-    })
+    // For Android
+    document.addEventListener('focus', handleFocus, true)
+    document.addEventListener('blur', handleBlur, true)
 
     return () => {
-      window.removeEventListener('resize', debouncedHandleResize)
-      window.removeEventListener('orientationchange', handleResize)
+      window.removeEventListener('focusin', handleFocus)
+      window.removeEventListener('focusout', handleBlur)
+      document.removeEventListener('focus', handleFocus, true)
+      document.removeEventListener('blur', handleBlur, true)
     }
   }, [])
 
@@ -192,13 +182,13 @@ export default function MobileDrawer({
       margin: '0 auto',
       maxHeight: 'calc(100dvh - 68px)',
       overflowY: 'auto',
-      paddingBottom: `${keyboardHeight}px`,
+      paddingBottom: `${keyboardVisible ? 200 : keyboardHeight}px`,
       WebkitOverflowScrolling: 'touch',
       position: 'relative',
       zIndex: 1,
       touchAction: 'pan-y',
     }),
-    [keyboardHeight]
+    [keyboardHeight, keyboardVisible]
   )
 
   return (
