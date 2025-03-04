@@ -37,6 +37,7 @@ import CommentTab from './comment-tab'
 import { MarketProgressBar } from './market-cards/market-progress-bar'
 import { UniqueTraders } from './unique-traders'
 import useMarketGroup from '@/hooks/use-market-group'
+import usePageName from '@/hooks/use-page-name'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
@@ -46,7 +47,14 @@ import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import OrderbookIcon from '@/resources/icons/orderbook.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { ChangeEvent, ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
+import {
+  ChangeEvent,
+  ClickEvent,
+  OpenEvent,
+  PageOpenedPage,
+  useAmplitude,
+  useTradingService,
+} from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { h2Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -205,6 +213,8 @@ export default function MarketPage() {
     return market?.tradeType === 'clob' ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
   }, [market])
 
+  const page = usePageName()
+
   useEffect(() => {
     //avoid triggering amplitude call twice
     if (market?.slug && !trackedMarketsRef.current.has(market.slug)) {
@@ -213,8 +223,9 @@ export default function MarketPage() {
         marketAddress: market.slug,
         marketTags: market.tags,
         marketType: 'single',
-        category: market.category,
+        category: market.categories,
         marketMakerType: market.tradeType.toUpperCase(),
+        page: page as PageOpenedPage,
       })
     }
   }, [market?.slug])
