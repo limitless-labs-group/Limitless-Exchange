@@ -2,6 +2,7 @@ import { Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { isNumber } from '@chakra-ui/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -28,6 +29,7 @@ import { PendingTradeData } from '@/services/PendingTradeService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { getOrderErrorText } from '@/utils/orders'
 
 export default function ClobLimitTradeForm() {
   const priceInputRef = React.useRef<HTMLInputElement>(null)
@@ -152,9 +154,11 @@ export default function ClobLimitTradeForm() {
       })
       pushGA4Event(GAEvents.ClickBuyOrder)
     },
-    onError: async () => {
+    onError: async (error: AxiosError<{ message: string }>) => {
       const id = toast({
-        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
+        render: () => (
+          <Toast title={getOrderErrorText(error.response?.data.message ?? '')} id={id} />
+        ),
       })
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
