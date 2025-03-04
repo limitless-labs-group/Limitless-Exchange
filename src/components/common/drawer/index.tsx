@@ -115,10 +115,13 @@ export default function MobileDrawer({
 
   const [keyboardHeight, setKeyboardHeight] = useState(0)
 
+  alert(`keyboardHeight, ${keyboardHeight}`)
+
   useEffect(() => {
     const handleResize = () => {
       if (window.visualViewport) {
         const newKeyboardHeight = window.innerHeight - window.visualViewport.height
+        alert(`newKeyboardHeight, ${newKeyboardHeight}`)
         setKeyboardHeight(newKeyboardHeight > 0 ? newKeyboardHeight : 0)
       }
     }
