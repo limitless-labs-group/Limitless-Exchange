@@ -111,7 +111,7 @@ export const CategoryItems = () => {
 
     const counts = markets.reduce((acc, market) => {
       const categoryName =
-        typeof market.category === 'string' ? market.category : market?.category?.name
+        typeof market.category === 'string' ? market.category : market.category.name
       acc[categoryName] = (acc[categoryName] || 0) + 1
       return acc
     }, {} as Record<string, number>)
