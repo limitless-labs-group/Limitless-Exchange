@@ -222,13 +222,14 @@ export default function MobileDrawer({
                       color: titleColor,
                     }}
                   >
-                    <>
-                      {title} {keyboardHeight}
-                    </>
+                    <>{title}</>
                   </Drawer.Title>
                 )}
               </>
-              {children}
+              <>
+                {keyboardHeight}
+                {children}
+              </>
             </div>
           </div>
         </Drawer.Content>
