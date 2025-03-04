@@ -116,25 +116,41 @@ export default function MobileDrawer({
   const [keyboardHeight, setKeyboardHeight] = useState(0)
 
   useEffect(() => {
+    let initialHeight = window.innerHeight
+
     const handleResize = () => {
-      if (window.visualViewport) {
-        const viewportHeight = window.visualViewport.height
-        const newKeyboardHeight = window.innerHeight - viewportHeight
-        setKeyboardHeight(newKeyboardHeight > 0 ? newKeyboardHeight : 0)
+      const currentHeight = window.innerHeight
+      const heightDiff = initialHeight - currentHeight
+
+      // Check if height difference is significant (keyboard opened)
+      if (heightDiff > 150) {
+        // threshold for keyboard height
+        setKeyboardHeight(heightDiff)
+      } else {
+        setKeyboardHeight(0)
+        // Update initial height when keyboard is closed
+        initialHeight = currentHeight
       }
     }
 
-    handleResize() // Run initially to set the correct height
+    // Initial setup
+    handleResize()
 
-    // Use visualViewport.resize instead of window.resize
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleResize)
-    }
+    const debouncedHandleResize = debounce(handleResize, 100)
+
+    // Listen for both resize and orientationchange events
+    window.addEventListener('resize', debouncedHandleResize)
+    window.addEventListener('orientationchange', () => {
+      // Reset initial height after orientation change
+      setTimeout(() => {
+        initialHeight = window.innerHeight
+        handleResize()
+      }, 100)
+    })
 
     return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', handleResize)
-      }
+      window.removeEventListener('resize', debouncedHandleResize)
+      window.removeEventListener('orientationchange', handleResize)
     }
   }, [])
 
