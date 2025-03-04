@@ -227,7 +227,7 @@ export default function MobileDrawer({
                 )}
               </>
               <>
-                {keyboardHeight}
+                <span>{keyboardHeight}</span>
                 {children}
               </>
             </div>
