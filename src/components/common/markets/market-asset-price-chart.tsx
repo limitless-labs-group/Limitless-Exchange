@@ -85,6 +85,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
                 if (chart) {
                   setLivePrice(formattedPrice)
+                  console.log('updating chart')
                   chart.series[0].addPoint([currentTime, formattedPrice], true, false)
                 }
               }
@@ -117,6 +118,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
   const handleLiveToggle = () => {
     setTimeRange('1D')
+    setPriceData([])
     setLive(true)
   }
 
