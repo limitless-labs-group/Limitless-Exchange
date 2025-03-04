@@ -112,6 +112,13 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
     },
   })
 
+  const isLowerThanMinAmount = useMemo(() => {
+    if (+displayAmount && mergeSharesMutation.status === 'idle') {
+      return +displayAmount < 1
+    }
+    return false
+  }, [displayAmount, mergeSharesMutation.status])
+
   const approveContractMutation = useMutation({
     mutationFn: async () => {
       const operator = market?.negRiskRequestId
@@ -143,7 +150,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
         <ButtonWithStates
           variant='contained'
           w={isMobile ? 'full' : '94px'}
-          isDisabled={!+displayAmount || isExceedsBalance}
+          isDisabled={!+displayAmount || isExceedsBalance || isLowerThanMinAmount}
           onClick={handleMergeClicked}
           status={mergeSharesMutation.status}
           onReset={onResetAfterMerge}
@@ -157,7 +164,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
         <ButtonWithStates
           variant='contained'
           w={isMobile ? 'full' : '94px'}
-          isDisabled={!+displayAmount || isExceedsBalance}
+          isDisabled={!+displayAmount || isExceedsBalance || isLowerThanMinAmount}
           onClick={() => approveContractMutation.mutateAsync()}
           status={approveContractMutation.status}
           onReset={onResetAfterApprove}
@@ -170,7 +177,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
       <ButtonWithStates
         variant='contained'
         w={isMobile ? 'full' : '94px'}
-        isDisabled={!+displayAmount || isExceedsBalance}
+        isDisabled={!+displayAmount || isExceedsBalance || isLowerThanMinAmount}
         onClick={handleMergeClicked}
         status={mergeSharesMutation.status}
         onReset={onResetAfterMerge}
@@ -243,6 +250,11 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
         {!+displayAmount && mergeSharesMutation.status === 'idle' && (
           <Text {...paragraphRegular} color='grey.500'>
             Enter amount
+          </Text>
+        )}
+        {isLowerThanMinAmount && (
+          <Text {...paragraphRegular} color='grey.500'>
+            Min. amount is 1
           </Text>
         )}
         {mergeSharesMutation.isPending && (

@@ -89,6 +89,15 @@ export default function ClobLimitTradeForm() {
     return
   }
 
+  const isLessThanMinTreshHold = useMemo(() => {
+    if (price && sharesAmount) {
+      const priceBn = new BigNumber(price).dividedBy(100)
+      const totalBn = new BigNumber(sharesAmount).multipliedBy(priceBn)
+      return totalBn.isLessThan(1)
+    }
+    return false
+  }, [price, sharesAmount, strategy])
+
   const placeLimitOrderMutation = useMutation({
     mutationKey: ['limit-order', market?.slug, price],
     mutationFn: async () => {
@@ -411,7 +420,9 @@ export default function ClobLimitTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
-        isDisabled={!+price || !+sharesAmount || isBalanceNotEnough || !web3Wallet}
+        isDisabled={
+          !+price || !+sharesAmount || isBalanceNotEnough || !web3Wallet || isLessThanMinTreshHold
+        }
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}
@@ -422,6 +433,11 @@ export default function ClobLimitTradeForm() {
         <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
           Set {!+price && 'Limit price'}
           {!+price && !+sharesAmount ? ',' : ''} {!+sharesAmount && 'Contracts'}
+        </Text>
+      )}
+      {isLessThanMinTreshHold && (
+        <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
+          Min. amount is $1
         </Text>
       )}
     </>
