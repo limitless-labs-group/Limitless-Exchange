@@ -120,6 +120,14 @@ export default function ClobLimitTradeForm() {
       }, 300)
     }
   }
+  const isLessThanMinTreshHold = useMemo(() => {
+    if (price && sharesAmount) {
+      const priceBn = new BigNumber(price).dividedBy(100)
+      const totalBn = new BigNumber(sharesAmount).multipliedBy(priceBn)
+      return totalBn.isLessThan(1)
+    }
+    return false
+  }, [price, sharesAmount, strategy])
 
   const isLessThanMinTreshHold = useMemo(() => {
     if (price && sharesAmount) {
@@ -566,6 +574,11 @@ export default function ClobLimitTradeForm() {
         </Text>
       )}
       {shouldAddFunds && <AddFundsValidation />}
+      {isLessThanMinTreshHold && (
+        <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
+          Min. amount is $1
+        </Text>
+      )}
     </>
   )
 }
