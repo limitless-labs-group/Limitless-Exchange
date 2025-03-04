@@ -114,26 +114,46 @@ export default function MobileDrawer({
   const titleColor = variant === 'blue' ? 'white' : 'var(--chakra-colors-grey.800)'
 
   const [keyboardHeight, setKeyboardHeight] = useState(0)
-  const [testVal, setTestVal] = useState(0)
-  const [height, setHeight] = useState(0)
-  const [viewPortHeight, setViewPortHeight] = useState(0)
 
   useEffect(() => {
     const handleResize = () => {
       if (window.visualViewport) {
-        const newKeyboardHeight = window.innerHeight - window.visualViewport.height
-        setViewPortHeight(window.visualViewport.height)
-        setHeight(window.innerHeight)
-        setTestVal(newKeyboardHeight)
+        const viewportHeight = window.visualViewport.height
+        const newKeyboardHeight = window.innerHeight - viewportHeight
         setKeyboardHeight(newKeyboardHeight > 0 ? newKeyboardHeight : 0)
       }
     }
 
-    handleResize()
-    const debouncedHandleResize = debounce(handleResize, 100)
-    window.addEventListener('resize', debouncedHandleResize)
-    return () => window.removeEventListener('resize', debouncedHandleResize)
+    handleResize() // Run initially to set the correct height
+
+    // Use visualViewport.resize instead of window.resize
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize)
+    }
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleResize)
+      }
+    }
   }, [])
+
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     if (window.visualViewport) {
+  //       const newKeyboardHeight = window.innerHeight - window.visualViewport.height
+  //       setViewPortHeight(window.visualViewport.height)
+  //       setHeight(window.innerHeight)
+  //       setTestVal(newKeyboardHeight)
+  //       setKeyboardHeight(newKeyboardHeight > 0 ? newKeyboardHeight : 0)
+  //     }
+  //   }
+  //
+  //   handleResize()
+  //   const debouncedHandleResize = debounce(handleResize, 100)
+  //   window.addEventListener('resize', debouncedHandleResize)
+  //   return () => window.removeEventListener('resize', debouncedHandleResize)
+  // }, [])
 
   const drawerStyle = useMemo(
     (): CSSProperties => ({
@@ -232,13 +252,7 @@ export default function MobileDrawer({
                   </Drawer.Title>
                 )}
               </>
-              <>
-                <span>{keyboardHeight}</span>
-                <span>{testVal}</span>
-                <span>{viewPortHeight}</span>
-                <span>{height}</span>
-                {children}
-              </>
+              <>{children}</>
             </div>
           </div>
         </Drawer.Content>
