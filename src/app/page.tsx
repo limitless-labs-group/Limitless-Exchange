@@ -61,7 +61,7 @@ const MainPage = () => {
   useEffect(() => {
     const analyticData: PageOpenedMetadata = {
       page: 'Explore Markets',
-      ...(category && { category }),
+      ...(category && { category: [category] }),
     }
 
     trackOpened(OpenEvent.PageOpened, analyticData)
@@ -114,7 +114,11 @@ const MainPage = () => {
     if (!markets) return []
     if (!selectedCategory) return markets
     if (selectedCategory) {
-      return markets.filter((market) => market.category === selectedCategory?.name)
+      return markets.filter((market) =>
+        market.categories.some(
+          (category) => category.toLowerCase() === selectedCategory.name.toLowerCase()
+        )
+      )
     }
 
     return markets

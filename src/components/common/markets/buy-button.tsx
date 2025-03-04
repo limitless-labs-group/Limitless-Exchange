@@ -26,6 +26,7 @@ import ConfirmButton from '@/app/(markets)/markets/[address]/components/trade-wi
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { ClickEvent, TradeQuotes, useAccount, useAmplitude, useTradingService } from '@/services'
+import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketStatus } from '@/types'
@@ -86,12 +87,13 @@ export default function BuyButton({
    * ANALITYCS
    */
   const { trackClicked } = useAmplitude()
+  const { pushGA4Event } = useGoogleAnalytics()
   const country = Cookies.get('limitless_geo')
 
   const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
   const { marketFee, collateralAmount, marketGroup } = useTradingService()
-  const { account: walletAddress } = useAccount()
+  const { account: walletAddress, loginToPlatform } = useAccount()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
   const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
@@ -228,7 +230,7 @@ export default function BuyButton({
   const handleShowFullInfoArrowClicked = (e: SyntheticEvent) => {
     trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
       mode: showFullInfo ? 'opened' : 'closed',
-      marketCategory: market?.category,
+      marketCategory: market?.categories,
       marketAddress: market?.address,
       marketType: marketGroup ? 'group' : 'single',
       marketTags: market?.tags,
@@ -239,6 +241,7 @@ export default function BuyButton({
 
   const handleActionIntention = async () => {
     if (!walletAddress) {
+      await loginToPlatform()
       return
     }
     if (isExceedsBalance) {
@@ -521,6 +524,7 @@ export default function BuyButton({
           status={status}
           showFullInfo={showFullInfo}
           handleConfirmClicked={() => {
+            pushGA4Event(GAEvents.ClickBuy)
             trackClicked(ClickEvent.ConfirmTransactionClicked, {
               address: market.address,
               outcome: option,
