@@ -24,6 +24,7 @@ type MobileDrawerProps = {
   onClose?: () => void
   id?: string
   triggerStyle?: React.CSSProperties | undefined
+  renderPrevNext?: boolean
 }
 
 export default function MobileDrawer({
@@ -34,6 +35,7 @@ export default function MobileDrawer({
   onClose,
   id,
   triggerStyle,
+  renderPrevNext = false,
 }: PropsWithChildren<MobileDrawerProps>) {
   const searchParams = useSearchParams()
   const drawerRef = useRef<HTMLButtonElement>(null)
@@ -78,7 +80,7 @@ export default function MobileDrawer({
     : undefined
 
   const onClickPrevious =
-    isNumber(indexInArray) && indexInArray > 0 && markets
+    isNumber(indexInArray) && indexInArray > 0 && markets && renderPrevNext
       ? () => {
           onOpenMarketPage(markets[indexInArray - 1])
           router.push(`?market=${markets[indexInArray - 1].slug}`, { scroll: false })
@@ -89,7 +91,7 @@ export default function MobileDrawer({
       : undefined
 
   const onClickNext =
-    isNumber(indexInArray) && markets && indexInArray < markets.length - 1
+    isNumber(indexInArray) && markets && indexInArray < markets.length - 1 && renderPrevNext
       ? () => {
           onOpenMarketPage(markets[indexInArray + 1])
           router.push(`?market=${markets[indexInArray + 1].slug}`, { scroll: false })
@@ -112,6 +114,8 @@ export default function MobileDrawer({
   const titleColor = variant === 'blue' ? 'white' : 'var(--chakra-colors-grey.800)'
 
   const [keyboardHeight, setKeyboardHeight] = useState(0)
+
+  console.log(keyboardHeight)
 
   useEffect(() => {
     const handleResize = () => {
