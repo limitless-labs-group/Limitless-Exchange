@@ -4,7 +4,8 @@ import { MarketOrderType } from '@/types'
 
 const usePendingTrade = () => {
   const router = useRouter()
-  const pendingTradeData = localStorage.getItem('pendingTrade')
+  const pendingTradeData =
+    typeof window !== 'undefined' ? localStorage.getItem('pendingTrade') : null
 
   let parsedData: PendingTradeData | null = null
   let marketSlug: string | undefined
@@ -30,7 +31,9 @@ const usePendingTrade = () => {
       router.push(href || '/')
     } catch (error) {
       console.error('Error processing pending trade data:', error)
-      localStorage.removeItem('pendingTrade')
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('pendingTrade')
+      }
     }
   }
 

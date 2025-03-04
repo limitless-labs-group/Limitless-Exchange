@@ -1,6 +1,8 @@
 import { Box, Button, Flex, HStack, Spacer, Text, VStack } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import { useFundWallet } from '@privy-io/react-auth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -12,6 +14,7 @@ import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
 import { Toast } from '@/components/common/toast'
+import { AddFundsValidation } from './add-funds-validation'
 import { useToast } from '@/hooks'
 import { useOrderBook } from '@/hooks/use-order-book'
 import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
@@ -24,18 +27,19 @@ import {
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import useGoogleAnalytics, { GAEvents, Purchase } from '@/services/GoogleAnalytics'
-import { PendingTradeData } from '@/services/PendingTradeServise'
+import { PendingTradeData } from '@/services/PendingTradeService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { getOrderErrorText } from '@/utils/orders'
 
 export default function ClobMarketTradeForm() {
   const { balanceLoading } = useBalanceService()
   const { trackClicked } = useAmplitude()
   const { market, strategy, clobOutcome: outcome } = useTradingService()
-  const { data: orderBook } = useOrderBook(market?.slug)
+  const { data: orderBook, isLoading: isOrderBookLoading } = useOrderBook(market?.slug)
   const queryClient = useQueryClient()
-  const { web3Wallet, loginToPlatform } = useAccount()
+  const { web3Client, profileData, web3Wallet, loginToPlatform, account } = useAccount()
   const {
     setPrice,
     price,
@@ -51,11 +55,11 @@ export default function ClobMarketTradeForm() {
     orderType,
   } = useClobWidget()
   const { client, placeMarketOrder } = useWeb3Service()
-  const { web3Client, profileData } = useAccount()
   const privyService = usePrivySendTransaction()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
   const { pushPuchaseEvent, pushGA4Event } = useGoogleAnalytics()
+  const { fundWallet } = useFundWallet()
 
   const placeMarketOrderMutation = useMutation({
     mutationKey: ['market-order', market?.slug, price],
@@ -132,9 +136,11 @@ export default function ClobMarketTradeForm() {
       }
       pushPuchaseEvent(purchase)
     },
-    onError: async () => {
+    onError: async (error: AxiosError<{ message: string }>) => {
       const id = toast({
-        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
+        render: () => (
+          <Toast title={getOrderErrorText(error.response?.data.message ?? '')} id={id} />
+        ),
       })
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
@@ -380,7 +386,32 @@ export default function ClobMarketTradeForm() {
     return false
   }, [orderBook, outcome, strategy])
 
+  const maxOrderAmountLessThanInput = useMemo(() => {
+    if (strategy === 'Buy' && orderBook) {
+      const targetSide = !outcome
+        ? orderBook.asks
+        : orderBook.bids.map((a) => ({ ...a, price: new BigNumber(1).minus(a.price).toNumber() }))
+      const totalAmount = targetSide.reduce((sum, acc) => {
+        return new BigNumber(sum)
+          .plus(
+            new BigNumber(acc.price).multipliedBy(
+              new BigNumber(formatUnits(BigInt(acc.size), market?.collateralToken.decimals || 6))
+            )
+          )
+          .toNumber()
+      }, 0)
+      return new BigNumber(price).isGreaterThan(new BigNumber(totalAmount))
+    }
+    return false
+  }, [price, strategy, orderBook, outcome, market])
+
   const shouldSignUp = !web3Wallet && Boolean(price)
+  const shouldAddFunds =
+    web3Wallet &&
+    isBalanceNotEnough &&
+    !maxOrderAmountLessThanInput &&
+    !isOrderBookLoading &&
+    strategy === 'Buy'
 
   const handleSubmitButtonClicked = async () => {
     if (shouldSignUp) {
@@ -399,6 +430,11 @@ export default function ClobMarketTradeForm() {
       }
       localStorage.setItem('pendingTrade', JSON.stringify(routeInfo))
       await loginToPlatform()
+      return
+    }
+
+    if (shouldAddFunds) {
+      await fundWallet(account as string)
       return
     }
     if (strategy === 'Buy') {
@@ -421,28 +457,12 @@ export default function ClobMarketTradeForm() {
     return
   }
 
-  const maxOrderAmountLessThanInput = useMemo(() => {
-    if (strategy === 'Buy' && orderBook) {
-      const targetSide = !outcome
-        ? orderBook.asks
-        : orderBook.bids.map((a) => ({ ...a, price: new BigNumber(1).minus(a.price).toNumber() }))
-      const totalAmount = targetSide.reduce((sum, acc) => {
-        return new BigNumber(sum)
-          .plus(
-            new BigNumber(acc.price).multipliedBy(
-              new BigNumber(formatUnits(BigInt(acc.size), market?.collateralToken.decimals || 6))
-            )
-          )
-          .toNumber()
-      }, 0)
-      return new BigNumber(price).isGreaterThan(new BigNumber(totalAmount))
-    }
-    return false
-  }, [price, strategy, orderBook, outcome, market])
-
   const getButtonText = () => {
     if (shouldSignUp) {
       return `Sign up to ${strategy}`
+    }
+    if (shouldAddFunds) {
+      return `Add funds to ${strategy}`
     }
     return `${strategy} ${outcome ? 'No' : 'Yes'}`
   }
@@ -542,7 +562,7 @@ export default function ClobMarketTradeForm() {
         status={placeMarketOrderMutation.status}
         isDisabled={
           !+price ||
-          (web3Wallet
+          (web3Wallet && !shouldAddFunds
             ? isBalanceNotEnough || noOrdersOnDesiredToken || maxOrderAmountLessThanInput
             : false)
         }
@@ -565,6 +585,7 @@ export default function ClobMarketTradeForm() {
           Amount exceeds order book size
         </Text>
       )}
+      {shouldAddFunds && <AddFundsValidation />}
     </>
   )
 }

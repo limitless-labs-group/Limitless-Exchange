@@ -1,7 +1,9 @@
 import { Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { isNumber } from '@chakra-ui/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import { useFundWallet } from '@privy-io/react-auth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -13,6 +15,7 @@ import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
 import { Toast } from '@/components/common/toast'
+import { AddFundsValidation } from './add-funds-validation'
 import { useToast } from '@/hooks'
 import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import {
@@ -24,10 +27,11 @@ import {
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
-import { PendingTradeData } from '@/services/PendingTradeServise'
+import { PendingTradeData } from '@/services/PendingTradeService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { getOrderErrorText } from '@/utils/orders'
 
 export default function ClobLimitTradeForm() {
   const priceInputRef = React.useRef<HTMLInputElement>(null)
@@ -52,11 +56,12 @@ export default function ClobLimitTradeForm() {
   const { market, strategy, clobOutcome: outcome } = useTradingService()
   const queryClient = useQueryClient()
   const { client, placeLimitOrder } = useWeb3Service()
-  const { web3Client, profileData } = useAccount()
+  const { web3Client, profileData, account } = useAccount()
   const privyService = usePrivySendTransaction()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
   const { pushGA4Event } = useGoogleAnalytics()
+  const { fundWallet } = useFundWallet()
 
   const maxSharesAvailable =
     strategy === 'Sell'
@@ -152,9 +157,11 @@ export default function ClobLimitTradeForm() {
       })
       pushGA4Event(GAEvents.ClickBuyOrder)
     },
-    onError: async () => {
+    onError: async (error: AxiosError<{ message: string }>) => {
       const id = toast({
-        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
+        render: () => (
+          <Toast title={getOrderErrorText(error.response?.data.message ?? '')} id={id} />
+        ),
       })
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
@@ -279,6 +286,8 @@ export default function ClobLimitTradeForm() {
   }
 
   const shouldSignUp = !web3Wallet && Boolean(price)
+  const shouldAddFunds = web3Wallet && isBalanceNotEnough
+
   const handleSubmitButtonClicked = async () => {
     if (shouldSignUp) {
       const currentUrl = window.location
@@ -297,6 +306,11 @@ export default function ClobLimitTradeForm() {
       }
       localStorage.setItem('pendingTrade', JSON.stringify(routeInfo))
       await loginToPlatform()
+      return
+    }
+
+    if (shouldAddFunds) {
+      await fundWallet(account as string)
       return
     }
 
@@ -340,6 +354,9 @@ export default function ClobLimitTradeForm() {
   const getButtonText = () => {
     if (shouldSignUp) {
       return `Sign up to ${strategy}`
+    }
+    if (shouldAddFunds) {
+      return 'Add funds to place order'
     }
     return `Submit ${strategy} Order`
   }
@@ -440,9 +457,9 @@ export default function ClobLimitTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
-        // isDisabled={!+price || !+sharesAmount || isBalanceNotEnough || !web3Wallet}
-
-        isDisabled={!+price || !+sharesAmount || (web3Wallet ? isBalanceNotEnough : false)}
+        isDisabled={
+          !+price || !+sharesAmount || (web3Wallet && !shouldAddFunds ? isBalanceNotEnough : false)
+        }
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}
@@ -479,6 +496,7 @@ export default function ClobLimitTradeForm() {
           </Text>
         </Flex>
       )}
+      {shouldAddFunds && <AddFundsValidation />}
     </>
   )
 }
