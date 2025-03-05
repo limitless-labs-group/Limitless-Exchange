@@ -4,8 +4,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { throws } from 'assert'
 import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
-import React, { useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
+import React, { SyntheticEvent, useMemo, useRef } from 'react'
+import { isMobile, isTablet } from 'react-device-detect'
+import scrollIntoView from 'scroll-into-view-if-needed'
 import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
@@ -59,6 +60,8 @@ export default function ClobMarketTradeForm() {
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
   const { pushPuchaseEvent, pushGA4Event } = useGoogleAnalytics()
+
+  const inputRef = useRef(null)
 
   const placeMarketOrderMutation = useMutation({
     mutationKey: ['market-order', market?.slug, price],
@@ -196,6 +199,16 @@ export default function ClobMarketTradeForm() {
     }
     setPrice(value)
     return
+  }
+
+  const onInputFocus = (e: any) => {
+    if (isMobile || isTablet) {
+      scrollIntoView(e.target, {
+        behavior: 'smooth',
+        block: 'center',
+        scrollMode: 'if-needed',
+      })
+    }
   }
 
   const renderButtonContent = (title: number) => {
@@ -505,6 +518,8 @@ export default function ClobMarketTradeForm() {
             {strategy === 'Buy' ? market?.collateralToken.symbol : 'Contracts'}
           </Text>
         }
+        ref={inputRef}
+        onFocus={onInputFocus}
       />
       <VStack w='full' gap='8px' my='24px'>
         {strategy === 'Buy' && (
