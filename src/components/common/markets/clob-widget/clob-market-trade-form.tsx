@@ -347,11 +347,14 @@ export default function ClobMarketTradeForm() {
   }, [market, orderBook, outcome, price, strategy])
 
   const isLessThanMinTreshHold = useMemo(() => {
-    if (+price) {
+    if (strategy == 'Buy') {
       return +price < 1
     }
+    if (orderCalculations.payout) {
+      return orderCalculations.payout < 1
+    }
     return false
-  }, [price])
+  }, [orderCalculations.payout, strategy])
 
   const onResetMutation = async () => {
     await sleep(0.8)
@@ -575,7 +578,7 @@ export default function ClobMarketTradeForm() {
       )}
       {isLessThanMinTreshHold && (
         <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
-          Min. amount is {strategy === 'Buy' ? '$' : ''}1
+          Min. amount is $1
         </Text>
       )}
       {maxOrderAmountLessThanInput && (
