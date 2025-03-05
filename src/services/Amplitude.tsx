@@ -62,7 +62,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         return
       }
 
-      const { account: accountFromEvent, ...restCustomData } = customData || {}
+      const { account: accountFromEvent, ...restCustomData } = customData ?? {}
 
       const getUtmParam = (param: string): Record<string, string> => {
         try {
