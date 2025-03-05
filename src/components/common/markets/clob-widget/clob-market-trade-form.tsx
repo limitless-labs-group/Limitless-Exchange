@@ -61,7 +61,7 @@ export default function ClobMarketTradeForm() {
   const toast = useToast()
   const { pushPuchaseEvent, pushGA4Event } = useGoogleAnalytics()
 
-  const inputRef = useRef(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   const placeMarketOrderMutation = useMutation({
     mutationKey: ['market-order', market?.slug, price],
@@ -201,15 +201,14 @@ export default function ClobMarketTradeForm() {
     return
   }
 
-  const onInputFocus = (e: any) => {
-    console.log(e)
-    console.log(window)
-    if (isMobile || isTablet) {
-      scrollIntoView(e.target, {
-        behavior: 'smooth',
-        block: 'center',
-        scrollMode: 'if-needed',
-      })
+  const handleFocus = () => {
+    if (isMobile && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
     }
   }
 
@@ -521,7 +520,7 @@ export default function ClobMarketTradeForm() {
           </Text>
         }
         ref={inputRef}
-        onFocus={onInputFocus}
+        onFocus={handleFocus}
       />
       <VStack w='full' gap='8px' my='24px'>
         {strategy === 'Buy' && (
