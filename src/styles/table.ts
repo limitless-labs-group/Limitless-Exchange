@@ -84,7 +84,7 @@ const noPaddingsOnSides = definePartsStyle({
     th: {
       padding: isMobile ? '12px' : '8px',
       ...paragraphRegular,
-      color: 'grey.100 !important',
+      color: 'grey.500 !important',
       borderColor: 'grey.100',
       textTransform: 'unset',
       '&[data-is-numeric=true]': {
