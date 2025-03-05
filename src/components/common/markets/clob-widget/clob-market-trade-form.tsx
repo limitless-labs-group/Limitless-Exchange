@@ -346,6 +346,16 @@ export default function ClobMarketTradeForm() {
     }
   }, [market, orderBook, outcome, price, strategy])
 
+  const isLessThanMinTreshHold = useMemo(() => {
+    if (strategy == 'Buy') {
+      return +price < 1
+    }
+    if (orderCalculations.payout) {
+      return orderCalculations.payout < 1
+    }
+    return false
+  }, [orderCalculations.payout, strategy, price])
+
   const onResetMutation = async () => {
     await sleep(0.8)
     placeMarketOrderMutation.reset()
@@ -547,6 +557,7 @@ export default function ClobMarketTradeForm() {
         status={placeMarketOrderMutation.status}
         isDisabled={
           !+price ||
+          isLessThanMinTreshHold ||
           (web3Wallet
             ? isBalanceNotEnough || noOrdersOnDesiredToken || maxOrderAmountLessThanInput
             : false)
@@ -563,6 +574,11 @@ export default function ClobMarketTradeForm() {
       {!+price && (
         <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
           Enter amount to {strategy === 'Buy' ? 'buy' : 'sell'}
+        </Text>
+      )}
+      {isLessThanMinTreshHold && (
+        <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
+          Min. amount is $1
         </Text>
       )}
       {maxOrderAmountLessThanInput && (

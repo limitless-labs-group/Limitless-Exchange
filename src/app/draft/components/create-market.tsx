@@ -352,7 +352,6 @@ export const CreateMarket: FC = () => {
     if (!data) return
     setIsCreating(true)
     const marketData = prepareMarketData(data)
-    console.log('data', marketData)
 
     const url = createClobMarket ? '/markets/clob/drafts' : '/markets/drafts'
     privateClient
@@ -383,7 +382,6 @@ export const CreateMarket: FC = () => {
     if (!data) return
     setIsCreating(true)
     const marketData = prepareMarketData(data)
-    console.log('data', marketData)
 
     privateClient
       .put(`/markets/drafts/${marketId}`, marketData, {

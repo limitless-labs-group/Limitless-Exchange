@@ -196,6 +196,7 @@ export enum ClickEvent {
 
 export enum SignInEvent {
   SignIn = 'Sign In',
+  SignedIn = 'Signed In',
   SignInWithFarcaster = 'Login with Farcaster',
 }
 
@@ -447,6 +448,10 @@ interface ChartTabChangedMetadata {
   view: string
 }
 
+interface SignedInMetadata {
+  signedIn: boolean
+}
+
 export type ChangedEventMetadata =
   | StrategyChangedMetadata
   | OutcomeChangedMetadata
@@ -487,7 +492,7 @@ export type OpenedEventMetadata =
   | PageOpenedMetadata
   | ProfileSettingsMetadata
   | SidebarMarketOpenedMetadata
-export type SignInEventMetadata = SignInWithFarcasterMetadata
+export type SignInEventMetadata = SignInWithFarcasterMetadata | SignedInMetadata
 export type CopiedEventMetadata = WalletAddressCopiedMetadata
 
 export type EventMetadata =
