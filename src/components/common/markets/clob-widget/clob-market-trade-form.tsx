@@ -385,7 +385,7 @@ export default function ClobMarketTradeForm() {
       return orderCalculations.payout < 1
     }
     return false
-  }, [orderCalculations.payout, strategy, price])
+  }, [orderCalculations.payout, strategy])
 
   const onResetMutation = async () => {
     await sleep(1)
@@ -651,7 +651,7 @@ export default function ClobMarketTradeForm() {
       )}
       {isLessThanMinTreshHold && (
         <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
-          Min. amount is {strategy === 'Buy' ? '$' : ''}1
+          Min. amount is $1
         </Text>
       )}
       {maxOrderAmountLessThanInput && (
