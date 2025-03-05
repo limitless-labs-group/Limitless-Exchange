@@ -202,6 +202,7 @@ export default function ClobMarketTradeForm() {
   }
 
   const onInputFocus = (e: any) => {
+    console.log(e)
     if (isMobile || isTablet) {
       scrollIntoView(e.target, {
         behavior: 'smooth',
