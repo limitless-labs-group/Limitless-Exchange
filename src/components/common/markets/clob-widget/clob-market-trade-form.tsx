@@ -122,7 +122,10 @@ export default function ClobMarketTradeForm() {
       const purchase: Purchase = {
         transaction_id: res.id,
         value: orderCalculations.payout,
-        currency: market?.collateralToken.symbol || 'USDC',
+        currency:
+          market?.collateralToken.symbol === 'USDC'
+            ? 'USD'
+            : market?.collateralToken.symbol ?? 'USD',
         items: [
           {
             item_id: market?.marketType || '',
