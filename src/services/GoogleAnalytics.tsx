@@ -67,6 +67,7 @@ export enum GAEvents {
   SelectWalletRainbow = 'select_wallet_rainbow',
   SelectWalletWalletConnect = 'select_wallet_walletconnect',
   SelectAnyWallet = 'select_any_wallet',
+  SelectAnyMarket = 'select_any_market',
   WalletConnected = 'wallet_connected',
   ClickSection = 'click_section',
   ClickEndingSoon = 'click_endingsoon',

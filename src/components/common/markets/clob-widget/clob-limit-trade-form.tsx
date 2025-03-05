@@ -352,7 +352,7 @@ export default function ClobLimitTradeForm() {
     if (shouldSignUp) {
       return `Sign up to ${strategy}`
     }
-    return `Submit ${strategy} Order`
+    return `${strategy} ${outcome ? 'No' : 'Yes'}`
   }
 
   return (

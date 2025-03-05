@@ -105,6 +105,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const router = useRouter()
 
+  console.log(wallets)
+  console.log(user)
+  console.log(web3Wallet)
+
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ['profiles', { account: user?.wallet?.address }],
     queryFn: async (): Promise<Profile | null> => {
