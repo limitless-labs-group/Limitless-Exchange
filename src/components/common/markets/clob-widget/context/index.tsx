@@ -97,14 +97,14 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
 
   const checkMarketAllowance = async () => {
     const contractAddress = market?.negRiskRequestId
-      ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+      ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
       : process.env.NEXT_PUBLIC_CTF_CONTRACT
     const allowance = await checkAllowance(
       contractAddress as Address,
       market?.collateralToken.address as Address
     )
     const operator = market?.negRiskRequestId
-      ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+      ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
       : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
     const isApprovedNFT = await checkAllowanceForAll(
       operator as Address,

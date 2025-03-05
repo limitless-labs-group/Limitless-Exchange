@@ -113,13 +113,19 @@ export default function ClobLimitTradeForm() {
       if (market) {
         if (web3Client === 'etherspot') {
           if (strategy === 'Sell') {
+            const operator = market.negRiskRequestId
+              ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
+              : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
             await privyService.approveConditionalIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              operator as Address,
               process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
             )
           } else {
+            const spender = market.negRiskRequestId
+              ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
+              : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
             await privyService.approveCollateralIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              spender as Address,
               maxUint256,
               market?.collateralToken.address as Address
             )

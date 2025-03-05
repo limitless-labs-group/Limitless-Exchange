@@ -105,11 +105,10 @@ export default function TradeStepperMenu() {
     mutationKey: ['approve', market?.slug],
     mutationFn: async () => {
       if (market) {
-        await approveContract(
-          process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-          market.collateralToken.address,
-          maxUint256
-        )
+        const spender = market.negRiskRequestId
+          ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
+          : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
+        await approveContract(spender as Address, market.collateralToken.address, maxUint256)
       }
     },
     onError: () => {
@@ -121,8 +120,11 @@ export default function TradeStepperMenu() {
     mutationKey: ['approve-nft', market?.slug],
     mutationFn: async () => {
       if (market) {
+        const operator = market.negRiskRequestId
+          ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
+          : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
         await approveAllowanceForAll(
-          process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+          operator as Address,
           process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
         )
       }
@@ -147,20 +149,6 @@ export default function TradeStepperMenu() {
         tradingMode: 'market order',
       })
       if (market) {
-        if (web3Client === 'etherspot') {
-          if (strategy === 'Sell') {
-            await privyService.approveConditionalIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
-            )
-          } else {
-            await privyService.approveCollateralIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-              maxUint256,
-              market?.collateralToken.address as Address
-            )
-          }
-        }
         const tokenId = outcome === 1 ? market.tokens.no : market.tokens.yes
         const side = strategy === 'Buy' ? 0 : 1
         const signedOrder = await placeMarketOrder(
@@ -210,20 +198,6 @@ export default function TradeStepperMenu() {
         tradingMode: 'limit order',
       })
       if (market) {
-        if (web3Client === 'etherspot') {
-          if (strategy === 'Sell') {
-            await privyService.approveConditionalIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
-            )
-          } else {
-            await privyService.approveCollateralIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-              maxUint256,
-              market?.collateralToken.address as Address
-            )
-          }
-        }
         const tokenId = outcome === 1 ? market.tokens.no : market.tokens.yes
         const side = strategy === 'Buy' ? 0 : 1
         const signedOrder = await placeLimitOrder(
