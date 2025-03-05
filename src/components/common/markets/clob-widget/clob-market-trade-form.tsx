@@ -1,12 +1,10 @@
 import { Box, Button, Flex, HStack, Spacer, Text, VStack } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { throws } from 'assert'
 import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
-import React, { SyntheticEvent, useMemo, useRef } from 'react'
+import React, { useMemo, useRef } from 'react'
 import { isMobile, isTablet } from 'react-device-detect'
-import scrollIntoView from 'scroll-into-view-if-needed'
 import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
@@ -202,7 +200,7 @@ export default function ClobMarketTradeForm() {
   }
 
   const handleFocus = () => {
-    if (isMobile && inputRef.current) {
+    if ((isMobile || isTablet) && inputRef.current) {
       setTimeout(() => {
         inputRef.current?.scrollIntoView({
           behavior: 'smooth',

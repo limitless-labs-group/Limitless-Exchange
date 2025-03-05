@@ -4,8 +4,8 @@ import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
-import React, { useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
+import React, { useMemo, useRef } from 'react'
+import { isMobile, isTablet } from 'react-device-detect'
 import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
@@ -92,6 +92,28 @@ export default function ClobLimitTradeForm() {
       NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
     )
     return
+  }
+
+  const handleFocusPriceInput = () => {
+    if ((isMobile || isTablet) && priceInputRef.current) {
+      setTimeout(() => {
+        priceInputRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
+    }
+  }
+
+  const handleFocusAmountInput = () => {
+    if ((isMobile || isTablet) && contractsInputRef.current) {
+      setTimeout(() => {
+        contractsInputRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
+    }
   }
 
   const placeLimitOrderMutation = useMutation({
@@ -367,6 +389,7 @@ export default function ClobLimitTradeForm() {
         handleInputChange={handleSetLimitPrice}
         showIncrements={true}
         inputType='number'
+        onFocus={handleFocusPriceInput}
       />
       <Flex justifyContent='space-between' alignItems='center' mt='16px' mb='8px'>
         <Text
@@ -390,6 +413,7 @@ export default function ClobLimitTradeForm() {
         isInvalid={isBalanceNotEnough}
         showIncrements={true}
         inputType='number'
+        onFocus={handleFocusAmountInput}
       />
       <VStack w='full' gap='8px' my='24px'>
         {strategy === 'Buy' ? (
