@@ -354,7 +354,7 @@ export default function ClobMarketTradeForm() {
       return orderCalculations.payout < 1
     }
     return false
-  }, [orderCalculations.payout, strategy])
+  }, [orderCalculations.payout, strategy, price])
 
   const onResetMutation = async () => {
     await sleep(0.8)
