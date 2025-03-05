@@ -30,6 +30,7 @@ import React, {
 } from 'react'
 import { createWalletClient, getAddress, WalletClient, http, custom } from 'viem'
 import { Toast } from '@/components/common/toast'
+import { SignInEvent, useAmplitude } from './Amplitude'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import useGoogleAnalytics, { GAEvents } from './GoogleAnalytics'
 import usePendingTrade from './PendingTradeService'
@@ -99,6 +100,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { refetchSession } = useRefetchSession()
   const { pushGA4Event } = useGoogleAnalytics()
   const { handleRedirect } = usePendingTrade()
+  const { trackSignIn } = useAmplitude()
 
   const toast = useToast()
   const router = useRouter()
@@ -235,7 +237,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
         pushGA4Event(GAEvents.WalletConnected)
         await handleRedirect()
-        // trackSignIn(SignInEvent.SignIn)
+        trackSignIn(SignInEvent.SignedIn, { signedIn: true })
         // setIsLogged(true)
         return
       }
