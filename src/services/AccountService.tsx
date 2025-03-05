@@ -206,11 +206,12 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     })
   }
 
+  console.log(wallets)
+
   const { login: loginToPlatform } = usePrivyLogin({
     onComplete: async ({ user, wasAlreadyAuthenticated }) => {
-      const connectedWallet = wallets.find(
-        (wallet) => wallet.connectorType === user.wallet?.connectorType
-      )
+      console.log(wallets)
+      const connectedWallet = wallets[0]
       if (connectedWallet && !wasAlreadyAuthenticated) {
         pushGA4Event(`select_wallet_${connectedWallet.walletClientType}`)
         pushGA4Event(GAEvents.SelectAnyWallet)
@@ -326,11 +327,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   // })
 
   const getWallet = async (): Promise<WalletClient | undefined> => {
-    const wallet = wallets.find(
-      (wallet) =>
-        user?.wallet?.walletClientType?.includes(wallet.walletClientType) ||
-        user?.wallet?.walletClientType === wallet.walletClientType
-    )
+    const wallet = wallets[0]
     if (wallet) {
       const provider = await wallet.getEthereumProvider()
       const walletClient = createWalletClient({
