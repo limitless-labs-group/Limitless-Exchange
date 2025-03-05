@@ -213,7 +213,6 @@ export default function ClobMarketTradeForm() {
         })
       }, 300)
 
-
   const renderButtonContent = (title: number) => {
     if (title === 100) {
       if (isMobile) {
