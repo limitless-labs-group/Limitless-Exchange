@@ -212,8 +212,7 @@ export default function ClobMarketTradeForm() {
           block: 'center',
         })
       }, 300)
-    }
-  }
+
 
   const renderButtonContent = (title: number) => {
     if (title === 100) {
