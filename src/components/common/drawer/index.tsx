@@ -114,52 +114,22 @@ export default function MobileDrawer({
   const titleColor = variant === 'blue' ? 'white' : 'var(--chakra-colors-grey.800)'
 
   const [keyboardHeight, setKeyboardHeight] = useState(0)
-  const [keyboardVisible, setIsKeyboardVisible] = useState(false)
+  const [screenHeight, setScreenHeight] = useState(0)
 
   useEffect(() => {
-    const handleFocus = (e: Event) => {
-      const target = e.target as HTMLElement
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
-        setIsKeyboardVisible(true)
-      }
-    }
-
-    const handleBlur = () => {
-      setIsKeyboardVisible(false)
-    }
-
-    // For iOS
-    window.addEventListener('focusin', handleFocus)
-    window.addEventListener('focusout', handleBlur)
-
-    // For Android
-    document.addEventListener('focus', handleFocus, true)
-    document.addEventListener('blur', handleBlur, true)
-
-    return () => {
-      window.removeEventListener('focusin', handleFocus)
-      window.removeEventListener('focusout', handleBlur)
-      document.removeEventListener('focus', handleFocus, true)
-      document.removeEventListener('blur', handleBlur, true)
-    }
+    setScreenHeight(window.innerHeight)
   }, [])
 
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     if (window.visualViewport) {
-  //       const newKeyboardHeight = window.innerHeight - window.visualViewport.height
-  //       setViewPortHeight(window.visualViewport.height)
-  //       setHeight(window.innerHeight)
-  //       setTestVal(newKeyboardHeight)
-  //       setKeyboardHeight(newKeyboardHeight > 0 ? newKeyboardHeight : 0)
-  //     }
-  //   }
-  //
-  //   handleResize()
-  //   const debouncedHandleResize = debounce(handleResize, 100)
-  //   window.addEventListener('resize', debouncedHandleResize)
-  //   return () => window.removeEventListener('resize', debouncedHandleResize)
-  // }, [])
+  useEffect(() => {
+    const handleResize = () => {
+      setKeyboardHeight(Math.min(window.innerHeight, screenHeight))
+    }
+
+    handleResize()
+    const debouncedHandleResize = debounce(handleResize, 100)
+    window.addEventListener('resize', debouncedHandleResize)
+    return () => window.removeEventListener('resize', debouncedHandleResize)
+  }, [])
 
   const drawerStyle = useMemo(
     (): CSSProperties => ({
@@ -182,13 +152,13 @@ export default function MobileDrawer({
       margin: '0 auto',
       maxHeight: 'calc(100dvh - 68px)',
       overflowY: 'auto',
-      paddingBottom: `${keyboardVisible ? 200 : keyboardHeight}px`,
+      paddingBottom: `${keyboardHeight}px`,
       WebkitOverflowScrolling: 'touch',
       position: 'relative',
       zIndex: 1,
       touchAction: 'pan-y',
     }),
-    [keyboardHeight, keyboardVisible]
+    [keyboardHeight]
   )
 
   return (
