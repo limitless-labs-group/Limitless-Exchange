@@ -116,6 +116,9 @@ export default function MobileDrawer({
   const [keyboardHeight, setKeyboardHeight] = useState(0)
   const [screenHeight, setScreenHeight] = useState(0)
 
+  console.log(`screenHeight ${screenHeight}`)
+  console.log(`keyboardHeight ${keyboardHeight}`)
+
   useEffect(() => {
     setScreenHeight(window.innerHeight)
   }, [])
