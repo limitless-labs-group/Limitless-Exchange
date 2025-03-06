@@ -85,8 +85,8 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   }
 
   const handleBlur = () => {
-    alert('blur')
     if ((isMobile || isTablet) && inputRef.current) {
+      alert('blur')
       setModalHeight(0)
     }
   }
