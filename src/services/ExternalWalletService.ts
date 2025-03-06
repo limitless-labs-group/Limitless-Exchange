@@ -9,7 +9,7 @@ import { useLimitlessApi } from '@/services/LimitlessApi'
 
 export const useExternalWalletService = () => {
   const { supportedTokens } = useLimitlessApi()
-  const { web3Wallet } = useAccount()
+  const { web3Wallet, getWallet } = useAccount()
 
   const collateralTokenAddress = supportedTokens ? supportedTokens[0].address : '0x'
 
@@ -20,9 +20,13 @@ export const useExternalWalletService = () => {
         abi: wethABI,
         functionName: 'deposit',
       })
-      if (web3Wallet) {
-        const addresses = await web3Wallet.getAddresses()
-        const hash = await web3Wallet.sendTransaction({
+      let walletToSendTransaction = web3Wallet
+      if (!web3Wallet) {
+        walletToSendTransaction = (await getWallet()) || null
+      }
+      if (walletToSendTransaction) {
+        const addresses = await walletToSendTransaction.getAddresses()
+        const hash = await walletToSendTransaction.sendTransaction({
           data,
           to: collateralTokenAddress,
           value,
@@ -45,9 +49,13 @@ export const useExternalWalletService = () => {
         functionName: 'withdraw',
         args: [value],
       })
-      if (web3Wallet) {
-        const addresses = await web3Wallet.getAddresses()
-        const hash = await web3Wallet.sendTransaction({
+      let walletToSendTransaction = web3Wallet
+      if (!web3Wallet) {
+        walletToSendTransaction = (await getWallet()) || null
+      }
+      if (walletToSendTransaction) {
+        const addresses = await walletToSendTransaction.getAddresses()
+        const hash = await walletToSendTransaction.sendTransaction({
           data,
           to: collateralTokenAddress,
           account: addresses[0],
@@ -68,8 +76,12 @@ export const useExternalWalletService = () => {
         abi: erc20Abi,
         client: publicClient,
       })
-      if (web3Wallet) {
-        const addresses = await web3Wallet.getAddresses()
+      let walletToSendTransaction = web3Wallet
+      if (!web3Wallet) {
+        walletToSendTransaction = (await getWallet()) || null
+      }
+      if (walletToSendTransaction) {
+        const addresses = await walletToSendTransaction.getAddresses()
         return await contract.read.allowance([addresses[0], spender])
       }
       return 0n
@@ -86,8 +98,12 @@ export const useExternalWalletService = () => {
         abi: conditionalTokensABI,
         client: publicClient,
       })
-      if (web3Wallet) {
-        const addresses = await web3Wallet.getAddresses()
+      let walletToSendTransaction = web3Wallet
+      if (!web3Wallet) {
+        walletToSendTransaction = (await getWallet()) || null
+      }
+      if (walletToSendTransaction) {
+        const addresses = await walletToSendTransaction.getAddresses()
         const isApprovedForAll = await contract.read.isApprovedForAll([addresses[0], spender])
         return isApprovedForAll as boolean
       }
@@ -106,10 +122,13 @@ export const useExternalWalletService = () => {
         args: [spender, value],
         functionName: 'approve',
       })
-
-      if (web3Wallet) {
-        const addresses = await web3Wallet.getAddresses()
-        const hash = await web3Wallet.sendTransaction({
+      let walletToSendTransaction = web3Wallet
+      if (!web3Wallet) {
+        walletToSendTransaction = (await getWallet()) || null
+      }
+      if (walletToSendTransaction) {
+        const addresses = await walletToSendTransaction.getAddresses()
+        const hash = await walletToSendTransaction.sendTransaction({
           data,
           to: contractAddress,
           account: addresses[0],
@@ -131,9 +150,13 @@ export const useExternalWalletService = () => {
         functionName: 'setApprovalForAll',
         args: [spender, true],
       })
-      if (web3Wallet) {
-        const addresses = await web3Wallet.getAddresses()
-        const hash = await web3Wallet.sendTransaction({
+      let walletToSendTransaction = web3Wallet
+      if (!web3Wallet) {
+        walletToSendTransaction = (await getWallet()) || null
+      }
+      if (walletToSendTransaction) {
+        const addresses = await walletToSendTransaction.getAddresses()
+        const hash = await walletToSendTransaction.sendTransaction({
           data,
           to: contractAddress,
           account: addresses[0],
@@ -150,9 +173,13 @@ export const useExternalWalletService = () => {
   const transferEthers = async (to: Address, value: bigint) => {
     try {
       await checkAndSwitchChainIfNeeded()
-      if (web3Wallet) {
-        const addresses = await web3Wallet.getAddresses()
-        const hash = await web3Wallet.sendTransaction({
+      let walletToSendTransaction = web3Wallet
+      if (!web3Wallet) {
+        walletToSendTransaction = (await getWallet()) || null
+      }
+      if (walletToSendTransaction) {
+        const addresses = await walletToSendTransaction.getAddresses()
+        const hash = await walletToSendTransaction.sendTransaction({
           value,
           to,
           account: addresses[0],
@@ -174,9 +201,13 @@ export const useExternalWalletService = () => {
         functionName: 'transfer',
         args: [to, value],
       })
-      if (web3Wallet) {
-        const addresses = await web3Wallet.getAddresses()
-        const hash = await web3Wallet.sendTransaction({
+      let walletToSendTransaction = web3Wallet
+      if (!web3Wallet) {
+        walletToSendTransaction = (await getWallet()) || null
+      }
+      if (walletToSendTransaction) {
+        const addresses = await walletToSendTransaction.getAddresses()
+        const hash = await walletToSendTransaction.sendTransaction({
           data,
           to: token,
           account: addresses[0],
@@ -203,9 +234,13 @@ export const useExternalWalletService = () => {
         functionName: 'buy',
         args: [collateralAmount, outcomeIndex, minOutcomeTokensToBuy],
       })
-      if (web3Wallet) {
-        const addresses = await web3Wallet.getAddresses()
-        const hash = await web3Wallet.sendTransaction({
+      let walletToSendTransaction = web3Wallet
+      if (!web3Wallet) {
+        walletToSendTransaction = (await getWallet()) || null
+      }
+      if (walletToSendTransaction) {
+        const addresses = await walletToSendTransaction.getAddresses()
+        const hash = await walletToSendTransaction.sendTransaction({
           to: fixedProductMarketMakerAddress,
           data,
           account: addresses[0],
@@ -232,9 +267,13 @@ export const useExternalWalletService = () => {
         functionName: 'sell',
         args: [collateralAmount, outcomeIndex, maxOutcomeTokensToSell],
       })
-      if (web3Wallet) {
-        const addresses = await web3Wallet.getAddresses()
-        const hash = await web3Wallet.sendTransaction({
+      let walletToSendTransaction = web3Wallet
+      if (!web3Wallet) {
+        walletToSendTransaction = (await getWallet()) || null
+      }
+      if (walletToSendTransaction) {
+        const addresses = await walletToSendTransaction.getAddresses()
+        const hash = await walletToSendTransaction.sendTransaction({
           data,
           to: fixedProductMarketMakerAddress,
           account: addresses[0],
@@ -262,9 +301,13 @@ export const useExternalWalletService = () => {
         functionName: 'redeemPositions',
         args: [collateralAddress, parentCollectionId, marketConditionId, indexSets],
       })
-      if (web3Wallet) {
-        const addresses = await web3Wallet.getAddresses()
-        const hash = await web3Wallet.sendTransaction({
+      let walletToSendTransaction = web3Wallet
+      if (!web3Wallet) {
+        walletToSendTransaction = (await getWallet()) || null
+      }
+      if (walletToSendTransaction) {
+        const addresses = await walletToSendTransaction.getAddresses()
+        const hash = await walletToSendTransaction.sendTransaction({
           data,
           to: conditionalTokensAddress,
           account: addresses[0],
@@ -302,9 +345,13 @@ export const useExternalWalletService = () => {
           amount,
         ],
       })
-      if (web3Wallet) {
-        const addresses = await web3Wallet.getAddresses()
-        return web3Wallet.sendTransaction({
+      let walletToSendTransaction = web3Wallet
+      if (!web3Wallet) {
+        walletToSendTransaction = (await getWallet()) || null
+      }
+      if (walletToSendTransaction) {
+        const addresses = await walletToSendTransaction.getAddresses()
+        return walletToSendTransaction.sendTransaction({
           data,
           to: contract as Address,
           account: addresses[0],
@@ -341,9 +388,13 @@ export const useExternalWalletService = () => {
           amount,
         ],
       })
-      if (web3Wallet) {
-        const addresses = await web3Wallet.getAddresses()
-        return web3Wallet.sendTransaction({
+      let walletToSendTransaction = web3Wallet
+      if (!web3Wallet) {
+        walletToSendTransaction = (await getWallet()) || null
+      }
+      if (walletToSendTransaction) {
+        const addresses = await walletToSendTransaction.getAddresses()
+        return walletToSendTransaction.sendTransaction({
           data,
           to: contractAddress as Address,
           account: addresses[0],
@@ -364,9 +415,13 @@ export const useExternalWalletService = () => {
         functionName: 'convertPositions',
         args: [negRiskRequestId, indexSet, amount],
       })
-      if (web3Wallet) {
-        const addresses = await web3Wallet.getAddresses()
-        return web3Wallet.sendTransaction({
+      let walletToSendTransaction = web3Wallet
+      if (!web3Wallet) {
+        walletToSendTransaction = (await getWallet()) || null
+      }
+      if (walletToSendTransaction) {
+        const addresses = await walletToSendTransaction.getAddresses()
+        return walletToSendTransaction.sendTransaction({
           data,
           to: process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
           account: addresses[0],
@@ -396,8 +451,12 @@ export const useExternalWalletService = () => {
 
   const signTypedData = async (typedData: EIP712TypedData) => {
     await checkAndSwitchChainIfNeeded()
+    let walletToSendTransaction = web3Wallet
+    if (!web3Wallet) {
+      walletToSendTransaction = (await getWallet()) || null
+    }
     // @ts-ignore
-    return web3Wallet?.signTypedData(typedData) as Promise<string>
+    return walletToSendTransaction?.signTypedData(typedData) as Promise<string>
   }
 
   return {

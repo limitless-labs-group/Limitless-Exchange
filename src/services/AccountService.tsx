@@ -64,6 +64,7 @@ export interface IAccountContext {
   smartAccountClient: SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null
   web3Wallet: WalletClient | null
   loginToPlatform: (options?: LoginModalOptions | React.MouseEvent<any, any>) => void
+  getWallet: () => Promise<WalletClient | undefined>
 }
 
 const pimlicoRpcUrl = `https://api.pimlico.io/v2/${defaultChain.id}/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
@@ -297,26 +298,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  /**
-   * FARCASTER
-   */
-  // const { data: farcasterInfo } = useQuery({
-  //   queryKey: ['farcaster', userInfo],
-  //   queryFn: async () => {
-  //     const { data } = await axios.get<FarcasterUsersRequestResponse>(
-  //       `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userInfo?.verifierId}`,
-  //       {
-  //         headers: {
-  //           api_key: process.env.NEXT_PUBLIC_NEYNAR_API_KEY,
-  //         },
-  //       }
-  //     )
-  //     const [farcasterUserData] = data.users
-  //     return farcasterUserData
-  //   },
-  //   enabled: userInfo?.typeOfLogin === 'farcaster',
-  // })
-
   const getWallet = async (): Promise<WalletClient | undefined> => {
     const wallet = wallets[0]
     if (wallet) {
@@ -328,8 +309,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       })
       setWeb3Wallet(walletClient)
       return
-    } else {
-      await disconnectFromPlatform()
     }
     return
   }
@@ -478,6 +457,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     smartAccountClient,
     web3Wallet,
     loginToPlatform,
+    getWallet,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>
