@@ -152,7 +152,7 @@ export default function OrderbookTableLarge({
       <HStack w='full' mt='12px' justifyContent='space-between'>
         <Text {...paragraphMedium}>Daily reward:</Text>
         <Text {...paragraphMedium}>
-          {marketRewardsTotal?.totalRewards ? marketRewardsTotal.totalRewards.toFixed(0) : '200'}{' '}
+          {marketRewardsTotal?.totalRewards ? marketRewardsTotal.totalRewards.toFixed(0) : '0'}{' '}
           {market?.collateralToken.symbol}
         </Text>
       </HStack>
