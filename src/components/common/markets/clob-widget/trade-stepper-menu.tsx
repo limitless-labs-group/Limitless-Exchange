@@ -156,7 +156,8 @@ export default function TradeStepperMenu() {
           market.collateralToken.decimals,
           outcome === 0 ? yesPrice.toString() : noPrice.toString(),
           side,
-          price
+          price,
+          market.negRiskRequestId ? 'negRisk' : 'common'
         )
         const data = {
           order: {
@@ -205,7 +206,8 @@ export default function TradeStepperMenu() {
           market.collateralToken.decimals,
           price,
           sharesAmount,
-          side
+          side,
+          market.negRiskRequestId ? 'negRisk' : 'common'
         )
         const data = {
           order: {

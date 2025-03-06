@@ -95,7 +95,8 @@ export default function ClobMarketTradeForm() {
           market.collateralToken.decimals,
           outcome === 0 ? yesPrice.toString() : noPrice.toString(),
           side,
-          price
+          price,
+          market.negRiskRequestId ? 'negRisk' : 'common'
         )
         const data = {
           order: {
