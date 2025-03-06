@@ -70,7 +70,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
 
   const handleFocus = () => {
     if ((isMobile || isTablet) && inputRef.current) {
-      setModalHeight(624)
+      setModalHeight(612)
       setTimeout(() => {
         inputRef.current?.scrollIntoView({
           behavior: 'smooth',
