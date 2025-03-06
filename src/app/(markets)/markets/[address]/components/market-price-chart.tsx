@@ -116,7 +116,13 @@ export const MarketPriceChart = () => {
         dataSorting: {
           enabled: false,
         },
+        dataGrouping: {
+          enabled: true,
+          approximation: 'average', // Other options: 'sum', 'high', 'low', 'open', 'close'
+          groupPixelWidth: 5, // Controls how aggressively data is grouped
+        },
         lineWidth: 4,
+        connectEnds: false,
         marker: {
           enabled: false,
         },
@@ -209,7 +215,7 @@ export const MarketPriceChart = () => {
     //   }
     // }
 
-    return data
+    return data.sort((a, b) => a[0] - b[0])
   }, [prices, market?.winningOutcomeIndex, resolved])
 
   const marketActivePrice = useMemo(() => {
