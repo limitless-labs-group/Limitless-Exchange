@@ -31,6 +31,7 @@ interface SplitSharesModalProps {
 export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalProps) {
   const [displayAmount, setDisplayAmount] = useState('')
   const [allowance, setAllowance] = useState<bigint>(0n)
+  const [modalHeight, setModalHeight] = useState(0)
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { market } = useTradingService()
   const { checkAllowance, client, approveContract, splitShares } = useWeb3Service()
@@ -73,6 +74,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
 
   const handleFocus = () => {
     if ((isMobile || isTablet) && inputRef.current) {
+      setModalHeight(600)
       setTimeout(() => {
         inputRef.current?.scrollIntoView({
           behavior: 'smooth',
@@ -262,7 +264,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   }, [market, web3Wallet])
 
   const modalContent = (
-    <Box>
+    <Box h={modalHeight ? `${modalHeight}px` : 'unset'}>
       <Text {...paragraphBold} mt='24px'>
         Turn your USDC into an equal number of &quot;Yes&quot; and &quot;No&quot; Contracts.
       </Text>
