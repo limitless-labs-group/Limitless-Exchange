@@ -200,9 +200,6 @@ export default function ClobMarketTradeForm() {
   }
 
   const handleFocus = () => {
-    alert(isMobile)
-    alert(isTablet)
-    alert(inputRef.current)
     if ((isMobile || isTablet) && inputRef.current) {
       setTimeout(() => {
         inputRef.current?.scrollIntoView({
