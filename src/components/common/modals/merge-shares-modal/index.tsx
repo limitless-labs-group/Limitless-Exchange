@@ -2,8 +2,8 @@ import { Box, Button, HStack, InputGroup, Text } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import React, { useEffect, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { isMobile, isTablet } from 'react-device-detect'
 import { Address, formatUnits, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
@@ -27,6 +27,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   const { sharesAvailable } = useClobWidget()
   const queryClient = useQueryClient()
   const { trackClicked } = useAmplitude()
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   const sharesAvailableBalance = useMemo(() => {
     if (!sharesAvailable) {
@@ -64,6 +65,17 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
     await queryClient.refetchQueries({
       queryKey: ['market-shares', market?.slug],
     })
+  }
+
+  const handleFocus = () => {
+    if ((isMobile || isTablet) && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
+    }
   }
 
   const checkMergeAllowance = async () => {
@@ -216,6 +228,8 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
           showIncrements={false}
           inputType='number'
           endAdornment={<Text {...paragraphMedium}>Contracts</Text>}
+          ref={inputRef}
+          onFocus={handleFocus}
         />
       </InputGroup>
       <HStack

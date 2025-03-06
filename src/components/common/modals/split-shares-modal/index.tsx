@@ -1,8 +1,8 @@
 import { Box, Button, Flex, HStack, InputGroup, Text } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import React, { useEffect, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { isMobile, isTablet } from 'react-device-detect'
 import { Address, maxUint256, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
@@ -39,6 +39,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   const { balanceLoading } = useBalanceService()
   const { web3Wallet } = useAccount()
   const queryClient = useQueryClient()
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   const usdcBalance =
     balanceOfSmartWallet?.find((balanceItem) => balanceItem.symbol === 'USDC')?.formatted || '0.00'
@@ -68,6 +69,17 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
     await queryClient.refetchQueries({
       queryKey: ['market-shares', market?.slug],
     })
+  }
+
+  const handleFocus = () => {
+    if ((isMobile || isTablet) && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
+    }
   }
 
   const checkSplitAllowance = async () => {
@@ -270,6 +282,8 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
           showIncrements={false}
           inputType='number'
           endAdornment={<Text {...paragraphMedium}>USDC</Text>}
+          ref={inputRef}
+          onFocus={handleFocus}
         />
       </InputGroup>
       <HStack
