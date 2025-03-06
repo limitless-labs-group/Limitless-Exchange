@@ -114,18 +114,13 @@ export default function MobileDrawer({
   const titleColor = variant === 'blue' ? 'white' : 'var(--chakra-colors-grey.800)'
 
   const [keyboardHeight, setKeyboardHeight] = useState(0)
-  const [screenHeight, setScreenHeight] = useState(0)
-
-  console.log(`screenHeight ${screenHeight}`)
-  console.log(`keyboardHeight ${keyboardHeight}`)
-
-  useEffect(() => {
-    setScreenHeight(window.innerHeight)
-  }, [])
 
   useEffect(() => {
     const handleResize = () => {
-      setKeyboardHeight(Math.min(window.innerHeight, screenHeight))
+      if (window.visualViewport) {
+        const newKeyboardHeight = window.innerHeight - window.visualViewport.height
+        setKeyboardHeight(newKeyboardHeight > 0 ? newKeyboardHeight : 0)
+      }
     }
 
     handleResize()

@@ -21,6 +21,7 @@ interface MergeSharesModalProps {
 export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalProps) {
   const [displayAmount, setDisplayAmount] = useState('')
   const [isApproved, setIsApproved] = useState<boolean>(false)
+  const [modalHeight, setModalHeight] = useState(0)
   const { market } = useTradingService()
   const { checkAllowanceForAll, client, approveAllowanceForAll, mergeShares } = useWeb3Service()
   const { web3Wallet } = useAccount()
@@ -69,12 +70,19 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
 
   const handleFocus = () => {
     if ((isMobile || isTablet) && inputRef.current) {
+      setModalHeight(624)
       setTimeout(() => {
         inputRef.current?.scrollIntoView({
           behavior: 'smooth',
           block: 'center',
         })
       }, 300)
+    }
+  }
+
+  const handleBlur = () => {
+    if ((isMobile || isTablet) && inputRef.current) {
+      setModalHeight(0)
     }
   }
 
@@ -192,7 +200,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   }, [market, web3Wallet])
 
   const modalContent = (
-    <Box>
+    <Box h={modalHeight ? `${modalHeight}px` : 'unset'}>
       <Text {...paragraphBold} mt='24px'>
         Combine equal amounts of &quot;Yes&quot; and &quot;No&quot; shares to reclaim USDC.
       </Text>
@@ -230,6 +238,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
           endAdornment={<Text {...paragraphMedium}>Contracts</Text>}
           ref={inputRef}
           onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </InputGroup>
       <HStack

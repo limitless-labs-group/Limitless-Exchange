@@ -74,13 +74,19 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
 
   const handleFocus = () => {
     if ((isMobile || isTablet) && inputRef.current) {
-      setModalHeight(600)
+      setModalHeight(624)
       setTimeout(() => {
         inputRef.current?.scrollIntoView({
           behavior: 'smooth',
           block: 'center',
         })
       }, 300)
+    }
+  }
+
+  const handleBlur = () => {
+    if ((isMobile || isTablet) && inputRef.current) {
+      setModalHeight(0)
     }
   }
 
@@ -286,6 +292,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
           endAdornment={<Text {...paragraphMedium}>USDC</Text>}
           ref={inputRef}
           onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </InputGroup>
       <HStack
