@@ -141,7 +141,7 @@ export default function MobileDrawer({
       zIndex: 99999,
       outline: 'none',
       touchAction: 'none',
-      height: 'unset',
+      height: 'unset !important',
     }),
     [bgColor]
   )
