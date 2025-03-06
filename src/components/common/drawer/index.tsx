@@ -115,19 +115,19 @@ export default function MobileDrawer({
 
   const [keyboardHeight, setKeyboardHeight] = useState(0)
 
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     if (window.visualViewport) {
-  //       const newKeyboardHeight = window.innerHeight - window.visualViewport.height
-  //       setKeyboardHeight(newKeyboardHeight > 0 ? newKeyboardHeight : 0)
-  //     }
-  //   }
-  //
-  //   handleResize()
-  //   const debouncedHandleResize = debounce(handleResize, 100)
-  //   window.addEventListener('resize', debouncedHandleResize)
-  //   return () => window.removeEventListener('resize', debouncedHandleResize)
-  // }, [])
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.visualViewport) {
+        const newKeyboardHeight = window.innerHeight - window.visualViewport.height
+        setKeyboardHeight(newKeyboardHeight > 0 ? newKeyboardHeight : 0)
+      }
+    }
+
+    handleResize()
+    const debouncedHandleResize = debounce(handleResize, 100)
+    window.addEventListener('resize', debouncedHandleResize)
+    return () => window.removeEventListener('resize', debouncedHandleResize)
+  }, [])
 
   const drawerStyle = useMemo(
     (): CSSProperties => ({
