@@ -395,8 +395,6 @@ export const useExternalWalletService = () => {
   }
 
   const signTypedData = async (typedData: EIP712TypedData) => {
-    console.log(typedData)
-    console.log(web3Wallet)
     await checkAndSwitchChainIfNeeded()
     // @ts-ignore
     return web3Wallet?.signTypedData(typedData) as Promise<string>
