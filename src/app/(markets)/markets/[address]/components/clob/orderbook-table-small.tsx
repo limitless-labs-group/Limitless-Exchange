@@ -1,5 +1,6 @@
 import { Box, Button, HStack, Link, Text, useOutsideClick } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
+import { clear } from 'console'
 import NextLink from 'next/link'
 import React, { LegacyRef, MutableRefObject, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -190,8 +191,10 @@ export default function OrderBookTableSmall({
             onClick={handleRewardsClicked}
             onMouseEnter={() => {
               const timer = setTimeout(() => {
-                setRewardButtonHovered(true)
-              }, 300)
+                if (!rewardButtonHovered) {
+                  setRewardButtonHovered(true)
+                }
+              }, 200)
               return () => clearTimeout(timer)
             }}
             onMouseLeave={() => setRewardButtonHovered(false)}
@@ -221,9 +224,10 @@ export default function OrderBookTableSmall({
               zIndex={150}
               onMouseEnter={() => setRewardButtonHovered(true)}
               onMouseLeave={() => {
-                if (!linkHovered) {
+                const timer = setTimeout(() => {
                   setRewardButtonHovered(false)
-                }
+                }, 300)
+                return () => clearTimeout(timer)
               }}
             >
               {tooltipContent}
