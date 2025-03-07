@@ -315,7 +315,8 @@ export default function ClobLimitTradeForm() {
   }
 
   const shouldSignUp = !web3Wallet && Boolean(price)
-  const shouldAddFunds = web3Wallet && isBalanceNotEnough
+  const shouldAddFunds =
+    web3Wallet && strategy === 'Buy' && orderCalculations.total > Number(balance)
 
   const handleSubmitButtonClicked = async () => {
     if (shouldSignUp) {
