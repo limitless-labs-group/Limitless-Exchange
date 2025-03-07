@@ -244,7 +244,7 @@ export default function OrderbookTableLarge({
                 rounded='8px'
                 right={0}
                 minH='128px'
-                zIndex={150}
+                zIndex={201}
                 onMouseEnter={() => setRewardButtonHovered(true)}
                 onMouseLeave={() => {
                   if (!linkHovered) {
