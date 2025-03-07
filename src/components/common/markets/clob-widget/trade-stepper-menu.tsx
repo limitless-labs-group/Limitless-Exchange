@@ -21,7 +21,6 @@ import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import Paper from '@/components/common/paper'
 import { Toast } from '@/components/common/toast'
 import { useToast } from '@/hooks'
-import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import CompletedStepIcon from '@/resources/icons/completed-icon.svg'
 import LockerIcon from '@/resources/icons/locker-icon.svg'
@@ -46,7 +45,6 @@ export default function TradeStepperMenu() {
   const { approveContract, approveAllowanceForAll } = useWeb3Service()
   const queryClient = useQueryClient()
   const { web3Client, profileData } = useAccount()
-  const privyService = usePrivySendTransaction()
   const { placeLimitOrder, placeMarketOrder } = useWeb3Service()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
@@ -121,7 +119,7 @@ export default function TradeStepperMenu() {
     mutationFn: async () => {
       if (market) {
         const operator = market.negRiskRequestId
-          ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
+          ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
           : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
         await approveAllowanceForAll(
           operator as Address,

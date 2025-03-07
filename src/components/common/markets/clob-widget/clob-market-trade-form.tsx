@@ -71,7 +71,7 @@ export default function ClobMarketTradeForm() {
         if (web3Client === 'etherspot') {
           if (strategy === 'Sell') {
             const operator = market.negRiskRequestId
-              ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
+              ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
               : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
             await privyService.approveConditionalIfNeeded(
               operator as Address,
