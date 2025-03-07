@@ -38,6 +38,11 @@ export default function ClaimButton({
   const redeemMutation = useMutation({
     mutationKey: ['redeemPosition', slug || marketAddress],
     mutationFn: async () => {
+      console.log(conditionId)
+      console.log(collateralAddress)
+      console.log(marketAddress)
+      console.log(outcomeIndex)
+      console.log(marketType)
       await redeem({
         conditionId,
         collateralAddress,

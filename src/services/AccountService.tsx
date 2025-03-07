@@ -64,7 +64,6 @@ export interface IAccountContext {
   smartAccountClient: SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null
   web3Wallet: WalletClient | null
   loginToPlatform: (options?: LoginModalOptions | React.MouseEvent<any, any>) => void
-  getWallet: () => Promise<WalletClient | undefined>
 }
 
 const pimlicoRpcUrl = `https://api.pimlico.io/v2/${defaultChain.id}/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
@@ -299,10 +298,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   })
 
   const getSessionConnectedMethod = () => {
-    const connectedMethod = localStorage.getItem(
+    const recentLoggedWallet = localStorage.getItem(
       `privy:${process.env.NEXT_PUBLIC_PRIVY_APP_ID}:recent-login-wallet-client`
     )
-    const privyMethod = ['google_oauth', 'discord_oauth', 'farcaster', 'email']
+    const connectedMethod = JSON.parse(recentLoggedWallet || '')
+    const privyMethod = ['google_oauth', 'discord_oauth', 'farcaster', 'email'].includes(
+      connectedMethod
+    )
     if (privyMethod) {
       return wallets.find((wallet) => wallet.walletClientType === 'privy')
     }
@@ -468,7 +470,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     smartAccountClient,
     web3Wallet,
     loginToPlatform,
-    getWallet,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>
