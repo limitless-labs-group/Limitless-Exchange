@@ -159,7 +159,7 @@ export default function MobileDrawer({
   )
 
   return (
-    <Drawer.Root shouldScaleBackground onClose={close}>
+    <Drawer.Root shouldScaleBackground autoFocus onClose={close}>
       <Drawer.Trigger asChild>
         <button style={{ width: '100%', ...triggerStyle }} ref={drawerRef}>
           {trigger}

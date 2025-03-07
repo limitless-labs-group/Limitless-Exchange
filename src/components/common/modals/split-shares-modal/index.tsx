@@ -148,6 +148,13 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
     },
   })
 
+  const isLowerThanMinAmount = useMemo(() => {
+    if (+displayAmount && splitSharesMutation.status === 'idle') {
+      return +displayAmount < 1
+    }
+    return false
+  }, [displayAmount, splitSharesMutation.status])
+
   const approveContractMutation = useMutation({
     mutationFn: async () => {
       await approveContract(
@@ -166,7 +173,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
         <ButtonWithStates
           variant='contained'
           w={isMobile ? 'full' : '94px'}
-          isDisabled={!+displayAmount || isExceedsBalance}
+          isDisabled={!+displayAmount || isExceedsBalance || isLowerThanMinAmount}
           onClick={handleSplitClicked}
           status={splitSharesMutation.status}
           onReset={onResetAfterSplit}
@@ -180,7 +187,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
         <ButtonWithStates
           variant='contained'
           w={isMobile ? 'full' : '94px'}
-          isDisabled={!+displayAmount || isExceedsBalance}
+          isDisabled={!+displayAmount || isExceedsBalance || isLowerThanMinAmount}
           onClick={() => approveContractMutation.mutateAsync()}
           status={approveContractMutation.status}
         >
@@ -192,7 +199,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
       <ButtonWithStates
         variant='contained'
         w={isMobile ? 'full' : '94px'}
-        isDisabled={!+displayAmount || isExceedsBalance}
+        isDisabled={!+displayAmount || isExceedsBalance || isLowerThanMinAmount}
         onClick={handleSplitClicked}
         status={splitSharesMutation.status}
         onReset={onResetAfterSplit}
@@ -209,6 +216,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
     market?.collateralToken.decimals,
     splitSharesMutation.status,
     onResetAfterSplit,
+    isLowerThanMinAmount,
   ])
 
   const renderButtonContent = (title: number) => {
@@ -304,6 +312,11 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
         {!+displayAmount && splitSharesMutation.status === 'idle' && (
           <Text {...paragraphRegular} color='grey.500'>
             Enter amount
+          </Text>
+        )}
+        {isLowerThanMinAmount && (
+          <Text {...paragraphRegular} color='grey.500'>
+            Min. amount is $1
           </Text>
         )}
         {splitSharesMutation.isPending && (

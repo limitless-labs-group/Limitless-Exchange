@@ -6,6 +6,7 @@ import {
   LoginModalOptions,
 } from '@privy-io/react-auth'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useAtom } from 'jotai'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   createSmartAccountClient,
@@ -30,9 +31,11 @@ import React, {
 } from 'react'
 import { createWalletClient, getAddress, WalletClient, http, custom } from 'viem'
 import { Toast } from '@/components/common/toast'
+import { SignInEvent, useAmplitude } from './Amplitude'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import useGoogleAnalytics, { GAEvents } from './GoogleAnalytics'
 import usePendingTrade from './PendingTradeService'
+import { accountAtom } from '@/atoms/account'
 import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
@@ -98,10 +101,16 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { isLogged } = useClient()
   const { refetchSession } = useRefetchSession()
   const { pushGA4Event } = useGoogleAnalytics()
+  const [, setAcc] = useAtom(accountAtom)
   const { handleRedirect } = usePendingTrade()
+  const { trackSignIn } = useAmplitude()
 
   const toast = useToast()
   const router = useRouter()
+
+  console.log(wallets)
+  console.log(user)
+  console.log(web3Wallet)
 
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ['profiles', { account: user?.wallet?.address }],
@@ -113,6 +122,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
     enabled: !!user?.wallet?.address,
   })
+
+  useEffect(() => {
+    setAcc({ account: user?.wallet?.address as string })
+  }, [user])
 
   const userMenuLoading = useMemo(() => {
     if (isLogged || authenticated) {
@@ -235,7 +248,11 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
         pushGA4Event(GAEvents.WalletConnected)
         await handleRedirect()
-        // trackSignIn(SignInEvent.SignIn)
+        setAcc({ account: connectedWallet.address ?? '' })
+        trackSignIn(SignInEvent.SignedIn, {
+          signedIn: true,
+          account: connectedWallet.address ?? '',
+        })
         // setIsLogged(true)
         return
       }
