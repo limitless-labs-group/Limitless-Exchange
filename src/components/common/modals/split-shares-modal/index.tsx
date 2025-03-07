@@ -74,7 +74,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
 
   const handleFocus = () => {
     if ((isMobile || isTablet) && inputRef.current) {
-      setModalHeight(200)
+      setModalHeight(612)
       setTimeout(() => {
         inputRef.current?.scrollIntoView({
           behavior: 'smooth',
