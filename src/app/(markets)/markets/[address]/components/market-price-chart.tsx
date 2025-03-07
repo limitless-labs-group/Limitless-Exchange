@@ -24,10 +24,6 @@ const PriceChart = () => {
   const outcomeTokensPercent = market?.prices
   const resolved = market?.winningOutcomeIndex === 0 || market?.winningOutcomeIndex === 1
 
-  useEffect(() => {
-    refetchPrices()
-  }, [market])
-
   const getMaxChartTimestamp = (data?: number[][]) => {
     if (market) {
       if (new Date().getTime() > market.expirationTimestamp) {
@@ -169,10 +165,7 @@ const PriceChart = () => {
     ],
   })
 
-  const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(
-    market?.slug,
-    market?.address
-  )
+  const { data: prices } = useMarketPriceHistory(market?.slug, market?.address)
 
   const chartData = useMemo(() => {
     const _prices: number[][] = prices ?? []

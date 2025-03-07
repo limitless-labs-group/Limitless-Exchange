@@ -298,11 +298,19 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
+  const getSessionConnectedMethod = () => {
+    const connectedMethod = localStorage.getItem(
+      `privy:${process.env.NEXT_PUBLIC_PRIVY_APP_ID}:recent-login-wallet-client`
+    )
+    const privyMethod = ['google_oauth', 'discord_oauth', 'farcaster', 'email']
+    if (privyMethod) {
+      return wallets.find((wallet) => wallet.walletClientType === 'privy')
+    }
+    return wallets.find((wallet) => wallet.walletClientType === connectedMethod)
+  }
+
   const getWallet = async (): Promise<WalletClient | undefined> => {
-    const wallet =
-      web3Client === 'etherspot'
-        ? wallets.find((wallet) => wallet.walletClientType === 'privy')
-        : wallets[0]
+    const wallet = getSessionConnectedMethod()
     if (wallet) {
       const provider = await wallet.getEthereumProvider()
       const walletClient = createWalletClient({
