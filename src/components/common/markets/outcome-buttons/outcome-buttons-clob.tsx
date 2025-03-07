@@ -31,7 +31,7 @@ export default function OutcomeButtonsClob() {
     })
     setOutcome(outcome)
     if (orderType === MarketOrderType.LIMIT) {
-      const selectedPrice = outcome ? noPrice : yesPrice
+      const selectedPrice = outcome ? 100 - yesPrice : 100 - noPrice
       setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
     }
   }
