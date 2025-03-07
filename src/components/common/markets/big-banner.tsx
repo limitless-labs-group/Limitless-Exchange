@@ -22,6 +22,7 @@ export default function BigBanner({ market, markets }: BigBannerProps) {
       trigger={<BigBannerTrigger market={market} markets={markets} />}
       variant='black'
       onClose={onCloseMarketPage}
+      renderPrevNext={true}
     >
       <MarketPage />
     </MobileDrawer>
