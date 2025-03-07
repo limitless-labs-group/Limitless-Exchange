@@ -134,7 +134,7 @@ export default function OrderBookTableSmall({
       <HStack w='full' mt='12px' justifyContent='space-between'>
         <Text {...paragraphMedium}>Daily reward:</Text>
         <Text {...paragraphMedium}>
-          {marketRewardsTotal?.totalRewards ? marketRewardsTotal.totalRewards.toFixed(0) : '200'}{' '}
+          {marketRewardsTotal?.totalRewards ? marketRewardsTotal.totalRewards.toFixed(0) : '0'}{' '}
           {market?.collateralToken.symbol}
         </Text>
       </HStack>
@@ -219,6 +219,12 @@ export default function OrderBookTableSmall({
               right={0}
               minH='128px'
               zIndex={150}
+              onMouseEnter={() => setRewardButtonHovered(true)}
+              onMouseLeave={() => {
+                if (!linkHovered) {
+                  setRewardButtonHovered(false)
+                }
+              }}
             >
               {tooltipContent}
             </Box>

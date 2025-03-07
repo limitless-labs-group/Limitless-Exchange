@@ -1,6 +1,5 @@
 import { Button, HStack } from '@chakra-ui/react'
 import { isNumber } from '@chakra-ui/utils'
-import debounce from 'lodash.debounce'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, {
   PropsWithChildren,
@@ -24,6 +23,7 @@ type MobileDrawerProps = {
   onClose?: () => void
   id?: string
   triggerStyle?: React.CSSProperties | undefined
+  renderPrevNext?: boolean
 }
 
 export default function MobileDrawer({
@@ -34,6 +34,7 @@ export default function MobileDrawer({
   onClose,
   id,
   triggerStyle,
+  renderPrevNext = false,
 }: PropsWithChildren<MobileDrawerProps>) {
   const searchParams = useSearchParams()
   const drawerRef = useRef<HTMLButtonElement>(null)
@@ -78,7 +79,7 @@ export default function MobileDrawer({
     : undefined
 
   const onClickPrevious =
-    isNumber(indexInArray) && indexInArray > 0 && markets
+    isNumber(indexInArray) && indexInArray > 0 && markets && renderPrevNext
       ? () => {
           onOpenMarketPage(markets[indexInArray - 1])
           router.push(`?market=${markets[indexInArray - 1].slug}`, { scroll: false })
@@ -89,7 +90,7 @@ export default function MobileDrawer({
       : undefined
 
   const onClickNext =
-    isNumber(indexInArray) && markets && indexInArray < markets.length - 1
+    isNumber(indexInArray) && markets && indexInArray < markets.length - 1 && renderPrevNext
       ? () => {
           onOpenMarketPage(markets[indexInArray + 1])
           router.push(`?market=${markets[indexInArray + 1].slug}`, { scroll: false })
@@ -111,21 +112,21 @@ export default function MobileDrawer({
 
   const titleColor = variant === 'blue' ? 'white' : 'var(--chakra-colors-grey.800)'
 
-  const [keyboardHeight, setKeyboardHeight] = useState(0)
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.visualViewport) {
-        const newKeyboardHeight = window.innerHeight - window.visualViewport.height
-        setKeyboardHeight(newKeyboardHeight > 0 ? newKeyboardHeight : 0)
-      }
-    }
-
-    handleResize()
-    const debouncedHandleResize = debounce(handleResize, 100)
-    window.addEventListener('resize', debouncedHandleResize)
-    return () => window.removeEventListener('resize', debouncedHandleResize)
-  }, [])
+  // const [keyboardHeight, setKeyboardHeight] = useState(0)
+  //
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     if (window.visualViewport) {
+  //       const newKeyboardHeight = window.innerHeight - window.visualViewport.height
+  //       setKeyboardHeight(newKeyboardHeight > 0 ? newKeyboardHeight : 0)
+  //     }
+  //   }
+  //
+  //   handleResize()
+  //   const debouncedHandleResize = debounce(handleResize, 100)
+  //   window.addEventListener('resize', debouncedHandleResize)
+  //   return () => window.removeEventListener('resize', debouncedHandleResize)
+  // }, [])
 
   const drawerStyle = useMemo(
     (): CSSProperties => ({
@@ -148,17 +149,17 @@ export default function MobileDrawer({
       margin: '0 auto',
       maxHeight: 'calc(100dvh - 68px)',
       overflowY: 'auto',
-      paddingBottom: `${keyboardHeight}px`,
+      // paddingBottom: `${keyboardHeight}px`,
       WebkitOverflowScrolling: 'touch',
       position: 'relative',
       zIndex: 1,
       touchAction: 'pan-y',
     }),
-    [keyboardHeight]
+    []
   )
 
   return (
-    <Drawer.Root shouldScaleBackground onClose={close}>
+    <Drawer.Root shouldScaleBackground autoFocus onClose={close}>
       <Drawer.Trigger asChild>
         <button style={{ width: '100%', ...triggerStyle }} ref={drawerRef}>
           {trigger}
@@ -224,7 +225,7 @@ export default function MobileDrawer({
                   </Drawer.Title>
                 )}
               </>
-              {children}
+              <>{children}</>
             </div>
           </div>
         </Drawer.Content>

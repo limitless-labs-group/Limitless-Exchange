@@ -1,9 +1,10 @@
 import { Box, Button, Flex, HStack, Spacer, Text, VStack } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
-import React, { useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
+import React, { useMemo, useRef } from 'react'
+import { isMobile, isTablet } from 'react-device-detect'
 import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
@@ -24,9 +25,11 @@ import {
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import useGoogleAnalytics, { GAEvents, Purchase } from '@/services/GoogleAnalytics'
+import { PendingTradeData } from '@/services/PendingTradeService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { getOrderErrorText } from '@/utils/orders'
 
 export default function ClobMarketTradeForm() {
   const { balanceLoading } = useBalanceService()
@@ -34,7 +37,7 @@ export default function ClobMarketTradeForm() {
   const { market, strategy, clobOutcome: outcome } = useTradingService()
   const { data: orderBook } = useOrderBook(market?.slug)
   const queryClient = useQueryClient()
-  const { web3Wallet } = useAccount()
+  const { web3Wallet, loginToPlatform } = useAccount()
   const {
     setPrice,
     price,
@@ -47,6 +50,7 @@ export default function ClobMarketTradeForm() {
     sharesAvailable,
     yesPrice,
     noPrice,
+    orderType,
   } = useClobWidget()
   const { client, placeMarketOrder } = useWeb3Service()
   const { web3Client, profileData } = useAccount()
@@ -54,6 +58,8 @@ export default function ClobMarketTradeForm() {
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
   const { pushPuchaseEvent, pushGA4Event } = useGoogleAnalytics()
+
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   const placeMarketOrderMutation = useMutation({
     mutationKey: ['market-order', market?.slug, price],
@@ -117,7 +123,10 @@ export default function ClobMarketTradeForm() {
       const purchase: Purchase = {
         transaction_id: res.id,
         value: orderCalculations.payout,
-        currency: market?.collateralToken.symbol || 'USDC',
+        currency:
+          market?.collateralToken.symbol === 'USDC'
+            ? 'USD'
+            : market?.collateralToken.symbol ?? 'USD',
         items: [
           {
             item_id: market?.marketType || '',
@@ -130,9 +139,11 @@ export default function ClobMarketTradeForm() {
       }
       pushPuchaseEvent(purchase)
     },
-    onError: async () => {
+    onError: async (error: AxiosError<{ message: string }>) => {
       const id = toast({
-        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
+        render: () => (
+          <Toast title={getOrderErrorText(error.response?.data.message ?? '')} id={id} />
+        ),
       })
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
@@ -189,6 +200,17 @@ export default function ClobMarketTradeForm() {
     }
     setPrice(value)
     return
+  }
+
+  const handleFocus = () => {
+    if ((isMobile || isTablet) && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
+    }
   }
 
   const renderButtonContent = (title: number) => {
@@ -339,6 +361,16 @@ export default function ClobMarketTradeForm() {
     }
   }, [market, orderBook, outcome, price, strategy])
 
+  const isLessThanMinTreshHold = useMemo(() => {
+    if (strategy == 'Buy') {
+      return +price < 1
+    }
+    if (orderCalculations.payout) {
+      return orderCalculations.payout < 1
+    }
+    return false
+  }, [orderCalculations.payout, strategy, price])
+
   const onResetMutation = async () => {
     await sleep(0.8)
     placeMarketOrderMutation.reset()
@@ -378,7 +410,27 @@ export default function ClobMarketTradeForm() {
     return false
   }, [orderBook, outcome, strategy])
 
+  const shouldSignUp = !web3Wallet && Boolean(price)
+
   const handleSubmitButtonClicked = async () => {
+    if (shouldSignUp) {
+      const currentUrl = window.location
+
+      const routeInfo: PendingTradeData = {
+        price,
+        marketSlug: market?.slug ?? '',
+        strategy,
+        outcome,
+        orderType,
+        pathname: currentUrl.pathname,
+        search: currentUrl.search,
+        href: currentUrl.href,
+        queryParams: Object.fromEntries(new URLSearchParams(currentUrl.search)),
+      }
+      localStorage.setItem('pendingTrade', JSON.stringify(routeInfo))
+      await loginToPlatform()
+      return
+    }
     if (strategy === 'Buy') {
       pushGA4Event(GAEvents.ClickBuy)
       const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
@@ -417,6 +469,13 @@ export default function ClobMarketTradeForm() {
     }
     return false
   }, [price, strategy, orderBook, outcome, market])
+
+  const getButtonText = () => {
+    if (shouldSignUp) {
+      return `Sign up to ${strategy}`
+    }
+    return `${strategy} ${outcome ? 'No' : 'Yes'}`
+  }
 
   return (
     <>
@@ -471,6 +530,8 @@ export default function ClobMarketTradeForm() {
             {strategy === 'Buy' ? market?.collateralToken.symbol : 'Contracts'}
           </Text>
         }
+        ref={inputRef}
+        onFocus={handleFocus}
       />
       <VStack w='full' gap='8px' my='24px'>
         {strategy === 'Buy' && (
@@ -513,10 +574,10 @@ export default function ClobMarketTradeForm() {
         status={placeMarketOrderMutation.status}
         isDisabled={
           !+price ||
-          isBalanceNotEnough ||
-          !web3Wallet ||
-          noOrdersOnDesiredToken ||
-          maxOrderAmountLessThanInput
+          isLessThanMinTreshHold ||
+          (web3Wallet
+            ? isBalanceNotEnough || noOrdersOnDesiredToken || maxOrderAmountLessThanInput
+            : false)
         }
         onClick={handleSubmitButtonClicked}
         successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(
@@ -525,11 +586,16 @@ export default function ClobMarketTradeForm() {
         )} contracts`}
         onReset={onResetMutation}
       >
-        {strategy} {outcome ? 'No' : 'Yes'}
+        {getButtonText()}
       </ClobTradeButton>
       {!+price && (
         <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
           Enter amount to {strategy === 'Buy' ? 'buy' : 'sell'}
+        </Text>
+      )}
+      {isLessThanMinTreshHold && (
+        <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
+          Min. amount is $1
         </Text>
       )}
       {maxOrderAmountLessThanInput && (

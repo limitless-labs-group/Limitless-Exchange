@@ -11,6 +11,7 @@ import { SpeedometerProgress } from './speedometer-progress'
 import { useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -34,6 +35,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
   const { onOpenMarketPage, market: selectedMarket } = useTradingService()
   const router = useRouter()
   const { data: marketFeedData } = useMarketFeed(market)
+  const { pushGA4Event } = useGoogleAnalytics()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {
@@ -50,6 +52,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
       marketTags: market.tags,
       ...analyticParams,
     })
+    pushGA4Event(GAEvents.SelectAnyMarket)
     onOpenMarketPage(market)
   }
 

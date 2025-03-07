@@ -2,9 +2,10 @@ import { Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { isNumber } from '@chakra-ui/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
+import { isMobile, isTablet } from 'react-device-detect'
 import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
@@ -24,9 +25,11 @@ import {
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
+import { PendingTradeData } from '@/services/PendingTradeService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { getOrderErrorText } from '@/utils/orders'
 
 export default function ClobLimitTradeForm() {
   const priceInputRef = React.useRef<HTMLInputElement>(null)
@@ -44,9 +47,10 @@ export default function ClobLimitTradeForm() {
     onToggleTradeStepper,
     isBalanceNotEnough,
     sharesAvailable,
+    orderType,
   } = useClobWidget()
   const { trackClicked } = useAmplitude()
-  const { web3Wallet } = useAccount()
+  const { web3Wallet, loginToPlatform } = useAccount()
   const { market, strategy, clobOutcome: outcome } = useTradingService()
   const queryClient = useQueryClient()
   const { client, placeLimitOrder } = useWeb3Service()
@@ -89,6 +93,35 @@ export default function ClobLimitTradeForm() {
     )
     return
   }
+
+  const handleFocusPriceInput = () => {
+    if ((isMobile || isTablet) && priceInputRef.current) {
+      setTimeout(() => {
+        priceInputRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
+    }
+  }
+
+  const handleFocusAmountInput = () => {
+    if ((isMobile || isTablet) && contractsInputRef.current) {
+      setTimeout(() => {
+        contractsInputRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
+    }
+  }
+
+  const isLessThanMinTreshHold = useMemo(() => {
+    if (price && sharesAmount) {
+      return +sharesAmount < 5
+    }
+    return false
+  }, [price, sharesAmount])
 
   const placeLimitOrderMutation = useMutation({
     mutationKey: ['limit-order', market?.slug, price],
@@ -150,9 +183,11 @@ export default function ClobLimitTradeForm() {
       })
       pushGA4Event(GAEvents.ClickBuyOrder)
     },
-    onError: async () => {
+    onError: async (error: AxiosError<{ message: string }>) => {
       const id = toast({
-        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
+        render: () => (
+          <Toast title={getOrderErrorText(error.response?.data.message ?? '')} id={id} />
+        ),
       })
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
@@ -276,7 +311,28 @@ export default function ClobLimitTradeForm() {
     })
   }
 
+  const shouldSignUp = !web3Wallet && Boolean(price)
   const handleSubmitButtonClicked = async () => {
+    if (shouldSignUp) {
+      const currentUrl = window.location
+
+      const routeInfo: PendingTradeData = {
+        price,
+        sharesAmount,
+        marketSlug: market?.slug ?? '',
+        strategy,
+        outcome,
+        orderType,
+        pathname: currentUrl.pathname,
+        search: currentUrl.search,
+        href: currentUrl.href,
+        queryParams: Object.fromEntries(new URLSearchParams(currentUrl.search)),
+      }
+      localStorage.setItem('pendingTrade', JSON.stringify(routeInfo))
+      await loginToPlatform()
+      return
+    }
+
     if (strategy === 'Buy') {
       const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
         parseUnits(sharesPrice, market?.collateralToken.decimals || 6).toString()
@@ -314,6 +370,13 @@ export default function ClobLimitTradeForm() {
     setSharesAmount(val)
   }
 
+  const getButtonText = () => {
+    if (shouldSignUp) {
+      return `Sign up to ${strategy}`
+    }
+    return `${strategy} ${outcome ? 'No' : 'Yes'}`
+  }
+
   return (
     <>
       <Flex justifyContent='space-between' alignItems='center' mb='8px'>
@@ -333,6 +396,7 @@ export default function ClobLimitTradeForm() {
         handleInputChange={handleSetLimitPrice}
         showIncrements={true}
         inputType='number'
+        onFocus={handleFocusPriceInput}
       />
       <Flex justifyContent='space-between' alignItems='center' mt='16px' mb='8px'>
         <Text
@@ -356,6 +420,7 @@ export default function ClobLimitTradeForm() {
         isInvalid={isBalanceNotEnough}
         showIncrements={true}
         inputType='number'
+        onFocus={handleFocusAmountInput}
       />
       <VStack w='full' gap='8px' my='24px'>
         {strategy === 'Buy' ? (
@@ -410,12 +475,19 @@ export default function ClobLimitTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
-        isDisabled={!+price || !+sharesAmount || isBalanceNotEnough || !web3Wallet}
+        // isDisabled={!+price || !+sharesAmount || isBalanceNotEnough || !web3Wallet}
+
+        isDisabled={
+          !+price ||
+          isLessThanMinTreshHold ||
+          !+sharesAmount ||
+          (web3Wallet ? isBalanceNotEnough : false)
+        }
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}
       >
-        Submit {strategy} Order
+        {getButtonText()}
       </ClobTradeButton>
       {(!price || !sharesAmount) && (
         <Flex
@@ -446,6 +518,11 @@ export default function ClobLimitTradeForm() {
             {!+sharesAmount && '\u00A0Contracts'}
           </Text>
         </Flex>
+      )}
+      {isLessThanMinTreshHold && (
+        <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
+          Min. shares amount is 5
+        </Text>
       )}
     </>
   )
