@@ -51,6 +51,13 @@ const PortfolioPositionCardClob = ({
     year: 'numeric',
   }).format(new Date(positionData.market.deadline))
 
+  const showContracts = (side: 0 | 1) => {
+    if (marketClosed) {
+      return positionData.market.winningOutcomeIndex === side
+    }
+    return true
+  }
+
   return (
     <Paper {...props} w={'full'} borderRadius='8px'>
       <HStack w='full' justifyContent='space-between'>
@@ -138,36 +145,35 @@ const PortfolioPositionCardClob = ({
               Contracts
             </Text>
           </HStack>
-          {Boolean(+positionData.tokensBalance.yes) &&
-            positionData.market.winningOutcomeIndex !== 1 && (
-              <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
-                <Text
-                  {...paragraphRegular}
-                  color={cardColors.main}
-                  w={isMobile ? 'unset' : '60px'}
-                  flex={isMobile ? 1 : 'unset'}
-                  textAlign={isMobile ? 'left' : 'unset'}
-                >
-                  Yes
-                </Text>
-                <Text
-                  {...paragraphRegular}
-                  color={cardColors.main}
-                  w={isMobile ? 'unset' : '120px'}
-                  flex={isMobile ? 1 : 'unset'}
-                  textAlign={isMobile ? 'left' : 'center'}
-                >
-                  {`${NumberUtil.toFixed(
-                    formatUnits(
-                      BigInt(positionData.tokensBalance.yes),
-                      positionData.market.collateralToken.decimals
-                    ),
-                    6
-                  )}`}
-                </Text>
-              </HStack>
-            )}
-          {Boolean(+positionData.tokensBalance.no) && !positionData.market.winningOutcomeIndex && (
+          {Boolean(+positionData.tokensBalance.yes) && showContracts(0) && (
+            <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
+              <Text
+                {...paragraphRegular}
+                color={cardColors.main}
+                w={isMobile ? 'unset' : '60px'}
+                flex={isMobile ? 1 : 'unset'}
+                textAlign={isMobile ? 'left' : 'unset'}
+              >
+                Yes
+              </Text>
+              <Text
+                {...paragraphRegular}
+                color={cardColors.main}
+                w={isMobile ? 'unset' : '120px'}
+                flex={isMobile ? 1 : 'unset'}
+                textAlign={isMobile ? 'left' : 'center'}
+              >
+                {`${NumberUtil.toFixed(
+                  formatUnits(
+                    BigInt(positionData.tokensBalance.yes),
+                    positionData.market.collateralToken.decimals
+                  ),
+                  6
+                )}`}
+              </Text>
+            </HStack>
+          )}
+          {Boolean(+positionData.tokensBalance.no) && showContracts(1) && (
             <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
               <Text
                 {...paragraphRegular}
