@@ -138,7 +138,8 @@ export default function ClobLimitTradeForm() {
           market.collateralToken.decimals,
           price,
           sharesAmount,
-          side
+          side,
+          market.negRiskRequestId ? 'negRisk' : 'common'
         )
         const data = {
           order: {

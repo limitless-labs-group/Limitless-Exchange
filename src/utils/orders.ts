@@ -1,4 +1,4 @@
-import { Order, EIP712TypedData, PROTOCOL_NAME, PROTOCOL_VERSION } from '@polymarket/order-utils'
+import { Order, EIP712TypedData, PROTOCOL_VERSION } from '@polymarket/order-utils'
 import { defaultChain } from '@/constants'
 
 export const EIP712_DOMAIN = [
@@ -23,7 +23,7 @@ export const ORDER_STRUCTURE = [
   { name: 'signatureType', type: 'uint8' },
 ]
 
-export const buildOrderTypedData = (order: Order): EIP712TypedData => {
+export const buildOrderTypedData = (order: Order, type: 'common' | 'negRisk'): EIP712TypedData => {
   const result = {
     primaryType: 'Order',
     types: {
@@ -34,7 +34,10 @@ export const buildOrderTypedData = (order: Order): EIP712TypedData => {
       name: 'Limitless CTF Exchange',
       version: PROTOCOL_VERSION,
       chainId: defaultChain.id,
-      verifyingContract: process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as string,
+      verifyingContract:
+        type === 'common'
+          ? (process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as string)
+          : (process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE as string),
     },
     message: {
       salt: order.salt,
