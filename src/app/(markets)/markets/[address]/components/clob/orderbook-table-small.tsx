@@ -96,7 +96,7 @@ export default function OrderBookTableSmall({
         )
           .minus(new BigNumber(orderbook.maxSpread))
           .multipliedBy(100)
-          .decimalPlaces(0)
+          .decimalPlaces(1)
           .toNumber(),
         new BigNumber(
           outcome
@@ -105,7 +105,7 @@ export default function OrderBookTableSmall({
         )
           .plus(new BigNumber(orderbook.maxSpread))
           .multipliedBy(100)
-          .decimalPlaces(0)
+          .decimalPlaces(1)
           .toNumber(),
       ]
     : [50, 50]
