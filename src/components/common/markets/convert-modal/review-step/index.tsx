@@ -2,10 +2,11 @@ import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import { parseUnits } from 'viem'
+import { useEffect, useMemo, useState } from 'react'
+import { Address, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { ClobPositionWithTypeAndSelected } from '@/components/common/markets/convert-modal/convert-modal-content'
-import { useTradingService } from '@/services'
+import { useAccount, useTradingService } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { captionRegular, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
@@ -17,13 +18,26 @@ interface ReviewStepProps {
 
 export default function ReviewStep({ positions, onBack, sharesToConvert }: ReviewStepProps) {
   const { groupMarket, market } = useTradingService()
+  const { checkAllowanceForAll, approveAllowanceForAll, convertShares } = useWeb3Service()
+  const { web3Wallet, web3Client } = useAccount()
+  const [isApproved, setIsApproved] = useState(false)
   const queryClient = useQueryClient()
   const positionsToConvert = positions.filter((pos) => pos.selected)
   const remainMarkets = groupMarket?.markets?.filter(
     (market) => !positionsToConvert.some((pos) => pos.market.slug === market.slug)
   )
 
-  const { convertShares } = useWeb3Service()
+  const checkConvertAllowance = async () => {
+    const isApproved = await checkAllowanceForAll(
+      process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+    )
+    setIsApproved(isApproved)
+  }
+
+  useEffect(() => {
+    checkConvertAllowance()
+  }, [])
 
   const convertMutation = useMutation({
     mutationKey: ['convert-shares', groupMarket?.slug],
@@ -43,6 +57,15 @@ export default function ReviewStep({ positions, onBack, sharesToConvert }: Revie
     },
   })
 
+  const approveMutation = useMutation({
+    mutationKey: ['approve-convert-shares', groupMarket?.slug, web3Wallet?.account?.address],
+    mutationFn: async () =>
+      approveAllowanceForAll(
+        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+        process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address
+      ),
+  })
+
   const onResetMutation = async () => {
     await sleep(2)
     await queryClient.refetchQueries({
@@ -50,6 +73,52 @@ export default function ReviewStep({ positions, onBack, sharesToConvert }: Revie
     })
     convertMutation.reset()
   }
+
+  const onResetApprove = async () => {
+    await sleep(2)
+    await checkConvertAllowance()
+    approveMutation.reset()
+  }
+
+  const actionButton = useMemo(() => {
+    if (web3Client === 'etherspot') {
+      return (
+        <ButtonWithStates
+          variant='contained'
+          status={convertMutation.status}
+          onReset={onResetMutation}
+          onClick={async () => convertMutation.mutateAsync()}
+          minW='72px'
+        >
+          Convert
+        </ButtonWithStates>
+      )
+    }
+    if (!isApproved) {
+      return (
+        <ButtonWithStates
+          variant='contained'
+          status={approveMutation.status}
+          onReset={onResetApprove}
+          onClick={async () => approveMutation.mutateAsync()}
+          minW='72px'
+        >
+          Approve
+        </ButtonWithStates>
+      )
+    }
+    return (
+      <ButtonWithStates
+        variant='contained'
+        status={convertMutation.status}
+        onReset={onResetMutation}
+        onClick={async () => convertMutation.mutateAsync()}
+        minW='72px'
+      >
+        Convert
+      </ButtonWithStates>
+    )
+  }, [approveMutation, convertMutation, isApproved, web3Client])
 
   const tableHeader = (
     <HStack
@@ -127,15 +196,7 @@ export default function ReviewStep({ positions, onBack, sharesToConvert }: Revie
         <Button variant='outlined' onClick={onBack}>
           Back
         </Button>
-        <ButtonWithStates
-          variant='contained'
-          status={convertMutation.status}
-          onReset={onResetMutation}
-          onClick={async () => convertMutation.mutateAsync()}
-          minW='72px'
-        >
-          Convert
-        </ButtonWithStates>
+        {actionButton}
       </HStack>
     </Box>
   )

@@ -280,6 +280,10 @@ export default function useSmartWalletService() {
 
   const convertShares = async (negRiskRequestId: string, indexSet: string, amount: bigint) => {
     try {
+      await approveConditionalIfNeeded(
+        process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
+        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+      )
       const data = encodeFunctionData({
         abi: negriskAdapterAbi,
         functionName: 'convertPositions',
