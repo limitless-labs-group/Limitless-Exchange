@@ -54,11 +54,9 @@ interface ITradingServiceContext {
     slippage: string
   }) => Promise<string | undefined>
   trade: (outcomeTokenId: number, slippage: string) => Promise<string | undefined>
-  redeem: (params: RedeemParams) => Promise<string | undefined>
   status: TradingServiceStatus
   tradeStatus: TradingServiceStatus
   approveBuy: () => Promise<void>
-  isLoadingRedeem: boolean
   resetQuotes: () => void
   approveSellMutation: UseMutationResult<void, Error, void, unknown>
   checkApprovedForSell: () => Promise<boolean>
@@ -77,6 +75,7 @@ interface ITradingServiceContext {
   setConvertModalOpened: (val: boolean) => void
   setGroupMarket: (val: Market | null) => void
   groupMarket: Market | null
+  redeemMutation: UseMutationResult<string | undefined, Error, RedeemParams, unknown>
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -750,7 +749,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   /**
    * REDEEM / CLAIM
    */
-  const { mutateAsync: redeem, isPending: isLoadingRedeem } = useMutation({
+  const redeemMutation = useMutation({
+    mutationKey: ['redeemPosition', market?.slug],
     mutationFn: async ({
       outcomeIndex,
       marketAddress,
@@ -802,6 +802,11 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       await refetchHistory()
       return receipt
     },
+    onSuccess: async () => {
+      await queryClient.refetchQueries({
+        queryKey: ['positions'],
+      })
+    },
   })
 
   const trade = useCallback(
@@ -817,14 +822,14 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * STATUS
    */
   const status = useMemo<TradingServiceStatus>(() => {
-    if (isLoadingBuy || isLoadingSell || isLoadingRedeem || isLoadingApproveBuy) {
+    if (isLoadingBuy || isLoadingSell || isLoadingApproveBuy) {
       return 'Loading'
     }
     if (isInvalidCollateralAmount) {
       return 'InvalidAmount'
     }
     return 'Ready'
-  }, [isInvalidCollateralAmount, isLoadingBuy, isLoadingSell, isLoadingRedeem, isLoadingApproveBuy])
+  }, [isInvalidCollateralAmount, isLoadingBuy, isLoadingSell, isLoadingApproveBuy])
 
   const tradeStatus = useMemo<TradingServiceStatus>(() => {
     if (isLoadingBuy || isLoadingSell) {
@@ -848,12 +853,11 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     buy,
     sell,
     trade,
-    redeem,
     status,
     tradeStatus,
     approveBuy,
     approveSellMutation,
-    isLoadingRedeem,
+    redeemMutation,
     resetQuotes,
     marketFee,
     marketPageOpened,

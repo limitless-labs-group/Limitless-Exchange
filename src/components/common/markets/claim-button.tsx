@@ -3,11 +3,16 @@ import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { SyntheticEvent } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Address } from 'viem'
+import { Address, getAddress, zeroHash } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
+import { Toast } from '@/components/common/toast'
+import { useToast } from '@/hooks'
+import { getConditionalTokenAddress } from '@/hooks/use-conditional-tokens-addr'
 import WinIcon from '@/resources/icons/win-icon.svg'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { ClickEvent, useAmplitude } from '@/services'
+import { useWeb3Service } from '@/services/Web3Service'
 import { NumberUtil } from '@/utils'
+import { DISCORD_LINK } from '@/utils/consts'
 
 export type ClaimButtonProps = ButtonProps & {
   slug?: string
@@ -18,6 +23,8 @@ export type ClaimButtonProps = ButtonProps & {
   marketType: 'amm' | 'clob'
   amountToClaim: string
   symbol: string
+  negRiskRequestId?: string
+  amounts?: bigint[]
 }
 
 export default function ClaimButton({
@@ -29,28 +36,72 @@ export default function ClaimButton({
   marketType,
   amountToClaim,
   symbol,
+  negRiskRequestId,
+  amounts,
   ...props
 }: ClaimButtonProps) {
-  const { redeem } = useTradingService()
+  const toast = useToast()
+  const { redeemPositions } = useWeb3Service()
   const { trackClicked } = useAmplitude()
   const queryClient = useQueryClient()
+  const { redeemNegRiskMarket } = useWeb3Service()
 
   const redeemMutation = useMutation({
-    mutationKey: ['redeemPosition', slug || marketAddress],
+    mutationKey: ['redeemPosition', slug],
     mutationFn: async () => {
-      console.log(conditionId)
-      console.log(collateralAddress)
-      console.log(marketAddress)
-      console.log(outcomeIndex)
-      console.log(marketType)
-      await redeem({
-        conditionId,
+      const conditionalTokenAddress =
+        marketType === 'amm'
+          ? await getConditionalTokenAddress(getAddress(marketAddress))
+          : marketAddress
+
+      const receipt = await redeemPositions(
+        conditionalTokenAddress,
         collateralAddress,
-        marketAddress,
-        outcomeIndex,
-        type: marketType,
+        zeroHash,
+        conditionId,
+        [1 << outcomeIndex]
+      )
+
+      if (!receipt) {
+        const id = toast({
+          render: () => (
+            <Toast
+              title={`Unsuccessful transaction`}
+              text={'Please contact our support.'}
+              link={DISCORD_LINK}
+              linkText='Open Discord'
+              id={id}
+            />
+          ),
+        })
+        return
+      }
+
+      const id = toast({
+        render: () => <Toast title={`Successfully redeemed`} id={id} />,
+      })
+
+      await sleep(1)
+
+      const updateId = toast({
+        render: () => <Toast title={`Updating portfolio...`} id={updateId} />,
+      })
+
+      return receipt
+    },
+    onSuccess: async () => {
+      await queryClient.refetchQueries({
+        queryKey: ['positions'],
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['history'],
       })
     },
+  })
+
+  const claimNegriskMarketMutation = useMutation({
+    mutationKey: ['claim-neg-risk', slug],
+    mutationFn: async () => redeemNegRiskMarket(conditionId, amounts as bigint[]),
     onSuccess: async () => {
       await queryClient.refetchQueries({
         queryKey: ['positions'],
@@ -58,20 +109,33 @@ export default function ClaimButton({
     },
   })
 
+  const claimMutation = negRiskRequestId ? claimNegriskMarketMutation : redeemMutation
+
+  const onResetMutation = async () => {
+    await sleep(5)
+    await queryClient.refetchQueries({
+      queryKey: ['positions'],
+    })
+    await queryClient.invalidateQueries({
+      queryKey: ['history'],
+    })
+    claimMutation.reset()
+  }
+
   return (
     <ButtonWithStates
       {...props}
-      status={redeemMutation.status}
+      status={claimMutation.status}
       variant='white'
       onClick={async (e: SyntheticEvent) => {
         e.stopPropagation()
         trackClicked(ClickEvent.ClaimRewardOnPortfolioClicked, {
           platform: isMobile ? 'mobile' : 'desktop',
         })
-        await redeemMutation.mutateAsync()
+        await claimMutation.mutateAsync()
       }}
       minW={isMobile ? 'full' : '162px'}
-      onReset={undefined}
+      onReset={onResetMutation}
     >
       <>
         <Icon as={WinIcon} color={'black'} />
