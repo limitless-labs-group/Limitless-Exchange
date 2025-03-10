@@ -42,6 +42,7 @@ export default function ClobLimitTradeForm() {
     price,
     sharesAmount,
     sharesAvailable,
+    isApprovedNegRiskForSell,
   } = useClobWidget()
   const { trackClicked } = useAmplitude()
   const { web3Wallet } = useAccount()
@@ -120,6 +121,12 @@ export default function ClobLimitTradeForm() {
               operator as Address,
               process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
             )
+            if (market.negRiskRequestId) {
+              await privyService.approveConditionalIfNeeded(
+                process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE as Address,
+                process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+              )
+            }
           } else {
             const spender = market.negRiskRequestId
               ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
@@ -303,9 +310,14 @@ export default function ClobLimitTradeForm() {
       await placeLimitOrderMutation.mutateAsync()
       return
     }
-    if (!isApprovedForSell && client === 'eoa') {
-      onToggleTradeStepper()
-      return
+    if (client === 'eoa') {
+      const isApprovedSell = market?.negRiskRequestId
+        ? isApprovedForSell || isApprovedNegRiskForSell
+        : isApprovedForSell
+      if (!isApprovedSell) {
+        onToggleTradeStepper()
+        return
+      }
     }
     await placeLimitOrderMutation.mutateAsync()
   }

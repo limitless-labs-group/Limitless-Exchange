@@ -47,11 +47,13 @@ interface ClobWidgetContextType {
     yes: bigint
     no: bigint
   }
+  isApprovedNegRiskForSell: boolean
 }
 
 export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const [orderType, setOrderType] = useState(MarketOrderType.MARKET)
   const [allowance, setAllowance] = useState<bigint>(0n)
+  const [isApprovedNegRiskForSell, setIsApprovedNegRiskForSell] = useState(false)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
   const { web3Wallet } = useAccount()
   const { market, strategy, clobOutcome: outcome } = useTradingService()
@@ -110,6 +112,13 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
       operator as Address,
       process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
     )
+    if (market?.negRiskRequestId) {
+      const isAppovedNegRisk = await checkAllowanceForAll(
+        process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE as Address,
+        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+      )
+      setIsApprovedNegRiskForSell(isAppovedNegRisk)
+    }
     setAllowance(allowance)
     setIsApprovedForSell(isApprovedNFT)
   }
@@ -228,6 +237,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         sharesAmount,
         setSharesAmount,
         sharesAvailable,
+        isApprovedNegRiskForSell,
       }}
     >
       {children}

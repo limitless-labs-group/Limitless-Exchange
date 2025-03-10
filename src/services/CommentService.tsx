@@ -45,7 +45,6 @@ export const CommentServiceProvider = ({ children }: PropsWithChildren) => {
       return res.data
     },
     onSuccess: async (_, { marketSlug }) => {
-      console.log(marketSlug)
       await queryClient.invalidateQueries({ queryKey: ['market-comments', marketSlug] })
     },
     onError: () => {
