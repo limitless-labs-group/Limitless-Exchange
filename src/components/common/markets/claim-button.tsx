@@ -9,7 +9,7 @@ import { Toast } from '@/components/common/toast'
 import { useToast } from '@/hooks'
 import { getConditionalTokenAddress } from '@/hooks/use-conditional-tokens-addr'
 import WinIcon from '@/resources/icons/win-icon.svg'
-import { ClickEvent, useAmplitude } from '@/services'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { NumberUtil } from '@/utils'
 import { DISCORD_LINK } from '@/utils/consts'
@@ -41,10 +41,11 @@ export default function ClaimButton({
   ...props
 }: ClaimButtonProps) {
   const toast = useToast()
-  const { redeemPositions } = useWeb3Service()
+  const { redeemPositions, approveAllowanceForAll } = useWeb3Service()
   const { trackClicked } = useAmplitude()
   const queryClient = useQueryClient()
   const { redeemNegRiskMarket } = useWeb3Service()
+  const { negriskApprovalNeeded, setNegRiskApprovalNeeded } = useTradingService()
 
   const redeemMutation = useMutation({
     mutationKey: ['redeemPosition', slug],
@@ -122,7 +123,39 @@ export default function ClaimButton({
     claimMutation.reset()
   }
 
-  return (
+  const onResetApproveMutation = async () => {
+    await sleep(5)
+    approveClaimNegriskMutation.reset()
+  }
+
+  const approveClaimNegriskMutation = useMutation({
+    mutationKey: ['approve-neg-risk-claim', slug],
+    mutationFn: async () =>
+      approveAllowanceForAll(
+        process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
+        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+      ),
+    onSuccess: () => setNegRiskApprovalNeeded(true),
+  })
+
+  return !!negRiskRequestId && negriskApprovalNeeded ? (
+    <ButtonWithStates
+      {...props}
+      status={approveClaimNegriskMutation.status}
+      variant='white'
+      onClick={async (e: SyntheticEvent) => {
+        e.stopPropagation()
+        trackClicked(ClickEvent.ApproveClaimRewardForNegRiskMarketClicked, {
+          platform: isMobile ? 'mobile' : 'desktop',
+        })
+        await approveClaimNegriskMutation.mutateAsync()
+      }}
+      minW={isMobile ? 'full' : '162px'}
+      onReset={onResetApproveMutation}
+    >
+      Approve Claim
+    </ButtonWithStates>
+  ) : (
     <ButtonWithStates
       {...props}
       status={claimMutation.status}
