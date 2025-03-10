@@ -133,12 +133,12 @@ export const usePortfolioHistory = (page: number) => {
 
 export const useInfinityHistory = () => {
   const privateClient = useAxiosPrivateClient()
-  const { web3Wallet } = useAccount()
+  const { account } = useAccount()
   return useInfiniteQuery<History[], Error>({
     queryKey: ['history-infinity'],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
-      if (!web3Wallet) {
+      if (!account) {
         return []
       }
 
@@ -161,7 +161,7 @@ export const useInfinityHistory = () => {
     },
     refetchOnWindowFocus: false,
     keepPreviousData: true,
-    enabled: !!web3Wallet,
+    enabled: !!account,
   })
 }
 
@@ -206,6 +206,12 @@ export type HistoryRedeem = {
   collateralToken: string
   collateralSymbol: string
   title: string
+  action: HistoryAction
+}
+
+export enum HistoryAction {
+  WON = 'won',
+  LOOS = 'loss',
 }
 
 export type History = {
@@ -250,4 +256,15 @@ export type HistoryPositionWithType = HistoryPosition & {
 
 export type ClobPositionWithType = ClobPosition & {
   type: 'clob'
+}
+
+export type HistoryLoss = {
+  action: HistoryAction
+  title: string
+  conditionId: Hash
+  outcomeIndex: number
+  blockTimestamp: string
+  collateralToken: string
+  collateralSymbol: string
+  collateralAmount: string
 }
