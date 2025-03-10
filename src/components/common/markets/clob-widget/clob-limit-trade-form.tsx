@@ -118,6 +118,12 @@ export default function ClobLimitTradeForm() {
       }, 300)
     }
   }
+  const isLessThanMinTreshHold = useMemo(() => {
+    if (price && sharesAmount) {
+      return +sharesAmount < 5
+    }
+    return false
+  }, [price, sharesAmount])
 
   const isLessThanMinTreshHold = useMemo(() => {
     if (price && sharesAmount) {
@@ -317,6 +323,7 @@ export default function ClobLimitTradeForm() {
   const shouldSignUp = !web3Wallet && Boolean(price)
   const shouldAddFunds =
     web3Wallet && strategy === 'Buy' && orderCalculations.total > Number(balance)
+
 
   const handleSubmitButtonClicked = async () => {
     if (shouldSignUp) {
@@ -534,6 +541,11 @@ export default function ClobLimitTradeForm() {
         </Flex>
       )}
       {shouldAddFunds && <AddFundsValidation />}
+      {isLessThanMinTreshHold && (
+        <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
+          Min. shares amount is 5
+        </Text>
+      )}
     </>
   )
 }

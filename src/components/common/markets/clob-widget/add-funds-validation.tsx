@@ -9,6 +9,7 @@ export const AddFundsValidation = () => {
   return (
     <Text my='8px' {...paragraphRegular} color='orange.50' textAlign={'center'}>
       {`Your balance is ~${NumberUtil.formatThousands(balance, 2)} USD`}
+
     </Text>
   )
 }

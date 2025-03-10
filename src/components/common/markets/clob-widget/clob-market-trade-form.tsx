@@ -212,8 +212,6 @@ export default function ClobMarketTradeForm() {
           block: 'center',
         })
       }, 300)
-    }
-  }
 
   const renderButtonContent = (title: number) => {
     if (title === 100) {
@@ -371,7 +369,7 @@ export default function ClobMarketTradeForm() {
       return orderCalculations.payout < 1
     }
     return false
-  }, [orderCalculations.payout, strategy, price])
+  }, [orderCalculations.payout, strategy])
 
   const onResetMutation = async () => {
     await sleep(0.8)

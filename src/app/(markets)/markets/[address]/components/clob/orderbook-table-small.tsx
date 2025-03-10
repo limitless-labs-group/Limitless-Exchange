@@ -1,5 +1,6 @@
 import { Box, Button, HStack, Link, Text, useOutsideClick } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
+import { clear } from 'console'
 import NextLink from 'next/link'
 import React, { LegacyRef, MutableRefObject, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -96,7 +97,7 @@ export default function OrderBookTableSmall({
         )
           .minus(new BigNumber(orderbook.maxSpread))
           .multipliedBy(100)
-          .decimalPlaces(0)
+          .decimalPlaces(1)
           .toNumber(),
         new BigNumber(
           outcome
@@ -105,7 +106,7 @@ export default function OrderBookTableSmall({
         )
           .plus(new BigNumber(orderbook.maxSpread))
           .multipliedBy(100)
-          .decimalPlaces(0)
+          .decimalPlaces(1)
           .toNumber(),
       ]
     : [50, 50]
