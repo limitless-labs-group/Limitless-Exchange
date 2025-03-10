@@ -96,7 +96,7 @@ export default function OrderBookTableSmall({
         )
           .minus(new BigNumber(orderbook.maxSpread))
           .multipliedBy(100)
-          .decimalPlaces(0)
+          .decimalPlaces(1)
           .toNumber(),
         new BigNumber(
           outcome
@@ -105,7 +105,7 @@ export default function OrderBookTableSmall({
         )
           .plus(new BigNumber(orderbook.maxSpread))
           .multipliedBy(100)
-          .decimalPlaces(0)
+          .decimalPlaces(1)
           .toNumber(),
       ]
     : [50, 50]
@@ -190,8 +190,10 @@ export default function OrderBookTableSmall({
             onClick={handleRewardsClicked}
             onMouseEnter={() => {
               const timer = setTimeout(() => {
-                setRewardButtonHovered(true)
-              }, 300)
+                if (!rewardButtonHovered) {
+                  setRewardButtonHovered(true)
+                }
+              }, 200)
               return () => clearTimeout(timer)
             }}
             onMouseLeave={() => setRewardButtonHovered(false)}
@@ -218,12 +220,13 @@ export default function OrderBookTableSmall({
               rounded='8px'
               right={0}
               minH='128px'
-              zIndex={150}
+              zIndex={201}
               onMouseEnter={() => setRewardButtonHovered(true)}
               onMouseLeave={() => {
-                if (!linkHovered) {
+                const timer = setTimeout(() => {
                   setRewardButtonHovered(false)
-                }
+                }, 300)
+                return () => clearTimeout(timer)
               }}
             >
               {tooltipContent}

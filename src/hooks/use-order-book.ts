@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import BigNumber from 'bignumber.js'
-import { formatUnits, parseUnits } from 'viem'
 import { limitlessApi } from '@/services'
 
 export interface OrderBook {
