@@ -302,6 +302,26 @@ export default function useSmartWalletService() {
     }
   }
 
+  const redeemNegRiskMarket = async (conditionId: string, amounts: bigint[]) => {
+    try {
+      const data = encodeFunctionData({
+        abi: negriskAdapterAbi,
+        functionName: 'redeemPositions',
+        args: [conditionId, amounts],
+      })
+      const contract = getContract({
+        address: process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
+        abi: negriskAdapterAbi,
+        client: publicClient,
+      })
+      const transactionHash = await sendTransaction(contract, data)
+      return transactionHash
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
+  }
+
   return {
     buyOutcomeTokens,
     wrapEth,
@@ -316,5 +336,6 @@ export default function useSmartWalletService() {
     approveCollateralIfNeeded,
     approveConditionalIfNeeded,
     convertShares,
+    redeemNegRiskMarket,
   }
 }
