@@ -37,7 +37,6 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
   )
   const { onOpenMarketPage } = useTradingService()
   const { trackClicked } = useAmplitude()
-  console.log('redeem', redeem)
 
   const formattedAmount = NumberUtil.formatThousands(
     Number(redeem.collateralAmount) ?? 0,
