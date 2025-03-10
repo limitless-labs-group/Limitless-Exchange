@@ -4,7 +4,6 @@ import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import {
   ChangeEvent,
   OrderBookSideChangedMetadata,
-  StrategyChangedMetadata,
   useAmplitude,
   useTradingService,
 } from '@/services'
@@ -50,7 +49,7 @@ export default function OutcomeButtonsClob() {
             onClick={() => handleOutcomeChanged(0)}
             h='64px'
           >
-            Yes {yesPrice}¢
+            Yes {100 - noPrice}¢
           </Button>
           <Button
             flex={1}
@@ -59,7 +58,7 @@ export default function OutcomeButtonsClob() {
             onClick={() => handleOutcomeChanged(1)}
             h='64px'
           >
-            No {noPrice}¢
+            No {100 - yesPrice}¢
           </Button>
         </HStack>
       </Box>
@@ -84,7 +83,7 @@ export default function OutcomeButtonsClob() {
         >
           <VStack w='full' justifyContent='space-between' gap={0}>
             <Text color={!outcome ? 'white' : 'green.500'} fontSize='16px' fontWeight={700}>
-              Yes {yesPrice}¢
+              Yes {100 - noPrice}¢
             </Text>
             <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
               {NumberUtil.toFixed(getShares(sharesAvailable['yes']), 6)} Contracts
@@ -103,7 +102,7 @@ export default function OutcomeButtonsClob() {
         >
           <VStack w='full' justifyContent='space-between' gap={0}>
             <Text color={outcome ? 'white' : 'red.500'} fontSize='16px' fontWeight={700}>
-              No {noPrice}¢
+              No {100 - yesPrice}¢
             </Text>
             <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
               {NumberUtil.toFixed(getShares(sharesAvailable['no']), 6)} Contracts
