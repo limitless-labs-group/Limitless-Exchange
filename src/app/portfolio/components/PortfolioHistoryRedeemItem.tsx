@@ -7,7 +7,13 @@ import { defaultChain } from '@/constants'
 import useMarketGroup from '@/hooks/use-market-group'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import { ClickEvent, HistoryRedeem, useAmplitude, useTradingService } from '@/services'
+import {
+  ClickEvent,
+  HistoryAction,
+  HistoryRedeem,
+  useAmplitude,
+  useTradingService,
+} from '@/services'
 import { useAllMarkets, useMarketByConditionId } from '@/services/MarketsService'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -31,6 +37,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
   )
   const { onOpenMarketPage } = useTradingService()
   const { trackClicked } = useAmplitude()
+  console.log('redeem', redeem)
 
   const formattedAmount = NumberUtil.formatThousands(
     Number(redeem.collateralAmount) ?? 0,
@@ -75,7 +82,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
 
   return (
     <Tr pos={'relative'} {...props}>
-      <Td w='92px'>Won</Td>
+      <Td w='92px'>{redeem.action === HistoryAction.WON ? 'Won' : 'Loss'}</Td>
       <Td>
         <HStack gap='4px'>
           {redeem.outcomeIndex ? (
