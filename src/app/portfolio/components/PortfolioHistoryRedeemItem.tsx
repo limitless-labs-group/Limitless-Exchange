@@ -38,6 +38,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
   )
   const { onOpenMarketPage } = useTradingService()
   const { trackClicked } = useAmplitude()
+  console.log('redeem', redeem)
 
   const formattedAmountWithSymbol = useMemo(() => {
     const precision = redeem.collateralSymbol === 'USDC' ? 2 : 6

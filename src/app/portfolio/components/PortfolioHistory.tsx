@@ -57,6 +57,7 @@ const History = () => {
     debounce(async () => fetchNextPage(), 1000),
     []
   )
+  console.log('history', historyData)
 
   //@ts-ignore
   const historyFlat = historyData?.pages.flatMap((page) => page.data?.data)
