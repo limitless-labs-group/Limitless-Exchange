@@ -35,6 +35,13 @@ export default function OutcomeButtonsClob() {
     }
   }
 
+  const getPrice = (outcome: number) => {
+    if (orderType === MarketOrderType.MARKET) {
+      return outcome ? `No ${noPrice}¢` : `Yes ${yesPrice}¢`
+    }
+    return outcome ? `No ${100 - yesPrice}¢` : `Yes ${100 - noPrice}¢`
+  }
+
   if (strategy === 'Buy') {
     return (
       <Box mb='24px'>
@@ -49,7 +56,7 @@ export default function OutcomeButtonsClob() {
             onClick={() => handleOutcomeChanged(0)}
             h='64px'
           >
-            Yes {100 - noPrice}¢
+            {getPrice(0)}
           </Button>
           <Button
             flex={1}
@@ -58,7 +65,7 @@ export default function OutcomeButtonsClob() {
             onClick={() => handleOutcomeChanged(1)}
             h='64px'
           >
-            No {100 - yesPrice}¢
+            {getPrice(1)}
           </Button>
         </HStack>
       </Box>
@@ -83,7 +90,7 @@ export default function OutcomeButtonsClob() {
         >
           <VStack w='full' justifyContent='space-between' gap={0}>
             <Text color={!outcome ? 'white' : 'green.500'} fontSize='16px' fontWeight={700}>
-              Yes {100 - noPrice}¢
+              {getPrice(0)}
             </Text>
             <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
               {NumberUtil.toFixed(getShares(sharesAvailable['yes']), 6)} Contracts
@@ -102,7 +109,7 @@ export default function OutcomeButtonsClob() {
         >
           <VStack w='full' justifyContent='space-between' gap={0}>
             <Text color={outcome ? 'white' : 'red.500'} fontSize='16px' fontWeight={700}>
-              No {100 - yesPrice}¢
+              {getPrice(1)}
             </Text>
             <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
               {NumberUtil.toFixed(getShares(sharesAvailable['no']), 6)} Contracts
