@@ -76,8 +76,8 @@ interface ITradingServiceContext {
   setGroupMarket: (val: Market | null) => void
   groupMarket: Market | null
   redeemMutation: UseMutationResult<string | undefined, Error, RedeemParams, unknown>
-  negriskApprovalNeeded: boolean
-  setNegRiskApprovalNeeded: (val: boolean) => void
+  negriskApproved: boolean
+  setNegRiskApproved: (val: boolean) => void
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -109,14 +109,14 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    */
   const [clobOutcome, setClobOutcome] = useState(0)
   const [convertModalOpened, setConvertModalOpened] = useState(false)
-  const [negriskApprovalNeeded, setNegRiskApprovalNeeded] = useState(false)
+  const [negriskApproved, setNegRiskApproved] = useState(false)
 
   const checkNegRiskClaimApprove = async () => {
     const isApproved = await checkAllowanceForAll(
       process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
       process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
     )
-    setNegRiskApprovalNeeded(isApproved)
+    setNegRiskApproved(isApproved)
   }
 
   useEffect(() => {
@@ -889,8 +889,8 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     groupMarket,
     convertModalOpened,
     setConvertModalOpened,
-    negriskApprovalNeeded,
-    setNegRiskApprovalNeeded,
+    negriskApproved,
+    setNegRiskApproved,
   }
 
   return (

@@ -45,7 +45,7 @@ export default function ClaimButton({
   const { trackClicked } = useAmplitude()
   const queryClient = useQueryClient()
   const { redeemNegRiskMarket } = useWeb3Service()
-  const { negriskApprovalNeeded, setNegRiskApprovalNeeded } = useTradingService()
+  const { negriskApproved, setNegRiskApproved } = useTradingService()
 
   const redeemMutation = useMutation({
     mutationKey: ['redeemPosition', slug],
@@ -90,24 +90,11 @@ export default function ClaimButton({
 
       return receipt
     },
-    onSuccess: async () => {
-      await queryClient.refetchQueries({
-        queryKey: ['positions'],
-      })
-      await queryClient.invalidateQueries({
-        queryKey: ['history'],
-      })
-    },
   })
 
   const claimNegriskMarketMutation = useMutation({
     mutationKey: ['claim-neg-risk', slug],
     mutationFn: async () => redeemNegRiskMarket(conditionId, amounts as bigint[]),
-    onSuccess: async () => {
-      await queryClient.refetchQueries({
-        queryKey: ['positions'],
-      })
-    },
   })
 
   const claimMutation = negRiskRequestId ? claimNegriskMarketMutation : redeemMutation
@@ -125,6 +112,7 @@ export default function ClaimButton({
 
   const onResetApproveMutation = async () => {
     await sleep(5)
+    setNegRiskApproved(true)
     approveClaimNegriskMutation.reset()
   }
 
@@ -135,10 +123,9 @@ export default function ClaimButton({
         process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
         process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
       ),
-    onSuccess: () => setNegRiskApprovalNeeded(true),
   })
 
-  return !!negRiskRequestId && negriskApprovalNeeded ? (
+  return !!negRiskRequestId && !negriskApproved ? (
     <ButtonWithStates
       {...props}
       status={approveClaimNegriskMutation.status}
