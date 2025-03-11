@@ -4,9 +4,9 @@ import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import { MarketCardProps } from '@/components/common/markets'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import { MarketCardLink } from '@/components/common/markets/market-cards/market-card-link'
 import { MIN_CARD_HEIGHT } from '@/components/common/markets/market-cards/market-single-card'
+import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import MarketGroupRow from '@/components/common/markets/market-group-row'
 import { useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
@@ -129,7 +129,7 @@ export const MarketGroupCard = ({
         p='16px'
         justifyContent='space-between'
       >
-        <DailyMarketTimer
+        <MarketTimer
           deadline={market.expirationTimestamp}
           deadlineText={market.expirationDate}
           color='grey.500'

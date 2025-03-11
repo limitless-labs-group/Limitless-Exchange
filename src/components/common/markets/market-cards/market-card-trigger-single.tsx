@@ -2,8 +2,8 @@ import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { MarketCardProps } from '@/components/common/markets'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import { MIN_CARD_HEIGHT } from '@/components/common/markets/market-cards/market-single-card'
+import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import Paper from '@/components/common/paper'
 import { MarketProgressBar } from './market-progress-bar'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
@@ -62,7 +62,7 @@ export const MarketCardTriggerSingle = React.memo(
             <Box w='full'>
               <HStack w='full' justifyContent='space-between'>
                 <Box w='full'>
-                  <DailyMarketTimer
+                  <MarketTimer
                     hideText
                     deadline={market.expirationTimestamp}
                     deadlineText={market.expirationDate}

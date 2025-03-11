@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import Avatar from '@/components/common/avatar'
 import { MarketCardProps } from '@/components/common/markets'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import Paper from '@/components/common/paper'
 import { MarketCardLink } from './market-card-link'
@@ -102,7 +102,7 @@ export const MarketSingleCard = ({ variant = 'row', market, analyticParams }: Ma
             {/*)}*/}
             <HStack w='full' mt='16px' justifyContent='space-between'>
               <Box w='full'>
-                <DailyMarketTimer
+                <MarketTimer
                   hideText={isShortCard}
                   deadline={market.expirationTimestamp}
                   deadlineText={market.expirationDate}

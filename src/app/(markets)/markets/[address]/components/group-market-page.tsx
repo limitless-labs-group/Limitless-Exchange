@@ -26,7 +26,7 @@ import MarketActivityTab from '@/components/common/markets/activity-tab'
 import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
 import CommentTab from '@/components/common/markets/comment-tab'
 import ConvertModal from '@/components/common/markets/convert-modal'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
@@ -216,7 +216,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                     <Skeleton height={20} />
                   </Box>
                 ) : (
-                  <DailyMarketTimer
+                  <MarketTimer
                     deadline={market.expirationTimestamp}
                     deadlineText={market.expirationDate}
                     color='grey.500'

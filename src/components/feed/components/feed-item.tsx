@@ -1,4 +1,5 @@
 import { Box } from '@chakra-ui/react'
+import FeedGroupClosed from '@/components/feed/components/feed-group-closed'
 import FeedNewPost from '@/components/feed/components/feed-new-post'
 import MarketFeedTradeCard from '@/components/feed/components/market-feed-trade-card'
 import MarketStatusUpdatedCard from '@/components/feed/components/market-status-updated-card'
@@ -11,6 +12,7 @@ import {
   MarketNewTradeFeedData,
   FeedNewComment,
   FeedNewCommentLike,
+  ClosedGroupFeedData,
 } from '@/types'
 
 interface FeedItemProps {
@@ -50,6 +52,10 @@ export default function FeedItem({ data }: FeedItemProps) {
     [FeedEventType.CommentLike]: (() => {
       const item = data as FeedEntity<FeedNewCommentLike>
       return <FeedComment data={item} />
+    })(),
+    [FeedEventType.ResolvedGroup]: (() => {
+      const item = data as FeedEntity<ClosedGroupFeedData>
+      return <FeedGroupClosed data={item} />
     })(),
     // [FeedEventType.MarketClosed]: (() => {
     //   const item = data as FeedItem<MarketStatusData>
