@@ -12,7 +12,7 @@ import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
 import { PendingTradeData } from '@/services/PendingTradeService'
-import { controlsMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { controlsMedium } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 
 export default function ClobWidget() {
@@ -30,7 +30,6 @@ export default function ClobWidget() {
     price,
     sharesAmount,
     setSharesAmount,
-    isBalanceNotEnough,
     orderType,
     setOrderType,
     tradeStepperOpen,
@@ -161,11 +160,6 @@ export default function ClobWidget() {
           </HStack>
           <OutcomeButtonsClob />
           {orderType === MarketOrderType.MARKET ? <ClobMarketTradeForm /> : <ClobLimitTradeForm />}
-          {isBalanceNotEnough && (
-            <Text my='8px' {...paragraphRegular} color='grey.500' textAlign={'center'}>
-              Not enough funds
-            </Text>
-          )}
         </Paper>
       </Box>
 
