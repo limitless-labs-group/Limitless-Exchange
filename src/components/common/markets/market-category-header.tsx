@@ -41,7 +41,7 @@ export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name }) =>
           position='relative'
           overflow='hidden'
           mx='auto'
-          mt='20px'
+          mt={!isMobile ? '20px' : 'unset'}
           borderRadius={!isMobile ? '18px' : 'none'}
         >
           <Image
