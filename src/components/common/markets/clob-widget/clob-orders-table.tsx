@@ -36,8 +36,7 @@ interface ClobOrdersTableProps {
 }
 
 export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
-  const { market } = useTradingService()
-  const { account } = useAccount()
+  const { market, clobOutcome } = useTradingService()
   const { data: userOrders, isLoading: userOrdersLoading } = useMarketOrders(market?.slug)
   const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()

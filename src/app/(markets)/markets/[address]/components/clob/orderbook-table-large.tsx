@@ -127,7 +127,7 @@ export default function OrderbookTableLarge({
 
   const minRewardsSize = orderbook?.minSize ? orderbook.minSize : maxUint256.toString()
 
-  const range = calculateDisplayRange(orderbook?.adjustedMidpoint)
+  const range = calculateDisplayRange(outcome, orderbook?.adjustedMidpoint, orderbook?.maxSpread)
 
   const url =
     'https://limitlesslabs.notion.site/Limitless-Docs-0e59399dd44b492f8d494050969a1567#19304e33c4b9808498d9ea69e68a0cb4'
