@@ -40,6 +40,7 @@ export default function TradeStepperMenu() {
     price,
     sharesAmount,
     isApprovedNegRiskForSell,
+    checkMarketAllowance,
   } = useClobWidget()
   const { strategy, market, clobOutcome: outcome } = useTradingService()
   const { approveContract, approveAllowanceForAll } = useWeb3Service()
@@ -93,7 +94,7 @@ export default function TradeStepperMenu() {
     return strategy === 'Sell' && !isApprovedNegRiskForSell && market?.negRiskRequestId
       ? 'Unlock wallet to trade your shares'
       : null
-  }, [strategy, isApprovedNegRiskForSell, market?.negRiskRequestId])
+  }, [strategy, market?.negRiskRequestId])
 
   const fourthStepMessage = useMemo(() => {
     const totalPrice = new BigNumber(price).multipliedBy(sharesAmount).dividedBy(100).toString()
@@ -258,12 +259,14 @@ export default function TradeStepperMenu() {
   const onResetApproveMutation = async () => {
     await sleep(2)
     setActiveStep(activeStep + 1)
+    !thirdStepMessage && (await checkMarketAllowance())
     approveMutation.reset()
   }
 
   const onResetNegRiskApproveMutation = async () => {
     await sleep(2)
     setActiveStep(activeStep + 1)
+    await checkMarketAllowance()
     approveSellNegRiskMutation.reset()
   }
 

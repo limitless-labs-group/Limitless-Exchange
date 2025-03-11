@@ -301,6 +301,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     const recentLoggedWallet = localStorage.getItem(
       `privy:${process.env.NEXT_PUBLIC_PRIVY_APP_ID}:recent-login-wallet-client`
     )
+    if (!recentLoggedWallet) {
+      return null
+    }
     const connectedMethod = JSON.parse(recentLoggedWallet || '')
     const privyMethod = ['google_oauth', 'discord_oauth', 'farcaster', 'email'].includes(
       connectedMethod
