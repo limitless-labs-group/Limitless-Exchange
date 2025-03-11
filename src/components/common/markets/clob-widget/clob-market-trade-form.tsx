@@ -395,6 +395,9 @@ export default function ClobMarketTradeForm() {
       queryClient.refetchQueries({
         queryKey: ['locked-balance', market?.slug],
       }),
+      queryClient.refetchQueries({
+        queryKey: ['prices', market?.slug],
+      }),
     ])
   }
 

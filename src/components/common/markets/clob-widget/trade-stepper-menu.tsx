@@ -301,15 +301,23 @@ export default function TradeStepperMenu() {
   const onResetTradeMutation = async () => {
     await sleep(2)
     setActiveStep(3)
-    await queryClient.refetchQueries({
-      queryKey: ['user-orders', market?.slug],
-    })
-    await queryClient.refetchQueries({
-      queryKey: ['market-shares', market?.slug],
-    })
-    await queryClient.refetchQueries({
-      queryKey: ['order-book', market?.slug],
-    })
+    await Promise.allSettled([
+      queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['market-shares', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['order-book', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['locked-balance', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['prices', market?.slug],
+      }),
+    ])
   }
 
   const renderTradeButton = () => {
