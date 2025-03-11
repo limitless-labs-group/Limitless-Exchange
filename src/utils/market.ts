@@ -121,7 +121,7 @@ export const calculateDisplayRange = (
 ) => {
   const midpoint = new BigNumber(adjustedMidpoint || '0').multipliedBy(100)
   console.log(midpoint)
-  const midPointFormatted = outcome ? new BigNumber(1).minus(midpoint) : midpoint
+  const midPointFormatted = outcome ? new BigNumber(100).minus(midpoint) : midpoint
   console.log(midPointFormatted.toString())
   const lowerBound = midPointFormatted.minus(spread ? +spread * 100 : 5).decimalPlaces(1)
   console.log(lowerBound.toString())
