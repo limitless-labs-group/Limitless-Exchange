@@ -9,7 +9,7 @@ import { Toast } from '@/components/common/toast'
 import { useToast } from '@/hooks'
 import { getConditionalTokenAddress } from '@/hooks/use-conditional-tokens-addr'
 import WinIcon from '@/resources/icons/win-icon.svg'
-import { ClickEvent, useAmplitude } from '@/services'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { NumberUtil } from '@/utils'
 import { DISCORD_LINK } from '@/utils/consts'
@@ -41,10 +41,11 @@ export default function ClaimButton({
   ...props
 }: ClaimButtonProps) {
   const toast = useToast()
-  const { redeemPositions } = useWeb3Service()
+  const { redeemPositions, approveAllowanceForAll } = useWeb3Service()
   const { trackClicked } = useAmplitude()
   const queryClient = useQueryClient()
   const { redeemNegRiskMarket } = useWeb3Service()
+  const { negriskApproved, setNegRiskApproved } = useTradingService()
 
   const redeemMutation = useMutation({
     mutationKey: ['redeemPosition', slug],
@@ -76,37 +77,13 @@ export default function ClaimButton({
         })
         return
       }
-
-      const id = toast({
-        render: () => <Toast title={`Successfully redeemed`} id={id} />,
-      })
-
-      await sleep(1)
-
-      const updateId = toast({
-        render: () => <Toast title={`Updating portfolio...`} id={updateId} />,
-      })
-
       return receipt
-    },
-    onSuccess: async () => {
-      await queryClient.refetchQueries({
-        queryKey: ['positions'],
-      })
-      await queryClient.invalidateQueries({
-        queryKey: ['history'],
-      })
     },
   })
 
   const claimNegriskMarketMutation = useMutation({
     mutationKey: ['claim-neg-risk', slug],
     mutationFn: async () => redeemNegRiskMarket(conditionId, amounts as bigint[]),
-    onSuccess: async () => {
-      await queryClient.refetchQueries({
-        queryKey: ['positions'],
-      })
-    },
   })
 
   const claimMutation = negRiskRequestId ? claimNegriskMarketMutation : redeemMutation
@@ -122,7 +99,39 @@ export default function ClaimButton({
     claimMutation.reset()
   }
 
-  return (
+  const onResetApproveMutation = async () => {
+    await sleep(5)
+    setNegRiskApproved(true)
+    approveClaimNegriskMutation.reset()
+  }
+
+  const approveClaimNegriskMutation = useMutation({
+    mutationKey: ['approve-neg-risk-claim', slug],
+    mutationFn: async () =>
+      approveAllowanceForAll(
+        process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
+        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+      ),
+  })
+
+  return !!negRiskRequestId && !negriskApproved ? (
+    <ButtonWithStates
+      {...props}
+      status={approveClaimNegriskMutation.status}
+      variant='white'
+      onClick={async (e: SyntheticEvent) => {
+        e.stopPropagation()
+        trackClicked(ClickEvent.ApproveClaimRewardForNegRiskMarketClicked, {
+          platform: isMobile ? 'mobile' : 'desktop',
+        })
+        await approveClaimNegriskMutation.mutateAsync()
+      }}
+      minW={isMobile ? 'full' : '162px'}
+      onReset={onResetApproveMutation}
+    >
+      Approve Claim
+    </ButtonWithStates>
+  ) : (
     <ButtonWithStates
       {...props}
       status={claimMutation.status}
