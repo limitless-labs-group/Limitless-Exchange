@@ -37,7 +37,6 @@ export default function TradeStepperMenu() {
     orderType,
     yesPrice,
     noPrice,
-    checkMarketAllowance,
     price,
     sharesAmount,
     isApprovedNegRiskForSell,
@@ -258,15 +257,13 @@ export default function TradeStepperMenu() {
 
   const onResetApproveMutation = async () => {
     await sleep(2)
-    await checkMarketAllowance()
-    setActiveStep(2)
+    setActiveStep(activeStep + 1)
     approveMutation.reset()
   }
 
   const onResetNegRiskApproveMutation = async () => {
     await sleep(2)
-    await checkMarketAllowance()
-    setActiveStep(3)
+    setActiveStep(activeStep + 1)
     approveSellNegRiskMutation.reset()
   }
 
@@ -287,9 +284,9 @@ export default function TradeStepperMenu() {
   const renderNegriskApproveButton = () => {
     return (
       <ButtonWithStates
-        status={approveMutation.status}
+        status={approveSellNegRiskMutation.status}
         variant='contained'
-        onClick={async () => approveMutation.mutateAsync()}
+        onClick={async () => approveSellNegRiskMutation.mutateAsync()}
         onReset={onResetNegRiskApproveMutation}
         w='100px'
       >
@@ -300,7 +297,7 @@ export default function TradeStepperMenu() {
 
   const onResetTradeMutation = async () => {
     await sleep(2)
-    setActiveStep(3)
+    setActiveStep(activeStep + 1)
     await Promise.allSettled([
       queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],

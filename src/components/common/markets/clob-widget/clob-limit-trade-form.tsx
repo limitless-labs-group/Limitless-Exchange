@@ -318,7 +318,7 @@ export default function ClobLimitTradeForm() {
         `limit trade form isApprovedForSell ${isApprovedForSell} isApprovedNegRiskForSell ${isApprovedNegRiskForSell}`
       )
       const isApprovedSell = market?.negRiskRequestId
-        ? isApprovedForSell || isApprovedNegRiskForSell
+        ? isApprovedForSell && isApprovedNegRiskForSell
         : isApprovedForSell
       if (!isApprovedSell) {
         onToggleTradeStepper()
