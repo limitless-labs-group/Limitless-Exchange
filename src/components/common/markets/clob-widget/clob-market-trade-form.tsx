@@ -47,6 +47,7 @@ export default function ClobMarketTradeForm() {
     setPrice,
     price,
     sharesAvailable,
+    isApprovedNegRiskForSell,
   } = useClobWidget()
   const { client, placeMarketOrder } = useWeb3Service()
   const { web3Client, profileData } = useAccount()
@@ -77,6 +78,12 @@ export default function ClobMarketTradeForm() {
               operator as Address,
               process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
             )
+            if (market.negRiskRequestId) {
+              await privyService.approveConditionalIfNeeded(
+                process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE as Address,
+                process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+              )
+            }
           } else {
             const spender = market.negRiskRequestId
               ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
@@ -416,16 +423,21 @@ export default function ClobMarketTradeForm() {
       const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
         parseUnits(sharesPrice, market?.collateralToken.decimals || 6).toString()
       )
-      if (isApprovalNeeded && client === 'eoa') {
+      if (client === 'eoa' && isApprovalNeeded) {
         onToggleTradeStepper()
         return
       }
       await placeMarketOrderMutation.mutateAsync()
       return
     }
-    if (!isApprovedForSell && client === 'eoa') {
-      onToggleTradeStepper()
-      return
+    if (client === 'eoa') {
+      const isApprovedSell = market?.negRiskRequestId
+        ? isApprovedForSell || isApprovedNegRiskForSell
+        : isApprovedForSell
+      if (!isApprovedSell) {
+        onToggleTradeStepper()
+        return
+      }
     }
     await placeMarketOrderMutation.mutateAsync()
     return

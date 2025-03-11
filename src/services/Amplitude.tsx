@@ -157,6 +157,7 @@ export enum ClickEvent {
   SortClicked = 'Sort Clicked',
   StrokeClicked = 'Stroke Clicked',
   ClaimRewardOnPortfolioClicked = 'Claim Reward On Portfolio Clicked',
+  ApproveClaimRewardForNegRiskMarketClicked = 'Approve Claim Reward For NegRisk Market Clicked',
   ClaimRewardOnMarketPageClicked = 'Claim Reward On Market Page Clicked',
   SignW3AIn = 'Sign In W3A Option Chosen',
   ProfilePictureUploadClicked = 'Profile Picture Upload Clicked',

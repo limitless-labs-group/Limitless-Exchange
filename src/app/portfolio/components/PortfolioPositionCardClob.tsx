@@ -1,4 +1,5 @@
 import { Box, BoxProps, Divider, HStack, Icon, Text } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits } from 'viem'
 import ClaimButton from '@/components/common/markets/claim-button'
@@ -58,6 +59,22 @@ const PortfolioPositionCardClob = ({
     return true
   }
 
+  const amountsToNegriskClaim = useMemo(() => {
+    if (!positionData.market.negRiskRequestId) {
+      return
+    }
+    const yesTokensToClaim =
+      positionData.market.winningOutcomeIndex === 0 ? BigInt(positionData.tokensBalance.yes) : 0n
+    const noTokensToClaim =
+      positionData.market.winningOutcomeIndex === 1 ? BigInt(positionData.tokensBalance.no) : 0n
+    return [yesTokensToClaim, noTokensToClaim]
+  }, [
+    positionData.market.negRiskRequestId,
+    positionData.market.winningOutcomeIndex,
+    positionData.tokensBalance.no,
+    positionData.tokensBalance.yes,
+  ])
+
   return (
     <Paper {...props} w={'full'} borderRadius='8px'>
       <HStack w='full' justifyContent='space-between'>
@@ -72,7 +89,11 @@ const PortfolioPositionCardClob = ({
             slug={positionData.market.slug}
             conditionId={positionData.market.conditionId as Address}
             collateralAddress={positionData.market.collateralToken.address}
-            marketAddress={process.env.NEXT_PUBLIC_CTF_CONTRACT as Address}
+            marketAddress={
+              positionData.market.negRiskRequestId
+                ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
+                : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
+            }
             outcomeIndex={positionData.market.winningOutcomeIndex as number}
             marketType='clob'
             amountToClaim={formatUnits(
@@ -82,6 +103,8 @@ const PortfolioPositionCardClob = ({
               positionData.market.collateralToken.decimals
             )}
             symbol={positionData.market.collateralToken.symbol}
+            amounts={amountsToNegriskClaim}
+            negRiskRequestId={positionData.market.negRiskRequestId}
           />
         )}
       </HStack>
@@ -118,6 +141,8 @@ const PortfolioPositionCardClob = ({
               )}
               symbol={positionData.market.collateralToken.symbol}
               mt='12px'
+              amounts={amountsToNegriskClaim}
+              negRiskRequestId={positionData.market.negRiskRequestId}
             />
           )}
           <Divider w={'full'} h={'1px'} mb={'10px'} mt={'10px'} />

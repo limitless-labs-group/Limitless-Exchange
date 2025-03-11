@@ -40,6 +40,7 @@ export default function TradeStepperMenu() {
     checkMarketAllowance,
     price,
     sharesAmount,
+    isApprovedNegRiskForSell,
   } = useClobWidget()
   const { strategy, market, clobOutcome: outcome } = useTradingService()
   const { approveContract, approveAllowanceForAll } = useWeb3Service()
@@ -89,7 +90,13 @@ export default function TradeStepperMenu() {
       : `Unlock wallet to trade your shares`
   }, [market?.collateralToken.symbol, strategy])
 
-  const thirdMessage = useMemo(() => {
+  const thirdStepMessage = useMemo(() => {
+    return strategy === 'Sell' && !isApprovedNegRiskForSell && market?.negRiskRequestId
+      ? 'Unlock wallet to trade your shares'
+      : null
+  }, [strategy, isApprovedNegRiskForSell, market?.negRiskRequestId])
+
+  const fourthStepMessage = useMemo(() => {
     const totalPrice = new BigNumber(price).multipliedBy(sharesAmount).dividedBy(100).toString()
     if (strategy === 'Buy') {
       return orderType === MarketOrderType.MARKET
@@ -133,6 +140,18 @@ export default function TradeStepperMenu() {
   })
 
   const approveMutation = strategy === 'Buy' ? approveBuyMutation : approveForSellMutation
+
+  const approveSellNegRiskMutation = useMutation({
+    mutationKey: ['approve-negrisk'],
+    mutationFn: async () => {
+      if (market) {
+        await approveAllowanceForAll(
+          process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE as Address,
+          process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+        )
+      }
+    },
+  })
 
   const placeMarketOrderMutation = useMutation({
     mutationKey: ['market-order', market?.slug, price],
@@ -244,6 +263,13 @@ export default function TradeStepperMenu() {
     approveMutation.reset()
   }
 
+  const onResetNegRiskApproveMutation = async () => {
+    await sleep(2)
+    await checkMarketAllowance()
+    setActiveStep(3)
+    approveSellNegRiskMutation.reset()
+  }
+
   const renderApproveButton = () => {
     return (
       <ButtonWithStates
@@ -251,6 +277,20 @@ export default function TradeStepperMenu() {
         variant='contained'
         onClick={async () => approveMutation.mutateAsync()}
         onReset={onResetApproveMutation}
+        w='100px'
+      >
+        Unlock
+      </ButtonWithStates>
+    )
+  }
+
+  const renderNegriskApproveButton = () => {
+    return (
+      <ButtonWithStates
+        status={approveMutation.status}
+        variant='contained'
+        onClick={async () => approveMutation.mutateAsync()}
+        onReset={onResetNegRiskApproveMutation}
         w='100px'
       >
         Unlock
@@ -289,11 +329,22 @@ export default function TradeStepperMenu() {
     )
   }
 
-  const steps = [
+  const commonSteps = [
     { title: firstStepMessage },
     { title: secondStepMessage, button: renderApproveButton() },
-    { title: thirdMessage, button: renderTradeButton() },
+    { title: fourthStepMessage, button: renderTradeButton() },
   ]
+
+  const steps = thirdStepMessage
+    ? [
+        ...commonSteps.slice(0, 2),
+        {
+          title: thirdStepMessage,
+          button: renderNegriskApproveButton(),
+        },
+        commonSteps.at(-1),
+      ]
+    : commonSteps
 
   const { activeStep, setActiveStep } = useSteps({
     index: 1,
@@ -312,10 +363,10 @@ export default function TradeStepperMenu() {
       : 'Just authorize permission for sell then sign the transaction to confirm'
 
   useEffect(() => {
-    if (activeStep === 3) {
+    if (activeStep === steps.length) {
       closeModalWithDelay()
     }
-  }, [activeStep])
+  }, [activeStep, steps.length])
 
   return (
     <Paper position='absolute' bottom={0} rounded='8px' zIndex={100} w='full' p='16px' pt='8px'>
@@ -366,10 +417,9 @@ export default function TradeStepperMenu() {
             </StepIndicator>
 
             <HStack w='full' justifyContent='space-between'>
-              <StepTitle>{step.title}</StepTitle>
-              {activeStep === index ? step.button : null}
+              <StepTitle>{step?.title}</StepTitle>
+              {activeStep === index ? step?.button : null}
             </HStack>
-
             <StepSeparator />
           </Step>
         ))}
