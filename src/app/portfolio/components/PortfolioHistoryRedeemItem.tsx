@@ -1,4 +1,5 @@
 import { Box, HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
@@ -38,10 +39,19 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
   const { onOpenMarketPage } = useTradingService()
   const { trackClicked } = useAmplitude()
 
-  const formattedAmount = NumberUtil.formatThousands(
-    Number(redeem.collateralAmount) ?? 0,
-    redeem.collateralSymbol === 'USDC' ? 2 : 6
-  )
+  const formattedAmountWithSymbol = useMemo(() => {
+    const precision = redeem.collateralSymbol === 'USDC' ? 2 : 6
+    const minDisplayValue = redeem.collateralSymbol === 'USDC' ? 0.01 : 0.000001
+
+    const rawAmount = Number(redeem.collateralAmount) ?? 0
+    const formattedAmount = NumberUtil.formatThousands(rawAmount, precision)
+
+    if (rawAmount > 0 && rawAmount < minDisplayValue) {
+      return `< ${minDisplayValue} ${redeem.collateralSymbol}`
+    }
+
+    return `${formattedAmount} ${redeem.collateralSymbol}`
+  }, [redeem.collateralAmount, redeem.collateralSymbol])
 
   const handleOpenMarketPage = async () => {
     if (targetMarket?.address) {
@@ -95,9 +105,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
       <Td></Td>
       <Td isNumeric>
         <Box verticalAlign='middle'>
-          <Text>
-            {!redeem ? <Skeleton height={20} /> : `${formattedAmount} ${redeem.collateralSymbol}`}
-          </Text>
+          {!redeem ? <Skeleton height={20} /> : <Text>{formattedAmountWithSymbol}</Text>}
         </Box>
       </Td>
       <Td>
