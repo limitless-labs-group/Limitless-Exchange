@@ -77,17 +77,6 @@ export default function ClaimButton({
         })
         return
       }
-
-      const id = toast({
-        render: () => <Toast title={`Successfully redeemed`} id={id} />,
-      })
-
-      await sleep(1)
-
-      const updateId = toast({
-        render: () => <Toast title={`Updating portfolio...`} id={updateId} />,
-      })
-
       return receipt
     },
   })
