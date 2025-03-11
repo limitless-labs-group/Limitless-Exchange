@@ -434,6 +434,9 @@ export default function ClobMarketTradeForm() {
       return
     }
     if (client === 'eoa') {
+      console.log(
+        `market trade form isApprovedForSell ${isApprovedForSell} isApprovedNegRiskForSell ${isApprovedNegRiskForSell}`
+      )
       const isApprovedSell = market?.negRiskRequestId
         ? isApprovedForSell || isApprovedNegRiskForSell
         : isApprovedForSell
