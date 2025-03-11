@@ -129,8 +129,7 @@ export function useMarketPriceHistory(slug?: string, address?: Address | null) {
         })
       )
     },
-    staleTime: 60000,
+    staleTime: 10000,
     enabled: !!slug,
-    retry: false,
   })
 }
