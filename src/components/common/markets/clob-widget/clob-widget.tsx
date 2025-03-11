@@ -31,7 +31,11 @@ import { MarketOrderType } from '@/types'
 export default function ClobWidget() {
   const { trackChanged } = useAmplitude()
   const { clobOutcome: outcome, setStrategy, market, groupMarket, strategy } = useTradingService()
-  const { isOpen: orderTypeMenuOpen, onToggle: onToggleOrderTypeMenu } = useDisclosure()
+  const {
+    isOpen: orderTypeMenuOpen,
+    onOpen: onOpenOrderTypeMenu,
+    onClose: onCloseOrderTypeMenu,
+  } = useDisclosure()
 
   const {
     isBalanceNotEnough,
@@ -60,7 +64,7 @@ export default function ClobWidget() {
     trackChanged(ChangeEvent.ClobWidgetModeChanged, {
       mode: order === MarketOrderType.MARKET ? 'amm on' : 'clob on',
     })
-    onToggleOrderTypeMenu()
+    onCloseOrderTypeMenu()
   }
 
   const tabs = [
@@ -134,14 +138,18 @@ export default function ClobWidget() {
               borderColor='grey.500'
               justifyContent='flex-end'
             >
-              <Menu
-                isOpen={orderTypeMenuOpen}
-                onClose={onToggleOrderTypeMenu}
-                variant='transparent'
-              >
+              <Menu isOpen={orderTypeMenuOpen} onClose={onCloseOrderTypeMenu} variant='transparent'>
                 <MenuButton
                   as={Button}
-                  onClick={onToggleOrderTypeMenu}
+                  onMouseEnter={onOpenOrderTypeMenu}
+                  onMouseLeave={onCloseOrderTypeMenu}
+                  onClick={() =>
+                    handleOrderTypeChanged(
+                      orderType === MarketOrderType.MARKET
+                        ? MarketOrderType.LIMIT
+                        : MarketOrderType.MARKET
+                    )
+                  }
                   rightIcon={<ChevronDownIcon width='16px' height='16px' />}
                   h='24px'
                   px='8px'
