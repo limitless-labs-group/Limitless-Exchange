@@ -85,10 +85,18 @@ export interface Market {
     yes: string
     no: string
   }
+  trends?: {
+    [interval in Intervals]?: {
+      value: number
+      rank: number
+    }
+  }
   marketType: 'single' | 'group'
   tradeType: 'clob' | 'amm'
   isRewardable: boolean
 }
+
+export type Intervals = 'hourly' | 'last30days'
 
 export interface UserMarket {
   title: string
@@ -231,7 +239,7 @@ export enum Sort {
   ENDING_SOON = 'Ending Soon',
   HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VALUE = 'High Value',
-  HIGHEST_VOLUME = 'High Volume',
+  TRENDING = 'Trending',
   LP_REWARDS = '💎 LP Rewards',
 }
 
