@@ -1,7 +1,7 @@
 import { Button, ButtonGroup, HStack } from '@chakra-ui/react'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
+import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
-import { useIsMobile } from '@/hooks'
 import { ClickEvent, useAmplitude } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
@@ -25,7 +25,7 @@ const desktopStyles = {
 
 type SortFilterProps = {
   onChange: (option: Sort, storageName: SortStorageName) => void
-  storageName: SortStorageName
+  sort: Sort
 }
 
 const sortOptions = [
@@ -36,25 +36,9 @@ const sortOptions = [
   Sort.LP_REWARDS,
 ]
 
-export default function SortFilter({ onChange, storageName }: SortFilterProps) {
-  const [selectedSortFilter, setSelectedSortFilter] = useState<Sort>(
-    (window.sessionStorage.getItem(storageName) as Sort) ?? Sort.ENDING_SOON
-  )
+export default function SortFilter({ onChange, sort }: SortFilterProps) {
   const { trackClicked } = useAmplitude()
   const { pushGA4Event } = useGoogleAnalytics()
-
-  const handleFilterItemClicked = (option: Sort) => {
-    window.sessionStorage.setItem(storageName, option)
-    setSelectedSortFilter(option)
-  }
-
-  const isMobile = useIsMobile()
-
-  useEffect(() => {
-    if (onChange) {
-      onChange(selectedSortFilter, storageName)
-    }
-  }, [selectedSortFilter])
 
   const getGAEventForSort = (option: Sort): GAEvents | undefined => {
     switch (option) {
@@ -89,16 +73,16 @@ export default function SortFilter({ onChange, storageName }: SortFilterProps) {
             <Button
               variant='grey'
               key={uuidv4()}
-              bg={option === selectedSortFilter ? 'grey.50' : 'unset'}
+              bg={option === sort ? 'grey.50' : 'unset'}
               onClick={() => {
                 trackClicked(ClickEvent.SortClicked, {
-                  oldValue: selectedSortFilter,
+                  oldValue: sort,
                   newValue: option,
                 })
                 pushGA4Event(getGAEventForSort(option))
-                handleFilterItemClicked(option)
+                onChange(option, SortStorageName.SORT)
               }}
-              _hover={{ bg: option === selectedSortFilter ? 'grey.50' : 'grey.400' }}
+              _hover={{ bg: option === sort ? 'grey.50' : 'grey.400' }}
               borderRadius='8px'
               h={isMobile ? '28px' : '20px'}
               whiteSpace='nowrap'
