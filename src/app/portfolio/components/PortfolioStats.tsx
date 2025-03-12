@@ -120,7 +120,7 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
       }
       _balanceToWin += positionOutcomeUsdAmount
     })
-    clobPositions.forEach((clobPosition) => {
+    clobPositions?.forEach((clobPosition) => {
       const isPositionClaimable = clobPosition.market.winningOutcomeIndex !== null
       const token = supportedTokens?.find(
         (token) => token.symbol === clobPosition.market.collateralToken.symbol
