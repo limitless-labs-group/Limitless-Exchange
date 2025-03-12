@@ -9,11 +9,11 @@ import MarketFeedCardContainer from '@/components/feed/components/market-feed-ca
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { ClosedGroupFeedData, FeedEntity } from '@/types'
+import { GroupFeedData, FeedEntity } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface FeedGroupClosedProps {
-  data: FeedEntity<ClosedGroupFeedData>
+  data: FeedEntity<GroupFeedData>
 }
 
 export default function FeedGroupClosed({ data }: FeedGroupClosedProps) {
@@ -29,13 +29,16 @@ export default function FeedGroupClosed({ data }: FeedGroupClosedProps) {
       marketAddress: data.data.slug,
       marketType: 'group',
     })
+    if (selectedMarket?.slug === data.data.slug) {
+      return
+    }
     const { data: fetchedMarket } = await refetchMarket()
     if (fetchedMarket) {
       onOpenMarketPage(fetchedMarket)
     }
   }
 
-  const totalVolumeFormatted = data.data.markets.reduce(
+  const totalVolumeFormatted = data.data.markets?.reduce(
     (acc, b) => new BigNumber(acc).plus(b.volumeFormatted).decimalPlaces(0).toNumber(),
     0
   )

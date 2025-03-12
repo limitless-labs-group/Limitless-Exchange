@@ -213,12 +213,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     })
   }
 
-  console.log(wallets)
-
   const { login: loginToPlatform } = usePrivyLogin({
     onComplete: async ({ user, wasAlreadyAuthenticated }) => {
-      console.log(wallets)
-      const connectedWallet = wallets[0]
+      const connectedWallet = wallets.find(
+        (wallet) =>
+          wallet.address === user.wallet?.address &&
+          wallet.walletClientType === user.wallet.walletClientType
+      )
       if (connectedWallet && !wasAlreadyAuthenticated) {
         pushGA4Event(`select_wallet_${connectedWallet.walletClientType}`)
         pushGA4Event(GAEvents.SelectAnyWallet)

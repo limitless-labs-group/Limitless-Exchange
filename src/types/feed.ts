@@ -9,6 +9,7 @@ export enum FeedEventType {
   Comment = 'COMMENT',
   CommentLike = 'COMMENT_LIKE',
   ResolvedGroup = 'RESOLVED_GROUP',
+  FundedGroup = 'FUNDED_GROUP',
 }
 
 export interface FeedEventUser {
@@ -79,7 +80,7 @@ export interface FeedMarketGroupEntity {
   liquidityFormatted: string
 }
 
-export interface ClosedGroupFeedData {
+export interface GroupFeedData {
   name: string
   slug: string
   collateralToken: {
