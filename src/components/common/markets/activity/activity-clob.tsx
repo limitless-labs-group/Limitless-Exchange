@@ -1,4 +1,4 @@
-import { HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import debounce from 'lodash.debounce'
 import { useCallback } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -28,21 +28,23 @@ export default function ActivityClob() {
   )
 
   return !!activity?.length ? (
-    <InfiniteScroll
-      dataLength={activity?.length ?? 0}
-      next={getNextPage}
-      hasMore={hasNextPage}
-      loader={
-        <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
-          <Loader />
-          <Text {...paragraphRegular}>Loading more events</Text>
-        </HStack>
-      }
-    >
-      {activity.map((activityItem: ClobTradeEvent) => (
-        <ActivityClobItem key={activityItem.createdAt} data={activityItem} />
-      ))}
-    </InfiniteScroll>
+    <Box className='feed-container'>
+      <InfiniteScroll
+        dataLength={activity?.length ?? 0}
+        next={getNextPage}
+        hasMore={hasNextPage}
+        loader={
+          <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+            <Loader />
+            <Text {...paragraphRegular}>Loading more events</Text>
+          </HStack>
+        }
+      >
+        {activity.map((activityItem: ClobTradeEvent) => (
+          <ActivityClobItem key={activityItem.createdAt} data={activityItem} />
+        ))}
+      </InfiniteScroll>
+    </Box>
   ) : (
     <VStack w='full' mt='24px'>
       <Paper p='16px'>

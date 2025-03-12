@@ -1,4 +1,4 @@
-import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, Divider, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import Avatar from '@/components/common/avatar'
@@ -8,26 +8,28 @@ import OpenInterestTooltip from '@/components/common/markets/open-interest-toolt
 import Paper from '@/components/common/paper'
 import { MarketCardLink } from './market-card-link'
 import { MarketProgressBar } from './market-progress-bar'
+import { SpeedometerProgress } from './speedometer-progress'
 import { useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
 export const MIN_CARD_HEIGHT = {
   row: '144px',
-  groupRow: '192px',
-  grid: '196px',
+  grid: '164px',
   speedometer: '137px',
 }
 
-export type MarketCardLayout = 'row' | 'grid' | 'speedometer' | 'groupRow'
+export type MarketCardLayout = 'row' | 'grid' | 'speedometer'
 
 export const MarketSingleCard = ({ variant = 'row', market, analyticParams }: MarketCardProps) => {
   const [hovered, setHovered] = useState(false)
   const { onOpenMarketPage, market: selectedMarket } = useTradingService()
   const router = useRouter()
   const { data: marketFeedData } = useMarketFeed(market)
+  const { pushGA4Event } = useGoogleAnalytics()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {
@@ -38,12 +40,13 @@ export const MarketSingleCard = ({ variant = 'row', market, analyticParams }: Ma
     searchParams.set('market', market.slug)
     router.push(`?${searchParams.toString()}`, { scroll: false })
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
-      marketCategory: market.category,
+      marketCategory: market.categories,
       marketAddress: market.slug,
       marketType: 'single',
       marketTags: market.tags,
       ...analyticParams,
     })
+    pushGA4Event(GAEvents.SelectAnyMarket)
     onOpenMarketPage(market)
   }
 
@@ -60,7 +63,9 @@ export const MarketSingleCard = ({ variant = 'row', market, analyticParams }: Ma
     }
   }, [selectedMarket, market])
 
-  const isShortCard = variant === 'grid'
+  const isGrid = variant === 'grid'
+  const isSpeedometer = variant === 'speedometer'
+  const isShortCard = isGrid || isSpeedometer
 
   const content = (
     <Box
@@ -87,19 +92,18 @@ export const MarketSingleCard = ({ variant = 'row', market, analyticParams }: Ma
         <VStack w='full' h='full' gap='16px' justifyContent='space-between'>
           <Flex w='full' alignItems='flex-start' gap='12px' justifyContent='space-between'>
             <Text {...headline}>{market.title}</Text>
-            {/*{isSpeedometer ? (*/}
-            {/*  <Box w='56px' h='28px'>*/}
-            {/*    <SpeedometerProgress value={Number(market.prices[0].toFixed(1))} />*/}
-            {/*  </Box>*/}
-            {/*) : null}*/}
+            {isSpeedometer ? (
+              <Box w='56px' h='28px'>
+                <SpeedometerProgress value={Number(market.prices[0].toFixed(1))} />
+              </Box>
+            ) : null}
           </Flex>
           <Box w='full'>
-            <MarketProgressBar isClosed={market.expired} value={market.prices[0]} />
-            {/*{isSpeedometer ? (*/}
-            {/*  <Divider />*/}
-            {/*) : (*/}
-            {/*  <MarketProgressBar isClosed={market.expired} value={market.prices[0]} />*/}
-            {/*)}*/}
+            {isSpeedometer ? (
+              <Divider />
+            ) : (
+              <MarketProgressBar isClosed={market.expired} value={market.prices[0]} />
+            )}
             <HStack w='full' mt='16px' justifyContent='space-between'>
               <Box w='full'>
                 <DailyMarketTimer

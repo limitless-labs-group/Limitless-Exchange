@@ -57,6 +57,24 @@ export const buildOrderTypedData = (order: Order, type: 'common' | 'negRisk'): E
   return result
 }
 
+export const getOrderErrorText = (msg: string): string => {
+  if (!msg) return 'An error occurred'
+
+  const errorMsg = msg.toString().toLowerCase()
+
+  if (
+    errorMsg.includes('cannot read property') ||
+    errorMsg.includes('of null') ||
+    errorMsg.includes('of undefined') ||
+    errorMsg.includes('undefined') ||
+    errorMsg.includes('null')
+  ) {
+    return 'Something went wrong. Please try again.'
+  }
+
+  return msg
+}
+
 /*
 
 curl -X POST http://138.68.79.170:3200/build-order \

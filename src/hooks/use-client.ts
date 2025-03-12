@@ -4,11 +4,15 @@ import { LOGGED_IN_TO_LIMITLESS } from '@/utils/consts'
 
 export default function useClient() {
   const privateClient = useAxiosPrivateClient()
-  const isLogged = localStorage.getItem(LOGGED_IN_TO_LIMITLESS)
+  const isLoggedFully = localStorage.getItem(LOGGED_IN_TO_LIMITLESS) // logged with message sign
+  const isLoggedToPlatform = localStorage.getItem('privy:token') // logged but didn't sign a message
   const { web3Wallet } = useAccount()
 
+  const shouldUsePrivateClient = Boolean(isLoggedFully && web3Wallet !== undefined)
+
   return {
-    isLogged,
-    client: web3Wallet ? privateClient : limitlessApi,
+    isLogged: isLoggedFully,
+    isLoggedToPlatform,
+    client: shouldUsePrivateClient ? privateClient : limitlessApi,
   }
 }

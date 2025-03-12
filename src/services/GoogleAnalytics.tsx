@@ -48,14 +48,14 @@ export default useGoogleAnalytics
 export interface PurchaseItem {
   item_id: string
   item_name: string
-  item_category: 'Deposit'
-  price: string
-  quantity: string
+  item_category: string
+  price: number
+  quantity: number
 }
 
 export interface Purchase {
   transaction_id: string
-  value: string
+  value: number
   currency: string
   items: PurchaseItem[]
 }
@@ -67,6 +67,7 @@ export enum GAEvents {
   SelectWalletRainbow = 'select_wallet_rainbow',
   SelectWalletWalletConnect = 'select_wallet_walletconnect',
   SelectAnyWallet = 'select_any_wallet',
+  SelectAnyMarket = 'select_any_market',
   WalletConnected = 'wallet_connected',
   ClickSection = 'click_section',
   ClickEndingSoon = 'click_endingsoon',

@@ -2,8 +2,8 @@ import { Box, Button, HStack, InputGroup, Text } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import React, { useEffect, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { isMobile, isTablet } from 'react-device-detect'
 import { Address, formatUnits, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
@@ -21,12 +21,14 @@ interface MergeSharesModalProps {
 export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalProps) {
   const [displayAmount, setDisplayAmount] = useState('')
   const [isApproved, setIsApproved] = useState<boolean>(false)
+  const [modalHeight, setModalHeight] = useState(0)
   const { market } = useTradingService()
   const { checkAllowanceForAll, client, approveAllowanceForAll, mergeShares } = useWeb3Service()
   const { web3Wallet } = useAccount()
   const queryClient = useQueryClient()
   const { trackClicked } = useAmplitude()
   const { sharesAvailable } = useClobWidget()
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   const sharesAvailableBalance = useMemo(() => {
     if (!sharesAvailable) {
@@ -64,6 +66,24 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
     await queryClient.refetchQueries({
       queryKey: ['market-shares', market?.slug],
     })
+  }
+
+  const handleFocus = () => {
+    if ((isMobile || isTablet) && inputRef.current) {
+      setModalHeight(612)
+      setTimeout(() => {
+        inputRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
+    }
+  }
+
+  const handleBlur = () => {
+    if ((isMobile || isTablet) && inputRef.current) {
+      setModalHeight(0)
+    }
   }
 
   const checkMergeAllowance = async () => {
@@ -203,7 +223,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   }, [market, web3Wallet])
 
   const modalContent = (
-    <Box>
+    <Box h={modalHeight ? `${modalHeight}px` : 'unset'}>
       <Text {...paragraphBold} mt='24px'>
         Combine equal amounts of &quot;Yes&quot; and &quot;No&quot; shares to reclaim USDC.
       </Text>
@@ -239,6 +259,9 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
           showIncrements={false}
           inputType='number'
           endAdornment={<Text {...paragraphMedium}>Contracts</Text>}
+          ref={inputRef}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </InputGroup>
       <HStack

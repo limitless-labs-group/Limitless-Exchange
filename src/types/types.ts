@@ -17,6 +17,7 @@ export type Token = {
 export type Category = {
   id: number
   name: string
+  priority?: number | null
 }
 
 export type MarketsResponse = {
@@ -40,7 +41,7 @@ export type DraftMetadata = {
 export interface Market {
   id: number
   address: Address | null
-  category: Category | string
+  categories: string[]
   collateralToken: {
     address: Address
     decimals: number

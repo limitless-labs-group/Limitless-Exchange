@@ -33,6 +33,10 @@ export default function MarketFeedCardContainer({
     () => eventType === FeedEventType.Comment || eventType === FeedEventType.CommentLike,
     [eventType]
   )
+  const isShowBlockMenu = useMemo(
+    () => isCommentFeed || eventType === FeedEventType.NewTrade,
+    [eventType]
+  )
   const bottomPadding = useMemo(() => {
     if (isActivityTab) {
       return 0
@@ -102,7 +106,7 @@ export default function MarketFeedCardContainer({
             {timePassed}
           </Text>
         </HStack>
-        {eventType === FeedEventType.NewTrade && isLoggedIn ? (
+        {isShowBlockMenu && isLoggedIn ? (
           <UserContextMenu
             userAccount={user.account}
             username={user.name}

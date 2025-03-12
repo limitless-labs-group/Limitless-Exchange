@@ -25,12 +25,20 @@ import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
+import { PendingTradeData } from '@/services/PendingTradeService'
 import { headLineLarge, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 
 export default function ClobWidget() {
   const { trackChanged } = useAmplitude()
-  const { clobOutcome: outcome, setStrategy, market, groupMarket, strategy } = useTradingService()
+  const {
+    clobOutcome: outcome,
+    setStrategy,
+    market,
+    groupMarket,
+    strategy,
+    setClobOutcome: setOutcome,
+  } = useTradingService()
   const {
     isOpen: orderTypeMenuOpen,
     onOpen: onOpenOrderTypeMenu,
@@ -51,13 +59,39 @@ export default function ClobWidget() {
     sharesAmount,
   } = useClobWidget()
 
+  const handlePendingTradeData = () => {
+    const pendingTradeData = localStorage.getItem('pendingTrade')
+
+    if (!pendingTradeData) return
+
+    try {
+      const parsedData: PendingTradeData = JSON.parse(pendingTradeData)
+      const { price, strategy, outcome, orderType, marketSlug } = parsedData
+
+      if (marketSlug === market?.slug) {
+        setPrice(price)
+        setOrderType(orderType)
+        setOutcome(outcome)
+        setStrategy(strategy)
+        localStorage.removeItem('pendingTrade')
+      }
+    } catch (error) {
+      console.error('Error processing pending trade data:', error)
+      localStorage.removeItem('pendingTrade')
+    }
+  }
+
+  useEffect(() => {
+    handlePendingTradeData()
+  }, [market?.slug, setPrice, setOrderType, setOutcome, setStrategy])
+
   const handleOrderTypeChanged = (order: MarketOrderType) => {
     setOrderType(order)
     if (order === MarketOrderType.MARKET) {
       setPrice(sharesAmount)
       setSharesAmount('')
     } else {
-      const selectedPrice = outcome ? noPrice : yesPrice
+      const selectedPrice = outcome ? 100 - yesPrice : 100 - noPrice
       setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
       setSharesAmount(price)
     }
