@@ -34,7 +34,11 @@ export default function PortfolioPositionCardClobRedirect({
 
   const marketClosed = position.market.status === MarketStatus.RESOLVED
 
-  const { data: oneMarket, refetch: refetchMarket } = useMarket(position.market.slug, false, false)
+  const { data: oneMarket, refetch: refetchMarket } = useMarket(
+    position.market.negRiskRequestId ? position.market.group?.slug : position.market.slug,
+    false,
+    false
+  )
 
   const handleOpenMarketPage = async () => {
     if (!oneMarket) {

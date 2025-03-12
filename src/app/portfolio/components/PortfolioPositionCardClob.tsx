@@ -79,7 +79,7 @@ const PortfolioPositionCardClob = ({
     <Paper {...props} w={'full'} borderRadius='8px'>
       <HStack w='full' justifyContent='space-between'>
         <Text {...paragraphMedium} color={cardColors.main}>
-          {positionData.market.title}
+          {positionData.market.group?.title || positionData.market.title}
         </Text>
         {isMobile && (
           <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
@@ -148,9 +148,20 @@ const PortfolioPositionCardClob = ({
           <Divider w={'full'} h={'1px'} mb={'10px'} mt={'10px'} />
         </>
       )}
+      {positionData.market.group && (
+        <Text {...paragraphMedium} mt='24px' color={cardColors.main}>
+          {positionData.market.title}
+        </Text>
+      )}
       <HStack w='full' justifyContent='space-between' alignItems='flex-end' mt='16px'>
         <Box w={isMobile ? 'full' : 'unset'}>
-          <HStack gap='12px' w={isMobile ? 'full' : 'unset'}>
+          <HStack
+            gap='12px'
+            w={isMobile ? 'full' : 'unset'}
+            borderBottom='1px solid'
+            borderColor={marketClosed ? 'transparent.200' : 'grey.300'}
+            pb='2px'
+          >
             <Text
               {...paragraphMedium}
               color={cardColors.secondary}
