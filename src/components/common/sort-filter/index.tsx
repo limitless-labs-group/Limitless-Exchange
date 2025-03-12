@@ -31,7 +31,7 @@ type SortFilterProps = {
 const sortOptions = [
   Sort.ENDING_SOON,
   Sort.HIGHEST_VALUE,
-  Sort.HIGHEST_VOLUME,
+  Sort.TRENDING,
   Sort.NEWEST,
   Sort.LP_REWARDS,
 ]
@@ -62,8 +62,8 @@ export default function SortFilter({ onChange, storageName }: SortFilterProps) {
         return GAEvents.ClickEndingSoon
       case Sort.HIGHEST_VALUE:
         return GAEvents.ClickHighValue
-      case Sort.HIGHEST_VOLUME:
-        return GAEvents.ClickHighVolume
+      case Sort.TRENDING:
+        return GAEvents.ClickTrending
       case Sort.NEWEST:
         return GAEvents.ClickNewest
       case Sort.LP_REWARDS:

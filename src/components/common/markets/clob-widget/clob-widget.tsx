@@ -70,7 +70,7 @@ export default function ClobWidget() {
       setPrice(sharesAmount)
       setSharesAmount('')
     } else {
-      const selectedPrice = outcome ? noPrice : yesPrice
+      const selectedPrice = outcome ? 100 - yesPrice : 100 - noPrice
       setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
       setSharesAmount(price)
     }
