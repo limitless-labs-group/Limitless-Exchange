@@ -6,6 +6,6 @@ export default function MarketCardTrigger({ market, ...props }: MarketCardProps)
   return market.marketType === 'single' ? (
     <MarketCardTriggerSingle market={market} {...props} />
   ) : (
-    <MarketGroupCard {...props} variant='groupRow' market={market} />
+    <MarketGroupCard {...props} variant='row' market={market} />
   )
 }

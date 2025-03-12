@@ -25,13 +25,25 @@ import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
+import { PendingTradeData } from '@/services/PendingTradeService'
 import { headLineLarge, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 
 export default function ClobWidget() {
   const { trackChanged } = useAmplitude()
-  const { clobOutcome: outcome, setStrategy, market, groupMarket, strategy } = useTradingService()
-  const { isOpen: orderTypeMenuOpen, onToggle: onToggleOrderTypeMenu } = useDisclosure()
+  const {
+    clobOutcome: outcome,
+    setStrategy,
+    market,
+    groupMarket,
+    strategy,
+    setClobOutcome: setOutcome,
+  } = useTradingService()
+  const {
+    isOpen: orderTypeMenuOpen,
+    onOpen: onOpenOrderTypeMenu,
+    onClose: onCloseOrderTypeMenu,
+  } = useDisclosure()
 
   const {
     isBalanceNotEnough,
@@ -47,20 +59,46 @@ export default function ClobWidget() {
     sharesAmount,
   } = useClobWidget()
 
+  const handlePendingTradeData = () => {
+    const pendingTradeData = localStorage.getItem('pendingTrade')
+
+    if (!pendingTradeData) return
+
+    try {
+      const parsedData: PendingTradeData = JSON.parse(pendingTradeData)
+      const { price, strategy, outcome, orderType, marketSlug } = parsedData
+
+      if (marketSlug === market?.slug) {
+        setPrice(price)
+        setOrderType(orderType)
+        setOutcome(outcome)
+        setStrategy(strategy)
+        localStorage.removeItem('pendingTrade')
+      }
+    } catch (error) {
+      console.error('Error processing pending trade data:', error)
+      localStorage.removeItem('pendingTrade')
+    }
+  }
+
+  useEffect(() => {
+    handlePendingTradeData()
+  }, [market?.slug, setPrice, setOrderType, setOutcome, setStrategy])
+
   const handleOrderTypeChanged = (order: MarketOrderType) => {
     setOrderType(order)
     if (order === MarketOrderType.MARKET) {
       setPrice(sharesAmount)
       setSharesAmount('')
     } else {
-      const selectedPrice = outcome ? noPrice : yesPrice
+      const selectedPrice = outcome ? 100 - yesPrice : 100 - noPrice
       setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
       setSharesAmount(price)
     }
     trackChanged(ChangeEvent.ClobWidgetModeChanged, {
       mode: order === MarketOrderType.MARKET ? 'amm on' : 'clob on',
     })
-    onToggleOrderTypeMenu()
+    onCloseOrderTypeMenu()
   }
 
   const tabs = [
@@ -134,14 +172,18 @@ export default function ClobWidget() {
               borderColor='grey.500'
               justifyContent='flex-end'
             >
-              <Menu
-                isOpen={orderTypeMenuOpen}
-                onClose={onToggleOrderTypeMenu}
-                variant='transparent'
-              >
+              <Menu isOpen={orderTypeMenuOpen} onClose={onCloseOrderTypeMenu} variant='transparent'>
                 <MenuButton
                   as={Button}
-                  onClick={onToggleOrderTypeMenu}
+                  onMouseEnter={onOpenOrderTypeMenu}
+                  onMouseLeave={onCloseOrderTypeMenu}
+                  onClick={() =>
+                    handleOrderTypeChanged(
+                      orderType === MarketOrderType.MARKET
+                        ? MarketOrderType.LIMIT
+                        : MarketOrderType.MARKET
+                    )
+                  }
                   rightIcon={<ChevronDownIcon width='16px' height='16px' />}
                   h='24px'
                   px='8px'

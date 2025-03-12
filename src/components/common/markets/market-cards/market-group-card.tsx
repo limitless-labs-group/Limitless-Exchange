@@ -15,11 +15,7 @@ import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
-export const MarketGroupCard = ({
-  variant = 'groupRow',
-  market,
-  analyticParams,
-}: MarketCardProps) => {
+export const MarketGroupCard = ({ variant = 'row', market, analyticParams }: MarketCardProps) => {
   const [hovered, setHovered] = useState(false)
 
   const {
@@ -47,7 +43,7 @@ export const MarketGroupCard = ({
     searchParams.set('market', market.slug)
     router.push(`?${searchParams.toString()}`, { scroll: false })
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
-      marketCategory: market.category,
+      marketCategory: market.categories,
       marketAddress: market.slug,
       marketType: 'group',
       marketTags: market.tags,

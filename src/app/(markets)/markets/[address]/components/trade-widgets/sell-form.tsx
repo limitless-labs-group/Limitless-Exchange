@@ -84,6 +84,7 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
     market,
     resetQuotes,
     sellBalanceLoading,
+    setStrategy,
   } = useTradingService()
   const queryClient = useQueryClient()
   const [sliderValue, setSliderValue] = useState(0)
@@ -108,6 +109,35 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
       ) as HistoryPositionWithType[],
     [allMarketsPositions, market]
   )
+
+  const positionsYes = positions?.find((position) => position.outcomeIndex === 0)
+  const positionsNo = positions?.find((position) => position.outcomeIndex === 1)
+
+  useEffect(() => {
+    if (!positionsNo && !positionsYes) {
+      setStrategy('Buy')
+    }
+  }, [positionsYes, positionsNo])
+
+  // const positionsGroup = useMemo(() => {
+  //   if (marketGroup) {
+  //     return allMarketsPositions?.filter((position) =>
+  //       marketGroup.markets.some((market) => market.address === position.market.id)
+  //     )
+  //   }
+  // }, [marketGroup, allMarketsPositions])
+
+  // const getTotalContractsAmount = (address: Address) => {
+  //   const positionsForMarket = positionsGroup?.filter(
+  //     (position) => position.market.id.toLowerCase() === address.toLowerCase()
+  //   )
+  //   if (!positionsForMarket) {
+  //     return '0'
+  //   }
+  //   return positionsForMarket.reduce((a, b) => {
+  //     return new BigNumber(a).plus(new BigNumber(b.outcomeTokenAmount || '0')).toString()
+  //   }, '0')
+  // }
 
   /**
    * ANALITYCS
@@ -221,9 +251,6 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
     },
     [sliderValue, balance, isZeroBalance]
   )
-
-  const positionsYes = positions?.find((position) => position.outcomeIndex === 0)
-  const positionsNo = positions?.find((position) => position.outcomeIndex === 1)
 
   const perShareYes = useMemo(() => {
     if (!token) {

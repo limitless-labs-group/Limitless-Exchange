@@ -26,6 +26,7 @@ export default function MarketCardMobile({
       }
       onClose={onCloseMarketPage}
       variant='black'
+      renderPrevNext={true}
     >
       <MarketPage />
     </MobileDrawer>

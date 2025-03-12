@@ -19,7 +19,7 @@ export type DraftMarket = {
   deadline: string
   tags: any
   collateralToken: Token
-  category: Category
+  categories: Category[]
   creator: Creator
   type: DraftMarketType
   draftMetadata: DraftMetadata
@@ -170,7 +170,7 @@ export const DraftMarketCard = ({
                     <HStack color={colors.secondary} gap='4px'>
                       <LiquidityIcon width={16} height={16} />
                       <Text {...paragraphMedium} color={colors.secondary}>
-                        Liquidity
+                        Liq.
                       </Text>
                     </HStack>
                     <Text {...paragraphRegular} color={colors.main}>
@@ -221,11 +221,18 @@ export const DraftMarketCard = ({
                   <HStack color={colors.secondary} gap='4px'>
                     <CategoryIcon width={16} height={16} />
                     <Text {...paragraphMedium} color={colors.secondary}>
-                      Category
+                      Cat.
                     </Text>
                   </HStack>
-                  <Text {...paragraphRegular} color={colors.main}>
-                    {market.category.name}
+                  <Text
+                    {...paragraphRegular}
+                    color={colors.main}
+                    maxW='200px'
+                    overflow='hidden'
+                    textOverflow='ellipsis'
+                    whiteSpace='nowrap'
+                  >
+                    {market.categories.map((cat: Category) => cat.name).join(', ') ?? 'Other'}
                   </Text>
                 </HStack>
                 <HStack gap={1} color={colors.main}>

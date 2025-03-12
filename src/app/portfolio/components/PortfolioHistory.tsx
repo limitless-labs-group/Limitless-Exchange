@@ -57,6 +57,7 @@ const History = () => {
     debounce(async () => fetchNextPage(), 1000),
     []
   )
+
   //@ts-ignore
   const historyFlat = historyData?.pages.flatMap((page) => page.data?.data)
   if (isHistoryLoading) {
@@ -93,12 +94,15 @@ const History = () => {
         />
       )
     }
-    return (
-      <PortfolioHistoryRedeemItem
-        key={(item as HistoryRedeem).blockTimestamp}
-        redeem={item as HistoryRedeem}
-      />
-    )
+    // @ts-ignore
+    if (item.action) {
+      return (
+        <PortfolioHistoryRedeemItem
+          key={(item as HistoryRedeem).blockTimestamp}
+          redeem={item as HistoryRedeem}
+        />
+      )
+    }
   }
 
   return (

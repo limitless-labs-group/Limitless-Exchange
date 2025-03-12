@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
 import React, { useEffect, useMemo } from 'react'
 import { Address, maxUint256, parseUnits } from 'viem'
@@ -30,6 +31,7 @@ import { useWeb3Service } from '@/services/Web3Service'
 import { h3Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 import { NumberUtil } from '@/utils'
+import { getOrderErrorText } from '@/utils/orders'
 
 export default function TradeStepperMenu() {
   const {
@@ -37,10 +39,10 @@ export default function TradeStepperMenu() {
     orderType,
     yesPrice,
     noPrice,
-    checkMarketAllowance,
     price,
     sharesAmount,
     isApprovedNegRiskForSell,
+    checkMarketAllowance,
   } = useClobWidget()
   const { strategy, market, clobOutcome: outcome } = useTradingService()
   const { approveContract, approveAllowanceForAll } = useWeb3Service()
@@ -94,7 +96,7 @@ export default function TradeStepperMenu() {
     return strategy === 'Sell' && !isApprovedNegRiskForSell && market?.negRiskRequestId
       ? 'Unlock wallet to trade your shares'
       : null
-  }, [strategy, isApprovedNegRiskForSell, market?.negRiskRequestId])
+  }, [strategy, market?.negRiskRequestId])
 
   const fourthStepMessage = useMemo(() => {
     const totalPrice = new BigNumber(price).multipliedBy(sharesAmount).dividedBy(100).toString()
@@ -193,9 +195,11 @@ export default function TradeStepperMenu() {
         return privateClient.post('/orders', data)
       }
     },
-    onError: async () => {
+    onError: async (error: AxiosError<{ message: string }>) => {
       const id = toast({
-        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
+        render: () => (
+          <Toast title={getOrderErrorText(error.response?.data.message ?? '')} id={id} />
+        ),
       })
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
@@ -243,9 +247,11 @@ export default function TradeStepperMenu() {
         return privateClient.post('/orders', data)
       }
     },
-    onError: async () => {
+    onError: async (error: AxiosError<{ message: string }>) => {
       const id = toast({
-        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
+        render: () => (
+          <Toast title={getOrderErrorText(error.response?.data.message ?? '')} id={id} />
+        ),
       })
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
@@ -258,15 +264,15 @@ export default function TradeStepperMenu() {
 
   const onResetApproveMutation = async () => {
     await sleep(2)
-    await checkMarketAllowance()
-    setActiveStep(2)
+    setActiveStep(activeStep + 1)
+    !thirdStepMessage && (await checkMarketAllowance())
     approveMutation.reset()
   }
 
   const onResetNegRiskApproveMutation = async () => {
     await sleep(2)
+    setActiveStep(activeStep + 1)
     await checkMarketAllowance()
-    setActiveStep(3)
     approveSellNegRiskMutation.reset()
   }
 
@@ -287,9 +293,9 @@ export default function TradeStepperMenu() {
   const renderNegriskApproveButton = () => {
     return (
       <ButtonWithStates
-        status={approveMutation.status}
+        status={approveSellNegRiskMutation.status}
         variant='contained'
-        onClick={async () => approveMutation.mutateAsync()}
+        onClick={async () => approveSellNegRiskMutation.mutateAsync()}
         onReset={onResetNegRiskApproveMutation}
         w='100px'
       >
@@ -300,7 +306,7 @@ export default function TradeStepperMenu() {
 
   const onResetTradeMutation = async () => {
     await sleep(2)
-    setActiveStep(3)
+    setActiveStep(activeStep + 1)
     await Promise.allSettled([
       queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],

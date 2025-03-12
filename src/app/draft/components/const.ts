@@ -4,7 +4,7 @@ export const defaultTokenSymbol = 'USDC'
 export const defaultProbability = 50
 export const defaultMarketFee = 0
 export const defaultCreatorId = '1' // Limitless in prod env
-export const defaultCategoryId = '2' // Crypto in prod env
+export const defaultCategoryIds = ['2'] // Crypto in prod env
 
 export const tokenLimits: TokenLimits = {
   HIGHER: {
@@ -76,7 +76,7 @@ export const defaultFormData = {
   marketFee: defaultMarketFee,
   tag: [{ id: '149', label: 'Daily', value: 'Daily' }],
   creatorId: defaultCreatorId,
-  categoryId: defaultCategoryId,
+  categories: [{ id: '2', label: 'Crypto', value: 'Crypto' }],
   ogLogo: undefined,
   isBannered: false,
   txHash: '',

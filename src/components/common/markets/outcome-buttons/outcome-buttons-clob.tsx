@@ -30,9 +30,16 @@ export default function OutcomeButtonsClob() {
     })
     setOutcome(outcome)
     if (orderType === MarketOrderType.LIMIT) {
-      const selectedPrice = outcome ? noPrice : yesPrice
+      const selectedPrice = outcome ? 100 - yesPrice : 100 - noPrice
       setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
     }
+  }
+
+  const getPrice = (outcome: number) => {
+    if (orderType === MarketOrderType.MARKET) {
+      return outcome ? `No ${noPrice}¢` : `Yes ${yesPrice}¢`
+    }
+    return outcome ? `No ${100 - yesPrice}¢` : `Yes ${100 - noPrice}¢`
   }
 
   if (strategy === 'Buy') {
@@ -50,7 +57,7 @@ export default function OutcomeButtonsClob() {
             h='64px'
             borderRadius='8px'
           >
-            Yes {yesPrice}¢
+            {getPrice(0)}
           </Button>
           <Button
             flex={1}
@@ -60,7 +67,7 @@ export default function OutcomeButtonsClob() {
             h='64px'
             borderRadius='8px'
           >
-            No {noPrice}¢
+            {getPrice(1)}
           </Button>
         </HStack>
       </Box>
@@ -85,7 +92,7 @@ export default function OutcomeButtonsClob() {
         >
           <VStack w='full' justifyContent='space-between' gap={0}>
             <Text color={!outcome ? 'white' : 'green.500'} fontSize='16px' fontWeight={700}>
-              Yes {yesPrice}¢
+              {getPrice(0)}
             </Text>
             <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
               {NumberUtil.toFixed(getShares(sharesAvailable['yes']), 6)} Contracts
@@ -104,7 +111,7 @@ export default function OutcomeButtonsClob() {
         >
           <VStack w='full' justifyContent='space-between' gap={0}>
             <Text color={outcome ? 'white' : 'red.500'} fontSize='16px' fontWeight={700}>
-              No {noPrice}¢
+              {getPrice(1)}
             </Text>
             <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
               {NumberUtil.toFixed(getShares(sharesAvailable['no']), 6)} Contracts

@@ -41,6 +41,15 @@ export const chakraTheme = ChakraTheme({
   // colors: mode(lightThemeColors, darkThemeColors)((props) => props),
   styles: {
     global: {
+      html: {
+        scrollbarWidth: 'none' /* Firefox */,
+        '-ms-overflow-style': 'none' /* IE and Edge */,
+        '&::-webkit-scrollbar': {
+          display: 'none' /* Chrome, Safari, Opera */,
+          width: '0px',
+          background: 'transparent',
+        },
+      },
       '.infinite-scroll-component__outerdiv': {
         width: '100%',
       },
