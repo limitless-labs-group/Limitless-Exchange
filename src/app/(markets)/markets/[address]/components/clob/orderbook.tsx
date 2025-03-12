@@ -127,7 +127,6 @@ export default function Orderbook({ variant }: OrderBookProps) {
           })
           .sort((a, b) => b.price - a.price)
       : orderbook.asks.sort((a, b) => b.price - a.price)
-    console.log(asks)
     return {
       bids: calculatePercent(bids.reverse()),
       asks: calculatePercentReverse(asks),
