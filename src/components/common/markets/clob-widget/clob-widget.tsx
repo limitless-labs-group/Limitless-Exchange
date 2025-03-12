@@ -171,6 +171,7 @@ export default function ClobWidget() {
               borderBottom='1px solid'
               borderColor='grey.500'
               justifyContent='flex-end'
+              paddingBottom={isMobile ? '8px' : 0}
             >
               <Menu isOpen={orderTypeMenuOpen} onClose={onCloseOrderTypeMenu} variant='transparent'>
                 <MenuButton
