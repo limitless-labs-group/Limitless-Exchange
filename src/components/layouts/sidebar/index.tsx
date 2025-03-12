@@ -16,6 +16,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { useFundWallet, usePrivy } from '@privy-io/react-auth'
+import { useAtom } from 'jotai'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useCallback, useMemo } from 'react'
@@ -30,6 +31,7 @@ import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
+import { sortAtom } from '@/atoms/market-sort'
 import { Profile } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import useClient from '@/hooks/use-client'
@@ -61,7 +63,7 @@ import {
 } from '@/services'
 import { useMarkets } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup, MarketStatus } from '@/types'
+import { Market, MarketGroup, MarketStatus, Sort } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function Sidebar() {
@@ -87,6 +89,8 @@ export default function Sidebar() {
   const { data, isLoading } = useMarkets(null)
   const { fundWallet } = useFundWallet()
   const { exportWallet } = usePrivy()
+
+  const [, setSelectedSort] = useAtom(sortAtom)
 
   const markets: (Market | MarketGroup)[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
@@ -487,6 +491,7 @@ export default function Sidebar() {
               })
               handleCategory(undefined)
               handleDashboard(undefined)
+              setSelectedSort({ sort: Sort.BASE })
             }}
             variant='transparent'
             w='full'
