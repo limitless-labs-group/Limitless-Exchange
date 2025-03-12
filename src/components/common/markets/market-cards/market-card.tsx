@@ -23,7 +23,7 @@ export default function MarketCard({ market, variant, analyticParams, markets }:
   ) : (
     <MarketGroupCard
       market={market}
-      variant={variant}
+      variant={variant === 'row' ? 'groupRow' : variant}
       analyticParams={analyticParams}
       markets={markets}
     />

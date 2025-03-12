@@ -25,7 +25,8 @@ import MarketActivityTab from '@/components/common/markets/activity-tab'
 import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
 import ConvertModal from '@/components/common/markets/convert-modal'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
+import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import MarketPositionsAmm from '@/components/common/markets/positions/market-positions-amm'
@@ -316,7 +317,7 @@ export default function MarketPage() {
         flexWrap='wrap'
       >
         {market && (
-          <DailyMarketTimer
+          <MarketCountdown
             deadline={market.expirationTimestamp}
             deadlineText={market.expirationDate}
             {...paragraphRegular}

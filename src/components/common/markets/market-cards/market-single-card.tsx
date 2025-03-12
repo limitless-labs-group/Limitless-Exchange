@@ -3,7 +3,8 @@ import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import Avatar from '@/components/common/avatar'
 import { MarketCardProps } from '@/components/common/markets'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
+import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import Paper from '@/components/common/paper'
 import { MarketCardLink } from './market-card-link'
@@ -20,9 +21,10 @@ export const MIN_CARD_HEIGHT = {
   row: '144px',
   grid: '164px',
   speedometer: '137px',
+  groupRow: '196px',
 }
 
-export type MarketCardLayout = 'row' | 'grid' | 'speedometer'
+export type MarketCardLayout = 'row' | 'grid' | 'speedometer' | 'groupRow'
 
 export const MarketSingleCard = ({ variant = 'row', market, analyticParams }: MarketCardProps) => {
   const [hovered, setHovered] = useState(false)
@@ -106,7 +108,7 @@ export const MarketSingleCard = ({ variant = 'row', market, analyticParams }: Ma
             )}
             <HStack w='full' mt='16px' justifyContent='space-between'>
               <Box w='full'>
-                <DailyMarketTimer
+                <MarketCountdown
                   hideText={isShortCard}
                   deadline={market.expirationTimestamp}
                   deadlineText={market.expirationDate}
