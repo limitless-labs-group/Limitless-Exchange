@@ -111,7 +111,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
           .map((ask) => {
             return {
               ...ask,
-              price: +new BigNumber(1).minus(new BigNumber(ask.price)).toFixed(2),
+              price: +new BigNumber(1).minus(new BigNumber(ask.price)),
             }
           })
           .sort((a, b) => a.price - b.price)
@@ -127,6 +127,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
           })
           .sort((a, b) => b.price - a.price)
       : orderbook.asks.sort((a, b) => b.price - a.price)
+    console.log(asks)
     return {
       bids: calculatePercent(bids.reverse()),
       asks: calculatePercentReverse(asks),
