@@ -1,6 +1,8 @@
 import { Flex, HStack, StackProps, Text, Box, VStack, Stack } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
+import { formatUnits } from 'viem'
 import Skeleton from '@/components/common/skeleton'
 import { usePriceOracle } from '@/providers'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
@@ -110,13 +112,46 @@ export const PortfolioStats = ({ ...props }: StackProps) => {
       const token = supportedTokens?.find(
         (token) => token.symbol === position.market.collateral?.symbol
       )
-      if (!!token) {
+      if (token) {
         positionOutcomeUsdAmount = convertAssetAmountToUsd(
           token.priceOracleId,
           position.outcomeTokenAmount
         )
       }
       _balanceToWin += positionOutcomeUsdAmount
+    })
+    clobPositions.forEach((clobPosition) => {
+      const isPositionClaimable = clobPosition.market.winningOutcomeIndex !== null
+      const token = supportedTokens?.find(
+        (token) => token.symbol === clobPosition.market.collateralToken.symbol
+      )
+      if (isPositionClaimable) {
+        const tokensAmount =
+          clobPosition.market.winningOutcomeIndex === 1
+            ? clobPosition.tokensBalance.no
+            : clobPosition.tokensBalance.yes
+        if (token) {
+          const usdAmount = convertAssetAmountToUsd(
+            token.priceOracleId,
+            formatUnits(BigInt(tokensAmount), clobPosition.market.collateralToken.decimals)
+          )
+          _balanceToWin += usdAmount
+          return
+        }
+      }
+      const sharesDifference = Math.abs(
+        new BigNumber(clobPosition.tokensBalance.no)
+          .minus(clobPosition.tokensBalance.yes)
+          .toNumber()
+      )
+      if (token) {
+        const usdAmount = convertAssetAmountToUsd(
+          token.priceOracleId,
+          formatUnits(BigInt(sharesDifference), clobPosition.market.collateralToken.decimals)
+        )
+        _balanceToWin += usdAmount
+        return
+      }
     })
     return NumberUtil.toFixed(_balanceToWin, 2)
   }, [positions, supportedTokens])
