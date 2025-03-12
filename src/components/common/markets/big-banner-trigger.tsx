@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import ProgressBar from '@/components/common/progress-bar'
 import { BigBannerProps } from './big-banner'
@@ -95,7 +96,7 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
       onClick={(e) => onClickRedirectToMarket(e)}
     >
       <Box w='full'>
-        <MarketTimer
+        <MarketCountdown
           deadline={market.expirationTimestamp}
           deadlineText={market.expirationDate}
           topMarket={true}

@@ -3,6 +3,7 @@ import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
@@ -81,7 +82,7 @@ export default function MyMarketCard({ market }: MyMarketCardProps) {
     >
       <Box w='full'>
         <HStack w='full' justifyContent='space-between'>
-          <MarketTimer
+          <MarketCountdown
             deadline={new Date(market.deadline).getTime()}
             deadlineText={formatMarketDeadline()}
             {...paragraphRegular}

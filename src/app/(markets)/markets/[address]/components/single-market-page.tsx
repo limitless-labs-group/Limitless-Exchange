@@ -26,6 +26,7 @@ import MarketActivityTab from '@/components/common/markets/activity-tab'
 import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
 import CommentTab from '@/components/common/markets/comment-tab'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import { MarketProgressBar } from '@/components/common/markets/market-cards/market-progress-bar'
 import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
@@ -284,7 +285,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
                 <Skeleton height={20} />
               </Box>
             ) : (
-              <MarketTimer
+              <MarketCountdown
                 deadline={market.expirationTimestamp}
                 deadlineText={market.expirationDate}
                 color='grey.500'
