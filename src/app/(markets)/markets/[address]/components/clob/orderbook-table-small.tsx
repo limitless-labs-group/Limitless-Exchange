@@ -1,7 +1,6 @@
-import { Box, Button, HStack, Link, Text, useOutsideClick } from '@chakra-ui/react'
+import { Box, Button, HStack, Text, useOutsideClick } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import NextLink from 'next/link'
-import React, { LegacyRef, MutableRefObject, useEffect, useRef, useState } from 'react'
+import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits, maxUint256 } from 'viem'
 import {
@@ -14,29 +13,25 @@ import Skeleton from '@/components/common/skeleton'
 import OrdersTooltip from '@/app/(markets)/markets/[address]/components/clob/orders-tooltip'
 import { OrderBookData } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { TableText } from './orderbook-table-large'
+import { RewardTooltipContent } from './reward-tooltip-content'
 import { useMarketOrders } from '@/hooks/use-market-orders'
-import useMarketRewardsIncentive from '@/hooks/use-market-rewards'
 import { useOrderBook } from '@/hooks/use-order-book'
 import GemIcon from '@/resources/icons/gem-icon.svg'
 import PartFilledCircleIcon from '@/resources/icons/partially-filled-circle.svg'
 import {
   ChangeEvent,
-  ClickEvent,
   OrderBookSideChangedMetadata,
   useAmplitude,
   useTradingService,
 } from '@/services'
-import { useMarketRewards } from '@/services/MarketsService'
 import {
   captionMedium,
   controlsMedium,
   h3Regular,
-  paragraphMedium,
   paragraphRegular,
 } from '@/styles/fonts/fonts.styles'
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
-import { calculateDisplayRange } from '@/utils/market'
 
 export default function OrderBookTableSmall({
   orderBookData,
@@ -47,9 +42,7 @@ export default function OrderBookTableSmall({
   const { market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
   const { data: userOrders } = useMarketOrders(market?.slug)
-  const { trackChanged, trackClicked } = useAmplitude()
-  const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
-  const { data: marketRewardsTotal } = useMarketRewardsIncentive(market?.slug, market?.tradeType)
+  const { trackChanged } = useAmplitude()
   const containerRef = useRef<HTMLDivElement>(null)
 
   const ref = useRef<HTMLElement>()
@@ -57,9 +50,6 @@ export default function OrderBookTableSmall({
   const [rewardsButtonClicked, setRewardButtonClicked] = useState(false)
   const [rewardButtonHovered, setRewardButtonHovered] = useState(false)
   const [linkHovered, setLinkHovered] = useState(false)
-
-  const url =
-    'https://limitlesslabs.notion.site/Limitless-Docs-0e59399dd44b492f8d494050969a1567#19304e33c4b9808498d9ea69e68a0cb4'
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
@@ -71,13 +61,6 @@ export default function OrderBookTableSmall({
       return
     },
   })
-
-  const handleRewardsClicked = () => {
-    trackClicked(ClickEvent.RewardsButtonClicked, {
-      visible: rewardsButtonClicked ? 'off' : 'on',
-    })
-    setRewardButtonClicked(!rewardsButtonClicked)
-  }
 
   useEffect(() => {
     if (containerRef.current) {
@@ -112,57 +95,6 @@ export default function OrderBookTableSmall({
 
   const minRewardsSize = orderbook?.minSize ? orderbook.minSize : maxUint256.toString()
 
-  const range = calculateDisplayRange(orderbook?.adjustedMidpoint, orderbook?.maxSpread)
-
-  const tooltipContent = (
-    <Box>
-      <Text {...paragraphMedium} as='span'>
-        Place limit order near the midpoint to get rewarded.{' '}
-      </Text>
-      <NextLink
-        href={url}
-        target='_blank'
-        rel='noopener'
-        passHref
-        onMouseEnter={() => setLinkHovered(true)}
-        onMouseLeave={() => setLinkHovered(false)}
-      >
-        <Link variant='textLinkSecondary' {...paragraphRegular} isExternal color='grey.500'>
-          Learn more
-        </Link>
-      </NextLink>
-      <HStack w='full' mt='12px' justifyContent='space-between'>
-        <Text {...paragraphMedium}>Daily reward:</Text>
-        <Text {...paragraphMedium}>
-          {marketRewardsTotal?.totalRewards ? marketRewardsTotal.totalRewards.toFixed(0) : '0'}{' '}
-          {market?.collateralToken.symbol}
-        </Text>
-      </HStack>
-      <HStack w='full' mt='4px' justifyContent='space-between'>
-        <Text {...paragraphMedium}>Max Spread:</Text>
-        <Text {...paragraphMedium}>
-          &#177;
-          {new BigNumber(orderbook?.maxSpread ? orderbook.maxSpread : '0')
-            .multipliedBy(100)
-            .toString()}
-          ¢
-        </Text>
-      </HStack>
-      <HStack w='full' mt='4px' justifyContent='space-between'>
-        <Text {...paragraphMedium}>Min order size:</Text>
-        <Text {...paragraphMedium}>
-          {formatUnits(BigInt(minRewardsSize), market?.collateralToken.decimals || 6)}
-        </Text>
-      </HStack>
-      <HStack w='full' mt='4px' justifyContent='space-between'>
-        <Text {...paragraphMedium}>Current range:</Text>
-        <Text {...paragraphMedium}>
-          {range.lower}¢ - {range.upper}¢
-        </Text>
-      </HStack>
-    </Box>
-  )
-
   const onDeleteBatchOrders = async (price: number) => {
     const orders = getUserOrdersForPrice(
       price,
@@ -178,60 +110,12 @@ export default function OrderBookTableSmall({
   return (
     <Box mt='12px'>
       <HStack w='full' justifyContent='space-between'>
-        <Text {...h3Regular}>Order book</Text>
+        <Text {...h3Regular}>Order Book</Text>
         <Box position='relative'>
-          <HStack
-            gap='4px'
-            borderRadius='8px'
-            py='4px'
-            px='8px'
-            bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
-            cursor='pointer'
-            onClick={handleRewardsClicked}
-            onMouseEnter={() => {
-              const timer = setTimeout(() => {
-                if (!rewardButtonHovered) {
-                  setRewardButtonHovered(true)
-                }
-              }, 200)
-              return () => clearTimeout(timer)
-            }}
-            onMouseLeave={() => setRewardButtonHovered(false)}
-            ref={ref as LegacyRef<HTMLDivElement>}
-          >
-            <GemIcon />
-            <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
-              {marketRewards && Boolean(marketRewards?.length)
-                ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
-                    market?.collateralToken.symbol
-                  }`
-                : 'Earn Rewards'}
-            </Text>
-          </HStack>
-          {(rewardsButtonClicked || rewardButtonHovered) && (
-            <Box
-              position='absolute'
-              bg='grey.50'
-              border='1px solid'
-              borderColor='grey.200'
-              boxShadow='0px 1px 4px 0px rgba(2, 6, 23, 0.05)'
-              w='260px'
-              p='8px'
-              rounded='8px'
-              right={0}
-              minH='128px'
-              zIndex={201}
-              onMouseEnter={() => setRewardButtonHovered(true)}
-              onMouseLeave={() => {
-                const timer = setTimeout(() => {
-                  setRewardButtonHovered(false)
-                }, 300)
-                return () => clearTimeout(timer)
-              }}
-            >
-              {tooltipContent}
-            </Box>
-          )}
+          <RewardTooltipContent
+            linkHoverCallback={setLinkHovered}
+            contentHoverCallback={setRewardButtonHovered}
+          />
         </Box>
       </HStack>
       <HStack w={'240px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'} my='16px'>

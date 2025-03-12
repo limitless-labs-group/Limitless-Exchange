@@ -137,7 +137,7 @@ export default function MobileDrawer({
       bottom: 0,
       left: 0,
       right: 0,
-      zIndex: 99999,
+      zIndex: 99990,
       outline: 'none',
       touchAction: 'none',
     }),
@@ -171,7 +171,7 @@ export default function MobileDrawer({
             position: 'fixed',
             inset: 0,
             background: 'rgba(0, 0, 0, 0.3)',
-            zIndex: 99999,
+            zIndex: 99990,
           }}
         />
         <Drawer.Content style={drawerStyle}>
