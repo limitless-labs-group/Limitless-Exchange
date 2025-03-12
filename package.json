@@ -60,7 +60,7 @@
     "embla-carousel-react": "^8.3.0",
     "ethereum-multicall": "^2.25.0",
     "framer-motion": "^11.3.8",
-    "frog": "^0.15.7",
+    "frog": "^0.18.3",
     "graphql": "^16.8.1",
     "highcharts": "^11.4.1",
     "highcharts-react-official": "^3.2.1",
