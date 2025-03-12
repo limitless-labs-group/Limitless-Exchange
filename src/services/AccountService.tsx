@@ -317,25 +317,26 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  const getSessionConnectedMethod = () => {
-    const recentLoggedWallet = localStorage.getItem(
-      `privy:${process.env.NEXT_PUBLIC_PRIVY_APP_ID}:recent-login-wallet-client`
-    )
-    if (!recentLoggedWallet) {
-      return null
-    }
-    const connectedMethod = JSON.parse(recentLoggedWallet || '')
-    const privyMethod = ['google_oauth', 'discord_oauth', 'farcaster', 'email'].includes(
-      connectedMethod
-    )
-    if (privyMethod) {
-      return wallets.find((wallet) => wallet.walletClientType === 'privy')
-    }
-    return wallets.find((wallet) => wallet.walletClientType === connectedMethod)
-  }
+  // const getSessionConnectedMethod = () => {
+  //   debugger
+  //   const recentLoggedWallet = localStorage.getItem(
+  //     `privy:${process.env.NEXT_PUBLIC_PRIVY_APP_ID}:recent-login-wallet-client`
+  //   )
+  //   if (!recentLoggedWallet) {
+  //     return null
+  //   }
+  //   const connectedMethod = JSON.parse(recentLoggedWallet || '')
+  //   const privyMethod = ['google_oauth', 'discord_oauth', 'farcaster', 'email'].includes(
+  //     connectedMethod
+  //   )
+  //   if (privyMethod) {
+  //     return wallets.find((wallet) => wallet.walletClientType === 'privy')
+  //   }
+  //   return wallets.find((wallet) => wallet.walletClientType === connectedMethod)
+  // }
 
   const getWallet = async (): Promise<WalletClient | undefined> => {
-    const wallet = getSessionConnectedMethod()
+    const wallet = wallets[0]
     if (wallet) {
       const provider = await wallet.getEthereumProvider()
       const walletClient = createWalletClient({
@@ -350,10 +351,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }
 
   useEffect(() => {
-    if (walletsReady && !web3Wallet) {
+    if (walletsReady && !web3Wallet && authenticated) {
       getWallet()
     }
-  }, [walletsReady, web3Wallet])
+  }, [walletsReady, web3Wallet, authenticated])
 
   const { mutateAsync: logout } = useMutation({
     mutationKey: ['logout'],
