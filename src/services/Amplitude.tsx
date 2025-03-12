@@ -218,6 +218,7 @@ export enum ClickEvent {
   SplitSharesConfirmed = 'Split Contracts Confirmed',
   MergeSharesConfirmed = 'Merge Contracts Confirmed',
   MergeSharesModalMaxSharesClicked = 'Merge Contracts Modal Max Button Clicked',
+  FeedClosedMarketGroupClicked = 'Feed Closed Market Group Clicked',
 }
 
 export enum SignInEvent {

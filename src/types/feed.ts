@@ -8,6 +8,8 @@ export enum FeedEventType {
   NewTrade = 'NEW_TRADE',
   Comment = 'COMMENT',
   CommentLike = 'COMMENT_LIKE',
+  ResolvedGroup = 'RESOLVED_GROUP',
+  FundedGroup = 'FUNDED_GROUP',
 }
 
 export interface FeedEventUser {
@@ -68,4 +70,23 @@ export interface MarketNewTradeFeedData {
   tradeAmount: string
   tradeAmountUSD: string
   txHash: string
+}
+
+export interface FeedMarketGroupEntity {
+  title: string
+  slug: string
+  winningIndex: number
+  volumeFormatted: string
+  liquidityFormatted: string
+}
+
+export interface GroupFeedData {
+  name: string
+  slug: string
+  collateralToken: {
+    symbol: string
+    address: Address
+    decimals: number
+  }
+  markets: FeedMarketGroupEntity[]
 }

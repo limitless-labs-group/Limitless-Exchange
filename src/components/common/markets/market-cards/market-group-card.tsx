@@ -4,8 +4,8 @@ import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import { MarketCardProps } from '@/components/common/markets'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import { MarketCardLink } from '@/components/common/markets/market-cards/market-card-link'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import { MIN_CARD_HEIGHT } from '@/components/common/markets/market-cards/market-single-card'
 import MarketGroupRow from '@/components/common/markets/market-group-row'
 import { useMarketFeed } from '@/hooks/use-market-feed'
@@ -15,7 +15,11 @@ import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
-export const MarketGroupCard = ({ variant = 'row', market, analyticParams }: MarketCardProps) => {
+export const MarketGroupCard = ({
+  variant = 'groupRow',
+  market,
+  analyticParams,
+}: MarketCardProps) => {
   const [hovered, setHovered] = useState(false)
 
   const {
@@ -81,7 +85,7 @@ export const MarketGroupCard = ({ variant = 'row', market, analyticParams }: Mar
       w='full'
       bg={hovered ? 'grey.100' : 'unset'}
       rounded='12px'
-      border='2px solid var(--chakra-colors-grey-100)'
+      border='3px solid var(--chakra-colors-grey-100)'
       p='2px'
       minH={MIN_CARD_HEIGHT[variant]}
       h='full'
@@ -125,7 +129,7 @@ export const MarketGroupCard = ({ variant = 'row', market, analyticParams }: Mar
         p='16px'
         justifyContent='space-between'
       >
-        <DailyMarketTimer
+        <MarketCountdown
           deadline={market.expirationTimestamp}
           deadlineText={market.expirationDate}
           color='grey.500'
