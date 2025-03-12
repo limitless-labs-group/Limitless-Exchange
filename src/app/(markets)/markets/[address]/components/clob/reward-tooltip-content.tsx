@@ -187,6 +187,7 @@ export const RewardTooltipContent = ({
                   onMouseEnter={() => linkHoverCallback(true)}
                   onMouseLeave={() => linkHoverCallback(false)}
                 >
+                  {' '}
                   Learn more
                 </Link>
               </NextLink>

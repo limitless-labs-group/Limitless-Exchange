@@ -215,6 +215,10 @@ body {
   --privy-color-accent-dark: var(--chakra-colors-blue-500);
 }
 
+.chakra-popover__popper {
+  z-index: 99999 !important;
+}
+
 @media (max-width: 1024px) {
   .intercom-lightweight-app-launcher {
     bottom: 88px !important;
