@@ -1,18 +1,20 @@
 'use client'
 
 import { Link, HStack, Text, VStack, Box } from '@chakra-ui/react'
+import { useAtom } from 'jotai'
 import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import { MarketCategoryHeader } from '@/components/common/markets/market-category-header'
 import MarketsSection from '@/components/common/markets/markets-section'
 import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import TopMarkets from '@/components/common/markets/top-markets'
+import { sortAtom } from '@/atoms/market-sort'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import { useIsMobile } from '@/hooks'
 import useMarketGroup from '@/hooks/use-market-group'
 import usePageName from '@/hooks/use-page-name'
 import { usePriceOracle } from '@/providers'
@@ -35,9 +37,6 @@ const MainPage = () => {
   const searchParams = useSearchParams()
   const { data: categories } = useCategories()
   const { onCloseMarketPage, onOpenMarketPage } = useTradingService()
-  /**
-   * ANALYTICS
-   */
   const { trackClicked, trackOpened } = useAmplitude()
   const category = searchParams.get('category')
   const market = searchParams.get('market')
@@ -67,21 +66,26 @@ const MainPage = () => {
     trackOpened(OpenEvent.PageOpened, analyticData)
   }, [])
 
-  /**
-   * UI
-   */
-  const isMobile = useIsMobile()
+  const [selectedSort, setSelectedSort] = useAtom(sortAtom)
 
-  const [selectedSort, setSelectedSort] = useState<Sort>(() => {
+  useEffect(() => {
     if (typeof window !== 'undefined') {
-      return (window.localStorage.getItem(SortStorageName.SORT) as Sort) ?? Sort.BASE
+      const storedSort = window.localStorage.getItem(SortStorageName.SORT)
+      if (storedSort) {
+        try {
+          const parsedSort = JSON.parse(storedSort) as Sort
+          setSelectedSort({ sort: parsedSort })
+        } catch (error) {
+          console.error('Error parsing stored sort:', error)
+          setSelectedSort({ sort: Sort.BASE })
+        }
+      }
     }
-    return Sort.BASE
-  })
+  }, [])
 
   const handleSelectSort = (options: Sort, name: SortStorageName) => {
-    window.localStorage.setItem(name, options)
-    setSelectedSort(options)
+    window.localStorage.setItem(name, JSON.stringify(options))
+    setSelectedSort({ sort: options ?? Sort.BASE })
   }
 
   const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
@@ -114,6 +118,8 @@ const MainPage = () => {
     if (!markets) return []
     if (!selectedCategory) return markets
     if (selectedCategory) {
+      setSelectedSort({ sort: Sort.BASE })
+      window.localStorage.setItem(SortStorageName.SORT, JSON.stringify(Sort.BASE))
       return markets.filter((market) =>
         market.categories.some(
           (category) => category.toLowerCase() === selectedCategory.name.toLowerCase()
@@ -125,7 +131,7 @@ const MainPage = () => {
   }, [markets, selectedCategory])
 
   const sortedAllMarkets = useMemo(() => {
-    return sortMarkets(filteredAllMarkets, selectedSort, convertTokenAmountToUsd)
+    return sortMarkets(filteredAllMarkets, selectedSort?.sort || Sort.BASE, convertTokenAmountToUsd)
   }, [filteredAllMarkets, selectedSort, convertTokenAmountToUsd])
 
   useEffect(() => {
@@ -172,6 +178,7 @@ const MainPage = () => {
                         }
                       )
                       handleCategory(undefined)
+                      setSelectedSort({ sort: Sort.BASE })
                     }}
                     variant='transparent'
                     w='full'
@@ -233,6 +240,7 @@ const MainPage = () => {
                 markets={sortedAllMarkets as Market[]}
                 handleSelectSort={handleSelectSort}
                 isLoading={isFetching && !isFetchingNextPage}
+                sort={selectedSort.sort}
               />
             </InfiniteScroll>
           </>

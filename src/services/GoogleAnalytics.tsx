@@ -72,6 +72,7 @@ export enum GAEvents {
   ClickSection = 'click_section',
   ClickEndingSoon = 'click_endingsoon',
   ClickHighValue = 'click_highvalue',
+  ClickTrending = 'click_trending',
   ClickHighVolume = 'click_highvolume',
   ClickNewest = 'click_newest',
   ClickLpRewards = 'click_lprewards',
