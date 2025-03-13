@@ -25,7 +25,7 @@ export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name }) =>
 
     return {
       name: foundCategory.name,
-      icon: React.cloneElement(foundCategory.icon, { style }),
+      icon: foundCategory.icon ? React.cloneElement(foundCategory.icon, { style }) : null,
       description: foundCategory.description ?? '',
       bannerImage: foundCategory.bannerImage,
     }
@@ -69,16 +69,18 @@ export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name }) =>
         my={isMobile ? '20px' : '32px'}
       >
         <HStack gap='8px' w={isMobile ? 'full' : '664px'}>
-          <Flex
-            h='32px'
-            w='32px'
-            alignItems='center'
-            justifyContent='center'
-            bg='grey.800'
-            rounded='32px'
-          >
-            {category.icon}
-          </Flex>
+          {category.icon ? (
+            <Flex
+              h='32px'
+              w='32px'
+              alignItems='center'
+              justifyContent='center'
+              bg='grey.800'
+              rounded='32px'
+            >
+              {category.icon}
+            </Flex>
+          ) : null}
           <Text {...h1Bold}>{category.name}</Text>
         </HStack>
       </Flex>
