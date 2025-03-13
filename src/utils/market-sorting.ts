@@ -32,6 +32,24 @@ const getMarketTradeType = (market: MarketOrGroup): string => {
   return (market as Market).tradeType
 }
 
+const getTrendingValue = (
+  market: MarketOrGroup,
+  category: 'hourly' | 'last30days' = 'hourly'
+): number => {
+  if ((market as Market).trends) {
+    if ((market as Market)?.trends?.[category]?.value !== undefined) {
+      return (market as Market)?.trends?.[category]?.value ?? 0
+    }
+
+    const fallbackCategory = category === 'hourly' ? 'last30days' : 'hourly'
+    if ((market as Market).trends?.[fallbackCategory]?.value !== undefined) {
+      return (market as Market).trends?.[fallbackCategory]?.value ?? 0
+    }
+  }
+
+  return 0
+}
+
 export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | MarketGroup)[]>(
   markets: T,
   sortType: Sort,
@@ -47,15 +65,11 @@ export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | Marke
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       ) as T
 
-    case Sort.HIGHEST_VOLUME:
+    case Sort.TRENDING:
       return marketsCopy.sort((a, b) => {
-        const volumeA = getVolumeForMarket(a)
-        const volumeB = getVolumeForMarket(b)
-
-        return (
-          convertTokenAmountToUsd(b.collateralToken.symbol, volumeB) -
-          convertTokenAmountToUsd(a.collateralToken.symbol, volumeA)
-        )
+        const trendingValueA = getTrendingValue(a, 'hourly')
+        const trendingValueB = getTrendingValue(b, 'hourly')
+        return trendingValueB - trendingValueA
       }) as T
 
     case Sort.HIGHEST_LIQUIDITY:
