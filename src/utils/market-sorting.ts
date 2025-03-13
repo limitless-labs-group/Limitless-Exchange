@@ -34,7 +34,7 @@ const getMarketTradeType = (market: MarketOrGroup): string => {
 
 const getTrendingValue = (
   market: MarketOrGroup,
-  category: 'hourly' | 'last30days' = 'last30days'
+  category: 'hourly' | 'last30days' = 'hourly'
 ): number => {
   if ((market as Market).trends) {
     if ((market as Market)?.trends?.[category]?.value !== undefined) {
@@ -67,8 +67,8 @@ export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | Marke
 
     case Sort.TRENDING:
       return marketsCopy.sort((a, b) => {
-        const trendingValueA = getTrendingValue(a, 'last30days')
-        const trendingValueB = getTrendingValue(b, 'last30days')
+        const trendingValueA = getTrendingValue(a, 'hourly')
+        const trendingValueB = getTrendingValue(b, 'hourly')
         return trendingValueB - trendingValueA
       }) as T
 
