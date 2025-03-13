@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, FC } from 'react'
+import { Dashboard } from '@/atoms/dashboard'
 import { Category, Token } from '@/types'
 
 const TokenFilterContext = createContext<TokenFilterContextType | undefined>(undefined)
@@ -21,11 +22,15 @@ interface TokenFilterContextType {
 
   selectedCategory: Category | undefined
   handleCategory: (category: Category | undefined) => void
+
+  dashboard: Dashboard | undefined
+  handleDashboard: (dashboard: Dashboard | undefined) => void
 }
 
 export const TokenFilterProvider: FC<TokenFilterProviderProps> = ({ children }) => {
   const [selectedFilterTokens, setSelectedFilterTokens] = useState<Token[]>([])
   const [selectedCategory, setSelectedCategory] = useState<Category | undefined>()
+  const [dashboard, setDashboard] = useState<Dashboard | undefined>()
 
   const handleTokenChange = (tokens: Token[]) => {
     setSelectedFilterTokens(tokens)
@@ -33,11 +38,23 @@ export const TokenFilterProvider: FC<TokenFilterProviderProps> = ({ children }) 
 
   const handleCategory = (category: Category | undefined) => {
     setSelectedCategory(category)
+    setDashboard(undefined)
+  }
+  const handleDashboard = (dashboard: Dashboard | undefined) => {
+    setDashboard(dashboard)
+    setSelectedCategory(undefined)
   }
 
   return (
     <TokenFilterContext.Provider
-      value={{ selectedFilterTokens, handleTokenChange, selectedCategory, handleCategory }}
+      value={{
+        selectedFilterTokens,
+        handleTokenChange,
+        selectedCategory,
+        handleCategory,
+        dashboard,
+        handleDashboard,
+      }}
     >
       {children}
     </TokenFilterContext.Provider>

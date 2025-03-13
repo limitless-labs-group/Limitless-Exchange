@@ -1,22 +1,27 @@
 'use client'
 
 import { Link, HStack, Text, VStack, Box } from '@chakra-ui/react'
+import { useAtom } from 'jotai'
 import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
+import { DashboardHeader } from '@/components/common/markets/dasboard-header'
+import DashboardSection from '@/components/common/markets/dashboard-section'
 import { MarketCategoryHeader } from '@/components/common/markets/market-category-header'
 import MarketsSection from '@/components/common/markets/markets-section'
-import { CategoryItems } from '@/components/common/markets/sidebar-item'
+import { CategoryItems, SideItem } from '@/components/common/markets/sidebar-item'
 import TopMarkets from '@/components/common/markets/top-markets'
+import { dashboardAtom } from '@/atoms/dashboard'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import { useIsMobile } from '@/hooks'
 import useMarketGroup from '@/hooks/use-market-group'
 import usePageName from '@/hooks/use-page-name'
 import { usePriceOracle } from '@/providers'
 import GridIcon from '@/resources/icons/sidebar/Markets.svg'
+import Finance from '@/resources/icons/sidebar/finance.svg'
 import {
   ClickEvent,
   OpenEvent,
@@ -35,9 +40,6 @@ const MainPage = () => {
   const searchParams = useSearchParams()
   const { data: categories } = useCategories()
   const { onCloseMarketPage, onOpenMarketPage } = useTradingService()
-  /**
-   * ANALYTICS
-   */
   const { trackClicked, trackOpened } = useAmplitude()
   const category = searchParams.get('category')
   const market = searchParams.get('market')
@@ -67,11 +69,6 @@ const MainPage = () => {
     trackOpened(OpenEvent.PageOpened, analyticData)
   }, [])
 
-  /**
-   * UI
-   */
-  const isMobile = useIsMobile()
-
   const [selectedSort, setSelectedSort] = useState<Sort>(() => {
     if (typeof window !== 'undefined') {
       return (window.localStorage.getItem(SortStorageName.SORT) as Sort) ?? Sort.BASE
@@ -86,7 +83,7 @@ const MainPage = () => {
 
   const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
 
-  const { selectedCategory, handleCategory } = useTokenFilter()
+  const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
 
   useEffect(() => {
     if (category && categories) {
@@ -134,6 +131,31 @@ const MainPage = () => {
     }
   }, [])
 
+  const showHeaderContent = () => {
+    if (selectedCategory) {
+      return (
+        <Box
+          w='full'
+          overflowX='scroll'
+          css={{
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+            scrollbarWidth: 'none',
+            '-ms-overflow-style': 'none',
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
+          <MarketCategoryHeader name={selectedCategory.name} />
+        </Box>
+      )
+    }
+    if (dashboard) {
+      return <DashboardHeader />
+    }
+    return <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
+  }
+
   return (
     <MainLayout layoutPadding={'0px'}>
       <HStack className='w-full' alignItems='flex-start' w='full' justifyContent='center'>
@@ -172,6 +194,7 @@ const MainPage = () => {
                         }
                       )
                       handleCategory(undefined)
+                      handleDashboard(undefined)
                     }}
                     variant='transparent'
                     w='full'
@@ -191,29 +214,28 @@ const MainPage = () => {
                   </Link>
                 </NextLink>
 
+                <Link
+                  key='crash'
+                  href={`/?dashboard=crash`}
+                  style={{ width: isMobile ? 'fit-content' : '100%' }}
+                >
+                  <SideItem
+                    isActive={false}
+                    icon={<Finance />}
+                    onClick={() => {
+                      handleDashboard('crash')
+                      handleCategory(undefined)
+                    }}
+                  >
+                    Market crash
+                  </SideItem>
+                </Link>
+
                 <CategoryItems />
               </HStack>
             ) : null}
 
-            {selectedCategory ? (
-              <Box
-                w='full'
-                overflowX='scroll'
-                css={{
-                  '&::-webkit-scrollbar': {
-                    display: 'none',
-                  },
-                  scrollbarWidth: 'none',
-                  '-ms-overflow-style': 'none',
-                  WebkitOverflowScrolling: 'touch',
-                }}
-              >
-                <MarketCategoryHeader name={selectedCategory.name} />
-              </Box>
-            ) : (
-              <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
-            )}
-
+            {showHeaderContent()}
             <InfiniteScroll
               className='scroll'
               dataLength={markets?.length ?? 0}
@@ -229,11 +251,19 @@ const MainPage = () => {
                 ) : null
               }
             >
-              <MarketsSection
-                markets={sortedAllMarkets as Market[]}
-                handleSelectSort={handleSelectSort}
-                isLoading={isFetching && !isFetchingNextPage}
-              />
+              {dashboard ? (
+                <DashboardSection
+                  markets={sortedAllMarkets as Market[]}
+                  handleSelectSort={handleSelectSort}
+                  isLoading={isFetching && !isFetchingNextPage}
+                />
+              ) : (
+                <MarketsSection
+                  markets={sortedAllMarkets as Market[]}
+                  handleSelectSort={handleSelectSort}
+                  isLoading={isFetching && !isFetchingNextPage}
+                />
+              )}
             </InfiniteScroll>
           </>
         </VStack>
