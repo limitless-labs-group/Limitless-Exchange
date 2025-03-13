@@ -16,7 +16,7 @@ import { Market, MarketGroup } from '@/types'
 
 export interface SideItemProps {
   isActive?: boolean
-  icon: ReactNode
+  icon?: ReactNode | null
   children: ReactNode
   onClick: () => void
 }
@@ -30,7 +30,7 @@ export const MARKET_CATEGORIES = {
     icon: <Crypto width={16} height={16} />,
     bannerImage: '/assets/images/banners/crypto.webp',
   },
-  FINANCICALS: {
+  FINANCIALS: {
     id: 8,
     name: 'Financials',
     description: '',
@@ -52,11 +52,67 @@ export const MARKET_CATEGORIES = {
     bannerImage: '/assets/images/banners/sports.webp',
   },
   POP: {
-    id: 1,
+    id: 10,
     name: 'Pop Culture',
     description: '',
     icon: <Pop width={16} height={16} />,
     bannerImage: '/assets/images/banners/pop.webp',
+  },
+  RECESSION: {
+    id: 11,
+    name: 'Recession',
+    description: '',
+    icon: null,
+    bannerImage: '',
+  },
+  STOCKS: {
+    id: 6,
+    name: 'Stocks',
+    description: '',
+    icon: null,
+    bannerImage: '',
+  },
+  GOLD: {
+    id: 12,
+    name: 'Gold',
+    description: '',
+    icon: null,
+    bannerImage: '',
+  },
+  INFLATION: {
+    id: 13,
+    name: 'Inflation',
+    description: '',
+    icon: null,
+    bannerImage: '',
+  },
+  TRADE_WARS: {
+    id: 14,
+    name: 'Trade Wars',
+    description: '',
+    icon: null,
+    bannerImage: '',
+  },
+  FOREX: {
+    id: 15,
+    name: 'Forex',
+    description: '',
+    icon: null,
+    bannerImage: '',
+  },
+  POLITICS: {
+    id: 3,
+    name: 'Politics',
+    description: '',
+    icon: null,
+    bannerImage: '',
+  },
+  SOCIAL: {
+    id: 4,
+    name: 'Social',
+    description: '',
+    icon: null,
+    bannerImage: '',
   },
   OTHER: {
     id: 5,
@@ -83,11 +139,13 @@ export const SideItem = ({ isActive, onClick, icon, children }: SideItemProps) =
       cursor='pointer'
       whiteSpace='nowrap'
     >
-      {React.cloneElement(icon as React.ReactElement, {
-        style: {
-          color: isActive ? 'var(--chakra-colors-grey-800)' : 'var(--chakra-colors-grey-700)',
-        },
-      })}
+      {icon
+        ? React.cloneElement(icon as React.ReactElement, {
+            style: {
+              color: isActive ? 'var(--chakra-colors-grey-800)' : 'var(--chakra-colors-grey-700)',
+            },
+          })
+        : null}
       <Text {...paragraphMedium} fontWeight={500} color={isActive ? 'grey.800' : 'grey.700'}>
         {children}
       </Text>
