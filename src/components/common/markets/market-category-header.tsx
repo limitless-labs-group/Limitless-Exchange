@@ -1,4 +1,5 @@
-import { Image, Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import Image from 'next/image'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { categories } from '@/components/common/markets/sidebar-item'
@@ -33,13 +34,29 @@ export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name }) =>
   return category ? (
     <VStack alignItems='start' gap='16px' justifyContent='center' width='inherit'>
       {category.bannerImage ? (
-        <Box w='full' h={isMobile ? '142px' : '460px'} position='relative' overflow='hidden'>
+        <Box
+          w='full'
+          maxW='960px'
+          h={isMobile ? '162px' : '360px'}
+          position='relative'
+          overflow='hidden'
+          mx='auto'
+          mt={!isMobile ? '20px' : 'unset'}
+          borderRadius={!isMobile ? '18px' : 'none'}
+        >
           <Image
             src={category.bannerImage}
-            alt={`${category} category banner`}
-            objectFit='cover'
-            w='full'
-            h='full'
+            alt={`${category.name} category banner`}
+            style={{
+              objectFit: 'cover',
+              width: '100%',
+              height: '100%',
+              maxWidth: '100%',
+              position: 'absolute',
+            }}
+            fill
+            sizes='(max-width: 768px) 100vw, (max-width: 960px) 80vw, 9600px'
+            priority
           />
         </Box>
       ) : null}
