@@ -33,12 +33,16 @@ export const RewardTooltipContent = ({
   linkHoverCallback,
   contentHoverCallback,
 }: RewardTooltipContentProps) => {
-  const { market } = useTradingService()
+  const { market, clobOutcome } = useTradingService()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { data: orderbook } = useOrderBook(market?.slug)
   const { data: marketRewardsTotal } = useMarketRewardsIncentive(market?.slug, market?.tradeType)
   const minRewardsSize = orderbook?.minSize ? orderbook.minSize : maxUint256.toString()
-  const range = calculateDisplayRange(orderbook?.adjustedMidpoint, orderbook?.maxSpread)
+  const range = calculateDisplayRange(
+    clobOutcome,
+    orderbook?.adjustedMidpoint,
+    orderbook?.maxSpread
+  )
   const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
   const { trackClicked } = useAmplitude()
 
