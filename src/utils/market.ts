@@ -114,10 +114,15 @@ export async function getPrices(data: { address: `0x${string}`; decimals: number
   return result
 }
 
-export const calculateDisplayRange = (adjustedMidpoint?: number, spread?: string) => {
+export const calculateDisplayRange = (
+  outcome: number,
+  adjustedMidpoint?: number,
+  spread?: string
+) => {
   const midpoint = new BigNumber(adjustedMidpoint || '0').multipliedBy(100)
-  const lowerBound = midpoint.minus(spread ? +spread * 100 : 5).decimalPlaces(1)
-  const upperBound = midpoint.plus(spread ? +spread * 100 : 5).decimalPlaces(1)
+  const midPointFormatted = outcome ? new BigNumber(100).minus(midpoint) : midpoint
+  const lowerBound = midPointFormatted.minus(spread ? +spread * 100 : 5).decimalPlaces(1)
+  const upperBound = midPointFormatted.plus(spread ? +spread * 100 : 5).decimalPlaces(1)
   return {
     lower: lowerBound.isNegative() ? '0' : lowerBound.toString(),
     upper: upperBound.isGreaterThan(100) ? '100' : upperBound.toString(),
