@@ -3,7 +3,7 @@ import { MarketCard } from './market-cards'
 import { h2Bold } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
-export type DashboardGroupType = 'row' | 'grid' | 'featured'
+export type DashboardGroupType = 'row' | 'grid' | 'featured' | 'compact'
 
 interface DashboardGroupProps {
   type: DashboardGroupType
@@ -114,6 +114,67 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
                 </Flex>
               )
             })}
+          </VStack>
+        )
+
+      case 'compact':
+        const compactMarkets = markets.slice(0, 5)
+        const gapSizeCompact = 12
+
+        if (compactMarkets.length === 0) return <></>
+
+        return (
+          <VStack spacing={4} w='full'>
+            <Box width='full'>
+              <MarketCard
+                variant='chart'
+                market={compactMarkets[0]}
+                analyticParams={{
+                  bannerPosition: 1,
+                  bannerPaginationPage: 1,
+                }}
+              />
+            </Box>
+
+            {compactMarkets.length > 1 && (
+              <Flex w='full' gap={`${gapSizeCompact}px`} justifyContent='space-between'>
+                {compactMarkets.slice(1, 4).map((market, index) => {
+                  const totalGapWidth = 2 * gapSizeCompact
+                  const columnWidth = `calc((100% - ${totalGapWidth}px) / 3)`
+
+                  return (
+                    <Box
+                      key={market.slug || market.address}
+                      width={columnWidth}
+                      flexShrink={0}
+                      flexGrow={0}
+                    >
+                      <MarketCard
+                        variant='grid'
+                        market={market}
+                        analyticParams={{
+                          bannerPosition: index + 2,
+                          bannerPaginationPage: 1,
+                        }}
+                      />
+                    </Box>
+                  )
+                })}
+              </Flex>
+            )}
+
+            {compactMarkets.length > 4 && (
+              <Box width='full'>
+                <MarketCard
+                  variant='row'
+                  market={compactMarkets[4]}
+                  analyticParams={{
+                    bannerPosition: 5,
+                    bannerPaginationPage: 1,
+                  }}
+                />
+              </Box>
+            )}
           </VStack>
         )
 

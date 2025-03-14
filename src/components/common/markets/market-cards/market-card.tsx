@@ -109,8 +109,16 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
             ) : null}
           </Flex>
           <Box w='full'>
-            {/* {withChart ? <MarketPriceChart market={market} /> : null} */}
-            {withChart ? <LineChart market={market} /> : null}
+            {withChart ? (
+              <Box
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                }}
+              >
+                <LineChart market={market} />
+              </Box>
+            ) : null}
             {isSpeedometer ? (
               <Divider />
             ) : (

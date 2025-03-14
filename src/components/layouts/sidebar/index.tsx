@@ -46,7 +46,7 @@ import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
-import Finance from '@/resources/icons/sidebar/finance.svg'
+import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import UserIcon from '@/resources/icons/user-icon.svg'
 import {
@@ -504,23 +504,26 @@ export default function Sidebar() {
           </Link>
         </NextLink>
 
-        <NextLink
-          href={`/?dashboard=crash`}
-          passHref
-          style={{ width: isMobile ? 'fit-content' : '100%' }}
-        >
-          <Link>
-            <SideItem
-              isActive={dashboard === 'crash'}
-              icon={<Finance width={16} height={16} />}
-              onClick={() => {
-                handleDashboard('crash')
-              }}
-            >
-              Market crash
-            </SideItem>
-          </Link>
-        </NextLink>
+        {!isLoading ? (
+          <NextLink
+            href={`/?dashboard=marketcrash`}
+            passHref
+            style={{ width: isMobile ? 'fit-content' : '100%' }}
+          >
+            <Link>
+              <SideItem
+                isActive={dashboard === 'marketcrash'}
+                icon={<DashboardIcon width={16} height={16} />}
+                onClick={() => {
+                  handleDashboard('marketcrash')
+                }}
+                color='orange-500'
+              >
+                Market crash
+              </SideItem>
+            </Link>
+          </NextLink>
+        ) : null}
 
         <CategoryItems />
 

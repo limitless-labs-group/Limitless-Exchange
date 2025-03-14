@@ -1,10 +1,7 @@
 import { Box, Divider, Flex, Text, VStack } from '@chakra-ui/react'
 import React from 'react'
 import { isMobile } from 'react-device-detect'
-import MarketCardMobile from '@/components/common/markets/market-cards/market-card-mobile'
-import Skeleton from '@/components/common/skeleton'
 import { DashboardGroup } from './dashboard-group'
-import { MarketCard } from './market-cards/market-card'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import { Market, Sort, SortStorageName } from '@/types'
 import SortFilter from '../sort-filter'
@@ -25,7 +22,7 @@ export default function DashboardSection({
     { name: 'Stocks', type: 'row' },
     { name: 'Crypto', type: 'featured' },
     { name: 'Gold', type: 'row' },
-    { name: 'Inflation', type: 'row' },
+    { name: 'Inflation', type: 'compact' },
     { name: 'Trade wars', type: 'row' },
     { name: 'Forex', type: 'grid' },
   ]
@@ -37,7 +34,29 @@ export default function DashboardSection({
     }))
     .filter((category) => category.markets.length > 0)
 
-  return (
+  return isMobile ? (
+    <Box mt='24px' mb='36px' w='full' justifyContent='center'>
+      <Box
+        mt='24px'
+        mx='16px'
+        p='16px'
+        borderRadius='12px'
+        bg='primary.50'
+        border='1px solid'
+        borderColor='primary.100'
+      >
+        <Flex direction='column' align='center'>
+          <Text fontWeight='600' fontSize='18px' color='primary.700' textAlign='center' mb='8px'>
+            Enhanced Market Dashboard Available
+          </Text>
+          <Text fontSize='14px' color='grey.700' textAlign='center' mb='16px'>
+            For the full crash market dashboard with advanced charts and detailed analytics, visit
+            Limitless Exchange on your desktop browser.
+          </Text>
+        </Flex>
+      </Box>
+    </Box>
+  ) : (
     <Box
       mt='24px'
       mb={isMobile ? '36px' : '40px'}
@@ -52,7 +71,7 @@ export default function DashboardSection({
           flexDirection={isMobile ? 'column' : 'row'}
         >
           <Text {...headlineRegular} mt={isMobile ? '8px' : '0px'}>
-            All Markets
+            Curious what happens next?
           </Text>
           <SortFilter onChange={handleSelectSort} storageName={SortStorageName.SORT} />
         </Flex>

@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, FC } from 'react'
-import { Dashboard } from '@/atoms/dashboard'
-import { Category, Token } from '@/types'
+import { Dashboard, Category, Token } from '@/types'
 
 const TokenFilterContext = createContext<TokenFilterContextType | undefined>(undefined)
 

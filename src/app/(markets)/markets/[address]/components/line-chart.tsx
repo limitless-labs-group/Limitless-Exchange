@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, ButtonGroup, Button, useToken, HStack, VStack, Text } from '@chakra-ui/react'
+import { Box, Button, useToken, HStack, VStack, Text } from '@chakra-ui/react'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -357,7 +357,7 @@ export const LineChart = ({ market }: PriceChartProps) => {
         </HStack>
       </HStack>
 
-      <Box borderRadius='12px' bg='grey.50' p='8px'>
+      <Box borderRadius='12px' bg='grey.50' p='8px' height='214px'>
         <Line data={data} options={options} />
       </Box>
     </VStack>

@@ -1,7 +1,6 @@
 'use client'
 
 import { Link, HStack, Text, VStack, Box } from '@chakra-ui/react'
-import { useAtom } from 'jotai'
 import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
@@ -14,14 +13,13 @@ import { MarketCategoryHeader } from '@/components/common/markets/market-categor
 import MarketsSection from '@/components/common/markets/markets-section'
 import { CategoryItems, SideItem } from '@/components/common/markets/sidebar-item'
 import TopMarkets from '@/components/common/markets/top-markets'
-import { dashboardAtom } from '@/atoms/dashboard'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import useMarketGroup from '@/hooks/use-market-group'
 import usePageName from '@/hooks/use-page-name'
 import { usePriceOracle } from '@/providers'
 import GridIcon from '@/resources/icons/sidebar/Markets.svg'
-import Finance from '@/resources/icons/sidebar/finance.svg'
+import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import {
   ClickEvent,
   OpenEvent,
@@ -33,7 +31,7 @@ import {
 } from '@/services'
 import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup, Sort, SortStorageName } from '@/types'
+import { Dashboard, Market, MarketGroup, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
 const MainPage = () => {
@@ -44,6 +42,7 @@ const MainPage = () => {
   const category = searchParams.get('category')
   const market = searchParams.get('market')
   const slug = searchParams.get('slug')
+  const dashboardSearch = searchParams.get('dashboard')
   const { data: marketData } = useMarket(market ?? undefined)
   const { data: marketGroupData } = useMarketGroup(slug ?? undefined)
 
@@ -95,6 +94,12 @@ const MainPage = () => {
       }
     }
   }, [category, categories])
+
+  useEffect(() => {
+    if (dashboardSearch) {
+      handleDashboard(dashboardSearch as Dashboard)
+    }
+  }, [dashboardSearch])
 
   const { convertTokenAmountToUsd } = usePriceOracle()
 
@@ -202,7 +207,11 @@ const MainPage = () => {
                     textDecoration='none'
                     _active={{ textDecoration: 'none' }}
                     _hover={{ textDecoration: 'none' }}
-                    bg={pageName === 'Explore Markets' && !selectedCategory ? 'grey.100' : 'unset'}
+                    bg={
+                      pageName === 'Explore Markets' && !selectedCategory && !dashboard
+                        ? 'grey.100'
+                        : 'unset'
+                    }
                     rounded='8px'
                   >
                     <HStack w='full' whiteSpace='nowrap'>
@@ -214,22 +223,26 @@ const MainPage = () => {
                   </Link>
                 </NextLink>
 
-                <Link
-                  key='crash'
-                  href={`/?dashboard=crash`}
-                  style={{ width: isMobile ? 'fit-content' : '100%' }}
-                >
-                  <SideItem
-                    isActive={false}
-                    icon={<Finance />}
-                    onClick={() => {
-                      handleDashboard('crash')
-                      handleCategory(undefined)
-                    }}
+                {!isFetching ? (
+                  <NextLink
+                    href={`/?dashboard=marketcrash`}
+                    passHref
+                    style={{ width: isMobile ? 'fit-content' : '100%' }}
                   >
-                    Market crash
-                  </SideItem>
-                </Link>
+                    <Link>
+                      <SideItem
+                        isActive={dashboard === 'marketcrash'}
+                        icon={<DashboardIcon width={16} height={16} color='#FF9200' />}
+                        onClick={() => {
+                          handleDashboard('marketcrash')
+                        }}
+                        color='orange-500'
+                      >
+                        Market crash
+                      </SideItem>
+                    </Link>
+                  </NextLink>
+                ) : null}
 
                 <CategoryItems />
               </HStack>
