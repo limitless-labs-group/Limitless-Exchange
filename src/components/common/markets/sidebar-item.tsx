@@ -115,6 +115,13 @@ export const MARKET_CATEGORIES = {
     icon: null,
     bannerImage: '',
   },
+  DAILY: {
+    id: 4,
+    name: 'Daily',
+    description: '',
+    icon: null,
+    bannerImage: '',
+  },
   OTHER: {
     id: 5,
     name: 'Other',
