@@ -120,12 +120,6 @@ export default function ClobLimitTradeForm() {
       }, 300)
     }
   }
-  const isLessThanMinTreshHold = useMemo(() => {
-    if (price && sharesAmount) {
-      return +sharesAmount < 5
-    }
-    return false
-  }, [price, sharesAmount])
 
   const isLessThanMinTreshHold = useMemo(() => {
     if (price && sharesAmount) {

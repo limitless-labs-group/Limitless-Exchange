@@ -1,7 +1,7 @@
 import { Button, ButtonGroup, HStack } from '@chakra-ui/react'
-import React from 'react'
-import { isMobile } from 'react-device-detect'
+import React, { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { useIsMobile } from '@/hooks'
 import { ClickEvent, useAmplitude } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
@@ -40,14 +40,25 @@ export default function SortFilter({ onChange, sort }: SortFilterProps) {
   const { trackClicked } = useAmplitude()
   const { pushGA4Event } = useGoogleAnalytics()
 
+  const handleFilterItemClicked = (option: Sort) => {
+    window.sessionStorage.setItem(storageName, option)
+    setSelectedSortFilter(option)
+  }
+
+  const isMobile = useIsMobile()
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(selectedSortFilter, storageName)
+    }
+  }, [selectedSortFilter])
+
   const getGAEventForSort = (option: Sort): GAEvents | undefined => {
     switch (option) {
       case Sort.ENDING_SOON:
         return GAEvents.ClickEndingSoon
       case Sort.HIGHEST_VALUE:
         return GAEvents.ClickHighValue
-      case Sort.TRENDING:
-        return GAEvents.ClickTrending
       case Sort.NEWEST:
         return GAEvents.ClickNewest
       case Sort.LP_REWARDS:
@@ -76,11 +87,11 @@ export default function SortFilter({ onChange, sort }: SortFilterProps) {
               bg={option === sort ? 'grey.50' : 'grey.100'}
               onClick={() => {
                 trackClicked(ClickEvent.SortClicked, {
-                  oldValue: sort,
+                  oldValue: selectedSortFilter,
                   newValue: option,
                 })
                 pushGA4Event(getGAEventForSort(option))
-                onChange(option, SortStorageName.SORT)
+                handleFilterItemClicked(option)
               }}
               _hover={{ bg: option === sort ? 'grey.50' : 'grey.200' }}
               borderRadius='8px'

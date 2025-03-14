@@ -14,14 +14,12 @@ interface DailyMarketsSectionProps {
   markets?: Market[]
   handleSelectSort: (option: Sort, name: SortStorageName) => void
   isLoading: boolean
-  sort: Sort
 }
 
 export default function MarketsSection({
   markets,
   handleSelectSort,
   isLoading,
-  sort,
 }: DailyMarketsSectionProps) {
   const { selectedCategory } = useTokenFilter()
   const category = useMemo(() => {
@@ -45,7 +43,7 @@ export default function MarketsSection({
           <Text {...headlineRegular} mt={isMobile ? '8px' : '0px'}>
             All Markets
           </Text>
-          <SortFilter onChange={handleSelectSort} sort={sort} />
+          <SortFilter onChange={handleSelectSort} storageName={SortStorageName.SORT} />
         </Flex>
       </Box>
       {isMobile ? (
