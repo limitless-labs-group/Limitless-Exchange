@@ -5,6 +5,8 @@ import Avatar from '@/components/common/avatar'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import Paper from '@/components/common/paper'
+import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
+import { LineChart } from '@/app/(markets)/markets/[address]/components/line-chart'
 import { MarketCardLink } from './market-card-link'
 import { MarketProgressBar } from './market-progress-bar'
 import { SpeedometerProgress } from './speedometer-progress'
@@ -20,9 +22,10 @@ export const MIN_CARD_HEIGHT = {
   row: '144px',
   grid: '164px',
   speedometer: '137px',
+  chart: '144px',
 }
 
-export type MarketCardLayout = 'row' | 'grid' | 'speedometer'
+export type MarketCardLayout = 'row' | 'grid' | 'speedometer' | 'chart'
 
 interface DailyMarketCardProps {
   variant?: MarketCardLayout
@@ -38,7 +41,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
   const { pushGA4Event } = useGoogleAnalytics()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.metaKey || e.ctrlKey || e.button === 2) {
+    if (e.metaKey || e.ctrlKey || e.button === 2 || withChart) {
       return
     }
     e.preventDefault()
@@ -71,12 +74,13 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
 
   const isGrid = variant === 'grid'
   const isSpeedometer = variant === 'speedometer'
+  const withChart = variant === 'chart'
   const isShortCard = isGrid || isSpeedometer
 
   const content = (
     <Box
       w='full'
-      bg={hovered ? 'grey.100' : 'unset'}
+      bg={hovered && !withChart ? 'grey.100' : 'unset'}
       rounded='12px'
       border='2px solid var(--chakra-colors-grey-100)'
       p='2px'
@@ -105,6 +109,16 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
             ) : null}
           </Flex>
           <Box w='full'>
+            {withChart ? (
+              <Box
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                }}
+              >
+                <LineChart market={market} />
+              </Box>
+            ) : null}
             {isSpeedometer ? (
               <Divider />
             ) : (

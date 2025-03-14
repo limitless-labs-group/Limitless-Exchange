@@ -18,6 +18,7 @@ export interface SideItemProps {
   isActive?: boolean
   icon?: ReactNode | null
   children: ReactNode
+  color?: string
   onClick: () => void
 }
 
@@ -27,35 +28,35 @@ export const MARKET_CATEGORIES = {
     id: 2,
     name: 'Crypto',
     description: '',
-    icon: <Crypto width={16} height={16} />,
+    icon: null,
     bannerImage: '/assets/images/banners/crypto.webp',
   },
   FINANCIALS: {
     id: 8,
     name: 'Financials',
     description: '',
-    icon: <Finance width={16} height={16} />,
+    icon: null,
     bannerImage: '/assets/images/banners/financials.webp',
   },
   WEATHER: {
     id: 9,
     name: 'Weather',
     description: '',
-    icon: <Weather width={16} height={16} />,
+    icon: null,
     bannerImage: '/assets/images/banners/weather.webp',
   },
   SPORTS: {
     id: 1,
     name: 'Sports',
     description: '',
-    icon: <Sport width={16} height={16} />,
+    icon: null,
     bannerImage: '/assets/images/banners/sports.webp',
   },
   POP: {
     id: 10,
     name: 'Pop Culture',
     description: '',
-    icon: <Pop width={16} height={16} />,
+    icon: null,
     bannerImage: '/assets/images/banners/pop.webp',
   },
   RECESSION: {
@@ -118,7 +119,6 @@ export const MARKET_CATEGORIES = {
     id: 5,
     name: 'Other',
     description: '',
-    icon: <Others width={16} height={16} />,
     bannerImage: '',
   },
 } as const
@@ -127,7 +127,7 @@ export type MarketCategory = (typeof MARKET_CATEGORIES)[keyof typeof MARKET_CATE
 
 export const categories = Object.values(MARKET_CATEGORIES)
 
-export const SideItem = ({ isActive, onClick, icon, children }: SideItemProps) => {
+export const SideItem = ({ isActive, onClick, icon, children, color }: SideItemProps) => {
   return (
     <HStack
       onClick={onClick}
@@ -142,7 +142,11 @@ export const SideItem = ({ isActive, onClick, icon, children }: SideItemProps) =
       {icon
         ? React.cloneElement(icon as React.ReactElement, {
             style: {
-              color: isActive ? 'var(--chakra-colors-grey-800)' : 'var(--chakra-colors-grey-700)',
+              color: color
+                ? `var(--chakra-colors-${color})`
+                : isActive
+                ? 'var(--chakra-colors-grey-800)'
+                : 'var(--chakra-colors-grey-700)',
             },
           })
         : null}
@@ -154,7 +158,7 @@ export const SideItem = ({ isActive, onClick, icon, children }: SideItemProps) =
 }
 
 export const CategoryItems = () => {
-  const { selectedCategory, handleCategory } = useTokenFilter()
+  const { selectedCategory, handleCategory, handleDashboard } = useTokenFilter()
   const searchParams = useSearchParams()
 
   const { data } = useMarkets(null)
@@ -187,6 +191,7 @@ export const CategoryItems = () => {
   const createQueryString = (categoryName: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set('category', categoryName.toLowerCase())
+    params.delete('dashboard')
     return params.toString()
   }
 
@@ -205,12 +210,13 @@ export const CategoryItems = () => {
         >
           <SideItem
             isActive={selectedCategory?.name.toLowerCase() === c.name.toLowerCase()}
-            icon={c.icon}
+            // icon={c.icon}
             onClick={() => {
               handleCategory({
                 id: c.id,
                 name: c.name,
               })
+              handleDashboard(undefined)
             }}
           >
             {c.name} ({marketsByCategory[c.name]})
