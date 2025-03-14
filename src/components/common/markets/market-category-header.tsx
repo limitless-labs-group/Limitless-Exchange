@@ -27,7 +27,7 @@ export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name }) =>
       name: foundCategory.name,
       // icon: foundCategory.icon ? React.cloneElement(foundCategory.icon, { style }) : null,
       description: foundCategory.description ?? '',
-      bannerImage: foundCategory.bannerImage,
+      bannerImage: foundCategory.bannerImage ?? null,
     }
   }, [name])
 

@@ -227,6 +227,7 @@ export default function Sidebar() {
               trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
               window.localStorage.removeItem('SORT')
               handleCategory(undefined)
+              handleDashboard(undefined)
             }}
             style={{ textDecoration: 'none' }}
             _hover={{ textDecoration: 'none' }}
@@ -511,7 +512,7 @@ export default function Sidebar() {
             passHref
             style={{ width: isMobile ? 'fit-content' : '100%' }}
           >
-            <Link>
+            <Link variant='transparent'>
               <SideItem
                 isActive={dashboard === 'marketcrash'}
                 icon={<DashboardIcon width={16} height={16} />}

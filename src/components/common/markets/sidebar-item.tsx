@@ -1,15 +1,9 @@
-import { Text, HStack } from '@chakra-ui/react'
-import Link from 'next/link'
+import { Link, Text, HStack } from '@chakra-ui/react'
+import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import React, { ReactNode, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import Crypto from '@/resources/icons/sidebar/crypto.svg'
-import Finance from '@/resources/icons/sidebar/finance.svg'
-import Others from '@/resources/icons/sidebar/others.svg'
-import Pop from '@/resources/icons/sidebar/pop.svg'
-import Sport from '@/resources/icons/sidebar/sport.svg'
-import Weather from '@/resources/icons/sidebar/weather.svg'
 import { useMarkets } from '@/services/MarketsService'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup } from '@/types'
@@ -36,35 +30,35 @@ export const MARKET_CATEGORIES = {
     name: 'Crypto',
     description: '',
     icon: null,
-    bannerImage: '/assets/images/banners/crypto.webp',
+    bannerImage: '',
   },
   FINANCIALS: {
     id: 8,
     name: 'Financials',
     description: '',
     icon: null,
-    bannerImage: '/assets/images/banners/financials.webp',
+    bannerImage: '',
   },
   WEATHER: {
     id: 9,
     name: 'Weather',
     description: '',
     icon: null,
-    bannerImage: '/assets/images/banners/weather.webp',
+    bannerImage: '',
   },
   SPORTS: {
     id: 1,
     name: 'Sports',
     description: '',
     icon: null,
-    bannerImage: '/assets/images/banners/sports.webp',
+    bannerImage: '',
   },
   POP: {
     id: 10,
     name: 'Pop Culture',
     description: '',
     icon: null,
-    bannerImage: '/assets/images/banners/pop.webp',
+    bannerImage: '',
   },
   RECESSION: {
     id: 11,
@@ -214,25 +208,27 @@ export const CategoryItems = () => {
   return (
     <>
       {categoriesWithMarkets.map((c) => (
-        <Link
+        <NextLink
           key={c.name}
           href={`/?${createQueryString(c.name)}`}
           style={{ width: isMobile ? 'fit-content' : '100%' }}
         >
-          <SideItem
-            isActive={selectedCategory?.name.toLowerCase() === c.name.toLowerCase()}
-            // icon={c.icon}
-            onClick={() => {
-              handleCategory({
-                id: c.id,
-                name: c.name,
-              })
-              handleDashboard(undefined)
-            }}
-          >
-            {c.name} ({marketsByCategory[c.name]})
-          </SideItem>
-        </Link>
+          <Link variant='transparent'>
+            <SideItem
+              isActive={selectedCategory?.name.toLowerCase() === c.name.toLowerCase()}
+              // icon={c.icon}
+              onClick={() => {
+                handleCategory({
+                  id: c.id,
+                  name: c.name,
+                })
+                handleDashboard(undefined)
+              }}
+            >
+              {c.name} ({marketsByCategory[c.name]})
+            </SideItem>
+          </Link>
+        </NextLink>
       ))}
     </>
   )
