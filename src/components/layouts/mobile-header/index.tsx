@@ -11,6 +11,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { useFundWallet, usePrivy } from '@privy-io/react-auth'
+import { handle } from 'frog/vercel'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
@@ -79,7 +80,7 @@ export default function MobileHeader() {
     onOpen: onOpenUserMenu,
     onClose: onCloseUserMenu,
   } = useDisclosure()
-  const { handleCategory } = useTokenFilter()
+  const { handleCategory, handleDashboard } = useTokenFilter()
 
   // Todo move this and other duplicated to a proper service
   const balanceInvested = useMemo(() => {
@@ -136,6 +137,7 @@ export default function MobileHeader() {
           <Box
             onClick={() => {
               handleCategory(undefined)
+              handleDashboard(undefined)
               router.push('/')
             }}
           >

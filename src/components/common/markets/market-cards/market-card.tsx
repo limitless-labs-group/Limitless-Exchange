@@ -41,7 +41,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
   const { pushGA4Event } = useGoogleAnalytics()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.metaKey || e.ctrlKey || e.button === 2 || withChart) {
+    if (e.metaKey || e.ctrlKey || e.button === 2) {
       return
     }
     e.preventDefault()
@@ -109,16 +109,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
             ) : null}
           </Flex>
           <Box w='full'>
-            {withChart ? (
-              <Box
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                }}
-              >
-                <LineChart market={market} />
-              </Box>
-            ) : null}
+            {withChart ? <LineChart market={market} /> : null}
             {isSpeedometer ? (
               <Divider />
             ) : (
