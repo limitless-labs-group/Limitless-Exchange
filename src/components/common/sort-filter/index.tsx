@@ -46,6 +46,8 @@ export default function SortFilter({ onChange, sort }: SortFilterProps) {
         return GAEvents.ClickEndingSoon
       case Sort.HIGHEST_VALUE:
         return GAEvents.ClickHighValue
+      case Sort.TRENDING:
+        return GAEvents.ClickTrending
       case Sort.NEWEST:
         return GAEvents.ClickNewest
       case Sort.LP_REWARDS:
