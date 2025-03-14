@@ -19,10 +19,10 @@ export default function DashboardSection({
 }: DashboardSectionProps) {
   const categoryConfig = [
     { name: 'Recession', type: 'row' },
-    { name: 'Stocks', type: 'row' },
     { name: 'Crypto', type: 'featured' },
-    { name: 'Gold', type: 'row' },
     { name: 'Inflation', type: 'compact' },
+    { name: 'Stocks', type: 'row' },
+    { name: 'Gold', type: 'row' },
     { name: 'Trade wars', type: 'row' },
     { name: 'Forex', type: 'grid' },
   ]
