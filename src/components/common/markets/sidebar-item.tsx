@@ -24,6 +24,13 @@ export interface SideItemProps {
 
 //ids and names come from api /categories
 export const MARKET_CATEGORIES = {
+  DAILY: {
+    id: 16,
+    name: 'Daily',
+    description: '',
+    icon: null,
+    bannerImage: '',
+  },
   CRYPTO: {
     id: 2,
     name: 'Crypto',
