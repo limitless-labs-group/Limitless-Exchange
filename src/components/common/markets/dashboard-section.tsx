@@ -50,7 +50,7 @@ export default function DashboardSection({
             Enhanced Market Dashboard Available
           </Text>
           <Text fontSize='14px' color='grey.700' textAlign='center' mb='16px'>
-            For the full crash market dashboard with advanced charts and detailed analytics, visit
+            For the full market crash dashboard with advanced charts and detailed analytics, visit
             Limitless Exchange on your desktop browser.
           </Text>
         </Flex>
