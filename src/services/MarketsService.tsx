@@ -23,7 +23,7 @@ const calculateMarketPrice = (price: number | undefined): number => {
   return Number.isNaN(calculated) ? 50 : calculated
 }
 
-const LIMIT_PER_PAGE = 65
+const LIMIT_PER_PAGE = 50
 
 export function useMarkets(topic: Category | null) {
   return useInfiniteQuery({
