@@ -23,8 +23,8 @@ export default function DashboardSection({
     { name: 'Inflation', type: 'compact' },
     { name: 'Stocks', type: 'row' },
     { name: 'Gold', type: 'row' },
-    { name: 'Trade wars', type: 'row' },
-    { name: 'Forex', type: 'grid' },
+    // { name: 'Trade wars', type: 'row' },
+    // { name: 'Forex', type: 'grid' },
   ]
 
   const categorizedMarkets = categoryConfig
