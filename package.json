@@ -50,7 +50,7 @@
     "@vercel/functions": "^1.4.1",
     "@vercel/speed-insights": "^1.0.2",
     "@walletconnect/modal": "^2.6.2",
-    "axios": "^1.7.4",
+    "axios": "^1.8.2",
     "big.js": "^6.2.1",
     "chart.js": "^4.4.8",
     "date-fns": "^3.6.0",
