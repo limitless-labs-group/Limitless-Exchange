@@ -304,6 +304,10 @@ export default function useSmartWalletService() {
   }
 
   const redeemNegRiskMarket = async (conditionId: string, amounts: bigint[]) => {
+    await approveConditionalIfNeeded(
+      process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+    )
     try {
       const data = encodeFunctionData({
         abi: negriskAdapterAbi,

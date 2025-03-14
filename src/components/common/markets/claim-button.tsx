@@ -9,7 +9,7 @@ import { Toast } from '@/components/common/toast'
 import { useToast } from '@/hooks'
 import { getConditionalTokenAddress } from '@/hooks/use-conditional-tokens-addr'
 import WinIcon from '@/resources/icons/win-icon.svg'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { ClickEvent, useAccount, useAmplitude, useTradingService } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { NumberUtil } from '@/utils'
 import { DISCORD_LINK } from '@/utils/consts'
@@ -46,6 +46,7 @@ export default function ClaimButton({
   const queryClient = useQueryClient()
   const { redeemNegRiskMarket } = useWeb3Service()
   const { negriskApproved, setNegRiskApproved } = useTradingService()
+  const { web3Client } = useAccount()
 
   const redeemMutation = useMutation({
     mutationKey: ['redeemPosition', slug],
@@ -114,7 +115,7 @@ export default function ClaimButton({
       ),
   })
 
-  return !!negRiskRequestId && !negriskApproved ? (
+  return !!negRiskRequestId && !negriskApproved && web3Client !== 'etherspot' ? (
     <ButtonWithStates
       {...props}
       status={approveClaimNegriskMutation.status}
