@@ -38,12 +38,12 @@ const getTrendingRank = (
 ): number => {
   if ((market as Market).trends) {
     if ((market as Market)?.trends?.[category]?.rank !== undefined) {
-      return (market as Market)?.trends?.[category]?.rank!
+      return (market as Market)?.trends?.[category]?.rank ?? 0
     }
 
     const fallbackCategory = category === 'hourly' ? 'last30days' : 'hourly'
     if ((market as Market).trends?.[fallbackCategory]?.rank !== undefined) {
-      return (market as Market).trends?.[fallbackCategory]?.rank!
+      return (market as Market).trends?.[fallbackCategory]?.rank ?? 0
     }
   }
 
