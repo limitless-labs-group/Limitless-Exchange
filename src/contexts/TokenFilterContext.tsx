@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, FC } from 'react'
+import React, { createContext, useContext, useState, ReactNode, FC, useMemo } from 'react'
 import { Dashboard, Category, Token } from '@/types'
 
 const TokenFilterContext = createContext<TokenFilterContextType | undefined>(undefined)
@@ -37,25 +37,29 @@ export const TokenFilterProvider: FC<TokenFilterProviderProps> = ({ children }) 
 
   const handleCategory = (category: Category | undefined) => {
     setSelectedCategory(category)
-    setDashboard(undefined)
-  }
-  const handleDashboard = (dashboard: Dashboard | undefined) => {
-    setDashboard(dashboard)
-    setSelectedCategory(undefined)
+    if (category) {
+      setDashboard(undefined)
+    }
   }
 
-  return (
-    <TokenFilterContext.Provider
-      value={{
-        selectedFilterTokens,
-        handleTokenChange,
-        selectedCategory,
-        handleCategory,
-        dashboard,
-        handleDashboard,
-      }}
-    >
-      {children}
-    </TokenFilterContext.Provider>
+  const handleDashboard = (dashboard: Dashboard | undefined) => {
+    setDashboard(dashboard)
+    if (dashboard) {
+      setSelectedCategory(undefined)
+    }
+  }
+
+  const contextValue = useMemo(
+    () => ({
+      selectedFilterTokens,
+      handleTokenChange,
+      selectedCategory,
+      handleCategory,
+      dashboard,
+      handleDashboard,
+    }),
+    [selectedFilterTokens, selectedCategory, dashboard]
   )
+
+  return <TokenFilterContext.Provider value={contextValue}>{children}</TokenFilterContext.Provider>
 }

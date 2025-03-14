@@ -191,7 +191,11 @@ export const CategoryItems = () => {
   const createQueryString = (categoryName: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set('category', categoryName.toLowerCase())
-    params.delete('dashboard')
+
+    if (params.has('dashboard')) {
+      params.delete('dashboard')
+    }
+
     return params.toString()
   }
 
