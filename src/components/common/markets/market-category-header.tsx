@@ -20,7 +20,7 @@ export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name }) =>
     return {
       name: foundCategory.name,
     }
-  }, [name])
+  }, [name, categories])
 
   return category ? (
     <VStack alignItems='start' gap='16px' justifyContent='center' width='inherit'>
