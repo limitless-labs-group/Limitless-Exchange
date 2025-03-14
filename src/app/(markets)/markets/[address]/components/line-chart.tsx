@@ -42,12 +42,11 @@ export const LineChart = ({ market }: PriceChartProps) => {
     'grey.50',
   ])
 
-  const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(market)
+  const { data: prices } = useMarketPriceHistory(market)
   function getUniqueTimestamps() {
     const timestamps = new Set<number>()
     const now = new Date().getTime()
 
-    // Filter timestamps based on selected time frame
     const cutoffDate = (() => {
       switch (timeFrame) {
         case '1D':
@@ -125,7 +124,8 @@ export const LineChart = ({ market }: PriceChartProps) => {
               pointRadius: 0,
               pointHoverRadius: 4,
               borderWidth: 2,
-              tension: 0,
+              tension: 0.4,
+              cubicInterpolationMode: 'monotone',
               spanGaps: true,
               segment: {
                 borderColor: (ctx: any) => {
@@ -252,15 +252,19 @@ export const LineChart = ({ market }: PriceChartProps) => {
         border: {
           color: grey300,
         },
+        // Reduce the number of ticks to make the chart smoother
         ticks: {
+          maxRotation: 0,
+          autoSkipPadding: 20,
           color: grey500,
           font: {
             family: 'Inter, sans-serif',
             size: 12,
           },
           autoSkip: true,
-          maxTicksLimit: 8,
+          maxTicksLimit: 6,
         },
+        // This section is now handled in the replacement above
       },
       y: {
         position: 'right',
@@ -321,6 +325,10 @@ export const LineChart = ({ market }: PriceChartProps) => {
           py='2px'
           px={'2px'}
           w={isMobile ? 'full' : 'unset'}
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
         >
           {timeRanges.map((range) => (
             <Button
