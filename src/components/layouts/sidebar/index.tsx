@@ -485,6 +485,7 @@ export default function Sidebar() {
                 option: 'Markets',
               })
               handleCategory(undefined)
+              handleDashboard(undefined)
             }}
             variant='transparent'
             w='full'
