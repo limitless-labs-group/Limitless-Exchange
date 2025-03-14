@@ -136,7 +136,7 @@ const MainPage = () => {
     }
   }, [])
 
-  const showHeaderContent = () => {
+  const headerContent = useMemo(() => {
     if (selectedCategory) {
       return (
         <Box
@@ -159,7 +159,7 @@ const MainPage = () => {
       return <DashboardHeader />
     }
     return <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
-  }
+  }, [selectedCategory, dashboard, banneredMarkets, isBanneredLoading])
 
   return (
     <MainLayout layoutPadding={'0px'}>
@@ -248,7 +248,7 @@ const MainPage = () => {
               </HStack>
             ) : null}
 
-            {showHeaderContent()}
+            {headerContent}
             <InfiniteScroll
               className='scroll'
               dataLength={markets?.length ?? 0}
