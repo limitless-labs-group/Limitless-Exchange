@@ -67,9 +67,6 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
       conditionId: market?.conditionId as string,
       contractAddress: market?.collateralToken.address as Address,
     })
-    await queryClient.refetchQueries({
-      queryKey: ['market-shares', market?.slug],
-    })
   }
 
   const handleFocus = () => {
@@ -107,6 +104,9 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
     await checkSplitAllowance()
     await queryClient.refetchQueries({
       queryKey: ['market-shares', market?.slug, market?.tokens],
+    })
+    await queryClient.refetchQueries({
+      queryKey: ['positions'],
     })
     setDisplayAmount('')
     splitSharesMutation.reset()
