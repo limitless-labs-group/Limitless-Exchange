@@ -491,6 +491,7 @@ export default function Sidebar() {
               })
               handleCategory(undefined)
               handleDashboard(undefined)
+              setSelectedSort({ sort: Sort.BASE })
             }}
             variant='transparent'
             w='full'

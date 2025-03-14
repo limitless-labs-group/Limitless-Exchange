@@ -9,12 +9,14 @@ import SortFilter from '../sort-filter'
 interface DashboardSectionProps {
   markets?: Market[]
   handleSelectSort: (option: Sort, name: SortStorageName) => void
+  sort: Sort
   isLoading: boolean
 }
 
 export default function DashboardSection({
   markets,
   handleSelectSort,
+  sort,
   isLoading,
 }: DashboardSectionProps) {
   const categoryConfig = [
@@ -73,7 +75,7 @@ export default function DashboardSection({
           <Text {...headlineRegular} mt={isMobile ? '8px' : '0px'}>
             Curious what happens next?
           </Text>
-          <SortFilter onChange={handleSelectSort} storageName={SortStorageName.SORT} />
+          <SortFilter onChange={handleSelectSort} sort={sort} />
         </Flex>
       </Box>
       <VStack gap='80px' mt='80px' width='full'>

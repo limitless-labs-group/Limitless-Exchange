@@ -214,6 +214,7 @@ const MainPage = () => {
                       )
                       handleCategory(undefined)
                       handleDashboard(undefined)
+                      setSelectedSort({ sort: Sort.BASE })
                     }}
                     variant='transparent'
                     w='full'
@@ -280,12 +281,14 @@ const MainPage = () => {
             >
               {dashboard ? (
                 <DashboardSection
+                  sort={selectedSort.sort}
                   markets={sortedAllMarkets as Market[]}
                   handleSelectSort={handleSelectSort}
                   isLoading={isFetching && !isFetchingNextPage}
                 />
               ) : (
                 <MarketsSection
+                  sort={selectedSort.sort}
                   markets={sortedAllMarkets as Market[]}
                   handleSelectSort={handleSelectSort}
                   isLoading={isFetching && !isFetchingNextPage}
