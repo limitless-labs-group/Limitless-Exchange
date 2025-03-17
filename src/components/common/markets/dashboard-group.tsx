@@ -3,7 +3,12 @@ import { MarketCard } from './market-cards'
 import { h2Bold } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
-export type DashboardGroupType = 'row' | 'grid' | 'featured' | 'compact'
+export enum DashboardGroupType {
+  Row = 'row',
+  Grid = 'grid',
+  Featured = 'featured',
+  Compact = 'compact',
+}
 
 interface DashboardGroupProps {
   type: DashboardGroupType

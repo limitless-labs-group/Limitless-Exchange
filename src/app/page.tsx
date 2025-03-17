@@ -4,7 +4,7 @@ import { Link, HStack, Text, VStack, Box } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
 import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
@@ -26,6 +26,7 @@ import {
   ClickEvent,
   OpenEvent,
   PageOpenedMetadata,
+  DashboardName,
   ProfileBurgerMenuClickedMetadata,
   useAmplitude,
   useCategories,
@@ -47,6 +48,11 @@ const MainPage = () => {
   const dashboardSearch = searchParams.get('dashboard')
   const { data: marketData } = useMarket(market ?? undefined)
   const { data: marketGroupData } = useMarketGroup(slug ?? undefined)
+  const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
+  const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
+  const [selectedSort, setSelectedSort] = useAtom(sortAtom)
+  const { convertTokenAmountToUsd } = usePriceOracle()
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useMarkets(null)
 
   const pageName = usePageName()
 
@@ -62,15 +68,17 @@ const MainPage = () => {
   }, [marketData, marketGroupData])
 
   useEffect(() => {
-    const analyticData: PageOpenedMetadata = {
-      page: 'Explore Markets',
-      ...(category && { category: [category] }),
+    const dashboardNameMapping: Record<string, string> = {
+      marketcrash: DashboardName.MarketCrash,
     }
 
+    const analyticData: PageOpenedMetadata = {
+      page: 'Explore Markets',
+      ...(selectedCategory && { category: [selectedCategory.name.toLowerCase()] }),
+      ...(dashboard && { dashboard: dashboardNameMapping[dashboard.toLowerCase()] || dashboard }),
+    }
     trackOpened(OpenEvent.PageOpened, analyticData)
-  }, [])
-
-  const [selectedSort, setSelectedSort] = useAtom(sortAtom)
+  }, [selectedCategory, dashboard])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -92,10 +100,6 @@ const MainPage = () => {
     setSelectedSort({ sort: options ?? Sort.BASE })
   }
 
-  const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
-
-  const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
-
   useEffect(() => {
     if (category && categories) {
       const categoryFromUrl = categories.find(
@@ -112,11 +116,6 @@ const MainPage = () => {
       handleDashboard(dashboardSearch as Dashboard)
     }
   }, [dashboardSearch])
-
-  const { convertTokenAmountToUsd } = usePriceOracle()
-
-  // pass categoryEntity to useMarket to make call with category
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useMarkets(null)
 
   const totalAmount = useMemo(() => data?.pages[0]?.data.totalAmount ?? 0, [data?.pages])
 
@@ -285,6 +284,7 @@ const MainPage = () => {
                   handleSelectSort={handleSelectSort}
                   isLoading={isFetching && !isFetchingNextPage}
                   sort={selectedSort.sort}
+                  dashboardType='marketCrash'
                 />
               ) : (
                 <MarketsSection
