@@ -20,6 +20,8 @@ export type Category = {
   priority?: number | null
 }
 
+export type Dashboard = 'marketcrash'
+
 export type MarketsResponse = {
   data: Market[]
   totalMarketsCount: number

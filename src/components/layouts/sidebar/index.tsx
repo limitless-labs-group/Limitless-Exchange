@@ -19,9 +19,10 @@ import { useFundWallet, usePrivy } from '@privy-io/react-auth'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useCallback, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import { LoginButton } from '@/components/common/login-button'
-import { CategoryItems } from '@/components/common/markets/sidebar-item'
+import { CategoryItems, SideItem } from '@/components/common/markets/sidebar-item'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
@@ -45,6 +46,7 @@ import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
+import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import UserIcon from '@/resources/icons/user-icon.svg'
 import {
@@ -81,7 +83,7 @@ export default function Sidebar() {
   const { data: totalVolume } = useTotalTradingVolume()
 
   const { data: positions } = usePosition()
-  const { selectedCategory, handleCategory } = useTokenFilter()
+  const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
   const { data, isLoading } = useMarkets(null)
   const { fundWallet } = useFundWallet()
   const { exportWallet } = usePrivy()
@@ -225,6 +227,7 @@ export default function Sidebar() {
               trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
               window.localStorage.removeItem('SORT')
               handleCategory(undefined)
+              handleDashboard(undefined)
             }}
             style={{ textDecoration: 'none' }}
             _hover={{ textDecoration: 'none' }}
@@ -483,10 +486,15 @@ export default function Sidebar() {
                 option: 'Markets',
               })
               handleCategory(undefined)
+              handleDashboard(undefined)
             }}
             variant='transparent'
             w='full'
-            bg={pageName === 'Explore Markets' && !selectedCategory ? 'grey.100' : 'unset'}
+            bg={
+              pageName === 'Explore Markets' && !selectedCategory && !dashboard
+                ? 'grey.100'
+                : 'unset'
+            }
             rounded='8px'
           >
             <HStack w='full'>
@@ -497,6 +505,27 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
+
+        {!isLoading ? (
+          <NextLink
+            href={`/?dashboard=marketcrash`}
+            passHref
+            style={{ width: isMobile ? 'fit-content' : '100%' }}
+          >
+            <Link variant='transparent'>
+              <SideItem
+                isActive={dashboard === 'marketcrash'}
+                icon={<DashboardIcon width={16} height={16} />}
+                onClick={() => {
+                  handleDashboard('marketcrash')
+                }}
+                color='orange-500'
+              >
+                Market crash
+              </SideItem>
+            </Link>
+          </NextLink>
+        ) : null}
 
         <CategoryItems />
 

@@ -25,7 +25,7 @@ const desktopStyles = {
 
 type SortFilterProps = {
   onChange: (option: Sort, storageName: SortStorageName) => void
-  storageName: SortStorageName
+  storageName?: SortStorageName | undefined
 }
 
 const sortOptions = [
@@ -36,7 +36,10 @@ const sortOptions = [
   Sort.LP_REWARDS,
 ]
 
-export default function SortFilter({ onChange, storageName }: SortFilterProps) {
+export default function SortFilter({
+  onChange,
+  storageName = SortStorageName.SORT,
+}: SortFilterProps) {
   const [selectedSortFilter, setSelectedSortFilter] = useState<Sort>(
     (window.sessionStorage.getItem(storageName) as Sort) ?? Sort.ENDING_SOON
   )

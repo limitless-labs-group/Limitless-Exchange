@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import Script from 'next/script'
 import { PropsWithChildren } from 'react'
 import { Providers } from '@/app/providers'
+import { SpindlProvider } from '@/providers/Spindl'
 import '../../public/fonts.css'
 
 export const metadata: Metadata = {
@@ -52,6 +53,7 @@ const RootLayout = ({ children }: PropsWithChildren) => {
           {children}
           <Analytics />
           <SpeedInsights />
+          <SpindlProvider />
           {/*<ReactQueryDevtools initialIsOpen={false} />*/}
         </Providers>
       </body>

@@ -22,6 +22,19 @@ module.exports = withBundleAnalyzer({
         destination: '/',
         permanent: false,
       },
+      {
+        source: '/marketcrash',
+        destination: '/?dashboard=marketcrash',
+        permanent: false,
+      },
+    ]
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/ingest/:path*',
+        destination: 'https://spindl.link/:path*',
+      },
     ]
   },
   webpack(config) {
