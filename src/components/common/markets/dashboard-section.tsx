@@ -1,35 +1,39 @@
 import { Box, Divider, Flex, Text, VStack } from '@chakra-ui/react'
 import React from 'react'
 import { isMobile } from 'react-device-detect'
-import { DashboardGroup } from './dashboard-group'
+import { DashboardGroup, DashboardGroupType } from './dashboard-group'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import { Market, Sort, SortStorageName } from '@/types'
 import SortFilter from '../sort-filter'
+
+const dashboardConfig = {
+  marketCrash: [
+    { name: 'Recession', type: DashboardGroupType.Row },
+    { name: 'Crypto', type: DashboardGroupType.Featured },
+    { name: 'Inflation', type: DashboardGroupType.Compact },
+    { name: 'Stocks', type: DashboardGroupType.Row },
+    { name: 'Gold', type: DashboardGroupType.Row },
+  ],
+}
+
+type DashboardType = keyof typeof dashboardConfig
 
 interface DashboardSectionProps {
   markets?: Market[]
   handleSelectSort: (option: Sort, name: SortStorageName) => void
   isLoading: boolean
   sort: Sort
+  dashboardType: DashboardType
 }
 
 export default function DashboardSection({
   markets,
   handleSelectSort,
   sort,
+  dashboardType,
   isLoading,
 }: DashboardSectionProps) {
-  const categoryConfig = [
-    { name: 'Recession', type: 'row' },
-    { name: 'Crypto', type: 'featured' },
-    { name: 'Inflation', type: 'compact' },
-    { name: 'Stocks', type: 'row' },
-    { name: 'Gold', type: 'row' },
-    // { name: 'Trade wars', type: 'row' },
-    // { name: 'Forex', type: 'grid' },
-  ]
-
-  const categorizedMarkets = categoryConfig
+  const categorizedMarkets = dashboardConfig[dashboardType]
     .map((category) => ({
       ...category,
       markets: markets?.filter((m) => m.categories.includes(category.name)) || [],
@@ -82,7 +86,7 @@ export default function DashboardSection({
         {categorizedMarkets.map((category) => (
           <DashboardGroup
             key={category.name}
-            type={category.type as 'row' | 'grid'}
+            type={category.type}
             categoryName={category.name}
             markets={category.markets}
           />
