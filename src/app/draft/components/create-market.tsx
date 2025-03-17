@@ -266,6 +266,7 @@ export const CreateMarket: FC = () => {
   }
 
   const prepareMarketData = (formData: FormData) => {
+    debugger
     const tokenId = Number(formData.get('tokenId'))
     const marketFee = Number(formData.get('marketFee'))
     const deadline = Number(formData.get('deadline'))
@@ -299,6 +300,21 @@ export const CreateMarket: FC = () => {
     }
   }
 
+  const findDuplicateMarketGroupTitles = (markets: MarketInput[]) => {
+    const map = new Map()
+    const duplicates = []
+    const marketTitles = markets.map((market) => market.title)
+
+    for (const str of marketTitles) {
+      map.set(str, (map.get(str) || 0) + 1)
+      if (map.get(str) === 2) {
+        duplicates.push(str)
+      }
+    }
+
+    return duplicates
+  }
+
   const prepareData = async () => {
     await generateOgImage()
 
@@ -319,6 +335,13 @@ export const CreateMarket: FC = () => {
           const invalidMarkets = markets.filter(
             (market) => !market.title?.trim() || !market.description?.trim()
           )
+
+          const duplicatedTitles = findDuplicateMarketGroupTitles(markets)
+
+          if (duplicatedTitles.length) {
+            showToast(`All markets in the group must have unique titles.`)
+            return
+          }
 
           if (invalidMarkets.length > 0) {
             showToast(
