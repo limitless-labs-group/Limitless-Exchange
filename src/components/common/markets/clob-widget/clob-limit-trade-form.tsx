@@ -323,9 +323,11 @@ export default function ClobLimitTradeForm() {
         queryKey: ['prices', market?.slug],
       }),
     ])
-    await sleep(2)
     await queryClient.refetchQueries({
       queryKey: ['user-orders', market?.slug],
+    })
+    await queryClient.refetchQueries({
+      queryKey: ['positions'],
     })
   }
 

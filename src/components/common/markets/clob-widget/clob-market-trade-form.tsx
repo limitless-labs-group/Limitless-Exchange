@@ -404,6 +404,9 @@ export default function ClobMarketTradeForm() {
       queryClient.refetchQueries({
         queryKey: ['prices', market?.slug],
       }),
+      queryClient.refetchQueries({
+        queryKey: ['positions'],
+      }),
     ])
   }
 
