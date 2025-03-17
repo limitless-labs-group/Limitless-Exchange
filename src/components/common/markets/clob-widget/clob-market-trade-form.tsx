@@ -3,7 +3,7 @@ import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
-import React, { useMemo, useRef } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { isMobile, isTablet } from 'react-device-detect'
 import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
@@ -59,12 +59,14 @@ export default function ClobMarketTradeForm() {
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
   const { pushPuchaseEvent, pushGA4Event } = useGoogleAnalytics()
+  const [contractsBuying, setContractsBuying] = useState('')
 
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const placeMarketOrderMutation = useMutation({
     mutationKey: ['market-order', market?.slug, price],
     mutationFn: async () => {
+      setContractsBuying(orderCalculations.contracts.toString())
       trackClicked(ClickEvent.ConfirmTransactionClicked, {
         address: market?.slug,
         outcome: outcome,
@@ -388,6 +390,7 @@ export default function ClobMarketTradeForm() {
   const onResetMutation = async () => {
     await sleep(0.8)
     placeMarketOrderMutation.reset()
+    setContractsBuying('')
     await Promise.allSettled([
       queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
@@ -609,7 +612,7 @@ export default function ClobMarketTradeForm() {
         }
         onClick={handleSubmitButtonClicked}
         successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(
-          orderCalculations.contracts,
+          contractsBuying,
           6
         )} contracts`}
         onReset={onResetMutation}
