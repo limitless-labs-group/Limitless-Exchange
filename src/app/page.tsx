@@ -263,38 +263,40 @@ const MainPage = () => {
             ) : null}
 
             {headerContent}
-            <InfiniteScroll
-              className='scroll'
-              dataLength={markets?.length ?? 0}
-              next={fetchNextPage}
-              hasMore={hasNextPage}
-              style={{ width: '100%' }}
-              loader={
-                markets.length > 0 && markets.length < totalAmount ? (
-                  <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
-                    <Loader />
-                    <Text {...paragraphRegular}>Loading more markets</Text>
-                  </HStack>
-                ) : null
-              }
-            >
-              {dashboard ? (
-                <DashboardSection
-                  markets={sortedAllMarkets as Market[]}
-                  handleSelectSort={handleSelectSort}
-                  isLoading={isFetching && !isFetchingNextPage}
-                  sort={selectedSort.sort}
-                  dashboardType='marketCrash'
-                />
-              ) : (
-                <MarketsSection
-                  markets={sortedAllMarkets as Market[]}
-                  handleSelectSort={handleSelectSort}
-                  isLoading={isFetching && !isFetchingNextPage}
-                  sort={selectedSort.sort}
-                />
-              )}
-            </InfiniteScroll>
+            <Box className='full-container'>
+              <InfiniteScroll
+                className='scroll'
+                dataLength={markets?.length ?? 0}
+                next={fetchNextPage}
+                hasMore={hasNextPage}
+                style={{ width: '100%' }}
+                loader={
+                  markets.length > 0 && markets.length < totalAmount ? (
+                    <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+                      <Loader />
+                      <Text {...paragraphRegular}>Loading more markets</Text>
+                    </HStack>
+                  ) : null
+                }
+              >
+                {dashboard ? (
+                  <DashboardSection
+                    markets={sortedAllMarkets as Market[]}
+                    handleSelectSort={handleSelectSort}
+                    isLoading={isFetching && !isFetchingNextPage}
+                    sort={selectedSort.sort}
+                    dashboardType='marketCrash'
+                  />
+                ) : (
+                  <MarketsSection
+                    markets={sortedAllMarkets as Market[]}
+                    handleSelectSort={handleSelectSort}
+                    isLoading={isFetching && !isFetchingNextPage}
+                    sort={selectedSort.sort}
+                  />
+                )}
+              </InfiniteScroll>
+            </Box>
           </>
         </VStack>
       </HStack>
