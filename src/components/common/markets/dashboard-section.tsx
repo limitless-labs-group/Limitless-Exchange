@@ -40,29 +40,7 @@ export default function DashboardSection({
     }))
     .filter((category) => category.markets.length > 0)
 
-  return isMobile ? (
-    <Box mt='24px' mb='36px' w='full' justifyContent='center'>
-      <Box
-        mt='24px'
-        mx='16px'
-        p='16px'
-        borderRadius='12px'
-        bg='primary.50'
-        border='1px solid'
-        borderColor='primary.100'
-      >
-        <Flex direction='column' align='center'>
-          <Text fontWeight='600' fontSize='18px' color='primary.700' textAlign='center' mb='8px'>
-            Enhanced Market Dashboard Available
-          </Text>
-          <Text fontSize='14px' color='grey.700' textAlign='center' mb='16px'>
-            For the full market crash dashboard with advanced charts and detailed analytics, visit
-            Limitless Exchange on your desktop browser.
-          </Text>
-        </Flex>
-      </Box>
-    </Box>
-  ) : (
+  return (
     <Box
       mt='24px'
       mb={isMobile ? '36px' : '40px'}
@@ -82,11 +60,11 @@ export default function DashboardSection({
           <SortFilter onChange={handleSelectSort} sort={sort} />
         </Flex>
       </Box>
-      <VStack gap='80px' mt='80px' width='full'>
+      <VStack gap='80px' mt='80px' width='full' px={isMobile ? '16px' : 'unset'}>
         {categorizedMarkets.map((category) => (
           <DashboardGroup
             key={category.name}
-            type={category.type}
+            type={isMobile ? DashboardGroupType.Mobile : category.type}
             categoryName={category.name}
             markets={category.markets}
           />

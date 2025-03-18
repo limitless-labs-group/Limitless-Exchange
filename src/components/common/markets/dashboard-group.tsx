@@ -1,9 +1,11 @@
 import { VStack, Text, Box, Flex } from '@chakra-ui/react'
 import { MarketCard } from './market-cards'
+import MarketCardMobile from './market-cards/market-card-mobile'
 import { h2Bold } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
 export enum DashboardGroupType {
+  Mobile = 'mobile',
   Row = 'row',
   Grid = 'grid',
   Featured = 'featured',
@@ -19,7 +21,25 @@ interface DashboardGroupProps {
 export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupProps) => {
   const showCardLayout = (type: DashboardGroupType) => {
     switch (type) {
-      case 'row':
+      case DashboardGroupType.Mobile:
+        return (
+          <VStack gap={4} w='full'>
+            {markets.map((market, index) => {
+              return (
+                <Box key={market.id} width='full'>
+                  <MarketCardMobile
+                    markets={markets}
+                    market={market}
+                    variant={index === 0 ? 'chart' : 'row'}
+                    analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
+                  />
+                </Box>
+              )
+            })}
+          </VStack>
+        )
+
+      case DashboardGroupType.Row:
         const rowMarkets = markets.slice(0, 2)
         return (
           <VStack gap={4} w='full'>
@@ -37,7 +57,7 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
           </VStack>
         )
 
-      case 'grid':
+      case DashboardGroupType.Grid:
         return (
           <Flex flexWrap='wrap' gap={4} w='full'>
             {markets.map((gridMarket) => (
@@ -59,7 +79,7 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
           </Flex>
         )
 
-      case 'featured':
+      case DashboardGroupType.Featured:
         const featuredMarkets = markets.slice(0, 9)
         const rowStructure = [3, 2, 3, 1]
         let currentIndex = 0
@@ -122,7 +142,7 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
           </VStack>
         )
 
-      case 'compact':
+      case DashboardGroupType.Compact:
         const compactMarkets = markets.slice(0, 5)
         const gapSizeCompact = 12
 

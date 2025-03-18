@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import Paper from '@/components/common/paper'
+import { LineChart } from '@/app/(markets)/markets/[address]/components/line-chart'
 import { MIN_CARD_HEIGHT } from './market-card'
 import { MarketCardProps } from './market-card-mobile'
 import { MarketProgressBar } from './market-progress-bar'
@@ -29,6 +30,7 @@ export const MarketCardTrigger = React.memo(
     }
 
     const isSpeedometer = variant === 'speedometer'
+    const withChart = variant === 'chart'
 
     return (
       <Box
@@ -53,6 +55,8 @@ export const MarketCardTrigger = React.memo(
               ) : null}
             </Flex>
             <Box w='full'>
+              {withChart ? <LineChart market={market} /> : null}
+
               {isSpeedometer ? (
                 <Divider />
               ) : (
