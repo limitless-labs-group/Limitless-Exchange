@@ -88,7 +88,7 @@ const MainPage = () => {
           setSelectedSort({ sort: parsedSort })
         } catch (error) {
           console.error('Error parsing stored sort:', error)
-          setSelectedSort({ sort: Sort.BASE })
+          setSelectedSort({ sort: Sort.DEFAULT })
         }
       }
     }
@@ -96,7 +96,7 @@ const MainPage = () => {
 
   const handleSelectSort = (options: Sort, name: SortStorageName) => {
     window.localStorage.setItem(name, JSON.stringify(options))
-    setSelectedSort({ sort: options ?? Sort.BASE })
+    setSelectedSort({ sort: options ?? Sort.DEFAULT })
   }
 
   useEffect(() => {
@@ -126,8 +126,8 @@ const MainPage = () => {
     if (!markets) return []
     if (!selectedCategory) return markets
     if (selectedCategory) {
-      setSelectedSort({ sort: Sort.BASE })
-      window.localStorage.setItem(SortStorageName.SORT, JSON.stringify(Sort.BASE))
+      setSelectedSort({ sort: Sort.DEFAULT })
+      window.localStorage.setItem(SortStorageName.SORT, JSON.stringify(Sort.DEFAULT))
       return markets.filter((market) =>
         market.categories.some(
           (category) => category.toLowerCase() === selectedCategory.name.toLowerCase()
@@ -139,7 +139,11 @@ const MainPage = () => {
   }, [markets, selectedCategory])
 
   const sortedAllMarkets = useMemo(() => {
-    return sortMarkets(filteredAllMarkets, selectedSort?.sort || Sort.BASE, convertTokenAmountToUsd)
+    return sortMarkets(
+      filteredAllMarkets,
+      selectedSort?.sort || Sort.DEFAULT,
+      convertTokenAmountToUsd
+    )
   }, [filteredAllMarkets, selectedSort, convertTokenAmountToUsd])
 
   useEffect(() => {
@@ -168,7 +172,7 @@ const MainPage = () => {
       )
     }
     return <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
-  }, [selectedCategory, dashboard, banneredMarkets, isBanneredLoading])
+  }, [selectedCategory, banneredMarkets, isBanneredLoading])
 
   return (
     <MainLayout layoutPadding={'0px'}>
@@ -209,7 +213,7 @@ const MainPage = () => {
                       )
                       handleCategory(undefined)
                       handleDashboard(undefined)
-                      setSelectedSort({ sort: Sort.BASE })
+                      handleSelectSort(Sort.DEFAULT, SortStorageName.SORT)
                     }}
                     variant='transparent'
                     w='full'
