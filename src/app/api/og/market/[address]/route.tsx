@@ -89,7 +89,7 @@ export async function GET(req: Request, { params }: { params: { address: string 
   const renderSpeedometer = () => {
     if (prices.length) {
       const diameter = 140
-      const strokeWidth = 8
+      const strokeWidth = 6
       const radius = diameter / 2 - strokeWidth
       const circumference = Math.PI * radius
       const value = prices[0]
@@ -103,7 +103,7 @@ export async function GET(req: Request, { params }: { params: { address: string 
             alignItems: 'center',
             justifyContent: 'center',
             width: `${diameter}px`,
-            height: `70px`,
+            height: `75px`,
           }}
         >
           <svg
@@ -135,12 +135,12 @@ export async function GET(req: Request, { params }: { params: { address: string 
           <span
             style={{
               position: 'absolute',
-              top: '36px',
+              top: '45px',
               fontSize: `${fontSize}px`,
               lineHeight: `${fontSize}px`,
               fontWeight: 700,
               color: getColor(),
-              fontFamily: 'Inter Bold',
+              fontFamily: 'Inter Thin',
             }}
           >
             {value}%
