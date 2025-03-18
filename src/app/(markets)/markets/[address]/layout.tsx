@@ -1,11 +1,16 @@
 import axios from 'axios'
-import { getFrameMetadata } from 'frog'
 import { Metadata } from 'next'
 import { Market } from '@/types'
 import { convertHtmlToText } from '@/utils/html-utils'
 
 type Props = {
   params: { address: string }
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
