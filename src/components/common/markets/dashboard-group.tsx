@@ -40,10 +40,9 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
         )
 
       case DashboardGroupType.Row:
-        const rowMarkets = markets.slice(0, 2)
         return (
           <VStack gap={4} w='full'>
-            {rowMarkets.map((market, index) => {
+            {markets.map((market, index) => {
               return (
                 <Box key={market.id} width='full'>
                   <MarketCard
