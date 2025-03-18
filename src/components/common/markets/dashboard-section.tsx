@@ -100,7 +100,7 @@ export default function DashboardSection({
                   key={category.name}
                   type={isMobile ? DashboardGroupType.Mobile : category.type}
                   categoryName={category.name}
-                  markets={dashboard ?? []}
+                  markets={category.markets ?? []}
                 />
               ))}
             </VStack>
