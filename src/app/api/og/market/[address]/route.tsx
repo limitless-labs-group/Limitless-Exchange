@@ -20,8 +20,6 @@ export async function GET(req: Request, { params }: { params: { address: string 
 
   let prices: number[] = []
 
-  console.log(market)
-
   if (market.expired) {
     if (market.winningOutcomeIndex === 0) {
       prices = [100, 0]
