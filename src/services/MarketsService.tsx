@@ -15,7 +15,15 @@ import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Category, Market, MarketRewardsResponse, MarketsResponse, OddsData } from '@/types'
 import { getPrices } from '@/utils/market'
 
-const LIMIT_PER_PAGE = 50
+const calculateMarketPrice = (price: number | undefined): number => {
+  if (!price) return 50
+
+  const calculated = new BigNumber(price).multipliedBy(100).decimalPlaces(0).toNumber()
+
+  return Number.isNaN(calculated) ? 50 : calculated
+}
+
+const LIMIT_PER_PAGE = 65
 
 export function useMarkets(topic: Category | null) {
   return useInfiniteQuery({
@@ -132,8 +140,8 @@ export function useMarkets(topic: Category | null) {
             market.tradeType === 'amm'
               ? _markets.get(market.address as Address)?.prices || [50, 50]
               : [
-                  new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-                  new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
+                  calculateMarketPrice(market?.prices?.[0]),
+                  calculateMarketPrice(market?.prices?.[1]),
                 ],
         }
       })

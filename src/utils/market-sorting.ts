@@ -28,6 +28,28 @@ const getValueForMarket = (market: MarketOrGroup): number => {
   )
 }
 
+const getMarketTradeType = (market: MarketOrGroup): string => {
+  return (market as Market).tradeType
+}
+
+const getTrendingRank = (
+  market: MarketOrGroup,
+  category: 'hourly' | 'last30days' = 'hourly'
+): number => {
+  if ((market as Market).trends) {
+    if ((market as Market)?.trends?.[category]?.rank !== undefined) {
+      return (market as Market)?.trends?.[category]?.rank ?? 0
+    }
+
+    const fallbackCategory = category === 'hourly' ? 'last30days' : 'hourly'
+    if ((market as Market).trends?.[fallbackCategory]?.rank !== undefined) {
+      return (market as Market).trends?.[fallbackCategory]?.rank ?? 0
+    }
+  }
+
+  return Number.MAX_SAFE_INTEGER / 2
+}
+
 export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | MarketGroup)[]>(
   markets: T,
   sortType: Sort,
@@ -43,15 +65,11 @@ export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | Marke
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       ) as T
 
-    case Sort.HIGHEST_VOLUME:
+    case Sort.TRENDING:
       return marketsCopy.sort((a, b) => {
-        const volumeA = getVolumeForMarket(a)
-        const volumeB = getVolumeForMarket(b)
-
-        return (
-          convertTokenAmountToUsd(b.collateralToken.symbol, volumeB) -
-          convertTokenAmountToUsd(a.collateralToken.symbol, volumeA)
-        )
+        const trendingRankA = getTrendingRank(a, 'hourly')
+        const trendingRankB = getTrendingRank(b, 'hourly')
+        return trendingRankA - trendingRankB
       }) as T
 
     case Sort.HIGHEST_LIQUIDITY:
@@ -80,6 +98,12 @@ export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | Marke
           convertTokenAmountToUsd(b.collateralToken.symbol, valueB) -
           convertTokenAmountToUsd(a.collateralToken.symbol, valueA)
         )
+      }) as T
+
+    case Sort.LP_REWARDS:
+      return marketsCopy.filter((a) => {
+        const type = getMarketTradeType(a)
+        return type === 'clob'
       }) as T
 
     default:

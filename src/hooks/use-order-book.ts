@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import BigNumber from 'bignumber.js'
-import { formatUnits, parseUnits } from 'viem'
 import { limitlessApi } from '@/services'
 
 export interface OrderBook {
@@ -26,7 +25,10 @@ export function useOrderBook(slug?: string) {
       const response: AxiosResponse<OrderBook> = await limitlessApi.get(
         `/markets/${slug}/orderbook`
       )
-      return response.data
+      return {
+        ...response.data,
+        maxSpread: new BigNumber(response.data.maxSpread).minus('0.005').toString(),
+      }
       // return {
       //   ...response.data,
       //   asks: response.data.asks.filter((ask) => {

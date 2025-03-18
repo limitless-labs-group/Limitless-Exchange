@@ -17,7 +17,10 @@ export type Token = {
 export type Category = {
   id: number
   name: string
+  priority?: number | null
 }
+
+export type Dashboard = 'marketcrash'
 
 export type MarketsResponse = {
   data: Market[]
@@ -39,8 +42,9 @@ export type DraftMetadata = {
 }
 
 export interface Market {
+  id: number
   address: Address | null
-  category: Category | string
+  categories: string[]
   collateralToken: {
     address: Address
     decimals: number
@@ -81,10 +85,18 @@ export interface Market {
     yes: string
     no: string
   }
+  trends?: {
+    [interval in Intervals]?: {
+      value: number
+      rank: number
+    }
+  }
   marketType: 'single' | 'group'
   tradeType: 'clob' | 'amm'
   isRewardable: boolean
 }
+
+export type Intervals = 'hourly' | 'last30days'
 
 export interface UserMarket {
   title: string
@@ -176,7 +188,7 @@ export interface DraftMarket extends Market {
 }
 
 export interface MarketGroup {
-  category: Category
+  categories: string[]
   collateralToken: {
     symbol: string
     address: Address
@@ -227,7 +239,8 @@ export enum Sort {
   ENDING_SOON = 'Ending Soon',
   HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VALUE = 'High Value',
-  HIGHEST_VOLUME = 'High Volume',
+  TRENDING = 'Trending',
+  LP_REWARDS = '💎 LP Rewards',
 }
 
 export enum SortStorageName {

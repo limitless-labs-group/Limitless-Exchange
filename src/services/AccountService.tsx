@@ -5,7 +5,9 @@ import {
   useLogin as usePrivyLogin,
   LoginModalOptions,
 } from '@privy-io/react-auth'
+import spindl from '@spindl-xyz/attribution'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useAtom } from 'jotai'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   createSmartAccountClient,
@@ -30,7 +32,11 @@ import React, {
 } from 'react'
 import { createWalletClient, getAddress, WalletClient, http, custom } from 'viem'
 import { Toast } from '@/components/common/toast'
+import { SignInEvent, useAmplitude } from './Amplitude'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
+import useGoogleAnalytics, { GAEvents } from './GoogleAnalytics'
+import usePendingTrade from './PendingTradeService'
+import { accountAtom } from '@/atoms/account'
 import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
@@ -95,9 +101,17 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { wallets, ready: walletsReady } = useWallets()
   const { isLogged } = useClient()
   const { refetchSession } = useRefetchSession()
+  const { pushGA4Event } = useGoogleAnalytics()
+  const [, setAcc] = useAtom(accountAtom)
+  const { handleRedirect } = usePendingTrade()
+  const { trackSignIn } = useAmplitude()
 
   const toast = useToast()
   const router = useRouter()
+
+  console.log(wallets)
+  console.log(user)
+  console.log(web3Wallet)
 
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ['profiles', { account: user?.wallet?.address }],
@@ -109,6 +123,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
     enabled: !!user?.wallet?.address,
   })
+
+  useEffect(() => {
+    if (user?.wallet?.address) {
+      setAcc({ account: user.wallet.address as string })
+      spindl.attribute(user.wallet.address)
+    }
+  }, [user])
 
   const userMenuLoading = useMemo(() => {
     if (isLogged || authenticated) {
@@ -202,6 +223,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         (wallet) => wallet.connectorType === user.wallet?.connectorType
       )
       if (connectedWallet && !wasAlreadyAuthenticated) {
+        pushGA4Event(`select_wallet_${connectedWallet.walletClientType}`)
+        pushGA4Event(GAEvents.SelectAnyWallet)
         const provider = await connectedWallet.getEthereumProvider()
         const walletClient = createWalletClient({
           chain: defaultChain,
@@ -226,7 +249,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           account: connectedWallet.address as Address,
           web3Wallet: walletClient,
         })
-        // trackSignIn(SignInEvent.SignIn)
+        spindl.attribute(connectedWallet.address)
+        pushGA4Event(GAEvents.WalletConnected)
+        await handleRedirect()
+        setAcc({ account: connectedWallet.address ?? '' })
+        trackSignIn(SignInEvent.SignedIn, {
+          signedIn: true,
+          account: connectedWallet.address ?? '',
+        })
         // setIsLogged(true)
         return
       }

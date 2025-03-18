@@ -46,14 +46,12 @@ export default function ClaimButton({
         type: marketType,
       })
     },
+    onSuccess: async () => {
+      await queryClient.refetchQueries({
+        queryKey: ['positions'],
+      })
+    },
   })
-
-  const onResetClaimMutation = async () => {
-    await sleep(1)
-    await queryClient.refetchQueries({
-      queryKey: ['positions'],
-    })
-  }
 
   return (
     <ButtonWithStates
@@ -68,7 +66,7 @@ export default function ClaimButton({
         await redeemMutation.mutateAsync()
       }}
       minW={isMobile ? 'full' : '162px'}
-      onReset={onResetClaimMutation}
+      onReset={undefined}
     >
       <>
         <Icon as={WinIcon} color={'black'} />

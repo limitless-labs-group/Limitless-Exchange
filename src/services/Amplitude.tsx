@@ -2,10 +2,11 @@
 
 import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
 import * as sessionReplay from '@amplitude/session-replay-browser'
+import { useAtom } from 'jotai'
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
 import { ClobPositionType } from '@/app/(markets)/markets/[address]/components/clob/types'
+import { accountAtom } from '@/atoms/account'
 import { PageName } from '@/hooks/use-page-name'
-import { useAccount } from '@/services'
 import { Category, LeaderboardSort, MarketGroup } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
@@ -23,7 +24,7 @@ const AmplitudeContext = createContext<IAmplitudeContext>({} as IAmplitudeContex
 export const useAmplitude = () => useContext(AmplitudeContext)
 
 export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
-  const { account: walletAddress } = useAccount()
+  const [acc] = useAtom(accountAtom)
 
   useEffect(() => {
     init(AMPLITUDE_API_KEY, undefined, {
@@ -45,33 +46,57 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
   }, [])
 
   const trackEvent = useCallback(
-    async (eventType: EventType, customData?: EventMetadata) => {
-      const queryPart = window.location.search.split('?')
-      const queryString = queryPart[queryPart.length - 1]
-      const decodedQuery = decodeURIComponent(queryString)
-      const urlParams = new URLSearchParams(decodedQuery)
+    async (eventType: EventType, customData?: EventMetadata & { account?: string }) => {
+      let urlParams: URLSearchParams
+      try {
+        const queryPart = window.location.search.split('?')
+        const queryString = queryPart[queryPart.length - 1]
+        const decodedQuery = decodeURIComponent(queryString)
+        urlParams = new URLSearchParams(decodedQuery)
+      } catch (error) {
+        console.warn('Failed to parse URL parameters:', error)
+        urlParams = new URLSearchParams()
+      }
+
       if (window.location.origin !== 'https://limitless.exchange') {
         return
       }
 
+      const { account: accountFromEvent, ...restCustomData } = customData ?? {}
+
+      const getUtmParam = (param: string): Record<string, string> => {
+        try {
+          const value = urlParams.get(param)
+          return value ? { [param]: value } : {}
+        } catch (error) {
+          console.warn(`Failed to get ${param}:`, error)
+          return {}
+        }
+      }
+      const address = accountFromEvent ?? acc?.account
+
       return amplitudeTrack({
         event_type: String(eventType),
         event_properties: {
-          ...customData,
+          ...restCustomData,
           ...sessionReplay.getSessionReplayProperties(),
-          ...(urlParams.get('utm_source') ? { utm_source: urlParams.get('utm_source') } : {}),
-          ...(urlParams.get('utm_medium') ? { utm_medium: urlParams.get('utm_medium') } : {}),
-          ...(urlParams.get('utm_campaign') ? { utm_campaign: urlParams.get('utm_campaign') } : {}),
-          ...(urlParams.get('utm_term') ? { utm_term: urlParams.get('utm_term') } : {}),
-          ...(urlParams.get('utm_content') ? { utm_content: urlParams.get('utm_content') } : {}),
+          ...getUtmParam('utm_source'),
+          ...getUtmParam('utm_medium'),
+          ...getUtmParam('utm_campaign'),
+          ...getUtmParam('utm_term'),
+          ...getUtmParam('utm_content'),
         },
-        user_properties: {
-          account: walletAddress,
-          walletAddress,
-        },
+        ...(address
+          ? {
+              user_properties: {
+                account: address,
+                walletAddress: address,
+              },
+            }
+          : {}),
       }).promise
     },
-    [walletAddress]
+    [acc]
   )
 
   const trackSignUp = async () => {
@@ -125,7 +150,7 @@ export enum ChangeEvent {
   OrderBookSideChanged = 'Orderbook Side Changed',
   ClobPositionsTabChanged = 'Clob Positions Tab Changed',
   ClobWidgetModeChanged = 'Clob Widget Mode Changed',
-  ChartTabChanged = 'Chart Tab Changed',
+  ChartTabChanged = 'Chart View Changed',
   PortfolioClobViewChanged = 'Portfolio/Orders View Changed',
 }
 
@@ -196,6 +221,7 @@ export enum ClickEvent {
 
 export enum SignInEvent {
   SignIn = 'Sign In',
+  SignedIn = 'Signed In',
   SignInWithFarcaster = 'Login with Farcaster',
 }
 
@@ -319,7 +345,7 @@ export type PageOpenedPage =
 export interface PageOpenedMetadata {
   page: PageOpenedPage
   marketAddress?: string
-  category?: string
+  category?: string[]
   [key: string]: any
 }
 
@@ -447,6 +473,10 @@ interface ChartTabChangedMetadata {
   view: string
 }
 
+interface SignedInMetadata {
+  signedIn: boolean
+}
+
 export type ChangedEventMetadata =
   | StrategyChangedMetadata
   | OutcomeChangedMetadata
@@ -487,7 +517,7 @@ export type OpenedEventMetadata =
   | PageOpenedMetadata
   | ProfileSettingsMetadata
   | SidebarMarketOpenedMetadata
-export type SignInEventMetadata = SignInWithFarcasterMetadata
+export type SignInEventMetadata = SignInWithFarcasterMetadata | SignedInMetadata
 export type CopiedEventMetadata = WalletAddressCopiedMetadata
 
 export type EventMetadata =

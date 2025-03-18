@@ -1,5 +1,5 @@
 import { Box, Button, HStack, Text } from '@chakra-ui/react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import ClobLimitTradeForm from '@/components/common/markets/clob-widget/clob-limit-trade-form'
@@ -11,12 +11,19 @@ import OutcomeButtonsClob from '@/components/common/markets/outcome-buttons/outc
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
+import { PendingTradeData } from '@/services/PendingTradeService'
 import { controlsMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 
 export default function ClobWidget() {
   const { trackChanged } = useAmplitude()
-  const { clobOutcome: outcome, strategy, setStrategy, market } = useTradingService()
+  const {
+    clobOutcome: outcome,
+    setClobOutcome: setOutcome,
+    strategy,
+    setStrategy,
+    market,
+  } = useTradingService()
 
   const {
     setPrice,
@@ -32,13 +39,39 @@ export default function ClobWidget() {
     noPrice,
   } = useClobWidget()
 
+  const handlePendingTradeData = () => {
+    const pendingTradeData = localStorage.getItem('pendingTrade')
+
+    if (!pendingTradeData) return
+
+    try {
+      const parsedData: PendingTradeData = JSON.parse(pendingTradeData)
+      const { price, strategy, outcome, orderType, marketSlug } = parsedData
+
+      if (marketSlug === market?.slug) {
+        setPrice(price)
+        setOrderType(orderType)
+        setOutcome(outcome)
+        setStrategy(strategy)
+        localStorage.removeItem('pendingTrade')
+      }
+    } catch (error) {
+      console.error('Error processing pending trade data:', error)
+      localStorage.removeItem('pendingTrade')
+    }
+  }
+
+  useEffect(() => {
+    handlePendingTradeData()
+  }, [market?.slug, setPrice, setOrderType, setOutcome, setStrategy])
+
   const handleOrderTypeChanged = (order: MarketOrderType) => {
     setOrderType(order)
     if (order === MarketOrderType.MARKET) {
       setPrice(sharesAmount)
       setSharesAmount('')
     } else {
-      const selectedPrice = outcome ? noPrice : yesPrice
+      const selectedPrice = outcome ? 100 - yesPrice : 100 - noPrice
       setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
       setSharesAmount(price)
     }

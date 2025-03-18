@@ -1,8 +1,8 @@
 import { Box, Button, Flex, HStack, InputGroup, Text } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import React, { useEffect, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { isMobile, isTablet } from 'react-device-detect'
 import { Address, maxUint256, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
@@ -31,6 +31,7 @@ interface SplitSharesModalProps {
 export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalProps) {
   const [displayAmount, setDisplayAmount] = useState('')
   const [allowance, setAllowance] = useState<bigint>(0n)
+  const [modalHeight, setModalHeight] = useState(0)
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { market } = useTradingService()
   const { checkAllowance, client, approveContract, splitShares } = useWeb3Service()
@@ -39,6 +40,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   const { balanceLoading } = useBalanceService()
   const { web3Wallet } = useAccount()
   const queryClient = useQueryClient()
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   const usdcBalance =
     balanceOfSmartWallet?.find((balanceItem) => balanceItem.symbol === 'USDC')?.formatted || '0.00'
@@ -57,6 +59,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   const handleSplitClicked = async () => {
     trackClicked(ClickEvent.SplitSharesConfirmed, {
       marketAddress: market?.slug,
+      value: displayAmount,
     })
     await splitSharesMutation.mutateAsync({
       amount: displayAmount,
@@ -67,6 +70,24 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
     await queryClient.refetchQueries({
       queryKey: ['market-shares', market?.slug],
     })
+  }
+
+  const handleFocus = () => {
+    if ((isMobile || isTablet) && inputRef.current) {
+      setModalHeight(612)
+      setTimeout(() => {
+        inputRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
+    }
+  }
+
+  const handleBlur = () => {
+    if (modalHeight) {
+      setModalHeight(0)
+    }
   }
 
   const checkSplitAllowance = async () => {
@@ -127,6 +148,13 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
     },
   })
 
+  const isLowerThanMinAmount = useMemo(() => {
+    if (+displayAmount && splitSharesMutation.status === 'idle') {
+      return +displayAmount < 1
+    }
+    return false
+  }, [displayAmount, splitSharesMutation.status])
+
   const approveContractMutation = useMutation({
     mutationFn: async () => {
       await approveContract(
@@ -145,7 +173,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
         <ButtonWithStates
           variant='contained'
           w={isMobile ? 'full' : '94px'}
-          isDisabled={!+displayAmount || isExceedsBalance}
+          isDisabled={!+displayAmount || isExceedsBalance || isLowerThanMinAmount}
           onClick={handleSplitClicked}
           status={splitSharesMutation.status}
           onReset={onResetAfterSplit}
@@ -159,7 +187,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
         <ButtonWithStates
           variant='contained'
           w={isMobile ? 'full' : '94px'}
-          isDisabled={!+displayAmount || isExceedsBalance}
+          isDisabled={!+displayAmount || isExceedsBalance || isLowerThanMinAmount}
           onClick={() => approveContractMutation.mutateAsync()}
           status={approveContractMutation.status}
         >
@@ -171,7 +199,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
       <ButtonWithStates
         variant='contained'
         w={isMobile ? 'full' : '94px'}
-        isDisabled={!+displayAmount || isExceedsBalance}
+        isDisabled={!+displayAmount || isExceedsBalance || isLowerThanMinAmount}
         onClick={handleSplitClicked}
         status={splitSharesMutation.status}
         onReset={onResetAfterSplit}
@@ -188,6 +216,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
     market?.collateralToken.decimals,
     splitSharesMutation.status,
     onResetAfterSplit,
+    isLowerThanMinAmount,
   ])
 
   const renderButtonContent = (title: number) => {
@@ -199,7 +228,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
         balance,
         market?.collateralToken.symbol === 'USDC' ? 1 : 6
       )
-      return `MAX: ${
+      return `${
         balanceLoading ? (
           <Box w='90px'>
             <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
@@ -214,7 +243,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
 
   const showBalanceWithButtons = useMemo(() => {
     return (
-      <Flex gap='12px'>
+      <Flex gap='8px'>
         {[10, 25, 50, 100].map((title: number) => (
           <Button
             {...paragraphRegular}
@@ -249,7 +278,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   }, [market, web3Wallet])
 
   const modalContent = (
-    <Box>
+    <Box marginBottom={modalHeight ? `${modalHeight}px` : 'unset'}>
       <Text {...paragraphBold} mt='24px'>
         Turn your USDC into an equal number of &quot;Yes&quot; and &quot;No&quot; Contracts.
       </Text>
@@ -267,7 +296,11 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
           isInvalid={isExceedsBalance}
           handleInputChange={handleAmountChange}
           showIncrements={false}
+          inputType='number'
           endAdornment={<Text {...paragraphMedium}>USDC</Text>}
+          ref={inputRef}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </InputGroup>
       <HStack
@@ -279,6 +312,11 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
         {!+displayAmount && splitSharesMutation.status === 'idle' && (
           <Text {...paragraphRegular} color='grey.500'>
             Enter amount
+          </Text>
+        )}
+        {isLowerThanMinAmount && (
+          <Text {...paragraphRegular} color='grey.500'>
+            Min. amount is $1
           </Text>
         )}
         {splitSharesMutation.isPending && (

@@ -12,15 +12,24 @@ import { useThemeProvider } from '@/providers'
 import LimitlessLogo from '@/resources/icons/limitless-logo.svg'
 import { useTradingService } from '@/services'
 import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
 
 const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
-export const MarketPriceChart = () => {
+interface MarketPriceChartProps {
+  market?: Market
+}
+
+export const MarketPriceChart = ({ market: propMarket }: MarketPriceChartProps) => {
   const { colors } = useThemeProvider()
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%b %e, %Y %I:%M %p', Date.now()) ?? ''
   )
-  const { market } = useTradingService()
+  const { market: tradingServiceMarket } = useTradingService()
+
+  // Use market from props if available, otherwise use from trading service
+  const market = propMarket || tradingServiceMarket
+
   const outcomeTokensPercent = market?.prices
   const resolved = market?.winningOutcomeIndex === 0 || market?.winningOutcomeIndex === 1
 
@@ -113,6 +122,9 @@ export const MarketPriceChart = () => {
     },
     plotOptions: {
       series: {
+        dataSorting: {
+          enabled: false,
+        },
         lineWidth: 4,
         marker: {
           enabled: false,
@@ -211,7 +223,7 @@ export const MarketPriceChart = () => {
 
   const marketActivePrice = useMemo(() => {
     return market?.tradeType === 'clob'
-      ? chartData.at(-1)?.[1].toFixed(0)
+      ? chartData.at(0)?.[1]?.toFixed(0) ?? outcomeTokensPercent?.[0]
       : outcomeTokensPercent?.[0]
   }, [chartData, market?.tradeType, outcomeTokensPercent])
 

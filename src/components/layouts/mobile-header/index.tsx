@@ -10,7 +10,8 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { useFundWallet } from '@privy-io/react-auth'
+import { useFundWallet, usePrivy } from '@privy-io/react-auth'
+import { handle } from 'frog/vercel'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
@@ -30,6 +31,7 @@ import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import useClient from '@/hooks/use-client'
 import { usePriceOracle, useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
+import KeyIcon from '@/resources/icons/key-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
@@ -56,6 +58,7 @@ export default function MobileHeader() {
   const { data: positions } = usePosition()
   const { supportedTokens } = useLimitlessApi()
   const { convertAssetAmountToUsd } = usePriceOracle()
+  const { exportWallet } = usePrivy()
   const router = useRouter()
   const {
     disconnectFromPlatform,
@@ -68,7 +71,7 @@ export default function MobileHeader() {
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
   const { client } = useWeb3Service()
-  const { isLoggedIn } = useAccount()
+  const { isLoggedToPlatform } = useClient()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
   const { fundWallet } = useFundWallet()
 
@@ -77,7 +80,7 @@ export default function MobileHeader() {
     onOpen: onOpenUserMenu,
     onClose: onCloseUserMenu,
   } = useDisclosure()
-  const { handleCategory } = useTokenFilter()
+  const { handleCategory, handleDashboard } = useTokenFilter()
 
   // Todo move this and other duplicated to a proper service
   const balanceInvested = useMemo(() => {
@@ -134,6 +137,7 @@ export default function MobileHeader() {
           <Box
             onClick={() => {
               handleCategory(undefined)
+              handleDashboard(undefined)
               router.push('/')
             }}
           >
@@ -147,7 +151,7 @@ export default function MobileHeader() {
             </HStack>
           </Box>
           <HStack gap='4px'>
-            {isLoggedIn ? (
+            {isLoggedToPlatform ? (
               <>
                 <Button
                   variant='transparent'
@@ -300,7 +304,6 @@ export default function MobileHeader() {
                             </HStack>
                           </HStack>
                         </Button>
-
                         {client !== 'eoa' ? (
                           <>
                             <MobileDrawer
@@ -378,6 +381,12 @@ export default function MobileHeader() {
                           >
                             <WrapModal onClose={() => console.log('ok')} />
                           </MobileDrawer>
+                        )}
+                        {client === 'etherspot' && (
+                          <Button variant='contained' onClick={exportWallet} w='full' mt='12px'>
+                            <KeyIcon width={16} height={16} />
+                            Show Private Key
+                          </Button>
                         )}
                         {/*<Button*/}
                         {/*  variant='transparent'*/}

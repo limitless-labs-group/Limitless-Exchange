@@ -15,13 +15,15 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
-import { useFundWallet } from '@privy-io/react-auth'
+import { useFundWallet, usePrivy } from '@privy-io/react-auth'
+import { useAtom } from 'jotai'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useCallback, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import { LoginButton } from '@/components/common/login-button'
-import { CategoryItems } from '@/components/common/markets/sidebar-item'
+import { CategoryItems, SideItem } from '@/components/common/markets/sidebar-item'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
@@ -29,12 +31,15 @@ import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
+import { sortAtom } from '@/atoms/market-sort'
 import { Profile } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
+import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
 import { useTotalTradingVolume } from '@/hooks/use-total-trading-volume'
 import { useThemeProvider } from '@/providers'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import KeyIcon from '@/resources/icons/key-icon.svg'
 import LogoutIcon from '@/resources/icons/log-out-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 import FeedIcon from '@/resources/icons/sidebar/Feed.svg'
@@ -43,6 +48,7 @@ import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
+import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import UserIcon from '@/resources/icons/user-icon.svg'
 import {
@@ -57,7 +63,7 @@ import {
 } from '@/services'
 import { useMarkets } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup, MarketStatus } from '@/types'
+import { Market, MarketGroup, MarketStatus, Sort } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function Sidebar() {
@@ -70,8 +76,8 @@ export default function Sidebar() {
     account,
     web3Client,
     loginToPlatform,
-    isLoggedIn,
   } = useAccount()
+  const { isLoggedToPlatform } = useClient()
   const { overallBalanceUsd, balanceLoading } = useBalanceService()
   const { toggleColorMode } = useColorMode()
   const { balanceOfSmartWallet } = useBalanceQuery()
@@ -79,9 +85,12 @@ export default function Sidebar() {
   const { data: totalVolume } = useTotalTradingVolume()
 
   const { data: positions } = usePosition()
-  const { selectedCategory, handleCategory } = useTokenFilter()
+  const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
   const { data, isLoading } = useMarkets(null)
   const { fundWallet } = useFundWallet()
+  const { exportWallet } = usePrivy()
+
+  const [, setSelectedSort] = useAtom(sortAtom)
 
   const markets: (Market | MarketGroup)[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
@@ -222,6 +231,7 @@ export default function Sidebar() {
               trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
               window.localStorage.removeItem('SORT')
               handleCategory(undefined)
+              handleDashboard(undefined)
             }}
             style={{ textDecoration: 'none' }}
             _hover={{ textDecoration: 'none' }}
@@ -236,7 +246,7 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
-        {isLoggedIn ? (
+        {isLoggedToPlatform ? (
           <>
             <VStack mt='16px' w='full' gap='8px'>
               {walletTypeActionButton}
@@ -392,6 +402,17 @@ export default function Sidebar() {
                     <UserIcon width={16} height={16} />
                     Profile
                   </Button>
+                  {web3Client === 'etherspot' && (
+                    <Button
+                      variant='transparent'
+                      w='full'
+                      onClick={exportWallet}
+                      justifyContent='flex-start'
+                    >
+                      <KeyIcon width={16} height={16} />
+                      Show Private Key
+                    </Button>
+                  )}
                   <Button
                     variant='transparent'
                     w='full'
@@ -469,10 +490,16 @@ export default function Sidebar() {
                 option: 'Markets',
               })
               handleCategory(undefined)
+              handleDashboard(undefined)
+              setSelectedSort({ sort: Sort.BASE })
             }}
             variant='transparent'
             w='full'
-            bg={pageName === 'Explore Markets' && !selectedCategory ? 'grey.100' : 'unset'}
+            bg={
+              pageName === 'Explore Markets' && !selectedCategory && !dashboard
+                ? 'grey.100'
+                : 'unset'
+            }
             rounded='8px'
           >
             <HStack w='full'>
@@ -483,6 +510,27 @@ export default function Sidebar() {
             </HStack>
           </Link>
         </NextLink>
+
+        {!isLoading ? (
+          <NextLink
+            href={`/?dashboard=marketcrash`}
+            passHref
+            style={{ width: isMobile ? 'fit-content' : '100%' }}
+          >
+            <Link variant='transparent'>
+              <SideItem
+                isActive={dashboard === 'marketcrash'}
+                icon={<DashboardIcon width={16} height={16} />}
+                onClick={() => {
+                  handleDashboard('marketcrash')
+                }}
+                color='orange-500'
+              >
+                Market crash
+              </SideItem>
+            </Link>
+          </NextLink>
+        ) : null}
 
         <CategoryItems />
 
