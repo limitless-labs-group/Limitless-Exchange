@@ -25,13 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       openGraph: {
         title: market?.proxyTitle ?? market?.title ?? 'Noname market',
         description: convertHtmlToText(market?.description),
-        images: [
-          {
-            url: `/api/og/market/${params.address}`,
-            width: 1200,
-            height: 630,
-          },
-        ],
+        images: [`/api/og/market/${params.address}`],
       },
       //@ts-ignore
       other: frameMetadata,
