@@ -172,7 +172,7 @@ export default function MarketPage() {
     const params = new URLSearchParams(searchParams.toString())
     params.delete('market')
     const newQuery = params.toString()
-    router.replace(newQuery ? `${pathname}/?${newQuery}` : pathname)
+    router.replace(newQuery ? `${pathname}/?${newQuery}` : pathname, { scroll: false })
   }
 
   const handleCloseMarketPageClicked = () => {
