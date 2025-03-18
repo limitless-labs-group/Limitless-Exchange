@@ -170,7 +170,16 @@ export async function GET(req: Request, { params }: { params: { address: string 
             top: -220,
           }}
         />
-        <LimitlessLogo />
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            width: '100%',
+            marginLeft: '48px',
+          }}
+        >
+          <LimitlessLogo />
+        </div>
         <div
           style={{
             display: 'flex',
@@ -178,6 +187,7 @@ export async function GET(req: Request, { params }: { params: { address: string 
             justifyContent: 'center',
             alignItems: 'center',
             margin: 'auto 0',
+            zIndex: 1,
           }}
         >
           <div
@@ -190,9 +200,13 @@ export async function GET(req: Request, { params }: { params: { address: string 
           <p
             style={{
               color: 'white',
-              fontSize: '36px',
+              fontSize: '42px',
+              fontWeight: '700',
               textAlign: 'center',
               marginTop: '36px',
+              maxWidth: '900px',
+              lineHeight: '1.2',
+              textShadow: '0 2px 4px rgba(0,0,0,0.3)',
             }}
           >
             {market.title}
@@ -200,15 +214,20 @@ export async function GET(req: Request, { params }: { params: { address: string 
           <div
             style={{
               display: 'flex',
-              gap: '16px',
-              color: 'rgba(255, 255, 255, 0.4)',
+              gap: '8px',
               marginTop: '36px',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              color: 'rgba(255, 255, 255, 0.4)',
+              alignItems: 'center',
             }}
           >
             <VolumeIcon />
             <span
               style={{
                 color: 'rgba(255, 255, 255, 0.4)',
+                fontSize: '24px',
+                fontWeight: '500',
               }}
             >
               Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 2)}{' '}
