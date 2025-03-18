@@ -13,7 +13,7 @@ export default function MarketPageOverviewTab() {
 
   return (
     <>
-      <Box w={isMobile ? 'full' : 'fit-content'} mt='16px' pb={isMobile ? '64px' : 0}>
+      <Box w='full' mt='16px' pb={isMobile ? '64px' : 0}>
         {market?.tags.includes('Lumy') ? (
           <NextLink href={url} target='_blank' rel='noopener' passHref>
             <Link variant='textLinkSecondary' {...paragraphRegular} isExternal color='grey.500'>
@@ -34,9 +34,9 @@ export default function MarketPageOverviewTab() {
           </>
         )}
 
-        <Text mt='16px' {...paragraphRegular}>
+        <Box mt='16px'>
           <TextEditor value={market?.description ?? ''} readOnly={true} />
-        </Text>
+        </Box>
       </Box>
     </>
   )
