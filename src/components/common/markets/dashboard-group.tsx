@@ -79,57 +79,59 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
         )
 
       case DashboardGroupType.Featured:
-        const featuredMarkets = markets.slice(0, 9)
         const rowStructure = [3, 2, 3, 1]
         let currentIndex = 0
         const gapSize = 12
 
-        return (
-          <VStack spacing={4} w='full'>
-            {rowStructure.map((columnsInRow, rowIndex) => {
-              const totalGapWidth = (columnsInRow - 1) * gapSize
+        const allRows = []
 
-              const columnWidth =
-                columnsInRow === 1 ? '100%' : `calc((100% - ${totalGapWidth}px) / ${columnsInRow})`
+        while (currentIndex < markets.length) {
+          for (let rowIndex = 0; rowIndex < rowStructure.length; rowIndex++) {
+            const columnsInRow = rowStructure[rowIndex]
+            const totalGapWidth = (columnsInRow - 1) * gapSize
 
-              const getVariant = (rowIndex: number, columnsInRow: number) => {
-                if (rowIndex === 1 || rowIndex === 2) {
-                  return 'speedometer'
-                } else if (columnsInRow === 1) {
-                  return 'row'
-                } else {
-                  return 'grid'
-                }
+            const columnWidth =
+              columnsInRow === 1 ? '100%' : `calc((100% - ${totalGapWidth}px) / ${columnsInRow})`
+
+            const getVariant = (rowIndex: number, columnsInRow: number) => {
+              if (rowIndex === 1 || rowIndex === 2) {
+                return 'speedometer'
+              } else if (columnsInRow === 1) {
+                return 'row'
+              } else {
+                return 'grid'
               }
+            }
 
-              const rowItems = []
-              for (let i = 0; i < columnsInRow; i++) {
-                if (currentIndex < featuredMarkets.length) {
-                  const market = featuredMarkets[currentIndex]
-                  rowItems.push(
-                    <Box
-                      key={market.slug || market.address}
-                      width={columnWidth}
-                      flexShrink={0}
-                      flexGrow={0}
-                    >
-                      <MarketCard
-                        variant={getVariant(rowIndex, columnsInRow)}
-                        market={market}
-                        analyticParams={{
-                          bannerPosition: currentIndex + 1,
-                          bannerPaginationPage: 1,
-                        }}
-                      />
-                    </Box>
-                  )
-                  currentIndex++
-                }
+            const rowItems = []
+            for (let i = 0; i < columnsInRow; i++) {
+              if (currentIndex < markets.length) {
+                const market = markets[currentIndex]
+                rowItems.push(
+                  <Box
+                    key={market.slug || market.address}
+                    width={columnWidth}
+                    flexShrink={0}
+                    flexGrow={0}
+                  >
+                    <MarketCard
+                      variant={getVariant(rowIndex, columnsInRow)}
+                      market={market}
+                      analyticParams={{
+                        bannerPosition: currentIndex + 1,
+                        bannerPaginationPage: 1,
+                      }}
+                    />
+                  </Box>
+                )
+                currentIndex++
               }
+            }
 
-              return (
+            if (rowItems.length > 0) {
+              allRows.push(
                 <Flex
-                  key={`row-${rowIndex}`}
+                  key={`row-${allRows.length}`}
                   w='full'
                   gap={`${gapSize}px`}
                   justifyContent='space-between'
@@ -137,22 +139,29 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
                   {rowItems}
                 </Flex>
               )
-            })}
+            }
+
+            if (currentIndex >= markets.length) {
+              break
+            }
+          }
+        }
+
+        return (
+          <VStack spacing={4} w='full'>
+            {allRows}
           </VStack>
         )
 
       case DashboardGroupType.Compact:
-        const compactMarkets = markets.slice(0, 5)
         const gapSizeCompact = 12
-
-        if (compactMarkets.length === 0) return <></>
 
         return (
           <VStack spacing={4} w='full'>
             <Box width='full'>
               <MarketCard
                 variant='chart'
-                market={compactMarkets[0]}
+                market={markets[0]}
                 analyticParams={{
                   bannerPosition: 1,
                   bannerPaginationPage: 1,
@@ -160,9 +169,9 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
               />
             </Box>
 
-            {compactMarkets.length > 1 && (
+            {markets.length > 1 && (
               <Flex w='full' gap={`${gapSizeCompact}px`} justifyContent='space-between'>
-                {compactMarkets.slice(1, 4).map((market, index) => {
+                {markets.slice(1, 4).map((market, index) => {
                   const totalGapWidth = 2 * gapSizeCompact
                   const columnWidth = `calc((100% - ${totalGapWidth}px) / 3)`
 
@@ -187,17 +196,43 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
               </Flex>
             )}
 
-            {compactMarkets.length > 4 && (
+            {markets.length > 4 && (
               <Box width='full'>
                 <MarketCard
                   variant='row'
-                  market={compactMarkets[4]}
+                  market={markets[4]}
                   analyticParams={{
                     bannerPosition: 5,
                     bannerPaginationPage: 1,
                   }}
                 />
               </Box>
+            )}
+            {markets.length > 5 && (
+              <Flex w='full' gap={`${gapSizeCompact}px`} justifyContent='space-between'>
+                {markets.slice(5, markets.length).map((market, index) => {
+                  const totalGapWidth = 2 * gapSizeCompact
+                  const columnWidth = `calc((100% - ${totalGapWidth}px) / 3)`
+
+                  return (
+                    <Box
+                      key={market.slug || market.address}
+                      width={columnWidth}
+                      flexShrink={0}
+                      flexGrow={0}
+                    >
+                      <MarketCard
+                        variant='grid'
+                        market={market}
+                        analyticParams={{
+                          bannerPosition: index + 5,
+                          bannerPaginationPage: 1,
+                        }}
+                      />
+                    </Box>
+                  )
+                })}
+              </Flex>
             )}
           </VStack>
         )
