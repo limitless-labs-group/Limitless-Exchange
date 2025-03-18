@@ -12,6 +12,10 @@ import { NumberUtil } from '@/utils'
 export const runtime = 'edge'
 
 export async function GET(req: Request, { params }: { params: { address: string } }) {
+  const fontData = await fetch(
+    'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap'
+  ).then((res) => res.arrayBuffer())
+  console.log(fontData)
   const response = await axios.get<Market>(
     `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${params.address}`
   )
@@ -134,6 +138,7 @@ export async function GET(req: Request, { params }: { params: { address: string 
               lineHeight: `${fontSize}px`,
               fontWeight: 700,
               color: getColor(),
+              fontFamily: 'Inter',
             }}
           >
             {value}%
@@ -187,7 +192,6 @@ export async function GET(req: Request, { params }: { params: { address: string 
             justifyContent: 'center',
             alignItems: 'center',
             margin: 'auto 0',
-            zIndex: 1,
           }}
         >
           <div
@@ -201,12 +205,13 @@ export async function GET(req: Request, { params }: { params: { address: string 
             style={{
               color: 'white',
               fontSize: '42px',
-              fontWeight: '700',
+              fontWeight: 700,
               textAlign: 'center',
               marginTop: '36px',
               maxWidth: '900px',
               lineHeight: '1.2',
               textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+              fontFamily: '"Inter"',
             }}
           >
             {market.title}
@@ -228,6 +233,7 @@ export async function GET(req: Request, { params }: { params: { address: string 
                 color: 'rgba(255, 255, 255, 0.4)',
                 fontSize: '24px',
                 fontWeight: '500',
+                fontFamily: '"Inter"',
               }}
             >
               Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 2)}{' '}
@@ -240,6 +246,13 @@ export async function GET(req: Request, { params }: { params: { address: string 
     {
       width: 1200,
       height: 630,
+      fonts: [
+        {
+          name: 'Inter',
+          data: fontData,
+          style: 'normal',
+        },
+      ],
     }
   )
 }
