@@ -12,6 +12,12 @@ import { NumberUtil } from '@/utils'
 export const runtime = 'edge'
 
 export async function GET(req: Request, { params }: { params: { address: string } }) {
+  const fontDataBold = await fetch(new URL('../assets/Inter-Bold.ttf', import.meta.url)).then(
+    (res) => res.arrayBuffer()
+  )
+  const fontDataThin = await fetch(new URL('../assets/Inter-Medium.ttf', import.meta.url)).then(
+    (res) => res.arrayBuffer()
+  )
   const response = await axios.get<Market>(
     `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${params.address}`
   )
@@ -83,7 +89,7 @@ export async function GET(req: Request, { params }: { params: { address: string 
   const renderSpeedometer = () => {
     if (prices.length) {
       const diameter = 140
-      const strokeWidth = 5
+      const strokeWidth = 8
       const radius = diameter / 2 - strokeWidth
       const circumference = Math.PI * radius
       const value = prices[0]
@@ -134,6 +140,7 @@ export async function GET(req: Request, { params }: { params: { address: string 
               lineHeight: `${fontSize}px`,
               fontWeight: 700,
               color: getColor(),
+              fontFamily: 'Inter Bold',
             }}
           >
             {value}%
@@ -162,7 +169,10 @@ export async function GET(req: Request, { params }: { params: { address: string 
           style={{
             width: '1200px',
             borderRadius: '100%',
-            background: getColor(),
+            background:
+              market.marketType === 'group'
+                ? 'linear-gradient(90deg, #FF3756 0%, #FF9200 49.5%, #0FC591 100%)'
+                : getColor(),
             height: '403px',
             opacity: 0.3,
             filter: 'blur(80px)',
@@ -187,7 +197,6 @@ export async function GET(req: Request, { params }: { params: { address: string 
             justifyContent: 'center',
             alignItems: 'center',
             margin: 'auto 0',
-            zIndex: 1,
           }}
         >
           <div
@@ -201,12 +210,13 @@ export async function GET(req: Request, { params }: { params: { address: string 
             style={{
               color: 'white',
               fontSize: '42px',
-              fontWeight: '700',
+              fontWeight: 700,
               textAlign: 'center',
               marginTop: '36px',
               maxWidth: '900px',
               lineHeight: '1.2',
               textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+              fontFamily: 'Inter Bold',
             }}
           >
             {market.title}
@@ -222,12 +232,36 @@ export async function GET(req: Request, { params }: { params: { address: string 
               alignItems: 'center',
             }}
           >
+            {market.marketType === 'group' && (
+              <div
+                style={{
+                  display: 'flex',
+                  border: '3px solid',
+                  borderColor: 'rgba(255, 255, 255, 0.4)',
+                  borderRadius: '120px',
+                  padding: '4px 24px',
+                  marginRight: '16px',
+                }}
+              >
+                <span
+                  style={{
+                    color: 'rgba(255, 255, 255, 0.4)',
+                    fontSize: '24px',
+                    fontWeight: '500',
+                    fontFamily: 'Inter Thin',
+                  }}
+                >
+                  NegRisk Markets
+                </span>
+              </div>
+            )}
             <VolumeIcon />
             <span
               style={{
                 color: 'rgba(255, 255, 255, 0.4)',
                 fontSize: '24px',
                 fontWeight: '500',
+                fontFamily: 'Inter Thin',
               }}
             >
               Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 2)}{' '}
@@ -240,6 +274,20 @@ export async function GET(req: Request, { params }: { params: { address: string 
     {
       width: 1200,
       height: 630,
+      fonts: [
+        {
+          name: 'Inter Bold',
+          data: fontDataBold,
+          style: 'normal',
+          weight: 700,
+        },
+        {
+          name: 'Inter Thin',
+          data: fontDataThin,
+          style: 'normal',
+          weight: 400,
+        },
+      ],
     }
   )
 }
