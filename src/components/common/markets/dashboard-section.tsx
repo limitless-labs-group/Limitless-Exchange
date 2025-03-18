@@ -4,9 +4,11 @@ import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { DashboardHeader } from './dasboard-header'
 import { DashboardGroup, DashboardGroupType } from './dashboard-group'
+import { usePriceOracle } from '@/providers'
 import { useInfinityDashboard } from '@/services/DashboardService'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import { Sort, SortStorageName } from '@/types'
+import { sortMarkets } from '@/utils/market-sorting'
 import Loader from '../loader'
 import SortFilter from '../sort-filter'
 
@@ -39,6 +41,7 @@ export default function DashboardSection({
   sort,
   dashboardName,
 }: DashboardSectionProps) {
+  const { convertTokenAmountToUsd } = usePriceOracle()
   const dashboardTagId = useMemo(() => {
     return dashboardNameToTagId[dashboardName.toLowerCase()]
   }, [dashboardName])
@@ -53,16 +56,23 @@ export default function DashboardSection({
   const dashboard = dashboardData?.pages.flatMap((page) => page.data.markets)
 
   const categorizedMarkets = (dashboardConfig[dashboardTagId] || [])
-    .map((category) => ({
-      ...category,
-      markets: (dashboard?.filter((m) => m?.categories?.includes(category.name)) || []).sort(
-        (a, b) => {
-          const priorityA = a?.priorityIndex || 0
-          const priorityB = b?.priorityIndex || 0
-          return priorityB - priorityA
-        }
-      ),
-    }))
+    .map((category) => {
+      const categoryMarkets = dashboard?.filter((m) => m?.categories?.includes(category.name)) || []
+
+      const sortedMarkets =
+        sort === Sort.DEFAULT
+          ? categoryMarkets.sort((a, b) => {
+              const priorityA = a?.priorityIndex || 0
+              const priorityB = b?.priorityIndex || 0
+              return priorityB - priorityA
+            })
+          : sortMarkets(categoryMarkets, sort, convertTokenAmountToUsd)
+
+      return {
+        ...category,
+        markets: sortedMarkets,
+      }
+    })
     .filter((category) => category.markets.length > 0)
 
   return isLoading ? (
