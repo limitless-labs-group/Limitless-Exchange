@@ -13,22 +13,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const response = await axios.get<Market>(
       `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${params.address}`
     )
-    const frameMetadata = await getFrameMetadata(
-      `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/frames/initial/${params.address}`
-    )
+    // const frameMetadata = await getFrameMetadata(
+    //   `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/frames/initial/${params.address}`
+    // )
     const market = response.data
-
-    console.log(params.address)
 
     return {
       title: market?.proxyTitle ?? market?.title ?? 'Noname market',
       openGraph: {
         title: market?.proxyTitle ?? market?.title ?? 'Noname market',
         description: convertHtmlToText(market?.description),
-        images: [`/api/og/market/${params.address}`],
+        images: [
+          {
+            url: `/api/og/market/${params.address}`,
+            width: 1200,
+            height: 630,
+          },
+        ],
       },
-      //@ts-ignore
-      other: frameMetadata,
+      // other: frameMetadata,
     }
   } catch (error) {
     console.error(`Error fetching market`, error)
