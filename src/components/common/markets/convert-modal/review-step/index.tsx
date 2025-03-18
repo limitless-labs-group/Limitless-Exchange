@@ -71,6 +71,9 @@ export default function ReviewStep({ positions, onBack, sharesToConvert }: Revie
     await queryClient.refetchQueries({
       queryKey: ['market-shares', market?.slug],
     })
+    await queryClient.refetchQueries({
+      queryKey: ['positions'],
+    })
     convertMutation.reset()
   }
 
