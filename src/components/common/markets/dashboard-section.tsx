@@ -55,7 +55,13 @@ export default function DashboardSection({
   const categorizedMarkets = (dashboardConfig[dashboardTagId] || [])
     .map((category) => ({
       ...category,
-      markets: dashboard?.filter((m) => m?.categories?.includes(category.name)) || [],
+      markets: (dashboard?.filter((m) => m?.categories?.includes(category.name)) || []).sort(
+        (a, b) => {
+          const priorityA = a?.priorityIndex || 0
+          const priorityB = b?.priorityIndex || 0
+          return priorityB - priorityA
+        }
+      ),
     }))
     .filter((category) => category.markets.length > 0)
 
