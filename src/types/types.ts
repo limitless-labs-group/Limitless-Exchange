@@ -239,7 +239,7 @@ export enum Sort {
   ENDING_SOON = 'Ending Soon',
   HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VALUE = 'High Value',
-  TRENDING = 'Trending',
+  TRENDING = '🔥 Trending',
   LP_REWARDS = '💎 LP Rewards',
 }
 
