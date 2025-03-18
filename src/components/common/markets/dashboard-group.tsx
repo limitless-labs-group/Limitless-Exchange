@@ -1,5 +1,6 @@
 import { VStack, Text, Box, Flex } from '@chakra-ui/react'
 import { MarketCard } from './market-cards'
+import MarketCardMobile from './market-cards/market-card-mobile'
 import { h2Bold } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
@@ -26,7 +27,8 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
             {markets.map((market, index) => {
               return (
                 <Box key={market.id} width='full'>
-                  <MarketCard
+                  <MarketCardMobile
+                    markets={markets}
                     market={market}
                     variant={index === 0 ? 'chart' : 'row'}
                     analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}

@@ -1,5 +1,4 @@
 import React from 'react'
-import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
 import { MarketCardLayout } from './market-card'
