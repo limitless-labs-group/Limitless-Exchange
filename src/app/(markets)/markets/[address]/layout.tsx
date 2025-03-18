@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: convertHtmlToText(market?.description),
         images: [
           {
-            url: `/api/og/market/${params.address}`,
+            url: `/markets/${params.address}`,
             width: 1200,
             height: 630,
           },
