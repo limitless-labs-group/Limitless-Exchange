@@ -12,6 +12,7 @@ import {
   useOutsideClick,
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
+import Image from 'next/image'
 import NextLink from 'next/link'
 import React, {
   LegacyRef,
@@ -224,7 +225,7 @@ export default function OrderbookTableLarge({
                 onMouseLeave={() => setRewardButtonHovered(false)}
                 ref={ref as LegacyRef<HTMLDivElement>}
               >
-                <GemIcon />
+                <Image src='/assets/images/gem-icon.svg' alt='gem' width={16} height={16} />
                 <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
                   {marketRewards && Boolean(marketRewards?.length)
                     ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
