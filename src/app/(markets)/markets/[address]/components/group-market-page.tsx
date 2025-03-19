@@ -27,7 +27,6 @@ import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
 import CommentTab from '@/components/common/markets/comment-tab'
 import ConvertModal from '@/components/common/markets/convert-modal'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
-import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
@@ -67,7 +66,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
   const tradingWidget = useMemo(() => {
     if (fetchMarketLoading) {
       return (
-        <Box w='312px'>
+        <Box w='404px'>
           <Skeleton height={481} />
         </Box>
       )
@@ -76,11 +75,11 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
       return <MarketClosedWidget handleCloseMarketPageClicked={() => router.push('/')} />
     }
     return market?.tradeType === 'clob' ? (
-      <Box w='404px'>
+      <Box w='404px' position='fixed'>
         <ClobWidget />
       </Box>
     ) : (
-      <Box w='404px'>
+      <Box w='404px' position='fixed'>
         <TradingWidgetSimple fullSizePage />
       </Box>
     )
@@ -380,7 +379,11 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
               </Tabs>
             )}
           </Box>
-          {!isMobile && tradingWidget}
+          {!isMobile && (
+            <Box w='404px' position='relative'>
+              {tradingWidget}
+            </Box>
+          )}
           {isMobile && (
             <Box position='fixed' bottom='86px' w='calc(100% - 32px)' left='16px' zIndex={99999}>
               {mobileTradeButton}
