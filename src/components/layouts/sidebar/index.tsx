@@ -63,7 +63,7 @@ import {
 } from '@/services'
 import { useMarkets } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup, MarketStatus, Sort } from '@/types'
+import { Market, MarketGroup, MarketStatus, Sort, SortStorageName } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function Sidebar() {
@@ -229,9 +229,10 @@ export default function Sidebar() {
           <Link
             onClick={() => {
               trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
-              window.localStorage.removeItem('SORT')
               handleCategory(undefined)
               handleDashboard(undefined)
+              window.localStorage.setItem(SortStorageName.SORT, JSON.stringify(Sort.DEFAULT))
+              setSelectedSort({ sort: Sort.DEFAULT })
             }}
             style={{ textDecoration: 'none' }}
             _hover={{ textDecoration: 'none' }}
@@ -491,7 +492,7 @@ export default function Sidebar() {
               })
               handleCategory(undefined)
               handleDashboard(undefined)
-              setSelectedSort({ sort: Sort.BASE })
+              setSelectedSort({ sort: Sort.DEFAULT })
             }}
             variant='transparent'
             w='full'

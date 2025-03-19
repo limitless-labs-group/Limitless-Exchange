@@ -235,11 +235,12 @@ export enum MarketTokensIds {
 
 export enum Sort {
   BASE = '',
+  DEFAULT = '🔥 Trending',
   NEWEST = 'Newest',
   ENDING_SOON = 'Ending Soon',
   HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VALUE = 'High Value',
-  TRENDING = 'Trending',
+  TRENDING = '🔥 Trending',
   LP_REWARDS = '💎 LP Rewards',
 }
 

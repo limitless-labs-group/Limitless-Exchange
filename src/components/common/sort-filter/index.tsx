@@ -29,9 +29,9 @@ type SortFilterProps = {
 }
 
 const sortOptions = [
+  Sort.TRENDING,
   Sort.ENDING_SOON,
   Sort.HIGHEST_VALUE,
-  Sort.TRENDING,
   Sort.NEWEST,
   Sort.LP_REWARDS,
 ]
