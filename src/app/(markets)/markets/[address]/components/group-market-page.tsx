@@ -210,7 +210,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
         <HStack gap={{ md: '12px', xxl: '40px' }} alignItems='flex-start'>
           <Box w={{ sm: 'full', md: 'calc(100vw - 642px)', xxl: '716px' }}>
             <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>
-              <HStack w='full' flexWrap='wrap' gap='16px'>
+              <HStack w='full' flexWrap='wrap' gap='16px' justifyContent='space-between'>
                 {!market ? (
                   <Box w='160px'>
                     <Skeleton height={20} />
@@ -268,7 +268,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                       <Skeleton height={20} />
                     </Box>
                   ) : (
-                    <HStack gap='16px'>
+                    <HStack gap='16px' w='full' justifyContent='space-between'>
                       <WinnerTakeAllTooltip />
                       <HStack gap='4px'>
                         <HStack gap={0}>
