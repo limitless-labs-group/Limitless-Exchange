@@ -233,6 +233,10 @@ export enum OpenEvent {
   SidebarMarketOpened = 'Sidebar Market Opened',
 }
 
+export enum DashboardName {
+  MarketCrash = 'Market Crash',
+}
+
 export enum AuthenticationEvent {
   SignUp = 'Sign Up',
 }
@@ -346,6 +350,7 @@ export interface PageOpenedMetadata {
   page: PageOpenedPage
   marketAddress?: string
   category?: string[]
+  dashboard?: string
   [key: string]: any
 }
 

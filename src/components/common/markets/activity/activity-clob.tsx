@@ -24,7 +24,7 @@ export default function ActivityClob() {
   )
 
   return !!activity?.length ? (
-    <Box className='feed-container'>
+    <Box className='full-container'>
       <InfiniteScroll
         dataLength={activity?.length ?? 0}
         next={getNextPage}
