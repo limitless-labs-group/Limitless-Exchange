@@ -26,7 +26,6 @@ import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
 import ConvertModal from '@/components/common/markets/convert-modal'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
-import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import MarketPositionsAmm from '@/components/common/markets/positions/market-positions-amm'
@@ -89,7 +88,7 @@ export default function MarketPage() {
 
   const marketAddress = useMemo(() => {
     return market?.marketType === 'group' ? groupMarket?.slug : market?.slug
-  }, [market])
+  }, [market, groupMarket])
 
   const { data: updatedMarket } = useMarket(marketAddress, !!market)
 
@@ -97,6 +96,10 @@ export default function MarketPage() {
     if (updatedMarket) {
       if (updatedMarket.marketType === 'group') {
         setGroupMarket(updatedMarket)
+        const updatedMarketInGroup = updatedMarket.markets?.find(
+          (updatedM) => market?.id === updatedM.id
+        )
+        setMarket(updatedMarketInGroup || market)
       } else {
         setMarket(updatedMarket)
       }
