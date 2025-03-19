@@ -8,14 +8,13 @@ import { Address, formatUnits, getContract, parseUnits } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { POLLING_INTERVAL } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
-import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Category, Market, MarketRewardsResponse, MarketsResponse, OddsData } from '@/types'
 import { getPrices } from '@/utils/market'
 
-const calculateMarketPrice = (price: number | undefined): number => {
+export const calculateMarketPrice = (price: number | undefined): number => {
   if (!price) return 50
 
   const calculated = new BigNumber(price).multipliedBy(100).decimalPlaces(0).toNumber()
