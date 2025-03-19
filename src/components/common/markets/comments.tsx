@@ -17,7 +17,8 @@ export default function Comments() {
     fetchNextPage,
     hasNextPage,
   } = useMarketInfinityComments(
-    market?.marketType === 'group' ? (groupMarket?.slug as string) : (market?.slug as string)
+    market?.marketType === 'group' ? (groupMarket?.slug as string) : (market?.slug as string),
+    market?.marketType
   )
 
   const getNextPage = useCallback(
