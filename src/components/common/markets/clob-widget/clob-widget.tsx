@@ -18,6 +18,7 @@ import { Address } from 'viem'
 import ClobLimitTradeForm from '@/components/common/markets/clob-widget/clob-limit-trade-form'
 import ClobMarketTradeForm from '@/components/common/markets/clob-widget/clob-market-trade-form'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
+import OrderTypeSelectMenu from '@/components/common/markets/clob-widget/order-type-select-menu'
 import SharesActionsClob from '@/components/common/markets/clob-widget/shares-actions-clob'
 import TradeStepperMenu from '@/components/common/markets/clob-widget/trade-stepper-menu'
 import OutcomeButtonsClob from '@/components/common/markets/outcome-buttons/outcome-buttons-clob'
@@ -39,11 +40,6 @@ export default function ClobWidget() {
     strategy,
     setClobOutcome: setOutcome,
   } = useTradingService()
-  const {
-    isOpen: orderTypeMenuOpen,
-    onOpen: onOpenOrderTypeMenu,
-    onClose: onCloseOrderTypeMenu,
-  } = useDisclosure()
 
   const {
     isBalanceNotEnough,
@@ -84,22 +80,6 @@ export default function ClobWidget() {
   useEffect(() => {
     handlePendingTradeData()
   }, [market?.slug, setPrice, setOrderType, setOutcome, setStrategy])
-
-  const handleOrderTypeChanged = (order: MarketOrderType) => {
-    setOrderType(order)
-    if (order === MarketOrderType.MARKET) {
-      setPrice(sharesAmount)
-      setSharesAmount('')
-    } else {
-      const selectedPrice = outcome ? 100 - yesPrice : 100 - noPrice
-      setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
-      setSharesAmount(price)
-    }
-    trackChanged(ChangeEvent.ClobWidgetModeChanged, {
-      mode: order === MarketOrderType.MARKET ? 'amm on' : 'clob on',
-    })
-    onCloseOrderTypeMenu()
-  }
 
   const tabs = [
     {
@@ -173,68 +153,7 @@ export default function ClobWidget() {
               justifyContent='flex-end'
               paddingBottom={isMobile ? '8px' : 0}
             >
-              <Menu isOpen={orderTypeMenuOpen} onClose={onCloseOrderTypeMenu} variant='transparent'>
-                <MenuButton
-                  as={Button}
-                  onMouseEnter={onOpenOrderTypeMenu}
-                  onMouseLeave={onCloseOrderTypeMenu}
-                  onClick={() =>
-                    handleOrderTypeChanged(
-                      orderType === MarketOrderType.MARKET
-                        ? MarketOrderType.LIMIT
-                        : MarketOrderType.MARKET
-                    )
-                  }
-                  rightIcon={<ChevronDownIcon width='16px' height='16px' />}
-                  h='24px'
-                  px='8px'
-                  w='fit'
-                  _active={{
-                    bg: 'grey.100',
-                  }}
-                  _hover={{
-                    bg: 'grey.100',
-                  }}
-                  gap={0}
-                >
-                  <Text
-                    {...paragraphMedium}
-                    className={'amp-mask'}
-                    whiteSpace='nowrap'
-                    overflow='hidden'
-                    textOverflow='ellipsis'
-                    maxW='112px'
-                  >
-                    {orderType === MarketOrderType.MARKET ? 'Market' : 'Limit'}
-                  </Text>
-                </MenuButton>
-
-                <MenuList
-                  borderRadius='8px'
-                  w='180px'
-                  zIndex={2}
-                  boxShadow='0px 1px 4px 0px rgba(2, 6, 23, 0.05)'
-                  border='1px solid'
-                  borderColor='grey.200'
-                >
-                  <Button
-                    variant='transparent'
-                    w='full'
-                    onClick={() => handleOrderTypeChanged(MarketOrderType.MARKET)}
-                    justifyContent='flex-start'
-                  >
-                    Market
-                  </Button>
-                  <Button
-                    variant='transparent'
-                    w='full'
-                    justifyContent='flex-start'
-                    onClick={() => handleOrderTypeChanged(MarketOrderType.LIMIT)}
-                  >
-                    Limit
-                  </Button>
-                </MenuList>
-              </Menu>
+              <OrderTypeSelectMenu />
             </HStack>
           </HStack>
           <OutcomeButtonsClob />
