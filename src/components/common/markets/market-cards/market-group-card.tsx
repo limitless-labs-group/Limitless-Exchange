@@ -1,4 +1,5 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -21,6 +22,11 @@ export const MarketGroupCard = ({
   analyticParams,
 }: MarketCardProps) => {
   const [hovered, setHovered] = useState(false)
+
+  const totalVolume = market.markets?.reduce(
+    (acc, market) => new BigNumber(acc).plus(market.volumeFormatted).toString(),
+    '0'
+  )
 
   const {
     onOpenMarketPage,
@@ -165,7 +171,7 @@ export const MarketGroupCard = ({
                 Volume
               </Text>
               <Text {...paragraphRegular} color='grey.500' whiteSpace='nowrap'>
-                {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
+                {NumberUtil.convertWithDenomination(totalVolume || '0', 6)}{' '}
                 {market.collateralToken.symbol}
               </Text>
             </>
