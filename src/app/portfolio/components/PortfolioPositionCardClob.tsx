@@ -214,9 +214,10 @@ const PortfolioPositionCardClob = ({
                   textAlign={isMobile ? 'left' : 'center'}
                 >
                   {`${NumberUtil.toFixed(
-                    formatUnits(BigInt(positionData.positions.yes.expectedBalance), decimals),
+                    formatUnits(BigInt(positionData.positions.yes.cost), decimals),
                     2
-                  )}`}
+                  )}`}{' '}
+                  {symbol}
                 </Text>
               </HStack>
             )}
@@ -264,7 +265,7 @@ const PortfolioPositionCardClob = ({
                 textAlign={isMobile ? 'left' : 'center'}
               >
                 {`${NumberUtil.toFixed(
-                  formatUnits(BigInt(positionData.positions.no.expectedBalance), decimals),
+                  formatUnits(BigInt(positionData.positions.no.cost), decimals),
                   2
                 )}`}{' '}
                 {symbol}
