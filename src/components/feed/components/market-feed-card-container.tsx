@@ -16,6 +16,7 @@ interface MarketFeedCardContainer {
   timestamp: number
   title: string
   isActivityTab?: boolean
+  titleStartAdornment?: string
 }
 
 export default function MarketFeedCardContainer({
@@ -25,6 +26,7 @@ export default function MarketFeedCardContainer({
   title,
   children,
   isActivityTab = false,
+  titleStartAdornment,
 }: PropsWithChildren<MarketFeedCardContainer>) {
   const [messageBlocked, setMessageBlocked] = useState(false)
   const timePassed = timeSinceCreation(timestamp)
@@ -123,7 +125,7 @@ export default function MarketFeedCardContainer({
             marginBottom={isMobile ? '12px' : '8px'}
             userSelect='text'
           >
-            {title}
+            {titleStartAdornment && <strong>{titleStartAdornment}</strong>} {title}
           </Text>
         ) : null}
         {children}

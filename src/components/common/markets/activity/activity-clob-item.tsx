@@ -40,6 +40,7 @@ export default function ActivityClobItem({ data }: ActivityClobItemProps) {
       timestamp={new Date(data.createdAt).getTime() / 1000}
       title={title}
       isActivityTab={true}
+      titleStartAdornment={market?.marketType === 'group' ? `${data.title}:` : ''}
     />
   )
 }
