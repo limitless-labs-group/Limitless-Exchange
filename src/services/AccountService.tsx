@@ -350,6 +350,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       })
       setWeb3Wallet(walletClient)
       return
+    } else {
+      await disconnectFromPlatform()
     }
     return
   }
