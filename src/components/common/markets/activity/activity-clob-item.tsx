@@ -27,9 +27,9 @@ export default function ActivityClobItem({ data }: ActivityClobItemProps) {
   }, [market, data])
 
   const user = {
-    name: data.profile.displayName,
-    imageURI: data.profile.pfpUrl || '',
-    link: data.profile.socialUrl || '',
+    name: data.profile.displayName ?? '',
+    imageURI: data.profile.pfpUrl ?? '',
+    link: data.profile.socialUrl ?? '',
     account: data.profile.smartWallet || data.profile.account,
   }
 
