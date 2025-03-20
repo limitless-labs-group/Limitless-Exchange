@@ -99,14 +99,21 @@ export default function ClobWidget() {
               </Text>
             </>
           )}
-          <HStack w='full' justifyContent='space-between' gap={0} mb='24px'>
+          <HStack
+            w='full'
+            justifyContent='space-between'
+            gap={0}
+            mb='24px'
+            borderBottom='1px solid'
+            borderColor='grey.500'
+          >
             <Tabs
               position='relative'
               variant='common'
               minW={isMobile ? '104px' : '120px'}
               index={strategy === 'Buy' ? 0 : 1}
             >
-              <TabList borderBottom={isMobile ? 'unset' : '1px solid'} borderColor='grey.500'>
+              <TabList>
                 {tabs.map((tab) => (
                   <Tab
                     key={tab.title}
@@ -126,13 +133,7 @@ export default function ClobWidget() {
                 transitionDuration='200ms !important'
               />
             </Tabs>
-            <HStack
-              w='full'
-              borderBottom='1px solid'
-              borderColor='grey.500'
-              justifyContent='flex-end'
-              paddingBottom={isMobile ? '8px' : 0}
-            >
+            <HStack w='full' justifyContent='flex-end' paddingBottom={isMobile ? '8px' : 0}>
               <OrderTypeSelectMenu />
             </HStack>
           </HStack>
