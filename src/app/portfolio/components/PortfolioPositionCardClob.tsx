@@ -91,17 +91,19 @@ const PortfolioPositionCardClob = ({
       </HStack>
       {isMobile && (
         <>
-          <HStack color={cardColors.secondary} mt='8px'>
-            <HStack gap={1}>
-              {<StatusIcon isClosed={marketClosed} color={cardColors.secondary} />}
+          {isPortfolio && (
+            <HStack color={cardColors.secondary} mt='8px'>
+              <HStack gap={1}>
+                {<StatusIcon isClosed={marketClosed} color={cardColors.secondary} />}
+              </HStack>
+              <HStack gap={1} color={cardColors.secondary}>
+                <CalendarIcon width={'16px'} height={'16px'} />
+                <Text {...paragraphMedium} color={cardColors.secondary}>
+                  {deadline}
+                </Text>
+              </HStack>
             </HStack>
-            <HStack gap={1} color={cardColors.secondary}>
-              <CalendarIcon width={'16px'} height={'16px'} />
-              <Text {...paragraphMedium} color={cardColors.secondary}>
-                {deadline}
-              </Text>
-            </HStack>
-          </HStack>
+          )}
           {marketClosed && (
             <ClaimButton
               slug={positionData.market.slug}
