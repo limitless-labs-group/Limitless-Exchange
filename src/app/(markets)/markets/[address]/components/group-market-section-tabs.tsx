@@ -19,6 +19,7 @@ export default function GroupMarketSectionTabs({
   mobileView = false,
 }: GroupMarketSectionTabsProps) {
   const [isSmallLaptop, setIsSmallLaptop] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(0)
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -72,27 +73,31 @@ export default function GroupMarketSectionTabs({
   }
 
   return (
-    <>
-      <Tabs position='relative' variant='common'>
-        <TabList maxW='100%' overflowX='auto'>
-          {tabs.map((tab) => (
-            <Tab key={tab.title} onClick={() => handleTabChanged(tab.title)} minW='fit-content'>
-              <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
-                {tab.icon}
-                <>{tab.title}</>
-              </HStack>
-            </Tab>
-          ))}
-        </TabList>
-        <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
-        <TabPanels>
-          {tabPanels.map((panel, index) => (
-            <TabPanel key={index} mt='16px'>
-              {panel}
-            </TabPanel>
-          ))}
-        </TabPanels>
-      </Tabs>
-    </>
+    <Tabs position='relative' variant='common' tabIndex={activeIndex} onChange={setActiveIndex}>
+      <TabList maxW='100%' overflowX='auto'>
+        {tabs.map((tab) => (
+          <Tab key={tab.title} onClick={() => handleTabChanged(tab.title)} minW='fit-content'>
+            <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+              {tab.icon}
+              <>{tab.title}</>
+            </HStack>
+          </Tab>
+        ))}
+      </TabList>
+      <TabIndicator
+        mt='-2px'
+        height='2px'
+        bg='grey.800'
+        transitionDuration='200ms !important'
+        width={activeIndex === 0 ? '110px !important' : 'unset'}
+      />
+      <TabPanels>
+        {tabPanels.map((panel, index) => (
+          <TabPanel key={index} mt='16px'>
+            {panel}
+          </TabPanel>
+        ))}
+      </TabPanels>
+    </Tabs>
   )
 }

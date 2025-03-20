@@ -1,17 +1,4 @@
-import {
-  Box,
-  Button,
-  HStack,
-  Menu,
-  MenuButton,
-  MenuList,
-  Tab,
-  TabIndicator,
-  TabList,
-  Tabs,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Box, HStack, Tab, TabIndicator, TabList, Tabs, Text } from '@chakra-ui/react'
 import React, { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
@@ -24,16 +11,14 @@ import TradeStepperMenu from '@/components/common/markets/clob-widget/trade-step
 import OutcomeButtonsClob from '@/components/common/markets/outcome-buttons/outcome-buttons-clob'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
 import { PendingTradeData } from '@/services/PendingTradeService'
-import { headLineLarge, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { headLineLarge, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 
 export default function ClobWidget() {
   const { trackChanged } = useAmplitude()
   const {
-    clobOutcome: outcome,
     setStrategy,
     market,
     groupMarket,
@@ -47,12 +32,7 @@ export default function ClobWidget() {
     setOrderType,
     tradeStepperOpen,
     onToggleTradeStepper,
-    yesPrice,
-    noPrice,
-    setSharesAmount,
     setPrice,
-    price,
-    sharesAmount,
   } = useClobWidget()
 
   const handlePendingTradeData = () => {
