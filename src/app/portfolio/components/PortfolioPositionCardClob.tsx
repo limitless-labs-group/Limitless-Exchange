@@ -167,7 +167,7 @@ const PortfolioPositionCardClob = ({
               flex={isMobile ? 1 : 'unset'}
               textAlign={isMobile ? 'left' : 'center'}
             >
-              Expected
+              Cost
             </Text>
           </HStack>
           {Boolean(+positionData.tokensBalance.yes) &&
