@@ -72,6 +72,8 @@ export default function GroupMarketSectionTabs({
     // })
   }
 
+  const tabWidth = isMobile ? '134px' : '110px'
+
   return (
     <Tabs position='relative' variant='common' tabIndex={activeIndex} onChange={setActiveIndex}>
       <TabList maxW='100%' overflowX='auto'>
@@ -89,7 +91,7 @@ export default function GroupMarketSectionTabs({
         height='2px'
         bg='grey.800'
         transitionDuration='200ms !important'
-        width={activeIndex === 0 ? '110px !important' : 'unset'}
+        width={activeIndex === 0 ? `${tabWidth} !important` : 'unset'}
       />
       <TabPanels>
         {tabPanels.map((panel, index) => (
