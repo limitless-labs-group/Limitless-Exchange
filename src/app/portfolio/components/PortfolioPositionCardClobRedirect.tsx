@@ -86,6 +86,7 @@ export default function PortfolioPositionCardClobRedirect({
       }}
       bg={marketClosed ? 'green.500' : 'grey.200'}
       cursor='pointer'
+      isPortfolio={true}
     />
   )
 
