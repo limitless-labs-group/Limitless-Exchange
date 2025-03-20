@@ -23,7 +23,7 @@ export default function WinnerTakeAllTooltip() {
       <TrophyIcon width={16} height={16} />
       <Tooltip
         label={winnerTooltipLabel}
-        bg='background.90'
+        bg='grey.50'
         border='unset'
         p='8px'
         rounded='8px'
