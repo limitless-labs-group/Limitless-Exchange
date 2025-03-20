@@ -76,7 +76,7 @@ export default function GroupMarketSectionTabs({
       <Tabs position='relative' variant='common'>
         <TabList maxW='100%' overflowX='auto'>
           {tabs.map((tab) => (
-            <Tab key={tab.title} onClick={() => handleTabChanged(tab.title)}>
+            <Tab key={tab.title} onClick={() => handleTabChanged(tab.title)} minW='fit-content'>
               <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
                 {tab.icon}
                 <>{tab.title}</>
