@@ -1,5 +1,14 @@
-import { HStack, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
-import React, { useEffect, useState } from 'react'
+import {
+  Box,
+  HStack,
+  Tab,
+  TabIndicator,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+} from '@chakra-ui/react'
+import React, { useEffect, useState, useRef } from 'react'
 import { isDesktop, isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import ClobOrdersTab from '@/app/(markets)/markets/[address]/components/clob/clob-orders-tab'
@@ -78,7 +87,16 @@ export default function GroupMarketSectionTabs({
     <Tabs position='relative' variant='common' tabIndex={activeIndex} onChange={setActiveIndex}>
       <TabList maxW='100%' overflowX='auto'>
         {tabs.map((tab) => (
-          <Tab key={tab.title} onClick={() => handleTabChanged(tab.title)} minW='fit-content'>
+          <Tab
+            key={tab.title}
+            onClick={() => handleTabChanged(tab.title)}
+            _selected={{
+              color: 'grey.800',
+              borderColor: 'grey.800 !important',
+              borderBottom: '2px solid !important',
+            }}
+            minW='fit-content'
+          >
             <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
               {tab.icon}
               <>{tab.title}</>
@@ -86,13 +104,6 @@ export default function GroupMarketSectionTabs({
           </Tab>
         ))}
       </TabList>
-      <TabIndicator
-        mt='-2px'
-        height='2px'
-        bg='grey.800'
-        transitionDuration='200ms !important'
-        width={activeIndex === 0 ? `${tabWidth} !important` : 'unset'}
-      />
       <TabPanels>
         {tabPanels.map((panel, index) => (
           <TabPanel key={index} mt='16px'>
