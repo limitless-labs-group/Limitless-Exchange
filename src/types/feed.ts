@@ -89,4 +89,5 @@ export interface GroupFeedData {
     decimals: number
   }
   markets: FeedMarketGroupEntity[]
+  deadline: string
 }

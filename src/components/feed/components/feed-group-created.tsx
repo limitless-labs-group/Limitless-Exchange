@@ -90,6 +90,11 @@ export default function FeedGroupCreated({ data }: FeedGroupClosedProps) {
     return () => onCloseMarketPage()
   }, [])
 
+  const options = { year: 'numeric', month: 'short', day: 'numeric' }
+
+  //@ts-ignore
+  const convertedDate = new Date(data.data.deadline).toLocaleDateString('en-US', options)
+
   const content = (
     <Box
       w='full'
@@ -133,8 +138,8 @@ export default function FeedGroupCreated({ data }: FeedGroupClosedProps) {
         justifyContent='space-between'
       >
         <MarketCountdown
-          deadline={new Date().getTime() - 1000}
-          deadlineText={new Date().toISOString()}
+          deadline={new Date(data.data.deadline).getTime()}
+          deadlineText={convertedDate}
           color='grey.500'
           showDays={false}
           hideText={false}
