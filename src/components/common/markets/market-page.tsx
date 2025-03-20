@@ -33,6 +33,7 @@ import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
+import Skeleton from '@/components/common/skeleton'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
 import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
@@ -216,6 +217,9 @@ export default function MarketPage() {
   const trackedMarketsRef = useRef(new Set<string>())
 
   const tradingWidget = useMemo(() => {
+    if (!market) {
+      return <Skeleton height={isMobile ? 354 : 481} />
+    }
     if (market?.expired) {
       return <MarketClosedWidget handleCloseMarketPageClicked={handleCloseMarketPageClicked} />
     }
