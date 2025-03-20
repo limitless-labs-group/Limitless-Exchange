@@ -20,6 +20,10 @@ export default function PortfolioMarketGroupItem({
 
   const totalShares = formatUnits(BigInt(quantity), market?.collateralToken.decimals || 6)
 
+  const marketEnded = market
+    ? new Date(market.expirationTimestamp).getTime() < new Date().getTime()
+    : false
+
   const onClickSell = () => {
     if (strategy === 'Buy') {
       setStrategy('Sell')
@@ -36,11 +40,9 @@ export default function PortfolioMarketGroupItem({
     <Tr>
       <Td>{outcome ? 'No' : 'Yes'}</Td>
       <Td>{NumberUtil.formatThousands(totalShares)}</Td>
+      <Td>{outcome && !marketEnded ? <ConvertPositionsButton /> : null}</Td>
       <Td>
-        {outcome && market?.status !== MarketStatus.RESOLVED ? <ConvertPositionsButton /> : null}
-      </Td>
-      <Td>
-        {market?.status !== MarketStatus.RESOLVED ? (
+        {!marketEnded ? (
           <Button variant='white' onClick={onClickSell}>
             Sell
           </Button>
