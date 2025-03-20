@@ -120,7 +120,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
       marketTags: market?.tags,
     })
     if (value === 100) {
-      setDisplayAmount(balance)
+      setDisplayAmount(NumberUtil.toFixed(balance, 1))
       return
     }
     const amountByPercent = (Number(balance) * value) / 100
