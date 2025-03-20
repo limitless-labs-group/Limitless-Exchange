@@ -31,7 +31,7 @@ export default function ActivityAmm({ isActive }: MarketActivityTabProps) {
   const activity = activityData?.pages.flatMap((page) => page.data)
 
   return !!activity?.length ? (
-    <Box className='feed-container'>
+    <Box className='full-container'>
       <InfiniteScroll
         dataLength={activity?.length ?? 0}
         next={getNextPage}

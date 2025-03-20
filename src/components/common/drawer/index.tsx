@@ -64,7 +64,7 @@ export default function MobileDrawer({
       params.delete('slug')
     }
     const newQuery = params.toString()
-    router.replace(newQuery ? `${pathname}/?${newQuery}` : pathname)
+    router.replace(newQuery ? `${pathname}/?${newQuery}` : pathname, { scroll: false })
   }
 
   const close = () => {

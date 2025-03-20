@@ -1,6 +1,7 @@
 import { Box, Divider, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
@@ -75,7 +76,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
   const isGrid = variant === 'grid'
   const isSpeedometer = variant === 'speedometer'
   const withChart = variant === 'chart'
-  const isShortCard = isGrid || isSpeedometer
+  const isShortCard = isGrid || isSpeedometer || isMobile
 
   const content = (
     <Box
