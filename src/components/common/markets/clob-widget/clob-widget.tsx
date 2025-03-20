@@ -106,7 +106,11 @@ export default function ClobWidget() {
               minW={isMobile ? '104px' : '120px'}
               index={strategy === 'Buy' ? 0 : 1}
             >
-              <TabList borderBottom={isMobile ? 'unset' : '1px solid'} borderColor='grey.500'>
+              <TabList
+                borderBottom={isMobile ? 'unset' : '1px solid'}
+                borderColor='grey.500'
+                paddingBottom={isMobile ? 0 : '2px'}
+              >
                 {tabs.map((tab) => (
                   <Tab
                     key={tab.title}
