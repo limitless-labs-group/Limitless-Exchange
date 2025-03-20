@@ -433,12 +433,15 @@ export default function MarketPage() {
         </Tabs>
       )}
 
-      {market?.tradeType === 'clob' ? (
-        <ClobPositions marketType='sidebar' />
-      ) : (
-        <MarketPositionsAmm />
+      {market?.marketType !== 'group' && (
+        <>
+          {market?.tradeType === 'clob' ? (
+            <ClobPositions marketType='sidebar' />
+          ) : (
+            <MarketPositionsAmm />
+          )}
+        </>
       )}
-
       <Tabs
         position='relative'
         variant='common'

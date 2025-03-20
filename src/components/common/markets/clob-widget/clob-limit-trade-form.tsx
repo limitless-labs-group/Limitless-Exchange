@@ -192,10 +192,6 @@ export default function ClobLimitTradeForm() {
       }
     },
     onSuccess: async () => {
-      await sleep(1)
-      await queryClient.refetchQueries({
-        queryKey: ['user-orders', market?.slug],
-      })
       pushGA4Event(GAEvents.ClickBuyOrder)
     },
     onError: async (error: AxiosError<{ message: string }>) => {
@@ -307,7 +303,7 @@ export default function ClobLimitTradeForm() {
   }, [price, sharesAmount, strategy])
 
   const onResetMutation = async () => {
-    await sleep(0.8)
+    await sleep(2)
     placeLimitOrderMutation.reset()
     await Promise.allSettled([
       queryClient.refetchQueries({
@@ -322,13 +318,13 @@ export default function ClobLimitTradeForm() {
       queryClient.refetchQueries({
         queryKey: ['prices', market?.slug],
       }),
+      queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['positions'],
+      }),
     ])
-    await queryClient.refetchQueries({
-      queryKey: ['user-orders', market?.slug],
-    })
-    await queryClient.refetchQueries({
-      queryKey: ['positions'],
-    })
   }
 
   const shouldSignUp = !web3Wallet && Boolean(price)
