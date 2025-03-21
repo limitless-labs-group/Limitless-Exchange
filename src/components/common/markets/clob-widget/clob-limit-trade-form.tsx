@@ -394,7 +394,7 @@ export default function ClobLimitTradeForm() {
   return (
     <>
       <Flex justifyContent='space-between' alignItems='center' mb='8px'>
-        <Text {...paragraphMedium} color={'grey.100'} lineHeight='20px'>
+        <Text {...paragraphMedium} color={'grey.500'} lineHeight='20px'>
           Limit price
         </Text>
         {showBuyBalance}
@@ -413,7 +413,7 @@ export default function ClobLimitTradeForm() {
         onFocus={handleFocusPriceInput}
       />
       <Flex justifyContent='space-between' alignItems='center' mt='16px' mb='8px'>
-        <Text {...paragraphMedium} color={'grey.100'} userSelect='none' lineHeight='21px'>
+        <Text {...paragraphMedium} color={'grey.500'} userSelect='none' lineHeight='21px'>
           Contracts
         </Text>
         {showSellBalance}
