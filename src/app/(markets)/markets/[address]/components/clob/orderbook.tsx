@@ -144,7 +144,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
       .minus(new BigNumber(getOrderBookData().bids[0].price))
       .multipliedBy(100)
       .abs()
-      .decimalPlaces(0)
+      .decimalPlaces(1)
       .toFixed()
   }, [getOrderBookData])
 
