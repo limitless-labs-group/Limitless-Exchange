@@ -243,7 +243,7 @@ const MainPage = () => {
                     passHref
                     style={{ width: isMobile ? 'fit-content' : '100%' }}
                   >
-                    <Link>
+                    <Link variant='transparent'>
                       <SideItem
                         isActive={dashboard === 'marketcrash'}
                         icon={<DashboardIcon width={16} height={16} color='#FF9200' />}

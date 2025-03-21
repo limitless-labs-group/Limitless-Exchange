@@ -81,9 +81,9 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
   const content = (
     <Box
       w='full'
-      bg={hovered && !withChart ? 'grey.100' : 'unset'}
+      bg={hovered && !withChart ? 'grey.200' : 'unset'}
       rounded='12px'
-      border='2px solid var(--chakra-colors-grey-100)'
+      border='2px solid var(--chakra-colors-grey-200)'
       p='2px'
       minH={MIN_CARD_HEIGHT[variant]}
       h='full'

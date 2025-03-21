@@ -99,9 +99,9 @@ const variants = {
     },
     item: {
       p: isMobile ? '16px' : '8px',
-      bg: 'transparent.200',
+      bg: 'whiteAlpha.200',
       _hover: {
-        bg: 'transparent.300',
+        bg: 'whiteAlpha.30',
       },
     },
   },

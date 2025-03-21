@@ -33,7 +33,7 @@ const unhoveredColors = {
 
 const hoverColors = {
   main: 'white',
-  secondary: 'transparent.700',
+  secondary: 'whiteAlpha.70',
 }
 
 const StatusIcon = ({ isClosed, color }: { isClosed: boolean | undefined; color: string }) => {
@@ -155,7 +155,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
     if (position.market.closed) {
       return {
         main: 'white',
-        secondary: isMobile ? 'white' : 'transparent.700',
+        secondary: isMobile ? 'white' : 'whiteAlpha.70',
       }
     }
     return {
@@ -170,7 +170,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
         <Paper
           onClick={handleOpenMarketPage}
           w={'full'}
-          bg={position.market?.closed ? 'green.500' : 'grey.200'}
+          bg={position.market?.closed ? 'green.500' : 'grey.50'}
           p={'16px'}
           borderRadius='8px'
         >
@@ -275,7 +275,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
   ) : (
     <Paper
       w={'full'}
-      bg={position.market?.closed ? 'green.500' : 'grey.200'}
+      bg={position.market?.closed ? 'green.500' : 'grey.50'}
       _hover={{
         bg: position.market?.closed ? 'green.600' : 'blue.500',
       }}

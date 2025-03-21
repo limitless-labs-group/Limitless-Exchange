@@ -201,7 +201,7 @@ export default function MobileHeader() {
                 >
                   <VStack
                     ml='40px'
-                    bg='grey.50'
+                    bg='grey.100'
                     h='full'
                     p='16px'
                     justifyContent='space-between'
@@ -257,7 +257,7 @@ export default function MobileHeader() {
                           variant='outline'
                           gap='2px'
                           p='2px'
-                          bg='grey.100'
+                          bg='grey.300'
                           borderRadius='8px'
                           w='full'
                         >

@@ -15,7 +15,7 @@ const transparent = defineStyle({
     ? {}
     : {
         _hover: {
-          bg: 'grey.100',
+          bg: 'grey.200',
           textDecoration: 'none',
         },
       }),
@@ -36,14 +36,14 @@ const textLink = defineStyle({
   textDecoration: 'none',
   background: 'unset',
   borderBottom: '1px solid',
-  borderColor: 'blackTransparent.200',
+  borderColor: 'blackAlpha.20',
   ...(isMobile
     ? {}
     : {
         _hover: {
-          bg: 'grey.100',
+          bg: 'grey.200',
           textDecoration: 'none',
-          borderColor: 'blackTransparent.600',
+          borderColor: 'blackAlpha.70',
           background: 'unset',
         },
       }),

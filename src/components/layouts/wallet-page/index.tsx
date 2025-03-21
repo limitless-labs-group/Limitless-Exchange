@@ -107,7 +107,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
 
   return (
     <Box
-      bg='grey.50'
+      bg='grey.100'
       w={isMobile ? 'full' : '328px'}
       p='8px'
       h='full'

@@ -306,7 +306,7 @@ export default function OrderbookTableLarge({
           w='full'
           borderTop='1px solid'
           borderBottom='1px solid'
-          borderColor='grey.100'
+          borderColor='grey.300'
           py='8px'
         >
           <Box flex={1} pl='8px'>

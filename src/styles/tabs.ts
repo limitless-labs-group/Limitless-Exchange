@@ -27,7 +27,7 @@ const common = definePartsStyle(() => {
     },
     tablist: {
       borderBottom: isMobile ? 'unset' : '1px solid',
-      borderColor: 'grey.100',
+      borderColor: 'grey.300',
     },
     tabpanel: {
       marginTop: isMobile ? 0 : '4px',

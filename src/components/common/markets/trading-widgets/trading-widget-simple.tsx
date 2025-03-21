@@ -37,7 +37,7 @@ export default function TradingWidgetSimple({ fullSizePage = false }: TradingWid
 
   return (
     <Paper
-      bg={'var(--chakra-colors-grey-100)'}
+      bg={'grey.50'}
       borderRadius='8px'
       overflowX='hidden'
       p='8px'

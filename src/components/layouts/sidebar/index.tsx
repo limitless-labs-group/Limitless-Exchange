@@ -343,10 +343,10 @@ export default function Sidebar() {
                     px='8px'
                     w='full'
                     _active={{
-                      bg: 'grey.100',
+                      bg: 'grey.200',
                     }}
                     _hover={{
-                      bg: 'grey.100',
+                      bg: 'grey.200',
                     }}
                   >
                     <HStack gap='8px'>
@@ -547,8 +547,9 @@ export default function Sidebar() {
               justifyContent='space-between'
               display='flex'
               cursor='pointer'
-              _hover={{ bg: 'grey.100' }}
+              _hover={{ bg: 'grey.300' }}
               borderRadius='8px'
+              bg='grey.100'
             >
               {volumeArray.map((volumeSymbol, index) => (
                 <Text key={index} {...paragraphRegular}>

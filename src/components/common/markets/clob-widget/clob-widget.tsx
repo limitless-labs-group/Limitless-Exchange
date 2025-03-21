@@ -84,7 +84,7 @@ export default function ClobWidget() {
     <Box>
       <HStack w='full' justifyContent='center'>
         <Button
-          bg={orderType === MarketOrderType.MARKET ? 'grey.100' : 'unset'}
+          bg={orderType === MarketOrderType.MARKET ? 'grey.50' : 'unset'}
           h='32px'
           borderBottomRadius={0}
           onClick={() => handleOrderTypeChanged(MarketOrderType.MARKET)}
@@ -93,7 +93,7 @@ export default function ClobWidget() {
         </Button>
         <Button
           onClick={() => handleOrderTypeChanged(MarketOrderType.LIMIT)}
-          bg={orderType === MarketOrderType.LIMIT ? 'grey.100' : 'unset'}
+          bg={orderType === MarketOrderType.LIMIT ? 'grey.50' : 'unset'}
           h='32px'
           borderBottomRadius={0}
         >
@@ -103,7 +103,7 @@ export default function ClobWidget() {
       <Box position='relative' borderRadius='8px' overflow='hidden'>
         <Overlay show={tradeStepperOpen} onClose={onToggleTradeStepper} />
         {tradeStepperOpen && <TradeStepperMenu />}
-        <Paper bg='grey.100' borderRadius='8px' p='8px' position='relative'>
+        <Paper borderRadius='8px' p='8px' position='relative'>
           <HStack w='full' justifyContent='center' mb='16px'>
             <HStack w={'236px'} mx='auto' bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
               <Button
