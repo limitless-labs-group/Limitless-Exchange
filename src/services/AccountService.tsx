@@ -50,7 +50,6 @@ import { LOGGED_IN_TO_LIMITLESS } from '@/utils/consts'
 export interface IAccountContext {
   isLoggedIn: boolean
   account: Address | undefined
-  // farcasterInfo: FarcasterUserData | undefined
   disconnectFromPlatform: () => void
   displayName?: string
   displayUsername: string
@@ -176,21 +175,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  // const onCreateProfile = async () => {
-  //   if (user?.wallet?.address) {
-  //     if (web3Client === 'etherspot' && !smartAccountClient) {
-  //       return
-  //     }
-  //     await login({
-  //       client: web3Client,
-  //       account: user.wallet.address as Address,
-  //       smartWallet: smartAccountClient?.account?.address,
-  //       web3Wallet,
-  //     })
-  //     trackSignUp()
-  //   }
-  // }
-
   const getSmartAccountClient = async (wallet: ConnectedWallet) => {
     const provider = await wallet.getEthereumProvider()
     //@ts-ignore
@@ -222,7 +206,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       const connectedWallet = wallets.find(
         (wallet) => wallet.connectorType === user.wallet?.connectorType
       )
-      console.log(connectedWallet)
       if (connectedWallet && !wasAlreadyAuthenticated) {
         pushGA4Event(`select_wallet_${connectedWallet.walletClientType}`)
         pushGA4Event(GAEvents.SelectAnyWallet)
@@ -258,7 +241,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           signedIn: true,
           account: connectedWallet.address ?? '',
         })
-        // setIsLogged(true)
         return
       }
     },
@@ -320,28 +302,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       queryClient.setQueryData(['profiles', { account: user?.wallet?.address }], updatedData)
     },
   })
-
-  /**
-   * FARCASTER
-   */
-  // const { data: farcasterInfo } = useQuery({
-  //   queryKey: ['farcaster', userInfo],
-  //   queryFn: async () => {
-  //     const { data } = await axios.get<FarcasterUsersRequestResponse>(
-  //       `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userInfo?.verifierId}`,
-  //       {
-  //         headers: {
-  //           api_key: process.env.NEXT_PUBLIC_NEYNAR_API_KEY,
-  //         },
-  //       }
-  //     )
-  //     const [farcasterUserData] = data.users
-  //     return farcasterUserData
-  //   },
-  //   enabled: userInfo?.typeOfLogin === 'farcaster',
-  // })
-
-  console.log(wallets)
 
   const getWallet = async (): Promise<WalletClient | undefined> => {
     const wallet = wallets.find(
