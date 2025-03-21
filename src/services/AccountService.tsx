@@ -92,7 +92,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     useState<SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null>(null)
   const [web3Wallet, setWeb3Wallet] = useState<WalletClient | null>(null)
   const queryClient = useQueryClient()
-  const { logout: disconnect, authenticated, user } = usePrivy()
+  const { logout: disconnect, authenticated, user, linkWallet } = usePrivy()
   const pathname = usePathname()
   const accountRoutes = ['/portfolio', '/create-market']
   const privateClient = useAxiosPrivateClient()
@@ -222,6 +222,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       const connectedWallet = wallets.find(
         (wallet) => wallet.connectorType === user.wallet?.connectorType
       )
+      console.log(connectedWallet)
       if (connectedWallet && !wasAlreadyAuthenticated) {
         pushGA4Event(`select_wallet_${connectedWallet.walletClientType}`)
         pushGA4Event(GAEvents.SelectAnyWallet)
@@ -340,6 +341,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   //   enabled: userInfo?.typeOfLogin === 'farcaster',
   // })
 
+  console.log(wallets)
+
   const getWallet = async (): Promise<WalletClient | undefined> => {
     const wallet = wallets.find(
       (wallet) =>
@@ -356,16 +359,16 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       setWeb3Wallet(walletClient)
       return
     } else {
-      await disconnectFromPlatform()
+      linkWallet()
     }
     return
   }
 
   useEffect(() => {
-    if (walletsReady && !web3Wallet) {
+    if (walletsReady && !web3Wallet && authenticated) {
       getWallet()
     }
-  }, [walletsReady, web3Wallet])
+  }, [walletsReady, web3Wallet, authenticated, wallets.length])
 
   const { mutateAsync: logout } = useMutation({
     mutationKey: ['logout'],
@@ -508,14 +511,4 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>
-}
-
-type FarcasterUserData = {
-  fid: number
-  username: string
-  follower_count: number
-}
-
-type FarcasterUsersRequestResponse = {
-  users: FarcasterUserData[]
 }
