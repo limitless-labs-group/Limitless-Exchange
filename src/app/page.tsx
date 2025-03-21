@@ -223,7 +223,7 @@ const MainPage = () => {
                     _hover={{ textDecoration: 'none' }}
                     bg={
                       pageName === 'Explore Markets' && !selectedCategory && !dashboard
-                        ? 'grey.100'
+                        ? 'grey.200'
                         : 'unset'
                     }
                     rounded='8px'
