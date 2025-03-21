@@ -355,17 +355,15 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       })
       setWeb3Wallet(walletClient)
       return
-    } else {
-      await disconnectFromPlatform()
     }
     return
   }
 
   useEffect(() => {
-    if (walletsReady && !web3Wallet) {
+    if (walletsReady && !web3Wallet && authenticated) {
       getWallet()
     }
-  }, [walletsReady, web3Wallet])
+  }, [walletsReady, web3Wallet, authenticated])
 
   const { mutateAsync: logout } = useMutation({
     mutationKey: ['logout'],
