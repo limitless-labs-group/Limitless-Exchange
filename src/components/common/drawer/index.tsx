@@ -7,7 +7,6 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  useState,
   CSSProperties,
 } from 'react'
 import { Drawer } from 'vaul'

@@ -1,21 +1,16 @@
-import {
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Box,
-  Button,
-  HStack,
-  Text,
-} from '@chakra-ui/react'
+import { Box, Button, HStack, Text } from '@chakra-ui/react'
+import { isNumber } from '@chakra-ui/utils'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
-import GroupMarketSectionTabs from '@/app/(markets)/markets/[address]/components/group-market-section-tabs'
+import MobileDrawer from '@/components/common/drawer'
+import MarketPage from '@/components/common/markets/market-page'
 import { useMarketOrders } from '@/hooks/use-market-orders'
+import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
+import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { useTradingService } from '@/services'
+import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { h3Medium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { ClobPosition } from '@/types/orders'
@@ -26,7 +21,15 @@ interface GroupMarketsSectionMobileProps {
 }
 
 export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectionMobileProps) {
-  const { setMarket, market: selectedMarket, setClobOutcome, clobOutcome } = useTradingService()
+  const {
+    setMarket,
+    market: selectedMarket,
+    setClobOutcome,
+    clobOutcome,
+    groupMarket,
+    onOpenMarketPage,
+  } = useTradingService()
+  const { trackClicked } = useAmplitude()
 
   const { data: userOrders } = useMarketOrders(market?.slug)
 
@@ -81,69 +84,83 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
     return result
   }, [market.tokens, userOrders])
 
-  const handleAccordionChange = () => {
-    if (selectedMarket?.slug !== market.slug) {
-      setMarket(market)
-    }
-  }
+  const indexInArray = groupMarket?.markets
+    ? groupMarket.markets.findIndex((marketInArray) => selectedMarket?.slug === marketInArray.slug)
+    : undefined
 
-  return (
-    <AccordionItem borderColor='grey.100'>
-      <AccordionButton gap='4px' display='block' onClick={handleAccordionChange}>
-        <HStack w='full'>
-          <HStack w='full' justifyContent='space-between'>
-            <Box>
-              <Text textAlign='left' {...headline}>
-                {market.proxyTitle || market.title}
+  const onClickPrevious =
+    isNumber(indexInArray) && indexInArray > 0
+      ? () => {
+          if (groupMarket) {
+            onOpenMarketPage(groupMarket, clobOutcome, indexInArray - 1)
+            trackClicked(ClickEvent.PreviousMarketClick, {
+              platform: 'mobile',
+            })
+          }
+        }
+      : undefined
+
+  const onClickNext =
+    isNumber(indexInArray) && groupMarket?.markets && indexInArray < groupMarket.markets.length - 1
+      ? () => {
+          onOpenMarketPage(groupMarket, clobOutcome, indexInArray + 1)
+          trackClicked(ClickEvent.NextMarketClick, {
+            platform: 'mobile',
+          })
+        }
+      : undefined
+
+  const trigger = (
+    <Box border='3px solid' borderColor='grey.100' borderRadius='12px' p='12px'>
+      <HStack w='full'>
+        <HStack w='full' justifyContent='space-between'>
+          <Box>
+            <Text textAlign='left' {...headline}>
+              {market.proxyTitle || market.title}
+            </Text>
+            <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
+              <VolumeIcon width={16} height={16} />
+              <Text {...paragraphRegular} color='grey.500'>
+                Volume
               </Text>
-              <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
-                <VolumeIcon width={16} height={16} />
-                <Text {...paragraphRegular} color='grey.500'>
-                  Volume
-                </Text>
-                <Text {...paragraphRegular} color='grey.500'>
-                  {NumberUtil.convertWithDenomination(
-                    market.volumeFormatted ? (+market.volumeFormatted).toFixed(0) : '0',
-                    6
-                  )}{' '}
-                  {market?.collateralToken.symbol}
+              <Text {...paragraphRegular} color='grey.500'>
+                {NumberUtil.convertWithDenomination(
+                  market.volumeFormatted ? (+market.volumeFormatted).toFixed(0) : '0',
+                  6
+                )}{' '}
+                {market?.collateralToken.symbol}
+              </Text>
+            </HStack>
+          </Box>
+          <HStack gap='16px'>
+            <Text {...h3Medium}>
+              {new BigNumber(market.prices[0]).multipliedBy(100).toFixed(0)}%
+            </Text>
+          </HStack>
+        </HStack>
+      </HStack>
+      <HStack w='full' gap='8px' mt='16px' flexWrap='wrap'>
+        {Boolean(userOrdersWithOutcomes?.length) && (
+          <HStack gap='8px' my='16px'>
+            <Box bg='grey.100' borderRadius='8px' px='4px' py='2px'>
+              <Text {...paragraphRegular}>{userOrders?.length} Open orders</Text>
+            </Box>
+            {userOrdersWithOutcomes?.map((order) => (
+              <HStack
+                key={order.type}
+                bg={order.type === 'Yes' ? 'greenTransparent.100' : 'redTransparent.100'}
+                borderRadius='8px'
+                px='4px'
+                py='2px'
+              >
+                <Text {...paragraphRegular} color={order.type === 'Yes' ? 'green.500' : 'red.500'}>
+                  {order.type} {order.contracts} Contracts | {order.averagePrice}¢
                 </Text>
               </HStack>
-            </Box>
-            <HStack gap='16px'>
-              <Text {...h3Medium}>
-                {new BigNumber(market.prices[0]).multipliedBy(100).toFixed(0)}%
-              </Text>
-            </HStack>
+            ))}
           </HStack>
-          <AccordionIcon color='grey.500' />
-        </HStack>
-        <HStack w='full' gap='8px' mt='16px' flexWrap='wrap'>
-          {Boolean(userOrdersWithOutcomes?.length) && (
-            <HStack gap='8px' my='16px'>
-              <Box bg='grey.100' borderRadius='8px' px='4px' py='2px'>
-                <Text {...paragraphRegular}>{userOrders?.length} Open orders</Text>
-              </Box>
-              {userOrdersWithOutcomes?.map((order) => (
-                <HStack
-                  key={order.type}
-                  bg={order.type === 'Yes' ? 'greenTransparent.100' : 'redTransparent.100'}
-                  borderRadius='8px'
-                  px='4px'
-                  py='2px'
-                >
-                  <Text
-                    {...paragraphRegular}
-                    color={order.type === 'Yes' ? 'green.500' : 'red.500'}
-                  >
-                    {order.type} {order.contracts} Contracts | {order.averagePrice}¢
-                  </Text>
-                </HStack>
-              ))}
-            </HStack>
-          )}
-        </HStack>
-      </AccordionButton>
+        )}
+      </HStack>
       <HStack w='full' gap='8px'>
         <Button
           w='full'
@@ -180,11 +197,32 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
           No {NumberUtil.multiply(market.prices[1], 100)}%
         </Button>
       </HStack>
-      <AccordionPanel pb={0}>
-        <Box mt='12px'>
-          <GroupMarketSectionTabs mobileView={true} />
-        </Box>
-      </AccordionPanel>
-    </AccordionItem>
+    </Box>
+  )
+
+  return (
+    <MobileDrawer trigger={trigger} variant='black'>
+      <>
+        <HStack w='full' justifyContent='space-between'>
+          {onClickPrevious ? (
+            <Button variant='transparentGreyText' onClick={onClickPrevious}>
+              <ArrowLeftIcon width={24} height={24} />
+              Previous
+            </Button>
+          ) : (
+            <div />
+          )}
+          {onClickNext ? (
+            <Button variant='transparentGreyText' onClick={onClickNext}>
+              Next
+              <ArrowRightIcon width={24} height={24} />
+            </Button>
+          ) : (
+            <div />
+          )}
+        </HStack>
+        <MarketPage />
+      </>
+    </MobileDrawer>
   )
 }

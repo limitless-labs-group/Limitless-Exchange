@@ -396,9 +396,7 @@ export default function MarketPage() {
             Outcomes
           </Text>
           <VStack gap='8px' w='full' mb='24px' mt='8px'>
-            <Accordion variant='paper' gap='8px' display='flex' flexDirection='column' allowToggle>
-              <GroupMarketsSection mobileView={true} />
-            </Accordion>
+            <GroupMarketsSection mobileView={true} />
           </VStack>
         </>
       ) : (
