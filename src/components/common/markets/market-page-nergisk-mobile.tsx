@@ -1,5 +1,4 @@
 import {
-  Accordion,
   Box,
   Button,
   Divider,
@@ -37,6 +36,7 @@ import Skeleton from '@/components/common/skeleton'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
 import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
+import GroupMarketSectionTabs from '@/app/(markets)/markets/[address]/components/group-market-section-tabs'
 import GroupMarketsSection from '@/app/(markets)/markets/[address]/components/group-markets-section'
 import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { LUMY_TOKENS } from '@/app/draft/components'
@@ -65,7 +65,7 @@ import { useMarket } from '@/services/MarketsService'
 import { h2Bold, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
-export default function MarketPage() {
+export default function MarketPageNergiskMobile() {
   const [activeChartTabIndex, setActiveChartTabIndex] = useState(0)
   const [activeActionsTabIndex, setActiveActionsTabIndex] = useState(0)
 
@@ -223,16 +223,8 @@ export default function MarketPage() {
     if (market?.expired) {
       return <MarketClosedWidget handleCloseMarketPageClicked={handleCloseMarketPageClicked} />
     }
-    return market?.tradeType === 'clob' ? <ClobWidget /> : <TradingWidgetSimple />
+    return <ClobWidget />
   }, [market])
-
-  const chart = useMemo(() => {
-    return groupMarket?.negRiskMarketId ? (
-      <Box mb='24px'>
-        <PriceChartContainer />
-      </Box>
-    ) : null
-  }, [groupMarket?.negRiskMarketId])
 
   const page = usePageName()
 
@@ -299,23 +291,6 @@ export default function MarketPage() {
       backdropFilter='blur(7.5px)'
       zIndex='200'
     >
-      {!isMobile && (
-        <HStack w='full' justifyContent='space-between'>
-          <HStack gap='16px'>
-            <Button variant='grey' onClick={handleCloseMarketPageClicked}>
-              <CloseIcon width={16} height={16} />
-              Close
-            </Button>
-            <NextLink href={`/markets/${groupMarket?.slug || market?.slug}`}>
-              <Button variant='grey' onClick={handleFullPageClicked}>
-                <ExpandIcon width={16} height={16} />
-                Full page
-              </Button>
-            </NextLink>
-          </HStack>
-          <ShareMenu />
-        </HStack>
-      )}
       <HStack
         w='full'
         mb='12px'
@@ -348,13 +323,10 @@ export default function MarketPage() {
         </HStack>
       </HStack>
       <HStack w='full' justifyContent='space-between' alignItems='flex-start'>
-        <Text {...h2Bold}>{groupMarket?.title || market?.proxyTitle || market?.title}</Text>
+        <Text {...h2Bold}>{market?.title}</Text>
         {isMobile && <ShareMenu />}
       </HStack>
       <Box w='full' mt='24px'>
-        {market?.marketType === 'single' && (
-          <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
-        )}
         <HStack gap='8px' mt={isMobile ? 0 : '8px'} flexWrap='wrap'>
           <HStack gap='12px' w='full' justifyContent='space-between'>
             {groupMarket?.negRiskMarketId && <WinnerTakeAllTooltip />}
@@ -388,58 +360,10 @@ export default function MarketPage() {
         </HStack>
         <Divider my='24px' />
       </Box>
-      {chart}
       {tradingWidget}
-      {groupMarket?.negRiskMarketId ? (
-        <>
-          <Text {...h2Medium} mt='24px'>
-            Outcomes
-          </Text>
-          <VStack gap='8px' w='full' mb='24px' mt='8px'>
-            <GroupMarketsSection mobileView={true} />
-          </VStack>
-        </>
-      ) : (
-        <Tabs
-          position='relative'
-          variant='common'
-          my='20px'
-          onChange={(index) => setActiveChartTabIndex(index)}
-          index={activeChartTabIndex}
-        >
-          <TabList>
-            {chartTabs.map((tab) => (
-              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.title)}>
-                <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
-                  {tab.icon}
-                  <>{tab.title}</>
-                </HStack>
-              </Tab>
-            ))}
-          </TabList>
-          <TabIndicator
-            mt='-2px'
-            height='2px'
-            bg='grey.800'
-            transitionDuration='200ms !important'
-          />
-          <TabPanels>
-            {chartsTabPanels.map((panel, index) => (
-              <TabPanel key={index}>{panel}</TabPanel>
-            ))}
-          </TabPanels>
-        </Tabs>
-      )}
-
-      {market?.marketType !== 'group' && (
-        <>
-          {market?.tradeType === 'clob' ? (
-            <ClobPositions marketType='sidebar' />
-          ) : (
-            <MarketPositionsAmm />
-          )}
-        </>
-      )}
+      <Box my='24px'>
+        <GroupMarketSectionTabs />
+      </Box>
       <Tabs
         position='relative'
         variant='common'

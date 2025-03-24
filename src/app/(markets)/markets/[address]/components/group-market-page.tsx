@@ -14,14 +14,12 @@ import {
   Text,
   VStack,
   Heading,
-  Accordion,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import Avatar from '@/components/common/avatar'
-import MobileDrawer from '@/components/common/drawer'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
 import CommentTab from '@/components/common/markets/comment-tab'
@@ -34,13 +32,11 @@ import TradingWidgetSimple from '@/components/common/markets/trading-widgets/tra
 import { UniqueTraders } from '@/components/common/markets/unique-traders'
 import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
 import Skeleton from '@/components/common/skeleton'
-import MarketMobileTradeForm from '@/app/(markets)/markets/[address]/components/clob/market-mobile-trade-form'
 import GroupMarketsSection from '@/app/(markets)/markets/[address]/components/group-markets-section'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
 import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { MarketPageProps } from '@/app/(markets)/markets/[address]/components/single-market-page'
-import { MarketTradingForm, MarketClosedButton } from './../components'
 import { useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
@@ -50,7 +46,6 @@ import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { h1Regular, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps) {
@@ -119,43 +114,6 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
       }
     }
   }, [market])
-
-  const mobileTradeButton = useMemo(() => {
-    if (fetchMarketLoading) {
-      return
-    }
-    return market?.expired ? (
-      <MarketClosedButton />
-    ) : (
-      <MobileDrawer
-        trigger={
-          <Button
-            variant='contained'
-            w='full'
-            h='48px'
-            mt='32px'
-            color='white'
-            onClick={() => {
-              trackClicked(ClickEvent.TradeButtonClicked, {
-                platform: 'mobile',
-                address: market?.slug,
-              })
-            }}
-          >
-            Trade
-          </Button>
-        }
-        title=''
-        variant='black'
-      >
-        {market?.tradeType === 'clob' ? (
-          <MarketMobileTradeForm />
-        ) : (
-          <MarketTradingForm market={market as Market} />
-        )}
-      </MobileDrawer>
-    )
-  }, [market, fetchMarketLoading])
 
   const handleBackClicked = () => {
     if (window.history.length > 2) {
@@ -338,15 +296,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                   </Box>
                 ))
               ) : (
-                <Accordion
-                  variant='paper'
-                  gap='8px'
-                  display='flex'
-                  flexDirection='column'
-                  allowToggle
-                >
-                  <GroupMarketsSection mobileView={isMobile} />
-                </Accordion>
+                <GroupMarketsSection mobileView={isMobile} />
               )}
             </VStack>
             {fetchMarketLoading ? (
@@ -382,11 +332,6 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
           {!isMobile && (
             <Box w='404px' position='relative'>
               {tradingWidget}
-            </Box>
-          )}
-          {isMobile && (
-            <Box position='fixed' bottom='86px' w='calc(100% - 32px)' left='16px' zIndex={99999}>
-              {mobileTradeButton}
             </Box>
           )}
         </HStack>
