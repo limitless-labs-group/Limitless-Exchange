@@ -17,7 +17,7 @@ export default function ActivityClob() {
     data: activityData,
     fetchNextPage,
     hasNextPage,
-  } = useMarketClobInfinityFeed(market?.negRiskMarketId ? groupMarket?.slug : market?.slug)
+  } = useMarketClobInfinityFeed(groupMarket?.negRiskMarketId ? groupMarket?.slug : market?.slug)
 
   // @ts-ignore
   const activity = activityData?.pages.flatMap((page) => page.data.events)
