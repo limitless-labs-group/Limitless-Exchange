@@ -170,7 +170,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
         <Paper
           onClick={handleOpenMarketPage}
           w={'full'}
-          bg={position.market?.closed ? 'green.500' : 'grey.50'}
+          bg={position.market?.closed ? 'green.500' : 'grey.100'}
           p={'16px'}
           borderRadius='8px'
         >
@@ -275,7 +275,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
   ) : (
     <Paper
       w={'full'}
-      bg={position.market?.closed ? 'green.500' : 'grey.50'}
+      bg={position.market?.closed ? 'green.500' : 'grey.100'}
       _hover={{
         bg: position.market?.closed ? 'green.600' : 'blue.500',
       }}

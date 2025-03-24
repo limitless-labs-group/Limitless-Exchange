@@ -470,7 +470,7 @@ export default function Sidebar() {
             }}
             variant='transparent'
             w='full'
-            bg={pageName === 'Home' ? 'grey.100' : 'unset'}
+            bg={pageName === 'Feed' ? 'grey.100' : 'unset'}
             rounded='8px'
           >
             <HStack w='full'>
@@ -498,7 +498,7 @@ export default function Sidebar() {
             w='full'
             bg={
               pageName === 'Explore Markets' && !selectedCategory && !dashboard
-                ? 'grey.200'
+                ? 'grey.100'
                 : 'unset'
             }
             rounded='8px'
@@ -518,7 +518,7 @@ export default function Sidebar() {
             passHref
             style={{ width: isMobile ? 'fit-content' : '100%' }}
           >
-            <Link variant='transparent'>
+            <Link variant='transparent' px={0}>
               <SideItem
                 isActive={dashboard === 'marketcrash'}
                 icon={<DashboardIcon width={16} height={16} />}

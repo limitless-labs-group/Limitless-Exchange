@@ -24,7 +24,7 @@ export const SideItem = ({ isActive, onClick, icon, children, color }: SideItemP
       w='full'
       h='24px'
       rounded='8px'
-      bg={isActive ? 'grey.200' : 'unset'}
+      bg={isActive ? 'grey.100' : 'unset'}
       px={'8px'}
       cursor='pointer'
       whiteSpace='nowrap'
@@ -113,7 +113,7 @@ export const CategoryItems = () => {
           href={`/?${createQueryString(category.name)}`}
           style={{ width: isMobile ? 'fit-content' : '100%' }}
         >
-          <Link variant='transparent'>
+          <Link variant='transparent' px={0}>
             <SideItem
               isActive={selectedCategory?.name.toLowerCase() === category.name.toLowerCase()}
               onClick={() => {

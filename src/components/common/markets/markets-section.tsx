@@ -29,7 +29,7 @@ export default function MarketsSection({
       justifyContent='center'
     >
       <Box px={isMobile ? '16px' : 0}>
-        <Divider orientation='horizontal' borderColor='grey.100' />
+        <Divider orientation='horizontal' />
         <Flex
           alignItems='center'
           justifyContent='space-between'

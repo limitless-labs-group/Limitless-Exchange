@@ -57,7 +57,7 @@ export const chakraTheme = ChakraTheme({
         overflowX: 'hidden',
         userSelect: 'text',
         color: 'grey.800',
-        background: 'grey.100',
+        background: 'grey.50',
         fontSize: '14px',
       },
       hr: {
@@ -325,8 +325,8 @@ export const chakraTheme = ChakraTheme({
     Tooltip: tooltipTheme,
     Divider: {
       baseStyle: {
-        borderColor: 'grey.300',
-        bg: 'grey.300',
+        borderColor: 'grey.100',
+        bg: 'grey.100',
       },
     },
     Slider: sliderTheme,

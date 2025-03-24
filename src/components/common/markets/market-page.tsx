@@ -261,7 +261,7 @@ export default function MarketPage() {
 
   return (
     <Box
-      bg='grey.100'
+      bg='grey.50'
       borderLeft={isMobile ? 'unset' : '1px solid'}
       borderColor='grey.200'
       w={isMobile ? 'full' : '488px'}

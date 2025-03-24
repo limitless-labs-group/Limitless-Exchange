@@ -84,7 +84,7 @@ export default function PortfolioPositionCardClobRedirect({
       _hover={{
         bg: marketClosed ? 'green.600' : 'blue.500',
       }}
-      bg={marketClosed ? 'green.500' : 'grey.50'}
+      bg={marketClosed ? 'green.500' : 'grey.100'}
       cursor='pointer'
     />
   )

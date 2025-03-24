@@ -11,20 +11,19 @@ const outlined = definePartsStyle({
   field: {
     border: '1px solid',
     borderRadius: '8px',
-    borderColor: 'greyAlpha.grey50.20',
+    borderColor: 'grey.200',
     p: '4px 8px',
     h: isMobile ? '24px' : '32px',
     bg: 'unset',
     ...paragraphMedium,
-    color: 'white',
     _hover: {
-      borderColor: 'whiteAlpha.70',
+      borderColor: 'grey.400',
     },
     _focus: {
-      borderColor: 'white',
+      borderColor: 'grey.800',
     },
     _placeholder: {
-      color: 'grey.300',
+      color: 'grey.500',
     },
     _invalid: {
       boxShadow: 'unset',
@@ -39,13 +38,12 @@ const grey = definePartsStyle({
   field: {
     border: '1px solid',
     borderRadius: '8px',
-    borderColor: 'whiteAlpha.30',
+    borderColor: 'grey.200',
     px: isMobile ? '12px' : '8px',
     py: isMobile ? '8px' : '4px',
     h: '32px',
     bg: 'unset',
     ...paragraphMedium,
-    color: 'grey.800',
     _hover: {
       borderColor: 'grey.400',
     },
@@ -53,7 +51,7 @@ const grey = definePartsStyle({
       borderColor: 'grey.800',
     },
     _placeholder: {
-      color: 'grey.300',
+      color: 'grey.500',
     },
     _invalid: {
       borderColor: 'red.500',

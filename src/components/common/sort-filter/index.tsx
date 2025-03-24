@@ -66,7 +66,7 @@ export default function SortFilter({ onChange, sort }: SortFilterProps) {
       overflowX='auto'
       {...(isMobile ? mobileStyles : desktopStyles)}
     >
-      <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.300' borderRadius='8px'>
+      <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.100' borderRadius='8px'>
         {sortOptions
           .filter((option) => !isMobile || option !== Sort.LP_REWARDS)
           .map((option) => (

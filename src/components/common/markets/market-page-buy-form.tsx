@@ -265,8 +265,7 @@ export default function MarketPageBuyForm({
             onChange={(e) => handleInputValueChange(e.target.value)}
             placeholder='0'
             css={css`
-              caret-color: var(--chakra-colors-grey-300);
-              border-color: var(--chakra-colors-greyTransparent-200);
+              caret-color: var(--chakra-colors-grey-500);
             `}
             type='number'
             inputMode='decimal'
@@ -274,7 +273,7 @@ export default function MarketPageBuyForm({
             min='0'
           />
           <InputRightElement h='16px' top='8px' right={isMobile ? '8px' : '12px'} w='fit'>
-            <Text {...paragraphMedium} color={'grey.300'}>
+            <Text {...paragraphMedium} color={'grey.500'}>
               {market?.collateralToken.symbol}
             </Text>
           </InputRightElement>
@@ -307,8 +306,7 @@ export default function MarketPageBuyForm({
               onChange={(e) => handleSlippageChange(e.target.value)}
               placeholder='0'
               css={css`
-                caret-color: var(--chakra-colors-grey-300);
-                border-color: var(--chakra-colors-greyTransparent-200);
+                caret-color: var(--chakra-colors-grey-500);
               `}
               type='number'
               inputMode='decimal'
@@ -322,22 +320,17 @@ export default function MarketPageBuyForm({
               right={isMobile ? '8px' : '4px'}
               w='fit'
             >
-              <Text {...paragraphMedium} color={'grey.300'}>
+              <Text {...paragraphMedium} color={'grey.500'}>
                 %
               </Text>
             </InputRightElement>
           </InputGroup>
           {[1, 5, 7, 100].map((title) => (
             <Button
-              variant='transparentLight'
-              bg='var(--chakra-colors-whiteAlpha-30)'
-              _hover={{
-                bg: 'var(--chakra-colors-whiteAlpha-70)',
-              }}
+              variant='grey'
               key={title}
               flex={1}
               onClick={() => handleSlippageClicked(title)}
-              color={'var(--chakra-colors-grey-100)'}
               py='2px'
               h={isMobile ? '32px' : '24px'}
             >
@@ -415,7 +408,7 @@ const StepBadge = memo(({ content }: StepBadgeProps) => {
       borderRadius='999px'
       w='16px'
       h='16px'
-      bg={'var(--chakra-colors-grey-800)'}
+      bg={'var(--chakra-colors-grey-500)'}
       alignItems='center'
       justifyContent='center'
       fontSize='12px'

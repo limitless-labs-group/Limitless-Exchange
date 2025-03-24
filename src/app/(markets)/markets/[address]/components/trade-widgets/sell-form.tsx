@@ -797,15 +797,14 @@ export function SellForm({
                     onChange={(e) => handleInputValueChange(e.target.value)}
                     placeholder='0'
                     css={css`
-                      caret-color: var(--chakra-colors-grey-100);
-                      border-color: var(--chakra-colors-greyTransparent-200);
+                      caret-color: var(--chakra-colors-grey-500);
                     `}
                     type='number'
                     inputMode='decimal'
                     pattern='[0-9]*'
                   />
                   <InputRightElement h='16px' top='8px' right={isMobile ? '8px' : '4px'} w='fit'>
-                    <Text {...paragraphMedium} color='var(--chakra-colors-grey-500)'>
+                    <Text {...paragraphMedium} color='grey.500'>
                       {market?.collateralToken.symbol}
                     </Text>
                   </InputRightElement>

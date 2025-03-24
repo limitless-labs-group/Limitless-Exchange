@@ -168,7 +168,7 @@ export default function OrderBookTableSmall({
           </Text>
         </Button>
       </HStack>
-      <HStack gap={0} w='full' borderBottom='1px solid' borderColor='grey.300'>
+      <HStack gap={0} w='full' borderBottom='1px solid' borderColor='grey.100'>
         <Box w='25%' textAlign='right'>
           <TableText>Price</TableText>
         </Box>
@@ -279,7 +279,7 @@ export default function OrderBookTableSmall({
           w='full'
           borderTop='1px solid'
           borderBottom='1px solid'
-          borderColor='grey.300'
+          borderColor='grey.100'
           py='8px'
         >
           <Box flex={1} pl='8px'>
