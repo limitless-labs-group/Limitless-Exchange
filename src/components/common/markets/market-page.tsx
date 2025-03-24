@@ -14,8 +14,6 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react'
-import NextLink from 'next/link'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -43,6 +41,7 @@ import CommentTab from './comment-tab'
 import { MarketProgressBar } from './market-cards/market-progress-bar'
 import { UniqueTraders } from './unique-traders'
 import usePageName from '@/hooks/use-page-name'
+import { useUrlParams } from '@/hooks/use-url-param'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
@@ -57,12 +56,14 @@ import {
   ClickEvent,
   OpenEvent,
   PageOpenedPage,
+  useAccount,
   useAmplitude,
   useTradingService,
 } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { h2Bold, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { ReferralLink } from '../referral-link'
 
 export default function MarketPage() {
   const [activeChartTabIndex, setActiveChartTabIndex] = useState(0)
@@ -80,9 +81,8 @@ export default function MarketPage() {
     groupMarket,
   } = useTradingService()
 
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const pathname = usePathname()
+  const { referralCode } = useAccount()
+  const { updateParams } = useUrlParams()
 
   const { trackClicked, trackOpened, trackChanged } = useAmplitude()
 
@@ -178,16 +178,9 @@ export default function MarketPage() {
     ]
   }, [activeActionsTabIndex])
 
-  const removeMarketQuery = () => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete('market')
-    const newQuery = params.toString()
-    router.replace(newQuery ? `${pathname}/?${newQuery}` : pathname, { scroll: false })
-  }
-
   const handleCloseMarketPageClicked = () => {
     setMarket(null)
-    removeMarketQuery()
+    updateParams({ market: null, r: null })
     onCloseMarketPage()
     trackClicked(ClickEvent.CloseMarketClicked, {
       marketAddress: market?.slug as Address,
@@ -305,12 +298,12 @@ export default function MarketPage() {
               <CloseIcon width={16} height={16} />
               Close
             </Button>
-            <NextLink href={`/markets/${groupMarket?.slug || market?.slug}`}>
+            <ReferralLink href={`/markets/${groupMarket?.slug || market?.slug}`}>
               <Button variant='grey' onClick={handleFullPageClicked}>
                 <ExpandIcon width={16} height={16} />
                 Full page
               </Button>
-            </NextLink>
+            </ReferralLink>
           </HStack>
           <ShareMenu />
         </HStack>
