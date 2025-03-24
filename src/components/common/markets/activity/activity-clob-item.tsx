@@ -14,13 +14,16 @@ interface ActivityClobItemProps {
 }
 
 export default function ActivityClobItem({ data }: ActivityClobItemProps) {
-  const { market } = useTradingService()
+  const { market, groupMarket } = useTradingService()
+  const targetMarket = groupMarket?.markets?.find(
+    (market) => market.tokens.yes === data.tokenId || market.tokens.no === data.tokenId
+  )
   const title = data.side === 0 ? 'Bought' : 'Sold'
   const contracts = NumberUtil.toFixed(
     formatUnits(BigInt(data.matchedSize), market?.collateralToken.decimals || 6),
     6
   )
-  const outcome = market?.tokens.yes === data.tokenId ? 'Yes' : 'No'
+  const outcome = targetMarket?.tokens.yes === data.tokenId ? 'Yes' : 'No'
   const totalAmount = formatUnits(BigInt(data.makerAmount), market?.collateralToken.decimals || 6)
   const price = new BigNumber(data.price).multipliedBy(100).decimalPlaces(1).toString()
 
