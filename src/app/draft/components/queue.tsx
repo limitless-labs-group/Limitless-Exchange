@@ -5,11 +5,11 @@ import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import React, { useMemo, useState } from 'react'
 import { Toast } from '@/components/common/toast'
-import { DraftMarket, DraftMarketCard } from '@/app/draft/components/draft-card'
+import { DraftMarketCard } from '@/app/draft/components/draft-card'
 import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import { DraftMarketResponse } from '@/types/draft'
+import { DraftMarket, DraftMarketResponse } from '@/types/draft'
 
 export const DraftMarketsQueue = () => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
@@ -48,7 +48,7 @@ export const DraftMarketsQueue = () => {
   }, [selectedMarketIds, draftMarkets])
 
   const handleClick = (marketId: number) => {
-    router.push(`/draft/?market=${marketId}`)
+    router.push(`/draft/?draft-market=${marketId}`)
   }
 
   const toast = useToast()
