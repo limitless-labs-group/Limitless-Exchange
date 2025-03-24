@@ -47,11 +47,11 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
     }, 0)
   }
 
-  const onOpenMarketPage = (index: number, outcome: number) => {
-    const marketToSet =
-      market.marketType === 'group' ? market.markets?.[index || 0] || null : market
-    setMarket(marketToSet)
-    setClobOutcome(outcome ? outcome : 0)
+  const onOpenMarketPage = (index: number, outcome?: number) => {
+    if (groupMarket?.markets) {
+      const marketToSet = groupMarket.markets[index || 0] || null
+      setMarket(marketToSet)
+    }
   }
 
   const calculateAveragePrice = (orders: ClobPosition[]) => {
@@ -91,13 +91,13 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
   }, [market.tokens, userOrders])
 
   const indexInArray = groupMarket?.markets
-    ? groupMarket.markets.findIndex((marketInArray) => selectedMarket?.slug === marketInArray.slug)
+    ? groupMarket.markets.findIndex((marketInArray) => market?.slug === marketInArray.slug)
     : undefined
 
   const onClickPrevious =
     isNumber(indexInArray) && indexInArray > 0
       ? () => {
-          onOpenMarketPage(clobOutcome, indexInArray - 1)
+          onOpenMarketPage(indexInArray - 1, clobOutcome)
           trackClicked(ClickEvent.PreviousMarketClick, {
             platform: 'mobile',
           })
@@ -107,7 +107,7 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
   const onClickNext =
     isNumber(indexInArray) && groupMarket?.markets && indexInArray < groupMarket.markets.length - 1
       ? () => {
-          onOpenMarketPage(clobOutcome, indexInArray + 1)
+          onOpenMarketPage(indexInArray + 1, clobOutcome)
           trackClicked(ClickEvent.NextMarketClick, {
             platform: 'mobile',
           })
@@ -121,7 +121,7 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
       borderRadius='12px'
       p='12px'
       onClick={() => {
-        onOpenMarketPage(clobOutcome, (indexInArray || 1) - 1)
+        onOpenMarketPage(indexInArray || 0)
       }}
     >
       <HStack w='full'>
