@@ -20,6 +20,8 @@ export type Category = {
   priority?: number | null
 }
 
+export type MarketType = 'amm' | 'clob'
+
 export type Dashboard = 'marketcrash'
 
 export type MarketsResponse = {
@@ -80,6 +82,12 @@ export interface Market {
   metadata: {
     isBannered: boolean
   }
+  settings?: {
+    minSize?: number
+    maxSpread?: number
+    c?: number
+    rewardsEpoch?: number
+  }
   priorityIndex: number
   tokens: {
     yes: string
@@ -92,7 +100,7 @@ export interface Market {
     }
   }
   marketType: 'single' | 'group'
-  tradeType: 'clob' | 'amm'
+  tradeType: MarketType
   isRewardable: boolean
 }
 
@@ -204,6 +212,7 @@ export interface MarketGroup {
 
 export interface DraftMarket extends Market {
   draftMetadata: DraftMetadata
+  type?: MarketType
 }
 
 export interface MarketGroup {
@@ -484,7 +493,7 @@ export interface RedeemParams {
   marketAddress: Address
   collateralAddress: Address
   conditionId: Address
-  type: 'amm' | 'clob'
+  type: MarketType
 }
 
 export interface UpdateProfileData {
