@@ -5,7 +5,7 @@ import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
-import MarketPage from '@/components/common/markets/market-page'
+import MarketPageNergiskMobile from '@/components/common/markets/market-page-nergisk-mobile'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
@@ -27,7 +27,6 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
     setClobOutcome,
     clobOutcome,
     groupMarket,
-    onOpenMarketPage,
   } = useTradingService()
   const { trackClicked } = useAmplitude()
 
@@ -46,6 +45,13 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
         .plus(new BigNumber(formatUnits(BigInt(acc.originalSize), market.collateralToken.decimals)))
         .toNumber()
     }, 0)
+  }
+
+  const onOpenMarketPage = (index: number, outcome: number) => {
+    const marketToSet =
+      market.marketType === 'group' ? market.markets?.[index || 0] || null : market
+    setMarket(marketToSet)
+    setClobOutcome(outcome ? outcome : 0)
   }
 
   const calculateAveragePrice = (orders: ClobPosition[]) => {
@@ -91,19 +97,17 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
   const onClickPrevious =
     isNumber(indexInArray) && indexInArray > 0
       ? () => {
-          if (groupMarket) {
-            onOpenMarketPage(groupMarket, clobOutcome, indexInArray - 1)
-            trackClicked(ClickEvent.PreviousMarketClick, {
-              platform: 'mobile',
-            })
-          }
+          onOpenMarketPage(clobOutcome, indexInArray - 1)
+          trackClicked(ClickEvent.PreviousMarketClick, {
+            platform: 'mobile',
+          })
         }
       : undefined
 
   const onClickNext =
     isNumber(indexInArray) && groupMarket?.markets && indexInArray < groupMarket.markets.length - 1
       ? () => {
-          onOpenMarketPage(groupMarket, clobOutcome, indexInArray + 1)
+          onOpenMarketPage(clobOutcome, indexInArray + 1)
           trackClicked(ClickEvent.NextMarketClick, {
             platform: 'mobile',
           })
@@ -111,7 +115,15 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
       : undefined
 
   const trigger = (
-    <Box border='3px solid' borderColor='grey.100' borderRadius='12px' p='12px'>
+    <Box
+      border='3px solid'
+      borderColor='grey.100'
+      borderRadius='12px'
+      p='12px'
+      onClick={() => {
+        onOpenMarketPage(clobOutcome, (indexInArray || 1) - 1)
+      }}
+    >
       <HStack w='full'>
         <HStack w='full' justifyContent='space-between'>
           <Box>
@@ -221,7 +233,7 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
             <div />
           )}
         </HStack>
-        <MarketPage />
+        <MarketPageNergiskMobile />
       </>
     </MobileDrawer>
   )
