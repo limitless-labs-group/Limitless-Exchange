@@ -8,7 +8,7 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
 import { Toast } from '@/components/common/toast'
@@ -21,20 +21,27 @@ import {
   ClickEvent,
   createMarketShareUrls,
   ShareClickedMetadata,
+  useAccount,
   useAmplitude,
   useTradingService,
 } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { appendReferralCode } from '@/utils/market'
 
 export default function ShareMenu() {
   const { isOpen: isShareMenuOpen, onToggle: toggleShareMenu } = useDisclosure()
   const { market, marketGroup } = useTradingService()
   const { trackClicked } = useAmplitude()
+  const { referralCode } = useAccount()
   const toast = useToast()
   const marketURI = marketGroup
     ? `${process.env.NEXT_PUBLIC_FRAME_URL}/market-group/${marketGroup.slug}`
     : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
+
+  const getUrl = (referralCode: string) => {
+    return referralCode ? appendReferralCode(marketURI, referralCode) : marketURI
+  }
   return (
     <Menu isOpen={isShareMenuOpen} onClose={toggleShareMenu}>
       <MenuButton
@@ -94,7 +101,7 @@ export default function ShareMenu() {
         <MenuItem>
           {/*// @ts-ignore*/}
           <CopyToClipboard
-            text={marketURI}
+            text={getUrl(referralCode)}
             onCopy={() => {
               trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                 type: 'Copy Link',

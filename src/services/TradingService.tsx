@@ -21,6 +21,7 @@ import {
   getConditionalTokenAddress,
   useConditionalTokensAddr,
 } from '@/hooks/use-conditional-tokens-addr'
+import { useUrlParams } from '@/hooks/use-url-param'
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -80,20 +81,11 @@ interface ITradingServiceContext {
 const TradingServiceContext = createContext({} as ITradingServiceContext)
 
 export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
-  /**
-   * UI HELPERS
-   */
   const toast = useToast()
 
-  /**
-   * SERVICES
-   */
   const queryClient = useQueryClient()
-  const { account } = useAccount()
+  const { account, referralCode } = useAccount()
 
-  /**
-   * OPTIONS
-   */
   const [market, setMarket] = useState<Market | null>(null)
   const [marketGroup, setMarketGroup] = useState<MarketGroup | null>(null)
   const [markets, setMarkets] = useState<Market[] | undefined>()
@@ -103,6 +95,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   // Todo adjust it to amm markets with refactored sell widget
   const [clobOutcome, setClobOutcome] = useState(0)
 
+  const { updateParams } = useUrlParams()
   const onCloseMarketPage = () => {
     setMarketPageOpened(false)
     setMarkets(undefined)
@@ -122,6 +115,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setMarketGroup(null)
     setClobOutcome(0)
     !isMobile && setMarketPageOpened(true)
+    updateParams({ market: market.slug, ...(referralCode ? { r: referralCode } : {}) })
   }
 
   const { data: conditionalTokensAddress, refetch: getConditionalTokensAddress } =

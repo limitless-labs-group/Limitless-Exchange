@@ -1,16 +1,16 @@
 import { Button, HStack } from '@chakra-ui/react'
 import { isNumber } from '@chakra-ui/utils'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import React, {
   PropsWithChildren,
   ReactNode,
   useEffect,
   useMemo,
   useRef,
-  useState,
   CSSProperties,
 } from 'react'
 import { Drawer } from 'vaul'
+import { useUrlParams } from '@/hooks/use-url-param'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
@@ -39,9 +39,9 @@ export default function MobileDrawer({
   const searchParams = useSearchParams()
   const drawerRef = useRef<HTMLButtonElement>(null)
   const router = useRouter()
-  const pathname = usePathname()
   const ref = useRef(false)
   const { trackClicked } = useAmplitude()
+  const { updateParams } = useUrlParams()
 
   const { market: selectedMarket, onOpenMarketPage, markets } = useTradingService()
 
@@ -55,22 +55,10 @@ export default function MobileDrawer({
     }
   }, [id])
 
-  const removeMarketQuery = () => {
-    const params = new URLSearchParams(searchParams.toString())
-    if (params.has('market')) {
-      params.delete('market')
-    }
-    if (params.has('slug')) {
-      params.delete('slug')
-    }
-    const newQuery = params.toString()
-    router.replace(newQuery ? `${pathname}/?${newQuery}` : pathname, { scroll: false })
-  }
-
   const close = () => {
     if (onClose) {
       onClose()
-      removeMarketQuery()
+      updateParams({ market: null, r: null })
     }
   }
 

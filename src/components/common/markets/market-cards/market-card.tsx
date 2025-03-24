@@ -6,7 +6,6 @@ import Avatar from '@/components/common/avatar'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import Paper from '@/components/common/paper'
-import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import { LineChart } from '@/app/(markets)/markets/[address]/components/line-chart'
 import { MarketCardLink } from './market-card-link'
 import { MarketProgressBar } from './market-progress-bar'
@@ -47,7 +46,6 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
     }
     e.preventDefault()
     const searchParams = new URLSearchParams(window.location.search)
-    searchParams.set('market', market.slug)
     router.push(`?${searchParams.toString()}`, { scroll: false })
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
       marketCategory: market.categories,

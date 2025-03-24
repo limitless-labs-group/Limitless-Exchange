@@ -1,5 +1,4 @@
 import { Link, Text, HStack } from '@chakra-ui/react'
-import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import React, { ReactNode, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -8,6 +7,7 @@ import { useCategories } from '@/services'
 import { useMarkets } from '@/services/MarketsService'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market, MarketGroup } from '@/types'
+import { ReferralLink } from '../referral-link'
 
 export interface SideItemProps {
   isActive?: boolean
@@ -108,7 +108,7 @@ export const CategoryItems = () => {
   return (
     <>
       {categoriesWithMarkets.map((category) => (
-        <NextLink
+        <ReferralLink
           key={category.id}
           href={`/?${createQueryString(category.name)}`}
           style={{ width: isMobile ? 'fit-content' : '100%' }}
@@ -127,7 +127,7 @@ export const CategoryItems = () => {
               {category.name} ({marketsByCategory[category.name]})
             </SideItem>
           </Link>
-        </NextLink>
+        </ReferralLink>
       ))}
     </>
   )

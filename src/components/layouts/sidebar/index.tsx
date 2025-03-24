@@ -27,6 +27,7 @@ import { CategoryItems, SideItem } from '@/components/common/markets/sidebar-ite
 import WrapModal from '@/components/common/modals/wrap-modal'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
+import { ReferralLink } from '@/components/common/referral-link'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
 import WalletPage from '@/components/layouts/wallet-page'
@@ -513,7 +514,7 @@ export default function Sidebar() {
         </NextLink>
 
         {!isLoading ? (
-          <NextLink
+          <ReferralLink
             href={`/?dashboard=marketcrash`}
             passHref
             style={{ width: isMobile ? 'fit-content' : '100%' }}
@@ -530,7 +531,7 @@ export default function Sidebar() {
                 Market crash
               </SideItem>
             </Link>
-          </NextLink>
+          </ReferralLink>
         ) : null}
 
         <CategoryItems />

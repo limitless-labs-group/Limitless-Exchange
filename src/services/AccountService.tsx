@@ -45,7 +45,7 @@ import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
 import { Address, APIError, UpdateProfileData } from '@/types'
 import { Profile } from '@/types/profiles'
-import { LOGGED_IN_TO_LIMITLESS } from '@/utils/consts'
+import { LOGGED_IN_TO_LIMITLESS, USER_ID } from '@/utils/consts'
 
 export interface IAccountContext {
   isLoggedIn: boolean
@@ -55,6 +55,7 @@ export interface IAccountContext {
   displayName?: string
   displayUsername: string
   bio: string
+  referralCode: string
   profileLoading: boolean
   profileData?: Profile | null
   updateProfileMutation: UseMutationResult<
@@ -477,9 +478,16 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     }
     return ''
   }, [profileData?.bio])
+  const referralCode = useMemo(() => {
+    if (profileData?.referralCode) {
+      return profileData.referralCode
+    }
+    return ''
+  }, [profileData?.referralCode])
 
   const disconnectFromPlatform = useCallback(async () => {
     localStorage.removeItem(LOGGED_IN_TO_LIMITLESS)
+    localStorage.removeItem(USER_ID)
     setSmartAccountClient(null)
     setWeb3Wallet(null)
     if (accountRoutes.includes(pathname)) {
@@ -494,6 +502,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     account,
     displayName,
     displayUsername,
+    referralCode,
     bio,
     disconnectFromPlatform,
     profileLoading: userMenuLoading,

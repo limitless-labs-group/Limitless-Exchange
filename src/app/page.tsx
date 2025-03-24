@@ -3,7 +3,6 @@
 import { Link, HStack, Text, VStack, Box } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
 import NextLink from 'next/link'
-import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -18,6 +17,7 @@ import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import useMarketGroup from '@/hooks/use-market-group'
 import usePageName from '@/hooks/use-page-name'
+import { useUrlParams } from '@/hooks/use-url-param'
 import { usePriceOracle } from '@/providers'
 import GridIcon from '@/resources/icons/sidebar/Markets.svg'
 import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
@@ -37,14 +37,15 @@ import { Dashboard, Market, MarketGroup, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
 const MainPage = () => {
-  const searchParams = useSearchParams()
+  const { getParam } = useUrlParams()
+  const category = getParam('category')
+  const market = getParam('market')
+  const slug = getParam('slug')
+  const dashboardSearch = getParam('dashboard')
+
   const { data: categories } = useCategories()
   const { onCloseMarketPage, onOpenMarketPage } = useTradingService()
   const { trackClicked, trackOpened } = useAmplitude()
-  const category = searchParams.get('category')
-  const market = searchParams.get('market')
-  const slug = searchParams.get('slug')
-  const dashboardSearch = searchParams.get('dashboard')
   const { data: marketData } = useMarket(market ?? undefined)
   const { data: marketGroupData } = useMarketGroup(slug ?? undefined)
   const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
