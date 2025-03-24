@@ -73,7 +73,7 @@ export default function OrderbookTableLarge({
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight
     }
-  }, [outcome])
+  }, [outcome, market])
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,

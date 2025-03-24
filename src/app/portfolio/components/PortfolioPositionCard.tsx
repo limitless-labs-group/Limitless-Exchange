@@ -8,7 +8,6 @@ import ClaimButton from '@/components/common/markets/claim-button'
 import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
-import useMarketGroup from '@/hooks/use-market-group'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
@@ -58,7 +57,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
   const [colors, setColors] = useState(unhoveredColors)
 
   const { trackClicked } = useAmplitude()
-  const { onOpenMarketPage, setMarket, setMarketGroup } = useTradingService()
+  const { onOpenMarketPage, setMarket } = useTradingService()
 
   const allMarkets = useAllMarkets()
 
@@ -107,11 +106,6 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
   }
 
   const { data: oneMarket, refetch: refetchMarket } = useMarket(position.market.id, false, false)
-  const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
-    targetMarket?.group?.slug,
-    false,
-    false
-  )
 
   const handleOpenMarketPage = async () => {
     if (position.market?.id) {
@@ -122,7 +116,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
           trackClicked(ClickEvent.PortfolioMarketClicked, {
             marketCategory: fetchedMarket.categories,
             marketAddress: fetchedMarket.slug,
-            marketType: 'single',
+            marketType: fetchedMarket.marketType,
             marketTags: fetchedMarket.tags,
             type: 'Portolio',
           })
@@ -132,21 +126,10 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
         trackClicked(ClickEvent.PortfolioMarketClicked, {
           marketCategory: oneMarket.categories,
           marketAddress: oneMarket.slug,
-          marketType: 'single',
+          marketType: oneMarket.marketType,
           marketTags: oneMarket.tags,
           type: 'Portolio',
         })
-      }
-    }
-
-    if (targetMarket?.group?.slug) {
-      if (!marketGroup) {
-        const { data: fetchedMarketGroup } = await refetchMarketGroup()
-        if (fetchedMarketGroup) {
-          onOpenMarketPage(fetchedMarketGroup)
-        }
-      } else {
-        onOpenMarketPage(marketGroup)
       }
     }
   }
@@ -267,7 +250,6 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
       variant='black'
       onClose={() => {
         setMarket(null)
-        setMarketGroup(null)
       }}
     >
       <MarketPage />

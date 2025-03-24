@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import React, { useMemo, useState } from 'react'
 import { Toast } from '@/components/common/toast'
@@ -9,21 +9,27 @@ import { DraftMarket, DraftMarketCard } from '@/app/draft/components/draft-card'
 import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import { DraftMarketResponse } from '@/types/draft'
+import { DraftMarketResponse, DraftMarketType } from '@/types/draft'
 
-export const DraftMarketsQueue = () => {
+export type DraftMarketsQueueProps = {
+  marketType?: DraftMarketType
+}
+
+export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps) => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
+  const queryClient = useQueryClient()
+  const toast = useToast()
 
   const privateClient = useAxiosPrivateClient()
 
   const router = useRouter()
   const { data: draftMarkets } = useQuery({
-    queryKey: ['draftMarkets-amm'],
+    queryKey: [`draftMarkets-${marketType}`],
     queryFn: async () => {
       const response = await privateClient.get(`/markets/drafts`)
 
       return response.data.filter(
-        (market: DraftMarketResponse) => !market.type || market?.type === 'amm'
+        (market: DraftMarketResponse) => !market.type || market?.type === marketType
       )
     },
   })
@@ -48,17 +54,27 @@ export const DraftMarketsQueue = () => {
   }, [selectedMarketIds, draftMarkets])
 
   const handleClick = (marketId: number) => {
-    router.push(`/draft/?market=${marketId}`)
+    router.push(`/draft/?market=${marketId}&marketType=${marketType}`)
   }
 
-  const toast = useToast()
+  const getPostData = (marketType: DraftMarketType) => {
+    switch (marketType) {
+      case 'clob':
+        return { url: `/markets/clob/create-batch`, ids: { marketsIds: selectedMarketIds } }
+      case 'group':
+        return { url: `/markets/group/create-batch`, ids: { groupIds: selectedMarketIds } }
+      default:
+        return { url: `/markets/create-batch`, ids: { marketsIds: selectedMarketIds } }
+    }
+  }
 
   const createMarketsBatch = () => {
     setIsCreating(true)
+    const { url, ids } = getPostData(marketType)
     privateClient
       .post(
-        `/markets/create-batch`,
-        { marketsIds: selectedMarketIds },
+        url,
+        { ...ids },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -66,7 +82,7 @@ export const DraftMarketsQueue = () => {
         }
       )
       .then((res) => {
-        if (res.status === 201) {
+        if (res.status === 201 && marketType === 'amm') {
           const newTab = window.open('', '_blank')
           if (newTab) {
             newTab.location.href = res.data.multisigTxLink
@@ -81,7 +97,11 @@ export const DraftMarketsQueue = () => {
           render: () => <Toast title={`Error: ${res.message}`} id={id} />,
         })
       })
-      .finally(() => {
+      .finally(async () => {
+        await queryClient.refetchQueries({
+          queryKey: [`draftMarkets-${marketType}`],
+        })
+        setSelectedMarketIds([])
         setIsCreating(false)
       })
   }

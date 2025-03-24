@@ -5,6 +5,7 @@ import {
   useLogin as usePrivyLogin,
   LoginModalOptions,
 } from '@privy-io/react-auth'
+import spindl from '@spindl-xyz/attribution'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { usePathname, useRouter } from 'next/navigation'
@@ -124,7 +125,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   })
 
   useEffect(() => {
-    setAcc({ account: user?.wallet?.address as string })
+    if (user?.wallet?.address) {
+      setAcc({ account: user.wallet.address as string })
+      spindl.attribute(user.wallet.address)
+    }
   }, [user])
 
   const userMenuLoading = useMemo(() => {
@@ -216,7 +220,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { login: loginToPlatform } = usePrivyLogin({
     onComplete: async ({ user, wasAlreadyAuthenticated }) => {
       const connectedWallet = wallets.find(
-        (wallet) => wallet.connectorType === user.wallet?.connectorType
+        (wallet) =>
+          wallet.address === user.wallet?.address &&
+          wallet.walletClientType === user.wallet.walletClientType
       )
       if (connectedWallet && !wasAlreadyAuthenticated) {
         pushGA4Event(`select_wallet_${connectedWallet.walletClientType}`)
@@ -245,7 +251,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           account: connectedWallet.address as Address,
           web3Wallet: walletClient,
         })
-
+        spindl.attribute(connectedWallet.address)
         pushGA4Event(GAEvents.WalletConnected)
         await handleRedirect()
         setAcc({ account: connectedWallet.address ?? '' })
@@ -316,25 +322,23 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  /**
-   * FARCASTER
-   */
-  // const { data: farcasterInfo } = useQuery({
-  //   queryKey: ['farcaster', userInfo],
-  //   queryFn: async () => {
-  //     const { data } = await axios.get<FarcasterUsersRequestResponse>(
-  //       `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userInfo?.verifierId}`,
-  //       {
-  //         headers: {
-  //           api_key: process.env.NEXT_PUBLIC_NEYNAR_API_KEY,
-  //         },
-  //       }
-  //     )
-  //     const [farcasterUserData] = data.users
-  //     return farcasterUserData
-  //   },
-  //   enabled: userInfo?.typeOfLogin === 'farcaster',
-  // })
+  // const getSessionConnectedMethod = () => {
+  //   debugger
+  //   const recentLoggedWallet = localStorage.getItem(
+  //     `privy:${process.env.NEXT_PUBLIC_PRIVY_APP_ID}:recent-login-wallet-client`
+  //   )
+  //   if (!recentLoggedWallet) {
+  //     return null
+  //   }
+  //   const connectedMethod = JSON.parse(recentLoggedWallet || '')
+  //   const privyMethod = ['google_oauth', 'discord_oauth', 'farcaster', 'email'].includes(
+  //     connectedMethod
+  //   )
+  //   if (privyMethod) {
+  //     return wallets.find((wallet) => wallet.walletClientType === 'privy')
+  //   }
+  //   return wallets.find((wallet) => wallet.walletClientType === connectedMethod)
+  // }
 
   const getWallet = async (): Promise<WalletClient | undefined> => {
     const wallet = wallets.find(
@@ -351,15 +355,17 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       })
       setWeb3Wallet(walletClient)
       return
+    } else {
+      await disconnectFromPlatform()
     }
     return
   }
 
   useEffect(() => {
-    if (walletsReady && !web3Wallet) {
+    if (walletsReady && !web3Wallet && authenticated) {
       getWallet()
     }
-  }, [walletsReady, web3Wallet])
+  }, [walletsReady, web3Wallet, authenticated])
 
   const { mutateAsync: logout } = useMutation({
     mutationKey: ['logout'],

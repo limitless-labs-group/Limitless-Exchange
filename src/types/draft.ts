@@ -21,7 +21,16 @@ export interface IFormData {
   ogLogo: File | undefined
   isBannered: boolean
   txHash: string
+  marketInput?: MarketInput[]
 }
+
+export type MarketInput = {
+  title: string
+  description: string
+  id?: number
+}
+
+export type DraftMarketType = 'amm' | 'clob' | 'group'
 
 export interface TokenLimit {
   min: number

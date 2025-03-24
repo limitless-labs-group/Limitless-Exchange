@@ -24,7 +24,7 @@
   width: fit-content !important;
 }
 
-.feed-container .infinite-scroll-component__outerdiv {
+.full-container .infinite-scroll-component__outerdiv {
   width: 100% !important;
 }
 

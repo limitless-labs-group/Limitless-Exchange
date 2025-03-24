@@ -4,7 +4,7 @@ import { isMobile } from 'react-device-detect'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 
-type DailyMarketTimerProps = TextProps & {
+export type MarketTimerProps = TextProps & {
   deadline: number
   color: string
   showDays?: boolean
@@ -29,7 +29,7 @@ const formatTime = ({
   ).padStart(2, '0')}s`
 }
 
-export default function DailyMarketTimer({
+export default function MarketTimer({
   deadline,
   color,
   deadlineText,
@@ -37,7 +37,7 @@ export default function DailyMarketTimer({
   topMarket = false,
   hideText = false,
   ...props
-}: DailyMarketTimerProps) {
+}: MarketTimerProps) {
   const calculateTimeRemaining = useCallback(() => {
     const now = new Date().getTime()
     const timeLeft = new Date(deadline).getTime() - now
