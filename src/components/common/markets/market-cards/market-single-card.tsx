@@ -1,12 +1,12 @@
 import { Box, Divider, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
-import { MarketCardProps } from '@/components/common/markets'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
-import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import Paper from '@/components/common/paper'
+import { LineChart } from '@/app/(markets)/markets/[address]/components/line-chart'
 import { MarketCardLink } from './market-card-link'
 import { MarketProgressBar } from './market-progress-bar'
 import { SpeedometerProgress } from './speedometer-progress'
@@ -15,18 +15,30 @@ import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export const MIN_CARD_HEIGHT = {
   row: '144px',
   grid: '164px',
   speedometer: '137px',
+  chart: '144px',
   groupRow: '196px',
 }
 
-export type MarketCardLayout = 'row' | 'grid' | 'speedometer' | 'groupRow'
+export type MarketCardLayout = 'row' | 'grid' | 'speedometer' | 'chart' | 'groupRow'
 
-export const MarketSingleCard = ({ variant = 'row', market, analyticParams }: MarketCardProps) => {
+interface DailyMarketCardProps {
+  variant?: MarketCardLayout
+  market: Market
+  analyticParams: { bannerPosition: number; bannerPaginationPage: number }
+}
+
+export const MarketSingleCard = ({
+  variant = 'row',
+  market,
+  analyticParams,
+}: DailyMarketCardProps) => {
   const [hovered, setHovered] = useState(false)
   const { onOpenMarketPage, market: selectedMarket } = useTradingService()
   const router = useRouter()
@@ -67,12 +79,13 @@ export const MarketSingleCard = ({ variant = 'row', market, analyticParams }: Ma
 
   const isGrid = variant === 'grid'
   const isSpeedometer = variant === 'speedometer'
-  const isShortCard = isGrid || isSpeedometer
+  const withChart = variant === 'chart'
+  const isShortCard = isGrid || isSpeedometer || isMobile
 
   const content = (
     <Box
       w='full'
-      bg={hovered ? 'grey.100' : 'unset'}
+      bg={hovered && !withChart ? 'grey.100' : 'unset'}
       rounded='12px'
       border='2px solid var(--chakra-colors-grey-100)'
       p='2px'
@@ -101,6 +114,7 @@ export const MarketSingleCard = ({ variant = 'row', market, analyticParams }: Ma
             ) : null}
           </Flex>
           <Box w='full'>
+            {withChart ? <LineChart market={market} /> : null}
             {isSpeedometer ? (
               <Divider />
             ) : (

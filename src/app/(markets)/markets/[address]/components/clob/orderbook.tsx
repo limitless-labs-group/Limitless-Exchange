@@ -111,7 +111,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
           .map((ask) => {
             return {
               ...ask,
-              price: +new BigNumber(1).minus(new BigNumber(ask.price)).toFixed(2),
+              price: +new BigNumber(1).minus(new BigNumber(ask.price)),
             }
           })
           .sort((a, b) => a.price - b.price)
@@ -144,6 +144,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
       .minus(new BigNumber(getOrderBookData().bids[0].price))
       .multipliedBy(100)
       .abs()
+      .decimalPlaces(1)
       .toFixed()
   }, [getOrderBookData])
 

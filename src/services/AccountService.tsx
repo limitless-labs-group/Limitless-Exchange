@@ -5,6 +5,7 @@ import {
   useLogin as usePrivyLogin,
   LoginModalOptions,
 } from '@privy-io/react-auth'
+import spindl from '@spindl-xyz/attribution'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { usePathname, useRouter } from 'next/navigation'
@@ -124,7 +125,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   })
 
   useEffect(() => {
-    setAcc({ account: user?.wallet?.address as string })
+    if (user?.wallet?.address) {
+      setAcc({ account: user.wallet.address as string })
+      spindl.attribute(user.wallet.address)
+    }
   }, [user])
 
   const userMenuLoading = useMemo(() => {
@@ -247,7 +251,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           account: connectedWallet.address as Address,
           web3Wallet: walletClient,
         })
-
+        spindl.attribute(connectedWallet.address)
         pushGA4Event(GAEvents.WalletConnected)
         await handleRedirect()
         setAcc({ account: connectedWallet.address ?? '' })

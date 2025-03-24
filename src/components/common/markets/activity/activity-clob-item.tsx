@@ -46,10 +46,10 @@ export default function ActivityClobItem({ data }: ActivityClobItemProps) {
   )
 
   const user = {
-    name: data.profile.displayName,
-    imageURI: data.profile.pfpUrl || '',
-    link: data.profile.socialUrl || '',
-    account: data.profile.smartWallet || data.profile.account,
+    name: data.profile?.displayName ?? data.profile?.account ?? '',
+    imageURI: data.profile?.pfpUrl ?? '',
+    link: data.profile?.socialUrl ?? '',
+    account: data.profile?.smartWallet ?? data.profile?.account ?? '',
   }
 
   return (

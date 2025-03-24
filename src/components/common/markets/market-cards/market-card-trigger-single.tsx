@@ -1,12 +1,13 @@
-import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, Divider, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { MarketCardProps } from '@/components/common/markets'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import { MIN_CARD_HEIGHT } from '@/components/common/markets/market-cards/market-single-card'
-import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import Paper from '@/components/common/paper'
+import { LineChart } from '@/app/(markets)/markets/[address]/components/line-chart'
 import { MarketProgressBar } from './market-progress-bar'
+import { SpeedometerProgress } from './speedometer-progress'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -25,10 +26,11 @@ export const MarketCardTriggerSingle = React.memo(
       })
       router.push(`?market=${market.slug}`, { scroll: false })
       onOpenMarketPage(market)
-      setMarkets(markets)
+      setMarkets(markets || [])
     }
 
-    // const isSpeedometer = variant === 'speedometer'
+    const isSpeedometer = variant === 'speedometer'
+    const withChart = variant === 'chart'
 
     return (
       <Box
@@ -46,19 +48,20 @@ export const MarketCardTriggerSingle = React.memo(
               <Text {...headline} fontSize='16px' textAlign='start' mt='12px'>
                 {market.title}
               </Text>
-              {/*{isSpeedometer ? (*/}
-              {/*  <Box w='56px' h='28px'>*/}
-              {/*    <SpeedometerProgress value={Number(market.prices[0].toFixed(1))} />*/}
-              {/*  </Box>*/}
-              {/*) : null}*/}
+              {isSpeedometer ? (
+                <Box w='56px' h='28px'>
+                  <SpeedometerProgress value={Number(market.prices[0].toFixed(1))} />
+                </Box>
+              ) : null}
             </Flex>
             <Box w='full'>
-              {/*{isSpeedometer ? (*/}
-              {/*  <Divider />*/}
-              {/*) : (*/}
-              {/*  <MarketProgressBar isClosed={market.expired} value={market.prices[0]} />*/}
-              {/*)}*/}
-              <MarketProgressBar isClosed={market.expired} value={market.prices[0]} />
+              {withChart ? <LineChart market={market} /> : null}
+
+              {isSpeedometer ? (
+                <Divider />
+              ) : (
+                <MarketProgressBar isClosed={market.expired} value={market.prices[0]} />
+              )}
             </Box>
             <Box w='full'>
               <HStack w='full' justifyContent='space-between'>
@@ -100,4 +103,4 @@ export const MarketCardTriggerSingle = React.memo(
   }
 )
 
-MarketCardTriggerSingle.displayName = 'MarketCardTriggerSingle'
+MarketCardTriggerSingle.displayName = 'MarketCardTrigger'

@@ -89,7 +89,7 @@ export async function GET(req: Request, { params }: { params: { address: string 
   const renderSpeedometer = () => {
     if (prices.length) {
       const diameter = 140
-      const strokeWidth = 8
+      const strokeWidth = 6
       const radius = diameter / 2 - strokeWidth
       const circumference = Math.PI * radius
       const value = prices[0]
@@ -103,7 +103,7 @@ export async function GET(req: Request, { params }: { params: { address: string 
             alignItems: 'center',
             justifyContent: 'center',
             width: `${diameter}px`,
-            height: `70px`,
+            height: `75px`,
           }}
         >
           <svg
@@ -129,22 +129,29 @@ export async function GET(req: Request, { params }: { params: { address: string 
               strokeWidth={strokeWidth}
               strokeDasharray={circumference}
               strokeDashoffset={circumference - progress}
-              strokeLinecap='round'
             />
           </svg>
-          <span
+          <div
             style={{
+              display: 'flex',
               position: 'absolute',
-              top: '36px',
-              fontSize: `${fontSize}px`,
-              lineHeight: `${fontSize}px`,
-              fontWeight: 700,
-              color: getColor(),
-              fontFamily: 'Inter Bold',
+              top: '46px',
             }}
           >
-            {value}%
-          </span>
+            <span
+              style={{
+                fontSize: `${fontSize}px`,
+                lineHeight: `${fontSize}px`,
+                fontWeight: 700,
+                color: getColor(),
+                fontFamily: 'Inter Thin',
+                textAlign: 'center',
+                marginLeft: '4px',
+              }}
+            >
+              {value}%
+            </span>
+          </div>
         </div>
       )
     }
@@ -183,9 +190,7 @@ export async function GET(req: Request, { params }: { params: { address: string 
         <div
           style={{
             display: 'flex',
-            justifyContent: 'center',
-            width: '100%',
-            marginLeft: '48px',
+            marginLeft: '82px',
           }}
         >
           <LimitlessLogo />

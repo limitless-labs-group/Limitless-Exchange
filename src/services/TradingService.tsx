@@ -403,6 +403,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     return
   }
 
+  // Todo use {signal} prop and remove debounce logic
   useQuery({
     queryKey: [
       'tradeQuotesYes',
@@ -471,6 +472,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
+  // Todo use {signal} prop and remove debounce logic
   useQuery({
     queryKey: [
       'tradeQuotesNo',

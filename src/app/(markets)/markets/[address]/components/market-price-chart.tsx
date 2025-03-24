@@ -3,7 +3,7 @@
 import { Text, HStack, VStack, Box } from '@chakra-ui/react'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
-import React, { memo, useEffect, useMemo, useState } from 'react'
+import React, { memo, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'

@@ -1,25 +1,31 @@
 'use client'
 
 import { Link, HStack, Text, VStack, Box } from '@chakra-ui/react'
+import { useAtom } from 'jotai'
 import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
+import DashboardSection from '@/components/common/markets/dashboard-section'
 import { MarketCategoryHeader } from '@/components/common/markets/market-category-header'
 import MarketsSection from '@/components/common/markets/markets-section'
-import { CategoryItems } from '@/components/common/markets/sidebar-item'
+import { CategoryItems, SideItem } from '@/components/common/markets/sidebar-item'
 import TopMarkets from '@/components/common/markets/top-markets'
+import { sortAtom } from '@/atoms/market-sort'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useIsMobile } from '@/hooks'
 import usePageName from '@/hooks/use-page-name'
 import { usePriceOracle } from '@/providers'
 import GridIcon from '@/resources/icons/sidebar/Markets.svg'
+import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import {
   ClickEvent,
   OpenEvent,
   PageOpenedMetadata,
+  DashboardName,
   ProfileBurgerMenuClickedMetadata,
   useAmplitude,
   useCategories,
@@ -27,7 +33,7 @@ import {
 } from '@/services'
 import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market, Sort, SortStorageName } from '@/types'
+import { Dashboard, Market, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
 const MainPage = () => {
@@ -39,13 +45,17 @@ const MainPage = () => {
     market: selectedMarket,
     groupMarket,
   } = useTradingService()
-  /**
-   * ANALYTICS
-   */
   const { trackClicked, trackOpened } = useAmplitude()
   const category = searchParams.get('category')
   const market = searchParams.get('market')
+  const slug = searchParams.get('slug')
+  const dashboardSearch = searchParams.get('dashboard')
   const { data: marketData } = useMarket(market ?? undefined)
+  const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
+  const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
+  const [selectedSort, setSelectedSort] = useAtom(sortAtom)
+  const { convertTokenAmountToUsd } = usePriceOracle()
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useMarkets(null)
 
   const pageName = usePageName()
 
@@ -63,34 +73,37 @@ const MainPage = () => {
   }, [marketData])
 
   useEffect(() => {
+    const dashboardNameMapping: Record<string, string> = {
+      marketcrash: DashboardName.MarketCrash,
+    }
+
     const analyticData: PageOpenedMetadata = {
       page: 'Explore Markets',
-      ...(category && { category: [category] }),
+      ...(selectedCategory && { category: [selectedCategory.name.toLowerCase()] }),
+      ...(dashboard && { dashboard: dashboardNameMapping[dashboard.toLowerCase()] || dashboard }),
     }
-
     trackOpened(OpenEvent.PageOpened, analyticData)
+  }, [selectedCategory, dashboard])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedSort = window.localStorage.getItem(SortStorageName.SORT)
+      if (storedSort) {
+        try {
+          const parsedSort = JSON.parse(storedSort) as Sort
+          setSelectedSort({ sort: parsedSort })
+        } catch (error) {
+          console.error('Error parsing stored sort:', error)
+          setSelectedSort({ sort: Sort.DEFAULT })
+        }
+      }
+    }
   }, [])
 
-  /**
-   * UI
-   */
-  const isMobile = useIsMobile()
-
-  const [selectedSort, setSelectedSort] = useState<Sort>(() => {
-    if (typeof window !== 'undefined') {
-      return (window.localStorage.getItem(SortStorageName.SORT) as Sort) ?? Sort.BASE
-    }
-    return Sort.BASE
-  })
-
   const handleSelectSort = (options: Sort, name: SortStorageName) => {
-    window.localStorage.setItem(name, options)
-    setSelectedSort(options)
+    window.localStorage.setItem(name, JSON.stringify(options))
+    setSelectedSort({ sort: options ?? Sort.DEFAULT })
   }
-
-  const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
-
-  const { selectedCategory, handleCategory } = useTokenFilter()
 
   useEffect(() => {
     if (category && categories) {
@@ -103,10 +116,11 @@ const MainPage = () => {
     }
   }, [category, categories])
 
-  const { convertTokenAmountToUsd } = usePriceOracle()
-
-  // pass categoryEntity to useMarket to make call with category
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useMarkets(null)
+  useEffect(() => {
+    if (dashboardSearch) {
+      handleDashboard(dashboardSearch as Dashboard)
+    }
+  }, [dashboardSearch])
 
   const totalAmount = useMemo(() => data?.pages[0]?.data.totalAmount ?? 0, [data?.pages])
 
@@ -118,6 +132,8 @@ const MainPage = () => {
     if (!markets) return []
     if (!selectedCategory) return markets
     if (selectedCategory) {
+      setSelectedSort({ sort: Sort.DEFAULT })
+      window.localStorage.setItem(SortStorageName.SORT, JSON.stringify(Sort.DEFAULT))
       return markets.filter((market) =>
         market.categories.some(
           (category) => category.toLowerCase() === selectedCategory.name.toLowerCase()
@@ -129,7 +145,11 @@ const MainPage = () => {
   }, [markets, selectedCategory])
 
   const sortedAllMarkets = useMemo(() => {
-    return sortMarkets(filteredAllMarkets, selectedSort, convertTokenAmountToUsd)
+    return sortMarkets(
+      filteredAllMarkets,
+      selectedSort?.sort || Sort.DEFAULT,
+      convertTokenAmountToUsd
+    )
   }, [filteredAllMarkets, selectedSort, convertTokenAmountToUsd])
 
   useEffect(() => {
@@ -137,6 +157,28 @@ const MainPage = () => {
       onCloseMarketPage()
     }
   }, [])
+
+  const headerContent = useMemo(() => {
+    if (selectedCategory) {
+      return (
+        <Box
+          w='full'
+          overflowX='scroll'
+          css={{
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+            scrollbarWidth: 'none',
+            '-ms-overflow-style': 'none',
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
+          <MarketCategoryHeader name={selectedCategory.name} />
+        </Box>
+      )
+    }
+    return <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
+  }, [selectedCategory, banneredMarkets, isBanneredLoading])
 
   return (
     <MainLayout layoutPadding={'0px'}>
@@ -176,6 +218,8 @@ const MainPage = () => {
                         }
                       )
                       handleCategory(undefined)
+                      handleDashboard(undefined)
+                      handleSelectSort(Sort.DEFAULT, SortStorageName.SORT)
                     }}
                     variant='transparent'
                     w='full'
@@ -183,7 +227,11 @@ const MainPage = () => {
                     textDecoration='none'
                     _active={{ textDecoration: 'none' }}
                     _hover={{ textDecoration: 'none' }}
-                    bg={pageName === 'Explore Markets' && !selectedCategory ? 'grey.100' : 'unset'}
+                    bg={
+                      pageName === 'Explore Markets' && !selectedCategory && !dashboard
+                        ? 'grey.100'
+                        : 'unset'
+                    }
                     rounded='8px'
                   >
                     <HStack w='full' whiteSpace='nowrap'>
@@ -195,50 +243,66 @@ const MainPage = () => {
                   </Link>
                 </NextLink>
 
+                {!isFetching ? (
+                  <NextLink
+                    href={`/?dashboard=marketcrash`}
+                    passHref
+                    style={{ width: isMobile ? 'fit-content' : '100%' }}
+                  >
+                    <Link>
+                      <SideItem
+                        isActive={dashboard === 'marketcrash'}
+                        icon={<DashboardIcon width={16} height={16} color='#FF9200' />}
+                        onClick={() => {
+                          handleDashboard('marketcrash')
+                        }}
+                        color='orange-500'
+                      >
+                        Market crash
+                      </SideItem>
+                    </Link>
+                  </NextLink>
+                ) : null}
+
                 <CategoryItems />
               </HStack>
             ) : null}
 
-            {selectedCategory ? (
-              <Box
-                w='full'
-                overflowX='scroll'
-                css={{
-                  '&::-webkit-scrollbar': {
-                    display: 'none',
-                  },
-                  scrollbarWidth: 'none',
-                  '-ms-overflow-style': 'none',
-                  WebkitOverflowScrolling: 'touch',
-                }}
-              >
-                <MarketCategoryHeader name={selectedCategory.name} />
-              </Box>
-            ) : (
-              <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
-            )}
-
-            <InfiniteScroll
-              className='scroll'
-              dataLength={markets?.length ?? 0}
-              next={fetchNextPage}
-              hasMore={hasNextPage}
-              style={{ width: '100%' }}
-              loader={
-                markets.length > 0 && markets.length < totalAmount ? (
-                  <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
-                    <Loader />
-                    <Text {...paragraphRegular}>Loading more markets</Text>
-                  </HStack>
-                ) : null
-              }
-            >
-              <MarketsSection
-                markets={sortedAllMarkets as Market[]}
+            {dashboard ? (
+              <DashboardSection
+                dashboardName={dashboard}
                 handleSelectSort={handleSelectSort}
-                isLoading={isFetching && !isFetchingNextPage}
+                sort={selectedSort.sort}
               />
-            </InfiniteScroll>
+            ) : (
+              <>
+                {headerContent}
+                <Box className='full-container'>
+                  <InfiniteScroll
+                    className='scroll'
+                    dataLength={markets?.length ?? 0}
+                    next={fetchNextPage}
+                    hasMore={hasNextPage}
+                    style={{ width: '100%' }}
+                    loader={
+                      markets.length > 0 && markets.length < totalAmount ? (
+                        <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+                          <Loader />
+                          <Text {...paragraphRegular}>Loading more markets</Text>
+                        </HStack>
+                      ) : null
+                    }
+                  >
+                    <MarketsSection
+                      markets={sortedAllMarkets as Market[]}
+                      handleSelectSort={handleSelectSort}
+                      isLoading={isFetching && !isFetchingNextPage}
+                      sort={selectedSort.sort}
+                    />
+                  </InfiniteScroll>
+                </Box>
+              </>
+            )}
           </>
         </VStack>
       </HStack>
