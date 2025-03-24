@@ -341,11 +341,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   // })
 
   const getWallet = async (): Promise<WalletClient | undefined> => {
-    const wallet = wallets.find(
-      (wallet) =>
-        user?.wallet?.walletClientType?.includes(wallet.walletClientType) ||
-        user?.wallet?.walletClientType === wallet.walletClientType
-    )
+    const wallet =
+      web3Client === 'etherspot'
+        ? wallets.find((wallet) => wallet.walletClientType === 'privy')
+        : wallets[0]
     if (wallet) {
       const provider = await wallet.getEthereumProvider()
       const walletClient = createWalletClient({
