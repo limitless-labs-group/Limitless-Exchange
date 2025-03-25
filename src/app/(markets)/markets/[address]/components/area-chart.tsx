@@ -15,6 +15,7 @@ import {
 } from 'chart.js'
 import { format } from 'date-fns'
 import { Line } from 'react-chartjs-2'
+import { isMobile } from 'react-device-detect'
 import { ClobPriceHistoryResponse } from '@/hooks/use-market-price-history'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
@@ -345,7 +346,7 @@ export const PriceChart = ({ history }: PriceChartProps) => {
   ChartJS.register(verticalLinePlugin)
 
   return (
-    <Box w='full' h={240}>
+    <Box w='full' h={isMobile ? `${history.length * 40 + 100}px` : 240}>
       <Line data={data} options={options} />
     </Box>
   )
