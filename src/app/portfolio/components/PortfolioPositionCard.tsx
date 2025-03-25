@@ -6,7 +6,6 @@ import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import ClaimButton from '@/components/common/markets/claim-button'
 import MarketPage from '@/components/common/markets/market-page'
-import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import useMarketGroup from '@/hooks/use-market-group'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
@@ -29,11 +28,6 @@ export interface IPortfolioPositionCard {
 const unhoveredColors = {
   main: 'grey.800',
   secondary: 'grey.500',
-}
-
-const hoverColors = {
-  main: 'white',
-  secondary: 'whiteAlpha.70',
 }
 
 const StatusIcon = ({ isClosed, color }: { isClosed: boolean | undefined; color: string }) => {
