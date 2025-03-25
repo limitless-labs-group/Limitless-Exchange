@@ -282,13 +282,13 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
     <Box
       cursor='pointer'
       border='2px solid'
-      borderColor='grey.100'
+      borderColor={position.market?.closed ? 'green.500' : 'grey.100'}
       w={'full'}
       borderRadius='8px'
       _hover={{
-        bg: 'grey.100',
+        bg: position.market?.closed ? 'green.500' : 'grey.100',
       }}
-      bg='unset'
+      bg={position.market?.closed ? 'green.500' : 'unset'}
       p={isMobile ? '16px' : '8px'}
     >
       <Stack direction='row'>
