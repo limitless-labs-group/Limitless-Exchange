@@ -93,7 +93,7 @@ export default function OutcomeButtonsClob() {
               {getPrice(0)}
             </Text>
             <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
-              {NumberUtil.toFixed(getShares(sharesAvailable['yes']), 6)} Contracts
+              {NumberUtil.toFixed(getShares(sharesAvailable['yes']), 2)} Contracts
             </Text>
           </VStack>
         </Button>
@@ -112,7 +112,7 @@ export default function OutcomeButtonsClob() {
               {getPrice(1)}
             </Text>
             <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
-              {NumberUtil.toFixed(getShares(sharesAvailable['no']), 6)} Contracts
+              {NumberUtil.toFixed(getShares(sharesAvailable['no']), 2)} Contracts
             </Text>
           </VStack>
         </Button>
