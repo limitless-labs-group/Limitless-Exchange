@@ -164,37 +164,35 @@ export default function ClobMarketTradeForm() {
     })
     if (strategy === 'Buy') {
       if (value == 100) {
-        setPrice(NumberUtil.toFixed(balance, market?.collateralToken.symbol === 'USDC' ? 1 : 6))
+        setPrice(NumberUtil.toFixed(balance, 2))
         return
       }
       const amountByPercent = (Number(balance) * value) / 100
-      setPrice(
-        NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
-      )
+      setPrice(NumberUtil.toFixed(amountByPercent, 2))
       return
     }
     const sharesAmount = outcome
       ? NumberUtil.formatThousands(
           formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
-          6
+          2
         )
       : NumberUtil.formatThousands(
           formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
-          6
+          2
         )
     if (value === 100) {
-      setPrice(sharesAmount)
+      setPrice(NumberUtil.toFixed(sharesAmount, 2))
       return
     }
     const amountByPercent = (Number(sharesAmount) * value) / 100
-    setPrice(NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6))
+    setPrice(NumberUtil.toFixed(amountByPercent, 2))
     return
   }
 
   const handleInputValueChange = (value: string) => {
     if (market?.collateralToken.symbol === 'USDC') {
       const decimals = value.split('.')[1]
-      if (decimals && decimals.length > 6) {
+      if (decimals && decimals.length > 2) {
         return
       }
       setPrice(value)
@@ -224,17 +222,17 @@ export default function ClobMarketTradeForm() {
       if (strategy === 'Buy') {
         balanceToShow = NumberUtil.formatThousands(
           balance,
-          market?.collateralToken.symbol === 'USDC' ? 1 : 6
+          market?.collateralToken.symbol === 'USDC' ? 2 : 6
         )
       } else {
         balanceToShow = outcome
           ? NumberUtil.formatThousands(
               formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
-              6
+              2
             )
           : NumberUtil.formatThousands(
               formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
-              6
+              2
             )
       }
       return `${
