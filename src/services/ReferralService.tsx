@@ -1,6 +1,7 @@
 'use client'
 
 import { useMutation } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import { USER_ID } from '@/utils/consts'
 
@@ -13,6 +14,13 @@ export function isUrl(value: unknown): value is string {
 
 export const useReferral = () => {
   const privateClient = useAxiosPrivateClient()
+  const [visitorId, setVisitorId] = useState<string>('Guest')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setVisitorId(localStorage.getItem(USER_ID) ?? 'Guest')
+    }
+  }, [])
   const {
     mutateAsync: sendVisit,
     isPending,
@@ -24,7 +32,7 @@ export const useReferral = () => {
         `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/referral-visits`,
         {
           pageUrl: isUrl(pageUrl) ? pageUrl : 'https://limitless.exchange',
-          visitorId: localStorage.getItem(USER_ID) ?? 'Guest',
+          visitorId,
           referralCode,
           ipAddress: '0.0.0.0',
         }
