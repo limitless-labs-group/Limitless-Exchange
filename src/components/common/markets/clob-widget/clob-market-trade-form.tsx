@@ -451,6 +451,17 @@ export default function ClobMarketTradeForm() {
       }, 0)
       return new BigNumber(price).isGreaterThan(new BigNumber(totalAmount))
     }
+    if (orderBook) {
+      const targetSide = !outcome
+        ? orderBook.bids
+        : orderBook.asks.map((a) => ({ ...a, price: new BigNumber(1).minus(a.price).toNumber() }))
+      const totalShares = targetSide.reduce((sum, acc) => {
+        return new BigNumber(sum)
+          .plus(new BigNumber(formatUnits(BigInt(acc.size), market?.collateralToken.decimals || 6)))
+          .toNumber()
+      }, 0)
+      return new BigNumber(price).isGreaterThan(totalShares)
+    }
     return false
   }, [price, strategy, orderBook, outcome, market])
 
