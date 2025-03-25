@@ -56,7 +56,6 @@ import {
   ClickEvent,
   OpenEvent,
   PageOpenedPage,
-  useAccount,
   useAmplitude,
   useTradingService,
 } from '@/services'
@@ -81,7 +80,6 @@ export default function MarketPage() {
     groupMarket,
   } = useTradingService()
 
-  const { referralCode } = useAccount()
   const { updateParams } = useUrlParams()
 
   const { trackClicked, trackOpened, trackChanged } = useAmplitude()
