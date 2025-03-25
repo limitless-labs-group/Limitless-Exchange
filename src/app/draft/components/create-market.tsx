@@ -278,14 +278,10 @@ export const CreateMarket: FC = () => {
                 </FormHelperText>
               </FormField>
 
-              {!activeMarketId ? (
+              {!activeMarketId && !createClobMarket ? (
                 <FormField label='Token'>
                   <HStack>
-                    <Select
-                      value={formData.token.id}
-                      onChange={handleTokenSelect}
-                      disabled={createClobMarket}
-                    >
+                    <Select value={formData.token.id} onChange={handleTokenSelect}>
                       {supportedTokens?.map((token: Token) => (
                         <option key={token.id} value={token.id} data-name={token.symbol}>
                           {token.symbol}
@@ -297,7 +293,7 @@ export const CreateMarket: FC = () => {
               ) : null}
 
               {createClobMarket ? (
-                <HStack w='full' spacing={6}>
+                <HStack w='full' alignItems='start' spacing={6}>
                   <VStack w='full'>
                     <AdjustableNumberInput
                       label='Min size'
