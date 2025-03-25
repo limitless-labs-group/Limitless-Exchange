@@ -10,7 +10,7 @@ const baseStyle = definePartsStyle({
   // define the part you're going to style
   button: {
     ...commonButtonProps,
-    bg: 'grey.100',
+    bg: 'grey.300',
     borderRadius: '8px',
     ...(isMobile
       ? {}

@@ -167,12 +167,18 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
   return isMobile ? (
     <MobileDrawer
       trigger={
-        <Paper
+        <Box
           onClick={handleOpenMarketPage}
+          cursor='pointer'
+          border='2px solid'
+          borderColor={position.market?.closed ? 'green.500' : 'grey.100'}
           w={'full'}
-          bg={position.market?.closed ? 'green.500' : 'grey.100'}
-          p={'16px'}
           borderRadius='8px'
+          _hover={{
+            bg: position.market?.closed ? 'green.500' : 'grey.100',
+          }}
+          bg={position.market?.closed ? 'green.500' : 'unset'}
+          p={isMobile ? '16px' : '8px'}
         >
           <Stack spacing={'8px'}>
             <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
@@ -262,7 +268,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
               </Text>
             </HStack>
           </Stack>
-        </Paper>
+        </Box>
       }
       variant='black'
       onClose={() => {
@@ -273,17 +279,17 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
       <MarketPage />
     </MobileDrawer>
   ) : (
-    <Paper
-      w={'full'}
-      bg={position.market?.closed ? 'green.500' : 'grey.100'}
-      _hover={{
-        bg: position.market?.closed ? 'green.600' : 'blue.500',
-      }}
+    <Box
       cursor='pointer'
-      onMouseEnter={() => setColors(hoverColors)}
-      onMouseLeave={() => setColors(unhoveredColors)}
-      onClick={handleOpenMarketPage}
+      border='2px solid'
+      borderColor='grey.100'
+      w={'full'}
       borderRadius='8px'
+      _hover={{
+        bg: 'grey.100',
+      }}
+      bg='unset'
+      p={isMobile ? '16px' : '8px'}
     >
       <Stack direction='row'>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
@@ -379,7 +385,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
           </HStack>
         </HStack>
       </Stack>
-    </Paper>
+    </Box>
   )
 }
 

@@ -224,7 +224,7 @@ export default function LeaderboardPage() {
                   <Button
                     variant='grey'
                     key={uuidv4()}
-                    bg={option === selectedSortFilter ? 'grey.50' : 'unset'}
+                    bg={option === selectedSortFilter ? 'grey.50' : 'grey.100'}
                     onClick={() => {
                       // trackClicked(ClickEvent.SortClicked, {
                       //   oldValue: selectedSortFilter,
@@ -232,7 +232,7 @@ export default function LeaderboardPage() {
                       // })
                       handleFilterItemClicked(option)
                     }}
-                    _hover={{ bg: option === selectedSortFilter ? 'grey.50' : 'grey.400' }}
+                    _hover={{ bg: option === selectedSortFilter ? 'grey.50' : 'grey.200' }}
                     borderRadius='8px'
                     h={isMobile ? '28px' : '20px'}
                     whiteSpace='nowrap'
