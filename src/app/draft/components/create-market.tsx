@@ -257,7 +257,6 @@ export const CreateMarket: FC = () => {
                   value={formData.title}
                   onChange={(e) => handleChange('title', e.target.value)}
                   maxLength={70}
-                  // onBlur={() => autoGenerateOg && generateOgImage()}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                   {formData.title?.length}/70 characters
