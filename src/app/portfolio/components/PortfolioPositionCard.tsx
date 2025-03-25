@@ -284,6 +284,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
       }}
       bg={position.market?.closed ? 'green.500' : 'unset'}
       p={isMobile ? '16px' : '8px'}
+      onClick={handleOpenMarketPage}
     >
       <Stack direction='row'>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
