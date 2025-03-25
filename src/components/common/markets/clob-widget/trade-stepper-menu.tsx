@@ -302,6 +302,9 @@ export default function TradeStepperMenu() {
     await queryClient.refetchQueries({
       queryKey: ['order-book', market?.slug],
     })
+    await queryClient.refetchQueries({
+      queryKey: ['positions'],
+    })
   }
 
   const renderTradeButton = () => {
