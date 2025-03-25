@@ -96,12 +96,12 @@ export default function ClaimButton({
     await queryClient.invalidateQueries({
       queryKey: ['history'],
     })
-    await sleep(3)
+    await sleep(1)
     claimMutation.reset()
   }
 
   const onResetApproveMutation = async () => {
-    await sleep(3)
+    await sleep(1)
     setNegRiskApproved(true)
     approveClaimNegriskMutation.reset()
   }

@@ -390,7 +390,7 @@ export default function ClobMarketTradeForm() {
   }, [orderCalculations.payout, strategy, price])
 
   const onResetMutation = async () => {
-    await sleep(2)
+    await sleep(1)
     placeMarketOrderMutation.reset()
     setContractsBuying('')
     await Promise.allSettled([

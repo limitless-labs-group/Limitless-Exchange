@@ -306,7 +306,7 @@ export default function ClobLimitTradeForm() {
   }, [price, sharesAmount, strategy])
 
   const onResetMutation = async () => {
-    await sleep(2)
+    await sleep(1)
     placeLimitOrderMutation.reset()
     await Promise.allSettled([
       queryClient.refetchQueries({
