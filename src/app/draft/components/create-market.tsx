@@ -32,7 +32,6 @@ import TextEditor from '@/components/common/text-editor'
 import { Toast } from '@/components/common/toast'
 import { tokenLimits, selectStyles, defaultFormData } from '@/app/draft/components'
 import { AdjustableNumberInput } from './number-inputs'
-import { Og } from './og'
 import { useCreateMarket } from './use-create-market'
 import { formDataAtom, marketTypeAtom } from '@/atoms/draft'
 import { useToast } from '@/hooks'
@@ -40,7 +39,7 @@ import { useCategories, useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarket } from '@/services/MarketsService'
 import { paragraphBold } from '@/styles/fonts/fonts.styles'
-import { Token, Creator, SelectOption, DraftCreator } from '@/types/draft'
+import { Token, SelectOption, DraftCreator } from '@/types/draft'
 import { FormField } from '../components/form-field'
 
 export const CreateMarket: FC = () => {
@@ -314,9 +313,9 @@ export const CreateMarket: FC = () => {
                       label='Max spread'
                       value={formData.maxSpread}
                       onChange={(value) => handleChange('maxSpread', value)}
-                      min={1}
+                      min={0}
                       max={99}
-                      step={1}
+                      step={0.1}
                     />
                   </VStack>
                   <VStack w='full'>
@@ -371,7 +370,6 @@ export const CreateMarket: FC = () => {
                   />
                 </>
               ) : null}
-              <Og />
             </VStack>
 
             <VStack w={'full'} flex='0.8' h='full'>
@@ -436,9 +434,6 @@ export const CreateMarket: FC = () => {
                             value: option.label,
                           }))
                         )
-                        // if (autoGenerateOg) {
-                        //   generateOgImage()
-                        // }
                       }}
                       value={formData.categories}
                       options={categories?.map((category) => ({
