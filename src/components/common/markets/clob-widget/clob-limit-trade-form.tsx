@@ -307,6 +307,9 @@ export default function ClobLimitTradeForm() {
       queryClient.refetchQueries({
         queryKey: ['locked-balance', market?.slug],
       }),
+      queryClient.refetchQueries({
+        queryKey: ['positions'],
+      }),
     ])
     await sleep(2)
     await queryClient.refetchQueries({
