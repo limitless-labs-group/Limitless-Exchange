@@ -175,7 +175,7 @@ const PortfolioPositionCardClob = ({
                       BigInt(positionData.tokensBalance.yes),
                       positionData.market.collateralToken.decimals
                     ),
-                    6
+                    2
                   )}`}
                 </Text>
               </HStack>
@@ -203,7 +203,7 @@ const PortfolioPositionCardClob = ({
                     BigInt(positionData.tokensBalance.no),
                     positionData.market.collateralToken.decimals
                   ),
-                  6
+                  2
                 )}`}
               </Text>
             </HStack>
