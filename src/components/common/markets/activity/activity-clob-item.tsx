@@ -24,8 +24,11 @@ export default function ActivityClobItem({ data }: ActivityClobItemProps) {
     6
   )
   const outcome = targetMarket?.tokens.yes === data.tokenId ? 'Yes' : 'No'
-  const totalAmount = formatUnits(BigInt(data.makerAmount), market?.collateralToken.decimals || 6)
   const price = new BigNumber(data.price).multipliedBy(100).decimalPlaces(1).toString()
+  const totalAmount = NumberUtil.toFixed(
+    new BigNumber(data.price).multipliedBy(contracts).toString(),
+    2
+  )
 
   const textComponent = (
     <Text
