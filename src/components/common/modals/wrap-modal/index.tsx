@@ -71,7 +71,7 @@ export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
   }
 
   const resetMutation = async () => {
-    await sleep(2)
+    await sleep(1)
     setDisplayAmount('')
     setSliderValue(0)
     await queryClient.refetchQueries({ queryKey: ['ethBalance'] })

@@ -13,6 +13,18 @@ export const useExternalWalletService = () => {
 
   const collateralTokenAddress = supportedTokens ? supportedTokens[0].address : '0x'
 
+  const waitForTransaction = async (hash: `0x${string}`) => {
+    try {
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash,
+        timeout: 60_000, // 60 seconds timeout
+      })
+      return receipt
+    } catch (error) {
+      throw new Error(`Transaction failed: ${error}`)
+    }
+  }
+
   const wrapEth = async (value: bigint) => {
     try {
       await checkAndSwitchChainIfNeeded()
@@ -29,6 +41,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -53,6 +66,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -114,6 +128,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -138,6 +153,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -157,6 +173,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -181,6 +198,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -210,6 +228,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -239,6 +258,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -269,6 +289,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -303,12 +324,14 @@ export const useExternalWalletService = () => {
       })
       if (web3Wallet) {
         const addresses = await web3Wallet.getAddresses()
-        return web3Wallet.sendTransaction({
+        const hash = await web3Wallet.sendTransaction({
           data,
           to: contract as Address,
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
+        return hash
       }
     } catch (e) {
       const error = e as Error
@@ -342,12 +365,14 @@ export const useExternalWalletService = () => {
       })
       if (web3Wallet) {
         const addresses = await web3Wallet.getAddresses()
-        return web3Wallet.sendTransaction({
+        const hash = await web3Wallet.sendTransaction({
           data,
           to: contractAddress as Address,
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
+        return hash
       }
     } catch (e) {
       const error = e as Error
@@ -365,12 +390,14 @@ export const useExternalWalletService = () => {
       })
       if (web3Wallet) {
         const addresses = await web3Wallet.getAddresses()
-        return web3Wallet.sendTransaction({
+        const hash = await web3Wallet.sendTransaction({
           data,
           to: process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
+        return hash
       }
     } catch (e) {
       const error = e as Error
@@ -387,12 +414,14 @@ export const useExternalWalletService = () => {
       })
       if (web3Wallet) {
         const addresses = await web3Wallet.getAddresses()
-        return web3Wallet.sendTransaction({
+        const hash = await web3Wallet.sendTransaction({
           data,
           to: process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
+        return hash
       }
     } catch (e) {
       const error = e as Error

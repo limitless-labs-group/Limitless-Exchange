@@ -263,14 +263,14 @@ export default function TradeStepperMenu() {
     orderType === MarketOrderType.MARKET ? placeMarketOrderMutation : placeLimitOrderMutation
 
   const onResetApproveMutation = async () => {
-    await sleep(2)
+    await sleep(1)
     setActiveStep(activeStep + 1)
     !thirdStepMessage && (await checkMarketAllowance())
     approveMutation.reset()
   }
 
   const onResetNegRiskApproveMutation = async () => {
-    await sleep(2)
+    await sleep(1)
     setActiveStep(activeStep + 1)
     await checkMarketAllowance()
     approveSellNegRiskMutation.reset()
@@ -305,7 +305,7 @@ export default function TradeStepperMenu() {
   }
 
   const onResetTradeMutation = async () => {
-    await sleep(2)
+    await sleep(1)
     setActiveStep(activeStep + 1)
     await Promise.allSettled([
       queryClient.refetchQueries({
@@ -333,7 +333,7 @@ export default function TradeStepperMenu() {
         variant='contained'
         onClick={async () => {
           await tradeMutation.mutateAsync()
-          await sleep(2)
+          await sleep(1)
         }}
         onReset={onResetTradeMutation}
         w='100px'

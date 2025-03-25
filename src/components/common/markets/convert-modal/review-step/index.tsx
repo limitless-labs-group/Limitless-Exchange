@@ -67,7 +67,7 @@ export default function ReviewStep({ positions, onBack, sharesToConvert }: Revie
   })
 
   const onResetMutation = async () => {
-    await sleep(2)
+    await sleep(1)
     await queryClient.refetchQueries({
       queryKey: ['market-shares', market?.slug],
     })
@@ -78,7 +78,7 @@ export default function ReviewStep({ positions, onBack, sharesToConvert }: Revie
   }
 
   const onResetApprove = async () => {
-    await sleep(2)
+    await sleep(1)
     await checkConvertAllowance()
     approveMutation.reset()
   }

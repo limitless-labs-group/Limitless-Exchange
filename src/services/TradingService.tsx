@@ -631,7 +631,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
           market.collateralToken.address,
           collateralAmountBI
         )
-        await sleep(3)
+        await sleep(2)
         const id = toast({
           render: () => <Toast title={`Successfully approved. Proceed with buy now.`} id={id} />,
         })
@@ -655,7 +655,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       })
       try {
         await approveAllowanceForAll(market.address as Address, conditionalTokensAddress!)
-        await sleep(3)
+        await sleep(2)
         const id = toast({
           render: () => <Toast title={`Successfully approved. Proceed with sell now.`} id={id} />,
         })

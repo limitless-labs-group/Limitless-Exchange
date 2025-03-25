@@ -95,7 +95,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   }
 
   const onResetAfterMerge = async () => {
-    await sleep(2)
+    await sleep(1)
     await queryClient.refetchQueries({
       queryKey: ['market-shares', market?.slug, market?.tokens],
     })
@@ -152,7 +152,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   })
 
   const onResetAfterApprove = async () => {
-    await sleep(2)
+    await sleep(1)
     await checkMergeAllowance()
     approveContractMutation.reset()
   }
