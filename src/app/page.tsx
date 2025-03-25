@@ -223,7 +223,7 @@ const MainPage = () => {
                     _hover={{ textDecoration: 'none' }}
                     bg={
                       pageName === 'Explore Markets' && !selectedCategory && !dashboard
-                        ? 'grey.100'
+                        ? 'grey.200'
                         : 'unset'
                     }
                     rounded='8px'
@@ -243,7 +243,7 @@ const MainPage = () => {
                     passHref
                     style={{ width: isMobile ? 'fit-content' : '100%' }}
                   >
-                    <Link>
+                    <Link variant='transparent'>
                       <SideItem
                         isActive={dashboard === 'marketcrash'}
                         icon={<DashboardIcon width={16} height={16} color='#FF9200' />}

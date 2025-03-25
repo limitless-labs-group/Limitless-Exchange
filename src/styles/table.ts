@@ -32,19 +32,19 @@ const baseStyle = definePartsStyle({
       padding: isMobile ? '12px' : '8px',
       ...paragraphRegular,
       color: 'grey.500 !important',
-      borderColor: 'grey.100',
+      borderColor: 'grey.300 !important',
       textTransform: 'unset',
       '&[data-is-numeric=true]': {
         textAlign: 'start',
       },
-      bg: 'grey.50',
+      bg: 'unset',
     },
   },
   tbody: {
     td: {
       ...paragraphRegular,
       borderBottomWidth: '1px',
-      borderColor: 'grey.100',
+      borderColor: 'grey.300',
       padding: isMobile ? '12px' : '7.5px 8px',
       '&[data-is-numeric=true]': {
         textAlign: 'start',
@@ -85,7 +85,7 @@ const noPaddingsOnSides = definePartsStyle({
       padding: isMobile ? '12px' : '8px',
       ...paragraphRegular,
       color: 'grey.500 !important',
-      borderColor: 'grey.100',
+      borderColor: 'grey.300 !important',
       textTransform: 'unset',
       '&[data-is-numeric=true]': {
         textAlign: 'end',
@@ -104,7 +104,7 @@ const noPaddingsOnSides = definePartsStyle({
     td: {
       ...paragraphRegular,
       borderBottomWidth: '1px',
-      borderColor: 'grey.100',
+      borderColor: 'grey.300 !important',
       padding: isMobile ? '12px' : '7.5px 8px',
       '&[data-is-numeric=true]': {
         textAlign: 'start',

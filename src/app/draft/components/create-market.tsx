@@ -575,13 +575,9 @@ export const CreateMarket: FC = () => {
                         step={tokenLimits[formData.token.symbol]?.step}
                       >
                         <SliderTrack bg='var(--chakra-colors-greyTransparent-600)'>
-                          <SliderFilledTrack bg='var(--chakra-colors-text-100)' />
+                          <SliderFilledTrack bg='grey.100' />
                         </SliderTrack>
-                        <SliderThumb
-                          bg='var(--chakra-colors-text-100)'
-                          fontSize='sm'
-                          boxSize='24px'
-                        />
+                        <SliderThumb bg='grey.100' fontSize='sm' boxSize='24px' />
                       </Slider>
                     </HStack>
                   </FormField>
@@ -609,13 +605,9 @@ export const CreateMarket: FC = () => {
                         step={1}
                       >
                         <SliderTrack bg='var(--chakra-colors-greyTransparent-600)'>
-                          <SliderFilledTrack bg='var(--chakra-colors-text-100)' />
+                          <SliderFilledTrack bg='grey.100' />
                         </SliderTrack>
-                        <SliderThumb
-                          bg='var(--chakra-colors-text-100)'
-                          fontSize='sm'
-                          boxSize='24px'
-                        />
+                        <SliderThumb bg='grey.100' fontSize='sm' boxSize='24px' />
                       </Slider>
                     </HStack>
                   </FormField>

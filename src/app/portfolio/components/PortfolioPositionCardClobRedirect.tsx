@@ -15,7 +15,7 @@ const unhoveredColors = {
 
 const hoverColors = {
   main: 'white',
-  secondary: 'transparent.700',
+  secondary: 'whiteAlpha.70',
   contracts: 'white',
 }
 
@@ -65,7 +65,7 @@ export default function PortfolioPositionCardClobRedirect({
     if (marketClosed) {
       return {
         main: 'white',
-        secondary: isMobile ? 'white' : 'transparent.700',
+        secondary: isMobile ? 'white' : 'whiteAlpha.70',
       }
     }
     return {
@@ -84,7 +84,7 @@ export default function PortfolioPositionCardClobRedirect({
       _hover={{
         bg: marketClosed ? 'green.600' : 'blue.500',
       }}
-      bg={marketClosed ? 'green.500' : 'grey.200'}
+      bg={marketClosed ? 'green.500' : 'grey.100'}
       cursor='pointer'
     />
   )

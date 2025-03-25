@@ -55,7 +55,7 @@ const PortfolioPage = () => {
       </Heading>
       <PortfolioStats mt={'20px'} />
 
-      <Stack w={'full'} spacing={5}>
+      <Stack w={'full'} spacing={5} overflowX='auto'>
         <HStack gap={0} borderBottom={'1px solid'} borderColor={'grey.400'} alignItems='flex-end'>
           <TabButton
             isActive={tab === 'Investments'}

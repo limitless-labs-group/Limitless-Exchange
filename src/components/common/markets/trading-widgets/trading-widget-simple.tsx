@@ -37,7 +37,6 @@ export default function TradingWidgetSimple({ fullSizePage = false }: TradingWid
 
   return (
     <Paper
-      bg={'var(--chakra-colors-grey-100)'}
       borderRadius='8px'
       overflowX='hidden'
       p='8px'
@@ -61,7 +60,7 @@ export default function TradingWidgetSimple({ fullSizePage = false }: TradingWid
           bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
           color='grey.800'
           _hover={{
-            backgroundColor: strategy === 'Buy' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
+            backgroundColor: strategy === 'Buy' ? 'grey.100' : 'rgba(255, 255, 255, 0.10)',
           }}
           onClick={() => {
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
@@ -84,7 +83,7 @@ export default function TradingWidgetSimple({ fullSizePage = false }: TradingWid
           bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
           color='grey.800'
           _hover={{
-            backgroundColor: strategy === 'Sell' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
+            backgroundColor: strategy === 'Sell' ? 'grey.100' : 'rgba(255, 255, 255, 0.10)',
           }}
           _disabled={{
             opacity: '50%',

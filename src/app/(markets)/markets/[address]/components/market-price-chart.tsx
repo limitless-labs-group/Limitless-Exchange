@@ -54,7 +54,7 @@ export const MarketPriceChart = ({ market: propMarket }: MarketPriceChartProps) 
         type: 'x',
       },
       height: 230,
-      backgroundColor: colors.grey['100'],
+      backgroundColor: colors.grey['50'],
       marginLeft: isMobile ? 75 : 50,
       marginRight: isMobile ? 10 : 5,
     },
@@ -232,7 +232,7 @@ export const MarketPriceChart = ({ market: propMarket }: MarketPriceChartProps) 
       <Skeleton height={290} />
     </Box>
   ) : (
-    <Paper my='16px' py='8px' px={0} bg='grey.100'>
+    <Paper my='16px' py='8px' px={0} bg='grey.50'>
       {/*{marketGroup ? (*/}
       {/*  <Menu isOpen={isMarketListOpen} onClose={onCloseMarketList} variant='transparent'>*/}
       {/*    <MenuButton*/}
