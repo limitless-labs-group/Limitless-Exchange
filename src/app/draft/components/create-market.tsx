@@ -368,36 +368,40 @@ export const CreateMarket: FC = () => {
             </VStack>
 
             <VStack w={'full'} flex='0.8' h='full'>
-              <FormField label='Market Fee'>
-                <HStack>
-                  <Checkbox
-                    isChecked={formData.marketFee === 1}
-                    onChange={(e) => handleChange('marketFee', e.target.checked ? 1 : 0)}
-                  >
-                    1% Fee
-                  </Checkbox>
-                </HStack>
-              </FormField>
-              <FormField label='Is Bannered'>
-                <HStack>
-                  <Checkbox
-                    isChecked={formData.isBannered}
-                    onChange={(e) => handleChange('isBannered', e.target.checked)}
-                  >
-                    Add market to big banner
-                  </Checkbox>
-                </HStack>
-              </FormField>
-
-              <AdjustableNumberInput
-                label='Priority index'
-                value={formData.priorityIndex}
-                onChange={(value) => handleChange('priorityIndex', value)}
-                min={1}
-                max={1000}
-                step={1}
-              />
-
+              <HStack w='full' spacing='6' alignItems='start' justifyContent='start'>
+                <VStack>
+                  <FormField label='Market Fee'>
+                    <HStack>
+                      <Checkbox
+                        isChecked={formData.marketFee === 1}
+                        onChange={(e) => handleChange('marketFee', e.target.checked ? 1 : 0)}
+                      >
+                        1% Fee
+                      </Checkbox>
+                    </HStack>
+                  </FormField>
+                  <FormField label='Is Bannered'>
+                    <HStack>
+                      <Checkbox
+                        isChecked={formData.isBannered}
+                        onChange={(e) => handleChange('isBannered', e.target.checked)}
+                      >
+                        Add to banner
+                      </Checkbox>
+                    </HStack>
+                  </FormField>
+                </VStack>
+                <VStack>
+                  <AdjustableNumberInput
+                    label='Priority index'
+                    value={formData.priorityIndex}
+                    onChange={(value) => handleChange('priorityIndex', value)}
+                    min={1}
+                    max={1000}
+                    step={1}
+                  />
+                </VStack>
+              </HStack>
               <FormField label='Creator'>
                 <HStack>
                   <Select
