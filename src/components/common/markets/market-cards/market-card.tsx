@@ -126,7 +126,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
         onClickRedirectToMarket(event)
       }}
     >
-      <Paper flex={1} w='full' position='relative' cursor='pointer' p='14px' bg='unset'>
+      <Paper flex={1} w='full' position='relative' cursor='pointer' p='14px' bg='unset' h='full'>
         <Box w='full' mb='8px'>
           <DailyMarketTimer
             hideText={isShortCard}
