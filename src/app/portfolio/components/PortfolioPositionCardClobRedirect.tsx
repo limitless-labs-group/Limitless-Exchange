@@ -13,12 +13,6 @@ const unhoveredColors = {
   contracts: '',
 }
 
-const hoverColors = {
-  main: 'white',
-  secondary: 'transparent.700',
-  contracts: 'white',
-}
-
 type PortfolioPositionCardClobRedirectProps = {
   position: ClobPositionWithType
 }
@@ -65,7 +59,7 @@ export default function PortfolioPositionCardClobRedirect({
     if (marketClosed) {
       return {
         main: 'white',
-        secondary: isMobile ? 'white' : 'transparent.700',
+        secondary: isMobile ? 'white' : 'whiteAlpha.70',
       }
     }
     return {
@@ -78,13 +72,11 @@ export default function PortfolioPositionCardClobRedirect({
     <PortfolioPositionCardClob
       positionData={position}
       onClick={handleOpenMarketPage}
-      onMouseEnter={() => setColors(hoverColors)}
-      onMouseLeave={() => setColors(unhoveredColors)}
       cardColors={cardColors}
       _hover={{
         bg: marketClosed ? 'green.600' : 'blue.500',
       }}
-      bg={marketClosed ? 'green.500' : 'grey.200'}
+      bg={marketClosed ? 'green.500' : 'grey.100'}
       cursor='pointer'
       isPortfolio={true}
     />

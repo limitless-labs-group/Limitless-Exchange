@@ -120,7 +120,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     // }
     setMarket(market as Market)
     setMarketGroup(null)
-    setClobOutcome(0)
     !isMobile && setMarketPageOpened(true)
   }
 
@@ -384,6 +383,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     return
   }
 
+  // Todo use {signal} prop and remove debounce logic
   useQuery({
     queryKey: [
       'tradeQuotesYes',
@@ -452,6 +452,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
+  // Todo use {signal} prop and remove debounce logic
   useQuery({
     queryKey: [
       'tradeQuotesNo',

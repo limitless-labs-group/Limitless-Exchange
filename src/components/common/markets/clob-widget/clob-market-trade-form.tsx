@@ -496,7 +496,7 @@ export default function ClobMarketTradeForm() {
   return (
     <>
       <Flex justifyContent='space-between' alignItems='center'>
-        <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'}>
+        <Text {...paragraphMedium} color='grey.500'>
           Enter amount
         </Text>
         {balanceLoading ? (
@@ -520,8 +520,8 @@ export default function ClobMarketTradeForm() {
                 borderBottom='1px dotted'
                 borderColor='rgba(132, 132, 132, 0.5)'
                 _hover={{
-                  borderColor: 'var(--chakra-colors-text-100)',
-                  color: 'var(--chakra-colors-text-100)',
+                  borderColor: 'grey.600',
+                  color: 'grey.600',
                 }}
                 disabled={balanceLoading}
               >

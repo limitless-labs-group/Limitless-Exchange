@@ -282,64 +282,8 @@ export interface ColorScheme {
     600: string
     700: string
     800: string
-    white: string
-  }
-  blue: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
-  }
-  green: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
   }
   red: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
-  }
-  lime: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
-  }
-  cyan: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
-  }
-  purple: {
     50: string
     100: string
     200: string
@@ -383,7 +327,51 @@ export interface ColorScheme {
     700: string
     800: string
   }
+  lime: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  green: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
   mint: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  cyan: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  blue: {
     50: string
     100: string
     200: string
@@ -405,27 +393,44 @@ export interface ColorScheme {
     700: string
     800: string
   }
-  transparent: {
+  purple: {
+    50: string
+    100: string
     200: string
     300: string
-    700: string
-  }
-  blackTransparent: {
-    200: string
+    400: string
+    500: string
     600: string
+    700: string
+    800: string
+  }
+  transparent: {
+    70: string
+    50: string
+    30: string
+    20: string
+  }
+  transparentDark: {
+    70: string
+    50: string
+    30: string
+    20: string
+  }
+  whiteAlpha: {
+    70: string
+    50: string
+    30: string
+    20: string
+  }
+  blackAlpha: {
+    70: string
+    50: string
+    30: string
+    20: string
   }
   greyTransparent: {
     200: string
     600: string
-  }
-  blackStale: {
-    200: string
-  }
-  background: {
-    80: string
-    90: string
-    95: string
-    97: string
   }
   greenTransparent: {
     100: string
@@ -434,9 +439,6 @@ export interface ColorScheme {
     100: string
   }
   blueTransparent: {
-    100: string
-  }
-  text: {
     100: string
   }
   skeleton: {
