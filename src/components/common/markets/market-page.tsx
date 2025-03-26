@@ -364,7 +364,10 @@ export default function MarketPage() {
                 Volume
               </Text>
               <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(market?.volumeFormatted || '0', 6)}{' '}
+                {NumberUtil.convertWithDenomination(
+                  groupMarket ? groupMarket.volumeFormatted : market?.volumeFormatted || '0',
+                  6
+                )}{' '}
                 {market?.collateralToken.symbol}
               </Text>
             </HStack>

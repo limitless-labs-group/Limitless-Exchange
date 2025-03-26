@@ -250,7 +250,11 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                           ))}
                         </HStack>
                         <Text {...paragraphRegular} color='grey.500'>
-                          Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
+                          Volume{' '}
+                          {NumberUtil.convertWithDenomination(
+                            groupMarket?.volumeFormatted || '0',
+                            6
+                          )}{' '}
                           {market.collateralToken.symbol}
                         </Text>
                       </HStack>
