@@ -172,7 +172,7 @@ export const DashboardGroup = ({
 
             {markets.length > 1 && (
               <Flex w='full' gap={`${gapSizeCompact}px`} justifyContent='space-between'>
-                {markets.slice(1, 4).map((market, index) => {
+                {markets.slice(1, 4).map((market) => {
                   const totalGapWidth = 2 * gapSizeCompact
                   const columnWidth = `calc((100% - ${totalGapWidth}px) / 3)`
 
@@ -205,7 +205,7 @@ export const DashboardGroup = ({
             )}
             {markets.length > 5 && (
               <Flex w='full' gap={`${gapSizeCompact}px`} justifyContent='space-between'>
-                {markets.slice(5, markets.length).map((market, index) => {
+                {markets.slice(5, markets.length).map((market) => {
                   const totalGapWidth = 2 * gapSizeCompact
                   const columnWidth = `calc((100% - ${totalGapWidth}px) / 3)`
 
