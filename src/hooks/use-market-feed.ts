@@ -22,6 +22,7 @@ export type MarketFeedData = {
     tradeAmountUSD: string
   }
   user?: FeedEventUser
+  profile?: FeedEventUser
   bodyHash: string
 }
 
