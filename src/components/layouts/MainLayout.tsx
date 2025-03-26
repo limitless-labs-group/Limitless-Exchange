@@ -44,7 +44,6 @@ export const MainLayout = ({
         overflow='hidden'
       >
         <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
-          {!isMobile && <Sidebar />}
           {isLoading ? (
             <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
               <Spinner />

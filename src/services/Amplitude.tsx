@@ -436,6 +436,8 @@ export type ProfileBurgerMenuClickedOption =
   | 'Lumy'
   | 'Leaderboard'
   | 'My Markets'
+  | 'Market Crash'
+  | 'Feed'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
