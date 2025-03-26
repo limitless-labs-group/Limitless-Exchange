@@ -164,24 +164,27 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
                   <>
                     {!isShortCard ? (
                       <HStack gap={0}>
-                        {uniqueUsersTrades?.map(({ user, profile }, index) => (
-                          <Avatar
-                            account={user.account || profile.account || ''}
-                            avatarUrl={user.imageURI || profile.pfpUrl}
-                            key={user.account || profile.account}
-                            borderColor='grey.100'
-                            zIndex={100 + index}
-                            border='2px solid'
-                            color='grey.100 !important'
-                            showBorder
-                            bg='grey.100'
-                            size='20px'
-                            style={{
-                              border: '2px solid',
-                              marginLeft: index > 0 ? '-6px' : 0,
-                            }}
-                          />
-                        ))}
+                        {uniqueUsersTrades?.map(({ user }, index) => {
+                          console.log(user)
+                          return (
+                            <Avatar
+                              account={user.account}
+                              avatarUrl={user.imageURI}
+                              key={user.account}
+                              borderColor='grey.100'
+                              zIndex={100 + index}
+                              border='2px solid'
+                              color='grey.100 !important'
+                              showBorder
+                              bg='grey.100'
+                              size='20px'
+                              style={{
+                                border: '2px solid',
+                                marginLeft: index > 0 ? '-6px' : 0,
+                              }}
+                            />
+                          )
+                        })}
                       </HStack>
                     ) : null}
                     <Text {...paragraphRegular} color='grey.500'>
