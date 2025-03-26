@@ -1,4 +1,5 @@
-import { Box, Divider, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, Divider, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -6,7 +7,6 @@ import Avatar from '@/components/common/avatar'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import Paper from '@/components/common/paper'
-import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import { LineChart } from '@/app/(markets)/markets/[address]/components/line-chart'
 import { MarketCardLink } from './market-card-link'
 import { MarketProgressBar } from './market-progress-bar'
@@ -15,7 +15,7 @@ import { useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
-import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { captionMedium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
@@ -36,7 +36,16 @@ interface DailyMarketCardProps {
 
 export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMarketCardProps) => {
   const [hovered, setHovered] = useState(false)
-  const { onOpenMarketPage, market: selectedMarket } = useTradingService()
+  const [yesHovered, setYesHovered] = useState(false)
+  const [noHovered, setNoHovered] = useState(false)
+  const {
+    onOpenMarketPage,
+    market: selectedMarket,
+    setMarket,
+    setClobOutcome,
+    marketPageOpened,
+    setMarketPageOpened,
+  } = useTradingService()
   const router = useRouter()
   const { data: marketFeedData } = useMarketFeed(market)
   const { pushGA4Event } = useGoogleAnalytics()
@@ -78,6 +87,24 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
   const withChart = variant === 'chart'
   const isShortCard = isGrid || isSpeedometer || isMobile
 
+  const handleOutcomeClicked = (e: React.MouseEvent<HTMLButtonElement>, outcome: number) => {
+    if (e.metaKey || e.ctrlKey || e.button === 2) {
+      return
+    }
+    if (!isMobile) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
+    const searchParams = new URLSearchParams(window.location.search)
+    searchParams.set('market', market.slug)
+    router.push(`?${searchParams.toString()}`, { scroll: false })
+    setMarket(market)
+    setClobOutcome(outcome)
+    if (!marketPageOpened) {
+      setMarketPageOpened(true)
+    }
+  }
+
   const content = (
     <Box
       w='full'
@@ -99,8 +126,17 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
         onClickRedirectToMarket(event)
       }}
     >
-      <Paper flex={1} w='full' h='full' position='relative' cursor='pointer' p='14px' bg='unset'>
-        <VStack w='full' h='full' gap='16px' justifyContent='space-between'>
+      <Paper flex={1} w='full' position='relative' cursor='pointer' p='14px' bg='unset'>
+        <Box w='full' mb='8px'>
+          <DailyMarketTimer
+            hideText={isShortCard}
+            deadline={market.expirationTimestamp}
+            deadlineText={market.expirationDate}
+            {...paragraphRegular}
+            color='grey.500'
+          />
+        </Box>
+        <VStack w='full' h='calc(100% - 28px)' gap='16px' justifyContent='space-between'>
           <Flex w='full' alignItems='flex-start' gap='12px' justifyContent='space-between'>
             <Text {...headline}>{market.title}</Text>
             {isSpeedometer ? (
@@ -117,15 +153,6 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
               <MarketProgressBar isClosed={market.expired} value={market.prices[0]} />
             )}
             <HStack w='full' mt='16px' justifyContent='space-between'>
-              <Box w='full'>
-                <DailyMarketTimer
-                  hideText={isShortCard}
-                  deadline={market.expirationTimestamp}
-                  deadlineText={market.expirationDate}
-                  {...paragraphRegular}
-                  color='grey.500'
-                />
-              </Box>
               <HStack gap='4px'>
                 <HStack gap='4px'>
                   <>
@@ -166,6 +193,38 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
                     {market.tradeType !== 'clob' && <OpenInterestTooltip iconColor='grey.500' />}
                   </>
                 </HStack>
+              </HStack>
+              <HStack gap='8px'>
+                <Button
+                  {...captionMedium}
+                  h='20px'
+                  px='4px'
+                  py='2px'
+                  color={yesHovered ? 'white' : 'green.500'}
+                  bg={yesHovered ? 'green.500' : 'greenTransparent.100'}
+                  onMouseEnter={() => setYesHovered(true)}
+                  onMouseLeave={() => setYesHovered(false)}
+                  onClick={(e) => handleOutcomeClicked(e, 0)}
+                >
+                  {yesHovered
+                    ? `${new BigNumber(market.prices[0]).decimalPlaces(0).toString()}%`
+                    : 'YES'}
+                </Button>
+                <Button
+                  {...captionMedium}
+                  h='20px'
+                  px='4px'
+                  py='2px'
+                  color={noHovered ? 'white' : 'red.500'}
+                  bg={noHovered ? 'red.500' : 'redTransparent.100'}
+                  onMouseEnter={() => setNoHovered(true)}
+                  onMouseLeave={() => setNoHovered(false)}
+                  onClick={(e) => handleOutcomeClicked(e, 1)}
+                >
+                  {noHovered
+                    ? `${new BigNumber(market.prices[1]).decimalPlaces(0).toString()}%`
+                    : 'NO'}
+                </Button>
               </HStack>
             </HStack>
           </Box>
