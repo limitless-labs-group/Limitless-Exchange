@@ -31,7 +31,7 @@ export const useReferral = () => {
       const res = await privateClient.post(
         `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/referral-visits`,
         {
-          pageUrl: isUrl(pageUrl) ? pageUrl : 'https://limitless.exchange',
+          pageUrl: pageUrl,
           visitorId,
           referralCode,
           ipAddress: '0.0.0.0',
