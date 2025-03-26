@@ -58,9 +58,9 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
         urlParams = new URLSearchParams()
       }
 
-      // if (window.location.origin !== 'https://limitless.exchange') {
-      //   return
-      // }
+      if (window.location.origin !== 'https://limitless.exchange') {
+        return
+      }
 
       const { account: accountFromEvent, ...restCustomData } = customData ?? {}
 
