@@ -335,7 +335,9 @@ export const CreateMarket: FC = () => {
                         <HStack>
                           <Text {...paragraphBold}>Per Epoch:</Text>
                           <Text>
-                            {formData.maxDailyReward ? formData?.maxDailyReward / 1440 : ''}
+                            {formData.maxDailyReward
+                              ? Number(formData?.maxDailyReward / 1440).toFixed(5)
+                              : ''}
                           </Text>
                         </HStack>
                       }
