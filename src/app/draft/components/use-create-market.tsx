@@ -39,7 +39,6 @@ export const useCreateMarket = () => {
 
   const populateDraftMarketData = (draftMarket: any) => {
     if (!draftMarket) return
-    console.log('draftMarket', draftMarket)
 
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -228,10 +227,8 @@ export const useCreateMarket = () => {
   }
 
   const prepareData = async () => {
-    // await generateOgImage()
-
     try {
-      const { title, description, creatorId, ogLogo, tag } = formData
+      const { title, description, creatorId, tag } = formData
 
       const missingFields: string[] = []
 
@@ -239,15 +236,6 @@ export const useCreateMarket = () => {
       if (!description) missingFields.push('Description')
       if (!creatorId) missingFields.push('Creator')
       if (tag.length === 0) missingFields.push('Tag')
-
-      if (!ogLogo) {
-        missingFields.push('Og Logo')
-      }
-
-      if (ogLogo && !ogLogo.size) {
-        showToast('OG Logo file is empty or corrupted. Please try regenerating.')
-        return
-      }
 
       if (missingFields.length > 0) {
         showToast(
