@@ -137,7 +137,13 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
           />
         </Box>
         <VStack w='full' h='calc(100% - 28px)' gap='16px' justifyContent='space-between'>
-          <Flex w='full' alignItems='flex-start' gap='12px' justifyContent='space-between'>
+          <Flex
+            w='full'
+            alignItems='center'
+            marginX='auto'
+            gap='12px'
+            justifyContent='space-between'
+          >
             <Text {...headline}>{market.title}</Text>
             {isSpeedometer ? (
               <Box w='56px' h='28px'>
