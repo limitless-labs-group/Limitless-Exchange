@@ -3,8 +3,22 @@ import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
 import { Address, formatUnits, parseUnits } from 'viem'
 import { defaultChain } from '@/constants'
+import { LIMIT_PER_PAGE } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
-import { OddsData } from '@/types'
+import { AnalyticsParams, OddsData } from '@/types'
+
+export const getAnalyticsParams = (
+  index: number,
+  offset = 0,
+  additionalParams?: Record<string, any>
+): AnalyticsParams => {
+  const position = index + 1 + offset
+  return {
+    bannerPosition: position,
+    bannerPaginationPage: Math.floor((index + offset) / LIMIT_PER_PAGE) + 1,
+    ...(additionalParams || {}),
+  }
+}
 
 export const defineOpenInterestOverVolume = (
   openInterestFormatted: string,
@@ -17,6 +31,14 @@ export const defineOpenInterestOverVolume = (
     value: isOpenInterestGreater ? openInterestFormatted : targetValue,
     showOpenInterest: isOpenInterestGreater,
   }
+}
+
+export const calculateMarketPrice = (price: number | undefined): number => {
+  if (!price) return 50
+
+  const calculated = new BigNumber(price).multipliedBy(100).decimalPlaces(0).toNumber()
+
+  return Number.isNaN(calculated) ? 50 : calculated
 }
 
 export async function getPrices(data: { address: Address; decimals: number }[]) {
