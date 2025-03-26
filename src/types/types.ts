@@ -96,6 +96,25 @@ export interface Market {
   isRewardable: boolean
 }
 
+export interface ApiResponse {
+  data: Market[]
+  totalMarketsCount: number
+}
+
+export interface MarketPage {
+  data: {
+    markets: Market[]
+    totalAmount: number
+  }
+  next: number
+}
+
+export interface AnalyticsParams {
+  bannerPosition: number
+  bannerPaginationPage: number
+  fromCategory?: string
+}
+
 export type Intervals = 'hourly' | 'last30days'
 
 export interface UserMarket {
