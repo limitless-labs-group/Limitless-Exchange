@@ -259,8 +259,8 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
             borderBottom='1px dotted'
             borderColor='rgba(132, 132, 132, 0.5)'
             _hover={{
-              borderColor: 'var(--chakra-colors-text-100)',
-              color: 'var(--chakra-colors-text-100)',
+              borderColor: 'grey.600',
+              color: 'grey.600',
             }}
             disabled={balanceLoading}
           >
@@ -288,7 +288,9 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
       </Text>
       <InputGroup display='block' mt='16px'>
         <HStack justifyContent='space-between' mb='8px'>
-          <Text {...paragraphMedium}>Enter Amount</Text>
+          <Text {...paragraphMedium} color='grey.500'>
+            Enter Amount
+          </Text>
           {showBalanceWithButtons}
         </HStack>
         <NumberInputWithButtons
@@ -297,7 +299,11 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
           handleInputChange={handleAmountChange}
           showIncrements={false}
           inputType='number'
-          endAdornment={<Text {...paragraphMedium}>USDC</Text>}
+          endAdornment={
+            <Text {...paragraphMedium} color='grey.500'>
+              USDC
+            </Text>
+          }
           ref={inputRef}
           onFocus={handleFocus}
           onBlur={handleBlur}

@@ -457,7 +457,7 @@ export function BuyForm({
                   onChange={(e) => handleInputValueChange(e.target.value)}
                   placeholder='0'
                   css={css`
-                    caret-color: white;
+                    caret-color: var(--chakra-colors-grey-500);
                   `}
                   type='number'
                   inputMode='decimal'
@@ -502,7 +502,7 @@ export function BuyForm({
                     onChange={(e) => handleSlippageChange(e.target.value)}
                     placeholder='0'
                     css={css`
-                      caret-color: white;
+                      caret-color: var(--chakra-colors-grey-500);
                     `}
                     type='number'
                     inputMode='decimal'
@@ -513,6 +513,7 @@ export function BuyForm({
                     top={isMobile ? '8px' : '4px'}
                     right={isMobile ? '8px' : '4px'}
                     w='fit'
+                    color='grey.500'
                   >
                     <Text {...paragraphMedium} color='white'>
                       %
@@ -521,11 +522,10 @@ export function BuyForm({
                 </InputGroup>
                 {[1, 5, 7, 100].map((title) => (
                   <Button
-                    variant='transparentLight'
+                    variant='grey'
                     key={title}
                     flex={2}
                     onClick={() => handleSlippageClicked(title)}
-                    color='white'
                     py='2px'
                     h={isMobile ? '32px' : '24px'}
                   >
