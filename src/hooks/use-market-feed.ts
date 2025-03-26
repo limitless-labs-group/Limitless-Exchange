@@ -23,6 +23,7 @@ export type MarketFeedData = {
     title: string
   }
   user?: FeedEventUser
+  profile?: FeedEventUser
   bodyHash: string
 }
 

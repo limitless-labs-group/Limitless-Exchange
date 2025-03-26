@@ -6,7 +6,6 @@ import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import ClaimButton from '@/components/common/markets/claim-button'
 import MarketPage from '@/components/common/markets/market-page'
-import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
@@ -28,11 +27,6 @@ export interface IPortfolioPositionCard {
 const unhoveredColors = {
   main: 'grey.800',
   secondary: 'grey.500',
-}
-
-const hoverColors = {
-  main: 'white',
-  secondary: 'transparent.700',
 }
 
 const StatusIcon = ({ isClosed, color }: { isClosed: boolean | undefined; color: string }) => {
@@ -138,7 +132,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
     if (position.market.closed) {
       return {
         main: 'white',
-        secondary: isMobile ? 'white' : 'transparent.700',
+        secondary: isMobile ? 'white' : 'whiteAlpha.70',
       }
     }
     return {
@@ -150,12 +144,18 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
   return isMobile ? (
     <MobileDrawer
       trigger={
-        <Paper
+        <Box
           onClick={handleOpenMarketPage}
+          cursor='pointer'
+          border='2px solid'
+          borderColor={position.market?.closed ? 'green.500' : 'grey.100'}
           w={'full'}
-          bg={position.market?.closed ? 'green.500' : 'grey.200'}
-          p={'16px'}
           borderRadius='8px'
+          _hover={{
+            bg: position.market?.closed ? 'green.500' : 'grey.100',
+          }}
+          bg={position.market?.closed ? 'green.500' : 'unset'}
+          p={isMobile ? '16px' : '8px'}
         >
           <Stack spacing={'8px'}>
             <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
@@ -245,7 +245,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
               </Text>
             </HStack>
           </Stack>
-        </Paper>
+        </Box>
       }
       variant='black'
       onClose={() => {
@@ -255,17 +255,18 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
       <MarketPage />
     </MobileDrawer>
   ) : (
-    <Paper
-      w={'full'}
-      bg={position.market?.closed ? 'green.500' : 'grey.200'}
-      _hover={{
-        bg: position.market?.closed ? 'green.600' : 'blue.500',
-      }}
+    <Box
       cursor='pointer'
-      onMouseEnter={() => setColors(hoverColors)}
-      onMouseLeave={() => setColors(unhoveredColors)}
-      onClick={handleOpenMarketPage}
+      border='2px solid'
+      borderColor={position.market?.closed ? 'green.500' : 'grey.100'}
+      w={'full'}
       borderRadius='8px'
+      _hover={{
+        bg: position.market?.closed ? 'green.500' : 'grey.100',
+      }}
+      bg={position.market?.closed ? 'green.500' : 'unset'}
+      p={isMobile ? '16px' : '8px'}
+      onClick={handleOpenMarketPage}
     >
       <Stack direction='row'>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
@@ -361,7 +362,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
           </HStack>
         </HStack>
       </Stack>
-    </Paper>
+    </Box>
   )
 }
 

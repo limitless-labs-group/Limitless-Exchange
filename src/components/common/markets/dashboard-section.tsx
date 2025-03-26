@@ -98,7 +98,7 @@ export default function DashboardSection({
             justifyContent='center'
           >
             <Box px={isMobile ? '16px' : 0}>
-              <Divider orientation='horizontal' borderColor='grey.100' />
+              <Divider orientation='horizontal' />
               <Flex
                 alignItems='center'
                 justifyContent='space-between'
@@ -111,9 +111,10 @@ export default function DashboardSection({
               </Flex>
             </Box>
             <VStack gap='80px' mt='80px' width='full' px={isMobile ? '16px' : 'unset'}>
-              {categorizedMarkets.map((category) => (
+              {categorizedMarkets.map((category, index) => (
                 <DashboardGroup
                   key={category.name}
+                  marketIndex={index}
                   type={isMobile ? DashboardGroupType.Mobile : category.type}
                   categoryName={category.name}
                   markets={category.markets ?? []}

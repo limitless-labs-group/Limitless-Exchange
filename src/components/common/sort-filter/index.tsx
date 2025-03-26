@@ -73,7 +73,7 @@ export default function SortFilter({ onChange, sort }: SortFilterProps) {
             <Button
               variant='grey'
               key={uuidv4()}
-              bg={option === sort ? 'grey.50' : 'unset'}
+              bg={option === sort ? 'grey.50' : 'grey.100'}
               onClick={() => {
                 trackClicked(ClickEvent.SortClicked, {
                   oldValue: sort,
@@ -82,7 +82,7 @@ export default function SortFilter({ onChange, sort }: SortFilterProps) {
                 pushGA4Event(getGAEventForSort(option))
                 onChange(option, SortStorageName.SORT)
               }}
-              _hover={{ bg: option === sort ? 'grey.50' : 'grey.400' }}
+              _hover={{ bg: option === sort ? 'grey.50' : 'grey.200' }}
               borderRadius='8px'
               h={isMobile ? '28px' : '20px'}
               whiteSpace='nowrap'

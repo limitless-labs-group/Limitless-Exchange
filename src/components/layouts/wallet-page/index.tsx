@@ -180,7 +180,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
                 {NumberUtil.formatThousands(balanceItem.formatted, 4)}
               </Text>
             </HStack>
-            <Divider my='12px' orientation='horizontal' h='1px' borderColor='grey.200' />
+            <Divider my='12px' orientation='horizontal' h='1px' />
             <HStack justifyContent='space-between' mb='8px'>
               <Text {...paragraphMedium} color='grey.500'>
                 Current price

@@ -285,7 +285,7 @@ export function BuyForm({ market, setOutcomeIndex, outcomeTokensPercent }: BuyFo
                 onChange={(e) => handleSlippageChange(e.target.value)}
                 placeholder='0'
                 css={css`
-                  caret-color: white;
+                  caret-color: var(--chakra-colors-grey-500);
                 `}
                 type='number'
                 inputMode='decimal'
@@ -296,6 +296,7 @@ export function BuyForm({ market, setOutcomeIndex, outcomeTokensPercent }: BuyFo
                 top={isMobile ? '8px' : '4px'}
                 right={isMobile ? '8px' : '4px'}
                 w='fit'
+                color='grey.500'
               >
                 <Text {...paragraphMedium} color='white'>
                   %

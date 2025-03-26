@@ -152,10 +152,10 @@ export const chakraTheme = ChakraTheme({
       '.w3a-text-field': {
         backgroundColor: 'unset !important',
         color: 'grey.800 !important',
-        borderColor: 'transparent.200 !important',
+        borderColor: 'whiteAlpha.20 !important',
         borderRadius: '8px solid',
         _hover: {
-          borderColor: 'transparent.700 !important',
+          borderColor: 'whiteAlpha.70 !important',
         },
         _focus: {
           borderColor: 'grey.800 !important',
@@ -257,7 +257,7 @@ export const chakraTheme = ChakraTheme({
           color: 'grey.800',
           gap: '8px',
           border: '1px dashed',
-          borderColor: 'blackTransparent.200',
+          borderColor: 'blackAlpha.20',
         },
         transparent: {
           background: 'unset',
@@ -274,14 +274,14 @@ export const chakraTheme = ChakraTheme({
         },
         transparentLight: {
           ...commonButtonProps,
-          bg: 'transparent.200',
+          bg: 'whiteAlpha.20',
           p: isMobile ? '8px 12px' : '4px 8px',
           height: 'unset',
           ...(isMobile
             ? {}
             : {
                 _hover: {
-                  bg: 'transparent.300',
+                  bg: 'whiteAlpha.30',
                 },
               }),
         },
@@ -356,7 +356,7 @@ export const chakraTheme = ChakraTheme({
             bg: 'white',
           },
           track: {
-            bg: 'transparent.200',
+            bg: 'whiteAlpha.20',
           },
         },
         green: {
@@ -365,7 +365,7 @@ export const chakraTheme = ChakraTheme({
             height: '4px',
           },
           track: {
-            bg: 'var(--chakra-colors-grey-200)',
+            bg: 'var(--chakra-colors-grey-300)',
             height: '4px',
           },
         },
@@ -375,7 +375,7 @@ export const chakraTheme = ChakraTheme({
             height: '4px',
           },
           track: {
-            bg: 'var(--chakra-colors-grey-200)',
+            bg: 'var(--chakra-colors-grey-300)',
             height: '4px',
           },
         },
@@ -385,7 +385,7 @@ export const chakraTheme = ChakraTheme({
             height: '4px',
           },
           track: {
-            bg: 'var(--chakra-colors-grey-200)',
+            bg: 'var(--chakra-colors-grey-300)',
             height: '4px',
           },
         },

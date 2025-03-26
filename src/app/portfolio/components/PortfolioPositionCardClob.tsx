@@ -3,7 +3,6 @@ import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits } from 'viem'
 import ClaimButton from '@/components/common/markets/claim-button'
-import Paper from '@/components/common/paper'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
@@ -76,7 +75,19 @@ const PortfolioPositionCardClob = ({
   ])
 
   return (
-    <Paper {...props} w={'full'} borderRadius='8px'>
+    <Box
+      {...props}
+      cursor='pointer'
+      border='2px solid'
+      borderColor={marketClosed ? 'green.500' : 'grey.100'}
+      w={'full'}
+      borderRadius='8px'
+      _hover={{
+        bg: marketClosed ? 'green.500' : 'grey.100',
+      }}
+      bg={marketClosed ? 'green.500' : 'unset'}
+      p={isMobile ? '16px' : '8px'}
+    >
       <HStack w='full' justifyContent='space-between'>
         <Text {...paragraphMedium} color={cardColors.main}>
           {positionData.market.group?.title || positionData.market.title}
@@ -158,9 +169,9 @@ const PortfolioPositionCardClob = ({
           <HStack
             gap='12px'
             w={isMobile ? 'full' : 'unset'}
-            borderBottom='1px solid'
-            borderColor={marketClosed ? 'transparent.200' : 'grey.300'}
             pb='2px'
+            borderBottom='1px solid'
+            borderColor={marketClosed ? 'whiteAlpha.50' : 'grey.100'}
           >
             <Text
               {...paragraphMedium}
@@ -252,7 +263,7 @@ const PortfolioPositionCardClob = ({
           </HStack>
         )}
       </HStack>
-    </Paper>
+    </Box>
   )
 }
 
