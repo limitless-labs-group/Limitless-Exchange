@@ -83,16 +83,18 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
 
   return (
     <Box position='relative'>
-      <Box position='absolute' bottom='-16px' left='0' bg='grey.500' h='2px' zIndex={10} w='full'>
-        <Box
-          className='scroll-progress'
-          height='2px'
-          bg='white' // Or any color that matches your theme
-          transition='width 0.1s'
-          width='0%'
-          minW='100px'
-        />
-      </Box>
+      {Boolean(userOrders?.length) && (
+        <Box position='absolute' bottom='-16px' left='0' bg='grey.500' h='2px' zIndex={10} w='full'>
+          <Box
+            className='scroll-progress'
+            height='2px'
+            bg='white' // Or any color that matches your theme
+            transition='width 0.1s'
+            width='0%'
+            minW='100px'
+          />
+        </Box>
+      )}
       <TableContainer
         overflowY={'auto'}
         my='16px'
