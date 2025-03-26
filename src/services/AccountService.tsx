@@ -50,7 +50,6 @@ import { LOGGED_IN_TO_LIMITLESS } from '@/utils/consts'
 export interface IAccountContext {
   isLoggedIn: boolean
   account: Address | undefined
-  // farcasterInfo: FarcasterUserData | undefined
   disconnectFromPlatform: () => void
   displayName?: string
   displayUsername: string
@@ -109,9 +108,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const router = useRouter()
 
-  console.log(wallets)
-  console.log(user)
-  console.log(web3Wallet)
+  console.log(`user ${user}`)
 
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ['profiles', { account: user?.wallet?.address }],
@@ -220,9 +217,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { login: loginToPlatform } = usePrivyLogin({
     onComplete: async ({ user, wasAlreadyAuthenticated }) => {
       const connectedWallet = wallets.find(
-        (wallet) =>
-          wallet.address === user.wallet?.address &&
-          wallet.walletClientType === user.wallet.walletClientType
+        (wallet) => wallet.connectorType === user.wallet?.connectorType
       )
       if (connectedWallet && !wasAlreadyAuthenticated) {
         pushGA4Event(`select_wallet_${connectedWallet.walletClientType}`)
@@ -322,30 +317,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  // const getSessionConnectedMethod = () => {
-  //   debugger
-  //   const recentLoggedWallet = localStorage.getItem(
-  //     `privy:${process.env.NEXT_PUBLIC_PRIVY_APP_ID}:recent-login-wallet-client`
-  //   )
-  //   if (!recentLoggedWallet) {
-  //     return null
-  //   }
-  //   const connectedMethod = JSON.parse(recentLoggedWallet || '')
-  //   const privyMethod = ['google_oauth', 'discord_oauth', 'farcaster', 'email'].includes(
-  //     connectedMethod
-  //   )
-  //   if (privyMethod) {
-  //     return wallets.find((wallet) => wallet.walletClientType === 'privy')
-  //   }
-  //   return wallets.find((wallet) => wallet.walletClientType === connectedMethod)
-  // }
-
   const getWallet = async (): Promise<WalletClient | undefined> => {
-    const wallet = wallets.find(
-      (wallet) =>
-        user?.wallet?.walletClientType?.includes(wallet.walletClientType) ||
-        user?.wallet?.walletClientType === wallet.walletClientType
-    )
+    const wallet =
+      web3Client === 'etherspot'
+        ? wallets.find((wallet) => wallet.walletClientType === 'privy')
+        : wallets[0]
+    console.log(`wallets ${wallets}`)
+    console.log(`web3Client ${web3Client}`)
     if (wallet) {
       const provider = await wallet.getEthereumProvider()
       const walletClient = createWalletClient({
@@ -506,14 +484,4 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>
-}
-
-type FarcasterUserData = {
-  fid: number
-  username: string
-  follower_count: number
-}
-
-type FarcasterUsersRequestResponse = {
-  users: FarcasterUserData[]
 }
