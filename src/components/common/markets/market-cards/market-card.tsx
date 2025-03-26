@@ -126,7 +126,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
         onClickRedirectToMarket(event)
       }}
     >
-      <Paper flex={1} w='full' position='relative' cursor='pointer' p='14px' bg='unset'>
+      <Paper flex={1} w='full' position='relative' cursor='pointer' p='14px' bg='unset' h='full'>
         <Box w='full' mb='8px'>
           <DailyMarketTimer
             hideText={isShortCard}
@@ -137,7 +137,13 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
           />
         </Box>
         <VStack w='full' h='calc(100% - 28px)' gap='16px' justifyContent='space-between'>
-          <Flex w='full' alignItems='flex-start' gap='12px' justifyContent='space-between'>
+          <Flex
+            w='full'
+            alignItems='center'
+            margin='auto'
+            gap='12px'
+            justifyContent='space-between'
+          >
             <Text {...headline}>{market.title}</Text>
             {isSpeedometer ? (
               <Box w='56px' h='28px'>
@@ -158,24 +164,27 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
                   <>
                     {!isShortCard ? (
                       <HStack gap={0}>
-                        {uniqueUsersTrades?.map(({ user }, index) => (
-                          <Avatar
-                            account={user.account || ''}
-                            avatarUrl={user.imageURI}
-                            key={user.account}
-                            borderColor='grey.100'
-                            zIndex={100 + index}
-                            border='2px solid'
-                            color='grey.100 !important'
-                            showBorder
-                            bg='grey.100'
-                            size='20px'
-                            style={{
-                              border: '2px solid',
-                              marginLeft: index > 0 ? '-6px' : 0,
-                            }}
-                          />
-                        ))}
+                        {uniqueUsersTrades?.map(({ user }, index) => {
+                          console.log(user)
+                          return (
+                            <Avatar
+                              account={user.account}
+                              avatarUrl={user.imageURI}
+                              key={user.account}
+                              borderColor='grey.100'
+                              zIndex={100 + index}
+                              border='2px solid'
+                              color='grey.100 !important'
+                              showBorder
+                              bg='grey.100'
+                              size='20px'
+                              style={{
+                                border: '2px solid',
+                                marginLeft: index > 0 ? '-6px' : 0,
+                              }}
+                            />
+                          )
+                        })}
                       </HStack>
                     ) : null}
                     <Text {...paragraphRegular} color='grey.500'>
