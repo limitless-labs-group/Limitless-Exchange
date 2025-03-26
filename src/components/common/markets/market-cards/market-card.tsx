@@ -164,11 +164,11 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
                   <>
                     {!isShortCard ? (
                       <HStack gap={0}>
-                        {uniqueUsersTrades?.map(({ user }, index) => (
+                        {uniqueUsersTrades?.map(({ user, profile }, index) => (
                           <Avatar
-                            account={user.account || ''}
-                            avatarUrl={user.imageURI}
-                            key={user.account}
+                            account={user.account || profile.account || ''}
+                            avatarUrl={user.imageURI || profile.pfpUrl}
+                            key={user.account || profile.account}
                             borderColor='grey.100'
                             zIndex={100 + index}
                             border='2px solid'
