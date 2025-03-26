@@ -23,6 +23,7 @@ import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import { ClickEvent, TradeQuotes, useAmplitude, useTradingService } from '@/services'
+import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketStatus } from '@/types'
@@ -37,14 +38,12 @@ interface ActionButtonProps {
   price?: number
   quote?: TradeQuotes | null
   decimals?: number
-  marketType: 'group' | 'single'
   showReturnPercent: boolean
   setShowReturnPercent: Dispatch<SetStateAction<boolean>>
   showFeeInValue: boolean
   setShowFeeInValue: Dispatch<SetStateAction<boolean>>
   isExceedsBalance: boolean
   resetForm: () => void
-  analyticParams?: { quickBetSource: string; source: string }
 }
 
 // @ts-ignore
@@ -68,14 +67,12 @@ export default function ActionButton({
   option,
   amount,
   decimals,
-  marketType,
   showFeeInValue,
   setShowReturnPercent,
   setShowFeeInValue,
   showReturnPercent,
   isExceedsBalance,
   resetForm,
-  analyticParams,
 }: ActionButtonProps) {
   const [marketLocked, setMarketLocked] = useState(false)
   const [tradingBlocked, setTradingBlocked] = useState(false)
@@ -83,6 +80,7 @@ export default function ActionButton({
    * ANALITYCS
    */
   const { trackClicked } = useAmplitude()
+  const { pushGA4Event } = useGoogleAnalytics()
   const country = Cookies.get('limitless_geo')
 
   const ref = useRef<HTMLElement>()
@@ -191,7 +189,6 @@ export default function ActionButton({
       outcome: option,
       marketAddress: market.slug,
       walletType: client,
-      ...(analyticParams ? analyticParams : {}),
     })
     if (client === 'eoa') {
       const allowance = await checkAllowance(
@@ -220,7 +217,6 @@ export default function ActionButton({
         strategy: 'Buy',
         outcome: option,
         walletType: 'eoa',
-        ...(analyticParams ? analyticParams : {}),
       })
       await sleep(2)
       setStatus('confirm')
@@ -433,22 +429,19 @@ export default function ActionButton({
           tokenTicker={market.collateralToken.symbol}
           status={status}
           handleConfirmClicked={() => {
+            pushGA4Event(GAEvents.ClickBuy)
             trackClicked(ClickEvent.ConfirmTransactionClicked, {
               address: market.slug,
               outcome: option,
               strategy: 'Buy',
               walletType: client,
               marketMakerType: 'AMM',
-              marketType,
-              ...(analyticParams ? analyticParams : {}),
             })
 
             return handleConfirmClicked()
           }}
           onApprove={handleApprove}
           setStatus={setStatus}
-          analyticParams={analyticParams}
-          marketType={marketType}
           outcome={option}
           marketAddress={market.address as Address}
           showFullInfo={false}

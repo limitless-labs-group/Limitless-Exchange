@@ -22,11 +22,6 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
     false,
     false
   )
-  // const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
-  //   targetMarket?.group?.slug,
-  //   false,
-  //   false
-  // )
 
   const { trackClicked } = useAmplitude()
 
@@ -36,7 +31,7 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
       if (fetchedMarket) {
         onOpenMarketPage(fetchedMarket)
         trackClicked(ClickEvent.PortfolioMarketClicked, {
-          marketCategory: fetchedMarket.category,
+          marketCategory: fetchedMarket.categories,
           marketAddress: fetchedMarket.slug,
           marketType: 'single',
           marketTags: fetchedMarket.tags,
@@ -47,23 +42,13 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
     } else {
       onOpenMarketPage(market)
       trackClicked(ClickEvent.PortfolioMarketClicked, {
-        marketCategory: market.category,
+        marketCategory: market.categories,
         marketAddress: market.slug,
         marketType: 'single',
         marketTags: market.tags,
         type: 'History',
       })
     }
-    // if (targetMarket?.group?.slug) {
-    //   if (!marketGroup) {
-    //     const { data: fetchedMarketGroup } = await refetchMarketGroup()
-    //     if (fetchedMarketGroup) {
-    //       onOpenMarketPage(fetchedMarketGroup)
-    //     }
-    //   } else {
-    //     onOpenMarketPage(marketGroup)
-    //   }
-    // }
   }
 
   return (

@@ -12,10 +12,10 @@ import { ClickEvent, useAccount, useAmplitude, useTradingService } from '@/servi
 export default function SharesActionsClob() {
   const { isOpen: splitModalOpened, onToggle: onToggleSplitModal } = useDisclosure()
   const { isOpen: mergeModalOpened, onToggle: onToggleMergeModal } = useDisclosure()
-  const { sharesAvailable } = useClobWidget()
   const { account } = useAccount()
   const { trackClicked } = useAmplitude()
   const { market } = useTradingService()
+  const { sharesAvailable } = useClobWidget()
 
   const handleSplitClicked = () => {
     onToggleSplitModal()

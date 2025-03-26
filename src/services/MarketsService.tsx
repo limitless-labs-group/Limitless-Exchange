@@ -8,14 +8,21 @@ import { Address, formatUnits, getContract, parseUnits } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { POLLING_INTERVAL } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
-import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Category, Market, MarketRewardsResponse, MarketsResponse, OddsData } from '@/types'
 import { getPrices } from '@/utils/market'
 
-const LIMIT_PER_PAGE = 50
+export const calculateMarketPrice = (price: number | undefined): number => {
+  if (!price) return 50
+
+  const calculated = new BigNumber(price).multipliedBy(100).decimalPlaces(0).toNumber()
+
+  return Number.isNaN(calculated) ? 50 : calculated
+}
+
+const LIMIT_PER_PAGE = 65
 
 export function useMarkets(topic: Category | null) {
   return useInfiniteQuery({
@@ -29,24 +36,6 @@ export function useMarkets(topic: Category | null) {
           limit: LIMIT_PER_PAGE,
         },
       })
-
-      // const marketDataForMultiCall = response.data.flatMap((market) => {
-      //   // @ts-ignore
-      //   if (!market.address) {
-      //     return {
-      //       // @ts-ignore
-      //       address: market.address,
-      //       decimals: market.collateralToken.decimals,
-      //     }
-      //   }
-      //   // @ts-ignore
-      //   return market.markets.map((marketInGroup) => {
-      //     return {
-      //       address: marketInGroup.address,
-      //       decimals: market.collateralToken.decimals,
-      //     }
-      //   })
-      // }) as { address: string; decimals: number }[]
 
       const ammMarkets = response.data.filter((market) => market.tradeType === 'amm')
 
@@ -132,8 +121,8 @@ export function useMarkets(topic: Category | null) {
             market.tradeType === 'amm'
               ? _markets.get(market.address as Address)?.prices || [50, 50]
               : [
-                  new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-                  new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
+                  calculateMarketPrice(market?.prices?.[0]),
+                  calculateMarketPrice(market?.prices?.[1]),
                 ],
         }
       })
@@ -145,20 +134,6 @@ export function useMarkets(topic: Category | null) {
         },
         next: (pageParam as number) + 1,
       }
-
-      // return {
-      //   data: {
-      //     markets: response.data.map((market) => ({
-      //       ...market,
-      //       prices: [
-      //         new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-      //         new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
-      //       ],
-      //     })),
-      //     totalAmount: response.totalMarketsCount,
-      //   },
-      //   next: (pageParam as number) + 1,
-      // }
     },
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {
@@ -257,17 +232,20 @@ export function useBanneredMarkets(topic: Category | null) {
       }, new Map<Address, OddsData>())
 
       const result = response.map((market) => {
-        if (market.tradeType === 'amm') {
-          console.log(_markets.get(market.address as Address))
-        }
         return {
           ...market,
           prices:
             market.tradeType === 'amm'
               ? _markets.get(market.address as Address)?.prices || [50, 50]
               : [
-                  new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-                  new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
+                  new BigNumber(market?.prices?.[0])
+                    .multipliedBy(100)
+                    .decimalPlaces(0)
+                    .toNumber() ?? 50,
+                  new BigNumber(market?.prices?.[1])
+                    .multipliedBy(100)
+                    .decimalPlaces(0)
+                    .toNumber() ?? 50,
                 ],
         }
       })
@@ -371,8 +349,14 @@ export function useMarket(address?: string | null, isPolling = false, enabled = 
       } else {
         if (marketRes.tradeType === 'clob') {
           prices = [
-            new BigNumber(marketRes.prices[0]).multipliedBy(100).decimalPlaces(0).toNumber(),
-            new BigNumber(marketRes.prices[1]).multipliedBy(100).decimalPlaces(0).toNumber(),
+            new BigNumber(marketRes.prices?.[0] || 0.5)
+              .multipliedBy(100)
+              .decimalPlaces(0)
+              .toNumber(),
+            new BigNumber(marketRes.prices?.[1] || 0.5)
+              .multipliedBy(100)
+              .decimalPlaces(0)
+              .toNumber(),
           ]
         } else {
           const buyPrices = await getMarketOutcomeBuyPrice(

@@ -2,6 +2,7 @@
 
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import * as React from 'react'
+import { ClobWidgetProvider } from '@/components/common/markets/clob-widget/context'
 import { TokenFilterProvider } from '@/contexts/TokenFilterContext'
 import { QueryProvider, PriceOracleProvider, ThemeProvider } from '@/providers'
 import PrivyAuthProvider from '@/providers/Privy'
@@ -33,8 +34,10 @@ export const Providers = ({ children }: React.PropsWithChildren) => {
                         <TokenFilterProvider>
                           <CommentServiceProvider>
                             <TradingServiceProvider>
-                              {children}
-                              <ReactQueryDevtools initialIsOpen={false} />
+                              <ClobWidgetProvider>
+                                {children}
+                                <ReactQueryDevtools initialIsOpen={false} />
+                              </ClobWidgetProvider>
                             </TradingServiceProvider>
                           </CommentServiceProvider>
                         </TokenFilterProvider>

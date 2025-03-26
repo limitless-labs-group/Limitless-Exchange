@@ -31,25 +31,27 @@ export default function ActivityAmm({ isActive }: MarketActivityTabProps) {
   const activity = activityData?.pages.flatMap((page) => page.data)
 
   return !!activity?.length ? (
-    <InfiniteScroll
-      dataLength={activity?.length ?? 0}
-      next={getNextPage}
-      hasMore={hasNextPage}
-      scrollableTarget='side-menu-scroll-container'
-      scrollThreshold='100%'
-      loader={
-        <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
-          <Loader />
-          <Text {...paragraphRegular}>Loading more posts</Text>
-        </HStack>
-      }
-    >
-      <Box mb='30px'>
-        {activity.map((activityItem) => (
-          <TradeActivityTabItem tradeItem={activityItem} key={activityItem.bodyHash} />
-        ))}
-      </Box>
-    </InfiniteScroll>
+    <Box className='full-container'>
+      <InfiniteScroll
+        dataLength={activity?.length ?? 0}
+        next={getNextPage}
+        hasMore={hasNextPage}
+        scrollableTarget='side-menu-scroll-container'
+        scrollThreshold='100%'
+        loader={
+          <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+            <Loader />
+            <Text {...paragraphRegular}>Loading more posts</Text>
+          </HStack>
+        }
+      >
+        <Box mb='30px'>
+          {activity.map((activityItem) => (
+            <TradeActivityTabItem tradeItem={activityItem} key={activityItem.bodyHash} />
+          ))}
+        </Box>
+      </InfiniteScroll>
+    </Box>
   ) : (
     <VStack w='full' mt='24px'>
       <Paper p='16px'>

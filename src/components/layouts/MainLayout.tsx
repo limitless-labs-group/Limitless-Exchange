@@ -4,12 +4,10 @@ import React from 'react'
 import { isMobile } from 'react-device-detect'
 import MarketPage from '@/components/common/markets/market-page'
 import HeaderMarquee from '@/components/layouts/header-marquee'
-import MigrateMarquee from '@/components/layouts/migrate-marquee'
 import MobileHeader from '@/components/layouts/mobile-header'
 import MobileNavigation from '@/components/layouts/mobile-navigation'
 import Sidebar from '@/components/layouts/sidebar'
-import useClient from '@/hooks/use-client'
-import { useAccount, useTradingService } from '@/services'
+import { useTradingService } from '@/services'
 import { inter } from '@/styles'
 
 interface IMainLayout extends FlexProps {
@@ -25,8 +23,6 @@ export const MainLayout = ({
 }: IMainLayout) => {
   const pathname = usePathname()
   const { marketPageOpened, market } = useTradingService()
-  const { web3Client } = useAccount()
-  const { isLogged } = useClient()
 
   return (
     <Box
@@ -43,12 +39,7 @@ export const MainLayout = ({
       {...props}
     >
       <Box position={isMobile ? 'fixed' : 'relative'} zIndex={9999} top={0}>
-        {isLogged && web3Client === 'etherspot' && isMobile ? (
-          <MigrateMarquee />
-        ) : (
-          <HeaderMarquee />
-        )}
-
+        <HeaderMarquee />
         {isMobile && <MobileHeader />}
       </Box>
       <Box

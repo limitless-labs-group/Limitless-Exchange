@@ -17,7 +17,10 @@ export type Token = {
 export type Category = {
   id: number
   name: string
+  priority?: number | null
 }
+
+export type Dashboard = 'marketcrash'
 
 export type MarketsResponse = {
   data: Market[]
@@ -26,9 +29,8 @@ export type MarketsResponse = {
 
 export interface Creator {
   name: string
-  imageURI?: string
-  imageUrl?: string // TODO: unify imageURI and imageUrl from backend
-  link?: string
+  imageURI: string | null
+  link: string | null
   address?: string
 }
 
@@ -41,7 +43,7 @@ export type DraftMetadata = {
 export interface Market {
   id: number
   address: Address | null
-  category: Category | string
+  categories: string[]
   collateralToken: {
     address: Address
     decimals: number
@@ -50,11 +52,13 @@ export interface Market {
   conditionId: string
   createdAt: string
   creator: Creator
-  deadline: string
   description: string
+  deadline: string
   expirationDate: string
   expirationTimestamp: number
   expired: boolean
+  negRiskMarketId?: string
+  negRiskRequestId?: string
   liquidity: string
   liquidityFormatted: string
   ogImageURI: string
@@ -76,16 +80,29 @@ export interface Market {
   openInterestFormatted: string
   metadata: {
     isBannered: boolean
-  }
+  } | null
   priorityIndex: number
   tokens: {
     yes: string
     no: string
   }
-  marketType: 'single' | 'group'
-  tradeType: 'clob' | 'amm'
+  trends?: {
+    [interval in Intervals]?: {
+      value: number
+      rank: number
+    }
+  }
+  marketType: MarketType
+  tradeType: MarketTradeType
   isRewardable: boolean
+  markets?: Market[]
 }
+
+export type MarketType = 'single' | 'group'
+
+export type MarketTradeType = 'clob' | 'amm'
+
+export type Intervals = 'hourly' | 'last30days'
 
 export interface UserMarket {
   title: string
@@ -160,33 +177,8 @@ export type UserCreatedMarket = {
   slug: string
 }
 
-export interface MarketGroup {
-  slug: string
-  hidden: boolean
-  outcomeTokens: string[]
-  title: string
-  ogImageURI: string
-  expirationDate: string
-  expired: boolean
-  expirationTimestamp: number
-  creator: Creator
-}
-
 export interface DraftMarket extends Market {
   draftMetadata: DraftMetadata
-}
-
-export interface MarketGroup {
-  category: Category
-  collateralToken: {
-    symbol: string
-    address: Address
-    decimals: number
-  }
-  tags: string[]
-  createdAt: string
-  status: MarketStatus
-  markets: Market[]
 }
 
 export type GetBalanceResult = {
@@ -224,11 +216,12 @@ export enum MarketTokensIds {
 
 export enum Sort {
   BASE = '',
+  DEFAULT = '🔥 Trending',
   NEWEST = 'Newest',
   ENDING_SOON = 'Ending Soon',
   HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VALUE = 'High Value',
-  HIGHEST_VOLUME = 'High Volume',
+  TRENDING = '🔥 Trending',
   LP_REWARDS = '💎 LP Rewards',
 }
 

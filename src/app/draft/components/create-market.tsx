@@ -26,7 +26,7 @@ import {
   AccordionPanel,
   AccordionIcon,
   Text,
-  Switch,
+  FormLabel,
 } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
@@ -37,6 +37,7 @@ import React, { FC, useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { MultiValue } from 'react-select'
+import { default as MultiSelect } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import TimezoneSelect, {
   allTimezones,
@@ -54,13 +55,22 @@ import {
   defaultProbability,
   defaultMarketFee,
   defaultCreatorId,
-  defaultCategoryId,
 } from '@/app/draft/components'
+import { MarketTypeSelector } from './type-selector'
 import { useToast } from '@/hooks'
+import CloseIcon from '@/resources/icons/close-icon.svg'
 import { useCategories, useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { Category } from '@/types'
-import { Token, Tag, TagOption, IFormData, Creator } from '@/types/draft'
+import {
+  Token,
+  Tag,
+  IFormData,
+  Creator,
+  MarketInput,
+  DraftMarketType,
+  SelectOption,
+} from '@/types/draft'
 import { FormField } from '../components/form-field'
 
 export const CreateMarket: FC = () => {
@@ -71,13 +81,18 @@ export const CreateMarket: FC = () => {
   const [formData, setFormData] = useState<IFormData>(defaultFormData)
   const [isCreating, setIsCreating] = useState<boolean>(false)
   const { supportedTokens } = useLimitlessApi()
-  const [createClobMarket, setCreateClobMarket] = useState<boolean>(false)
   const toast = useToast()
   const queryClient = useQueryClient()
   const router = useRouter()
   const searchParams = useSearchParams()
   const marketId = searchParams.get('market')
+  const type = searchParams.get('marketType')
   const privateClient = useAxiosPrivateClient()
+
+  const [marketType, setMarketType] = useState<DraftMarketType>((type as DraftMarketType) ?? 'amm')
+  const isClob = marketType === 'clob'
+  const isAmm = marketType === 'amm'
+  const isGroup = marketType === 'group'
 
   const { data: editMarket } = useQuery({
     queryKey: ['editMarket', marketId],
@@ -88,18 +103,14 @@ export const CreateMarket: FC = () => {
     enabled: !!marketId,
   })
 
-  const handleSwitchClicked = () => {
-    setCreateClobMarket(!createClobMarket)
-  }
-
   useEffect(() => {
     if (editMarket) {
       setAutoGenerateOg(true)
-      setCreateClobMarket(editMarket.type === 'clob')
+      setMarketType(editMarket.type)
       setFormData((prevFormData) => ({
         ...prevFormData,
         title: editMarket.title || '',
-        description: editMarket.description || '',
+        ...(editMarket.type !== 'group' ? { description: editMarket.description || '' } : {}),
         deadline: toZonedTime(editMarket.deadline, 'America/New_York'),
         token: editMarket.collateralToken
           ? { symbol: editMarket.collateralToken.symbol, id: editMarket.collateralToken.id }
@@ -115,23 +126,39 @@ export const CreateMarket: FC = () => {
             id: tag.id,
             value: tag.name,
             label: tag.name,
-          })) || [],
+          })) ?? [],
         creatorId: editMarket.creator?.id || defaultCreatorId,
-        categoryId: editMarket.category?.id || defaultCategoryId,
+        categories:
+          editMarket.categories.map((cat: Category) => ({
+            id: cat.id,
+            value: cat.name,
+            label: cat.name,
+          })) ?? [],
+
         type: editMarket.type,
       }))
+      if (editMarket.type === 'group' && editMarket.markets?.length > 0) {
+        setMarketType('group')
+        setMarkets(
+          editMarket.markets.map((market: MarketInput) => ({
+            title: market.title ?? '',
+            description: market.description ?? '',
+            id: market.id ?? '',
+          }))
+        )
+      }
       generateOgImage().then(() => console.log('Og image generated'))
     }
   }, [editMarket])
 
   const handleChange = <K extends keyof IFormData>(
     field: string,
-    value: IFormData[K] | MultiValue<TagOption>
+    value: IFormData[K] | MultiValue<SelectOption>
   ) => {
     if (field === 'tag' && Array.isArray(value)) {
       setFormData((prevFormData) => ({
         ...prevFormData,
-        [field]: [...value] as TagOption[],
+        [field]: [...value] as SelectOption[],
       }))
     } else {
       setFormData((prevFormData) => ({
@@ -156,7 +183,7 @@ export const CreateMarket: FC = () => {
     })
   }
 
-  const createOption = (id: string, name: string): TagOption => ({
+  const createOption = (id: string, name: string): SelectOption => ({
     id,
     label: name,
     value: name,
@@ -169,7 +196,7 @@ export const CreateMarket: FC = () => {
 
       return response.data.map((tag: { id: string; name: string }) =>
         createOption(tag.id, tag.name)
-      ) as TagOption[]
+      ) as SelectOption[]
     },
   })
 
@@ -232,13 +259,14 @@ export const CreateMarket: FC = () => {
       name: tagToCreate,
     })
 
-    queryClient.setQueryData(['tagOptions'], (oldData: TagOption[]) => [
+    queryClient.setQueryData(['tagOptions'], (oldData: SelectOption[]) => [
       ...oldData,
       createOption(res.data.id, res.data.name),
     ])
   }
 
   const prepareMarketData = (formData: FormData) => {
+    debugger
     const tokenId = Number(formData.get('tokenId'))
     const marketFee = Number(formData.get('marketFee'))
     const deadline = Number(formData.get('deadline'))
@@ -249,26 +277,42 @@ export const CreateMarket: FC = () => {
 
     const title = formData.get('title')
     const description = formData.get('description')
-    if (!title || !description) {
+    if (!title) {
       throw new Error('Missing required fields')
     }
 
     return {
       title: title.toString(),
-      description: description.toString(),
+      ...(!isGroup ? { description: description?.toString() ?? '' } : {}),
       tokenId,
-      ...(createClobMarket ? {} : { liquidity: Number(formData.get('liquidity')) }),
-      ...(createClobMarket
-        ? {}
-        : { initialYesProbability: Number(formData.get('initialYesProbability')) }),
+      ...(isAmm ? { liquidity: Number(formData.get('liquidity')) } : {}),
+      ...(isAmm ? { initialYesProbability: Number(formData.get('initialYesProbability')) } : {}),
       marketFee,
       deadline,
       isBannered: formData.get('isBannered') === 'true',
       creatorId: formData.get('creatorId')?.toString() ?? '',
-      categoryId: formData.get('categoryId')?.toString() ?? '',
+      categoryIds: formData.get('categoryIds')?.toString() ?? '',
       ogFile: formData.get('ogFile') as File | null,
       tagIds: formData.get('tagIds')?.toString() ?? '',
+      ...(isGroup
+        ? { marketsInput: JSON.parse(formData.get('marketsInput')?.toString() ?? '[]') }
+        : {}),
     }
+  }
+
+  const findDuplicateMarketGroupTitles = (markets: MarketInput[]) => {
+    const map = new Map()
+    const duplicates = []
+    const marketTitles = markets.map((market) => market.title)
+
+    for (const str of marketTitles) {
+      map.set(str, (map.get(str) || 0) + 1)
+      if (map.get(str) === 2) {
+        duplicates.push(str)
+      }
+    }
+
+    return duplicates
   }
 
   const prepareData = async () => {
@@ -279,10 +323,36 @@ export const CreateMarket: FC = () => {
 
       const missingFields: string[] = []
 
-      if (!title) missingFields.push('Title')
-      if (!description) missingFields.push('Description')
+      if (!title || !title.trim()) missingFields.push('Title')
+      if (!description && !isGroup) missingFields.push('Description')
       if (!creatorId) missingFields.push('Creator')
       if (tag.length === 0) missingFields.push('Tag')
+
+      if (isGroup) {
+        if (!markets || markets.length < 2) {
+          missingFields.push('At least 2 markets')
+        } else {
+          const invalidMarkets = markets.filter(
+            (market) => !market.title?.trim() || !market.description?.trim()
+          )
+
+          const duplicatedTitles = findDuplicateMarketGroupTitles(markets)
+
+          if (duplicatedTitles.length) {
+            showToast(`All markets in the group must have unique titles.`)
+            return
+          }
+
+          if (invalidMarkets.length > 0) {
+            showToast(
+              `All markets in the group must have both title and description. Please check market${
+                invalidMarkets.length > 1 ? 's' : ''
+              } #${markets.findIndex((m) => !m.title?.trim() || !m.description?.trim()) + 1}`
+            )
+            return
+          }
+        }
+      }
 
       if (!ogLogo) {
         if (ogImageError) {
@@ -313,7 +383,7 @@ export const CreateMarket: FC = () => {
       marketFormData?.set('title', formData.title)
       marketFormData?.set('description', formData.description)
       marketFormData?.set('tokenId', formData.token.id.toString())
-      if (!createClobMarket) {
+      if (isAmm) {
         marketFormData?.set('liquidity', formData.liquidity?.toString() || '')
         marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
       }
@@ -325,8 +395,8 @@ export const CreateMarket: FC = () => {
         marketFormData.set('creatorId', formData.creatorId)
       }
 
-      if (formData.categoryId) {
-        marketFormData.set('categoryId', formData.categoryId)
+      if (formData.categories.length) {
+        marketFormData.set('categoryIds', formData.categories.map((c) => c.id).join(','))
       }
 
       if (formData.ogLogo) {
@@ -335,6 +405,10 @@ export const CreateMarket: FC = () => {
 
       if (formData.tag.length) {
         marketFormData.set('tagIds', formData.tag.map((t) => t.id).join(','))
+      }
+
+      if (isGroup && markets.length > 0) {
+        marketFormData.set('marketsInput', JSON.stringify(markets))
       }
 
       return marketFormData
@@ -346,17 +420,22 @@ export const CreateMarket: FC = () => {
     if (!data) return
     setIsCreating(true)
     const marketData = prepareMarketData(data)
-    const url = createClobMarket ? '/markets/clob/drafts' : '/markets/drafts'
+
+    //todo: refactor after clob endpoint will be unified
+    const url = () => {
+      if (isClob) return '/markets/clob/drafts'
+      if (isGroup) return '/markets/drafts/group'
+      return '/markets/drafts'
+    }
     privateClient
-      .post(url, marketData, {
+      .post(url(), marketData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
       .then((res) => {
         showToast(`Market is drafted`)
-        const redirectUrl = createClobMarket ? 'queue-clob' : 'queue-amm'
-        router.push(`/draft?tab=${redirectUrl}`)
+        router.push(`/draft?tab=queue-${marketType}`)
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
@@ -375,16 +454,16 @@ export const CreateMarket: FC = () => {
     if (!data) return
     setIsCreating(true)
     const marketData = prepareMarketData(data)
+    const url = isGroup ? `/markets/drafts/group/${marketId}` : `/markets/drafts/${marketId}`
     privateClient
-      .put(`/markets/drafts/${marketId}`, marketData, {
+      .put(url, marketData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
       .then((res) => {
         showToast(`Market ${marketId} is updated`)
-        const type = createClobMarket ? 'clob' : 'amm'
-        router.push(`/draft?tab=queue-${type}`)
+        router.push(`/draft?tab=queue-${marketType}`)
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
@@ -461,10 +540,25 @@ export const CreateMarket: FC = () => {
   const submit = async () => {
     if (marketId) {
       await updateMarket()
-
       return
     }
     await draftMarket()
+  }
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const value = e.target.value
+    if (value.trim() || value === '') {
+      handleChange('title', value)
+    }
+  }
+
+  const handleTitleBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+    isUpdateOg?: boolean
+  ) => {
+    const trimmedValue = e.target.value.trim()
+    handleChange('title', trimmedValue)
+    autoGenerateOg && isUpdateOg && generateOgImage()
   }
 
   const getButtonText = () => {
@@ -473,18 +567,31 @@ export const CreateMarket: FC = () => {
     return 'Draft'
   }
 
+  const [markets, setMarkets] = useState<MarketInput[]>([
+    { title: '', description: '' },
+    { title: '', description: '' },
+  ])
+
+  const handleInputChange = (index: number, field: string, value: string) => {
+    const updatedMarkets = [...markets]
+    //@ts-ignore
+    updatedMarkets[index][field] = value
+    setMarkets(updatedMarkets)
+  }
+
+  const addMarket = () => {
+    setMarkets([...markets, { title: '', description: '' }])
+  }
+
   return (
     <Flex justifyContent='center'>
       <VStack w='full' spacing={4}>
         <FormControl>
-          <Box>
-            <Text>Market type</Text>
-            <HStack gap='4px' my='12px'>
-              <Text>AMM (old)</Text>
-              <Switch id='isChecked' isChecked={createClobMarket} onChange={handleSwitchClicked} />
-              <Text>CLOB (new)</Text>
-            </HStack>
-          </Box>
+          <MarketTypeSelector
+            value={marketType ?? 'amm'}
+            onChange={(value) => setMarketType(value as DraftMarketType)}
+            isEdit={editMarket}
+          />
           <HStack
             w='full'
             maxW='1200px'
@@ -502,37 +609,107 @@ export const CreateMarket: FC = () => {
                   height='auto'
                   onInput={resizeTextareaHeight}
                   value={formData.title}
-                  onChange={(e) => handleChange('title', e.target.value)}
+                  onChange={(e) => handleTitleChange(e)}
+                  onBlur={(e) => handleTitleBlur(e, true)}
                   maxLength={70}
-                  onBlur={() => autoGenerateOg && generateOgImage()}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                   {formData.title?.length}/70 characters
                 </FormHelperText>
               </FormField>
+              {!isGroup ? (
+                <FormField label='Description'>
+                  <TextEditor
+                    value={formData.description}
+                    readOnly={false}
+                    onChange={(e) => {
+                      if (getPlainTextLength(e) <= 1500) {
+                        handleChange('description', e)
+                      }
+                    }}
+                  />
+                  <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
+                    {getPlainTextLength(formData.description)}/1500 characters
+                  </FormHelperText>
+                </FormField>
+              ) : (
+                <>
+                  {markets.map((market, index) => (
+                    <Box key={index} borderWidth={1} p={4} borderRadius='md' width='100%'>
+                      <Flex justify='space-between' align='center' mb={2}>
+                        <Text fontWeight='bold'>
+                          Market #{index + 1} {market.id ? `- id: ${market.id}` : ''}
+                        </Text>
+                        {markets.length > 2 && (
+                          <Box
+                            cursor='pointer'
+                            onClick={() => {
+                              const updatedMarkets = [...markets]
+                              updatedMarkets.splice(index, 1)
+                              setMarkets(updatedMarkets)
+                            }}
+                          >
+                            <CloseIcon color='red' height={24} width={24} />
+                          </Box>
+                        )}
+                      </Flex>
+                      <FormControl>
+                        <FormLabel htmlFor={`market${index}_title`}>Title</FormLabel>
+                        <Input
+                          type='text'
+                          id={`market${index}_title`}
+                          name={`marketsInput[${index}][title]`}
+                          value={market.title}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            if (value.trim() || value === '') {
+                              handleInputChange(index, 'title', e.target.value)
+                            }
+                          }}
+                          placeholder={`Enter market ${index + 1} title`}
+                          maxLength={70}
+                          required
+                        />
+                        <FormHelperText
+                          textAlign='end'
+                          style={{ fontSize: '10px', color: 'spacegray' }}
+                        >
+                          {getPlainTextLength(markets?.[index].title ?? '')}/70 characters
+                        </FormHelperText>
+                      </FormControl>
+                      <FormControl mt={4}>
+                        <FormLabel htmlFor={`market${index}_description`}>Description</FormLabel>
+                        <TextEditor
+                          value={market.description}
+                          readOnly={false}
+                          onChange={(e) => {
+                            if (getPlainTextLength(e) <= 1500) {
+                              handleInputChange(index, 'description', e)
+                            }
+                          }}
+                        />
+                        <FormHelperText
+                          textAlign='end'
+                          style={{ fontSize: '10px', color: 'spacegray' }}
+                        >
+                          {getPlainTextLength(markets?.[index].description ?? '')}
+                          /1500 characters
+                        </FormHelperText>
+                      </FormControl>
+                    </Box>
+                  ))}
+                </>
+              )}
 
-              <FormField label='Description'>
-                <TextEditor
-                  value={formData.description}
-                  readOnly={false}
-                  onChange={(e) => {
-                    if (getPlainTextLength(e) <= 1500) {
-                      handleChange('description', e)
-                    }
-                  }}
-                />
-                <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                  {getPlainTextLength(formData.description)}/1500 characters
-                </FormHelperText>
-              </FormField>
+              {isGroup && (
+                <Button onClick={addMarket} colorScheme='blue'>
+                  Add Another Market
+                </Button>
+              )}
 
               <FormField label='Token'>
                 <HStack>
-                  <Select
-                    value={formData.token.id}
-                    onChange={handleTokenSelect}
-                    disabled={createClobMarket}
-                  >
+                  <Select value={formData.token.id} onChange={handleTokenSelect} disabled={isClob}>
                     {supportedTokens?.map((token: Token) => (
                       <option key={token.id} value={token.id} data-name={token.symbol}>
                         {token.symbol}
@@ -541,8 +718,7 @@ export const CreateMarket: FC = () => {
                   </Select>
                 </HStack>
               </FormField>
-
-              {!createClobMarket && (
+              {isAmm && (
                 <>
                   <FormField label={`${formData.token.symbol} Liquidity`}>
                     <HStack>
@@ -655,10 +831,7 @@ export const CreateMarket: FC = () => {
                               setReady={(isReady) => {
                                 setIsReady(isReady)
                               }}
-                              category={
-                                categories?.find((category) => category.id === +formData.categoryId)
-                                  ?.name ?? 'Unknown'
-                              }
+                              categories={formData.categories ?? []}
                               onBlobGenerated={(blob) => handleBlobGenerated(blob)}
                               generateBlob={isGeneratingOgImage}
                             />
@@ -708,23 +881,53 @@ export const CreateMarket: FC = () => {
                 </HStack>
               </FormField>
 
-              <FormField label='Category'>
-                <HStack>
-                  <Select
-                    value={formData.categoryId}
-                    onChange={async (e) => {
-                      handleChange('categoryId', e.target.value)
-                      if (autoGenerateOg) {
-                        await generateOgImage()
-                      }
-                    }}
-                  >
-                    {categories?.map((category: Category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </Select>
+              <FormField label='Categories'>
+                <HStack w={'full'}>
+                  <Box width='full'>
+                    <MultiSelect
+                      isMulti
+                      closeMenuOnSelect={false}
+                      onChange={(selectedOptions) => {
+                        const typedOptions = selectedOptions
+                        handleChange(
+                          'categories',
+                          typedOptions.map((option) => ({
+                            id: option.id,
+                            label: option.label,
+                            value: option.label,
+                          }))
+                        )
+                        if (autoGenerateOg) {
+                          generateOgImage()
+                        }
+                      }}
+                      value={formData.categories}
+                      options={categories?.map((category) => ({
+                        id: String(category.id),
+                        value: category.name,
+                        label: category.name,
+                      }))}
+                      styles={{
+                        option: (provided, state) => ({
+                          ...provided,
+                          backgroundColor: state.isFocused
+                            ? 'var(--chakra-colors-blue-50)'
+                            : 'var(--chakra-colors-grey-300)',
+                          color: state.isFocused
+                            ? 'var(--chakra-colors-blue-900)'
+                            : 'var(--chakra-colors-grey-900)',
+                        }),
+                        menu: (provided) => ({
+                          ...provided,
+                          ...selectStyles.menu,
+                        }),
+                        control: (provided) => ({
+                          ...provided,
+                          ...selectStyles.control,
+                        }),
+                      }}
+                    />
+                  </Box>
                 </HStack>
               </FormField>
 

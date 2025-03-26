@@ -1,10 +1,12 @@
 import { Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { isNumber } from '@chakra-ui/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import { useFundWallet } from '@privy-io/react-auth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
+import { isMobile, isTablet } from 'react-device-detect'
 import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
@@ -13,6 +15,7 @@ import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
 import { Toast } from '@/components/common/toast'
+import { AddFundsValidation } from './add-funds-validation'
 import { useToast } from '@/hooks'
 import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import {
@@ -24,35 +27,43 @@ import {
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
+import { PendingTradeData } from '@/services/PendingTradeService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { getOrderErrorText } from '@/utils/orders'
 
 export default function ClobLimitTradeForm() {
+  const priceInputRef = React.useRef<HTMLInputElement>(null)
+  const contractsInputRef = React.useRef<HTMLInputElement>(null)
   const { balanceLoading } = useBalanceService()
   const {
     balance,
-    setPrice,
-    price,
-    sharesAmount,
-    setSharesAmount,
     allowance,
     sharesPrice,
     isApprovedForSell,
     onToggleTradeStepper,
     isBalanceNotEnough,
+    setSharesAmount,
+    setPrice,
+    price,
+    sharesAmount,
     sharesAvailable,
+    isApprovedNegRiskForSell,
+    orderType,
   } = useClobWidget()
   const { trackClicked } = useAmplitude()
-  const { web3Wallet } = useAccount()
+  const { web3Wallet, loginToPlatform } = useAccount()
   const { market, strategy, clobOutcome: outcome } = useTradingService()
   const queryClient = useQueryClient()
   const { client, placeLimitOrder } = useWeb3Service()
-  const { web3Client, profileData } = useAccount()
+  const { web3Client, profileData, account } = useAccount()
   const privyService = usePrivySendTransaction()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
+
   const { pushGA4Event } = useGoogleAnalytics()
+  const { fundWallet } = useFundWallet()
 
   const maxSharesAvailable =
     strategy === 'Sell'
@@ -88,6 +99,35 @@ export default function ClobLimitTradeForm() {
     return
   }
 
+  const handleFocusPriceInput = () => {
+    if ((isMobile || isTablet) && priceInputRef.current) {
+      setTimeout(() => {
+        priceInputRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
+    }
+  }
+
+  const handleFocusAmountInput = () => {
+    if ((isMobile || isTablet) && contractsInputRef.current) {
+      setTimeout(() => {
+        contractsInputRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
+    }
+  }
+
+  const isLessThanMinTreshHold = useMemo(() => {
+    if (price && sharesAmount) {
+      return +sharesAmount < 5
+    }
+    return false
+  }, [price, sharesAmount])
+
   const placeLimitOrderMutation = useMutation({
     mutationKey: ['limit-order', market?.slug, price],
     mutationFn: async () => {
@@ -103,13 +143,25 @@ export default function ClobLimitTradeForm() {
       if (market) {
         if (web3Client === 'etherspot') {
           if (strategy === 'Sell') {
+            const operator = market.negRiskRequestId
+              ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+              : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
             await privyService.approveConditionalIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              operator as Address,
               process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
             )
+            if (market.negRiskRequestId) {
+              await privyService.approveConditionalIfNeeded(
+                process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE as Address,
+                process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+              )
+            }
           } else {
+            const spender = market.negRiskRequestId
+              ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
+              : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
             await privyService.approveCollateralIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              spender as Address,
               maxUint256,
               market?.collateralToken.address as Address
             )
@@ -122,7 +174,8 @@ export default function ClobLimitTradeForm() {
           market.collateralToken.decimals,
           price,
           sharesAmount,
-          side
+          side,
+          market.negRiskRequestId ? 'negRisk' : 'common'
         )
         const data = {
           order: {
@@ -142,15 +195,13 @@ export default function ClobLimitTradeForm() {
       }
     },
     onSuccess: async () => {
-      await sleep(1)
-      await queryClient.refetchQueries({
-        queryKey: ['user-orders', market?.slug],
-      })
       pushGA4Event(GAEvents.ClickBuyOrder)
     },
-    onError: async () => {
+    onError: async (error: AxiosError<{ message: string }>) => {
       const id = toast({
-        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
+        render: () => (
+          <Toast title={getOrderErrorText(error.response?.data.message ?? '')} id={id} />
+        ),
       })
       await queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
@@ -255,7 +306,7 @@ export default function ClobLimitTradeForm() {
   }, [price, sharesAmount, strategy])
 
   const onResetMutation = async () => {
-    await sleep(0.8)
+    await sleep(1)
     placeLimitOrderMutation.reset()
     await Promise.allSettled([
       queryClient.refetchQueries({
@@ -267,14 +318,48 @@ export default function ClobLimitTradeForm() {
       queryClient.refetchQueries({
         queryKey: ['locked-balance', market?.slug],
       }),
+      queryClient.refetchQueries({
+        queryKey: ['prices', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['positions'],
+      }),
     ])
-    await sleep(2)
-    await queryClient.refetchQueries({
-      queryKey: ['user-orders', market?.slug],
-    })
   }
 
+  const shouldSignUp = !web3Wallet && Boolean(price)
+  const shouldAddFunds =
+    web3Wallet && strategy === 'Buy' && orderCalculations.total > Number(balance)
+
   const handleSubmitButtonClicked = async () => {
+    if (shouldSignUp) {
+      const currentUrl = window.location
+
+      const routeInfo: PendingTradeData = {
+        price,
+        sharesAmount,
+        marketSlug: market?.slug ?? '',
+        strategy,
+        outcome,
+        orderType,
+        pathname: currentUrl.pathname,
+        search: currentUrl.search,
+        href: currentUrl.href,
+        queryParams: Object.fromEntries(new URLSearchParams(currentUrl.search)),
+      }
+      localStorage.setItem('pendingTrade', JSON.stringify(routeInfo))
+      await loginToPlatform()
+      return
+    }
+
+    if (shouldAddFunds) {
+      await fundWallet(account as string)
+      return
+    }
+
     if (strategy === 'Buy') {
       const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
         parseUnits(sharesPrice, market?.collateralToken.decimals || 6).toString()
@@ -286,9 +371,17 @@ export default function ClobLimitTradeForm() {
       await placeLimitOrderMutation.mutateAsync()
       return
     }
-    if (!isApprovedForSell && client === 'eoa') {
-      onToggleTradeStepper()
-      return
+    if (client === 'eoa') {
+      console.log(
+        `limit trade form isApprovedForSell ${isApprovedForSell} isApprovedNegRiskForSell ${isApprovedNegRiskForSell}`
+      )
+      const isApprovedSell = market?.negRiskRequestId
+        ? isApprovedForSell && isApprovedNegRiskForSell
+        : isApprovedForSell
+      if (!isApprovedSell) {
+        onToggleTradeStepper()
+        return
+      }
     }
     await placeLimitOrderMutation.mutateAsync()
   }
@@ -312,6 +405,21 @@ export default function ClobLimitTradeForm() {
     setSharesAmount(val)
   }
 
+  const getButtonText = () => {
+    if (shouldSignUp) {
+      return `Sign up to ${strategy}`
+    }
+    if (shouldAddFunds) {
+      return 'Add funds to place order'
+    }
+    return `${strategy} ${outcome ? 'No' : 'Yes'}`
+  }
+
+  console.log(`price ${+price}`)
+  console.log(`sharesAmount ${+sharesAmount}`)
+  console.log(`isBalanceNotEnough ${isBalanceNotEnough}`)
+  console.log(`web3Wallet ${web3Wallet}`)
+
   return (
     <>
       <Flex justifyContent='space-between' alignItems='center' mb='8px'>
@@ -321,7 +429,9 @@ export default function ClobLimitTradeForm() {
         {showBuyBalance}
       </Flex>
       <NumberInputWithButtons
+        ref={priceInputRef}
         id='limitPrice'
+        symbol='¢'
         placeholder='Eg. 85¢'
         max={99.9}
         step={0.1}
@@ -329,6 +439,7 @@ export default function ClobLimitTradeForm() {
         handleInputChange={handleSetLimitPrice}
         showIncrements={true}
         inputType='number'
+        onFocus={handleFocusPriceInput}
       />
       <Flex justifyContent='space-between' alignItems='center' mt='16px' mb='8px'>
         <Text
@@ -342,6 +453,7 @@ export default function ClobLimitTradeForm() {
         {showSellBalance}
       </Flex>
       <NumberInputWithButtons
+        ref={contractsInputRef}
         id='contractsAmount'
         step={1}
         max={isNumber(maxSharesAvailable) ? maxSharesAvailable : undefined}
@@ -351,6 +463,7 @@ export default function ClobLimitTradeForm() {
         isInvalid={isBalanceNotEnough}
         showIncrements={true}
         inputType='number'
+        onFocus={handleFocusAmountInput}
       />
       <VStack w='full' gap='8px' my='24px'>
         {strategy === 'Buy' ? (
@@ -405,19 +518,59 @@ export default function ClobLimitTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
-        isDisabled={!+price || !+sharesAmount || isBalanceNotEnough || !web3Wallet}
+        isDisabled={
+          !+price ||
+          isLessThanMinTreshHold ||
+          !+sharesAmount ||
+          (web3Wallet && !shouldAddFunds ? isBalanceNotEnough : false)
+        }
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}
       >
-        Submit {strategy} Order
+        {getButtonText()}
       </ClobTradeButton>
       {(!price || !sharesAmount) && (
+        <Flex
+          {...paragraphRegular}
+          mt='8px'
+          color='grey.500'
+          textAlign='center'
+          justifyContent='center'
+        >
+          <Text>Set</Text>
+          <Text
+            borderBottom='1px dotted'
+            borderColor='grey.500'
+            display='inline'
+            cursor='pointer'
+            onClick={() => priceInputRef.current?.focus()}
+          >
+            {!+price && '\u00A0Limit price'}
+          </Text>
+          {!+price && !+sharesAmount ? ',' : ''}
+          <Text
+            borderBottom='1px dotted'
+            borderColor='grey.500'
+            display='inline'
+            cursor='pointer'
+            onClick={() => contractsInputRef.current?.focus()}
+          >
+            {!+sharesAmount && '\u00A0Contracts'}
+          </Text>
+        </Flex>
+      )}
+      {isLessThanMinTreshHold && (
         <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
-          Set {!+price && 'Limit price'}
-          {!+price && !+sharesAmount ? ',' : ''} {!+sharesAmount && 'Contracts'}
+          Min. 5 shares
         </Text>
       )}
+      {isLessThanMinTreshHold && (
+        <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
+          Min. amount is $1
+        </Text>
+      )}
+      {shouldAddFunds && <AddFundsValidation />}
     </>
   )
 }
