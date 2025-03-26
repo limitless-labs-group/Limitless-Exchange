@@ -3,6 +3,7 @@ import { MarketCard } from './market-cards'
 import MarketCardMobile from './market-cards/market-card-mobile'
 import { h2Bold } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
+import { getAnalyticsParams } from '@/utils/market'
 
 export enum DashboardGroupType {
   Mobile = 'mobile',
@@ -14,11 +15,18 @@ export enum DashboardGroupType {
 
 interface DashboardGroupProps {
   type: DashboardGroupType
+  marketIndex: number
   categoryName: string
   markets: Market[]
 }
 
-export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupProps) => {
+export const DashboardGroup = ({
+  markets,
+  type,
+  marketIndex,
+  categoryName,
+}: DashboardGroupProps) => {
+  const dashboard = { fromDashboard: 'Market Crash' }
   const showCardLayout = (type: DashboardGroupType) => {
     switch (type) {
       case DashboardGroupType.Mobile:
@@ -31,7 +39,7 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
                     markets={markets}
                     market={market}
                     variant={index === 0 ? 'chart' : 'row'}
-                    analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
+                    analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
                   />
                 </Box>
               )
@@ -48,7 +56,7 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
                   <MarketCard
                     market={market}
                     variant={index === 0 ? 'chart' : 'row'}
-                    analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
+                    analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
                   />
                 </Box>
               )
@@ -68,10 +76,7 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
                 <MarketCard
                   variant='grid'
                   market={gridMarket}
-                  analyticParams={{
-                    bannerPosition: 1,
-                    bannerPaginationPage: 1,
-                  }}
+                  analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
                 />
               </Box>
             ))}
@@ -117,10 +122,7 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
                       <MarketCard
                         variant={getVariant(rowIndex, columnsInRow)}
                         market={market}
-                        analyticParams={{
-                          bannerPosition: currentIndex + 1,
-                          bannerPaginationPage: 1,
-                        }}
+                        analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
                       />
                     </Box>
                   )
@@ -164,10 +166,7 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
               <MarketCard
                 variant='chart'
                 market={markets[0]}
-                analyticParams={{
-                  bannerPosition: 1,
-                  bannerPaginationPage: 1,
-                }}
+                analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
               />
             </Box>
 
@@ -187,10 +186,7 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
                       <MarketCard
                         variant='grid'
                         market={market}
-                        analyticParams={{
-                          bannerPosition: index + 2,
-                          bannerPaginationPage: 1,
-                        }}
+                        analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
                       />
                     </Box>
                   )
@@ -203,10 +199,7 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
                 <MarketCard
                   variant='row'
                   market={markets[4]}
-                  analyticParams={{
-                    bannerPosition: 5,
-                    bannerPaginationPage: 1,
-                  }}
+                  analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
                 />
               </Box>
             )}
@@ -226,10 +219,7 @@ export const DashboardGroup = ({ markets, type, categoryName }: DashboardGroupPr
                       <MarketCard
                         variant='grid'
                         market={market}
-                        analyticParams={{
-                          bannerPosition: index + 5,
-                          bannerPaginationPage: 1,
-                        }}
+                        analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
                       />
                     </Box>
                   )

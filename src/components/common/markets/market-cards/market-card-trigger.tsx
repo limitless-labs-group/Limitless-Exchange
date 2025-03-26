@@ -1,4 +1,4 @@
-import { Box, Divider, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, Divider, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
@@ -9,13 +9,13 @@ import { MarketCardProps } from './market-card-mobile'
 import { MarketProgressBar } from './market-progress-bar'
 import { SpeedometerProgress } from './speedometer-progress'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
-import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { captionMedium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 import OpenInterestTooltip from '../open-interest-tooltip'
 
 export const MarketCardTrigger = React.memo(
   ({ market, variant = 'row', markets, analyticParams }: MarketCardProps) => {
-    const { onOpenMarketPage, setMarkets } = useTradingService()
+    const { onOpenMarketPage, setMarkets, setClobOutcome } = useTradingService()
     const router = useRouter()
 
     const { trackClicked } = useAmplitude()
@@ -43,6 +43,15 @@ export const MarketCardTrigger = React.memo(
         onClick={handleMarketPageOpened}
       >
         <Paper flex={1} w={'100%'} position='relative' cursor='pointer' p='14px' bg='unset'>
+          <Box w='full' mb='8px'>
+            <DailyMarketTimer
+              hideText
+              deadline={market.expirationTimestamp}
+              deadlineText={market.expirationDate}
+              {...paragraphRegular}
+              color='grey.500'
+            />
+          </Box>
           <VStack w='full' gap='16px' justifyContent='space-between'>
             <Flex w='full' justifyContent='space-between'>
               <Text {...headline} fontSize='16px' textAlign='start' mt='12px'>
@@ -65,15 +74,6 @@ export const MarketCardTrigger = React.memo(
             </Box>
             <Box w='full'>
               <HStack w='full' justifyContent='space-between'>
-                <Box w='full'>
-                  <DailyMarketTimer
-                    hideText
-                    deadline={market.expirationTimestamp}
-                    deadlineText={market.expirationDate}
-                    {...paragraphRegular}
-                    color='grey.500'
-                  />
-                </Box>
                 <HStack gap='4px'>
                   <HStack gap='4px'>
                     <>
@@ -93,6 +93,30 @@ export const MarketCardTrigger = React.memo(
                       {market.tradeType === 'amm' && <OpenInterestTooltip iconColor='grey.500' />}
                     </>
                   </HStack>
+                </HStack>
+                <HStack gap='8px'>
+                  <Button
+                    {...captionMedium}
+                    h='20px'
+                    px='4px'
+                    py='2px'
+                    color={'green.500'}
+                    bg={'greenTransparent.100'}
+                    onClick={() => setClobOutcome(0)}
+                  >
+                    {'YES'}
+                  </Button>
+                  <Button
+                    {...captionMedium}
+                    h='20px'
+                    px='4px'
+                    py='2px'
+                    color={'red.500'}
+                    bg={'redTransparent.100'}
+                    onClick={() => setClobOutcome(1)}
+                  >
+                    {'NO'}
+                  </Button>
                 </HStack>
               </HStack>
             </Box>

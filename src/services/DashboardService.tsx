@@ -1,31 +1,12 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { DashboardTagId } from '@/components/common/markets/dashboard-section'
-import { calculateMarketPrice } from './MarketsService'
-import { Market } from '@/types'
-import { getPrices } from '@/utils/market'
-
-interface ApiResponse {
-  data: Market[]
-  totalMarketsCount: number
-}
-
-interface DashboardPage {
-  data: {
-    markets: Market[]
-    totalAmount: number
-  }
-  next: number
-}
-
-interface OddsData {
-  prices: number[]
-}
-
-const DASHBOARD_LIMIT = 65
+import { LIMIT_PER_PAGE } from '@/constants/application'
+import { ApiResponse, MarketPage, OddsData } from '@/types'
+import { calculateMarketPrice, getPrices } from '@/utils/market'
 
 export const useInfinityDashboard = (tagId?: DashboardTagId) => {
-  return useInfiniteQuery<DashboardPage, Error>({
+  return useInfiniteQuery<MarketPage, Error>({
     queryKey: ['dashboard-infinity', tagId],
     queryFn: async ({ pageParam = 1 }) => {
       const response = await axios.get<ApiResponse>(
@@ -33,7 +14,7 @@ export const useInfinityDashboard = (tagId?: DashboardTagId) => {
         {
           params: {
             page: pageParam,
-            limit: DASHBOARD_LIMIT,
+            limit: LIMIT_PER_PAGE,
             ...(tagId && { tagId }),
           },
         }
@@ -75,7 +56,7 @@ export const useInfinityDashboard = (tagId?: DashboardTagId) => {
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      return lastPage?.data?.markets?.length === DASHBOARD_LIMIT ? lastPage.next : undefined
+      return lastPage?.data?.markets?.length === LIMIT_PER_PAGE ? lastPage.next : undefined
     },
     refetchOnWindowFocus: false,
     enabled: !!tagId,

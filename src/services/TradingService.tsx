@@ -120,7 +120,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     // }
     setMarket(market as Market)
     setMarketGroup(null)
-    setClobOutcome(0)
     !isMobile && setMarketPageOpened(true)
   }
 

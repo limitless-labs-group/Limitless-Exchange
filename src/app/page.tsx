@@ -77,7 +77,7 @@ const MainPage = () => {
       ...(dashboard && { dashboard: dashboardNameMapping[dashboard.toLowerCase()] || dashboard }),
     }
     trackOpened(OpenEvent.PageOpened, analyticData)
-  }, [selectedCategory, dashboard])
+  }, [selectedCategory?.name, dashboard])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -120,7 +120,7 @@ const MainPage = () => {
 
   const markets: (Market | MarketGroup)[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
-  }, [data?.pages, category])
+  }, [data?.pages])
 
   const filteredAllMarkets = useMemo(() => {
     if (!markets) return []
