@@ -34,7 +34,6 @@ export const useReferral = () => {
           pageUrl: pageUrl,
           visitorId,
           referralCode,
-          ipAddress: '0.0.0.0',
         }
       )
       return res.data
