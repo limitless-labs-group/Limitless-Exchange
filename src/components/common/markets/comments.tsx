@@ -40,7 +40,7 @@ export default function Comments() {
           {comments.map((comment) => (
             <Fragment key={comment.id}>
               <Comment key={comment.id} comment={comment} />
-              <Divider color='grey.300' />
+              <Divider />
             </Fragment>
           ))}
         </VStack>

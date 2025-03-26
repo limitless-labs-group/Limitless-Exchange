@@ -343,10 +343,10 @@ export default function Sidebar() {
                     px='8px'
                     w='full'
                     _active={{
-                      bg: 'grey.100',
+                      bg: 'grey.200',
                     }}
                     _hover={{
-                      bg: 'grey.100',
+                      bg: 'grey.200',
                     }}
                   >
                     <HStack gap='8px'>
@@ -470,7 +470,7 @@ export default function Sidebar() {
             }}
             variant='transparent'
             w='full'
-            bg={pageName === 'Home' ? 'grey.100' : 'unset'}
+            bg={pageName === 'Feed' ? 'grey.100' : 'unset'}
             rounded='8px'
           >
             <HStack w='full'>
@@ -518,7 +518,7 @@ export default function Sidebar() {
             passHref
             style={{ width: isMobile ? 'fit-content' : '100%' }}
           >
-            <Link variant='transparent'>
+            <Link variant='transparent' px={0}>
               <SideItem
                 isActive={dashboard === 'marketcrash'}
                 icon={<DashboardIcon width={16} height={16} />}
@@ -547,8 +547,9 @@ export default function Sidebar() {
               justifyContent='space-between'
               display='flex'
               cursor='pointer'
-              _hover={{ bg: 'grey.100' }}
+              _hover={{ bg: 'grey.300' }}
               borderRadius='8px'
+              bg='grey.100'
             >
               {volumeArray.map((volumeSymbol, index) => (
                 <Text key={index} {...paragraphRegular}>

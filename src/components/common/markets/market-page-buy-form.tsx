@@ -214,7 +214,7 @@ export default function MarketPageBuyForm({
       <Flex justifyContent='space-between' alignItems='center'>
         <Flex gap='4px'>
           <StepBadge content={'1'} />
-          <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'}>
+          <Text {...paragraphMedium} color={'grey.500'}>
             Enter amount
           </Text>
         </Flex>
@@ -239,8 +239,8 @@ export default function MarketPageBuyForm({
                 borderBottom='1px dotted'
                 borderColor='rgba(132, 132, 132, 0.5)'
                 _hover={{
-                  borderColor: 'var(--chakra-colors-text-100)',
-                  color: 'var(--chakra-colors-text-100)',
+                  borderColor: 'grey.600',
+                  color: 'grey.600',
                 }}
                 disabled={balanceLoading}
               >
@@ -265,23 +265,15 @@ export default function MarketPageBuyForm({
             onChange={(e) => handleInputValueChange(e.target.value)}
             placeholder='0'
             css={css`
-              caret-color: var(--chakra-colors-text-100);
-              border-color: var(--chakra-colors-greyTransparent-200);
-              color: var(--chakra-colors-text-100);
+              caret-color: var(--chakra-colors-grey-500);
             `}
-            _focus={{
-              borderColor: 'var(--chakra-colors-greyTransparent-200)',
-            }}
-            _placeholder={{
-              color: 'var(--chakra-colors-text-100)',
-            }}
             type='number'
             inputMode='decimal'
             pattern='[0-9]*'
             min='0'
           />
           <InputRightElement h='16px' top='8px' right={isMobile ? '8px' : '12px'} w='fit'>
-            <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'}>
+            <Text {...paragraphMedium} color={'grey.500'}>
               {market?.collateralToken.symbol}
             </Text>
           </InputRightElement>
@@ -294,13 +286,13 @@ export default function MarketPageBuyForm({
         cursor='pointer'
         onClick={toggleShowSlippageDetails}
       >
-        <Text {...paragraphRegular} color={'var(--chakra-colors-text-100)'}>
+        <Text {...paragraphRegular} color={'grey.500'}>
           Slippage Tolerance {slippage === '100' ? 'Infinite' : !slippage ? '0%' : `${slippage}%`}
         </Text>
         <Box
           transform={`rotate(${showSlippageDetails ? '180deg' : 0})`}
           transition='0.5s'
-          color={'var(--chakra-colors-text-100)'}
+          color={'grey.500'}
         >
           <ChevronDownIcon width='16px' height='16px' />
         </Box>
@@ -314,20 +306,13 @@ export default function MarketPageBuyForm({
               onChange={(e) => handleSlippageChange(e.target.value)}
               placeholder='0'
               css={css`
-                caret-color: var(--chakra-colors-text-100);
-                border-color: var(--chakra-colors-greyTransparent-200);
-                color: var(--chakra-colors-text-100);
+                caret-color: var(--chakra-colors-grey-500);
               `}
-              _focus={{
-                borderColor: 'var(--chakra-colors-greyTransparent-200)',
-              }}
-              _placeholder={{
-                color: 'var(--chakra-colors-text-100)',
-              }}
               type='number'
               inputMode='decimal'
               pattern='[0-9]*'
               min='0'
+              h='24px'
             />
             <InputRightElement
               h='16px'
@@ -335,22 +320,17 @@ export default function MarketPageBuyForm({
               right={isMobile ? '8px' : '4px'}
               w='fit'
             >
-              <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'}>
+              <Text {...paragraphMedium} color={'grey.500'}>
                 %
               </Text>
             </InputRightElement>
           </InputGroup>
           {[1, 5, 7, 100].map((title) => (
             <Button
-              variant='transparentLight'
-              bg='var(--chakra-colors-greyTransparent-200)'
-              _hover={{
-                bg: 'var(--chakra-colors-greyTransparent-600)',
-              }}
+              variant='grey'
               key={title}
               flex={1}
               onClick={() => handleSlippageClicked(title)}
-              color={'var(--chakra-colors-text-100)'}
               py='2px'
               h={isMobile ? '32px' : '24px'}
             >
@@ -362,7 +342,7 @@ export default function MarketPageBuyForm({
       <HStack w='full' justifyContent='start' mt='24px'>
         <Flex gap='4px' alignItems='center'>
           <StepBadge content={'2'} />
-          <Text {...paragraphRegular} color={'var(--chakra-colors-text-100)'}>
+          <Text {...paragraphRegular} color={'grey.500'}>
             Select outcome
           </Text>
         </Flex>
@@ -428,7 +408,7 @@ const StepBadge = memo(({ content }: StepBadgeProps) => {
       borderRadius='999px'
       w='16px'
       h='16px'
-      bg={'var(--chakra-colors-grey-800)'}
+      bg={'var(--chakra-colors-grey-500)'}
       alignItems='center'
       justifyContent='center'
       fontSize='12px'

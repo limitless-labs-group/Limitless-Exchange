@@ -454,15 +454,15 @@ export function SellForm({
                 <Box
                   transform={`rotate(${isOpenSelectMarketMenu ? '180deg' : 0})`}
                   transition='0.5s'
-                  color='var(--chakra-colors-text-100)'
+                  color='var(--chakra-colors-grey-100)'
                 >
                   <ChevronDownIcon width='16px' height='16px' />
                 </Box>
               }
             >
-              <HStack gap='8px' color='var(--chakra-colors-text-100)'>
+              <HStack gap='8px' color='var(--chakra-colors-grey-100)'>
                 <PredictionsIcon />
-                <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
+                <Text {...paragraphMedium} color='var(--chakra-colors-grey-100)'>
                   {market?.proxyTitle ?? market?.title}
                 </Text>
               </HStack>
@@ -488,10 +488,10 @@ export function SellForm({
           {/*      >*/}
           {/*        <HStack mb='8px' w='full'>*/}
           {/*          <HStack justifyContent='space-between' w='full' alignItems='flex-start'>*/}
-          {/*            <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>*/}
+          {/*            <Text {...paragraphMedium} color='var(--chakra-colors-grey-100)'>*/}
           {/*              {market?.proxyTitle ?? market?.title}*/}
           {/*            </Text>*/}
-          {/*            <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>*/}
+          {/*            <Text {...paragraphMedium} color='var(--chakra-colors-grey-100)'>*/}
           {/*              {NumberUtil.formatThousands(*/}
           {/*                getTotalContractsAmount(market.address as Address),*/}
           {/*                6*/}
@@ -557,7 +557,7 @@ export function SellForm({
                     <HStack w={'full'}>
                       <Text
                         {...paragraphMedium}
-                        color='var(--chakra-colors-text-100)'
+                        color='var(--chakra-colors-grey-100)'
                         textAlign={'left'}
                         whiteSpace='normal'
                       >
@@ -675,7 +675,7 @@ export function SellForm({
                     <HStack w={'full'}>
                       <Text
                         {...paragraphMedium}
-                        color='var(--chakra-colors-text-100)'
+                        color='var(--chakra-colors-grey-100)'
                         textAlign={'left'}
                         whiteSpace='normal'
                       >
@@ -746,7 +746,7 @@ export function SellForm({
           {outcomeChoice && (
             <Box mt='24px'>
               <Flex justifyContent='space-between'>
-                <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
+                <Text {...paragraphMedium} color='var(--chakra-colors-grey-500)'>
                   Balance
                 </Text>
                 {sellBalanceLoading ? (
@@ -754,7 +754,7 @@ export function SellForm({
                     <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
                   </Box>
                 ) : (
-                  <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
+                  <Text {...paragraphMedium} color='var(--chakra-colors-grey-500)'>
                     {NumberUtil.formatThousands(balance, 6)} {token?.symbol}
                   </Text>
                 )}
@@ -771,20 +771,20 @@ export function SellForm({
                 h={isMobile ? '40px' : '8px'}
                 py={isMobile ? '0px !important' : '4px'}
               >
-                <SliderTrack bg='var(--chakra-colors-greyTransparent-600)'>
-                  <SliderFilledTrack bg='var(--chakra-colors-text-100)' />
+                <SliderTrack bg='var(--chakra-colors-grey-300)'>
+                  <SliderFilledTrack bg='var(--chakra-colors-grey-800)' />
                 </SliderTrack>
-                <SliderThumb bg='var(--chakra-colors-text-100)' />
+                <SliderThumb bg='var(--chakra-colors-grey-500)' />
               </Slider>
               <Stack w={'full'} mt={isMobile ? 0 : '8px'} gap='4px'>
                 <HStack justifyContent='space-between'>
-                  <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
+                  <Text {...paragraphMedium} color='var(--chakra-colors-grey-500)'>
                     Enter amount
                   </Text>
                   {isExceedsBalance && (
-                    <HStack color='var(--chakra-colors-text-100)' gap='4px'>
+                    <HStack color='var(--chakra-colors-grey-500)' gap='4px'>
                       <InfoIcon width='16px' height='16px' />
-                      <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
+                      <Text {...paragraphMedium} color='var(--chakra-colors-grey-500)'>
                         Not enough funds
                       </Text>
                     </HStack>
@@ -797,27 +797,14 @@ export function SellForm({
                     onChange={(e) => handleInputValueChange(e.target.value)}
                     placeholder='0'
                     css={css`
-                      caret-color: var(--chakra-colors-text-100);
-                      border-color: var(--chakra-colors-greyTransparent-200);
-                      color: var(--chakra-colors-text-100);
+                      caret-color: var(--chakra-colors-grey-500);
                     `}
-                    _focus={{
-                      borderColor: 'var(--chakra-colors-greyTransparent-200)',
-                    }}
-                    _placeholder={{
-                      color: 'var(--chakra-colors-text-100)',
-                    }}
                     type='number'
                     inputMode='decimal'
                     pattern='[0-9]*'
                   />
-                  <InputRightElement
-                    h='16px'
-                    top={isMobile ? '8px' : '4px'}
-                    right={isMobile ? '8px' : '4px'}
-                    w='fit'
-                  >
-                    <Text {...paragraphMedium} color='var(--chakra-colors-text-100)'>
+                  <InputRightElement h='16px' top='8px' right={isMobile ? '8px' : '4px'} w='fit'>
+                    <Text {...paragraphMedium} color='grey.500'>
                       {market?.collateralToken.symbol}
                     </Text>
                   </InputRightElement>
@@ -884,7 +871,7 @@ export function SellForm({
               <VStack my='24px' gap={isMobile ? '8px' : '4px'} w='full'>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='var(--chakra-colors-text-100)'>
+                    <Text {...paragraphRegular} color='var(--chakra-colors-grey-500)'>
                       Price impact
                     </Text>
                   </HStack>
@@ -895,7 +882,7 @@ export function SellForm({
                   ) : (
                     <Text
                       {...paragraphRegular}
-                      color='var(--chakra-colors-text-100)'
+                      color='var(--chakra-colors-grey-600)'
                     >{`${NumberUtil.toFixed(
                       outcomeChoice == 'yes' ? quoteYes?.priceImpact : quoteNo?.priceImpact,
                       2
@@ -904,7 +891,7 @@ export function SellForm({
                 </HStack>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='var(--chakra-colors-text-100)'>
+                    <Text {...paragraphRegular} color='var(--chakra-colors-grey-500)'>
                       ROI
                     </Text>
                   </HStack>
@@ -913,7 +900,7 @@ export function SellForm({
                       <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
                     </Box>
                   ) : (
-                    <Text {...paragraphRegular} color='var(--chakra-colors-text-100)'>
+                    <Text {...paragraphRegular} color='var(--chakra-colors-grey-600)'>
                       {NumberUtil.toFixed(outcomeChoice == 'yes' ? quoteYes?.roi : quoteNo?.roi, 2)}
                       %
                     </Text>
@@ -921,7 +908,7 @@ export function SellForm({
                 </HStack>
                 <HStack justifyContent='space-between' w='full'>
                   <HStack gap='4px'>
-                    <Text {...paragraphRegular} color='var(--chakra-colors-text-100)'>
+                    <Text {...paragraphRegular} color='var(--chakra-colors-grey-500)'>
                       Total
                     </Text>
                   </HStack>
@@ -930,7 +917,7 @@ export function SellForm({
                       <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
                     </Box>
                   ) : (
-                    <Text {...paragraphRegular} color='var(--chakra-colors-text-100)'>
+                    <Text {...paragraphRegular} color='var(--chakra-colors-grey-600)'>
                       {NumberUtil.toFixed(displayAmount, 6)} {token?.symbol}
                     </Text>
                   )}

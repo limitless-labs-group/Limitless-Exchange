@@ -103,7 +103,7 @@ export default function ClobWidget() {
       <Box position='relative' borderRadius='8px' overflow='hidden'>
         <Overlay show={tradeStepperOpen} onClose={onToggleTradeStepper} />
         {tradeStepperOpen && <TradeStepperMenu />}
-        <Paper bg='grey.100' borderRadius='8px' p='8px' position='relative'>
+        <Paper borderRadius='8px' p='8px' position='relative' bg='grey.100'>
           <HStack w='full' justifyContent='center' mb='16px'>
             <HStack w={'236px'} mx='auto' bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
               <Button

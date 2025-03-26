@@ -100,7 +100,7 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
           deadlineText={market.expirationDate}
           topMarket={true}
           {...paragraphRegular}
-          color='transparent.700'
+          color='whiteAlpha.70'
         />
       </Box>
       <Text {...(isMobile ? h2Bold : h1Bold)} color='white' textAlign='left'>
@@ -123,8 +123,8 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
             mt={'12px'}
             mb='8px'
             w='full'
-            bg='transparent.200'
-            borderColor='transparent.200'
+            bg='whiteAlpha.20'
+            borderColor='whiteAlpha.20'
           />
         )}
         {isMobile ? (
@@ -150,11 +150,11 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
                   />
                 ))}
               </HStack>
-              <Text {...paragraphRegular} color='transparent.700'>
+              <Text {...paragraphRegular} color='whiteAlpha.70'>
                 Volume
               </Text>
             </HStack>
-            <Text {...paragraphRegular} color='transparent.700'>
+            <Text {...paragraphRegular} color='whiteAlpha.70'>
               {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
               {market.collateralToken.symbol}
             </Text>
@@ -186,7 +186,7 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
             )}
             {
               <HStack gap='4px'>
-                <Text {...paragraphRegular} color='transparent.700'>
+                <Text {...paragraphRegular} color='whiteAlpha.70'>
                   {market.tradeType === 'amm' ? 'Value' : 'Volume'}{' '}
                   {market.tradeType === 'amm'
                     ? NumberUtil.convertWithDenomination(

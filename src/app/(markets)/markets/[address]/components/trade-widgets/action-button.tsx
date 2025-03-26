@@ -310,7 +310,7 @@ export default function ActionButton({
           flexDir='column'
           gap={isMobile ? '16px' : '8px'}
           _hover={{
-            backgroundColor: 'transparent.300',
+            backgroundColor: 'whiteAlpha.30',
           }}
           isDisabled={disabled || ['transaction-broadcasted', 'success'].includes(status)}
           onClick={() => {

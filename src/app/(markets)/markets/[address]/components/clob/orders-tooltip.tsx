@@ -57,7 +57,7 @@ export default function OrdersTooltip({
   )
   return (
     <Tooltip
-      bg='background.90'
+      bg='whiteAlpha.70'
       border='unset'
       label={label}
       placement={placement}
