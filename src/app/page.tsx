@@ -3,7 +3,7 @@
 import { Link, HStack, Text, VStack, Box } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
 import NextLink from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -54,6 +54,17 @@ const MainPage = () => {
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useMarkets(null)
 
   const pageName = usePageName()
+  const router = useRouter()
+  const pathname = usePathname()
+
+  useEffect(() => {
+    const hasVisited = sessionStorage.getItem('hasVisited')
+
+    if (!hasVisited && pathname === '/') {
+      sessionStorage.setItem('hasVisited', 'true')
+      router.replace('/?dashboard=marketcrash')
+    }
+  }, [pathname, router])
 
   useEffect(() => {
     if (marketData) {

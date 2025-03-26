@@ -4,6 +4,7 @@ import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { DashboardHeader } from './dasboard-header'
 import { DashboardGroup, DashboardGroupType } from './dashboard-group'
+import { DashboardLoader } from './dashboard-loader'
 import { usePriceOracle } from '@/providers'
 import { useInfinityDashboard } from '@/services/DashboardService'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
@@ -75,11 +76,7 @@ export default function DashboardSection({
     })
     .filter((category) => category.markets.length > 0)
 
-  return isLoading ? (
-    <Flex width='100%' height='100vh' justifyContent='center' alignItems='center'>
-      <Loader />
-    </Flex>
-  ) : (
+  return (
     <>
       <DashboardHeader />
       <Box className='full-container'>
@@ -111,6 +108,7 @@ export default function DashboardSection({
               </Flex>
             </Box>
             <VStack gap='80px' mt='80px' width='full' px={isMobile ? '16px' : 'unset'}>
+              {isLoading ? <DashboardLoader /> : null}
               {categorizedMarkets.map((category, index) => (
                 <DashboardGroup
                   key={category.name}
