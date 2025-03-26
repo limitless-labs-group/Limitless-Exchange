@@ -79,7 +79,7 @@ export const defaultFormData = {
   categories: [{ id: '2', label: 'Crypto', value: 'Crypto' }],
   ogLogo: undefined,
   isBannered: false,
-  priorityIndex: 10,
+  priorityIndex: 0,
   txHash: '',
   maxDailyReward: 300,
   maxSpread: 3,
