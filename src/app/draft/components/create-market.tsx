@@ -61,6 +61,7 @@ import { useToast } from '@/hooks'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import { useCategories, useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Category } from '@/types'
 import {
   Token,
@@ -846,25 +847,39 @@ export const CreateMarket: FC = () => {
 
             <VStack w={'full'} flex='0.8' h='full'>
               <FormField label='Market Fee'>
-                <HStack>
-                  <Checkbox
-                    isChecked={formData.marketFee === 1}
-                    onChange={(e) => handleChange('marketFee', e.target.checked ? 1 : 0)}
-                  >
-                    1% Fee
-                  </Checkbox>
+                <HStack gap='8px'>
+                  <Box
+                    w='16px'
+                    h='16px'
+                    borderColor='grey.500'
+                    border='1px solid'
+                    borderRadius='2px'
+                    bg={formData.marketFee === 1 ? 'grey.800' : 'unset'}
+                    onClick={() => {
+                      handleChange('marketFee', formData.marketFee === 1 ? 0 : 1)
+                    }}
+                  />
+                  <Text {...paragraphRegular}> 1% Fee</Text>
                 </HStack>
               </FormField>
-              <FormField label='Is Bannered'>
-                <HStack>
-                  <Checkbox
-                    isChecked={formData.isBannered}
-                    onChange={(e) => handleChange('isBannered', e.target.checked)}
-                  >
-                    Add market to big banner
-                  </Checkbox>
-                </HStack>
-              </FormField>
+              {marketType !== 'group' && (
+                <FormField label='Is Bannered'>
+                  <HStack gap='8px'>
+                    <Box
+                      w='16px'
+                      h='16px'
+                      borderColor='grey.500'
+                      border='1px solid'
+                      borderRadius='2px'
+                      bg={formData.isBannered ? 'grey.800' : 'unset'}
+                      onClick={() => {
+                        handleChange('isBannered', !formData.isBannered)
+                      }}
+                    />
+                    <Text {...paragraphRegular}>Add market to big banner</Text>
+                  </HStack>
+                </FormField>
+              )}
 
               <FormField label='Creator'>
                 <HStack>
