@@ -5,10 +5,11 @@ import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { Toast } from '@/components/common/toast'
-import { DraftMarket, DraftMarketCard } from '@/app/draft/components/draft-card'
+import { DraftMarketCard } from '@/app/draft/components/draft-card'
 import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks/ui/useToast'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import { DraftMarket } from '@/types/draft'
 
 export const RecentMarkets = () => {
   const router = useRouter()
