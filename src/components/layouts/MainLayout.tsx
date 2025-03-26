@@ -3,8 +3,7 @@ import { usePathname } from 'next/navigation'
 import React from 'react'
 import { isMobile } from 'react-device-detect'
 import MarketPage from '@/components/common/markets/market-page'
-import HeaderMarquee from '@/components/layouts/header-marquee'
-import MobileHeader from '@/components/layouts/mobile-header'
+import Header from '@/components/layouts/header'
 import MobileNavigation from '@/components/layouts/mobile-navigation'
 import Sidebar from '@/components/layouts/sidebar'
 import { useTradingService } from '@/services'
@@ -37,10 +36,7 @@ export const MainLayout = ({
       gap={{ sm: 6, md: 10 }}
       {...props}
     >
-      <Box position={isMobile ? 'fixed' : 'relative'} zIndex={9999} top={0}>
-        <HeaderMarquee />
-        {isMobile && <MobileHeader />}
-      </Box>
+      <Header />
       <Box
         mt='20px'
         mb={isMobile ? '60px' : 0}
