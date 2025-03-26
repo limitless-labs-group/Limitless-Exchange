@@ -140,7 +140,7 @@ export const MarketCard = ({ variant = 'row', market, analyticParams }: DailyMar
           <Flex
             w='full'
             alignItems='center'
-            marginX='auto'
+            margin='auto'
             gap='12px'
             justifyContent='space-between'
           >
