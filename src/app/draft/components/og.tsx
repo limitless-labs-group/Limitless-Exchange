@@ -22,7 +22,7 @@ export const Og = () => {
   const [ogImageError, setOgImageError] = useState<string | null>(null)
   const [autoGenerateOg, setAutoGenerateOg] = useState<boolean>(true)
   const [isReady, setIsReady] = useState<boolean>(false)
-  const [formData, setFormData] = useAtom(formDataAtom)
+  const [formData] = useAtom(formDataAtom)
   const toast = useToast()
   const { handleChange } = useCreateMarket()
   useEffect(() => {
@@ -44,15 +44,10 @@ export const Og = () => {
     mutationKey: ['generate-og-image'],
     mutationFn: async () => {
       setOgImageError(null)
-      return new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(console.log('OG image generation timed out'))
-        }, 5000)
-
+      return new Promise((resolve) => {
         const checkReady = setInterval(() => {
           if (isReady) {
             clearInterval(checkReady)
-            clearTimeout(timeout)
             resolve(true)
           }
         }, 50)

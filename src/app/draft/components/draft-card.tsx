@@ -134,22 +134,23 @@ const MarketDataFactory = {
 
 const DraftMarketSpecificInfo = ({ market }: { market: DraftMarket }) => (
   <>
-    {market.draftMetadata?.liquidity &&
-      !MarketDataFactory.isZeroOrEmpty(market.draftMetadata.liquidity) && (
-        <HStack w={'unset'} justifyContent={'unset'}>
-          <HStack color={colors.secondary} gap='4px'>
-            <LiquidityIcon width={16} height={16} />
-            <Text {...paragraphMedium} color={colors.secondary}>
-              Liq.
+    {market.draftMetadata?.liquidity
+      ? !MarketDataFactory.isZeroOrEmpty(market.draftMetadata.liquidity) && (
+          <HStack w={'unset'} justifyContent={'unset'}>
+            <HStack color={colors.secondary} gap='4px'>
+              <LiquidityIcon width={16} height={16} />
+              <Text {...paragraphMedium} color={colors.secondary}>
+                Liq.
+              </Text>
+            </HStack>
+            <Text {...paragraphRegular} color={colors.main}>
+              {NumberUtil.formatThousands(market.draftMetadata.liquidity, 6) +
+                ' ' +
+                market.collateralToken.symbol}
             </Text>
           </HStack>
-          <Text {...paragraphRegular} color={colors.main}>
-            {NumberUtil.formatThousands(market.draftMetadata.liquidity, 6) +
-              ' ' +
-              market.collateralToken.symbol}
-          </Text>
-        </HStack>
-      )}
+        )
+      : null}
 
     <HStack w={'unset'} justifyContent={'unset'}>
       <HStack color={colors.secondary} gap='4px'>

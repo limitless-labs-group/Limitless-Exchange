@@ -25,7 +25,7 @@ export function epochToDailyRewards(epoch: number) {
 
 export const useCreateMarket = () => {
   const [formData, setFormData] = useAtom(formDataAtom)
-  const [createClobMarket, setCreateClobMarket] = useAtom(marketTypeAtom)
+  const [createClobMarket] = useAtom(marketTypeAtom)
   const { parseTimezone } = useTimezoneSelect({
     labelStyle: 'original',
     timezones: allTimezones,
