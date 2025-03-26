@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import { limitlessApi } from '@/services'
+import { MarketType } from '@/types'
 
-export default function useMarketRewardsIncentive(slug?: string, tradeType?: 'clob' | 'amm') {
+export default function useMarketRewardsIncentive(slug?: string, tradeType?: MarketType) {
   return useQuery({
     queryKey: ['market-rewards-incentive', slug],
     queryFn: async () => {

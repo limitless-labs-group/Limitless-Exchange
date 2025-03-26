@@ -6,6 +6,7 @@ import { defaultChain } from '@/constants'
 import { LIMIT_PER_PAGE } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { AnalyticsParams, OddsData } from '@/types'
+import { MarketInput } from '@/types/draft'
 
 export const getAnalyticsParams = (
   index: number,
@@ -39,6 +40,21 @@ export const calculateMarketPrice = (price: number | undefined): number => {
   const calculated = new BigNumber(price).multipliedBy(100).decimalPlaces(0).toNumber()
 
   return Number.isNaN(calculated) ? 50 : calculated
+}
+
+export const findDuplicateMarketGroupTitles = (markets: MarketInput[]) => {
+  const map = new Map()
+  const duplicates = []
+  const marketTitles = markets.map((market) => market.title)
+
+  for (const str of marketTitles) {
+    map.set(str, (map.get(str) || 0) + 1)
+    if (map.get(str) === 2) {
+      duplicates.push(str)
+    }
+  }
+
+  return duplicates
 }
 
 export async function getPrices(data: { address: Address; decimals: number }[]) {

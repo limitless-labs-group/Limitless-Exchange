@@ -20,7 +20,7 @@ export type Category = {
   priority?: number | null
 }
 
-export type MarketType = 'amm' | 'clob'
+export type MarketType = 'amm' | 'clob' | 'group'
 
 export type Dashboard = 'marketcrash'
 
