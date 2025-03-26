@@ -15,6 +15,7 @@ export type DraftMarket = {
   creator: DraftCreator
   type: MarketType
   draftMetadata: DraftMetadata
+  markets?: MarketInput[]
   metadata: {
     isBannered: false
   }
@@ -48,6 +49,7 @@ export interface IFormData {
   ogLogo: File | undefined
   isBannered: boolean
   txHash: string
+  marketInput?: MarketInput[]
   priorityIndex?: number
   maxDailyReward?: number
   maxSpread?: number
@@ -107,6 +109,13 @@ export interface Creator {
   socialUrl: null | string
   referralCode: string
 }
+export type MarketInput = {
+  title: string
+  description: string
+  id?: number
+}
+
+export type DraftMarketType = 'amm' | 'clob' | 'group'
 
 export interface DraftCreator {
   id: number
@@ -136,7 +145,7 @@ export interface DraftMarketResponse {
 
 export interface BaseMarketData {
   title: string
-  description: string
+  description?: string
   tokenId: number
   marketFee: number
   deadline: number
@@ -144,18 +153,21 @@ export interface BaseMarketData {
   creatorId: string
   categoryIds: string
   tagIds: string
+  marketsInput?: any
 }
 
 export interface ClobMarketData extends BaseMarketData {
   minSize?: number
   maxSpread?: number
   c?: number
-  rewardsEpoch?: number
+  maxDailyReward?: number
+  priorityIndex?: number
 }
 
 export interface AmmMarketData extends BaseMarketData {
   liquidity: number
   initialYesProbability: number
+  priorityIndex?: number
 }
 
 export type MarketData = ClobMarketData | AmmMarketData

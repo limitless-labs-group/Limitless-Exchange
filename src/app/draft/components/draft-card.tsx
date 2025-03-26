@@ -38,6 +38,12 @@ const badgeBg = {
   group: 'lime.100',
 }
 
+const badgeBg = {
+  amm: 'blue.100',
+  clob: 'green.100',
+  group: 'lime.100',
+}
+
 const MarketDataFactory = {
   getMarketType: (market: DraftMarket | Market): string => {
     if (isDraftMarket(market)) {
@@ -134,6 +140,41 @@ const MarketDataFactory = {
         ))}
       </HStack>
     )
+  },
+
+  renderGroupMarkets: (market: DraftMarket | Market) => {
+    if (isMarket(market)) return
+    if (market.type === 'group' && market?.markets && market.markets?.length > 0) {
+      return (
+        <Box pl={2} mb={2}>
+          <Text {...paragraphMedium} color={colors.secondary} mb={1}>
+            Markets in group:
+          </Text>
+          <Stack spacing={1}>
+            {[...market.markets]
+              .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
+              .map((subMarket: MarketInput, index: number) => (
+                <Text
+                  key={market.id ?? index}
+                  {...paragraphRegular}
+                  color={colors.main}
+                  pl={4}
+                  position='relative'
+                  _before={{
+                    content: '"•"',
+                    position: 'absolute',
+                    left: 1,
+                    color: colors.secondary,
+                  }}
+                >
+                  {subMarket.title}
+                </Text>
+              ))}
+          </Stack>
+        </Box>
+      )
+    }
+    return null
   },
 }
 
@@ -355,8 +396,9 @@ export const DraftMarketCard = ({
               </Box>
             ) : null}
 
-            {MarketDataFactory.renderCreatorAndTags(market)}
+            {MarketDataFactory.renderGroupMarkets(market)}
 
+            {MarketDataFactory.renderCreatorAndTags(market)}
             <HStack justifyContent='space-between' alignItems='flex-end' flexDirection={'row'}>
               <HStack gap={'16px'} flexDirection={'row'} w='full'>
                 <HStack w={'unset'} justifyContent={'unset'}>
