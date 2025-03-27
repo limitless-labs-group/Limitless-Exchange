@@ -12,7 +12,7 @@ const black = defineStyle(() => {
 
 const grey = defineStyle(() => {
   return {
-    bg: 'background.90',
+    bg: 'whiteAlpha.70',
     color: 'white',
     padding: '8px 12px',
   }

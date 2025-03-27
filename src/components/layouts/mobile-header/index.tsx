@@ -11,7 +11,6 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { useFundWallet, usePrivy } from '@privy-io/react-auth'
-import { handle } from 'frog/vercel'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
@@ -125,14 +124,7 @@ export default function MobileHeader() {
 
   return (
     <>
-      <Box
-        p='16px'
-        w='100vw'
-        bg={`linear-gradient(180deg, var(--chakra-colors-grey-50) 0%, ${
-          mode === 'light' ? 'rgba(255, 255, 255, 0)' : 'rgba(0, 0, 0, 0)'
-        }  100%)`}
-        marginTop='20px'
-      >
+      <Box p='16px' w='100vw' marginTop='20px'>
         <HStack justifyContent='space-between' alignItems='center'>
           <Box
             onClick={() => {
@@ -201,7 +193,7 @@ export default function MobileHeader() {
                 >
                   <VStack
                     ml='40px'
-                    bg='grey.50'
+                    bg='grey.100'
                     h='full'
                     p='16px'
                     justifyContent='space-between'
@@ -257,7 +249,7 @@ export default function MobileHeader() {
                           variant='outline'
                           gap='2px'
                           p='2px'
-                          bg='grey.100'
+                          bg='grey.300'
                           borderRadius='8px'
                           w='full'
                         >
@@ -358,7 +350,7 @@ export default function MobileHeader() {
                             trigger={
                               <Button
                                 variant='transparent'
-                                px={0}
+                                px='4px'
                                 w='full'
                                 onClick={handleOpenWrapModal}
                               >

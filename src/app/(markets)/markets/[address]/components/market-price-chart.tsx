@@ -41,7 +41,7 @@ const PriceChart = () => {
         type: 'x',
       },
       height: 230,
-      backgroundColor: colors.grey['100'],
+      backgroundColor: colors.grey['50'],
       marginLeft: isMobile ? 75 : 50,
       marginRight: isMobile ? 10 : 5,
     },
@@ -218,7 +218,7 @@ const PriceChart = () => {
       <Skeleton height={290} />
     </Box>
   ) : (
-    <Paper my='16px' py='8px' px={0} bg='grey.100'>
+    <Paper my='16px' py='8px' px={0} bg='grey.50'>
       <HStack px='8px' justifyContent='space-between'>
         <VStack alignItems='start'>
           <HStack>

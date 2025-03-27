@@ -232,7 +232,9 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
       </Text>
       <InputGroup display='block' mt='16px'>
         <HStack justifyContent='space-between' mb='8px'>
-          <Text {...paragraphMedium}>Enter Amount</Text>
+          <Text {...paragraphMedium} color='grey.500'>
+            Enter Amount
+          </Text>
           <Button
             {...paragraphRegular}
             p='0'
@@ -245,8 +247,8 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
             borderBottom='1px dotted'
             borderColor='rgba(132, 132, 132, 0.5)'
             _hover={{
-              borderColor: 'var(--chakra-colors-text-100)',
-              color: 'var(--chakra-colors-text-100)',
+              borderColor: 'grey.600',
+              color: 'grey.600',
             }}
           >
             Available: {sharesAvailableBalance}

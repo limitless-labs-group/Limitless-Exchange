@@ -15,12 +15,14 @@ import React, { useState, useEffect } from 'react'
 import 'react-datepicker/dist/react-datepicker.css'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
+import { ActiveMarkets } from './components/active'
 import { CreateMarket } from './components/create-market'
 import { DraftMarketsQueue } from './components/queue'
 import { RecentMarkets } from './components/recent'
 import { MainLayout } from '@/components'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
 import LoadingIcon from '@/resources/icons/loader-icon.svg'
+import ActiveIcon from '@/resources/icons/partially-filled-circle.svg'
 import PlusIcon from '@/resources/icons/plus-square-icon.svg'
 import { DraftMarketType } from '@/types/draft'
 
@@ -99,6 +101,12 @@ const CreateOwnMarketPage = () => {
       icon: <CopyIcon width={16} height={16} />,
       component: RecentMarkets,
       param: 'recent',
+    },
+    {
+      title: 'Active',
+      icon: <ActiveIcon width={16} height={16} />,
+      component: ActiveMarkets,
+      param: 'active',
     },
   ]
 

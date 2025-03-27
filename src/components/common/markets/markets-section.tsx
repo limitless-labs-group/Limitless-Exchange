@@ -1,11 +1,13 @@
 import { Box, Divider, Flex, Text, VStack } from '@chakra-ui/react'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import MarketCard from '@/components/common/markets/market-cards/market-card'
 import MarketCardMobile from '@/components/common/markets/market-cards/market-card-mobile'
 import Skeleton from '@/components/common/skeleton'
+import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import { Market, Sort, SortStorageName } from '@/types'
+import { getAnalyticsParams } from '@/utils/market'
 import SortFilter from '../sort-filter'
 
 interface DailyMarketsSectionProps {
@@ -21,6 +23,11 @@ export default function MarketsSection({
   isLoading,
   sort,
 }: DailyMarketsSectionProps) {
+  const { selectedCategory } = useTokenFilter()
+  const category = useMemo(() => {
+    return selectedCategory ? { fromCategory: selectedCategory.name } : {}
+  }, [selectedCategory])
+
   return (
     <Box
       mt='24px'
@@ -53,7 +60,7 @@ export default function MarketsSection({
                     <MarketCardMobile
                       key={market.slug || market.address}
                       market={market}
-                      analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
+                      analyticParams={getAnalyticsParams(index, 0, category)}
                       markets={markets}
                     />
                   )
@@ -65,7 +72,7 @@ export default function MarketsSection({
                       key={market.slug || market.address}
                       market={market}
                       variant='speedometer'
-                      analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
+                      analyticParams={getAnalyticsParams(index, 0, category)}
                       markets={markets}
                     />
                   )
@@ -78,7 +85,6 @@ export default function MarketsSection({
           <VStack gap={4} w='full'>
             {!isLoading &&
               markets?.map((market, index) => {
-                const position = index + 1
                 const cyclePosition = index % 12
                 // First 2 cards - straight column
                 if (cyclePosition < 2) {
@@ -86,8 +92,7 @@ export default function MarketsSection({
                     <Box key={market.slug || market.address} w='full'>
                       <MarketCard
                         market={market}
-                        analyticParams={{ bannerPosition: position, bannerPaginationPage: 1 }}
-                        markets={markets}
+                        analyticParams={getAnalyticsParams(index, 0, category)}
                       />
                     </Box>
                   )
@@ -114,11 +119,7 @@ export default function MarketsSection({
                             <MarketCard
                               variant='grid'
                               market={gridMarket}
-                              analyticParams={{
-                                bannerPosition: position + gridIndex,
-                                bannerPaginationPage: 1,
-                              }}
-                              markets={markets}
+                              analyticParams={getAnalyticsParams(index, gridIndex, category)}
                             />
                           </Box>
                         ))}
@@ -134,8 +135,7 @@ export default function MarketsSection({
                     <Box key={market.slug || market.address} w='full'>
                       <MarketCard
                         market={market}
-                        analyticParams={{ bannerPosition: position, bannerPaginationPage: 1 }}
-                        markets={markets}
+                        analyticParams={getAnalyticsParams(index, 0, category)}
                       />
                     </Box>
                   )
@@ -154,11 +154,7 @@ export default function MarketsSection({
                           <MarketCard
                             variant='grid'
                             market={speedometerCards[0]}
-                            analyticParams={{
-                              bannerPosition: position,
-                              bannerPaginationPage: 1,
-                            }}
-                            markets={markets}
+                            analyticParams={getAnalyticsParams(index, 0, category)}
                           />
                         </Box>
                       )
@@ -182,11 +178,7 @@ export default function MarketsSection({
                               <MarketCard
                                 variant='grid'
                                 market={speedometerMarket}
-                                analyticParams={{
-                                  bannerPosition: position + gridIndex,
-                                  bannerPaginationPage: 1,
-                                }}
-                                markets={markets}
+                                analyticParams={getAnalyticsParams(index, gridIndex, category)}
                               />
                             </Box>
                           ))}
@@ -212,11 +204,7 @@ export default function MarketsSection({
                                 <MarketCard
                                   variant='grid'
                                   market={speedometerMarket}
-                                  analyticParams={{
-                                    bannerPosition: position + gridIndex,
-                                    bannerPaginationPage: 1,
-                                  }}
-                                  markets={markets}
+                                  analyticParams={getAnalyticsParams(index, gridIndex, category)}
                                 />
                               </Box>
                             ))}
@@ -225,11 +213,7 @@ export default function MarketsSection({
                             <MarketCard
                               variant='row'
                               market={speedometerCards[2]}
-                              analyticParams={{
-                                bannerPosition: position + 2,
-                                bannerPaginationPage: 1,
-                              }}
-                              markets={markets}
+                              analyticParams={getAnalyticsParams(index, 2, category)}
                             />
                           </Box>
                         </VStack>
@@ -253,11 +237,7 @@ export default function MarketsSection({
                             <MarketCard
                               variant='grid'
                               market={speedometerMarket}
-                              analyticParams={{
-                                bannerPosition: position + gridIndex,
-                                bannerPaginationPage: 1,
-                              }}
-                              markets={markets}
+                              analyticParams={getAnalyticsParams(index, gridIndex, category)}
                             />
                           </Box>
                         ))}
