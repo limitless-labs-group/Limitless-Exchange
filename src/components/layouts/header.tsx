@@ -250,7 +250,6 @@ export default function Header() {
                 w='full'
                 zIndex={100}
                 bg='rgba(0, 0, 0, 0.3)'
-                mt='20px'
                 animation='fadeIn 0.5s'
               />
             )}
@@ -276,7 +275,6 @@ export default function Header() {
               in={isOpenProfile}
               style={{
                 zIndex: 100,
-                marginLeft: '197px',
                 transition: '0.1s',
               }}
               onClick={() => {
