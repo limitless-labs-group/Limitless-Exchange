@@ -12,11 +12,12 @@ export function Profile({ isOpen }: ProfileProps) {
     <Box
       bg='grey.50'
       w={isMobile ? 'full' : '328px'}
-      px={isMobile ? '16px' : '8px'}
-      pt={isMobile ? 0 : '8px'}
+      px={isMobile ? '16px' : '12px'}
+      pt={isMobile ? 0 : '12px'}
       h='full'
       onClick={(e) => e.stopPropagation()}
       overflow='auto'
+      marginLeft='auto'
     >
       {isOpen && <ProfileForm />}
     </Box>

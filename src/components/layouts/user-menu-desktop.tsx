@@ -16,6 +16,8 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Avatar from '@/components/common/avatar'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import Skeleton from '@/components/common/skeleton'
+import SocialsFooter from '@/components/common/socials-footer'
+import ThemeSwitcher from '@/components/layouts/theme-switcher'
 import BaseWhiteIcon from '@/resources/icons/base-icon-white.svg'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
@@ -222,6 +224,23 @@ export default function UserMenuDesktop({
               <UserIcon width={16} height={16} />
               Profile
             </Button>
+            <ThemeSwitcher />
+            <Button
+              variant='transparent'
+              onClick={() => {
+                trackClicked(ClickEvent.SignOutClicked, {
+                  option: 'Sign Out',
+                })
+                disconnectFromPlatform()
+                onToggleAuthMenu()
+                onCloseAuthMenu()
+              }}
+              justifyContent='flex-start'
+            >
+              <LogoutIcon width={16} height={16} />
+              Log Out
+            </Button>
+            <SocialsFooter />
           </VStack>
         </MenuList>
       </Menu>

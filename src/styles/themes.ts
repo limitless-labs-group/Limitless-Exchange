@@ -57,7 +57,7 @@ export const chakraTheme = ChakraTheme({
         overflowX: 'hidden',
         userSelect: 'text',
         color: 'grey.800',
-        background: 'grey.50',
+        background: 'grey.100',
         fontSize: '14px',
       },
       hr: {

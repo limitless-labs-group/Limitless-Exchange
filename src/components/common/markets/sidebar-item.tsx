@@ -108,11 +108,7 @@ export const CategoryItems = () => {
   return (
     <>
       {categoriesWithMarkets.map((category) => (
-        <NextLink
-          key={category.id}
-          href={`/?${createQueryString(category.name)}`}
-          style={{ width: isMobile ? 'fit-content' : '100%' }}
-        >
+        <NextLink key={category.id} href={`/?${createQueryString(category.name)}`}>
           <Link variant='transparent' px={0}>
             <SideItem
               isActive={selectedCategory?.name.toLowerCase() === category.name.toLowerCase()}
