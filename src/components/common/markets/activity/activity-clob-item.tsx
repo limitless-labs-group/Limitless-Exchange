@@ -46,7 +46,8 @@ export default function ActivityClobItem({ data }: ActivityClobItemProps) {
           for <strong>{data.title}</strong>
         </>
       )}{' '}
-      at {price}¢ <span style={{ opacity: 0.5 }}>(${totalAmount})</span>
+      at {price}¢{' '}
+      <span style={{ opacity: 0.5 }}>(${NumberUtil.convertWithDenomination(totalAmount, 2)})</span>
     </Text>
   )
 
