@@ -147,7 +147,7 @@ export const useCreateMarket = () => {
     value: IFormData[K] | MultiValue<SelectOption> | MarketInput[]
   ) => {
     if (Array.isArray(value)) {
-      if (field === 'tag') {
+      if (field === 'tag' || field === 'categories') {
         setFormData((prevFormData) => ({
           ...prevFormData,
           //@ts-ignore
