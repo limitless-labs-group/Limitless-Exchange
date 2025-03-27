@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import React, { useMemo, useState } from 'react'
 import { Toast } from '@/components/common/toast'
@@ -17,7 +17,7 @@ export type DraftMarketsQueueProps = {
 
 export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps) => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
-
+  const queryClient = useQueryClient()
   const privateClient = useAxiosPrivateClient()
 
   const router = useRouter()
@@ -80,7 +80,7 @@ export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps
         }
       )
       .then((res) => {
-        if (res.status === 201) {
+        if (res.status === 201 && marketType === 'amm') {
           const newTab = window.open('', '_blank')
           if (newTab) {
             newTab.location.href = res.data.multisigTxLink
@@ -89,13 +89,20 @@ export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps
             window.location.href = res.data.multisigTxLink
           }
         }
+        const id = toast({
+          render: () => <Toast title={`Created successfully`} id={id} />,
+        })
       })
       .catch((res) => {
         const id = toast({
           render: () => <Toast title={`Error: ${res.message}`} id={id} />,
         })
       })
-      .finally(() => {
+      .finally(async () => {
+        await queryClient.refetchQueries({
+          queryKey: [`draftMarkets-${marketType}`],
+        })
+        setSelectedMarketIds([])
         setIsCreating(false)
       })
   }
