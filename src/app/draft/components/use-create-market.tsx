@@ -85,7 +85,7 @@ export const useCreateMarket = () => {
           }
         : {}),
     }))
-    if (draftMarket.type === 'group' && draftMarket.markets?.length > 0) {
+    if (isGroup && draftMarket.markets?.length > 0) {
       setMarketType('group')
       setMarkets(
         draftMarket.markets.map((market: MarketInput) => ({
