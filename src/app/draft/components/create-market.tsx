@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   ButtonGroup,
-  Checkbox,
   Flex,
   FormControl,
   FormHelperText,
@@ -44,7 +43,7 @@ import { useToast } from '@/hooks'
 import { useCategories, useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarket } from '@/services/MarketsService'
-import { paragraphBold } from '@/styles/fonts/fonts.styles'
+import { paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Token, SelectOption, DraftCreator, DraftMarketType } from '@/types/draft'
 import { FormField } from '../components/form-field'
 
@@ -183,6 +182,7 @@ export const CreateMarket: FC = () => {
     if (!data) return
     setIsCreating(true)
     const marketData = prepareMarketData(data)
+    console.log('market', marketData)
     const url = isGroup
       ? `/markets/drafts/group/${draftMarketId}`
       : `/markets/drafts/${draftMarketId}`
@@ -388,39 +388,42 @@ export const CreateMarket: FC = () => {
               <HStack w='full' spacing='6' alignItems='start' justifyContent='start'>
                 <VStack>
                   <FormField label='Market Fee'>
-                    <HStack>
+                    <HStack gap='8px'>
                       <Box
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Checkbox
-                          isChecked={formData.marketFee === 1}
-                          onChange={(e) => {
-                            handleChange('marketFee', e.target.checked ? 1 : 0)
-                          }}
-                        >
-                          1% Fee
-                        </Checkbox>
-                      </Box>
+                        w='16px'
+                        h='16px'
+                        borderColor='grey.500'
+                        border='1px solid'
+                        borderRadius='2px'
+                        cursor='pointer'
+                        bg={formData.marketFee === 1 ? 'grey.800' : 'unset'}
+                        onClick={() => {
+                          handleChange('marketFee', formData.marketFee === 1 ? 0 : 1)
+                        }}
+                      />
+                      <Text {...paragraphRegular}> 1% Fee</Text>
                     </HStack>
                   </FormField>
-                  <FormField label='Is Bannered'>
-                    <HStack>
-                      <Box
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Checkbox
-                          isChecked={formData.isBannered}
-                          onChange={(e) => {
-                            handleChange('isBannered', e.target.checked)
+
+                  {!isGroup && (
+                    <FormField label='Is Bannered'>
+                      <HStack gap='8px'>
+                        <Box
+                          w='16px'
+                          h='16px'
+                          borderColor='grey.500'
+                          border='1px solid'
+                          borderRadius='2px'
+                          cursor='pointer'
+                          bg={formData.isBannered ? 'grey.800' : 'unset'}
+                          onClick={() => {
+                            handleChange('isBannered', !formData.isBannered)
                           }}
-                        >
-                          Add to banner
-                        </Checkbox>
-                      </Box>
-                    </HStack>
-                  </FormField>
+                        />
+                        <Text {...paragraphRegular}>Add market to big banner</Text>
+                      </HStack>
+                    </FormField>
+                  )}
                 </VStack>
                 <VStack>
                   <AdjustableNumberInput
