@@ -113,6 +113,16 @@ export const CreateMarket: FC = () => {
       render: () => <Toast title={message} id={id} />,
     })
   }
+  const { data: categoriesOptions } = useQuery({
+    queryKey: ['catOptions'],
+    queryFn: async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/categories`)
+
+      return response.data.map((tag: { id: string; name: string }) =>
+        createOption(tag.id, tag.name)
+      ) as SelectOption[]
+    },
+  })
   const { data: tagOptions } = useQuery({
     queryKey: ['tagOptions'],
     queryFn: async () => {
@@ -457,23 +467,9 @@ export const CreateMarket: FC = () => {
                     <MultiSelect
                       isMulti
                       closeMenuOnSelect={false}
-                      onChange={(selectedOptions) => {
-                        const typedOptions = selectedOptions
-                        handleChange(
-                          'categories',
-                          typedOptions.map((option) => ({
-                            id: option.id,
-                            label: option.label,
-                            value: option.label,
-                          }))
-                        )
-                      }}
+                      onChange={(option) => handleChange('categories', option)}
                       value={formData.categories}
-                      options={categories?.map((category) => ({
-                        id: String(category.id),
-                        value: category.name,
-                        label: category.name,
-                      }))}
+                      options={categoriesOptions}
                       styles={{
                         option: (provided, state) => ({
                           ...provided,
