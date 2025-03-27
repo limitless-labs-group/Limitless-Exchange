@@ -297,7 +297,7 @@ export const useCreateMarket = () => {
       marketFormData?.set('title', formData.title)
       marketFormData?.set('description', formData.description)
       marketFormData?.set('tokenId', formData.token.id.toString())
-      if (!isAmm) {
+      if (isAmm) {
         marketFormData?.set('liquidity', formData.liquidity?.toString() || '')
         marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
       }
