@@ -15,9 +15,11 @@ interface ActivityClobItemProps {
 
 export default function ActivityClobItem({ data }: ActivityClobItemProps) {
   const { market, groupMarket } = useTradingService()
-  const targetMarket = groupMarket?.markets?.find(
-    (market) => market.tokens.yes === data.tokenId || market.tokens.no === data.tokenId
-  )
+  const targetMarket = groupMarket
+    ? groupMarket?.markets?.find(
+        (market) => market.tokens.yes === data.tokenId || market.tokens.no === data.tokenId
+      )
+    : market
   const title = data.side === 0 ? 'Bought' : 'Sold'
   const contracts = NumberUtil.toFixed(
     formatUnits(BigInt(data.matchedSize), market?.collateralToken.decimals || 6),
