@@ -37,7 +37,7 @@ export default function ThemeSwitcher() {
     <HStack w='full' justifyContent='space-between' px='8px'>
       <HStack gap='4px'>
         <ThemeIcon />
-        <Text {...paragraphRegular}>Theme</Text>
+        <Text {...paragraphMedium}>Theme</Text>
       </HStack>
       <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.100' borderRadius='8px'>
         {themeOptions.map((option) => (
