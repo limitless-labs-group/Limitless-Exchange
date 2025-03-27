@@ -7,7 +7,7 @@ import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useCategories } from '@/services'
 import { useMarkets } from '@/services/MarketsService'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup } from '@/types'
+import { Market } from '@/types'
 
 export interface SideItemProps {
   isActive?: boolean
@@ -54,7 +54,7 @@ export const CategoryItems = () => {
   const { data: categories } = useCategories()
   const { data } = useMarkets(null)
 
-  const markets: (Market | MarketGroup)[] = useMemo(() => {
+  const markets: Market[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages])
 

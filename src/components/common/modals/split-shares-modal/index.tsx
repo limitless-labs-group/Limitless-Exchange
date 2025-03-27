@@ -67,9 +67,6 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
       conditionId: market?.conditionId as string,
       contractAddress: market?.collateralToken.address as Address,
     })
-    await queryClient.refetchQueries({
-      queryKey: ['market-shares', market?.slug],
-    })
   }
 
   const handleFocus = () => {
@@ -91,18 +88,25 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
   }
 
   const checkSplitAllowance = async () => {
+    const contractAddress = market?.negRiskRequestId
+      ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+      : process.env.NEXT_PUBLIC_CTF_CONTRACT
+
     const allowance = await checkAllowance(
-      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+      contractAddress as Address,
       market?.collateralToken.address as Address
     )
     setAllowance(allowance)
   }
 
   const onResetAfterSplit = async () => {
-    await sleep(3)
+    await sleep(1)
     await checkSplitAllowance()
     await queryClient.refetchQueries({
       queryKey: ['market-shares', market?.slug, market?.tokens],
+    })
+    await queryClient.refetchQueries({
+      queryKey: ['positions'],
     })
     setDisplayAmount('')
     splitSharesMutation.reset()
@@ -116,7 +120,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
       marketTags: market?.tags,
     })
     if (value === 100) {
-      setDisplayAmount(balance)
+      setDisplayAmount(NumberUtil.toFixed(balance, 1))
       return
     }
     const amountByPercent = (Number(balance) * value) / 100
@@ -140,7 +144,12 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
     }) => {
       try {
         const value = parseUnits(amount, decimals)
-        await splitShares(contractAddress, conditionId, value)
+        await splitShares(
+          contractAddress,
+          conditionId,
+          value,
+          market?.negRiskRequestId ? 'negrisk' : 'common'
+        )
       } catch (e) {
         // @ts-ignore
         throw new Error(e)
@@ -157,15 +166,22 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
 
   const approveContractMutation = useMutation({
     mutationFn: async () => {
+      const contractAddress = market?.negRiskRequestId
+        ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+        : process.env.NEXT_PUBLIC_CTF_CONTRACT
       await approveContract(
-        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+        contractAddress as Address,
         market?.collateralToken.address as Address,
         maxUint256
       )
-      await sleep(3)
-      await checkSplitAllowance()
     },
   })
+
+  const onResetAfterApprove = async () => {
+    await sleep(2)
+    await checkSplitAllowance()
+    approveContractMutation.reset()
+  }
 
   const actionButton = useMemo(() => {
     if (client === 'etherspot') {
@@ -190,6 +206,7 @@ export default function SplitSharesModal({ isOpen, onClose }: SplitSharesModalPr
           isDisabled={!+displayAmount || isExceedsBalance || isLowerThanMinAmount}
           onClick={() => approveContractMutation.mutateAsync()}
           status={approveContractMutation.status}
+          onReset={onResetAfterApprove}
         >
           Approve
         </ButtonWithStates>

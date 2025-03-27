@@ -63,7 +63,7 @@ import {
 } from '@/services'
 import { useMarkets } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup, MarketStatus, Sort, SortStorageName } from '@/types'
+import { Market, MarketStatus, Sort, SortStorageName } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function Sidebar() {
@@ -92,7 +92,7 @@ export default function Sidebar() {
 
   const [, setSelectedSort] = useAtom(sortAtom)
 
-  const markets: (Market | MarketGroup)[] = useMemo(() => {
+  const markets: Market[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages])
 

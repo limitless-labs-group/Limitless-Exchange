@@ -16,6 +16,7 @@ interface MarketFeedCardContainer {
   timestamp: number
   title: string
   isActivityTab?: boolean
+  titleAsComponent?: JSX.Element
 }
 
 export default function MarketFeedCardContainer({
@@ -25,6 +26,7 @@ export default function MarketFeedCardContainer({
   title,
   children,
   isActivityTab = false,
+  titleAsComponent,
 }: PropsWithChildren<MarketFeedCardContainer>) {
   const [messageBlocked, setMessageBlocked] = useState(false)
   const timePassed = timeSinceCreation(timestamp)
@@ -116,15 +118,21 @@ export default function MarketFeedCardContainer({
       </HStack>
       <Box opacity={messageBlocked ? 0.5 : 1}>
         {!isCommentFeed ? (
-          <Text
-            {...paragraphRegular}
-            fontSize='16px'
-            marginTop={isMobile ? '16px' : '12px'}
-            marginBottom={isMobile ? '12px' : '8px'}
-            userSelect='text'
-          >
-            {title}
-          </Text>
+          <>
+            {titleAsComponent ? (
+              titleAsComponent
+            ) : (
+              <Text
+                {...paragraphRegular}
+                fontSize='16px'
+                marginTop={isMobile ? '16px' : '12px'}
+                marginBottom={isMobile ? '12px' : '8px'}
+                userSelect='text'
+              >
+                {title}
+              </Text>
+            )}
+          </>
         ) : null}
         {children}
       </Box>

@@ -20,7 +20,7 @@ type PortfolioPositionCardClobRedirectProps = {
 export default function PortfolioPositionCardClobRedirect({
   position,
 }: PortfolioPositionCardClobRedirectProps) {
-  const { setMarket, setMarketGroup } = useTradingService()
+  const { setMarket } = useTradingService()
   const [colors, setColors] = useState(unhoveredColors)
 
   const { trackClicked } = useAmplitude()
@@ -28,7 +28,11 @@ export default function PortfolioPositionCardClobRedirect({
 
   const marketClosed = position.market.status === MarketStatus.RESOLVED
 
-  const { data: oneMarket, refetch: refetchMarket } = useMarket(position.market.slug, false, false)
+  const { data: oneMarket, refetch: refetchMarket } = useMarket(
+    position.market.negRiskRequestId ? position.market.group?.slug : position.market.slug,
+    false,
+    false
+  )
 
   const handleOpenMarketPage = async () => {
     if (!oneMarket) {
@@ -87,7 +91,6 @@ export default function PortfolioPositionCardClobRedirect({
       variant='black'
       onClose={() => {
         setMarket(null)
-        setMarketGroup(null)
       }}
     >
       <MarketPage />

@@ -1,7 +1,8 @@
 import { Flex, HStack, Text, Box } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
+import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import Skeleton from '@/components/common/skeleton'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
@@ -48,7 +49,7 @@ export const MarketMetadata = ({
       value:
         market?.expirationTimestamp &&
         market.expirationTimestamp - new Date().getTime() < 1000 * 24 * 60 * 60 ? (
-          <DailyMarketTimer
+          <MarketCountdown
             deadline={market.expirationTimestamp}
             deadlineText={market.expirationDate}
             color='grey.800'

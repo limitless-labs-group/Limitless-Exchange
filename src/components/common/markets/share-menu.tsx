@@ -28,12 +28,10 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 export default function ShareMenu() {
   const { isOpen: isShareMenuOpen, onToggle: toggleShareMenu } = useDisclosure()
-  const { market, marketGroup } = useTradingService()
+  const { market } = useTradingService()
   const { trackClicked } = useAmplitude()
   const toast = useToast()
-  const marketURI = marketGroup
-    ? `${process.env.NEXT_PUBLIC_FRAME_URL}/market-group/${marketGroup.slug}`
-    : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
+  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
   const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
   return (
     <Menu isOpen={isShareMenuOpen} onClose={toggleShareMenu}>

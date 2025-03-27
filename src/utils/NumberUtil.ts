@@ -1,3 +1,5 @@
+import BigNumber from 'bignumber.js'
+
 export class NumberUtil {
   static formatThousands = (v?: number | string, decimals = 0): string => {
     const parts = `${this.toFixed(v, decimals)}`.split('.')
@@ -12,6 +14,10 @@ export class NumberUtil {
     return `${parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${
       parts[1]?.length && +parts[0] < 10 ? `.${parts[1]}` : ''
     }`
+  }
+
+  static multiply = (v: number | string, mul: string | number) => {
+    return new BigNumber(v).multipliedBy(mul).decimalPlaces(1).toString()
   }
 
   static toFixed = (v?: number | string, decimals = 0, fill = false, truncate = true): string => {
