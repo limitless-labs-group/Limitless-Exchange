@@ -40,7 +40,7 @@ import {
   groupMarketsAtom,
 } from '@/atoms/draft'
 import { useToast } from '@/hooks'
-import { useCategories, useLimitlessApi } from '@/services'
+import { useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarket } from '@/services/MarketsService'
 import { paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -59,7 +59,6 @@ export const CreateMarket: FC = () => {
   const activeMarketId = searchParams.get('active-market')
   const type = searchParams.get('marketType')
   const privateClient = useAxiosPrivateClient()
-  const { data: categories } = useCategories()
   const {
     handleChange,
     populateDraftMarketData,
@@ -192,7 +191,6 @@ export const CreateMarket: FC = () => {
     if (!data) return
     setIsCreating(true)
     const marketData = prepareMarketData(data)
-    console.log('market', marketData)
     const url = isGroup
       ? `/markets/drafts/group/${draftMarketId}`
       : `/markets/drafts/${draftMarketId}`
@@ -212,6 +210,31 @@ export const CreateMarket: FC = () => {
         } else {
           showToast(`Error: ${res.message}`)
         }
+      })
+      .finally(() => {
+        setIsCreating(false)
+      })
+  }
+
+  const updateActiveMarket = async () => {
+    const data = await prepareData()
+    if (!data) return
+    setIsCreating(true)
+    const marketData = prepareMarketData(data, true)
+
+    const url = `/markets/${activeMarketId}`
+    privateClient
+      .put(url, marketData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then((res) => {
+        showToast(`Market is updated`)
+        router.push(`/draft?tab=active`)
+      })
+      .catch((res) => {
+        showToast(`Error: ${res.message}`)
       })
       .finally(() => {
         setIsCreating(false)
@@ -238,6 +261,10 @@ export const CreateMarket: FC = () => {
   const submit = async () => {
     if (draftMarketId) {
       await updateMarket()
+      return
+    }
+    if (activeMarketId) {
+      await updateActiveMarket()
       return
     }
     await draftMarket()
@@ -278,6 +305,20 @@ export const CreateMarket: FC = () => {
                   value={formData.title}
                   onChange={(e) => handleChange('title', e.target.value)}
                   maxLength={70}
+                />
+                <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
+                  {formData.title?.length}/70 characters
+                </FormHelperText>
+              </FormField>
+              <FormField label='Slug'>
+                <Textarea
+                  resize='none'
+                  rows={1}
+                  overflow='hidden'
+                  height='auto'
+                  onInput={resizeTextareaHeight}
+                  value={formData.slug}
+                  onChange={(e) => handleChange('slug', e.target.value)}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                   {formData.title?.length}/70 characters

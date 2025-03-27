@@ -12,6 +12,8 @@ import {
   defaultTokenSymbol,
 } from './const'
 import { draftMarketTypeAtom, formDataAtom, groupMarketsAtom } from '@/atoms/draft'
+import { useCategories } from '@/services'
+import { useTags } from '@/services/TagService'
 import { Category, Market } from '@/types'
 import { Tag, IFormData, SelectOption, MarketData, MarketInput } from '@/types/draft'
 import { findDuplicateMarketGroupTitles } from '@/utils/market'
@@ -28,6 +30,8 @@ export const useCreateMarket = () => {
   const [formData, setFormData] = useAtom(formDataAtom)
   const [marketType, setMarketType] = useAtom(draftMarketTypeAtom)
   const [markets, setMarkets] = useAtom(groupMarketsAtom)
+  const { data: categories } = useCategories()
+  const { data: tags } = useTags()
   const isClob = marketType === 'clob'
   const isAmm = marketType === 'amm'
   const isGroup = marketType === 'group'
@@ -129,6 +133,7 @@ export const useCreateMarket = () => {
             label: catName,
           }
         }) ?? [],
+      slug: activeMarket.slug ?? '',
       ...(isClob
         ? {
             minSize: activeMarket.settings?.minSize,
@@ -183,21 +188,20 @@ export const useCreateMarket = () => {
     value: name,
   })
 
-  const prepareMarketData = (formData: FormData): MarketData | null => {
+  const prepareDraftMarketData = (formData: FormData): MarketData => {
+    const title = formData.get('title')
+
+    const description = formData.get('description')
+    if (!title) {
+      showToast(`Missing required fields`)
+    }
+
     const tokenId = Number(formData.get('tokenId'))
     const marketFee = Number(formData.get('marketFee'))
     const deadline = Number(formData.get('deadline'))
 
     if (isNaN(tokenId) || isNaN(marketFee) || isNaN(deadline)) {
       showToast(`Invalid numeric values in form data`)
-      return null
-    }
-
-    const title = formData.get('title')
-    const description = formData.get('description')
-    if (!title) {
-      showToast(`Missing required fields`)
-      return null
     }
 
     const baseData = {
@@ -242,6 +246,56 @@ export const useCreateMarket = () => {
         initialYesProbability: Number(formData.get('initialYesProbability')),
       }
     }
+  }
+
+  const prepareActiveMarketData = () => {
+    if (!formData.title) {
+      showToast(`Missing required fields`)
+    }
+
+    const matchedCategoryIds = formData.categories.map((cat) => {
+      const matchedCategory = categories?.find((c) => c.name === cat.value)
+      return matchedCategory ? Number(matchedCategory.id) : Number(cat.id)
+    })
+
+    const matchedTagIds = formData.tag.map((tag) => {
+      const matchedTag = tags?.find((t) => t.label === tag.value)
+      return matchedTag ? Number(matchedTag.id) : Number(tag.id)
+    })
+
+    const baseData = {
+      title: formData.title ?? '',
+      isBannered: formData.isBannered,
+      categoryIds: matchedCategoryIds,
+      tagIds: matchedTagIds,
+    }
+
+    if (isClob) {
+      return {
+        ...baseData,
+        description: formData.description ?? '',
+        priorityIndex: formData.priorityIndex,
+        minSize: Number(formData.minSize),
+        maxSpread: Number(formData.maxSpread),
+        c: Number(formData.c),
+        maxDailyReward: Number(formData.maxDailyReward),
+      }
+    } else if (isGroup) {
+      return {
+        ...baseData,
+        marketsInput: markets,
+      }
+    } else {
+      return {
+        ...baseData,
+        priorityIndex: formData.priorityIndex,
+        description: formData.description ?? '',
+      }
+    }
+  }
+
+  const prepareMarketData = (formData: FormData, isActiveMarket = false) => {
+    return isActiveMarket ? prepareActiveMarketData() : prepareDraftMarketData(formData)
   }
 
   const prepareData = async () => {
@@ -325,6 +379,10 @@ export const useCreateMarket = () => {
 
       if (formData.creatorId) {
         marketFormData.set('creatorId', formData.creatorId)
+      }
+
+      if (formData.slug) {
+        marketFormData.set('slug', formData.slug)
       }
 
       if (formData.categories.length) {
