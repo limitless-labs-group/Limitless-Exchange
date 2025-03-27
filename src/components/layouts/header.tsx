@@ -232,11 +232,24 @@ export default function Header() {
             handleOpenWalletPage={handleOpenWalletPage}
             handleOpenProfile={handleOpenProfile}
           />
+          {isOpenProfile && (
+            <Box
+              position='fixed'
+              top={0}
+              left={0}
+              bottom={0}
+              w='full'
+              zIndex={100}
+              bg='rgba(0, 0, 0, 0.3)'
+              mt='20px'
+              ml='188px'
+              animation='fadeIn 0.5s'
+            ></Box>
+          )}
           <Slide
             in={isOpenProfile}
             style={{
               zIndex: 100,
-              marginTop: '20px',
               marginLeft: '197px',
               transition: '0.1s',
             }}
