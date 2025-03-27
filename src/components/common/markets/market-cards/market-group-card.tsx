@@ -10,7 +10,7 @@ import { MIN_CARD_HEIGHT } from '@/components/common/markets/market-cards/market
 import MarketGroupRow from '@/components/common/markets/market-group-row'
 import { useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { ClickEvent, QuickBetClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -62,6 +62,10 @@ export const MarketGroupCard = ({
     marketToSet: Market,
     outcome: number
   ) => {
+    trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
+      source: 'Main Page market group card',
+      value: outcome ? 'small no button' : 'small yes button',
+    })
     if (e.metaKey || e.ctrlKey || e.button === 2) {
       return
     }

@@ -13,7 +13,7 @@ import { MarketProgressBar } from './market-progress-bar'
 import { SpeedometerProgress } from './speedometer-progress'
 import { useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { ClickEvent, QuickBetClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { captionMedium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
@@ -93,6 +93,10 @@ export const MarketSingleCard = ({
   const isShortCard = isGrid || isSpeedometer || isMobile
 
   const handleOutcomeClicked = (e: React.MouseEvent<HTMLButtonElement>, outcome: number) => {
+    trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
+      source: 'Main page' + ' ' + market.tradeType + 'card',
+      value: outcome ? 'small no button' : 'small yes button',
+    })
     if (e.metaKey || e.ctrlKey || e.button === 2) {
       return
     }

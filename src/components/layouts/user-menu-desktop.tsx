@@ -61,6 +61,15 @@ export default function UserMenuDesktop({
     onClose: onCloseWrapModal,
   } = useDisclosure()
 
+  const handleMenuClicked = () => {
+    onToggleAuthMenu()
+    if (!isOpenAuthMenu) {
+      trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+        platform: 'desktop',
+      })
+    }
+  }
+
   const handleOpenWrapModal = useCallback(() => onOpenWrapModal(), [])
 
   const [copied, setCopied] = useState(false)
@@ -105,7 +114,7 @@ export default function UserMenuDesktop({
       <Button
         variant='transparent'
         onClick={() => {
-          trackClicked(ClickEvent.WithdrawClicked)
+          trackClicked(ClickEvent.WrapETHClicked)
           handleOpenWrapModal()
         }}
         w='full'
@@ -130,7 +139,7 @@ export default function UserMenuDesktop({
         ) : (
           <MenuButton
             as={Button}
-            onClick={onToggleAuthMenu}
+            onClick={handleMenuClicked}
             leftIcon={
               <Box transform={`rotate(${isOpenAuthMenu ? '180deg' : 0})`} transition='0.5s'>
                 <ChevronDownIcon width='16px' height='16px' />

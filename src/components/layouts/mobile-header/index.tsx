@@ -110,6 +110,7 @@ export default function MobileHeader() {
   }
 
   const handleOpenWrapModal = () => {
+    trackClicked(ClickEvent.WrapETHClicked)
     onCloseUserMenu()
   }
 
@@ -121,6 +122,15 @@ export default function MobileHeader() {
   const handleBuyCryptoClicked = async () => {
     trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.BuyCryptoClicked)
     await fundWallet(account as string)
+  }
+
+  const handleUserMenuClicked = () => {
+    onOpenUserMenu()
+    if (!isOpenUserMenu) {
+      trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+        platform: 'mobile',
+      })
+    }
   }
 
   return (
@@ -161,8 +171,7 @@ export default function MobileHeader() {
                     trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
                       platform: 'mobile',
                     })
-
-                    onOpenUserMenu()
+                    handleUserMenuClicked()
                   }}
                 >
                   {!balanceOfSmartWallet ? (

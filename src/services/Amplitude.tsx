@@ -285,6 +285,11 @@ export interface TradeClickedMetadata {
   marketType?: 'group' | 'single'
 }
 
+export interface QuickBetClickedMetadata {
+  source: string
+  value: string
+}
+
 export interface ClickedApproveMetadata {
   address: string
 }
@@ -516,6 +521,7 @@ export type ClickedEventMetadata =
   | TradingWidgetPriceClickedMetadata
   | FullPageClickedMetaData
   | RewardsButtonClickedMetadata
+  | QuickBetClickedMetadata
 
 export type OpenedEventMetadata =
   | PageOpenedMetadata
