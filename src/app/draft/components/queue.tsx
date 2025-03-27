@@ -5,25 +5,29 @@ import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import React, { useMemo, useState } from 'react'
 import { Toast } from '@/components/common/toast'
-import { DraftMarket, DraftMarketCard } from '@/app/draft/components/draft-card'
+import { DraftMarketCard } from '@/app/draft/components/draft-card'
 import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import { DraftMarketResponse } from '@/types/draft'
+import { DraftMarket, DraftMarketResponse, DraftMarketType } from '@/types/draft'
 
-export const DraftMarketsQueue = () => {
+export type DraftMarketsQueueProps = {
+  marketType?: DraftMarketType
+}
+
+export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps) => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
 
   const privateClient = useAxiosPrivateClient()
 
   const router = useRouter()
   const { data: draftMarkets } = useQuery({
-    queryKey: ['draftMarkets-amm'],
+    queryKey: [`draftMarkets-${marketType}`],
     queryFn: async () => {
       const response = await privateClient.get(`/markets/drafts`)
 
       return response.data.filter(
-        (market: DraftMarketResponse) => !market.type || market?.type === 'amm'
+        (market: DraftMarketResponse) => !market.type || market?.type === marketType
       )
     },
   })
@@ -48,7 +52,7 @@ export const DraftMarketsQueue = () => {
   }, [selectedMarketIds, draftMarkets])
 
   const handleClick = (marketId: number) => {
-    router.push(`/draft/?market=${marketId}`)
+    router.push(`/draft/?draft-market=${marketId}&marketType=${marketType}`)
   }
 
   const toast = useToast()

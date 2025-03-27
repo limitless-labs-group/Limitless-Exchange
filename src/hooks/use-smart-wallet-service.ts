@@ -3,6 +3,7 @@ import { Address, encodeFunctionData, getContract, maxUint256 } from 'viem'
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, fixedProductMarketMakerABI, wethABI } from '@/contracts'
 import { ERC20ABI } from '@/contracts/abi/ERC20ABI'
+import { negriskAdapterAbi } from '@/contracts/abi/NegriskAdapterAbi'
 import { publicClient } from '@/providers/Privy'
 import { useAccount, useLimitlessApi } from '@/services'
 
@@ -206,20 +207,26 @@ export default function useSmartWalletService() {
   const splitPositions = async (
     collateralAddress: Address,
     conditionId: string,
-    amount: bigint
+    amount: bigint,
+    type: 'common' | 'negrisk'
   ) => {
+    const contractAddress =
+      type === 'common'
+        ? process.env.NEXT_PUBLIC_CTF_CONTRACT
+        : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+    const abi = type === 'common' ? conditionalTokensABI : negriskAdapterAbi
     await approveCollateralIfNeeded(
-      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+      contractAddress as Address,
       maxUint256,
       collateralAddress as Address
     )
     const contract = getContract({
-      address: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
-      abi: conditionalTokensABI,
+      address: contractAddress as Address,
+      abi,
       client: publicClient,
     })
     const data = encodeFunctionData({
-      abi: conditionalTokensABI,
+      abi,
       functionName: 'splitPosition',
       args: [
         collateralAddress,
@@ -233,18 +240,32 @@ export default function useSmartWalletService() {
     return transactionHash
   }
 
-  const mergePositions = async (collateralToken: Address, conditionId: string, amount: bigint) => {
+  const mergePositions = async (
+    collateralToken: Address,
+    conditionId: string,
+    amount: bigint,
+    type: 'common' | 'negrisk'
+  ) => {
+    const operator =
+      type === 'common'
+        ? process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
+        : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
     await approveConditionalIfNeeded(
-      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+      operator as Address,
       process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
     )
+    const contractAddress =
+      type === 'common'
+        ? process.env.NEXT_PUBLIC_CTF_CONTRACT
+        : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+    const abi = type === 'common' ? conditionalTokensABI : negriskAdapterAbi
     const contract = getContract({
-      address: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
-      abi: conditionalTokensABI,
+      address: contractAddress as Address,
+      abi,
       client: publicClient,
     })
     const data = encodeFunctionData({
-      abi: conditionalTokensABI,
+      abi,
       functionName: 'mergePositions',
       args: [
         collateralToken,
@@ -256,6 +277,54 @@ export default function useSmartWalletService() {
     })
     const transactionHash = await sendTransaction(contract, data)
     return transactionHash
+  }
+
+  const convertShares = async (negRiskRequestId: string, indexSet: string, amount: bigint) => {
+    try {
+      await approveConditionalIfNeeded(
+        process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
+        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+      )
+      const data = encodeFunctionData({
+        abi: negriskAdapterAbi,
+        functionName: 'convertPositions',
+        args: [negRiskRequestId, indexSet, amount],
+      })
+      const contract = getContract({
+        address: process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
+        abi: negriskAdapterAbi,
+        client: publicClient,
+      })
+      const transactionHash = await sendTransaction(contract, data)
+      return transactionHash
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
+  }
+
+  const redeemNegRiskMarket = async (conditionId: string, amounts: bigint[]) => {
+    await approveConditionalIfNeeded(
+      process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+    )
+    try {
+      const data = encodeFunctionData({
+        abi: negriskAdapterAbi,
+        functionName: 'redeemPositions',
+        args: [conditionId, amounts],
+      })
+      const contract = getContract({
+        address: process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
+        abi: negriskAdapterAbi,
+        client: publicClient,
+      })
+      const transactionHash = await sendTransaction(contract, data)
+      return transactionHash
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
   }
 
   return {
@@ -271,5 +340,7 @@ export default function useSmartWalletService() {
     mergePositions,
     approveCollateralIfNeeded,
     approveConditionalIfNeeded,
+    convertShares,
+    redeemNegRiskMarket,
   }
 }

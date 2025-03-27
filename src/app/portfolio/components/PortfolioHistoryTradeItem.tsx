@@ -22,11 +22,6 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
     false,
     false
   )
-  // const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
-  //   targetMarket?.group?.slug,
-  //   false,
-  //   false
-  // )
 
   const { trackClicked } = useAmplitude()
 
@@ -54,16 +49,6 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
         type: 'History',
       })
     }
-    // if (targetMarket?.group?.slug) {
-    //   if (!marketGroup) {
-    //     const { data: fetchedMarketGroup } = await refetchMarketGroup()
-    //     if (fetchedMarketGroup) {
-    //       onOpenMarketPage(fetchedMarketGroup)
-    //     }
-    //   } else {
-    //     onOpenMarketPage(marketGroup)
-    //   }
-    // }
   }
 
   return (

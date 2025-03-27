@@ -12,8 +12,12 @@ import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { ClobTradeEvent } from '@/types/orders'
 
 export default function ActivityClob() {
-  const { market } = useTradingService()
-  const { data: activityData, fetchNextPage, hasNextPage } = useMarketClobInfinityFeed(market?.slug)
+  const { market, groupMarket } = useTradingService()
+  const {
+    data: activityData,
+    fetchNextPage,
+    hasNextPage,
+  } = useMarketClobInfinityFeed(groupMarket?.negRiskMarketId ? groupMarket?.slug : market?.slug)
 
   // @ts-ignore
   const activity = activityData?.pages.flatMap((page) => page.data.events)
