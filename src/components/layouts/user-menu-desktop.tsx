@@ -92,6 +92,7 @@ export default function UserMenuDesktop({
           onCloseAuthMenu()
           handleOpenWalletPage()
         }}
+        w='full'
       >
         <HStack w='full'>
           <WalletIcon width={16} height={16} />
@@ -107,6 +108,7 @@ export default function UserMenuDesktop({
           trackClicked(ClickEvent.WithdrawClicked)
           handleOpenWrapModal()
         }}
+        w='full'
       >
         <HStack w='full'>
           <SwapIcon width={16} height={16} />
@@ -138,7 +140,7 @@ export default function UserMenuDesktop({
             h='24px'
             w='full'
             _active={{
-              bg: 'grey.200',
+              bg: 'grey.100',
             }}
             _hover={{
               bg: 'grey.200',
@@ -205,6 +207,7 @@ export default function UserMenuDesktop({
                 onCloseAuthMenu()
               }}
               justifyContent='flex-start'
+              w='full'
             >
               <UserIcon width={16} height={16} />
               Profile
@@ -221,6 +224,7 @@ export default function UserMenuDesktop({
                 onCloseAuthMenu()
               }}
               justifyContent='flex-start'
+              w='full'
             >
               <LogoutIcon width={16} height={16} />
               Log Out

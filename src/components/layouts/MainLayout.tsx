@@ -7,6 +7,7 @@ import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import Header from '@/components/layouts/header'
 import MobileHeader from '@/components/layouts/mobile-header'
 import MobileNavigation from '@/components/layouts/mobile-navigation'
+import usePageName from '@/hooks/use-page-name'
 import { useTradingService } from '@/services'
 import { inter } from '@/styles'
 
@@ -23,6 +24,7 @@ export const MainLayout = ({
 }: IMainLayout) => {
   const pathname = usePathname()
   const { marketPageOpened, market } = useTradingService()
+  const pageName = usePageName()
 
   return (
     <Box
@@ -39,7 +41,7 @@ export const MainLayout = ({
     >
       {isMobile ? <MobileHeader /> : <Header />}
       <Box mb={isMobile ? '60px' : 0} mt={isMobile ? '65px' : '20px'} overflow='hidden'>
-        {isMobile && (
+        {isMobile && pageName === 'Explore Markets' && (
           <HStack py='4px' px='12px' bg='grey.50' maxW='100%' overflowX='auto'>
             <CategoryItems />
           </HStack>

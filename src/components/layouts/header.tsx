@@ -77,7 +77,8 @@ export default function Header() {
       <HStack
         w='full'
         justifyContent='space-between'
-        p='16px'
+        px='16px'
+        py='7.5px'
         borderBottom='1px solid'
         borderColor='grey.100'
         bg='grey.50'
@@ -107,7 +108,11 @@ export default function Header() {
             <NextLink href={`/`} passHref>
               <Link
                 variant='transparent'
-                bg={pageName === 'Explore Markets' ? 'grey.100' : 'unset'}
+                bg={
+                  pageName === 'Explore Markets' && dashboard !== 'marketcrash'
+                    ? 'grey.100'
+                    : 'unset'
+                }
                 rounded='8px'
                 onClick={() => {
                   trackClicked<ProfileBurgerMenuClickedMetadata>(
@@ -116,6 +121,7 @@ export default function Header() {
                       option: 'Home',
                     }
                   )
+                  handleDashboard(undefined)
                   handleCategory(undefined)
                 }}
               >
@@ -159,6 +165,7 @@ export default function Header() {
                     }
                   )
                   handleCategory(undefined)
+                  handleDashboard(undefined)
                 }}
                 variant='transparent'
                 w='full'
@@ -183,6 +190,7 @@ export default function Header() {
                     }
                   )
                   handleCategory(undefined)
+                  handleDashboard(undefined)
                 }}
                 variant='transparent'
                 w='full'
@@ -298,9 +306,11 @@ export default function Header() {
           </HStack>
         )}
       </HStack>
-      <HStack py='4px' px='12px' bg='grey.50'>
-        <CategoryItems />
-      </HStack>
+      {pageName === 'Explore Markets' && (
+        <HStack py='4px' px='12px' bg='grey.50'>
+          <CategoryItems />
+        </HStack>
+      )}
     </>
   )
 }

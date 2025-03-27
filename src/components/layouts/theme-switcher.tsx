@@ -35,7 +35,7 @@ export default function ThemeSwitcher() {
 
   return (
     <HStack w='full' justifyContent='space-between' px='8px'>
-      <HStack gap='8px'>
+      <HStack gap='4px'>
         <ThemeIcon />
         <Text {...paragraphRegular}>Theme</Text>
       </HStack>
