@@ -391,7 +391,10 @@ export const CreateMarket: FC = () => {
                     <HStack>
                       <Checkbox
                         isChecked={formData.marketFee === 1}
-                        onChange={(e) => handleChange('marketFee', e.target.checked ? 1 : 0)}
+                        onChange={(e) => {
+                          e.stopPropagation()
+                          handleChange('marketFee', e.target.checked ? 1 : 0)
+                        }}
                       >
                         1% Fee
                       </Checkbox>
@@ -401,7 +404,10 @@ export const CreateMarket: FC = () => {
                     <HStack>
                       <Checkbox
                         isChecked={formData.isBannered}
-                        onChange={(e) => handleChange('isBannered', e.target.checked)}
+                        onChange={(e) => {
+                          e.stopPropagation()
+                          handleChange('isBannered', e.target.checked)
+                        }}
                       >
                         Add to banner
                       </Checkbox>

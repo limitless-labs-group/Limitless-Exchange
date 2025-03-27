@@ -360,35 +360,6 @@ export const DraftMarketCard = ({
                 </Text>
               </HStack>
             ) : null}
-            {/*//@ts-ignore*/}
-            {market.type === 'group' && market?.markets && market.markets?.length > 0 ? (
-              <Box pl={2} mb={2}>
-                <Text {...paragraphMedium} color={colors.secondary} mb={1}>
-                  Markets in group:
-                </Text>
-                <Stack spacing={1}>
-                  {[...market.markets]
-                    .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
-                    .map((subMarket: MarketInput, index: number) => (
-                      <Text
-                        key={index}
-                        {...paragraphRegular}
-                        color={colors.main}
-                        pl={4}
-                        position='relative'
-                        _before={{
-                          content: '"•"',
-                          position: 'absolute',
-                          left: 1,
-                          color: colors.secondary,
-                        }}
-                      >
-                        {subMarket.title}
-                      </Text>
-                    ))}
-                </Stack>
-              </Box>
-            ) : null}
 
             {MarketDataFactory.renderGroupMarkets(market)}
 
