@@ -6,14 +6,14 @@ const getVolumeForMarket = (market: MarketOrGroup): number => {
   // if ('slug' in market && market.slug) {
   //   return (market as MarketGroup).markets.reduce((acc, m) => acc + Number(m.volumeFormatted), 0)
   // }
-  return Number((market as Market).volumeFormatted)
+  return Number((market as Market).volumeFormatted) ?? 0
 }
 
 const getLiquidityForMarket = (market: MarketOrGroup): number => {
   // if ('slug' in market && market.slug) {
   //   return (market as MarketGroup).markets.reduce((acc, m) => acc + Number(m.liquidityFormatted), 0)
   // }
-  return Number((market as Market).liquidityFormatted)
+  return Number((market as Market).liquidityFormatted) ?? 0
 }
 
 const getValueForMarket = (market: MarketOrGroup): number => {
@@ -24,8 +24,18 @@ const getValueForMarket = (market: MarketOrGroup): number => {
   //   )
   // }
   return (
-    Number((market as Market).liquidityFormatted) + Number((market as Market).openInterestFormatted)
+    Number((market as Market).liquidityFormatted) +
+      Number((market as Market).openInterestFormatted) || 0
   )
+}
+
+const getAggregatedMarketValue = (market: MarketOrGroup): number => {
+  const volume = getVolumeForMarket(market)
+  const value = getValueForMarket(market)
+  if (value > volume) {
+    return value
+  }
+  return volume
 }
 
 const getMarketTradeType = (market: MarketOrGroup): string => {
@@ -91,12 +101,12 @@ export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | Marke
 
     case Sort.HIGHEST_VALUE:
       return marketsCopy.sort((a, b) => {
-        const valueA = getValueForMarket(a)
-        const valueB = getValueForMarket(b)
+        const aggregatedValueA = getAggregatedMarketValue(a)
+        const aggregatedValueB = getAggregatedMarketValue(b)
 
         return (
-          convertTokenAmountToUsd(b.collateralToken.symbol, valueB) -
-          convertTokenAmountToUsd(a.collateralToken.symbol, valueA)
+          convertTokenAmountToUsd(b.collateralToken.symbol, aggregatedValueB) -
+          convertTokenAmountToUsd(a.collateralToken.symbol, aggregatedValueA)
         )
       }) as T
 
