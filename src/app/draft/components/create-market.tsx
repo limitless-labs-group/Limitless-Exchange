@@ -389,28 +389,36 @@ export const CreateMarket: FC = () => {
                 <VStack>
                   <FormField label='Market Fee'>
                     <HStack>
-                      <Checkbox
-                        isChecked={formData.marketFee === 1}
-                        onChange={(e) => {
-                          e.stopPropagation()
-                          handleChange('marketFee', e.target.checked ? 1 : 0)
-                        }}
+                      <Box
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        1% Fee
-                      </Checkbox>
+                        <Checkbox
+                          isChecked={formData.marketFee === 1}
+                          onChange={(e) => {
+                            handleChange('marketFee', e.target.checked ? 1 : 0)
+                          }}
+                        >
+                          1% Fee
+                        </Checkbox>
+                      </Box>
                     </HStack>
                   </FormField>
                   <FormField label='Is Bannered'>
                     <HStack>
-                      <Checkbox
-                        isChecked={formData.isBannered}
-                        onChange={(e) => {
-                          e.stopPropagation()
-                          handleChange('isBannered', e.target.checked)
-                        }}
+                      <Box
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        Add to banner
-                      </Checkbox>
+                        <Checkbox
+                          isChecked={formData.isBannered}
+                          onChange={(e) => {
+                            handleChange('isBannered', e.target.checked)
+                          }}
+                        >
+                          Add to banner
+                        </Checkbox>
+                      </Box>
                     </HStack>
                   </FormField>
                 </VStack>
