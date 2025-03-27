@@ -19,8 +19,10 @@ export const GroupForm = () => {
 
   const handleInputChange = (index: number, field: string, value: string) => {
     const updatedMarkets = [...markets]
-    //@ts-ignore
-    updatedMarkets[index][field] = value
+    updatedMarkets[index] = {
+      ...updatedMarkets[index],
+      [field]: value,
+    }
     setMarkets(updatedMarkets)
   }
   const getPlainTextLength = (html: string | undefined): number => {

@@ -11,7 +11,7 @@ import {
   defaultCreatorId,
   defaultTokenSymbol,
 } from './const'
-import { draftMarketTypeAtom, formDataAtom, groupMarketsAtom, marketTypeAtom } from '@/atoms/draft'
+import { draftMarketTypeAtom, formDataAtom, groupMarketsAtom } from '@/atoms/draft'
 import { Category, Market } from '@/types'
 import { Tag, IFormData, SelectOption, MarketData, MarketInput } from '@/types/draft'
 import { findDuplicateMarketGroupTitles } from '@/utils/market'
@@ -183,19 +183,21 @@ export const useCreateMarket = () => {
     value: name,
   })
 
-  const prepareMarketData = (formData: FormData): MarketData => {
+  const prepareMarketData = (formData: FormData): MarketData | null => {
     const tokenId = Number(formData.get('tokenId'))
     const marketFee = Number(formData.get('marketFee'))
     const deadline = Number(formData.get('deadline'))
 
     if (isNaN(tokenId) || isNaN(marketFee) || isNaN(deadline)) {
       showToast(`Invalid numeric values in form data`)
+      return null
     }
 
     const title = formData.get('title')
     const description = formData.get('description')
     if (!title) {
       showToast(`Missing required fields`)
+      return null
     }
 
     const baseData = {

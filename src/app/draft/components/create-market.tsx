@@ -15,7 +15,6 @@ import {
   Textarea,
   VStack,
   Text,
-  Switch,
 } from '@chakra-ui/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
@@ -40,7 +39,6 @@ import {
   draftMarketTypeAtom,
   formDataAtom,
   groupMarketsAtom,
-  marketTypeAtom,
 } from '@/atoms/draft'
 import { useToast } from '@/hooks'
 import { useCategories, useLimitlessApi } from '@/services'
