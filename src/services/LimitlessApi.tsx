@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { PropsWithChildren, createContext, useContext } from 'react'
 import { Token } from '@/types'
 
@@ -19,8 +19,11 @@ export const LimitlessApiProvider = ({ children }: PropsWithChildren) => {
   const { data: supportedTokens } = useQuery({
     queryKey: ['tokens'],
     queryFn: async () => {
-      const response = await limitlessApi.get(`/tokens`)
-      return response.data as Token[]
+      const response: AxiosResponse<Token[]> = await limitlessApi.get(`/tokens`)
+      const filteredTokens = response.data.filter(
+        (token) => token.symbol === 'WETH' || token.symbol === 'USDC'
+      )
+      return [...filteredTokens] as Token[]
     },
   })
 

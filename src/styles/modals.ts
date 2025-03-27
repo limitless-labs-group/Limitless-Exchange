@@ -36,7 +36,7 @@ const blueModal = definePartsStyle({
 const commonModal = definePartsStyle({
   dialog: {
     borderRadius: '8px',
-    bg: 'grey.50',
+    bg: 'grey.100',
     p: '16px',
   },
   header: {

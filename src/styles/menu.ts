@@ -71,11 +71,14 @@ const variants = {
   },
   transparent: {
     button: {
-      w: 'full',
       background: 'unset !important',
     },
     list: {
-      bg: 'grey.100',
+      border: '1px solid',
+      borderColor: 'grey.200',
+      background: 'grey.50',
+      py: '16px !important',
+      px: '12px !important',
     },
   },
   blue: {

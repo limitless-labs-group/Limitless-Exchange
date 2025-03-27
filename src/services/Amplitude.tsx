@@ -285,6 +285,11 @@ export interface TradeClickedMetadata {
   marketType?: 'group' | 'single'
 }
 
+export interface QuickBetClickedMetadata {
+  source: string
+  value: string
+}
+
 export interface ClickedApproveMetadata {
   address: string
 }
@@ -434,6 +439,8 @@ export type ProfileBurgerMenuClickedOption =
   | 'Lumy'
   | 'Leaderboard'
   | 'My Markets'
+  | 'Market Crash'
+  | 'Feed'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
@@ -514,6 +521,7 @@ export type ClickedEventMetadata =
   | TradingWidgetPriceClickedMetadata
   | FullPageClickedMetaData
   | RewardsButtonClickedMetadata
+  | QuickBetClickedMetadata
 
 export type OpenedEventMetadata =
   | PageOpenedMetadata

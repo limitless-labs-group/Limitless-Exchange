@@ -1,5 +1,4 @@
 import {
-  Accordion,
   Box,
   Button,
   Divider,
@@ -287,8 +286,8 @@ export default function MarketPage() {
       borderColor='grey.200'
       w={isMobile ? 'full' : '520px'}
       position={isMobile ? 'relative' : 'fixed'}
-      height={isMobile ? 'calc(100dvh - 21px)' : 'calc(100vh - 21px)'}
-      top='20px'
+      height={isMobile ? 'calc(100dvh - 21px)' : 'calc(100dvh - 65px)'}
+      top='65px'
       right={0}
       overflowY='auto'
       p={isMobile ? '12px' : '16px'}
