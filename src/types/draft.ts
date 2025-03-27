@@ -20,7 +20,6 @@ export type DraftMarket = {
     isBannered: false
   }
   settings: Settings
-  markets: Market[]
 }
 
 export interface Settings {
@@ -55,7 +54,6 @@ export interface IFormData {
   maxSpread?: number
   minSize?: number
   c?: number
-  marketInput?: MarketInput[]
 }
 
 export type MarketInput = {
@@ -109,13 +107,6 @@ export interface Creator {
   socialUrl: null | string
   referralCode: string
 }
-export type MarketInput = {
-  title: string
-  description: string
-  id?: number
-}
-
-export type DraftMarketType = 'amm' | 'clob' | 'group'
 
 export interface DraftCreator {
   id: number

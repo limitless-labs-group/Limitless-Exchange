@@ -38,12 +38,6 @@ const badgeBg = {
   group: 'lime.100',
 }
 
-const badgeBg = {
-  amm: 'blue.100',
-  clob: 'green.100',
-  group: 'lime.100',
-}
-
 const MarketDataFactory = {
   getMarketType: (market: DraftMarket | Market): string => {
     if (isDraftMarket(market)) {
