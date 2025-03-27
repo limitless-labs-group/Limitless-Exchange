@@ -61,7 +61,7 @@ export const chakraTheme = ChakraTheme({
         overflowX: 'hidden',
         userSelect: 'text',
         color: 'grey.800',
-        background: 'grey.100',
+        background: 'grey.50',
         fontSize: '14px',
       },
       hr: {
@@ -211,6 +211,9 @@ export const chakraTheme = ChakraTheme({
         },
         white: {
           ...commonButtonProps,
+          h: '26px',
+          border: '1px solid',
+          borderColor: 'grey.100',
           px: isMobile ? '12px' : '8px',
           bg: 'white',
           color: 'black',
@@ -339,6 +342,12 @@ export const chakraTheme = ChakraTheme({
       baseStyle: {
         borderColor: 'grey.100',
         bg: 'grey.100',
+      },
+      variants: {
+        dark: {
+          borderColor: 'grey.200',
+          bg: 'grey.200',
+        },
       },
     },
     Slider: sliderTheme,

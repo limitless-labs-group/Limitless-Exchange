@@ -1,37 +1,29 @@
 'use client'
 
-import { Link, HStack, Text, VStack, Box } from '@chakra-ui/react'
+import { HStack, Text, VStack, Box } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
-import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import DashboardSection from '@/components/common/markets/dashboard-section'
 import { MarketCategoryHeader } from '@/components/common/markets/market-category-header'
 import MarketsSection from '@/components/common/markets/markets-section'
-import { CategoryItems, SideItem } from '@/components/common/markets/sidebar-item'
 import TopMarkets from '@/components/common/markets/top-markets'
 import { sortAtom } from '@/atoms/market-sort'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import usePageName from '@/hooks/use-page-name'
 import { usePriceOracle } from '@/providers'
-import GridIcon from '@/resources/icons/sidebar/Markets.svg'
-import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import {
-  ClickEvent,
   OpenEvent,
   PageOpenedMetadata,
   DashboardName,
-  ProfileBurgerMenuClickedMetadata,
   useAmplitude,
   useCategories,
   useTradingService,
 } from '@/services'
 import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Dashboard, Market, MarketType, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
@@ -44,7 +36,7 @@ const MainPage = () => {
     market: selectedMarket,
     groupMarket,
   } = useTradingService()
-  const { trackClicked, trackOpened } = useAmplitude()
+  const { trackOpened } = useAmplitude()
   const category = searchParams.get('category')
   const market = searchParams.get('market')
   const dashboardSearch = searchParams.get('dashboard')
@@ -54,8 +46,6 @@ const MainPage = () => {
   const [selectedSort, setSelectedSort] = useAtom(sortAtom)
   const { convertTokenAmountToUsd } = usePriceOracle()
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useMarkets(null)
-
-  const pageName = usePageName()
 
   useEffect(() => {
     if (marketData) {
@@ -189,89 +179,6 @@ const MainPage = () => {
       <HStack className='w-full' alignItems='flex-start' w='full' justifyContent='center'>
         <VStack w='full' justifyContent='center'>
           <>
-            {isMobile ? (
-              <HStack
-                gap='0px'
-                px='16px'
-                pb='8px'
-                overflowX='auto'
-                css={{
-                  '&::-webkit-scrollbar': {
-                    display: 'none',
-                  },
-                  scrollbarWidth: 'none',
-                  '-ms-overflow-style': 'none',
-                }}
-                minW='100%'
-                w='full'
-              >
-                <NextLink
-                  href='/'
-                  passHref
-                  style={{
-                    width: isMobile ? 'fit-content' : '100%',
-                    textDecoration: 'none',
-                  }}
-                >
-                  <Link
-                    onClick={() => {
-                      trackClicked<ProfileBurgerMenuClickedMetadata>(
-                        ClickEvent.ProfileBurgerMenuClicked,
-                        {
-                          option: 'Markets',
-                        }
-                      )
-                      handleCategory(undefined)
-                      handleDashboard(undefined)
-                      handleSelectSort(Sort.DEFAULT, SortStorageName.SORT)
-                    }}
-                    variant='transparent'
-                    w='full'
-                    h='24px'
-                    textDecoration='none'
-                    _active={{ textDecoration: 'none' }}
-                    _hover={{ textDecoration: 'none' }}
-                    bg={
-                      pageName === 'Explore Markets' && !selectedCategory && !dashboard
-                        ? 'grey.200'
-                        : 'unset'
-                    }
-                    rounded='8px'
-                  >
-                    <HStack w='full' whiteSpace='nowrap'>
-                      <GridIcon width={16} height={16} />
-                      <Text {...paragraphMedium} fontWeight={500}>
-                        {`All markets ${isFetching ? '' : `(${totalAmount})`} `}
-                      </Text>
-                    </HStack>
-                  </Link>
-                </NextLink>
-
-                {!isFetching ? (
-                  <NextLink
-                    href={`/?dashboard=marketcrash`}
-                    passHref
-                    style={{ width: isMobile ? 'fit-content' : '100%' }}
-                  >
-                    <Link variant='transparent'>
-                      <SideItem
-                        isActive={dashboard === 'marketcrash'}
-                        icon={<DashboardIcon width={16} height={16} color='#FF9200' />}
-                        onClick={() => {
-                          handleDashboard('marketcrash')
-                        }}
-                        color='orange-500'
-                      >
-                        Market crash
-                      </SideItem>
-                    </Link>
-                  </NextLink>
-                ) : null}
-
-                <CategoryItems />
-              </HStack>
-            ) : null}
-
             {dashboard ? (
               <DashboardSection
                 dashboardName={dashboard}

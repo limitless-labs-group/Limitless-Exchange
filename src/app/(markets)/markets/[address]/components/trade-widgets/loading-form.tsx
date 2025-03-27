@@ -35,7 +35,7 @@ export function LoadingForm({ outcomeIndex }: LoadingFormProps) {
         <Text fontWeight={500}>{outcomeIndex ? 'No' : 'Yes'} Contracts</Text>
       </HStack>
 
-      <Text fontWeight={500} color='var(--chakra-colors-grey-100)'>
+      <Text fontWeight={500} color='var(--chakra-colors-grey-800)'>
         For {amount} {market?.collateralToken.symbol}
       </Text>
     </VStack>

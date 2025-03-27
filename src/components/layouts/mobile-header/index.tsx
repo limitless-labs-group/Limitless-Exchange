@@ -31,6 +31,7 @@ import useClient from '@/hooks/use-client'
 import { usePriceOracle, useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import KeyIcon from '@/resources/icons/key-icon.svg'
+import MenuIcon from '@/resources/icons/menu-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
@@ -124,7 +125,16 @@ export default function MobileHeader() {
 
   return (
     <>
-      <Box p='16px' w='100vw' marginTop='20px'>
+      <Box
+        p='16px'
+        w='100vw'
+        borderBottom='1px solid'
+        borderColor='grey.100'
+        position='fixed'
+        top={0}
+        bg='grey.50'
+        zIndex={999999}
+      >
         <HStack justifyContent='space-between' alignItems='center'>
           <Box
             onClick={() => {
@@ -171,6 +181,9 @@ export default function MobileHeader() {
                   ) : (
                     <Avatar account={account as string} avatarUrl={profileData?.pfpUrl} />
                   )}
+                  <Box ml='8px'>
+                    <MenuIcon width={16} height={16} />
+                  </Box>
                 </Button>
                 {isOpenUserMenu && (
                   <Box
@@ -179,16 +192,15 @@ export default function MobileHeader() {
                     left={0}
                     bottom={0}
                     w='full'
-                    zIndex={100}
+                    zIndex={200}
                     bg='rgba(0, 0, 0, 0.3)'
-                    mt='20px'
                     animation='fadeIn 0.5s'
-                  ></Box>
+                  />
                 )}
                 <Slide
                   direction='right'
                   in={isOpenUserMenu}
-                  style={{ zIndex: 100, marginTop: '20px', transition: '0.1s' }}
+                  style={{ zIndex: 201, transition: '0.1s' }}
                   onClick={onCloseUserMenu}
                 >
                   <VStack

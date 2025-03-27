@@ -22,10 +22,7 @@ import BaseWhiteIcon from '@/resources/icons/base-icon-white.svg'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
-import KeyIcon from '@/resources/icons/key-icon.svg'
 import LogoutIcon from '@/resources/icons/log-out-icon.svg'
-import MoonIcon from '@/resources/icons/moon-icon.svg'
-import SunIcon from '@/resources/icons/sun-icon.svg'
 import SwapIcon from '@/resources/icons/swap-icon.svg'
 import UserIcon from '@/resources/icons/user-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
@@ -37,12 +34,7 @@ import {
   useBalanceQuery,
   useBalanceService,
 } from '@/services'
-import {
-  captionRegular,
-  h2Regular,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
+import { h2Regular, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
 interface UserMenuDesktopProps {
@@ -55,15 +47,7 @@ export default function UserMenuDesktop({
   handleOpenProfile,
 }: UserMenuDesktopProps) {
   const { trackClicked } = useAmplitude()
-  const {
-    disconnectFromPlatform,
-    displayName,
-    profileData,
-    profileLoading,
-    account,
-    web3Client,
-    loginToPlatform,
-  } = useAccount()
+  const { disconnectFromPlatform, profileData, profileLoading, account, web3Client } = useAccount()
   const {
     isOpen: isOpenAuthMenu,
     onToggle: onToggleAuthMenu,
@@ -108,7 +92,6 @@ export default function UserMenuDesktop({
           onCloseAuthMenu()
           handleOpenWalletPage()
         }}
-        w='full'
       >
         <HStack w='full'>
           <WalletIcon width={16} height={16} />
@@ -182,35 +165,37 @@ export default function UserMenuDesktop({
             </HStack>
           </MenuButton>
         )}
-        <MenuList minW='254px'>
-          <HStack justifyContent='space-between'>
-            <HStack gap='4px'>
-              <WalletIcon width='16px' height='16px' />
-              <Text {...paragraphMedium}>Estimated balance</Text>
-            </HStack>
-            <HStack gap='4px'>
-              <BaseWhiteIcon />
-              <Text {...paragraphMedium}>BASE</Text>
-            </HStack>
-          </HStack>
-          <Text mt='12px' mb='24px' {...h2Regular}>
-            ~{NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
-          </Text>
-          <HStack justifyContent='space-between'>
-            <Text {...paragraphMedium}>Address</Text>
-            {/*//@ts-ignore*/}
-            <CopyToClipboard text={account as string} onCopy={onClickCopy}>
-              <HStack gap='4px' cursor='pointer'>
-                <Text {...paragraphRegular}>{truncateEthAddress(account)}</Text>
-                {copied ? (
-                  <CheckedIcon width={16} height={16} />
-                ) : (
-                  <CopyIcon width='16px' height='16px' />
-                )}
+        <MenuList minW='254px' px='4px'>
+          <Box px='8px'>
+            <HStack justifyContent='space-between'>
+              <HStack gap='4px'>
+                <WalletIcon width='16px' height='16px' />
+                <Text {...paragraphMedium}>Estimated balance</Text>
               </HStack>
-            </CopyToClipboard>
-          </HStack>
-          <Divider my='16px' />
+              <HStack gap='4px'>
+                <BaseWhiteIcon />
+                <Text {...paragraphMedium}>BASE</Text>
+              </HStack>
+            </HStack>
+            <Text mt='12px' mb='24px' {...h2Regular}>
+              ~{NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+            </Text>
+            <HStack justifyContent='space-between'>
+              <Text {...paragraphMedium}>Address</Text>
+              {/*//@ts-ignore*/}
+              <CopyToClipboard text={account as string} onCopy={onClickCopy}>
+                <HStack gap='4px' cursor='pointer'>
+                  <Text {...paragraphRegular}>{truncateEthAddress(account)}</Text>
+                  {copied ? (
+                    <CheckedIcon width={16} height={16} />
+                  ) : (
+                    <CopyIcon width='16px' height='16px' />
+                  )}
+                </HStack>
+              </CopyToClipboard>
+            </HStack>
+            <Divider my='16px' />
+          </Box>
           <VStack gap='12px' alignItems='flex-start'>
             {walletTypeActionButton}
             <Button

@@ -1,21 +1,13 @@
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Link,
-  Slide,
-  SlideFade,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Link, Slide, Text, useDisclosure } from '@chakra-ui/react'
 import { useFundWallet } from '@privy-io/react-auth'
+import { useAtom } from 'jotai/index'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useMemo } from 'react'
 import { CategoryItems } from '@/components/common/markets/sidebar-item'
-import ThemeSwitcher from '@/components/layouts/theme-switcher'
 import UserMenuDesktop from '@/components/layouts/user-menu-desktop'
+import WalletPage from '@/components/layouts/wallet-page'
+import { sortAtom } from '@/atoms/market-sort'
 import { Profile } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import useClient from '@/hooks/use-client'
@@ -29,39 +21,29 @@ import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
 import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import {
   ClickEvent,
+  LogoClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
   useAccount,
   useAmplitude,
   usePosition,
+  useTradingService,
 } from '@/services'
-import { useMarkets } from '@/services/MarketsService'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { MarketStatus } from '@/types'
+import { MarketStatus, Sort, SortStorageName } from '@/types'
 
 export default function Header() {
-  const { setLightTheme, setDarkTheme, mode } = useThemeProvider()
-  const { isFetching } = useMarkets(null)
-  const { dashboard, handleDashboard } = useTokenFilter()
+  const { mode } = useThemeProvider()
+  const [, setSelectedSort] = useAtom(sortAtom)
+  const { dashboard, handleCategory, handleDashboard } = useTokenFilter()
   const pageName = usePageName()
   const { trackClicked } = useAmplitude()
   const { isLoggedToPlatform } = useClient()
   const { fundWallet } = useFundWallet()
   const { data: positions } = usePosition()
-  const {
-    isOpen: isOpenWalletPage,
-    onToggle: onToggleWalletPage,
-    onClose: onCloseWalletPage,
-  } = useDisclosure()
+  const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
   const { isOpen: isOpenProfile, onToggle: onToggleProfile } = useDisclosure()
-  const {
-    disconnectFromPlatform,
-    displayName,
-    profileData,
-    profileLoading,
-    account,
-    web3Client,
-    loginToPlatform,
-  } = useAccount()
+  const { marketPageOpened, onCloseMarketPage } = useTradingService()
+  const { account, loginToPlatform } = useAccount()
   const handleBuyCryptoClicked = async () => {
     trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.BuyCryptoClicked)
     await fundWallet(account as string)
@@ -69,10 +51,16 @@ export default function Header() {
 
   const handleOpenWalletPage = () => {
     onToggleWalletPage()
+    if (marketPageOpened) {
+      onCloseMarketPage()
+    }
   }
 
   const handleOpenProfile = () => {
     onToggleProfile()
+    if (marketPageOpened) {
+      onCloseMarketPage()
+    }
   }
 
   const hasWinningPosition = useMemo(() => {
@@ -95,17 +83,31 @@ export default function Header() {
         bg='grey.50'
       >
         <HStack gap='32px'>
-          <Image
-            src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
-            height={32}
-            width={156}
-            alt='logo'
-          />
+          <NextLink href='/' passHref>
+            <Link
+              onClick={() => {
+                trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
+                handleCategory(undefined)
+                handleDashboard(undefined)
+                window.localStorage.setItem(SortStorageName.SORT, JSON.stringify(Sort.DEFAULT))
+                setSelectedSort({ sort: Sort.DEFAULT })
+              }}
+              style={{ textDecoration: 'none' }}
+              _hover={{ textDecoration: 'none' }}
+            >
+              <Image
+                src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+                height={32}
+                width={156}
+                alt='logo'
+              />
+            </Link>
+          </NextLink>
           <HStack gap='16px'>
             <NextLink href={`/`} passHref>
               <Link
                 variant='transparent'
-                bg={pageName === 'Home' ? 'grey.100' : 'unset'}
+                bg={pageName === 'Explore Markets' ? 'grey.100' : 'unset'}
                 rounded='8px'
                 onClick={() => {
                   trackClicked<ProfileBurgerMenuClickedMetadata>(
@@ -114,6 +116,7 @@ export default function Header() {
                       option: 'Home',
                     }
                   )
+                  handleCategory(undefined)
                 }}
               >
                 <HStack w='full' whiteSpace='nowrap' gap='4px'>
@@ -155,6 +158,7 @@ export default function Header() {
                       option: 'Leaderboard',
                     }
                   )
+                  handleCategory(undefined)
                 }}
                 variant='transparent'
                 w='full'
@@ -178,6 +182,7 @@ export default function Header() {
                       option: 'Feed',
                     }
                   )
+                  handleCategory(undefined)
                 }}
                 variant='transparent'
                 w='full'
@@ -236,7 +241,7 @@ export default function Header() {
               handleOpenWalletPage={handleOpenWalletPage}
               handleOpenProfile={handleOpenProfile}
             />
-            {isOpenProfile && (
+            {(isOpenProfile || isOpenWalletPage) && (
               <Box
                 position='fixed'
                 top={0}
@@ -246,10 +251,26 @@ export default function Header() {
                 zIndex={100}
                 bg='rgba(0, 0, 0, 0.3)'
                 mt='20px'
-                ml='188px'
                 animation='fadeIn 0.5s'
-              ></Box>
+              />
             )}
+            <Slide
+              direction='right'
+              in={isOpenWalletPage}
+              style={{
+                zIndex: 100,
+                marginLeft: '197px',
+                transition: '0.1s',
+              }}
+              onClick={() => {
+                trackClicked(ClickEvent.WalletClicked, {
+                  page: pageName,
+                })
+                handleOpenWalletPage()
+              }}
+            >
+              <WalletPage onClose={onToggleWalletPage} />
+            </Slide>
             <Slide
               direction='right'
               in={isOpenProfile}
@@ -269,7 +290,14 @@ export default function Header() {
             </Slide>
           </HStack>
         ) : (
-          <Box />
+          <HStack gap='8px'>
+            <Button variant='white' onClick={loginToPlatform}>
+              Login
+            </Button>
+            <Button variant='contained' onClick={loginToPlatform}>
+              Sign Up
+            </Button>
+          </HStack>
         )}
       </HStack>
       <HStack py='4px' px='12px' bg='grey.50'>
