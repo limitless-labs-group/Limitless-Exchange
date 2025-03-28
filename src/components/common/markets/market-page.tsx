@@ -32,6 +32,7 @@ import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
+import SideBarPage from '@/components/common/side-bar-page'
 import Skeleton from '@/components/common/skeleton'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
@@ -68,10 +69,6 @@ export default function MarketPage() {
   const [activeChartTabIndex, setActiveChartTabIndex] = useState(0)
   const [activeActionsTabIndex, setActiveActionsTabIndex] = useState(0)
   const pageName = usePageName()
-
-  const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
-
-  const desktopPadding = pageName === 'Explore Markets' ? '80px' : '48px'
 
   const {
     setMarket,
@@ -254,63 +251,21 @@ export default function MarketPage() {
   }, [market?.slug])
 
   useEffect(() => {
-    const handleMouseEnter = () => {
-      document.body.style.overflow = 'hidden'
-    }
-
-    const handleMouseLeave = () => {
-      document.body.style.overflow = ''
-    }
-
-    const scrollContainer = scrollableBlockRef.current
-    if (scrollContainer) {
-      scrollContainer.addEventListener('mouseenter', handleMouseEnter)
-      scrollContainer.addEventListener('mouseleave', handleMouseLeave)
-    }
-
-    return () => {
-      if (scrollContainer) {
-        scrollContainer.removeEventListener('mouseenter', handleMouseEnter)
-        scrollContainer.removeEventListener('mouseleave', handleMouseLeave)
-      }
-      document.body.style.overflow = '' // Clean up on unmount
-    }
-  }, [])
-
-  useEffect(() => {
     setActiveActionsTabIndex(0)
     setActiveChartTabIndex(0)
   }, [market])
 
   return (
-    <Box
-      bg='grey.50'
-      borderLeft={isMobile ? 'unset' : '1px solid'}
-      borderTop={isMobile || pageName !== 'Explore Markets' ? 'unset' : '1px solid'}
-      borderColor='grey.200'
-      w={isMobile ? 'full' : '520px'}
-      position={isMobile ? 'relative' : 'fixed'}
-      height={isMobile ? 'calc(100dvh - 21px)' : 'calc(100dvh - 48px)'}
-      top={isMobile ? '48px' : desktopPadding}
-      right={0}
-      overflowY='auto'
-      p={isMobile ? '12px' : '16px'}
-      pt={isMobile ? 0 : '16px'}
-      ref={scrollableBlockRef}
-      id='side-menu-scroll-container'
-      boxShadow='-4px 0px 8px 0px rgba(0, 0, 0, 0.05)'
-      backdropFilter='blur(7.5px)'
-      zIndex='200'
-    >
+    <SideBarPage>
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
           <HStack gap='16px'>
-            <Button variant='grey' onClick={handleCloseMarketPageClicked}>
+            <Button variant='outlined' onClick={handleCloseMarketPageClicked}>
               <CloseIcon width={16} height={16} />
               Close
             </Button>
             <NextLink href={`/markets/${groupMarket?.slug || market?.slug}`}>
-              <Button variant='grey' onClick={handleFullPageClicked}>
+              <Button variant='outlined' onClick={handleFullPageClicked}>
                 <ExpandIcon width={16} height={16} />
                 Full page
               </Button>
@@ -470,6 +425,6 @@ export default function MarketPage() {
         </TabPanels>
       </Tabs>
       <ConvertModal />
-    </Box>
+    </SideBarPage>
   )
 }
