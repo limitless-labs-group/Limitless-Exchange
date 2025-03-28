@@ -80,7 +80,7 @@ export default function MobileHeader() {
     onOpen: onOpenUserMenu,
     onClose: onCloseUserMenu,
   } = useDisclosure()
-  const { handleCategory, handleDashboard } = useTokenFilter()
+  const { selectedCategory, handleDashboard } = useTokenFilter()
 
   // Todo move this and other duplicated to a proper service
   const balanceInvested = useMemo(() => {
@@ -148,9 +148,10 @@ export default function MobileHeader() {
         <HStack justifyContent='space-between' alignItems='center'>
           <Box
             onClick={() => {
-              handleCategory(undefined)
               handleDashboard(undefined)
-              router.push('/')
+              router.push(
+                selectedCategory ? `/?category=${selectedCategory.name.toLowerCase()}` : '/'
+              )
             }}
           >
             <HStack w='full' alignItems='center'>

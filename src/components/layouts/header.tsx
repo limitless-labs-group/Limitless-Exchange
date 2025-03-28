@@ -20,7 +20,6 @@ import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
 import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import {
-  ChangeEvent,
   ClickEvent,
   LogoClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
@@ -35,9 +34,9 @@ import { MarketStatus, Sort, SortStorageName } from '@/types'
 export default function Header() {
   const { mode } = useThemeProvider()
   const [, setSelectedSort] = useAtom(sortAtom)
-  const { dashboard, handleCategory, handleDashboard } = useTokenFilter()
+  const { dashboard, handleCategory, handleDashboard, selectedCategory } = useTokenFilter()
   const pageName = usePageName()
-  const { trackChanged, trackClicked } = useAmplitude()
+  const { trackClicked } = useAmplitude()
   const { isLoggedToPlatform } = useClient()
   const { fundWallet } = useFundWallet()
   const { data: positions } = usePosition()
@@ -74,7 +73,7 @@ export default function Header() {
   }, [positions])
 
   return (
-    <Box position='fixed' top={0} w='full' zIndex={999999}>
+    <Box position='fixed' w='full' top={0} zIndex={99999}>
       <HStack
         w='full'
         justifyContent='space-between'
@@ -85,11 +84,13 @@ export default function Header() {
         bg='grey.50'
       >
         <HStack gap='32px'>
-          <NextLink href='/' passHref>
+          <NextLink
+            href={selectedCategory ? `/?category=${selectedCategory.name.toLowerCase()}` : '/'}
+            passHref
+          >
             <Link
               onClick={() => {
                 trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
-                handleCategory(undefined)
                 handleDashboard(undefined)
                 window.localStorage.setItem(SortStorageName.SORT, JSON.stringify(Sort.DEFAULT))
                 setSelectedSort({ sort: Sort.DEFAULT })
@@ -134,13 +135,18 @@ export default function Header() {
                 </HStack>
               </Link>
             </NextLink>
-            <NextLink href={`/market-crash`} passHref>
+            <NextLink href={`/?dashboard=marketcrash`} passHref>
               <Link
                 variant='transparent'
-                bg={pageName === 'Market Crash' ? 'grey.100' : 'unset'}
+                bg={dashboard === 'marketcrash' ? 'grey.100' : 'unset'}
                 rounded='8px'
                 onClick={() => {
-                  trackChanged(ChangeEvent.MarketCrashPageChanged)
+                  trackClicked<ProfileBurgerMenuClickedMetadata>(
+                    ClickEvent.ProfileBurgerMenuClicked,
+                    {
+                      option: 'Market Crash',
+                    }
+                  )
                 }}
               >
                 <HStack w='full' gap='4px'>
@@ -293,7 +299,7 @@ export default function Header() {
           </HStack>
         ) : (
           <HStack gap='8px'>
-            <Button variant='white' onClick={loginToPlatform}>
+            <Button variant='outlined' onClick={loginToPlatform}>
               Login
             </Button>
             <Button variant='contained' onClick={loginToPlatform}>

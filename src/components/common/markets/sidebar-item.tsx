@@ -4,10 +4,9 @@ import { useSearchParams } from 'next/navigation'
 import React, { ReactNode, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import usePageName from '@/hooks/use-page-name'
 import GrinIcon from '@/resources/icons/grid-icon.svg'
 import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
-import { ChangeEvent, useAmplitude, useCategories } from '@/services'
+import { useCategories } from '@/services'
 import { useMarkets } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
@@ -51,19 +50,17 @@ export const SideItem = ({ isActive, onClick, icon, children, color }: SideItemP
 }
 
 export const CategoryItems = () => {
-  const { selectedCategory, handleCategory, handleDashboard } = useTokenFilter()
+  const { selectedCategory, handleCategory, handleDashboard, dashboard } = useTokenFilter()
   const searchParams = useSearchParams()
-  const { trackChanged } = useAmplitude()
 
   const { data: categories } = useCategories()
   const { data } = useMarkets(null)
-  const pageName = usePageName()
 
   const markets: Market[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages])
 
-  const totalAmount = data?.pages?.[0]?.data?.totalAmount || ''
+  const totalAmount = markets.length
 
   const marketsByCategory = useMemo(() => {
     if (!markets.length || !categories?.length) return {}
@@ -110,14 +107,20 @@ export const CategoryItems = () => {
 
   return (
     <>
-      <NextLink href={'/'}>
-        <Link variant='transparent' px={0} minW='122px'>
+      <NextLink
+        href={'/'}
+        style={{
+          minWidth: 'fit-content',
+        }}
+      >
+        <Link variant='transparent' px={0}>
           <HStack
             gap='4px'
             cursor='pointer'
             bg={!selectedCategory ? 'grey.100' : 'unset'}
             onClick={() => {
               handleCategory(undefined)
+              handleDashboard(undefined)
             }}
             px={'8px'}
             rounded='8px'
@@ -129,16 +132,16 @@ export const CategoryItems = () => {
       </NextLink>
       {isMobile && (
         <NextLink
-          href={`/market-crash`}
+          href={`/?dashboard=marketcrash`}
           passHref
           style={{ width: isMobile ? 'fit-content' : '100%' }}
         >
           <Link variant='transparent' px={0}>
             <SideItem
-              isActive={pageName === 'Market Crash'}
+              isActive={dashboard === 'marketcrash'}
               icon={<DashboardIcon width={16} height={16} />}
               onClick={() => {
-                trackChanged(ChangeEvent.MarketCrashPageChanged)
+                handleDashboard('marketcrash')
               }}
               color='orange-500'
             >
