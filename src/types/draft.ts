@@ -48,6 +48,7 @@ export interface IFormData {
   ogLogo: File | undefined
   isBannered: boolean
   txHash: string
+  slug: string
   marketInput?: MarketInput[]
   priorityIndex?: number
   maxDailyReward?: number
@@ -137,13 +138,14 @@ export interface DraftMarketResponse {
 export interface BaseMarketData {
   title: string
   description?: string
-  tokenId: number
-  marketFee: number
-  deadline: number
+  tokenId?: number
+  marketFee?: number
+  deadline?: number
   isBannered: boolean
-  creatorId: string
+  creatorId?: string
   categoryIds: string
   tagIds: string
+  slug?: string
   marketsInput?: any
 }
 
