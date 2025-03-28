@@ -24,7 +24,7 @@ import {
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useWeb3Service } from '@/services/Web3Service'
-import { Market, RedeemParams } from '@/types'
+import { Market, MarketType, RedeemParams } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
 import { DISCORD_LINK } from '@/utils/consts'
 
@@ -136,7 +136,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     const marketToSet =
       market.marketType === 'group' ? market.markets?.[groupIndex || 0] || null : market
     setMarket(marketToSet)
-    setClobOutcome(outcome ? outcome : 0)
     if (market.marketType === 'group') {
       setGroupMarket(market)
     }
@@ -776,7 +775,9 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       type,
     }: RedeemParams) => {
       const conditionalTokenAddress =
-        type === 'amm' ? await getConditionalTokenAddress(getAddress(marketAddress)) : marketAddress
+        type === ('amm' as MarketType)
+          ? await getConditionalTokenAddress(getAddress(marketAddress))
+          : marketAddress
 
       const receipt = await redeemPositions(
         conditionalTokenAddress,

@@ -189,7 +189,7 @@ export default function BuyButton({
                 {...paragraphRegular}
                 color='white'
                 borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
-                borderColor={'transparent.200'}
+                borderColor={'whiteAlpha.20'}
                 _hover={{
                   borderColor: 'var(--chakra-colors-transparent-600)',
                 }}
@@ -416,7 +416,7 @@ export default function BuyButton({
                         {...paragraphRegular}
                         color='white'
                         borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
-                        borderColor={'transparent.200'}
+                        borderColor={'whiteAlpha.20'}
                         _hover={{
                           borderColor: 'var(--chakra-colors-transparent-600)',
                         }}

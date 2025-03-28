@@ -127,7 +127,9 @@ export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
           right={isMobile ? '12px' : '8px'}
           justifyContent='flex-end'
         >
-          <Text {...paragraphMedium}>{tokenFrom}</Text>
+          <Text {...paragraphMedium} color='grey.500'>
+            {tokenFrom}
+          </Text>
         </InputRightElement>
       </InputGroup>
       <HStack justifyContent='center' mt={isMobile ? '28px' : '20px'}>
@@ -159,7 +161,9 @@ export default function WrapModal({ isOpen, onClose }: WrapModalPros) {
           right={isMobile ? '12px' : '8px'}
           justifyContent='flex-end'
         >
-          <Text {...paragraphMedium}>{tokenTo}</Text>
+          <Text {...paragraphMedium} color='grey.500'>
+            {tokenTo}
+          </Text>
         </InputRightElement>
       </InputGroup>
       <HStack

@@ -282,9 +282,9 @@ export default function MarketPage() {
 
   return (
     <Box
-      bg='var(--chakra-colors-background-97)'
+      bg='grey.50'
       borderLeft={isMobile ? 'unset' : '1px solid'}
-      borderColor='grey.100'
+      borderColor='grey.200'
       w={isMobile ? 'full' : '520px'}
       position={isMobile ? 'relative' : 'fixed'}
       height={isMobile ? 'calc(100dvh - 21px)' : 'calc(100vh - 21px)'}

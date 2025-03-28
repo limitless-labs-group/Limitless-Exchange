@@ -3,8 +3,23 @@ import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
 import { Address, formatUnits, parseUnits } from 'viem'
 import { defaultChain } from '@/constants'
+import { LIMIT_PER_PAGE } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
-import { OddsData } from '@/types'
+import { AnalyticsParams, OddsData } from '@/types'
+import { MarketInput } from '@/types/draft'
+
+export const getAnalyticsParams = (
+  index: number,
+  offset = 0,
+  additionalParams?: Record<string, any>
+): AnalyticsParams => {
+  const position = index + 1 + offset
+  return {
+    bannerPosition: position,
+    bannerPaginationPage: Math.floor((index + offset) / LIMIT_PER_PAGE) + 1,
+    ...(additionalParams || {}),
+  }
+}
 
 export const defineOpenInterestOverVolume = (
   openInterestFormatted: string,
@@ -17,6 +32,29 @@ export const defineOpenInterestOverVolume = (
     value: isOpenInterestGreater ? openInterestFormatted : targetValue,
     showOpenInterest: isOpenInterestGreater,
   }
+}
+
+export const calculateMarketPrice = (price: number | undefined): number => {
+  if (!price) return 50
+
+  const calculated = new BigNumber(price).multipliedBy(100).decimalPlaces(0).toNumber()
+
+  return Number.isNaN(calculated) ? 50 : calculated
+}
+
+export const findDuplicateMarketGroupTitles = (markets: MarketInput[]) => {
+  const map = new Map()
+  const duplicates = []
+  const marketTitles = markets.map((market) => market.title)
+
+  for (const str of marketTitles) {
+    map.set(str, (map.get(str) || 0) + 1)
+    if (map.get(str) === 2) {
+      duplicates.push(str)
+    }
+  }
+
+  return duplicates
 }
 
 export async function getPrices(data: { address: Address; decimals: number }[]) {

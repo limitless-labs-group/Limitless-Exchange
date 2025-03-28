@@ -26,7 +26,7 @@ const baseStyle = definePartsStyle({
   },
   list: {
     p: '4px',
-    bg: 'grey.300',
+    bg: 'grey.100',
     border: 'unset',
     minW: 'unset',
     _dark: {
@@ -99,9 +99,9 @@ const variants = {
     },
     item: {
       p: isMobile ? '16px' : '8px',
-      bg: 'transparent.200',
+      bg: 'whiteAlpha.200',
       _hover: {
-        bg: 'transparent.300',
+        bg: 'whiteAlpha.30',
       },
     },
   },

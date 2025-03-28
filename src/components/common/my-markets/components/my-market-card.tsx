@@ -125,7 +125,7 @@ export default function MyMarketCard({ market }: MyMarketCardProps) {
           <ProgressBar variant={'market'} value={fullMarket.prices[0]} />
         </Box>
       )}
-      <Divider my='16px' borderColor='grey.200' color='grey.200' />
+      <Divider my='16px' />
       <HStack w='full' justifyContent='space-between'>
         <Box />
         <Text {...paragraphMedium} color='grey.500'>

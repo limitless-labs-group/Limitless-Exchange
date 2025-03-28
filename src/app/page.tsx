@@ -16,7 +16,6 @@ import TopMarkets from '@/components/common/markets/top-markets'
 import { sortAtom } from '@/atoms/market-sort'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import { useIsMobile } from '@/hooks'
 import usePageName from '@/hooks/use-page-name'
 import { usePriceOracle } from '@/providers'
 import GridIcon from '@/resources/icons/sidebar/Markets.svg'
@@ -33,7 +32,7 @@ import {
 } from '@/services'
 import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Dashboard, Market, Sort, SortStorageName } from '@/types'
+import { Dashboard, Market, MarketType, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
 const MainPage = () => {
@@ -48,7 +47,6 @@ const MainPage = () => {
   const { trackClicked, trackOpened } = useAmplitude()
   const category = searchParams.get('category')
   const market = searchParams.get('market')
-  const slug = searchParams.get('slug')
   const dashboardSearch = searchParams.get('dashboard')
   const { data: marketData } = useMarket(market ?? undefined)
   const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
@@ -61,11 +59,17 @@ const MainPage = () => {
 
   useEffect(() => {
     if (marketData) {
-      if (marketData.marketType === 'single' && selectedMarket?.slug !== marketData.slug) {
+      if (
+        marketData.marketType === ('single' as MarketType) &&
+        selectedMarket?.slug !== marketData.slug
+      ) {
         onOpenMarketPage(marketData)
         return
       }
-      if (marketData.marketType === 'group' && groupMarket?.slug !== marketData.slug) {
+      if (
+        marketData.marketType === ('group' as MarketType) &&
+        groupMarket?.slug !== marketData.slug
+      ) {
         onOpenMarketPage(marketData)
         return
       }
@@ -83,7 +87,7 @@ const MainPage = () => {
       ...(dashboard && { dashboard: dashboardNameMapping[dashboard.toLowerCase()] || dashboard }),
     }
     trackOpened(OpenEvent.PageOpened, analyticData)
-  }, [selectedCategory, dashboard])
+  }, [selectedCategory?.name, dashboard])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -126,7 +130,7 @@ const MainPage = () => {
 
   const markets: Market[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
-  }, [data?.pages, category])
+  }, [data?.pages])
 
   const filteredAllMarkets = useMemo(() => {
     if (!markets) return []
@@ -229,7 +233,7 @@ const MainPage = () => {
                     _hover={{ textDecoration: 'none' }}
                     bg={
                       pageName === 'Explore Markets' && !selectedCategory && !dashboard
-                        ? 'grey.100'
+                        ? 'grey.200'
                         : 'unset'
                     }
                     rounded='8px'
@@ -249,7 +253,7 @@ const MainPage = () => {
                     passHref
                     style={{ width: isMobile ? 'fit-content' : '100%' }}
                   >
-                    <Link>
+                    <Link variant='transparent'>
                       <SideItem
                         isActive={dashboard === 'marketcrash'}
                         icon={<DashboardIcon width={16} height={16} color='#FF9200' />}
