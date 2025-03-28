@@ -12,7 +12,6 @@ const mobileStyles = {
   mb: '24px',
   justifyContent: 'start',
   h: '32px',
-  px: '0',
 } as const
 
 const desktopStyles = {
@@ -59,12 +58,12 @@ export default function SortFilter({ onChange, sort }: SortFilterProps) {
 
   return (
     <HStack
-      spacing={2}
       wrap={'wrap'}
       alignItems={'start'}
       w={'auto'}
-      maxW={isMobile ? 'calc(100vw - 32px)' : 'unset'}
+      maxW={isMobile ? '100%' : 'unset'}
       overflowX='auto'
+      paddingLeft={isMobile ? '16px' : 0}
       {...(isMobile ? mobileStyles : desktopStyles)}
     >
       <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.100' borderRadius='8px'>

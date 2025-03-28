@@ -4,6 +4,7 @@ import { HStack, Text, VStack, Box } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import { MarketCategoryHeader } from '@/components/common/markets/market-category-header'
@@ -179,7 +180,7 @@ const MainPage = () => {
         <VStack w='full' justifyContent='center'>
           <>
             {headerContent}
-            <Box className='full-container'>
+            <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
               <InfiniteScroll
                 className='scroll'
                 dataLength={markets?.length ?? 0}

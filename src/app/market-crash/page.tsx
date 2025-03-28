@@ -75,7 +75,7 @@ export default function MarketCrashPage() {
       ) : (
         <Box>
           <DashboardHeader />
-          <Box className='full-container'>
+          <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
             <InfiniteScroll
               className='scroll'
               dataLength={dashboard?.length ?? 0}

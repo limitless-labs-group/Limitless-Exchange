@@ -85,13 +85,11 @@ export default function Header() {
         bg='grey.50'
       >
         <HStack gap='32px'>
-          <NextLink
-            href={selectedCategory ? `/?category=${selectedCategory.name.toLowerCase()}` : '/'}
-            passHref
-          >
+          <NextLink href={'/'} passHref>
             <Link
               onClick={() => {
                 trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
+                handleCategory(undefined)
                 handleDashboard(undefined)
                 window.localStorage.setItem(SortStorageName.SORT, JSON.stringify(Sort.DEFAULT))
                 setSelectedSort({ sort: Sort.DEFAULT })

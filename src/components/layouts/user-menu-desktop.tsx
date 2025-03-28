@@ -106,7 +106,7 @@ export default function UserMenuDesktop({
         <HStack w='full'>
           <WalletIcon width={16} height={16} />
           <Text fontWeight={500} fontSize='14px'>
-            {NumberUtil.formatThousands(overallBalanceUsd, 2)} USD
+            Wallet
           </Text>
         </HStack>
       </Button>
