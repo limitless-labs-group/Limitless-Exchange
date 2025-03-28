@@ -195,7 +195,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
                     variant='white'
                     ml='8px'
                     onClick={() => {
-                      trackClicked(ClickEvent.WithdrawClicked)
+                      trackClicked(ClickEvent.UnwrapETHClicked)
                       onOpenWrapModal()
                     }}
                   >
@@ -207,7 +207,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
                     variant='white'
                     ml='8px'
                     onClick={() => {
-                      trackClicked(ClickEvent.WithdrawClicked)
+                      trackClicked(ClickEvent.WrapETHClicked)
                       onOpenWrapModal()
                     }}
                   >

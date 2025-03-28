@@ -4,6 +4,7 @@ import { useAtom } from 'jotai/index'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useMemo } from 'react'
+import { LoginButtons } from '@/components/common/login-button'
 import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import UserMenuDesktop from '@/components/layouts/user-menu-desktop'
 import WalletPage from '@/components/layouts/wallet-page'
@@ -298,14 +299,7 @@ export default function Header() {
             </Slide>
           </HStack>
         ) : (
-          <HStack gap='8px'>
-            <Button variant='outlined' onClick={loginToPlatform}>
-              Login
-            </Button>
-            <Button variant='contained' onClick={loginToPlatform}>
-              Sign Up
-            </Button>
-          </HStack>
+          <LoginButtons login={loginToPlatform} />
         )}
       </HStack>
       {pageName === 'Explore Markets' && (
