@@ -9,7 +9,7 @@ import {
   Text,
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import React, { useMemo } from 'react'
+import React, { SyntheticEvent, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import GroupMarketSectionTabs from '@/app/(markets)/markets/[address]/components/group-market-section-tabs'
@@ -28,8 +28,11 @@ interface GroupMarketSectionSmallProps {
 export default function GroupMarketSectionSmall({ market }: GroupMarketSectionSmallProps) {
   const { setMarket, market: selectedMarket, setClobOutcome, clobOutcome } = useTradingService()
   const { data: userOrders } = useMarketOrders(market?.slug)
-  const handleOutcomeClicked = (outcome: number) => {
+  const handleOutcomeClicked = (e: SyntheticEvent, outcome: number) => {
     setClobOutcome(outcome)
+    if (market.slug === selectedMarket?.slug) {
+      e.stopPropagation()
+    }
     if (market.slug !== selectedMarket?.slug) {
       setMarket(market)
     }
@@ -152,7 +155,7 @@ export default function GroupMarketSectionSmall({ market }: GroupMarketSectionSm
             bg: 'green.500',
             color: 'white',
           }}
-          onClick={() => handleOutcomeClicked(0)}
+          onClick={(e) => handleOutcomeClicked(e, 0)}
         >
           Yes {NumberUtil.multiply(market.prices[0], 100)}%
         </Button>
@@ -168,7 +171,7 @@ export default function GroupMarketSectionSmall({ market }: GroupMarketSectionSm
             bg: 'red.500',
             color: 'white',
           }}
-          onClick={() => handleOutcomeClicked(1)}
+          onClick={(e) => handleOutcomeClicked(e, 1)}
         >
           No {NumberUtil.multiply(market.prices[1], 100)}%
         </Button>
