@@ -40,7 +40,7 @@ import {
   groupMarketsAtom,
 } from '@/atoms/draft'
 import { useToast } from '@/hooks'
-import { useCategories, useLimitlessApi } from '@/services'
+import { useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarket } from '@/services/MarketsService'
 import { paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -59,7 +59,6 @@ export const CreateMarket: FC = () => {
   const activeMarketId = searchParams.get('active-market')
   const type = searchParams.get('marketType')
   const privateClient = useAxiosPrivateClient()
-  const { data: categories } = useCategories()
   const {
     handleChange,
     populateDraftMarketData,
@@ -192,7 +191,6 @@ export const CreateMarket: FC = () => {
     if (!data) return
     setIsCreating(true)
     const marketData = prepareMarketData(data)
-    console.log('market', marketData)
     const url = isGroup
       ? `/markets/drafts/group/${draftMarketId}`
       : `/markets/drafts/${draftMarketId}`
@@ -212,6 +210,31 @@ export const CreateMarket: FC = () => {
         } else {
           showToast(`Error: ${res.message}`)
         }
+      })
+      .finally(() => {
+        setIsCreating(false)
+      })
+  }
+
+  const updateActiveMarket = async () => {
+    const data = await prepareData()
+    if (!data) return
+    setIsCreating(true)
+    const marketData = prepareMarketData(data, true)
+
+    const url = `/markets/${activeMarketId}`
+    privateClient
+      .put(url, marketData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then((res) => {
+        showToast(`Market is updated`)
+        router.push(`/draft?tab=active`)
+      })
+      .catch((res) => {
+        showToast(`Error: ${res.message}`)
       })
       .finally(() => {
         setIsCreating(false)
@@ -238,6 +261,10 @@ export const CreateMarket: FC = () => {
   const submit = async () => {
     if (draftMarketId) {
       await updateMarket()
+      return
+    }
+    if (activeMarketId) {
+      await updateActiveMarket()
       return
     }
     await draftMarket()
@@ -397,24 +424,6 @@ export const CreateMarket: FC = () => {
             <VStack w={'full'} flex='0.8' h='full'>
               <HStack w='full' spacing='6' alignItems='start' justifyContent='start'>
                 <VStack>
-                  <FormField label='Market Fee'>
-                    <HStack gap='8px'>
-                      <Box
-                        w='16px'
-                        h='16px'
-                        borderColor='grey.500'
-                        border='1px solid'
-                        borderRadius='2px'
-                        cursor='pointer'
-                        bg={formData.marketFee === 1 ? 'grey.800' : 'unset'}
-                        onClick={() => {
-                          handleChange('marketFee', formData.marketFee === 1 ? 0 : 1)
-                        }}
-                      />
-                      <Text {...paragraphRegular}> 1% Fee</Text>
-                    </HStack>
-                  </FormField>
-
                   {!isGroup && (
                     <FormField label='Is Bannered'>
                       <HStack gap='8px'>
@@ -446,20 +455,22 @@ export const CreateMarket: FC = () => {
                   />
                 </VStack>
               </HStack>
-              <FormField label='Creator'>
-                <HStack>
-                  <Select
-                    value={formData.creatorId}
-                    onChange={(e) => handleChange('creatorId', e.target.value)}
-                  >
-                    {creators?.map((creator: DraftCreator) => (
-                      <option key={creator.id} value={creator.id}>
-                        {creator?.name ?? ''}
-                      </option>
-                    ))}
-                  </Select>
-                </HStack>
-              </FormField>
+              {!activeMarketId ? (
+                <FormField label='Creator'>
+                  <HStack>
+                    <Select
+                      value={formData.creatorId}
+                      onChange={(e) => handleChange('creatorId', e.target.value)}
+                    >
+                      {creators?.map((creator: DraftCreator) => (
+                        <option key={creator.id} value={creator.id}>
+                          {creator?.name ?? ''}
+                        </option>
+                      ))}
+                    </Select>
+                  </HStack>
+                </FormField>
+              ) : null}
 
               <FormField label='Categories'>
                 <HStack w={'full'}>

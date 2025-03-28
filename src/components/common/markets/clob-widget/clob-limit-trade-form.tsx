@@ -566,6 +566,11 @@ export default function ClobLimitTradeForm() {
         </Text>
       )}
       {shouldAddFunds && <AddFundsValidation />}
+      {isLessThanMinTreshHold && (
+        <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
+          Min. shares amount is 5
+        </Text>
+      )}
     </>
   )
 }

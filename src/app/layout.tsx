@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import Script from 'next/script'
 import { PropsWithChildren } from 'react'
 import { Providers } from '@/app/providers'
+import { ReferralProvider } from '@/providers/Referral'
 import { SpindlProvider } from '@/providers/Spindl'
 import '../../public/fonts.css'
 
@@ -54,6 +55,7 @@ const RootLayout = ({ children }: PropsWithChildren) => {
           <Analytics />
           <SpeedInsights />
           <SpindlProvider />
+          <ReferralProvider />
           {/*<ReactQueryDevtools initialIsOpen={false} />*/}
         </Providers>
       </body>

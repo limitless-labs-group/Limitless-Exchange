@@ -30,6 +30,7 @@ import {
 } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketStatus, Sort, SortStorageName } from '@/types'
+import { ReferralLink } from '../common/referral-link'
 
 export default function Header() {
   const { mode } = useThemeProvider()
@@ -84,7 +85,7 @@ export default function Header() {
         bg='grey.50'
       >
         <HStack gap='32px'>
-          <NextLink href='/' passHref>
+          <ReferralLink href='/' passHref>
             <Link
               onClick={() => {
                 trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
@@ -103,9 +104,9 @@ export default function Header() {
                 alt='logo'
               />
             </Link>
-          </NextLink>
+          </ReferralLink>
           <HStack gap='16px'>
-            <NextLink href={`/`} passHref>
+            <ReferralLink href={`/`} passHref>
               <Link
                 variant='transparent'
                 bg={
@@ -132,8 +133,8 @@ export default function Header() {
                   </Text>
                 </HStack>
               </Link>
-            </NextLink>
-            <NextLink href={`/?dashboard=marketcrash`} passHref>
+            </ReferralLink>
+            <ReferralLink href={`/?dashboard=marketcrash`} passHref>
               <Link
                 variant='transparent'
                 bg={dashboard === 'marketcrash' ? 'grey.100' : 'unset'}
@@ -154,8 +155,8 @@ export default function Header() {
                   </Text>
                 </HStack>
               </Link>
-            </NextLink>
-            <NextLink href='/leaderboard' passHref>
+            </ReferralLink>
+            <ReferralLink href='/leaderboard' passHref>
               <Link
                 onClick={() => {
                   trackClicked<ProfileBurgerMenuClickedMetadata>(
@@ -179,8 +180,8 @@ export default function Header() {
                   </Text>
                 </HStack>
               </Link>
-            </NextLink>
-            <NextLink href='/feed' passHref>
+            </ReferralLink>
+            <ReferralLink href='/feed' passHref>
               <Link
                 onClick={() => {
                   trackClicked<ProfileBurgerMenuClickedMetadata>(
@@ -204,7 +205,7 @@ export default function Header() {
                   </Text>
                 </HStack>
               </Link>
-            </NextLink>
+            </ReferralLink>
           </HStack>
         </HStack>
         {isLoggedToPlatform ? (

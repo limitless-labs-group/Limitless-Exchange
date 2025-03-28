@@ -166,3 +166,24 @@ export const calculateDisplayRange = (
     upper: upperBound.isGreaterThan(100) ? '100' : upperBound.toString(),
   }
 }
+
+export const appendReferralCode = (url: string, referralCode: string): string => {
+  try {
+    const urlObj = new URL(url)
+
+    if (urlObj.searchParams.has('r')) {
+      return url
+    }
+
+    urlObj.searchParams.set('r', referralCode)
+    return urlObj.toString()
+  } catch (e) {
+    // For invalid URLs, check manually if it already has an 'r' parameter
+    const hasRParam = /[?&]r=/.test(url)
+    if (hasRParam) {
+      return url
+    }
+    const separator = url.includes('?') ? '&' : '?'
+    return `${url}${separator}r=${referralCode}`
+  }
+}

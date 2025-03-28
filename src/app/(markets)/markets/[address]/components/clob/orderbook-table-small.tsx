@@ -1,6 +1,8 @@
 import { Box, Button, HStack, Text, useOutsideClick } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
+import { clear } from 'console'
+import NextLink from 'next/link'
+import React, { LegacyRef, MutableRefObject, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits, maxUint256 } from 'viem'
 import {
