@@ -310,20 +310,6 @@ export const CreateMarket: FC = () => {
                   {formData.title?.length}/70 characters
                 </FormHelperText>
               </FormField>
-              <FormField label='Slug'>
-                <Textarea
-                  resize='none'
-                  rows={1}
-                  overflow='hidden'
-                  height='auto'
-                  onInput={resizeTextareaHeight}
-                  value={formData.slug}
-                  onChange={(e) => handleChange('slug', e.target.value)}
-                />
-                <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                  {formData.title?.length}/70 characters
-                </FormHelperText>
-              </FormField>
 
               {!isGroup ? (
                 <FormField label='Description'>
@@ -438,24 +424,6 @@ export const CreateMarket: FC = () => {
             <VStack w={'full'} flex='0.8' h='full'>
               <HStack w='full' spacing='6' alignItems='start' justifyContent='start'>
                 <VStack>
-                  <FormField label='Market Fee'>
-                    <HStack gap='8px'>
-                      <Box
-                        w='16px'
-                        h='16px'
-                        borderColor='grey.500'
-                        border='1px solid'
-                        borderRadius='2px'
-                        cursor='pointer'
-                        bg={formData.marketFee === 1 ? 'grey.800' : 'unset'}
-                        onClick={() => {
-                          handleChange('marketFee', formData.marketFee === 1 ? 0 : 1)
-                        }}
-                      />
-                      <Text {...paragraphRegular}> 1% Fee</Text>
-                    </HStack>
-                  </FormField>
-
                   {!isGroup && (
                     <FormField label='Is Bannered'>
                       <HStack gap='8px'>

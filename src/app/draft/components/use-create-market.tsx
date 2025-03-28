@@ -110,6 +110,7 @@ export const useCreateMarket = () => {
       description: activeMarket.description || '',
       deadline: toZonedTime(activeMarket.expirationTimestamp, 'America/New_York'),
       marketFee: 0,
+      priorityIndex: activeMarket.priorityIndex,
       isBannered: activeMarket.metadata?.isBannered || false,
       tag:
         activeMarket.tags.map((tag: string | Tag) => {
@@ -268,6 +269,7 @@ export const useCreateMarket = () => {
       isBannered: formData.isBannered,
       categoryIds: matchedCategoryIds,
       tagIds: matchedTagIds,
+      deadline: String(new Date(formData.deadline).getTime()),
     }
 
     if (isClob) {
