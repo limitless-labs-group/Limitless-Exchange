@@ -71,6 +71,7 @@ export const defaultFormData = {
   title: '',
   token: { symbol: 'USDC', id: 7 },
   description: '',
+  slug: '',
   liquidity: tokenLimits[defaultTokenSymbol].default ?? tokenLimits[defaultTokenSymbol].min,
   probability: defaultProbability,
   marketFee: defaultMarketFee,
