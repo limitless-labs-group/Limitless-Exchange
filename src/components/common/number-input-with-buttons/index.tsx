@@ -96,7 +96,7 @@ const NumberInputWithButtons = React.forwardRef<HTMLInputElement, NumberInputWit
         {value && symbol && (
           <Box
             position='absolute'
-            left={`${(value?.toString().length || 0) * 8 + 12}px`}
+            left={`${(value?.toString().length || 0) * 8 + (isMobile ? 20 : 12)}px`}
             top='53%'
             transform='translateY(-50%)'
             pointerEvents='none'
