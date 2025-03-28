@@ -258,7 +258,7 @@ export default function Header() {
                 left={0}
                 bottom={0}
                 w='full'
-                zIndex={100}
+                zIndex={150}
                 bg='rgba(0, 0, 0, 0.3)'
                 animation='fadeIn 0.5s'
               />
@@ -267,7 +267,7 @@ export default function Header() {
               direction='right'
               in={isOpenWalletPage}
               style={{
-                zIndex: 100,
+                zIndex: 150,
                 marginLeft: '197px',
                 transition: '0.1s',
               }}
@@ -284,7 +284,7 @@ export default function Header() {
               direction='right'
               in={isOpenProfile}
               style={{
-                zIndex: 100,
+                zIndex: 150,
                 transition: '0.1s',
               }}
               onClick={() => {
