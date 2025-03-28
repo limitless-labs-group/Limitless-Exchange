@@ -45,7 +45,9 @@ const MainPage = () => {
   const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
   const [selectedSort, setSelectedSort] = useAtom(sortAtom)
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useMarkets(null)
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useMarkets(
+    selectedCategory ?? null
+  )
 
   useEffect(() => {
     if (marketData) {
