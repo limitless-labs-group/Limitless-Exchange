@@ -455,20 +455,22 @@ export const CreateMarket: FC = () => {
                   />
                 </VStack>
               </HStack>
-              <FormField label='Creator'>
-                <HStack>
-                  <Select
-                    value={formData.creatorId}
-                    onChange={(e) => handleChange('creatorId', e.target.value)}
-                  >
-                    {creators?.map((creator: DraftCreator) => (
-                      <option key={creator.id} value={creator.id}>
-                        {creator?.name ?? ''}
-                      </option>
-                    ))}
-                  </Select>
-                </HStack>
-              </FormField>
+              {!activeMarketId ? (
+                <FormField label='Creator'>
+                  <HStack>
+                    <Select
+                      value={formData.creatorId}
+                      onChange={(e) => handleChange('creatorId', e.target.value)}
+                    >
+                      {creators?.map((creator: DraftCreator) => (
+                        <option key={creator.id} value={creator.id}>
+                          {creator?.name ?? ''}
+                        </option>
+                      ))}
+                    </Select>
+                  </HStack>
+                </FormField>
+              ) : null}
 
               <FormField label='Categories'>
                 <HStack w={'full'}>
