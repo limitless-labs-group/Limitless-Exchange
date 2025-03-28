@@ -147,6 +147,7 @@ export enum ChangeEvent {
   ProfileSettingsChanged = 'Profile Settings Changed',
   LeaderboardViewChanged = 'Leaderboard View Changed',
   LeaderboardPageChanged = 'Leaderboard Page Changed',
+  MarketCrashPageChanged = 'Market Crash Page Changed',
   OrderBookSideChanged = 'Orderbook Side Changed',
   ClobPositionsTabChanged = 'Clob Positions Tab Changed',
   ClobWidgetModeChanged = 'Clob Widget Mode Changed',

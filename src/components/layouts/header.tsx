@@ -20,6 +20,7 @@ import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
 import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import {
+  ChangeEvent,
   ClickEvent,
   LogoClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
@@ -36,7 +37,7 @@ export default function Header() {
   const [, setSelectedSort] = useAtom(sortAtom)
   const { dashboard, handleCategory, handleDashboard } = useTokenFilter()
   const pageName = usePageName()
-  const { trackClicked } = useAmplitude()
+  const { trackChanged, trackClicked } = useAmplitude()
   const { isLoggedToPlatform } = useClient()
   const { fundWallet } = useFundWallet()
   const { data: positions } = usePosition()
@@ -73,7 +74,7 @@ export default function Header() {
   }, [positions])
 
   return (
-    <>
+    <Box position='fixed' top={0} w='full' zIndex={999999}>
       <HStack
         w='full'
         justifyContent='space-between'
@@ -133,18 +134,13 @@ export default function Header() {
                 </HStack>
               </Link>
             </NextLink>
-            <NextLink href={`/?dashboard=marketcrash`} passHref>
+            <NextLink href={`/market-crash`} passHref>
               <Link
                 variant='transparent'
-                bg={dashboard === 'marketcrash' ? 'grey.100' : 'unset'}
+                bg={pageName === 'Market Crash' ? 'grey.100' : 'unset'}
                 rounded='8px'
                 onClick={() => {
-                  trackClicked<ProfileBurgerMenuClickedMetadata>(
-                    ClickEvent.ProfileBurgerMenuClicked,
-                    {
-                      option: 'Market Crash',
-                    }
-                  )
+                  trackChanged(ChangeEvent.MarketCrashPageChanged)
                 }}
               >
                 <HStack w='full' gap='4px'>
@@ -311,6 +307,6 @@ export default function Header() {
           <CategoryItems />
         </HStack>
       )}
-    </>
+    </Box>
   )
 }

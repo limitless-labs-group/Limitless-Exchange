@@ -1,9 +1,9 @@
 import { VStack, Text, Box, Flex } from '@chakra-ui/react'
 import MarketCard from '@/components/common/markets/market-cards/market-card'
-import MarketCardMobile from './market-cards/market-card-mobile'
 import { h2Bold } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { getAnalyticsParams } from '@/utils/market'
+import MarketCardMobile from '../../../components/common/markets/market-cards/market-card-mobile'
 
 export enum DashboardGroupType {
   Mobile = 'mobile',

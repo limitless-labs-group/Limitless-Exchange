@@ -38,5 +38,6 @@ export type PageName =
   | 'Lumy'
   | 'Leaderboard'
   | 'My Markets'
+  | 'Market Crash'
 
 export default usePageName
