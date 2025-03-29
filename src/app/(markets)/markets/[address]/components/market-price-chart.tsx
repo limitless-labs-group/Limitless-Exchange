@@ -112,7 +112,13 @@ const PriceChart = () => {
         dataSorting: {
           enabled: false,
         },
+        dataGrouping: {
+          enabled: true,
+          approximation: 'average', // Other options: 'sum', 'high', 'low', 'open', 'close'
+          groupPixelWidth: 5, // Controls how aggressively data is grouped
+        },
         lineWidth: 4,
+        connectEnds: false,
         marker: {
           enabled: false,
         },
@@ -204,12 +210,12 @@ const PriceChart = () => {
     //   }
     // }
 
-    return data
+    return data.sort((a, b) => a[0] - b[0])
   }, [prices, market?.winningOutcomeIndex, resolved])
 
   const marketActivePrice = useMemo(() => {
     return market?.tradeType === 'clob'
-      ? chartData.at(0)?.[1]?.toFixed(0) ?? outcomeTokensPercent?.[0]
+      ? chartData.at(-1)?.[1]?.toFixed(0) ?? outcomeTokensPercent?.[0]
       : outcomeTokensPercent?.[0]
   }, [chartData, market?.tradeType, outcomeTokensPercent])
 
