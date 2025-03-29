@@ -113,6 +113,16 @@ export const CreateMarket: FC = () => {
       render: () => <Toast title={message} id={id} />,
     })
   }
+  const { data: categoriesOptions } = useQuery({
+    queryKey: ['catOptions'],
+    queryFn: async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/categories`)
+
+      return response.data.map((tag: { id: string; name: string }) =>
+        createOption(tag.id, tag.name)
+      ) as SelectOption[]
+    },
+  })
   const { data: tagOptions } = useQuery({
     queryKey: ['tagOptions'],
     queryFn: async () => {
