@@ -137,7 +137,7 @@ export default function Header() {
                 </HStack>
               </Link>
             </ReferralLink>
-            <ReferralLink href={`/?dashboard=marketcrash`} passHref>
+            <ReferralLink href={`/market-crash`} passHref>
               <Link
                 variant='transparent'
                 bg={dashboard === 'marketcrash' ? 'grey.100' : 'unset'}
