@@ -1,5 +1,4 @@
 import { Link, Text, HStack } from '@chakra-ui/react'
-import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import React, { ReactNode, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -8,6 +7,7 @@ import GrinIcon from '@/resources/icons/grid-icon.svg'
 import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import { useCategoriesWithCounts } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { ReferralLink } from '../referral-link'
 
 export interface SideItemProps {
   isActive?: boolean
@@ -74,7 +74,7 @@ export const CategoryItems = () => {
 
   return (
     <>
-      <NextLink href={'/'}>
+      <ReferralLink href={'/'}>
         <Link variant='transparent' px={0} minW='122px'>
           <HStack
             gap='4px'
@@ -93,9 +93,9 @@ export const CategoryItems = () => {
             }`}</Text>
           </HStack>
         </Link>
-      </NextLink>
+      </ReferralLink>
       {isMobile && (
-        <NextLink
+        <ReferralLink
           href={`/?dashboard=marketcrash`}
           passHref
           style={{ width: isMobile ? 'fit-content' : '100%' }}
@@ -112,10 +112,10 @@ export const CategoryItems = () => {
               Market crash
             </SideItem>
           </Link>
-        </NextLink>
+        </ReferralLink>
       )}
       {categoriesWithMarkets.map((category) => (
-        <NextLink key={category.id} href={`/?${createQueryString(category.name)}`}>
+        <ReferralLink key={category.id} href={`/?${createQueryString(category.name)}`}>
           <Link variant='transparent' px={0}>
             <SideItem
               isActive={selectedCategory?.name.toLowerCase() === category.name.toLowerCase()}
@@ -130,7 +130,7 @@ export const CategoryItems = () => {
               {category.name} ({category.count})
             </SideItem>
           </Link>
-        </NextLink>
+        </ReferralLink>
       ))}
     </>
   )
