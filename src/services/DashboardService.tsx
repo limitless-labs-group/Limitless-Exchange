@@ -14,7 +14,7 @@ export const useInfinityDashboard = (tagId: DashboardTagId) => {
         {
           params: {
             page: pageParam,
-            limit: LIMIT_PER_PAGE,
+            limit: 65,
             ...(tagId && { tagId }),
           },
         }
