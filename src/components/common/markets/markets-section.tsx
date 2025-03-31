@@ -256,7 +256,7 @@ export default function MarketsSection({
                   <React.Fragment key={`cycle-${cycleIndex}`}>
                     {[...Array(2)].map((_, index) => (
                       <Box key={`skeleton-straight-${cycleIndex}-${index}`} w='full'>
-                        <Skeleton height={144} />
+                        <Skeleton height={160} />
                       </Box>
                     ))}
                     <Flex flexWrap='wrap' gap={4} w='full'>
@@ -266,7 +266,7 @@ export default function MarketsSection({
                           flex='1 1 calc(50% - 8px)'
                           minW='calc(50% - 8px)'
                         >
-                          <Skeleton height={164} />
+                          <Skeleton height={165} />
                         </Box>
                       ))}
                     </Flex>
