@@ -12,6 +12,7 @@ import { WithdrawModal } from '@/components/layouts/wallet-page/components/withd
 import usePageName from '@/hooks/use-page-name'
 import { usePriceOracle } from '@/providers'
 import BaseIcon from '@/resources/crypto/base.svg'
+import CloseIcon from '@/resources/icons/close-icon.svg'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import {
@@ -112,15 +113,13 @@ export default function WalletPage({ onClose }: WalletPageProps) {
   }, [copied])
 
   return (
-    <Box
-      bg='grey.50'
-      w={isMobile ? 'full' : '328px'}
-      p='8px'
-      h='full'
-      onClick={(e) => e.stopPropagation()}
-      overflow='auto'
-      marginLeft='auto'
-    >
+    <Box onClick={(e) => e.stopPropagation()} px={isMobile ? '16px' : 0}>
+      {!isMobile && (
+        <Button variant='outlined' onClick={onClose} mb='12px'>
+          <CloseIcon width={16} height={16} />
+          Close
+        </Button>
+      )}
       <Text fontSize='32px'>Wallet</Text>
       <Paper bg='blue.500' mt='24px'>
         <HStack w='full' justifyContent='space-between'>
@@ -195,7 +194,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
                     variant='white'
                     ml='8px'
                     onClick={() => {
-                      trackClicked(ClickEvent.WithdrawClicked)
+                      trackClicked(ClickEvent.UnwrapETHClicked)
                       onOpenWrapModal()
                     }}
                   >
@@ -207,7 +206,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
                     variant='white'
                     ml='8px'
                     onClick={() => {
-                      trackClicked(ClickEvent.WithdrawClicked)
+                      trackClicked(ClickEvent.WrapETHClicked)
                       onOpenWrapModal()
                     }}
                   >

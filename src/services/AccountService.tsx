@@ -240,6 +240,12 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             smartWallet: client.account?.address,
             web3Wallet: walletClient,
           })
+          spindl.attribute(client.account?.address)
+          pushGA4Event(GAEvents.WalletConnected)
+          trackSignIn(SignInEvent.SignedIn, {
+            signedIn: true,
+            account: client.account?.address ?? '',
+          })
           return
         }
         await login({

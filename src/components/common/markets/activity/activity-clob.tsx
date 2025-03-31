@@ -1,6 +1,7 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import debounce from 'lodash.debounce'
 import { useCallback } from 'react'
+import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import ActivityClobItem from '@/components/common/markets/activity/activity-clob-item'
@@ -28,7 +29,7 @@ export default function ActivityClob() {
   )
 
   return !!activity?.length ? (
-    <Box className='full-container'>
+    <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
       <InfiniteScroll
         dataLength={activity?.length ?? 0}
         next={getNextPage}

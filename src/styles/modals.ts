@@ -55,6 +55,7 @@ const commonModal = definePartsStyle({
 const baseStyle = definePartsStyle({
   overlay: {
     bg: 'rgba(0, 0, 0, 0.5)', //change the background
+    zIndex: 9000,
   },
   closeButton: {
     outline: 'none',

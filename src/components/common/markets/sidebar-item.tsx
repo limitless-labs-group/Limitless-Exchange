@@ -1,13 +1,12 @@
 import { Link, Text, HStack } from '@chakra-ui/react'
-import { useSearchParams } from 'next/navigation'
 import NextLink from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import React, { ReactNode, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import GrinIcon from '@/resources/icons/grid-icon.svg'
 import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
-import { useCategories } from '@/services'
-import { useMarkets } from '@/services/MarketsService'
+import { useCategoriesWithCounts } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { ReferralLink } from '../referral-link'
@@ -54,36 +53,7 @@ export const CategoryItems = () => {
   const { selectedCategory, handleCategory, handleDashboard, dashboard } = useTokenFilter()
   const searchParams = useSearchParams()
 
-  const { data: categories } = useCategories()
-  const { data } = useMarkets(null)
-
-  const markets: Market[] = useMemo(() => {
-    return data?.pages.flatMap((page) => page.data.markets) || []
-  }, [data?.pages])
-
-  const marketsByCategory = useMemo(() => {
-    if (!markets.length || !categories?.length) return {}
-
-    const counts: Record<string, number> = {}
-    categories.forEach((category) => {
-      counts[category.name] = 0
-    })
-
-    const otherCategory = categories.find((cat) => cat.name.toLowerCase() === 'other')
-    const otherCategoryName = otherCategory?.name || 'Other'
-
-    markets.forEach((market) => {
-      if (market.categories && market.categories.length > 0) {
-        market.categories.forEach((categoryName) => {
-          counts[categoryName] = (counts[categoryName] || 0) + 1
-        })
-      } else {
-        counts[otherCategoryName] = (counts[otherCategoryName] || 0) + 1
-      }
-    })
-
-    return counts
-  }, [markets, categories])
+  const { data: categoriesWithCount } = useCategoriesWithCounts()
 
   const createQueryString = (categoryName: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -97,12 +67,12 @@ export const CategoryItems = () => {
   }
 
   const categoriesWithMarkets = useMemo(() => {
-    return (
-      categories?.filter(
-        (category) => marketsByCategory[category.name] && marketsByCategory[category.name] > 0
-      ) || []
-    )
-  }, [categories, marketsByCategory])
+    return categoriesWithCount?.categories?.filter((category) => category.count > 0) || []
+  }, [categoriesWithCount])
+
+  if (!categoriesWithCount?.categories?.length) {
+    return null
+  }
 
   return (
     <>
@@ -111,7 +81,7 @@ export const CategoryItems = () => {
           <HStack
             gap='4px'
             cursor='pointer'
-            bg={!selectedCategory ? 'grey.100' : 'unset'}
+            bg={!selectedCategory && !dashboard ? 'grey.100' : 'unset'}
             onClick={() => {
               handleCategory(undefined)
               handleDashboard(undefined)
@@ -120,7 +90,9 @@ export const CategoryItems = () => {
             rounded='8px'
           >
             <GrinIcon width={16} height={16} />
-            <Text {...paragraphRegular}>All Markets</Text>
+            <Text {...paragraphRegular} whiteSpace='nowrap'>{`All Markets ${
+              categoriesWithCount.totalCount ? '(' + categoriesWithCount.totalCount + ')' : ''
+            }`}</Text>
           </HStack>
         </Link>
       </NextLink>
@@ -157,7 +129,7 @@ export const CategoryItems = () => {
                 handleDashboard(undefined)
               }}
             >
-              {category.name} ({marketsByCategory[category.name]})
+              {category.name} ({category.count})
             </SideItem>
           </Link>
         </ReferralLink>

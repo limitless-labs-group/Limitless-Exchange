@@ -35,8 +35,9 @@ export default function MarketsSection({
       w={isMobile ? 'full' : '664px'}
       justifyContent='center'
     >
-      <Box px={isMobile ? '16px' : 0}>
-        <Divider orientation='horizontal' borderColor='grey.100' />
+      <Box>
+        <Divider orientation='horizontal' borderColor='grey.100' mx={isMobile ? '16px' : 0} />
+
         <Flex
           alignItems='center'
           justifyContent='space-between'
@@ -255,7 +256,7 @@ export default function MarketsSection({
                   <React.Fragment key={`cycle-${cycleIndex}`}>
                     {[...Array(2)].map((_, index) => (
                       <Box key={`skeleton-straight-${cycleIndex}-${index}`} w='full'>
-                        <Skeleton height={144} />
+                        <Skeleton height={160} />
                       </Box>
                     ))}
                     <Flex flexWrap='wrap' gap={4} w='full'>
@@ -265,7 +266,7 @@ export default function MarketsSection({
                           flex='1 1 calc(50% - 8px)'
                           minW='calc(50% - 8px)'
                         >
-                          <Skeleton height={164} />
+                          <Skeleton height={165} />
                         </Box>
                       ))}
                     </Flex>

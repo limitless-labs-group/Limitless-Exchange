@@ -181,6 +181,7 @@ export const chakraTheme = ChakraTheme({
       variants: {
         outlined: {
           ...commonButtonProps,
+          h: '26px',
           bg: 'unset',
           color: 'grey.800',
           border: '1px solid',

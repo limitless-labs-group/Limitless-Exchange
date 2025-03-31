@@ -9,8 +9,8 @@ import { useInfinityDashboard } from '@/services/DashboardService'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import { Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
-import Loader from '../loader'
-import SortFilter from '../sort-filter'
+import Loader from '../../../components/common/loader'
+import SortFilter from '../../../components/common/sort-filter'
 
 export enum DashboardTagId {
   MARKET_CRASH = 234,
@@ -82,7 +82,7 @@ export default function DashboardSection({
   ) : (
     <>
       <DashboardHeader />
-      <Box className='full-container'>
+      <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
         <InfiniteScroll
           className='scroll'
           dataLength={dashboard?.length ?? 0}
