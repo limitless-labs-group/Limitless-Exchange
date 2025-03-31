@@ -224,6 +224,7 @@ export enum ClickEvent {
 
 export enum SignInEvent {
   SignIn = 'Sign In',
+  LogIn = 'Log In',
   SignedIn = 'Signed In',
   SignInWithFarcaster = 'Login with Farcaster',
 }
