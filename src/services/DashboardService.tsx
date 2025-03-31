@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { DashboardTagId } from '@/app/market-crash/components/dashboard-section'
 import { ApiResponse, MarketPage, OddsData } from '@/types'
+import { DashboardTagId } from '@/types/dashboard'
 import { calculateMarketPrice, getPrices } from '@/utils/market'
 
 export const useInfinityDashboard = (tagId: DashboardTagId) => {
