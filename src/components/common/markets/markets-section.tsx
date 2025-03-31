@@ -1,9 +1,9 @@
 import { Box, Divider, Flex, Text, VStack } from '@chakra-ui/react'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
+import MarketCard from '@/components/common/markets/market-cards/market-card'
 import MarketCardMobile from '@/components/common/markets/market-cards/market-card-mobile'
 import Skeleton from '@/components/common/skeleton'
-import { MarketCard } from './market-cards/market-card'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import { Market, Sort, SortStorageName } from '@/types'
@@ -35,8 +35,9 @@ export default function MarketsSection({
       w={isMobile ? 'full' : '664px'}
       justifyContent='center'
     >
-      <Box px={isMobile ? '16px' : 0}>
-        <Divider orientation='horizontal' />
+      <Box>
+        <Divider orientation='horizontal' borderColor='grey.100' mx={isMobile ? '16px' : 0} />
+
         <Flex
           alignItems='center'
           justifyContent='space-between'
@@ -152,7 +153,7 @@ export default function MarketsSection({
                       return (
                         <Box key={speedometerCards[0].slug || speedometerCards[0].address} w='full'>
                           <MarketCard
-                            variant='row'
+                            variant='grid'
                             market={speedometerCards[0]}
                             analyticParams={getAnalyticsParams(index, 0, category)}
                           />
@@ -176,7 +177,7 @@ export default function MarketsSection({
                               minW='calc(50% - 8px)'
                             >
                               <MarketCard
-                                variant='speedometer'
+                                variant='grid'
                                 market={speedometerMarket}
                                 analyticParams={getAnalyticsParams(index, gridIndex, category)}
                               />
@@ -202,7 +203,7 @@ export default function MarketsSection({
                                 minW='calc(50% - 8px)'
                               >
                                 <MarketCard
-                                  variant='speedometer'
+                                  variant='grid'
                                   market={speedometerMarket}
                                   analyticParams={getAnalyticsParams(index, gridIndex, category)}
                                 />
@@ -235,7 +236,7 @@ export default function MarketsSection({
                             minW='calc(50% - 8px)'
                           >
                             <MarketCard
-                              variant='speedometer'
+                              variant='grid'
                               market={speedometerMarket}
                               analyticParams={getAnalyticsParams(index, gridIndex, category)}
                             />

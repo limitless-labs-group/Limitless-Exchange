@@ -5,20 +5,13 @@ import { ProfileForm } from '@/components'
 
 interface ProfileProps {
   isOpen: boolean
+  onClose?: () => void
 }
 
-export function Profile({ isOpen }: ProfileProps) {
+export function Profile({ isOpen, onClose }: ProfileProps) {
   return (
-    <Box
-      bg='grey.50'
-      w={isMobile ? 'full' : '328px'}
-      px={isMobile ? '16px' : '8px'}
-      pt={isMobile ? 0 : '8px'}
-      h='full'
-      onClick={(e) => e.stopPropagation()}
-      overflow='auto'
-    >
-      {isOpen && <ProfileForm />}
+    <Box onClick={(e) => e.stopPropagation()} px={isMobile ? '16px' : 0}>
+      <>{isOpen && <ProfileForm onClose={onClose} />}</>
     </Box>
   )
 }

@@ -1,4 +1,4 @@
-import { Category, DraftMetadata, MarketType } from './types'
+import { Category, DraftMetadata, Market, MarketType } from './types'
 
 export interface FormFieldProps {
   label: string
@@ -15,6 +15,7 @@ export type DraftMarket = {
   creator: DraftCreator
   type: MarketType
   draftMetadata: DraftMetadata
+  markets?: MarketInput[]
   metadata: {
     isBannered: false
   }
@@ -47,12 +48,22 @@ export interface IFormData {
   ogLogo: File | undefined
   isBannered: boolean
   txHash: string
+  slug: string
+  marketInput?: MarketInput[]
   priorityIndex?: number
   maxDailyReward?: number
   maxSpread?: number
   minSize?: number
   c?: number
 }
+
+export type MarketInput = {
+  title: string
+  description: string
+  id?: number
+}
+
+export type DraftMarketType = 'amm' | 'clob' | 'group'
 
 export interface TokenLimit {
   min: number
@@ -126,26 +137,30 @@ export interface DraftMarketResponse {
 
 export interface BaseMarketData {
   title: string
-  description: string
-  tokenId: number
-  marketFee: number
-  deadline: number
+  description?: string
+  tokenId?: number
+  marketFee?: number
+  deadline?: number
   isBannered: boolean
-  creatorId: string
+  creatorId?: string
   categoryIds: string
   tagIds: string
+  slug?: string
+  marketsInput?: any
 }
 
 export interface ClobMarketData extends BaseMarketData {
   minSize?: number
   maxSpread?: number
   c?: number
-  rewardsEpoch?: number
+  maxDailyReward?: number
+  priorityIndex?: number
 }
 
 export interface AmmMarketData extends BaseMarketData {
   liquidity: number
   initialYesProbability: number
+  priorityIndex?: number
 }
 
 export type MarketData = ClobMarketData | AmmMarketData

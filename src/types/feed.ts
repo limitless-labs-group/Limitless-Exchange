@@ -5,12 +5,11 @@ export enum FeedEventType {
   Resolved = 'RESOLVED_MARKET',
   Locked = 'LOCKED_MARKET',
   NewPost = 'NEW_POST',
-  ResolvedGroup = 'RESOLVED_GROUP',
-  FundedGroup = 'FUNDED_GROUP',
-  LockedGroup = 'LOCKED_GROUP',
   NewTrade = 'NEW_TRADE',
   Comment = 'COMMENT',
   CommentLike = 'COMMENT_LIKE',
+  ResolvedGroup = 'RESOLVED_GROUP',
+  FundedGroup = 'FUNDED_GROUP',
 }
 
 export interface FeedEventUser {
@@ -61,26 +60,6 @@ export interface FeedEntity<T> {
   data: T
 }
 
-export interface MarketGroupFeedItem {
-  title: string
-  address: Address
-  proxyTitle: string | null
-  volumeFormatted: string
-  liquidityFormatted: string
-  prices: number[]
-}
-
-export interface MarketGroupStatusFeedData {
-  name: string
-  slug: string
-  collateralToken: {
-    symbol: string
-    address: Address
-    decimals: number
-  }
-  markets: MarketGroupFeedItem[]
-}
-
 export interface MarketNewTradeFeedData {
   address: Address
   contracts: string
@@ -91,4 +70,24 @@ export interface MarketNewTradeFeedData {
   tradeAmount: string
   tradeAmountUSD: string
   txHash: string
+}
+
+export interface FeedMarketGroupEntity {
+  title: string
+  slug: string
+  winningIndex: number
+  volumeFormatted: string
+  liquidityFormatted: string
+}
+
+export interface GroupFeedData {
+  name: string
+  slug: string
+  collateralToken: {
+    symbol: string
+    address: Address
+    decimals: number
+  }
+  markets: FeedMarketGroupEntity[]
+  deadline: string
 }

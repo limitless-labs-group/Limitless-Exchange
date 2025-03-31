@@ -20,8 +20,6 @@ export type Category = {
   priority?: number | null
 }
 
-export type MarketType = 'amm' | 'clob'
-
 export type Dashboard = 'marketcrash'
 
 export type MarketsResponse = {
@@ -31,9 +29,9 @@ export type MarketsResponse = {
 
 export interface Creator {
   name: string
-  imageURI?: string
-  imageUrl?: string // TODO: unify imageURI and imageUrl from backend
-  link?: string
+  imageURI: string | null
+  imageUrl: string | null
+  link: string | null
   address?: string
 }
 
@@ -55,11 +53,13 @@ export interface Market {
   conditionId: string
   createdAt: string
   creator: Creator
-  deadline: string
   description: string
+  deadline: string
   expirationDate: string
   expirationTimestamp: number
   expired: boolean
+  negRiskMarketId?: string
+  negRiskRequestId?: string
   liquidity: string
   liquidityFormatted: string
   ogImageURI: string
@@ -87,7 +87,7 @@ export interface Market {
     maxSpread?: number
     c?: number
     rewardsEpoch?: number
-  }
+  } | null
   priorityIndex: number
   tokens: {
     yes: string
@@ -99,10 +99,15 @@ export interface Market {
       rank: number
     }
   }
-  marketType: 'single' | 'group'
-  tradeType: MarketType
+  marketType: MarketType
+  tradeType: MarketTradeType
   isRewardable: boolean
+  markets?: Market[]
 }
+
+export type MarketType = 'single' | 'group'
+
+export type MarketTradeType = 'clob' | 'amm'
 
 export interface ApiResponse {
   data: Market[]
@@ -198,34 +203,9 @@ export type UserCreatedMarket = {
   slug: string
 }
 
-export interface MarketGroup {
-  slug: string
-  hidden: boolean
-  outcomeTokens: string[]
-  title: string
-  ogImageURI: string
-  expirationDate: string
-  expired: boolean
-  expirationTimestamp: number
-  creator: Creator
-}
-
 export interface DraftMarket extends Market {
   draftMetadata: DraftMetadata
   type?: MarketType
-}
-
-export interface MarketGroup {
-  categories: string[]
-  collateralToken: {
-    symbol: string
-    address: Address
-    decimals: number
-  }
-  tags: string[]
-  createdAt: string
-  status: MarketStatus
-  markets: Market[]
 }
 
 export type GetBalanceResult = {

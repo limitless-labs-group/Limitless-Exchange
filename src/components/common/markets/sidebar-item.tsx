@@ -4,10 +4,12 @@ import { useSearchParams } from 'next/navigation'
 import React, { ReactNode, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
+import GrinIcon from '@/resources/icons/grid-icon.svg'
+import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import { useCategories } from '@/services'
 import { useMarkets } from '@/services/MarketsService'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup } from '@/types'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
 
 export interface SideItemProps {
   isActive?: boolean
@@ -48,15 +50,17 @@ export const SideItem = ({ isActive, onClick, icon, children, color }: SideItemP
 }
 
 export const CategoryItems = () => {
-  const { selectedCategory, handleCategory, handleDashboard } = useTokenFilter()
+  const { selectedCategory, handleCategory, handleDashboard, dashboard } = useTokenFilter()
   const searchParams = useSearchParams()
 
   const { data: categories } = useCategories()
   const { data } = useMarkets(null)
 
-  const markets: (Market | MarketGroup)[] = useMemo(() => {
+  const markets: Market[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages])
+
+  const totalAmount = markets.length
 
   const marketsByCategory = useMemo(() => {
     if (!markets.length || !categories?.length) return {}
@@ -101,18 +105,53 @@ export const CategoryItems = () => {
     )
   }, [categories, marketsByCategory])
 
-  if (!categories?.length) {
-    return null
-  }
-
   return (
     <>
-      {categoriesWithMarkets.map((category) => (
+      <NextLink
+        href={'/'}
+        style={{
+          minWidth: 'fit-content',
+        }}
+      >
+        <Link variant='transparent' px={0}>
+          <HStack
+            gap='4px'
+            cursor='pointer'
+            bg={!selectedCategory ? 'grey.100' : 'unset'}
+            onClick={() => {
+              handleCategory(undefined)
+              handleDashboard(undefined)
+            }}
+            px={'8px'}
+            rounded='8px'
+          >
+            <GrinIcon width={16} height={16} />
+            <Text {...paragraphRegular}>All Markets {totalAmount ? `(${totalAmount})` : ''}</Text>
+          </HStack>
+        </Link>
+      </NextLink>
+      {isMobile && (
         <NextLink
-          key={category.id}
-          href={`/?${createQueryString(category.name)}`}
+          href={`/?dashboard=marketcrash`}
+          passHref
           style={{ width: isMobile ? 'fit-content' : '100%' }}
         >
+          <Link variant='transparent' px={0}>
+            <SideItem
+              isActive={dashboard === 'marketcrash'}
+              icon={<DashboardIcon width={16} height={16} />}
+              onClick={() => {
+                handleDashboard('marketcrash')
+              }}
+              color='orange-500'
+            >
+              Market crash
+            </SideItem>
+          </Link>
+        </NextLink>
+      )}
+      {categoriesWithMarkets.map((category) => (
+        <NextLink key={category.id} href={`/?${createQueryString(category.name)}`}>
           <Link variant='transparent' px={0}>
             <SideItem
               isActive={selectedCategory?.name.toLowerCase() === category.name.toLowerCase()}

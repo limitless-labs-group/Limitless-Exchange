@@ -12,7 +12,6 @@ const mobileStyles = {
   mb: '24px',
   justifyContent: 'start',
   h: '32px',
-  px: '0',
 } as const
 
 const desktopStyles = {
@@ -59,43 +58,42 @@ export default function SortFilter({ onChange, sort }: SortFilterProps) {
 
   return (
     <HStack
-      spacing={2}
       wrap={'wrap'}
       alignItems={'start'}
       w={'auto'}
+      maxW={isMobile ? '100%' : 'unset'}
       overflowX='auto'
+      paddingLeft={isMobile ? '16px' : 0}
       {...(isMobile ? mobileStyles : desktopStyles)}
     >
       <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.100' borderRadius='8px'>
-        {sortOptions
-          .filter((option) => !isMobile || option !== Sort.LP_REWARDS)
-          .map((option) => (
-            <Button
-              variant='grey'
-              key={uuidv4()}
-              bg={option === sort ? 'grey.50' : 'grey.100'}
-              onClick={() => {
-                trackClicked(ClickEvent.SortClicked, {
-                  oldValue: sort,
-                  newValue: option,
-                })
-                pushGA4Event(getGAEventForSort(option))
-                onChange(option, SortStorageName.SORT)
-              }}
-              _hover={{ bg: option === sort ? 'grey.50' : 'grey.200' }}
-              borderRadius='8px'
-              h={isMobile ? '28px' : '20px'}
-              whiteSpace='nowrap'
-              {...paragraphMedium}
-              fontSize={isMobile ? '13px' : 'unset'}
-              color={'grey.800'}
-              p={'2px 12px 2px 12px'}
-              marginInlineStart='0px !important'
-              position={isMobile ? 'unset' : 'relative'}
-            >
-              {option}
-            </Button>
-          ))}
+        {sortOptions.map((option) => (
+          <Button
+            variant='grey'
+            key={uuidv4()}
+            bg={option === sort ? 'grey.50' : 'grey.100'}
+            onClick={() => {
+              trackClicked(ClickEvent.SortClicked, {
+                oldValue: sort,
+                newValue: option,
+              })
+              pushGA4Event(getGAEventForSort(option))
+              onChange(option, SortStorageName.SORT)
+            }}
+            _hover={{ bg: option === sort ? 'grey.50' : 'grey.200' }}
+            borderRadius='8px'
+            h={isMobile ? '28px' : '20px'}
+            whiteSpace='nowrap'
+            {...paragraphMedium}
+            fontSize={isMobile ? '13px' : 'unset'}
+            color={'grey.800'}
+            p={'2px 12px 2px 12px'}
+            marginInlineStart='0px !important'
+            position={isMobile ? 'unset' : 'relative'}
+          >
+            {option}
+          </Button>
+        ))}
       </ButtonGroup>
     </HStack>
   )

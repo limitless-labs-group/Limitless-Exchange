@@ -9,7 +9,7 @@ import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import DeadlineIcon from '@/resources/icons/sun-watch.svg'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
-import { DraftMarket } from '@/types/draft'
+import { DraftMarket, MarketInput } from '@/types/draft'
 import { NumberUtil } from '@/utils'
 
 interface DraftMarketSingleCardProps {
@@ -31,6 +31,11 @@ const colors = {
   main: 'var(--chakra-colors-grey-800)',
   secondary: 'var(--chakra-colors-grey-500)',
   chartBg: 'var(--chakra-colors-grey-300)',
+}
+const badgeBg = {
+  amm: 'blue.100',
+  clob: 'green.100',
+  group: 'lime.100',
 }
 
 const MarketDataFactory = {
@@ -103,12 +108,12 @@ const MarketDataFactory = {
           alt='creator'
           borderRadius={'2px'}
         />
-        <Link href={market?.creator.link} isExternal>
+        <Link href={market?.creator.link || ''} isExternal>
           <Text color='grey.500'>{market?.creator.name}</Text>
         </Link>
-        {market?.tags?.map((tag: any) => (
-          <Text color='grey.500' key={tag.id}>
-            #{tag.name}
+        {market?.tags?.map((tag: string, index) => (
+          <Text color='grey.500' key={index}>
+            #{tag}
           </Text>
         ))}
       </HStack>
@@ -129,6 +134,41 @@ const MarketDataFactory = {
         ))}
       </HStack>
     )
+  },
+
+  renderGroupMarkets: (market: DraftMarket | Market) => {
+    if (isMarket(market)) return
+    if (market.type === 'group' && market?.markets && market.markets?.length > 0) {
+      return (
+        <Box pl={2} mb={2}>
+          <Text {...paragraphMedium} color={colors.secondary} mb={1}>
+            Markets in group:
+          </Text>
+          <Stack spacing={1}>
+            {[...market.markets]
+              .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
+              .map((subMarket: MarketInput, index: number) => (
+                <Text
+                  key={market.id ?? index}
+                  {...paragraphRegular}
+                  color={colors.main}
+                  pl={4}
+                  position='relative'
+                  _before={{
+                    content: '"•"',
+                    position: 'absolute',
+                    left: 1,
+                    color: colors.secondary,
+                  }}
+                >
+                  {subMarket.title}
+                </Text>
+              ))}
+          </Stack>
+        </Box>
+      )
+    }
+    return null
   },
 }
 
@@ -309,18 +349,21 @@ export const DraftMarketCard = ({
               )}
             </HStack>
 
-            <HStack alignItems='flex-start'>
-              <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
-                <TextEditor
-                  value={market?.description ?? ''}
-                  readOnly
-                  className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
-                />
-              </Text>
-            </HStack>
+            {market.description ? (
+              <HStack alignItems='flex-start'>
+                <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
+                  <TextEditor
+                    value={market?.description ?? ''}
+                    readOnly
+                    className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
+                  />
+                </Text>
+              </HStack>
+            ) : null}
+
+            {MarketDataFactory.renderGroupMarkets(market)}
 
             {MarketDataFactory.renderCreatorAndTags(market)}
-
             <HStack justifyContent='space-between' alignItems='flex-end' flexDirection={'row'}>
               <HStack gap={'16px'} flexDirection={'row'} w='full'>
                 <HStack w={'unset'} justifyContent={'unset'}>

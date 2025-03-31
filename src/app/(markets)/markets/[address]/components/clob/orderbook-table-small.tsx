@@ -66,7 +66,7 @@ export default function OrderBookTableSmall({
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight
     }
-  }, [outcome])
+  }, [outcome, market])
 
   const highLightRewardsCells = rewardsButtonClicked || rewardButtonHovered
 
@@ -111,12 +111,14 @@ export default function OrderBookTableSmall({
     <Box mt='12px'>
       <HStack w='full' justifyContent='space-between'>
         <Text {...h3Regular}>Order Book</Text>
-        <Box position='relative'>
-          <RewardTooltipContent
-            linkHoverCallback={setLinkHovered}
-            contentHoverCallback={setRewardButtonHovered}
-          />
-        </Box>
+        {market?.isRewardable && (
+          <Box position='relative'>
+            <RewardTooltipContent
+              linkHoverCallback={setLinkHovered}
+              contentHoverCallback={setRewardButtonHovered}
+            />
+          </Box>
+        )}
       </HStack>
       <HStack w={'240px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'} my='16px'>
         <Button
