@@ -1,5 +1,4 @@
 import { Link, Text, HStack } from '@chakra-ui/react'
-import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import React, { ReactNode, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -75,7 +74,7 @@ export const CategoryItems = () => {
 
   return (
     <>
-      <NextLink href={'/'}>
+      <ReferralLink href={'/'}>
         <Link variant='transparent' px={0} minW='122px'>
           <HStack
             gap='4px'
@@ -94,7 +93,7 @@ export const CategoryItems = () => {
             }`}</Text>
           </HStack>
         </Link>
-      </NextLink>
+      </ReferralLink>
       {isMobile && (
         <ReferralLink
           href={`/?dashboard=marketcrash`}
