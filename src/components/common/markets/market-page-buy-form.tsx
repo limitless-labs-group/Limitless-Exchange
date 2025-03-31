@@ -43,12 +43,10 @@ import { NumberUtil } from '@/utils'
 interface MarketPageBuyFormProps {
   setOutcomeIndex: Dispatch<SetStateAction<number>>
   slideMarket?: Market
-  marketList?: Market[]
 }
 
 export default function MarketPageBuyForm({
   setOutcomeIndex,
-  marketList,
   slideMarket,
 }: MarketPageBuyFormProps) {
   const { balanceLoading } = useBalanceService()
@@ -111,7 +109,7 @@ export default function MarketPageBuyForm({
     trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
       amount: value,
       marketAddress: market?.slug,
-      marketType: marketList ? 'group' : 'single',
+      marketType: market?.marketType,
       marketTags: market?.tags,
       marketMakerType: 'AMM',
       assetType: 'money',
@@ -363,7 +361,7 @@ export default function MarketPageBuyForm({
             option='Yes'
             price={market.prices?.[0]}
             decimals={market.collateralToken?.decimals}
-            marketType={!!marketList?.length ? 'group' : 'single'}
+            marketType={market.marketType}
             showReturnPercent={showReturnPercent}
             setShowReturnPercent={setShowReturnPercent}
             showFeeInValue={showFeeInValue}
@@ -384,7 +382,7 @@ export default function MarketPageBuyForm({
             option='No'
             price={market.prices?.[1]}
             decimals={market.collateralToken?.decimals}
-            marketType={!!marketList?.length ? 'group' : 'single'}
+            marketType={market.marketType}
             showReturnPercent={showReturnPercent}
             setShowReturnPercent={setShowReturnPercent}
             showFeeInValue={showFeeInValue}

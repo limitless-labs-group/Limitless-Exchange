@@ -60,7 +60,7 @@ export default function Withdraw({ isOpen }: WithdrawProps) {
   }, [isOpen])
 
   const onResetWithdraw = async () => {
-    await sleep(2)
+    await sleep(1)
     setAmount('')
     withdrawMutation.reset()
   }

@@ -48,7 +48,7 @@ export async function GET(req: Request, { params }: { params: { address: string 
       const collateralAmountBI = parseUnits(collateralAmount, collateralDecimals)
 
       const client = createPublicClient({
-        transport: http(),
+        transport: http(process.env.NEXT_PUBLIC_FALLBACK_RPC_URL),
         chain: defaultChain,
       })
       const contract = getContract({

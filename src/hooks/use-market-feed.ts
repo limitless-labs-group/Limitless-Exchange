@@ -20,8 +20,10 @@ export type MarketFeedData = {
     marketTitle: string
     tradeAmount: string
     tradeAmountUSD: string
+    title: string
   }
   user?: FeedEventUser
+  profile?: FeedEventUser
   bodyHash: string
 }
 

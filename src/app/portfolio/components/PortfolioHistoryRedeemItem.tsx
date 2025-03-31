@@ -5,7 +5,6 @@ import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
 import Skeleton from '@/components/common/skeleton'
 import { defaultChain } from '@/constants'
-import useMarketGroup from '@/hooks/use-market-group'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import {
@@ -31,11 +30,6 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
   const targetMarket = allMarkets.find((market) => market.conditionId === redeem.conditionId)
 
   const { market, refetchMarket } = useMarketByConditionId(redeem.conditionId, false)
-  const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
-    targetMarket?.group?.slug,
-    false,
-    false
-  )
   const { onOpenMarketPage } = useTradingService()
   const { trackClicked } = useAmplitude()
 
@@ -61,7 +55,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           onOpenMarketPage(fetchedMarket)
           trackClicked(ClickEvent.PortfolioMarketClicked, {
             marketAddress: fetchedMarket.slug,
-            marketType: 'single',
+            marketType: fetchedMarket.marketType,
             marketTags: fetchedMarket.tags,
             type: 'History',
           })
@@ -70,21 +64,10 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
         onOpenMarketPage(market)
         trackClicked(ClickEvent.PortfolioMarketClicked, {
           marketAddress: market.slug,
-          marketType: 'single',
+          marketType: market.marketType,
           marketTags: market.tags,
           type: 'History',
         })
-      }
-    }
-
-    if (targetMarket?.group?.slug) {
-      if (!marketGroup) {
-        const { data: fetchedMarketGroup } = await refetchMarketGroup()
-        if (fetchedMarketGroup) {
-          onOpenMarketPage(fetchedMarketGroup)
-        }
-      } else {
-        onOpenMarketPage(marketGroup)
       }
     }
   }
