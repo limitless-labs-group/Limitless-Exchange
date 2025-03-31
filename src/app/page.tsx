@@ -2,7 +2,6 @@
 
 import { HStack, Text, VStack, Box } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
-import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -13,6 +12,7 @@ import TopMarkets from '@/components/common/markets/top-markets'
 import { sortAtom } from '@/atoms/market-sort'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
+import { useUrlParams } from '@/hooks/use-url-param'
 import { usePriceOracle } from '@/providers'
 import {
   OpenEvent,
@@ -28,7 +28,11 @@ import { Dashboard, Market, MarketType, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
 const MainPage = () => {
-  const searchParams = useSearchParams()
+  const { getParam } = useUrlParams()
+  const category = getParam('category')
+  const market = getParam('market')
+  const dashboardSearch = getParam('dashboard')
+
   const { data: categories } = useCategories()
   const {
     onCloseMarketPage,
@@ -37,15 +41,14 @@ const MainPage = () => {
     groupMarket,
   } = useTradingService()
   const { trackOpened } = useAmplitude()
-  const category = searchParams.get('category')
-  const market = searchParams.get('market')
-  const dashboardSearch = searchParams.get('dashboard')
   const { data: marketData } = useMarket(market ?? undefined)
   const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
   const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
   const [selectedSort, setSelectedSort] = useAtom(sortAtom)
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useMarkets(null)
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useMarkets(
+    selectedCategory ?? null
+  )
 
   useEffect(() => {
     if (marketData) {

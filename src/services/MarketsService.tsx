@@ -17,7 +17,7 @@ import { calculateMarketPrice, getPrices } from '@/utils/market'
 export function useMarkets(topic: Category | null) {
   const pathname = usePathname()
   return useInfiniteQuery<MarketPage, Error>({
-    queryKey: ['markets', topic],
+    queryKey: ['markets', topic?.id],
     queryFn: async ({ pageParam = 1 }) => {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`
       const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl

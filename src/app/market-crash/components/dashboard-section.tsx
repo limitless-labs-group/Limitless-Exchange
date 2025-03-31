@@ -110,7 +110,7 @@ export default function DashboardSection({
                 <SortFilter onChange={handleSelectSort} sort={sort} />
               </Flex>
             </Box>
-            <VStack gap='80px' mt='80px' width='full' px={isMobile ? '16px' : 'unset'}>
+            <VStack gap='80px' mt='80px' width='full'>
               {categorizedMarkets.map((category, index) => (
                 <DashboardGroup
                   key={category.name}

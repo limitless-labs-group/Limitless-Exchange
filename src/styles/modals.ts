@@ -57,6 +57,9 @@ const baseStyle = definePartsStyle({
     bg: 'rgba(0, 0, 0, 0.5)', //change the background
     zIndex: 9000,
   },
+  dialogContainer: {
+    zIndex: 9000,
+  },
   closeButton: {
     outline: 'none',
   },
