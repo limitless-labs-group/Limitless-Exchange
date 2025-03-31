@@ -8,7 +8,6 @@ import GrinIcon from '@/resources/icons/grid-icon.svg'
 import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import { useCategoriesWithCounts } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
 import { ReferralLink } from '../referral-link'
 
 export interface SideItemProps {
