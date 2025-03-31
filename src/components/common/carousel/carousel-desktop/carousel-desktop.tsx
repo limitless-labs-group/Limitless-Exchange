@@ -11,9 +11,9 @@ type PropType = {
   options?: EmblaOptionsType
 }
 
-export default function CarouselDesktop({ slides, options }: PropType) {
+export default function CarouselMobile({ slides, options }: PropType) {
   const [emblaRef, emblaApi] = useEmblaCarousel(options, [
-    Autoplay({ playOnInit: true, delay: 10000 }),
+    // Autoplay({ playOnInit: true, delay: 10000 }),
   ])
 
   const { selectedIndex, scrollSnaps, onDotButtonClick } = useDotButton(emblaApi)

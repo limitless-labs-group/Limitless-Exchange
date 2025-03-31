@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { usePathname } from 'next/navigation'
 import { useMemo } from 'react'
 import { Address, formatUnits, getContract, parseUnits } from 'viem'
+import { mockBanneredMarkets } from '@/app/mock-bannered-markets'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { LIMIT_PER_PAGE, POLLING_INTERVAL } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
@@ -74,44 +75,45 @@ export function useBanneredMarkets(topic: Category | null) {
   return useQuery({
     queryKey: ['bannered-markets', topic],
     queryFn: async () => {
-      const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/bannered`
-      const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
-
-      const { data: response }: AxiosResponse<Market[]> = await axios.get(marketBaseUrl)
-
-      const ammMarkets = response.filter((market) => market.tradeType === 'amm')
-
-      const marketDataForMultiCall = ammMarkets.map((market) => ({
-        address: market.address as Address,
-        decimals: market.collateralToken.decimals,
-      }))
-
-      const pricesResult = ammMarkets.length > 0 ? await getPrices(marketDataForMultiCall) : []
-
-      const _markets = new Map<`0x${string}`, OddsData>(
-        pricesResult.map((item) => [item.address, { prices: item.prices }])
-      )
-
-      const result = response.map((market) => {
-        return {
-          ...market,
-          prices:
-            market.tradeType === 'amm'
-              ? _markets.get(market.address as Address)?.prices || [50, 50]
-              : [
-                  new BigNumber(market?.prices?.[0])
-                    .multipliedBy(100)
-                    .decimalPlaces(0)
-                    .toNumber() ?? 50,
-                  new BigNumber(market?.prices?.[1])
-                    .multipliedBy(100)
-                    .decimalPlaces(0)
-                    .toNumber() ?? 50,
-                ],
-        }
-      })
-
-      return result
+      return mockBanneredMarkets.slice(mockBanneredMarkets.length - 9) as unknown as Market[]
+      // const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/bannered`
+      // const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
+      //
+      // const { data: response }: AxiosResponse<Market[]> = await axios.get(marketBaseUrl)
+      //
+      // const ammMarkets = response.filter((market) => market.tradeType === 'amm')
+      //
+      // const marketDataForMultiCall = ammMarkets.map((market) => ({
+      //   address: market.address as Address,
+      //   decimals: market.collateralToken.decimals,
+      // }))
+      //
+      // const pricesResult = ammMarkets.length > 0 ? await getPrices(marketDataForMultiCall) : []
+      //
+      // const _markets = new Map<`0x${string}`, OddsData>(
+      //   pricesResult.map((item) => [item.address, { prices: item.prices }])
+      // )
+      //
+      // const result = response.map((market) => {
+      //   return {
+      //     ...market,
+      //     prices:
+      //       market.tradeType === 'amm'
+      //         ? _markets.get(market.address as Address)?.prices || [50, 50]
+      //         : [
+      //             new BigNumber(market?.prices?.[0])
+      //               .multipliedBy(100)
+      //               .decimalPlaces(0)
+      //               .toNumber() ?? 50,
+      //             new BigNumber(market?.prices?.[1])
+      //               .multipliedBy(100)
+      //               .decimalPlaces(0)
+      //               .toNumber() ?? 50,
+      //           ],
+      //   }
+      // })
+      //
+      // return result
     },
     refetchOnWindowFocus: false,
   })
