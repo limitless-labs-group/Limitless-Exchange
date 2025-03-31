@@ -28,8 +28,10 @@ export default function NotFound() {
               <Text {...h1Bold}>404</Text>
               <Text {...captionMedium}>page not found</Text>
               <Text {...captionMedium}>
-                {`whoops — that's the limit but limitless means there's always more check out`}
-                <br />
+                {`whoops — that's the limit but limitless means there's always more`}
+              </Text>
+              <Text {...captionMedium}>
+                check out{' '}
                 <NextLink href='/' style={{ textDecoration: 'underline' }}>
                   our markets
                 </NextLink>
