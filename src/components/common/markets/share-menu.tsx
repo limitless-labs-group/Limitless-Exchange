@@ -44,6 +44,12 @@ export default function ShareMenu() {
           toggleShareMenu()
         }}
         as={isMobile ? 'div' : undefined}
+        bg='unset'
+        border='1px solid'
+        borderColor='grey.100'
+        _hover={{
+          bg: 'grey.100',
+        }}
       >
         {isMobile ? (
           <Box mt='4px'>

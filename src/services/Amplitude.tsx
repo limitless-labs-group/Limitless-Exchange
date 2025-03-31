@@ -178,6 +178,7 @@ export enum ClickEvent {
   CopyAddressClicked = 'Wallet Address Copied',
   WithdrawClicked = 'Withdraw Clicked',
   WrapETHClicked = 'Wrap ETH Clicked',
+  UnwrapETHClicked = 'Unwrap ETH Clicked',
   WithdrawConfirmedClicked = 'Withdraw Confirmed',
   SortClicked = 'Sort Clicked',
   StrokeClicked = 'Stroke Clicked',

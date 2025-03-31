@@ -4,9 +4,9 @@ import { HStack, Text, VStack, Box } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
-import DashboardSection from '@/components/common/markets/dashboard-section'
 import { MarketCategoryHeader } from '@/components/common/markets/market-category-header'
 import MarketsSection from '@/components/common/markets/markets-section'
 import TopMarkets from '@/components/common/markets/top-markets'
@@ -181,41 +181,31 @@ const MainPage = () => {
       <HStack className='w-full' alignItems='flex-start' w='full' justifyContent='center'>
         <VStack w='full' justifyContent='center'>
           <>
-            {dashboard ? (
-              <DashboardSection
-                dashboardName={dashboard}
-                handleSelectSort={handleSelectSort}
-                sort={selectedSort.sort}
-              />
-            ) : (
-              <>
-                {headerContent}
-                <Box className='full-container'>
-                  <InfiniteScroll
-                    className='scroll'
-                    dataLength={markets?.length ?? 0}
-                    next={fetchNextPage}
-                    hasMore={hasNextPage}
-                    style={{ width: '100%' }}
-                    loader={
-                      markets.length > 0 && markets.length < totalAmount ? (
-                        <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
-                          <Loader />
-                          <Text {...paragraphRegular}>Loading more markets</Text>
-                        </HStack>
-                      ) : null
-                    }
-                  >
-                    <MarketsSection
-                      markets={sortedAllMarkets as Market[]}
-                      handleSelectSort={handleSelectSort}
-                      isLoading={isFetching && !isFetchingNextPage}
-                      sort={selectedSort.sort}
-                    />
-                  </InfiniteScroll>
-                </Box>
-              </>
-            )}
+            {headerContent}
+            <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
+              <InfiniteScroll
+                className='scroll'
+                dataLength={markets?.length ?? 0}
+                next={fetchNextPage}
+                hasMore={hasNextPage}
+                style={{ width: '100%' }}
+                loader={
+                  markets.length > 0 && markets.length < totalAmount ? (
+                    <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+                      <Loader />
+                      <Text {...paragraphRegular}>Loading more markets</Text>
+                    </HStack>
+                  ) : null
+                }
+              >
+                <MarketsSection
+                  markets={sortedAllMarkets as Market[]}
+                  handleSelectSort={handleSelectSort}
+                  isLoading={isFetching && !isFetchingNextPage}
+                  sort={selectedSort.sort}
+                />
+              </InfiniteScroll>
+            </Box>
           </>
         </VStack>
       </HStack>
