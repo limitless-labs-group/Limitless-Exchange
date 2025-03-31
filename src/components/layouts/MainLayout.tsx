@@ -40,7 +40,7 @@ export const MainLayout = ({
       {...props}
     >
       {isMobile ? <MobileHeader /> : <Header />}
-      <Box mb={isMobile ? '60px' : 0} mt={isMobile ? '65px' : '20px'} overflow='hidden'>
+      <Box mb={isMobile ? '60px' : 0} mt={isMobile ? '65px' : '80px'} overflow='hidden'>
         {isMobile && pageName === 'Explore Markets' && (
           <HStack py='4px' px='12px' bg='grey.50' maxW='100%' overflowX='auto'>
             <CategoryItems />

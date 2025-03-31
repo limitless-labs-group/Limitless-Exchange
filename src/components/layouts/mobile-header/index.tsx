@@ -19,7 +19,7 @@ import { isAddress } from 'viem'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import Loader from '@/components/common/loader'
-import { LoginButton } from '@/components/common/login-button'
+import { LoginButtons } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
@@ -80,7 +80,7 @@ export default function MobileHeader() {
     onOpen: onOpenUserMenu,
     onClose: onCloseUserMenu,
   } = useDisclosure()
-  const { handleCategory, handleDashboard } = useTokenFilter()
+  const { handleDashboard, handleCategory } = useTokenFilter()
 
   // Todo move this and other duplicated to a proper service
   const balanceInvested = useMemo(() => {
@@ -143,7 +143,7 @@ export default function MobileHeader() {
         position='fixed'
         top={0}
         bg='grey.50'
-        zIndex={999999}
+        zIndex={2000}
       >
         <HStack justifyContent='space-between' alignItems='center'>
           <Box
@@ -485,7 +485,7 @@ export default function MobileHeader() {
                 </Slide>
               </>
             ) : (
-              <LoginButton login={loginToPlatform} />
+              <LoginButtons login={loginToPlatform} />
             )}
           </HStack>
         </HStack>

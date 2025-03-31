@@ -60,6 +60,8 @@ export const CategoryItems = () => {
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages])
 
+  const totalAmount = markets.length
+
   const marketsByCategory = useMemo(() => {
     if (!markets.length || !categories?.length) return {}
 
@@ -105,8 +107,13 @@ export const CategoryItems = () => {
 
   return (
     <>
-      <NextLink href={'/'}>
-        <Link variant='transparent' px={0} minW='122px'>
+      <NextLink
+        href={'/'}
+        style={{
+          minWidth: 'fit-content',
+        }}
+      >
+        <Link variant='transparent' px={0}>
           <HStack
             gap='4px'
             cursor='pointer'
@@ -119,7 +126,7 @@ export const CategoryItems = () => {
             rounded='8px'
           >
             <GrinIcon width={16} height={16} />
-            <Text {...paragraphRegular}>All Markets</Text>
+            <Text {...paragraphRegular}>All Markets {totalAmount ? `(${totalAmount})` : ''}</Text>
           </HStack>
         </Link>
       </NextLink>

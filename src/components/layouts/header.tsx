@@ -4,7 +4,10 @@ import { useAtom } from 'jotai/index'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
+import { LoginButtons } from '@/components/common/login-button'
 import { CategoryItems } from '@/components/common/markets/sidebar-item'
+import SideBarPage from '@/components/common/side-bar-page'
 import UserMenuDesktop from '@/components/layouts/user-menu-desktop'
 import WalletPage from '@/components/layouts/wallet-page'
 import { sortAtom } from '@/atoms/market-sort'
@@ -34,7 +37,7 @@ import { MarketStatus, Sort, SortStorageName } from '@/types'
 export default function Header() {
   const { mode } = useThemeProvider()
   const [, setSelectedSort] = useAtom(sortAtom)
-  const { dashboard, handleCategory, handleDashboard } = useTokenFilter()
+  const { dashboard, handleCategory, handleDashboard, selectedCategory } = useTokenFilter()
   const pageName = usePageName()
   const { trackClicked } = useAmplitude()
   const { isLoggedToPlatform } = useClient()
@@ -73,7 +76,7 @@ export default function Header() {
   }, [positions])
 
   return (
-    <>
+    <Box position='fixed' w='full' top={0} zIndex={2000}>
       <HStack
         w='full'
         justifyContent='space-between'
@@ -84,7 +87,7 @@ export default function Header() {
         bg='grey.50'
       >
         <HStack gap='32px'>
-          <NextLink href='/' passHref>
+          <NextLink href={'/'} passHref>
             <Link
               onClick={() => {
                 trackClicked<LogoClickedMetadata>(ClickEvent.LogoClicked, { page: pageName })
@@ -249,61 +252,19 @@ export default function Header() {
               handleOpenWalletPage={handleOpenWalletPage}
               handleOpenProfile={handleOpenProfile}
             />
-            {(isOpenProfile || isOpenWalletPage) && (
-              <Box
-                position='fixed'
-                top={0}
-                left={0}
-                bottom={0}
-                w='full'
-                zIndex={100}
-                bg='rgba(0, 0, 0, 0.3)'
-                animation='fadeIn 0.5s'
-              />
+            {isOpenWalletPage && (
+              <SideBarPage>
+                <WalletPage onClose={onToggleWalletPage} />
+              </SideBarPage>
             )}
-            <Slide
-              direction='right'
-              in={isOpenWalletPage}
-              style={{
-                zIndex: 100,
-                marginLeft: '197px',
-                transition: '0.1s',
-              }}
-              onClick={() => {
-                trackClicked(ClickEvent.WalletClicked, {
-                  page: pageName,
-                })
-                handleOpenWalletPage()
-              }}
-            >
-              <WalletPage onClose={onToggleWalletPage} />
-            </Slide>
-            <Slide
-              direction='right'
-              in={isOpenProfile}
-              style={{
-                zIndex: 100,
-                transition: '0.1s',
-              }}
-              onClick={() => {
-                trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
-                  page: pageName,
-                })
-                onToggleProfile()
-              }}
-            >
-              <Profile isOpen={isOpenProfile} />
-            </Slide>
+            {isOpenProfile && (
+              <SideBarPage>
+                <Profile isOpen={isOpenProfile} onClose={onToggleProfile} />
+              </SideBarPage>
+            )}
           </HStack>
         ) : (
-          <HStack gap='8px'>
-            <Button variant='white' onClick={loginToPlatform}>
-              Login
-            </Button>
-            <Button variant='contained' onClick={loginToPlatform}>
-              Sign Up
-            </Button>
-          </HStack>
+          <LoginButtons login={loginToPlatform} />
         )}
       </HStack>
       {pageName === 'Explore Markets' && (
@@ -311,6 +272,6 @@ export default function Header() {
           <CategoryItems />
         </HStack>
       )}
-    </>
+    </Box>
   )
 }
