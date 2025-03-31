@@ -96,7 +96,7 @@ export const CategoryItems = () => {
       </ReferralLink>
       {isMobile && (
         <ReferralLink
-          href={`/?dashboard=marketcrash`}
+          href={`/market-crash`}
           passHref
           style={{ width: isMobile ? 'fit-content' : '100%' }}
         >
