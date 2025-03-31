@@ -73,7 +73,7 @@ export default function MarketCrashPage() {
           <Loader />
         </Flex>
       ) : (
-        <Box>
+        <Box w='full'>
           <DashboardHeader />
           <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
             <InfiniteScroll
@@ -103,7 +103,7 @@ export default function MarketCrashPage() {
                     <SortFilter onChange={handleSelectSort} sort={sort} />
                   </Flex>
                 </Box>
-                <VStack gap='80px' mt='80px' width='full' px={isMobile ? '16px' : 'unset'}>
+                <VStack gap='80px' mt='80px' width='full'>
                   {categorizedMarkets.map((category, index) => (
                     <DashboardGroup
                       key={category.name}
