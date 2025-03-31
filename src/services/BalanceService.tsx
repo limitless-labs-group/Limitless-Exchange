@@ -337,7 +337,7 @@ export const useBalanceQuery = () => {
           const currentBalance = balanceOfSmartWallet.find((currentBalanceEntity) => {
             return currentBalanceEntity.id === balance.id
           })
-          if (currentBalance && balance.value > currentBalance.value) {
+          if (currentBalance && balance.value > currentBalance.value && balance.symbol !== 'ETH') {
             const depositAmount = formatUnits(
               balance.value - currentBalance.value,
               currentBalance.decimals
