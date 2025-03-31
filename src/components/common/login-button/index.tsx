@@ -10,18 +10,18 @@ interface LoginButtonProps {
 export const LoginButtons = ({ login }: LoginButtonProps) => {
   const { pushGA4Event } = useGoogleAnalytics()
   const { trackSignIn } = useAmplitude()
-  const signIn = () => {
+  const signIn = (event: SignInEvent) => {
     login()
-    trackSignIn(SignInEvent.SignIn)
+    trackSignIn(event)
     pushGA4Event(GAEvents.ClickLogin)
   }
   return (
     <HStack gap='8px'>
-      <Button onClick={signIn} variant='outlined'>
+      <Button onClick={() => signIn(SignInEvent.LogIn)} variant='outlined'>
         Login
       </Button>
-      <Button onClick={signIn} variant='contained'>
-        Sign in
+      <Button onClick={() => signIn(SignInEvent.SignIn)} variant='contained'>
+        Sign Up
       </Button>
     </HStack>
   )
