@@ -14,7 +14,7 @@ export default function NotFound() {
         width='full'
         justifyContent='center'
         alignItems='center'
-        mt={isMobile ? '100px' : '200px'}
+        mt={isMobile ? '70px' : '150px'}
       >
         <VStack alignItems='center' justifyContent='center'>
           <NotFoundImage

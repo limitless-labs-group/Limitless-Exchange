@@ -73,7 +73,7 @@ export default function MarketCrashPage() {
           <Loader />
         </Flex>
       ) : (
-        <Box w='full'>
+        <Box w={isMobile ? 'full' : 'unset'}>
           <DashboardHeader />
           <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
             <InfiniteScroll
