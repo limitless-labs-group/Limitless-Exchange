@@ -108,6 +108,7 @@ export default function OrderTypeSelectMenu() {
           borderColor='grey.200'
           onMouseEnter={onOpenOrderTypeMenu}
           onMouseLeave={onCloseOrderTypeMenu}
+          p='8px !important'
         >
           <Button
             variant='transparent'
