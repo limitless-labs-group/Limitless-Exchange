@@ -20,7 +20,7 @@ import axios from 'axios'
 import { htmlToText } from 'html-to-text'
 import { useAtom } from 'jotai'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useCallback, useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { default as MultiSelect } from 'react-select'
@@ -258,7 +258,13 @@ export const CreateMarket: FC = () => {
     }).length
   }
 
+  const playSound = useCallback(() => {
+    const audio = new Audio('/audio.mp3')
+    audio.play()
+  }, [])
+
   const submit = async () => {
+    playSound()
     if (draftMarketId) {
       await updateMarket()
       return
