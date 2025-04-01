@@ -79,7 +79,9 @@ export function useBanneredMarkets(topic: Category | null) {
 
       const { data: response }: AxiosResponse<Market[]> = await axios.get(marketBaseUrl)
 
-      const ammMarkets = response.filter((market) => market.tradeType === 'amm')
+      const slicedMarkets = response.slice(response.length - 12)
+
+      const ammMarkets = slicedMarkets.filter((market) => market.tradeType === 'amm')
 
       const marketDataForMultiCall = ammMarkets.map((market) => ({
         address: market.address as Address,
@@ -92,7 +94,7 @@ export function useBanneredMarkets(topic: Category | null) {
         pricesResult.map((item) => [item.address, { prices: item.prices }])
       )
 
-      const result = response.map((market) => {
+      const result = slicedMarkets.map((market) => {
         return {
           ...market,
           prices:

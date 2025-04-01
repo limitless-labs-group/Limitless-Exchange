@@ -31,16 +31,19 @@ import { APIError } from '@/types'
 import { Profile } from '@/types/profiles'
 import { DISCORD_LINK } from '@/utils/consts'
 
-interface ProfileFormProps {
-  onClose?: () => void
-}
-
-export function ProfileForm({ onClose }: ProfileFormProps) {
+export function ProfileForm() {
   const [pfpFile, setPfpFile] = useState<File | undefined>(undefined)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [hoverImage, setHoverImage] = useState(false)
-  const { displayName, displayUsername, bio, profileData, updateProfileMutation, account } =
-    useAccount()
+  const {
+    displayName,
+    displayUsername,
+    bio,
+    profileData,
+    updateProfileMutation,
+    account,
+    setProfilePageOpened,
+  } = useAccount()
   const toast = useToast()
 
   const {
@@ -150,7 +153,7 @@ export function ProfileForm({ onClose }: ProfileFormProps) {
     <form onSubmit={handleSubmit(handleUpdateProfile)} autoComplete='off'>
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
-          <Button variant='outlined' onClick={onClose}>
+          <Button variant='outlined' onClick={() => setProfilePageOpened(false)}>
             <CloseIcon width={16} height={16} />
             Close
           </Button>
