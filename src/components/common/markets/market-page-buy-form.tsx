@@ -15,8 +15,8 @@ import BigNumber from 'bignumber.js'
 import debounce from 'lodash.debounce'
 import React, {
   Dispatch,
-  SetStateAction,
   memo,
+  SetStateAction,
   useCallback,
   useEffect,
   useMemo,
@@ -63,7 +63,7 @@ export default function MarketPageBuyForm({
     quotesNo,
     resetQuotes,
   } = useTradingService()
-  const { isLoggedIn } = useAccount()
+  const { isLoggedIn, loginToPlatform } = useAccount()
 
   const [displayAmount, setDisplayAmount] = useState('')
   const [showReturnPercent, setShowReturnPercent] = useState(false)
@@ -87,6 +87,11 @@ export default function MarketPageBuyForm({
     setDisplayAmount(value)
     setCollateralAmount(value)
     return
+  }
+
+  const handleLoginClicked = () => {
+    loginToPlatform()
+    trackClicked(ClickEvent.SignUpButtonClickedFromAMMWidget)
   }
 
   const saveSlippageToLocalStorage = (value: string) => {
@@ -406,6 +411,7 @@ export default function MarketPageBuyForm({
                 color: 'grey.500',
               }}
               mt='8px'
+              onClick={handleLoginClicked}
             >
               Sign Up To Buy
             </Button>

@@ -221,6 +221,7 @@ export enum ClickEvent {
   MergeSharesModalMaxSharesClicked = 'Merge Contracts Modal Max Button Clicked',
   FeedClosedMarketGroupClicked = 'Feed Closed Market Group Clicked',
   TopBannerClicked = 'Top Banner Clicked',
+  SignUpButtonClickedFromAMMWidget = 'Sign Up Button Clicked From AMM Widget',
 }
 
 export enum SignInEvent {
