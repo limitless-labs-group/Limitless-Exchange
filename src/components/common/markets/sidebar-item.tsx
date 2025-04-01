@@ -9,6 +9,7 @@ import { useCategoriesWithCounts } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { ReferralLink } from '../referral-link'
 
+
 export interface SideItemProps {
   isActive?: boolean
   icon?: ReactNode | null
