@@ -20,7 +20,7 @@ export const LoginButtons = ({ login }: LoginButtonProps) => {
       <Button onClick={() => signIn(SignInEvent.LogIn)} variant='outlined'>
         Login
       </Button>
-      <Button onClick={() => signIn(SignInEvent.SignIn)} variant='contained'>
+      <Button onClick={() => signIn(SignInEvent.SignUp)} variant='contained'>
         Sign Up
       </Button>
     </HStack>

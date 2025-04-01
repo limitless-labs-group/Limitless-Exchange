@@ -26,16 +26,12 @@ import {
 import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
-interface WalletPageProps {
-  onClose: () => void
-}
-
-export default function WalletPage({ onClose }: WalletPageProps) {
+export default function WalletPage() {
   const [copied, setCopied] = useState(false)
   const { overallBalanceUsd } = useBalanceService()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { supportedTokens } = useLimitlessApi()
-  const { account: address } = useAccount()
+  const { account: address, setWalletPageOpened } = useAccount()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
   const pageName = usePageName()
   const {
@@ -66,7 +62,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
   }
 
   const handleOpenWithdrawModal = () => {
-    onClose()
+    setWalletPageOpened(false)
     onOpenWithdraw()
   }
 
@@ -115,7 +111,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
   return (
     <Box onClick={(e) => e.stopPropagation()} px={isMobile ? '16px' : 0}>
       {!isMobile && (
-        <Button variant='outlined' onClick={onClose} mb='12px'>
+        <Button variant='outlined' onClick={() => setWalletPageOpened(false)} mb='12px'>
           <CloseIcon width={16} height={16} />
           Close
         </Button>

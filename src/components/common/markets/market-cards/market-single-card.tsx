@@ -13,7 +13,13 @@ import { MarketProgressBar } from './market-progress-bar'
 import { SpeedometerProgress } from './speedometer-progress'
 import { useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
-import { ClickEvent, QuickBetClickedMetadata, useAmplitude, useTradingService } from '@/services'
+import {
+  ClickEvent,
+  QuickBetClickedMetadata,
+  useAccount,
+  useAmplitude,
+  useTradingService,
+} from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { captionMedium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
@@ -54,6 +60,7 @@ export const MarketSingleCard = ({
   const router = useRouter()
   const { data: marketFeedData } = useMarketFeed(market)
   const { pushGA4Event } = useGoogleAnalytics()
+  const { setWalletPageOpened, setProfilePageOpened } = useAccount()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {
@@ -71,6 +78,8 @@ export const MarketSingleCard = ({
       ...analyticParams,
     })
     pushGA4Event(GAEvents.SelectAnyMarket)
+    setWalletPageOpened(false)
+    setProfilePageOpened(false)
     onOpenMarketPage(market)
   }
 
@@ -109,6 +118,8 @@ export const MarketSingleCard = ({
     router.push(`?${searchParams.toString()}`, { scroll: false })
     setMarket(market)
     setClobOutcome(outcome)
+    setWalletPageOpened(false)
+    setProfilePageOpened(false)
     if (!marketPageOpened) {
       setMarketPageOpened(true)
     }
