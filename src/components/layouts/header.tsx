@@ -1,10 +1,9 @@
-import { Box, Button, Flex, HStack, Link, Slide, Text, useDisclosure } from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Link, Text } from '@chakra-ui/react'
 import { useFundWallet } from '@privy-io/react-auth'
 import { useAtom } from 'jotai/index'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
 import { LoginButtons } from '@/components/common/login-button'
 import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import SideBarPage from '@/components/common/side-bar-page'
@@ -38,30 +37,35 @@ import { ReferralLink } from '../common/referral-link'
 export default function Header() {
   const { mode } = useThemeProvider()
   const [, setSelectedSort] = useAtom(sortAtom)
-  const { dashboard, handleCategory, handleDashboard, selectedCategory } = useTokenFilter()
+  const { dashboard, handleCategory, handleDashboard } = useTokenFilter()
   const pageName = usePageName()
   const { trackClicked } = useAmplitude()
   const { isLoggedToPlatform } = useClient()
   const { fundWallet } = useFundWallet()
   const { data: positions } = usePosition()
-  const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
-  const { isOpen: isOpenProfile, onToggle: onToggleProfile } = useDisclosure()
   const { marketPageOpened, onCloseMarketPage } = useTradingService()
-  const { account, loginToPlatform } = useAccount()
+  const {
+    account,
+    loginToPlatform,
+    setWalletPageOpened,
+    setProfilePageOpened,
+    profilePageOpened,
+    walletPageOpened,
+  } = useAccount()
   const handleBuyCryptoClicked = async () => {
     trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.BuyCryptoClicked)
     await fundWallet(account as string)
   }
 
   const handleOpenWalletPage = () => {
-    onToggleWalletPage()
+    setWalletPageOpened(true)
     if (marketPageOpened) {
       onCloseMarketPage()
     }
   }
 
   const handleOpenProfile = () => {
-    onToggleProfile()
+    setProfilePageOpened(true)
     if (marketPageOpened) {
       onCloseMarketPage()
     }
@@ -87,7 +91,7 @@ export default function Header() {
         borderColor='grey.100'
         bg='grey.50'
       >
-        <HStack gap='32px'>
+        <HStack gap='16px'>
           <ReferralLink href='/' passHref>
             <Link
               onClick={() => {
@@ -253,14 +257,14 @@ export default function Header() {
               handleOpenWalletPage={handleOpenWalletPage}
               handleOpenProfile={handleOpenProfile}
             />
-            {isOpenWalletPage && (
+            {walletPageOpened && (
               <SideBarPage>
-                <WalletPage onClose={onToggleWalletPage} />
+                <WalletPage />
               </SideBarPage>
             )}
-            {isOpenProfile && (
+            {profilePageOpened && (
               <SideBarPage>
-                <Profile isOpen={isOpenProfile} onClose={onToggleProfile} />
+                <Profile />
               </SideBarPage>
             )}
           </HStack>

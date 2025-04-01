@@ -255,7 +255,7 @@ export default function MobileHeader() {
                           }
                           variant='common'
                         >
-                          <Profile isOpen={true} />
+                          <Profile />
                         </MobileDrawer>
                       )}
                       <HStack
@@ -354,7 +354,7 @@ export default function MobileHeader() {
                               }
                               variant='common'
                             >
-                              <WalletPage onClose={() => console.log('ok')} />
+                              <WalletPage />
                             </MobileDrawer>
                             <Button
                               variant='contained'

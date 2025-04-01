@@ -151,24 +151,3 @@ export const headLineLarge = {
   lineHeight: '28px',
   color: 'grey.800',
 }
-
-export const bannerTextDesktop = {
-  fontSize: '96px',
-  fontStyle: 'normal',
-  fontWeight: 700,
-  lineHeight: '80%',
-}
-
-export const bannerTextTablet = {
-  fontSize: '48px',
-  fontStyle: 'normal',
-  fontWeight: 700,
-  lineHeight: '80%',
-}
-
-export const bannerTextMobile = {
-  fontSize: '40px',
-  fontStyle: 'normal',
-  fontWeight: 600,
-  lineHeight: '32px',
-}

@@ -1,37 +1,21 @@
-import { Box, Button, Divider, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import { MarketProgressBar } from '@/components/common/markets/market-cards/market-progress-bar'
-import { MIN_CARD_HEIGHT } from '@/components/common/markets/market-cards/market-single-card'
-import { SpeedometerProgress } from '@/components/common/markets/market-cards/speedometer-progress'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import Paper from '@/components/common/paper'
-import ProgressBar from '@/components/common/progress-bar'
-import { LineChart } from '@/app/(markets)/markets/[address]/components/line-chart'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
+import { useThemeProvider } from '@/providers'
 import { ClickEvent, QuickBetClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
-import {
-  captionMedium,
-  h1Bold,
-  h2Bold,
-  headline,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
+import { captionMedium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
-import { NumberUtil, truncateEthAddress } from '@/utils'
-import { cutUsername } from '@/utils/string'
-
-// @ts-ignore
-const MotionBox = motion(Box)
+import { NumberUtil } from '@/utils'
 
 export interface BigBannerProps {
   market: Market
@@ -55,6 +39,7 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
   const { pushGA4Event } = useGoogleAnalytics()
   const [yesHovered, setYesHovered] = useState(false)
   const [noHovered, setNoHovered] = useState(false)
+  const { mode } = useThemeProvider()
 
   const imageBackgrounds = [
     '/assets/images/banners/background-1.svg',
@@ -66,6 +51,39 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
     '/assets/images/banners/background-7.svg',
     '/assets/images/banners/background-8.svg',
     '/assets/images/banners/background-9.svg',
+    '/assets/images/banners/background-10.svg',
+    '/assets/images/banners/background-11.svg',
+    '/assets/images/banners/background-12.svg',
+  ]
+
+  const cardBackgrounds = [
+    'linear-gradient(247deg, #822E25 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #5041A3 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #418D8B 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #C28732 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #275D38 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #A34924 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #2C69A3 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #753379 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #2A636E 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #5041A3 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #B2682B 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #B04F50 0%, #010101 64.82%)',
+  ]
+
+  const cardBorders = [
+    'rgba(130, 46, 37, 0.25)',
+    'rgba(80, 65, 163, 0.25)',
+    'rgba(65, 141, 139, 0.25)',
+    'rgba(194, 135, 50, 0.25)',
+    'rgba(39, 93, 56, 0.25)',
+    'rgba(163, 73, 36, 0.25)',
+    'rgba(44, 105, 163, 0.25)',
+    'rgba(117, 51, 121, 0.25)',
+    'rgba(42, 99, 110, 0.25)',
+    'rgba(80, 65, 163, 0.25)',
+    'rgba(178, 104, 43, 0.25)',
+    'rgba(176, 79, 80, 0.25)',
   ]
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -78,7 +96,7 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
     router.push(`?market=${market.slug}`, { scroll: false })
     trackClicked(ClickEvent.BigBannerClicked, {
       marketAddress: market.slug,
-      marketType: 'single',
+      marketType: market.marketType,
       marketTags: market.tags,
     })
     pushGA4Event(GAEvents.ClickSection)
@@ -125,41 +143,36 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
     }
   }, [feedMessage, marketFeedData])
 
-  const fetMarketFeedTitle = (message: MarketFeedData | null) => {
-    if (message && feedMessage === message) {
-      const title = message.data.strategy === 'Buy' ? 'bought' : 'sold'
-      const outcome = message.data.outcome
-      return `${
-        ethers.utils.isAddress(feedMessage?.user?.name ?? '')
-          ? truncateEthAddress(feedMessage?.user?.account)
-          : feedMessage?.user?.name
-          ? cutUsername(feedMessage.user.name, 25)
-          : truncateEthAddress(feedMessage?.user?.account)
-      }
-         ${title} ${outcome} outcome for ${NumberUtil.convertWithDenomination(
-        Math.abs(+message.data.tradeAmount),
-        6
-      )} ${message.data.symbol}.`
-    }
-  }
-
   const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
 
   return (
     <Box
       w='full'
-      backgroundImage={imageBackgrounds[index]}
-      backgroundSize='cover'
-      backgroundPosition='center'
-      backgroundRepeat='no-repeat'
       rounded='12px'
-      p='16px'
       h='180px'
       onClick={(event) => {
         onClickRedirectToMarket(event)
       }}
+      border='2px solid'
+      borderColor={cardBorders[index]}
+      overflow='hidden'
+      // bg={cardBackgrounds[index]}
     >
-      <Paper flex={1} p={0} w='full' position='relative' cursor='pointer' bg='unset' h='full'>
+      <Paper
+        flex={1}
+        p='16px'
+        w='101%'
+        position='relative'
+        cursor='pointer'
+        h='full'
+        bg={cardBackgrounds[index]}
+        backgroundImage={imageBackgrounds[index]}
+        backgroundSize='cover'
+        backgroundPosition='center'
+        backgroundRepeat='no-repeat'
+        borderRadius={0}
+        ml='-1px'
+      >
         <Box w='full'>
           <MarketCountdown
             hideText={false}
@@ -177,7 +190,7 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
             gap='12px'
             justifyContent='space-between'
           >
-            <Text {...headline} color='white'>
+            <Text {...headline} color='white' textAlign='left'>
               {market.title}
             </Text>
           </Flex>
