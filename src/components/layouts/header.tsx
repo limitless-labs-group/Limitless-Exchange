@@ -17,6 +17,7 @@ import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
 import { useThemeProvider } from '@/providers'
 import DepositIcon from '@/resources/icons/deposit-icon.svg'
+import Logo from '@/resources/icons/logo.svg'
 import FeedIcon from '@/resources/icons/sidebar/Feed.svg'
 import GridIcon from '@/resources/icons/sidebar/Markets.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
@@ -100,12 +101,30 @@ export default function Header() {
               style={{ textDecoration: 'none' }}
               _hover={{ textDecoration: 'none' }}
             >
-              <Image
-                src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
-                height={32}
-                width={156}
-                alt='logo'
-              />
+              {/* <Image */}
+              {/*   src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'} */}
+              {/*   height={32} */}
+              {/*   width={156} */}
+              {/*   alt='logo' */}
+              {/* /> */}
+              <HStack minW='130px' w='full'>
+                <Logo />
+                <Text
+                  {...paragraphMedium}
+                  fontSize='16px'
+                  _hover={{
+                    '&::after': {
+                      content: '"Limitmore"',
+                    },
+                    '& > span': {
+                      display: 'none',
+                    },
+                  }}
+                  position='relative'
+                >
+                  <span>Limitless</span>
+                </Text>
+              </HStack>
             </Link>
           </ReferralLink>
           <HStack gap='16px'>
