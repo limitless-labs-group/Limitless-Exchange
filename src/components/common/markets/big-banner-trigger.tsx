@@ -207,18 +207,16 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
                   <>
                     <HStack gap={0}>
                       {uniqueUsersTrades?.map(({ user }, index) => {
-                        console.log(user)
                         return (
                           <Avatar
                             account={user.account}
                             avatarUrl={user.imageURI}
                             key={user.account}
-                            borderColor='grey.100'
                             zIndex={100 + index}
-                            border='2px solid'
                             color='grey.100 !important'
+                            boxShadow='-1px 0px 0px 1px rgba(0,0,0,1)'
                             showBorder
-                            bg='grey.100'
+                            bg='black'
                             size='20px'
                             style={{
                               border: '2px solid',
