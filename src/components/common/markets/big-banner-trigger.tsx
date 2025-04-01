@@ -213,7 +213,6 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
                             avatarUrl={user.imageURI}
                             key={user.account}
                             zIndex={100 + index}
-                            color='grey.100 !important'
                             boxShadow='-1px 0px 0px 1px rgba(0,0,0,1)'
                             showBorder
                             bg='black'
