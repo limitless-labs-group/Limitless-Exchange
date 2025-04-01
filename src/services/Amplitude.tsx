@@ -221,6 +221,7 @@ export enum ClickEvent {
   MergeSharesModalMaxSharesClicked = 'Merge Contracts Modal Max Button Clicked',
   FeedClosedMarketGroupClicked = 'Feed Closed Market Group Clicked',
   TopBannerClicked = 'Top Banner Clicked',
+  WidgetClicked = 'Widget Clicked',
 }
 
 export enum SignInEvent {
@@ -492,6 +493,10 @@ interface SignedInMetadata {
   signedIn: boolean
 }
 
+interface WidgetClickedMetadata {
+  type: string
+}
+
 export type ChangedEventMetadata =
   | StrategyChangedMetadata
   | OutcomeChangedMetadata
@@ -527,6 +532,7 @@ export type ClickedEventMetadata =
   | FullPageClickedMetaData
   | RewardsButtonClickedMetadata
   | QuickBetClickedMetadata
+  | WidgetClickedMetadata
 
 export type OpenedEventMetadata =
   | PageOpenedMetadata
