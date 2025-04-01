@@ -31,6 +31,7 @@ import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import InfiniteIcon from '@/resources/icons/infinite-icon.svg'
 import {
   ClickEvent,
+  useAccount,
   useAmplitude,
   useBalanceQuery,
   useBalanceService,
@@ -62,6 +63,7 @@ export default function MarketPageBuyForm({
     quotesNo,
     resetQuotes,
   } = useTradingService()
+  const { isLoggedIn } = useAccount()
 
   const [displayAmount, setDisplayAmount] = useState('')
   const [showReturnPercent, setShowReturnPercent] = useState(false)
@@ -348,48 +350,66 @@ export default function MarketPageBuyForm({
 
       {market && (
         <>
-          <Box mt='8px' />
-          <BuyButton
-            onClick={async () => {
-              setOutcomeIndex(0)
-              await trade(0, slippage)
-            }}
-            isExceedsBalance={isExceedsBalance}
-            market={market}
-            quote={quotesYes}
-            amount={collateralAmount}
-            option='Yes'
-            price={market.prices?.[0]}
-            decimals={market.collateralToken?.decimals}
-            marketType={market.marketType}
-            showReturnPercent={showReturnPercent}
-            setShowReturnPercent={setShowReturnPercent}
-            showFeeInValue={showFeeInValue}
-            setShowFeeInValue={setShowFeeInValue}
-            resetForm={resetForm}
-            quotesLoading={quotesLoading}
-          />
-          <Box mt='8px' />
-          <BuyButton
-            onClick={async () => {
-              setOutcomeIndex(1)
-              await trade(1, slippage)
-            }}
-            isExceedsBalance={isExceedsBalance}
-            market={market}
-            quote={quotesNo}
-            amount={collateralAmount}
-            option='No'
-            price={market.prices?.[1]}
-            decimals={market.collateralToken?.decimals}
-            marketType={market.marketType}
-            showReturnPercent={showReturnPercent}
-            setShowReturnPercent={setShowReturnPercent}
-            showFeeInValue={showFeeInValue}
-            setShowFeeInValue={setShowFeeInValue}
-            resetForm={resetForm}
-            quotesLoading={quotesLoading}
-          />
+          {isLoggedIn ? (
+            <>
+              <Box mt='8px' />
+              <BuyButton
+                onClick={async () => {
+                  setOutcomeIndex(0)
+                  await trade(0, slippage)
+                }}
+                isExceedsBalance={isExceedsBalance}
+                market={market}
+                quote={quotesYes}
+                amount={collateralAmount}
+                option='Yes'
+                price={market.prices?.[0]}
+                decimals={market.collateralToken?.decimals}
+                marketType={market.marketType}
+                showReturnPercent={showReturnPercent}
+                setShowReturnPercent={setShowReturnPercent}
+                showFeeInValue={showFeeInValue}
+                setShowFeeInValue={setShowFeeInValue}
+                resetForm={resetForm}
+                quotesLoading={quotesLoading}
+              />
+              <Box mt='8px' />
+              <BuyButton
+                onClick={async () => {
+                  setOutcomeIndex(1)
+                  await trade(1, slippage)
+                }}
+                isExceedsBalance={isExceedsBalance}
+                market={market}
+                quote={quotesNo}
+                amount={collateralAmount}
+                option='No'
+                price={market.prices?.[1]}
+                decimals={market.collateralToken?.decimals}
+                marketType={market.marketType}
+                showReturnPercent={showReturnPercent}
+                setShowReturnPercent={setShowReturnPercent}
+                showFeeInValue={showFeeInValue}
+                setShowFeeInValue={setShowFeeInValue}
+                resetForm={resetForm}
+                quotesLoading={quotesLoading}
+              />
+            </>
+          ) : (
+            <Button
+              bg={'blue.500'}
+              color='white'
+              w='full'
+              h='64px'
+              _disabled={{
+                bg: 'grey.300',
+                color: 'grey.500',
+              }}
+              mt='8px'
+            >
+              Sign Up To Buy
+            </Button>
+          )}
         </>
       )}
     </>

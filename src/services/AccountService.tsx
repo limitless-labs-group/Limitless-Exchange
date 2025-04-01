@@ -115,8 +115,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const router = useRouter()
 
-  console.log(`user ${user}`)
-
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ['profiles', { account: user?.wallet?.address }],
     queryFn: async (): Promise<Profile | null> => {
@@ -484,12 +482,12 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     localStorage.removeItem(LOGGED_IN_TO_LIMITLESS)
     localStorage.removeItem(USER_ID)
     setSmartAccountClient(null)
-    setWeb3Wallet(null)
     if (accountRoutes.includes(pathname)) {
       router.push('/')
     }
     await disconnect()
     await signout()
+    setWeb3Wallet(null)
   }, [pathname])
 
   const contextProviderValue: IAccountContext = {
