@@ -185,7 +185,6 @@ export const MarketSingleCard = ({
                     {!isShortCard ? (
                       <HStack gap={0}>
                         {uniqueUsersTrades?.map(({ user }, index) => {
-                          console.log(user)
                           return (
                             <Avatar
                               account={user.account}

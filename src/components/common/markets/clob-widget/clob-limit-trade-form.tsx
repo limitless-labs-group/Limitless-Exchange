@@ -415,11 +415,6 @@ export default function ClobLimitTradeForm() {
     return `${strategy} ${outcome ? 'No' : 'Yes'}`
   }
 
-  console.log(`price ${+price}`)
-  console.log(`sharesAmount ${+sharesAmount}`)
-  console.log(`isBalanceNotEnough ${isBalanceNotEnough}`)
-  console.log(`web3Wallet ${web3Wallet}`)
-
   return (
     <>
       <Flex justifyContent='space-between' alignItems='center' mb='8px'>
