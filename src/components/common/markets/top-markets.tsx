@@ -58,12 +58,7 @@ export default function TopMarkets({ markets, isLoading }: TopMarketsProps) {
 
   if (isLoading || !markets) {
     return (
-      <Box
-        position='relative'
-        mt={'16px'}
-        px={isMobile ? '16px' : 0}
-        w={isMobile ? 'inherit' : '664px'}
-      >
+      <Box position='relative' mt={'16px'} px={isMobile ? '16px' : 0} w='full' maxW='1420px'>
         <Skeleton height={isMobile ? 224 : 338} />
       </Box>
     )
