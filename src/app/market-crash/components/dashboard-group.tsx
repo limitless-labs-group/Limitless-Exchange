@@ -1,6 +1,8 @@
 import { VStack, Text, Box, Flex, HStack, Link } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import MarketCard from '@/components/common/markets/market-cards/market-card'
+import usePageName from '@/hooks/use-page-name'
+import { ClickEvent, useAmplitude } from '@/services'
 import { h2Bold, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { getAnalyticsParams } from '@/utils/market'
@@ -28,6 +30,10 @@ export const DashboardGroup = ({
   categoryName,
 }: DashboardGroupProps) => {
   const dashboard = { fromDashboard: 'Market Crash' }
+
+  const { trackClicked } = useAmplitude()
+  const pageName = usePageName()
+
   const showCardLayout = (type: DashboardGroupType) => {
     switch (type) {
       case DashboardGroupType.Mobile:
@@ -255,6 +261,12 @@ export const DashboardGroup = ({
                 '& > p': {
                   textDecoration: 'underline',
                 },
+              }}
+              onClick={() => {
+                trackClicked(ClickEvent.SeeMoreCkicked, {
+                  name: categoryName,
+                  page: pageName,
+                })
               }}
             >
               <Text {...paragraphMedium} fontWeight={500} color='grey.800'>

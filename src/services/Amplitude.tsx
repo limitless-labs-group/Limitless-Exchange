@@ -174,6 +174,7 @@ export enum ClickEvent {
   BackClicked = 'Back Clicked',
   UIModeClicked = 'UI Mode Changed',
   CategoryClicked = 'Category Clicked',
+  SeeMoreCkicked = 'See More Clicked',
   WalletClicked = 'Wallet Clicked',
   CopyAddressClicked = 'Wallet Address Copied',
   WithdrawClicked = 'Withdraw Clicked',
