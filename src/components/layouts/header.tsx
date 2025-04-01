@@ -107,7 +107,7 @@ export default function Header() {
               {/*   width={156} */}
               {/*   alt='logo' */}
               {/* /> */}
-              <HStack minW='130px' w='full'>
+              <HStack minW='156px' w='full'>
                 <Logo />
                 <Text
                   {...paragraphMedium}
