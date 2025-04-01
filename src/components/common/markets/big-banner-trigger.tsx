@@ -219,7 +219,6 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
                             bg='black'
                             size='20px'
                             style={{
-                              border: '2px solid',
                               marginLeft: index > 0 ? '-6px' : 0,
                             }}
                           />
