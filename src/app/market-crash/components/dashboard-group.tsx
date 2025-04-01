@@ -1,6 +1,7 @@
-import { VStack, Text, Box, Flex } from '@chakra-ui/react'
+import { VStack, Text, Box, Flex, HStack } from '@chakra-ui/react'
+import NextLink from 'next/link'
 import MarketCard from '@/components/common/markets/market-cards/market-card'
-import { h2Bold } from '@/styles/fonts/fonts.styles'
+import { h2Bold, h3Bold } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { getAnalyticsParams } from '@/utils/market'
 import MarketCardMobile from '../../../components/common/markets/market-cards/market-card-mobile'
@@ -236,9 +237,16 @@ export const DashboardGroup = ({
 
   return (
     <VStack w='full'>
-      <Text {...h2Bold} textAlign='start' w='full'>
-        {categoryName}
-      </Text>
+      <HStack justifyContent='space-between' w='full'>
+        <Text {...h2Bold} textAlign='start' w='full'>
+          {categoryName}
+        </Text>
+        <NextLink href={`/?category=${categoryName}`}>
+          <Text {...h3Bold} textAlign='end' color='green.500' whiteSpace='nowrap' w='full'>
+            See more
+          </Text>
+        </NextLink>
+      </HStack>
       <Box mt='20px' width='full'>
         {showCardLayout(type)}
       </Box>
