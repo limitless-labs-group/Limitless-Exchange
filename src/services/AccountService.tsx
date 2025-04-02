@@ -45,7 +45,7 @@ import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
 import { Address, APIError, UpdateProfileData } from '@/types'
 import { Profile } from '@/types/profiles'
-import { LOGGED_IN_TO_LIMITLESS } from '@/utils/consts'
+import { LOGGED_IN_TO_LIMITLESS, USER_ID } from '@/utils/consts'
 
 export interface IAccountContext {
   isLoggedIn: boolean
@@ -54,6 +54,7 @@ export interface IAccountContext {
   displayName?: string
   displayUsername: string
   bio: string
+  referralCode: string
   profileLoading: boolean
   profileData?: Profile | null
   updateProfileMutation: UseMutationResult<
@@ -68,6 +69,10 @@ export interface IAccountContext {
   smartAccountClient: SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null
   web3Wallet: WalletClient | null
   loginToPlatform: (options?: LoginModalOptions | React.MouseEvent<any, any>) => void
+  profilePageOpened: boolean
+  walletPageOpened: boolean
+  setProfilePageOpened: (val: boolean) => void
+  setWalletPageOpened: (val: boolean) => void
 }
 
 const pimlicoRpcUrl = `https://api.pimlico.io/v2/${defaultChain.id}/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
@@ -90,6 +95,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [smartAccountClient, setSmartAccountClient] =
     useState<SmartAccountClient<ENTRYPOINT_ADDRESS_V06_TYPE> | null>(null)
   const [web3Wallet, setWeb3Wallet] = useState<WalletClient | null>(null)
+  const [profilePageOpened, setProfilePageOpened] = useState(false)
+  const [walletPageOpened, setWalletPageOpened] = useState(false)
   const queryClient = useQueryClient()
   const { logout: disconnect, authenticated, user } = usePrivy()
   const pathname = usePathname()
@@ -103,7 +110,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { pushGA4Event } = useGoogleAnalytics()
   const [, setAcc] = useAtom(accountAtom)
   const { handleRedirect } = usePendingTrade()
-  const { trackSignIn } = useAmplitude()
+  const { trackSignIn, trackSignUp } = useAmplitude()
 
   const toast = useToast()
   const router = useRouter()
@@ -215,7 +222,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }
 
   const { login: loginToPlatform } = usePrivyLogin({
-    onComplete: async ({ user, wasAlreadyAuthenticated }) => {
+    onComplete: async ({ user, wasAlreadyAuthenticated, isNewUser }) => {
       const connectedWallet = wallets.find(
         (wallet) => wallet.connectorType === user.wallet?.connectorType
       )
@@ -238,6 +245,19 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             account: connectedWallet.address as Address,
             smartWallet: client.account?.address,
             web3Wallet: walletClient,
+          })
+          spindl.attribute(client.account?.address)
+          pushGA4Event(GAEvents.WalletConnected)
+          if (isNewUser) {
+            trackSignUp(SignInEvent.SignedUp, {
+              signedIn: true,
+              account: client.account?.address ?? '',
+            })
+            return
+          }
+          trackSignIn(SignInEvent.SignedIn, {
+            signedIn: true,
+            account: client.account?.address ?? '',
           })
           return
         }
@@ -453,9 +473,16 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     }
     return ''
   }, [profileData?.bio])
+  const referralCode = useMemo(() => {
+    if (profileData?.referralCode) {
+      return profileData.referralCode
+    }
+    return ''
+  }, [profileData?.referralCode])
 
   const disconnectFromPlatform = useCallback(async () => {
     localStorage.removeItem(LOGGED_IN_TO_LIMITLESS)
+    localStorage.removeItem(USER_ID)
     setSmartAccountClient(null)
     setWeb3Wallet(null)
     if (accountRoutes.includes(pathname)) {
@@ -470,6 +497,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     account,
     displayName,
     displayUsername,
+    referralCode,
     bio,
     disconnectFromPlatform,
     profileLoading: userMenuLoading,
@@ -481,6 +509,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     smartAccountClient,
     web3Wallet,
     loginToPlatform,
+    profilePageOpened,
+    walletPageOpened,
+    setProfilePageOpened,
+    setWalletPageOpened,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>

@@ -3,6 +3,7 @@ import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import MarketCard from '@/components/common/markets/market-cards/market-card'
 import MarketCardMobile from '@/components/common/markets/market-cards/market-card-mobile'
+import VolumeCard from '@/components/common/markets/volume-card'
 import Skeleton from '@/components/common/skeleton'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
@@ -28,6 +29,10 @@ export default function MarketsSection({
     return selectedCategory ? { fromCategory: selectedCategory.name } : {}
   }, [selectedCategory])
 
+  const firstPartOfMarkets = markets?.slice(0, 5)
+
+  const otherMarkets = markets?.slice(5)
+
   return (
     <Box
       mt='24px'
@@ -35,8 +40,9 @@ export default function MarketsSection({
       w={isMobile ? 'full' : '664px'}
       justifyContent='center'
     >
-      <Box px={isMobile ? '16px' : 0}>
-        <Divider orientation='horizontal' borderColor='grey.100' />
+      <Box>
+        <Divider orientation='horizontal' borderColor='grey.100' mx={isMobile ? '16px' : 0} />
+
         <Flex
           alignItems='center'
           justifyContent='space-between'
@@ -50,9 +56,26 @@ export default function MarketsSection({
       </Box>
       {isMobile ? (
         <VStack gap={2} w='full' px='16px' mt='16px'>
-          {isLoading
-            ? [...Array(3)].map((_, index) => <Skeleton height={200} key={index} />)
-            : markets?.map((market, index) => {
+          {isLoading ? (
+            [...Array(3)].map((_, index) => <Skeleton height={200} key={index} />)
+          ) : (
+            <>
+              {firstPartOfMarkets?.map((market, index) => {
+                const cyclePosition = index % 10
+                // First 6 cards in cycle - regular cards
+                if (cyclePosition < 6) {
+                  return (
+                    <MarketCardMobile
+                      key={market.slug || market.address}
+                      market={market}
+                      analyticParams={getAnalyticsParams(index, 0, category)}
+                      markets={markets}
+                    />
+                  )
+                }
+              })}
+              <VolumeCard />
+              {otherMarkets?.map((market, index) => {
                 const cyclePosition = index % 10
                 // First 6 cards in cycle - regular cards
                 if (cyclePosition < 6) {
@@ -79,89 +102,201 @@ export default function MarketsSection({
                 }
                 return null
               })}
+            </>
+          )}
         </VStack>
       ) : (
         <Box mt='24px'>
           <VStack gap={4} w='full'>
-            {!isLoading &&
-              markets?.map((market, index) => {
-                const cyclePosition = index % 12
-                // First 2 cards - straight column
-                if (cyclePosition < 2) {
-                  return (
-                    <Box key={market.slug || market.address} w='full'>
-                      <MarketCard
-                        market={market}
-                        analyticParams={getAnalyticsParams(index, 0, category)}
-                      />
-                    </Box>
-                  )
-                }
-
-                // Next 4 cards - 2x2 grid
-                if (cyclePosition >= 2 && cyclePosition < 6) {
-                  const isGridStart = cyclePosition === 2
-                  if (isGridStart) {
-                    const gridCards = markets.slice(index, index + 4)
+            {!isLoading && (
+              <>
+                {firstPartOfMarkets?.map((market, index) => {
+                  const cyclePosition = index % 12
+                  // First 2 cards - straight column
+                  if (cyclePosition < 2) {
                     return (
-                      <Flex
-                        key={`grid-${market.slug || market.address}`}
-                        flexWrap='wrap'
-                        gap={4}
-                        w='full'
-                      >
-                        {gridCards.map((gridMarket, gridIndex) => (
+                      <Box key={market.slug || market.address} w='full'>
+                        <MarketCard
+                          market={market}
+                          analyticParams={getAnalyticsParams(index, 0, category)}
+                        />
+                      </Box>
+                    )
+                  }
+
+                  // Next 4 cards - 2x2 grid
+                  if (cyclePosition >= 2 && cyclePosition < 6) {
+                    const isGridStart = cyclePosition === 2
+                    if (isGridStart) {
+                      const gridCards = firstPartOfMarkets.slice(index, index + 4)
+                      return (
+                        <Flex
+                          key={`grid-${market.slug || market.address}`}
+                          flexWrap='wrap'
+                          gap={4}
+                          w='full'
+                        >
+                          {gridCards.map((gridMarket, gridIndex) => (
+                            <Box
+                              key={gridMarket.slug || gridMarket.address}
+                              flex='1 1 calc(50% - 8px)'
+                              minW='calc(50% - 8px)'
+                            >
+                              <MarketCard
+                                variant='grid'
+                                market={gridMarket}
+                                analyticParams={getAnalyticsParams(index, gridIndex, category)}
+                              />
+                            </Box>
+                          ))}
+                          <VolumeCard />
+                        </Flex>
+                      )
+                    }
+                    return null
+                  }
+                  return null
+                })}
+                {otherMarkets?.map((market, index) => {
+                  const cyclePosition = index % 12
+                  // First 2 cards - straight column
+                  if (cyclePosition < 2) {
+                    return (
+                      <Box key={market.slug || market.address} w='full'>
+                        <MarketCard
+                          market={market}
+                          analyticParams={getAnalyticsParams(index, 0, category)}
+                        />
+                      </Box>
+                    )
+                  }
+
+                  // Next 4 cards - 2x2 grid
+                  if (cyclePosition >= 2 && cyclePosition < 6) {
+                    const isGridStart = cyclePosition === 2
+                    if (isGridStart) {
+                      const gridCards = otherMarkets.slice(index, index + 4)
+                      return (
+                        <Flex
+                          key={`grid-${market.slug || market.address}`}
+                          flexWrap='wrap'
+                          gap={4}
+                          w='full'
+                        >
+                          {gridCards.map((gridMarket, gridIndex) => (
+                            <Box
+                              key={gridMarket.slug || gridMarket.address}
+                              flex='1 1 calc(50% - 8px)'
+                              minW='calc(50% - 8px)'
+                            >
+                              <MarketCard
+                                variant='grid'
+                                market={gridMarket}
+                                analyticParams={getAnalyticsParams(index, gridIndex, category)}
+                              />
+                            </Box>
+                          ))}
+                        </Flex>
+                      )
+                    }
+                    return null
+                  }
+
+                  // Next 2 cards - straight column
+                  if (cyclePosition >= 6 && cyclePosition < 8) {
+                    return (
+                      <Box key={market.slug || market.address} w='full'>
+                        <MarketCard
+                          market={market}
+                          analyticParams={getAnalyticsParams(index, 0, category)}
+                        />
+                      </Box>
+                    )
+                  }
+
+                  // Last 4 cards - 2x2 speedometer
+                  if (cyclePosition >= 8 && cyclePosition < 12) {
+                    const isSpeedometerStart = cyclePosition === 8
+                    if (isSpeedometerStart) {
+                      const speedometerCards = otherMarkets.slice(index, index + 4)
+
+                      if (speedometerCards.length === 1) {
+                        // Single market - show as row
+                        return (
                           <Box
-                            key={gridMarket.slug || gridMarket.address}
-                            flex='1 1 calc(50% - 8px)'
-                            minW='calc(50% - 8px)'
+                            key={speedometerCards[0].slug || speedometerCards[0].address}
+                            w='full'
                           >
                             <MarketCard
                               variant='grid'
-                              market={gridMarket}
-                              analyticParams={getAnalyticsParams(index, gridIndex, category)}
+                              market={speedometerCards[0]}
+                              analyticParams={getAnalyticsParams(index, 0, category)}
                             />
                           </Box>
-                        ))}
-                      </Flex>
-                    )
-                  }
-                  return null
-                }
+                        )
+                      }
 
-                // Next 2 cards - straight column
-                if (cyclePosition >= 6 && cyclePosition < 8) {
-                  return (
-                    <Box key={market.slug || market.address} w='full'>
-                      <MarketCard
-                        market={market}
-                        analyticParams={getAnalyticsParams(index, 0, category)}
-                      />
-                    </Box>
-                  )
-                }
+                      if (speedometerCards.length === 2) {
+                        // Two markets - show as 1x2 speedometer grid
+                        return (
+                          <Flex
+                            key={`speedometer-${market.slug || market.address}`}
+                            flexWrap='wrap'
+                            gap={4}
+                            w='full'
+                          >
+                            {speedometerCards.map((speedometerMarket, gridIndex) => (
+                              <Box
+                                key={speedometerMarket.slug || speedometerMarket.address}
+                                flex='1 1 calc(50% - 8px)'
+                                minW='calc(50% - 8px)'
+                              >
+                                <MarketCard
+                                  variant='grid'
+                                  market={speedometerMarket}
+                                  analyticParams={getAnalyticsParams(index, gridIndex, category)}
+                                />
+                              </Box>
+                            ))}
+                          </Flex>
+                        )
+                      }
 
-                // Last 4 cards - 2x2 speedometer
-                if (cyclePosition >= 8 && cyclePosition < 12) {
-                  const isSpeedometerStart = cyclePosition === 8
-                  if (isSpeedometerStart) {
-                    const speedometerCards = markets.slice(index, index + 4)
+                      if (speedometerCards.length === 3) {
+                        // Three markets - show as 1x2 speedometer grid + 1 row
+                        return (
+                          <VStack
+                            gap={4}
+                            w='full'
+                            key={`speedometer-group-${market.slug || market.address}`}
+                          >
+                            <Flex flexWrap='wrap' gap={4} w='full'>
+                              {speedometerCards.slice(0, 2).map((speedometerMarket, gridIndex) => (
+                                <Box
+                                  key={speedometerMarket.slug || speedometerMarket.address}
+                                  flex='1 1 calc(50% - 8px)'
+                                  minW='calc(50% - 8px)'
+                                >
+                                  <MarketCard
+                                    variant='grid'
+                                    market={speedometerMarket}
+                                    analyticParams={getAnalyticsParams(index, gridIndex, category)}
+                                  />
+                                </Box>
+                              ))}
+                            </Flex>
+                            <Box w='full'>
+                              <MarketCard
+                                variant='row'
+                                market={speedometerCards[2]}
+                                analyticParams={getAnalyticsParams(index, 2, category)}
+                              />
+                            </Box>
+                          </VStack>
+                        )
+                      }
 
-                    if (speedometerCards.length === 1) {
-                      // Single market - show as row
-                      return (
-                        <Box key={speedometerCards[0].slug || speedometerCards[0].address} w='full'>
-                          <MarketCard
-                            variant='grid'
-                            market={speedometerCards[0]}
-                            analyticParams={getAnalyticsParams(index, 0, category)}
-                          />
-                        </Box>
-                      )
-                    }
-
-                    if (speedometerCards.length === 2) {
-                      // Two markets - show as 1x2 speedometer grid
+                      // Four markets - show as 2x2 speedometer grid
                       return (
                         <Flex
                           key={`speedometer-${market.slug || market.address}`}
@@ -185,69 +320,12 @@ export default function MarketsSection({
                         </Flex>
                       )
                     }
-
-                    if (speedometerCards.length === 3) {
-                      // Three markets - show as 1x2 speedometer grid + 1 row
-                      return (
-                        <VStack
-                          gap={4}
-                          w='full'
-                          key={`speedometer-group-${market.slug || market.address}`}
-                        >
-                          <Flex flexWrap='wrap' gap={4} w='full'>
-                            {speedometerCards.slice(0, 2).map((speedometerMarket, gridIndex) => (
-                              <Box
-                                key={speedometerMarket.slug || speedometerMarket.address}
-                                flex='1 1 calc(50% - 8px)'
-                                minW='calc(50% - 8px)'
-                              >
-                                <MarketCard
-                                  variant='grid'
-                                  market={speedometerMarket}
-                                  analyticParams={getAnalyticsParams(index, gridIndex, category)}
-                                />
-                              </Box>
-                            ))}
-                          </Flex>
-                          <Box w='full'>
-                            <MarketCard
-                              variant='row'
-                              market={speedometerCards[2]}
-                              analyticParams={getAnalyticsParams(index, 2, category)}
-                            />
-                          </Box>
-                        </VStack>
-                      )
-                    }
-
-                    // Four markets - show as 2x2 speedometer grid
-                    return (
-                      <Flex
-                        key={`speedometer-${market.slug || market.address}`}
-                        flexWrap='wrap'
-                        gap={4}
-                        w='full'
-                      >
-                        {speedometerCards.map((speedometerMarket, gridIndex) => (
-                          <Box
-                            key={speedometerMarket.slug || speedometerMarket.address}
-                            flex='1 1 calc(50% - 8px)'
-                            minW='calc(50% - 8px)'
-                          >
-                            <MarketCard
-                              variant='grid'
-                              market={speedometerMarket}
-                              analyticParams={getAnalyticsParams(index, gridIndex, category)}
-                            />
-                          </Box>
-                        ))}
-                      </Flex>
-                    )
+                    return null
                   }
                   return null
-                }
-                return null
-              })}
+                })}
+              </>
+            )}
 
             {isLoading && (
               <>
@@ -255,7 +333,7 @@ export default function MarketsSection({
                   <React.Fragment key={`cycle-${cycleIndex}`}>
                     {[...Array(2)].map((_, index) => (
                       <Box key={`skeleton-straight-${cycleIndex}-${index}`} w='full'>
-                        <Skeleton height={144} />
+                        <Skeleton height={160} />
                       </Box>
                     ))}
                     <Flex flexWrap='wrap' gap={4} w='full'>
@@ -265,7 +343,7 @@ export default function MarketsSection({
                           flex='1 1 calc(50% - 8px)'
                           minW='calc(50% - 8px)'
                         >
-                          <Skeleton height={164} />
+                          <Skeleton height={165} />
                         </Box>
                       ))}
                     </Flex>

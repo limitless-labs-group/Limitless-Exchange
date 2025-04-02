@@ -27,7 +27,7 @@ export const h1Bold = {
 export const h2Regular = {
   fontSize: '24px',
   fontStyle: 'normal',
-  fontWeight: isMobile ? 400 : 500,
+  fontWeight: 500,
   lineHeight: '28px',
   color: 'grey.800',
 }

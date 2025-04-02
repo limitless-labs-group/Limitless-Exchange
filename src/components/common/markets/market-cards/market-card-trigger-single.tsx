@@ -8,7 +8,7 @@ import Paper from '@/components/common/paper'
 import { LineChart } from '@/app/(markets)/markets/[address]/components/line-chart'
 import { MarketProgressBar } from './market-progress-bar'
 import { SpeedometerProgress } from './speedometer-progress'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { ClickEvent, useAccount, useAmplitude, useTradingService } from '@/services'
 import { captionMedium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 import OpenInterestTooltip from '../open-interest-tooltip'
@@ -19,12 +19,15 @@ export default function MarketCardTriggerSingle({
   markets,
   analyticParams,
 }: MarketCardProps) {
+  const { setProfilePageOpened, setWalletPageOpened } = useAccount()
   const { onOpenMarketPage, setMarkets, setClobOutcome } = useTradingService()
   const router = useRouter()
 
   const { trackClicked } = useAmplitude()
 
   const handleMarketPageOpened = () => {
+    setWalletPageOpened(false)
+    setProfilePageOpened(false)
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
       ...analyticParams,
     })
