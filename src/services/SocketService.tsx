@@ -14,6 +14,11 @@ export function useSocket() {
       path: '/socket.io',
       transports: ['websocket'],
       withCredentials: true,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 20000,
     })
 
     socketInstance.on('connect', () => {

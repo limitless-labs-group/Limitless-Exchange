@@ -45,6 +45,10 @@ export default function Chat() {
       setMessages(msg)
     })
 
+    socket.on('error', (error) => {
+      console.log('❌ Socket Error: ', error)
+    })
+
     socket.on('newMessage', (msg: ChatMsg) => {
       setMessages((prev) => (prev ? [...prev, msg] : [msg]))
       // Auto-scroll only if the user is at the bottom
