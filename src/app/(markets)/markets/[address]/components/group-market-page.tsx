@@ -14,35 +14,29 @@ import {
   Text,
   VStack,
   Heading,
-  Accordion,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import Avatar from '@/components/common/avatar'
-import MobileDrawer from '@/components/common/drawer'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
+import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
 import CommentTab from '@/components/common/markets/comment-tab'
 import ConvertModal from '@/components/common/markets/convert-modal'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
-import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/trading-widget-advanced'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import { UniqueTraders } from '@/components/common/markets/unique-traders'
 import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
 import Skeleton from '@/components/common/skeleton'
-import { Tooltip } from '@/components/common/tooltip'
-import MarketMobileTradeForm from '@/app/(markets)/markets/[address]/components/clob/market-mobile-trade-form'
 import GroupMarketsSection from '@/app/(markets)/markets/[address]/components/group-markets-section'
-import { mockPriceHistories } from '@/app/(markets)/markets/[address]/components/mock-chart-data'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
 import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { MarketPageProps } from '@/app/(markets)/markets/[address]/components/single-market-page'
-import { MarketTradingForm, MarketClosedButton } from './../components'
 import { useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
@@ -50,10 +44,8 @@ import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
-import TrophyIcon from '@/resources/icons/trophy-icon.svg'
 import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
-import { h1Regular, h2Medium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
+import { h1Regular, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
 export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps) {
@@ -69,7 +61,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
   const tradingWidget = useMemo(() => {
     if (fetchMarketLoading) {
       return (
-        <Box w='312px'>
+        <Box w='404px'>
           <Skeleton height={481} />
         </Box>
       )
@@ -78,11 +70,11 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
       return <MarketClosedWidget handleCloseMarketPageClicked={() => router.push('/')} />
     }
     return market?.tradeType === 'clob' ? (
-      <Box w='404px'>
-        <TradingWidgetAdvanced />
+      <Box w='404px' position='fixed'>
+        <ClobWidget />
       </Box>
     ) : (
-      <Box w='404px'>
+      <Box w='404px' position='fixed'>
         <TradingWidgetSimple fullSizePage />
       </Box>
     )
@@ -123,43 +115,6 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
     }
   }, [market])
 
-  const mobileTradeButton = useMemo(() => {
-    if (fetchMarketLoading) {
-      return
-    }
-    return market?.expired ? (
-      <MarketClosedButton />
-    ) : (
-      <MobileDrawer
-        trigger={
-          <Button
-            variant='contained'
-            w='full'
-            h='48px'
-            mt='32px'
-            color='white'
-            onClick={() => {
-              trackClicked(ClickEvent.TradeButtonClicked, {
-                platform: 'mobile',
-                address: market?.slug,
-              })
-            }}
-          >
-            Trade
-          </Button>
-        }
-        title={(market?.proxyTitle ?? market?.title) || ''}
-        variant='black'
-      >
-        {market?.tradeType === 'clob' ? (
-          <MarketMobileTradeForm />
-        ) : (
-          <MarketTradingForm market={market as Market} />
-        )}
-      </MobileDrawer>
-    )
-  }, [market, fetchMarketLoading])
-
   const handleBackClicked = () => {
     if (window.history.length > 2) {
       return router.back()
@@ -195,7 +150,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
         mb={isMobile ? '84px' : 0}
         ml={!isMobile ? '188px' : 'unset'}
       >
-        <HStack justifyContent='space-between' mb='24px'>
+        <HStack justifyContent='space-between' mb='24px' px={isMobile ? '16px' : 0}>
           <Button
             variant='grey'
             onClick={() => {
@@ -213,13 +168,13 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
         <HStack gap={{ md: '12px', xxl: '40px' }} alignItems='flex-start'>
           <Box w={{ sm: 'full', md: 'calc(100vw - 642px)', xxl: '716px' }}>
             <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>
-              <HStack w='full' flexWrap='wrap' gap='16px'>
+              <HStack w='full' flexWrap='wrap' gap='16px' justifyContent='space-between'>
                 {!market ? (
                   <Box w='160px'>
                     <Skeleton height={20} />
                   </Box>
                 ) : (
-                  <DailyMarketTimer
+                  <MarketCountdown
                     deadline={market.expirationTimestamp}
                     deadlineText={market.expirationDate}
                     color='grey.500'
@@ -271,7 +226,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                       <Skeleton height={20} />
                     </Box>
                   ) : (
-                    <HStack gap='16px'>
+                    <HStack gap='16px' w='full' justifyContent='space-between'>
                       <WinnerTakeAllTooltip />
                       <HStack gap='4px'>
                         <HStack gap={0}>
@@ -295,7 +250,11 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                           ))}
                         </HStack>
                         <Text {...paragraphRegular} color='grey.500'>
-                          Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
+                          Volume{' '}
+                          {NumberUtil.convertWithDenomination(
+                            groupMarket?.volumeFormatted || '0',
+                            6
+                          )}{' '}
                           {market.collateralToken.symbol}
                         </Text>
                       </HStack>
@@ -328,12 +287,12 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                 </HStack>
               </Box>
               <Divider my='16px' />
-              <PriceChartContainer priceHistories={mockPriceHistories} />
+              <PriceChartContainer />
             </Box>
-            <Text {...h2Medium} mt='24px'>
+            <Text {...h2Medium} mt='24px' px={isMobile ? '16px' : 0}>
               Outcomes
             </Text>
-            <VStack gap='8px' w='full' mb='24px' mt='8px'>
+            <VStack gap='8px' w='full' mb='24px' mt='8px' px={isMobile ? '16px' : 0}>
               {fetchMarketLoading ? (
                 [...Array(3)].map((item) => (
                   <Box w='full' key={item}>
@@ -341,15 +300,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                   </Box>
                 ))
               ) : (
-                <Accordion
-                  variant='paper'
-                  gap='8px'
-                  display='flex'
-                  flexDirection='column'
-                  allowToggle
-                >
-                  <GroupMarketsSection mobileView={isMobile} />
-                </Accordion>
+                <GroupMarketsSection mobileView={isMobile} />
               )}
             </VStack>
             {fetchMarketLoading ? (
@@ -382,10 +333,9 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
               </Tabs>
             )}
           </Box>
-          {!isMobile && tradingWidget}
-          {isMobile && (
-            <Box position='fixed' bottom='86px' w='calc(100% - 32px)' left='16px' zIndex={99999}>
-              {mobileTradeButton}
+          {!isMobile && (
+            <Box w='404px' position='relative'>
+              {tradingWidget}
             </Box>
           )}
         </HStack>

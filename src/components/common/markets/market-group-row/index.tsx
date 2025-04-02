@@ -19,7 +19,9 @@ export default function MarketGroupRow({ market, handleOutcomeClicked }: MarketG
 
   return (
     <HStack w='full' justifyContent='space-between' py='4px'>
-      <Text {...paragraphRegular}>{market.title}</Text>
+      <Text {...paragraphRegular} textAlign='left'>
+        {market.title}
+      </Text>
       <HStack gap='8px'>
         <Text {...paragraphRegular}>
           {new BigNumber(market.prices[0]).multipliedBy(100).toString()}%

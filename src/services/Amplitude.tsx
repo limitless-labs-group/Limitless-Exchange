@@ -2,16 +2,17 @@
 
 import { init, track as amplitudeTrack } from '@amplitude/analytics-browser'
 import * as sessionReplay from '@amplitude/session-replay-browser'
+import { useAtom } from 'jotai'
 import { useEffect, createContext, PropsWithChildren, useContext, useCallback } from 'react'
 import { ClobPositionType } from '@/app/(markets)/markets/[address]/components/clob/types'
+import { accountAtom } from '@/atoms/account'
 import { PageName } from '@/hooks/use-page-name'
-import { useAccount } from '@/services'
-import { Category, LeaderboardSort, MarketGroup } from '@/types'
+import { Category, LeaderboardSort } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 
 interface IAmplitudeContext {
-  trackSignUp: () => void
+  trackSignUp: <T extends SignInEventMetadata>(event: SignInEvent, customData?: T) => void
   trackChanged: <T extends ChangedEventMetadata>(event: ChangeEvent, customData?: T) => void
   trackClicked: <T extends ClickedEventMetadata>(event: ClickEvent, customData?: T) => void
   trackOpened: <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => void
@@ -23,7 +24,7 @@ const AmplitudeContext = createContext<IAmplitudeContext>({} as IAmplitudeContex
 export const useAmplitude = () => useContext(AmplitudeContext)
 
 export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
-  const { account: walletAddress } = useAccount()
+  const [acc] = useAtom(accountAtom)
 
   useEffect(() => {
     init(AMPLITUDE_API_KEY, undefined, {
@@ -45,33 +46,57 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
   }, [])
 
   const trackEvent = useCallback(
-    async (eventType: EventType, customData?: EventMetadata) => {
-      const queryPart = window.location.search.split('?')
-      const queryString = queryPart[queryPart.length - 1]
-      const decodedQuery = decodeURIComponent(queryString)
-      const urlParams = new URLSearchParams(decodedQuery)
+    async (eventType: EventType, customData?: EventMetadata & { account?: string }) => {
+      let urlParams: URLSearchParams
+      try {
+        const queryPart = window.location.search.split('?')
+        const queryString = queryPart[queryPart.length - 1]
+        const decodedQuery = decodeURIComponent(queryString)
+        urlParams = new URLSearchParams(decodedQuery)
+      } catch (error) {
+        console.warn('Failed to parse URL parameters:', error)
+        urlParams = new URLSearchParams()
+      }
+
       if (window.location.origin !== 'https://limitless.exchange') {
         return
       }
 
+      const { account: accountFromEvent, ...restCustomData } = customData ?? {}
+
+      const getUtmParam = (param: string): Record<string, string> => {
+        try {
+          const value = urlParams.get(param)
+          return value ? { [param]: value } : {}
+        } catch (error) {
+          console.warn(`Failed to get ${param}:`, error)
+          return {}
+        }
+      }
+      const address = accountFromEvent ?? acc?.account
+
       return amplitudeTrack({
         event_type: String(eventType),
         event_properties: {
-          ...customData,
+          ...restCustomData,
           ...sessionReplay.getSessionReplayProperties(),
-          ...(urlParams.get('utm_source') ? { utm_source: urlParams.get('utm_source') } : {}),
-          ...(urlParams.get('utm_medium') ? { utm_medium: urlParams.get('utm_medium') } : {}),
-          ...(urlParams.get('utm_campaign') ? { utm_campaign: urlParams.get('utm_campaign') } : {}),
-          ...(urlParams.get('utm_term') ? { utm_term: urlParams.get('utm_term') } : {}),
-          ...(urlParams.get('utm_content') ? { utm_content: urlParams.get('utm_content') } : {}),
+          ...getUtmParam('utm_source'),
+          ...getUtmParam('utm_medium'),
+          ...getUtmParam('utm_campaign'),
+          ...getUtmParam('utm_term'),
+          ...getUtmParam('utm_content'),
         },
-        user_properties: {
-          account: walletAddress,
-          walletAddress,
-        },
+        ...(address
+          ? {
+              user_properties: {
+                account: address,
+                walletAddress: address,
+              },
+            }
+          : {}),
       }).promise
     },
-    [walletAddress]
+    [acc]
   )
 
   const trackSignUp = async () => {
@@ -149,14 +174,17 @@ export enum ClickEvent {
   BackClicked = 'Back Clicked',
   UIModeClicked = 'UI Mode Changed',
   CategoryClicked = 'Category Clicked',
+  SeeMoreCkicked = 'See More Clicked',
   WalletClicked = 'Wallet Clicked',
   CopyAddressClicked = 'Wallet Address Copied',
   WithdrawClicked = 'Withdraw Clicked',
   WrapETHClicked = 'Wrap ETH Clicked',
+  UnwrapETHClicked = 'Unwrap ETH Clicked',
   WithdrawConfirmedClicked = 'Withdraw Confirmed',
   SortClicked = 'Sort Clicked',
   StrokeClicked = 'Stroke Clicked',
   ClaimRewardOnPortfolioClicked = 'Claim Reward On Portfolio Clicked',
+  ApproveClaimRewardForNegRiskMarketClicked = 'Approve Claim Reward For NegRisk Market Clicked',
   ClaimRewardOnMarketPageClicked = 'Claim Reward On Market Page Clicked',
   SignW3AIn = 'Sign In W3A Option Chosen',
   ProfilePictureUploadClicked = 'Profile Picture Upload Clicked',
@@ -192,10 +220,17 @@ export enum ClickEvent {
   SplitSharesConfirmed = 'Split Contracts Confirmed',
   MergeSharesConfirmed = 'Merge Contracts Confirmed',
   MergeSharesModalMaxSharesClicked = 'Merge Contracts Modal Max Button Clicked',
+  FeedClosedMarketGroupClicked = 'Feed Closed Market Group Clicked',
+  TopBannerClicked = 'Top Banner Clicked',
+  WidgetClicked = 'Widget Clicked',
 }
 
 export enum SignInEvent {
   SignIn = 'Sign In',
+  SignUp = 'Sign Up',
+  LogIn = 'Log In',
+  SignedUp = 'Signed Up',
+  SignedIn = 'Signed In',
   SignInWithFarcaster = 'Login with Farcaster',
 }
 
@@ -205,6 +240,10 @@ export enum OpenEvent {
   ProfileSettingsOpened = 'Profile Settings Opened',
   MarketPageOpened = 'Market Page Opened',
   SidebarMarketOpened = 'Sidebar Market Opened',
+}
+
+export enum DashboardName {
+  MarketCrash = 'Market Crash',
 }
 
 export enum AuthenticationEvent {
@@ -253,6 +292,11 @@ export interface TradeClickedMetadata {
   marketType?: 'group' | 'single'
 }
 
+export interface QuickBetClickedMetadata {
+  source: string
+  value: string
+}
+
 export interface ClickedApproveMetadata {
   address: string
 }
@@ -296,10 +340,6 @@ export interface ShareClickedMetadata {
   marketType: 'group' | 'single'
 }
 
-interface MarketChangeInGroupData {
-  marketGroup: MarketGroup
-}
-
 interface FeeAndReturnTradingDetailsClicked {
   from: 'percentage' | 'numbers'
   to: 'percentage' | 'numbers'
@@ -319,7 +359,8 @@ export type PageOpenedPage =
 export interface PageOpenedMetadata {
   page: PageOpenedPage
   marketAddress?: string
-  category?: string
+  category?: string[]
+  dashboard?: string
   [key: string]: any
 }
 
@@ -405,6 +446,8 @@ export type ProfileBurgerMenuClickedOption =
   | 'Lumy'
   | 'Leaderboard'
   | 'My Markets'
+  | 'Market Crash'
+  | 'Feed'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
@@ -447,6 +490,14 @@ interface ChartTabChangedMetadata {
   view: string
 }
 
+interface SignedInMetadata {
+  signedIn: boolean
+}
+
+interface WidgetClickedMetadata {
+  type: string
+}
+
 export type ChangedEventMetadata =
   | StrategyChangedMetadata
   | OutcomeChangedMetadata
@@ -475,19 +526,20 @@ export type ClickedEventMetadata =
   | StrokeMetadata
   | TopUpMetadata
   | UIModeMetadata
-  | MarketChangeInGroupData
   | FeeAndReturnTradingDetailsClicked
   | MediumBannerClicked
   | CloseMarketMetadata
   | TradingWidgetPriceClickedMetadata
   | FullPageClickedMetaData
   | RewardsButtonClickedMetadata
+  | QuickBetClickedMetadata
+  | WidgetClickedMetadata
 
 export type OpenedEventMetadata =
   | PageOpenedMetadata
   | ProfileSettingsMetadata
   | SidebarMarketOpenedMetadata
-export type SignInEventMetadata = SignInWithFarcasterMetadata
+export type SignInEventMetadata = SignInWithFarcasterMetadata | SignedInMetadata
 export type CopiedEventMetadata = WalletAddressCopiedMetadata
 
 export type EventMetadata =

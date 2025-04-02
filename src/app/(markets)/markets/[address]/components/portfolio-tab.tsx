@@ -34,7 +34,6 @@ export default function PortfolioTab() {
     </VStack>
   ) : (
     <>
-      {/*{marketGroup && <MarketGroupPositions marketGroup={marketGroup} />}*/}
       <MarketPositions market={market} showPortfolioIcon={false} />
     </>
   )

@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode, FC } from 'react'
-import { Category, Token } from '@/types'
+import React, { createContext, useContext, useState, ReactNode, FC, useMemo } from 'react'
+import { Dashboard, Category, Token } from '@/types'
 
 const TokenFilterContext = createContext<TokenFilterContextType | undefined>(undefined)
 
@@ -21,11 +21,15 @@ interface TokenFilterContextType {
 
   selectedCategory: Category | undefined
   handleCategory: (category: Category | undefined) => void
+
+  dashboard: Dashboard | undefined
+  handleDashboard: (dashboard: Dashboard | undefined) => void
 }
 
 export const TokenFilterProvider: FC<TokenFilterProviderProps> = ({ children }) => {
   const [selectedFilterTokens, setSelectedFilterTokens] = useState<Token[]>([])
   const [selectedCategory, setSelectedCategory] = useState<Category | undefined>()
+  const [dashboard, setDashboard] = useState<Dashboard | undefined>()
 
   const handleTokenChange = (tokens: Token[]) => {
     setSelectedFilterTokens(tokens)
@@ -33,13 +37,29 @@ export const TokenFilterProvider: FC<TokenFilterProviderProps> = ({ children }) 
 
   const handleCategory = (category: Category | undefined) => {
     setSelectedCategory(category)
+    if (category) {
+      setDashboard(undefined)
+    }
   }
 
-  return (
-    <TokenFilterContext.Provider
-      value={{ selectedFilterTokens, handleTokenChange, selectedCategory, handleCategory }}
-    >
-      {children}
-    </TokenFilterContext.Provider>
+  const handleDashboard = (dashboard: Dashboard | undefined) => {
+    setDashboard(dashboard)
+    if (dashboard) {
+      setSelectedCategory(undefined)
+    }
+  }
+
+  const contextValue = useMemo(
+    () => ({
+      selectedFilterTokens,
+      handleTokenChange,
+      selectedCategory,
+      handleCategory,
+      dashboard,
+      handleDashboard,
+    }),
+    [selectedFilterTokens, selectedCategory, dashboard]
   )
+
+  return <TokenFilterContext.Provider value={contextValue}>{children}</TokenFilterContext.Provider>
 }

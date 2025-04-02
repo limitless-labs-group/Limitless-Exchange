@@ -17,7 +17,10 @@ export type Token = {
 export type Category = {
   id: number
   name: string
+  priority?: number | null
 }
+
+export type Dashboard = 'marketcrash'
 
 export type MarketsResponse = {
   data: Market[]
@@ -27,6 +30,7 @@ export type MarketsResponse = {
 export interface Creator {
   name: string
   imageURI: string | null
+  imageUrl: string | null
   link: string | null
   address?: string
 }
@@ -40,7 +44,7 @@ export type DraftMetadata = {
 export interface Market {
   id: number
   address: Address | null
-  category: Category | string
+  categories: string[]
   collateralToken: {
     address: Address
     decimals: number
@@ -55,6 +59,7 @@ export interface Market {
   expirationTimestamp: number
   expired: boolean
   negRiskMarketId?: string
+  negRiskRequestId?: string
   liquidity: string
   liquidityFormatted: string
   ogImageURI: string
@@ -76,11 +81,23 @@ export interface Market {
   openInterestFormatted: string
   metadata: {
     isBannered: boolean
+  }
+  settings?: {
+    minSize?: number
+    maxSpread?: number
+    c?: number
+    rewardsEpoch?: number
   } | null
   priorityIndex: number
   tokens: {
     yes: string
     no: string
+  }
+  trends?: {
+    [interval in Intervals]?: {
+      value: number
+      rank: number
+    }
   }
   marketType: MarketType
   tradeType: MarketTradeType
@@ -91,6 +108,27 @@ export interface Market {
 export type MarketType = 'single' | 'group'
 
 export type MarketTradeType = 'clob' | 'amm'
+
+export interface ApiResponse {
+  data: Market[]
+  totalMarketsCount: number
+}
+
+export interface MarketPage {
+  data: {
+    markets: Market[]
+    totalAmount: number
+  }
+  next: number
+}
+
+export interface AnalyticsParams {
+  bannerPosition: number
+  bannerPaginationPage: number
+  fromCategory?: string
+}
+
+export type Intervals = 'hourly' | 'last30days'
 
 export interface UserMarket {
   title: string
@@ -165,33 +203,9 @@ export type UserCreatedMarket = {
   slug: string
 }
 
-export interface MarketGroup {
-  slug: string
-  hidden: boolean
-  outcomeTokens: string[]
-  title: string
-  ogImageURI: string
-  expirationDate: string
-  expired: boolean
-  expirationTimestamp: number
-  creator: Creator
-}
-
 export interface DraftMarket extends Market {
   draftMetadata: DraftMetadata
-}
-
-export interface MarketGroup {
-  category: Category
-  collateralToken: {
-    symbol: string
-    address: Address
-    decimals: number
-  }
-  tags: string[]
-  createdAt: string
-  status: MarketStatus
-  markets: Market[]
+  type?: MarketType
 }
 
 export type GetBalanceResult = {
@@ -229,11 +243,12 @@ export enum MarketTokensIds {
 
 export enum Sort {
   BASE = '',
+  DEFAULT = '🔥 Trending',
   NEWEST = 'Newest',
   ENDING_SOON = 'Ending Soon',
   HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VALUE = 'High Value',
-  HIGHEST_VOLUME = 'High Volume',
+  TRENDING = '🔥 Trending',
   LP_REWARDS = '💎 LP Rewards',
 }
 
@@ -275,64 +290,8 @@ export interface ColorScheme {
     600: string
     700: string
     800: string
-    white: string
-  }
-  blue: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
-  }
-  green: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
   }
   red: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
-  }
-  lime: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
-  }
-  cyan: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
-  }
-  purple: {
     50: string
     100: string
     200: string
@@ -376,7 +335,51 @@ export interface ColorScheme {
     700: string
     800: string
   }
+  lime: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  green: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
   mint: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  cyan: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  blue: {
     50: string
     100: string
     200: string
@@ -398,27 +401,44 @@ export interface ColorScheme {
     700: string
     800: string
   }
-  transparent: {
+  purple: {
+    50: string
+    100: string
     200: string
     300: string
-    700: string
-  }
-  blackTransparent: {
-    200: string
+    400: string
+    500: string
     600: string
+    700: string
+    800: string
+  }
+  transparent: {
+    70: string
+    50: string
+    30: string
+    20: string
+  }
+  transparentDark: {
+    70: string
+    50: string
+    30: string
+    20: string
+  }
+  whiteAlpha: {
+    70: string
+    50: string
+    30: string
+    20: string
+  }
+  blackAlpha: {
+    70: string
+    50: string
+    30: string
+    20: string
   }
   greyTransparent: {
     200: string
     600: string
-  }
-  blackStale: {
-    200: string
-  }
-  background: {
-    80: string
-    90: string
-    95: string
-    97: string
   }
   greenTransparent: {
     100: string
@@ -427,9 +447,6 @@ export interface ColorScheme {
     100: string
   }
   blueTransparent: {
-    100: string
-  }
-  text: {
     100: string
   }
   skeleton: {
@@ -456,7 +473,7 @@ export interface RedeemParams {
   marketAddress: Address
   collateralAddress: Address
   conditionId: Address
-  type: 'amm' | 'clob'
+  type: MarketType
 }
 
 export interface UpdateProfileData {

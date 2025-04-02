@@ -4,7 +4,7 @@ export const defaultTokenSymbol = 'USDC'
 export const defaultProbability = 50
 export const defaultMarketFee = 0
 export const defaultCreatorId = '1' // Limitless in prod env
-export const defaultCategoryId = '2' // Crypto in prod env
+export const defaultCategoryIds = ['2'] // Crypto in prod env
 
 export const tokenLimits: TokenLimits = {
   HIGHER: {
@@ -71,15 +71,21 @@ export const defaultFormData = {
   title: '',
   token: { symbol: 'USDC', id: 7 },
   description: '',
+  slug: '',
   liquidity: tokenLimits[defaultTokenSymbol].default ?? tokenLimits[defaultTokenSymbol].min,
   probability: defaultProbability,
   marketFee: defaultMarketFee,
   tag: [{ id: '149', label: 'Daily', value: 'Daily' }],
   creatorId: defaultCreatorId,
-  categoryId: defaultCategoryId,
+  categories: [{ id: '2', label: 'Crypto', value: 'Crypto' }],
   ogLogo: undefined,
   isBannered: false,
+  priorityIndex: 0,
   txHash: '',
+  maxDailyReward: 300,
+  maxSpread: 3,
+  minSize: 100,
+  c: 3,
 }
 
 export const selectStyles = {

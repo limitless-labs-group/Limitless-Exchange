@@ -5,11 +5,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import React, { useMemo, useState } from 'react'
 import { Toast } from '@/components/common/toast'
-import { DraftMarket, DraftMarketCard } from '@/app/draft/components/draft-card'
+import { DraftMarketCard } from '@/app/draft/components/draft-card'
 import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import { DraftMarketResponse, DraftMarketType } from '@/types/draft'
+import { DraftMarket, DraftMarketResponse, DraftMarketType } from '@/types/draft'
 
 export type DraftMarketsQueueProps = {
   marketType?: DraftMarketType
@@ -18,8 +18,6 @@ export type DraftMarketsQueueProps = {
 export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps) => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
   const queryClient = useQueryClient()
-  const toast = useToast()
-
   const privateClient = useAxiosPrivateClient()
 
   const router = useRouter()
@@ -54,9 +52,8 @@ export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps
   }, [selectedMarketIds, draftMarkets])
 
   const handleClick = (marketId: number) => {
-    router.push(`/draft/?market=${marketId}&marketType=${marketType}`)
+    router.push(`/draft/?draft-market=${marketId}&marketType=${marketType}`)
   }
-
   const getPostData = (marketType: DraftMarketType) => {
     switch (marketType) {
       case 'clob':
@@ -67,6 +64,7 @@ export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps
         return { url: `/markets/create-batch`, ids: { marketsIds: selectedMarketIds } }
     }
   }
+  const toast = useToast()
 
   const createMarketsBatch = () => {
     setIsCreating(true)
@@ -91,6 +89,9 @@ export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps
             window.location.href = res.data.multisigTxLink
           }
         }
+        const id = toast({
+          render: () => <Toast title={`Created successfully`} id={id} />,
+        })
       })
       .catch((res) => {
         const id = toast({

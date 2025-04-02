@@ -8,9 +8,11 @@ export default function useClient() {
   const isLoggedToPlatform = localStorage.getItem('privy:token') // logged but didn't sign a message
   const { web3Wallet } = useAccount()
 
+  const shouldUsePrivateClient = Boolean(isLoggedFully && web3Wallet !== undefined)
+
   return {
     isLogged: isLoggedFully,
     isLoggedToPlatform,
-    client: web3Wallet ? privateClient : limitlessApi,
+    client: shouldUsePrivateClient ? privateClient : limitlessApi,
   }
 }

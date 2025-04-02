@@ -13,12 +13,6 @@ const unhoveredColors = {
   contracts: '',
 }
 
-const hoverColors = {
-  main: 'white',
-  secondary: 'transparent.700',
-  contracts: 'white',
-}
-
 type PortfolioPositionCardClobRedirectProps = {
   position: ClobPositionWithType
 }
@@ -34,7 +28,11 @@ export default function PortfolioPositionCardClobRedirect({
 
   const marketClosed = position.market.status === MarketStatus.RESOLVED
 
-  const { data: oneMarket, refetch: refetchMarket } = useMarket(position.market.slug, false, false)
+  const { data: oneMarket, refetch: refetchMarket } = useMarket(
+    position.market.negRiskRequestId ? position.market.group?.slug : position.market.slug,
+    false,
+    false
+  )
 
   const handleOpenMarketPage = async () => {
     if (!oneMarket) {
@@ -42,7 +40,7 @@ export default function PortfolioPositionCardClobRedirect({
       if (fetchedMarket) {
         onOpenMarketPage(fetchedMarket)
         trackClicked(ClickEvent.PortfolioMarketClicked, {
-          marketCategory: fetchedMarket.category,
+          marketCategory: fetchedMarket.categories,
           marketAddress: fetchedMarket.slug,
           marketType: 'single',
           marketTags: fetchedMarket.tags,
@@ -52,7 +50,7 @@ export default function PortfolioPositionCardClobRedirect({
     } else {
       onOpenMarketPage(oneMarket)
       trackClicked(ClickEvent.PortfolioMarketClicked, {
-        marketCategory: oneMarket.category,
+        marketCategory: oneMarket.categories,
         marketAddress: oneMarket.slug,
         marketType: 'single',
         marketTags: oneMarket.tags,
@@ -65,7 +63,7 @@ export default function PortfolioPositionCardClobRedirect({
     if (marketClosed) {
       return {
         main: 'white',
-        secondary: isMobile ? 'white' : 'transparent.700',
+        secondary: isMobile ? 'white' : 'whiteAlpha.70',
       }
     }
     return {
@@ -78,13 +76,11 @@ export default function PortfolioPositionCardClobRedirect({
     <PortfolioPositionCardClob
       positionData={position}
       onClick={handleOpenMarketPage}
-      onMouseEnter={() => setColors(hoverColors)}
-      onMouseLeave={() => setColors(unhoveredColors)}
       cardColors={cardColors}
       _hover={{
         bg: marketClosed ? 'green.600' : 'blue.500',
       }}
-      bg={marketClosed ? 'green.500' : 'grey.200'}
+      bg={marketClosed ? 'green.500' : 'grey.100'}
       cursor='pointer'
     />
   )

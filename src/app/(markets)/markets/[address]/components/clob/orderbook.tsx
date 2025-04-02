@@ -111,7 +111,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
           .map((ask) => {
             return {
               ...ask,
-              price: +new BigNumber(1).minus(new BigNumber(ask.price)).toFixed(2),
+              price: +new BigNumber(1).minus(new BigNumber(ask.price)),
             }
           })
           .sort((a, b) => a.price - b.price)
@@ -122,7 +122,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
           .map((bid) => {
             return {
               ...bid,
-              price: +new BigNumber(1).minus(new BigNumber(bid.price)).toFixed(2),
+              price: +new BigNumber(1).minus(new BigNumber(bid.price)),
             }
           })
           .sort((a, b) => b.price - a.price)
@@ -144,6 +144,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
       .minus(new BigNumber(getOrderBookData().bids[0].price))
       .multipliedBy(100)
       .abs()
+      .decimalPlaces(1)
       .toFixed()
   }, [getOrderBookData])
 
@@ -155,12 +156,12 @@ export default function Orderbook({ variant }: OrderBookProps) {
       const tradedToken = orderbook.tokenId === market.tokens.yes ? 'yes' : 'no'
       if (!outcome) {
         return tradedToken === 'no'
-          ? new BigNumber(orderbook.lastTradePrice).multipliedBy(100).toString()
-          : new BigNumber(1).minus(orderbook.lastTradePrice).multipliedBy(100).toString()
+          ? new BigNumber(1).minus(orderbook.lastTradePrice).multipliedBy(100).toString()
+          : new BigNumber(orderbook.lastTradePrice).multipliedBy(100).toString()
       }
       return tradedToken === 'yes'
-        ? new BigNumber(orderbook.lastTradePrice).multipliedBy(100).toString()
-        : new BigNumber(1).minus(orderbook.lastTradePrice).multipliedBy(100).toString()
+        ? new BigNumber(1).minus(orderbook.lastTradePrice).multipliedBy(100).toString()
+        : new BigNumber(orderbook.lastTradePrice).multipliedBy(100).toString()
     }
     return ''
   }, [orderbook, market, outcome])

@@ -26,6 +26,7 @@ import ConfirmButton from '@/app/(markets)/markets/[address]/components/trade-wi
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { ClickEvent, TradeQuotes, useAccount, useAmplitude, useTradingService } from '@/services'
+import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketStatus } from '@/types'
@@ -86,12 +87,13 @@ export default function BuyButton({
    * ANALITYCS
    */
   const { trackClicked } = useAmplitude()
+  const { pushGA4Event } = useGoogleAnalytics()
   const country = Cookies.get('limitless_geo')
 
   const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
   const { marketFee, collateralAmount } = useTradingService()
-  const { account: walletAddress } = useAccount()
+  const { account: walletAddress, loginToPlatform } = useAccount()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
   const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
@@ -187,7 +189,7 @@ export default function BuyButton({
                 {...paragraphRegular}
                 color='white'
                 borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
-                borderColor={'transparent.200'}
+                borderColor={'whiteAlpha.20'}
                 _hover={{
                   borderColor: 'var(--chakra-colors-transparent-600)',
                 }}
@@ -228,7 +230,7 @@ export default function BuyButton({
   const handleShowFullInfoArrowClicked = (e: SyntheticEvent) => {
     trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
       mode: showFullInfo ? 'opened' : 'closed',
-      marketCategory: market?.category,
+      marketCategory: market?.categories,
       marketAddress: market?.address,
       marketType: market.marketType,
       marketTags: market?.tags,
@@ -239,6 +241,7 @@ export default function BuyButton({
 
   const handleActionIntention = async () => {
     if (!walletAddress) {
+      await loginToPlatform()
       return
     }
     if (isExceedsBalance) {
@@ -372,7 +375,7 @@ export default function BuyButton({
           bg='rgba(255, 255, 255, 0.2)'
           px='12px'
           py='8px'
-          w={isMobile ? 'calc(100vw - 40px)' : '440px'}
+          w={isMobile ? 'calc(100vw - 40px)' : '472px'}
           h='unset'
           alignItems='flex-start'
           flexDir='column'
@@ -413,7 +416,7 @@ export default function BuyButton({
                         {...paragraphRegular}
                         color='white'
                         borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
-                        borderColor={'transparent.200'}
+                        borderColor={'whiteAlpha.20'}
                         _hover={{
                           borderColor: 'var(--chakra-colors-transparent-600)',
                         }}
@@ -521,6 +524,7 @@ export default function BuyButton({
           status={status}
           showFullInfo={showFullInfo}
           handleConfirmClicked={() => {
+            pushGA4Event(GAEvents.ClickBuy)
             trackClicked(ClickEvent.ConfirmTransactionClicked, {
               address: market.address,
               outcome: option,
@@ -536,7 +540,6 @@ export default function BuyButton({
           onApprove={handleApprove}
           setStatus={setStatus}
           analyticParams={{ source: analyticsSource }}
-          marketType={marketType}
           outcome={option}
           marketAddress={market.address as Address}
         />

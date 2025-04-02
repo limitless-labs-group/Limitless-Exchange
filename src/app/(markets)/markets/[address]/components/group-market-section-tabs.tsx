@@ -1,5 +1,14 @@
-import { HStack, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
-import React, { useEffect, useState } from 'react'
+import {
+  Box,
+  HStack,
+  Tab,
+  TabIndicator,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+} from '@chakra-ui/react'
+import React, { useEffect, useState, useRef } from 'react'
 import { isDesktop, isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import ClobOrdersTab from '@/app/(markets)/markets/[address]/components/clob/clob-orders-tab'
@@ -11,8 +20,15 @@ import OrderbookIcon from '@/resources/icons/orderbook.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import SandClockIcon from '@/resources/icons/sand-clock.svg'
 
-export default function GroupMarketSectionTabs() {
+interface GroupMarketSectionTabsProps {
+  mobileView?: boolean
+}
+
+export default function GroupMarketSectionTabs({
+  mobileView = false,
+}: GroupMarketSectionTabsProps) {
   const [isSmallLaptop, setIsSmallLaptop] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(0)
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -33,7 +49,7 @@ export default function GroupMarketSectionTabs() {
 
   const tabs = [
     {
-      title: 'Orderbook',
+      title: 'Order book',
       icon: <OrderbookIcon width='16px' height='16px' />,
     },
     {
@@ -41,7 +57,7 @@ export default function GroupMarketSectionTabs() {
       icon: <CandlestickIcon width={16} height={16} />,
     },
     {
-      title: 'Open Orders',
+      title: isMobile ? 'Orders' : 'Open Orders',
       icon: <SandClockIcon width={16} height={16} />,
     },
     {
@@ -51,7 +67,7 @@ export default function GroupMarketSectionTabs() {
   ]
 
   const tabPanels = [
-    <Orderbook key={uuidv4()} variant={isSmallLaptop ? 'small' : 'large'} />,
+    <Orderbook key={uuidv4()} variant={isSmallLaptop || mobileView ? 'small' : 'large'} />,
     <MarketPriceChart key={uuidv4()} />,
     <ClobOrdersTab key={uuidv4()} />,
     <PortfolioMarketGroup key={uuidv4()} />,
@@ -65,28 +81,36 @@ export default function GroupMarketSectionTabs() {
     // })
   }
 
+  const tabWidth = isMobile ? '134px' : '110px'
+
   return (
-    <>
-      <Tabs position='relative' variant='common'>
-        <TabList>
-          {tabs.map((tab) => (
-            <Tab key={tab.title} onClick={() => handleTabChanged(tab.title)}>
-              <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
-                {tab.icon}
-                <>{tab.title}</>
-              </HStack>
-            </Tab>
-          ))}
-        </TabList>
-        <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
-        <TabPanels>
-          {tabPanels.map((panel, index) => (
-            <TabPanel key={index} mt='16px'>
-              {panel}
-            </TabPanel>
-          ))}
-        </TabPanels>
-      </Tabs>
-    </>
+    <Tabs position='relative' variant='common' tabIndex={activeIndex} onChange={setActiveIndex}>
+      <TabList maxW='100%' overflowX='auto'>
+        {tabs.map((tab) => (
+          <Tab
+            key={tab.title}
+            onClick={() => handleTabChanged(tab.title)}
+            _selected={{
+              color: 'grey.800',
+              borderColor: 'grey.800 !important',
+              borderBottom: '2px solid !important',
+            }}
+            minW='fit-content'
+          >
+            <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+              {tab.icon}
+              <>{tab.title}</>
+            </HStack>
+          </Tab>
+        ))}
+      </TabList>
+      <TabPanels>
+        {tabPanels.map((panel, index) => (
+          <TabPanel key={index} mt='16px'>
+            {panel}
+          </TabPanel>
+        ))}
+      </TabPanels>
+    </Tabs>
   )
 }

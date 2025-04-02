@@ -37,11 +37,21 @@ interface ClobWidgetContextType {
   yesPrice: number
   noPrice: number
   sharesPrice: string
+  sharesAmount: string
+  setSharesAmount: (val: string) => void
+  price: string
+  setPrice: (val: string) => void
+  sharesAvailable: {
+    yes: bigint
+    no: bigint
+  }
+  isApprovedNegRiskForSell: boolean
 }
 
 export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const [orderType, setOrderType] = useState(MarketOrderType.MARKET)
   const [allowance, setAllowance] = useState<bigint>(0n)
+  const [isApprovedNegRiskForSell, setIsApprovedNegRiskForSell] = useState(false)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
   const { web3Wallet } = useAccount()
   const {
@@ -54,20 +64,67 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     lockedBalance,
   } = useTradingService()
   const { balanceOfSmartWallet } = useBalanceQuery()
+  const [sharesAmount, setSharesAmount] = useState('')
+  const [price, setPrice] = useState('')
+
+  const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
+  const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
+
+  const sharesAvailable = useMemo(() => {
+    if (sharesOwned && lockedBalance) {
+      return {
+        yes: BigInt(
+          new BigNumber(sharesOwned[0].toString())
+            .minus(new BigNumber(lockedBalance.yes))
+            .isNegative()
+            ? '0'
+            : new BigNumber(sharesOwned[0].toString())
+                .minus(new BigNumber(lockedBalance.yes))
+                .toString()
+        ),
+        no: BigInt(
+          new BigNumber(sharesOwned[1].toString())
+            .minus(new BigNumber(lockedBalance.no))
+            .isNegative()
+            ? '0'
+            : new BigNumber(sharesOwned[1].toString())
+                .minus(new BigNumber(lockedBalance.no))
+                .toString()
+        ),
+      }
+    }
+    return {
+      yes: 0n,
+      no: 0n,
+    }
+  }, [lockedBalance, sharesOwned])
 
   const { data: orderBook } = useOrderBook(market?.slug)
   const { checkAllowance, checkAllowanceForAll } = useWeb3Service()
   const { isOpen: tradeStepperOpen, onToggle: onToggleTradeStepper } = useDisclosure()
 
   const checkMarketAllowance = async () => {
+    const contractAddress = market?.negRiskRequestId
+      ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
+      : process.env.NEXT_PUBLIC_CTF_CONTRACT
     const allowance = await checkAllowance(
-      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+      contractAddress as Address,
       market?.collateralToken.address as Address
     )
+    const operator = market?.negRiskRequestId
+      ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+      : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
     const isApprovedNFT = await checkAllowanceForAll(
-      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+      operator as Address,
       process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
     )
+    if (market?.negRiskRequestId) {
+      const isAppovedNegRisk = await checkAllowanceForAll(
+        process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE as Address,
+        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+      )
+      setIsApprovedNegRiskForSell(isAppovedNegRisk)
+    }
     setAllowance(allowance)
     setIsApprovedForSell(isApprovedNFT)
   }
@@ -181,6 +238,12 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         yesPrice,
         noPrice,
         sharesPrice,
+        price,
+        setPrice,
+        sharesAmount,
+        setSharesAmount,
+        sharesAvailable,
+        isApprovedNegRiskForSell,
       }}
     >
       {children}

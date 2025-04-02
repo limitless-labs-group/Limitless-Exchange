@@ -44,8 +44,8 @@ export const CommentServiceProvider = ({ children }: PropsWithChildren) => {
       })
       return res.data
     },
-    onSuccess: (_, { marketSlug }) => {
-      queryClient.invalidateQueries({ queryKey: ['market-comments', marketSlug] })
+    onSuccess: async (_, { marketSlug }) => {
+      await queryClient.invalidateQueries({ queryKey: ['market-comments', marketSlug] })
     },
     onError: () => {
       const id = toast({
@@ -70,7 +70,10 @@ export const CommentServiceProvider = ({ children }: PropsWithChildren) => {
 
 export const useCommentService = () => useContext(CommentServiceContext)
 
-export const useMarketInfinityComments = (marketAddress?: string | null) => {
+export const useMarketInfinityComments = (
+  marketAddress?: string | null,
+  type?: 'single' | 'group'
+) => {
   const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
   const {
@@ -78,12 +81,13 @@ export const useMarketInfinityComments = (marketAddress?: string | null) => {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery<Comment[], Error>({
-    queryKey: ['market-comments', web3Wallet?.account?.address],
+    queryKey: ['market-comments', marketAddress],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
       const client = web3Wallet ? privateClient : limitlessApi
+      const url = type === 'group' ? 'groups' : 'markets'
       const response: AxiosResponse<Comment[]> = await client.get(
-        `/comments/markets/${marketAddress}`,
+        `/comments/${url}/${marketAddress}`,
         {
           params: {
             page: pageParam,

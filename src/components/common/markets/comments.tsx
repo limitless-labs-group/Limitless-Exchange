@@ -11,8 +11,15 @@ import { useMarketInfinityComments, useTradingService } from '@/services'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 export default function Comments() {
-  const { market } = useTradingService()
-  const { data: commentsData, fetchNextPage, hasNextPage } = useMarketInfinityComments(market?.slug)
+  const { market, groupMarket } = useTradingService()
+  const {
+    data: commentsData,
+    fetchNextPage,
+    hasNextPage,
+  } = useMarketInfinityComments(
+    market?.marketType === 'group' ? (groupMarket?.slug as string) : (market?.slug as string),
+    market?.marketType
+  )
 
   const getNextPage = useCallback(
     debounce(async () => fetchNextPage(), 1000),
@@ -40,7 +47,7 @@ export default function Comments() {
           {comments.map((comment) => (
             <Fragment key={comment.id}>
               <Comment key={comment.id} comment={comment} />
-              <Divider color='grey.300' />
+              <Divider />
             </Fragment>
           ))}
         </VStack>

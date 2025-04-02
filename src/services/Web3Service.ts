@@ -51,14 +51,16 @@ type Web3Service = {
     decimals: number,
     price: string,
     shares: string,
-    side: number
+    side: number,
+    type: 'negRisk' | 'common'
   ) => Promise<SignedOrder>
   placeMarketOrder: (
     tokenId: string,
     decimals: number,
     price: string,
     side: number,
-    amount: string
+    amount: string,
+    type: 'negRisk' | 'common'
   ) => Promise<SignedOrder>
   splitShares: (
     collateralAddress: Address,
@@ -69,8 +71,15 @@ type Web3Service = {
   mergeShares: (
     collateralToken: Address,
     conditionId: string,
+    amount: bigint,
+    type: 'common' | 'negrisk'
+  ) => Promise<string | undefined>
+  convertShares: (
+    negRiskRequestId: string,
+    indexSet: string,
     amount: bigint
   ) => Promise<string | undefined>
+  redeemNegRiskMarket: (conditionId: string, amounts: bigint[]) => Promise<string | undefined>
 }
 
 export function useWeb3Service(): Web3Service {
@@ -186,7 +195,8 @@ export function useWeb3Service(): Web3Service {
     decimals: number,
     price: string,
     shares: string,
-    side: number
+    side: number,
+    type: 'negRisk' | 'common'
   ): Promise<SignedOrder> => {
     const convertedPrice = new BigNumber(price).dividedBy(100).toString()
     const orderData = {
@@ -222,7 +232,7 @@ export function useWeb3Service(): Web3Service {
       side, // buy 0, sell 1
       signatureType: web3Client === 'etherspot' ? 2 : 0,
     }
-    const order = buildOrderTypedData(orderData)
+    const order = buildOrderTypedData(orderData, type)
 
     const signature = await externalWalletService.signTypedData(order)
     return {
@@ -236,7 +246,8 @@ export function useWeb3Service(): Web3Service {
     decimals: number,
     price: string,
     side: number,
-    amount: string
+    amount: string,
+    type: 'negRisk' | 'common'
   ) => {
     const convertedPrice = new BigNumber(price).dividedBy(100).toString()
     const orderData = {
@@ -266,7 +277,7 @@ export function useWeb3Service(): Web3Service {
       side, // buy 0, sell 1
       signatureType: web3Client === 'etherspot' ? 2 : 0,
     }
-    const order = buildOrderTypedData(orderData)
+    const order = buildOrderTypedData(orderData, type)
 
     const signature = await externalWalletService.signTypedData(order)
     return {
@@ -287,11 +298,30 @@ export function useWeb3Service(): Web3Service {
     return externalWalletService.splitPositions(collateralAddress, conditionId, amount, type)
   }
 
-  const mergeShares = async (collateralToken: Address, conditionId: string, amount: bigint) => {
+  const mergeShares = async (
+    collateralToken: Address,
+    conditionId: string,
+    amount: bigint,
+    type: 'common' | 'negrisk'
+  ) => {
     if (web3Client === 'etherspot') {
-      return privyService.mergePositions(collateralToken, conditionId, amount)
+      return privyService.mergePositions(collateralToken, conditionId, amount, type)
     }
-    return externalWalletService.mergePositions(collateralToken, conditionId, amount)
+    return externalWalletService.mergePositions(collateralToken, conditionId, amount, type)
+  }
+
+  const convertShares = async (negRiskRequestId: string, indexSet: string, amount: bigint) => {
+    if (web3Client === 'etherspot') {
+      return privyService.convertShares(negRiskRequestId, indexSet, amount)
+    }
+    return externalWalletService.convertShares(negRiskRequestId, indexSet, amount)
+  }
+
+  const redeemNegRiskMarket = async (conditionId: string, amounts: bigint[]) => {
+    if (web3Client === 'etherspot') {
+      return privyService.redeemNegRiskMarket(conditionId, amounts)
+    }
+    return externalWalletService.redeemNegRiskMarket(conditionId, amounts)
   }
 
   const checkAllowance = async (contractAddress: Address, spender: Address) =>
@@ -323,5 +353,7 @@ export function useWeb3Service(): Web3Service {
     placeMarketOrder,
     splitShares,
     mergeShares,
+    convertShares,
+    redeemNegRiskMarket,
   }
 }

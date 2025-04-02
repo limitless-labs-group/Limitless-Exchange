@@ -22,12 +22,12 @@ const common = definePartsStyle(() => {
         borderColor: 'inherit',
         borderBottom: 'none',
       },
-      borderBottom: isMobile ? '1px solid' : 'unset',
+      borderBottom: 'unset',
       borderColor: 'grey.500',
     },
     tablist: {
       borderBottom: isMobile ? 'unset' : '1px solid',
-      borderColor: 'grey.500',
+      borderColor: 'grey.100',
     },
     tabpanel: {
       marginTop: isMobile ? 0 : '4px',

@@ -1,23 +1,11 @@
-import {
-  Box,
-  Button,
-  HStack,
-  Menu,
-  MenuButton,
-  MenuList,
-  Tab,
-  TabIndicator,
-  TabList,
-  Tabs,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Box, HStack, Tab, TabIndicator, TabList, Tabs, Text } from '@chakra-ui/react'
 import React, { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import ClobLimitTradeForm from '@/components/common/markets/clob-widget/clob-limit-trade-form'
 import ClobMarketTradeForm from '@/components/common/markets/clob-widget/clob-market-trade-form'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
+import OrderTypeSelectMenu from '@/components/common/markets/clob-widget/order-type-select-menu'
 import SharesActionsClob from '@/components/common/markets/clob-widget/shares-actions-clob'
 import TradeStepperMenu from '@/components/common/markets/clob-widget/trade-stepper-menu'
 import OutcomeButtonsClob from '@/components/common/markets/outcome-buttons/outcome-buttons-clob'
@@ -25,23 +13,19 @@ import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
-import { headLineLarge, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { PendingTradeData } from '@/services/PendingTradeService'
+import { headLineLarge, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 
 export default function ClobWidget() {
   const { trackChanged } = useAmplitude()
   const {
-    clobOutcome: outcome,
     setStrategy,
     market,
     groupMarket,
-    setSharesAmount,
-    setPrice,
-    price,
-    sharesAmount,
     strategy,
+    setClobOutcome: setOutcome,
   } = useTradingService()
-  const { isOpen: orderTypeMenuOpen, onToggle: onToggleOrderTypeMenu } = useDisclosure()
 
   const {
     isBalanceNotEnough,
@@ -49,25 +33,34 @@ export default function ClobWidget() {
     setOrderType,
     tradeStepperOpen,
     onToggleTradeStepper,
-    yesPrice,
-    noPrice,
+    setPrice,
   } = useClobWidget()
 
-  const handleOrderTypeChanged = (order: MarketOrderType) => {
-    setOrderType(order)
-    if (order === MarketOrderType.MARKET) {
-      setPrice(sharesAmount)
-      setSharesAmount('')
-    } else {
-      const selectedPrice = outcome ? noPrice : yesPrice
-      setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
-      setSharesAmount(price)
+  const handlePendingTradeData = () => {
+    const pendingTradeData = localStorage.getItem('pendingTrade')
+
+    if (!pendingTradeData) return
+
+    try {
+      const parsedData: PendingTradeData = JSON.parse(pendingTradeData)
+      const { price, strategy, outcome, orderType, marketSlug } = parsedData
+
+      if (marketSlug === market?.slug) {
+        setPrice(price)
+        setOrderType(orderType)
+        setOutcome(outcome)
+        setStrategy(strategy)
+        localStorage.removeItem('pendingTrade')
+      }
+    } catch (error) {
+      console.error('Error processing pending trade data:', error)
+      localStorage.removeItem('pendingTrade')
     }
-    trackChanged(ChangeEvent.ClobWidgetModeChanged, {
-      mode: order === MarketOrderType.MARKET ? 'amm on' : 'clob on',
-    })
-    onToggleOrderTypeMenu()
   }
+
+  useEffect(() => {
+    handlePendingTradeData()
+  }, [market?.slug, setPrice, setOrderType, setOutcome, setStrategy])
 
   const tabs = [
     {
@@ -107,11 +100,18 @@ export default function ClobWidget() {
               </Text>
             </>
           )}
-          <HStack w='full' justifyContent='space-between' gap={0} mb='24px'>
+          <HStack
+            w='full'
+            justifyContent='space-between'
+            gap={0}
+            mb='24px'
+            borderBottom='1px solid'
+            borderColor='grey.500'
+          >
             <Tabs
               position='relative'
               variant='common'
-              minW='120px'
+              minW={isMobile ? '104px' : '120px'}
               index={strategy === 'Buy' ? 0 : 1}
             >
               <TabList>
@@ -119,6 +119,7 @@ export default function ClobWidget() {
                   <Tab
                     key={tab.title}
                     onClick={() => handleTabChanged(tab.title as 'Buy' | 'Sell')}
+                    minW='52px'
                   >
                     <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
                       <>{tab.title}</>
@@ -133,70 +134,8 @@ export default function ClobWidget() {
                 transitionDuration='200ms !important'
               />
             </Tabs>
-            <HStack
-              w='full'
-              borderBottom='1px solid'
-              borderColor='grey.500'
-              justifyContent='flex-end'
-            >
-              <Menu
-                isOpen={orderTypeMenuOpen}
-                onClose={onToggleOrderTypeMenu}
-                variant='transparent'
-              >
-                <MenuButton
-                  as={Button}
-                  onClick={onToggleOrderTypeMenu}
-                  rightIcon={<ChevronDownIcon width='16px' height='16px' />}
-                  h='24px'
-                  px='8px'
-                  w='fit'
-                  _active={{
-                    bg: 'grey.100',
-                  }}
-                  _hover={{
-                    bg: 'grey.100',
-                  }}
-                  gap={0}
-                >
-                  <Text
-                    {...paragraphMedium}
-                    className={'amp-mask'}
-                    whiteSpace='nowrap'
-                    overflow='hidden'
-                    textOverflow='ellipsis'
-                    maxW='112px'
-                  >
-                    {orderType === MarketOrderType.MARKET ? 'Market' : 'Limit'}
-                  </Text>
-                </MenuButton>
-
-                <MenuList
-                  borderRadius='8px'
-                  w='180px'
-                  zIndex={2}
-                  boxShadow='0px 1px 4px 0px rgba(2, 6, 23, 0.05)'
-                  border='1px solid'
-                  borderColor='grey.200'
-                >
-                  <Button
-                    variant='transparent'
-                    w='full'
-                    onClick={() => handleOrderTypeChanged(MarketOrderType.MARKET)}
-                    justifyContent='flex-start'
-                  >
-                    Market
-                  </Button>
-                  <Button
-                    variant='transparent'
-                    w='full'
-                    justifyContent='flex-start'
-                    onClick={() => handleOrderTypeChanged(MarketOrderType.LIMIT)}
-                  >
-                    Limit
-                  </Button>
-                </MenuList>
-              </Menu>
+            <HStack w='full' justifyContent='flex-end' paddingBottom={isMobile ? '8px' : 0}>
+              <OrderTypeSelectMenu />
             </HStack>
           </HStack>
           <OutcomeButtonsClob />

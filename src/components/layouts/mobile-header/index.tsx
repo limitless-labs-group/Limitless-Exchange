@@ -19,7 +19,7 @@ import { isAddress } from 'viem'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import Loader from '@/components/common/loader'
-import { LoginButton } from '@/components/common/login-button'
+import { LoginButtons } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
@@ -31,6 +31,7 @@ import useClient from '@/hooks/use-client'
 import { usePriceOracle, useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import KeyIcon from '@/resources/icons/key-icon.svg'
+import MenuIcon from '@/resources/icons/menu-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
@@ -79,7 +80,7 @@ export default function MobileHeader() {
     onOpen: onOpenUserMenu,
     onClose: onCloseUserMenu,
   } = useDisclosure()
-  const { handleCategory } = useTokenFilter()
+  const { handleDashboard, handleCategory } = useTokenFilter()
 
   // Todo move this and other duplicated to a proper service
   const balanceInvested = useMemo(() => {
@@ -109,6 +110,7 @@ export default function MobileHeader() {
   }
 
   const handleOpenWrapModal = () => {
+    trackClicked(ClickEvent.WrapETHClicked)
     onCloseUserMenu()
   }
 
@@ -122,20 +124,32 @@ export default function MobileHeader() {
     await fundWallet(account as string)
   }
 
+  const handleUserMenuClicked = () => {
+    onOpenUserMenu()
+    if (!isOpenUserMenu) {
+      trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
+        platform: 'mobile',
+      })
+    }
+  }
+
   return (
     <>
       <Box
         p='16px'
         w='100vw'
-        bg={`linear-gradient(180deg, var(--chakra-colors-grey-50) 0%, ${
-          mode === 'light' ? 'rgba(255, 255, 255, 0)' : 'rgba(0, 0, 0, 0)'
-        }  100%)`}
-        marginTop='20px'
+        borderBottom='1px solid'
+        borderColor='grey.100'
+        position='fixed'
+        top={0}
+        bg='grey.50'
+        zIndex={2000}
       >
         <HStack justifyContent='space-between' alignItems='center'>
           <Box
             onClick={() => {
               handleCategory(undefined)
+              handleDashboard(undefined)
               router.push('/')
             }}
           >
@@ -157,8 +171,7 @@ export default function MobileHeader() {
                     trackClicked(ClickEvent.ProfileBurgerMenuClicked, {
                       platform: 'mobile',
                     })
-
-                    onOpenUserMenu()
+                    handleUserMenuClicked()
                   }}
                 >
                   {!balanceOfSmartWallet ? (
@@ -177,6 +190,9 @@ export default function MobileHeader() {
                   ) : (
                     <Avatar account={account as string} avatarUrl={profileData?.pfpUrl} />
                   )}
+                  <Box ml='8px'>
+                    <MenuIcon width={16} height={16} />
+                  </Box>
                 </Button>
                 {isOpenUserMenu && (
                   <Box
@@ -185,21 +201,20 @@ export default function MobileHeader() {
                     left={0}
                     bottom={0}
                     w='full'
-                    zIndex={100}
+                    zIndex={200}
                     bg='rgba(0, 0, 0, 0.3)'
-                    mt='20px'
                     animation='fadeIn 0.5s'
-                  ></Box>
+                  />
                 )}
                 <Slide
                   direction='right'
                   in={isOpenUserMenu}
-                  style={{ zIndex: 100, marginTop: '20px', transition: '0.1s' }}
+                  style={{ zIndex: 201, transition: '0.1s' }}
                   onClick={onCloseUserMenu}
                 >
                   <VStack
                     ml='40px'
-                    bg='grey.50'
+                    bg='grey.100'
                     h='full'
                     p='16px'
                     justifyContent='space-between'
@@ -240,7 +255,7 @@ export default function MobileHeader() {
                           }
                           variant='common'
                         >
-                          <Profile isOpen={true} />
+                          <Profile />
                         </MobileDrawer>
                       )}
                       <HStack
@@ -255,7 +270,7 @@ export default function MobileHeader() {
                           variant='outline'
                           gap='2px'
                           p='2px'
-                          bg='grey.100'
+                          bg='grey.300'
                           borderRadius='8px'
                           w='full'
                         >
@@ -339,7 +354,7 @@ export default function MobileHeader() {
                               }
                               variant='common'
                             >
-                              <WalletPage onClose={() => console.log('ok')} />
+                              <WalletPage />
                             </MobileDrawer>
                             <Button
                               variant='contained'
@@ -356,7 +371,7 @@ export default function MobileHeader() {
                             trigger={
                               <Button
                                 variant='transparent'
-                                px={0}
+                                px='4px'
                                 w='full'
                                 onClick={handleOpenWrapModal}
                               >
@@ -470,7 +485,7 @@ export default function MobileHeader() {
                 </Slide>
               </>
             ) : (
-              <LoginButton login={loginToPlatform} />
+              <LoginButtons login={loginToPlatform} />
             )}
           </HStack>
         </HStack>

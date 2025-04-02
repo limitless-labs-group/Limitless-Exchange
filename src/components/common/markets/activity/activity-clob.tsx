@@ -1,6 +1,7 @@
-import { HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import debounce from 'lodash.debounce'
 import { useCallback } from 'react'
+import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import ActivityClobItem from '@/components/common/markets/activity/activity-clob-item'
@@ -12,8 +13,12 @@ import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { ClobTradeEvent } from '@/types/orders'
 
 export default function ActivityClob() {
-  const { market } = useTradingService()
-  const { data: activityData, fetchNextPage, hasNextPage } = useMarketClobInfinityFeed(market?.slug)
+  const { market, groupMarket } = useTradingService()
+  const {
+    data: activityData,
+    fetchNextPage,
+    hasNextPage,
+  } = useMarketClobInfinityFeed(groupMarket?.negRiskMarketId ? groupMarket?.slug : market?.slug)
 
   // @ts-ignore
   const activity = activityData?.pages.flatMap((page) => page.data.events)
@@ -24,21 +29,23 @@ export default function ActivityClob() {
   )
 
   return !!activity?.length ? (
-    <InfiniteScroll
-      dataLength={activity?.length ?? 0}
-      next={getNextPage}
-      hasMore={hasNextPage}
-      loader={
-        <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
-          <Loader />
-          <Text {...paragraphRegular}>Loading more events</Text>
-        </HStack>
-      }
-    >
-      {activity.map((activityItem: ClobTradeEvent) => (
-        <ActivityClobItem key={activityItem.createdAt} data={activityItem} />
-      ))}
-    </InfiniteScroll>
+    <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
+      <InfiniteScroll
+        dataLength={activity?.length ?? 0}
+        next={getNextPage}
+        hasMore={hasNextPage}
+        loader={
+          <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+            <Loader />
+            <Text {...paragraphRegular}>Loading more events</Text>
+          </HStack>
+        }
+      >
+        {activity.map((activityItem: ClobTradeEvent) => (
+          <ActivityClobItem key={activityItem.createdAt} data={activityItem} />
+        ))}
+      </InfiniteScroll>
+    </Box>
   ) : (
     <VStack w='full' mt='24px'>
       <Paper p='16px'>

@@ -1,9 +1,11 @@
 import { Box, Button, Flex, HStack, Spacer, Text, VStack } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
+import { useFundWallet } from '@privy-io/react-auth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
-import React, { useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
+import React, { useMemo, useRef, useState } from 'react'
+import { isMobile, isTablet } from 'react-device-detect'
 import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
@@ -12,6 +14,7 @@ import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
 import { Toast } from '@/components/common/toast'
+import { AddFundsValidation } from './add-funds-validation'
 import { useToast } from '@/hooks'
 import { useOrderBook } from '@/hooks/use-order-book'
 import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
@@ -23,25 +26,20 @@ import {
   useTradingService,
 } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import useGoogleAnalytics, { Purchase } from '@/services/GoogleAnalytics'
+import useGoogleAnalytics, { GAEvents, Purchase } from '@/services/GoogleAnalytics'
+import { PendingTradeData } from '@/services/PendingTradeService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { getOrderErrorText } from '@/utils/orders'
 
 export default function ClobMarketTradeForm() {
   const { balanceLoading } = useBalanceService()
   const { trackClicked } = useAmplitude()
-  const {
-    market,
-    strategy,
-    clobOutcome: outcome,
-    setPrice,
-    price,
-    sharesAvailable,
-  } = useTradingService()
-  const { data: orderBook } = useOrderBook(market?.slug)
+  const { market, strategy, clobOutcome: outcome } = useTradingService()
+  const { data: orderBook, isLoading: isOrderBookLoading } = useOrderBook(market?.slug)
   const queryClient = useQueryClient()
-  const { web3Wallet } = useAccount()
+  const { web3Client, profileData, web3Wallet, loginToPlatform, account } = useAccount()
   const {
     balance,
     allowance,
@@ -51,205 +49,21 @@ export default function ClobMarketTradeForm() {
     isBalanceNotEnough,
     yesPrice,
     noPrice,
+    setPrice,
+    price,
+    sharesAvailable,
+    isApprovedNegRiskForSell,
+    orderType,
   } = useClobWidget()
   const { client, placeMarketOrder } = useWeb3Service()
-  const { web3Client, profileData } = useAccount()
   const privyService = usePrivySendTransaction()
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
-  const { pushPuchaseEvent } = useGoogleAnalytics()
-  // Todo replace to this logic for better performance
-  // const [price, setPrice] = useState('')
+  const { pushPuchaseEvent, pushGA4Event } = useGoogleAnalytics()
+  const [contractsBuying, setContractsBuying] = useState('')
+  const { fundWallet } = useFundWallet()
 
-  const placeMarketOrderMutation = useMutation({
-    mutationKey: ['market-order', market?.slug, price],
-    mutationFn: async () => {
-      trackClicked(ClickEvent.ConfirmTransactionClicked, {
-        address: market?.slug,
-        outcome: outcome,
-        strategy,
-        walletType: web3Client,
-        marketType: market?.marketType,
-        marketMakerType: 'ClOB',
-        tradingMode: 'market order',
-      })
-      if (market) {
-        if (web3Client === 'etherspot') {
-          if (strategy === 'Sell') {
-            await privyService.approveConditionalIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
-            )
-          } else {
-            await privyService.approveCollateralIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-              maxUint256,
-              market?.collateralToken.address as Address
-            )
-          }
-        }
-        const tokenId = outcome === 1 ? market.tokens.no : market.tokens.yes
-        const side = strategy === 'Buy' ? 0 : 1
-        const signedOrder = await placeMarketOrder(
-          tokenId,
-          market.collateralToken.decimals,
-          outcome === 0 ? yesPrice.toString() : noPrice.toString(),
-          side,
-          price
-        )
-        const data = {
-          order: {
-            ...signedOrder,
-            salt: +signedOrder.salt,
-            price: undefined,
-            makerAmount: +parseUnits(price, market.collateralToken.decimals).toString(),
-            takerAmount: +signedOrder.takerAmount,
-            nonce: +signedOrder.nonce,
-            feeRateBps: +signedOrder.feeRateBps,
-          },
-          ownerId: profileData?.id,
-          orderType: 'FOK',
-          marketSlug: market.slug,
-        }
-        const response = await privateClient.post('/orders', data)
-        if (!response?.data) {
-          console.log('Failed to place order')
-          return
-        }
-        return response.data
-      }
-    },
-    onSuccess: async (res: { id: string }) => {
-      const validatePurchase = (data: Purchase): boolean => {
-        if (!data.transaction_id || typeof data.transaction_id !== 'string') return false
-        if (typeof data.currency !== 'string') return false
-        if (!Array.isArray(data.items) || data.items.length === 0) return false
-
-        return data.items.every(
-          (item) =>
-            typeof item.item_id === 'string' &&
-            typeof item.item_name === 'string' &&
-            item.item_category === 'Deposit' &&
-            typeof item.quantity === 'string'
-        )
-      }
-
-      const purchase: Purchase = {
-        transaction_id: res.id,
-        value: String(orderCalculations.payout),
-        currency: market?.collateralToken.symbol || 'USDC',
-        items: [
-          {
-            item_id: market?.marketType || '',
-            item_name: outcome ? 'Yes shares' : 'No shares',
-            item_category: 'Deposit',
-            price: String(orderCalculations.avgPrice),
-            quantity: String(price),
-          },
-        ],
-      }
-
-      if (!validatePurchase(purchase)) {
-        console.error('Invalid purchase object:', purchase)
-        return
-      }
-      pushPuchaseEvent(purchase)
-    },
-    onError: async () => {
-      const id = toast({
-        render: () => <Toast title={'Oops... Something went wrong'} id={id} />,
-      })
-      await queryClient.refetchQueries({
-        queryKey: ['user-orders', market?.slug],
-      })
-    },
-  })
-
-  const handlePercentButtonClicked = (value: number) => {
-    trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
-      amount: value,
-      marketAddress: market?.slug,
-      marketType: market?.marketType,
-      marketTags: market?.tags,
-      marketMakerType: 'CLOB',
-      assetType: strategy === 'Buy' ? 'money' : 'contracts',
-    })
-    if (strategy === 'Buy') {
-      if (value == 100) {
-        setPrice(NumberUtil.toFixed(balance, market?.collateralToken.symbol === 'USDC' ? 1 : 6))
-        return
-      }
-      const amountByPercent = (Number(balance) * value) / 100
-      setPrice(
-        NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
-      )
-      return
-    }
-    const sharesAmount = outcome
-      ? NumberUtil.formatThousands(
-          formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
-          6
-        )
-      : NumberUtil.formatThousands(
-          formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
-          6
-        )
-    if (value === 100) {
-      setPrice(sharesAmount)
-      return
-    }
-    const amountByPercent = (Number(sharesAmount) * value) / 100
-    setPrice(NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6))
-    return
-  }
-
-  const handleInputValueChange = (value: string) => {
-    if (market?.collateralToken.symbol === 'USDC') {
-      const decimals = value.split('.')[1]
-      if (decimals && decimals.length > 6) {
-        return
-      }
-      setPrice(value)
-      return
-    }
-    setPrice(value)
-    return
-  }
-
-  const renderButtonContent = (title: number) => {
-    if (title === 100) {
-      if (isMobile) {
-        return 'MAX'
-      }
-      let balanceToShow = ''
-      if (strategy === 'Buy') {
-        balanceToShow = NumberUtil.formatThousands(
-          balance,
-          market?.collateralToken.symbol === 'USDC' ? 1 : 6
-        )
-      } else {
-        balanceToShow = outcome
-          ? NumberUtil.formatThousands(
-              formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
-              6
-            )
-          : NumberUtil.formatThousands(
-              formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
-              6
-            )
-      }
-      return `${
-        balanceLoading ? (
-          <Box w='90px'>
-            <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
-          </Box>
-        ) : (
-          balanceToShow
-        )
-      } ${strategy === 'Buy' ? market?.collateralToken.symbol : ''}`
-    }
-    return `${title}%`
-  }
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   const orderCalculations = useMemo(() => {
     if (!price || !orderBook || !market) {
@@ -364,9 +178,221 @@ export default function ClobMarketTradeForm() {
     }
   }, [market, orderBook, outcome, price, strategy])
 
+  const placeMarketOrderMutation = useMutation({
+    mutationKey: ['market-order', market?.slug, price],
+    mutationFn: async () => {
+      setContractsBuying(orderCalculations.contracts.toString())
+      trackClicked(ClickEvent.ConfirmTransactionClicked, {
+        address: market?.slug,
+        outcome: outcome,
+        strategy,
+        walletType: web3Client,
+        marketType: market?.marketType,
+        marketMakerType: 'ClOB',
+        tradingMode: 'market order',
+      })
+      if (market) {
+        if (web3Client === 'etherspot') {
+          if (strategy === 'Sell') {
+            const operator = market.negRiskRequestId
+              ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+              : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
+            await privyService.approveConditionalIfNeeded(
+              operator as Address,
+              process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+            )
+            if (market.negRiskRequestId) {
+              await privyService.approveConditionalIfNeeded(
+                process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE as Address,
+                process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+              )
+            }
+          } else {
+            const spender = market.negRiskRequestId
+              ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
+              : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
+            await privyService.approveCollateralIfNeeded(
+              spender as Address,
+              maxUint256,
+              market?.collateralToken.address as Address
+            )
+          }
+        }
+        const tokenId = outcome === 1 ? market.tokens.no : market.tokens.yes
+        const side = strategy === 'Buy' ? 0 : 1
+        const signedOrder = await placeMarketOrder(
+          tokenId,
+          market.collateralToken.decimals,
+          outcome === 0 ? yesPrice.toString() : noPrice.toString(),
+          side,
+          price,
+          market.negRiskRequestId ? 'negRisk' : 'common'
+        )
+        const data = {
+          order: {
+            ...signedOrder,
+            salt: +signedOrder.salt,
+            price: undefined,
+            makerAmount: +parseUnits(price, market.collateralToken.decimals).toString(),
+            takerAmount: +signedOrder.takerAmount,
+            nonce: +signedOrder.nonce,
+            feeRateBps: +signedOrder.feeRateBps,
+          },
+          ownerId: profileData?.id,
+          orderType: 'FOK',
+          marketSlug: market.slug,
+        }
+        const response = await privateClient.post('/orders', data)
+        if (!response?.data) {
+          console.log('Failed to place order')
+          return
+        }
+        return response.data
+      }
+    },
+    onSuccess: async (res: { id: string }) => {
+      const purchase: Purchase = {
+        transaction_id: res.id,
+        value: orderCalculations.payout,
+        currency:
+          market?.collateralToken.symbol === 'USDC'
+            ? 'USD'
+            : market?.collateralToken.symbol ?? 'USD',
+        items: [
+          {
+            item_id: market?.marketType || '',
+            item_name: outcome ? 'Bet No' : 'Bet Yes',
+            item_category: 'Bet Order',
+            price: orderCalculations.avgPrice,
+            quantity: +price,
+          },
+        ],
+      }
+      pushPuchaseEvent(purchase)
+    },
+    onError: async (error: AxiosError<{ message: string }>) => {
+      const id = toast({
+        render: () => (
+          <Toast title={getOrderErrorText(error.response?.data.message ?? '')} id={id} />
+        ),
+      })
+      await queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      })
+    },
+  })
+
+  const handlePercentButtonClicked = (value: number) => {
+    trackClicked(ClickEvent.TradingWidgetPricePrecetChosen, {
+      amount: value,
+      marketAddress: market?.slug,
+      marketType: market?.marketType,
+      marketTags: market?.tags,
+      marketMakerType: 'CLOB',
+      assetType: strategy === 'Buy' ? 'money' : 'contracts',
+    })
+    if (strategy === 'Buy') {
+      if (value == 100) {
+        setPrice(NumberUtil.toFixed(balance, market?.collateralToken.symbol === 'USDC' ? 1 : 6))
+        return
+      }
+      const amountByPercent = (Number(balance) * value) / 100
+      setPrice(
+        NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
+      )
+      return
+    }
+    const sharesAmount = outcome
+      ? NumberUtil.formatThousands(
+          formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
+          6
+        )
+      : NumberUtil.formatThousands(
+          formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
+          6
+        )
+    if (value === 100) {
+      setPrice(sharesAmount)
+      return
+    }
+    const amountByPercent = (Number(sharesAmount) * value) / 100
+    setPrice(NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6))
+    return
+  }
+
+  const handleInputValueChange = (value: string) => {
+    if (market?.collateralToken.symbol === 'USDC') {
+      const decimals = value.split('.')[1]
+      if (decimals && decimals.length > 6) {
+        return
+      }
+      setPrice(value)
+      return
+    }
+    setPrice(value)
+    return
+  }
+
+  const handleFocus = () => {
+    if ((isMobile || isTablet) && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
+    }
+  }
+
+  const renderButtonContent = (title: number) => {
+    if (title === 100) {
+      if (isMobile) {
+        return 'MAX'
+      }
+      let balanceToShow = ''
+      if (strategy === 'Buy') {
+        balanceToShow = NumberUtil.formatThousands(
+          balance,
+          market?.collateralToken.symbol === 'USDC' ? 1 : 6
+        )
+      } else {
+        balanceToShow = outcome
+          ? NumberUtil.formatThousands(
+              formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
+              6
+            )
+          : NumberUtil.formatThousands(
+              formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
+              6
+            )
+      }
+      return `${
+        balanceLoading ? (
+          <Box w='90px'>
+            <TradeWidgetSkeleton height={20} type={SkeletonType.WIDGET_GREY} />
+          </Box>
+        ) : (
+          balanceToShow
+        )
+      } ${strategy === 'Buy' ? market?.collateralToken.symbol : ''}`
+    }
+    return `${title}%`
+  }
+
+  const isLessThanMinTreshHold = useMemo(() => {
+    if (strategy == 'Buy') {
+      return +price < 1
+    }
+    if (orderCalculations.payout) {
+      return orderCalculations.payout < 1
+    }
+    return false
+  }, [orderCalculations.payout, strategy])
+
   const onResetMutation = async () => {
-    await sleep(0.8)
+    await sleep(1)
     placeMarketOrderMutation.reset()
+    setContractsBuying('')
     await Promise.allSettled([
       queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
@@ -379,6 +405,12 @@ export default function ClobMarketTradeForm() {
       }),
       queryClient.refetchQueries({
         queryKey: ['locked-balance', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['prices', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['positions'],
       }),
     ])
   }
@@ -403,26 +435,6 @@ export default function ClobMarketTradeForm() {
     return false
   }, [orderBook, outcome, strategy])
 
-  const handleSubmitButtonClicked = async () => {
-    if (strategy === 'Buy') {
-      const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
-        parseUnits(sharesPrice, market?.collateralToken.decimals || 6).toString()
-      )
-      if (isApprovalNeeded && client === 'eoa') {
-        onToggleTradeStepper()
-        return
-      }
-      await placeMarketOrderMutation.mutateAsync()
-      return
-    }
-    if (!isApprovedForSell && client === 'eoa') {
-      onToggleTradeStepper()
-      return
-    }
-    await placeMarketOrderMutation.mutateAsync()
-    return
-  }
-
   const maxOrderAmountLessThanInput = useMemo(() => {
     if (strategy === 'Buy' && orderBook) {
       const targetSide = !outcome
@@ -439,13 +451,94 @@ export default function ClobMarketTradeForm() {
       }, 0)
       return new BigNumber(price).isGreaterThan(new BigNumber(totalAmount))
     }
+    if (orderBook) {
+      const targetSide = !outcome
+        ? orderBook.bids
+        : orderBook.asks.map((a) => ({ ...a, price: new BigNumber(1).minus(a.price).toNumber() }))
+      const totalShares = targetSide.reduce((sum, acc) => {
+        return new BigNumber(sum)
+          .plus(new BigNumber(formatUnits(BigInt(acc.size), market?.collateralToken.decimals || 6)))
+          .toNumber()
+      }, 0)
+      return new BigNumber(price).isGreaterThan(totalShares)
+    }
     return false
   }, [price, strategy, orderBook, outcome, market])
+
+  const shouldSignUp = !web3Wallet && Boolean(price)
+  const shouldAddFunds =
+    web3Wallet &&
+    isBalanceNotEnough &&
+    !maxOrderAmountLessThanInput &&
+    !isOrderBookLoading &&
+    strategy === 'Buy'
+
+  const handleSubmitButtonClicked = async () => {
+    if (shouldSignUp) {
+      const currentUrl = window.location
+
+      const routeInfo: PendingTradeData = {
+        price,
+        marketSlug: market?.slug ?? '',
+        strategy,
+        outcome,
+        orderType,
+        pathname: currentUrl.pathname,
+        search: currentUrl.search,
+        href: currentUrl.href,
+        queryParams: Object.fromEntries(new URLSearchParams(currentUrl.search)),
+      }
+      localStorage.setItem('pendingTrade', JSON.stringify(routeInfo))
+      await loginToPlatform()
+      return
+    }
+
+    if (shouldAddFunds) {
+      await fundWallet(account as string)
+      return
+    }
+    if (strategy === 'Buy') {
+      pushGA4Event(GAEvents.ClickBuy)
+      const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
+        parseUnits(sharesPrice, market?.collateralToken.decimals || 6).toString()
+      )
+      if (client === 'eoa' && isApprovalNeeded) {
+        onToggleTradeStepper()
+        return
+      }
+      await placeMarketOrderMutation.mutateAsync()
+      return
+    }
+    if (client === 'eoa') {
+      console.log(
+        `market trade form isApprovedForSell ${isApprovedForSell} isApprovedNegRiskForSell ${isApprovedNegRiskForSell}`
+      )
+      const isApprovedSell = market?.negRiskRequestId
+        ? isApprovedForSell || isApprovedNegRiskForSell
+        : isApprovedForSell
+      if (!isApprovedSell) {
+        onToggleTradeStepper()
+        return
+      }
+    }
+    await placeMarketOrderMutation.mutateAsync()
+    return
+  }
+
+  const getButtonText = () => {
+    if (shouldSignUp) {
+      return `Sign up to ${strategy}`
+    }
+    if (shouldAddFunds) {
+      return `Add funds to ${strategy}`
+    }
+    return `${strategy} ${outcome ? 'No' : 'Yes'}`
+  }
 
   return (
     <>
       <Flex justifyContent='space-between' alignItems='center'>
-        <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'}>
+        <Text {...paragraphMedium} color='grey.500'>
           Enter amount
         </Text>
         {balanceLoading ? (
@@ -469,8 +562,8 @@ export default function ClobMarketTradeForm() {
                 borderBottom='1px dotted'
                 borderColor='rgba(132, 132, 132, 0.5)'
                 _hover={{
-                  borderColor: 'var(--chakra-colors-text-100)',
-                  color: 'var(--chakra-colors-text-100)',
+                  borderColor: 'grey.600',
+                  color: 'grey.600',
                 }}
                 disabled={balanceLoading}
               >
@@ -495,6 +588,8 @@ export default function ClobMarketTradeForm() {
             {strategy === 'Buy' ? market?.collateralToken.symbol : 'Contracts'}
           </Text>
         }
+        ref={inputRef}
+        onFocus={handleFocus}
       />
       <VStack w='full' gap='8px' my='24px'>
         {strategy === 'Buy' && (
@@ -537,23 +632,28 @@ export default function ClobMarketTradeForm() {
         status={placeMarketOrderMutation.status}
         isDisabled={
           !+price ||
-          isBalanceNotEnough ||
-          !web3Wallet ||
-          noOrdersOnDesiredToken ||
-          maxOrderAmountLessThanInput
+          isLessThanMinTreshHold ||
+          (web3Wallet && !shouldAddFunds
+            ? isBalanceNotEnough || noOrdersOnDesiredToken || maxOrderAmountLessThanInput
+            : false)
         }
         onClick={handleSubmitButtonClicked}
         successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(
-          orderCalculations.contracts,
+          contractsBuying,
           6
         )} contracts`}
         onReset={onResetMutation}
       >
-        {strategy} {outcome ? 'No' : 'Yes'}
+        {getButtonText()}
       </ClobTradeButton>
       {!+price && (
         <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
           Enter amount to {strategy === 'Buy' ? 'buy' : 'sell'}
+        </Text>
+      )}
+      {isLessThanMinTreshHold && (
+        <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
+          Min. amount is $1
         </Text>
       )}
       {maxOrderAmountLessThanInput && (
@@ -561,6 +661,7 @@ export default function ClobMarketTradeForm() {
           Amount exceeds order book size
         </Text>
       )}
+      {shouldAddFunds && <AddFundsValidation />}
     </>
   )
 }

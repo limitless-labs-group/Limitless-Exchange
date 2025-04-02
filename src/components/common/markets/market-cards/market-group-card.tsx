@@ -1,15 +1,22 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import { MarketCardProps } from '@/components/common/markets'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
 import { MarketCardLink } from '@/components/common/markets/market-cards/market-card-link'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import { MIN_CARD_HEIGHT } from '@/components/common/markets/market-cards/market-single-card'
 import MarketGroupRow from '@/components/common/markets/market-group-row'
 import { useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import {
+  ClickEvent,
+  QuickBetClickedMetadata,
+  useAccount,
+  useAmplitude,
+  useTradingService,
+} from '@/services'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
@@ -34,6 +41,7 @@ export const MarketGroupCard = ({
   const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
   const router = useRouter()
   const { trackClicked } = useAmplitude()
+  const { setWalletPageOpened, setProfilePageOpened } = useAccount()
 
   const isShortCard = variant === 'grid'
 
@@ -41,18 +49,21 @@ export const MarketGroupCard = ({
     if (e.metaKey || e.ctrlKey || e.button === 2) {
       return
     }
-    e.preventDefault()
+    !isMobile && e.preventDefault()
     const searchParams = new URLSearchParams(window.location.search)
     searchParams.set('market', market.slug)
     router.push(`?${searchParams.toString()}`, { scroll: false })
+    setWalletPageOpened(false)
+    setProfilePageOpened(false)
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
-      marketCategory: market.category,
+      marketCategory: market.categories,
       marketAddress: market.slug,
-      marketType: 'single',
+      marketType: 'group',
       marketTags: market.tags,
       ...analyticParams,
     })
-    onOpenMarketPage(market)
+
+    !isMobile && onOpenMarketPage(market)
   }
 
   const handleOutcomeClicked = (
@@ -60,14 +71,22 @@ export const MarketGroupCard = ({
     marketToSet: Market,
     outcome: number
   ) => {
+    trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
+      source: 'Main Page market group card',
+      value: outcome ? 'small no button' : 'small yes button',
+    })
     if (e.metaKey || e.ctrlKey || e.button === 2) {
       return
     }
-    e.stopPropagation()
-    e.preventDefault()
+    if (!isMobile) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
     const searchParams = new URLSearchParams(window.location.search)
     searchParams.set('market', market.slug)
     router.push(`?${searchParams.toString()}`, { scroll: false })
+    setWalletPageOpened(false)
+    setProfilePageOpened(false)
     setGroupMarket(market)
     setMarket(marketToSet)
     setClobOutcome(outcome)
@@ -81,7 +100,7 @@ export const MarketGroupCard = ({
       w='full'
       bg={hovered ? 'grey.100' : 'unset'}
       rounded='12px'
-      border='2px solid var(--chakra-colors-grey-100)'
+      border='3px solid var(--chakra-colors-grey-100)'
       p='2px'
       minH={MIN_CARD_HEIGHT[variant]}
       h='full'
@@ -99,7 +118,7 @@ export const MarketGroupCard = ({
       position='relative'
       overflow='hidden'
     >
-      <Text {...headline} p='16px'>
+      <Text {...headline} p='16px' textAlign='left'>
         {market.title}
       </Text>
       <VStack
@@ -125,11 +144,12 @@ export const MarketGroupCard = ({
         p='16px'
         justifyContent='space-between'
       >
-        <DailyMarketTimer
+        <MarketCountdown
           deadline={market.expirationTimestamp}
           deadlineText={market.expirationDate}
-          color='grey.800'
+          color='grey.500'
           showDays={false}
+          hideText={isShortCard}
         />
         <HStack gap='4px'>
           <HStack gap='4px'>
@@ -160,7 +180,7 @@ export const MarketGroupCard = ({
                 Volume
               </Text>
               <Text {...paragraphRegular} color='grey.500' whiteSpace='nowrap'>
-                {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
+                {NumberUtil.convertWithDenomination(market.volumeFormatted || '0', 6)}{' '}
                 {market.collateralToken.symbol}
               </Text>
             </>
@@ -169,5 +189,5 @@ export const MarketGroupCard = ({
       </HStack>
     </Box>
   )
-  return <MarketCardLink marketAddress={market.slug}>{content}</MarketCardLink>
+  return isMobile ? content : <MarketCardLink marketAddress={market.slug}>{content}</MarketCardLink>
 }

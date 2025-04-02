@@ -1,21 +1,16 @@
-import {
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Box,
-  Button,
-  HStack,
-  Text,
-} from '@chakra-ui/react'
+import { Box, Button, HStack, Text } from '@chakra-ui/react'
+import { isNumber } from '@chakra-ui/utils'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
-import GroupMarketSectionTabs from '@/app/(markets)/markets/[address]/components/group-market-section-tabs'
+import MobileDrawer from '@/components/common/drawer'
+import MarketPageNergiskMobile from '@/components/common/markets/market-page-nergisk-mobile'
 import { useMarketOrders } from '@/hooks/use-market-orders'
+import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
+import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { useTradingService } from '@/services'
+import { ClickEvent, QuickBetClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import { h3Medium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { ClobPosition } from '@/types/orders'
@@ -26,11 +21,22 @@ interface GroupMarketsSectionMobileProps {
 }
 
 export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectionMobileProps) {
-  const { setMarket, market: selectedMarket, setClobOutcome, clobOutcome } = useTradingService()
+  const {
+    setMarket,
+    market: selectedMarket,
+    setClobOutcome,
+    clobOutcome,
+    groupMarket,
+  } = useTradingService()
+  const { trackClicked } = useAmplitude()
 
   const { data: userOrders } = useMarketOrders(market?.slug)
 
   const handleOutcomeClicked = (outcome: number) => {
+    trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
+      source: 'Market page from outcomes section',
+      value: outcome ? 'small no button' : 'small yes button',
+    })
     setClobOutcome(outcome)
     if (market.slug !== selectedMarket?.slug) {
       setMarket(market)
@@ -43,6 +49,13 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
         .plus(new BigNumber(formatUnits(BigInt(acc.originalSize), market.collateralToken.decimals)))
         .toNumber()
     }, 0)
+  }
+
+  const onOpenMarketPage = (index: number) => {
+    if (groupMarket?.markets) {
+      const marketToSet = groupMarket.markets[index || 0] || null
+      setMarket(marketToSet)
+    }
   }
 
   const calculateAveragePrice = (orders: ClobPosition[]) => {
@@ -81,78 +94,70 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
     return result
   }, [market.tokens, userOrders])
 
-  const handleAccordionChange = () => {
-    if (selectedMarket?.slug !== market.slug) {
-      setMarket(market)
-    }
-  }
+  const indexInArray = groupMarket?.markets
+    ? groupMarket.markets.findIndex((marketInArray) => selectedMarket?.slug === marketInArray.slug)
+    : undefined
 
-  return (
-    <AccordionItem borderColor='grey.100'>
-      <AccordionButton gap='4px' display='block' onClick={handleAccordionChange}>
-        <HStack w='full'>
-          <HStack w='full' justifyContent='space-between'>
-            <Box>
-              <Text textAlign='left' {...headline}>
-                {market.proxyTitle || market.title}
+  const onClickPrevious =
+    isNumber(indexInArray) && indexInArray > 0
+      ? () => {
+          onOpenMarketPage(indexInArray - 1)
+          trackClicked(ClickEvent.PreviousMarketClick, {
+            platform: 'mobile',
+          })
+        }
+      : undefined
+
+  const onClickNext =
+    isNumber(indexInArray) && groupMarket?.markets && indexInArray < groupMarket.markets.length - 1
+      ? () => {
+          onOpenMarketPage(indexInArray + 1)
+          trackClicked(ClickEvent.NextMarketClick, {
+            platform: 'mobile',
+          })
+        }
+      : undefined
+
+  const trigger = (
+    <Box
+      border='3px solid'
+      borderColor='grey.100'
+      borderRadius='12px'
+      p='12px'
+      onClick={() => {
+        const marketIndex = groupMarket?.markets
+          ? groupMarket.markets.findIndex((marketInArray) => market?.slug === marketInArray.slug)
+          : undefined
+        onOpenMarketPage(marketIndex || 0)
+      }}
+    >
+      <HStack w='full'>
+        <HStack w='full' justifyContent='space-between'>
+          <Box>
+            <Text textAlign='left' {...headline}>
+              {market.proxyTitle || market.title}
+            </Text>
+            <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
+              <VolumeIcon width={16} height={16} />
+              <Text {...paragraphRegular} color='grey.500'>
+                Volume
               </Text>
-              <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
-                <VolumeIcon width={16} height={16} />
-                <Text {...paragraphRegular} color='grey.500'>
-                  Volume
-                </Text>
-                <Text {...paragraphRegular} color='grey.500'>
-                  {NumberUtil.convertWithDenomination(market?.volumeFormatted || '0', 6)}{' '}
-                  {market?.collateralToken.symbol}
-                </Text>
-              </HStack>
-            </Box>
-            <HStack gap='16px'>
-              <Text {...h3Medium}>
-                {new BigNumber(market.prices[0]).multipliedBy(100).toFixed(0)}%
+              <Text {...paragraphRegular} color='grey.500'>
+                {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
+                {market?.collateralToken.symbol}
               </Text>
             </HStack>
-            <Button
-              w='112px'
-              h='32px'
-              bg={
-                selectedMarket?.slug === market.slug && !clobOutcome
-                  ? 'green.500'
-                  : 'greenTransparent.100'
-              }
-              color={selectedMarket?.slug === market.slug && !clobOutcome ? 'white' : 'green.500'}
-              borderRadius='8px'
-              _hover={{
-                bg: 'green.500',
-                color: 'white',
-              }}
-              onClick={() => handleOutcomeClicked(0)}
-            >
-              Yes {NumberUtil.multiply(market.prices[0], 100)}%
-            </Button>
-            <Button
-              w='112px'
-              h='32px'
-              bg={
-                selectedMarket?.slug === market.slug && !!clobOutcome
-                  ? 'red.500'
-                  : 'redTransparent.100'
-              }
-              color={selectedMarket?.slug === market.slug && !!clobOutcome ? 'white' : 'red.500'}
-              borderRadius='8px'
-              _hover={{
-                bg: 'red.500',
-                color: 'white',
-              }}
-              onClick={() => handleOutcomeClicked(1)}
-            >
-              No {NumberUtil.multiply(market.prices[1], 100)}%
-            </Button>
+          </Box>
+          <HStack gap='16px'>
+            <Text {...h3Medium}>
+              {new BigNumber(market.prices[0]).multipliedBy(100).toFixed(0)}%
+            </Text>
           </HStack>
-          <AccordionIcon color='grey.500' />
         </HStack>
+      </HStack>
+      <HStack w='full' gap='8px' mt='16px' flexWrap='wrap'>
         {Boolean(userOrdersWithOutcomes?.length) && (
-          <HStack gap='12px' mt='16px'>
+          <HStack gap='8px' my='16px'>
             <Box bg='grey.100' borderRadius='8px' px='4px' py='2px'>
               <Text {...paragraphRegular}>{userOrders?.length} Open orders</Text>
             </Box>
@@ -171,12 +176,69 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
             ))}
           </HStack>
         )}
-      </AccordionButton>
-      <AccordionPanel pb={0}>
-        <Box mt='12px'>
-          <GroupMarketSectionTabs />
-        </Box>
-      </AccordionPanel>
-    </AccordionItem>
+      </HStack>
+      <HStack w='full' gap='8px'>
+        <Button
+          w='full'
+          h='32px'
+          bg={
+            selectedMarket?.slug === market.slug && !clobOutcome
+              ? 'green.500'
+              : 'greenTransparent.100'
+          }
+          color={selectedMarket?.slug === market.slug && !clobOutcome ? 'white' : 'green.500'}
+          borderRadius='8px'
+          _hover={{
+            bg: 'green.500',
+            color: 'white',
+          }}
+          onClick={() => handleOutcomeClicked(0)}
+        >
+          Yes {NumberUtil.multiply(market.prices[0], 100)}%
+        </Button>
+        <Button
+          w='full'
+          h='32px'
+          bg={
+            selectedMarket?.slug === market.slug && !!clobOutcome ? 'red.500' : 'redTransparent.100'
+          }
+          color={selectedMarket?.slug === market.slug && !!clobOutcome ? 'white' : 'red.500'}
+          borderRadius='8px'
+          _hover={{
+            bg: 'red.500',
+            color: 'white',
+          }}
+          onClick={() => handleOutcomeClicked(1)}
+        >
+          No {NumberUtil.multiply(market.prices[1], 100)}%
+        </Button>
+      </HStack>
+    </Box>
+  )
+
+  return (
+    <MobileDrawer trigger={trigger} variant='black'>
+      <>
+        <HStack w='full' justifyContent='space-between'>
+          {onClickPrevious ? (
+            <Button variant='transparentGreyText' onClick={onClickPrevious}>
+              <ArrowLeftIcon width={24} height={24} />
+              Previous
+            </Button>
+          ) : (
+            <div />
+          )}
+          {onClickNext ? (
+            <Button variant='transparentGreyText' onClick={onClickNext}>
+              Next
+              <ArrowRightIcon width={24} height={24} />
+            </Button>
+          ) : (
+            <div />
+          )}
+        </HStack>
+        <MarketPageNergiskMobile />
+      </>
+    </MobileDrawer>
   )
 }

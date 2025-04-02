@@ -20,7 +20,7 @@ import Loader from '../loader'
 export default function CommentTextarea() {
   const { profileData, account } = useAccount()
   const [comment, setComment] = useState<string>('')
-  const { market } = useTradingService()
+  const { market, groupMarket } = useTradingService()
   const { createComment, isPostCommentLoading } = useCommentService()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [error, setError] = useState('')
@@ -62,7 +62,11 @@ export default function CommentTextarea() {
       setError('Comment cannot be empty or just whitespace.')
       return
     }
-    await createComment({ content: comment, marketSlug: market?.slug as string })
+    await createComment({
+      content: comment,
+      marketSlug:
+        market?.marketType === 'group' ? (groupMarket?.slug as string) : (market?.slug as string),
+    })
     setComment('')
   }
 

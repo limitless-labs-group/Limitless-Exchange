@@ -13,6 +13,18 @@ export const useExternalWalletService = () => {
 
   const collateralTokenAddress = supportedTokens ? supportedTokens[0].address : '0x'
 
+  const waitForTransaction = async (hash: `0x${string}`) => {
+    try {
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash,
+        timeout: 60_000, // 60 seconds timeout
+      })
+      return receipt
+    } catch (error) {
+      throw new Error(`Transaction failed: ${error}`)
+    }
+  }
+
   const wrapEth = async (value: bigint) => {
     try {
       await checkAndSwitchChainIfNeeded()
@@ -29,6 +41,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -53,6 +66,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -106,7 +120,6 @@ export const useExternalWalletService = () => {
         args: [spender, value],
         functionName: 'approve',
       })
-
       if (web3Wallet) {
         const addresses = await web3Wallet.getAddresses()
         const hash = await web3Wallet.sendTransaction({
@@ -115,6 +128,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -139,6 +153,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -158,6 +173,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -182,6 +198,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -211,6 +228,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        // await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -240,6 +258,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        // await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -270,6 +289,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -304,12 +324,14 @@ export const useExternalWalletService = () => {
       })
       if (web3Wallet) {
         const addresses = await web3Wallet.getAddresses()
-        return web3Wallet.sendTransaction({
+        const hash = await web3Wallet.sendTransaction({
           data,
           to: contract as Address,
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
+        return hash
       }
     } catch (e) {
       const error = e as Error
@@ -317,11 +339,21 @@ export const useExternalWalletService = () => {
     }
   }
 
-  const mergePositions = async (collateralToken: Address, conditionId: string, amount: bigint) => {
+  const mergePositions = async (
+    collateralToken: Address,
+    conditionId: string,
+    amount: bigint,
+    type: 'common' | 'negrisk'
+  ) => {
+    const contractAddress =
+      type === 'common'
+        ? process.env.NEXT_PUBLIC_CTF_CONTRACT
+        : process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+    const abi = type === 'common' ? conditionalTokensABI : negriskAdapterAbi
     try {
       await checkAndSwitchChainIfNeeded()
       const data = encodeFunctionData({
-        abi: conditionalTokensABI,
+        abi,
         functionName: 'mergePositions',
         args: [
           collateralToken,
@@ -333,12 +365,63 @@ export const useExternalWalletService = () => {
       })
       if (web3Wallet) {
         const addresses = await web3Wallet.getAddresses()
-        return web3Wallet.sendTransaction({
+        const hash = await web3Wallet.sendTransaction({
           data,
-          to: process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+          to: contractAddress as Address,
           account: addresses[0],
           chain: defaultChain,
         })
+        await waitForTransaction(hash)
+        return hash
+      }
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
+  }
+
+  const convertShares = async (negRiskRequestId: string, indexSet: string, amount: bigint) => {
+    try {
+      await checkAndSwitchChainIfNeeded()
+      const data = encodeFunctionData({
+        abi: negriskAdapterAbi,
+        functionName: 'convertPositions',
+        args: [negRiskRequestId, indexSet, amount],
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        const hash = await web3Wallet.sendTransaction({
+          data,
+          to: process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+        await waitForTransaction(hash)
+        return hash
+      }
+    } catch (e) {
+      const error = e as Error
+      throw new Error(error.message)
+    }
+  }
+
+  const redeemNegRiskMarket = async (conditionId: string, amounts: bigint[]) => {
+    try {
+      const data = encodeFunctionData({
+        abi: negriskAdapterAbi,
+        functionName: 'redeemPositions',
+        args: [conditionId, amounts],
+      })
+      if (web3Wallet) {
+        const addresses = await web3Wallet.getAddresses()
+        const hash = await web3Wallet.sendTransaction({
+          data,
+          to: process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
+          account: addresses[0],
+          chain: defaultChain,
+        })
+        await waitForTransaction(hash)
+        return hash
       }
     } catch (e) {
       const error = e as Error
@@ -383,5 +466,7 @@ export const useExternalWalletService = () => {
     signTypedData,
     splitPositions,
     mergePositions,
+    convertShares,
+    redeemNegRiskMarket,
   }
 }

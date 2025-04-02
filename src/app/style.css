@@ -24,7 +24,7 @@
   width: fit-content !important;
 }
 
-.feed-container .infinite-scroll-component__outerdiv {
+.full-container .infinite-scroll-component__outerdiv {
   width: 100% !important;
 }
 
@@ -213,6 +213,10 @@ body {
   --privy-color-success: var(--chakra-colors-green-500);
   --privy-color-error: var(--chakra-colors-red-500);
   --privy-color-accent-dark: var(--chakra-colors-blue-500);
+}
+
+.chakra-popover__popper {
+  z-index: 99999 !important;
 }
 
 @media (max-width: 1024px) {

@@ -9,23 +9,18 @@ export interface MarketCardProps {
   variant?: MarketCardLayout
   market: Market
   analyticParams: { bannerPosition: number; bannerPaginationPage: number }
-  markets: Market[]
+  markets?: Market[]
 }
 
 export default function MarketCard({ market, variant, analyticParams, markets }: MarketCardProps) {
   return market.marketType === 'single' ? (
-    <MarketSingleCard
-      market={market}
-      variant={variant}
-      analyticParams={analyticParams}
-      markets={markets}
-    />
+    <MarketSingleCard market={market} variant={variant} analyticParams={analyticParams} />
   ) : (
     <MarketGroupCard
       market={market}
-      variant={variant}
+      variant={variant === 'row' ? 'groupRow' : variant}
       analyticParams={analyticParams}
-      markets={markets}
+      markets={markets || []}
     />
   )
 }

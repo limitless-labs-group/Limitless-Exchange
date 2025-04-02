@@ -13,7 +13,8 @@ export default function SharesActionsClob() {
   const { isOpen: mergeModalOpened, onToggle: onToggleMergeModal } = useDisclosure()
   const { account } = useAccount()
   const { trackClicked } = useAmplitude()
-  const { market, sharesAvailable } = useTradingService()
+  const { market } = useTradingService()
+  const { sharesAvailable } = useClobWidget()
 
   const handleSplitClicked = () => {
     onToggleSplitModal()

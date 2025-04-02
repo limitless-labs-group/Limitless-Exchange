@@ -18,7 +18,7 @@ export default function OpenInterestTooltip({ iconColor }: { iconColor: string }
 
   return (
     <Tooltip
-      bg='background.90'
+      bg='transparent.70'
       border='unset'
       label={
         'Market value shows how much money is currently active in this market, representing all the predictions made so far'

@@ -3,6 +3,7 @@ import { formatUnits } from 'viem'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import ConvertPositionsButton from '@/app/(markets)/markets/[address]/components/convert-positions-button'
 import { useTradingService } from '@/services'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface PortfolioMarketGroupItemProps {
@@ -14,10 +15,14 @@ export default function PortfolioMarketGroupItem({
   outcome,
   quantity,
 }: PortfolioMarketGroupItemProps) {
-  const { market, strategy, setStrategy, clobOutcome, setClobOutcome, setPrice, sharesAvailable } =
-    useTradingService()
+  const { setPrice, sharesAvailable } = useClobWidget()
+  const { market, strategy, setStrategy, clobOutcome, setClobOutcome } = useTradingService()
 
   const totalShares = formatUnits(BigInt(quantity), market?.collateralToken.decimals || 6)
+
+  const marketEnded = market
+    ? new Date(market.expirationTimestamp).getTime() < new Date().getTime()
+    : false
 
   const onClickSell = () => {
     if (strategy === 'Buy') {
@@ -35,11 +40,13 @@ export default function PortfolioMarketGroupItem({
     <Tr>
       <Td>{outcome ? 'No' : 'Yes'}</Td>
       <Td>{NumberUtil.formatThousands(totalShares)}</Td>
-      <Td>{outcome ? <ConvertPositionsButton /> : null}</Td>
+      <Td>{outcome && !marketEnded ? <ConvertPositionsButton /> : null}</Td>
       <Td>
-        <Button variant='white' onClick={onClickSell}>
-          Sell
-        </Button>
+        {!marketEnded ? (
+          <Button variant='white' onClick={onClickSell}>
+            Sell
+          </Button>
+        ) : null}
       </Td>
     </Tr>
   )
