@@ -174,6 +174,7 @@ export enum ClickEvent {
   BackClicked = 'Back Clicked',
   UIModeClicked = 'UI Mode Changed',
   CategoryClicked = 'Category Clicked',
+  SeeMoreCkicked = 'See More Clicked',
   WalletClicked = 'Wallet Clicked',
   CopyAddressClicked = 'Wallet Address Copied',
   WithdrawClicked = 'Withdraw Clicked',
@@ -221,6 +222,7 @@ export enum ClickEvent {
   MergeSharesModalMaxSharesClicked = 'Merge Contracts Modal Max Button Clicked',
   FeedClosedMarketGroupClicked = 'Feed Closed Market Group Clicked',
   TopBannerClicked = 'Top Banner Clicked',
+  WidgetClicked = 'Widget Clicked',
 }
 
 export enum SignInEvent {
@@ -492,6 +494,10 @@ interface SignedInMetadata {
   signedIn: boolean
 }
 
+interface WidgetClickedMetadata {
+  type: string
+}
+
 export type ChangedEventMetadata =
   | StrategyChangedMetadata
   | OutcomeChangedMetadata
@@ -527,6 +533,7 @@ export type ClickedEventMetadata =
   | FullPageClickedMetaData
   | RewardsButtonClickedMetadata
   | QuickBetClickedMetadata
+  | WidgetClickedMetadata
 
 export type OpenedEventMetadata =
   | PageOpenedMetadata

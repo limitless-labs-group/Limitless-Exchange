@@ -164,6 +164,9 @@ export const chakraTheme = ChakraTheme({
       },
     },
   },
+  zIndices: {
+    tooltip: 3000,
+  },
   components: {
     Button: {
       baseStyle: {

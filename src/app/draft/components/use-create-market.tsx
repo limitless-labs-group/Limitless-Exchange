@@ -43,7 +43,7 @@ export const reverseCalculateMinSize = (size: number | undefined) => {
 
 export const reverseCalculateMaxSpread = (spread: number | undefined) => {
   if (!spread) return 0
-  return (spread - 0.005) * 100
+  return Number(((spread - 0.005) * 100).toFixed(3))
 }
 
 export const useCreateMarket = () => {

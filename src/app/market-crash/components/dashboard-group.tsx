@@ -1,7 +1,9 @@
-import { VStack, Text, Box, Flex, HStack } from '@chakra-ui/react'
+import { VStack, Text, Box, Flex, HStack, Link } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import MarketCard from '@/components/common/markets/market-cards/market-card'
-import { h2Bold, h3Bold } from '@/styles/fonts/fonts.styles'
+import usePageName from '@/hooks/use-page-name'
+import { ClickEvent, useAmplitude } from '@/services'
+import { h2Bold, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { getAnalyticsParams } from '@/utils/market'
 import MarketCardMobile from '../../../components/common/markets/market-cards/market-card-mobile'
@@ -28,6 +30,10 @@ export const DashboardGroup = ({
   categoryName,
 }: DashboardGroupProps) => {
   const dashboard = { fromDashboard: 'Market Crash' }
+
+  const { trackClicked } = useAmplitude()
+  const pageName = usePageName()
+
   const showCardLayout = (type: DashboardGroupType) => {
     switch (type) {
       case DashboardGroupType.Mobile:
@@ -242,9 +248,32 @@ export const DashboardGroup = ({
           {categoryName}
         </Text>
         <NextLink href={`/?category=${categoryName}`}>
-          <Text {...h3Bold} textAlign='end' color='green.500' whiteSpace='nowrap' w='full'>
-            See more
-          </Text>
+          <Link variant='transparent' px={0} _hover={{ textDecoration: 'none' }}>
+            <HStack
+              w='full'
+              h='24px'
+              rounded='8px'
+              bg='grey.100'
+              px={'8px'}
+              cursor='pointer'
+              whiteSpace='nowrap'
+              _hover={{
+                '& > p': {
+                  textDecoration: 'underline',
+                },
+              }}
+              onClick={() => {
+                trackClicked(ClickEvent.SeeMoreCkicked, {
+                  name: categoryName,
+                  page: pageName,
+                })
+              }}
+            >
+              <Text {...paragraphMedium} fontWeight={500} color='grey.800'>
+                See more
+              </Text>
+            </HStack>
+          </Link>
         </NextLink>
       </HStack>
       <Box mt='20px' width='full'>
