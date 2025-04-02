@@ -36,7 +36,7 @@ export default function Chat() {
 
   useEffect(() => {
     if (!socket) return
-    socket.emit('getMessages')
+    socket.emit('getMessages', { limit: 1000 })
   }, [socket])
 
   useEffect(() => {
