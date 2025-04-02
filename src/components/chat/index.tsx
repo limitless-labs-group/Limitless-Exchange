@@ -72,41 +72,46 @@ export default function Chat() {
     }
   }
 
-  return messages && messages?.length > 0 ? (
+  return (
     <Box w='full' h='full' p={3} position='relative'>
-      <Box
-        ref={chatContainerRef}
-        h='full'
-        overflowY='auto'
-        display='flex'
-        flexDirection='column-reverse'
-        pb='150px'
-      >
-        <Flex w='full' mt='24px'>
-          <VStack w='full' gap='20px'>
-            {messages?.map((msg: ChatMsg) => (
-              <Fragment key={msg.id}>
-                <Message comment={msg} />
-              </Fragment>
-            ))}
+      {messages && messages.length > 0 ? (
+        <Box
+          ref={chatContainerRef}
+          h='full'
+          overflowY='auto'
+          display='flex'
+          flexDirection='column-reverse'
+          pb='150px'
+        >
+          <Flex w='full' mt='24px'>
+            <VStack w='full' gap='20px'>
+              {messages.map((msg: ChatMsg) => (
+                <Fragment key={msg.id}>
+                  <Message comment={msg} />
+                </Fragment>
+              ))}
+            </VStack>
+          </Flex>
+        </Box>
+      ) : (
+        <Box h='full' pb='150px' display='flex' alignItems='center' justifyContent='center'>
+          <VStack w='full' mt={isMobile ? '50px' : '24px'} mb={isMobile ? '120px' : '24px'}>
+            <Paper p='16px'>
+              <CommentIcon width={24} height={24} />
+            </Paper>
+            <Text {...headline} mt='4px'>
+              No messages yet
+            </Text>
+            <Text {...paragraphRegular}>Be the first to share your opinion!</Text>
           </VStack>
-        </Flex>
-      </Box>
-      {isLoggedIn ? (
+        </Box>
+      )}
+
+      {isLoggedIn && (
         <Box position='absolute' bottom='0' left='0' right='0' p={3} bg='grey.50' zIndex={1}>
           <ChatTextarea onSubmit={sendMessage} msg={newMessage} setMsg={setNewMessage} />
         </Box>
-      ) : null}
+      )}
     </Box>
-  ) : (
-    <VStack w='full' mt={isMobile ? '50px' : '24px'} mb={isMobile ? '120px' : '24px'}>
-      <Paper p='16px'>
-        <CommentIcon width={24} height={24} />
-      </Paper>
-      <Text {...headline} mt='4px'>
-        No messages yet
-      </Text>
-      <Text {...paragraphRegular}>Be the first to share your opinion!</Text>
-    </VStack>
   )
 }
