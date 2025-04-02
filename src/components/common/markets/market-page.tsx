@@ -1,5 +1,4 @@
 import {
-  Accordion,
   Box,
   Button,
   Divider,
@@ -15,8 +14,6 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react'
-import NextLink from 'next/link'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -33,6 +30,7 @@ import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
+import SideBarPage from '@/components/common/side-bar-page'
 import Skeleton from '@/components/common/skeleton'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
@@ -44,6 +42,7 @@ import CommentTab from './comment-tab'
 import { MarketProgressBar } from './market-cards/market-progress-bar'
 import { UniqueTraders } from './unique-traders'
 import usePageName from '@/hooks/use-page-name'
+import { useUrlParams } from '@/hooks/use-url-param'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
@@ -64,12 +63,12 @@ import {
 import { useMarket } from '@/services/MarketsService'
 import { h2Bold, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { ReferralLink } from '../referral-link'
 
 export default function MarketPage() {
   const [activeChartTabIndex, setActiveChartTabIndex] = useState(0)
   const [activeActionsTabIndex, setActiveActionsTabIndex] = useState(0)
-
-  const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
+  const pageName = usePageName()
 
   const {
     setMarket,
@@ -81,9 +80,7 @@ export default function MarketPage() {
     groupMarket,
   } = useTradingService()
 
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const pathname = usePathname()
+  const { updateParams } = useUrlParams()
 
   const { trackClicked, trackOpened, trackChanged } = useAmplitude()
 
@@ -179,16 +176,9 @@ export default function MarketPage() {
     ]
   }, [activeActionsTabIndex])
 
-  const removeMarketQuery = () => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete('market')
-    const newQuery = params.toString()
-    router.replace(newQuery ? `${pathname}/?${newQuery}` : pathname, { scroll: false })
-  }
-
   const handleCloseMarketPageClicked = () => {
     setMarket(null)
-    removeMarketQuery()
+    updateParams({ market: null, r: null })
     onCloseMarketPage()
     trackClicked(ClickEvent.CloseMarketClicked, {
       marketAddress: market?.slug as Address,
@@ -252,66 +242,25 @@ export default function MarketPage() {
   }, [market?.slug])
 
   useEffect(() => {
-    const handleMouseEnter = () => {
-      document.body.style.overflow = 'hidden'
-    }
-
-    const handleMouseLeave = () => {
-      document.body.style.overflow = ''
-    }
-
-    const scrollContainer = scrollableBlockRef.current
-    if (scrollContainer) {
-      scrollContainer.addEventListener('mouseenter', handleMouseEnter)
-      scrollContainer.addEventListener('mouseleave', handleMouseLeave)
-    }
-
-    return () => {
-      if (scrollContainer) {
-        scrollContainer.removeEventListener('mouseenter', handleMouseEnter)
-        scrollContainer.removeEventListener('mouseleave', handleMouseLeave)
-      }
-      document.body.style.overflow = '' // Clean up on unmount
-    }
-  }, [])
-
-  useEffect(() => {
     setActiveActionsTabIndex(0)
     setActiveChartTabIndex(0)
   }, [market])
 
   return (
-    <Box
-      bg='grey.50'
-      borderLeft={isMobile ? 'unset' : '1px solid'}
-      borderColor='grey.200'
-      w={isMobile ? 'full' : '520px'}
-      position={isMobile ? 'relative' : 'fixed'}
-      height={isMobile ? 'calc(100dvh - 21px)' : 'calc(100vh - 21px)'}
-      top='20px'
-      right={0}
-      overflowY='auto'
-      p={isMobile ? '12px' : '16px'}
-      pt={isMobile ? 0 : '16px'}
-      ref={scrollableBlockRef}
-      id='side-menu-scroll-container'
-      boxShadow='-4px 0px 8px 0px rgba(0, 0, 0, 0.05)'
-      backdropFilter='blur(7.5px)'
-      zIndex='200'
-    >
+    <SideBarPage>
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
           <HStack gap='16px'>
-            <Button variant='grey' onClick={handleCloseMarketPageClicked}>
+            <Button variant='outlined' onClick={handleCloseMarketPageClicked}>
               <CloseIcon width={16} height={16} />
               Close
             </Button>
-            <NextLink href={`/markets/${groupMarket?.slug || market?.slug}`}>
-              <Button variant='grey' onClick={handleFullPageClicked}>
+            <ReferralLink href={`/markets/${groupMarket?.slug || market?.slug}`}>
+              <Button variant='outlined' onClick={handleFullPageClicked}>
                 <ExpandIcon width={16} height={16} />
                 Full page
               </Button>
-            </NextLink>
+            </ReferralLink>
           </HStack>
           <ShareMenu />
         </HStack>
@@ -356,22 +305,24 @@ export default function MarketPage() {
           <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
         )}
         <HStack gap='8px' mt={isMobile ? 0 : '8px'} flexWrap='wrap'>
-          <HStack gap='12px' w='full' justifyContent='space-between'>
-            {groupMarket?.negRiskMarketId && <WinnerTakeAllTooltip />}
-            <HStack gap='4px' color='grey.500'>
-              <VolumeIcon width={16} height={16} />
-              <Text {...paragraphRegular} color='grey.500'>
-                Volume
-              </Text>
-              <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(
-                  groupMarket ? groupMarket.volumeFormatted : market?.volumeFormatted || '0',
-                  6
-                )}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
+          {market?.tradeType !== 'amm' && (
+            <HStack gap='12px' w='full' justifyContent='space-between'>
+              {groupMarket?.negRiskMarketId && <WinnerTakeAllTooltip />}
+              <HStack gap='4px' color='grey.500'>
+                <VolumeIcon width={16} height={16} />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Volume
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(
+                    groupMarket ? groupMarket.volumeFormatted : market?.volumeFormatted || '0',
+                    6
+                  )}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+              </HStack>
             </HStack>
-          </HStack>
+          )}
           {market?.tradeType === 'amm' && (
             <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
               <UniqueTraders color='grey.50' />
@@ -467,6 +418,6 @@ export default function MarketPage() {
         </TabPanels>
       </Tabs>
       <ConvertModal />
-    </Box>
+    </SideBarPage>
   )
 }

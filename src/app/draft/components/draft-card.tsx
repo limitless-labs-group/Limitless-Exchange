@@ -111,9 +111,9 @@ const MarketDataFactory = {
         <Link href={market?.creator.link || ''} isExternal>
           <Text color='grey.500'>{market?.creator.name}</Text>
         </Link>
-        {market?.tags?.map((tag: any) => (
-          <Text color='grey.500' key={tag.id}>
-            #{tag.name}
+        {market?.tags?.map((tag: string, index) => (
+          <Text color='grey.500' key={index}>
+            #{tag}
           </Text>
         ))}
       </HStack>

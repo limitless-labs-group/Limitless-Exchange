@@ -15,7 +15,7 @@ import { formatUnits } from 'viem'
 import GroupMarketSectionTabs from '@/app/(markets)/markets/[address]/components/group-market-section-tabs'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { useTradingService } from '@/services'
+import { ClickEvent, QuickBetClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import { h3Medium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { ClobPosition } from '@/types/orders'
@@ -26,15 +26,20 @@ export interface GroupMarketSectionProps {
 }
 
 export default function GroupMarketSectionDesktop({ market }: GroupMarketSectionProps) {
+  const { trackClicked } = useAmplitude()
   const { setMarket, market: selectedMarket, setClobOutcome, clobOutcome } = useTradingService()
 
   const { data: userOrders } = useMarketOrders(market?.slug)
 
   const handleOutcomeClicked = (e: SyntheticEvent, outcome: number) => {
-    setClobOutcome(outcome)
+    trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
+      source: 'Market page from outcomes section',
+      value: outcome ? 'small no button' : 'small yes button',
+    })
     if (market.slug === selectedMarket?.slug) {
       e.stopPropagation()
     }
+    setClobOutcome(outcome)
     if (market.slug !== selectedMarket?.slug) {
       setMarket(market)
     }
