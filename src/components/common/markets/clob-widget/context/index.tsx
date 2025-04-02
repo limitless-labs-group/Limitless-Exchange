@@ -9,6 +9,8 @@ import React, {
   useEffect,
 } from 'react'
 import { Address, formatUnits } from 'viem'
+import useClobMarketShares from '@/hooks/use-clob-market-shares'
+import useMarketLockedBalance from '@/hooks/use-market-locked-balance'
 import { useOrderBook } from '@/hooks/use-order-book'
 import { useAccount, useBalanceQuery, useTradingService } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -54,15 +56,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const [isApprovedNegRiskForSell, setIsApprovedNegRiskForSell] = useState(false)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
   const { web3Wallet } = useAccount()
-  const {
-    market,
-    strategy,
-    clobOutcome: outcome,
-    sharesAmount,
-    price,
-    sharesAvailable,
-    lockedBalance,
-  } = useTradingService()
+  const { market, strategy, clobOutcome: outcome } = useTradingService()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const [sharesAmount, setSharesAmount] = useState('')
   const [price, setPrice] = useState('')

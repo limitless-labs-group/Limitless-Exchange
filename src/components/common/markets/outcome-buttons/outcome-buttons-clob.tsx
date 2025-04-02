@@ -12,14 +12,7 @@ import { MarketOrderType } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function OutcomeButtonsClob() {
-  const {
-    strategy,
-    market,
-    clobOutcome: outcome,
-    setClobOutcome: setOutcome,
-    setPrice,
-    sharesAvailable,
-  } = useTradingService()
+  const { strategy, market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { trackChanged } = useAmplitude()
   const { orderType, yesPrice, noPrice } = useClobWidget()
 
@@ -38,7 +31,7 @@ export default function OutcomeButtonsClob() {
     setOutcome(outcome)
     if (orderType === MarketOrderType.LIMIT) {
       const selectedPrice = outcome ? 100 - yesPrice : 100 - noPrice
-      setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
+      // setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
     }
   }
 
@@ -102,7 +95,7 @@ export default function OutcomeButtonsClob() {
               {getPrice(0)}
             </Text>
             <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
-              {NumberUtil.toFixed(getShares(sharesAvailable['yes']), 6)} Contracts
+              {/* {NumberUtil.toFixed(getShares(sharesAvailable['yes']), 6)} Contracts */}
             </Text>
           </VStack>
         </Button>
@@ -121,7 +114,7 @@ export default function OutcomeButtonsClob() {
               {getPrice(1)}
             </Text>
             <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
-              {NumberUtil.toFixed(getShares(sharesAvailable['no']), 6)} Contracts
+              {/* {NumberUtil.toFixed(getShares(sharesAvailable['no']), 6)} Contracts */}
             </Text>
           </VStack>
         </Button>

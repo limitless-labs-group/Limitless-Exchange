@@ -14,6 +14,7 @@ import {
   Textarea,
   VStack,
   Text,
+  FormLabel,
 } from '@chakra-ui/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
@@ -289,7 +290,6 @@ export const CreateMarket: FC = () => {
   ) => {
     const trimmedValue = e.target.value.trim()
     handleChange('title', trimmedValue)
-    autoGenerateOg && isUpdateOg && generateOgImage()
   }
 
   const getButtonText = () => {
@@ -298,7 +298,7 @@ export const CreateMarket: FC = () => {
     return 'Draft'
   }
 
-  const [markets, setMarkets] = useState<MarketInput[]>([
+  const [markets, setMarkets] = useState<any[]>([
     { title: '', description: '' },
     { title: '', description: '' },
   ])
@@ -381,7 +381,7 @@ export const CreateMarket: FC = () => {
                               setMarkets(updatedMarkets)
                             }}
                           >
-                            <CloseIcon color='red' height={24} width={24} />
+                            {/* <CloseIcon color='red' height={24} width={24} /> */}
                           </Box>
                         )}
                       </Flex>
