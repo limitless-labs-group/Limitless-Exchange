@@ -15,6 +15,7 @@ const grey = defineStyle(() => {
     bg: 'transparent.70',
     color: 'white',
     padding: '8px 12px',
+    zIndex: 3000,
   }
 })
 
