@@ -115,8 +115,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const router = useRouter()
 
-  console.log(`user ${user}`)
-
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ['profiles', { account: user?.wallet?.address }],
     queryFn: async (): Promise<Profile | null> => {

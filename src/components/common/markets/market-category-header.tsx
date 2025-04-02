@@ -6,9 +6,10 @@ import { h1Bold } from '@/styles/fonts/fonts.styles'
 
 export interface MarketCategoryProps {
   name: string
+  withChat?: boolean
 }
 
-export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name }) => {
+export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name, withChat }) => {
   const { data: categories } = useCategories()
   const category = useMemo(() => {
     const foundCategory = categories?.find((cat) => cat.name === name)
@@ -31,7 +32,7 @@ export const MarketCategoryHeader: React.FC<MarketCategoryProps> = ({ name }) =>
         px='16px'
         my={isMobile ? '20px' : '32px'}
       >
-        <HStack gap='8px' w={isMobile ? 'full' : '664px'}>
+        <HStack gap='8px' w={isMobile ? 'full' : withChat ? '1350px' : '664px'}>
           <Text {...h1Bold}>{category.name}</Text>
         </HStack>
       </Flex>
