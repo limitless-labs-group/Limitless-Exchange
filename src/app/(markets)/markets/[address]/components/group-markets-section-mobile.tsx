@@ -1,7 +1,7 @@
 import { Box, Button, HStack, Text } from '@chakra-ui/react'
 import { isNumber } from '@chakra-ui/utils'
 import BigNumber from 'bignumber.js'
-import React, { useMemo } from 'react'
+import React, { SyntheticEvent, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
@@ -32,8 +32,11 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
 
   const { data: userOrders } = useMarketOrders(market?.slug)
 
-  const handleOutcomeClicked = (outcome: number) => {
+  const handleOutcomeClicked = (e: SyntheticEvent, outcome: number) => {
     setClobOutcome(outcome)
+    if (market.slug === selectedMarket?.slug) {
+      e.stopPropagation()
+    }
     if (market.slug !== selectedMarket?.slug) {
       setMarket(market)
     }
@@ -188,7 +191,7 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
             bg: 'green.500',
             color: 'white',
           }}
-          onClick={() => handleOutcomeClicked(0)}
+          onClick={(e) => handleOutcomeClicked(e, 0)}
         >
           Yes {NumberUtil.multiply(market.prices[0], 100)}%
         </Button>
@@ -204,7 +207,7 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
             bg: 'red.500',
             color: 'white',
           }}
-          onClick={() => handleOutcomeClicked(1)}
+          onClick={(e) => handleOutcomeClicked(e, 1)}
         >
           No {NumberUtil.multiply(market.prices[1], 100)}%
         </Button>

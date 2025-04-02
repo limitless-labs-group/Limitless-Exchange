@@ -156,12 +156,20 @@ export default function Orderbook({ variant }: OrderBookProps) {
       const tradedToken = orderbook.tokenId === market.tokens.yes ? 'yes' : 'no'
       if (!outcome) {
         return tradedToken === 'no'
-          ? new BigNumber(1).minus(orderbook.lastTradePrice).multipliedBy(100).toString()
-          : new BigNumber(orderbook.lastTradePrice).multipliedBy(100).toString()
+          ? new BigNumber(1)
+              .minus(orderbook.lastTradePrice)
+              .multipliedBy(100)
+              .decimalPlaces(1)
+              .toString()
+          : new BigNumber(orderbook.lastTradePrice).multipliedBy(100).decimalPlaces(1).toString()
       }
       return tradedToken === 'yes'
-        ? new BigNumber(1).minus(orderbook.lastTradePrice).multipliedBy(100).toString()
-        : new BigNumber(orderbook.lastTradePrice).multipliedBy(100).toString()
+        ? new BigNumber(1)
+            .minus(orderbook.lastTradePrice)
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toString()
+        : new BigNumber(orderbook.lastTradePrice).multipliedBy(100).decimalPlaces(1).toString()
     }
     return ''
   }, [orderbook, market, outcome])
