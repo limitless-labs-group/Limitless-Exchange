@@ -5,6 +5,7 @@ import { useAtom } from 'jotai'
 import { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import Chat from '@/components/chat'
 import Loader from '@/components/common/loader'
 import { MarketCategoryHeader } from '@/components/common/markets/market-category-header'
 import MarketsSection from '@/components/common/markets/markets-section'
@@ -179,17 +180,51 @@ const MainPage = () => {
 
   return (
     <MainLayout layoutPadding={'0px'}>
-      <HStack className='w-full' alignItems='flex-start' w='full' justifyContent='center'>
-        <VStack w='full' justifyContent='center'>
-          <>
-            {headerContent}
-            <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
+      <VStack w='full' spacing={0}>
+        {headerContent}
+
+        {selectedCategory?.name === 'Crypto' ? (
+          <HStack
+            className='w-full'
+            alignItems='flex-start'
+            w='full'
+            maxW='1400px'
+            justifyContent='space-between'
+            spacing={isMobile ? 0 : 4}
+            flexDir={isMobile ? 'column' : 'row'}
+            h='calc(100vh - 250px)'
+          >
+            <Box
+              w={isMobile ? 'full' : '70%'}
+              h={isMobile ? 'auto' : 'full'}
+              position='relative'
+              p={4}
+            >
+              <Box
+                w='full'
+                borderRadius='md'
+                h='full'
+                overflow='hidden'
+                display='flex'
+                flexDirection='column'
+              >
+                <Chat />
+              </Box>
+            </Box>
+
+            <Box
+              className='full-container'
+              w={isMobile ? 'full' : '30%'}
+              mt={isMobile ? 4 : 0}
+              h={isMobile ? 'auto' : 'full'}
+              overflowY='auto'
+            >
               <InfiniteScroll
                 className='scroll'
                 dataLength={markets?.length ?? 0}
                 next={fetchNextPage}
                 hasMore={hasNextPage}
-                style={{ width: '100%' }}
+                style={{ width: '100%', height: '100%' }}
                 loader={
                   markets.length > 0 && markets.length < totalAmount ? (
                     <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
@@ -204,12 +239,38 @@ const MainPage = () => {
                   handleSelectSort={handleSelectSort}
                   isLoading={isFetching && !isFetchingNextPage}
                   sort={selectedSort.sort}
+                  withChat
                 />
               </InfiniteScroll>
             </Box>
-          </>
-        </VStack>
-      </HStack>
+          </HStack>
+        ) : (
+          <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
+            <InfiniteScroll
+              className='scroll'
+              dataLength={markets?.length ?? 0}
+              next={fetchNextPage}
+              hasMore={hasNextPage}
+              style={{ width: '100%' }}
+              loader={
+                markets.length > 0 && markets.length < totalAmount ? (
+                  <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+                    <Loader />
+                    <Text {...paragraphRegular}>Loading more markets</Text>
+                  </HStack>
+                ) : null
+              }
+            >
+              <MarketsSection
+                markets={sortedAllMarkets as Market[]}
+                handleSelectSort={handleSelectSort}
+                isLoading={isFetching && !isFetchingNextPage}
+                sort={selectedSort.sort}
+              />
+            </InfiniteScroll>
+          </Box>
+        )}
+      </VStack>
     </MainLayout>
   )
 }
