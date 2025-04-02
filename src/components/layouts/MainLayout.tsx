@@ -32,7 +32,7 @@ export const MainLayout = ({
       id='main'
       flexDir={'column'}
       w={'full'}
-      minH={'100vh'}
+      // minH={'100vh'}
       margin={'0 auto'}
       alignItems={'center'}
       justifyContent={'space-between'}
@@ -46,7 +46,10 @@ export const MainLayout = ({
             <CategoryItems />
           </HStack>
         )}
-        <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
+        <HStack
+          // minH={'calc(100vh - 20px)'}
+          alignItems='flex-start'
+        >
           {isLoading ? (
             <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
               <Spinner />
