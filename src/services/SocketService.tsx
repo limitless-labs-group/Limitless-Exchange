@@ -12,10 +12,10 @@ export function useSocket() {
   useEffect(() => {
     const socketInstance = io(SOCKET_URL + SOCKET_GROUP, {
       path: '/socket.io',
-      transports: ['websocket'],
+      transports: ['websocket', 'polling'],
       withCredentials: true,
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 100,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
       timeout: 20000,
