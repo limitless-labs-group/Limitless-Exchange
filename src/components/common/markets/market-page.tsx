@@ -305,22 +305,24 @@ export default function MarketPage() {
           <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
         )}
         <HStack gap='8px' mt={isMobile ? 0 : '8px'} flexWrap='wrap'>
-          <HStack gap='12px' w='full' justifyContent='space-between'>
-            {groupMarket?.negRiskMarketId && <WinnerTakeAllTooltip />}
-            <HStack gap='4px' color='grey.500'>
-              <VolumeIcon width={16} height={16} />
-              <Text {...paragraphRegular} color='grey.500'>
-                Volume
-              </Text>
-              <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(
-                  groupMarket ? groupMarket.volumeFormatted : market?.volumeFormatted || '0',
-                  6
-                )}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
+          {market?.tradeType !== 'amm' && (
+            <HStack gap='12px' w='full' justifyContent='space-between'>
+              {groupMarket?.negRiskMarketId && <WinnerTakeAllTooltip />}
+              <HStack gap='4px' color='grey.500'>
+                <VolumeIcon width={16} height={16} />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Volume
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(
+                    groupMarket ? groupMarket.volumeFormatted : market?.volumeFormatted || '0',
+                    6
+                  )}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+              </HStack>
             </HStack>
-          </HStack>
+          )}
           {market?.tradeType === 'amm' && (
             <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
               <UniqueTraders color='grey.50' />
