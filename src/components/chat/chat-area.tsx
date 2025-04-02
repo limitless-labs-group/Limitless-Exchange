@@ -67,6 +67,12 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
     }
     onSubmit()
     setMsg('')
+
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus()
+      }
+    }, 0)
   }
 
   useEffect(() => {
@@ -126,7 +132,7 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
               onClick={submit}
               isDisabled={isLoading || msg.length === 0}
             >
-              {isLoading ? <Loader /> : isMobile ? 'Post' : 'Add'}
+              {isLoading ? <Loader /> : 'Send'}
             </Button>
           </Flex>
           <Textarea
@@ -147,6 +153,14 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
                 setError('')
               }
               setMsg(sanitized)
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                if (msg.trim() !== '' && !isLoading) {
+                  submit()
+                }
+              }
             }}
             rows={isMobile ? 1 : 2}
             w='full'

@@ -47,9 +47,10 @@ export default function MarketsSection({
         <Divider orientation='horizontal' borderColor='grey.100' mx={isMobile ? '16px' : 0} />
 
         <Flex
-          alignItems='center'
+          alignItems={withChat ? 'start' : 'center'}
           justifyContent='space-between'
-          flexDirection={isMobile ? 'column' : 'row'}
+          flexDirection={isMobile || withChat ? 'column' : 'row'}
+          overflow='scroll'
         >
           <Text {...headlineRegular} mt={isMobile ? '8px' : '0px'}>
             All Markets
