@@ -65,6 +65,7 @@ export default function Chat() {
     return () => {
       socket.off('newMessage')
       socket.off('recentMessages')
+      socket.off('error')
     }
   }, [socket])
 
