@@ -122,13 +122,7 @@ export default function LumyPage() {
             </Text>
           </HStack>
           <VStack gap={0} w='full'>
-            <Text
-              fontWeight={400}
-              fontSize='96px'
-              lineHeight='normal'
-              mt='-20px'
-              color='grey.white'
-            >
+            <Text fontWeight={400} fontSize='96px' lineHeight='normal' mt='-20px'>
               Lumy
             </Text>
             <Paper

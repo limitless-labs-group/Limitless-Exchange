@@ -45,16 +45,16 @@ import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
 import { Address, APIError, UpdateProfileData } from '@/types'
 import { Profile } from '@/types/profiles'
-import { LOGGED_IN_TO_LIMITLESS } from '@/utils/consts'
+import { LOGGED_IN_TO_LIMITLESS, USER_ID } from '@/utils/consts'
 
 export interface IAccountContext {
   isLoggedIn: boolean
   account: Address | undefined
-  // farcasterInfo: FarcasterUserData | undefined
   disconnectFromPlatform: () => void
   displayName?: string
   displayUsername: string
   bio: string
+  referralCode: string
   profileLoading: boolean
   profileData?: Profile | null
   updateProfileMutation: UseMutationResult<
@@ -109,9 +109,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast()
   const router = useRouter()
 
-  console.log(wallets)
-  console.log(user)
-  console.log(web3Wallet)
+  console.log(`user ${user}`)
 
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ['profiles', { account: user?.wallet?.address }],
@@ -242,6 +240,12 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             smartWallet: client.account?.address,
             web3Wallet: walletClient,
           })
+          spindl.attribute(client.account?.address)
+          pushGA4Event(GAEvents.WalletConnected)
+          trackSignIn(SignInEvent.SignedIn, {
+            signedIn: true,
+            account: client.account?.address ?? '',
+          })
           return
         }
         await login({
@@ -320,31 +324,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
-  /**
-   * FARCASTER
-   */
-  // const { data: farcasterInfo } = useQuery({
-  //   queryKey: ['farcaster', userInfo],
-  //   queryFn: async () => {
-  //     const { data } = await axios.get<FarcasterUsersRequestResponse>(
-  //       `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userInfo?.verifierId}`,
-  //       {
-  //         headers: {
-  //           api_key: process.env.NEXT_PUBLIC_NEYNAR_API_KEY,
-  //         },
-  //       }
-  //     )
-  //     const [farcasterUserData] = data.users
-  //     return farcasterUserData
-  //   },
-  //   enabled: userInfo?.typeOfLogin === 'farcaster',
-  // })
-
   const getWallet = async (): Promise<WalletClient | undefined> => {
     const wallet =
       web3Client === 'etherspot'
         ? wallets.find((wallet) => wallet.walletClientType === 'privy')
         : wallets[0]
+    console.log(`wallets ${wallets}`)
+    console.log(`web3Client ${web3Client}`)
     if (wallet) {
       const provider = await wallet.getEthereumProvider()
       const walletClient = createWalletClient({
@@ -354,17 +340,15 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       })
       setWeb3Wallet(walletClient)
       return
-    } else {
-      await disconnectFromPlatform()
     }
     return
   }
 
   useEffect(() => {
-    if (walletsReady && !web3Wallet) {
+    if (walletsReady && !web3Wallet && authenticated) {
       getWallet()
     }
-  }, [walletsReady, web3Wallet])
+  }, [walletsReady, web3Wallet, authenticated])
 
   const { mutateAsync: logout } = useMutation({
     mutationKey: ['logout'],
@@ -476,9 +460,16 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     }
     return ''
   }, [profileData?.bio])
+  const referralCode = useMemo(() => {
+    if (profileData?.referralCode) {
+      return profileData.referralCode
+    }
+    return ''
+  }, [profileData?.referralCode])
 
   const disconnectFromPlatform = useCallback(async () => {
     localStorage.removeItem(LOGGED_IN_TO_LIMITLESS)
+    localStorage.removeItem(USER_ID)
     setSmartAccountClient(null)
     setWeb3Wallet(null)
     if (accountRoutes.includes(pathname)) {
@@ -493,6 +484,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     account,
     displayName,
     displayUsername,
+    referralCode,
     bio,
     disconnectFromPlatform,
     profileLoading: userMenuLoading,
@@ -507,14 +499,4 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>
-}
-
-type FarcasterUserData = {
-  fid: number
-  username: string
-  follower_count: number
-}
-
-type FarcasterUsersRequestResponse = {
-  users: FarcasterUserData[]
 }

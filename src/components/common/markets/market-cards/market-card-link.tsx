@@ -4,13 +4,11 @@ import { FC, ReactNode, useMemo } from 'react'
 interface MarketCardLinkProps {
   children: ReactNode
   marketAddress: string
-  group?: boolean
 }
-export const MarketCardLink: FC<MarketCardLinkProps> = ({ children, marketAddress, group }) => {
+export const MarketCardLink: FC<MarketCardLinkProps> = ({ children, marketAddress }) => {
   const href = useMemo(() => {
-    const query = group ? 'market-group' : 'markets'
-    return `${process.env.NEXT_PUBLIC_FRAME_URL}/${query}/${marketAddress}`
-  }, [marketAddress, group])
+    return `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${marketAddress}`
+  }, [marketAddress])
 
   return (
     <Link w='full' href={href} _hover={{ textDecoration: 'none' }}>

@@ -1,9 +1,9 @@
 import { Box, BoxProps, Divider, HStack, Icon, Text } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
+import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits } from 'viem'
 import ClaimButton from '@/components/common/markets/claim-button'
-import Paper from '@/components/common/paper'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
@@ -62,11 +62,46 @@ const PortfolioPositionCardClob = ({
     return new BigNumber(price).multipliedBy(100).decimalPlaces(1).toString()
   }
 
+  const showContracts = (side: 0 | 1) => {
+    if (marketClosed) {
+      return positionData.market.winningOutcomeIndex === side
+    }
+    return true
+  }
+
+  const amountsToNegriskClaim = useMemo(() => {
+    if (!positionData.market.negRiskRequestId) {
+      return
+    }
+    const yesTokensToClaim =
+      positionData.market.winningOutcomeIndex === 0 ? BigInt(positionData.tokensBalance.yes) : 0n
+    const noTokensToClaim =
+      positionData.market.winningOutcomeIndex === 1 ? BigInt(positionData.tokensBalance.no) : 0n
+    return [yesTokensToClaim, noTokensToClaim]
+  }, [
+    positionData.market.negRiskRequestId,
+    positionData.market.winningOutcomeIndex,
+    positionData.tokensBalance.no,
+    positionData.tokensBalance.yes,
+  ])
+
   return (
-    <Paper {...props} w={'full'} borderRadius='8px'>
+    <Box
+      {...props}
+      cursor='pointer'
+      border='2px solid'
+      borderColor={marketClosed ? 'green.500' : 'grey.100'}
+      w={'full'}
+      borderRadius='8px'
+      _hover={{
+        bg: marketClosed ? 'green.500' : 'grey.100',
+      }}
+      bg={marketClosed ? 'green.500' : 'unset'}
+      p={isMobile ? '16px' : '8px'}
+    >
       <HStack w='full' justifyContent='space-between'>
         <Text {...paragraphMedium} color={cardColors.main}>
-          {positionData.market.title}
+          {positionData.market.group?.title || positionData.market.title}
         </Text>
         {isMobile && (
           <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
@@ -76,7 +111,11 @@ const PortfolioPositionCardClob = ({
             slug={positionData.market.slug}
             conditionId={positionData.market.conditionId as Address}
             collateralAddress={positionData.market.collateralToken.address}
-            marketAddress={process.env.NEXT_PUBLIC_CTF_CONTRACT as Address}
+            marketAddress={
+              positionData.market.negRiskRequestId
+                ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
+                : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
+            }
             outcomeIndex={positionData.market.winningOutcomeIndex as number}
             marketType='clob'
             amountToClaim={formatUnits(
@@ -86,6 +125,8 @@ const PortfolioPositionCardClob = ({
               decimals
             )}
             symbol={symbol}
+            amounts={amountsToNegriskClaim}
+            negRiskRequestId={positionData.market.negRiskRequestId}
           />
         )}
       </HStack>
@@ -109,7 +150,11 @@ const PortfolioPositionCardClob = ({
               slug={positionData.market.slug}
               conditionId={positionData.market.conditionId as Address}
               collateralAddress={positionData.market.collateralToken.address}
-              marketAddress={process.env.NEXT_PUBLIC_CTF_CONTRACT as Address}
+              marketAddress={
+                positionData.market.negRiskRequestId
+                  ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
+                  : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
+              }
               outcomeIndex={positionData.market.winningOutcomeIndex as number}
               marketType='clob'
               amountToClaim={formatUnits(
@@ -120,18 +165,26 @@ const PortfolioPositionCardClob = ({
               )}
               symbol={symbol}
               mt='12px'
+              amounts={amountsToNegriskClaim}
+              negRiskRequestId={positionData.market.negRiskRequestId}
             />
           )}
           <Divider w={'full'} h={'1px'} mb={'10px'} mt={'10px'} />
         </>
+      )}
+      {positionData.market.group && (
+        <Text {...paragraphMedium} mt='24px' color={cardColors.main}>
+          {positionData.market.title}
+        </Text>
       )}
       <HStack w='full' justifyContent='space-between' alignItems='flex-end' mt='16px'>
         <Box w={isMobile ? 'full' : 'unset'}>
           <HStack
             gap='12px'
             w={isMobile ? 'full' : 'unset'}
+            pb='2px'
             borderBottom='1px solid'
-            borderColor='grey.500'
+            borderColor={marketClosed ? 'whiteAlpha.50' : 'grey.100'}
           >
             <Text
               {...paragraphMedium}
@@ -170,58 +223,60 @@ const PortfolioPositionCardClob = ({
               Cost
             </Text>
           </HStack>
-          {Boolean(+positionData.tokensBalance.yes) &&
-            positionData.market.winningOutcomeIndex !== 1 && (
-              <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
-                <Text
-                  {...paragraphRegular}
-                  color={cardColors.main}
-                  w={isMobile ? 'unset' : '60px'}
-                  flex={isMobile ? 1 : 'unset'}
-                  textAlign={isMobile ? 'left' : 'unset'}
-                >
-                  Yes
-                </Text>
-                <Text
-                  {...paragraphRegular}
-                  color={cardColors.main}
-                  w={isMobile ? 'unset' : '120px'}
-                  flex={isMobile ? 1 : 'unset'}
-                  textAlign={isMobile ? 'left' : 'center'}
-                >
-                  {`${NumberUtil.toFixed(
-                    formatUnits(BigInt(positionData.tokensBalance.yes), decimals),
-                    2
-                  )}`}
-                </Text>
-                <Text
-                  {...paragraphRegular}
-                  color={cardColors.main}
-                  w={isMobile ? 'unset' : '60px'}
-                  flex={isMobile ? 1 : 'unset'}
-                  textAlign={isMobile ? 'left' : 'center'}
-                >
-                  {calculatePrice(
-                    formatUnits(BigInt(positionData.positions.yes.fillPrice), decimals)
-                  )}
-                  ¢
-                </Text>
-                <Text
-                  {...paragraphRegular}
-                  color={cardColors.main}
-                  w={isMobile ? 'unset' : '120px'}
-                  flex={isMobile ? 1 : 'unset'}
-                  textAlign={isMobile ? 'left' : 'center'}
-                >
-                  {`${NumberUtil.toFixed(
-                    formatUnits(BigInt(positionData.positions.yes.cost), decimals),
-                    2
-                  )}`}{' '}
-                  {symbol}
-                </Text>
-              </HStack>
-            )}
-          {Boolean(+positionData.tokensBalance.no) && !positionData.market.winningOutcomeIndex && (
+          {Boolean(+positionData.tokensBalance.yes) && showContracts(0) && (
+            <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
+              <Text
+                {...paragraphRegular}
+                color={cardColors.main}
+                w={isMobile ? 'unset' : '60px'}
+                flex={isMobile ? 1 : 'unset'}
+                textAlign={isMobile ? 'left' : 'unset'}
+              >
+                Yes
+              </Text>
+              <Text
+                {...paragraphRegular}
+                color={cardColors.main}
+                w={isMobile ? 'unset' : '120px'}
+                flex={isMobile ? 1 : 'unset'}
+                textAlign={isMobile ? 'left' : 'center'}
+              >
+                {`${NumberUtil.toFixed(
+                  formatUnits(
+                    BigInt(positionData.tokensBalance.yes),
+                    positionData.market.collateralToken.decimals
+                  ),
+                  2
+                )}`}
+              </Text>
+              <Text
+                {...paragraphRegular}
+                color={cardColors.main}
+                w={isMobile ? 'unset' : '60px'}
+                flex={isMobile ? 1 : 'unset'}
+                textAlign={isMobile ? 'left' : 'center'}
+              >
+                {calculatePrice(
+                  formatUnits(BigInt(positionData.positions.yes.fillPrice), decimals)
+                )}
+                ¢
+              </Text>
+              <Text
+                {...paragraphRegular}
+                color={cardColors.main}
+                w={isMobile ? 'unset' : '120px'}
+                flex={isMobile ? 1 : 'unset'}
+                textAlign={isMobile ? 'left' : 'center'}
+              >
+                {`${NumberUtil.toFixed(
+                  formatUnits(BigInt(positionData.positions.yes.cost), decimals),
+                  2
+                )}`}{' '}
+                {symbol}
+              </Text>
+            </HStack>
+          )}
+          {Boolean(+positionData.tokensBalance.no) && showContracts(1) && (
             <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
               <Text
                 {...paragraphRegular}
@@ -287,7 +342,7 @@ const PortfolioPositionCardClob = ({
           </HStack>
         )}
       </HStack>
-    </Paper>
+    </Box>
   )
 }
 

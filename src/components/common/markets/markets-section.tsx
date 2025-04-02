@@ -1,11 +1,13 @@
 import { Box, Divider, Flex, Text, VStack } from '@chakra-ui/react'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
+import MarketCard from '@/components/common/markets/market-cards/market-card'
 import MarketCardMobile from '@/components/common/markets/market-cards/market-card-mobile'
 import Skeleton from '@/components/common/skeleton'
-import { MarketCard } from './market-cards/market-card'
+import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { headlineRegular } from '@/styles/fonts/fonts.styles'
 import { Market, Sort, SortStorageName } from '@/types'
+import { getAnalyticsParams } from '@/utils/market'
 import SortFilter from '../sort-filter'
 
 interface DailyMarketsSectionProps {
@@ -21,6 +23,11 @@ export default function MarketsSection({
   isLoading,
   sort,
 }: DailyMarketsSectionProps) {
+  const { selectedCategory } = useTokenFilter()
+  const category = useMemo(() => {
+    return selectedCategory ? { fromCategory: selectedCategory.name } : {}
+  }, [selectedCategory])
+
   return (
     <Box
       mt='24px'
@@ -28,8 +35,9 @@ export default function MarketsSection({
       w={isMobile ? 'full' : '664px'}
       justifyContent='center'
     >
-      <Box px={isMobile ? '16px' : 0}>
-        <Divider orientation='horizontal' borderColor='grey.100' />
+      <Box>
+        <Divider orientation='horizontal' borderColor='grey.100' mx={isMobile ? '16px' : 0} />
+
         <Flex
           alignItems='center'
           justifyContent='space-between'
@@ -53,7 +61,7 @@ export default function MarketsSection({
                     <MarketCardMobile
                       key={market.slug || market.address}
                       market={market}
-                      analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
+                      analyticParams={getAnalyticsParams(index, 0, category)}
                       markets={markets}
                     />
                   )
@@ -65,7 +73,7 @@ export default function MarketsSection({
                       key={market.slug || market.address}
                       market={market}
                       variant='speedometer'
-                      analyticParams={{ bannerPosition: index + 1, bannerPaginationPage: 1 }}
+                      analyticParams={getAnalyticsParams(index, 0, category)}
                       markets={markets}
                     />
                   )
@@ -78,7 +86,6 @@ export default function MarketsSection({
           <VStack gap={4} w='full'>
             {!isLoading &&
               markets?.map((market, index) => {
-                const position = index + 1
                 const cyclePosition = index % 12
                 // First 2 cards - straight column
                 if (cyclePosition < 2) {
@@ -86,7 +93,7 @@ export default function MarketsSection({
                     <Box key={market.slug || market.address} w='full'>
                       <MarketCard
                         market={market}
-                        analyticParams={{ bannerPosition: position, bannerPaginationPage: 1 }}
+                        analyticParams={getAnalyticsParams(index, 0, category)}
                       />
                     </Box>
                   )
@@ -113,10 +120,7 @@ export default function MarketsSection({
                             <MarketCard
                               variant='grid'
                               market={gridMarket}
-                              analyticParams={{
-                                bannerPosition: position + gridIndex,
-                                bannerPaginationPage: 1,
-                              }}
+                              analyticParams={getAnalyticsParams(index, gridIndex, category)}
                             />
                           </Box>
                         ))}
@@ -132,7 +136,7 @@ export default function MarketsSection({
                     <Box key={market.slug || market.address} w='full'>
                       <MarketCard
                         market={market}
-                        analyticParams={{ bannerPosition: position, bannerPaginationPage: 1 }}
+                        analyticParams={getAnalyticsParams(index, 0, category)}
                       />
                     </Box>
                   )
@@ -149,12 +153,9 @@ export default function MarketsSection({
                       return (
                         <Box key={speedometerCards[0].slug || speedometerCards[0].address} w='full'>
                           <MarketCard
-                            variant='row'
+                            variant='grid'
                             market={speedometerCards[0]}
-                            analyticParams={{
-                              bannerPosition: position,
-                              bannerPaginationPage: 1,
-                            }}
+                            analyticParams={getAnalyticsParams(index, 0, category)}
                           />
                         </Box>
                       )
@@ -176,12 +177,9 @@ export default function MarketsSection({
                               minW='calc(50% - 8px)'
                             >
                               <MarketCard
-                                variant='speedometer'
+                                variant='grid'
                                 market={speedometerMarket}
-                                analyticParams={{
-                                  bannerPosition: position + gridIndex,
-                                  bannerPaginationPage: 1,
-                                }}
+                                analyticParams={getAnalyticsParams(index, gridIndex, category)}
                               />
                             </Box>
                           ))}
@@ -205,12 +203,9 @@ export default function MarketsSection({
                                 minW='calc(50% - 8px)'
                               >
                                 <MarketCard
-                                  variant='speedometer'
+                                  variant='grid'
                                   market={speedometerMarket}
-                                  analyticParams={{
-                                    bannerPosition: position + gridIndex,
-                                    bannerPaginationPage: 1,
-                                  }}
+                                  analyticParams={getAnalyticsParams(index, gridIndex, category)}
                                 />
                               </Box>
                             ))}
@@ -219,10 +214,7 @@ export default function MarketsSection({
                             <MarketCard
                               variant='row'
                               market={speedometerCards[2]}
-                              analyticParams={{
-                                bannerPosition: position + 2,
-                                bannerPaginationPage: 1,
-                              }}
+                              analyticParams={getAnalyticsParams(index, 2, category)}
                             />
                           </Box>
                         </VStack>
@@ -244,12 +236,9 @@ export default function MarketsSection({
                             minW='calc(50% - 8px)'
                           >
                             <MarketCard
-                              variant='speedometer'
+                              variant='grid'
                               market={speedometerMarket}
-                              analyticParams={{
-                                bannerPosition: position + gridIndex,
-                                bannerPaginationPage: 1,
-                              }}
+                              analyticParams={getAnalyticsParams(index, gridIndex, category)}
                             />
                           </Box>
                         ))}
@@ -267,7 +256,7 @@ export default function MarketsSection({
                   <React.Fragment key={`cycle-${cycleIndex}`}>
                     {[...Array(2)].map((_, index) => (
                       <Box key={`skeleton-straight-${cycleIndex}-${index}`} w='full'>
-                        <Skeleton height={144} />
+                        <Skeleton height={160} />
                       </Box>
                     ))}
                     <Flex flexWrap='wrap' gap={4} w='full'>
@@ -277,7 +266,7 @@ export default function MarketsSection({
                           flex='1 1 calc(50% - 8px)'
                           minW='calc(50% - 8px)'
                         >
-                          <Skeleton height={164} />
+                          <Skeleton height={165} />
                         </Box>
                       ))}
                     </Flex>

@@ -33,15 +33,7 @@ export default function SocialsFooter({ ...props }: PropsWithChildren<BoxProps>)
   const { pushGA4Event } = useGoogleAnalytics()
 
   return (
-    <HStack
-      justifyContent='space-between'
-      spacing={4}
-      w='full'
-      maxH='49px'
-      p='17px 2px'
-      mt='-8px'
-      {...props}
-    >
+    <HStack justifyContent='space-between' spacing={4} w='full' mt='8px' px='8px' {...props}>
       <Link
         href={LINKS.DOCS}
         target='_blank'

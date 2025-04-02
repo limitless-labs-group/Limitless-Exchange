@@ -42,7 +42,7 @@ export const LineChart = ({ market }: PriceChartProps) => {
     'grey.50',
   ])
 
-  const { data: prices } = useMarketPriceHistory(market)
+  const { data: prices } = useMarketPriceHistory(market.slug)
   function getUniqueTimestamps() {
     const timestamps = new Set<number>()
     const now = new Date().getTime()

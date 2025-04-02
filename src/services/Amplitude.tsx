@@ -7,7 +7,7 @@ import { useEffect, createContext, PropsWithChildren, useContext, useCallback } 
 import { ClobPositionType } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { accountAtom } from '@/atoms/account'
 import { PageName } from '@/hooks/use-page-name'
-import { Category, LeaderboardSort, MarketGroup } from '@/types'
+import { Category, LeaderboardSort } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 
@@ -178,10 +178,12 @@ export enum ClickEvent {
   CopyAddressClicked = 'Wallet Address Copied',
   WithdrawClicked = 'Withdraw Clicked',
   WrapETHClicked = 'Wrap ETH Clicked',
+  UnwrapETHClicked = 'Unwrap ETH Clicked',
   WithdrawConfirmedClicked = 'Withdraw Confirmed',
   SortClicked = 'Sort Clicked',
   StrokeClicked = 'Stroke Clicked',
   ClaimRewardOnPortfolioClicked = 'Claim Reward On Portfolio Clicked',
+  ApproveClaimRewardForNegRiskMarketClicked = 'Approve Claim Reward For NegRisk Market Clicked',
   ClaimRewardOnMarketPageClicked = 'Claim Reward On Market Page Clicked',
   SignW3AIn = 'Sign In W3A Option Chosen',
   ProfilePictureUploadClicked = 'Profile Picture Upload Clicked',
@@ -217,10 +219,12 @@ export enum ClickEvent {
   SplitSharesConfirmed = 'Split Contracts Confirmed',
   MergeSharesConfirmed = 'Merge Contracts Confirmed',
   MergeSharesModalMaxSharesClicked = 'Merge Contracts Modal Max Button Clicked',
+  FeedClosedMarketGroupClicked = 'Feed Closed Market Group Clicked',
 }
 
 export enum SignInEvent {
   SignIn = 'Sign In',
+  LogIn = 'Log In',
   SignedIn = 'Signed In',
   SignInWithFarcaster = 'Login with Farcaster',
 }
@@ -283,6 +287,11 @@ export interface TradeClickedMetadata {
   marketType?: 'group' | 'single'
 }
 
+export interface QuickBetClickedMetadata {
+  source: string
+  value: string
+}
+
 export interface ClickedApproveMetadata {
   address: string
 }
@@ -324,10 +333,6 @@ export interface ShareClickedMetadata {
   type: ShareClickedType
   address?: string
   marketType: 'group' | 'single'
-}
-
-interface MarketChangeInGroupData {
-  marketGroup: MarketGroup
 }
 
 interface FeeAndReturnTradingDetailsClicked {
@@ -436,6 +441,8 @@ export type ProfileBurgerMenuClickedOption =
   | 'Lumy'
   | 'Leaderboard'
   | 'My Markets'
+  | 'Market Crash'
+  | 'Feed'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
@@ -510,13 +517,13 @@ export type ClickedEventMetadata =
   | StrokeMetadata
   | TopUpMetadata
   | UIModeMetadata
-  | MarketChangeInGroupData
   | FeeAndReturnTradingDetailsClicked
   | MediumBannerClicked
   | CloseMarketMetadata
   | TradingWidgetPriceClickedMetadata
   | FullPageClickedMetaData
   | RewardsButtonClickedMetadata
+  | QuickBetClickedMetadata
 
 export type OpenedEventMetadata =
   | PageOpenedMetadata

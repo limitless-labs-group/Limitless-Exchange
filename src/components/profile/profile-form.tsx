@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Circle,
   FormControl,
   HStack,
@@ -19,6 +20,7 @@ import ButtonWithStates from '@/components/common/button-with-states'
 import { Toast } from '@/components/common/toast'
 import { ProfileFields, profileValidationSchema } from '@/components'
 import { useToast } from '@/hooks'
+import CloseIcon from '@/resources/icons/close-icon.svg'
 import EmailIcon from '@/resources/icons/email-icon.svg'
 import NotebookIcon from '@/resources/icons/notebook-icon.svg'
 import PenIcon from '@/resources/icons/pen-icon.svg'
@@ -29,7 +31,11 @@ import { APIError } from '@/types'
 import { Profile } from '@/types/profiles'
 import { DISCORD_LINK } from '@/utils/consts'
 
-export function ProfileForm() {
+interface ProfileFormProps {
+  onClose?: () => void
+}
+
+export function ProfileForm({ onClose }: ProfileFormProps) {
   const [pfpFile, setPfpFile] = useState<File | undefined>(undefined)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [hoverImage, setHoverImage] = useState(false)
@@ -143,7 +149,11 @@ export function ProfileForm() {
   return (
     <form onSubmit={handleSubmit(handleUpdateProfile)} autoComplete='off'>
       {!isMobile && (
-        <HStack w='full' justifyContent='flex-end'>
+        <HStack w='full' justifyContent='space-between'>
+          <Button variant='outlined' onClick={onClose}>
+            <CloseIcon width={16} height={16} />
+            Close
+          </Button>
           <ButtonWithStates
             status={updateProfileMutation.status}
             variant='contained'
@@ -314,7 +324,7 @@ export function ProfileForm() {
             isDisabled={!isSubmitButtonEnabled}
             type='submit'
             w='full'
-            mt='24px'
+            my='24px'
           >
             Update
           </ButtonWithStates>

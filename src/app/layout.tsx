@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import Script from 'next/script'
 import { PropsWithChildren } from 'react'
 import { Providers } from '@/app/providers'
+import { ReferralProvider } from '@/providers/Referral'
 import { SpindlProvider } from '@/providers/Spindl'
 import '../../public/fonts.css'
 
@@ -38,7 +39,10 @@ const RootLayout = ({ children }: PropsWithChildren) => {
         <meta name='apple-mobile-web-app-capable' content='yes' />
         <meta name='apple-mobile-web-app-status-bar-style' content='default' />
         <meta name='google' content='notranslate' />
-        <meta name='description' content='Daily prediction markets on Base' />
+        <meta
+          name='description'
+          content='Forecast the future on Limitless, financial prediction market'
+        />
       </head>
       <body>
         <noscript>
@@ -54,6 +58,7 @@ const RootLayout = ({ children }: PropsWithChildren) => {
           <Analytics />
           <SpeedInsights />
           <SpindlProvider />
+          <ReferralProvider />
           {/*<ReactQueryDevtools initialIsOpen={false} />*/}
         </Providers>
       </body>

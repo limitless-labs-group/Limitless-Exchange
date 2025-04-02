@@ -1,13 +1,13 @@
 import { Link, Text, HStack } from '@chakra-ui/react'
-import NextLink from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import React, { ReactNode, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import { useCategories } from '@/services'
-import { useMarkets } from '@/services/MarketsService'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup } from '@/types'
+import GrinIcon from '@/resources/icons/grid-icon.svg'
+import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
+import { useCategoriesWithCounts } from '@/services'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { ReferralLink } from '../referral-link'
 
 export interface SideItemProps {
   isActive?: boolean
@@ -48,39 +48,10 @@ export const SideItem = ({ isActive, onClick, icon, children, color }: SideItemP
 }
 
 export const CategoryItems = () => {
-  const { selectedCategory, handleCategory, handleDashboard } = useTokenFilter()
+  const { selectedCategory, handleCategory, handleDashboard, dashboard } = useTokenFilter()
   const searchParams = useSearchParams()
 
-  const { data: categories } = useCategories()
-  const { data } = useMarkets(null)
-
-  const markets: (Market | MarketGroup)[] = useMemo(() => {
-    return data?.pages.flatMap((page) => page.data.markets) || []
-  }, [data?.pages])
-
-  const marketsByCategory = useMemo(() => {
-    if (!markets.length || !categories?.length) return {}
-
-    const counts: Record<string, number> = {}
-    categories.forEach((category) => {
-      counts[category.name] = 0
-    })
-
-    const otherCategory = categories.find((cat) => cat.name.toLowerCase() === 'other')
-    const otherCategoryName = otherCategory?.name || 'Other'
-
-    markets.forEach((market) => {
-      if (market.categories && market.categories.length > 0) {
-        market.categories.forEach((categoryName) => {
-          counts[categoryName] = (counts[categoryName] || 0) + 1
-        })
-      } else {
-        counts[otherCategoryName] = (counts[otherCategoryName] || 0) + 1
-      }
-    })
-
-    return counts
-  }, [markets, categories])
+  const { data: categoriesWithCount } = useCategoriesWithCounts()
 
   const createQueryString = (categoryName: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -94,26 +65,58 @@ export const CategoryItems = () => {
   }
 
   const categoriesWithMarkets = useMemo(() => {
-    return (
-      categories?.filter(
-        (category) => marketsByCategory[category.name] && marketsByCategory[category.name] > 0
-      ) || []
-    )
-  }, [categories, marketsByCategory])
+    return categoriesWithCount?.categories?.filter((category) => category.count > 0) || []
+  }, [categoriesWithCount])
 
-  if (!categories?.length) {
+  if (!categoriesWithCount?.categories?.length) {
     return null
   }
 
   return (
     <>
-      {categoriesWithMarkets.map((category) => (
-        <NextLink
-          key={category.id}
-          href={`/?${createQueryString(category.name)}`}
+      <ReferralLink href={'/'}>
+        <Link variant='transparent' px={0} minW='122px'>
+          <HStack
+            gap='4px'
+            cursor='pointer'
+            bg={!selectedCategory && !dashboard ? 'grey.100' : 'unset'}
+            onClick={() => {
+              handleCategory(undefined)
+              handleDashboard(undefined)
+            }}
+            px={'8px'}
+            rounded='8px'
+          >
+            <GrinIcon width={16} height={16} />
+            <Text {...paragraphRegular} whiteSpace='nowrap'>{`All Markets ${
+              categoriesWithCount.totalCount ? '(' + categoriesWithCount.totalCount + ')' : ''
+            }`}</Text>
+          </HStack>
+        </Link>
+      </ReferralLink>
+      {isMobile && (
+        <ReferralLink
+          href={`/?dashboard=marketcrash`}
+          passHref
           style={{ width: isMobile ? 'fit-content' : '100%' }}
         >
-          <Link variant='transparent'>
+          <Link variant='transparent' px={0}>
+            <SideItem
+              isActive={dashboard === 'marketcrash'}
+              icon={<DashboardIcon width={16} height={16} />}
+              onClick={() => {
+                handleDashboard('marketcrash')
+              }}
+              color='orange-500'
+            >
+              Market crash
+            </SideItem>
+          </Link>
+        </ReferralLink>
+      )}
+      {categoriesWithMarkets.map((category) => (
+        <ReferralLink key={category.id} href={`/?${createQueryString(category.name)}`}>
+          <Link variant='transparent' px={0}>
             <SideItem
               isActive={selectedCategory?.name.toLowerCase() === category.name.toLowerCase()}
               onClick={() => {
@@ -124,10 +127,10 @@ export const CategoryItems = () => {
                 handleDashboard(undefined)
               }}
             >
-              {category.name} ({marketsByCategory[category.name]})
+              {category.name} ({category.count})
             </SideItem>
           </Link>
-        </NextLink>
+        </ReferralLink>
       ))}
     </>
   )

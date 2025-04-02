@@ -10,9 +10,9 @@ import {
   VStack,
   Text,
   HStack,
+  Box,
 } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { uuidv4 } from '@walletconnect/utils'
 import BigNumber from 'bignumber.js'
 import React from 'react'
 import { formatUnits } from 'viem'
@@ -82,8 +82,37 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
   }
 
   return (
-    <>
-      <TableContainer overflowY={'auto'} my='16px' maxH='178px'>
+    <Box position='relative'>
+      {Boolean(userOrders?.length) && (
+        <Box position='absolute' bottom='-16px' left='0' bg='grey.500' h='2px' zIndex={10} w='full'>
+          <Box
+            className='scroll-progress'
+            height='2px'
+            bg='white' // Or any color that matches your theme
+            transition='width 0.1s'
+            width='0%'
+            minW='100px'
+          />
+        </Box>
+      )}
+      <TableContainer
+        overflowY={'auto'}
+        my='16px'
+        maxH='178px'
+        onScroll={(e) => {
+          const target = e.target as HTMLDivElement
+          // Calculate the maximum scrollable distance horizontally
+          const maxScroll = target.scrollWidth - target.clientWidth
+          // Calculate the current scroll percentage
+          const scrollPercentage = maxScroll > 0 ? (target.scrollLeft / maxScroll) * 100 : 0
+          const progressLine = target.parentElement?.querySelector(
+            '.scroll-progress'
+          ) as HTMLDivElement
+          if (progressLine) {
+            progressLine.style.width = `${scrollPercentage}%`
+          }
+        }}
+      >
         <Table variant={'noPaddingsOnSides'}>
           <Thead position='sticky' top='0' zIndex={1}>
             <Tr>
@@ -158,8 +187,8 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
       </TableContainer>
       {userOrdersLoading && (
         <VStack w='full' gap='15px'>
-          {[...Array(3)].map(() => (
-            <Skeleton height={24} key={uuidv4()} />
+          {[...Array(3)].map((index) => (
+            <Skeleton height={24} key={index} />
           ))}
         </VStack>
       )}
@@ -168,6 +197,6 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
           No opened orders.
         </Text>
       )}
-    </>
+    </Box>
   )
 }
