@@ -32,7 +32,7 @@ export function useMarketFeed(market: Market | null) {
   const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useQuery<AxiosResponse<MarketFeedData[]>>({
-    queryKey: ['market-feed', market?.slug],
+    queryKey: ['market-feed', market?.slug, web3Wallet?.account?.address],
     queryFn: async () => {
       const client = web3Wallet ? privateClient : limitlessApi
       const url =
@@ -50,7 +50,7 @@ export function useMarketClobInfinityFeed(marketSlug?: string) {
   const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useInfiniteQuery<MarketFeedData[], Error>({
-    queryKey: ['market-page-clob-feed', marketSlug],
+    queryKey: ['market-page-clob-feed', marketSlug, web3Wallet?.account?.address],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
       const client = web3Wallet ? privateClient : limitlessApi

@@ -161,6 +161,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       await queryClient.invalidateQueries({
         queryKey: ['market-feed'],
       })
+      await queryClient.invalidateQueries({
+        queryKey: ['market-page-clob-feed'],
+      })
     },
   })
 
@@ -176,6 +179,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       })
       await queryClient.invalidateQueries({
         queryKey: ['market-feed'],
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['market-page-clob-feed'],
       })
     },
   })
