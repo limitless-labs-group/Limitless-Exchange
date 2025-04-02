@@ -71,6 +71,7 @@ export const defaultFormData = {
   title: '',
   token: { symbol: 'USDC', id: 7 },
   description: '',
+  slug: '',
   liquidity: tokenLimits[defaultTokenSymbol].default ?? tokenLimits[defaultTokenSymbol].min,
   probability: defaultProbability,
   marketFee: defaultMarketFee,
@@ -79,7 +80,12 @@ export const defaultFormData = {
   categories: [{ id: '2', label: 'Crypto', value: 'Crypto' }],
   ogLogo: undefined,
   isBannered: false,
+  priorityIndex: 0,
   txHash: '',
+  maxDailyReward: 300,
+  maxSpread: 3,
+  minSize: 100,
+  c: 3,
 }
 
 export const selectStyles = {

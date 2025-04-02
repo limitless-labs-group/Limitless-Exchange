@@ -134,7 +134,13 @@ const NumberInputWithButtons = React.forwardRef<HTMLInputElement, NumberInputWit
           </>
         )}
         {endAdornment && (
-          <InputRightElement h='16px' top='8px' right={isMobile ? '8px' : '12px'} w='fit'>
+          <InputRightElement
+            h='16px'
+            top='8px'
+            right={isMobile ? '8px' : '12px'}
+            w='fit'
+            color='grey.500'
+          >
             {endAdornment}
           </InputRightElement>
         )}

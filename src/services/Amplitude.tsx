@@ -7,12 +7,12 @@ import { useEffect, createContext, PropsWithChildren, useContext, useCallback } 
 import { ClobPositionType } from '@/app/(markets)/markets/[address]/components/clob/types'
 import { accountAtom } from '@/atoms/account'
 import { PageName } from '@/hooks/use-page-name'
-import { Category, LeaderboardSort, MarketGroup } from '@/types'
+import { Category, LeaderboardSort } from '@/types'
 
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 
 interface IAmplitudeContext {
-  trackSignUp: () => void
+  trackSignUp: <T extends SignInEventMetadata>(event: SignInEvent, customData?: T) => void
   trackChanged: <T extends ChangedEventMetadata>(event: ChangeEvent, customData?: T) => void
   trackClicked: <T extends ClickedEventMetadata>(event: ClickEvent, customData?: T) => void
   trackOpened: <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => void
@@ -174,14 +174,17 @@ export enum ClickEvent {
   BackClicked = 'Back Clicked',
   UIModeClicked = 'UI Mode Changed',
   CategoryClicked = 'Category Clicked',
+  SeeMoreCkicked = 'See More Clicked',
   WalletClicked = 'Wallet Clicked',
   CopyAddressClicked = 'Wallet Address Copied',
   WithdrawClicked = 'Withdraw Clicked',
   WrapETHClicked = 'Wrap ETH Clicked',
+  UnwrapETHClicked = 'Unwrap ETH Clicked',
   WithdrawConfirmedClicked = 'Withdraw Confirmed',
   SortClicked = 'Sort Clicked',
   StrokeClicked = 'Stroke Clicked',
   ClaimRewardOnPortfolioClicked = 'Claim Reward On Portfolio Clicked',
+  ApproveClaimRewardForNegRiskMarketClicked = 'Approve Claim Reward For NegRisk Market Clicked',
   ClaimRewardOnMarketPageClicked = 'Claim Reward On Market Page Clicked',
   SignW3AIn = 'Sign In W3A Option Chosen',
   ProfilePictureUploadClicked = 'Profile Picture Upload Clicked',
@@ -217,10 +220,16 @@ export enum ClickEvent {
   SplitSharesConfirmed = 'Split Contracts Confirmed',
   MergeSharesConfirmed = 'Merge Contracts Confirmed',
   MergeSharesModalMaxSharesClicked = 'Merge Contracts Modal Max Button Clicked',
+  FeedClosedMarketGroupClicked = 'Feed Closed Market Group Clicked',
+  TopBannerClicked = 'Top Banner Clicked',
+  WidgetClicked = 'Widget Clicked',
 }
 
 export enum SignInEvent {
   SignIn = 'Sign In',
+  SignUp = 'Sign Up',
+  LogIn = 'Log In',
+  SignedUp = 'Signed Up',
   SignedIn = 'Signed In',
   SignInWithFarcaster = 'Login with Farcaster',
 }
@@ -231,6 +240,10 @@ export enum OpenEvent {
   ProfileSettingsOpened = 'Profile Settings Opened',
   MarketPageOpened = 'Market Page Opened',
   SidebarMarketOpened = 'Sidebar Market Opened',
+}
+
+export enum DashboardName {
+  MarketCrash = 'Market Crash',
 }
 
 export enum AuthenticationEvent {
@@ -279,6 +292,11 @@ export interface TradeClickedMetadata {
   marketType?: 'group' | 'single'
 }
 
+export interface QuickBetClickedMetadata {
+  source: string
+  value: string
+}
+
 export interface ClickedApproveMetadata {
   address: string
 }
@@ -322,10 +340,6 @@ export interface ShareClickedMetadata {
   marketType: 'group' | 'single'
 }
 
-interface MarketChangeInGroupData {
-  marketGroup: MarketGroup
-}
-
 interface FeeAndReturnTradingDetailsClicked {
   from: 'percentage' | 'numbers'
   to: 'percentage' | 'numbers'
@@ -346,6 +360,7 @@ export interface PageOpenedMetadata {
   page: PageOpenedPage
   marketAddress?: string
   category?: string[]
+  dashboard?: string
   [key: string]: any
 }
 
@@ -431,6 +446,8 @@ export type ProfileBurgerMenuClickedOption =
   | 'Lumy'
   | 'Leaderboard'
   | 'My Markets'
+  | 'Market Crash'
+  | 'Feed'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
 }
@@ -477,6 +494,10 @@ interface SignedInMetadata {
   signedIn: boolean
 }
 
+interface WidgetClickedMetadata {
+  type: string
+}
+
 export type ChangedEventMetadata =
   | StrategyChangedMetadata
   | OutcomeChangedMetadata
@@ -505,13 +526,14 @@ export type ClickedEventMetadata =
   | StrokeMetadata
   | TopUpMetadata
   | UIModeMetadata
-  | MarketChangeInGroupData
   | FeeAndReturnTradingDetailsClicked
   | MediumBannerClicked
   | CloseMarketMetadata
   | TradingWidgetPriceClickedMetadata
   | FullPageClickedMetaData
   | RewardsButtonClickedMetadata
+  | QuickBetClickedMetadata
+  | WidgetClickedMetadata
 
 export type OpenedEventMetadata =
   | PageOpenedMetadata

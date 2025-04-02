@@ -36,7 +36,7 @@ const blueModal = definePartsStyle({
 const commonModal = definePartsStyle({
   dialog: {
     borderRadius: '8px',
-    bg: 'grey.50',
+    bg: 'grey.100',
     p: '16px',
   },
   header: {
@@ -55,6 +55,10 @@ const commonModal = definePartsStyle({
 const baseStyle = definePartsStyle({
   overlay: {
     bg: 'rgba(0, 0, 0, 0.5)', //change the background
+    zIndex: 9000,
+  },
+  dialogContainer: {
+    zIndex: 9000,
   },
   closeButton: {
     outline: 'none',

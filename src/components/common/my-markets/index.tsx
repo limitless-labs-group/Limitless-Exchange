@@ -23,7 +23,7 @@ export default function MyMarkets() {
       w={isMobile ? 'full' : '400px'}
       h='full'
       backdropFilter='blur(7.5px)'
-      bg='background.80'
+      bg='whiteAlpha.50'
       p='16px'
       overflowY='scroll'
       mb={isMobile ? '40px' : 0}

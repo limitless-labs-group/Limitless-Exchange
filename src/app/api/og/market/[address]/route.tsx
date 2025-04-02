@@ -48,7 +48,7 @@ export async function GET(req: Request, { params }: { params: { address: string 
       const collateralAmountBI = parseUnits(collateralAmount, collateralDecimals)
 
       const client = createPublicClient({
-        transport: http(),
+        transport: http(process.env.NEXT_PUBLIC_FALLBACK_RPC_URL),
         chain: defaultChain,
       })
       const contract = getContract({
@@ -129,22 +129,29 @@ export async function GET(req: Request, { params }: { params: { address: string 
               strokeWidth={strokeWidth}
               strokeDasharray={circumference}
               strokeDashoffset={circumference - progress}
-              strokeLinecap='round'
             />
           </svg>
-          <span
+          <div
             style={{
+              display: 'flex',
               position: 'absolute',
-              top: '45px',
-              fontSize: `${fontSize}px`,
-              lineHeight: `${fontSize}px`,
-              fontWeight: 700,
-              color: getColor(),
-              fontFamily: 'Inter Thin',
+              top: '46px',
             }}
           >
-            {value}%
-          </span>
+            <span
+              style={{
+                fontSize: `${fontSize}px`,
+                lineHeight: `${fontSize}px`,
+                fontWeight: 700,
+                color: getColor(),
+                fontFamily: 'Inter Thin',
+                textAlign: 'center',
+                marginLeft: '4px',
+              }}
+            >
+              {value}%
+            </span>
+          </div>
         </div>
       )
     }
@@ -183,9 +190,7 @@ export async function GET(req: Request, { params }: { params: { address: string 
         <div
           style={{
             display: 'flex',
-            justifyContent: 'center',
-            width: '100%',
-            marginLeft: '48px',
+            marginLeft: '82px',
           }}
         >
           <LimitlessLogo />

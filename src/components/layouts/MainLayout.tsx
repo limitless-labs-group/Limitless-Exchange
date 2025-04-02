@@ -3,10 +3,11 @@ import { usePathname } from 'next/navigation'
 import React from 'react'
 import { isMobile } from 'react-device-detect'
 import MarketPage from '@/components/common/markets/market-page'
-import HeaderMarquee from '@/components/layouts/header-marquee'
+import { CategoryItems } from '@/components/common/markets/sidebar-item'
+import Header from '@/components/layouts/header'
 import MobileHeader from '@/components/layouts/mobile-header'
 import MobileNavigation from '@/components/layouts/mobile-navigation'
-import Sidebar from '@/components/layouts/sidebar'
+import usePageName from '@/hooks/use-page-name'
 import { useTradingService } from '@/services'
 import { inter } from '@/styles'
 
@@ -23,6 +24,7 @@ export const MainLayout = ({
 }: IMainLayout) => {
   const pathname = usePathname()
   const { marketPageOpened, market } = useTradingService()
+  const pageName = usePageName()
 
   return (
     <Box
@@ -30,26 +32,24 @@ export const MainLayout = ({
       id='main'
       flexDir={'column'}
       w={'full'}
-      minH={'100vh'}
+      // minH={'100vh'}
       margin={'0 auto'}
       alignItems={'center'}
       justifyContent={'space-between'}
       gap={{ sm: 6, md: 10 }}
-      bg='grey.50'
       {...props}
     >
-      <Box position={isMobile ? 'fixed' : 'relative'} zIndex={9999} top={0}>
-        <HeaderMarquee />
-        {isMobile && <MobileHeader />}
-      </Box>
-      <Box
-        mt='20px'
-        mb={isMobile ? '60px' : 0}
-        pt={isMobile && pathname !== '/lumy' ? '88px' : 0}
-        overflow='hidden'
-      >
-        <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
-          {!isMobile && <Sidebar />}
+      {isMobile ? <MobileHeader /> : <Header />}
+      <Box mb={isMobile ? '60px' : 0} mt={isMobile ? '65px' : '80px'} overflow='hidden'>
+        {isMobile && pageName === 'Explore Markets' && (
+          <HStack py='4px' px='12px' bg='grey.50' maxW='100%' overflowX='auto'>
+            <CategoryItems />
+          </HStack>
+        )}
+        <HStack
+          // minH={'calc(100vh - 20px)'}
+          alignItems='flex-start'
+        >
           {isLoading ? (
             <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
               <Spinner />

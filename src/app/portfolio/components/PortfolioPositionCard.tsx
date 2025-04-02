@@ -6,9 +6,7 @@ import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import ClaimButton from '@/components/common/markets/claim-button'
 import MarketPage from '@/components/common/markets/market-page'
-import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
-import useMarketGroup from '@/hooks/use-market-group'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
@@ -29,11 +27,6 @@ export interface IPortfolioPositionCard {
 const unhoveredColors = {
   main: 'grey.800',
   secondary: 'grey.500',
-}
-
-const hoverColors = {
-  main: 'white',
-  secondary: 'transparent.700',
 }
 
 const StatusIcon = ({ isClosed, color }: { isClosed: boolean | undefined; color: string }) => {
@@ -58,7 +51,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
   const [colors, setColors] = useState(unhoveredColors)
 
   const { trackClicked } = useAmplitude()
-  const { onOpenMarketPage, setMarket, setMarketGroup } = useTradingService()
+  const { onOpenMarketPage, setMarket } = useTradingService()
 
   const allMarkets = useAllMarkets()
 
@@ -107,11 +100,6 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
   }
 
   const { data: oneMarket, refetch: refetchMarket } = useMarket(position.market.id, false, false)
-  const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
-    targetMarket?.group?.slug,
-    false,
-    false
-  )
 
   const handleOpenMarketPage = async () => {
     if (position.market?.id) {
@@ -122,7 +110,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
           trackClicked(ClickEvent.PortfolioMarketClicked, {
             marketCategory: fetchedMarket.categories,
             marketAddress: fetchedMarket.slug,
-            marketType: 'single',
+            marketType: fetchedMarket.marketType,
             marketTags: fetchedMarket.tags,
             type: 'Portolio',
           })
@@ -132,21 +120,10 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
         trackClicked(ClickEvent.PortfolioMarketClicked, {
           marketCategory: oneMarket.categories,
           marketAddress: oneMarket.slug,
-          marketType: 'single',
+          marketType: oneMarket.marketType,
           marketTags: oneMarket.tags,
           type: 'Portolio',
         })
-      }
-    }
-
-    if (targetMarket?.group?.slug) {
-      if (!marketGroup) {
-        const { data: fetchedMarketGroup } = await refetchMarketGroup()
-        if (fetchedMarketGroup) {
-          onOpenMarketPage(fetchedMarketGroup)
-        }
-      } else {
-        onOpenMarketPage(marketGroup)
       }
     }
   }
@@ -155,7 +132,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
     if (position.market.closed) {
       return {
         main: 'white',
-        secondary: isMobile ? 'white' : 'transparent.700',
+        secondary: isMobile ? 'white' : 'whiteAlpha.70',
       }
     }
     return {
@@ -167,12 +144,18 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
   return isMobile ? (
     <MobileDrawer
       trigger={
-        <Paper
+        <Box
           onClick={handleOpenMarketPage}
+          cursor='pointer'
+          border='2px solid'
+          borderColor={position.market?.closed ? 'green.500' : 'grey.100'}
           w={'full'}
-          bg={position.market?.closed ? 'green.500' : 'grey.200'}
-          p={'16px'}
           borderRadius='8px'
+          _hover={{
+            bg: position.market?.closed ? 'green.500' : 'grey.100',
+          }}
+          bg={position.market?.closed ? 'green.500' : 'unset'}
+          p={isMobile ? '16px' : '8px'}
         >
           <Stack spacing={'8px'}>
             <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
@@ -262,28 +245,28 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
               </Text>
             </HStack>
           </Stack>
-        </Paper>
+        </Box>
       }
       variant='black'
       onClose={() => {
         setMarket(null)
-        setMarketGroup(null)
       }}
     >
       <MarketPage />
     </MobileDrawer>
   ) : (
-    <Paper
-      w={'full'}
-      bg={position.market?.closed ? 'green.500' : 'grey.200'}
-      _hover={{
-        bg: position.market?.closed ? 'green.600' : 'blue.500',
-      }}
+    <Box
       cursor='pointer'
-      onMouseEnter={() => setColors(hoverColors)}
-      onMouseLeave={() => setColors(unhoveredColors)}
-      onClick={handleOpenMarketPage}
+      border='2px solid'
+      borderColor={position.market?.closed ? 'green.500' : 'grey.100'}
+      w={'full'}
       borderRadius='8px'
+      _hover={{
+        bg: position.market?.closed ? 'green.500' : 'grey.100',
+      }}
+      bg={position.market?.closed ? 'green.500' : 'unset'}
+      p={isMobile ? '16px' : '8px'}
+      onClick={handleOpenMarketPage}
     >
       <Stack direction='row'>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
@@ -379,7 +362,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
           </HStack>
         </HStack>
       </Stack>
-    </Paper>
+    </Box>
   )
 }
 

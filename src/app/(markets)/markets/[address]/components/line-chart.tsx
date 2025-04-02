@@ -42,7 +42,7 @@ export const LineChart = ({ market }: PriceChartProps) => {
     'grey.50',
   ])
 
-  const { data: prices } = useMarketPriceHistory(market)
+  const { data: prices } = useMarketPriceHistory(market?.slug, market?.address)
   function getUniqueTimestamps() {
     const timestamps = new Set<number>()
     const now = new Date().getTime()
@@ -62,7 +62,6 @@ export const LineChart = ({ market }: PriceChartProps) => {
       }
     })()
 
-    // Use the prices data from the useMarketPriceHistory hook
     if (prices && prices.length > 0) {
       prices.forEach((pricePoint) => {
         // pricePoint is an array where the first element is the timestamp
@@ -365,8 +364,16 @@ export const LineChart = ({ market }: PriceChartProps) => {
         </HStack>
       </HStack>
 
-      <Box borderRadius='12px' bg='grey.50' p='8px' height='214px'>
-        <Line data={data} options={options} />
+      <Box borderRadius='12px' bg='grey.50' p='8px' height='214px' width='100%' position='relative'>
+        <Line
+          data={data}
+          options={{
+            ...options,
+            maintainAspectRatio: false,
+            responsive: true,
+          }}
+          style={{ width: '100%', height: '100%', position: 'absolute' }}
+        />
       </Box>
     </VStack>
   )

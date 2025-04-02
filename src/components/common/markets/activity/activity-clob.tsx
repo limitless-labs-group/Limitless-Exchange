@@ -1,6 +1,7 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import debounce from 'lodash.debounce'
 import { useCallback } from 'react'
+import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import ActivityClobItem from '@/components/common/markets/activity/activity-clob-item'
@@ -12,8 +13,12 @@ import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { ClobTradeEvent } from '@/types/orders'
 
 export default function ActivityClob() {
-  const { market } = useTradingService()
-  const { data: activityData, fetchNextPage, hasNextPage } = useMarketClobInfinityFeed(market?.slug)
+  const { market, groupMarket } = useTradingService()
+  const {
+    data: activityData,
+    fetchNextPage,
+    hasNextPage,
+  } = useMarketClobInfinityFeed(groupMarket?.negRiskMarketId ? groupMarket?.slug : market?.slug)
 
   // @ts-ignore
   const activity = activityData?.pages.flatMap((page) => page.data.events)
@@ -24,7 +29,7 @@ export default function ActivityClob() {
   )
 
   return !!activity?.length ? (
-    <Box className='feed-container'>
+    <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
       <InfiniteScroll
         dataLength={activity?.length ?? 0}
         next={getNextPage}
