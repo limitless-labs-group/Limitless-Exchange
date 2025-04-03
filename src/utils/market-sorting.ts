@@ -3,24 +3,15 @@ import { Market, Sort } from '@/types'
 type MarketOrGroup = Market
 
 const getVolumeForMarket = (market: MarketOrGroup): number => {
-  // if ('slug' in market && market.slug) {
-  //   return (market as MarketGroup).markets.reduce((acc, m) => acc + Number(m.volumeFormatted), 0)
-  // }
-  return Number((market as Market).volumeFormatted) ?? 0
+  return Number(market.volumeFormatted)
 }
 
 const getLiquidityForMarket = (market: MarketOrGroup): number => {
-  // if ('slug' in market && market.slug) {
-  //   return (market as MarketGroup).markets.reduce((acc, m) => acc + Number(m.liquidityFormatted), 0)
-  // }
-  return Number((market as Market).liquidityFormatted) ?? 0
+  return Number(market.liquidityFormatted)
 }
 
 const getValueForMarket = (market: Market): number => {
-  return (
-    Number((market as Market).liquidityFormatted) +
-      Number((market as Market).openInterestFormatted) || 0
-  )
+  return Number(market.liquidityFormatted) + Number(market.openInterestFormatted) || 0
 }
 
 const getAggregatedMarketValue = (market: MarketOrGroup): number => {
