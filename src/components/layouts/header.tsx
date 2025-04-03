@@ -1,6 +1,7 @@
 import { Box, Button, Flex, HStack, Link, Text } from '@chakra-ui/react'
 import { useFundWallet } from '@privy-io/react-auth'
 import { useAtom } from 'jotai/index'
+import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useMemo } from 'react'
 import { LoginButtons } from '@/components/common/login-button'
@@ -13,8 +14,8 @@ import { Profile } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
+import { useThemeProvider } from '@/providers'
 import DepositIcon from '@/resources/icons/deposit-icon.svg'
-import Logo from '@/resources/icons/logo.svg'
 import FeedIcon from '@/resources/icons/sidebar/Feed.svg'
 import GridIcon from '@/resources/icons/sidebar/Markets.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
@@ -44,6 +45,7 @@ export default function Header() {
   const { fundWallet } = useFundWallet()
   const { data: positions } = usePosition()
   const { marketPageOpened, onCloseMarketPage } = useTradingService()
+  const { mode } = useThemeProvider()
   const {
     account,
     loginToPlatform,
@@ -104,30 +106,12 @@ export default function Header() {
               style={{ textDecoration: 'none' }}
               _hover={{ textDecoration: 'none' }}
             >
-              {/* <Image */}
-              {/*   src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'} */}
-              {/*   height={32} */}
-              {/*   width={156} */}
-              {/*   alt='logo' */}
-              {/* /> */}
-              <HStack minW='156px' w='full'>
-                <Logo />
-                <Text
-                  {...paragraphMedium}
-                  fontSize='16px'
-                  _hover={{
-                    '&::after': {
-                      content: '"Limitmore"',
-                    },
-                    '& > span': {
-                      display: 'none',
-                    },
-                  }}
-                  position='relative'
-                >
-                  <span>Limitless</span>
-                </Text>
-              </HStack>
+              <Image
+                src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+                height={32}
+                width={156}
+                alt='logo'
+              />
             </Link>
           </ReferralLink>
           <HStack gap='16px'>

@@ -151,12 +151,15 @@ export enum ChangeEvent {
   ClobPositionsTabChanged = 'Clob Positions Tab Changed',
   ClobWidgetModeChanged = 'Clob Widget Mode Changed',
   ChartTabChanged = 'Chart View Changed',
+  StartTyping = 'Start Typing',
   PortfolioClobViewChanged = 'Portfolio/Orders View Changed',
 }
 
 export enum ClickEvent {
   BuyClicked = 'Buy Position Chosen',
   SellClicked = 'Sell Position Chosen',
+  SendMessageClicked = 'Send Message Clicked',
+  ClickOnInputField = 'Click On Input Field',
   SellTradeClicked = 'Sell Trade Clicked',
   SellApproveClicked = 'Sell Approve Clicked',
   CreateMarketClicked = 'Create Market Clicked',
@@ -367,6 +370,14 @@ export interface PageOpenedMetadata {
   [key: string]: any
 }
 
+export interface ChatClickedMetaData {
+  currentOpenMarket: string
+}
+
+export interface ChatChengedMetaData {
+  currentOpenMarket: string
+}
+
 export interface SidebarMarketOpenedMetadata {
   marketAddress?: string
   category?: Category | string
@@ -511,6 +522,7 @@ export type ChangedEventMetadata =
   | OrderBookSideChangedMetadata
   | ClobPositionsTabChangesMetadata
   | ClobWidgetModeChangedMetadata
+  | ChatChengedMetaData
   | ChartTabChangedMetadata
 export type ClickedEventMetadata =
   | SupportChatClickedMetadata
@@ -537,6 +549,7 @@ export type ClickedEventMetadata =
   | RewardsButtonClickedMetadata
   | QuickBetClickedMetadata
   | WidgetClickedMetadata
+  | ChatClickedMetaData
 
 export type OpenedEventMetadata =
   | PageOpenedMetadata

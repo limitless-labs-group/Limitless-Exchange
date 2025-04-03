@@ -46,7 +46,7 @@ export const GroupForm = () => {
         <Box key={market.id} borderWidth={1} p={4} borderRadius='md' width='100%'>
           <Flex justify='space-between' align='center' mb={2}>
             <Text fontWeight='bold'>
-              Market #{index + 1} {market.id ? `- id: ${market.id}` : ''}
+              sub-Market #{index + 1} {market.id ? `- id: ${market.id}` : ''}
             </Text>
             {markets.length > 2 ? (
               <Box
