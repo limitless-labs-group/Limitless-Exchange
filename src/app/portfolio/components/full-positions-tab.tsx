@@ -98,17 +98,21 @@ export default function FullPositionsTab({
           <Tbody>
             {showPosition(contracts.yes) && (
               <Tr>
-                <Td>Yes</Td>
-                <Td>{getContractsAmount(contracts.yes)}</Td>
-                <Td>{normalizePrice(position.yes.fillPrice)}¢</Td>
-                <Td>
+                <Td color={marketClosed ? 'white !important' : 'grey.500'}>Yes</Td>
+                <Td color={marketClosed ? 'white !important' : 'grey.500'}>
+                  {getContractsAmount(contracts.yes)}
+                </Td>
+                <Td color={marketClosed ? 'white !important' : 'grey.500'}>
+                  {normalizePrice(position.yes.fillPrice)}¢
+                </Td>
+                <Td color={marketClosed ? 'white !important' : 'grey.500'}>
                   {normalizeCost(position.yes.cost)} {symbol}
                 </Td>
-                <Td>
+                <Td color={marketClosed ? 'white !important' : 'grey.500'}>
                   {!winSide || winSide === 0 ? normalizeCost(position.yes.marketValue) : '0.00'}{' '}
                   {symbol}
                 </Td>
-                <Td>
+                <Td color={marketClosed ? 'white !important' : 'grey.500'}>
                   {!winSide || winSide === 0 ? getContractsAmount(contracts.yes) : '0.00'} {symbol}
                 </Td>
               </Tr>
