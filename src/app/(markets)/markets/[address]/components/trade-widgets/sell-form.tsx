@@ -102,10 +102,11 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
 
   const positions = useMemo(
     () =>
-      allMarketsPositions?.filter(
+      allMarketsPositions?.positions.filter(
         (position) =>
           position.type === 'amm' &&
-          position.market.id.toLowerCase() === market?.address?.toLowerCase()
+          (position as HistoryPositionWithType).market.id.toLowerCase() ===
+            market?.address?.toLowerCase()
       ) as HistoryPositionWithType[],
     [allMarketsPositions, market]
   )

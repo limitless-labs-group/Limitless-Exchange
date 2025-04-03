@@ -1,5 +1,6 @@
 'use client'
 
+import { notFound } from 'next/navigation'
 import React, { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
@@ -41,11 +42,16 @@ const MarketPage = ({ params }: { params: { address: Address } }) => {
     }
   }, [market])
 
+  // Trigger the not-found page when market is not found and loading is complete
+  useEffect(() => {
+    if (!market && !fetchMarketLoading) {
+      notFound()
+    }
+  }, [market, fetchMarketLoading])
+
   return (
     <MainLayout layoutPadding={isMobile ? '0' : '4'}>
-      {!market && !fetchMarketLoading ? (
-        <>Market not found</>
-      ) : market?.marketType === 'single' ? (
+      {market?.marketType === 'single' ? (
         <SingleMarketPage fetchMarketLoading={fetchMarketLoading} />
       ) : (
         <GroupMarketPage fetchMarketLoading={fetchMarketLoading} />
