@@ -43,7 +43,8 @@ export const reverseCalculateMinSize = (size: number | undefined) => {
 
 export const reverseCalculateMaxSpread = (spread: number | undefined) => {
   if (!spread) return 0
-  return Number(((spread - 0.005) * 100).toFixed(3))
+  const res = Number(((spread - 0.005) * 100).toFixed(3))
+  return res > 0 ? res : 0
 }
 
 export const useCreateMarket = () => {
@@ -71,25 +72,25 @@ export const useCreateMarket = () => {
 
     setFormData((prevFormData) => ({
       ...prevFormData,
-      title: draftMarket.title || '',
-      description: draftMarket.description || '',
+      title: draftMarket.title ?? '',
+      description: draftMarket.description ?? '',
       deadline: toZonedTime(draftMarket.deadline, 'America/New_York'),
       token: draftMarket.collateralToken
         ? { symbol: draftMarket.collateralToken.symbol, id: draftMarket.collateralToken.id }
         : prevFormData.token,
       liquidity:
-        draftMarket.draftMetadata?.liquidity ||
+        draftMarket.draftMetadata?.liquidity ??
         tokenLimits[draftMarket.collateralToken.symbol]?.min,
-      probability: draftMarket.draftMetadata?.initialProbability * 100 || defaultProbability,
-      marketFee: draftMarket.draftMetadata?.fee || defaultMarketFee,
-      isBannered: draftMarket.metadata?.isBannered || false,
+      probability: (draftMarket.draftMetadata?.initialProbability ?? 0) * 100 || defaultProbability,
+      marketFee: draftMarket.draftMetadata?.fee ?? defaultMarketFee,
+      isBannered: draftMarket.metadata?.isBannered ?? false,
       tag:
         draftMarket.tags.map((tag: Tag) => ({
           id: tag.id,
           value: tag.name,
           label: tag.name,
         })) ?? [],
-      creatorId: draftMarket.creator?.id || defaultCreatorId,
+      creatorId: draftMarket.creator?.id ?? defaultCreatorId,
       categories:
         draftMarket.categories.map((cat: Category) => ({
           id: cat.id,
@@ -126,28 +127,27 @@ export const useCreateMarket = () => {
 
     setFormData((prevFormData) => ({
       ...prevFormData,
-      title: activeMarket.title || '',
-      description: activeMarket.description || '',
+      title: activeMarket.title ?? '',
+      description: activeMarket.description ?? '',
       deadline: toZonedTime(activeMarket.expirationTimestamp, 'America/New_York'),
       marketFee: 0,
       priorityIndex: activeMarket.priorityIndex,
-      isBannered: activeMarket.metadata?.isBannered || false,
+      isBannered: activeMarket.metadata?.isBannered ?? false,
       tag:
         activeMarket.tags.map((tag: string | Tag) => {
-          const tagName = typeof tag === 'string' ? tag : tag.name || ''
-          const tagId = typeof tag === 'string' ? tag : tag.id || ''
+          const tagName = typeof tag === 'string' ? tag : tag.name ?? ''
+          const tagId = typeof tag === 'string' ? tag : tag.id ?? ''
           return {
             id: tagId,
             value: tagName,
             label: tagName,
           }
         }) ?? [],
-      //TODO: creator id is not available in active markets
-      creatorId: activeMarket.creator?.name || defaultCreatorId,
+      creatorId: activeMarket.creator?.name ?? defaultCreatorId,
       categories:
         activeMarket.categories.map((cat: string | Category) => {
-          const catName = typeof cat === 'string' ? cat : cat.name || ''
-          const catId = typeof cat === 'string' ? cat : cat.id || ''
+          const catName = typeof cat === 'string' ? cat : cat.name ?? ''
+          const catId = typeof cat === 'string' ? cat : cat.id ?? ''
           return {
             id: String(catId),
             value: catName,
