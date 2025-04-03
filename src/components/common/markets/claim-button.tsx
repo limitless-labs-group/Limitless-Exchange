@@ -149,7 +149,7 @@ export default function ClaimButton({
     >
       <>
         <Icon as={WinIcon} color={'black'} />
-        Claim {`${NumberUtil.formatThousands(amountToClaim, 6)} ${symbol}`}
+        Claim {`${NumberUtil.formatThousands(amountToClaim, 2)} ${symbol}`}
       </>
     </ButtonWithStates>
   )
