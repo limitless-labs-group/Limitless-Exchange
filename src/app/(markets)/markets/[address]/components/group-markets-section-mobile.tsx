@@ -38,6 +38,10 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
       value: outcome ? 'small no button' : 'small yes button',
     })
     setClobOutcome(outcome)
+    trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
+      source: 'Market page from outcomes section',
+      value: outcome ? 'small no button' : 'small yes button',
+    })
     if (market.slug === selectedMarket?.slug) {
       e.stopPropagation()
     }

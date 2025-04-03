@@ -1,5 +1,4 @@
 import {
-  Accordion,
   Box,
   Button,
   Divider,
