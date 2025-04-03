@@ -27,7 +27,6 @@ interface GroupMarketSectionSmallProps {
 
 export default function GroupMarketSectionSmall({ market }: GroupMarketSectionSmallProps) {
   const { setMarket, market: selectedMarket, setClobOutcome, clobOutcome } = useTradingService()
-  const { trackClicked } = useAmplitude()
   const { data: userOrders } = useMarketOrders(market?.slug)
   const { trackClicked } = useAmplitude()
   const handleOutcomeClicked = (e: SyntheticEvent, outcome: number) => {
