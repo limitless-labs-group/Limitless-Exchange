@@ -358,7 +358,11 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
           <TabList>
             {tabs.map((tab) => {
               return tab.show ? (
-                <Tab key={tab.title} onClick={(e) => handleTabClicked(e, tab.title)}>
+                <Tab
+                  color={marketClosed ? 'white' : 'grey.800'}
+                  key={tab.title}
+                  onClick={(e) => handleTabClicked(e, tab.title)}
+                >
                   {tab.title}
                 </Tab>
               ) : null
