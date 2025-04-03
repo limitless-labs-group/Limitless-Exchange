@@ -27,7 +27,14 @@ export const Message = ({ comment }: { comment: ChatMsg }) => {
           {/* )} */}
         </HStack>
         <VStack gap='8px' align='start'>
-          <Text {...paragraphRegular}>{comment.content}</Text>
+          <Text
+            {...paragraphRegular}
+            wordBreak='break-word'
+            whiteSpace='pre-wrap'
+            overflowWrap='break-word'
+          >
+            {comment.content}
+          </Text>
         </VStack>
       </VStack>
       {/* <Divider /> */}

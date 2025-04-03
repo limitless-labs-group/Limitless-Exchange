@@ -1,6 +1,17 @@
 'use client'
 
-import { HStack, Text, VStack, Box } from '@chakra-ui/react'
+import {
+  HStack,
+  Text,
+  VStack,
+  Box,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  TabIndicator,
+} from '@chakra-ui/react'
 import { useAtom } from 'jotai'
 import { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -171,7 +182,10 @@ const MainPage = () => {
             WebkitOverflowScrolling: 'touch',
           }}
         >
-          <MarketCategoryHeader name={selectedCategory.name} />
+          <MarketCategoryHeader
+            name={selectedCategory.name}
+            withChat={selectedCategory.name === 'Crypto' && !isMobile}
+          />
         </Box>
       )
     }
@@ -183,67 +197,115 @@ const MainPage = () => {
       <VStack w='full' spacing={0}>
         {headerContent}
 
-        {selectedCategory?.name === 'Crypto' ? (
-          <HStack
-            className='w-full'
-            alignItems='flex-start'
-            w='full'
-            maxW='1400px'
-            justifyContent='space-between'
-            spacing={isMobile ? 0 : 4}
-            flexDir={isMobile ? 'column' : 'row'}
-            h='calc(100vh - 250px)'
-          >
-            <Box
-              w={isMobile ? 'full' : '70%'}
-              h={isMobile ? 'auto' : 'full'}
-              position='relative'
-              p={4}
-            >
-              <Box
-                w='full'
-                borderRadius='md'
-                h='full'
-                overflow='hidden'
-                display='flex'
-                flexDirection='column'
-              >
-                <Chat />
-              </Box>
-            </Box>
-
-            <Box
-              className='full-container'
-              w={isMobile ? 'full' : '30%'}
-              mt={isMobile ? 4 : 0}
-              h={isMobile ? 'auto' : 'full'}
-              overflowY='auto'
-            >
-              <InfiniteScroll
-                className='scroll'
-                dataLength={markets?.length ?? 0}
-                next={fetchNextPage}
-                hasMore={hasNextPage}
-                style={{ width: '100%', height: '100%' }}
-                loader={
-                  markets.length > 0 && markets.length < totalAmount ? (
-                    <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
-                      <Loader />
-                      <Text {...paragraphRegular}>Loading more markets</Text>
-                    </HStack>
-                  ) : null
-                }
-              >
-                <MarketsSection
-                  markets={sortedAllMarkets as Market[]}
-                  handleSelectSort={handleSelectSort}
-                  isLoading={isFetching && !isFetchingNextPage}
-                  sort={selectedSort.sort}
-                  withChat
+        {selectedCategory?.name === 'Crypto' && !isMobile ? (
+          false ? (
+            <Box w='full' maxW='1400px' h='calc(100vh - 250px)'>
+              <Tabs position='relative' variant='common'>
+                <TabList>
+                  <Tab>Chat</Tab>
+                  <Tab>Markets</Tab>
+                </TabList>
+                <TabIndicator
+                  mt='-2px'
+                  height='2px'
+                  bg='grey.800'
+                  transitionDuration='200ms !important'
                 />
-              </InfiniteScroll>
+                <TabPanels>
+                  <TabPanel>
+                    <Box w='full' h='full' position='relative' p={4}>
+                      <Box
+                        w='full'
+                        borderRadius='md'
+                        h='full'
+                        overflow='hidden'
+                        display='flex'
+                        flexDirection='column'
+                      >
+                        <Chat />
+                      </Box>
+                    </Box>
+                  </TabPanel>
+                  <TabPanel>
+                    <Box className='full-container' w='full' h='full' overflowY='auto'>
+                      <InfiniteScroll
+                        className='scroll'
+                        dataLength={markets?.length ?? 0}
+                        next={fetchNextPage}
+                        hasMore={hasNextPage}
+                        style={{ width: '100%', height: '100%' }}
+                        loader={
+                          markets.length > 0 && markets.length < totalAmount ? (
+                            <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+                              <Loader />
+                              <Text {...paragraphRegular}>Loading more markets</Text>
+                            </HStack>
+                          ) : null
+                        }
+                      >
+                        <MarketsSection
+                          markets={sortedAllMarkets as Market[]}
+                          handleSelectSort={handleSelectSort}
+                          isLoading={isFetching && !isFetchingNextPage}
+                          sort={selectedSort.sort}
+                          withChat
+                        />
+                      </InfiniteScroll>
+                    </Box>
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
             </Box>
-          </HStack>
+          ) : (
+            <HStack
+              className='w-full'
+              alignItems='flex-start'
+              w='full'
+              maxW='1400px'
+              justifyContent='space-between'
+              spacing={4}
+              h='calc(100vh - 250px)'
+            >
+              <Box w='70%' h='full' position='relative' p={4}>
+                <Box
+                  w='full'
+                  borderRadius='md'
+                  h='full'
+                  overflow='hidden'
+                  display='flex'
+                  flexDirection='column'
+                >
+                  <Chat />
+                </Box>
+              </Box>
+
+              <Box className='full-container' w='30%' h='full' overflowY='auto'>
+                <InfiniteScroll
+                  className='scroll'
+                  dataLength={markets?.length ?? 0}
+                  next={fetchNextPage}
+                  hasMore={hasNextPage}
+                  style={{ width: '100%', height: '100%' }}
+                  loader={
+                    markets.length > 0 && markets.length < totalAmount ? (
+                      <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+                        <Loader />
+                        <Text {...paragraphRegular}>Loading more markets</Text>
+                      </HStack>
+                    ) : null
+                  }
+                >
+                  <MarketsSection
+                    markets={sortedAllMarkets as Market[]}
+                    handleSelectSort={handleSelectSort}
+                    isLoading={isFetching && !isFetchingNextPage}
+                    sort={selectedSort.sort}
+                    withChat
+                  />
+                </InfiniteScroll>
+              </Box>
+            </HStack>
+          )
         ) : (
           <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
             <InfiniteScroll

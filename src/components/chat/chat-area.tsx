@@ -11,7 +11,7 @@ import {
 import DOMPurify from 'dompurify'
 import { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { useAccount } from '@/services'
+import { ChangeEvent, ClickEvent, useAccount, useAmplitude, useTradingService } from '@/services'
 import { captionRegular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import Avatar from '../common/avatar'
 import Loader from '../common/loader'
@@ -24,9 +24,12 @@ export interface ChatTextareaProps {
 }
 
 export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaProps) => {
-  const { profileData, account } = useAccount()
+  const { loginToPlatform, profileData, account } = useAccount()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [error, setError] = useState('')
+  const { trackClicked, trackChanged } = useAmplitude()
+  const { market } = useTradingService()
+  const { isLoggedIn } = useAccount()
 
   const sanitizeInput = (input: string) => {
     const sanitized = DOMPurify.sanitize(input, {
@@ -50,6 +53,10 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
   }
 
   const handleFocus = () => {
+    trackClicked(ClickEvent.ClickOnInputField, {
+      currentOpenMarket: market?.slug ?? 'no market',
+    })
+
     if (isMobile && textareaRef.current) {
       setTimeout(() => {
         textareaRef.current?.scrollIntoView({
@@ -58,6 +65,9 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
         })
       }, 300)
     }
+  }
+  const login = () => {
+    loginToPlatform()
   }
 
   const submit = async () => {
@@ -68,6 +78,9 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
     onSubmit()
     setMsg('')
 
+    trackClicked(ClickEvent.SendMessageClicked, {
+      currentOpenMarket: market?.slug ?? 'no market',
+    })
     setTimeout(() => {
       if (textareaRef.current) {
         textareaRef.current.focus()
@@ -126,14 +139,20 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
                 <Text {...captionRegular}>{profileData?.displayName ?? profileData?.username}</Text>
               </HStack>
             ) : null}
-            <Button
-              variant='grey'
-              minW='58px'
-              onClick={submit}
-              isDisabled={isLoading || msg.length === 0}
-            >
-              {isLoading ? <Loader /> : 'Send'}
-            </Button>
+            {isLoggedIn ? (
+              <Button
+                variant='grey'
+                minW='58px'
+                onClick={submit}
+                isDisabled={isLoading || msg.length === 0}
+              >
+                {isLoading ? <Loader /> : 'Send'}
+              </Button>
+            ) : (
+              <Button variant='grey' minW='58px' onClick={login}>
+                Login
+              </Button>
+            )}
           </Flex>
           <Textarea
             value={msg}
@@ -152,6 +171,13 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
               if (sanitized || sanitized.trim()) {
                 setError('')
               }
+
+              if (msg === '' && sanitized.trim() !== '') {
+                trackChanged(ChangeEvent.StartTyping, {
+                  currentOpenMarket: market?.slug ?? 'no market',
+                })
+              }
+
               setMsg(sanitized)
             }}
             onKeyDown={(e) => {

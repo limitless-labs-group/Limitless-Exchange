@@ -235,6 +235,12 @@ type PositionsResponse = {
   clob: ClobPositionWithType[]
 }
 
+type ClobTokenPosition = {
+  cost: string
+  expectedBalance: string
+  fillPrice: string
+}
+
 export type ClobPosition = {
   latestTrade: {
     tradeId: string
@@ -247,6 +253,10 @@ export type ClobPosition = {
   tokensBalance: {
     yes: string
     no: string
+  }
+  positions: {
+    yes: ClobTokenPosition
+    no: ClobTokenPosition
   }
 }
 
