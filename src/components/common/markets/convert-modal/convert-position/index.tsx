@@ -19,7 +19,7 @@ export default function ConvertPosition({
   const handleButtonClicked = () => {
     setPositions(
       positions.map((pos) => {
-        return position.latestTrade[0].tradeId === pos.latestTrade[0].tradeId
+        return position.market.slug === pos.market.slug
           ? {
               ...pos,
               selected: !pos.selected,

@@ -1,0 +1,404 @@
+import {
+  Box,
+  Divider,
+  HStack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+} from '@chakra-ui/react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
+import React, { SyntheticEvent, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { Address, formatUnits } from 'viem'
+import ButtonWithStates from '@/components/common/button-with-states'
+import MobileDrawer from '@/components/common/drawer'
+import ClaimButton from '@/components/common/markets/claim-button'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
+import { SpeedometerProgress } from '@/components/common/markets/market-cards/speedometer-progress'
+import MarketPage from '@/components/common/markets/market-page'
+import FullOrdersTab from '@/app/portfolio/components/full-orders-tab'
+import FullPositionsTab from '@/app/portfolio/components/full-positions-tab'
+import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
+import GemIcon from '@/resources/icons/gem-icon.svg'
+import GemWhiteIcon from '@/resources/icons/gem-white-icon.svg'
+import PieChartIcon from '@/resources/icons/pie-chart-icon.svg'
+import {
+  ClickEvent,
+  ClobPositionWithType,
+  useAmplitude,
+  useBalanceQuery,
+  useTradingService,
+} from '@/services'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import { useMarket } from '@/services/MarketsService'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { MarketStatus } from '@/types'
+import { NumberUtil } from '@/utils'
+
+interface FullPositionCardProps {
+  position: ClobPositionWithType
+}
+
+export default function FullPositionCard({ position }: FullPositionCardProps) {
+  const [activeTab, setActiveTab] = useState(0)
+  const date = new Date(position.market.deadline)
+  const { balanceOfSmartWallet } = useBalanceQuery()
+  const { onOpenMarketPage, setMarket } = useTradingService()
+  const marketClosed = position.market.status === MarketStatus.RESOLVED
+  const { trackClicked } = useAmplitude()
+  const { data: oneMarket, refetch: refetchMarket } = useMarket(
+    position.market.negRiskRequestId ? position.market.group?.slug : position.market.slug,
+    false,
+    false
+  )
+
+  const queryClient = useQueryClient()
+  const privateClient = useAxiosPrivateClient()
+
+  const nonEarningCardBorder = marketClosed ? 'green.500' : 'grey.100'
+
+  const totalRewards = position.rewards.epochs.reduce((acc, epoch) => {
+    const rewardFormatted = formatUnits(
+      BigInt(epoch.totalRewards),
+      position.market.collateralToken.decimals
+    )
+    return new BigNumber(rewardFormatted).plus(acc).toNumber()
+  }, 0)
+
+  const getRewardsAmount = (size: string) =>
+    formatUnits(BigInt(size), position.market.collateralToken.decimals)
+
+  const totalLimitOrders = formatUnits(
+    BigInt(position.orders.totalCollateralLocked),
+    position.market.collateralToken.decimals
+  )
+
+  const totalLimitOrdersColor = () => {
+    const collateralBalance = balanceOfSmartWallet?.find(
+      (balanceItem) => balanceItem.symbol === position.market.collateralToken.symbol
+    )
+    if (!collateralBalance) {
+      return 'grey.500'
+    }
+    if (+collateralBalance.formatted < +totalLimitOrders) {
+      return 'red.500'
+    }
+    const diiferenceInPercent = new BigNumber(totalLimitOrders)
+      .dividedBy(collateralBalance.formatted)
+      .decimalPlaces(1)
+      .toNumber()
+    if (diiferenceInPercent >= 0.85) {
+      return 'yellow.500'
+    }
+    return 'grey.500'
+  }
+
+  const getAmountToClaim = () => {
+    const winPosition =
+      position.market.winningOutcomeIndex === 1
+        ? position.tokensBalance.no
+        : position.tokensBalance.yes
+    return formatUnits(BigInt(winPosition), position.market.collateralToken.decimals)
+  }
+
+  const getPnL = () => {
+    const winSide =
+      position.market.winningOutcomeIndex === 1 ? position.positions.no : position.positions.yes
+    const lossSide =
+      position.market.winningOutcomeIndex === 0 ? position.positions.no : position.positions.yes
+    const winPosition =
+      position.market.winningOutcomeIndex === 1
+        ? position.tokensBalance.no
+        : position.tokensBalance.yes
+    const totalCost = new BigNumber(winSide.cost).plus(lossSide.cost).toString()
+    const pnl = new BigNumber(winPosition).minus(totalCost).toNumber()
+    const formatted = formatUnits(BigInt(pnl), position.market.collateralToken.decimals)
+    return NumberUtil.convertWithDenomination(formatted, 2)
+  }
+
+  const formatted = date
+    .toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })
+    .replace(',', '')
+
+  const yesPrice = new BigNumber(position.latestTrade?.latestYesPrice || 0.5)
+    .multipliedBy(100)
+    .decimalPlaces(1)
+    .toNumber()
+
+  const cancelAllOrdersMutation = useMutation({
+    mutationKey: ['cancel-all-orders', position.market.slug],
+    mutationFn: async () => {
+      trackClicked(ClickEvent.CancelAllOrdersClicked, {
+        source: 'Portfolio Page',
+        value: '',
+        marketAddress: position.market.address,
+        marketType: position.market.marketType,
+        tradeType: position.market.tradeType,
+      })
+      await privateClient.delete(`/orders/all/${position.market.slug}`)
+    },
+  })
+
+  const onResetMutation = async () => {
+    await queryClient.refetchQueries({
+      queryKey: ['positions'],
+    })
+    setActiveTab(0)
+    cancelAllOrdersMutation.reset()
+  }
+
+  const showOrders = !marketClosed && Boolean(position.orders.liveOrders.length)
+
+  const handleTabClicked = (e: SyntheticEvent, tab: string) => {
+    e.stopPropagation()
+    trackClicked(ClickEvent.ClobPositionTabClicked, {
+      value: tab,
+      source: 'portfolio clob position card',
+      marketAddress: position.market.slug,
+      marketType: position.market.marketType,
+      tradeType: position.market.tradeType,
+    })
+  }
+
+  const tabs = [
+    {
+      title: 'Positions',
+      show: true,
+    },
+    {
+      title: 'Open Orders',
+      show: showOrders,
+    },
+  ]
+
+  const tabList = [
+    <FullPositionsTab
+      key='full-positions'
+      position={position.positions}
+      contracts={position.tokensBalance}
+      decimals={position.market.collateralToken.decimals}
+      symbol={position.market.collateralToken.symbol}
+      marketClosed={marketClosed}
+      winSide={position.market.winningOutcomeIndex}
+    />,
+    <FullOrdersTab
+      key='full-orders-tab'
+      orders={position.orders.liveOrders}
+      yesPositionId={position.market.yesPositionId as string}
+      decimals={position.market.collateralToken.decimals}
+      symbol={position.market.collateralToken.symbol}
+    />,
+  ]
+
+  const handleOpenMarketPage = async () => {
+    if (!oneMarket) {
+      const { data: fetchedMarket } = await refetchMarket()
+      if (fetchedMarket) {
+        onOpenMarketPage(fetchedMarket)
+        trackClicked(ClickEvent.PortfolioMarketClicked, {
+          marketCategory: fetchedMarket.categories,
+          marketAddress: fetchedMarket.slug,
+          marketType: 'single',
+          marketTags: fetchedMarket.tags,
+          type: 'Portolio',
+        })
+      }
+    } else {
+      onOpenMarketPage(oneMarket)
+      trackClicked(ClickEvent.PortfolioMarketClicked, {
+        marketCategory: oneMarket.categories,
+        marketAddress: oneMarket.slug,
+        marketType: 'single',
+        marketTags: oneMarket.tags,
+        type: 'Portolio',
+      })
+    }
+  }
+
+  const content = (
+    <Box
+      p='16px'
+      w='full'
+      border='2px solid'
+      borderColor={position.rewards.isEarning ? 'blue.500' : nonEarningCardBorder}
+      borderRadius='12px'
+      bg={marketClosed ? 'green.500' : 'unset'}
+      cursor='pointer'
+      onClick={handleOpenMarketPage}
+    >
+      <HStack
+        gap='24px'
+        w='full'
+        justifyContent='space-between'
+        alignItems={marketClosed ? 'flex-start' : 'center'}
+        flexWrap='wrap'
+      >
+        <Box>
+          <HStack w='full' justifyContent='space-between' mb={isMobile ? '8px' : 0}>
+            <Text {...paragraphRegular} mb='16px'>
+              {position.market.title}
+            </Text>
+            {isMobile && !marketClosed && (
+              <HStack minW='120px' justifyContent='flex-end'>
+                <SpeedometerProgress value={yesPrice} size='medium' />
+              </HStack>
+            )}
+          </HStack>
+          {isMobile && marketClosed && (
+            <ClaimButton
+              conditionId={position.market.conditionId as Address}
+              collateralAddress={position.market.collateralToken.address}
+              marketAddress={
+                position.market.negRiskRequestId
+                  ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
+                  : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
+              }
+              outcomeIndex={position.market.winningOutcomeIndex as number}
+              marketType={position.market.tradeType}
+              amountToClaim={getAmountToClaim()}
+              symbol={position.market.collateralToken.symbol}
+              mb='8px'
+            />
+          )}
+          <HStack gap={isMobile ? '16px' : '24px'} columnGap='8px' flexWrap='wrap'>
+            <MarketCountdown
+              deadline={new Date(position.market.deadline).getTime()}
+              deadlineText={formatted}
+              showDays={false}
+              hideText
+              color={marketClosed ? 'whiteAlpha.70' : 'grey.500'}
+            />
+            {marketClosed ? (
+              <HStack gap='4px'>
+                <GemWhiteIcon />
+                <Text {...paragraphRegular} color='whiteAlpha.70'>
+                  Total Rewards Earned
+                </Text>
+                <Text {...paragraphRegular} color='whiteAlpha.70'>
+                  {NumberUtil.convertWithDenomination(totalRewards, 2)}{' '}
+                  {position.market.collateralToken.symbol}
+                </Text>
+              </HStack>
+            ) : (
+              <HStack gap='4px' color='grey.500'>
+                <CandlestickIcon width={16} height={16} />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Total Limit orders
+                </Text>
+                <Text {...paragraphMedium} color={totalLimitOrdersColor()}>
+                  {NumberUtil.toFixed(totalLimitOrders, 2)} USD
+                </Text>
+              </HStack>
+            )}
+            {marketClosed ? (
+              <HStack gap='4px' color='whiteAlpha.70'>
+                <PieChartIcon width={16} height={16} />
+                <Text {...paragraphRegular} color='whiteAlpha.70'>
+                  P&L
+                </Text>
+                <Text {...paragraphRegular} color='whiteAlpha.70'>
+                  {getPnL()} {position.market.collateralToken.symbol}
+                </Text>
+              </HStack>
+            ) : (
+              <HStack gap='4px' color='whiteAlpha.70' flexWrap='wrap'>
+                <GemIcon width={16} height={16} />
+                <Text {...paragraphRegular} color='blue.500'>
+                  Rewards
+                </Text>
+                <Text {...paragraphRegular}>
+                  {Boolean(position.rewards.epochs.length)
+                    ? `${getRewardsAmount(position.rewards.epochs[0].userRewards)} ${
+                        position.market.collateralToken.symbol
+                      } / last min.`
+                    : ''}
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {Boolean(position.rewards.epochs.length)
+                    ? `(${(position.rewards.epochs[0].earnedPercent * 100).toFixed(0)} % of max)`
+                    : ''}
+                </Text>
+              </HStack>
+            )}
+          </HStack>
+        </Box>
+        {!isMobile && (
+          <>
+            {!marketClosed ? (
+              <SpeedometerProgress value={yesPrice} size='medium' />
+            ) : (
+              <ClaimButton
+                conditionId={position.market.conditionId as Address}
+                collateralAddress={position.market.collateralToken.address}
+                marketAddress={
+                  position.market.negRiskRequestId
+                    ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
+                    : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
+                }
+                outcomeIndex={position.market.winningOutcomeIndex as number}
+                marketType={position.market.tradeType}
+                amountToClaim={getAmountToClaim()}
+                symbol={position.market.collateralToken.symbol}
+              />
+            )}
+          </>
+        )}
+      </HStack>
+      <Divider my='16px' h='2px' variant={marketClosed ? 'transparent' : undefined} />
+      <Tabs position='relative' variant='transparent' index={activeTab} onChange={setActiveTab}>
+        <HStack w='full' justifyContent='space-between'>
+          <TabList>
+            {tabs.map((tab) => {
+              return tab.show ? (
+                <Tab key={tab.title} onClick={(e) => handleTabClicked(e, tab.title)}>
+                  {tab.title}
+                </Tab>
+              ) : null
+            })}
+          </TabList>
+          {showOrders && activeTab === 1 && (
+            <ButtonWithStates
+              onReset={onResetMutation}
+              status={cancelAllOrdersMutation.status}
+              onClick={(e) => {
+                e.stopPropagation()
+                cancelAllOrdersMutation.mutateAsync()
+              }}
+              variant='outlined'
+              w='82px'
+            >
+              Cancel all
+            </ButtonWithStates>
+          )}
+        </HStack>
+        <TabPanels>
+          {tabList.map((panel, index) => (
+            <TabPanel key={index}>{panel}</TabPanel>
+          ))}
+        </TabPanels>
+      </Tabs>
+    </Box>
+  )
+
+  return isMobile ? (
+    <MobileDrawer
+      trigger={content}
+      variant='black'
+      onClose={() => {
+        setMarket(null)
+      }}
+    >
+      <MarketPage />
+    </MobileDrawer>
+  ) : (
+    content
+  )
+}
