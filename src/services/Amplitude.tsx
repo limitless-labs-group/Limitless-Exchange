@@ -223,6 +223,9 @@ export enum ClickEvent {
   FeedClosedMarketGroupClicked = 'Feed Closed Market Group Clicked',
   TopBannerClicked = 'Top Banner Clicked',
   WidgetClicked = 'Widget Clicked',
+  PortfolioInvestmentsTabClicked = 'Portfolio Investments Tab Clicked',
+  ClobPositionTabClicked = 'Clob Position Tab Clicked',
+  CancelAllOrdersClicked = 'Cancel All Orders Clicked',
 }
 
 export enum SignInEvent {

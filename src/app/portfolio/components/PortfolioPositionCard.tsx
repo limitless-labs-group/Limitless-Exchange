@@ -1,10 +1,11 @@
 import { HStack, Stack, Text, Box, Icon, VStack, Divider } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import ClaimButton from '@/components/common/markets/claim-button'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import MarketPage from '@/components/common/markets/market-page'
 import Skeleton from '@/components/common/skeleton'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
@@ -12,7 +13,7 @@ import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ClosedIcon from '@/resources/icons/close-rounded-icon.svg'
 import { ClickEvent, HistoryPosition, useAmplitude, useTradingService } from '@/services'
-import { useAllMarkets, useMarket } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
 
@@ -48,14 +49,18 @@ const StatusIcon = ({ isClosed, color }: { isClosed: boolean | undefined; color:
 }
 
 const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => {
-  const [colors, setColors] = useState(unhoveredColors)
-
   const { trackClicked } = useAmplitude()
   const { onOpenMarketPage, setMarket } = useTradingService()
 
-  const allMarkets = useAllMarkets()
+  const date = new Date(position.market.expirationDate)
 
-  const targetMarket = allMarkets.find((market) => market.address === position.market.id)
+  const formatted = date
+    .toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })
+    .replace(',', '')
 
   const contractPrice = new BigNumber(prices?.prices?.[position.outcomeIndex] ?? 1)
     .dividedBy(100)
@@ -78,19 +83,19 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
     }
     if (contractPrice < 1) {
       return (
-        <Text {...paragraphMedium} color={colors.main === 'white' ? 'white' : 'red.500'}>
+        <Text {...paragraphMedium} color={unhoveredColors.main === 'white' ? 'white' : 'red.500'}>
           &#x2193;
           {price}%
         </Text>
       )
     }
     return (
-      <Text {...paragraphMedium} color={colors.main === 'white' ? 'white' : 'green.500'}>
+      <Text {...paragraphMedium} color={unhoveredColors.main === 'white' ? 'white' : 'green.500'}>
         &#x2191;
         {price}%
       </Text>
     )
-  }, [contractPrice, colors.main])
+  }, [contractPrice, unhoveredColors.main])
 
   const getOutcomeNotation = () => {
     const outcomeTokenId = position.outcomeIndex ?? 0
@@ -136,10 +141,10 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
       }
     }
     return {
-      main: colors.main,
-      secondary: colors.secondary,
+      main: unhoveredColors.main,
+      secondary: unhoveredColors.secondary,
     }
-  }, [position, colors])
+  }, [position, unhoveredColors])
 
   return isMobile ? (
     <MobileDrawer
@@ -159,7 +164,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
         >
           <Stack spacing={'8px'}>
             <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
-              <Text {...paragraphMedium} color={cardColors.main}>
+              <Text {...paragraphMedium} color={cardColors.main} textAlign='left'>
                 {position.market.title}
               </Text>
               <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
@@ -199,12 +204,13 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
               <HStack gap={1}>
                 {<StatusIcon isClosed={position?.market?.closed} color={cardColors.secondary} />}
               </HStack>
-              <HStack gap={1} color={cardColors.secondary}>
-                <CalendarIcon width={'16px'} height={'16px'} />
-                <Text {...paragraphMedium} color={cardColors.secondary}>
-                  {position?.market.expirationDate}
-                </Text>
-              </HStack>
+              <MarketCountdown
+                deadline={date.getTime()}
+                deadlineText={formatted}
+                showDays={false}
+                hideText
+                color={position?.market?.closed ? 'whiteAlpha.70' : 'grey.500'}
+              />
             </HStack>
             <HStack>
               {position.market?.closed && (

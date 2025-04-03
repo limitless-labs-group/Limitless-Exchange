@@ -1,27 +1,34 @@
-import { Flex, Stack, Text } from '@chakra-ui/react'
-import { memo, useMemo } from 'react'
+import { Stack, VStack } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import Skeleton from '@/components/common/skeleton'
 import PortfolioPositionCard from '@/app/portfolio/components/PortfolioPositionCard'
-import PortfolioPositionCardClobRedirect from '@/app/portfolio/components/PortfolioPositionCardClobRedirect'
-import { HistoryPositionWithType, usePosition } from '@/services'
+import FullPositionCard from '@/app/portfolio/components/full-position-card'
+import {
+  ClobPositionWithType,
+  HistoryPosition,
+  HistoryPositionWithType,
+  usePosition,
+} from '@/services'
 import { usePrices } from '@/services/MarketsService'
 import { MarketStatus } from '@/types'
 
-const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boolean }) => {
+export default function EverythingTab() {
   const { data: positions, isLoading: tradesAndPositionsLoading } = usePosition()
 
+  const getPrices = (id: string) => prices?.find((price) => price.address === id)
   const positionsFiltered = useMemo(() => {
-    return positions?.sort((a, b) => {
+    return positions?.positions.sort((a, b) => {
       const isClosedA =
+        //@ts-ignore
         a.type === 'amm' ? a.market.closed : a.market.status === MarketStatus.RESOLVED
       const isClosedB =
+        //@ts-ignore
         b.type === 'amm' ? b.market.closed : b.market.status === MarketStatus.RESOLVED
       return isClosedA === isClosedB ? 0 : isClosedA ? -1 : 1
     })
   }, [positions])
-
   const positionsForPrices = useMemo(() => {
     if (!positionsFiltered) return []
     const ammPositions = positionsFiltered.filter(
@@ -40,7 +47,7 @@ const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boo
 
   const { data: prices } = usePrices(positionsForPrices)
 
-  if (userMenuLoading || !positionsFiltered || tradesAndPositionsLoading) {
+  if (!positionsFiltered || tradesAndPositionsLoading) {
     return (
       <Stack gap={{ sm: 2, md: 2 }}>
         {[...Array(4)].map((index) => (
@@ -49,31 +56,20 @@ const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boo
       </Stack>
     )
   }
-  const getPrices = (id: string) => prices?.find((price) => price.address === id)
 
   return (
-    <>
-      {positionsFiltered.length == 0 ? (
-        <Flex w={'full'} h={'200px'} justifyContent={'center'} alignItems={'center'}>
-          <Text color={'fontLight'}>No open positions</Text>
-        </Flex>
-      ) : (
-        <Stack gap={{ sm: 2, md: 2 }}>
-          {positionsFiltered?.map((position) => {
-            return position.type === 'clob' ? (
-              <PortfolioPositionCardClobRedirect position={position} key={uuidv4()} />
-            ) : (
-              <PortfolioPositionCard
-                key={uuidv4()}
-                position={position}
-                prices={(() => getPrices(position.market.id))()}
-              />
-            )
-          })}
-        </Stack>
+    <VStack w='full' gap='8px'>
+      {positions?.positions.map((position) =>
+        position.type === 'amm' ? (
+          <PortfolioPositionCard
+            key={uuidv4()}
+            position={position as HistoryPosition}
+            prices={(() => getPrices((position as HistoryPosition).market.id))()}
+          />
+        ) : (
+          <FullPositionCard key={uuidv4()} position={position as ClobPositionWithType} />
+        )
       )}
-    </>
+    </VStack>
   )
 }
-
-export const PortfolioPositions = memo(PortfolioPositionsContainer)

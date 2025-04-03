@@ -1,7 +1,6 @@
 import { Box, Button, Flex, HStack, Link, Text } from '@chakra-ui/react'
 import { useFundWallet } from '@privy-io/react-auth'
 import { useAtom } from 'jotai/index'
-import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useMemo } from 'react'
 import { LoginButtons } from '@/components/common/login-button'
@@ -14,7 +13,6 @@ import { Profile } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
-import { useThemeProvider } from '@/providers'
 import DepositIcon from '@/resources/icons/deposit-icon.svg'
 import Logo from '@/resources/icons/logo.svg'
 import FeedIcon from '@/resources/icons/sidebar/Feed.svg'
@@ -24,6 +22,8 @@ import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
 import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import {
   ClickEvent,
+  ClobPositionWithType,
+  HistoryPositionWithType,
   LogoClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
   useAccount,
@@ -36,7 +36,6 @@ import { MarketStatus, Sort, SortStorageName } from '@/types'
 import { ReferralLink } from '../common/referral-link'
 
 export default function Header() {
-  const { mode } = useThemeProvider()
   const [, setSelectedSort] = useAtom(sortAtom)
   const { dashboard, handleCategory, handleDashboard } = useTokenFilter()
   const pageName = usePageName()
@@ -73,11 +72,11 @@ export default function Header() {
   }
 
   const hasWinningPosition = useMemo(() => {
-    return positions?.some((position) => {
+    return positions?.positions.some((position) => {
       if (position.type === 'amm') {
-        return position.market.closed
+        return (position as HistoryPositionWithType).market.closed
       }
-      return position.market.status === MarketStatus.RESOLVED
+      return (position as ClobPositionWithType).market.status === MarketStatus.RESOLVED
     })
   }, [positions])
 

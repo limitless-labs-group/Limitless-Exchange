@@ -11,7 +11,7 @@ import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface IHistoryService {
-  positions: (HistoryPositionWithType | ClobPositionWithType)[] | undefined
+  positions?: PortfolioPositions
   balanceInvested: string
   balanceToWin: string
   tradesAndPositionsLoading: boolean
@@ -30,10 +30,10 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
    * BALANCES
    */
   const balanceInvested = useMemo(() => {
-    const ammPositions = positions?.filter(
+    const ammPositions = positions?.positions.filter(
       (position) => position.type === 'amm'
     ) as HistoryPositionWithType[]
-    const clobPositions = positions?.filter(
+    const clobPositions = positions?.positions.filter(
       (position) => position.type === 'clob'
     ) as ClobPositionWithType[]
     let _balanceInvested = 0
@@ -52,10 +52,10 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 
   const balanceToWin = useMemo(() => {
     let _balanceToWin = 0
-    const ammPositions = positions?.filter(
+    const ammPositions = positions?.positions.filter(
       (position) => position.type === 'amm'
     ) as HistoryPositionWithType[]
-    const clobPositions = positions?.filter(
+    const clobPositions = positions?.positions.filter(
       (position) => position.type === 'clob'
     ) as ClobPositionWithType[]
     ammPositions?.forEach((position) => {
@@ -91,7 +91,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 }
 
 export const usePosition = () => {
-  const { profileData, web3Wallet } = useAccount()
+  const { web3Wallet } = useAccount()
   const { isLogged } = useClient()
   const privateClient = useAxiosPrivateClient()
 
@@ -100,19 +100,33 @@ export const usePosition = () => {
     queryFn: async () => {
       try {
         const response = await privateClient.get<PositionsResponse>(`/portfolio/positions`)
-        return [
-          ...response.data.amm.map((position) => ({ ...position, type: 'amm' })),
-          ...response.data.clob.map((position) => ({ ...position, type: 'clob' })),
-        ] as (HistoryPositionWithType | ClobPositionWithType)[]
+        const ammPositions = response.data.amm.map((position) => ({ ...position, type: 'amm' }))
+        const clobPositions = response.data.clob.map((position) => ({ ...position, type: 'clob' }))
+        return {
+          ...response.data,
+          positions: [...ammPositions, ...clobPositions],
+        } as PortfolioPositions
 
         // return response.data
       } catch (error) {
         console.error('Error fetching positions:', error)
-        return []
+        return {
+          rewards: {
+            totalUserRewardsLastEpoch: '0',
+            totalUnpaidRewards: '0',
+            rewardsByEpoch: [],
+          },
+          positions: [],
+        }
       }
     },
     enabled: !!isLogged,
-    refetchInterval: !!profileData?.id ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
+    refetchInterval: () => {
+      if (!web3Wallet) {
+        return false
+      }
+      return 60000
+    },
   })
 }
 
@@ -230,23 +244,75 @@ export type HistoryPosition = {
   strategy?: 'Buy' | 'Sell'
 }
 
+interface RewardEpoch {
+  epochId: number
+  timestamp: string
+  userRewards: string
+  totalRewards: string
+  earnedPercent: number
+}
+
 type PositionsResponse = {
+  rewards: {
+    totalUnpaidRewards: string
+    totalUserRewardsLastEpoch: string
+    rewardsByEpoch: RewardEpoch[]
+  }
   amm: HistoryPositionWithType[]
   clob: ClobPositionWithType[]
 }
 
+type PortfolioPositions = {
+  rewards: {
+    totalUnpaidRewards: string
+    totalUserRewardsLastEpoch: string
+    rewardsByEpoch: RewardEpoch[]
+  }
+  positions: (HistoryPositionWithType | ClobPositionWithType)[]
+}
+
+export interface ClobPositionContracts {
+  cost: string
+  fillPrice: string
+  realisedPnl: string
+  unrealizedPnl: string
+  marketValue: string
+}
+
+export interface ClobContractsInMarket {
+  yes: ClobPositionContracts
+  no: ClobPositionContracts
+}
+
+export interface LiveOrder {
+  createdAt: string
+  id: string
+  ownerId: number
+  marketId: string
+  token: string
+  type: string
+  status: string
+  side: 'BUY' | 'SELL'
+  makerAmount: string
+  takerAmount: string
+  price: string
+  originalSize: string
+  remainingSize: string
+  isEarning: boolean
+}
+
 export type ClobPosition = {
-  latestTrade: {
-    tradeId: string
-    marketId: string
-    ownerId: number
-    createdAt: string
-    role: string
-  }[]
   market: Market
-  tokensBalance: {
-    yes: string
-    no: string
+  tokensBalance: { yes: string; no: string }
+  positions: ClobContractsInMarket
+  latestTrade: { latestYesPrice: number; latestNoPrice: number } | null
+  orders: {
+    totalCollateralLocked: string
+    liveOrders: LiveOrder[]
+  }
+  rewards: {
+    isEarning: true
+    epochs: RewardEpoch[]
   }
 }
 
