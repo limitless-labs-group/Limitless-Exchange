@@ -105,10 +105,11 @@ export default function FullPositionsTab({
                   {normalizeCost(position.yes.cost)} {symbol}
                 </Td>
                 <Td>
-                  {winSide === 0 ? normalizeCost(position.yes.marketValue) : '0.00'} {symbol}
+                  {!winSide || winSide === 0 ? normalizeCost(position.yes.marketValue) : '0.00'}{' '}
+                  {symbol}
                 </Td>
                 <Td>
-                  {winSide === 0 ? getContractsAmount(contracts.yes) : '0.00'} {symbol}
+                  {!winSide || winSide === 0 ? getContractsAmount(contracts.yes) : '0.00'} {symbol}
                 </Td>
               </Tr>
             )}
@@ -121,10 +122,11 @@ export default function FullPositionsTab({
                   {normalizeCost(position.no.cost)} {symbol}
                 </Td>
                 <Td>
-                  {winSide === 1 ? normalizeCost(position.no.marketValue) : '0.00'} {symbol}
+                  {!winSide || winSide === 1 ? normalizeCost(position.no.marketValue) : '0.00'}{' '}
+                  {symbol}
                 </Td>
                 <Td>
-                  {winSide === 1 ? getContractsAmount(contracts.no) : '0.00'} {symbol}
+                  {!winSide || winSide === 1 ? getContractsAmount(contracts.no) : '0.00'} {symbol}
                 </Td>
               </Tr>
             )}
