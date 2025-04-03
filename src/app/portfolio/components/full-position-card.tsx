@@ -102,11 +102,7 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
       position.market.winningOutcomeIndex === 1
         ? position.tokensBalance.no
         : position.tokensBalance.yes
-    const amountFormatted = formatUnits(
-      BigInt(winPosition),
-      position.market.collateralToken.decimals
-    )
-    return NumberUtil.convertWithDenomination(amountFormatted, 6)
+    return formatUnits(BigInt(winPosition), position.market.collateralToken.decimals)
   }
 
   const getPnL = () => {
@@ -191,6 +187,7 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
       decimals={position.market.collateralToken.decimals}
       symbol={position.market.collateralToken.symbol}
       marketClosed={marketClosed}
+      winSide={position.market.winningOutcomeIndex}
     />,
     <FullOrdersTab
       key='full-orders-tab'

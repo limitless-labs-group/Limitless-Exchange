@@ -11,6 +11,7 @@ interface FullPositionsTabProps {
   decimals: number
   symbol: string
   marketClosed: boolean
+  winSide: number | null
 }
 
 export default function FullPositionsTab({
@@ -19,6 +20,7 @@ export default function FullPositionsTab({
   decimals,
   symbol,
   marketClosed,
+  winSide,
 }: FullPositionsTabProps) {
   const getContractsAmount = (size: string) => {
     const formattedAmount = formatUnits(BigInt(size), decimals)
@@ -103,10 +105,10 @@ export default function FullPositionsTab({
                   {normalizeCost(position.yes.cost)} {symbol}
                 </Td>
                 <Td>
-                  {normalizeCost(position.yes.marketValue)} {symbol}
+                  {winSide === 0 ? normalizeCost(position.yes.marketValue) : '0.00'} {symbol}
                 </Td>
                 <Td>
-                  {getContractsAmount(contracts.yes)} {symbol}
+                  {winSide === 0 ? getContractsAmount(contracts.yes) : '0.00'} {symbol}
                 </Td>
               </Tr>
             )}
@@ -119,10 +121,10 @@ export default function FullPositionsTab({
                   {normalizeCost(position.no.cost)} {symbol}
                 </Td>
                 <Td>
-                  {normalizeCost(position.no.marketValue)} {symbol}
+                  {winSide === 1 ? normalizeCost(position.no.marketValue) : '0.00'} {symbol}
                 </Td>
                 <Td>
-                  {getContractsAmount(contracts.no)} {symbol}
+                  {winSide === 1 ? getContractsAmount(contracts.no) : '0.00'} {symbol}
                 </Td>
               </Tr>
             )}
