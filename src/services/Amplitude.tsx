@@ -12,7 +12,7 @@ import { Category, LeaderboardSort } from '@/types'
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY ?? ''
 
 interface IAmplitudeContext {
-  trackSignUp: () => void
+  trackSignUp: <T extends SignInEventMetadata>(event: SignInEvent, customData?: T) => void
   trackChanged: <T extends ChangedEventMetadata>(event: ChangeEvent, customData?: T) => void
   trackClicked: <T extends ClickedEventMetadata>(event: ClickEvent, customData?: T) => void
   trackOpened: <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => void
@@ -174,6 +174,7 @@ export enum ClickEvent {
   BackClicked = 'Back Clicked',
   UIModeClicked = 'UI Mode Changed',
   CategoryClicked = 'Category Clicked',
+  SeeMoreCkicked = 'See More Clicked',
   WalletClicked = 'Wallet Clicked',
   CopyAddressClicked = 'Wallet Address Copied',
   WithdrawClicked = 'Withdraw Clicked',
@@ -220,10 +221,18 @@ export enum ClickEvent {
   MergeSharesConfirmed = 'Merge Contracts Confirmed',
   MergeSharesModalMaxSharesClicked = 'Merge Contracts Modal Max Button Clicked',
   FeedClosedMarketGroupClicked = 'Feed Closed Market Group Clicked',
+  TopBannerClicked = 'Top Banner Clicked',
+  WidgetClicked = 'Widget Clicked',
+  PortfolioInvestmentsTabClicked = 'Portfolio Investments Tab Clicked',
+  ClobPositionTabClicked = 'Clob Position Tab Clicked',
+  CancelAllOrdersClicked = 'Cancel All Orders Clicked',
 }
 
 export enum SignInEvent {
   SignIn = 'Sign In',
+  SignUp = 'Sign Up',
+  LogIn = 'Log In',
+  SignedUp = 'Signed Up',
   SignedIn = 'Signed In',
   SignInWithFarcaster = 'Login with Farcaster',
 }
@@ -488,6 +497,10 @@ interface SignedInMetadata {
   signedIn: boolean
 }
 
+interface WidgetClickedMetadata {
+  type: string
+}
+
 export type ChangedEventMetadata =
   | StrategyChangedMetadata
   | OutcomeChangedMetadata
@@ -523,6 +536,7 @@ export type ClickedEventMetadata =
   | FullPageClickedMetaData
   | RewardsButtonClickedMetadata
   | QuickBetClickedMetadata
+  | WidgetClickedMetadata
 
 export type OpenedEventMetadata =
   | PageOpenedMetadata

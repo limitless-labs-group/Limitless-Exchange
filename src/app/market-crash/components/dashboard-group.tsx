@@ -1,6 +1,9 @@
-import { VStack, Text, Box, Flex } from '@chakra-ui/react'
+import { VStack, Text, Box, Flex, HStack, Link } from '@chakra-ui/react'
+import NextLink from 'next/link'
 import MarketCard from '@/components/common/markets/market-cards/market-card'
-import { h2Bold } from '@/styles/fonts/fonts.styles'
+import usePageName from '@/hooks/use-page-name'
+import { ClickEvent, useAmplitude } from '@/services'
+import { h2Bold, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { getAnalyticsParams } from '@/utils/market'
 import MarketCardMobile from '../../../components/common/markets/market-cards/market-card-mobile'
@@ -27,6 +30,10 @@ export const DashboardGroup = ({
   categoryName,
 }: DashboardGroupProps) => {
   const dashboard = { fromDashboard: 'Market Crash' }
+
+  const { trackClicked } = useAmplitude()
+  const pageName = usePageName()
+
   const showCardLayout = (type: DashboardGroupType) => {
     switch (type) {
       case DashboardGroupType.Mobile:
@@ -236,9 +243,39 @@ export const DashboardGroup = ({
 
   return (
     <VStack w='full'>
-      <Text {...h2Bold} textAlign='start' w='full'>
-        {categoryName}
-      </Text>
+      <HStack justifyContent='space-between' w='full'>
+        <Text {...h2Bold} textAlign='start' w='full'>
+          {categoryName}
+        </Text>
+        <NextLink href={`/?category=${categoryName}`}>
+          <Link variant='transparent' px={0} _hover={{ textDecoration: 'none' }}>
+            <HStack
+              w='full'
+              h='24px'
+              rounded='8px'
+              bg='grey.100'
+              px={'8px'}
+              cursor='pointer'
+              whiteSpace='nowrap'
+              _hover={{
+                '& > p': {
+                  textDecoration: 'underline',
+                },
+              }}
+              onClick={() => {
+                trackClicked(ClickEvent.SeeMoreCkicked, {
+                  name: categoryName,
+                  page: pageName,
+                })
+              }}
+            >
+              <Text {...paragraphMedium} fontWeight={500} color='grey.800'>
+                See more
+              </Text>
+            </HStack>
+          </Link>
+        </NextLink>
+      </HStack>
       <Box mt='20px' width='full'>
         {showCardLayout(type)}
       </Box>

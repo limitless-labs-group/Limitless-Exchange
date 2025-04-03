@@ -1,10 +1,8 @@
-import { Box, Button, Flex, HStack, Link, Slide, Text, useDisclosure } from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Link, Text } from '@chakra-ui/react'
 import { useFundWallet } from '@privy-io/react-auth'
 import { useAtom } from 'jotai/index'
-import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
 import { LoginButtons } from '@/components/common/login-button'
 import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import SideBarPage from '@/components/common/side-bar-page'
@@ -15,8 +13,8 @@ import { Profile } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
-import { useThemeProvider } from '@/providers'
 import DepositIcon from '@/resources/icons/deposit-icon.svg'
+import Logo from '@/resources/icons/logo.svg'
 import FeedIcon from '@/resources/icons/sidebar/Feed.svg'
 import GridIcon from '@/resources/icons/sidebar/Markets.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
@@ -24,6 +22,8 @@ import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
 import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import {
   ClickEvent,
+  ClobPositionWithType,
+  HistoryPositionWithType,
   LogoClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
   useAccount,
@@ -36,43 +36,47 @@ import { MarketStatus, Sort, SortStorageName } from '@/types'
 import { ReferralLink } from '../common/referral-link'
 
 export default function Header() {
-  const { mode } = useThemeProvider()
   const [, setSelectedSort] = useAtom(sortAtom)
-  const { dashboard, handleCategory, handleDashboard, selectedCategory } = useTokenFilter()
+  const { dashboard, handleCategory, handleDashboard } = useTokenFilter()
   const pageName = usePageName()
   const { trackClicked } = useAmplitude()
   const { isLoggedToPlatform } = useClient()
   const { fundWallet } = useFundWallet()
   const { data: positions } = usePosition()
-  const { isOpen: isOpenWalletPage, onToggle: onToggleWalletPage } = useDisclosure()
-  const { isOpen: isOpenProfile, onToggle: onToggleProfile } = useDisclosure()
   const { marketPageOpened, onCloseMarketPage } = useTradingService()
-  const { account, loginToPlatform } = useAccount()
+  const {
+    account,
+    loginToPlatform,
+    setWalletPageOpened,
+    setProfilePageOpened,
+    profilePageOpened,
+    walletPageOpened,
+  } = useAccount()
   const handleBuyCryptoClicked = async () => {
     trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.BuyCryptoClicked)
     await fundWallet(account as string)
   }
 
   const handleOpenWalletPage = () => {
-    onToggleWalletPage()
+    setWalletPageOpened(true)
     if (marketPageOpened) {
       onCloseMarketPage()
     }
   }
 
   const handleOpenProfile = () => {
-    onToggleProfile()
+    setProfilePageOpened(true)
     if (marketPageOpened) {
       onCloseMarketPage()
     }
   }
 
   const hasWinningPosition = useMemo(() => {
-    return positions?.some((position) => {
+    return positions?.positions.some((position) => {
       if (position.type === 'amm') {
-        return position.market.closed
+        return (position as HistoryPositionWithType).market.closed
       }
-      return position.market.status === MarketStatus.RESOLVED
+      return (position as ClobPositionWithType).market.status === MarketStatus.RESOLVED
     })
   }, [positions])
 
@@ -87,7 +91,7 @@ export default function Header() {
         borderColor='grey.100'
         bg='grey.50'
       >
-        <HStack gap='32px'>
+        <HStack gap='16px'>
           <ReferralLink href='/' passHref>
             <Link
               onClick={() => {
@@ -100,12 +104,30 @@ export default function Header() {
               style={{ textDecoration: 'none' }}
               _hover={{ textDecoration: 'none' }}
             >
-              <Image
-                src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
-                height={32}
-                width={156}
-                alt='logo'
-              />
+              {/* <Image */}
+              {/*   src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'} */}
+              {/*   height={32} */}
+              {/*   width={156} */}
+              {/*   alt='logo' */}
+              {/* /> */}
+              <HStack minW='156px' w='full'>
+                <Logo />
+                <Text
+                  {...paragraphMedium}
+                  fontSize='16px'
+                  _hover={{
+                    '&::after': {
+                      content: '"Limitmore"',
+                    },
+                    '& > span': {
+                      display: 'none',
+                    },
+                  }}
+                  position='relative'
+                >
+                  <span>Limitless</span>
+                </Text>
+              </HStack>
             </Link>
           </ReferralLink>
           <HStack gap='16px'>
@@ -253,14 +275,14 @@ export default function Header() {
               handleOpenWalletPage={handleOpenWalletPage}
               handleOpenProfile={handleOpenProfile}
             />
-            {isOpenWalletPage && (
+            {walletPageOpened && (
               <SideBarPage>
-                <WalletPage onClose={onToggleWalletPage} />
+                <WalletPage />
               </SideBarPage>
             )}
-            {isOpenProfile && (
+            {profilePageOpened && (
               <SideBarPage>
-                <Profile isOpen={isOpenProfile} onClose={onToggleProfile} />
+                <Profile />
               </SideBarPage>
             )}
           </HStack>

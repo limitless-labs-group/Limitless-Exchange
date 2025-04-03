@@ -228,7 +228,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
-        await waitForTransaction(hash)
+        // await waitForTransaction(hash)
         return hash
       }
     } catch (e) {
@@ -258,7 +258,7 @@ export const useExternalWalletService = () => {
           account: addresses[0],
           chain: defaultChain,
         })
-        await waitForTransaction(hash)
+        // await waitForTransaction(hash)
         return hash
       }
     } catch (e) {

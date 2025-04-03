@@ -26,6 +26,10 @@ export const MainLayout = ({
   const { marketPageOpened, market } = useTradingService()
   const pageName = usePageName()
 
+  const desktopPadding = pageName === 'Explore Markets' ? '80px' : '24px'
+
+  const mobilePadding = pageName === 'Explore Markets' ? '65px' : '36px'
+
   return (
     <Box
       className={inter.className}
@@ -40,13 +44,17 @@ export const MainLayout = ({
       {...props}
     >
       {isMobile ? <MobileHeader /> : <Header />}
-      <Box mb={isMobile ? '60px' : 0} mt={isMobile ? '65px' : '80px'} overflow='hidden'>
+      <Box
+        mb={isMobile ? '60px' : 0}
+        overflow='hidden'
+        mt={isMobile ? mobilePadding : desktopPadding}
+      >
         {isMobile && pageName === 'Explore Markets' && (
           <HStack py='4px' px='12px' bg='grey.50' maxW='100%' overflowX='auto'>
             <CategoryItems />
           </HStack>
         )}
-        <HStack minH={'calc(100vh - 20px)'} alignItems='flex-start'>
+        <HStack minH={'100vh'} alignItems='flex-start'>
           {isLoading ? (
             <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
               <Spinner />

@@ -26,6 +26,26 @@ export function epochToDailyRewards(epoch: number) {
   return epoch * (24 * 60) // 24 hours, 60 minutes
 }
 
+export const calculateMinSize = (size: number | undefined) => {
+  if (!size) return 0
+  return size * 10 ** 6
+}
+
+export const calculateMaxSpread = (spread: number | undefined) => {
+  if (!spread) return 0
+  return Number((spread / 100 + 0.005).toFixed(3))
+}
+
+export const reverseCalculateMinSize = (size: number | undefined) => {
+  if (!size) return 0
+  return size / 10 ** 6
+}
+
+export const reverseCalculateMaxSpread = (spread: number | undefined) => {
+  if (!spread) return 0
+  return Number(((spread - 0.005) * 100).toFixed(3))
+}
+
 export const useCreateMarket = () => {
   const [formData, setFormData] = useAtom(formDataAtom)
   const [marketType, setMarketType] = useAtom(draftMarketTypeAtom)
@@ -80,8 +100,8 @@ export const useCreateMarket = () => {
       priorityIndex: draftMarket.priorityIndex,
       ...(isClob
         ? {
-            minSize: draftMarket.settings?.minSize,
-            maxSpread: draftMarket.settings?.maxSpread,
+            minSize: reverseCalculateMinSize(draftMarket.settings?.minSize),
+            maxSpread: reverseCalculateMaxSpread(draftMarket.settings?.maxSpread),
             c: draftMarket.settings?.c,
             maxDailyReward: draftMarket.settings?.rewardsEpoch
               ? epochToDailyRewards(draftMarket.settings.rewardsEpoch)
@@ -137,8 +157,8 @@ export const useCreateMarket = () => {
       slug: activeMarket.slug ?? '',
       ...(isClob
         ? {
-            minSize: activeMarket.settings?.minSize,
-            maxSpread: activeMarket.settings?.maxSpread,
+            minSize: reverseCalculateMinSize(activeMarket.settings?.minSize),
+            maxSpread: reverseCalculateMaxSpread(activeMarket.settings?.maxSpread),
             c: activeMarket.settings?.c,
             maxDailyReward: activeMarket.settings?.rewardsEpoch
               ? epochToDailyRewards(activeMarket.settings.rewardsEpoch)
@@ -224,8 +244,12 @@ export const useCreateMarket = () => {
         priorityIndex: formData.get('priorityIndex')
           ? Number(formData.get('priorityIndex'))
           : undefined,
-        minSize: formData.get('minSize') ? Number(formData.get('minSize')) : undefined,
-        maxSpread: formData.get('maxSpread') ? Number(formData.get('maxSpread')) : undefined,
+        minSize: formData.get('minSize')
+          ? calculateMinSize(Number(formData.get('minSize')))
+          : undefined,
+        maxSpread: formData.get('maxSpread')
+          ? calculateMaxSpread(Number(formData.get('maxSpread')))
+          : undefined,
         c: formData.get('c') ? Number(formData.get('c')) : undefined,
         maxDailyReward: formData.get('maxDailyReward')
           ? Number(formData.get('maxDailyReward'))
@@ -277,8 +301,8 @@ export const useCreateMarket = () => {
         ...baseData,
         description: formData.description ?? '',
         priorityIndex: formData.priorityIndex,
-        minSize: Number(formData.minSize),
-        maxSpread: Number(formData.maxSpread),
+        minSize: calculateMinSize(Number(formData.minSize)),
+        maxSpread: calculateMaxSpread(Number(formData.maxSpread)),
         c: Number(formData.c),
         maxDailyReward: Number(formData.maxDailyReward),
       }

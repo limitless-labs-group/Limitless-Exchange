@@ -39,7 +39,10 @@ const RootLayout = ({ children }: PropsWithChildren) => {
         <meta name='apple-mobile-web-app-capable' content='yes' />
         <meta name='apple-mobile-web-app-status-bar-style' content='default' />
         <meta name='google' content='notranslate' />
-        <meta name='description' content='Daily prediction markets on Base' />
+        <meta
+          name='description'
+          content='Forecast the future on Limitless, financial prediction market'
+        />
       </head>
       <body>
         <noscript>

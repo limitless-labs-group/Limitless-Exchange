@@ -11,11 +11,12 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { useFundWallet, usePrivy } from '@privy-io/react-auth'
+import BigNumber from 'bignumber.js'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { isAddress } from 'viem'
+import { formatUnits, isAddress } from 'viem'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import Loader from '@/components/common/loader'
@@ -82,12 +83,11 @@ export default function MobileHeader() {
   } = useDisclosure()
   const { handleDashboard, handleCategory } = useTokenFilter()
 
-  // Todo move this and other duplicated to a proper service
   const balanceInvested = useMemo(() => {
-    const ammPositions = positions?.filter(
+    const ammPositions = positions?.positions.filter(
       (position) => position.type === 'amm'
     ) as HistoryPositionWithType[]
-    const clobPositions = positions?.filter(
+    const clobPositions = positions?.positions.filter(
       (position) => position.type === 'clob'
     ) as ClobPositionWithType[]
     let _balanceInvested = 0
@@ -96,10 +96,27 @@ export default function MobileHeader() {
       const token = supportedTokens?.find(
         (token) => token.symbol === position.market.collateral?.symbol
       )
-      if (!!token) {
+      if (token) {
         positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, position.collateralAmount)
       }
       _balanceInvested += positionUsdAmount
+    })
+    clobPositions?.forEach((position) => {
+      let positionUsdAmount = 0
+      const token = supportedTokens?.find(
+        (token) => token.symbol === position.market.collateralToken.symbol
+      )
+      if (token) {
+        const investedAmount = new BigNumber(position.positions.yes.cost)
+          .plus(new BigNumber(position.positions.no.cost))
+          .toString()
+        const formattedInvestedAmount = formatUnits(
+          BigInt(investedAmount),
+          position.market.collateralToken.decimals
+        )
+        positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, formattedInvestedAmount)
+        _balanceInvested += positionUsdAmount
+      }
     })
     return NumberUtil.toFixed(_balanceInvested, 2)
   }, [positions])
@@ -255,7 +272,7 @@ export default function MobileHeader() {
                           }
                           variant='common'
                         >
-                          <Profile isOpen={true} />
+                          <Profile />
                         </MobileDrawer>
                       )}
                       <HStack
@@ -354,7 +371,7 @@ export default function MobileHeader() {
                               }
                               variant='common'
                             >
-                              <WalletPage onClose={() => console.log('ok')} />
+                              <WalletPage />
                             </MobileDrawer>
                             <Button
                               variant='contained'

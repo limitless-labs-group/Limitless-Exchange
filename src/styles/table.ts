@@ -1,7 +1,7 @@
 import { tableAnatomy } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(
   tableAnatomy.keys
@@ -30,9 +30,9 @@ const baseStyle = definePartsStyle({
   thead: {
     th: {
       padding: isMobile ? '12px' : '8px',
-      ...paragraphRegular,
+      ...paragraphMedium,
       color: 'grey.500 !important',
-      borderColor: 'grey.300 !important',
+      borderColor: 'grey.200 !important',
       textTransform: 'unset',
       '&[data-is-numeric=true]': {
         textAlign: 'start',
@@ -44,7 +44,7 @@ const baseStyle = definePartsStyle({
     td: {
       ...paragraphRegular,
       borderBottomWidth: '1px',
-      borderColor: 'grey.300',
+      borderColor: 'grey.200',
       padding: isMobile ? '12px' : '7.5px 8px',
       '&[data-is-numeric=true]': {
         textAlign: 'start',
@@ -83,9 +83,9 @@ const noPaddingsOnSides = definePartsStyle({
   thead: {
     th: {
       padding: isMobile ? '12px' : '8px',
-      ...paragraphRegular,
-      color: 'grey.500 !important',
-      borderColor: 'grey.300 !important',
+      ...paragraphMedium,
+      color: 'grey.500',
+      borderColor: 'grey.200',
       textTransform: 'unset',
       '&[data-is-numeric=true]': {
         textAlign: 'end',
@@ -103,8 +103,7 @@ const noPaddingsOnSides = definePartsStyle({
   tbody: {
     td: {
       ...paragraphRegular,
-      borderBottomWidth: '1px',
-      borderColor: 'grey.300 !important',
+      borderBottomWidth: '0px',
       padding: isMobile ? '12px' : '7.5px 8px',
       '&[data-is-numeric=true]': {
         textAlign: 'start',

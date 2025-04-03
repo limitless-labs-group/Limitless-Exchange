@@ -20,11 +20,13 @@ export default function ConvertModalContent({ step, setStep }: ConvertModalConte
   const [sharesToConvert, setSharesToConvert] = useState('')
 
   const prepareInitialPositions = () => {
-    const currentPositions = allPositions
+    const currentPositions = allPositions?.positions
       ?.filter((position) => position.type === 'clob')
       .filter((position) =>
         groupMarket?.markets?.some(
-          (market) => position.market.slug === market?.slug && !!+position.tokensBalance.no
+          (market) =>
+            position.market.slug === market?.slug &&
+            !!+(position as ClobPositionWithType).tokensBalance.no
         )
       )
       .map((position) => ({
@@ -33,7 +35,7 @@ export default function ConvertModalContent({ step, setStep }: ConvertModalConte
         amount: '',
       }))
     if (currentPositions?.length) {
-      setConvertPositions(currentPositions)
+      setConvertPositions(currentPositions as ClobPositionWithTypeAndSelected[])
     }
   }
 
