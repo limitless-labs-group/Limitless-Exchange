@@ -1,6 +1,6 @@
-import { Market, MarketGroup, Sort } from '../types'
+import { Market, Sort } from '@/types'
 
-type MarketOrGroup = Market | MarketGroup
+type MarketOrGroup = Market
 
 const getVolumeForMarket = (market: MarketOrGroup): number => {
   // if ('slug' in market && market.slug) {
@@ -16,13 +16,7 @@ const getLiquidityForMarket = (market: MarketOrGroup): number => {
   return Number((market as Market).liquidityFormatted) ?? 0
 }
 
-const getValueForMarket = (market: MarketOrGroup): number => {
-  // if ('slug' in market && market.slug) {
-  //   return market.markets.reduce(
-  //     (acc, m) => acc + Number(m.liquidityFormatted) + Number(m.openInterestFormatted),
-  //     0
-  //   )
-  // }
+const getValueForMarket = (market: Market): number => {
   return (
     Number((market as Market).liquidityFormatted) +
       Number((market as Market).openInterestFormatted) || 0
@@ -42,10 +36,7 @@ const getMarketTradeType = (market: MarketOrGroup): string => {
   return (market as Market).tradeType
 }
 
-const getTrendingRank = (
-  market: MarketOrGroup,
-  category: 'hourly' | 'last30days' = 'hourly'
-): number => {
+const getTrendingRank = (market: Market, category: 'hourly' | 'last30days' = 'hourly'): number => {
   if ((market as Market).trends) {
     if ((market as Market)?.trends?.[category]?.rank !== undefined) {
       return (market as Market)?.trends?.[category]?.rank ?? 0
@@ -60,7 +51,7 @@ const getTrendingRank = (
   return Number.MAX_SAFE_INTEGER / 2
 }
 
-export function sortMarkets<T extends Market[] | MarketGroup[] | (Market | MarketGroup)[]>(
+export function sortMarkets<T extends Market[]>(
   markets: T,
   sortType: Sort,
   convertTokenAmountToUsd: (symbol: string, amount: number) => number

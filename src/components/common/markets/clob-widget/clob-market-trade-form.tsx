@@ -4,7 +4,7 @@ import { useFundWallet } from '@privy-io/react-auth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
-import React, { useMemo, useRef } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { isMobile, isTablet } from 'react-device-detect'
 import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
@@ -41,17 +41,18 @@ export default function ClobMarketTradeForm() {
   const queryClient = useQueryClient()
   const { web3Client, profileData, web3Wallet, loginToPlatform, account } = useAccount()
   const {
-    setPrice,
-    price,
     balance,
     allowance,
     isApprovedForSell,
     onToggleTradeStepper,
     sharesPrice,
     isBalanceNotEnough,
-    sharesAvailable,
     yesPrice,
     noPrice,
+    setPrice,
+    price,
+    sharesAvailable,
+    isApprovedNegRiskForSell,
     orderType,
   } = useClobWidget()
   const { client, placeMarketOrder } = useWeb3Service()
@@ -59,13 +60,128 @@ export default function ClobMarketTradeForm() {
   const privateClient = useAxiosPrivateClient()
   const toast = useToast()
   const { pushPuchaseEvent, pushGA4Event } = useGoogleAnalytics()
+  const [contractsBuying, setContractsBuying] = useState('')
   const { fundWallet } = useFundWallet()
 
   const inputRef = useRef<HTMLInputElement | null>(null)
 
+  const orderCalculations = useMemo(() => {
+    if (!price || !orderBook || !market) {
+      return {
+        contracts: 0,
+        avgPrice: 0,
+        payout: 0,
+        profit: 0,
+      }
+    }
+    if (strategy === 'Buy') {
+      const targetSide = !outcome
+        ? orderBook.asks
+        : orderBook.bids.map((a) => ({ ...a, price: new BigNumber(1).minus(a.price).toNumber() }))
+
+      targetSide.sort((a, b) => a.price - b.price)
+
+      let totalContracts = 0
+      let totalCost = 0
+      let remainingAmount = +price
+
+      for (const entry of targetSide) {
+        const contractsAvailable = +formatUnits(
+          BigInt(entry.size.toFixed()),
+          market.collateralToken.decimals
+        )
+        const contractsToBuy = Math.min(
+          new BigNumber(remainingAmount)
+            .dividedBy(new BigNumber(entry.price))
+            .decimalPlaces(6)
+            .toNumber(),
+          contractsAvailable
+        )
+
+        totalContracts = new BigNumber(totalContracts).plus(contractsToBuy).toNumber()
+        totalCost = new BigNumber(totalCost)
+          .plus(new BigNumber(contractsToBuy).multipliedBy(new BigNumber(entry.price)))
+          .toNumber()
+
+        remainingAmount = new BigNumber(remainingAmount)
+          .minus(new BigNumber(contractsToBuy).multipliedBy(new BigNumber(entry.price)))
+          .toNumber()
+
+        if (remainingAmount <= 0) break
+      }
+
+      const averagePrice =
+        totalContracts > 0 ? new BigNumber(totalCost).dividedBy(totalContracts).toNumber() : 0
+      const totalProfit = new BigNumber(totalContracts)
+        .multipliedBy(new BigNumber(1).minus(new BigNumber(averagePrice)))
+        .toNumber()
+
+      return {
+        contracts: isNaN(totalContracts) ? 0 : totalContracts,
+        avgPrice: isNaN(averagePrice) ? 0 : averagePrice,
+        payout: isNaN(totalContracts) ? 0 : totalContracts,
+        profit: isNaN(totalProfit) ? 0 : totalProfit,
+      }
+    }
+
+    if (strategy === 'Sell') {
+      const targetSide = !outcome
+        ? orderBook.bids
+        : orderBook.asks.map((b) => ({ ...b, price: new BigNumber(1).minus(b.price).toNumber() }))
+
+      targetSide.sort((a, b) => b.price - a.price)
+
+      let totalContractsSold = 0
+      let totalAmountReceived = 0
+      let remainingContracts = +price
+
+      for (const entry of targetSide) {
+        const contractsAvailable = +formatUnits(
+          BigInt(entry.size.toFixed()),
+          market.collateralToken.decimals
+        )
+        const contractsToSell = Math.min(remainingContracts, contractsAvailable)
+
+        totalContractsSold = new BigNumber(totalContractsSold)
+          .plus(new BigNumber(contractsToSell))
+          .toNumber()
+        totalAmountReceived = new BigNumber(totalAmountReceived)
+          .plus(new BigNumber(contractsToSell).multipliedBy(new BigNumber(entry.price)))
+          .toNumber()
+
+        remainingContracts = new BigNumber(remainingContracts)
+          .minus(new BigNumber(contractsToSell))
+          .toNumber()
+
+        if (remainingContracts <= 0) break
+      }
+
+      const averagePrice =
+        totalContractsSold > 0
+          ? new BigNumber(totalAmountReceived)
+              .dividedBy(new BigNumber(totalContractsSold))
+              .toNumber()
+          : 0
+
+      return {
+        contracts: isNaN(totalContractsSold) ? 0 : totalContractsSold,
+        avgPrice: isNaN(averagePrice) ? 0 : averagePrice,
+        payout: isNaN(totalAmountReceived) ? 0 : totalAmountReceived,
+        profit: 0,
+      }
+    }
+    return {
+      contracts: 0,
+      avgPrice: 0,
+      payout: 0,
+      profit: 0,
+    }
+  }, [market, orderBook, outcome, price, strategy])
+
   const placeMarketOrderMutation = useMutation({
     mutationKey: ['market-order', market?.slug, price],
     mutationFn: async () => {
+      setContractsBuying(orderCalculations.contracts.toString())
       trackClicked(ClickEvent.ConfirmTransactionClicked, {
         address: market?.slug,
         outcome: outcome,
@@ -78,13 +194,25 @@ export default function ClobMarketTradeForm() {
       if (market) {
         if (web3Client === 'etherspot') {
           if (strategy === 'Sell') {
+            const operator = market.negRiskRequestId
+              ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+              : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
             await privyService.approveConditionalIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              operator as Address,
               process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
             )
+            if (market.negRiskRequestId) {
+              await privyService.approveConditionalIfNeeded(
+                process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE as Address,
+                process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+              )
+            }
           } else {
+            const spender = market.negRiskRequestId
+              ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
+              : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
             await privyService.approveCollateralIfNeeded(
-              process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
+              spender as Address,
               maxUint256,
               market?.collateralToken.address as Address
             )
@@ -97,7 +225,8 @@ export default function ClobMarketTradeForm() {
           market.collateralToken.decimals,
           outcome === 0 ? yesPrice.toString() : noPrice.toString(),
           side,
-          price
+          price,
+          market.negRiskRequestId ? 'negRisk' : 'common'
         )
         const data = {
           order: {
@@ -250,119 +379,6 @@ export default function ClobMarketTradeForm() {
     return `${title}%`
   }
 
-  const orderCalculations = useMemo(() => {
-    if (!price || !orderBook || !market) {
-      return {
-        contracts: 0,
-        avgPrice: 0,
-        payout: 0,
-        profit: 0,
-      }
-    }
-    if (strategy === 'Buy') {
-      const targetSide = !outcome
-        ? orderBook.asks
-        : orderBook.bids.map((a) => ({ ...a, price: new BigNumber(1).minus(a.price).toNumber() }))
-
-      targetSide.sort((a, b) => a.price - b.price)
-
-      let totalContracts = 0
-      let totalCost = 0
-      let remainingAmount = +price
-
-      for (const entry of targetSide) {
-        const contractsAvailable = +formatUnits(
-          BigInt(entry.size.toFixed()),
-          market.collateralToken.decimals
-        )
-        const contractsToBuy = Math.min(
-          new BigNumber(remainingAmount)
-            .dividedBy(new BigNumber(entry.price))
-            .decimalPlaces(6)
-            .toNumber(),
-          contractsAvailable
-        )
-
-        totalContracts = new BigNumber(totalContracts).plus(contractsToBuy).toNumber()
-        totalCost = new BigNumber(totalCost)
-          .plus(new BigNumber(contractsToBuy).multipliedBy(new BigNumber(entry.price)))
-          .toNumber()
-
-        remainingAmount = new BigNumber(remainingAmount)
-          .minus(new BigNumber(contractsToBuy).multipliedBy(new BigNumber(entry.price)))
-          .toNumber()
-
-        if (remainingAmount <= 0) break
-      }
-
-      const averagePrice =
-        totalContracts > 0 ? new BigNumber(totalCost).dividedBy(totalContracts).toNumber() : 0
-      const totalProfit = new BigNumber(totalContracts)
-        .multipliedBy(new BigNumber(1).minus(new BigNumber(averagePrice)))
-        .toNumber()
-
-      return {
-        contracts: isNaN(totalContracts) ? 0 : totalContracts,
-        avgPrice: isNaN(averagePrice) ? 0 : averagePrice,
-        payout: isNaN(totalContracts) ? 0 : totalContracts,
-        profit: isNaN(totalProfit) ? 0 : totalProfit,
-      }
-    }
-
-    if (strategy === 'Sell') {
-      const targetSide = !outcome
-        ? orderBook.bids
-        : orderBook.asks.map((b) => ({ ...b, price: new BigNumber(1).minus(b.price).toNumber() }))
-
-      targetSide.sort((a, b) => b.price - a.price)
-
-      let totalContractsSold = 0
-      let totalAmountReceived = 0
-      let remainingContracts = +price
-
-      for (const entry of targetSide) {
-        const contractsAvailable = +formatUnits(
-          BigInt(entry.size.toFixed()),
-          market.collateralToken.decimals
-        )
-        const contractsToSell = Math.min(remainingContracts, contractsAvailable)
-
-        totalContractsSold = new BigNumber(totalContractsSold)
-          .plus(new BigNumber(contractsToSell))
-          .toNumber()
-        totalAmountReceived = new BigNumber(totalAmountReceived)
-          .plus(new BigNumber(contractsToSell).multipliedBy(new BigNumber(entry.price)))
-          .toNumber()
-
-        remainingContracts = new BigNumber(remainingContracts)
-          .minus(new BigNumber(contractsToSell))
-          .toNumber()
-
-        if (remainingContracts <= 0) break
-      }
-
-      const averagePrice =
-        totalContractsSold > 0
-          ? new BigNumber(totalAmountReceived)
-              .dividedBy(new BigNumber(totalContractsSold))
-              .toNumber()
-          : 0
-
-      return {
-        contracts: isNaN(totalContractsSold) ? 0 : totalContractsSold,
-        avgPrice: isNaN(averagePrice) ? 0 : averagePrice,
-        payout: isNaN(totalAmountReceived) ? 0 : totalAmountReceived,
-        profit: 0,
-      }
-    }
-    return {
-      contracts: 0,
-      avgPrice: 0,
-      payout: 0,
-      profit: 0,
-    }
-  }, [market, orderBook, outcome, price, strategy])
-
   const isLessThanMinTreshHold = useMemo(() => {
     if (strategy == 'Buy') {
       return +price < 1
@@ -371,11 +387,12 @@ export default function ClobMarketTradeForm() {
       return orderCalculations.payout < 1
     }
     return false
-  }, [orderCalculations.payout, strategy, price])
+  }, [orderCalculations.payout, strategy])
 
   const onResetMutation = async () => {
-    await sleep(0.8)
+    await sleep(1)
     placeMarketOrderMutation.reset()
+    setContractsBuying('')
     await Promise.allSettled([
       queryClient.refetchQueries({
         queryKey: ['user-orders', market?.slug],
@@ -388,6 +405,12 @@ export default function ClobMarketTradeForm() {
       }),
       queryClient.refetchQueries({
         queryKey: ['locked-balance', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['prices', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['positions'],
       }),
     ])
   }
@@ -427,6 +450,17 @@ export default function ClobMarketTradeForm() {
           .toNumber()
       }, 0)
       return new BigNumber(price).isGreaterThan(new BigNumber(totalAmount))
+    }
+    if (orderBook) {
+      const targetSide = !outcome
+        ? orderBook.bids
+        : orderBook.asks.map((a) => ({ ...a, price: new BigNumber(1).minus(a.price).toNumber() }))
+      const totalShares = targetSide.reduce((sum, acc) => {
+        return new BigNumber(sum)
+          .plus(new BigNumber(formatUnits(BigInt(acc.size), market?.collateralToken.decimals || 6)))
+          .toNumber()
+      }, 0)
+      return new BigNumber(price).isGreaterThan(totalShares)
     }
     return false
   }, [price, strategy, orderBook, outcome, market])
@@ -468,16 +502,24 @@ export default function ClobMarketTradeForm() {
       const isApprovalNeeded = new BigNumber(allowance.toString()).isLessThan(
         parseUnits(sharesPrice, market?.collateralToken.decimals || 6).toString()
       )
-      if (isApprovalNeeded && client === 'eoa') {
+      if (client === 'eoa' && isApprovalNeeded) {
         onToggleTradeStepper()
         return
       }
       await placeMarketOrderMutation.mutateAsync()
       return
     }
-    if (!isApprovedForSell && client === 'eoa') {
-      onToggleTradeStepper()
-      return
+    if (client === 'eoa') {
+      console.log(
+        `market trade form isApprovedForSell ${isApprovedForSell} isApprovedNegRiskForSell ${isApprovedNegRiskForSell}`
+      )
+      const isApprovedSell = market?.negRiskRequestId
+        ? isApprovedForSell || isApprovedNegRiskForSell
+        : isApprovedForSell
+      if (!isApprovedSell) {
+        onToggleTradeStepper()
+        return
+      }
     }
     await placeMarketOrderMutation.mutateAsync()
     return
@@ -597,7 +639,7 @@ export default function ClobMarketTradeForm() {
         }
         onClick={handleSubmitButtonClicked}
         successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(
-          orderCalculations.contracts,
+          contractsBuying,
           6
         )} contracts`}
         onReset={onResetMutation}

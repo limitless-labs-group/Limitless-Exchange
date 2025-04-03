@@ -9,6 +9,7 @@ import { DraftMarketCard } from '@/app/draft/components/draft-card'
 import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import { MarketType } from '@/types'
 import { DraftMarket, DraftMarketResponse } from '@/types/draft'
 
 export const DraftMarketsQueueClob = () => {
@@ -24,7 +25,9 @@ export const DraftMarketsQueueClob = () => {
     queryFn: async () => {
       const response = await privateClient.get(`/markets/drafts`)
 
-      return response.data.filter((market: DraftMarketResponse) => market?.type === 'clob')
+      return response.data.filter(
+        (market: DraftMarketResponse) => market?.type === ('clob' as MarketType)
+      )
     },
   })
 

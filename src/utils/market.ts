@@ -6,6 +6,7 @@ import { defaultChain } from '@/constants'
 import { LIMIT_PER_PAGE } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
 import { AnalyticsParams, OddsData } from '@/types'
+import { MarketInput } from '@/types/draft'
 
 export const getAnalyticsParams = (
   index: number,
@@ -39,6 +40,21 @@ export const calculateMarketPrice = (price: number | undefined): number => {
   const calculated = new BigNumber(price).multipliedBy(100).decimalPlaces(0).toNumber()
 
   return Number.isNaN(calculated) ? 50 : calculated
+}
+
+export const findDuplicateMarketGroupTitles = (markets: MarketInput[]) => {
+  const map = new Map()
+  const duplicates = []
+  const marketTitles = markets.map((market) => market.title)
+
+  for (const str of marketTitles) {
+    map.set(str, (map.get(str) || 0) + 1)
+    if (map.get(str) === 2) {
+      duplicates.push(str)
+    }
+  }
+
+  return duplicates
 }
 
 export async function getPrices(data: { address: Address; decimals: number }[]) {
@@ -148,5 +164,26 @@ export const calculateDisplayRange = (
   return {
     lower: lowerBound.isNegative() ? '0' : lowerBound.toString(),
     upper: upperBound.isGreaterThan(100) ? '100' : upperBound.toString(),
+  }
+}
+
+export const appendReferralCode = (url: string, referralCode: string): string => {
+  try {
+    const urlObj = new URL(url)
+
+    if (urlObj.searchParams.has('r')) {
+      return url
+    }
+
+    urlObj.searchParams.set('r', referralCode)
+    return urlObj.toString()
+  } catch (e) {
+    // For invalid URLs, check manually if it already has an 'r' parameter
+    const hasRParam = /[?&]r=/.test(url)
+    if (hasRParam) {
+      return url
+    }
+    const separator = url.includes('?') ? '&' : '?'
+    return `${url}${separator}r=${referralCode}`
   }
 }

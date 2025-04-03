@@ -73,7 +73,7 @@ export default function OrderbookTableLarge({
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight
     }
-  }, [outcome])
+  }, [outcome, market])
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
@@ -130,12 +130,14 @@ export default function OrderbookTableLarge({
       <HStack w='full' justifyContent='space-between' mb='14px'>
         <Text {...h3Regular}>Order Book</Text>
         <HStack gap='16px'>
-          <Box position='relative'>
-            <RewardTooltipContent
-              linkHoverCallback={setLinkHovered}
-              contentHoverCallback={setRewardButtonHovered}
-            />
-          </Box>
+          {market?.isRewardable && (
+            <Box position='relative'>
+              <RewardTooltipContent
+                linkHoverCallback={setLinkHovered}
+                contentHoverCallback={setRewardButtonHovered}
+              />
+            </Box>
+          )}
           <HStack w={'152px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
             <Button
               h={isMobile ? '28px' : '20px'}

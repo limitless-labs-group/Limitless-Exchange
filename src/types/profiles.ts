@@ -7,6 +7,12 @@ export interface Profile {
   username: string
   bio: string | undefined
   pfpUrl: string | undefined
+  client: string | null
+  smartWallet: string | null
+  isCreator: boolean
+  isAdmin: boolean
+  socialUrl?: string | null
+  referralCode: string
 }
 
 export enum ProfileActionType {
