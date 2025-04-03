@@ -10,7 +10,7 @@ import { useMarketOrders } from '@/hooks/use-market-orders'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { ClickEvent, QuickBetClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import { h3Medium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { ClobPosition } from '@/types/orders'
@@ -33,6 +33,10 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
   const { data: userOrders } = useMarketOrders(market?.slug)
 
   const handleOutcomeClicked = (e: SyntheticEvent, outcome: number) => {
+    trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
+      source: 'Market page from outcomes section',
+      value: outcome ? 'small no button' : 'small yes button',
+    })
     setClobOutcome(outcome)
     if (market.slug === selectedMarket?.slug) {
       e.stopPropagation()

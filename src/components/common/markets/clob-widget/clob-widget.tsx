@@ -11,6 +11,7 @@ import TradeStepperMenu from '@/components/common/markets/clob-widget/trade-step
 import OutcomeButtonsClob from '@/components/common/markets/outcome-buttons/outcome-buttons-clob'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
 import { PendingTradeData } from '@/services/PendingTradeService'
 import { headLineLarge, paragraphRegular } from '@/styles/fonts/fonts.styles'

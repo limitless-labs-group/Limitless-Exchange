@@ -6,7 +6,7 @@ import MobileDrawer from '@/components/common/drawer'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import MarketPage from '@/components/common/markets/market-page'
 import MarketFeedCardContainer from '@/components/feed/components/market-feed-card-container'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { ClickEvent, QuickBetClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { captionMedium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { GroupFeedData, FeedEntity, FeedMarketGroupEntity } from '@/types'
@@ -57,6 +57,10 @@ export default function FeedGroupCreated({ data }: FeedGroupClosedProps) {
     marketToSet: string,
     outcome: number
   ) => {
+    trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
+      source: 'Feed',
+      value: outcome ? 'small no button' : 'small yes button',
+    })
     if (e.metaKey || e.ctrlKey || e.button === 2) {
       return
     }

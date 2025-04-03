@@ -65,6 +65,10 @@ export default function ClobLimitTradeForm() {
   const { pushGA4Event } = useGoogleAnalytics()
   const { fundWallet } = useFundWallet()
 
+  // Todo replace to this logic for better performance
+  // const [price, setPrice] = useState('')
+  // const [sharesAmount, setSharesAmount] = useState('')
+
   const maxSharesAvailable =
     strategy === 'Sell'
       ? +formatUnits(sharesAvailable[outcome ? 'no' : 'yes'], market?.collateralToken.decimals || 6)
@@ -415,11 +419,6 @@ export default function ClobLimitTradeForm() {
     return `${strategy} ${outcome ? 'No' : 'Yes'}`
   }
 
-  console.log(`price ${+price}`)
-  console.log(`sharesAmount ${+sharesAmount}`)
-  console.log(`isBalanceNotEnough ${isBalanceNotEnough}`)
-  console.log(`web3Wallet ${web3Wallet}`)
-
   return (
     <>
       <Flex justifyContent='space-between' alignItems='center' mb='8px'>
@@ -566,6 +565,11 @@ export default function ClobLimitTradeForm() {
         </Text>
       )}
       {shouldAddFunds && <AddFundsValidation />}
+      {isLessThanMinTreshHold && (
+        <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
+          Min. shares amount is 5
+        </Text>
+      )}
     </>
   )
 }

@@ -17,6 +17,8 @@ function usePageName() {
         return 'Leaderboard'
       case '/my-markets':
         return 'My Markets'
+      case '/market-crash':
+        return 'Market Crash Dashboard'
       default:
         if (path.startsWith('/markets/')) {
           return 'Market Page'
@@ -37,6 +39,7 @@ export type PageName =
   | 'Feed'
   | 'Lumy'
   | 'Leaderboard'
+  | 'Market Crash Dashboard'
   | 'My Markets'
 
 export default usePageName

@@ -1,11 +1,10 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { DashboardTagId } from '@/components/common/markets/dashboard-section'
-import { LIMIT_PER_PAGE } from '@/constants/application'
 import { ApiResponse, MarketPage, OddsData } from '@/types'
+import { DashboardTagId } from '@/types/dashboard'
 import { calculateMarketPrice, getPrices } from '@/utils/market'
 
-export const useInfinityDashboard = (tagId?: DashboardTagId) => {
+export const useInfinityDashboard = (tagId: DashboardTagId) => {
   return useInfiniteQuery<MarketPage, Error>({
     queryKey: ['dashboard-infinity', tagId],
     queryFn: async ({ pageParam = 1 }) => {
@@ -14,7 +13,7 @@ export const useInfinityDashboard = (tagId?: DashboardTagId) => {
         {
           params: {
             page: pageParam,
-            limit: LIMIT_PER_PAGE,
+            limit: 65,
             ...(tagId && { tagId }),
           },
         }
@@ -56,9 +55,8 @@ export const useInfinityDashboard = (tagId?: DashboardTagId) => {
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      return lastPage?.data?.markets?.length === LIMIT_PER_PAGE ? lastPage.next : undefined
+      return lastPage?.data?.markets?.length === 65 ? lastPage.next : undefined
     },
     refetchOnWindowFocus: false,
-    enabled: !!tagId,
   })
 }

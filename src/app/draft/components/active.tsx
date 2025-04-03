@@ -14,7 +14,12 @@ export const ActiveMarkets = () => {
   const { data, fetchNextPage, hasNextPage } = useMarkets(null)
 
   const markets: Market[] = useMemo(() => {
-    return data?.pages.flatMap((page) => page.data.markets) || []
+    const allMarkets = data?.pages.flatMap((page) => page.data.markets) || []
+    return allMarkets.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime()
+      const dateB = new Date(b.createdAt).getTime()
+      return dateB - dateA
+    })
   }, [data?.pages])
 
   const handleClick = (marketSlug: string) => {

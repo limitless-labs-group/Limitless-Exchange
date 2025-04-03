@@ -1,4 +1,5 @@
 import { extendTheme as ChakraTheme, ThemeConfig } from '@chakra-ui/react'
+import { mode } from '@chakra-ui/theme-tools'
 import { Inter } from 'next/font/google'
 import { isMobile } from 'react-device-detect'
 import { accordionTheme } from '@/styles/accordion'
@@ -163,6 +164,9 @@ export const chakraTheme = ChakraTheme({
       },
     },
   },
+  zIndices: {
+    tooltip: 3000,
+  },
   components: {
     Button: {
       baseStyle: {
@@ -180,6 +184,7 @@ export const chakraTheme = ChakraTheme({
       variants: {
         outlined: {
           ...commonButtonProps,
+          h: '26px',
           bg: 'unset',
           color: 'grey.800',
           border: '1px solid',
@@ -209,8 +214,12 @@ export const chakraTheme = ChakraTheme({
             pointerEvents: 'none',
           },
         },
-        white: {
+        white: (props: Record<string, unknown>) => ({
           ...commonButtonProps,
+          h: '26px',
+          border: mode('1px solid', 'none')(props),
+          borderColor: mode('grey.200', 'transparent')(props),
+          boxShadow: '0px 1px 4px 0px rgba(2, 6, 23, 0.05)',
           px: isMobile ? '12px' : '8px',
           bg: 'white',
           color: 'black',
@@ -222,7 +231,7 @@ export const chakraTheme = ChakraTheme({
             color: 'grey.500',
             pointerEvents: 'none',
           },
-        },
+        }),
         grey: {
           ...commonButtonProps,
           bg: 'grey.300',
@@ -340,6 +349,12 @@ export const chakraTheme = ChakraTheme({
         borderColor: 'grey.100',
         bg: 'grey.100',
       },
+      variants: {
+        dark: {
+          borderColor: 'grey.200',
+          bg: 'grey.200',
+        },
+      },
     },
     Slider: sliderTheme,
     Select: selectTheme,
@@ -369,6 +384,16 @@ export const chakraTheme = ChakraTheme({
             height: '4px',
           },
         },
+        greenAndWhiteTrack: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-green-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-white)',
+            height: '4px',
+          },
+        },
         yellow: {
           filledTrack: {
             bg: 'var(--chakra-colors-orange-500)',
@@ -379,6 +404,16 @@ export const chakraTheme = ChakraTheme({
             height: '4px',
           },
         },
+        yellowAndWhiteTrack: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-orange-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-white)',
+            height: '4px',
+          },
+        },
         red: {
           filledTrack: {
             bg: 'var(--chakra-colors-red-500)',
@@ -386,6 +421,16 @@ export const chakraTheme = ChakraTheme({
           },
           track: {
             bg: 'var(--chakra-colors-grey-300)',
+            height: '4px',
+          },
+        },
+        redAndWhiteTrack: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-red-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-white)',
             height: '4px',
           },
         },

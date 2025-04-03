@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   ButtonGroup,
-  Checkbox,
   Flex,
   FormControl,
   FormHelperText,
@@ -15,13 +14,14 @@ import {
   Textarea,
   VStack,
   Text,
+  FormLabel,
 } from '@chakra-ui/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { htmlToText } from 'html-to-text'
 import { useAtom } from 'jotai'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useCallback, useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { default as MultiSelect } from 'react-select'
@@ -41,10 +41,10 @@ import {
   groupMarketsAtom,
 } from '@/atoms/draft'
 import { useToast } from '@/hooks'
-import { useCategories, useLimitlessApi } from '@/services'
+import { useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarket } from '@/services/MarketsService'
-import { paragraphBold } from '@/styles/fonts/fonts.styles'
+import { paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Token, SelectOption, DraftCreator, DraftMarketType } from '@/types/draft'
 import { FormField } from '../components/form-field'
 
@@ -60,7 +60,6 @@ export const CreateMarket: FC = () => {
   const activeMarketId = searchParams.get('active-market')
   const type = searchParams.get('marketType')
   const privateClient = useAxiosPrivateClient()
-  const { data: categories } = useCategories()
   const {
     handleChange,
     populateDraftMarketData,
@@ -118,6 +117,16 @@ export const CreateMarket: FC = () => {
     queryKey: ['tagOptions'],
     queryFn: async () => {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`)
+
+      return response.data.map((tag: { id: string; name: string }) =>
+        createOption(tag.id, tag.name)
+      ) as SelectOption[]
+    },
+  })
+  const { data: categoriesOptions } = useQuery({
+    queryKey: ['catOptions'],
+    queryFn: async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/categories`)
 
       return response.data.map((tag: { id: string; name: string }) =>
         createOption(tag.id, tag.name)
@@ -208,6 +217,31 @@ export const CreateMarket: FC = () => {
       })
   }
 
+  const updateActiveMarket = async () => {
+    const data = await prepareData()
+    if (!data) return
+    setIsCreating(true)
+    const marketData = prepareMarketData(data, true)
+
+    const url = `/markets/${activeMarketId}`
+    privateClient
+      .put(url, marketData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then((res) => {
+        showToast(`Market is updated`)
+        router.push(`/draft?tab=active`)
+      })
+      .catch((res) => {
+        showToast(`Error: ${res.message}`)
+      })
+      .finally(() => {
+        setIsCreating(false)
+      })
+  }
+
   const resizeTextareaHeight = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.currentTarget.style.height = 'auto'
     e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
@@ -225,18 +259,59 @@ export const CreateMarket: FC = () => {
     }).length
   }
 
+  const playSound = useCallback(() => {
+    const audio = new Audio('/audio.mp3')
+    audio.play()
+  }, [])
+
   const submit = async () => {
+    playSound()
     if (draftMarketId) {
       await updateMarket()
       return
     }
+    if (activeMarketId) {
+      await updateActiveMarket()
+      return
+    }
     await draftMarket()
+  }
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const value = e.target.value
+    if (value.trim() || value === '') {
+      handleChange('title', value)
+    }
+  }
+
+  const handleTitleBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+    isUpdateOg?: boolean
+  ) => {
+    const trimmedValue = e.target.value.trim()
+    handleChange('title', trimmedValue)
   }
 
   const getButtonText = () => {
     if (draftMarketId) return 'Save'
     if (activeMarketId) return 'Update active market'
     return 'Draft'
+  }
+
+  const [markets, setMarkets] = useState<any[]>([
+    { title: '', description: '' },
+    { title: '', description: '' },
+  ])
+
+  const handleInputChange = (index: number, field: string, value: string) => {
+    const updatedMarkets = [...markets]
+    //@ts-ignore
+    updatedMarkets[index][field] = value
+    setMarkets(updatedMarkets)
+  }
+
+  const addMarket = () => {
+    setMarkets([...markets, { title: '', description: '' }])
   }
 
   return (
@@ -266,13 +341,97 @@ export const CreateMarket: FC = () => {
                   height='auto'
                   onInput={resizeTextareaHeight}
                   value={formData.title}
-                  onChange={(e) => handleChange('title', e.target.value)}
+                  onChange={(e) => handleTitleChange(e)}
+                  onBlur={(e) => handleTitleBlur(e, true)}
                   maxLength={70}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                   {formData.title?.length}/70 characters
                 </FormHelperText>
               </FormField>
+              {!isGroup ? (
+                <FormField label='Description'>
+                  <TextEditor
+                    value={formData.description}
+                    readOnly={false}
+                    onChange={(e) => {
+                      if (getPlainTextLength(e) <= 1500) {
+                        handleChange('description', e)
+                      }
+                    }}
+                  />
+                  <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
+                    {getPlainTextLength(formData.description)}/1500 characters
+                  </FormHelperText>
+                </FormField>
+              ) : (
+                <>
+                  {markets.map((market, index) => (
+                    <Box key={index} borderWidth={1} p={4} borderRadius='md' width='100%'>
+                      <Flex justify='space-between' align='center' mb={2}>
+                        <Text fontWeight='bold'>
+                          Market #{index + 1} {market.id ? `- id: ${market.id}` : ''}
+                        </Text>
+                        {markets.length > 2 && (
+                          <Box
+                            cursor='pointer'
+                            onClick={() => {
+                              const updatedMarkets = [...markets]
+                              updatedMarkets.splice(index, 1)
+                              setMarkets(updatedMarkets)
+                            }}
+                          >
+                            {/* <CloseIcon color='red' height={24} width={24} /> */}
+                          </Box>
+                        )}
+                      </Flex>
+                      <FormControl>
+                        <FormLabel htmlFor={`market${index}_title`}>Title</FormLabel>
+                        <Input
+                          type='text'
+                          id={`market${index}_title`}
+                          name={`marketsInput[${index}][title]`}
+                          value={market.title}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            if (value.trim() || value === '') {
+                              handleInputChange(index, 'title', e.target.value)
+                            }
+                          }}
+                          placeholder={`Enter market ${index + 1} title`}
+                          maxLength={70}
+                          required
+                        />
+                        <FormHelperText
+                          textAlign='end'
+                          style={{ fontSize: '10px', color: 'spacegray' }}
+                        >
+                          {getPlainTextLength(markets?.[index].title ?? '')}/70 characters
+                        </FormHelperText>
+                      </FormControl>
+                      <FormControl mt={4}>
+                        <FormLabel htmlFor={`market${index}_description`}>Description</FormLabel>
+                        <TextEditor
+                          value={market.description}
+                          readOnly={false}
+                          onChange={(e) => {
+                            if (getPlainTextLength(e) <= 1500) {
+                              handleInputChange(index, 'description', e)
+                            }
+                          }}
+                        />
+                        <FormHelperText
+                          textAlign='end'
+                          style={{ fontSize: '10px', color: 'spacegray' }}
+                        >
+                          {getPlainTextLength(markets?.[index].description ?? '')}
+                          /1500 characters
+                        </FormHelperText>
+                      </FormControl>
+                    </Box>
+                  ))}
+                </>
+              )}
 
               {!isGroup ? (
                 <FormField label='Description'>
@@ -387,40 +546,25 @@ export const CreateMarket: FC = () => {
             <VStack w={'full'} flex='0.8' h='full'>
               <HStack w='full' spacing='6' alignItems='start' justifyContent='start'>
                 <VStack>
-                  <FormField label='Market Fee'>
-                    <HStack>
-                      <Box
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Checkbox
-                          isChecked={formData.marketFee === 1}
-                          onChange={(e) => {
-                            handleChange('marketFee', e.target.checked ? 1 : 0)
+                  {!isGroup && (
+                    <FormField label='Is Bannered'>
+                      <HStack gap='8px'>
+                        <Box
+                          w='16px'
+                          h='16px'
+                          borderColor='grey.500'
+                          border='1px solid'
+                          borderRadius='2px'
+                          cursor='pointer'
+                          bg={formData.isBannered ? 'grey.800' : 'unset'}
+                          onClick={() => {
+                            handleChange('isBannered', !formData.isBannered)
                           }}
-                        >
-                          1% Fee
-                        </Checkbox>
-                      </Box>
-                    </HStack>
-                  </FormField>
-                  <FormField label='Is Bannered'>
-                    <HStack>
-                      <Box
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Checkbox
-                          isChecked={formData.isBannered}
-                          onChange={(e) => {
-                            handleChange('isBannered', e.target.checked)
-                          }}
-                        >
-                          Add to banner
-                        </Checkbox>
-                      </Box>
-                    </HStack>
-                  </FormField>
+                        />
+                        <Text {...paragraphRegular}>Add market to big banner</Text>
+                      </HStack>
+                    </FormField>
+                  )}
                 </VStack>
                 <VStack>
                   <AdjustableNumberInput
@@ -433,20 +577,22 @@ export const CreateMarket: FC = () => {
                   />
                 </VStack>
               </HStack>
-              <FormField label='Creator'>
-                <HStack>
-                  <Select
-                    value={formData.creatorId}
-                    onChange={(e) => handleChange('creatorId', e.target.value)}
-                  >
-                    {creators?.map((creator: DraftCreator) => (
-                      <option key={creator.id} value={creator.id}>
-                        {creator?.name ?? ''}
-                      </option>
-                    ))}
-                  </Select>
-                </HStack>
-              </FormField>
+              {!activeMarketId ? (
+                <FormField label='Creator'>
+                  <HStack>
+                    <Select
+                      value={formData.creatorId}
+                      onChange={(e) => handleChange('creatorId', e.target.value)}
+                    >
+                      {creators?.map((creator: DraftCreator) => (
+                        <option key={creator.id} value={creator.id}>
+                          {creator?.name ?? ''}
+                        </option>
+                      ))}
+                    </Select>
+                  </HStack>
+                </FormField>
+              ) : null}
 
               <FormField label='Categories'>
                 <HStack w={'full'}>
@@ -454,23 +600,9 @@ export const CreateMarket: FC = () => {
                     <MultiSelect
                       isMulti
                       closeMenuOnSelect={false}
-                      onChange={(selectedOptions) => {
-                        const typedOptions = selectedOptions
-                        handleChange(
-                          'categories',
-                          typedOptions.map((option) => ({
-                            id: option.id,
-                            label: option.label,
-                            value: option.label,
-                          }))
-                        )
-                      }}
+                      onChange={(option) => handleChange('categories', option)}
                       value={formData.categories}
-                      options={categories?.map((category) => ({
-                        id: String(category.id),
-                        value: category.name,
-                        label: category.name,
-                      }))}
+                      options={categoriesOptions}
                       styles={{
                         option: (provided, state) => ({
                           ...provided,

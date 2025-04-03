@@ -11,14 +11,10 @@ const transparent = defineStyle({
   background: 'unset',
   px: '8px',
   gap: '8px',
-  ...(isMobile
-    ? {}
-    : {
-        _hover: {
-          bg: 'grey.100',
-          textDecoration: 'none',
-        },
-      }),
+  _hover: {
+    bg: 'grey.100',
+    textDecoration: 'none',
+  },
 })
 
 const blueLink = defineStyle({
@@ -42,7 +38,6 @@ const textLink = defineStyle({
     : {
         _hover: {
           bg: 'grey.100',
-          textDecoration: 'none',
           borderColor: 'blackAlpha.70',
           background: 'unset',
         },
@@ -60,7 +55,6 @@ const textLinkSecondary = defineStyle({
     ? {}
     : {
         _hover: {
-          textDecoration: 'none',
           borderColor: 'greyTransparent.600',
           background: 'unset',
         },

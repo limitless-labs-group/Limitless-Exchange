@@ -1,3 +1,4 @@
+import { isNumber } from '@chakra-ui/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -17,10 +18,12 @@ import { Address, formatUnits, getAddress, getContract, Hash, parseUnits, zeroHa
 import { Toast } from '@/components/common/toast'
 import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'
+import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import {
   getConditionalTokenAddress,
   useConditionalTokensAddr,
 } from '@/hooks/use-conditional-tokens-addr'
+import { useUrlParams } from '@/hooks/use-url-param'
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useWeb3Service } from '@/services/Web3Service'
@@ -83,20 +86,11 @@ interface ITradingServiceContext {
 const TradingServiceContext = createContext({} as ITradingServiceContext)
 
 export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
-  /**
-   * UI HELPERS
-   */
   const toast = useToast()
 
-  /**
-   * SERVICES
-   */
   const queryClient = useQueryClient()
-  const { account } = useAccount()
+  const { account, referralCode } = useAccount()
 
-  /**
-   * OPTIONS
-   */
   const [market, setMarket] = useState<Market | null>(null)
   const [groupMarket, setGroupMarket] = useState<Market | null>(null)
   const [markets, setMarkets] = useState<Market[] | undefined>()
@@ -123,6 +117,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     checkNegRiskClaimApprove()
   }, [])
 
+  const { updateParams } = useUrlParams()
   const onCloseMarketPage = () => {
     setMarketPageOpened(false)
     setMarkets(undefined)
@@ -140,6 +135,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       setGroupMarket(market)
     }
     !isMobile && setMarketPageOpened(true)
+    updateParams({ market: market.slug, ...(referralCode ? { r: referralCode } : {}) })
   }
 
   const { data: conditionalTokensAddress, refetch: getConditionalTokensAddress } =
