@@ -11,8 +11,6 @@ import { NumberUtil } from '@/utils'
 export default function RewardsChart() {
   const { data: positions } = usePosition()
 
-  console.log(positions)
-
   const totalRewards = positions
     ? formatUnits(BigInt(positions.rewards.totalUnpaidRewards), 6)
     : '0.00'

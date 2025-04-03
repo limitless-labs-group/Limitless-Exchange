@@ -59,7 +59,6 @@ export default function FullOrdersTab({
 
   const getTotalAmount = (originalSize: string, price: string) => {
     const sizeFormatted = formatUnits(BigInt(originalSize), decimals)
-    console.log(sizeFormatted)
     return new BigNumber(price).multipliedBy(sizeFormatted).decimalPlaces(2).toString()
   }
 
