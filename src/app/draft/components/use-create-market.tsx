@@ -155,7 +155,7 @@ export const useCreateMarket = () => {
           }
         }) ?? [],
       slug: activeMarket.slug ?? '',
-      ...(isClob
+      ...(activeMarket.tradeType === 'clob'
         ? {
             minSize: reverseCalculateMinSize(activeMarket.settings?.minSize),
             maxSpread: reverseCalculateMaxSpread(activeMarket.settings?.maxSpread),
