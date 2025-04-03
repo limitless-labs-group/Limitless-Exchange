@@ -105,30 +105,12 @@ export default function Header() {
               style={{ textDecoration: 'none' }}
               _hover={{ textDecoration: 'none' }}
             >
-              {/* <Image */}
-              {/*   src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'} */}
-              {/*   height={32} */}
-              {/*   width={156} */}
-              {/*   alt='logo' */}
-              {/* /> */}
-              <HStack minW='156px' w='full'>
-                <Logo />
-                <Text
-                  {...paragraphMedium}
-                  fontSize='16px'
-                  _hover={{
-                    '&::after': {
-                      content: '"Limitmore"',
-                    },
-                    '& > span': {
-                      display: 'none',
-                    },
-                  }}
-                  position='relative'
-                >
-                  <span>Limitless</span>
-                </Text>
-              </HStack>
+              <Image
+                src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+                height={32}
+                width={156}
+                alt='logo'
+              />
             </Link>
           </ReferralLink>
           <HStack gap='16px'>
