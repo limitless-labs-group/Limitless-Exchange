@@ -38,7 +38,6 @@ export default function PortfolioPositionCardClobRedirect({
     if (!oneMarket) {
       const { data: fetchedMarket } = await refetchMarket()
       if (fetchedMarket) {
-        onOpenMarketPage(fetchedMarket)
         trackClicked(ClickEvent.PortfolioMarketClicked, {
           marketCategory: fetchedMarket.categories,
           marketAddress: fetchedMarket.slug,
@@ -46,9 +45,16 @@ export default function PortfolioPositionCardClobRedirect({
           marketTags: fetchedMarket.tags,
           type: 'Portolio',
         })
+        if (fetchedMarket.marketType === 'group') {
+          const targetMarket = fetchedMarket.markets?.findIndex(
+            (market) => market.slug === position.market.slug
+          )
+          onOpenMarketPage(fetchedMarket, 0, targetMarket)
+          return
+        }
+        onOpenMarketPage(fetchedMarket)
       }
     } else {
-      onOpenMarketPage(oneMarket)
       trackClicked(ClickEvent.PortfolioMarketClicked, {
         marketCategory: oneMarket.categories,
         marketAddress: oneMarket.slug,
@@ -56,6 +62,14 @@ export default function PortfolioPositionCardClobRedirect({
         marketTags: oneMarket.tags,
         type: 'Portolio',
       })
+      if (oneMarket.marketType === 'group') {
+        const targetMarket = oneMarket.markets?.findIndex(
+          (market) => market.slug === position.market.slug
+        )
+        onOpenMarketPage(oneMarket, 0, targetMarket)
+        return
+      }
+      onOpenMarketPage(oneMarket)
     }
   }
 
