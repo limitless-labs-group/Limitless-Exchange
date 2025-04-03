@@ -36,10 +36,10 @@ export default function GroupMarketSectionDesktop({ market }: GroupMarketSection
       source: 'Market page from outcomes section',
       value: outcome ? 'small no button' : 'small yes button',
     })
+    setClobOutcome(outcome)
     if (market.slug === selectedMarket?.slug) {
       e.stopPropagation()
     }
-    setClobOutcome(outcome)
     if (market.slug !== selectedMarket?.slug) {
       setMarket(market)
     }

@@ -42,7 +42,7 @@ const PortfolioPositionsContainer = ({ userMenuLoading }: { userMenuLoading: boo
 
   if (userMenuLoading || !positionsFiltered || tradesAndPositionsLoading) {
     return (
-      <Stack gap={{ sm: 2, md: 2 }}>
+      <Stack gap={{ sm: 2, md: 2 }} w='full'>
         {[...Array(4)].map((index) => (
           <Skeleton height={isMobile ? 206 : 112} key={index} />
         ))}
