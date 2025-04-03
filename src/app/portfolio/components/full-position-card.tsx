@@ -243,7 +243,7 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
       >
         <Box>
           <HStack w='full' justifyContent='space-between' mb={isMobile ? '8px' : 0}>
-            <Text {...paragraphRegular} mb='16px'>
+            <Text {...paragraphRegular} mb='16px' color={marketClosed ? 'white' : 'grey.800'}>
               {position.market.title}
             </Text>
             {isMobile && !marketClosed && (
