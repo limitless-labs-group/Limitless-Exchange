@@ -412,6 +412,9 @@ export default function ClobMarketTradeForm() {
       queryClient.refetchQueries({
         queryKey: ['positions'],
       }),
+      queryClient.refetchQueries({
+        queryKey: ['market-page-clob-feed', market?.slug],
+      }),
     ])
   }
 

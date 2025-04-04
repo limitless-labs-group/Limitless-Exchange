@@ -331,6 +331,9 @@ export default function ClobLimitTradeForm() {
       queryClient.refetchQueries({
         queryKey: ['positions'],
       }),
+      queryClient.refetchQueries({
+        queryKey: ['market-page-clob-feed', market?.slug],
+      }),
     ])
   }
 
