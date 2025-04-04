@@ -195,20 +195,6 @@ const DraftMarketSpecificInfo = ({ market }: { market: DraftMarket }) => (
         )
       : null}
 
-    {market.settings ? (
-      <HStack w={'unset'} justifyContent={'unset'}>
-        <HStack color={colors.secondary} gap='4px'>
-          <FeeIcon width={16} height={16} />
-          <Text {...paragraphMedium} color={colors.secondary}>
-            Rewards
-          </Text>
-        </HStack>
-        <Text {...paragraphRegular} color={colors.main}>
-          {market.settings?.rewardsEpoch ? epochToDailyRewards(market.settings.rewardsEpoch) : 'NA'}
-        </Text>
-      </HStack>
-    ) : null}
-
     <HStack gap={1} color={colors.main}>
       {market.draftMetadata.initialProbability && (
         <>
@@ -406,6 +392,22 @@ export const DraftMarketCard = ({
                     {categoryNames}
                   </Text>
                 </HStack>
+                {market.settings ? (
+                  <HStack w={'unset'} justifyContent={'unset'}>
+                    <HStack color={colors.secondary} gap='4px'>
+                      <FeeIcon width={16} height={16} />
+                      <Text {...paragraphMedium} color={colors.secondary}>
+                        Rewards
+                      </Text>
+                    </HStack>
+                    <Text {...paragraphRegular} color={colors.main}>
+                      {market.settings?.rewardsEpoch
+                        ? epochToDailyRewards(market.settings.rewardsEpoch)
+                        : 'NA'}
+                    </Text>
+                  </HStack>
+                ) : null}
+
                 {isDraftMarket(market) && <DraftMarketSpecificInfo market={market} />}
                 {isMarket(market) && <MarketSpecificInfo market={market} />}
               </HStack>
