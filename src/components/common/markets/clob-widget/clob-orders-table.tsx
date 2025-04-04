@@ -43,17 +43,17 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
   }
 
   const getContractSizeFormatted = (contracts: string) => {
-    return NumberUtil.formatThousands(
+    return NumberUtil.convertWithDenomination(
       formatUnits(BigInt(contracts), market?.collateralToken.decimals || 6),
-      6
+      2
     )
   }
 
   const getRemainingContractsSize = (originalSize: string, remainingSize: string) => {
     const leftToFill = new BigNumber(originalSize).minus(new BigNumber(remainingSize)).toString()
-    return NumberUtil.formatThousands(
+    return NumberUtil.convertWithDenomination(
       formatUnits(BigInt(leftToFill), market?.collateralToken.decimals || 6),
-      6
+      2
     )
   }
 
@@ -75,7 +75,7 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
       .multipliedBy(order.price)
       .decimalPlaces(0)
       .toString()
-    return NumberUtil.formatThousands(
+    return NumberUtil.convertWithDenomination(
       formatUnits(BigInt(totalAmountRaw), market?.collateralToken.decimals || 6),
       2
     )

@@ -160,8 +160,6 @@ export const PortfolioStats = () => {
     ? formatUnits(BigInt(positions.rewards.totalUserRewardsLastEpoch), 6)
     : '0.00'
 
-  console.log(lastMinuteRewards)
-
   const stats = [
     {
       title: 'Portfolio',
@@ -172,7 +170,7 @@ export const PortfolioStats = () => {
             <Skeleton height={20} />
           </Box>
         ) : (
-          `${NumberUtil.formatThousands(balanceInvested, 2)} USD`
+          `${NumberUtil.convertWithDenomination(balanceInvested, 2)} USD`
         ),
     },
     {
@@ -184,7 +182,7 @@ export const PortfolioStats = () => {
             <Skeleton height={20} />
           </Box>
         ) : (
-          `${NumberUtil.formatThousands(balanceToWin, 2)} USD`
+          `${NumberUtil.convertWithDenomination(balanceToWin, 2)} USD`
         ),
     },
     {
@@ -196,7 +194,7 @@ export const PortfolioStats = () => {
             <Skeleton height={20} />
           </Box>
         ) : (
-          `${NumberUtil.formatThousands(overallBalanceUsd, 2)} USD`
+          `${NumberUtil.convertWithDenomination(overallBalanceUsd, 2)} USD`
         ),
     },
     {
@@ -209,15 +207,17 @@ export const PortfolioStats = () => {
           </Box>
         ) : (
           <HStack gap='4px' alignItems='flex-end'>
-            <Text {...h3Medium}>{NumberUtil.toFixed(totalRewards, 2)} USD</Text>
-            <HStack gap='4px' mb='2px'>
-              <Text {...paragraphMedium} color='green.500'>
-                +{NumberUtil.toFixed(lastMinuteRewards, 2)} USD &#x2191;
-              </Text>
-              <Text {...paragraphMedium} color='grey.500'>
-                last minute
-              </Text>
-            </HStack>
+            <Text {...h3Medium}>{NumberUtil.convertWithDenomination(totalRewards, 2)} USD</Text>
+            {+lastMinuteRewards && (
+              <HStack gap='4px' mb='2px'>
+                <Text {...paragraphMedium} color='green.500'>
+                  +{NumberUtil.convertWithDenomination(lastMinuteRewards, 2)} USD &#x2191;
+                </Text>
+                <Text {...paragraphMedium} color='grey.500'>
+                  last minute
+                </Text>
+              </HStack>
+            )}
           </HStack>
         ),
     },
