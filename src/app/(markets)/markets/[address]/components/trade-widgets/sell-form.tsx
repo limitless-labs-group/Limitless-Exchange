@@ -22,7 +22,6 @@ import BigNumber from 'bignumber.js'
 import debounce from 'lodash.debounce'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Hash } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import TradeWidgetSkeleton, {
   SkeletonType,
@@ -37,9 +36,7 @@ import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
 import {
   ClickEvent,
-  HistoryMarket,
   HistoryPositionWithType,
-  HistoryTrade,
   TradeClickedMetadata,
   TradeQuotes,
   useAmplitude,
@@ -49,7 +46,7 @@ import {
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Address, MarketStatus } from '@/types'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 const _transformSellValue = (value: string) => {
