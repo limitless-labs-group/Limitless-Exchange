@@ -43,7 +43,7 @@ export default function FullPositionsTab({
     return parseUnits('0.01', decimals) < BigInt(size)
   }
 
-  const isEmptyPosition = !+position.yes && !+position.no
+  const isEmptyPosition = !+contracts.yes && !+contracts.no
 
   return (
     <Box>
