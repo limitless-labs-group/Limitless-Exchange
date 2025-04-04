@@ -264,7 +264,7 @@ export const CreateMarket: FC = () => {
   }, [])
 
   const submit = async () => {
-    playSound()
+    // playSound()
     if (draftMarketId) {
       await updateMarket()
       return
