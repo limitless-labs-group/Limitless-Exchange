@@ -100,7 +100,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const checkMarketAllowance = async () => {
     const contractAddress = market?.negRiskRequestId
       ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
-      : process.env.NEXT_PUBLIC_CTF_CONTRACT
+      : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
     const allowance = await checkAllowance(
       contractAddress as Address,
       market?.collateralToken.address as Address

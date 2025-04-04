@@ -82,11 +82,11 @@ export default function ClobLimitTradeForm() {
     const sharesAmount = outcome
       ? NumberUtil.formatThousands(
           formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
-          6
+          2
         )
       : NumberUtil.formatThousands(
           formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
-          6
+          2
         )
     if (value === 100) {
       setSharesAmount(sharesAmount)
@@ -94,7 +94,7 @@ export default function ClobLimitTradeForm() {
     }
     const amountByPercent = (Number(sharesAmount) * value) / 100
     setSharesAmount(
-      NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
+      NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 2 : 6)
     )
     return
   }
@@ -217,11 +217,11 @@ export default function ClobLimitTradeForm() {
       const balanceToShow = outcome
         ? NumberUtil.formatThousands(
             formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
-            6
+            2
           )
         : NumberUtil.formatThousands(
             formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
-            6
+            2
           )
       return `${balanceToShow}`
     }
@@ -399,7 +399,7 @@ export default function ClobLimitTradeForm() {
 
   const handleSetLimitShares = (val: string) => {
     const decimals = val.split('.')[1] || val.split(',')[1]
-    if (decimals && decimals.length > 6) {
+    if (decimals && decimals.length > 2) {
       return
     }
     setSharesAmount(val)

@@ -25,7 +25,8 @@ export default function TradingWidgetSimple({ fullSizePage = false }: TradingWid
   const { data: allMarketsPositions } = usePosition()
 
   const positions = useMemo(
-    () => allMarketsPositions?.filter((position) => position.market.slug === market?.slug),
+    () =>
+      allMarketsPositions?.positions.filter((position) => position.market.slug === market?.slug),
     [allMarketsPositions, market]
   )
 
