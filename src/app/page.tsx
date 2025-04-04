@@ -266,7 +266,7 @@ const MainPage = () => {
               spacing={4}
               h='calc(100vh - 250px)'
             >
-              <Box w='70%' h='full' position='relative' p={4}>
+              <Box w='60%' h='full' position='relative' p={4}>
                 <Box
                   w='full'
                   borderRadius='md'
@@ -279,7 +279,7 @@ const MainPage = () => {
                 </Box>
               </Box>
 
-              <Box className='full-container' w='30%' h='full' overflowY='auto'>
+              <Box className='full-container' w='40%' h='full' overflowY='auto'>
                 <InfiniteScroll
                   className='scroll'
                   dataLength={markets?.length ?? 0}
