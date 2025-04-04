@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
 import TextEditor from '@/components/common/text-editor'
+import { epochToDailyRewards } from './use-create-market'
 import CategoryIcon from '@/resources/icons/category.svg'
 import FeeIcon from '@/resources/icons/fee.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
@@ -32,11 +33,6 @@ const colors = {
   secondary: 'var(--chakra-colors-grey-500)',
   chartBg: 'var(--chakra-colors-grey-300)',
 }
-const badgeBg = {
-  amm: 'blue.100',
-  clob: 'green.100',
-  group: 'lime.100',
-}
 
 const MarketDataFactory = {
   getMarketType: (market: DraftMarket | Market): string => {
@@ -51,7 +47,14 @@ const MarketDataFactory = {
 
   getTypeColor: (market: DraftMarket | Market): string => {
     const type = MarketDataFactory.getMarketType(market)
-    return type === 'amm' ? 'blue.100' : 'green.200'
+    switch (type) {
+      case 'clob':
+        return 'green.100'
+      case 'group':
+        return 'purple.100'
+      default:
+        return 'blue.100'
+    }
   },
 
   getCategoryNames: (market: DraftMarket | Market): string => {
@@ -192,18 +195,6 @@ const DraftMarketSpecificInfo = ({ market }: { market: DraftMarket }) => (
         )
       : null}
 
-    <HStack w={'unset'} justifyContent={'unset'}>
-      <HStack color={colors.secondary} gap='4px'>
-        <FeeIcon width={16} height={16} />
-        <Text {...paragraphMedium} color={colors.secondary}>
-          Fee
-        </Text>
-      </HStack>
-      <Text {...paragraphRegular} color={colors.main}>
-        {market.draftMetadata.fee}%
-      </Text>
-    </HStack>
-
     <HStack gap={1} color={colors.main}>
       {market.draftMetadata.initialProbability && (
         <>
@@ -341,7 +332,12 @@ export const DraftMarketCard = ({
               ) : (
                 <HStack gap={1}>
                   <Box px='2' py='1' borderRadius='md' bg={typeColor}>
-                    <Text {...paragraphMedium} textTransform='uppercase' fontSize='xs'>
+                    <Text
+                      {...paragraphMedium}
+                      color='white'
+                      textTransform='uppercase'
+                      fontSize='xs'
+                    >
                       {marketType}
                     </Text>
                   </Box>
@@ -396,6 +392,22 @@ export const DraftMarketCard = ({
                     {categoryNames}
                   </Text>
                 </HStack>
+                {market.settings ? (
+                  <HStack w={'unset'} justifyContent={'unset'}>
+                    <HStack color={colors.secondary} gap='4px'>
+                      <FeeIcon width={16} height={16} />
+                      <Text {...paragraphMedium} color={colors.secondary}>
+                        Rewards
+                      </Text>
+                    </HStack>
+                    <Text {...paragraphRegular} color={colors.main}>
+                      {market.settings?.rewardsEpoch
+                        ? epochToDailyRewards(market.settings.rewardsEpoch)
+                        : 'NA'}
+                    </Text>
+                  </HStack>
+                ) : null}
+
                 {isDraftMarket(market) && <DraftMarketSpecificInfo market={market} />}
                 {isMarket(market) && <MarketSpecificInfo market={market} />}
               </HStack>
