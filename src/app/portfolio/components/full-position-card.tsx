@@ -23,8 +23,8 @@ import MarketPage from '@/components/common/markets/market-page'
 import FullOrdersTab from '@/app/portfolio/components/full-orders-tab'
 import FullPositionsTab from '@/app/portfolio/components/full-positions-tab'
 import RewardsSection from '@/app/portfolio/components/rewards-section'
+import { useUrlParams } from '@/hooks/use-url-param'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
-import GemIcon from '@/resources/icons/gem-icon.svg'
 import GemWhiteIcon from '@/resources/icons/gem-white-icon.svg'
 import PieChartIcon from '@/resources/icons/pie-chart-icon.svg'
 import {
@@ -47,6 +47,7 @@ interface FullPositionCardProps {
 export default function FullPositionCard({ position }: FullPositionCardProps) {
   const [activeTab, setActiveTab] = useState(0)
   const date = new Date(position.market.deadline)
+  const { params } = useUrlParams()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { onOpenMarketPage, setMarket } = useTradingService()
   const marketClosed = position.market.status === MarketStatus.RESOLVED
@@ -56,6 +57,8 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
     false,
     false
   )
+
+  console.log(params)
 
   const queryClient = useQueryClient()
   const privateClient = useAxiosPrivateClient()
@@ -380,6 +383,7 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
       onClose={() => {
         setMarket(null)
       }}
+      id={position.market.slug}
     >
       <MarketPage />
     </MobileDrawer>

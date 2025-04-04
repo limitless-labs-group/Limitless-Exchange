@@ -26,10 +26,7 @@ export default function ClobPortfolio() {
       </HStack>
       <Box mt='12px'>
         {currentPosition ? (
-          <PortfolioPositionCardClob
-            positionData={currentPosition as ClobPositionWithType}
-            cardColors={unhoveredColors}
-          />
+          <PortfolioPositionCardClob positionData={currentPosition as ClobPositionWithType} />
         ) : (
           <Text {...paragraphRegular}>No positions.</Text>
         )}
