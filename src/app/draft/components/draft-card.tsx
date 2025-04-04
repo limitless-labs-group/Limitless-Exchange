@@ -287,6 +287,7 @@ export const DraftMarketCard = ({
   return (
     <Paper
       w={'full'}
+      minW={!isMobile ? '868px' : 'unset'}
       id={String(market.id)}
       scrollMarginTop='50px'
       justifyContent={'space-between'}
