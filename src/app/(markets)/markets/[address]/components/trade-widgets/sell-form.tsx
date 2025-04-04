@@ -22,6 +22,7 @@ import BigNumber from 'bignumber.js'
 import debounce from 'lodash.debounce'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { Hash } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import TradeWidgetSkeleton, {
   SkeletonType,
@@ -36,7 +37,9 @@ import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import InfoIcon from '@/resources/icons/tooltip-icon.svg'
 import {
   ClickEvent,
+  HistoryMarket,
   HistoryPositionWithType,
+  HistoryTrade,
   TradeClickedMetadata,
   TradeQuotes,
   useAmplitude,
@@ -46,7 +49,7 @@ import {
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { MarketStatus } from '@/types'
+import { Address, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 const _transformSellValue = (value: string) => {
@@ -393,7 +396,9 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
       <VStack mt={'24px'}>
         {positionsYes && (
           <Button
-            bg={outcomeChoice === 'yes' ? 'white' : 'green.500'}
+            bg={outcomeChoice === 'yes' ? 'green.500' : 'greenTransparent.100'}
+            border='1px solid'
+            borderColor={'green.500'}
             px='12px'
             py='8px'
             w='full'
@@ -415,9 +420,6 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
               setCollateralAmount('')
             }}
             borderRadius='8px'
-            _hover={{
-              backgroundColor: outcomeChoice === 'yes' ? 'white' : 'green.300',
-            }}
             gap={isMobile ? '16px' : '8px'}
           >
             {isYesOpen ? (
@@ -450,17 +452,23 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
             ) : (
               <>
                 <HStack
-                  color={outcomeChoice === 'yes' ? 'black' : 'white'}
+                  color={outcomeChoice === 'yes' ? 'white' : 'green.500'}
                   justifyContent='space-between'
                   w='full'
                 >
                   <HStack gap='8px'>
                     <ThumbsUpIcon width='16px' height='16px' />
-                    <Text {...paragraphMedium} color={outcomeChoice === 'yes' ? 'black' : 'white'}>
+                    <Text
+                      {...paragraphMedium}
+                      color={outcomeChoice === 'yes' ? 'white' : 'green.500'}
+                    >
                       Yes
                     </Text>
                   </HStack>
-                  <Text {...paragraphMedium} color={outcomeChoice === 'yes' ? 'black' : 'white'}>
+                  <Text
+                    {...paragraphMedium}
+                    color={outcomeChoice === 'yes' ? 'white' : 'green.500'}
+                  >
                     {NumberUtil.toFixed(positionsYes.outcomeTokenAmount, 6)} Contracts
                   </Text>
                 </HStack>
@@ -469,12 +477,15 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
                     <HStack gap='4px'>
                       <Text
                         {...paragraphRegular}
-                        color={outcomeChoice === 'yes' ? 'black' : 'white'}
+                        color={outcomeChoice === 'yes' ? 'white' : 'green.500'}
                       >
                         Per Share
                       </Text>
                     </HStack>
-                    <Text {...paragraphRegular} color={outcomeChoice === 'yes' ? 'black' : 'white'}>
+                    <Text
+                      {...paragraphRegular}
+                      color={outcomeChoice === 'yes' ? 'white' : 'green.500'}
+                    >
                       {perShareYes}
                     </Text>
                   </HStack>
@@ -482,14 +493,14 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
                     <HStack gap='4px'>
                       <Text
                         {...paragraphRegular}
-                        color={outcomeChoice === 'yes' ? 'black' : 'white'}
+                        color={outcomeChoice === 'yes' ? 'white' : 'green.500'}
                       >
                         Total
                       </Text>
                     </HStack>
                     <Text
                       {...paragraphRegular}
-                      color={outcomeChoice === 'yes' ? 'black' : 'white'}
+                      color={outcomeChoice === 'yes' ? 'white' : 'green.500'}
                     >{`${NumberUtil.toFixed(positionsYes.collateralAmount, 3)} ${
                       positionsYes.market.collateral?.symbol
                     }`}</Text>
@@ -501,7 +512,9 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
         )}
         {positionsNo && (
           <Button
-            bg={outcomeChoice === 'no' ? 'white' : 'red.500'}
+            bg={outcomeChoice === 'no' ? 'red.500' : 'redTransparent.100'}
+            border='1px solid'
+            borderColor={'red.500'}
             px='12px'
             py='8px'
             w='full'
@@ -523,9 +536,6 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
               setCollateralAmount('')
             }}
             borderRadius='8px'
-            _hover={{
-              backgroundColor: outcomeChoice === 'no' ? 'white' : 'red.300',
-            }}
             gap={isMobile ? '16px' : '8px'}
           >
             {isNoOpen ? (
@@ -558,17 +568,17 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
             ) : (
               <>
                 <HStack
-                  color={outcomeChoice === 'no' ? 'black' : 'white'}
+                  color={outcomeChoice === 'no' ? 'white' : 'red.500'}
                   justifyContent='space-between'
                   w='full'
                 >
                   <HStack gap='8px'>
                     <ThumbsDownIcon width='16px' height='16px' />
-                    <Text {...paragraphMedium} color={outcomeChoice === 'no' ? 'black' : 'white'}>
+                    <Text {...paragraphMedium} color={outcomeChoice === 'no' ? 'white' : 'red.500'}>
                       No
                     </Text>
                   </HStack>
-                  <Text {...paragraphMedium} color={outcomeChoice === 'no' ? 'black' : 'white'}>
+                  <Text {...paragraphMedium} color={outcomeChoice === 'no' ? 'white' : 'red.500'}>
                     {NumberUtil.toFixed(positionsNo.outcomeTokenAmount, 6)} Contracts
                   </Text>
                 </HStack>
@@ -577,12 +587,15 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
                     <HStack gap='4px'>
                       <Text
                         {...paragraphRegular}
-                        color={outcomeChoice === 'no' ? 'black' : 'white'}
+                        color={outcomeChoice === 'no' ? 'white' : 'red.500'}
                       >
                         Per Share
                       </Text>
                     </HStack>
-                    <Text {...paragraphRegular} color={outcomeChoice === 'no' ? 'black' : 'white'}>
+                    <Text
+                      {...paragraphRegular}
+                      color={outcomeChoice === 'no' ? 'white' : 'red.500'}
+                    >
                       {perShareNo}
                     </Text>
                   </HStack>
@@ -590,14 +603,14 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
                     <HStack gap='4px'>
                       <Text
                         {...paragraphRegular}
-                        color={outcomeChoice === 'no' ? 'black' : 'white'}
+                        color={outcomeChoice === 'no' ? 'white' : 'red.500'}
                       >
                         Total
                       </Text>
                     </HStack>
                     <Text
                       {...paragraphRegular}
-                      color={outcomeChoice === 'no' ? 'black' : 'white'}
+                      color={outcomeChoice === 'no' ? 'white' : 'red.500'}
                     >{`${NumberUtil.toFixed(positionsNo.collateralAmount, 3)} ${
                       positionsNo.market.collateral?.symbol
                     }`}</Text>

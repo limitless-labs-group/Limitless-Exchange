@@ -160,6 +160,8 @@ export const PortfolioStats = () => {
     ? formatUnits(BigInt(positions.rewards.totalUserRewardsLastEpoch), 6)
     : '0.00'
 
+  console.log(lastMinuteRewards)
+
   const stats = [
     {
       title: 'Portfolio',
@@ -207,10 +209,10 @@ export const PortfolioStats = () => {
           </Box>
         ) : (
           <HStack gap='4px' alignItems='flex-end'>
-            <Text {...h3Medium}>{NumberUtil.convertWithDenomination(totalRewards)} USD</Text>
+            <Text {...h3Medium}>{NumberUtil.toFixed(totalRewards, 2)} USD</Text>
             <HStack gap='4px' mb='2px'>
               <Text {...paragraphMedium} color='green.500'>
-                +{NumberUtil.convertWithDenomination(lastMinuteRewards, 2)} USD &#x2191;
+                +{NumberUtil.toFixed(lastMinuteRewards, 2)} USD &#x2191;
               </Text>
               <Text {...paragraphMedium} color='grey.500'>
                 last minute

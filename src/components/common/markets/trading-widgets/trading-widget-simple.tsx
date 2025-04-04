@@ -92,7 +92,7 @@ export default function TradingWidgetSimple({ fullSizePage = false }: TradingWid
             })
             setStrategy('Sell')
           }}
-          isDisabled={!positions?.length}
+          // isDisabled={!positions?.length}
         >
           <Text {...controlsMedium} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
             Sell

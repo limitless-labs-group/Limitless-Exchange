@@ -16,6 +16,7 @@ export default function ClobPortfolio() {
 
   const currentPosition = allPositions?.positions
     ?.filter((position) => position.type === 'clob')
+    .filter((position) => !!+position.tokensBalance.yes || !!+position.tokensBalance.no)
     .find((position) => position.market.slug === market?.slug)
 
   return (

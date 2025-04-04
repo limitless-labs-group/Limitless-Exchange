@@ -90,13 +90,13 @@ export default function ClaimButton({
   const claimMutation = negRiskRequestId ? claimNegriskMarketMutation : redeemMutation
 
   const onResetMutation = async () => {
+    await sleep(1)
     await queryClient.refetchQueries({
       queryKey: ['positions'],
     })
     await queryClient.invalidateQueries({
       queryKey: ['history'],
     })
-    await sleep(1)
     claimMutation.reset()
   }
 
