@@ -251,7 +251,8 @@ export default function OrderBookTableSmall({
                 </Box>
                 <Box w='45%' textAlign='right'>
                   <Text {...paragraphRegular}>
-                    {NumberUtil.toFixed(item.cumulativePrice, 2)} {market?.collateralToken.symbol}
+                    {NumberUtil.convertWithDenomination(item.cumulativePrice, 2)}{' '}
+                    {market?.collateralToken.symbol}
                   </Text>
                 </Box>
               </HStack>
@@ -375,7 +376,8 @@ export default function OrderBookTableSmall({
                 </Box>
                 <Box w='45%' textAlign='right'>
                   <Text {...paragraphRegular}>
-                    {NumberUtil.toFixed(item.cumulativePrice, 2)} {market?.collateralToken.symbol}
+                    {NumberUtil.convertWithDenomination(item.cumulativePrice, 2)}{' '}
+                    {market?.collateralToken.symbol}
                   </Text>
                 </Box>
               </HStack>
