@@ -8,6 +8,7 @@ import { ClobPositionType } from '@/app/(markets)/markets/[address]/components/c
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import {
   ChangeEvent,
+  ClickEvent,
   ClobPositionsTabChangesMetadata,
   useAmplitude,
   useTradingService,
@@ -26,10 +27,18 @@ export default function ClobOrdersTab({ marketType }: ClobOrdersTabProps) {
   const { data: userOrders } = useMarketOrders(market?.slug)
   const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()
+  const { trackClicked } = useAmplitude()
 
   const cancelAllOrdersMutation = useMutation({
     mutationKey: ['cancel-all-orders', market?.slug],
     mutationFn: async () => {
+      trackClicked(ClickEvent.CancelAllOrdersClicked, {
+        source: 'Market Page',
+        value: '',
+        marketAddress: market?.address,
+        marketType: market?.marketType,
+        tradeType: market?.tradeType,
+      })
       await privateClient.delete(`/orders/all/${market?.slug}`)
     },
   })

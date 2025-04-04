@@ -24,7 +24,6 @@ export default function Chat() {
   const [newMessage, setNewMessage] = useState('')
   const chatContainerRef = useRef<HTMLDivElement | null>(null)
   const firstMessageRef = useRef<HTMLDivElement | null>(null)
-  const { isLoggedIn } = useAccount()
 
   // Maintain scroll position when loading older messages
   useEffect(() => {
@@ -112,11 +111,9 @@ export default function Chat() {
         </Box>
       )}
 
-      {isLoggedIn && (
-        <Box position='absolute' bottom='0' left='0' right='0' p={3} bg='grey.50' zIndex={1}>
-          <ChatTextarea onSubmit={sendMessage} msg={newMessage} setMsg={setNewMessage} />
-        </Box>
-      )}
+      <Box position='absolute' bottom='0' left='0' right='0' p={3} bg='grey.50' zIndex={1}>
+        <ChatTextarea onSubmit={sendMessage} msg={newMessage} setMsg={setNewMessage} />
+      </Box>
     </Box>
   )
 }

@@ -354,6 +354,10 @@ export const chakraTheme = ChakraTheme({
           borderColor: 'grey.200',
           bg: 'grey.200',
         },
+        transparent: {
+          borderColor: 'whiteAlpha.20',
+          bg: 'whiteAlpha.20',
+        },
       },
     },
     Slider: sliderTheme,

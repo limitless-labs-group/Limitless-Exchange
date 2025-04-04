@@ -16,7 +16,6 @@ import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
 import { useThemeProvider } from '@/providers'
 import DepositIcon from '@/resources/icons/deposit-icon.svg'
-import Logo from '@/resources/icons/logo.svg'
 import FeedIcon from '@/resources/icons/sidebar/Feed.svg'
 import GridIcon from '@/resources/icons/sidebar/Markets.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
@@ -24,6 +23,8 @@ import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
 import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import {
   ClickEvent,
+  ClobPositionWithType,
+  HistoryPositionWithType,
   LogoClickedMetadata,
   ProfileBurgerMenuClickedMetadata,
   useAccount,
@@ -36,7 +37,6 @@ import { MarketStatus, Sort, SortStorageName } from '@/types'
 import { ReferralLink } from '../common/referral-link'
 
 export default function Header() {
-  const { mode } = useThemeProvider()
   const [, setSelectedSort] = useAtom(sortAtom)
   const { dashboard, handleCategory, handleDashboard } = useTokenFilter()
   const pageName = usePageName()
@@ -45,6 +45,7 @@ export default function Header() {
   const { fundWallet } = useFundWallet()
   const { data: positions } = usePosition()
   const { marketPageOpened, onCloseMarketPage } = useTradingService()
+  const { mode } = useThemeProvider()
   const {
     account,
     loginToPlatform,
@@ -73,11 +74,11 @@ export default function Header() {
   }
 
   const hasWinningPosition = useMemo(() => {
-    return positions?.some((position) => {
+    return positions?.positions.some((position) => {
       if (position.type === 'amm') {
-        return position.market.closed
+        return (position as HistoryPositionWithType).market.closed
       }
-      return position.market.status === MarketStatus.RESOLVED
+      return (position as ClobPositionWithType).market.status === MarketStatus.RESOLVED
     })
   }, [positions])
 
@@ -105,30 +106,12 @@ export default function Header() {
               style={{ textDecoration: 'none' }}
               _hover={{ textDecoration: 'none' }}
             >
-              {/* <Image */}
-              {/*   src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'} */}
-              {/*   height={32} */}
-              {/*   width={156} */}
-              {/*   alt='logo' */}
-              {/* /> */}
-              <HStack minW='156px' w='full'>
-                <Logo />
-                <Text
-                  {...paragraphMedium}
-                  fontSize='16px'
-                  _hover={{
-                    '&::after': {
-                      content: '"Limitmore"',
-                    },
-                    '& > span': {
-                      display: 'none',
-                    },
-                  }}
-                  position='relative'
-                >
-                  <span>Limitless</span>
-                </Text>
-              </HStack>
+              <Image
+                src={mode === 'dark' ? '/logo-white.svg' : '/logo-black.svg'}
+                height={32}
+                width={156}
+                alt='logo'
+              />
             </Link>
           </ReferralLink>
           <HStack gap='16px'>

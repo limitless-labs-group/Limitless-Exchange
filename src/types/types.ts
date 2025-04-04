@@ -93,6 +93,8 @@ export interface Market {
     yes: string
     no: string
   }
+  yesPositionId?: string
+  noPositionId?: string
   trends?: {
     [interval in Intervals]?: {
       value: number
