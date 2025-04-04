@@ -28,7 +28,6 @@ import CommentTab from '@/components/common/markets/comment-tab'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import { MarketProgressBar } from '@/components/common/markets/market-cards/market-progress-bar'
-import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
@@ -261,6 +260,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
       alignItems='flex-start'
       mb={isMobile ? '84px' : 0}
       ml={!isMobile ? '188px' : 'unset'}
+      mt={!market ? '64px' : '24px'}
     >
       <Box w={{ sm: 'full', md: 'calc(100vw - 642px)', xxl: '716px' }}>
         <Box px={isMobile ? '16px' : 0} mt={isMobile ? '16px' : 0}>
