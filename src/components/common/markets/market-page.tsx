@@ -5,6 +5,7 @@ import {
   HStack,
   Image as ChakraImage,
   Link,
+  Spacer,
   Tab,
   TabIndicator,
   TabList,
@@ -245,6 +246,8 @@ export default function MarketPage() {
     setActiveActionsTabIndex(0)
     setActiveChartTabIndex(0)
   }, [market])
+
+  console.log(groupMarket)
 
   return (
     <SideBarPage>

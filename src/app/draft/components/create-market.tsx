@@ -276,6 +276,21 @@ export const CreateMarket: FC = () => {
     await draftMarket()
   }
 
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const value = e.target.value
+    if (value.trim() || value === '') {
+      handleChange('title', value)
+    }
+  }
+
+  const handleTitleBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+    isUpdateOg?: boolean
+  ) => {
+    const trimmedValue = e.target.value.trim()
+    handleChange('title', trimmedValue)
+  }
+
   const getButtonText = () => {
     if (draftMarketId) return 'Save'
     if (activeMarketId) return 'Update active market'
@@ -309,7 +324,8 @@ export const CreateMarket: FC = () => {
                   height='auto'
                   onInput={resizeTextareaHeight}
                   value={formData.title}
-                  onChange={(e) => handleChange('title', e.target.value)}
+                  onChange={(e) => handleTitleChange(e)}
+                  onBlur={(e) => handleTitleBlur(e, true)}
                   maxLength={70}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>

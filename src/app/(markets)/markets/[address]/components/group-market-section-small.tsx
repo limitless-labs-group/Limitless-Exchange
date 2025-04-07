@@ -30,6 +30,10 @@ export default function GroupMarketSectionSmall({ market }: GroupMarketSectionSm
   const { data: userOrders } = useMarketOrders(market?.slug)
   const { trackClicked } = useAmplitude()
   const handleOutcomeClicked = (e: SyntheticEvent, outcome: number) => {
+    trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
+      source: 'Market page from outcomes section',
+      value: outcome ? 'small no button' : 'small yes button',
+    })
     setClobOutcome(outcome)
     trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
       source: 'Market page from outcomes section',
