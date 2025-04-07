@@ -1,4 +1,5 @@
 import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
 import { formatUnits } from 'viem'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import {
@@ -9,12 +10,11 @@ import {
 } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
-import { NumberUtil } from '@/utils'
 
 export default function OutcomeButtonsClob() {
   const { strategy, market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { trackChanged } = useAmplitude()
-  const { orderType, yesPrice, noPrice } = useClobWidget()
+  const { orderType } = useClobWidget()
 
   const getShares = (sharesAmount?: bigint) => {
     if (!sharesAmount) {
@@ -22,6 +22,15 @@ export default function OutcomeButtonsClob() {
     }
     return formatUnits(sharesAmount, market?.collateralToken.decimals || 6)
   }
+
+  const yesPrice = new BigNumber(market?.prices?.[0] || 0.5)
+    .multipliedBy(100)
+    .decimalPlaces(1)
+    .toNumber()
+  const noPrice = new BigNumber(market?.prices?.[1] || 0.5)
+    .multipliedBy(100)
+    .decimalPlaces(1)
+    .toNumber()
 
   const handleOutcomeChanged = (outcome: number) => {
     trackChanged<OrderBookSideChangedMetadata>(ChangeEvent.OrderBookSideChanged, {
