@@ -5,13 +5,16 @@ import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { DraftMarketCard } from '@/app/draft/components/draft-card'
+import { useUrlParams } from '@/hooks/use-url-param'
 import { useMarkets } from '@/services/MarketsService'
 import { Market } from '@/types'
 
 export const ActiveMarkets = () => {
   const router = useRouter()
+  const { getParam } = useUrlParams()
+  const isEnabled = getParam('tab') === 'active'
 
-  const { data, fetchNextPage, hasNextPage } = useMarkets(null)
+  const { data, fetchNextPage, hasNextPage } = useMarkets(null, isEnabled)
 
   const markets: Market[] = useMemo(() => {
     const allMarkets = data?.pages.flatMap((page) => page.data.markets) || []

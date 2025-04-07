@@ -361,13 +361,14 @@ export const DraftMarketCard = ({
             {MarketDataFactory.renderGroupMarkets(market)}
 
             {MarketDataFactory.renderCreatorAndTags(market)}
+
             <HStack justifyContent='space-between' alignItems='flex-end' flexDirection={'row'}>
               <HStack gap={'16px'} flexDirection={'row'} w='full'>
                 <HStack w={'unset'} justifyContent={'unset'}>
                   <HStack color={colors.secondary} gap='4px'>
-                    <DeadlineIcon width={16} height={16} />
+                    <DeadlineIcon width={14} height={14} />
                     <Text {...paragraphMedium} color={colors.secondary}>
-                      Deadline
+                      DL
                     </Text>
                   </HStack>
                   <Text {...paragraphRegular} color={colors.main}>

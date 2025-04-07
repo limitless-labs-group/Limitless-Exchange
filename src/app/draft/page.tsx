@@ -10,9 +10,9 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react'
+import { useQuery } from '@tanstack/react-query'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useState, useEffect } from 'react'
-import 'react-datepicker/dist/react-datepicker.css'
+import React, { useState, useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { ActiveMarkets } from './components/active'
@@ -24,10 +24,12 @@ import CopyIcon from '@/resources/icons/copy-icon.svg'
 import LoadingIcon from '@/resources/icons/loader-icon.svg'
 import ActiveIcon from '@/resources/icons/partially-filled-circle.svg'
 import PlusIcon from '@/resources/icons/plus-square-icon.svg'
-import { DraftMarketType } from '@/types/draft'
+import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import { DraftMarketType, DraftMarket } from '@/types/draft'
 
 type DraftMarketsQueueProps = {
   marketType: DraftMarketType
+  markets?: DraftMarket[]
 }
 
 type BaseTab = {
@@ -68,6 +70,42 @@ const useTabLogic = (tabs: Tab[]) => {
 }
 
 const CreateOwnMarketPage = () => {
+  const privateClient = useAxiosPrivateClient()
+
+  const { data: allDraftMarkets } = useQuery({
+    queryKey: ['allDraftMarkets'],
+    queryFn: async () => {
+      const response = await privateClient.get(`/markets/drafts`)
+      return response.data as DraftMarket[]
+    },
+  })
+
+  const marketsByType = useMemo(() => {
+    if (!allDraftMarkets) {
+      return {
+        amm: { markets: [], count: 0 },
+        clob: { markets: [], count: 0 },
+        group: { markets: [], count: 0 },
+      }
+    }
+
+    const ammMarkets = allDraftMarkets.filter(
+      (market: DraftMarket) => !market.type || market.type === 'amm'
+    )
+    const clobMarkets = allDraftMarkets.filter(
+      (market: DraftMarket) => !market.type || market.type === 'clob'
+    )
+    const groupMarkets = allDraftMarkets.filter(
+      (market: DraftMarket) => !market.type || market.type === 'group'
+    )
+
+    return {
+      amm: { markets: ammMarkets, count: ammMarkets.length },
+      clob: { markets: clobMarkets, count: clobMarkets.length },
+      group: { markets: groupMarkets, count: groupMarkets.length },
+    }
+  }, [allDraftMarkets])
+
   const tabs = [
     {
       title: 'Draft',
@@ -141,7 +179,12 @@ const CreateOwnMarketPage = () => {
             <Tab key={tab.title}>
               <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
                 {tab.icon}
-                <Text fontWeight={activeIndex === index ? 700 : 'unset'}>{tab.title}</Text>
+                <Text fontWeight={activeIndex === index ? 700 : 'unset'}>
+                  {tab.title}
+                  {tab.marketType &&
+                    marketsByType[tab.marketType].count > 0 &&
+                    ` (${marketsByType[tab.marketType].count})`}
+                </Text>
               </HStack>
             </Tab>
           ))}
@@ -151,7 +194,11 @@ const CreateOwnMarketPage = () => {
           {tabs.map(({ component: Component, marketType }, index) => (
             <TabPanel key={index}>
               {marketType ? (
-                <Component key={uuidv4()} marketType={marketType ?? ''} />
+                <Component
+                  key={uuidv4()}
+                  marketType={marketType}
+                  markets={marketsByType[marketType].markets}
+                />
               ) : (
                 <Component key={uuidv4()} />
               )}

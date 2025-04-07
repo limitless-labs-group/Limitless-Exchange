@@ -13,7 +13,7 @@ export type DraftMarket = {
   collateralToken: Token
   categories: Category[]
   creator: DraftCreator
-  type: MarketType
+  type: DraftMarketType
   draftMetadata: DraftMetadata
   markets?: MarketInput[]
   metadata: {
@@ -60,6 +60,7 @@ export interface IFormData {
 export type MarketInput = {
   title: string
   description: string
+  settings: Settings
   id?: number
 }
 
@@ -140,7 +141,7 @@ export interface BaseMarketData {
   description?: string
   tokenId?: number
   marketFee?: number
-  deadline?: number
+  deadline?: string
   isBannered: boolean
   creatorId?: string
   categoryIds: string
