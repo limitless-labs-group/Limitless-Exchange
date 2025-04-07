@@ -134,7 +134,7 @@ export const GroupForm = () => {
               value={getCurrentValue(index, 'description', market.description)}
               readOnly={false}
               onChange={(value) => {
-                if (getPlainTextLength(value) <= 1500) {
+                if (getPlainTextLength(value) <= 3000) {
                   handleInputChange(index, 'description', value)
                 }
               }}
