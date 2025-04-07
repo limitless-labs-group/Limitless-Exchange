@@ -24,11 +24,11 @@ export default function OutcomeButtonsClob() {
   }
 
   const yesPrice = new BigNumber(market?.prices?.[0] || 0.5)
-    .multipliedBy(100)
+    .multipliedBy(market?.marketType === 'group' ? 100 : 1)
     .decimalPlaces(1)
     .toNumber()
   const noPrice = new BigNumber(market?.prices?.[1] || 0.5)
-    .multipliedBy(100)
+    .multipliedBy(market?.marketType === 'group' ? 100 : 1)
     .decimalPlaces(1)
     .toNumber()
 
