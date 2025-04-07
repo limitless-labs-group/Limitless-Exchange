@@ -217,7 +217,7 @@ export const CreateMarket: FC = () => {
   }
 
   const updateActiveMarket = async () => {
-    const data = await prepareData()
+    const data = prepareData()
     if (!data) return
     setIsCreating(true)
     const marketData = prepareMarketData(data, true)
@@ -229,7 +229,7 @@ export const CreateMarket: FC = () => {
           'Content-Type': 'application/json',
         },
       })
-      .then((res) => {
+      .then(() => {
         showToast(`Market is updated`)
         router.push(`/draft?tab=active`)
       })
@@ -276,21 +276,6 @@ export const CreateMarket: FC = () => {
     await draftMarket()
   }
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const value = e.target.value
-    if (value.trim() || value === '') {
-      handleChange('title', value)
-    }
-  }
-
-  const handleTitleBlur = (
-    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
-    isUpdateOg?: boolean
-  ) => {
-    const trimmedValue = e.target.value.trim()
-    handleChange('title', trimmedValue)
-  }
-
   const getButtonText = () => {
     if (draftMarketId) return 'Save'
     if (activeMarketId) return 'Update active market'
@@ -324,8 +309,7 @@ export const CreateMarket: FC = () => {
                   height='auto'
                   onInput={resizeTextareaHeight}
                   value={formData.title}
-                  onChange={(e) => handleTitleChange(e)}
-                  onBlur={(e) => handleTitleBlur(e, true)}
+                  onChange={(e) => handleChange('title', e.target.value)}
                   maxLength={70}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
@@ -446,25 +430,23 @@ export const CreateMarket: FC = () => {
             <VStack w={'full'} flex='0.8' h='full'>
               <HStack w='full' spacing='6' alignItems='start' justifyContent='start'>
                 <VStack>
-                  {!isGroup && (
-                    <FormField label='Is Bannered'>
-                      <HStack gap='8px'>
-                        <Box
-                          w='16px'
-                          h='16px'
-                          borderColor='grey.500'
-                          border='1px solid'
-                          borderRadius='2px'
-                          cursor='pointer'
-                          bg={formData.isBannered ? 'grey.800' : 'unset'}
-                          onClick={() => {
-                            handleChange('isBannered', !formData.isBannered)
-                          }}
-                        />
-                        <Text {...paragraphRegular}>Add market to big banner</Text>
-                      </HStack>
-                    </FormField>
-                  )}
+                  <FormField label='Is Bannered'>
+                    <HStack gap='8px'>
+                      <Box
+                        w='16px'
+                        h='16px'
+                        borderColor='grey.500'
+                        border='1px solid'
+                        borderRadius='2px'
+                        cursor='pointer'
+                        bg={formData.isBannered ? 'grey.800' : 'unset'}
+                        onClick={() => {
+                          handleChange('isBannered', !formData.isBannered)
+                        }}
+                      />
+                      <Text {...paragraphRegular}>Add market to big banner</Text>
+                    </HStack>
+                  </FormField>
                 </VStack>
                 <VStack>
                   <AdjustableNumberInput

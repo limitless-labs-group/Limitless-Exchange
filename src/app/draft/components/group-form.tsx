@@ -40,7 +40,6 @@ export const GroupForm = () => {
   const addMarket = () => {
     setMarkets([...markets, { title: '', description: '' }])
   }
-
   return (
     <>
       {markets.map((market, index) => (
