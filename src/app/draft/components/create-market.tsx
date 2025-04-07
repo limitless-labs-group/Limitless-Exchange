@@ -391,7 +391,7 @@ export const CreateMarket: FC = () => {
 
                     <AdjustableNumberInput
                       label='Rewards per day'
-                      value={epochToDailyRewards(formData.rewardsEpoch ?? 0)}
+                      value={Number(epochToDailyRewards(formData.rewardsEpoch ?? 0))}
                       onChange={(value) => handleChange('rewardsEpoch', dailyToEpochRewards(value))}
                       min={0}
                       max={1000}

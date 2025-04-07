@@ -24,7 +24,7 @@ export function dailyToEpochRewards(daily: number) {
 }
 
 export function epochToDailyRewards(epoch: number) {
-  return epoch * (24 * 60) // 24 hours, 60 minutes
+  return Math.round(epoch * 24 * 60).toString() // 24 hours, 60 minutes
 }
 
 export const calculateMinSize = (size: number | undefined) => {

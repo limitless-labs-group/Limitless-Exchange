@@ -177,7 +177,7 @@ export const GroupForm = () => {
                 value={getCurrentValue(
                   index,
                   'maxDailyReward',
-                  Number(epochToDailyRewards(market.settings?.rewardsEpoch ?? 0).toFixed())
+                  epochToDailyRewards(market.settings?.rewardsEpoch ?? 0)
                 )}
                 onChange={(value) => handleInputChange(index, 'maxDailyReward', value)}
                 min={0}
