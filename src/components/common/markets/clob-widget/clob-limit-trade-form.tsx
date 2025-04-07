@@ -65,6 +65,10 @@ export default function ClobLimitTradeForm() {
   const { pushGA4Event } = useGoogleAnalytics()
   const { fundWallet } = useFundWallet()
 
+  // Todo replace to this logic for better performance
+  // const [price, setPrice] = useState('')
+  // const [sharesAmount, setSharesAmount] = useState('')
+
   const maxSharesAvailable =
     strategy === 'Sell'
       ? +formatUnits(sharesAvailable[outcome ? 'no' : 'yes'], market?.collateralToken.decimals || 6)
@@ -327,12 +331,33 @@ export default function ClobLimitTradeForm() {
       queryClient.refetchQueries({
         queryKey: ['positions'],
       }),
+      queryClient.refetchQueries({
+        queryKey: ['market-page-clob-feed', market?.slug],
+      }),
     ])
   }
 
   const shouldSignUp = !web3Wallet && Boolean(price)
+
   const shouldAddFunds =
     web3Wallet && strategy === 'Buy' && orderCalculations.total > Number(balance)
+
+  const disableButton = useMemo(() => {
+    if (shouldSignUp) {
+      return false
+    }
+    if (shouldAddFunds) {
+      return false
+    }
+    return !+price || isLessThanMinTreshHold || !+sharesAmount || isBalanceNotEnough
+  }, [
+    isBalanceNotEnough,
+    shouldSignUp,
+    shouldAddFunds,
+    price,
+    isLessThanMinTreshHold,
+    sharesAmount,
+  ])
 
   const handleSubmitButtonClicked = async () => {
     if (shouldSignUp) {
@@ -508,12 +533,7 @@ export default function ClobLimitTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
-        isDisabled={
-          !+price ||
-          isLessThanMinTreshHold ||
-          !+sharesAmount ||
-          (web3Wallet && !shouldAddFunds ? isBalanceNotEnough : false)
-        }
+        isDisabled={disableButton}
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}
