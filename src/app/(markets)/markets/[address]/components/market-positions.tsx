@@ -22,7 +22,7 @@ export const MarketPositions = ({
 
   const positions = useMemo(
     () =>
-      allMarketsPositions?.filter(
+      allMarketsPositions?.positions.filter(
         (position) => position.type === 'amm' && position.market.slug === market?.slug
       ) as HistoryPositionWithType[],
     [allMarketsPositions, market]

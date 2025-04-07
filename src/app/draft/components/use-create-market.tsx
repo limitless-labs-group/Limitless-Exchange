@@ -43,7 +43,8 @@ export const reverseCalculateMinSize = (size: number | undefined) => {
 
 export const reverseCalculateMaxSpread = (spread: number | undefined) => {
   if (!spread) return 0
-  return Number(((spread - 0.005) * 100).toFixed(3))
+  const res = Number(((spread - 0.005) * 100).toFixed(3))
+  return res > 0 ? res : 0
 }
 
 export const useCreateMarket = () => {
@@ -71,25 +72,25 @@ export const useCreateMarket = () => {
 
     setFormData((prevFormData) => ({
       ...prevFormData,
-      title: draftMarket.title || '',
-      description: draftMarket.description || '',
+      title: draftMarket.title ?? '',
+      description: draftMarket.description ?? '',
       deadline: toZonedTime(draftMarket.deadline, 'America/New_York'),
       token: draftMarket.collateralToken
         ? { symbol: draftMarket.collateralToken.symbol, id: draftMarket.collateralToken.id }
         : prevFormData.token,
       liquidity:
-        draftMarket.draftMetadata?.liquidity ||
+        draftMarket.draftMetadata?.liquidity ??
         tokenLimits[draftMarket.collateralToken.symbol]?.min,
-      probability: draftMarket.draftMetadata?.initialProbability * 100 || defaultProbability,
-      marketFee: draftMarket.draftMetadata?.fee || defaultMarketFee,
-      isBannered: draftMarket.metadata?.isBannered || false,
+      probability: (draftMarket.draftMetadata?.initialProbability ?? 0) * 100 || defaultProbability,
+      marketFee: draftMarket.draftMetadata?.fee ?? defaultMarketFee,
+      isBannered: draftMarket.metadata?.isBannered ?? false,
       tag:
         draftMarket.tags.map((tag: Tag) => ({
           id: tag.id,
           value: tag.name,
           label: tag.name,
         })) ?? [],
-      creatorId: draftMarket.creator?.id || defaultCreatorId,
+      creatorId: draftMarket.creator?.id ?? defaultCreatorId,
       categories:
         draftMarket.categories.map((cat: Category) => ({
           id: cat.id,
@@ -126,28 +127,27 @@ export const useCreateMarket = () => {
 
     setFormData((prevFormData) => ({
       ...prevFormData,
-      title: activeMarket.title || '',
-      description: activeMarket.description || '',
+      title: activeMarket.title ?? '',
+      description: activeMarket.description ?? '',
       deadline: toZonedTime(activeMarket.expirationTimestamp, 'America/New_York'),
       marketFee: 0,
       priorityIndex: activeMarket.priorityIndex,
-      isBannered: activeMarket.metadata?.isBannered || false,
+      isBannered: activeMarket.metadata?.isBannered ?? false,
       tag:
         activeMarket.tags.map((tag: string | Tag) => {
-          const tagName = typeof tag === 'string' ? tag : tag.name || ''
-          const tagId = typeof tag === 'string' ? tag : tag.id || ''
+          const tagName = typeof tag === 'string' ? tag : tag.name ?? ''
+          const tagId = typeof tag === 'string' ? tag : tag.id ?? ''
           return {
             id: tagId,
             value: tagName,
             label: tagName,
           }
         }) ?? [],
-      //TODO: creator id is not available in active markets
-      creatorId: activeMarket.creator?.name || defaultCreatorId,
+      creatorId: activeMarket.creator?.name ?? defaultCreatorId,
       categories:
         activeMarket.categories.map((cat: string | Category) => {
-          const catName = typeof cat === 'string' ? cat : cat.name || ''
-          const catId = typeof cat === 'string' ? cat : cat.id || ''
+          const catName = typeof cat === 'string' ? cat : cat.name ?? ''
+          const catId = typeof cat === 'string' ? cat : cat.id ?? ''
           return {
             id: String(catId),
             value: catName,
@@ -155,7 +155,7 @@ export const useCreateMarket = () => {
           }
         }) ?? [],
       slug: activeMarket.slug ?? '',
-      ...(isClob
+      ...(activeMarket.tradeType === 'clob'
         ? {
             minSize: reverseCalculateMinSize(activeMarket.settings?.minSize),
             maxSpread: reverseCalculateMaxSpread(activeMarket.settings?.maxSpread),
@@ -324,111 +324,107 @@ export const useCreateMarket = () => {
     return isActiveMarket ? prepareActiveMarketData() : prepareDraftMarketData(formData)
   }
 
-  const prepareData = async () => {
-    try {
-      const { title, description, creatorId, tag } = formData
+  const prepareData = () => {
+    const { title, description, creatorId, tag } = formData
 
-      const missingFields: string[] = []
+    const missingFields: string[] = []
 
-      if (!title) missingFields.push('Title')
-      if (!description && !isGroup) missingFields.push('Description')
-      if (!creatorId) missingFields.push('Creator')
-      if (tag.length === 0) missingFields.push('Tag')
+    if (!title) missingFields.push('Title')
+    if (!description && !isGroup) missingFields.push('Description')
+    if (!creatorId) missingFields.push('Creator')
+    if (tag.length === 0) missingFields.push('Tag')
 
-      if (isGroup) {
-        if (!markets || markets.length < 2) {
-          missingFields.push('At least 2 markets')
-        } else {
-          const invalidMarkets = markets.filter(
-            (market) => !market.title?.trim() || !market.description?.trim()
-          )
-
-          const duplicatedTitles = findDuplicateMarketGroupTitles(markets)
-
-          if (duplicatedTitles.length) {
-            showToast(`All markets in the group must have unique titles.`)
-            return
-          }
-
-          if (invalidMarkets.length > 0) {
-            showToast(
-              `All markets in the group must have both title and description. Please check market${
-                invalidMarkets.length > 1 ? 's' : ''
-              } #${markets.findIndex((m) => !m.title?.trim() || !m.description?.trim()) + 1}`
-            )
-            return
-          }
-        }
-      }
-
-      if (missingFields.length > 0) {
-        showToast(
-          `${missingFields.join(', ')} ${missingFields.length > 1 ? 'are' : 'is'} required!`
+    if (isGroup) {
+      if (!markets || markets.length < 2) {
+        missingFields.push('At least 2 markets')
+      } else {
+        const invalidMarkets = markets.filter(
+          (market) => !market.title?.trim() || !market.description?.trim()
         )
-        return
-      }
 
-      const differenceInOffset =
-        (parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset ?? 1) -
-        (parseTimezone(formData.timezone)?.offset ?? 1)
-      const zonedTime = new Date(formData.deadline).getTime() + differenceInOffset * 60 * 60 * 1000
+        const duplicatedTitles = findDuplicateMarketGroupTitles(markets)
 
-      const marketFormData = new FormData()
-      marketFormData?.set('title', formData.title)
-      marketFormData?.set('description', formData.description)
-      marketFormData?.set('tokenId', formData.token.id.toString())
-      if (isAmm) {
-        marketFormData?.set('liquidity', formData.liquidity?.toString() || '')
-        marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
-      }
-      if (isClob) {
-        if (formData.minSize !== undefined) {
-          marketFormData.set('minSize', formData.minSize.toString())
+        if (duplicatedTitles.length) {
+          showToast(`All markets in the group must have unique titles.`)
+          return
         }
-        if (formData.maxSpread !== undefined) {
-          marketFormData.set('maxSpread', formData.maxSpread.toString())
-        }
-        if (formData.c !== undefined) {
-          marketFormData.set('c', formData.c.toString())
-        }
-        if (formData.maxDailyReward !== undefined) {
-          marketFormData.set('maxDailyReward', formData.maxDailyReward.toString())
+
+        if (invalidMarkets.length > 0) {
+          showToast(
+            `All markets in the group must have both title and description. Please check market${
+              invalidMarkets.length > 1 ? 's' : ''
+            } #${markets.findIndex((m) => !m.title?.trim() || !m.description?.trim()) + 1}`
+          )
+          return
         }
       }
-      marketFormData?.set('marketFee', formData.marketFee.toString())
-      marketFormData?.set('deadline', zonedTime.toString())
-      marketFormData?.set('isBannered', formData.isBannered.toString())
+    }
 
-      if (isGroup && markets.length > 0) {
-        marketFormData.set('marketsInput', JSON.stringify(markets))
+    if (missingFields.length > 0) {
+      showToast(`${missingFields.join(', ')} ${missingFields.length > 1 ? 'are' : 'is'} required!`)
+      return
+    }
+
+    const differenceInOffset =
+      (parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset ?? 1) -
+      (parseTimezone(formData.timezone)?.offset ?? 1)
+    const zonedTime = new Date(formData.deadline).getTime() + differenceInOffset * 60 * 60 * 1000
+
+    const marketFormData = new FormData()
+    marketFormData?.set('title', formData.title)
+    marketFormData?.set('description', formData.description)
+    marketFormData?.set('tokenId', formData.token.id.toString())
+    if (isAmm) {
+      marketFormData?.set('liquidity', formData.liquidity?.toString() || '')
+      marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
+    }
+    if (isClob) {
+      if (formData.minSize !== undefined) {
+        marketFormData.set('minSize', formData.minSize.toString())
       }
-
-      if (formData.creatorId) {
-        marketFormData.set('creatorId', formData.creatorId)
+      if (formData.maxSpread !== undefined) {
+        marketFormData.set('maxSpread', formData.maxSpread.toString())
       }
-
-      if (formData.slug) {
-        marketFormData.set('slug', formData.slug)
+      if (formData.c !== undefined) {
+        marketFormData.set('c', formData.c.toString())
       }
-
-      if (formData.categories.length) {
-        marketFormData.set('categoryIds', formData.categories.map((c) => c.id).join(','))
+      if (formData.maxDailyReward !== undefined) {
+        marketFormData.set('maxDailyReward', formData.maxDailyReward.toString())
       }
+    }
+    marketFormData?.set('marketFee', formData.marketFee.toString())
+    marketFormData?.set('deadline', zonedTime.toString())
+    marketFormData?.set('isBannered', formData.isBannered.toString())
 
-      if (formData.ogLogo) {
-        marketFormData.set('ogFile', formData.ogLogo)
-      }
+    if (isGroup && markets.length > 0) {
+      marketFormData.set('marketsInput', JSON.stringify(markets))
+    }
 
-      if (formData.tag.length) {
-        marketFormData.set('tagIds', formData.tag.map((t) => t.id).join(','))
-      }
+    if (formData.creatorId) {
+      marketFormData.set('creatorId', formData.creatorId)
+    }
 
-      if (formData.priorityIndex) {
-        marketFormData.set('priorityIndex', formData.priorityIndex.toString())
-      }
+    if (formData.slug) {
+      marketFormData.set('slug', formData.slug)
+    }
 
-      return marketFormData
-    } catch (e) {}
+    if (formData.categories.length) {
+      marketFormData.set('categoryIds', formData.categories.map((c) => c.id).join(','))
+    }
+
+    if (formData.ogLogo) {
+      marketFormData.set('ogFile', formData.ogLogo)
+    }
+
+    if (formData.tag.length) {
+      marketFormData.set('tagIds', formData.tag.map((t) => t.id).join(','))
+    }
+
+    if (formData.priorityIndex) {
+      marketFormData.set('priorityIndex', formData.priorityIndex.toString())
+    }
+
+    return marketFormData
   }
 
   return {

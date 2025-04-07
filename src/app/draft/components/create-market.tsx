@@ -155,7 +155,7 @@ export const CreateMarket: FC = () => {
   }
 
   const draftMarket = async () => {
-    const data = await prepareData()
+    const data = prepareData()
     if (!data) return
     setIsCreating(true)
     const marketData = prepareMarketData(data)
@@ -170,7 +170,7 @@ export const CreateMarket: FC = () => {
           'Content-Type': 'multipart/form-data',
         },
       })
-      .then((res) => {
+      .then(() => {
         showToast(`Market is drafted`)
         router.push(`/draft?tab=queue-${marketType}`)
       })
@@ -187,7 +187,7 @@ export const CreateMarket: FC = () => {
   }
 
   const updateMarket = async () => {
-    const data = await prepareData()
+    const data = prepareData()
     if (!data) return
     setIsCreating(true)
     const marketData = prepareMarketData(data)
@@ -200,7 +200,7 @@ export const CreateMarket: FC = () => {
           'Content-Type': 'multipart/form-data',
         },
       })
-      .then((res) => {
+      .then(() => {
         showToast(`Market ${draftMarketId} is updated`)
         router.push(`/draft?tab=queue-${marketType}`)
       })
@@ -264,7 +264,7 @@ export const CreateMarket: FC = () => {
   }, [])
 
   const submit = async () => {
-    playSound()
+    // playSound()
     if (draftMarketId) {
       await updateMarket()
       return
@@ -336,7 +336,7 @@ export const CreateMarket: FC = () => {
                 <GroupForm />
               )}
 
-              {!activeMarketId && !isClob ? (
+              {!activeMarketId && isAmm ? (
                 <FormField label='Token'>
                   <HStack>
                     <Select value={formData.token.id} onChange={handleTokenSelect}>

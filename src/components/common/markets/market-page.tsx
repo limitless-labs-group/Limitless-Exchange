@@ -332,7 +332,7 @@ export default function MarketPage() {
               <Text {...paragraphRegular} color='grey.500'>
                 {NumberUtil.convertWithDenomination(
                   market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
-                  6
+                  0
                 )}{' '}
                 {market?.collateralToken.symbol}
               </Text>

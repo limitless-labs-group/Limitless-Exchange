@@ -135,7 +135,7 @@ export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps
       <Box
         position='fixed'
         right='24px'
-        top='80px'
+        top='100px'
         maxWidth='350px'
         w='full'
         display={selectedMarket.length > 0 ? 'block' : 'none'}
