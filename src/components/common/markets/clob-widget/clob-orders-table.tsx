@@ -37,7 +37,7 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
   const { data: userOrders, isLoading: userOrdersLoading } = useMarketOrders(market?.slug)
   const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()
-  const { data: orderBook } = useOrderBook(market?.slug)
+  const { data: orderBook } = useOrderBook(market?.slug, market?.tradeType)
   const getOrderOutcome = (order: ClobPosition) => {
     return order.token === market?.tokens.yes ? 0 : 1
   }

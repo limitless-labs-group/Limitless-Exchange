@@ -19,7 +19,7 @@ export interface Order {
   size: number
 }
 
-export function useOrderBook(slug?: string) {
+export function useOrderBook(slug?: string, tradeType?: 'amm' | 'clob') {
   return useQuery({
     queryKey: ['order-book', slug],
     queryFn: async () => {
@@ -44,7 +44,7 @@ export function useOrderBook(slug?: string) {
         ),
       }
     },
-    enabled: !!slug,
+    enabled: !!slug && tradeType === 'clob',
     refetchInterval: 5000,
   })
 }

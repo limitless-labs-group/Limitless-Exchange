@@ -59,7 +59,10 @@ export default function OrderbookTableLarge({
   deleteBatchOrders,
 }: OrderBookData) {
   const { market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
-  const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
+  const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(
+    market?.slug,
+    market?.tradeType
+  )
   const { data: userOrders } = useMarketOrders(market?.slug)
   const { trackChanged, trackClicked } = useAmplitude()
   const ref = useRef<HTMLElement>()
