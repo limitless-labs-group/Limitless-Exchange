@@ -214,7 +214,7 @@ export const MarketSingleCard = ({
                         market.tradeType === 'clob'
                           ? market.volumeFormatted
                           : +market.openInterestFormatted + +market.liquidityFormatted,
-                        6
+                        0
                       )}{' '}
                       {market.collateralToken.symbol}
                     </Text>
