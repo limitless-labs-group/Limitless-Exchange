@@ -79,13 +79,13 @@ export const GroupForm = () => {
               value={market.description}
               readOnly={false}
               onChange={(value) => {
-                if (getPlainTextLength(value) <= 1500) {
+                if (getPlainTextLength(value) <= 3000) {
                   handleInputChange(index, 'description', value)
                 }
               }}
             />
             <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-              {getPlainTextLength(market.description)}/1500 characters
+              {getPlainTextLength(market.description)}/3000 characters
             </FormHelperText>
           </FormControl>
         </Box>
