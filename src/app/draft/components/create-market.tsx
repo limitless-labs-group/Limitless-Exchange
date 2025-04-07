@@ -32,7 +32,7 @@ import { tokenLimits, selectStyles, defaultFormData } from '@/app/draft/componen
 import { GroupForm } from './group-form'
 import { AdjustableNumberInput } from './number-inputs'
 import { MarketTypeSelector } from './type-selector'
-import { useCreateMarket } from './use-create-market'
+import { dailyToEpochRewards, epochToDailyRewards, useCreateMarket } from './use-create-market'
 import {
   defaultGroupMarkets,
   draftMarketTypeAtom,
@@ -40,6 +40,7 @@ import {
   groupMarketsAtom,
 } from '@/atoms/draft'
 import { useToast } from '@/hooks'
+import { useUrlParams } from '@/hooks/use-url-param'
 import { useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarket } from '@/services/MarketsService'
@@ -65,16 +66,18 @@ export const CreateMarket: FC = () => {
     populateActiveMarketData,
     createOption,
     handleTokenSelect,
-    prepareData,
     prepareMarketData,
   } = useCreateMarket()
 
   const [marketType, setMarketType] = useAtom(draftMarketTypeAtom)
   const [, setGroupMarkets] = useAtom(groupMarketsAtom)
 
+  const { getParam } = useUrlParams()
+
   const isClob = marketType === 'clob'
   const isAmm = marketType === 'amm'
   const isGroup = marketType === 'group'
+  const isCreatePage = getParam('tab') === 'draft'
 
   const { data: editDraftMarket } = useQuery({
     queryKey: ['editMarket', draftMarketId],
@@ -121,6 +124,7 @@ export const CreateMarket: FC = () => {
         createOption(tag.id, tag.name)
       ) as SelectOption[]
     },
+    enabled: isCreatePage,
   })
   const { data: categoriesOptions } = useQuery({
     queryKey: ['catOptions'],
@@ -131,6 +135,7 @@ export const CreateMarket: FC = () => {
         createOption(tag.id, tag.name)
       ) as SelectOption[]
     },
+    enabled: isCreatePage,
   })
 
   const { data: creators } = useQuery({
@@ -141,6 +146,7 @@ export const CreateMarket: FC = () => {
       )
       return response.data as DraftCreator[]
     },
+    enabled: isCreatePage,
   })
 
   const handleTagCreation = async (tagToCreate: string) => {
@@ -155,10 +161,10 @@ export const CreateMarket: FC = () => {
   }
 
   const draftMarket = async () => {
-    const data = prepareData()
-    if (!data) return
+    const marketData = prepareMarketData()
+    if (!marketData) return
+
     setIsCreating(true)
-    const marketData = prepareMarketData(data)
     const url = () => {
       if (isClob) return '/markets/clob/drafts'
       if (isGroup) return '/markets/drafts/group'
@@ -167,10 +173,11 @@ export const CreateMarket: FC = () => {
     privateClient
       .post(url(), marketData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       })
       .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['allDraftMarkets'] })
         showToast(`Market is drafted`)
         router.push(`/draft?tab=queue-${marketType}`)
       })
@@ -187,20 +194,21 @@ export const CreateMarket: FC = () => {
   }
 
   const updateMarket = async () => {
-    const data = prepareData()
-    if (!data) return
+    const marketData = prepareMarketData()
+    if (!marketData) return
+
     setIsCreating(true)
-    const marketData = prepareMarketData(data)
     const url = isGroup
       ? `/markets/drafts/group/${draftMarketId}`
       : `/markets/drafts/${draftMarketId}`
     privateClient
       .put(url, marketData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       })
       .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['allDraftMarkets'] })
         showToast(`Market ${draftMarketId} is updated`)
         router.push(`/draft?tab=queue-${marketType}`)
       })
@@ -217,11 +225,10 @@ export const CreateMarket: FC = () => {
   }
 
   const updateActiveMarket = async () => {
-    const data = prepareData()
-    if (!data) return
-    setIsCreating(true)
-    const marketData = prepareMarketData(data, true)
+    const marketData = prepareMarketData(true)
+    if (!marketData) return
 
+    setIsCreating(true)
     const url = `/markets/${activeMarketId}`
     privateClient
       .put(url, marketData, {
@@ -230,6 +237,7 @@ export const CreateMarket: FC = () => {
         },
       })
       .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['markets'] })
         showToast(`Market is updated`)
         router.push(`/draft?tab=active`)
       })
@@ -383,8 +391,8 @@ export const CreateMarket: FC = () => {
 
                     <AdjustableNumberInput
                       label='Rewards per day'
-                      value={formData.maxDailyReward}
-                      onChange={(value) => handleChange('maxDailyReward', value)}
+                      value={Number(epochToDailyRewards(formData.rewardsEpoch ?? 0))}
+                      onChange={(value) => handleChange('rewardsEpoch', dailyToEpochRewards(value))}
                       min={0}
                       max={1000}
                       step={0.1}
@@ -393,9 +401,7 @@ export const CreateMarket: FC = () => {
                         <HStack>
                           <Text {...paragraphBold}>Per Epoch:</Text>
                           <Text>
-                            {formData.maxDailyReward
-                              ? Number(formData?.maxDailyReward / 1440).toFixed(5)
-                              : ''}
+                            {formData.rewardsEpoch ? Number(formData?.rewardsEpoch).toFixed(5) : ''}
                           </Text>
                         </HStack>
                       }
@@ -612,7 +618,7 @@ export const CreateMarket: FC = () => {
                     w='full'
                     height='52px'
                     onClick={submit}
-                    // isDisabled={!isReady && !editDraftMarketMarket}
+                    isDisabled={isCreating}
                   >
                     {getButtonText()}
                   </Button>

@@ -1,5 +1,6 @@
 import { AxiosError } from 'axios'
 import { Hash, Address } from 'viem'
+import { DraftMarketType } from './draft'
 import { Profile } from './profiles'
 
 export type { Hash, Address }
@@ -207,7 +208,7 @@ export type UserCreatedMarket = {
 
 export interface DraftMarket extends Market {
   draftMetadata: DraftMetadata
-  type?: MarketType
+  type?: DraftMarketType
 }
 
 export type GetBalanceResult = {
