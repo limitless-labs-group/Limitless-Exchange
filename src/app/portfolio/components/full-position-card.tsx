@@ -58,8 +58,6 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
     false
   )
 
-  console.log(params)
-
   const queryClient = useQueryClient()
   const privateClient = useAxiosPrivateClient()
 
