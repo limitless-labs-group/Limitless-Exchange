@@ -44,13 +44,13 @@ export default function FullOrdersTab({
 
   const getContracts = (size: string) => {
     const formatted = formatUnits(BigInt(size), decimals)
-    return NumberUtil.toFixed(formatted, 2)
+    return NumberUtil.convertWithDenomination(formatted, 2)
   }
 
   const getContractsFilled = (remainedSize: string, originalSize: string) => {
     const difference = new BigNumber(originalSize).minus(new BigNumber(remainedSize)).toString()
     const formatted = formatUnits(BigInt(difference), decimals)
-    return NumberUtil.toFixed(formatted, 2)
+    return NumberUtil.convertWithDenomination(formatted, 2)
   }
 
   const convertPrice = (price: string) => {

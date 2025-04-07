@@ -306,7 +306,7 @@ export default function MarketPage() {
         )}
         <HStack gap='8px' mt={isMobile ? 0 : '8px'} flexWrap='wrap'>
           {market?.tradeType !== 'amm' && (
-            <HStack gap='12px' w='full' justifyContent='space-between'>
+            <HStack gap='12px' w='full' justifyContent='space-between' mt={isMobile ? '12px' : 0}>
               {groupMarket?.negRiskMarketId && <WinnerTakeAllTooltip />}
               <HStack gap='4px' color='grey.500'>
                 <VolumeIcon width={16} height={16} />

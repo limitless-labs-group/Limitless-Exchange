@@ -22,8 +22,9 @@ import { SpeedometerProgress } from '@/components/common/markets/market-cards/sp
 import MarketPage from '@/components/common/markets/market-page'
 import FullOrdersTab from '@/app/portfolio/components/full-orders-tab'
 import FullPositionsTab from '@/app/portfolio/components/full-positions-tab'
+import RewardsSection from '@/app/portfolio/components/rewards-section'
+import { useUrlParams } from '@/hooks/use-url-param'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
-import GemIcon from '@/resources/icons/gem-icon.svg'
 import GemWhiteIcon from '@/resources/icons/gem-white-icon.svg'
 import PieChartIcon from '@/resources/icons/pie-chart-icon.svg'
 import {
@@ -46,6 +47,7 @@ interface FullPositionCardProps {
 export default function FullPositionCard({ position }: FullPositionCardProps) {
   const [activeTab, setActiveTab] = useState(0)
   const date = new Date(position.market.deadline)
+  const { params } = useUrlParams()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { onOpenMarketPage, setMarket } = useTradingService()
   const marketClosed = position.market.status === MarketStatus.RESOLVED
@@ -68,9 +70,6 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
     )
     return new BigNumber(rewardFormatted).plus(acc).toNumber()
   }, 0)
-
-  const getRewardsAmount = (size: string) =>
-    formatUnits(BigInt(size), position.market.collateralToken.decimals)
 
   const totalLimitOrders = formatUnits(
     BigInt(position.orders.totalCollateralLocked),
@@ -309,24 +308,7 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
                 </Text>
               </HStack>
             ) : (
-              <HStack gap='4px' color='whiteAlpha.70' flexWrap='wrap'>
-                <GemIcon width={16} height={16} />
-                <Text {...paragraphRegular} color='blue.500'>
-                  Rewards
-                </Text>
-                <Text {...paragraphRegular}>
-                  {Boolean(position.rewards.epochs.length)
-                    ? `${getRewardsAmount(position.rewards.epochs[0].userRewards)} ${
-                        position.market.collateralToken.symbol
-                      } / last min.`
-                    : ''}
-                </Text>
-                <Text {...paragraphRegular} color='grey.500'>
-                  {Boolean(position.rewards.epochs.length)
-                    ? `(${(position.rewards.epochs[0].earnedPercent * 100).toFixed(0)} % of max)`
-                    : ''}
-                </Text>
-              </HStack>
+              <RewardsSection position={position} />
             )}
           </HStack>
         </Box>
@@ -399,6 +381,7 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
       onClose={() => {
         setMarket(null)
       }}
+      id={position.market.slug}
     >
       <MarketPage />
     </MobileDrawer>

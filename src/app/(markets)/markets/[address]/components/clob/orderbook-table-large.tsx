@@ -277,7 +277,8 @@ export default function OrderbookTableLarge({
                   </HStack>
                   <HStack w='144px' h='full' justifyContent='flex-end'>
                     <Text {...paragraphRegular}>
-                      {NumberUtil.toFixed(item.cumulativePrice, 2)} {market?.collateralToken.symbol}
+                      {NumberUtil.convertWithDenomination(item.cumulativePrice, 2)}{' '}
+                      {market?.collateralToken.symbol}
                     </Text>
                   </HStack>
                 </HStack>
@@ -394,7 +395,8 @@ export default function OrderbookTableLarge({
                   </HStack>
                   <HStack w='144px' h='full' justifyContent='flex-end'>
                     <Text {...paragraphRegular}>
-                      {NumberUtil.toFixed(item.cumulativePrice, 2)} {market?.collateralToken.symbol}
+                      {NumberUtil.convertWithDenomination(item.cumulativePrice, 2)}{' '}
+                      {market?.collateralToken.symbol}
                     </Text>
                   </HStack>
                 </HStack>
