@@ -346,7 +346,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
               ) : (
                 <HStack gap='4px'>
                   <Text {...paragraphRegular} color='grey.500'>
-                    Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
+                    Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 0)}{' '}
                     {market.collateralToken.symbol}
                   </Text>
                 </HStack>
@@ -365,7 +365,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
                           Value{' '}
                           {NumberUtil.convertWithDenomination(
                             +market.openInterestFormatted + +market.liquidityFormatted,
-                            6
+                            0
                           )}{' '}
                           {market.collateralToken.symbol}
                         </Text>

@@ -12,7 +12,7 @@ export class NumberUtil {
     const denominationDigits = symbol === 'USDC' ? 2 : decimals
     const parts = `${this.toFixed(v, denominationDigits)}`.split('.')
     return `${parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${
-      parts[1]?.length && +parts[0] < 10 ? `.${parts[1]}` : ''
+      parts[1]?.length ? `.${parts[1]}` : ''
     }`
   }
 

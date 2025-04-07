@@ -253,7 +253,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                           Volume{' '}
                           {NumberUtil.convertWithDenomination(
                             groupMarket?.volumeFormatted || '0',
-                            6
+                            0
                           )}{' '}
                           {market.collateralToken.symbol}
                         </Text>
@@ -274,7 +274,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                               Value{' '}
                               {NumberUtil.convertWithDenomination(
                                 +market.openInterestFormatted + +market.liquidityFormatted,
-                                6
+                                0
                               )}{' '}
                               {market.collateralToken.symbol}
                             </Text>

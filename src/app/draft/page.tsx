@@ -147,7 +147,7 @@ const CreateOwnMarketPage = () => {
           ))}
         </TabList>
         <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
-        <TabPanels mt='30px'>
+        <TabPanels mt='100px'>
           {tabs.map(({ component: Component, marketType }, index) => (
             <TabPanel key={index}>
               {marketType ? (

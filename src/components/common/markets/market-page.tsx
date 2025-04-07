@@ -5,6 +5,7 @@ import {
   HStack,
   Image as ChakraImage,
   Link,
+  Spacer,
   Tab,
   TabIndicator,
   TabList,
@@ -246,6 +247,8 @@ export default function MarketPage() {
     setActiveChartTabIndex(0)
   }, [market])
 
+  console.log(groupMarket)
+
   return (
     <SideBarPage>
       {!isMobile && (
@@ -332,7 +335,7 @@ export default function MarketPage() {
               <Text {...paragraphRegular} color='grey.500'>
                 {NumberUtil.convertWithDenomination(
                   market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
-                  6
+                  0
                 )}{' '}
                 {market?.collateralToken.symbol}
               </Text>

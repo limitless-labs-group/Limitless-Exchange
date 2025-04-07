@@ -93,7 +93,7 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     }
   }, [lockedBalance, sharesOwned])
 
-  const { data: orderBook } = useOrderBook(market?.slug)
+  const { data: orderBook } = useOrderBook(market?.slug, market?.tradeType)
   const { checkAllowance, checkAllowanceForAll } = useWeb3Service()
   const { isOpen: tradeStepperOpen, onToggle: onToggleTradeStepper } = useDisclosure()
 

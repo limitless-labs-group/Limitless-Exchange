@@ -3,7 +3,6 @@ import { formatUnits } from 'viem'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import ConvertPositionsButton from '@/app/(markets)/markets/[address]/components/convert-positions-button'
 import { useTradingService } from '@/services'
-import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface PortfolioMarketGroupItemProps {
