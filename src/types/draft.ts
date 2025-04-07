@@ -51,7 +51,7 @@ export interface IFormData {
   slug: string
   marketInput?: MarketInput[]
   priorityIndex?: number
-  maxDailyReward?: number
+  rewardsEpoch?: number
   maxSpread?: number
   minSize?: number
   c?: number
@@ -154,7 +154,7 @@ export interface ClobMarketData extends BaseMarketData {
   minSize?: number
   maxSpread?: number
   c?: number
-  maxDailyReward?: number
+  rewardsEpoch?: number
   priorityIndex?: number
 }
 

@@ -82,7 +82,7 @@ export const defaultFormData = {
   isBannered: false,
   priorityIndex: 0,
   txHash: '',
-  maxDailyReward: 300,
+  rewardsEpoch: 300,
   maxSpread: 3,
   minSize: 100,
   c: 3,

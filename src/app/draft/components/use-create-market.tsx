@@ -105,15 +105,11 @@ export const useCreateMarket = () => {
             minSize: reverseCalculateMinSize(draftMarket.settings?.minSize),
             maxSpread: reverseCalculateMaxSpread(draftMarket.settings?.maxSpread),
             c: draftMarket.settings?.c,
-            maxDailyReward: draftMarket.settings?.rewardsEpoch
-              ? epochToDailyRewards(draftMarket.settings.rewardsEpoch)
-              : undefined,
+            rewardsEpoch: draftMarket.settings?.rewardsEpoch,
           }
         : {}),
     }))
     if (isGroup && draftMarket.markets?.length > 0) {
-      console.log('draftMarket.markets', draftMarket.markets)
-
       setMarketType('group')
       setMarkets(
         draftMarket.markets.map((market: MarketInput) => ({
@@ -169,9 +165,7 @@ export const useCreateMarket = () => {
             minSize: reverseCalculateMinSize(activeMarket.settings?.minSize),
             maxSpread: reverseCalculateMaxSpread(activeMarket.settings?.maxSpread),
             c: activeMarket.settings?.c,
-            maxDailyReward: activeMarket.settings?.rewardsEpoch
-              ? epochToDailyRewards(activeMarket.settings.rewardsEpoch)
-              : undefined,
+            rewardsEpoch: activeMarket.settings?.rewardsEpoch,
           }
         : {}),
     }))
@@ -250,18 +244,16 @@ export const useCreateMarket = () => {
       ogFile: ogLogo as File | null,
       tagIds: tag.map((t) => t.id).join(','),
     }
-    console.log('mar;', markets)
+
     if (isClob) {
       return {
         ...baseData,
         description: description ?? '',
         priorityIndex: priorityIndex ?? undefined,
         minSize: formData.minSize !== undefined ? calculateMinSize(formData.minSize) : undefined,
-        maxSpread:
-          formData.maxSpread !== undefined ? calculateMaxSpread(formData.maxSpread) : undefined,
-        c: formData.c !== undefined ? Number(formData.c) : undefined,
-        maxDailyReward:
-          formData.maxDailyReward !== undefined ? Number(formData.maxDailyReward) : undefined,
+        maxSpread: formData.maxSpread,
+        c: formData.c,
+        rewardsEpoch: formData.rewardsEpoch,
       }
     } else if (isGroup) {
       return {
@@ -310,7 +302,7 @@ export const useCreateMarket = () => {
         minSize: calculateMinSize(Number(formData.minSize)),
         maxSpread: calculateMaxSpread(Number(formData.maxSpread)),
         c: Number(formData.c),
-        maxDailyReward: Number(formData.maxDailyReward),
+        rewardsEpoch: formData.rewardsEpoch,
       }
     } else if (isGroup) {
       return {

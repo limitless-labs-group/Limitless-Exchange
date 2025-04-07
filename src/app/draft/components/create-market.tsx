@@ -32,7 +32,7 @@ import { tokenLimits, selectStyles, defaultFormData } from '@/app/draft/componen
 import { GroupForm } from './group-form'
 import { AdjustableNumberInput } from './number-inputs'
 import { MarketTypeSelector } from './type-selector'
-import { useCreateMarket } from './use-create-market'
+import { dailyToEpochRewards, epochToDailyRewards, useCreateMarket } from './use-create-market'
 import {
   defaultGroupMarkets,
   draftMarketTypeAtom,
@@ -391,8 +391,8 @@ export const CreateMarket: FC = () => {
 
                     <AdjustableNumberInput
                       label='Rewards per day'
-                      value={formData.maxDailyReward}
-                      onChange={(value) => handleChange('maxDailyReward', value)}
+                      value={epochToDailyRewards(formData.rewardsEpoch ?? 0)}
+                      onChange={(value) => handleChange('rewardsEpoch', dailyToEpochRewards(value))}
                       min={0}
                       max={1000}
                       step={0.1}
@@ -401,9 +401,7 @@ export const CreateMarket: FC = () => {
                         <HStack>
                           <Text {...paragraphBold}>Per Epoch:</Text>
                           <Text>
-                            {formData.maxDailyReward
-                              ? Number(formData?.maxDailyReward / 1440).toFixed(5)
-                              : ''}
+                            {formData.rewardsEpoch ? Number(formData?.rewardsEpoch).toFixed(5) : ''}
                           </Text>
                         </HStack>
                       }
