@@ -338,8 +338,26 @@ export default function ClobLimitTradeForm() {
   }
 
   const shouldSignUp = !web3Wallet && Boolean(price)
+
   const shouldAddFunds =
     web3Wallet && strategy === 'Buy' && orderCalculations.total > Number(balance)
+
+  const disableButton = useMemo(() => {
+    if (shouldSignUp) {
+      return false
+    }
+    if (shouldAddFunds) {
+      return false
+    }
+    return !+price || isLessThanMinTreshHold || !+sharesAmount || isBalanceNotEnough
+  }, [
+    isBalanceNotEnough,
+    shouldSignUp,
+    shouldAddFunds,
+    price,
+    isLessThanMinTreshHold,
+    sharesAmount,
+  ])
 
   const handleSubmitButtonClicked = async () => {
     if (shouldSignUp) {
@@ -515,12 +533,7 @@ export default function ClobLimitTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
-        isDisabled={
-          !+price ||
-          isLessThanMinTreshHold ||
-          !+sharesAmount ||
-          (web3Wallet && !shouldAddFunds ? isBalanceNotEnough : false)
-        }
+        isDisabled={disableButton}
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}
