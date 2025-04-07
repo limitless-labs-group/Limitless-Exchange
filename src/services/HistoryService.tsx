@@ -1,12 +1,13 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import { createContext, PropsWithChildren, useContext, useMemo } from 'react'
-import { Hash } from 'viem'
+import { formatUnits, Hash } from 'viem'
 import useClient from '@/hooks/use-client'
 import { usePriceOracle } from '@/providers'
 import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useLimitlessApi } from '@/services/LimitlessApi'
+import { positionsMock } from '@/services/positions-mock'
 import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
@@ -90,6 +91,33 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   )
 }
 
+const removeSmallClobPositions = (positions: ClobPosition[]) => {
+  return positions.filter((position) => {
+    const decimals = position.market.collateralToken.decimals
+    const yesAmount = formatUnits(BigInt(position.tokensBalance.yes), decimals)
+    const noAmount = formatUnits(BigInt(position.tokensBalance.no), decimals)
+    const ordersPlaced = !!position.orders.liveOrders.length
+    return !(+yesAmount < 0.01 && +noAmount < 0.01 && !ordersPlaced)
+  })
+}
+
+const prepareClobPositions = (positions: ClobPosition[]) => {
+  const filtered = removeSmallClobPositions(positions)
+  return filtered.map((position) => {
+    const decimals = position.market.collateralToken.decimals
+    const yesAmount = formatUnits(BigInt(position.tokensBalance.yes), decimals)
+    const noAmount = formatUnits(BigInt(position.tokensBalance.no), decimals)
+    return {
+      ...position,
+      tokensBalance: {
+        yes: +yesAmount < 0.01 ? '0' : position.tokensBalance.yes,
+        no: +noAmount < 0.01 ? '0' : position.tokensBalance.no,
+      },
+      type: 'clob',
+    }
+  })
+}
+
 export const usePosition = () => {
   const { web3Wallet } = useAccount()
   const { isLogged } = useClient()
@@ -100,11 +128,12 @@ export const usePosition = () => {
     queryFn: async () => {
       try {
         const response = await privateClient.get<PositionsResponse>(`/portfolio/positions`)
+        // const response = positionsMock
         const ammPositions = response.data.amm.map((position) => ({ ...position, type: 'amm' }))
-        const clobPositions = response.data.clob.map((position) => ({ ...position, type: 'clob' }))
+        const filteredClobPositions = prepareClobPositions(response.data.clob)
         return {
           ...response.data,
-          positions: [...ammPositions, ...clobPositions],
+          positions: [...ammPositions, ...filteredClobPositions],
         } as PortfolioPositions
 
         // return response.data
@@ -311,7 +340,7 @@ export type ClobPosition = {
     liveOrders: LiveOrder[]
   }
   rewards: {
-    isEarning: true
+    isEarning?: true
     epochs: RewardEpoch[]
   }
 }

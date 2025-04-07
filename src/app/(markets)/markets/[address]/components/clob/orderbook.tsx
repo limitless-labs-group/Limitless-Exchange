@@ -16,7 +16,7 @@ interface OrderBookProps {
 export default function Orderbook({ variant }: OrderBookProps) {
   const { clobOutcome: outcome } = useTradingService()
   const { market } = useTradingService()
-  const { data: orderbook } = useOrderBook(market?.slug)
+  const { data: orderbook } = useOrderBook(market?.slug, market?.tradeType)
   const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()
 

@@ -37,7 +37,10 @@ export default function ClobMarketTradeForm() {
   const { balanceLoading } = useBalanceService()
   const { trackClicked } = useAmplitude()
   const { market, strategy, clobOutcome: outcome } = useTradingService()
-  const { data: orderBook, isLoading: isOrderBookLoading } = useOrderBook(market?.slug)
+  const { data: orderBook, isLoading: isOrderBookLoading } = useOrderBook(
+    market?.slug,
+    market?.tradeType
+  )
   const queryClient = useQueryClient()
   const { web3Client, profileData, web3Wallet, loginToPlatform, account } = useAccount()
   const {

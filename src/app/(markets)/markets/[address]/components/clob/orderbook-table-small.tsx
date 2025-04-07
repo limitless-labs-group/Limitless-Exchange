@@ -40,7 +40,10 @@ export default function OrderBookTableSmall({
   deleteBatchOrders,
 }: OrderBookData) {
   const { market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
-  const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
+  const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(
+    market?.slug,
+    market?.tradeType
+  )
   const { data: userOrders } = useMarketOrders(market?.slug)
   const { trackChanged } = useAmplitude()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -251,7 +254,8 @@ export default function OrderBookTableSmall({
                 </Box>
                 <Box w='45%' textAlign='right'>
                   <Text {...paragraphRegular}>
-                    {NumberUtil.toFixed(item.cumulativePrice, 2)} {market?.collateralToken.symbol}
+                    {NumberUtil.convertWithDenomination(item.cumulativePrice, 2)}{' '}
+                    {market?.collateralToken.symbol}
                   </Text>
                 </Box>
               </HStack>
@@ -375,7 +379,8 @@ export default function OrderBookTableSmall({
                 </Box>
                 <Box w='45%' textAlign='right'>
                   <Text {...paragraphRegular}>
-                    {NumberUtil.toFixed(item.cumulativePrice, 2)} {market?.collateralToken.symbol}
+                    {NumberUtil.convertWithDenomination(item.cumulativePrice, 2)}{' '}
+                    {market?.collateralToken.symbol}
                   </Text>
                 </Box>
               </HStack>
