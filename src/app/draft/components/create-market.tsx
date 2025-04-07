@@ -14,7 +14,6 @@ import {
   Textarea,
   VStack,
   Text,
-  FormLabel,
 } from '@chakra-ui/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
@@ -298,22 +297,6 @@ export const CreateMarket: FC = () => {
     return 'Draft'
   }
 
-  const [markets, setMarkets] = useState<any[]>([
-    { title: '', description: '' },
-    { title: '', description: '' },
-  ])
-
-  const handleInputChange = (index: number, field: string, value: string) => {
-    const updatedMarkets = [...markets]
-    //@ts-ignore
-    updatedMarkets[index][field] = value
-    setMarkets(updatedMarkets)
-  }
-
-  const addMarket = () => {
-    setMarkets([...markets, { title: '', description: '' }])
-  }
-
   return (
     <Flex justifyContent='center'>
       <VStack w='full' spacing={4}>
@@ -349,89 +332,6 @@ export const CreateMarket: FC = () => {
                   {formData.title?.length}/70 characters
                 </FormHelperText>
               </FormField>
-              {!isGroup ? (
-                <FormField label='Description'>
-                  <TextEditor
-                    value={formData.description}
-                    readOnly={false}
-                    onChange={(e) => {
-                      if (getPlainTextLength(e) <= 1500) {
-                        handleChange('description', e)
-                      }
-                    }}
-                  />
-                  <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                    {getPlainTextLength(formData.description)}/1500 characters
-                  </FormHelperText>
-                </FormField>
-              ) : (
-                <>
-                  {markets.map((market, index) => (
-                    <Box key={index} borderWidth={1} p={4} borderRadius='md' width='100%'>
-                      <Flex justify='space-between' align='center' mb={2}>
-                        <Text fontWeight='bold'>
-                          Market #{index + 1} {market.id ? `- id: ${market.id}` : ''}
-                        </Text>
-                        {markets.length > 2 && (
-                          <Box
-                            cursor='pointer'
-                            onClick={() => {
-                              const updatedMarkets = [...markets]
-                              updatedMarkets.splice(index, 1)
-                              setMarkets(updatedMarkets)
-                            }}
-                          >
-                            {/* <CloseIcon color='red' height={24} width={24} /> */}
-                          </Box>
-                        )}
-                      </Flex>
-                      <FormControl>
-                        <FormLabel htmlFor={`market${index}_title`}>Title</FormLabel>
-                        <Input
-                          type='text'
-                          id={`market${index}_title`}
-                          name={`marketsInput[${index}][title]`}
-                          value={market.title}
-                          onChange={(e) => {
-                            const value = e.target.value
-                            if (value.trim() || value === '') {
-                              handleInputChange(index, 'title', e.target.value)
-                            }
-                          }}
-                          placeholder={`Enter market ${index + 1} title`}
-                          maxLength={70}
-                          required
-                        />
-                        <FormHelperText
-                          textAlign='end'
-                          style={{ fontSize: '10px', color: 'spacegray' }}
-                        >
-                          {getPlainTextLength(markets?.[index].title ?? '')}/70 characters
-                        </FormHelperText>
-                      </FormControl>
-                      <FormControl mt={4}>
-                        <FormLabel htmlFor={`market${index}_description`}>Description</FormLabel>
-                        <TextEditor
-                          value={market.description}
-                          readOnly={false}
-                          onChange={(e) => {
-                            if (getPlainTextLength(e) <= 1500) {
-                              handleInputChange(index, 'description', e)
-                            }
-                          }}
-                        />
-                        <FormHelperText
-                          textAlign='end'
-                          style={{ fontSize: '10px', color: 'spacegray' }}
-                        >
-                          {getPlainTextLength(markets?.[index].description ?? '')}
-                          /1500 characters
-                        </FormHelperText>
-                      </FormControl>
-                    </Box>
-                  ))}
-                </>
-              )}
 
               {!isGroup ? (
                 <FormField label='Description'>
